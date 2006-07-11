@@ -11,13 +11,74 @@
   </head>
   <body>
 <h3>sos (son of sysreport)</h3>
-<p>sos is a framework that allows integration of system information gathering,
-system monitoring and analysis tools, and submission of trouble tickets.
-</p>
-<p>The first phase is a system reporting framework that allows applications
-to deliver plugins that are used to gather and report information that
-is useful to the maintainers of the application. This is performed by the
-<i>sosreport</i> system reporting tool.
-</p>
+
+h1>Sos Project Home</h1>
+
+The SOS project (and package) is intended to:
+
+<ul>
+<li>Improve on the capabilities of sysreport by adding some analytic abilities</li>
+<li>To put more tools into the customer's hands to allow them to solve their problems</li>
+<li>To provide a set of tools to improve the abilities of Red Hat support to solve customer problems</li>
+<li>To reduce the number of contacts required with the customer to solve their problems</li>
+</ul>
+
+<p>There will be links to mailing lists and repos here</p>
+
+<p>Although this project was begun by Red Hat employees, it is released under the GPL
+, with all Red Hat specific parts isolated in plugins so that it will be generally useful to others.</p>
+
+<p>The first stage of the project, sosreport, has a first implementation, and is available FILL IN WHERE</p>:
+
+This project will provide a number of tools, in the following areas:
+
+<h2>1. System Information Gathering (released)</h2>
+
+<p>This application (sosreport) performs a function similar to what sysreport does now, but has a
+pluggable architecture that will allow the inclusion of sos plugins to be
+delivered with any package. These plugins can gather information needed
+for troubleshooting that package, provide the ability to turn on other
+debugging or reporting that is of interest for that package, provide some
+analysis to be done to notify the customer of improper configuration or
+operation, and integrate the reporting from the plugin with other system information.</p>
+
+<p>Reports are provided in html. The report integrates reports from various plugins,
+along with the results of analysis performed by those plugins. In addition, future policy
+plugins may provide links in the output for additional operations, such as opening a ticket
+with a Support CRM system, submitting the system information to a web hosted tool for further
+analysis, or submitting the information for attachment to a ticket already open within a support
+CRM system.
+
+<h2>2. Integration of additional debugging tools (future)</h2>
+
+<p>An API will be provided that allows delivery of additional tools which may
+be enabled and disabled through a simple unified interface by the end user.
+For example, we expect to provide scripts that will use sar, systemtap,
+enable performance counters, etc. For all tools that are enabled, reports
+will be included in subsequent system information reports and integrated in
+the heirarchical result navigation.</p>
+
+<p>This will allow Support Organizations to easily walk the customer (by phone or
+email or chat) through a simple interface to enable the gathering of troubleshooting
+information specific to the problem being addressed.</p>
+
+<h2>3. Integration with Support CRM and other ticketing systems</h2>
+
+<p>The tools in the package will allow simplified interaction with Support CRM systems.
+Once system information is gathered, the customer will have an option to open an
+issue with support. Verification of entitlement for support and filing the ticket
+with the system information and problem description attached will be handled by policy plugins
+that can be customized for integration with different CRM systems.</p>
+
+<hr>
+
+<h1> List of current requirements</h1>
+
+<p>TBD</p>
+Here are the sos requirements as they stand:
+
+<hr>
+<i>sos is the international distress call, and also stands for &quot;son of sysreport&quot;</i>
+<hr>
   </body>
 </html>
