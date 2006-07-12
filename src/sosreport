@@ -1,0 +1,294 @@
+#!/usr/bin/env python
+
+## sosreport.py
+## Implement policies required for the sos system support tool
+
+## Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
+
+### This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+import sys
+import os
+import curses
+from optparse import OptionParser
+import sos.policyredhat
+from sos.helpers import *
+from snack import *
+
+if os.getuid() != 0:
+    print 'You must run sosreport as root!'
+    sys.exit(1)
+
+# for debugging
+raiseplugins = 1
+
+
+cmdParser=OptionParser()
+cmdParser.add_option("-a","--alloptions",action="store_true",dest="alloptions",default=False,help="Use all options for loaded plugins")
+cmdParser.add_option("-f","--fastoptions",action="store_true",dest="fastoptions",default=False,help="Use only fast options for loaded plugins")
+cmdParser.add_option("-l","--list-plugins",action="store_true",dest="listPlugins",default=False,help="list existing plugins")
+cmdParser.add_option("-n","--noplugin",action="append",dest="noplugins",help="list of plugin _not_ to load")
+
+(cmdLineOpts,cmdLineArgs)=cmdParser.parse_args()
+#print cmdLineOpts
+
+def get_curse_options(alloptions):
+    #http://www.amk.ca/python/howto/curses/
+    #http://gnosis.cx/publish/programming/charming_python_6.html
+    #http://www.wanware.com/tsgdocs/snack.html
+    # /usr/share/doc/newt-devel-0.51.6/ 
+    #
+
+    # allooptions is an array of (plug, plugname, optname, parms(dictionary)) tuples
+    plugName=[]
+    out=[]
+    
+    # get a sorted list of all plugin names
+    for p in alloptions:
+        if p[1] not in plugName:
+            plugName.append(p[1])
+
+    plugName.sort()
+    plugCbox=CheckboxTree(height=5,scroll=1)
+
+    countOpt=-1
+
+    optDic={}
+    optDicCounter=0
+
+    # iterate over all plugins with options
+    for curPlugName in plugName:
+        plugCbox.addItem(curPlugName,(snackArgs['append'],))
+        countOpt=countOpt+1
+
+        for opt in alloptions:
+            if opt[1] != curPlugName:
+                continue
+
+            optName=opt[2]
+            enabled=opt[3]['enabled']
+            speed=opt[3]['speed']
+            optDesc=opt[3]['desc']
+
+            snt=optName+" ("+optDesc+") is "+speed
+            plugCbox.addItem(snt,(countOpt,snackArgs['append']),item=optDicCounter,selected=enabled)
+            optDic[optDicCounter]=opt
+            optDicCounter+=1
+            
+
+    screen = SnackScreen()
+    bb = ButtonBar(screen, (("Ok", "ok"), ("Cancel", "cancel")))
+    g = GridForm(screen, "Select Sosreport Options", 1, 10)
+    g.add(plugCbox, 0, 0)
+    g.add(bb, 0, 1, growx = 1)
+    result = g.runOnce()
+
+    screen.finish()
+
+    for i in range(0, optDicCounter):
+        froo, wantit = plugCbox.getEntryValue(i)
+        optDic[i][3]['enabled'] = wantit
+        out.append((optDic[i]))
+
+    return out
+
+    
+def sosreport():
+    "This is the top-level function that gathers and processes all sosreport information"
+    loadedplugins = []
+    alloptions = []
+
+    # TODO automatically locate the policy module??
+    policy = sos.policyredhat.SosPolicy()
+
+    # find the plugins path
+    paths = sys.path
+    for path in paths:
+        if  path.strip()[-len("site-packages"):] == "site-packages":
+            pluginpath = path + "/sos/plugins"
+
+    # TODO process command line to:
+    # load unsigned plugins
+    # disable one or more plugins
+    # set fast or slow collection without options menu presentation
+
+    # Set up common info and create destinations
+    
+    dstroot = sosFindTmpDir()
+    os.chmod(dstroot, 0755)
+    cmddir = os.path.join(dstroot, "sos_commands")
+    logdir = os.path.join(dstroot, "sos_logs")
+    rptdir = os.path.join(dstroot, "sos_reports")
+    os.mkdir(cmddir, 0755)
+    os.mkdir(logdir, 0755)
+    os.mkdir(rptdir, 0755)
+
+    # open log file
+    logfd = open(logdir + "/sos.log", "w")
+
+    # set up dict so everyone can share the following
+    commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir, 'logfd': logfd, 'policy': policy}
+
+
+    # validate and load plugins
+    plugins = os.listdir(pluginpath)
+    if cmdLineOpts.listPlugins:
+        for plug in plugins:
+            try:
+                if ((plug[-3:] == '.py') and (plug != "__init__.py")):
+                    plugbase =  plug[:-3]
+                    pidot = "sos.plugins." + plugbase
+                    print plugbase
+            except:
+                print "ouch"
+        sys.exit()
+
+    for plug in plugins:
+        if ((plug[-3:] == '.py') and (plug != "__init__.py")):
+            try:
+                plugbase =  plug[:-3]
+                pidot = "sos.plugins." + plugbase
+                #print "importing plugin: %s" % plugbase
+                try:
+                    if policy.validatePlugin(pluginpath + plug):
+                        PluginClass = importPlugin(pidot, plugbase)
+                    else:
+                        print "Plugin %s does not validate, skipping" % plug
+                        continue
+                    loadedplugins.append((plugbase, PluginClass(plugbase, commons)))
+                except:
+                    print "Plugin %s does not install, skipping" % plug
+                    raise
+                    continue    
+            except:
+                # TODO do better
+                if raiseplugins:
+                    raise
+                print "plugin load failed for %s" % plug
+
+    # Iterate over plugins for each stage
+
+    # First, gather and process options
+    for plugname, plug in loadedplugins:
+        #print "processing options from plugin: %s" % plugname
+        try:
+            len(cmdLineOpts.noplugins)
+            if plugname not in cmdLineOpts.noplugins:
+                        names, parms = plug.getAllOptions()
+                        for optname, optparm  in zip(names, parms):
+                            alloptions.append((plug, plugname, optname, optparm))
+        except:
+            names, parms = plug.getAllOptions()
+            for optname, optparm  in zip(names, parms):
+                alloptions.append((plug, plugname, optname, optparm))
+
+    if not cmdLineOpts.fastoptions and not cmdLineOpts.alloptions:
+        cursedOptions=get_curse_options(alloptions)
+    elif cmdLineOpts.fastoptions:
+        for i in range(len(alloptions)):
+            for plug, plugname, optname, optparm in alloptions:
+                if optparm['speed']=='fast':
+                    plug.setOption(optname,1)
+    elif cmdLineOpts.alloptions:
+        for i in range(len(alloptions)):
+            for plug, plugname, optname, optparm in alloptions:
+                plug.setOption(optname,1)
+
+    # Call the collect method for each plugin
+    for plugname, plug in loadedplugins:
+        plug.collect()
+
+    # Call the analyze method for each plugin
+    for plugname, plug in loadedplugins:
+        plug.analyze()
+
+    # Sort the module names to do the report in alphabetical order
+    loadedplugins.sort()
+
+    # Generate the header for the html output file
+    rfd = open(rptdir + "/" + "sosreport.html", "w")
+    rfd.write("""
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+        <head>
+    <link rel="stylesheet" type="text/css" media="screen" href="donot.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Sos System Report</title>
+        </head>
+
+        <body>
+    """)
+
+    rfd.write("Sosreport version blah blah<br />")
+
+    
+
+
+    # Make a pass to gather Alerts and a list of module names
+    allAlerts = []
+    plugNames = []
+    for plugname, plug in loadedplugins:
+        for alert in plug.alerts:
+            # TODO include the plugin as a target of a link here
+            allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname, alert))
+        plugNames.append(plugname)
+
+
+
+    # Create a table of links to the module info
+    rfd.write("<hr/><h3>Loaded Plugins:</h3>")
+    rfd.write("<table><tr>\n")
+    qq = 0
+    rr = 0
+    for i in range(len(plugNames)):
+        rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i], plugNames[i]))
+        qq, rr = divmod(i,4)
+        if (rr == 3):
+            rfd.write('</tr>')
+    if not (rr == 3):
+        rfd.write('</tr>')
+    rfd.write('</table>\n')
+
+    rfd.write('<hr/><h3>Alerts:</h3>')
+    rfd.write('<ul>')
+    for alert in allAlerts:
+        rfd.write('<li>%s</li>' % alert)
+    rfd.write('</ul>')
+
+
+    # Call the report method for each plugin
+    for plugname, plug in loadedplugins:
+        html = plug.report()
+        rfd.write(html)
+
+    rfd.write("</body></html>")
+
+    rfd.close()
+
+    # Collect any needed user information (name, etc)
+
+    # Clean up left over files, make tarball, whatever.
+    # Close all log files and perform any cleanup
+    logfd.close()
+
+    # Call the postproc method for each plugin
+    for plugname, plug in loadedplugins:
+        root = plug.postproc(dstroot)
+
+    if root == dstroot:
+        print "The report is in " + rptdir + "/" + "sosreport.html"
+    
+if __name__ == '__main__':
+    sosreport()
