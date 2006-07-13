@@ -18,7 +18,6 @@ tag-archive:
 	@echo "$(SVNTAG)"
 
 create-archive: tag-archive
-create-archive:
 	@rm -rf /tmp/$(NAME)
 	@svn export $(REPO)/tags/$(SVNTAG)/src /tmp/$(NAME) \
 	 || echo GRRRrrrrr -- ignore [export aborted]
