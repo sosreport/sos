@@ -7,17 +7,20 @@ VERSION = $(shell awk '/define version/ { print $$3 }' sos.spec)
 RELEASE = $(shell awk '/define release/ { print $$3 }' sos.spec)
 REPO = https://sos.108.redhat.com/svn/sos
 SVNTAG  = r$(subst .,-,$(VERSION)-$(RELEASE))
-CVSROOT = $(shell cat CVS/Root)
 
 
 all:
 
-tag-archive:
+.PHONY: tag-archive create-archive archive install version clean
+
+../../tags/$(SVNTAG):
 	@svn copy $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG) \
 	-m "Tagging the $(SVNTAG) release of the sos project"
 	@echo "$(SVNTAG)"
 
-create-archive: tag-archive
+tag-archive: ../../tags/$(SVNTAG)
+
+create-archive:	
 	@rm -rf /tmp/$(NAME)
 	@svn export $(REPO)/tags/$(SVNTAG)/src /tmp/$(NAME) \
 	 || echo GRRRrrrrr -- ignore [export aborted]
