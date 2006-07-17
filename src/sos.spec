@@ -5,7 +5,7 @@
 %define name sos
 %define version 0.1
 # change release in setup.py and this file
-%define release 8
+%define release 9
 
 Summary: System Support Tools
 Name: %{name}
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 
 %changelog
+* Mon Jul 17 2006 Steve Conklin <sconklin@redhat.com> - 0.1-9
+- migrated to svn on 108.redhat.com, fixed a problem with command output linking in report
+
 * Mon Jun 19 2006 Steve Conklin <sconklin at redhat dot com> - 0.1-6
 - Added LICENSE file containing GPL
 

@@ -278,8 +278,10 @@ class PluginBase:
         # Command Output
         if len(self.executedCommands):
             html = html + "<p>Commands Executed:<br><ul>\n"
+            # convert file name to relative path from our root
             for cmd in self.executedCommands:
-                html = html + '<li><a href="%s">%s</a></li>\n' % (cmd['file'], cmd['exe'])
+                cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], cmd['file'])
+                html = html + '<li><a href="%s">%s</a></li>\n' % (cmdOutRelPath, cmd['exe'])
             html = html + "</ul></p>\n"
 
         # Alerts
