@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-
 ## runcommand.py
 ## An example plugin for sos
-
-## Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -39,17 +35,6 @@ class runcommand(sos.plugintools.PluginBase):
     Your finished plugin should be included with your package and installed in python's
     site-packages/sos/plugins/ directory
     """
-    optionList = []
-    copiedFiles = []
-    copiedDirs = []
-    executedCommands = []
-    alerts = []
-    customText = ""
-    cInfo = None
-    piName = None
-    optNames = []
-    optParms = []
-
     def collect(self):
         ''' Run a command. Output is automatically included in the report.
         '''

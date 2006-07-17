@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-
 ## example.py
 ## An example sos plugin
-
-## Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -35,22 +31,12 @@ class example(sos.plugintools.PluginBase):
 
     All plugins will use collect(), some will use analyze(), few will override report()
     """
-    optionList = []
-    copiedFiles = []
-    copiedDirs = []
-    executedCommands = []
-    alerts = []
-    customText = ""
-    cInfo = None
-    piName = None
-    optNames = []
-    optParms = []
 
     # Add your options here, indicate whether they are slow to run, and set whether they are enabled by default
-    # Options are dictionaries that conatin a short name, long desc, speed, and whether they are enabled by default
+    # Options are python dictionaries that conatin a short name, long description, speed, and whether they are enabled by default
     optionList = [("init.d",  'Gathers the init.d directory', 'slow', 0),
-                  ('Option 2', 'Gathers information about each follicle on every toe', 'slow', 0),
-                  ('Option 3', 'Gathers toenail polish color', 'fast', 0)]
+                  ('follicles', 'Gathers information about each follicle on every toe', 'slow', 0),
+                  ('color', 'Gathers toenail polish color', 'fast', 0)]
 
     def collect(self):
         ''' First phase - Collect all the information we need.
@@ -104,5 +90,3 @@ class example(sos.plugintools.PluginBase):
 #        here using sosAddCustomText() and sosAddAlert()
 #        This method returns html that will be included inline in the report
 #        """
-
-
