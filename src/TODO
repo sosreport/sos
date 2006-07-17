@@ -9,7 +9,13 @@ example is in named.py when running a chrooted named.
 
 ADD - allow each plugin to optionally not load, and to be able to test whether
 other packages are installed. For example, if apache isn't installed, don't
-load the apache plugin.
+load the apache plugin. This needs to be done in a distribution-independent
+manner.
+
+Add support for distributions other than Fedora.
+
+Make it easier to select a policy module and perhaps optionally include
+plugins from the library, to allow per-distribution customization.
 
 Documentation - man page, plugin howto doc, inline doc in plugin template
 
