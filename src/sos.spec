@@ -5,7 +5,7 @@
 %define name sos
 %define version 0.1
 # change release in setup.py and this file
-%define release 7
+%define release 8
 
 Summary: System Support Tools
 Name: %{name}
