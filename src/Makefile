@@ -17,13 +17,13 @@ all:
 	@svn copy $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG) \
 	-m "Tagging the $(SVNTAG) release of the sos project"
 	@echo "$(SVNTAG)"
-	@svn update $(REPO)/tags
+	@svn update ../../tags
 
 tag-archive: ../../tags/$(SVNTAG)
 
-create-archive:	tag-archive
+create-archive: tag-archive
 	@rm -rf /tmp/$(NAME)
-	@svn export $(REPO)/tags/$(SVNTAG)/src /tmp/$(NAME) \
+	@svn export $(REPO)/tags/$(SVNTAG)     /tmp/$(NAME) \
 	 || echo GRRRrrrrr -- ignore [export aborted]
 	@mv /tmp/$(NAME) /tmp/$(NAME)-$(VERSION)
 	@cd /tmp; tar --bzip2 -cSpf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
