@@ -17,10 +17,10 @@ import sos.plugintools
 class selinux(sos.plugintools.PluginBase):
     """This plugin gathers selinux related information
     """
-    def collect(self):
-        self.runExe("/usr/bin/selinuxconfig")
-        self.runExe("/usr/sbin/sestatus")
-        self.runExe("/bin/rpm -q -V selinux-policy-targeted")
-        self.runExe("/bin/rpm -q -V selinux-policy-strict")
+    def setup(self):
+        self.collectExtOutput("/usr/bin/selinuxconfig")
+        self.collectExtOutput("/usr/sbin/sestatus")
+        self.collectExtOutput("/bin/rpm -q -V selinux-policy-targeted")
+        self.collectExtOutput("/bin/rpm -q -V selinux-policy-strict")
         return
 

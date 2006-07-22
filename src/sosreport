@@ -26,6 +26,7 @@ from optparse import OptionParser
 import sos.policyredhat
 from sos.helpers import *
 from snack import *
+from threading import Thread
 
 if os.getuid() != 0:
     print 'You must run sosreport as root!'
@@ -109,6 +110,7 @@ def sosreport():
     "This is the top-level function that gathers and processes all sosreport information"
     loadedplugins = []
     alloptions = []
+    threads = []
 
     # TODO automatically locate the policy module??
     policy = sos.policyredhat.SosPolicy()
@@ -206,9 +208,17 @@ def sosreport():
             for plug, plugname, optname, optparm in alloptions:
                 plug.setOption(optname,1)
 
+    # Call the setup method for each plugin
+    for plugname, plug in loadedplugins:
+        plug.setup()
+
     # Call the collect method for each plugin
     for plugname, plug in loadedplugins:
-        plug.collect()
+        plug.doCollect()
+
+    # Wait for all the collcetion threads to exit
+    for plugname, plug in loadedplugins:
+        plug.wait()
 
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:

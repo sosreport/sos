@@ -20,13 +20,13 @@ class rpm(sos.plugintools.PluginBase):
     optionList = [("rpmq", "Queries for package information via rpm -q", "fast", 1),
                   ("rpmva", "Runs a verify on all packages", "slow", 0)]
                   
-    def collect(self):
-        self.copyFileOrDir("/var/log/rpmpkgs")
+    def setup(self):
+        self.addCopySpec("/var/log/rpmpkgs")
         
         if self.isOptionEnabled("rpmq"):
-          self.runExe("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"")
+          self.collectExtOutput("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"")
       
         if self.isOptionEnabled("rpmva"):
-          self.runExe("/bin/rpm -Va")
+          self.collectExtOutput("/bin/rpm -Va")
         return
 

@@ -17,7 +17,7 @@ import sos.plugintools
 class pam(sos.plugintools.PluginBase):
     """This plugin gathers PAM related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/pam.d")
+    def setup(self):
+        self.addCopySpec("/etc/pam.d")
         return
 

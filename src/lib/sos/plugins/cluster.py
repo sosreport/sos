@@ -17,9 +17,9 @@ import sos.plugintools
 class cluster(sos.plugintools.PluginBase):
     """This plugin gathers cluster related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/cluster.conf")
-        self.copyFileOrDir("/etc/cluster.xml")
-        self.copyFileOrDir("/etc/cluster")
+    def setup(self):
+        self.addCopySpec("/etc/cluster.conf")
+        self.addCopySpec("/etc/cluster.xml")
+        self.addCopySpec("/etc/cluster")
         return
 

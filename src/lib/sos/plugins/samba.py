@@ -17,9 +17,9 @@ import sos.plugintools
 class samba(sos.plugintools.PluginBase):
     """This plugin gathers Samba related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/samba")
-        self.runExe("/usr/bin/wbinfo -g")
-        self.runExe("/usr/bin/wbinfo -u")
+    def setup(self):
+        self.addCopySpec("/etc/samba")
+        self.collectExtOutput("/usr/bin/wbinfo -g")
+        self.collectExtOutput("/usr/bin/wbinfo -u")
         return
 

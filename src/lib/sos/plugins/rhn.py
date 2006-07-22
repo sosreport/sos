@@ -17,7 +17,7 @@ from sos.plugintools import PluginBase
 class rhn(PluginBase):
     """This plugin gathers RHN server related information
     """
-    def collect(self):
+    def setup(self):
         # XXX check for the presence of requisite packages
         satellite = self.cInfo["policy"].pkgByName("rhns-satellite-tools")
         proxy = self.cInfo["policy"].pkgByName("rhns-proxy-tools")
@@ -31,56 +31,56 @@ class rhn(PluginBase):
         #
 
         # basic RHN logs and configs
-        self.copyFileGlob("/var/log/rhn*")
-        self.copyFileOrDir("/etc/rhn")
-        self.runExe("/usr/share/rhn/up2date_client/hardware.py")
+        self.addCopySpec("/var/log/rhn*")
+        self.addCopySpec("/etc/rhn")
+        self.collectExtOutput("/usr/share/rhn/up2date_client/hardware.py")
 
         # httpd
-        self.copyFileOrDir("/etc/httpd/conf")
-        self.copyFileOrDir("/var/log/httpd")
+        self.addCopySpec("/etc/httpd/conf")
+        self.addCopySpec("/var/log/httpd")
 
         # RPM manifests
-        self.runExe("/bin/rpm -qa --last | sort")
+        self.collectExtOutput("/bin/rpm -qa --last | sort")
 
         # monitoring scout logs
-        self.copyFileGlob("/home/nocpulse/var/*.log*")
-        self.copyFileGlob("/home/nocpulse/var/commands/*.log*")
+        self.addCopySpec("/home/nocpulse/var/*.log*")
+        self.addCopySpec("/home/nocpulse/var/commands/*.log*")
 
         #
         # Now, go for product-specific data
         #
         if satellite:
-            self.collectSatellite(satellite)
+            self.setupSatellite(satellite)
 
         if proxy:
-            self.collectProxy(proxy)
+            self.setupProxy(proxy)
 
-    def collectSatellite(self, satellite):
-        self.runExe("/usr/bin/rhn-schema-version")
-        self.runExe("/usr/bin/rhn-charsets")
+    def setupSatellite(self, satellite):
+        self.collectExtOutput("/usr/bin/rhn-schema-version")
+        self.collectExtOutput("/usr/bin/rhn-charsets")
 
         # oracle
-        self.copyFileOrDir("/etc/tnsnames.ora")
+        self.addCopySpec("/etc/tnsnames.ora")
 
         # tomcat (4.x and newer satellites only)
         if not self.cInfo["policy"].pkgNVRA(satellite)[1].startswith("3."):
-            self.copyFileOrDir("/etc/tomcat5")
-            self.copyFileOrDir("/var/log/tomcat5")
+            self.addCopySpec("/etc/tomcat5")
+            self.addCopySpec("/var/log/tomcat5")
 
         # jabberd
         #  - logs to /var/log/messages
-        self.copyFileOrDir("/etc/jabberd")
+        self.addCopySpec("/etc/jabberd")
 
         # SSL build
-        self.copyFileOrDir("/root/ssl-build")
+        self.addCopySpec("/root/ssl-build")
     
         # monitoring logs
-        self.copyFileGlob("/opt/notification/var/*.log*")
-        self.copyFileGlob("/var/tmp/ack_handler.log*")
-        self.copyFileGlob("/var/tmp/enqueue.log*")
+        self.addCopySpec("/opt/notification/var/*.log*")
+        self.addCopySpec("/var/tmp/ack_handler.log*")
+        self.addCopySpec("/var/tmp/enqueue.log*")
 
-    def collectProxy(self, proxy):
+    def setupProxy(self, proxy):
         # squid
-        self.copyFileOrDir("/etc/squid")
-        self.copyFileOrDir("/var/log/squid")
+        self.addCopySpec("/etc/squid")
+        self.addCopySpec("/var/log/squid")
  

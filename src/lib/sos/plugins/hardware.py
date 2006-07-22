@@ -18,33 +18,33 @@ import commands
 class hardware(sos.plugintools.PluginBase):
     """This plugin gathers hardware related information
     """
-    def collect(self):
-        self.copyFileOrDir("/proc/partitions")
-        self.copyFileOrDir("/proc/cpuinfo")
-        self.copyFileOrDir("/proc/meminfo")
-        self.copyFileOrDir("/proc/ioports")
-        self.copyFileOrDir("/proc/interrupts")
-        self.copyFileOrDir("/proc/scsi")
-        self.copyFileOrDir("/proc/dma")
-        self.copyFileOrDir("/proc/devices")
-        self.copyFileOrDir("/proc/rtc")
-        self.copyFileOrDir("/proc/ide")
-        self.copyFileOrDir("/proc/bus")
-        self.copyFileOrDir("/etc/stinit.def")
-        self.copyFileOrDir("/etc/sysconfig/hwconf")
-        self.copyFileOrDir("/proc/chandev")
-        self.copyFileOrDir("/proc/dasd")
-        self.copyFileOrDir("/proc/s390dbf/tape")
-        self.runExe("/usr/share/rhn/up2dateclient/hardware.py")
-        self.runExe("/sbin/lspci -vvn")
-        self.runExe("dmesg | grep -e 'e820.' -e 'agp.'")
+    def setup(self):
+        self.addCopySpec("/proc/partitions")
+        self.addCopySpec("/proc/cpuinfo")
+        self.addCopySpec("/proc/meminfo")
+        self.addCopySpec("/proc/ioports")
+        self.addCopySpec("/proc/interrupts")
+        self.addCopySpec("/proc/scsi")
+        self.addCopySpec("/proc/dma")
+        self.addCopySpec("/proc/devices")
+        self.addCopySpec("/proc/rtc")
+        self.addCopySpec("/proc/ide")
+        self.addCopySpec("/proc/bus")
+        self.addCopySpec("/etc/stinit.def")
+        self.addCopySpec("/etc/sysconfig/hwconf")
+        self.addCopySpec("/proc/chandev")
+        self.addCopySpec("/proc/dasd")
+        self.addCopySpec("/proc/s390dbf/tape")
+        self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
+        self.collectExtOutput("/sbin/lspci -vvn")
+        self.collectExtOutput("dmesg | grep -e 'e820.' -e 'agp.'")
               
         for hwmodule in commands.getoutput('cat pcitable | grep -v "Card:" | awk \'{ gsub("\"","",$0); { print $NF; };} \' | uniq -u'):
           cmdToRun = "dmesg | grep %s" % (hwmodule,)
-          self.runExe(cmdToRun)        
+          self.collectExtOutput(cmdToRun)        
           
-        self.runExe("/usr/sbin/vgdisplay -vv")
-        self.runExe("/sbin/lsusb")
-        self.runExe("/usr/bin/lshal")
+        self.collectExtOutput("/usr/sbin/vgdisplay -vv")
+        self.collectExtOutput("/sbin/lsusb")
+        self.collectExtOutput("/usr/bin/lshal")
         return
 

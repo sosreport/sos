@@ -17,11 +17,11 @@ import sos.plugintools
 class memory(sos.plugintools.PluginBase):
     """This plugin gathers memory usage information
     """
-    def collect(self):
-        self.copyFileOrDir("/proc/pci")
-        self.copyFileOrDir("/proc/meminfo")
+    def setup(self):
+        self.addCopySpec("/proc/pci")
+        self.addCopySpec("/proc/meminfo")
         
-        self.runExe("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
-        self.runExe("/usr/bin/free")
+        self.collectExtOutput("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
+        self.collectExtOutput("/usr/bin/free")
         return
 

@@ -17,15 +17,15 @@ import sos.plugintools
 class bootloader(sos.plugintools.PluginBase):
     """This plugin gathers bootloader information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/lilo.conf")
-        self.copyFileOrDir("/etc/milo.conf")
-        self.copyFileOrDir("/etc/silo.conf")
-        self.copyFileOrDir("/boot/grub/grub.conf")
-        self.copyFileOrDir("/boot/grub/device.map")
-        self.copyFileOrDir("/boot/efi/elilo.conf")
-        self.copyFileOrDir("/boot/yaboot.conf")
+    def setup(self):
+        self.addCopySpec("/etc/lilo.conf")
+        self.addCopySpec("/etc/milo.conf")
+        self.addCopySpec("/etc/silo.conf")
+        self.addCopySpec("/boot/grub/grub.conf")
+        self.addCopySpec("/boot/grub/device.map")
+        self.addCopySpec("/boot/efi/elilo.conf")
+        self.addCopySpec("/boot/yaboot.conf")
         
-        self.runExe("/sbin/lilo -q")
+        self.collectExtOutput("/sbin/lilo -q")
         return
 

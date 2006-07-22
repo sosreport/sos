@@ -17,9 +17,9 @@ import sos.plugintools
 class mail(sos.plugintools.PluginBase):
     """This plugin gathers mail server related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/mail")
-        self.copyFileOrDir("/etc/postfix/main.cf")
-        self.copyFileOrDir("/etc/postfix/master.cf")
+    def setup(self):
+        self.addCopySpec("/etc/mail")
+        self.addCopySpec("/etc/postfix/main.cf")
+        self.addCopySpec("/etc/postfix/master.cf")
         return
 

@@ -18,6 +18,6 @@ import sos.plugintools
 
 # Class name must be the same as file name and method names must not change
 class fsusage(sos.plugintools.PluginBase):
-    def collect(self):
-        self.psCmdDstFileName = self.runExe("/bin/df -al")
+    def setup(self):
+        self.psCmdDstFileName = self.collectExtOutput("/bin/df -al")
         return

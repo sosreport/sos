@@ -28,14 +28,14 @@ class tarball(sos.plugintools.PluginBase):
         ticketNumber = sys.stdin.readline()[:-1]
 
         dirName = name + "." + ticketNumber
-        self.runExeInd("/bin/mkdir /tmp/%s" % dirName)
-        self.runExeInd("/bin/mv %s/* /tmp/%s"
+        self.callExtProg("/bin/mkdir /tmp/%s" % dirName)
+        self.callExtProg("/bin/mv %s/* /tmp/%s"
                        % (dstroot, dirName))
-        self.runExeInd("/bin/rm -rf %s" % dstroot)
-        self.runExeInd("/bin/tar --directory /tmp -jcf "
+        self.callExtProg("/bin/rm -rf %s" % dstroot)
+        self.callExtProg("/bin/tar --directory /tmp -jcf "
                        "/tmp/%s.tar.bz2 %s"
                        % (dirName, dirName))
-	self.runExeInd("/bin/rm -rf /tmp/%s" % dirName)
+	self.callExtProg("/bin/rm -rf /tmp/%s" % dirName)
 	print "Your tarball is located at /tmp/%s.tar.bz2" % dirName
         return "/tmp/" + dirName
 

@@ -19,16 +19,17 @@ import os
 class named(sos.plugintools.PluginBase):
     """This plugin gathers named related information
     """
-    def collect(self):
+    def setup(self):
       dnsdir = ""
-      self.copyFileOrDir("/etc/named.boot")
-      self.copyFileOrDir("/etc/named.conf")
+      self.addCopySpec("/etc/named.boot")
+      self.addCopySpec("/etc/named.conf")
       if os.access("/etc/named.conf", os.R_OK):
         dnsdir = commands.getoutput("/bin/grep -i directory /etc/named.conf | /bin/gawk '{print $2}' | /bin/sed 's/\\\"//g' | /bin/sed 's/\;//g'")
       if os.access("/etc/named.boot", os.R_OK):
         dnsdir = commands.getoutput("/bin/grep -i directory /etc/named.boot | /bin/gawk '{print $2}' | /bin/sed 's/\\\"//g' | /bin/sed 's/\;//g'")
       if '' != dnsdir.strip():
-        print "FIX named.py - hangs when named chrooted because of /var/named/chroot/proc"
-        #self.copyFileOrDir(dnsdir)
+        self.addCopySpec(dnsdir)
+        self.addForbiddenPath('/var/named/chroot/proc')
+        self.addForbiddenPath('/var/named/chroot/dev')
       return
 

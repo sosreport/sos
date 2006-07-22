@@ -13,12 +13,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+from threading import Thread
 
 class apache(sos.plugintools.PluginBase):
     """This plugin gathers Apache related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/httpd/conf/httpd.conf")
-        self.copyFileGlob("/etc/httpd/conf.d/*.conf")
+    def setup(self):
+        self.addCopySpec("/etc/httpd/conf/httpd.conf")
+        self.addCopySpec("/etc/httpd/conf.d/*.conf")
         return
 

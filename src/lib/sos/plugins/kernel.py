@@ -21,28 +21,28 @@ class kernel(sos.plugintools.PluginBase):
     optionList = [("modinfo", 'Gathers module information on all modules', 'fast', 1),
                   ('sysrq', 'Trigger SysRq dumps', 'fast', 1)]
     
-    def collect(self):
-        self.runExe("/bin/uname -a")
-        self.runExe("/sbin/lsmod")
+    def setup(self):
+        self.collectExtOutput("/bin/uname -a")
+        self.collectExtOutput("/sbin/lsmod")
         if self.isOptionEnabled('modinfo'):
           for kmod in commands.getoutput('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null').split('\n'):
             if '' != kmod.strip():
               runcmd = "/sbin/modinfo %s" % (kmod,)
-              self.runExe(runcmd)
-        self.runExe("/sbin/ksyms")
-        self.copyFileOrDir("/proc/filesystems")
-        self.copyFileOrDir("/proc/ksyms")
-        self.copyFileOrDir("/proc/slabinfo")
+              self.collectExtOutput(runcmd)
+        self.collectExtOutput("/sbin/ksyms")
+        self.addCopySpec("/proc/filesystems")
+        self.addCopySpec("/proc/ksyms")
+        self.addCopySpec("/proc/slabinfo")
         kver = commands.getoutput('/bin/uname -r')
         depfile = "/lib/modules/%s/modules.dep" % (kver,)
-        self.copyFileOrDir(depfile)
-        self.copyFileOrDir("/etc/conf.modules")
-        self.copyFileOrDir("/etc/modules.conf")
-        self.copyFileOrDir("/etc/modprobe.conf")
-        self.runExe("/usr/sbin/dmidecode")
-        self.runExe("/usr/sbin/dkms status")
-        self.copyFileOrDir("/proc/cmdline")
-        self.copyFileOrDir("/proc/driver")
+        self.addCopySpec(depfile)
+        self.addCopySpec("/etc/conf.modules")
+        self.addCopySpec("/etc/modules.conf")
+        self.addCopySpec("/etc/modprobe.conf")
+        self.collectExtOutput("/usr/sbin/dmidecode")
+        self.collectExtOutput("/usr/sbin/dkms status")
+        self.addCopySpec("/proc/cmdline")
+        self.addCopySpec("/proc/driver")
         # trigger some sysrq's.  I'm not sure I like doing it this way, but
         # since we end up with the sysrq dumps in syslog whether we run the 
         # syslog report before or after this, I suppose I can live with it.
@@ -54,7 +54,7 @@ class kernel(sos.plugintools.PluginBase):
           commands.getoutput("/bin/echo %s > /proc/sys/kernel/sysrq" % (sysrq_state,))
           # No need to grab syslog here if we can't trigger sysrq, so keep this
           # inside the if
-          self.copyFileGlob("/var/log/messages*")
+          self.addCopySpec("/var/log/messages*")
         
         
         return

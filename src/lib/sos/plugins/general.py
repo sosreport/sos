@@ -17,19 +17,19 @@ import sos.plugintools
 class general(sos.plugintools.PluginBase):
     """This plugin gathers very basic system information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/redhat-release")
-        self.copyFileOrDir("/etc/sysconfig")
-        self.copyFileOrDir("/proc/stat")
-        self.copyFileOrDir("/var/log/dmesg")
-        self.copyFileOrDir("/var/log/messages")
-        self.copyFileOrDir("/var/log/sa")
-        self.copyFileOrDir("/var/log/secure")
-        self.copyFileOrDir("/var/log/up2date")
-        self.copyFileOrDir("/etc/exports")        
-        self.copyFileGlob("/etc/cups/*.conf")
-        self.runExe("/bin/hostname")
-        self.runExe("/bin/date")
-        self.runExe("/usr/bin/uptime")
+    def setup(self):
+        self.addCopySpec("/etc/redhat-release")
+        self.addCopySpec("/etc/sysconfig")
+        self.addCopySpec("/proc/stat")
+        self.addCopySpec("/var/log/dmesg")
+        self.addCopySpec("/var/log/messages")
+        self.addCopySpec("/var/log/sa")
+        self.addCopySpec("/var/log/secure")
+        self.addCopySpec("/var/log/up2date")
+        self.addCopySpec("/etc/exports")        
+        self.addCopySpec("/etc/cups/*.conf")
+        self.collectExtOutput("/bin/hostname")
+        self.collectExtOutput("/bin/date")
+        self.collectExtOutput("/usr/bin/uptime")
         return
 

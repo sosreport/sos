@@ -17,7 +17,7 @@ import sos.plugintools
 class squid(sos.plugintools.PluginBase):
     """This plugin gathers Squid related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/squid/squid.conf")
+    def setup(self):
+        self.addCopySpec("/etc/squid/squid.conf")
         return
 

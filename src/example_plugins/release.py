@@ -16,6 +16,6 @@ import sos.plugintools
 
 # Class name must be the same as file name and method names must not change
 class release(sos.plugintools.PluginBase):
-    def collect(self):
-        self.copyFileOrDir("/etc/redhat-release")
+    def setup(self):
+        self.addCopySpec("/etc/redhat-release")
         return

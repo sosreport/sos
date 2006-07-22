@@ -17,8 +17,8 @@ import sos.plugintools
 class libraries(sos.plugintools.PluginBase):
     """This plugin gathers information on shared libraries
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/ld.so.conf")
-        self.copyFileOrDir("/etc/ld.so.conf.d")
+    def setup(self):
+        self.addCopySpec("/etc/ld.so.conf")
+        self.addCopySpec("/etc/ld.so.conf.d")
         return
 

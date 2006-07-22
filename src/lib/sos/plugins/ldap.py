@@ -17,8 +17,8 @@ import sos.plugintools
 class ldap(sos.plugintools.PluginBase):
     """This plugin gathers LDAP related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/ldap.conf")
-        self.copyFileOrDir("/etc/openldap")
+    def setup(self):
+        self.addCopySpec("/etc/ldap.conf")
+        self.addCopySpec("/etc/openldap")
         return
 

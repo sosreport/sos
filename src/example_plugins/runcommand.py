@@ -35,10 +35,10 @@ class runcommand(sos.plugintools.PluginBase):
     Your finished plugin should be included with your package and installed in python's
     site-packages/sos/plugins/ directory
     """
-    def collect(self):
+    def setup(self):
         ''' Run a command. Output is automatically included in the report.
         '''
-        self.runExe("/path/to/my/script --myoption --anotheroption")
+        self.collectExtOutput("/path/to/my/script --myoption --anotheroption")
 
         # if (for example) that command created files /foo/bar/baz.txt and
         # we want to include that in our report, we include the next line:

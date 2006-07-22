@@ -38,7 +38,7 @@ class example(sos.plugintools.PluginBase):
                   ('follicles', 'Gathers information about each follicle on every toe', 'slow', 0),
                   ('color', 'Gathers toenail polish color', 'fast', 0)]
 
-    def collect(self):
+    def setup(self):
         ''' First phase - Collect all the information we need.
         Directories are copied recursively. arbitrary commands may be
         executed using the susRunExe method. Information is automatically saved, and
@@ -46,16 +46,18 @@ class example(sos.plugintools.PluginBase):
         copied to the saved tree. Also, links are provided to the output from each command.
         '''
         # Here's how to copy files and directory trees
-        self.copyFileOrDir("/etc/hosts")
+        self.addCopySpec("/etc/hosts")
         # this one saves a file path to the copy for later analysis
-        self.fooFilePath = self.copyFileOrDir("/proc/cpuinfo")
+        # FIXME: Need to figure out how to do this
+        # self.fooFilePath = self.copyFileOrDir("/proc/cpuinfo")
 
         # Here's how to test your options and execute if enabled
         if self.isOptionEnabled("init.d"):
-            self.copyFileOrDir("/etc/init.d") # copies a whole directory tree
+            self.addCopySpec("/etc/init.d") # copies a whole directory tree
 
         # Here's how to execute a command
         # you can save the path to the copied file for later analysis if desired
+        # FIXME: Need to figure out how to do this
         self.psCmdDstFileName = self.runExe("/bin/ps -ef")
         return
 

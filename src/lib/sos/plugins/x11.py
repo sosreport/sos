@@ -17,10 +17,10 @@ import sos.plugintools
 class x11(sos.plugintools.PluginBase):
     """This plugin gathers X related information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/X11")
-        self.copyFileGlob("/var/log/Xorg.*.log")
-        self.copyFileGlob("/var/log/XFree86.*.log")
-        self.runExe("/bin/dmesg | grep -e 'agpgart.'")
+    def setup(self):
+        self.addCopySpec("/etc/X11")
+        self.addCopySpec("/var/log/Xorg.*.log")
+        self.addCopySpec("/var/log/XFree86.*.log")
+        self.collectExtOutput("/bin/dmesg | grep -e 'agpgart.'")
         return
 

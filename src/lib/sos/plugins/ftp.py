@@ -17,8 +17,8 @@ import sos.plugintools
 class ftp(sos.plugintools.PluginBase):
     """This plugin gathers FTP server related information
     """
-    def collect(self):
-        self.copyFileGlob("/etc/ftp*")
-        self.copyFileOrDir("/etc/vsftpd")
+    def setup(self):
+        self.addCopySpec("/etc/ftp*")
+        self.addCopySpec("/etc/vsftpd")
         return
 

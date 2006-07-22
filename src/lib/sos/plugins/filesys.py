@@ -18,29 +18,29 @@ import commands
 class filesys(sos.plugintools.PluginBase):
     """This plugin gathers infomraiton on filesystems
     """
-    def collect(self):
-        self.copyFileOrDir("/proc/filesystems")
-        self.copyFileOrDir("/etc/fstab")
-        self.copyFileOrDir("/proc/mounts")
-        self.copyFileOrDir("/proc/mdstat")
-        self.copyFileOrDir("/etc/raidtab")
-        self.copyFileOrDir("/etc/mdadm.conf")
-        self.copyFileOrDir("/etc/auto.master")
-        self.copyFileOrDir("/etc/auto.misc")
-        self.copyFileOrDir("/etc/auto.net")
+    def setup(self):
+        self.addCopySpec("/proc/filesystems")
+        self.addCopySpec("/etc/fstab")
+        self.addCopySpec("/proc/mounts")
+        self.addCopySpec("/proc/mdstat")
+        self.addCopySpec("/etc/raidtab")
+        self.addCopySpec("/etc/mdadm.conf")
+        self.addCopySpec("/etc/auto.master")
+        self.addCopySpec("/etc/auto.misc")
+        self.addCopySpec("/etc/auto.net")
         
-        self.runExe("/bin/df -al")
-        self.runExe("/usr/sbin/lsof -b +M -n -l")
-        self.runExe("/bin/mount -l")
-        self.runExe("/sbin/blkid")
+        self.collectExtOutput("/bin/df -al")
+        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l")
+        self.collectExtOutput("/bin/mount -l")
+        self.collectExtOutput("/sbin/blkid")
 
         raiddevs = commands.getoutput("/bin/cat /proc/partitions | /bin/egrep -v \"^major|^$\" | /bin/awk '{print $4}' | /bin/grep \/ | /bin/egrep -v \"p[0123456789]$\"")
         disks = commands.getoutput("/bin/cat /proc/partitions | /bin/egrep -v \"^major|^$\" | /bin/awk '{print $4}' | /bin/grep -v / | /bin/egrep -v \"[0123456789]$\"")
         for disk in raiddevs.split('\n'):
           if '' != disk.strip():
-            self.runExe("/sbin/fdisk -l /dev/%s 2>&1" % (disk,))
+            self.collectExtOutput("/sbin/fdisk -l /dev/%s 2>&1" % (disk,))
         for disk in disks.split('\n'):
           if '' != disk.strip():
-            self.runExe("/sbin/fdisk -l /dev/%s 2>&1" % (disk,))
+            self.collectExtOutput("/sbin/fdisk -l /dev/%s 2>&1" % (disk,))
         return
 

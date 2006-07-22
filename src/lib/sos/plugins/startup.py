@@ -17,10 +17,10 @@ import sos.plugintools
 class startup(sos.plugintools.PluginBase):
     """This plugin gathers startup information
     """
-    def collect(self):
-        self.copyFileOrDir("/etc/rc.d")
+    def setup(self):
+        self.addCopySpec("/etc/rc.d")
         
-        self.runExe("/sbin/chkconfig --list")
-        # self.runExe("/bin/ls /etc/rc.d/rc*.d/")  # This is redundant.
+        self.collectExtOutput("/sbin/chkconfig --list")
+        # self.collectExtOutput("/bin/ls /etc/rc.d/rc*.d/")  # This is redundant.
         return
 

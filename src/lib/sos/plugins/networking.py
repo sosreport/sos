@@ -34,25 +34,25 @@ class networking(sos.plugintools.PluginBase):
         return out
     
     
-    def collect(self):
-        self.copyFileOrDir("/etc/nsswitch.conf")
-        self.copyFileOrDir("/etc/yp.conf")
-        self.copyFileOrDir("/etc/inetd.conf")
-        self.copyFileOrDir("/etc/xinetd.conf")
-        self.copyFileOrDir("/etc/xinetd.d")
-        self.copyFileGlob("/etc/host*")
-        self.copyFileOrDir("/etc/resolv.conf")
-        # self.copyFileOrDir("/etc/sysconfig/iptables-config")
+    def setup(self):
+        self.addCopySpec("/etc/nsswitch.conf")
+        self.addCopySpec("/etc/yp.conf")
+        self.addCopySpec("/etc/inetd.conf")
+        self.addCopySpec("/etc/xinetd.conf")
+        self.addCopySpec("/etc/xinetd.d")
+        self.addCopySpec("/etc/host*")
+        self.addCopySpec("/etc/resolv.conf")
+        # self.addCopySpec("/etc/sysconfig/iptables-config")
         # The above is redundant
-        ifconfigFile=self.runExe("/sbin/ifconfig -a")
-        self.runExe("/sbin/route -n")
-        self.runExe("/sbin/ipchains -nvL")
-        self.runExe("/sbin/iptables -t filter -nvL")
-        self.runExe("/sbin/iptables -t nat -nvL")
-        self.runExe("/sbin/iptables -t mangle -nvL")
+        ifconfigFile=self.collectExtOutput("/sbin/ifconfig -a")
+        self.collectExtOutput("/sbin/route -n")
+        self.collectExtOutput("/sbin/ipchains -nvL")
+        self.collectExtOutput("/sbin/iptables -t filter -nvL")
+        self.collectExtOutput("/sbin/iptables -t nat -nvL")
+        self.collectExtOutput("/sbin/iptables -t mangle -nvL")
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
-                self.runExe("/sbin/ethtool "+eth)
+                self.collectExtOutput("/sbin/ethtool "+eth)
             
         return
 

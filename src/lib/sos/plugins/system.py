@@ -17,15 +17,15 @@ import sos.plugintools
 class system(sos.plugintools.PluginBase):
     """This plugin gathers core system related information
     """
-    def collect(self):
-        self.copyFileOrDir("/proc/sys")
-        self.copyFileOrDir("/etc/sysctl.conf")
-        self.copyFileGlob("/etc/cron*")
-        self.copyFileOrDir("/etc/syslog.conf")
-        self.copyFileOrDir("/etc/ntp.conf")
-        self.copyFileOrDir("/etc/ntp/step-tickers")
-        self.copyFileOrDir("/etc/ntp/ntpservers")
-        self.copyFileOrDir("/etc/auto.*")
+    def setup(self):
+        self.addCopySpec("/proc/sys")
+        self.addCopySpec("/etc/sysctl.conf")
+        self.addCopySpec("/etc/cron*")
+        self.addCopySpec("/etc/syslog.conf")
+        self.addCopySpec("/etc/ntp.conf")
+        self.addCopySpec("/etc/ntp/step-tickers")
+        self.addCopySpec("/etc/ntp/ntpservers")
+        self.addCopySpec("/etc/auto.*")
         
         return
 
