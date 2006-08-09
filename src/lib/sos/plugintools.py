@@ -267,14 +267,14 @@ class PluginBase:
         self.customText = self.customText + text
         return
 
-    def doCollect(self):
-        self.thread = Thread(target=self.copyStuff,name=self.piName+'-thread')
+    def doCollect(self, verbosity):
+        self.thread = Thread(target=self.copyStuff,name=self.piName+'-thread',args=(verbosity,))
         self.thread.start()
         
     def wait(self):
         self.thread.join()
 
-    def copyStuff(self):
+    def copyStuff(self, verbosity):
         for path in self.copyPaths:
             try:
                 self.doCopyFileOrDir(path)
@@ -301,7 +301,7 @@ class PluginBase:
         """
         pass
 
-    def analyze(self):
+    def analyze(self, verbosity):
         pass
 
     def postproc(self, dstroot):

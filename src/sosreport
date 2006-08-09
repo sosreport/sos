@@ -41,7 +41,8 @@ cmdParser.add_option("-a","--alloptions",action="store_true",dest="alloptions",d
 cmdParser.add_option("-f","--fastoptions",action="store_true",dest="fastoptions",default=False,help="Use only fast options for loaded plugins")
 cmdParser.add_option("-l","--list-plugins",action="store_true",dest="listPlugins",default=False,help="list existing plugins")
 cmdParser.add_option("-n","--noplugin",action="append",dest="noplugins",help="list of plugin _not_ to load")
-
+cmdParser.add_option("-v","--verbose",action="count",dest="verbosity",help="How obnoxious we're being about telling the user what we're doing.")
+cmdParser.add_option("-m","--multithreaded",action="store_true",dest="multithread",help="Use the multithreaded information gathering mode to speed up the report")
 (cmdLineOpts,cmdLineArgs)=cmdParser.parse_args()
 #print cmdLineOpts
 
@@ -184,7 +185,8 @@ def sosreport():
 
     # First, gather and process options
     for plugname, plug in loadedplugins:
-        #print "processing options from plugin: %s" % plugname
+        if cmdLineOpts.verbosity > 3:
+            print "processing options from plugin: %s" % plugname
         try:
             len(cmdLineOpts.noplugins)
             if plugname not in cmdLineOpts.noplugins:
@@ -210,19 +212,30 @@ def sosreport():
 
     # Call the setup method for each plugin
     for plugname, plug in loadedplugins:
+        if cmdLineOpts.verbosity > 1:
+            print "Setting up plugin module %s" % plugname,
         plug.setup()
 
     # Call the collect method for each plugin
     for plugname, plug in loadedplugins:
-        plug.doCollect()
+        if cmdLineOpts.verbosity > 0:
+            print "Executing plugin %s" % plugname,
+        if cmdLineOpts.multithread:
+            plug.doCollect(cmdLineOptions.verbosity)
+        else:
+            plug.copyStuff(cmdLineOptions.verbosity)    
 
-    # Wait for all the collcetion threads to exit
+    # Wait for all the collection threads to exit
     for plugname, plug in loadedplugins:
+        if cmdLineOpts.verbosity > 1:
+            print "Waiting for plugin %s to return" % plugname,
         plug.wait()
 
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:
-        plug.analyze()
+        if cmdLineOpts.verbosity > 1:
+            print "Analyzing results of plugin %s" % plugname,
+        plug.analyze(cmdLineOpts.verbosity)
 
     # Sort the module names to do the report in alphabetical order
     loadedplugins.sort()
