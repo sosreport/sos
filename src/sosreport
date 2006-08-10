@@ -221,9 +221,9 @@ def sosreport():
         if cmdLineOpts.verbosity > 0:
             print "Executing plugin %s" % plugname,
         if cmdLineOpts.multithread:
-            plug.doCollect(cmdLineOptions.verbosity)
+            plug.doCollect(cmdLineOpts.verbosity)
         else:
-            plug.copyStuff(cmdLineOptions.verbosity)    
+            plug.copyStuff(cmdLineOpts.verbosity)    
 
     # Wait for all the collection threads to exit
     for plugname, plug in loadedplugins:
