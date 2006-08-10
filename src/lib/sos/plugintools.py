@@ -61,7 +61,9 @@ class PluginBase:
                 copyProhibited = 1
                 
         if copyProhibited:
-            return
+            sys.stderr.write("%s is on the copyProhibited list\n" % srcpath)
+            sys.stderr.flush
+            return ''
 
         if os.path.islink(srcpath):
             # This is a symlink - We need to also copy the file that it points to
@@ -83,6 +85,9 @@ class PluginBase:
                 # Create the symlink on the dst tree
                 rpth = sosRelPath(os.path.dirname(dstslname), dstsldir)
                 os.symlink(rpth, dstslname)
+            else:
+                # no adjustment, symlink is the relative path
+                dstslname = link
 
             if os.path.isdir(srcpath):
                 for file in os.listdir(srcpath):
@@ -90,15 +95,19 @@ class PluginBase:
                         pass
                     else:
                         try:
-                          self.doCopyFileOrDir(srcpath+'/'+file)
+                          abspath = self.doCopyFileOrDir(srcpath+'/'+file)
                         except:
-                          sys.stderr.write("Problem at path %s\n" %  srcpath+'/'+file,)
+                          sys.stderr.write("1Problem at path %s\n" %  srcpath+'/'+file,)
                           sys.stderr.flush()
+                        # if on forbidden list, abspath is null
+                        if not abspath == '':
+                            dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
+                            self.copiedDirs.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
             else:
                 try:
                   dstslname, abspath = self.__copyFile(srcpath)
                 except:
-                  sys.stderr.write("Problem at path %s\n" % srcpath)
+                  sys.stderr.write("2Problem at path %s\n" % srcpath)
                   sys.stderr.flush()
                 self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
 
@@ -107,7 +116,7 @@ class PluginBase:
             try:
               self.doCopyFileOrDir(newpath)
             except:
-              sys.stderr.write("Problem at path %s" % newpath,)
+              sys.stderr.write("3Problem at path %s" % newpath,)
               sys.stderr.flush
             return abspath
 
@@ -139,7 +148,7 @@ class PluginBase:
           relpath = sosRelPath(self.cInfo['rptdir'], abspath)
           return relpath, abspath
         except Exception,e:
-          sys.stderr.write("Problem copying file %s\n" % src,)
+          sys.stderr.write("4Problem copying file %s\n" % src,)
           print e
 
     def addForbiddenPath(self, forbiddenPath):
