@@ -190,9 +190,9 @@ def sosreport():
         try:
             len(cmdLineOpts.noplugins)
             if plugname not in cmdLineOpts.noplugins:
-                        names, parms = plug.getAllOptions()
-                        for optname, optparm  in zip(names, parms):
-                            alloptions.append((plug, plugname, optname, optparm))
+                names, parms = plug.getAllOptions()
+                for optname, optparm  in zip(names, parms):
+                    alloptions.append((plug, plugname, optname, optparm))
         except:
             names, parms = plug.getAllOptions()
             for optname, optparm  in zip(names, parms):

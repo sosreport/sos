@@ -5,7 +5,7 @@
 %define name sos
 %define version 0.1
 # change release in setup.py and this file
-%define release 9
+%define release 10
 
 Summary: System Support Tools
 Name: %{name}
@@ -16,7 +16,7 @@ Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 Requires: python >= 0:2.3
-URL: http://www.redhat.com/support/
+URL: http://sos.108.redhat.com
 # Using local source tarball until this can be released to public CVS system
 Source0: %{name}-%{version}.tar.bz2
 
@@ -31,12 +31,12 @@ support technicians and developers.
 %setup
 
 %build
-python setup.py build
+python setup.py -q build
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
 # The python setup.py does the same thing as the make install in other packages
-%{__python} setup.py install --root=${RPM_BUILD_ROOT}
+%{__python} setup.py -q install --root=${RPM_BUILD_ROOT}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -53,7 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 
 %changelog
-* Mon Jul 17 2006 Steve Conklin <sconklin@redhat.com> - 0.1-9
+* Mon Aug 14 2006 Steve Conklin <sconklin at redhat dot com> - 0.1-10
+- minor bugfixes, added miltithreading option, setup now quiet
+
+* Mon Jul 17 2006 Steve Conklin <sconklin at redhat dot com> - 0.1-9
 - migrated to svn on 108.redhat.com, fixed a problem with command output linking in report
 
 * Mon Jun 19 2006 Steve Conklin <sconklin at redhat dot com> - 0.1-6

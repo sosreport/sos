@@ -10,7 +10,7 @@ import sys,os,time
 # change release in spec file along with this version string
 setup(
 	name = 'sos',
-	version = '0.1.9',
+	version = '0.1.10',
 	description = 'System Support Tools',
 	long_description = """Sos is a set of tools that gathers information about system
 	hardware and configuration. The information can then be used for
@@ -18,7 +18,7 @@ setup(
 	support technicians and developers.""",
 	author = 'Steve Conklin, et al.',
 	author_email = 'sconklin@redhat.com',
-	url = 'http://support.redhat.com/',
+	url = 'http://sos.108.redhat.com/',
 	packages = ['sos', 'sos.plugins'],
 	scripts = [],
 	package_dir = {'': 'lib',},
