@@ -22,10 +22,11 @@
 ## (O'Reilly Media, 2005) 0-596-00797-3
 ##
 
+"""
+helper functions used by sosreport and plugins
+"""
 import os, popen2, fcntl, select, itertools, sys
 from tempfile import mkdtemp
-
-workingBase = None
 
 def importPlugin(pluginname, name):
     """ Import a plugin to extend capabilities of sosreport
@@ -45,14 +46,14 @@ def sosFindTmpDir():
     return workingBase
 
 
-def makeNonBlocking(fd):
+def makeNonBlocking(afd):
     """ Make the file desccriptor non-blocking. This prevents deadlocks.
     """
-    fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+    fl = fcntl.fcntl(afd, fcntl.F_GETFL)
     try:
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NDELAY)
+        fcntl.fcntl(afd, fcntl.F_SETFL, fl | os.O_NDELAY)
     except AttributeError:
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.FNDELAY)
+        fcntl.fcntl(afd, fcntl.F_SETFL, fl | os.FNDELAY)
 
 
 def sosGetCommandOutput(command):
@@ -86,12 +87,12 @@ def sosGetCommandOutput(command):
                 errdata.append(errchunk)
         if outeof and erreof:
             break
-        select.select([],[],[],.1) # Allow a little time for buffers to fill
+        select.select([], [], [], .1) # Allow a little time for buffers to fill
     err = child.wait()
     return (err, ''.join(outdata), ''.join(errdata))
 
 
-# TODO - this needs to be made clean and moved to the plugin tools, so
+# this needs to be made clean and moved to the plugin tools, so
 # that it prints nice color output like sysreport
 def sosStatus(stat):
     """ Complete a status line that has been output to the console,
@@ -109,7 +110,8 @@ def allEqual(elements):
     ''' return True if all the elements are equal, otherwise False. '''
     first_element = elements[0]
     for other_element in elements[1:]:
-        if other_element != first_element: return False
+        if other_element != first_element:
+            return False
     return True
 
 
@@ -117,24 +119,26 @@ def commonPrefix(*sequences):
     ''' return a list of common elements at the start of all sequences,
         then a list of lists that are the unique tails of each sequence. '''
     # if there are no sequences at all, we're done
-    if not sequences: return [], []
+    if not sequences:
+        return [], []
     # loop in parallel on the sequences
     common = []
     for elements in itertools.izip(*sequences):
         # unless all elements are equal, bail out of the loop
-        if not allEqual(elements): break
+        if not allEqual(elements):
+            break
         # got one more common element, append it and keep looping
         common.append(elements[0])
     # return the common prefix and unique tails
     return common, [ sequence[len(common):] for sequence in sequences ]
 
-def sosRelPath(p1, p2, sep=os.path.sep, pardir=os.path.pardir):
-    ''' return a relative path from p1 equivalent to path p2.
-        In particular: the empty string, if p1 == p2;
-                       p2, if p1 and p2 have no common prefix.
+def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
+    ''' return a relative path from path1 equivalent to path path2.
+        In particular: the empty string, if path1 == path2;
+                       path2, if path1 and path2 have no common prefix.
     '''
-    common, (u1, u2) = commonPrefix(p1.split(sep), p2.split(sep))
+    common, (u1, u2) = commonPrefix(path1.split(sep), path2.split(sep))
     if not common:
-        return p2      # leave path absolute if nothing at all in common
+        return path2      # leave path absolute if nothing at all in common
     return sep.join( [pardir]*len(u1) + u2 )
 

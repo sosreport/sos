@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-
+"""
+Gather information about a system and report it using plugins
+supplied for application-specific information
+"""
 ## sosreport.py
-## Implement policies required for the sos system support tool
+## gather information about a system and report it
 
 ## Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
 
@@ -19,9 +22,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+# pylint: disable-msg = W0611
+# pylint: disable-msg = W0702
+
 import sys
 import os
-import curses
+#import curses
 from optparse import OptionParser
 import sos.policyredhat
 from sos.helpers import *
@@ -33,61 +39,64 @@ if os.getuid() != 0:
     sys.exit(1)
 
 # for debugging
-raiseplugins = 1
+__raisePlugins__ = 1
 
 
-cmdParser=OptionParser()
-cmdParser.add_option("-a","--alloptions",action="store_true",dest="alloptions",default=False,help="Use all options for loaded plugins")
-cmdParser.add_option("-f","--fastoptions",action="store_true",dest="fastoptions",default=False,help="Use only fast options for loaded plugins")
-cmdParser.add_option("-l","--list-plugins",action="store_true",dest="listPlugins",default=False,help="list existing plugins")
-cmdParser.add_option("-n","--noplugin",action="append",dest="noplugins",help="list of plugin _not_ to load")
-cmdParser.add_option("-v","--verbose",action="count",dest="verbosity",help="How obnoxious we're being about telling the user what we're doing.")
-cmdParser.add_option("-m","--multithreaded",action="store_true",dest="multithread",help="Use the multithreaded information gathering mode to speed up the report")
-(cmdLineOpts,cmdLineArgs)=cmdParser.parse_args()
-#print cmdLineOpts
+__cmdParser__ = OptionParser()
+__cmdParser__.add_option("-a", "--alloptions", action="store_true", \
+                     dest="alloptions", default=False, \
+                     help="Use all options for loaded plugins")
+__cmdParser__.add_option("-f", "--fastoptions", action="store_true", \
+                     dest="fastoptions", default=False, \
+                     help="Use only fast options for loaded plugins")
+__cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
+                     dest="listPlugins", default=False, \
+                     help="list existing plugins")
+__cmdParser__.add_option("-n", "--noplugin", action="append", \
+                     dest="noplugins",\
+                     help="list of plugin _not_ to load")
+__cmdParser__.add_option("-v", "--verbose", action="count", \
+                     dest="verbosity", \
+                     help="How obnoxious we're being about telling the user what we're doing.")
+__cmdParser__.add_option("-m", "--multithreaded", action="store_true", \
+                     dest="multithread", \
+                     help="Use the multithreaded information gathering mode to speed up the report (experimental)")
+(__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
 def get_curse_options(alloptions):
-    #http://www.amk.ca/python/howto/curses/
-    #http://gnosis.cx/publish/programming/charming_python_6.html
-    #http://www.wanware.com/tsgdocs/snack.html
-    # /usr/share/doc/newt-devel-0.51.6/ 
-    #
-
+    """
+    use curses to enable the user to select some options
+    """
     # allooptions is an array of (plug, plugname, optname, parms(dictionary)) tuples
-    plugName=[]
-    out=[]
+    plugName = []
+    out = []
     
     # get a sorted list of all plugin names
-    for p in alloptions:
-        if p[1] not in plugName:
-            plugName.append(p[1])
+    for rrr in alloptions:
+        if rrr[1] not in plugName:
+            plugName.append(rrr[1])
 
     plugName.sort()
-    plugCbox=CheckboxTree(height=5,scroll=1)
+    plugCbox = CheckboxTree(height=5, scroll=1)
 
-    countOpt=-1
+    countOpt = -1
 
-    optDic={}
-    optDicCounter=0
+    optDic = {}
+    optDicCounter = 0
 
     # iterate over all plugins with options
     for curPlugName in plugName:
-        plugCbox.addItem(curPlugName,(snackArgs['append'],))
-        countOpt=countOpt+1
+        plugCbox.addItem(curPlugName, (snackArgs['append'],))
+        countOpt = countOpt+1
 
         for opt in alloptions:
             if opt[1] != curPlugName:
                 continue
 
-            optName=opt[2]
-            enabled=opt[3]['enabled']
-            speed=opt[3]['speed']
-            optDesc=opt[3]['desc']
-
-            snt=optName+" ("+optDesc+") is "+speed
-            plugCbox.addItem(snt,(countOpt,snackArgs['append']),item=optDicCounter,selected=enabled)
-            optDic[optDicCounter]=opt
-            optDicCounter+=1
+            snt = opt[2] + " ("+opt[3]['desc']+") is " + opt[3]['speed']
+            plugCbox.addItem(snt, (countOpt, snackArgs['append']), item = optDicCounter, selected = opt[3]['enabled'])
+            optDic[optDicCounter] = opt
+            optDicCounter += 1
             
 
     screen = SnackScreen()
@@ -95,25 +104,28 @@ def get_curse_options(alloptions):
     g = GridForm(screen, "Select Sosreport Options", 1, 10)
     g.add(plugCbox, 0, 0)
     g.add(bb, 0, 1, growx = 1)
-    result = g.runOnce()
+    g.runOnce()
 
     screen.finish()
 
-    for i in range(0, optDicCounter):
-        froo, wantit = plugCbox.getEntryValue(i)
-        optDic[i][3]['enabled'] = wantit
-        out.append((optDic[i]))
+    for rrr in range(0, optDicCounter):
+        optDic[rrr][3]['enabled'] =  plugCbox.getEntryValue(rrr)[1]
+        out.append((optDic[rrr]))
 
     return out
 
     
 def sosreport():
-    "This is the top-level function that gathers and processes all sosreport information"
+    # pylint: disable-msg = R0912
+    # pylint: disable-msg = R0914
+    # pylint: disable-msg = R0915
+    """
+    This is the top-level function that gathers and processes all sosreport information
+    """
     loadedplugins = []
     alloptions = []
-    threads = []
 
-    # TODO automatically locate the policy module??
+    # perhaps we should automatically locate the policy module??
     policy = sos.policyredhat.SosPolicy()
 
     # find the plugins path
@@ -121,11 +133,6 @@ def sosreport():
     for path in paths:
         if  path.strip()[-len("site-packages"):] == "site-packages":
             pluginpath = path + "/sos/plugins"
-
-    # TODO process command line to:
-    # load unsigned plugins
-    # disable one or more plugins
-    # set fast or slow collection without options menu presentation
 
     # Set up common info and create destinations
     
@@ -147,7 +154,7 @@ def sosreport():
 
     # validate and load plugins
     plugins = os.listdir(pluginpath)
-    if cmdLineOpts.listPlugins:
+    if __cmdLineOpts__.listPlugins:
         for plug in plugins:
             try:
                 if ((plug[-3:] == '.py') and (plug != "__init__.py")):
@@ -166,18 +173,16 @@ def sosreport():
                 #print "importing plugin: %s" % plugbase
                 try:
                     if policy.validatePlugin(pluginpath + plug):
-                        PluginClass = importPlugin(pidot, plugbase)
+                        pluginClass = importPlugin(pidot, plugbase)
                     else:
                         print "Plugin %s does not validate, skipping" % plug
                         continue
-                    loadedplugins.append((plugbase, PluginClass(plugbase, commons)))
+                    loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 except:
                     print "Plugin %s does not install, skipping" % plug
                     raise
-                    continue    
             except:
-                # TODO do better
-                if raiseplugins:
+                if __raisePlugins__:
                     raise
                 print "plugin load failed for %s" % plug
 
@@ -185,11 +190,11 @@ def sosreport():
 
     # First, gather and process options
     for plugname, plug in loadedplugins:
-        if cmdLineOpts.verbosity > 3:
+        if __cmdLineOpts__.verbosity > 3:
             print "processing options from plugin: %s" % plugname
         try:
-            len(cmdLineOpts.noplugins)
-            if plugname not in cmdLineOpts.noplugins:
+            len(__cmdLineOpts__.noplugins)
+            if plugname not in __cmdLineOpts__.noplugins:
                 names, parms = plug.getAllOptions()
                 for optname, optparm  in zip(names, parms):
                     alloptions.append((plug, plugname, optname, optparm))
@@ -198,44 +203,45 @@ def sosreport():
             for optname, optparm  in zip(names, parms):
                 alloptions.append((plug, plugname, optname, optparm))
 
-    if not cmdLineOpts.fastoptions and not cmdLineOpts.alloptions:
-        cursedOptions=get_curse_options(alloptions)
-    elif cmdLineOpts.fastoptions:
+    if not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.alloptions:
+        get_curse_options(alloptions)
+    elif __cmdLineOpts__.fastoptions:
         for i in range(len(alloptions)):
             for plug, plugname, optname, optparm in alloptions:
-                if optparm['speed']=='fast':
-                    plug.setOption(optname,1)
-    elif cmdLineOpts.alloptions:
+                if optparm['speed'] == 'fast':
+                    plug.setOption(optname, 1)
+    elif __cmdLineOpts__.alloptions:
         for i in range(len(alloptions)):
             for plug, plugname, optname, optparm in alloptions:
-                plug.setOption(optname,1)
+                plug.setOption(optname, 1)
 
     # Call the setup method for each plugin
     for plugname, plug in loadedplugins:
-        if cmdLineOpts.verbosity > 1:
+        if __cmdLineOpts__.verbosity > 1:
             print "Setting up plugin module %s" % plugname,
         plug.setup()
 
     # Call the collect method for each plugin
     for plugname, plug in loadedplugins:
-        if cmdLineOpts.verbosity > 0:
-            print "Executing plugin %s" % plugname,
-        if cmdLineOpts.multithread:
-            plug.doCollect(cmdLineOpts.verbosity)
+        if __cmdLineOpts__.verbosity > 0:
+            print "Executing plugin %s" % plugname
+        if __cmdLineOpts__.multithread:
+            plug.doCollect(__cmdLineOpts__.verbosity)
         else:
-            plug.copyStuff(cmdLineOpts.verbosity)    
+            plug.copyStuff(__cmdLineOpts__.verbosity)    
 
     # Wait for all the collection threads to exit
-    for plugname, plug in loadedplugins:
-        if cmdLineOpts.verbosity > 1:
-            print "Waiting for plugin %s to return" % plugname,
-        plug.wait()
+    if __cmdLineOpts__.multithread:
+        for plugname, plug in loadedplugins:
+            if __cmdLineOpts__.verbosity > 1:
+                print "Waiting for plugin %s to return" % plugname,
+            plug.wait()
 
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:
-        if cmdLineOpts.verbosity > 1:
+        if __cmdLineOpts__.verbosity > 1:
             print "Analyzing results of plugin %s" % plugname,
-        plug.analyze(cmdLineOpts.verbosity)
+        plug.analyze(__cmdLineOpts__.verbosity)
 
     # Sort the module names to do the report in alphabetical order
     loadedplugins.sort()
@@ -264,7 +270,6 @@ def sosreport():
     plugNames = []
     for plugname, plug in loadedplugins:
         for alert in plug.alerts:
-            # TODO include the plugin as a target of a link here
             allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname, alert))
         plugNames.append(plugname)
 
@@ -273,11 +278,10 @@ def sosreport():
     # Create a table of links to the module info
     rfd.write("<hr/><h3>Loaded Plugins:</h3>")
     rfd.write("<table><tr>\n")
-    qq = 0
     rr = 0
     for i in range(len(plugNames)):
         rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i], plugNames[i]))
-        qq, rr = divmod(i,4)
+        rr = divmod(i, 4)[1]
         if (rr == 3):
             rfd.write('</tr>')
     if not (rr == 3):

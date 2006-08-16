@@ -41,6 +41,5 @@ install:
 version:
 	@echo "The version is $(NAME)-$(VERSION)-$(RELEASE)"
 
-
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION)-$(RELEASE).tar.bz2

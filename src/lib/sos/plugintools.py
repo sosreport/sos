@@ -17,6 +17,17 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+# pylint: disable-msg = R0902
+# pylint: disable-msg = R0904
+# pylint: disable-msg = W0702
+# pylint: disable-msg = W0703
+# pylint: disable-msg = R0201
+# pylint: disable-msg = W0611
+# pylint: disable-msg = W0613
+
+"""
+This is the base class for sosreport plugins
+"""
 from sos.helpers import *
 from threading import Thread
 import os, os.path, sys, string, itertools, glob
@@ -26,10 +37,12 @@ class PluginBase:
     Base class for plugins
     """
     def __init__(self, pluginname, commons):
+        # pylint: disable-msg = E0203
         try:
-            foo = len(self.optionList)
+            len(self.optionList)
         except:
             self.optionList = []
+        # pylint: enable-msg = E0203
         self.copiedFiles = []
         self.copiedDirs = []
         self.executedCommands = []
@@ -42,15 +55,17 @@ class PluginBase:
         self.forbiddenPaths = []
         self.copyPaths = []
         self.collectProgs = []
+        self.thread = None
 
         # get the option list into a dictionary
         for opt in self.optionList:
             self.optNames.append(opt[0])
             self.optParms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
-        return
 
     # Methods for copying files and shelling out
     def doCopyFileOrDir(self, srcpath):
+        # pylint: disable-msg = R0912
+        # pylint: disable-msg = R0915
         ''' Copy file or directory to the destination tree. If a directory, then everything
         below it is recursively copied. A list of copied files are saved for use later
         in preparing a report
@@ -62,7 +77,7 @@ class PluginBase:
                 
         if copyProhibited:
             sys.stderr.write("%s is on the copyProhibited list\n" % srcpath)
-            sys.stderr.flush
+            sys.stderr.flush()
             return ''
 
         if os.path.islink(srcpath):
@@ -90,49 +105,49 @@ class PluginBase:
                 dstslname = link
 
             if os.path.isdir(srcpath):
-                for file in os.listdir(srcpath):
-                    if file == '.' or file == '..':
+                for afile in os.listdir(srcpath):
+                    if afile == '.' or afile == '..':
                         pass
                     else:
                         try:
-                          abspath = self.doCopyFileOrDir(srcpath+'/'+file)
+                            abspath = self.doCopyFileOrDir(srcpath+'/'+afile)
                         except:
-                          sys.stderr.write("1Problem at path %s\n" %  srcpath+'/'+file,)
-                          sys.stderr.flush()
+                            sys.stderr.write("1Problem at path %s\n" %  srcpath+'/'+afile,)
+                            sys.stderr.flush()
                         # if on forbidden list, abspath is null
                         if not abspath == '':
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
                             self.copiedDirs.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
             else:
                 try:
-                  dstslname, abspath = self.__copyFile(srcpath)
+                    dstslname, abspath = self.__copyFile(srcpath)
                 except:
-                  sys.stderr.write("2Problem at path %s\n" % srcpath)
-                  sys.stderr.flush()
+                    sys.stderr.write("2Problem at path %s\n" % srcpath)
+                    sys.stderr.flush()
                 self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
 
             # Recurse to copy whatever it points to
             newpath = os.path.normpath(os.path.join(os.path.dirname(srcpath), link))
             try:
-              self.doCopyFileOrDir(newpath)
+                self.doCopyFileOrDir(newpath)
             except:
-              sys.stderr.write("3Problem at path %s" % newpath,)
-              sys.stderr.flush
+                sys.stderr.write("3Problem at path %s" % newpath,)
+                sys.stderr.flush()
             return abspath
 
         else:
             if not os.path.exists(srcpath):
                 self.cInfo['logfd'].write("File or directory %s does not exist\n" % srcpath)
             elif  os.path.isdir(srcpath):
-                for file in os.listdir(srcpath):
-                    if file == '.' or file == '..':
+                for afile in os.listdir(srcpath):
+                    if afile == '.' or afile == '..':
                         pass
                     else:
-                        self.doCopyFileOrDir(srcpath+'/'+file)
+                        self.doCopyFileOrDir(srcpath+'/'+afile)
             else:
                 # This is not a directory or a symlink
                 tdstpath, abspath = self.__copyFile(srcpath)
-                self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath,'symlink':"no"}) # save in our list
+                self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
                 return abspath
 
     def __copyFile(self, src):
@@ -140,16 +155,16 @@ class PluginBase:
         destination file name.
         """
         try:
-          status, shout, sherr = sosGetCommandOutput("/bin/cp --parents " + src +" " + self.cInfo['dstroot'])
-          self.cInfo['logfd'].write(shout)
-          self.cInfo['logfd'].write(sherr)
-          #sosStatus(status)
-          abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
-          relpath = sosRelPath(self.cInfo['rptdir'], abspath)
-          return relpath, abspath
+            # pylint: disable-msg = W0612
+            status, shout, sherr = sosGetCommandOutput("/bin/cp --parents " + src +" " + self.cInfo['dstroot'])
+            self.cInfo['logfd'].write(shout)
+            self.cInfo['logfd'].write(sherr)
+            abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
+            relpath = sosRelPath(self.cInfo['rptdir'], abspath)
+            return relpath, abspath
         except Exception,e:
-          sys.stderr.write("4Problem copying file %s\n" % src,)
-          print e
+            sys.stderr.write("4Problem copying file %s\n" % src,)
+            print e
 
     def addForbiddenPath(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copyPaths[] entry.
@@ -158,6 +173,9 @@ class PluginBase:
         self.forbiddenPaths.append(forbiddenPath)
     
     def getAllOptions(self):
+        """
+        return a list of all options selected
+        """
         return (self.optNames, self.optParms)
   
     def setOption(self, optionname, enable):
@@ -182,7 +200,7 @@ class PluginBase:
         """
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(copyspec):
-          self.copyPaths.append(filespec)
+            self.copyPaths.append(filespec)
 
     def copyFileGlob(self, srcglob):
         """ Deprecated - please modify modules to use addCopySpec()
@@ -197,7 +215,7 @@ class PluginBase:
         sys.stderr.write("Warning: the copyFileOrDir() function has been deprecated.  Please\n")
         sys.stderr.write("use addCopySpec() instead.  Calling addCopySpec() now.\n")
         raise ValueError
-        self.addCopySpec(srcpath)
+        #self.addCopySpec(srcpath)
         
     def runExeInd(self, exe):
         """ Deprecated - use callExtProg()
@@ -214,7 +232,8 @@ class PluginBase:
         # First check to make sure the binary exists and is runnable.
         if not os.access(prog.split()[0], os.X_OK):
             return
-                                                    
+
+        # pylint: disable-msg = W0612
         status, shout, sherr = sosGetCommandOutput(prog)                                                            
         return status
                                                                         
@@ -226,6 +245,9 @@ class PluginBase:
         pass
 
     def collectExtOutput(self, exe):
+        """
+        Run a program and collect the output
+        """
         self.collectProgs.append(exe)
 
     def collectOutputNow(self, exe):
@@ -236,6 +258,7 @@ class PluginBase:
         if not os.access(exe.split()[0], os.X_OK):
             return
 
+        # pylint: disable-msg = W0612
         status, shout, sherr = sosGetCommandOutput(exe)
 
         # build file name for output
@@ -277,13 +300,22 @@ class PluginBase:
         return
 
     def doCollect(self, verbosity):
-        self.thread = Thread(target=self.copyStuff,name=self.piName+'-thread',args=(verbosity,))
+        """
+        create a thread which calls the copyStuff method for a plugin
+        """
+        self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread', args=(verbosity,))
         self.thread.start()
         
     def wait(self):
+        """
+        wait for a thread to complete - only called for threaded execution
+        """
         self.thread.join()
 
     def copyStuff(self, verbosity):
+        """
+        Collect the data for a plugin
+        """
         for path in self.copyPaths:
             try:
                 self.doCopyFileOrDir(path)
@@ -311,16 +343,22 @@ class PluginBase:
         pass
 
     def analyze(self, verbosity):
+        """
+        perform any analysis. To be replaced by a plugin if desired
+        """
         pass
 
     def postproc(self, dstroot):
+        """
+        perform any postprocessing. To be replaced by a plugin if desired
+        """
         pass
     
     def report(self):
         """ Present all information that was gathered in an html file that allows browsing
         the results.
         """
-        # TODO make this prettier, this is a first pass
+        # make this prettier
         html = '<hr/><a name="%s"></a>\n' % self.piName
 
         # Intro
@@ -329,20 +367,20 @@ class PluginBase:
         # Files
         if len(self.copiedFiles):
             html = html + "<p>Files copied:<br><ul>\n"
-            for file in self.copiedFiles:
-                html = html + '<li><a href="%s">%s</a>' % (file['dstpath'], file['srcpath'])
-                if (file['symlink'] == "yes"):
-                    html = html + " (symlink to %s)" % file['pointsto']
+            for afile in self.copiedFiles:
+                html = html + '<li><a href="%s">%s</a>' % (afile['dstpath'], afile['srcpath'])
+                if (afile['symlink'] == "yes"):
+                    html = html + " (symlink to %s)" % afile['pointsto']
                 html = html + '</li>\n'
             html = html + "</ul></p>\n"
 
         # Dirs
         if len(self.copiedDirs):
             html = html + "<p>Directories Copied:<br><ul>\n"
-            for dir in self.copiedDirs:
-                html = html + '<li><a href="%s">%s</a>\n' % (dir['dstpath'], dir['srcpath'])
-                if (dir['symlink'] == "yes"):
-                    html = html + " (symlink to %s)" % dir['pointsto']
+            for adir in self.copiedDirs:
+                html = html + '<li><a href="%s">%s</a>\n' % (adir['dstpath'], adir['srcpath'])
+                if (adir['symlink'] == "yes"):
+                    html = html + " (symlink to %s)" % adir['pointsto']
                 html = html + '</li>\n'
             html = html + "</ul></p>\n"
 
