@@ -1,12 +1,3 @@
-#NEEDSWORK:
-#- Your upstream software release number is different from the rpm release
-#number.  Upstream release is the rpm version.  rpm release would be how many
-#times we've had to respin this version of the software for various reasons
-#(build system changes, gcc changes, spec bug fixes, etc...)  The two should
-#_not_ be tied together.
-#- Changelog entry doesn't match release number.  (10 vs 11)
-#- %setup section should have -q.
-
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Summary: System Support Tools
