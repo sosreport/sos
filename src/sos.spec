@@ -12,8 +12,7 @@
 Summary: System Support Tools
 Name: sos
 Version: 1.0
-# change release in setup.py and this file
-Release: 10%{?dist}
+Release: 1%{?dist}
 License: GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -56,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 
 %changelog
+* Wed Aug 30 2006 Steve Conklin <sconklin at redhat dot com> - 1.0-1
+- Seperated upstream and RPM versioning
+
 * Mon Aug 21 2006 Steve Conklin <sconklin at redhat dot com> - 0.1-11
 - Code cleanup, fixed a regression in threading
 
