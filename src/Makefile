@@ -3,10 +3,9 @@
 #
 
 NAME    = sos
-VERSION = $(shell awk '/define version/ { print $$3 }' sos.spec)
-RELEASE = $(shell awk '/define release/ { print $$3 }' sos.spec)
+VERSION = $(shell awk '/Version/ { print $$2 }' sos.spec)
 REPO = https://sos.108.redhat.com/svn/sos
-SVNTAG  = r$(subst .,-,$(VERSION)-$(RELEASE))
+SVNTAG  = r$(subst .,-,$(VERSION))
 
 
 all:
@@ -39,7 +38,7 @@ install:
 	python setup.py install
 
 version:
-	@echo "The version is $(NAME)-$(VERSION)-$(RELEASE)"
+	@echo "The version is $(NAME)-$(VERSION)"
 
 clean:
-	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION)-$(RELEASE).tar.bz2
+	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2

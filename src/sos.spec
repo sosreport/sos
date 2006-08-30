@@ -1,16 +1,19 @@
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
-%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
-%{!?python_siteinc: %define python_siteinc %(%{__python} -c "from distutils.sysconfig import get_python_inc; print get_python_inc()")}
+#NEEDSWORK:
+#- Your upstream software release number is different from the rpm release
+#number.  Upstream release is the rpm version.  rpm release would be how many
+#times we've had to respin this version of the software for various reasons
+#(build system changes, gcc changes, spec bug fixes, etc...)  The two should
+#_not_ be tied together.
+#- Changelog entry doesn't match release number.  (10 vs 11)
+#- %setup section should have -q.
 
-%define name sos
-%define version 0.1
-# change release in setup.py and this file
-%define release 10
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Summary: System Support Tools
-Name: %{name}
-Version: %{version}
-Release: %{release}%{?dist}
+Name: sos
+Version: 1.0
+# change release in setup.py and this file
+Release: 10%{?dist}
 License: GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -28,7 +31,7 @@ support technicians and developers.
 
  
 %prep
-%setup
+%setup -q
 
 %build
 python setup.py -q build
@@ -53,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 
 %changelog
+* Mon Aug 21 2006 Steve Conklin <sconklin at redhat dot com> - 0.1-11
+- Code cleanup, fixed a regression in threading
+
 * Mon Aug 14 2006 Steve Conklin <sconklin at redhat dot com> - 0.1-10
 - minor bugfixes, added miltithreading option, setup now quiet
 
