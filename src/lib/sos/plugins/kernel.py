@@ -13,17 +13,42 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import commands, os
+import commands, os, re
 
 class kernel(sos.plugintools.PluginBase):
     """This plugin gathers kernel related information
     """
     optionList = [("modinfo", 'Gathers module information on all modules', 'fast', 1),
                   ('sysrq', 'Trigger SysRq dumps', 'fast', 1)]
+    moduleFile = ""
+    taintList = [
+        {'regex':'mvfs*', 'description':'Clearcase module'},
+        {'regex':'vnode*', 'description':'Clearcase module'},
+        {'regex':'vxfs*', 'description':'Veritas file system module'},
+        {'regex':'vxportal*', 'description':'Veritas module'},
+        {'regex':'vxdmp*', 'description':'Veritas dynamic multipathing module'},
+        {'regex':'vxio*', 'description':'Veritas module'},
+        {'regex':'vxspec*"', 'description':'Veritas module'},
+        {'regex':'dcd*', 'description':'Dell OpenManage Server Administrator module'},
+        {'regex':'ocfs', 'description':'Oracle cluster filesystem module'},
+        {'regex':'oracle*', 'description':'Oracle module'},
+        {'regex':'vmnet*', 'description':'VMware module'},
+        {'regex':'vmmon*', 'description':'VMware module'},
+        {'regex':'egenera*', 'description':'Egenera module'},
+        {'regex':'emcp*', 'description':'EMC module'},
+        {'regex':'ocfs*', 'description':'OCFS module'},
+        {'regex':'nvidea', 'description':'nVidea module'},
+        {'regex':'ati-', 'description':'ATI module'}
+        ]
+
+        # HP
+        #
+        #
+
     
     def setup(self):
         self.collectExtOutput("/bin/uname -a")
-        self.collectExtOutput("/sbin/lsmod")
+        self.moduleFile = self.collectOutputNow("/sbin/lsmod")
         if self.isOptionEnabled('modinfo'):
           for kmod in commands.getoutput('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null').split('\n'):
             if '' != kmod.strip():
@@ -43,6 +68,7 @@ class kernel(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/sbin/dkms status")
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/proc/driver")
+        self.addCopySpec("/proc/sys/kernel/tainted")
         # trigger some sysrq's.  I'm not sure I like doing it this way, but
         # since we end up with the sysrq dumps in syslog whether we run the 
         # syslog report before or after this, I suppose I can live with it.
@@ -59,3 +85,26 @@ class kernel(sos.plugintools.PluginBase):
         
         return
 
+    def analyze(self):
+        savedtaint = os.path.join(self.cInfo['dstroot'], "/proc/sys/kernel/tainted")
+        infd = open(savedtaint, "r")
+        line = infd.read()
+        infd.close()
+        line = line.strip()
+        if (line != "0"):
+            self.addAlert("Kernel taint flag is <%s>\n" % line)
+
+
+        infd = open(self.moduleFile, "r")
+        modules = infd.readlines()
+        infd.close()
+
+        #print(modules)
+        for tainter in self.taintList:
+            p = re.compile(tainter['regex'])
+            for line in modules:
+                if p.match(line) != None:
+                    # found a taint match, create an alert
+                    moduleName = line.split()[0]
+                    self.addAlert("Check for tainted kernel by module %s, which is %s" % (moduleName, tainter['description']))
+        return

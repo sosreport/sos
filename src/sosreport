@@ -149,7 +149,8 @@ def sosreport():
     logfd = open(logdir + "/sos.log", "w")
 
     # set up dict so everyone can share the following
-    commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir, 'logfd': logfd, 'policy': policy}
+    commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir,
+               'logfd': logfd, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity}
 
 
     # validate and load plugins
@@ -226,9 +227,9 @@ def sosreport():
         if __cmdLineOpts__.verbosity > 0:
             print "Executing plugin %s" % plugname
         if __cmdLineOpts__.multithread:
-            plug.doCollect(__cmdLineOpts__.verbosity)
+            plug.doCollect()
         else:
-            plug.copyStuff(__cmdLineOpts__.verbosity)    
+            plug.copyStuff()    
 
     # Wait for all the collection threads to exit
     if __cmdLineOpts__.multithread:
@@ -241,7 +242,7 @@ def sosreport():
     for plugname, plug in loadedplugins:
         if __cmdLineOpts__.verbosity > 1:
             print "Analyzing results of plugin %s" % plugname,
-        plug.analyze(__cmdLineOpts__.verbosity)
+        plug.analyze()
 
     # Sort the module names to do the report in alphabetical order
     loadedplugins.sort()

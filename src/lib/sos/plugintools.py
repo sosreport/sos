@@ -299,10 +299,11 @@ class PluginBase:
         self.customText = self.customText + text
         return
 
-    def doCollect(self, verbosity):
+    def doCollect(self):
         """
         create a thread which calls the copyStuff method for a plugin
         """
+        verbosity = self.cInfo['verbosity']
         self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread', args=(verbosity,))
         self.thread.start()
         
@@ -312,7 +313,7 @@ class PluginBase:
         """
         self.thread.join()
 
-    def copyStuff(self, verbosity):
+    def copyStuff(self):
         """
         Collect the data for a plugin
         """
@@ -342,7 +343,7 @@ class PluginBase:
         """
         pass
 
-    def analyze(self, verbosity):
+    def analyze(self):
         """
         perform any analysis. To be replaced by a plugin if desired
         """
