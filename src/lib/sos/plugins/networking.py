@@ -50,7 +50,7 @@ class networking(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/iptables -t filter -nvL")
         self.collectExtOutput("/sbin/iptables -t nat -nvL")
         self.collectExtOutput("/sbin/iptables -t mangle -nvL")
-        self.collectExtOutput("/bin/netstat -a")
+        self.collectExtOutput("/bin/netstat -nap")
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
