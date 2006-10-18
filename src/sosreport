@@ -133,6 +133,7 @@ def sosreport():
     for path in paths:
         if  path.strip()[-len("site-packages"):] == "site-packages":
             pluginpath = path + "/sos/plugins"
+            reporterpath = path + "/sos/reporters"
 
     # Set up common info and create destinations
     
@@ -312,8 +313,11 @@ def sosreport():
     logfd.close()
 
     # Call the postproc method for each plugin
-    for plugname, plug in loadedplugins:
-        root = plug.postproc(dstroot)
+    # Need to redo this completely to use only one selected reporter module
+    # This will require hackery and demagaugery, so for now, we'll just
+    # do something really offensively squinky.
+    import sos.reporters.tarball
+    sos.reporters.tarball.postproc()
 
     if root == dstroot:
         print "The report is in " + rptdir + "/" + "sosreport.html"
