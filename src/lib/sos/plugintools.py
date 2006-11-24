@@ -156,7 +156,7 @@ class PluginBase:
         """
         try:
             # pylint: disable-msg = W0612
-            status, shout, sherr = sosGetCommandOutput("/bin/cp --parents " + src +" " + self.cInfo['dstroot'])
+            status, shout, sherr = sosGetCommandOutput("/bin/cp --parents -p " + src +" " + self.cInfo['dstroot'])
             self.cInfo['logfd'].write(shout)
             self.cInfo['logfd'].write(sherr)
             abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
