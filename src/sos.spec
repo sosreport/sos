@@ -2,7 +2,7 @@
 
 Summary: System Support Tools
 Name: sos
-Version: 1.0
+Version: 1.1
 Release: 1%{?dist}
 License: GPL
 Group: Development/Libraries
@@ -46,6 +46,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 
 %changelog
+* Fri Dec 15 2006 Steve Conklin <sconklin at redhat dot com> - 1.1-1
+- Tighten permissions of tmp directory so only readable by creator bz_219657
+- Don't try to copy nonexistant targets of symlinks bz_219654
+- Removed useless message bz_219670
+- Preserve file modification times bz_219674
+- Removed unneeded confusing message bz_219712
+
 * Wed Aug 30 2006 Steve Conklin <sconklin at redhat dot com> - 1.0-1
 - Seperated upstream and RPM versioning
 

@@ -17,10 +17,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#import os.path
-#import copy
-#import md5
 import os
+import sys
+import string
+from tempfile import gettempdir
+from sos.helpers import *
 
 SOME_PATH = "/tmp/SomePath"
 
@@ -37,6 +38,10 @@ class SosPolicy:
     "This class implements various policies for sos"
     def __init__(self):
         #print "Policy init"
+        return
+
+    def setCommons(self, commons):
+        self.cInfo = commons
         return
 
     def validatePlugin(self, pluginpath):
@@ -68,3 +73,40 @@ class SosPolicy:
         name = "-".join(fields[:-3])
         return (name, version, release, arch)
 
+    def packageResults(self):
+        print "Packaging reults to send to support . . ."
+
+        print "Please enter your first initial and last name (jsmith): ",
+        name = sys.stdin.readline()[:-1]
+
+        print "Please enter the case number that you are generating this",
+        print "report for: ",
+        ticketNumber = sys.stdin.readline()[:-1]
+
+        namestr = name + "." + ticketNumber
+        ourtempdir = gettempdir()
+        tarballName = os.path.join(ourtempdir,  namestr + ".tar.bz2")
+
+        aliasdir = os.path.join(ourtempdir, namestr)
+
+        tarcmd = "/bin/tar -jcf %s %s" % (tarballName, namestr)
+
+        print "Creating tar file . . ."
+        if not os.access(string.split(tarcmd)[0], os.X_OK):
+            print "Unable to create tarball"
+            return
+
+        # gotta be a better way . . .
+        os.system("/bin/mv %s %s" % (self.cInfo['dstroot'], aliasdir))
+        curwd = os.getcwd()
+        os.chdir(ourtempdir)
+        oldmask = os.umask(077)
+        # pylint: disable-msg = W0612
+        status, shout, sherr = sosGetCommandOutput(tarcmd)
+        os.umask(oldmask)
+        os.chdir(curwd)
+        os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
+
+	print "Your tarball is located at %s" % tarballName
+        return
+        

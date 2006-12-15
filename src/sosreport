@@ -49,6 +49,9 @@ __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
 __cmdParser__.add_option("-f", "--fastoptions", action="store_true", \
                      dest="fastoptions", default=False, \
                      help="Use only fast options for loaded plugins")
+__cmdParser__.add_option("-g", "--gatheronly", action="store_true", \
+                     dest="gatheronly", default=False, \
+                     help="Gather information locally but don't package or submit")
 __cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
                      dest="listPlugins", default=False, \
                      help="list existing plugins")
@@ -138,7 +141,6 @@ def sosreport():
     # Set up common info and create destinations
     
     dstroot = sosFindTmpDir()
-    os.chmod(dstroot, 0755)
     cmddir = os.path.join(dstroot, "sos_commands")
     logdir = os.path.join(dstroot, "sos_logs")
     rptdir = os.path.join(dstroot, "sos_reports")
@@ -154,6 +156,9 @@ def sosreport():
                'logfd': logfd, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity}
 
 
+    # Make policy aware of the commons
+    policy.setCommons(commons)
+    
     # validate and load plugins
     plugins = os.listdir(pluginpath)
     if __cmdLineOpts__.listPlugins:
@@ -262,10 +267,6 @@ def sosreport():
         <body>
     """)
 
-    rfd.write("Sosreport version blah blah<br />")
-
-    
-
 
     # Make a pass to gather Alerts and a list of module names
     allAlerts = []
@@ -308,19 +309,23 @@ def sosreport():
 
     # Collect any needed user information (name, etc)
 
-    # Clean up left over files, make tarball, whatever.
     # Close all log files and perform any cleanup
     logfd.close()
 
     # Call the postproc method for each plugin
-    # Need to redo this completely to use only one selected reporter module
-    # This will require hackery and demagaugery, so for now, we'll just
-    # do something really offensively squinky.
-    import sos.reporters.tarball
-    sos.reporters.tarball.postproc()
-
-    if root == dstroot:
-        print "The report is in " + rptdir + "/" + "sosreport.html"
+    for plugname, plug in loadedplugins:
+        plug.postproc()
+  
+    if __cmdLineOpts__.gatheronly:
+        print "Collected information is in " + dstroot
+        print "Your html report is in " + rptdir + "/" + "sosreport.html"
+    else:
+        # package up the results for the support organization
+        policy.packageResults()
+        # delete gathered files
+        os.system("rm -rf %s" % dstroot)
+        # automated submission will go here
+ 
     
 if __name__ == '__main__':
     sosreport()

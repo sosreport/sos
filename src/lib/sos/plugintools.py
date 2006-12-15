@@ -74,12 +74,10 @@ class PluginBase:
         for path in self.forbiddenPaths:
             if ( srcpath.count(path) > 0 ):
                 copyProhibited = 1
-                
-        if copyProhibited:
-            sys.stderr.write("%s is on the copyProhibited list\n" % srcpath)
-            sys.stderr.flush()
-            return ''
 
+        if copyProhibited:
+            return ''
+                
         if os.path.islink(srcpath):
             # This is a symlink - We need to also copy the file that it points to
             # file and dir symlinks ar ehandled the same
@@ -112,7 +110,7 @@ class PluginBase:
                         try:
                             abspath = self.doCopyFileOrDir(srcpath+'/'+afile)
                         except:
-                            sys.stderr.write("1Problem at path %s\n" %  srcpath+'/'+afile,)
+                            sys.stderr.write("1Problem at path %s\n" %  srcpath+'/'+afile)
                             sys.stderr.flush()
                         # if on forbidden list, abspath is null
                         if not abspath == '':
@@ -121,18 +119,21 @@ class PluginBase:
             else:
                 try:
                     dstslname, abspath = self.__copyFile(srcpath)
+                    self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
                 except:
                     sys.stderr.write("2Problem at path %s\n" % srcpath)
                     sys.stderr.flush()
-                self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
+
 
             # Recurse to copy whatever it points to
             newpath = os.path.normpath(os.path.join(os.path.dirname(srcpath), link))
-            try:
-                self.doCopyFileOrDir(newpath)
-            except:
-                sys.stderr.write("3Problem at path %s" % newpath,)
-                sys.stderr.flush()
+            if os.path.exists(newpath):
+                try:
+                    self.doCopyFileOrDir(newpath)
+                except:
+                    sys.stderr.write("3Problem at path %s" % newpath)
+                    sys.stderr.flush()
+            
             return abspath
 
         else:
@@ -349,7 +350,7 @@ class PluginBase:
         """
         pass
 
-    def postproc(self, dstroot):
+    def postproc(self):
         """
         perform any postprocessing. To be replaced by a plugin if desired
         """
