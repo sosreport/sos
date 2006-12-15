@@ -127,11 +127,12 @@ class PluginBase:
 
             # Recurse to copy whatever it points to
             newpath = os.path.normpath(os.path.join(os.path.dirname(srcpath), link))
-            if os.path.exists(newpath):
-                try:
-                    self.doCopyFileOrDir(newpath)
-                except:
-                    sys.stderr.write("3Problem at path %s" % newpath)
+            try:
+                self.doCopyFileOrDir(newpath)
+            except EnvironmentError, (errno, strerror):
+                if (errno != 17):
+                    # we ignore 'file exists' errors
+                    sys.stderr.write("3Problem at path %s\n" % newpath)
                     sys.stderr.flush()
             
             return abspath
