@@ -9,7 +9,7 @@ import sys,os,time
 # change release in spec file along with this version string
 setup(
 	name = 'sos',
-	version = '1.1',
+	version = '1.2',
 	description = 'System Support Tools',
 	long_description = """Sos is a set of tools that gathers information about system
 	hardware and configuration. The information can then be used for

@@ -2,7 +2,7 @@
 
 Summary: System Support Tools
 Name: sos
-Version: 1.1
+Version: 1.2
 Release: 1%{?dist}
 License: GPL
 Group: Development/Libraries
