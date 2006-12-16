@@ -173,7 +173,7 @@ def sosreport():
         sys.exit()
 
     for plug in plugins:
-        if ((plug[-3:] == '.py') and (plug != "__init__.py")):
+        if ((plug[-3:] == '.py') and (plug != "__init__.py") and (plug[:-3] not in __cmdLineOpts__.noplugins)  ):
             try:
                 plugbase =  plug[:-3]
                 pidot = "sos.plugins." + plugbase
