@@ -44,7 +44,7 @@ __raisePlugins__ = 1
 
 __cmdParser__ = OptionParser()
 __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
-                     dest="alloptions", default=False, \
+                     dest="usealloptions", default=False, \
                      help="Use all options for loaded plugins")
 __cmdParser__.add_option("-f", "--fastoptions", action="store_true", \
                      dest="fastoptions", default=False, \
@@ -70,7 +70,7 @@ def get_curse_options(alloptions):
     """
     use curses to enable the user to select some options
     """
-    # allooptions is an array of (plug, plugname, optname, parms(dictionary)) tuples
+    # alloptions is an array of (plug, plugname, optname, parms(dictionary)) tuples
     plugName = []
     out = []
     
@@ -173,7 +173,7 @@ def sosreport():
         sys.exit()
 
     for plug in plugins:
-        if ((plug[-3:] == '.py') and (plug != "__init__.py") and (plug[:-3] not in __cmdLineOpts__.noplugins)  ):
+        if ((plug[-3:] == '.py') and (plug != "__init__.py") and (not __cmdLineOpts__.noplugins or (plug[:-3] not in __cmdLineOpts__.noplugins))  ):
             try:
                 plugbase =  plug[:-3]
                 pidot = "sos.plugins." + plugbase
@@ -210,7 +210,7 @@ def sosreport():
             for optname, optparm  in zip(names, parms):
                 alloptions.append((plug, plugname, optname, optparm))
 
-    if not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.alloptions:
+    if not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.usealloptions:
         get_curse_options(alloptions)
     elif __cmdLineOpts__.fastoptions:
         for i in range(len(alloptions)):
