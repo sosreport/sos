@@ -76,14 +76,19 @@ class SosPolicy:
     def packageResults(self):
         print "Packaging reults to send to support . . ."
 
-        print "Please enter your first initial and last name (jsmith): ",
-        name = sys.stdin.readline()[:-1]
+        name=""
+        while len(name)==0:
+            print "Please enter your first initial and last name (jsmith): ",
+            name = sys.stdin.readline()[:-1]
 
         print "Please enter the case number that you are generating this",
         print "report for: ",
         ticketNumber = sys.stdin.readline()[:-1]
 
-        namestr = name + "." + ticketNumber
+        if len(ticketNumber):
+            namestr = name + "." + ticketNumber
+        else:
+            namestr = name
         ourtempdir = gettempdir()
         tarballName = os.path.join(ourtempdir,  namestr + ".tar.bz2")
 
