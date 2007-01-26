@@ -33,3 +33,6 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/uptime")
         return
 
+    def postproc(self):
+        self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
+        return

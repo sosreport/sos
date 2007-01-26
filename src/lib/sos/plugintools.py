@@ -30,7 +30,7 @@ This is the base class for sosreport plugins
 """
 from sos.helpers import *
 from threading import Thread
-import os, os.path, sys, string, itertools, glob
+import os, os.path, sys, string, itertools, glob, re
 
 class PluginBase:
     """
@@ -61,6 +61,29 @@ class PluginBase:
         for opt in self.optionList:
             self.optNames.append(opt[0])
             self.optParms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
+
+    # Method for applying regexp substitutions
+    def doRegexSub(self, srcpath, regexp, subst):
+        '''Apply a regexp substitution to a file archived by sosreport.
+        '''
+        if len(self.copiedFiles):
+            for afile in self.copiedFiles:
+                if afile['srcpath'] == srcpath:
+                    abspath = os.path.join(self.cInfo['dstroot'], srcpath.lstrip(os.path.sep))
+                    try:
+                        fp = open(abspath, 'r')
+                        tmpout, occurs = re.subn( regexp, subst, fp.read() )
+                        fp.close()
+                        if occurs > 0:
+                           fp = open(abspath,'w')
+                           fp.write(tmpout)
+                           fp.close()
+                           return occurs
+                    except:
+                        sys.stderr.write("Problem at path %s\n" % abspath)
+                        sys.stderr.flush()
+                        break
+        return False
 
     # Methods for copying files and shelling out
     def doCopyFileOrDir(self, srcpath):
