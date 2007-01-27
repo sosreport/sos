@@ -32,7 +32,31 @@ from optparse import OptionParser
 import sos.policyredhat
 from sos.helpers import *
 from snack import *
-from threading import Thread
+from threading import Thread, activeCount, enumerate
+import signal
+
+def exittermhandler(signum, frame):
+    if activeCount() > 1:
+        print "SIGTERM received, multiple threads detected, waiting for all threads to exit"
+        for thread in enumerate:
+            thread.wait()
+        print "All threads ended, cleaning up."
+    else:
+        print "SIGTERM received, cleaning up"
+    # Add code here to clean up /tmp
+    
+def exitkillhandler(signum, frame):
+    if activeCount() > 1:
+        # Figure out how to kill threads and put that code here
+    else:
+        print "SIGKILL received, exiting without cleaning up.
+    sys.exit(255)
+
+# Handle any sort of exit signal cleanly
+# Currently, we intercept only sig 9 and 15 (KILL and TERM)
+signal.signal(signal.SIGTERM, exittermhandler)
+signal.signal(signal.SIGKILL, exitkillhandler)
+
 
 if os.getuid() != 0:
     print 'You must run sosreport as root!'
