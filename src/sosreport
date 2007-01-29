@@ -35,27 +35,29 @@ from snack import *
 from threading import Thread, activeCount, enumerate
 import signal
 
+
+## Set up routines to be linked to signals for termination handling
 def exittermhandler(signum, frame):
+    doExitCode()
+
+def doExitCode():
     if activeCount() > 1:
         print "SIGTERM received, multiple threads detected, waiting for all threads to exit"
-        for thread in enumerate:
+        for thread in enumerate():
             thread.wait()
         print "All threads ended, cleaning up."
     else:
         print "SIGTERM received, cleaning up"
-    # Add code here to clean up /tmp
-    
-def exitkillhandler(signum, frame):
-    if activeCount() > 1:
-        # Figure out how to kill threads and put that code here
-    else:
-        print "SIGKILL received, exiting without cleaning up.
+    # FIXME: Add code here to clean up /tmp
     sys.exit(255)
-
+    
 # Handle any sort of exit signal cleanly
-# Currently, we intercept only sig 9 and 15 (KILL and TERM)
+# Currently, we intercept only sig 15 (TERM)
 signal.signal(signal.SIGTERM, exittermhandler)
-signal.signal(signal.SIGKILL, exitkillhandler)
+
+## FIXME: Need to figure out how to IPC with child threads in case of
+## multiple SIGTERMs.
+## FIXME: Need to figure out how to handle SIGKILL - we can't intercept it.
 
 
 if os.getuid() != 0:
@@ -352,4 +354,7 @@ def sosreport():
  
     
 if __name__ == '__main__':
-    sosreport()
+    try:
+        sosreport()
+    except KeyboardInterrupt:
+        doExitCode()

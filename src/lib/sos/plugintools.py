@@ -29,7 +29,7 @@
 This is the base class for sosreport plugins
 """
 from sos.helpers import *
-from threading import Thread
+from threading import Thread, activeCount
 import os, os.path, sys, string, itertools, glob, re
 
 class PluginBase:
