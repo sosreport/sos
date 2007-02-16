@@ -54,7 +54,7 @@ def doExitCode():
         ## FIXME: Add thread-kill code (see FIXME below)
         print "Threads dead, cleaning up."
     if ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
-        print "Multiple SIGTERMs, single thread, exiting without cleaning up.
+        print "Multiple SIGTERMs, single thread, exiting without cleaning up."
         sys.exit(3)
     # FIXME: Add code here to clean up /tmp
     sys.exit(255)
