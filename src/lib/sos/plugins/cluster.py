@@ -21,5 +21,10 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/cluster.conf")
         self.addCopySpec("/etc/cluster.xml")
         self.addCopySpec("/etc/cluster")
+        self.collectExtOutput("/usr/sbin/rg_test test /etc/cluster/cluster.conf")
+        self.addCopySpec("/proc/cluster")
         return
 
+    def postproc(self):
+        self.doRegexSub("/etc/cluster/cluster.conf", r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1***")
+        return
