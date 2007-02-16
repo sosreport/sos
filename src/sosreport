@@ -52,7 +52,7 @@ def doExitCode():
     if ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
         print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately"
         ## FIXME: Add thread-kill code (see FIXME below)
-        print "Threads dead, cleaning up.
+        print "Threads dead, cleaning up."
     if ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
         print "Multiple SIGTERMs, single thread, exiting without cleaning up.
         sys.exit(3)
