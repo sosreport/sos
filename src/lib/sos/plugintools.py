@@ -79,7 +79,12 @@ class PluginBase:
                            fp.write(tmpout)
                            fp.close()
                            return occurs
-                    except:
+                    except SystemExit:
+                      raise SystemExit
+                    except KeyboardInterrupt:
+                      raise KeyboardInterrupt
+                    except Exception, e:
+                        print e
                         sys.stderr.write("Problem at path %s\n" % abspath)
                         sys.stderr.flush()
                         break
@@ -132,7 +137,12 @@ class PluginBase:
                     else:
                         try:
                             abspath = self.doCopyFileOrDir(srcpath+'/'+afile)
-                        except:
+                        except SystemExit:
+                          raise SystemExit
+                        except KeyboardInterrupt:
+                          raise KeyboardInterrupt
+                        except Exception, e:
+                            print e
                             sys.stderr.write("1Problem at path %s\n" %  srcpath+'/'+afile)
                             sys.stderr.flush()
                         # if on forbidden list, abspath is null
@@ -143,7 +153,12 @@ class PluginBase:
                 try:
                     dstslname, abspath = self.__copyFile(srcpath)
                     self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
-                except:
+                except SystemExit:
+                  raise SystemExit
+                except KeyboardInterrupt:
+                  raise KeyboardInterrupt
+                except Exception, e:
+                    print e
                     sys.stderr.write("2Problem at path %s\n" % srcpath)
                     sys.stderr.flush()
 
@@ -152,7 +167,13 @@ class PluginBase:
             newpath = os.path.normpath(os.path.join(os.path.dirname(srcpath), link))
             try:
                 self.doCopyFileOrDir(newpath)
+            except SystemExit:
+              raise SystemExit
+            except KeyboardInterrupt:
+              raise KeyboardInterrupt
             except EnvironmentError, (errno, strerror):
+                print errno
+                print strerror
                 if (errno != 17):
                     # we ignore 'file exists' errors
                     sys.stderr.write("3Problem at path %s\n" % newpath)
@@ -187,6 +208,10 @@ class PluginBase:
             abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
             relpath = sosRelPath(self.cInfo['rptdir'], abspath)
             return relpath, abspath
+        except SystemExit:
+          raise SystemExit
+        except KeyboardInterrupt:
+          raise KeyboardInterrupt
         except Exception,e:
             sys.stderr.write("4Problem copying file %s\n" % src,)
             print e
@@ -345,6 +370,10 @@ class PluginBase:
         for path in self.copyPaths:
             try:
                 self.doCopyFileOrDir(path)
+            except SystemExit:
+              raise SystemExit
+            except KeyboardInterrupt:
+              raise KeyboardInterrupt
             except Exception, e:
                 sys.stderr.write("Error copying from pathspec %s\n" % path,)
                 print e
@@ -352,6 +381,10 @@ class PluginBase:
         for prog in self.collectProgs:
             try:
                 self.collectOutputNow(prog)
+            except SystemExit:
+              raise SystemExit
+            except KeyboardInterrupt:
+              raise KeyboardInterrupt
             except:
                 sys.stderr.write("Error collecting output of '%s'\n" % prog,)
                 sys.stderr.flush()

@@ -56,8 +56,11 @@ def doExitCode():
     if ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
         print "Multiple SIGTERMs, single thread, exiting without cleaning up."
         sys.exit(3)
+    
+
     # FIXME: Add code here to clean up /tmp
-    sys.exit(255)
+    print "Calling sys.exit from doExitCode()"
+    sys.exit("Abnormal exit")
     
 # Handle any sort of exit signal cleanly
 # Currently, we intercept only sig 15 (TERM)
