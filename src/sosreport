@@ -94,7 +94,10 @@ __cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
                      help="list existing plugins")
 __cmdParser__.add_option("-n", "--noplugin", action="append", \
                      dest="noplugins",\
-                     help="list of plugin _not_ to load")
+                     help="list of plugins _not_ to load")
+__cmdParser__.add_option("-o", "--onlyplugin", action="append", \
+                     dest="onlyplugins",\
+                     help="list of plugins to load")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="How obnoxious we're being about telling the user what we're doing.")
@@ -210,7 +213,7 @@ def sosreport():
         sys.exit()
 
     for plug in plugins:
-        if ((plug[-3:] == '.py') and (plug != "__init__.py") and (not __cmdLineOpts__.noplugins or (plug[:-3] not in __cmdLineOpts__.noplugins))  ):
+        if ((plug[-3:] == '.py') and (plug != "__init__.py") and (not __cmdLineOpts__.noplugins or (plug[:-3] not in __cmdLineOpts__.noplugins)) and (not __cmdLineOpts__.onlyplugins or (plug[:-3] in __cmdLineOpts__.onlyplugins)) ):
             try:
                 plugbase =  plug[:-3]
                 pidot = "sos.plugins." + plugbase
@@ -248,7 +251,10 @@ def sosreport():
                 alloptions.append((plug, plugname, optname, optparm))
 
     if not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.usealloptions:
-        get_curse_options(alloptions)
+        if len(alloptions):
+            get_curse_options(alloptions)
+        else:
+            print "no options available for selected plugins"
     elif __cmdLineOpts__.fastoptions:
         for i in range(len(alloptions)):
             for plug, plugname, optname, optparm in alloptions:
