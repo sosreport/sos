@@ -233,6 +233,10 @@ def sosreport():
                     raise
                 print "plugin load failed for %s" % plug
 
+    if not len(loadedplugins):
+        print "no valid plugins were enabled"
+        sys.exit(1)
+
     # Iterate over plugins for each stage
 
     # First, gather and process options
