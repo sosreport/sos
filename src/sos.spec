@@ -3,7 +3,7 @@
 Summary: System Support Tools
 Name: sos
 Version: 1.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -43,9 +43,13 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/sos/__init__.py*
 %{python_sitelib}/sos/helpers.py*
 %{python_sitelib}/sos/policyredhat.py*
+%{_mandir}/man1/sosreport.1
 %doc README TODO
 
 %changelog
+* Tue Feb 20 2007 John Berninger <jwb at redhat dot com> - 1.3-2
+- Add man page
+
 * Fri Dec 15 2006 Steve Conklin <sconklin at redhat dot com> - 1.3-1
 - really fixed bz_219654
 
