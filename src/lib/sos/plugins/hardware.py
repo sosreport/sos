@@ -43,7 +43,6 @@ class hardware(sos.plugintools.PluginBase):
           cmdToRun = "dmesg | grep %s" % (hwmodule,)
           self.collectExtOutput(cmdToRun)        
           
-        self.collectExtOutput("/usr/sbin/vgdisplay -vv")
         self.collectExtOutput("/sbin/lsusb")
         self.collectExtOutput("/usr/bin/lshal")
         return
