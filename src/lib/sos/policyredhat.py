@@ -74,7 +74,7 @@ class SosPolicy:
         return (name, version, release, arch)
 
     def packageResults(self):
-        print "Packaging reults to send to support . . ."
+        print "Packaging results to send to support..."
 
         name=""
         while len(name)==0:
