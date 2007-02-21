@@ -27,7 +27,6 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/secure")
         self.addCopySpec("/var/log/up2date")
         self.addCopySpec("/etc/exports")        
-        self.addCopySpec("/etc/cups/*.conf")
         self.collectExtOutput("/bin/hostname")
         self.collectExtOutput("/bin/date")
         self.collectExtOutput("/usr/bin/uptime")
