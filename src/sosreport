@@ -28,7 +28,7 @@ supplied for application-specific information
 import sys
 import os
 #import curses
-from optparse import OptionParser
+from optparse import OptionParser, Option
 import sos.policyredhat
 from sos.helpers import *
 from snack import *
@@ -78,8 +78,21 @@ if os.getuid() != 0:
 # for debugging
 __raisePlugins__ = 1
 
+class SosOption (Option):
+    """Allow to specify comma delimited list of plugins"""
+    ACTIONS = Option.ACTIONS + ("extend",)
+    STORE_ACTIONS = Option.STORE_ACTIONS + ("extend",)
+    TYPED_ACTIONS = Option.TYPED_ACTIONS + ("extend",)
+    ALWAYS_TYPED_ACTIONS = Option.ALWAYS_TYPED_ACTIONS + ("extend",)
 
-__cmdParser__ = OptionParser()
+    def take_action(self, action, dest, opt, value, values, parser):
+        if action == "extend":
+            lvalue = value.split(",")
+            values.ensure_value(dest, []).extend(lvalue)
+        else:
+            Option.take_action(self, action, dest, opt, value, values, parser)
+
+__cmdParser__ = OptionParser(option_class=SosOption)
 __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
                      dest="usealloptions", default=False, \
                      help="Use all options for loaded plugins")
@@ -92,10 +105,10 @@ __cmdParser__.add_option("-g", "--gatheronly", action="store_true", \
 __cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
                      dest="listPlugins", default=False, \
                      help="list existing plugins")
-__cmdParser__.add_option("-n", "--noplugin", action="append", \
+__cmdParser__.add_option("-n", "--noplugin", action="extend", \
                      dest="noplugins",\
                      help="list of plugins _not_ to load")
-__cmdParser__.add_option("-o", "--onlyplugin", action="append", \
+__cmdParser__.add_option("-o", "--onlyplugin", action="extend", \
                      dest="onlyplugins",\
                      help="list of plugins to load")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
