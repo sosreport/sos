@@ -96,12 +96,12 @@ class SosPolicy:
 
         tarcmd = "/bin/tar -jcf %s %s" % (tarballName, namestr)
 
-        print "Creating tar file . . ."
+        print "Creating tar file..."
         if not os.access(string.split(tarcmd)[0], os.X_OK):
             print "Unable to create tarball"
             return
 
-        # gotta be a better way . . .
+        # gotta be a better way...
         os.system("/bin/mv %s %s" % (self.cInfo['dstroot'], aliasdir))
         curwd = os.getcwd()
         os.chdir(ourtempdir)
