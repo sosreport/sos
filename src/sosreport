@@ -160,9 +160,12 @@ def get_curse_options(alloptions):
     g = GridForm(screen, "Select Sosreport Options", 1, 10)
     g.add(plugCbox, 0, 0)
     g.add(bb, 0, 1, growx = 1)
-    g.runOnce()
+    result = g.runOnce()
 
     screen.finish()
+
+    if bb.buttonPressed(result) == "cancel":
+        raise "Cancelled"
 
     for rrr in range(0, optDicCounter):
         optDic[rrr][3]['enabled'] =  plugCbox.getEntryValue(rrr)[1]
@@ -269,7 +272,10 @@ def sosreport():
 
     if not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.usealloptions:
         if len(alloptions):
-            get_curse_options(alloptions)
+            try:
+                get_curse_options(alloptions)
+            except "Cancelled":
+                sys.exit("Exiting.")
         else:
             print "no options available for selected plugins"
     elif __cmdLineOpts__.fastoptions:
