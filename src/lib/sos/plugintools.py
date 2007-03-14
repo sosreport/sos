@@ -354,7 +354,7 @@ class PluginBase:
         create a thread which calls the copyStuff method for a plugin
         """
         verbosity = self.cInfo['verbosity']
-        self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread', args=(verbosity,))
+        self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread')
         self.thread.start()
         
     def wait(self):
