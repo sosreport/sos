@@ -360,7 +360,10 @@ def sosreport():
         else:
             plug.copyStuff()    
         if __cmdLineOpts__.progressbar:
-            pbar.incAmount(30)
+            if __cmdLineOpts__.multithread:
+                pbar.incAmount()
+            else:
+                pbar.incAmount(30)
             pbar.update()
 
     # Wait for all the collection threads to exit
@@ -370,7 +373,7 @@ def sosreport():
                 print "Waiting for plugin %s to return" % plugname,
             plug.wait()
             if __cmdLineOpts__.progressbar:
-                pbar.incAmount()
+                pbar.incAmount(30)
                 pbar.update()
 
     # Call the analyze method for each plugin
