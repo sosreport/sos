@@ -86,6 +86,25 @@ class kernel(sos.plugintools.PluginBase):
         return
 
     def analyze(self):
+        infd = open("/proc/modules", "r")
+        modules = infd.readlines()
+        infd.close()
+
+        for modname in modules:
+            modname=modname.split(" ")[0]
+            print modname
+            modinfo_srcver = commands.getoutput("/sbin/modinfo -F srcversion %s" % modname)
+            infd = open("/sys/module/%s/srcversion" % modname, "r")
+            sys_srcver = infd.read().strip("\n")
+            infd.close()
+            if modinfo_srcver != sys_srcver:
+                self.addAlert("Loaded module %s differs from the one present on the file-system")
+
+            # this would be a good moment to check the module's signature
+            # but at the moment there's no easy way to do that outside of
+            # the kernel. i will probably need to write a C lib (derived from
+            # the kernel sources to do this verification.
+
         savedtaint = os.path.join(self.cInfo['dstroot'], "/proc/sys/kernel/tainted")
         infd = open(savedtaint, "r")
         line = infd.read()
