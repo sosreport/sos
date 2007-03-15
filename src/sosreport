@@ -385,7 +385,8 @@ def sosreport():
             pbar.incAmount()
             pbar.update()
 
-    pbar.finished()
+    if __cmdLineOpts__.progressbar:
+        pbar.finished()
 
     # Sort the module names to do the report in alphabetical order
     loadedplugins.sort()
