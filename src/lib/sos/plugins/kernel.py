@@ -92,7 +92,6 @@ class kernel(sos.plugintools.PluginBase):
 
         for modname in modules:
             modname=modname.split(" ")[0]
-            print modname
             modinfo_srcver = commands.getoutput("/sbin/modinfo -F srcversion %s" % modname)
             infd = open("/sys/module/%s/srcversion" % modname, "r")
             sys_srcver = infd.read().strip("\n")
