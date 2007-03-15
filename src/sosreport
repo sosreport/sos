@@ -114,6 +114,9 @@ __cmdParser__.add_option("-o", "--onlyplugin", action="extend", \
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="How obnoxious we're being about telling the user what we're doing.")
+__cmdParser__.add_option("-b", "--no-progressbar", action="store_false", \
+                     dest="progressbar", default=True, \
+                     help="Do not display a progress bar.")
 __cmdParser__.add_option("-m", "--multithreaded", action="store_true", \
                      dest="multithread", \
                      help="Use the multithreaded information gathering mode to speed up the report (experimental)")
@@ -173,6 +176,53 @@ def get_curse_options(alloptions):
 
     return out
 
+class progressBar:
+    def __init__(self, minValue = 0, maxValue = 10, totalWidth=12):
+        self.progBar = "[]"   # This holds the progress bar string
+        self.min = minValue
+        self.max = maxValue
+        self.span = maxValue - minValue
+        self.width = totalWidth
+        self.amount = 0       # When amount == max, we are 100% done 
+        self.updateAmount(0)  # Build progress bar string
+
+    def updateAmount(self, newAmount = 0):
+        if newAmount < self.min: newAmount = self.min
+        if newAmount > self.max: newAmount = self.max
+        self.amount = newAmount
+
+        # Figure out the new percent done, round to an integer
+        diffFromMin = float(self.amount - self.min)
+        percentDone = (diffFromMin / float(self.span)) * 100.0
+        percentDone = round(percentDone)
+        percentDone = int(percentDone)
+
+        # Figure out how many hash bars the percentage should be
+        allFull = self.width - 2
+        numHashes = (percentDone / 100.0) * allFull
+        numHashes = int(round(numHashes))
+
+        # build a progress bar with hashes and spaces
+        self.progBar = " [" + '#'*numHashes + ' '*(allFull-numHashes) + "]"
+
+        # figure out where to put the percentage, roughly centered
+        percentPlace = (len(self.progBar) / 2) - len(str(percentDone)) 
+        percentString = str(percentDone) + "%"
+
+        # slice the percentage into the bar
+        self.progBar = " Progress" + self.progBar[0:percentPlace] + percentString + self.progBar[percentPlace+len(percentString):]
+
+    def incAmount(self, toInc = 1):
+        self.updateAmount(self.amount+toInc)
+
+    def finished(self):
+        self.updateAmount(self.max)
+        sys.stdout.write(self.progBar + '\n')
+        sys.stdout.flush()
+
+    def update(self):
+        sys.stdout.write(self.progBar + '\r')
+        sys.stdout.flush()
     
 def sosreport():
     # pylint: disable-msg = R0912
@@ -288,11 +338,18 @@ def sosreport():
             for plug, plugname, optname, optparm in alloptions:
                 plug.setOption(optname, 1)
 
+    # Setup the progress bar
+    if __cmdLineOpts__.progressbar:
+        pbar = progressBar(0, len(loadedplugins) * 33, 40)
+
     # Call the setup method for each plugin
     for plugname, plug in loadedplugins:
         if __cmdLineOpts__.verbosity > 1:
             print "Setting up plugin module %s" % plugname,
         plug.setup()
+        if __cmdLineOpts__.progressbar:
+            pbar.incAmount()
+            pbar.update()
 
     # Call the collect method for each plugin
     for plugname, plug in loadedplugins:
@@ -302,6 +359,9 @@ def sosreport():
             plug.doCollect()
         else:
             plug.copyStuff()    
+        if __cmdLineOpts__.progressbar:
+            pbar.incAmount(30)
+            pbar.update()
 
     # Wait for all the collection threads to exit
     if __cmdLineOpts__.multithread:
@@ -309,12 +369,20 @@ def sosreport():
             if __cmdLineOpts__.verbosity > 1:
                 print "Waiting for plugin %s to return" % plugname,
             plug.wait()
+            if __cmdLineOpts__.progressbar:
+                pbar.incAmount()
+                pbar.update()
 
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:
         if __cmdLineOpts__.verbosity > 1:
             print "Analyzing results of plugin %s" % plugname,
         plug.analyze()
+        if __cmdLineOpts__.progressbar:
+            pbar.incAmount()
+            pbar.update()
+
+    pbar.finished()
 
     # Sort the module names to do the report in alphabetical order
     loadedplugins.sort()
