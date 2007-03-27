@@ -22,6 +22,7 @@ import sys
 import string
 from tempfile import gettempdir
 from sos.helpers import *
+import random
 
 SOME_PATH = "/tmp/SomePath"
 
@@ -89,14 +90,17 @@ class SosPolicy:
             namestr = name + "." + ticketNumber
         else:
             namestr = name
+
         ourtempdir = gettempdir()
         tarballName = os.path.join(ourtempdir,  namestr + ".tar.bz2")
+
+        namestr = namestr + "-" + str(random.randint(1, 999999))
 
         aliasdir = os.path.join(ourtempdir, namestr)
 
         tarcmd = "/bin/tar -jcf %s %s" % (tarballName, namestr)
 
-        print "Creating tar file..."
+        print "Creating compressed tar archive..."
         if not os.access(string.split(tarcmd)[0], os.X_OK):
             print "Unable to create tarball"
             return
@@ -112,6 +116,8 @@ class SosPolicy:
         os.chdir(curwd)
         os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
 
-	print "Your tarball is located at %s" % tarballName
+        sys.stdout.write("\n")
+	print "Your sosreport has been generated and saved in %s" % tarballName
+        sys.stdout.write("\n")
         return
         
