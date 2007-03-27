@@ -37,11 +37,14 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/s390dbf/tape")
         self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
         self.collectExtOutput("/sbin/lspci -vvn")
-        self.collectExtOutput("dmesg | grep -e 'e820.' -e 'agp.'")
+        self.collectExtOutput("/bin/dmesg | /bin/grep -e 'e820.' -e 'agp.'")
               
-        for hwmodule in commands.getoutput('cat pcitable | grep -v "Card:" | awk \'{ gsub("\"","",$0); { print $NF; };} \' | uniq -u'):
-          cmdToRun = "dmesg | grep %s" % (hwmodule,)
-          self.collectExtOutput(cmdToRun)        
+        tmpreg = ""
+        for hwmodule in commands.getoutput('cat /lib/modules/$(uname -r)/modules.pcimap | cut -d " " -f 1 | grep "[:alpha:]" | sort -u').split("\n"):
+            hwmodule = hwmodule.strip()
+            if len(hwmodule):
+                tmpreg = tmpreg + "|" + hwmodule
+        self.collectExtOutput("/bin/dmesg | /bin/egrep '(%s)'" % tmpreg[1:])        
           
         self.collectExtOutput("/sbin/lsusb")
         self.collectExtOutput("/usr/bin/lshal")
