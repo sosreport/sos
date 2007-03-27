@@ -84,9 +84,7 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        print e
-                        sys.stderr.write("Problem at path %s\n" % abspath)
-                        sys.stderr.flush()
+                        self.cInfo['soslog'].error("Problem at path %s (%s)\n" % (abspath,e))
                         break
         return False
 
@@ -142,9 +140,7 @@ class PluginBase:
                         except KeyboardInterrupt:
                           raise KeyboardInterrupt
                         except Exception, e:
-                            print e
-                            sys.stderr.write("1Problem at path %s\n" %  srcpath+'/'+afile)
-                            sys.stderr.flush()
+                            self.cInfo['soslog'].error("Problem at path %s (%s)" % (srcpath+'/'+afile, e))
                         # if on forbidden list, abspath is null
                         if not abspath == '':
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
@@ -158,9 +154,7 @@ class PluginBase:
                 except KeyboardInterrupt:
                   raise KeyboardInterrupt
                 except Exception, e:
-                    print e
-                    sys.stderr.write("2Problem at path %s\n" % srcpath)
-                    sys.stderr.flush()
+                    self.cInfo['soslog'].error("Problem at path %s (%s)" % (srcpath, e))
 
 
             # Recurse to copy whatever it points to
@@ -172,18 +166,15 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except EnvironmentError, (errno, strerror):
-                print errno
-                print strerror
                 if (errno != 17):
                     # we ignore 'file exists' errors
-                    sys.stderr.write("3Problem at path %s\n" % newpath)
-                    sys.stderr.flush()
+                    self.cInfo['soslog'].error("Problem at path %s ([%d] %s)" % (newpath, errno, strerror))
             
             return abspath
 
         else:
             if not os.path.exists(srcpath):
-                self.cInfo['logfd'].write("File or directory %s does not exist\n" % srcpath)
+                self.cInfo['soslog'].debug("File or directory %s does not exist\n" % srcpath)
             elif  os.path.isdir(srcpath):
                 for afile in os.listdir(srcpath):
                     if afile == '.' or afile == '..':
@@ -203,8 +194,9 @@ class PluginBase:
         try:
             # pylint: disable-msg = W0612
             status, shout, sherr = sosGetCommandOutput("/bin/cp --parents -p " + src +" " + self.cInfo['dstroot'])
-            self.cInfo['logfd'].write(shout)
-            self.cInfo['logfd'].write(sherr)
+            if status:
+                self.cInfo['soslog'].debug(shout)
+                self.cInfo['soslog'].debug(sherr)
             abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
             relpath = sosRelPath(self.cInfo['rptdir'], abspath)
             return relpath, abspath
@@ -213,8 +205,7 @@ class PluginBase:
         except KeyboardInterrupt:
           raise KeyboardInterrupt
         except Exception,e:
-            sys.stderr.write("4Problem copying file %s\n" % src,)
-            print e
+            self.cInfo['soslog'].error("Problem copying file %s (%s)" % (src, e))
 
     def addForbiddenPath(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copyPaths[] entry.
@@ -281,6 +272,7 @@ class PluginBase:
         """                        
         # First check to make sure the binary exists and is runnable.
         if not os.access(prog.split()[0], os.X_OK):
+            self.cInfo['soslog'].verbose2("Binary '%s' does not exist or is not runnable" % prog.split()[0])
             return
 
         # pylint: disable-msg = W0612
@@ -306,6 +298,7 @@ class PluginBase:
         """
         # First check to make sure the binary exists and is runnable.
         if not os.access(exe.split()[0], os.X_OK):
+            self.cInfo['soslog'].verbose2("Binary '%s' does not exist or is not runnable" % exe.split()[0])
             return
 
         # pylint: disable-msg = W0612
@@ -327,7 +320,7 @@ class PluginBase:
         outfd = open(outfn, "w")
         outfd.write(shout)
         outfd.close()
-        self.cInfo['logfd'].write(sherr)
+        self.cInfo['soslog'].debug(sherr)
         # sosStatus(status)
         # save info for later
         self.executedCommands.append({'exe': exe, 'file':outfn}) # save in our list
@@ -368,6 +361,7 @@ class PluginBase:
         Collect the data for a plugin
         """
         for path in self.copyPaths:
+            self.cInfo['soslog'].debug("copying pathspec %s" % path)
             try:
                 self.doCopyFileOrDir(path)
             except SystemExit:
@@ -375,10 +369,9 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except Exception, e:
-                sys.stderr.write("Error copying from pathspec %s\n" % path,)
-                print e
-                sys.stderr.flush()
+                self.cInfo['soslog'].error("Error copying from pathspec %s (%s)" % (path,e))
         for prog in self.collectProgs:
+            self.cInfo['soslog'].debug("collecting output of '%s'" % prog)
             try:
                 self.collectOutputNow(prog)
             except SystemExit:
@@ -386,8 +379,7 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except:
-                sys.stderr.write("Error collecting output of '%s'\n" % prog,)
-                sys.stderr.flush()
+                self.cInfo['soslog'].error("Error collecting output of '%s'" % prog,)
     
     def collect(self):
         """ This function has been replaced with setup().  Please change your

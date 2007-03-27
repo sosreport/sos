@@ -34,6 +34,7 @@ from sos.helpers import *
 from snack import *
 from threading import Thread, activeCount, enumerate
 import signal
+import logging
 
 __breakHits__ = 0  # Use this to track how many times we enter the exit routine
 
@@ -255,11 +256,23 @@ def sosreport():
     os.mkdir(rptdir, 0755)
 
     # open log file
-    logfd = open(logdir + "/sos.log", "w")
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s: %(message)s',
+                    filename=logdir + "/sos.log",
+                    filemode='w')
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(logging.Formatter('%(message)s'))
+    logging.getLogger('').addHandler(console)
+    logging.addLevelName(17,"verbose")
+    logging.addLevelName(16,"verbose2")
+    logging.addLevelName(15,"verbose3")
+    soslog = logging.getLogger('')
 
     # set up dict so everyone can share the following
     commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir,
-               'logfd': logfd, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity}
+               'soslog': soslog, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity}
 
 
     # Make policy aware of the commons
@@ -288,27 +301,30 @@ def sosreport():
                     if policy.validatePlugin(pluginpath + plug):
                         pluginClass = importPlugin(pidot, plugbase)
                     else:
-                        print "Plugin %s does not validate, skipping" % plug
+                        soslog.warning("Plugin %s does not validate, skipping" % plug)
                         continue
                     loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 except:
-                    print "Plugin %s does not install, skipping" % plug
+                    soslog.warning("Plugin %s does not install, skipping" % plug)
                     raise
             except:
                 if __raisePlugins__:
                     raise
-                print "plugin load failed for %s" % plug
+                soslog.warning("plugin load failed for %s" % plug)
 
     if not len(loadedplugins):
-        print "no valid plugins were enabled"
+        soslog.error("no valid plugins were enabled")
         sys.exit(1)
+
+    soslog.info("Welcome to sosreport (%d plugins loaded)" % (len(loadedplugins)))
+    sys.stdout.write("\n")
 
     # Iterate over plugins for each stage
 
     # First, gather and process options
     for plugname, plug in loadedplugins:
-        if __cmdLineOpts__.verbosity > 3:
-            print "processing options from plugin: %s" % plugname
+        if __cmdLineOpts__.verbosity > 2:
+            soslog.verbose3("processing options from plugin: %s" % plugname)
         try:
             len(__cmdLineOpts__.noplugins)
             if plugname not in __cmdLineOpts__.noplugins:
@@ -327,7 +343,7 @@ def sosreport():
             except "Cancelled":
                 sys.exit("Exiting.")
         else:
-            print "no options available for selected plugins"
+            soslog.info("no options available for selected plugins")
     elif __cmdLineOpts__.fastoptions:
         for i in range(len(alloptions)):
             for plug, plugname, optname, optparm in alloptions:
@@ -345,7 +361,7 @@ def sosreport():
     # Call the setup method for each plugin
     for plugname, plug in loadedplugins:
         if __cmdLineOpts__.verbosity > 1:
-            print "Setting up plugin module %s" % plugname,
+            soslog.verbose2("Setting up plugin module %s" % plugname)
         plug.setup()
         if __cmdLineOpts__.progressbar:
             pbar.incAmount()
@@ -354,7 +370,7 @@ def sosreport():
     # Call the collect method for each plugin
     for plugname, plug in loadedplugins:
         if __cmdLineOpts__.verbosity > 0:
-            print "Executing plugin %s" % plugname
+            soslog.verbose("Executing plugin %s" % plugname)
         if __cmdLineOpts__.multithread:
             plug.doCollect()
         else:
@@ -370,7 +386,7 @@ def sosreport():
     if __cmdLineOpts__.multithread:
         for plugname, plug in loadedplugins:
             if __cmdLineOpts__.verbosity > 1:
-                print "Waiting for plugin %s to return" % plugname,
+                soslog.verbose2("Waiting for plugin %s to return" % plugname)
             plug.wait()
             if __cmdLineOpts__.progressbar:
                 pbar.incAmount(30)
@@ -379,7 +395,7 @@ def sosreport():
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:
         if __cmdLineOpts__.verbosity > 1:
-            print "Analyzing results of plugin %s" % plugname,
+            soslog.verbose2("Analyzing results of plugin %s" % plugname,)
         plug.analyze()
         if __cmdLineOpts__.progressbar:
             pbar.incAmount()
@@ -387,6 +403,7 @@ def sosreport():
 
     if __cmdLineOpts__.progressbar:
         pbar.finished()
+        sys.stdout.write("\n")
 
     # Sort the module names to do the report in alphabetical order
     loadedplugins.sort()
@@ -447,22 +464,22 @@ def sosreport():
 
     # Collect any needed user information (name, etc)
 
-    # Close all log files and perform any cleanup
-    logfd.close()
-
     # Call the postproc method for each plugin
     for plugname, plug in loadedplugins:
         plug.postproc()
   
     if __cmdLineOpts__.gatheronly:
-        print "Collected information is in " + dstroot
-        print "Your html report is in " + rptdir + "/" + "sosreport.html"
+        soslog.info("Collected information is in " + dstroot)
+        soslog.info("Your html report is in " + rptdir + "/" + "sosreport.html")
     else:
         # package up the results for the support organization
         policy.packageResults()
         # delete gathered files
         os.system("rm -rf %s" % dstroot)
         # automated submission will go here
+
+    # Close all log files and perform any cleanup
+    logging.shutdown()
  
     
 if __name__ == '__main__':
