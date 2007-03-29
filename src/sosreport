@@ -262,12 +262,18 @@ def sosreport():
                     filemode='w')
     # define a Handler which writes INFO messages or higher to the sys.stderr
     console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
+    if __cmdLineOpts__.verbosity:
+        console.setLevel(18 - __cmdLineOpts__.verbosity)
+    else:
+        console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(message)s'))
     logging.getLogger('').addHandler(console)
-    logging.addLevelName(17,"verbose")
-    logging.addLevelName(16,"verbose2")
-    logging.addLevelName(15,"verbose3")
+    logging.VERBOSE  = logging.INFO - 1
+    logging.VERBOSE2 = logging.INFO - 2
+    logging.VERBOSE3 = logging.INFO - 3 
+    logging.addLevelName(logging.VERBOSE, "verbose")
+    logging.addLevelName(logging.VERBOSE2,"verbose2")
+    logging.addLevelName(logging.VERBOSE3,"verbose3")
     soslog = logging.getLogger('')
 
     # set up dict so everyone can share the following
@@ -303,7 +309,7 @@ def sosreport():
                     else:
                         soslog.warning("Plugin %s does not validate, skipping" % plug)
                         continue
-                    if pluginClass(plugbase, commons).checkenabled:
+                    if not pluginClass(plugbase, commons).checkenabled():
                         soslog.debug("Plugin %s auto-disabled itself." % plug)
                         continue
                     loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
@@ -326,8 +332,7 @@ def sosreport():
 
     # First, gather and process options
     for plugname, plug in loadedplugins:
-        if __cmdLineOpts__.verbosity > 2:
-            soslog.verbose3("processing options from plugin: %s" % plugname)
+        soslog.log(logging.VERBOSE3, "processing options from plugin: %s" % plugname)
         try:
             len(__cmdLineOpts__.noplugins)
             if plugname not in __cmdLineOpts__.noplugins:
@@ -363,8 +368,7 @@ def sosreport():
 
     # Call the setup method for each plugin
     for plugname, plug in loadedplugins:
-        if __cmdLineOpts__.verbosity > 1:
-            soslog.verbose2("Setting up plugin module %s" % plugname)
+        soslog.log(logging.VERBOSE2, "Setting up plugin module %s" % plugname)
         plug.setup()
         if __cmdLineOpts__.progressbar:
             pbar.incAmount()
@@ -372,8 +376,7 @@ def sosreport():
 
     # Call the collect method for each plugin
     for plugname, plug in loadedplugins:
-        if __cmdLineOpts__.verbosity > 0:
-            soslog.verbose("Executing plugin %s" % plugname)
+        soslog.log(logging.VERBOSE, "Executing plugin %s" % plugname)
         if __cmdLineOpts__.multithread:
             plug.doCollect()
         else:
@@ -388,8 +391,7 @@ def sosreport():
     # Wait for all the collection threads to exit
     if __cmdLineOpts__.multithread:
         for plugname, plug in loadedplugins:
-            if __cmdLineOpts__.verbosity > 1:
-                soslog.verbose2("Waiting for plugin %s to return" % plugname)
+            soslog.log(logging.VERBOSE2, "Waiting for plugin %s to return" % plugname)
             plug.wait()
             if __cmdLineOpts__.progressbar:
                 pbar.incAmount(30)
@@ -397,8 +399,7 @@ def sosreport():
 
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:
-        if __cmdLineOpts__.verbosity > 1:
-            soslog.verbose2("Analyzing results of plugin %s" % plugname,)
+        soslog.log(logging.VERBOSE2, "Analyzing results of plugin %s" % plugname,)
         plug.analyze()
         if __cmdLineOpts__.progressbar:
             pbar.incAmount()
