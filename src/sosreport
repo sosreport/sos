@@ -264,6 +264,7 @@ def sosreport():
     console = logging.StreamHandler()
     if __cmdLineOpts__.verbosity > 0:
         console.setLevel(20 - __cmdLineOpts__.verbosity)
+        __cmdLineOpts__.progressbar = False
     else:
         console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(message)s'))
