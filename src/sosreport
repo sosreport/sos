@@ -262,8 +262,8 @@ def sosreport():
                     filemode='w')
     # define a Handler which writes INFO messages or higher to the sys.stderr
     console = logging.StreamHandler()
-    if __cmdLineOpts__.verbosity:
-        console.setLevel(18 - __cmdLineOpts__.verbosity)
+    if __cmdLineOpts__.verbosity > 0:
+        console.setLevel(20 - __cmdLineOpts__.verbosity)
     else:
         console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(message)s'))
