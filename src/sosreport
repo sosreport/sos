@@ -311,7 +311,7 @@ def sosreport():
                         soslog.warning("Plugin %s does not validate, skipping" % plug)
                         continue
                     if not pluginClass(plugbase, commons).checkenabled():
-                        soslog.debug("Plugin %s auto-disabled itself." % plug)
+                        soslog.log(logging.VERBOSE, "Plugin %s auto-disabled itself." % plug)
                         continue
                     loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 except:
@@ -326,6 +326,7 @@ def sosreport():
         soslog.error("no valid plugins were enabled")
         sys.exit(1)
 
+    sys.stdout.write("\n")
     soslog.info("Welcome to sosreport (%d plugins loaded)" % (len(loadedplugins)))
     sys.stdout.write("\n")
 
