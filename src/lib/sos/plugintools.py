@@ -369,7 +369,7 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except Exception, e:
-                self.cInfo['soslog'].error("Error copying from pathspec %s (%s)" % (path,e))
+                self.cInfo['soslog'].verbose("Error copying from pathspec %s (%s)" % (path,e))
         for prog in self.collectProgs:
             self.cInfo['soslog'].debug("collecting output of '%s'" % prog)
             try:
@@ -379,7 +379,7 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except:
-                self.cInfo['soslog'].error("Error collecting output of '%s'" % prog,)
+                self.cInfo['soslog'].verbose("Error collecting output of '%s'" % prog,)
 
     def checkenabled(self):
         """ This function can be overidden to let the plugin decide whether
