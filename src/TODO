@@ -1,12 +1,5 @@
 To Do List:
 
-When a directory and all below it is copied:
-  1. the targets of symlinks is not copied
-  2. Absolute symlinks are not corrected to point into the destination tree.
-
-FIX - When a directory includes a proc file system, copying that tree hangs -
-example is in named.py when running a chrooted named.
-
 ADD - allow each plugin to optionally not load, and to be able to test whether
 other packages are installed. For example, if apache isn't installed, don't
 load the apache plugin. This needs to be done in a distribution-independent
@@ -17,11 +10,9 @@ Add support for distributions other than Fedora.
 Make it easier to select a policy module and perhaps optionally include
 plugins from the library, to allow per-distribution customization.
 
-Documentation - man page, plugin howto doc, inline doc in plugin template
+Documentation - plugin howto doc, inline doc in plugin template
 
 review and test error handling for things like a full tmp file system
-
-Make the [ OK ] type completion messages pretty and correct - see helpers.py
 
 
 
