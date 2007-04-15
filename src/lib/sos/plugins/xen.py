@@ -53,6 +53,7 @@ class xen(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/bin/xenstore-ls")
             self.collectExtOutput("/usr/sbin/xm dmesg")
             self.collectExtOutput("/usr/sbin/xm info")
+            self.collectExtOutput("/usr/sbin/brctl show")
             self.domCollectProc()
             self.addCopySpec("/sys/hypervisor")
             # FIXME: we *might* want to collect things in /sys/bus/xen*,
