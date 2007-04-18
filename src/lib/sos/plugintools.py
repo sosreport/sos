@@ -31,6 +31,7 @@ This is the base class for sosreport plugins
 from sos.helpers import *
 from threading import Thread, activeCount
 import os, os.path, sys, string, itertools, glob, re
+import logging
 
 class PluginBase:
     """
@@ -292,18 +293,8 @@ class PluginBase:
         """
         self.collectProgs.append(exe)
 
-    def collectOutputNow(self, exe):
-        """ Execute a command and save the output to a file for inclusion in
-        the report
-        """
-        # First check to make sure the binary exists and is runnable.
-        if not os.access(exe.split()[0], os.X_OK):
-            self.cInfo['soslog'](logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % exe.split()[0])
-            return
-
-        # pylint: disable-msg = W0612
-        status, shout, sherr = sosGetCommandOutput(exe)
-
+    def makeCommandFilename(self, exe):
+        """ The internal function to build up a filename based on a command """
         # build file name for output
         rawcmd = os.path.basename(exe).strip()[:28]
 
@@ -317,6 +308,22 @@ class PluginBase:
         while os.path.exists(outfn):
             outfn = outfn + "z"
 
+        return outfn
+
+    def collectOutputNow(self, exe):
+        """ Execute a command and save the output to a file for inclusion in
+        the report
+        """
+        # First check to make sure the binary exists and is runnable.
+        if not os.access(exe.split()[0], os.X_OK):
+            self.cInfo['soslog'](logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % exe.split()[0])
+            return
+
+        # pylint: disable-msg = W0612
+        status, shout, sherr = sosGetCommandOutput(exe)
+
+        outfn = self.makeCommandFilename(exe)
+
         outfd = open(outfn, "w")
         outfd.write(shout)
         outfd.close()
@@ -324,6 +331,21 @@ class PluginBase:
         # sosStatus(status)
         # save info for later
         self.executedCommands.append({'exe': exe, 'file':outfn}) # save in our list
+        return outfn
+
+    def writeTextToCommand(self, exe, text):
+        """ A function that allows you to write a random text string to the
+        command output location referenced by exe; this is useful if you want
+        to conditionally collect information, but still want the output file
+        to exist so as not to confuse readers """
+
+        outfn = self.makeCommandFilename(exe)
+
+        outfd = open(outfn, "w")
+        outfd.write(text)
+        outfd.close()
+
+        self.executedCommands.append({'exe': exe, 'file': outfn}) # save in our list
         return outfn
         
     # For adding output
