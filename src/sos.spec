@@ -3,7 +3,7 @@
 Summary: System Support Tools
 Name: sos
 Version: 1.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -47,6 +47,19 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 
 %changelog
+* Mon Apr 16 2007 Steve Conklin <sconklin at redhat dot com> - 1.3-3
+- including patches to fix the following:
+- bz_219745 sosreport needs a man page
+- bz_219667 sosreport does not terminate cleanly on ^C
+- bz_233375 Make SOS flag the situation when running on a fully virtu...
+- bz_234873 rhel5 sos needs to include rpm-va by default
+- bz_219669 sosreport multi-threaded option sometimes fails
+- bz_219671 RFE for sosreport - allow specification of plugins to be run
+- bz_219672 RFE - show progress while sosreport is running
+- bz_219673 Add xen information gathering to sosreport
+- bz_219675 Collect information related to the new driver update model
+- bz_219877 'Cancel' button during option selection only cancels sele...
+
 * Tue Feb 20 2007 John Berninger <jwb at redhat dot com> - 1.3-2
 - Add man page
 
