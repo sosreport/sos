@@ -272,7 +272,7 @@ class PluginBase:
         """                        
         # First check to make sure the binary exists and is runnable.
         if not os.access(prog.split()[0], os.X_OK):
-            self.cInfo['soslog'].verbose2("Binary '%s' does not exist or is not runnable" % prog.split()[0])
+            self.cInfo['soslog'](logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % prog.split()[0])
             return
 
         # pylint: disable-msg = W0612
@@ -298,7 +298,7 @@ class PluginBase:
         """
         # First check to make sure the binary exists and is runnable.
         if not os.access(exe.split()[0], os.X_OK):
-            self.cInfo['soslog'].verbose2("Binary '%s' does not exist or is not runnable" % exe.split()[0])
+            self.cInfo['soslog'](logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % exe.split()[0])
             return
 
         # pylint: disable-msg = W0612
@@ -369,7 +369,7 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except Exception, e:
-                self.cInfo['soslog'].verbose("Error copying from pathspec %s (%s)" % (path,e))
+                self.cInfo['soslog'](logging.VERBOSE, "Error copying from pathspec %s (%s)" % (path,e))
         for prog in self.collectProgs:
             self.cInfo['soslog'].debug("collecting output of '%s'" % prog)
             try:
@@ -379,7 +379,7 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except:
-                self.cInfo['soslog'].verbose("Error collecting output of '%s'" % prog,)
+                self.cInfo['soslog'](logging.VERBOSE, "Error collecting output of '%s'" % prog,)
 
     def checkenabled(self):
         """ This function can be overidden to let the plugin decide whether
