@@ -1,4 +1,4 @@
 # NOTE: Including sosreport here is a hack. This
 # is done because the data_files handling from setup.py
 # is broken for building dists (at least in Python 2.3)
-include README TODO sosreport sosreport.1 MANIFEST.in
+include README TODO sosreport sosreport.1.gz MANIFEST.in

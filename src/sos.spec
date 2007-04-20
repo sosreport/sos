@@ -43,7 +43,7 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/sos/__init__.py*
 %{python_sitelib}/sos/helpers.py*
 %{python_sitelib}/sos/policyredhat.py*
-%{_mandir}/man1/sosreport.1
+%{_mandir}/man1/sosreport.1.gz
 %doc README TODO
 
 %changelog

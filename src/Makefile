@@ -23,7 +23,11 @@ else
 	@svn update ../../tags
 endif
 
-tarball: clean
+# if we don't compress them, rpmbuild does, and this breaks things
+manpages: sosreport.1
+	@gzip -c sosreport.1 > sosreport.1.gz
+
+tarball: clean manpages
 	@echo "Creating an archive from HEAD of development"
 	@rm -rf /tmp/$(NAME)
 	@svn export -q $(REPO)/trunk/src     /tmp/$(NAME) \
@@ -36,7 +40,7 @@ tarball: clean
 	@echo " "
 	@echo "The final archive is ./$(NAME)-$(VERSION).tar.bz2."
 
-release: clean tag-release
+release: clean tag-release manpages
 ifeq ($(strip $(SVN_TAG_CONTENTS)), Makefile)
 	@echo "Creating an archive from tag $(SVNTAG)"
 	@rm -rf /tmp/$(NAME)
@@ -60,4 +64,4 @@ version:
 	@echo "The version is $(NAME)-$(VERSION)"
 
 clean:
-	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2
+	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
