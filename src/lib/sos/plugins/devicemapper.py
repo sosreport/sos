@@ -33,7 +33,6 @@ class devicemapper(sos.plugintools.PluginBase):
 
         self.addCopySpec("/etc/multipath.conf")
         self.addCopySpec("/var/lib/multipath/bindings")
-        self.collectExtOutput("/sbin/multipath -v4")
-        self.collectExtOutput("/sbin/multipath -ll")
+        self.collectExtOutput("/sbin/multipath -v4 -ll")
 
         return
