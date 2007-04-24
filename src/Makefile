@@ -33,6 +33,7 @@ tarball: clean manpages
 	@svn export -q $(REPO)/trunk/src     /tmp/$(NAME) \
 	 || echo GRRRrrrrr -- ignore [export aborted]
 	@mv /tmp/$(NAME) /tmp/$(NAME)-$(VERSION)
+	@cd /tmp/$(NAME)-$(VERSION); gzip -c sosreport.1 > sosreport.1.gz
 	@cd /tmp; tar --bzip2 -cSpf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
 	@rm -rf /tmp/$(NAME)-$(VERSION)
 	@cp /tmp/$(NAME)-$(VERSION).tar.bz2 .
@@ -47,6 +48,7 @@ ifeq ($(strip $(SVN_TAG_CONTENTS)), Makefile)
 	@svn export -q $(REPO)/tags/$(SVNTAG)     /tmp/$(NAME) \
 	 || echo GRRRrrrrr -- ignore [export aborted]
 	@mv /tmp/$(NAME) /tmp/$(NAME)-$(VERSION)
+	@cd /tmp/$(NAME)-$(VERSION); gzip -c sosreport.1 > sosreport.1.gz
 	@cd /tmp; tar --bzip2 -cSpf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
 	@rm -rf /tmp/$(NAME)-$(VERSION)
 	@cp /tmp/$(NAME)-$(VERSION).tar.bz2 .
