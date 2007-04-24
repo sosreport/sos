@@ -18,6 +18,7 @@ import os,re,commands
 class networking(sos.plugintools.PluginBase):
     """This plugin gathers network related information
     """
+    optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", 0)]
 
     def get_interface_name(self,ifconfigFile):
         """Return a dictionnary for wich key are intefrace name according to the
@@ -56,8 +57,6 @@ class networking(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/xinetd.d")
         self.addCopySpec("/etc/host*")
         self.addCopySpec("/etc/resolv.conf")
-        # self.addCopySpec("/etc/sysconfig/iptables-config")
-        # The above is redundant
         ifconfigFile=self.collectExtOutput("/sbin/ifconfig -a")
         self.collectExtOutput("/sbin/route -n")
         self.collectExtOutput("/sbin/ipchains -nvL")
@@ -68,6 +67,8 @@ class networking(sos.plugintools.PluginBase):
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
+        if self.isOptionEnabled("traceroute"):
+          self.collectExtOutput("/bin/traceroute  rhn.redhat.com")
             
         return
 
