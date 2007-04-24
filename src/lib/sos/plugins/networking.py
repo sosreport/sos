@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os,re
+import os,re,commands
 
 class networking(sos.plugintools.PluginBase):
     """This plugin gathers network related information
@@ -32,8 +32,22 @@ class networking(sos.plugintools.PluginBase):
             for name in reg.findall(content):
                 out[name]=1
         return out
-    
-    
+
+    def collectIPTable(self,tablename):
+        """ When running the iptables command, it unfortunately auto-loads
+        the modules before trying to get output.  Some people explicitly
+        don't want this, so check if the modules are loaded before running
+        the command.  If they aren't loaded, there can't possibly be any
+        relevant rules in that table """
+
+        cmd = "/sbin/iptables -t "+tablename+" -nvL"
+
+        (status, output) = commands.getstatusoutput("/sbin/lsmod | grep -q "+tablename)
+        if status == 0:
+            self.collectExtOutput(cmd)
+        else:
+            self.writeTextToCommand(cmd,"IPTables module "+tablename+" not loaded\n")
+
     def setup(self):
         self.addCopySpec("/etc/nsswitch.conf")
         self.addCopySpec("/etc/yp.conf")
@@ -47,9 +61,9 @@ class networking(sos.plugintools.PluginBase):
         ifconfigFile=self.collectExtOutput("/sbin/ifconfig -a")
         self.collectExtOutput("/sbin/route -n")
         self.collectExtOutput("/sbin/ipchains -nvL")
-        self.collectExtOutput("/sbin/iptables -t filter -nvL")
-        self.collectExtOutput("/sbin/iptables -t nat -nvL")
-        self.collectExtOutput("/sbin/iptables -t mangle -nvL")
+        self.collectIPTable("filter")
+        self.collectIPTable("nat")
+        self.collectIPTable("mangle")
         self.collectExtOutput("/bin/netstat -nap")
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
