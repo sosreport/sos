@@ -68,7 +68,8 @@ class networking(sos.plugintools.PluginBase):
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
         if self.isOptionEnabled("traceroute"):
-          self.collectExtOutput("/bin/traceroute  rhn.redhat.com")
+            # The semicolon prevents the browser from thinking this is a link when viewing the report
+            self.collectExtOutput("/bin/traceroute  rhn.redhat.com;")
             
         return
 
