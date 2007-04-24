@@ -359,6 +359,8 @@ def sosreport():
             for plug, plugname, optname, optparm in alloptions:
                 if optparm['speed'] == 'fast':
                     plug.setOption(optname, 1)
+                else
+                    plug.setOption(optname, 0)
     elif __cmdLineOpts__.usealloptions:
         for i in range(len(alloptions)):
             for plug, plugname, optname, optparm in alloptions:
