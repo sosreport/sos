@@ -2,8 +2,8 @@
 
 Summary: System Support Tools
 Name: sos
-Version: 1.3
-Release: 3%{?dist}
+Version: 1.4
+Release: 1%{?dist}
 License: GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
