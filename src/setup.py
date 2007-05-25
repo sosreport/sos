@@ -6,7 +6,7 @@ from distutils.core import setup
 from ConfigParser import ConfigParser
 import sys,os,time
 
-# change release in spec file along with this version string
+# change version in spec file along with this string
 setup(
 	name = 'sos',
 	version = '1.4',

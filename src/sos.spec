@@ -3,7 +3,7 @@
 Summary: System Support Tools
 Name: sos
 Version: 1.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 
 %changelog
+* Fri May 25 2007 Steve Conklin <sconklin at redhat dot com> - 1.4-2
+- Fixed a backtrace on nonexistent file in kernel plugin (thanks, David Robinson)
+
 * Mon Apr 16 2007 Steve Conklin <sconklin at redhat dot com> - 1.3-3
 - including patches to fix the following:
 - Resolves: bz219745 sosreport needs a man page

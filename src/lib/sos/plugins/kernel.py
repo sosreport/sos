@@ -37,7 +37,7 @@ class kernel(sos.plugintools.PluginBase):
         {'regex':'egenera*', 'description':'Egenera module'},
         {'regex':'emcp*', 'description':'EMC module'},
         {'regex':'ocfs*', 'description':'OCFS module'},
-        {'regex':'nvidea', 'description':'nVidea module'},
+        {'regex':'nvidia', 'description':'NVidia module'},
         {'regex':'ati-', 'description':'ATI module'}
         ]
 
@@ -93,6 +93,8 @@ class kernel(sos.plugintools.PluginBase):
         for modname in modules:
             modname=modname.split(" ")[0]
             modinfo_srcver = commands.getoutput("/sbin/modinfo -F srcversion %s" % modname)
+            if not os.access("/sys/module/%s/srcversion" % modname, os.R_OK):
+                continue
             infd = open("/sys/module/%s/srcversion" % modname, "r")
             sys_srcver = infd.read().strip("\n")
             infd.close()
