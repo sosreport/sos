@@ -49,16 +49,16 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Mon Apr 16 2007 Steve Conklin <sconklin at redhat dot com> - 1.3-3
 - including patches to fix the following:
-- bz_219745 sosreport needs a man page
-- bz_219667 sosreport does not terminate cleanly on ^C
-- bz_233375 Make SOS flag the situation when running on a fully virtu...
-- bz_234873 rhel5 sos needs to include rpm-va by default
-- bz_219669 sosreport multi-threaded option sometimes fails
-- bz_219671 RFE for sosreport - allow specification of plugins to be run
-- bz_219672 RFE - show progress while sosreport is running
-- bz_219673 Add xen information gathering to sosreport
-- bz_219675 Collect information related to the new driver update model
-- bz_219877 'Cancel' button during option selection only cancels sele...
+- Resolves: bz219745 sosreport needs a man page
+- Resolves: bz219667 sosreport does not terminate cleanly on ^C
+- Resolves: bz233375 Make SOS flag the situation when running on a fully virtu...
+- Resolves: bz234873 rhel5 sos needs to include rpm-va by default
+- Resolves: bz219669 sosreport multi-threaded option sometimes fails
+- Resolves: bz219671 RFE for sosreport - allow specification of plugins to be run
+- Resolves: bz219672 RFE - show progress while sosreport is running
+- Resolves: bz219673 Add xen information gathering to sosreport
+- Resolves: bz219675 Collect information related to the new driver update model
+- Resolves: bz219877 'Cancel' button during option selection only cancels sele...
 
 * Tue Feb 20 2007 John Berninger <jwb at redhat dot com> - 1.3-2
 - Add man page
