@@ -1,3 +1,8 @@
+2007-05-28  Eugene Teo  <eteo@redhat.com>
+
+	* lib/sos/plugins/amd.py:
+	- Added amd.py to gather Amd automounter information
+
 2007-05-25  Eugene Teo  <eteo@redhat.com>
 
 	* lib/sos/plugins/xen.py, lib/sos/plugins/pam.py, lib/sos/plugins/memory.py:
