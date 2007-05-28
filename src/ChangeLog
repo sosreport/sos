@@ -1,3 +1,12 @@
+2007-05-25  Eugene Teo  <eteo@redhat.com>
+
+	* lib/sos/plugins/xen.py, lib/sos/plugins/pam.py, lib/sos/plugins/memory.py:
+	- Edited xen.py to determine if CPU has PAE/Intel VT/AMD-V support
+	- Edited pam.py to gather configurations in /etc/security, and files
+	  listing of /lib/security/pam_*so
+	- Edited memory.py to gather /proc/{vmstat,slabinfo}, and free -m
+	  output
+
 2006-06-19  Steve Conklin  <sconklin@tintin>
 
 	* ChangeLog, LICENSE, setup.py, sos.spec:

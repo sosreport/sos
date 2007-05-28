@@ -36,12 +36,18 @@ class xen(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/xen/capabilities")
         self.addCopySpec("/proc/xen/xsd_kva")
         self.addCopySpec("/proc/xen/xsd_port")
+        # determine if CPU has PAE support
+        self.collectExtOutput("/bin/grep pae /proc/cpuinfo")
+        # determine if CPU has Intel-VT or AMD-V support
+        self.collectExtOutput("/bin/egrep -e 'vmx|svm' /proc/cpuinfo")
 
     def setup(self):
         host_type = self.determineXenHost()
         if host_type == "domU":
             # we should collect /proc/xen and /sys/hypervisor
             self.domCollectProc()
+            # determine if hardware virtualization support is enabled
+            # in BIOS: /sys/hypervisor/properties/capabilities
             self.addCopySpec("/sys/hypervisor")
         elif host_type == "hvm":
             # what do we collect here???

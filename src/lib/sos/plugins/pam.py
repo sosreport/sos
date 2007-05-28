@@ -19,5 +19,7 @@ class pam(sos.plugintools.PluginBase):
     """
     def setup(self):
         self.addCopySpec("/etc/pam.d")
+        self.addCopySpec("/etc/security")
+        self.collectExtOutput("/bin/ls -laF /lib/security/pam_*so")
         return
 
