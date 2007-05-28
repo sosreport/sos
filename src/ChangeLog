@@ -1,5 +1,10 @@
 2007-05-28  Eugene Teo  <eteo@redhat.com>
 
+	* lib/sos/plugins/systemtap.py:
+	- Added systemtap.py to gather SystemTap pre-requisites information
+
+2007-05-28  Eugene Teo  <eteo@redhat.com>
+
 	* lib/sos/plugins/amd.py:
 	- Added amd.py to gather Amd automounter information
 
