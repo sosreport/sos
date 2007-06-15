@@ -87,12 +87,12 @@ class SosOption (Option):
     ACTIONS = Option.ACTIONS + ("extend",)
     STORE_ACTIONS = Option.STORE_ACTIONS + ("extend",)
     TYPED_ACTIONS = Option.TYPED_ACTIONS + ("extend",)
-    ALWAYS_TYPED_ACTIONS = Option.ALWAYS_TYPED_ACTIONS + ("extend",)
 
     def take_action(self, action, dest, opt, value, values, parser):
         if action == "extend":
-            lvalue = value.split(",")
-            values.ensure_value(dest, []).extend(lvalue)
+            try: lvalue = value.split(",")
+            except: pass
+            else: values.ensure_value(dest, []).extend(lvalue)
         else:
             Option.take_action(self, action, dest, opt, value, values, parser)
 
@@ -110,10 +110,10 @@ __cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
                      dest="listPlugins", default=False, \
                      help="list existing plugins")
 __cmdParser__.add_option("-n", "--noplugin", action="extend", \
-                     dest="noplugins",\
+                     dest="noplugins", type="string", \
                      help="list of plugins _not_ to load")
 __cmdParser__.add_option("-o", "--onlyplugin", action="extend", \
-                     dest="onlyplugins",\
+                     dest="onlyplugins", type="string", \
                      help="list of plugins to load")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
@@ -325,27 +325,32 @@ def sosreport():
     os.mkdir(logdir, 0755)
     os.mkdir(rptdir, 0755)
 
-    # open log file
-    logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s: %(message)s',
-                    filename=logdir + "/sos.log",
-                    filemode='w')
+    # initialize logging
+    soslog = logging.getLogger('sos')
+    soslog.setLevel(logging.DEBUG)
+
+    # log to a file
+    flog = logging.FileHandler(logdir + "/sos.log")
+    flog.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
+    flog.setLevel(logging.DEBUG)
+    soslog.addHandler(flog)
+
     # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
+    console = logging.StreamHandler(sys.stderr)
     if __cmdLineOpts__.verbosity > 0:
         console.setLevel(20 - __cmdLineOpts__.verbosity)
         __cmdLineOpts__.progressbar = False
     else:
         console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(message)s'))
-    logging.getLogger('').addHandler(console)
+    soslog.addHandler(console)
+
     logging.VERBOSE  = logging.INFO - 1
     logging.VERBOSE2 = logging.INFO - 2
     logging.VERBOSE3 = logging.INFO - 3 
     logging.addLevelName(logging.VERBOSE, "verbose")
     logging.addLevelName(logging.VERBOSE2,"verbose2")
     logging.addLevelName(logging.VERBOSE3,"verbose3")
-    soslog = logging.getLogger('')
 
     xmlrep = XmlReport()
 

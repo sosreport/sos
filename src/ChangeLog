@@ -1,3 +1,9 @@
+2007-06-15  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* [BZ#241282] initial port to RHEL4 :) sos core now runs happily, plugins will probably need to be fixed as well.
+	* Initial commit of XML reporting to gather details about commands executed and files gathered.
+	* Exceptions in plugin.analyse() were not catched allowing a bad plugin to break sosreport.
+
 2007-06-15  Eugene Teo  <eteo@redhat.com>
 
 	* lib/sos/plugins/apache.py, lib/sos/plugins/nfsserver.py, lib/sos/plugins/selinux.py, lib/sos/plugins/xinetd.py, lib/sos/plugins/ssh.py, lib/sos/plugins/sendmail.py, lib/sos/plugins/samba.py, lib/sos/plugins/named.py, lib/sos/plugins/cluster.py:
