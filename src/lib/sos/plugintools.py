@@ -328,7 +328,6 @@ class PluginBase:
         outfd = open(outfn, "w")
         outfd.write(shout)
         outfd.close()
-        outfn = outfn[len(self.cInfo['cmddir'])+1:]
 	if len(sherr) > 0:
             errfn = outfn + ".err"
             outfd = open(errfn, "w")
@@ -338,6 +337,7 @@ class PluginBase:
             self.cInfo['soslog'].debug(sherr)
 	else:
             errfn = None
+        outfn = outfn[len(self.cInfo['cmddir'])+1:]
 
         # sosStatus(status)
         # save info for later
