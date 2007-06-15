@@ -26,6 +26,7 @@
 helper functions used by sosreport and plugins
 """
 import os, popen2, fcntl, select, itertools, sys
+from time import time
 from tempfile import mkdtemp
 
 def importPlugin(pluginname, name):
@@ -60,6 +61,7 @@ def sosGetCommandOutput(command):
     """ Execute a command and gather stdin, stdout, and return status.
     Adapted from Python Cookbook - O'Reilly
     """
+    stime = time()
     child = popen2.Popen3(command, 1) # Capture stdout and stderr from command
     child.tochild.close()             # don't need to write to child's stdin
     outfile = child.fromchild
@@ -89,7 +91,7 @@ def sosGetCommandOutput(command):
             break
         select.select([], [], [], .1) # Allow a little time for buffers to fill
     err = child.wait()
-    return (err, ''.join(outdata), ''.join(errdata))
+    return (err, ''.join(outdata), ''.join(errdata), time()-stime)
 
 
 # this needs to be made clean and moved to the plugin tools, so

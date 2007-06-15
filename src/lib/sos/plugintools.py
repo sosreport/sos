@@ -150,6 +150,7 @@ class PluginBase:
                 try:
                     dstslname, abspath = self.__copyFile(srcpath)
                     self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
+                    self.cInfo['xmlreport'].add_file(srcpath,os.stat(srcpath))
                 except SystemExit:
                   raise SystemExit
                 except KeyboardInterrupt:
@@ -194,7 +195,7 @@ class PluginBase:
         """
         try:
             # pylint: disable-msg = W0612
-            status, shout, sherr = sosGetCommandOutput("/bin/cp --parents -p " + src +" " + self.cInfo['dstroot'])
+            status, shout, sherr, runtime = sosGetCommandOutput("/bin/cp --parents -p " + src +" " + self.cInfo['dstroot'])
             if status:
                 self.cInfo['soslog'].debug(shout)
                 self.cInfo['soslog'].debug(sherr)
@@ -277,7 +278,7 @@ class PluginBase:
             return
 
         # pylint: disable-msg = W0612
-        status, shout, sherr = sosGetCommandOutput(prog)                                                            
+        status, shout, sherr, runtime = sosGetCommandOutput(prog)                                                            
         return status
                                                                         
     def runExe(self, exe):
@@ -320,17 +321,28 @@ class PluginBase:
             return
 
         # pylint: disable-msg = W0612
-        status, shout, sherr = sosGetCommandOutput(exe)
+        status, shout, sherr, runtime = sosGetCommandOutput(exe)
 
         outfn = self.makeCommandFilename(exe)
 
         outfd = open(outfn, "w")
         outfd.write(shout)
         outfd.close()
-        self.cInfo['soslog'].debug(sherr)
+        outfn = outfn[len(self.cInfo['cmddir'])+1:]
+	if len(sherr) > 0:
+            errfn = outfn + ".err"
+            outfd = open(errfn, "w")
+            outfd.write(sherr)
+            outfd.close()
+            errfn = errfn[len(self.cInfo['cmddir'] + "/" )+1:]
+            self.cInfo['soslog'].debug(sherr)
+	else:
+            errfn = None
+
         # sosStatus(status)
         # save info for later
         self.executedCommands.append({'exe': exe, 'file':outfn}) # save in our list
+        self.cInfo['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn,f_stderr=errfn,runtime=runtime)
         return outfn
 
     def writeTextToCommand(self, exe, text):

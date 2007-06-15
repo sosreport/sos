@@ -35,6 +35,9 @@ from snack import *
 from threading import Thread, activeCount, enumerate
 import signal
 import logging
+from stat import *
+from time import strftime, localtime
+from pwd import getpwuid
 
 __breakHits__ = 0  # Use this to track how many times we enter the exit routine
 
@@ -224,7 +227,74 @@ class progressBar:
     def update(self):
         sys.stdout.write(self.progBar + '\r')
         sys.stdout.flush()
-    
+
+class XmlReport:
+	def __init__(self):
+		try:
+			import libxml2
+		except:
+			self.enabled = False
+			return
+		else:
+			self.enabled = True
+		self.doc = libxml2.newDoc("1.0")
+		self.root = self.doc.newChild(None, "sos", None)
+		self.commands = self.root.newChild(None, "commands", None)
+		self.files = self.root.newChild(None, "files", None)
+
+	def add_command(self,cmdline,exitcode,stdout = None,stderr = None,f_stdout=None,f_stderr=None, runtime=None):
+		if not self.enabled: return
+
+		cmd = self.commands.newChild(None, "cmd", None)
+
+		cmd.setNsProp(None, "cmdline", cmdline)
+
+		cmdchild = cmd.newChild(None, "exitcode", str(exitcode))
+
+		if runtime:
+			cmd.newChild(None, "runtime", str(runtime))
+
+		if stdout or f_stdout:
+			cmdchild = cmd.newChild(None, "stdout", stdout)
+			if f_stdout:
+				cmdchild.setNsProp(None, "file", f_stdout)
+
+		if stderr or f_stderr:
+			cmdchild = cmd.newChild(None, "stderr", stderr)
+			if f_stderr:
+				cmdchild.setNsProp(None, "file", f_stderr)
+
+	def add_file(self,fname,stats):
+		if not self.enabled: return
+
+		cfile = self.files.newChild(None,"file",None)
+
+		cfile.setNsProp(None, "fname", fname)
+
+		cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
+		cchild.setNsProp(None,"name", getpwuid(stats[ST_UID])[0])
+                cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
+		cchild.setNsProp(None,"name", getpwuid(stats[ST_GID])[0])
+		cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
+		cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_CTIME])))
+		cchild.setNsProp(None,"tstamp", str(stats[ST_CTIME]))
+		cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_ATIME])))
+		cchild.setNsProp(None,"tstamp", str(stats[ST_ATIME]))
+		cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_MTIME])))
+		cchild.setNsProp(None,"tstamp", str(stats[ST_MTIME]))
+
+	def serialize(self):
+		if not self.enabled: return
+
+		print self.doc.serialize(None,  1)
+
+	def serialize_to_file(self,fname):
+		if not self.enabled: return
+
+		outfn = open(fname,"w")
+		outfn.write(self.doc.serialize(None,1))
+		outfn.close()
+
 def sosreport():
     # pylint: disable-msg = R0912
     # pylint: disable-msg = R0914
@@ -277,9 +347,12 @@ def sosreport():
     logging.addLevelName(logging.VERBOSE3,"verbose3")
     soslog = logging.getLogger('')
 
+    xmlrep = XmlReport()
+
     # set up dict so everyone can share the following
     commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir,
-               'soslog': soslog, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity}
+               'soslog': soslog, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity,
+		'xmlreport' : xmlrep }
 
 
     # Make policy aware of the commons
@@ -391,6 +464,9 @@ def sosreport():
             else:
                 pbar.incAmount(30)
             pbar.update()
+
+    xmlrep.serialize()
+    xmlrep.serialize_to_file(rptdir + "/" + "sosreport.xml")
 
     # Wait for all the collection threads to exit
     if __cmdLineOpts__.multithread:

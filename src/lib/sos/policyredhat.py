@@ -111,7 +111,7 @@ class SosPolicy:
         os.chdir(ourtempdir)
         oldmask = os.umask(077)
         # pylint: disable-msg = W0612
-        status, shout, sherr = sosGetCommandOutput(tarcmd)
+        status, shout, sherr, runtime = sosGetCommandOutput(tarcmd)
         os.umask(oldmask)
         os.chdir(curwd)
         os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
