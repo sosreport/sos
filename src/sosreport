@@ -404,7 +404,11 @@ def sosreport():
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE2, "Analyzing results of plugin %s" % plugname,)
-        plug.analyze()
+        try:
+            plug.analyze()
+        except:
+            # catch exceptions in analyse() and keep working
+            pass
         if __cmdLineOpts__.progressbar:
             pbar.incAmount()
             pbar.update()
