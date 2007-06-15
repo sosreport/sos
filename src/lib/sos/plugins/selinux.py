@@ -18,6 +18,7 @@ class selinux(sos.plugintools.PluginBase):
     """This plugin gathers selinux related information
     """
     def setup(self):
+        self.addCopySpec("/etc/selinux/*")
         self.collectExtOutput("/usr/bin/selinuxconfig")
         self.collectExtOutput("/usr/sbin/sestatus")
         self.collectExtOutput("/bin/rpm -q -V selinux-policy-targeted")

@@ -19,6 +19,7 @@ class samba(sos.plugintools.PluginBase):
     """
     def setup(self):
         self.addCopySpec("/etc/samba")
+        self.addCopySpec("/var/log/samba/*")
         self.collectExtOutput("/usr/bin/wbinfo -g")
         self.collectExtOutput("/usr/bin/wbinfo -u")
         return

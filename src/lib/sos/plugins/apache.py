@@ -21,5 +21,6 @@ class apache(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/httpd/conf/httpd.conf")
         self.addCopySpec("/etc/httpd/conf.d/*.conf")
+        self.addCopySpec("/var/log/httpd/*")
         return
 

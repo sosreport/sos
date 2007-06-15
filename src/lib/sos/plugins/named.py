@@ -23,6 +23,7 @@ class named(sos.plugintools.PluginBase):
       dnsdir = ""
       self.addCopySpec("/etc/named.boot")
       self.addCopySpec("/etc/named.conf")
+      self.addCopySpec("/etc/sysconfig/named")
       if os.access("/etc/named.conf", os.R_OK):
         dnsdir = commands.getoutput("/bin/grep -i directory /etc/named.conf | /bin/gawk '{print $2}' | /bin/sed 's/\\\"//g' | /bin/sed 's/\;//g'")
       if os.access("/etc/named.boot", os.R_OK):

@@ -1,3 +1,5 @@
+## Copyright (C) 2007 Red Hat, Inc., Eugene Teo <eteo@redhat.com>
+
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -14,18 +16,12 @@
 
 import sos.plugintools
 
-class cluster(sos.plugintools.PluginBase):
-    """This plugin gathers cluster related information
+class ssh(sos.plugintools.PluginBase):
+    """This plugin gathers ssh-related information
     """
     def setup(self):
-        self.collectExtOutput("/sbin/fdisk -l")
-        self.addCopySpec("/etc/cluster.conf")
-        self.addCopySpec("/etc/cluster.xml")
-        self.addCopySpec("/etc/cluster")
-        self.collectExtOutput("/usr/sbin/rg_test test /etc/cluster/cluster.conf")
-        self.addCopySpec("/proc/cluster")
+        self.addCopySpec("/etc/ssh/ssh_config")
+        self.addCopySpec("/etc/ssh/sshd_config")
+        self.collectExtOutput("/sbin/chkconfig --list sshd")
         return
 
-    def postproc(self):
-        self.doRegexSub("/etc/cluster/cluster.conf", r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1***")
-        return

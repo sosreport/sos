@@ -1,3 +1,17 @@
+2007-06-15  Eugene Teo  <eteo@redhat.com>
+
+	* lib/sos/plugins/apache.py, lib/sos/plugins/nfsserver.py, lib/sos/plugins/selinux.py, lib/sos/plugins/xinetd.py, lib/sos/plugins/ssh.py, lib/sos/plugins/sendmail.py, lib/sos/plugins/samba.py, lib/sos/plugins/named.py, lib/sos/plugins/cluster.py:
+	- Edited apache.py to gather /var/log/httpd/* log files
+	- Added nfsserver.py to gather NFS server-related debugging information
+	- Edited selinux.py to gather /etc/selinux/* configuration files
+	- Added xinetd.py to gather xinetd-related information
+	- Added ssh.py to gather ssh-related information
+	- Added sendmail.py to gather sendmail information
+	- Edited samba.py to gather /var/log/samba/* log files
+	- Edited named.py to gather /etc/sysconfig/named
+	- Edited cluster.py to gather the output of fdisk -l to show the
+	shared storage devices that should be available to each system
+
 2007-05-28  Eugene Teo  <eteo@redhat.com>
 
 	* lib/sos/plugins/systemtap.py:
