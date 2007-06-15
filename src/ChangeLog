@@ -31,6 +31,60 @@
 	- Edited memory.py to gather /proc/{vmstat,slabinfo}, and free -m
 	  output
 
+2007-04-23  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Running "multipath" without arguments might change the device-mapper maps, which we want to avoid if things are broken.
+
+2007-04-02  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Replaced xen plugin with (better) version from Chris Lalancette <clalance@redhat.com>
+
+2007-03-29  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Added a checkenabled() function which can be used to disable a plugin at run-time.
+	* Disable the progress-bar if verbosity is enabled.
+
+2007-03-27  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Fixed hardware plugin to use modules.pcimap instead of deprecated pcitable.
+	* Added a random suffix to sosreport tree to avoid overwriting an existing tree with same name.
+	* Better logging using python's logging module.
+	* Verbose logs included in sosreport (sos_logs/sos.log)
+
+2007-03-15  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Implemented a progress bar (RFE BZ#219672) which can be disabled from the command line.
+	* Added check to see if the loaded module matches the copy on the file-system
+
+2007-03-14  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* fixed BZ#219877 (ncurses "Cancel" button makes sosreport exit)
+
+2007-03-07  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Allow passing multiple comma-separated plugin names to -n (--noplugin) and -o (--onlyplugin) options.
+	* Added further commands' output to gather from lvm_dump
+
+
+2007-02-20  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Added a specialized plugin for device-mapper related configuration files and command outputs (device-mapper, LVM and multipath)
+	* Added --onlyplugin option (-o) to selectively choose which plugins to load (complementary to existing --noplugin)
+	* Exit if no valid plugin was selected (rather than building an empty sosreport).
+
+2007-02-16  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Strip out the shared secret (bindpw) from /etc/ldap.conf
+	* Collect parsed configuration tree directly from ccsd (useful for troubleshooting parsing issues)
+	* Scamble password information for fencing devices.
+
+2007-01-26  Navid Sheikhol-Eslami <navid@redhat.com>
+
+	* Added doRegexSub() to be called in postproc() to apply a regexp substitution to files
+	* Added radius plugin for freeradius data collection
+	* Ask full name to prevent errors when moving the sos tree before packaging
+	* Reformat tar file name is no ticket number is given
+
 2006-06-19  Steve Conklin  <sconklin@tintin>
 
 	* ChangeLog, LICENSE, setup.py, sos.spec:
