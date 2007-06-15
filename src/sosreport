@@ -465,7 +465,6 @@ def sosreport():
                 pbar.incAmount(30)
             pbar.update()
 
-    xmlrep.serialize()
     xmlrep.serialize_to_file(rptdir + "/" + "sosreport.xml")
 
     # Wait for all the collection threads to exit
