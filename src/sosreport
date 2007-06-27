@@ -363,19 +363,22 @@ def sosreport():
     # Make policy aware of the commons
     policy.setCommons(commons)
     
-    # validate and load plugins
+    # print list of available plugins
     plugins = os.listdir(pluginpath)
     if __cmdLineOpts__.listPlugins:
+        print "Available plugins:"
+        print
         for plug in plugins:
             try:
                 if ((plug[-3:] == '.py') and (plug != "__init__.py")):
-                    plugbase =  plug[:-3]
-                    pidot = "sos.plugins." + plugbase
-                    print plugbase
+                    sys.stdout.write(plug[:-3] + " ")
             except:
                 print "ouch"
+        print
+        print
         sys.exit()
 
+    # validate and load plugins
     for plug in plugins:
         if ((plug[-3:] == '.py') and (plug != "__init__.py") and (not __cmdLineOpts__.noplugins or (plug[:-3] not in __cmdLineOpts__.noplugins)) and (not __cmdLineOpts__.onlyplugins or (plug[:-3] in __cmdLineOpts__.onlyplugins)) ):
             try:
