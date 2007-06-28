@@ -7,6 +7,10 @@ software packages.
 This project is hosted at http://sos.108.redhat.com. For the latest version,
 to contribute, and for more information, please visit there.
 
+To access to the public source code repository for this project run:
+
+  svn checkout https://sos.108.redhat.com/svn/sos/trunk sos
+
 (all the following as root)
 to install locally ==> python setup.py install
 to build an rpm ==> python setup.py bdist_rpm
