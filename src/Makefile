@@ -3,7 +3,7 @@
 #
 
 NAME    = sos
-VERSION = $(shell awk '/Version/ { print $$2 }' sos.spec)
+VERSION = $(shell grep -e 'version = ' setup.py |cut -d \' -f 2)
 REPO = https://sos.108.redhat.com/svn/sos
 SVNTAG  = r$(subst .,-,$(VERSION))
 SVN_TAG_CONTENTS := $(shell svn list $(REPO)/tags/$(SVNTAG)/Makefile)
@@ -16,11 +16,12 @@ all:
 tag-release:
 ifeq ($(strip $(SVN_TAG_CONTENTS)), Makefile)
 	@echo "The repository already contains a tag for version $(VERSION)"
+	@exit 1
 else
 	@svn copy $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG) \
 	-m "Tagging the $(SVNTAG) release of the sos project"
-	@echo "$(SVNTAG)"
-	@svn update ../../tags
+	@echo "Tagged as $(SVNTAG)"
+	SVN_TAG_CONTENTS := $(shell svn list $(REPO)/tags/$(SVNTAG)/Makefile)
 endif
 
 # if we don't compress them, rpmbuild does, and this breaks things
@@ -67,3 +68,6 @@ version:
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
+
+rpm:
+	python setup.py bdist_rpm
