@@ -115,6 +115,9 @@ __cmdParser__.add_option("-n", "--noplugin", action="extend", \
 __cmdParser__.add_option("-o", "--onlyplugin", action="extend", \
                      dest="onlyplugins", type="string", \
                      help="list of plugins to load")
+__cmdParser__.add_option("-k", "--pluginopts", action="extend", \
+                     dest="plugopts", type="string", \
+                     help="plugin options in plugin_name.option=value format")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="How obnoxious we're being about telling the user what we're doing.")
@@ -427,7 +430,20 @@ def sosreport():
             for optname, optparm  in zip(names, parms):
                 alloptions.append((plug, plugname, optname, optparm))
 
-    if not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.usealloptions:
+    if __cmdLineOpts__.plugopts:
+        opts = {}
+        for opt in __cmdLineOpts__.plugopts:
+           try: opt, val = opt.split("=")
+           except: val=1
+           plug, opt = opt.split(".")
+           try: opts[plug]
+           except KeyError: opts[plug] = []
+           opts[plug].append( (opt,val) )
+        for plugname, plug in loadedplugins:
+           if opts.has_key(plugname):
+               for opt,val in opts[plugname]:
+                   plug.setOption(opt,val)
+    elif not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.usealloptions:
         if len(alloptions):
             try:
                 get_curse_options(alloptions)
