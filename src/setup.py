@@ -13,9 +13,9 @@ setup(
 	license = 'GPL',
 	description = 'System Support Tools',
 	long_description = """Sos is a set of tools that gathers information about system
-	hardware and configuration. The information can then be used for
-	diagnostic purposes and debugging. Sos is commonly used to help
-	support technicians and developers.""",
+hardware and configuration. The information can then be used for
+diagnostic purposes and debugging. Sos is commonly used to help
+support technicians and developers.""",
 	author = 'Steve Conklin, et al.',
 	author_email = 'sconklin@redhat.com',
 	url = 'http://sos.108.redhat.com/',
