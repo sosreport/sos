@@ -1,10 +1,5 @@
 To Do List:
 
-ADD - allow each plugin to optionally not load, and to be able to test whether
-other packages are installed. For example, if apache isn't installed, don't
-load the apache plugin. This needs to be done in a distribution-independent
-manner.
-
 Add support for distributions other than Fedora.
 
 Make it easier to select a policy module and perhaps optionally include
@@ -13,10 +8,3 @@ plugins from the library, to allow per-distribution customization.
 Documentation - plugin howto doc, inline doc in plugin template
 
 review and test error handling for things like a full tmp file system
-
-
-
-
-
-
-
