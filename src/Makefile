@@ -21,7 +21,6 @@ else
 	@svn copy $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG) \
 	-m "Tagging the $(SVNTAG) release of the sos project"
 	@echo "Tagged as $(SVNTAG)"
-	SVN_TAG_CONTENTS := $(shell svn list $(REPO)/tags/$(SVNTAG)/Makefile)
 endif
 
 # if we don't compress them, rpmbuild does, and this breaks things
@@ -42,7 +41,7 @@ tarball: clean manpages
 	@echo " "
 	@echo "The final archive is ./$(NAME)-$(VERSION).tar.bz2."
 
-release: clean tag-release manpages
+release: clean manpages
 ifeq ($(strip $(SVN_TAG_CONTENTS)), Makefile)
 	@echo "Creating an archive from tag $(SVNTAG)"
 	@rm -rf /tmp/$(NAME)
