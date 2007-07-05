@@ -2,18 +2,21 @@
 
 %define name sos
 %define version 1.6
-%define release 3
+%define release 4
 
 Summary: Sos is a set of tools to gather troubleshooting information from a system
 Name: %{name}
 Version: %{version}
 Release: %{release}%{?dist}
+# The source for this package was pulled from upstream's svn.  Use the
+# following commands to generate the tarball:
+#  svn --username guest export https://sos.108.redhat.com/svn/sos/tags/r1-6 sosreport-1.6
+#  tar -czvf sosreport-1.6.tar.gz sosreport-1.6
 Source0: %{name}-%{version}.tar.gz
 License: GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Packager: Navid Sheikhol-Eslami <navid@redhat.com>
 Url: http://sos.108.redhat.com/
 BuildRequires: python-devel
 
@@ -48,6 +51,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %doc README TODO LICENSE
 
 %changelog
+* Mon Jul  5 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.6-4
+- More fixes to make package Fedora compliant.
+
 * Mon Jul  2 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.6-3
 - Other fixes to make package Fedora compliant.
 

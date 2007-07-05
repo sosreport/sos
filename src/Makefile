@@ -12,6 +12,9 @@ all:
 
 .PHONY: tag-release tarball release install version clean
 
+diff-tag-release:
+	svn diff $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG)
+
 tag-release:
 	@svn list $(REPO)/tags/$(SVNTAG)/Makefile > /dev/null && \
 	( \
