@@ -4,7 +4,7 @@
 %define version 1.6
 %define release 4
 
-Summary: Sos is a set of tools to gather troubleshooting information from a system
+Summary: A set of tools to gather troubleshooting information from a system
 Name: %{name}
 Version: %{version}
 Release: %{release}%{?dist}
@@ -35,10 +35,7 @@ python setup.py build
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-python setup.py install --optimize 1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-# 'brp-compress' gzips the man pages without distutils knowing... fix this
-sed -i -e 's@man/man\([[:digit:]]\)/\(.\+\.[[:digit:]]\)$@man/man\1/\2.gz@g' INSTALLED_FILES
-
+python setup.py install --optimize 1 --root=$RPM_BUILD_ROOT
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

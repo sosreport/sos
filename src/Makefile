@@ -16,7 +16,7 @@ diff-tag-release:
 	svn diff $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG)
 
 tag-release:
-	@svn list $(REPO)/tags/$(SVNTAG)/Makefile > /dev/null && \
+	svn list $(REPO)/tags/$(SVNTAG)/Makefile 2> /dev/null && \
 	( \
 		echo "The repository already contains a tag for version $(VERSION)"; \
 		exit 1; \
@@ -25,11 +25,7 @@ tag-release:
 	-m "Tagging the $(SVNTAG) release of the sos project"
 	@echo "Tagged as $(SVNTAG)"
 
-# if we don't compress them, rpmbuild does, and this breaks things
-manpages: sosreport.1
-	@gzip -c sosreport.1 > sosreport.1.gz
-
-tarball: clean manpages
+tarball: clean
 	@echo "Creating an archive from HEAD of development"
 	@rm -rf /tmp/$(NAME)
 	@svn export -q $(REPO)/trunk/src     /tmp/$(NAME) \
@@ -43,12 +39,12 @@ tarball: clean manpages
 	@echo " "
 	@echo "The final archive is ./$(NAME)-$(VERSION).tar.bz2."
 
-release: clean manpages
-	@svn list $(REPO)/tags/$(SVNTAG)/Makefile > /dev/null && \
-	( \
-		@echo "There is no tag in the repository for this version, must be tagged before release"; \
-		exit 1; \
-	)
+release: clean
+#	@svn list $(REPO)/tags/$(SVNTAG)/Makefile > /dev/null || \
+#	( \
+#		@echo "There is no tag in the repository for this version, must be tagged before release"; \
+#		exit 1; \
+#	)
 	@echo "Creating an archive from tag $(SVNTAG)"
 	@rm -rf /tmp/$(NAME)
 	@svn export -q $(REPO)/tags/$(SVNTAG)     /tmp/$(NAME) \
