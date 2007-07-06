@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.6
-%define release 4
+%define release 5
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: %{name}
@@ -10,8 +10,8 @@ Version: %{version}
 Release: %{release}%{?dist}
 # The source for this package was pulled from upstream's svn.  Use the
 # following commands to generate the tarball:
-#  svn --username guest export https://sos.108.redhat.com/svn/sos/tags/r1-6 sosreport-1.6
-#  tar -czvf sosreport-1.6.tar.gz sosreport-1.6
+#  svn --username guest export https://sos.108.redhat.com/svn/sos/tags/r1-6 sos-1.6
+#  tar -czvf sos-1.6.tar.gz sos-1.6
 Source0: %{name}-%{version}.tar.gz
 License: GPL
 Group: Development/Libraries
@@ -29,7 +29,6 @@ support technicians and developers.
 %prep
 %setup -q
 
-
 %build
 python setup.py build
 
@@ -45,9 +44,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_sbindir}/sosreport
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1*
-%doc README TODO LICENSE
+%doc README TODO LICENSE ChangeLog
 
 %changelog
+* Mon Jul  5 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.6-5
+- Yet more fixes to make package Fedora compliant.
+
 * Mon Jul  5 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.6-4
 - More fixes to make package Fedora compliant.
 

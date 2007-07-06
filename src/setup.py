@@ -23,5 +23,5 @@ support technicians and developers.""",
 	scripts = [],
 	package_dir = {'': 'lib',},
 	# data_files is broken for building dists, works for installs
-	data_files = [('/usr/sbin', ['sosreport']), ('/usr/share/man/man1', ['sosreport.1.gz']) ]
+	data_files = [('/usr/sbin', ['sosreport']), ('/usr/share/man/man1', ['sosreport.1']) ]
 )

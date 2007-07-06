@@ -16,11 +16,10 @@ diff-tag-release:
 	svn diff $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG)
 
 tag-release:
-	svn list $(REPO)/tags/$(SVNTAG)/Makefile 2> /dev/null && \
-	( \
+	@if ( svn list $(REPO)/tags/$(SVNTAG)/Makefile &> /dev/null ); then \
 		echo "The repository already contains a tag for version $(VERSION)"; \
 		exit 1; \
-	)
+	fi
 	@svn copy $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG) \
 	-m "Tagging the $(SVNTAG) release of the sos project"
 	@echo "Tagged as $(SVNTAG)"
@@ -31,26 +30,22 @@ tarball: clean
 	@svn export -q $(REPO)/trunk/src     /tmp/$(NAME) \
 	 || echo GRRRrrrrr -- ignore [export aborted]
 	@mv /tmp/$(NAME) /tmp/$(NAME)-$(VERSION)
-	@cd /tmp/$(NAME)-$(VERSION); gzip -c sosreport.1 > sosreport.1.gz
 	@cd /tmp; tar --bzip2 -cSpf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
 	@rm -rf /tmp/$(NAME)-$(VERSION)
-	@cp /tmp/$(NAME)-$(VERSION).tar.bz2 .
-	@rm -f /tmp/$(NAME)-$(VERSION).tar.bz2
+	@mv /tmp/$(NAME)-$(VERSION).tar.bz2 .
 	@echo " "
 	@echo "The final archive is ./$(NAME)-$(VERSION).tar.bz2."
 
 release: clean
-#	@svn list $(REPO)/tags/$(SVNTAG)/Makefile > /dev/null || \
-#	( \
-#		@echo "There is no tag in the repository for this version, must be tagged before release"; \
-#		exit 1; \
-#	)
+	@if ( ! svn list $(REPO)/tags/$(SVNTAG)/Makefile &> /dev/null ); then \
+		echo "There is no tag in the repository for this version, must be tagged before release"; \
+		exit 1; \
+	fi
 	@echo "Creating an archive from tag $(SVNTAG)"
 	@rm -rf /tmp/$(NAME)
 	@svn export -q $(REPO)/tags/$(SVNTAG)     /tmp/$(NAME) \
 	 || echo GRRRrrrrr -- ignore [export aborted]
 	@mv /tmp/$(NAME) /tmp/$(NAME)-$(VERSION)
-	@cd /tmp/$(NAME)-$(VERSION); gzip -c sosreport.1 > sosreport.1.gz
 	@cd /tmp; tar --bzip2 -cSpf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
 	@rm -rf /tmp/$(NAME)-$(VERSION)
 	@cp /tmp/$(NAME)-$(VERSION).tar.bz2 .
@@ -68,4 +63,4 @@ clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
 
 rpm:
-	python setup.py bdist_rpm
+	rpmbuild -ba sos.spec
