@@ -333,7 +333,7 @@ class PluginBase:
             outfd = open(errfn, "w")
             outfd.write(sherr)
             outfd.close()
-            errfn = errfn[len(self.cInfo['cmddir'] + "/" )+1:]
+            errfn = errfn[len(self.cInfo['cmddir'] + "/" ):]
             self.cInfo['soslog'].debug(sherr)
 	else:
             errfn = None
