@@ -3,9 +3,11 @@
 #
 
 NAME    = sos
-VERSION = $(shell grep -e 'version = ' setup.py |cut -d \' -f 2)
+VERSION = $(shell awk '/^%define version / { print $$3 }' sos.spec)
 REPO = https://sos.108.redhat.com/svn/sos
 SVNTAG  = r$(subst .,-,$(VERSION))
+SRCDIR = $(PWD)
+TOPDIR = $(PWD)/build/rpm-$(NAME)-$(VERSION)
 
 
 all:
@@ -63,4 +65,21 @@ clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
 
 rpm:
-	rpmbuild -ba sos.spec
+	@test -f sos.spec
+	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD
+
+#	this builds an RPM from the current working copy
+	@cd $(TOPDIR)/BUILD ; \
+	rm -rf $(NAME)-$(VERSION) ; \
+	ln -s $(SRCDIR) $(NAME)-$(VERSION) ; \
+	tar --gzip --exclude=.svn --exclude=svn-commit.tmp --exclude=$(NAME)-$(VERSION)/build --exclude=$(NAME)-$(VERSION)/dist \
+	-chSpf $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) ; \
+	rm -f $(NAME)-$(VERSION)
+
+#	this builds an RPM from HEAD
+#	@rm -rf $(TOPDIR)/BUILD/$(NAME)-$(VERSION)
+#	@svn export -q $(REPO)/trunk/src $(TOPDIR)/BUILD/$(NAME)-$(VERSION)
+#	@cd $(TOPDIR)/BUILD ; tar --gzip -cSpf $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION); rm -rf $(NAME)-$(VERSION)
+
+	rpmbuild -ba --define="_topdir $(TOPDIR)" sos.spec
+	@mv $(TOPDIR)/RPMS/noarch/$(NAME)-$(VERSION)*.rpm $(TOPDIR)/SRPMS/$(NAME)-$(VERSION)*.rpm $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz dist/
