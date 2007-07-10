@@ -115,6 +115,9 @@ __cmdParser__.add_option("-n", "--noplugin", action="extend", \
 __cmdParser__.add_option("-o", "--onlyplugin", action="extend", \
                      dest="onlyplugins", type="string", \
                      help="list of plugins to load")
+__cmdParser__.add_option("-e", "--enableplugin", action="extend", \
+                     dest="enableplugins", type="string", \
+                     help="list of plugins to enable")
 __cmdParser__.add_option("-k", "--pluginopts", action="extend", \
                      dest="plugopts", type="string", \
                      help="plugin options in plugin_name.option=value format")
@@ -374,40 +377,60 @@ def sosreport():
         for plug in plugins:
             try:
                 if ((plug[-3:] == '.py') and (plug != "__init__.py")):
-                    sys.stdout.write(plug[:-3] + " ")
+                    plugbase = plug[:-3]
+                    if policy.validatePlugin(pluginpath + plug):
+                        pluginClass = importPlugin("sos.plugins." + plugbase,  plugbase)
+                    else:
+                        soslog.warning("plugin %s does not validate, skipping" % plug)
+                        continue
+                    if not pluginClass(plugbase, commons).checkenabled():
+                        print "* %s (inactive)" % plugbase
+                        continue
+                    if not pluginClass(plugbase, commons).defaultenabled():
+                        print "* %s (disabled by default)" % plugbase
+                        continue
+                    print "  " + plugbase
             except:
                 print "ouch"
-        print
         print
         sys.exit()
 
     # validate and load plugins
     for plug in plugins:
-        if ((plug[-3:] == '.py') and (plug != "__init__.py") and (not __cmdLineOpts__.noplugins or (plug[:-3] not in __cmdLineOpts__.noplugins)) and (not __cmdLineOpts__.onlyplugins or (plug[:-3] in __cmdLineOpts__.onlyplugins)) ):
+        plugbase =  plug[:-3]
+        if not plug[-3:] == '.py' or plugbase == "__init__":
+            continue
+        if __cmdLineOpts__.noplugins and plugbase not in __cmdLineOpts__.noplugins:
+            soslog.log(logging.VERBOSE, "plug %s skipped" % plugbase)
+            continue
+        if __cmdLineOpts__.onlyplugins and not plugbase in __cmdLineOpts__.onlyplugins:
+            soslog.log(logging.VERBOSE, "plug %s skipped" % plugbase)
+            continue
+        try:
+            #print "importing plugin: %s" % plugbase
             try:
-                plugbase =  plug[:-3]
-                pidot = "sos.plugins." + plugbase
-                #print "importing plugin: %s" % plugbase
-                try:
-                    if policy.validatePlugin(pluginpath + plug):
-                        pluginClass = importPlugin(pidot, plugbase)
+                if policy.validatePlugin(pluginpath + plug):
+                    pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
+                else:
+                    soslog.warning("Plugin %s does not validate, skipping" % plug)
+                    continue
+                if not __cmdLineOpts__.onlyplugins and not pluginClass(plugbase, commons).defaultenabled():
+                    if __cmdLineOpts__.enableplugins and plugbase in __cmdLineOpts__.enableplugins:
+                       soslog.log(logging.VERBOSE, "plugin %s manually activated" % plugbase)
                     else:
-                        soslog.warning("Plugin %s does not validate, skipping" % plug)
-                        continue
-                    if not __cmdLineOpts__.onlyplugins and not pluginClass(plugbase, commons).defaultenabled():
-                        soslog.log(logging.VERBOSE, "Plugin %s not loaded by default." % plug)
-                        continue
-                    if not pluginClass(plugbase, commons).checkenabled():
-                        soslog.log(logging.VERBOSE, "Plugin %s is inactive." % plug)
-                        continue
-                    loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                except:
-                    soslog.warning("Plugin %s does not install, skipping" % plug)
-                    raise
+                       soslog.log(logging.VERBOSE, "Plugin %s not loaded by default." % plug)
+                       continue
+                if not pluginClass(plugbase, commons).checkenabled():
+                    soslog.log(logging.VERBOSE, "Plugin %s is inactive." % plug)
+                    continue
+                loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
             except:
-                if __raisePlugins__:
-                    raise
-                soslog.warning("plugin load failed for %s" % plug)
+                soslog.warning("Plugin %s does not install, skipping" % plug)
+                raise
+        except:
+           if __raisePlugins__:
+                raise
+           soslog.warning("plugin load failed for %s" % plug)
 
     if not len(loadedplugins):
         soslog.error("no valid plugins were enabled")

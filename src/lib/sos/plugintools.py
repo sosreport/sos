@@ -288,11 +288,11 @@ class PluginBase:
         sys.stderr.write("the collectExtOutput() function.\n")
         pass
 
-    def collectExtOutput(self, exe):
+    def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None):
         """
         Run a program and collect the output
         """
-        self.collectProgs.append(exe)
+        self.collectProgs.append( (exe,suggest_filename,root_symlink) )
 
     def makeCommandFilename(self, exe):
         """ The internal function to build up a filename based on a command """
@@ -311,7 +311,7 @@ class PluginBase:
 
         return outfn
 
-    def collectOutputNow(self, exe):
+    def collectOutputNow(self, exe, suggest_filename = None, root_symlink = False):
         """ Execute a command and save the output to a file for inclusion in
         the report
         """
@@ -323,11 +323,18 @@ class PluginBase:
         # pylint: disable-msg = W0612
         status, shout, sherr, runtime = sosGetCommandOutput(exe)
 
-        outfn = self.makeCommandFilename(exe)
+        if suggest_filename:
+            outfn = self.makeCommandFilename(suggest_filename)
+        else:
+            outfn = self.makeCommandFilename(exe)
 
         outfd = open(outfn, "w")
         outfd.write(shout)
         outfd.close()
+
+        if root_symlink:
+            os.system('cd "%s" && ln -s "%s" "%s"' % (self.cInfo['dstroot'], outfn[len(self.cInfo['dstroot'])+1:], root_symlink))
+
 	if len(sherr) > 0:
             errfn = outfn + ".err"
             outfd = open(errfn, "w")
@@ -404,10 +411,10 @@ class PluginBase:
               raise KeyboardInterrupt
             except Exception, e:
                 self.cInfo['soslog'].log(logging.VERBOSE, "Error copying from pathspec %s (%s)" % (path,e))
-        for prog in self.collectProgs:
+        for (prog,suggest_filename,root_symlink) in self.collectProgs:
             self.cInfo['soslog'].debug("collecting output of '%s'" % prog)
             try:
-                self.collectOutputNow(prog)
+                self.collectOutputNow(prog, suggest_filename, root_symlink)
             except SystemExit:
               raise SystemExit
             except KeyboardInterrupt:
