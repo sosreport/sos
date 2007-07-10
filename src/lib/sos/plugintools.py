@@ -420,6 +420,11 @@ class PluginBase:
         it should run or not.
         """
         return True 
+
+    def defaultenabled(self):
+        """This devices whether a plugin should be automatically loaded or
+        only if manually specified in the command line."""
+        return True
     
     def collect(self):
         """ This function has been replaced with setup().  Please change your
