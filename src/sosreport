@@ -74,11 +74,6 @@ signal.signal(signal.SIGTERM, exittermhandler)
 ## multiple SIGTERMs.
 ## FIXME: Need to figure out how to handle SIGKILL - we can't intercept it.
 
-
-if os.getuid() != 0:
-    print 'You must run sosreport as root!'
-    sys.exit(1)
-
 # for debugging
 __raisePlugins__ = 1
 
@@ -394,6 +389,12 @@ def sosreport():
                 print "ouch"
         print
         sys.exit()
+
+    # to go anywhere further than listing the plugins we will need root permissions.
+    #
+    if os.getuid() != 0:
+        print 'You must run sosreport as root!'
+        sys.exit(1)
 
     # validate and load plugins
     for plug in plugins:
