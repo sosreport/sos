@@ -31,6 +31,11 @@ class xen(sos.plugintools.PluginBase):
                 return "domU"
         return "baremetal"
 
+    def checkenabled(self):
+        if self.determineXenHost() == "baremetal":
+            return False
+        return True
+
     def domCollectProc(self):
         self.addCopySpec("/proc/xen/balloon")
         self.addCopySpec("/proc/xen/capabilities")

@@ -20,7 +20,7 @@ class selinux(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/selinux/*")
         self.collectExtOutput("/usr/bin/selinuxconfig")
-        self.collectExtOutput("/usr/sbin/sestatus")
+        self.collectExtOutput("/usr/sbin/sestatus", root_symlink = "sestatus")
         self.collectExtOutput("/bin/rpm -q -V selinux-policy-targeted")
         self.collectExtOutput("/bin/rpm -q -V selinux-policy-strict")
         return

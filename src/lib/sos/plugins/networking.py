@@ -21,8 +21,8 @@ class networking(sos.plugintools.PluginBase):
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", 0)]
 
     def get_interface_name(self,ifconfigFile):
-        """Return a dictionnary for wich key are intefrace name according to the
-        output of ifcongif-a stored in ifconfigFile.
+        """Return a dictionary for which key are interface name according to the
+        output of ifconifg-a stored in ifconfigFile.
         """
         out={}
         if(os.path.isfile(ifconfigFile)):
@@ -57,8 +57,8 @@ class networking(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/xinetd.d")
         self.addCopySpec("/etc/host*")
         self.addCopySpec("/etc/resolv.conf")
-        ifconfigFile=self.collectExtOutput("/sbin/ifconfig -a")
-        self.collectExtOutput("/sbin/route -n")
+        ifconfigFile=self.collectExtOutput("/sbin/ifconfig -a", root_symlink = "ifconfig")
+        self.collectExtOutput("/sbin/route -n", root_symlink = "route")
         self.collectExtOutput("/sbin/ipchains -nvL")
         self.collectIPTable("filter")
         self.collectIPTable("nat")

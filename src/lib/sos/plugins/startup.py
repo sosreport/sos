@@ -20,7 +20,6 @@ class startup(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/rc.d")
         
-        self.collectExtOutput("/sbin/chkconfig --list")
-        # self.collectExtOutput("/bin/ls /etc/rc.d/rc*.d/")  # This is redundant.
+        self.collectExtOutput("/sbin/chkconfig --list", root_symlink = "chkconfig")
         return
 

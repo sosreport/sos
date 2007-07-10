@@ -36,7 +36,7 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/dasd")
         self.addCopySpec("/proc/s390dbf/tape")
         self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
-        self.collectExtOutput("/sbin/lspci -vvn")
+        self.collectExtOutput("""/bin/echo "lspci" ; /bin/echo ; /sbin/lspci ; /bin/echo ; /bin/echo "lspci -n" ; /bin/echo ;  /sbin/lspci -nv ; /bin/echo ; /bin/echo "lspci -nvv" ; /bin/echo ; /sbin/lspci -nvv""", suggest_filename = "lspci", root_symlink = "lspci")
         self.collectExtOutput("/bin/dmesg | /bin/grep -e 'e820.' -e 'agp.'")
               
         tmpreg = ""

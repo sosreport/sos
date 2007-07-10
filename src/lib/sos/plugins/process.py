@@ -18,7 +18,7 @@ class process(sos.plugintools.PluginBase):
     """This plugin gathers process information
     """
     def setup(self):
-        self.collectExtOutput("/bin/ps auxww")
-        self.collectExtOutput("/usr/bin/pstree")
+        self.collectExtOutput("/bin/ps auxww", root_symlink = "ps")
+        self.collectExtOutput("/usr/bin/pstree", root_symlink = "pstree")
         return
 

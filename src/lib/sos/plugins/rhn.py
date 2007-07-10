@@ -17,13 +17,15 @@ from sos.plugintools import PluginBase
 class rhn(PluginBase):
     """This plugin gathers RHN server related information
     """
-    def setup(self):
+    def checkenabled(self):
         # XXX check for the presence of requisite packages
         satellite = self.cInfo["policy"].pkgByName("rhns-satellite-tools")
         proxy = self.cInfo["policy"].pkgByName("rhns-proxy-tools")
         if not satellite and not proxy:
-            return
+            return False
+        return True
 
+    def setup(self):
         #
         # First, grab things needed from both Satellite and Proxy systems
         #

@@ -24,7 +24,7 @@ class memory(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/slabinfo")
         
         self.collectExtOutput("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
-        self.collectExtOutput("/usr/bin/free")
+        self.collectExtOutput("/usr/bin/free", root_symlink = "free")
         self.collectExtOutput("/usr/bin/free -m")
         return
 

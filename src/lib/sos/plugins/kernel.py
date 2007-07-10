@@ -47,8 +47,8 @@ class kernel(sos.plugintools.PluginBase):
 
     
     def setup(self):
-        self.collectExtOutput("/bin/uname -a")
-        self.moduleFile = self.collectOutputNow("/sbin/lsmod")
+        self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
+        self.moduleFile = self.collectOutputNow("/sbin/lsmod", root_symlink = "lsmod")
         if self.isOptionEnabled('modinfo'):
           for kmod in commands.getoutput('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null').split('\n'):
             if '' != kmod.strip():

@@ -29,9 +29,9 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/auto.misc")
         self.addCopySpec("/etc/auto.net")
         
-        self.collectExtOutput("/bin/df -al")
-        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l")
-        self.collectExtOutput("/bin/mount -l")
+        self.collectExtOutput("/bin/df -al", root_symlink = "df")
+        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
+        self.collectExtOutput("/bin/mount -l", root_symlink = "mount")
         self.collectExtOutput("/sbin/blkid")
 
         raiddevs = commands.getoutput("/bin/cat /proc/partitions | /bin/egrep -v \"^major|^$\" | /bin/awk '{print $4}' | /bin/grep \/ | /bin/egrep -v \"p[0123456789]$\"")

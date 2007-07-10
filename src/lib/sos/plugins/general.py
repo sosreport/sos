@@ -27,9 +27,9 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/secure")
         self.addCopySpec("/var/log/up2date")
         self.addCopySpec("/etc/exports")        
-        self.collectExtOutput("/bin/hostname")
-        self.collectExtOutput("/bin/date")
-        self.collectExtOutput("/usr/bin/uptime")
+        self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
+        self.collectExtOutput("/bin/date", root_symlink = "date")
+        self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
         return
 
     def postproc(self):

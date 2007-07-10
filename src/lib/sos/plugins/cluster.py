@@ -24,6 +24,12 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/cluster")
         self.collectExtOutput("/usr/sbin/rg_test test /etc/cluster/cluster.conf")
         self.addCopySpec("/proc/cluster")
+        self.collectExtOutput("cman_tool status")
+        self.collectExtOutput("cman_tool services")
+        self.collectExtOutput("cman_tool -af nodes")
+        self.collectExtOutput("ccs_tool lsnode")
+        self.collectExtOutput("openais-cfgtool -s")
+        self.collectExtOutput("clustat")
         return
 
     def postproc(self):

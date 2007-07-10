@@ -24,9 +24,9 @@ class rpm(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/rpmpkgs")
         
         if self.isOptionEnabled("rpmq"):
-          self.collectExtOutput("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"")
+          self.collectExtOutput("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"", root_symlink = "installed-rpms")
       
         if self.isOptionEnabled("rpmva"):
-          self.collectExtOutput("/bin/rpm -Va")
+          self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va")
         return
 
