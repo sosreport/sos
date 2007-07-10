@@ -13,7 +13,7 @@ To access to the public source code repository for this project run:
 
 (all the following as root)
 to install locally ==> python setup.py install
-to build an rpm ==> python setup.py bdist_rpm
+to build an rpm ==> make rpm
 
 See the Makefile.
 
