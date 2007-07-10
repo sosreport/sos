@@ -1,10 +1,15 @@
 To Do List:
 
-Add support for distributions other than Fedora.
+ * Choose sane defaults to satisfy Red Hat support requirements (ie. what
+   plugins should be loaded by default, with what options, etc)
 
-Make it easier to select a policy module and perhaps optionally include
-plugins from the library, to allow per-distribution customization.
+ * Make sosreport a drop-in replacement for sysreport
 
-Documentation - plugin howto doc, inline doc in plugin template
+ * Add support for distributions other than Fedora.
 
-review and test error handling for things like a full tmp file system
+ * Make it easier to select a policy module and perhaps optionally include
+   plugins from the library, to allow per-distribution customization.
+
+ * Documentation - plugin howto doc, inline doc in plugin template
+
+ * Review and test error handling for things like a full tmp file system
