@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name sos
-%define version 1.6
-%define release 5
+%define version 1.7
+%define release 0
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: %{name}

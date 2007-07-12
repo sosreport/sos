@@ -13,6 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import commands
 
 class selinux(sos.plugintools.PluginBase):
     """This plugin gathers selinux related information
@@ -25,3 +26,11 @@ class selinux(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/rpm -q -V selinux-policy-strict")
         return
 
+    def checkenabled(self):
+        # is selinux enabled ?
+        try:
+           if commands.getoutput("/usr/sbin/sestatus").split(":")[1].strip() == "disabled":
+              return False
+        except:
+           pass
+        return True

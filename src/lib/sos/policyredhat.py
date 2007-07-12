@@ -18,6 +18,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
+import commands
 import sys
 import string
 from tempfile import gettempdir
@@ -75,16 +76,11 @@ class SosPolicy:
         return (name, version, release, arch)
 
     def packageResults(self):
-        print "Packaging results to send to support..."
+        localname = commands.getoutput("/bin/uname -n").split(".")[0]
+        name = raw_input("Please enter your first initial and last name [%s]: " % localname)
+        if len(name) == 0: name = localname
 
-        name=""
-        while len(name)==0:
-            print "Please enter your first initial and last name (jsmith): ",
-            name = sys.stdin.readline()[:-1]
-
-        print "Please enter the case number that you are generating this",
-        print "report for: ",
-        ticketNumber = sys.stdin.readline()[:-1]
+        ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
 
         if len(ticketNumber):
             namestr = name + "." + ticketNumber
@@ -92,7 +88,7 @@ class SosPolicy:
             namestr = name
 
         ourtempdir = gettempdir()
-        tarballName = os.path.join(ourtempdir,  namestr + ".tar.bz2")
+        tarballName = os.path.join(ourtempdir,  "sosreport-" + namestr + ".tar.bz2")
 
         namestr = namestr + "-" + str(random.randint(1, 999999))
 
@@ -100,12 +96,13 @@ class SosPolicy:
 
         tarcmd = "/bin/tar -jcf %s %s" % (tarballName, namestr)
 
+        print
         print "Creating compressed tar archive..."
         if not os.access(string.split(tarcmd)[0], os.X_OK):
             print "Unable to create tarball"
             return
 
-        # gotta be a better way...
+        # FIXME: gotta be a better way...
         os.system("/bin/mv %s %s" % (self.cInfo['dstroot'], aliasdir))
         curwd = os.getcwd()
         os.chdir(ourtempdir)
@@ -117,7 +114,9 @@ class SosPolicy:
         os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
 
         sys.stdout.write("\n")
-	print "Your sosreport has been generated and saved in %s" % tarballName
+        print "Your sosreport has been generated and saved in %s" % tarballName
+        print "Please send this file to your support representative."
         sys.stdout.write("\n")
+
         return
         

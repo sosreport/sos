@@ -85,7 +85,7 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        self.cInfo['soslog'].error("Problem at path %s (%s)\n" % (abspath,e))
+                        self.cInfo['soslog'].warning("Problem at path %s (%s)\n" % (abspath,e))
                         break
         return False
 
@@ -141,7 +141,7 @@ class PluginBase:
                         except KeyboardInterrupt:
                           raise KeyboardInterrupt
                         except Exception, e:
-                            self.cInfo['soslog'].error("Problem at path %s (%s)" % (srcpath+'/'+afile, e))
+                            self.cInfo['soslog'].warning("Problem at path %s (%s)" % (srcpath+'/'+afile, e))
                         # if on forbidden list, abspath is null
                         if not abspath == '':
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
@@ -156,22 +156,8 @@ class PluginBase:
                 except KeyboardInterrupt:
                   raise KeyboardInterrupt
                 except Exception, e:
-                    self.cInfo['soslog'].error("Problem at path %s (%s)" % (srcpath, e))
+                    self.cInfo['soslog'].debug("Problem at path %s (%s)" % (srcpath, e))
 
-
-            # Recurse to copy whatever it points to
-            newpath = os.path.normpath(os.path.join(os.path.dirname(srcpath), link))
-            try:
-                self.doCopyFileOrDir(newpath)
-            except SystemExit:
-              raise SystemExit
-            except KeyboardInterrupt:
-              raise KeyboardInterrupt
-            except EnvironmentError, (errno, strerror):
-                if (errno != 17):
-                    # we ignore 'file exists' errors
-                    self.cInfo['soslog'].error("Problem at path %s ([%d] %s)" % (newpath, errno, strerror))
-            
             return abspath
 
         else:
@@ -195,7 +181,7 @@ class PluginBase:
         """
         try:
             # pylint: disable-msg = W0612
-            status, shout, sherr, runtime = sosGetCommandOutput("/bin/cp --parents -p " + src +" " + self.cInfo['dstroot'])
+            status, shout, sherr, runtime = sosGetCommandOutput("/bin/cp --parents -P --preserve=mode,ownership,timestamps,links " + src +" " + self.cInfo['dstroot'])
             if status:
                 self.cInfo['soslog'].debug(shout)
                 self.cInfo['soslog'].debug(sherr)
@@ -272,10 +258,9 @@ class PluginBase:
         """ Execute a command independantly of the output gathering part of
         sosreport
         """                        
-        # First check to make sure the binary exists and is runnable.
+        # Log if binary is not runnable or does not exist
         if not os.access(prog.split()[0], os.X_OK):
-            self.cInfo['soslog'].log(logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % prog.split()[0])
-            return
+            self.cInfo['soslog'].log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % prog.split()[0])
 
         # pylint: disable-msg = W0612
         status, shout, sherr, runtime = sosGetCommandOutput(prog)                                                            
@@ -333,6 +318,7 @@ class PluginBase:
         outfd.close()
 
         if root_symlink:
+            # FIXME: use python's internal commands
             os.system('cd "%s" && ln -s "%s" "%s"' % (self.cInfo['dstroot'], outfn[len(self.cInfo['dstroot'])+1:], root_symlink))
 
 	if len(sherr) > 0:
@@ -421,6 +407,13 @@ class PluginBase:
               raise KeyboardInterrupt
             except:
                 self.cInfo['soslog'].log(logging.VERBOSE, "Error collecting output of '%s'" % prog,)
+
+    def get_description(self):
+        """ This function will return the description for the plugin"""
+        try:
+            return self.__doc__.strip()
+        except:
+            return "<no description available>"
 
     def checkenabled(self):
         """ This function can be overidden to let the plugin decide whether

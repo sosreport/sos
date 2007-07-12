@@ -5,6 +5,8 @@ To Do List:
 
  * Make sosreport a drop-in replacement for sysreport
 
+ * Allow to use a different rootdir than /
+
  * Add support for distributions other than Fedora.
 
  * Make it easier to select a policy module and perhaps optionally include
