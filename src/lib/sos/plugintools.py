@@ -32,6 +32,7 @@ from sos.helpers import *
 from threading import Thread, activeCount
 import os, os.path, sys, string, itertools, glob, re
 import logging
+from stat import *
 
 class PluginBase:
     """
@@ -223,6 +224,18 @@ class PluginBase:
         # nonexistent options aren't enabled.
         return 0
 
+    def addCopySpecLimit(self,fname,sizelimit = None):
+        """Add a file specification (with limits)
+        """
+        files = glob.glob(fname)
+        files.sort()
+        cursize = 0
+        for flog in files:
+            cursize += os.stat(flog)[ST_SIZE]
+            if sizelimit and (cursize / 1024 / 1024) > sizelimit:
+               break
+            self.addCopySpec(flog)
+
     def addCopySpec(self, copyspec):
         """ Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module
@@ -285,8 +298,14 @@ class PluginBase:
         rawcmd = os.path.basename(exe).strip()[:28]
 
         # Mangle command to make it suitable for a file name
-        tabl = string.maketrans(" /\t;#$|%\"'`}{\n", "_._-----------")
+        tabl = string.maketrans(" /\t;#$|%\"'`}{\n", "--------------")
         mangledname = rawcmd.translate(tabl)
+
+        # remove double "--"
+        while True:
+           doublepos = mangledname.find("--")
+           if doublepos == -1: break
+           mangledname = mangledname[:doublepos] + mangledname[doublepos+2:]
 
         outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + mangledname
 
