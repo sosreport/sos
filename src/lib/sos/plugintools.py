@@ -288,7 +288,7 @@ class PluginBase:
         tabl = string.maketrans(" /\t;#$|%\"'`}{\n", "_._-----------")
         mangledname = rawcmd.translate(tabl)
 
-        outfn = self.cInfo['cmddir'] + "/" + self.piName + "." + mangledname
+        outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + mangledname
 
         # check for collisions
         while os.path.exists(outfn):
@@ -312,6 +312,9 @@ class PluginBase:
             outfn = self.makeCommandFilename(suggest_filename)
         else:
             outfn = self.makeCommandFilename(exe)
+
+        if not os.path.isdir(os.path.dirname(outfn)):
+            os.mkdir(os.path.dirname(outfn))
 
         outfd = open(outfn, "w")
         outfd.write(shout)
@@ -345,6 +348,9 @@ class PluginBase:
         to exist so as not to confuse readers """
 
         outfn = self.makeCommandFilename(exe)
+
+        if not os.path.isdir(os.path.dirname(outfn)):
+            os.mkdir(os.path.dirname(outfn))
 
         outfd = open(outfn, "w")
         outfd.write(text)
