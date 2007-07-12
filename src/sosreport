@@ -432,19 +432,19 @@ def sosreport():
         print "The following plugins are currently enabled:"
         print
         for (plugname,plug) in loadedplugins:
-           print " %-15s  %s" % (plugname,plug.get_description())
+           print " %-25s  %s" % (plugname,plug.get_description())
 
         print
         print "The following plugin options are available:"
         print
         for (plug, plugname, optname, optparm)  in alloptions:
-           print " %-15s  %s [%d]" % (plugname + "." + optname, optparm["desc"], optparm["enabled"])
+           print " %-25s  %s [%d]" % (plugname + "." + optname, optparm["desc"], optparm["enabled"])
 
         print
         print "The following plugins are currently disabled:"
         print
         for (plugname,plugclass) in skippedplugins:
-           print " %-15s  %s" % (plugname,plugclass.get_description())
+           print " %-25s  %s" % (plugname,plugclass.get_description())
 
         print
         sys.exit()
@@ -463,7 +463,7 @@ def sosreport():
         sys.exit(1)
 
     try:
-        raw_input("""This utility will collect some detailed information about the
+        raw_input("""This utility will collect some detailed  information about the
 hardware and  setup of your  Red Hat Enterprise Linux  system.
 This information will be used  to diagnose problems with  your 
 system and will be considered confidential information.
