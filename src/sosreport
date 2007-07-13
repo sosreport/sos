@@ -107,13 +107,13 @@ __cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
                      help="list existing plugins")
 __cmdParser__.add_option("-n", "--noplugin", action="extend", \
                      dest="noplugins", type="string", \
-                     help="list of plugins _not_ to load", default = [])
+                     help="skip these plugins", default = [])
 __cmdParser__.add_option("-o", "--onlyplugin", action="extend", \
                      dest="onlyplugins", type="string", \
-                     help="list of plugins to load", default = [])
+                     help="enable these plugins only", default = [])
 __cmdParser__.add_option("-e", "--enableplugin", action="extend", \
                      dest="enableplugins", type="string", \
-                     help="list of plugins to enable", default = [])
+                     help="list of inactive plugins to be enabled", default = [])
 __cmdParser__.add_option("-k", "--pluginopts", action="extend", \
                      dest="plugopts", type="string", \
                      help="plugin options in plugin_name.option=value format")
@@ -209,7 +209,7 @@ class progressBar:
         # generate ETA
         timeElapsed = round(time() - self.time_start)
         last_update_relative = round(self.last_amount_update - self.time_start)
-        if timeElapsed >= 10:
+        if timeElapsed >= 10 and self.amount > 0:
             percentDone = round(timeElapsed * 100 / self.eta)
             if percentDone > 100:
                percentDone = 100

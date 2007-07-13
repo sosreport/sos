@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.7
-%define release 0
+%define release 1
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: %{name}
