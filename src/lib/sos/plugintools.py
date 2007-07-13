@@ -294,16 +294,21 @@ class PluginBase:
 
     def makeCommandFilename(self, exe):
         """ The internal function to build up a filename based on a command """
-        # build file name for output
-        rawcmd = os.path.basename(exe).strip()
 
-        mangledname = re.sub(r"[^\w-]+", "_", rawcmd)[0:32]
+        mangledname = re.sub(r"[^\w\-\.\/]+", "_", exe)
+        mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")[0:64]
 
         outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + mangledname
 
         # check for collisions
-        while os.path.exists(outfn):
-            outfn = outfn + "z"
+        inc = 0
+        if os.path.exists(outfn):
+            inc = 2
+            while True:
+               newfn = outfn + "_" + inc
+               if not os.path.exists(newfn):
+                  break
+               inc +=1
 
         return outfn
 
@@ -328,7 +333,7 @@ class PluginBase:
             os.mkdir(os.path.dirname(outfn))
 
         outfd = open(outfn, "w")
-        outfd.write(shout)
+        if len(shout): outfd.write(shout+"\n")
         outfd.close()
 
         if root_symlink:

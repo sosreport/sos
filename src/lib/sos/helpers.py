@@ -64,7 +64,7 @@ def sosGetCommandOutput(command):
     stime = time()
     errdata = ''
     status,outdata=commands.getstatusoutput(command)
-    return (status, ''.join(outdata), time()-stime)
+    return (status, outdata, time()-stime)
 
 
 # this needs to be made clean and moved to the plugin tools, so
