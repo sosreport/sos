@@ -17,7 +17,7 @@ import commands
 import os
 
 class named(sos.plugintools.PluginBase):
-    """This plugin gathers named related information
+    """named related information
     """
     def setup(self):
       dnsdir = ""

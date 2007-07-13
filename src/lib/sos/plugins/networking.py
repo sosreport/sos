@@ -16,7 +16,7 @@ import sos.plugintools
 import os,re,commands
 
 class networking(sos.plugintools.PluginBase):
-    """This plugin gathers network related information
+    """network related information
     """
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", 0)]
 

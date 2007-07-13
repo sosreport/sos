@@ -17,7 +17,7 @@
 import sos.plugintools
 
 class sendmail(sos.plugintools.PluginBase):
-    """This plugin gathers sendmail information
+    """sendmail information
     """
     def setup(self):
         self.addCopySpec("/etc/mail/*")

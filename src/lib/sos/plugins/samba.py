@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class samba(sos.plugintools.PluginBase):
-    """This plugin gathers Samba related information
+    """Samba related information
     """
     def setup(self):
         self.addCopySpec("/etc/samba")

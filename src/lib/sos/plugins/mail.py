@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class mail(sos.plugintools.PluginBase):
-    """This plugin gathers mail server related information
+    """mail server related information
     """
     def setup(self):
         self.addCopySpec("/etc/mail")

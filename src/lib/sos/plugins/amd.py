@@ -17,7 +17,7 @@
 import sos.plugintools
 
 class amd(sos.plugintools.PluginBase):
-    """This plugin gathers Amd automounter information
+    """Amd automounter information
     """
     def setup(self):
         self.addCopySpec("/etc/amd.*")

@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class devicemapper(sos.plugintools.PluginBase):
-    """This plugin gathers device-mapper related information (dm, lvm, multipath)
+    """device-mapper related information (dm, lvm, multipath)
     """
     def setup(self):
         self.collectExtOutput("/sbin/dmsetup info -c")

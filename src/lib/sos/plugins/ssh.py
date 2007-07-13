@@ -17,7 +17,7 @@
 import sos.plugintools
 
 class ssh(sos.plugintools.PluginBase):
-    """This plugin gathers ssh-related information
+    """ssh-related information
     """
     def setup(self):
         self.addCopySpec("/etc/ssh/ssh_config")

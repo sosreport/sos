@@ -16,7 +16,7 @@ import sos.plugintools
 import commands
 
 class hardware(sos.plugintools.PluginBase):
-    """This plugin gathers hardware related information
+    """hardware related information
     """
     def setup(self):
         self.addCopySpec("/proc/partitions")
@@ -36,16 +36,19 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/dasd")
         self.addCopySpec("/proc/s390dbf/tape")
         self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
-        self.collectExtOutput("""/bin/echo "lspci" ; /bin/echo ; /sbin/lspci ; /bin/echo ; /bin/echo "lspci -n" ; /bin/echo ;  /sbin/lspci -nv ; /bin/echo ; /bin/echo "lspci -nvv" ; /bin/echo ; /sbin/lspci -nvv""", suggest_filename = "lspci", root_symlink = "lspci")
+        self.collectExtOutput("""/bin/echo "lspci" ; /bin/echo ; /sbin/lspci ; /bin/echo ; /bin/echo ; /bin/echo "lspci -nvv" ; /bin/echo ; /sbin/lspci -nvv""", suggest_filename = "lspci", root_symlink = "lspci")
+
+        # FIXME: what is this for?
         self.collectExtOutput("/bin/dmesg | /bin/grep -e 'e820.' -e 'agp.'")
               
+        # FIXME: what is this for?
         tmpreg = ""
         for hwmodule in commands.getoutput('cat /lib/modules/$(uname -r)/modules.pcimap | cut -d " " -f 1 | grep "[:alpha:]" | sort -u').split("\n"):
             hwmodule = hwmodule.strip()
             if len(hwmodule):
                 tmpreg = tmpreg + "|" + hwmodule
         self.collectExtOutput("/bin/dmesg | /bin/egrep '(%s)'" % tmpreg[1:])        
-          
+
         self.collectExtOutput("/sbin/lsusb")
         self.collectExtOutput("/usr/bin/lshal")
         return

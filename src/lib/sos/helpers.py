@@ -25,7 +25,7 @@
 """
 helper functions used by sosreport and plugins
 """
-import os, popen2, fcntl, select, itertools, sys
+import os, popen2, fcntl, select, itertools, sys, commands
 from time import time
 from tempfile import mkdtemp
 
@@ -62,36 +62,9 @@ def sosGetCommandOutput(command):
     Adapted from Python Cookbook - O'Reilly
     """
     stime = time()
-    child = popen2.Popen3(command, 1) # Capture stdout and stderr from command
-    child.tochild.close()             # don't need to write to child's stdin
-    outfile = child.fromchild
-    outfd = outfile.fileno()
-    errfile = child.childerr
-    errfd = errfile.fileno()
-    makeNonBlocking(outfd)            # Don't deadlock! Make fd's nonblocking.
-    makeNonBlocking(errfd)
-    outdata, errdata = [], []
-    outeof = erreof = False
-    while True:
-        to_check = [outfd]*(not outeof) + [errfd]*(not erreof)
-        ready = select.select(to_check, [], []) # Wait for input
-        if outfd in ready[0]:
-            outchunk = outfile.read()
-            if outchunk == '':
-                outeof = True
-            else:
-                outdata.append(outchunk)
-        if errfd in ready[0]:
-            errchunk = errfile.read()
-            if errchunk == '':
-                erreof = True
-            else:
-                errdata.append(errchunk)
-        if outeof and erreof:
-            break
-        select.select([], [], [], .1) # Allow a little time for buffers to fill
-    err = child.wait()
-    return (err, ''.join(outdata), ''.join(errdata), time()-stime)
+    errdata = ''
+    status,outdata=commands.getstatusoutput(command)
+    return (status, ''.join(outdata), time()-stime)
 
 
 # this needs to be made clean and moved to the plugin tools, so

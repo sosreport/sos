@@ -17,7 +17,7 @@
 import sos.plugintools
 
 class nfsserver(sos.plugintools.PluginBase):
-    """This plugin gathers NFS server-related information
+    """NFS server-related information
     """
     def setup(self):
         self.addCopySpec("/etc/exports")

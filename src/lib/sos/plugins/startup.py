@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class startup(sos.plugintools.PluginBase):
-    """This plugin gathers startup information
+    """startup information
     """
     def setup(self):
         self.addCopySpec("/etc/rc.d")

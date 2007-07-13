@@ -16,7 +16,7 @@ import sos.plugintools
 import glob
 
 class initrd(sos.plugintools.PluginBase):
-    """This plugin gathers initrd related information
+    """initrd related information
     """
     def setup(self):
         for initrd in glob.glob('/boot/initrd-*.img'):

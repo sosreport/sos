@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class ldap(sos.plugintools.PluginBase):
-    """This plugin gathers LDAP related information
+    """LDAP related information
     """
     def setup(self):
         self.addCopySpec("/etc/ldap.conf")

@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class ftp(sos.plugintools.PluginBase):
-    """This plugin gathers FTP server related information
+    """FTP server related information
     """
     def setup(self):
         self.addCopySpec("/etc/ftp*")

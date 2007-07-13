@@ -58,6 +58,7 @@ class PluginBase:
         self.copyPaths = []
         self.collectProgs = []
         self.thread = None
+        self.eta_weight = 1
 
         # get the option list into a dictionary
         for opt in self.optionList:
@@ -86,7 +87,7 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        self.cInfo['soslog'].warning("Problem at path %s (%s)\n" % (abspath,e))
+                        self.cInfo['soslog'].log(logging.VERBOSE, "Problem at path %s (%s)\n" % (abspath,e))
                         break
         return False
 
@@ -142,7 +143,7 @@ class PluginBase:
                         except KeyboardInterrupt:
                           raise KeyboardInterrupt
                         except Exception, e:
-                            self.cInfo['soslog'].warning("Problem at path %s (%s)" % (srcpath+'/'+afile, e))
+                            self.cInfo['soslog'].log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath+'/'+afile, e))
                         # if on forbidden list, abspath is null
                         if not abspath == '':
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
@@ -157,7 +158,7 @@ class PluginBase:
                 except KeyboardInterrupt:
                   raise KeyboardInterrupt
                 except Exception, e:
-                    self.cInfo['soslog'].debug("Problem at path %s (%s)" % (srcpath, e))
+                    self.cInfo['soslog'].log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath, e))
 
             return abspath
 
@@ -182,10 +183,9 @@ class PluginBase:
         """
         try:
             # pylint: disable-msg = W0612
-            status, shout, sherr, runtime = sosGetCommandOutput("/bin/cp --parents -P --preserve=mode,ownership,timestamps,links " + src +" " + self.cInfo['dstroot'])
+            status, shout, runtime = sosGetCommandOutput("/bin/cp --parents -P --preserve=mode,ownership,timestamps,links " + src +" " + self.cInfo['dstroot'])
             if status:
                 self.cInfo['soslog'].debug(shout)
-                self.cInfo['soslog'].debug(sherr)
             abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
             relpath = sosRelPath(self.cInfo['rptdir'], abspath)
             return relpath, abspath
@@ -194,7 +194,7 @@ class PluginBase:
         except KeyboardInterrupt:
           raise KeyboardInterrupt
         except Exception,e:
-            self.cInfo['soslog'].error("Problem copying file %s (%s)" % (src, e))
+            self.cInfo['soslog'].warning("Problem copying file %s (%s)" % (src, e))
 
     def addForbiddenPath(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copyPaths[] entry.
@@ -276,7 +276,7 @@ class PluginBase:
             self.cInfo['soslog'].log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % prog.split()[0])
 
         # pylint: disable-msg = W0612
-        status, shout, sherr, runtime = sosGetCommandOutput(prog)                                                            
+        status, shout, runtime = sosGetCommandOutput(prog)                                                            
         return status
                                                                         
     def runExe(self, exe):
@@ -295,17 +295,9 @@ class PluginBase:
     def makeCommandFilename(self, exe):
         """ The internal function to build up a filename based on a command """
         # build file name for output
-        rawcmd = os.path.basename(exe).strip()[:28]
+        rawcmd = os.path.basename(exe).strip()
 
-        # Mangle command to make it suitable for a file name
-        tabl = string.maketrans(" /\t;#$|%\"'`}{\n", "--------------")
-        mangledname = rawcmd.translate(tabl)
-
-        # remove double "--"
-        while True:
-           doublepos = mangledname.find("--")
-           if doublepos == -1: break
-           mangledname = mangledname[:doublepos] + mangledname[doublepos+2:]
+        mangledname = re.sub(r"[^\w-]+", "_", rawcmd)[0:32]
 
         outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + mangledname
 
@@ -325,7 +317,7 @@ class PluginBase:
             return
 
         # pylint: disable-msg = W0612
-        status, shout, sherr, runtime = sosGetCommandOutput(exe)
+        status, shout, runtime = sosGetCommandOutput(exe)
 
         if suggest_filename:
             outfn = self.makeCommandFilename(suggest_filename)
@@ -343,21 +335,12 @@ class PluginBase:
             # FIXME: use python's internal commands
             os.system('cd "%s" && ln -s "%s" "%s"' % (self.cInfo['dstroot'], outfn[len(self.cInfo['dstroot'])+1:], root_symlink))
 
-	if len(sherr) > 0:
-            errfn = outfn + ".err"
-            outfd = open(errfn, "w")
-            outfd.write(sherr)
-            outfd.close()
-            errfn = errfn[len(self.cInfo['cmddir'] + "/" ):]
-            self.cInfo['soslog'].debug(sherr)
-	else:
-            errfn = None
         outfn = outfn[len(self.cInfo['cmddir'])+1:]
 
         # sosStatus(status)
         # save info for later
         self.executedCommands.append({'exe': exe, 'file':outfn}) # save in our list
-        self.cInfo['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn,f_stderr=errfn,runtime=runtime)
+        self.cInfo['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn,runtime=runtime)
         return outfn
 
     def writeTextToCommand(self, exe, text):
@@ -402,11 +385,12 @@ class PluginBase:
         self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread')
         self.thread.start()
         
-    def wait(self):
+    def wait(self,timeout=None):
         """
         wait for a thread to complete - only called for threaded execution
         """
-        self.thread.join()
+        self.thread.join(timeout)
+        return self.thread.isAlive()
 
     def copyStuff(self):
         """

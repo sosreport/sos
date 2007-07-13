@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class bootloader(sos.plugintools.PluginBase):
-    """This plugin gathers bootloader information
+    """Bootloader information
     """
     def setup(self):
         self.addCopySpec("/etc/lilo.conf")

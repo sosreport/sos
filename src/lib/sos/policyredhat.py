@@ -80,7 +80,11 @@ class SosPolicy:
         name = raw_input("Please enter your first initial and last name [%s]: " % localname)
         if len(name) == 0: name = localname
 
-        ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
+        try:
+            ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
+        except KeyboardInterrupt:
+            print "<interrupted>"
+            print
 
         if len(ticketNumber):
             namestr = name + "." + ticketNumber
@@ -108,9 +112,10 @@ class SosPolicy:
         os.chdir(ourtempdir)
         oldmask = os.umask(077)
         # pylint: disable-msg = W0612
-        status, shout, sherr, runtime = sosGetCommandOutput(tarcmd)
+        status, shout, runtime = sosGetCommandOutput(tarcmd)
         os.umask(oldmask)
         os.chdir(curwd)
+        # FIXME: use python internal command
         os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
 
         sys.stdout.write("\n")

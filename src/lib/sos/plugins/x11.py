@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class x11(sos.plugintools.PluginBase):
-    """This plugin gathers X related information
+    """X related information
     """
     def setup(self):
         self.addCopySpec("/etc/X11")

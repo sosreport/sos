@@ -16,11 +16,12 @@ import sos.plugintools
 import commands
 
 class filesys(sos.plugintools.PluginBase):
-    """This plugin gathers infomraiton on filesystems
+    """information on filesystems
     """
     def setup(self):
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/etc/fstab")
+        self.addCopySpec("/proc/self/mounts")
         self.addCopySpec("/proc/mounts")
         self.addCopySpec("/proc/mdstat")
         self.addCopySpec("/etc/raidtab")

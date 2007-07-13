@@ -36,7 +36,7 @@ from threading import Thread, activeCount, enumerate
 import signal
 import logging
 from stat import *
-from time import strftime, localtime
+from time import strftime, localtime, time
 from pwd import getpwuid
 
 __version__ = 1.7
@@ -53,7 +53,8 @@ def doExitCode():
     if ( ( activeCount() > 1 ) and ( __breakHits__ == 1 ) ):
         print "SIGTERM received, multiple threads detected, waiting for all threads to exit"
         for thread in enumerate():
-            thread.wait()
+            if thread.getName() != "MainThread":
+               thread.join()
         print "All threads ended, cleaning up."
     if ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
         print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately"
@@ -121,15 +122,15 @@ __cmdParser__.add_option("-k", "--pluginopts", action="extend", \
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="How obnoxious we're being about telling the user what we're doing.")
-__cmdParser__.add_option("-b", "--no-progressbar", action="store_false", \
+__cmdParser__.add_option("-c", "--curses", action="store_true", \
+                     dest="use_curses", default=False, \
+                     help="Display a text GUI menu to modify plugin options.")
+__cmdParser__.add_option("--no-progressbar", action="store_false", \
                      dest="progressbar", default=True, \
                      help="Do not display a progress bar.")
-__cmdParser__.add_option("-c", "--curses", action="store_false", \
-                     dest="use_curses", default=False, \
-                     help="Do not display a progress bar.")
-__cmdParser__.add_option("-m", "--multithreaded", action="store_true", \
+__cmdParser__.add_option("--no-multithread", action="store_false", \
                      dest="multithread", \
-                     help="Use the multithreaded information gathering mode to speed up the report (experimental)")
+                     help="Disable multithreaded gathering mode to speed up the report", default=False)
 (__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
 def get_curse_options(alloptions):
@@ -191,21 +192,38 @@ class progressBar:
         self.progBar = "[]"   # This holds the progress bar string
         self.min = minValue
         self.max = maxValue
-        self.span = maxValue - minValue
         self.width = totalWidth
-        self.amount = 0       # When amount == max, we are 100% done 
+        self.time_start = time()
+        self.amount = 0       # When amount == max, we are 100% done
+        self.eta = 0
+        self.last_amount_update = time()
         self.updateAmount(0)  # Build progress bar string
 
     def updateAmount(self, newAmount = 0):
         if newAmount < self.min: newAmount = self.min
         if newAmount > self.max: newAmount = self.max
-        self.amount = newAmount
+        if self.amount != newAmount:
+            self.last_amount_update = time()
+            self.amount = newAmount
+            last_update_relative = round(self.last_amount_update - self.time_start)
+            self.eta = round(last_update_relative * self.max / self.amount)
 
-        # Figure out the new percent done, round to an integer
-        diffFromMin = float(self.amount - self.min)
-        percentDone = (diffFromMin / float(self.span)) * 100.0
-        percentDone = round(percentDone)
-        percentDone = int(percentDone)
+        # generate ETA
+        timeElapsed = round(time() - self.time_start)
+        last_update_relative = round(self.last_amount_update - self.time_start)
+        if timeElapsed >= 10:
+            percentDone = round(timeElapsed * 100 / self.eta)
+            if percentDone > 100:
+               percentDone = 100
+               ETA = timeElapsed
+            elif self.eta < timeElapsed:
+               ETA = timeElapsed
+            else:
+               ETA = self.eta
+            ETA = "[%02d:%02d/%02d:%02d]" % (round(timeElapsed/60), timeElapsed % 60, round(ETA/60), ETA % 60)
+        else:
+            ETA = "[%02d:%02d/--:--]" % (round(timeElapsed/60), timeElapsed % 60)
+            percentDone = 0
 
         # Figure out how many hash bars the percentage should be
         allFull = self.width - 2
@@ -220,7 +238,7 @@ class progressBar:
         percentString = str(percentDone) + "%"
 
         # slice the percentage into the bar
-        self.progBar = " Progress" + self.progBar[0:percentPlace] + percentString + self.progBar[percentPlace+len(percentString):]
+        self.progBar = " Progress" + self.progBar[0:percentPlace] + percentString + self.progBar[percentPlace+len(percentString):] + ETA
 
     def incAmount(self, toInc = 1):
         self.updateAmount(self.amount+toInc)
@@ -231,6 +249,7 @@ class progressBar:
         sys.stdout.flush()
 
     def update(self):
+        self.updateAmount(self.amount)
         sys.stdout.write(self.progBar + '\r')
         sys.stdout.flush()
 
@@ -478,7 +497,7 @@ Press ENTER to continue, or CTRL-C to quit.
         print
         sys.exit(0)
 
-    # Iterate over plugins for each stage
+    # setup plugin options
     if __cmdLineOpts__.plugopts:
         opts = {}
         for opt in __cmdLineOpts__.plugopts:
@@ -516,15 +535,21 @@ Press ENTER to continue, or CTRL-C to quit.
 
     # Setup the progress bar
     if __cmdLineOpts__.progressbar:
-        pbar = progressBar(0, len(loadedplugins) * 33, totalWidth = 60)
+        pbar = progressBar(0, len(loadedplugins), totalWidth = 60)
 
     # Call the setup method for each plugin
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE2, "Setting up plugin module %s" % plugname)
         plug.setup()
-        if __cmdLineOpts__.progressbar:
-            pbar.incAmount()
-            pbar.update()
+    if __cmdLineOpts__.progressbar:
+        pbar.incAmount()
+        pbar.update()
+
+    # gather information useful for generating ETA
+    eta_weight = 0
+    for plugname, plug in loadedplugins:
+        eta_weight += plug.eta_weight
+    pbar.max = eta_weight
 
     # Call the collect method for each plugin
     for plugname, plug in loadedplugins:
@@ -533,23 +558,29 @@ Press ENTER to continue, or CTRL-C to quit.
             plug.doCollect()
         else:
             plug.copyStuff()    
-        if __cmdLineOpts__.progressbar:
-            if __cmdLineOpts__.multithread:
-                pbar.incAmount()
-            else:
-                pbar.incAmount(30)
-            pbar.update()
-
-    xmlrep.serialize_to_file(rptdir + "/" + "sosreport.xml")
+            if __cmdLineOpts__.progressbar:
+                pbar.incAmount(plug.eta_weight)
+                pbar.update()
 
     # Wait for all the collection threads to exit
     if __cmdLineOpts__.multithread:
-        for plugname, plug in loadedplugins:
-            soslog.log(logging.VERBOSE2, "Waiting for plugin %s to return" % plugname)
-            plug.wait()
+        finishedplugins = []
+        while len(loadedplugins) > 0:
+            plugname, plug = loadedplugins.pop(0)
+            if not plug.wait(0.2):
+                finishedplugins.append((plugname,plug))
+                soslog.log(logging.VERBOSE2, "plugin %s has returned" % plugname)
+                if __cmdLineOpts__.progressbar:
+                   pbar.incAmount(plug.eta_weight)
+            else:
+                soslog.log(logging.VERBOSE3, "plugin %s still hasn't returned" % plugname)
+                loadedplugins.append((plugname,plug))
             if __cmdLineOpts__.progressbar:
-                pbar.incAmount(30)
                 pbar.update()
+        loadedplugins = finishedplugins
+        del finishedplugins
+
+    xmlrep.serialize_to_file(rptdir + "/" + "sosreport.xml")
 
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:

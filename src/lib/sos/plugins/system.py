@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class system(sos.plugintools.PluginBase):
-    """This plugin gathers core system related information
+    """core system related information
     """
     def setup(self):
         self.addCopySpec("/proc/sys")

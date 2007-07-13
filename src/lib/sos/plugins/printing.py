@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class printing(sos.plugintools.PluginBase):
-    """This plugin gathers printing related information (cups)
+    """printing related information (cups)
     """
     def setup(self):
         self.addCopySpec("/etc/cups/*.conf")

@@ -16,7 +16,7 @@ import sos.plugintools
 from threading import Thread
 
 class apache(sos.plugintools.PluginBase):
-    """This plugin gathers Apache related information
+    """Apache related information
     """
     def setup(self):
         self.addCopySpec("/etc/httpd/conf/httpd.conf")

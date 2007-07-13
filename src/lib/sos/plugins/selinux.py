@@ -16,7 +16,7 @@ import sos.plugintools
 import commands
 
 class selinux(sos.plugintools.PluginBase):
-    """This plugin gathers selinux related information
+    """selinux related information
     """
     def setup(self):
         self.addCopySpec("/etc/selinux/*")

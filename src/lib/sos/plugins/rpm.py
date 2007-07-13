@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class rpm(sos.plugintools.PluginBase):
-    """This plugin gathers RPM information
+    """RPM information
     """
     optionList = [("rpmq", "Queries for package information via rpm -q", "fast", 1),
                   ("rpmva", "Runs a verify on all packages", "slow", 1)]
@@ -27,6 +27,7 @@ class rpm(sos.plugintools.PluginBase):
           self.collectExtOutput("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"", root_symlink = "installed-rpms")
       
         if self.isOptionEnabled("rpmva"):
+          self.eta_weight += 800 # this plugins takes 200x longer (for ETA)
           self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va")
         return
 

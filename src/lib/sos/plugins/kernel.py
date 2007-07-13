@@ -16,7 +16,7 @@ import sos.plugintools
 import commands, os, re
 
 class kernel(sos.plugintools.PluginBase):
-    """This plugin gathers kernel related information
+    """kernel related information
     """
     optionList = [("modinfo", 'Gathers module information on all modules', 'fast', 1),
                   ('sysrq', 'Trigger SysRq dumps', 'fast', 1)]
@@ -50,10 +50,12 @@ class kernel(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
         self.moduleFile = self.collectOutputNow("/sbin/lsmod", root_symlink = "lsmod")
         if self.isOptionEnabled('modinfo'):
+          runcmd = ""
           for kmod in commands.getoutput('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null').split('\n'):
             if '' != kmod.strip():
-              runcmd = "/sbin/modinfo %s" % (kmod,)
-              self.collectExtOutput(runcmd)
+              runcmd = runcmd + " " + kmod
+          if len(runcmd):
+            self.collectExtOutput("/sbin/modinfo " + runcmd)
         self.collectExtOutput("/sbin/ksyms")
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/proc/ksyms")
@@ -80,8 +82,7 @@ class kernel(sos.plugintools.PluginBase):
           commands.getoutput("/bin/echo %s > /proc/sys/kernel/sysrq" % (sysrq_state,))
           # No need to grab syslog here if we can't trigger sysrq, so keep this
           # inside the if
-          self.addCopySpec("/var/log/messages*")
-        
+          self.addCopySpec("/var/log/messages")
         
         return
 

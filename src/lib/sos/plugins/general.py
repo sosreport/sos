@@ -13,18 +13,24 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import glob
 
 class general(sos.plugintools.PluginBase):
-    """This plugin gathers very basic system information
+    """very basic system information
     """
+
+    optionList = [("syslogsize", "maximum size (in MiB) of logs to collect per syslog file", "", 15)]
+
     def setup(self):
         self.addCopySpec("/etc/redhat-release")
         self.addCopySpec("/etc/sysconfig")
         self.addCopySpec("/proc/stat")
         self.addCopySpec("/var/log/dmesg")
         self.addCopySpec("/var/log/messages")
-        self.addCopySpec("/var/log/sa")
+        self.addCopySpecLimit("/var/log/messages.*", sizelimit = self.isOptionEnabled("syslogsize"))
         self.addCopySpec("/var/log/secure")
+        self.addCopySpecLimit("/var/log/secure.*", sizelimit = self.isOptionEnabled("syslogsize"))
+        self.addCopySpec("/var/log/sa")
         self.addCopySpec("/var/log/up2date")
         self.addCopySpec("/etc/exports")        
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")

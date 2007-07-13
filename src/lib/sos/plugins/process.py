@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class process(sos.plugintools.PluginBase):
-    """This plugin gathers process information
+    """process information
     """
     def setup(self):
         self.collectExtOutput("/bin/ps auxww", root_symlink = "ps")

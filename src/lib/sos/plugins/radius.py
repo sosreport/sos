@@ -17,7 +17,7 @@
 import sos.plugintools
 
 class radius(sos.plugintools.PluginBase):
-    """This plugin gathers radius related information
+    """radius related information
     """
     def setup(self):
         self.addCopySpec("/etc/raddb")

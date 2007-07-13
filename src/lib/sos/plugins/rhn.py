@@ -15,7 +15,7 @@
 from sos.plugintools import PluginBase
 
 class rhn(PluginBase):
-    """This plugin gathers RHN server related information
+    """RHN server related information
     """
     def checkenabled(self):
         # XXX check for the presence of requisite packages
@@ -47,6 +47,9 @@ class rhn(PluginBase):
         # monitoring scout logs
         self.addCopySpec("/home/nocpulse/var/*.log*")
         self.addCopySpec("/home/nocpulse/var/commands/*.log*")
+
+        satellite = self.cInfo["policy"].pkgByName("rhns-satellite-tools")
+        proxy = self.cInfo["policy"].pkgByName("rhns-proxy-tools")
 
         #
         # Now, go for product-specific data

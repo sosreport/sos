@@ -17,7 +17,7 @@
 import sos.plugintools
 
 class systemtap(sos.plugintools.PluginBase):
-    """This plugin gathers SystemTap pre-requisites information
+    """SystemTap pre-requisites information
     """
     def setup(self):
         # requires systemtap, systemtap-runtime, kernel-devel,

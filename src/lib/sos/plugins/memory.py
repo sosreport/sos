@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class memory(sos.plugintools.PluginBase):
-    """This plugin gathers memory usage information
+    """memory usage information
     """
     def setup(self):
         self.addCopySpec("/proc/pci")

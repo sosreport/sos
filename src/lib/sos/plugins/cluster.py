@@ -15,7 +15,7 @@
 import sos.plugintools
 
 class cluster(sos.plugintools.PluginBase):
-    """This plugin gathers cluster related information
+    """cluster related information
     """
     def setup(self):
         self.collectExtOutput("/sbin/fdisk -l")

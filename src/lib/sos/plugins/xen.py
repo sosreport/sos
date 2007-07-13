@@ -17,6 +17,8 @@ import os, commands
 from stat import *
 
 class xen(sos.plugintools.PluginBase):
+    """Xen related information
+    """
     def determineXenHost(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):
             (status, output) = commands.getstatusoutput("/usr/bin/strings /proc/acpi/dsdt | grep -q int-xen")

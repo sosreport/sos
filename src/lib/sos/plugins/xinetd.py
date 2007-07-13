@@ -17,7 +17,7 @@
 import sos.plugintools
 
 class xinetd(sos.plugintools.PluginBase):
-    """This plugin gathers xinetd information
+    """xinetd information
     """
     def setup(self):
         self.addCopySpec("/etc/xinetd.conf")
