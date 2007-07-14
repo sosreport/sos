@@ -4,6 +4,8 @@
 %define version 1.7
 %define release 1
 
+%define _localedir %_datadir/locale
+
 Summary: A set of tools to gather troubleshooting information from a system
 Name: %{name}
 Version: %{version}
@@ -44,6 +46,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_sbindir}/sosreport
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1*
+%{_localedir}/*/LC_MESSAGES/sos.mo
 %doc README TODO LICENSE ChangeLog
 
 %changelog

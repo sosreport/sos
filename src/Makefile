@@ -64,7 +64,7 @@ version:
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
 
-rpm:
+rpm:	mo
 	@test -f sos.spec
 	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD
 
@@ -86,3 +86,6 @@ rpm:
 
 pot:
 	python tools/pygettext.py -o locale/sos.pot sosreport
+
+mo:
+	python tools/msgfmt.py locale/*/LC_MESSAGES/sos.po
