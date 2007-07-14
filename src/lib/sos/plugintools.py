@@ -60,6 +60,8 @@ class PluginBase:
         self.thread = None
         self.eta_weight = 1
 
+        self.soslog = logging.getLogger('sos')
+
         # get the option list into a dictionary
         for opt in self.optionList:
             self.optNames.append(opt[0])
@@ -87,7 +89,7 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        self.cInfo['soslog'].log(logging.VERBOSE, "Problem at path %s (%s)\n" % (abspath,e))
+                        self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)\n" % (abspath,e))
                         break
         return False
 
@@ -143,7 +145,7 @@ class PluginBase:
                         except KeyboardInterrupt:
                           raise KeyboardInterrupt
                         except Exception, e:
-                            self.cInfo['soslog'].log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath+'/'+afile, e))
+                            self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath+'/'+afile, e))
                         # if on forbidden list, abspath is null
                         if not abspath == '':
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
@@ -158,13 +160,13 @@ class PluginBase:
                 except KeyboardInterrupt:
                   raise KeyboardInterrupt
                 except Exception, e:
-                    self.cInfo['soslog'].log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath, e))
+                    self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath, e))
 
             return abspath
 
         else:
             if not os.path.exists(srcpath):
-                self.cInfo['soslog'].debug("File or directory %s does not exist\n" % srcpath)
+                self.soslog.debug("File or directory %s does not exist\n" % srcpath)
             elif  os.path.isdir(srcpath):
                 for afile in os.listdir(srcpath):
                     if afile == '.' or afile == '..':
@@ -185,7 +187,7 @@ class PluginBase:
             # pylint: disable-msg = W0612
             status, shout, runtime = sosGetCommandOutput("/bin/cp --parents -P --preserve=mode,ownership,timestamps,links " + src +" " + self.cInfo['dstroot'])
             if status:
-                self.cInfo['soslog'].debug(shout)
+                self.soslog.debug(shout)
             abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
             relpath = sosRelPath(self.cInfo['rptdir'], abspath)
             return relpath, abspath
@@ -194,7 +196,7 @@ class PluginBase:
         except KeyboardInterrupt:
           raise KeyboardInterrupt
         except Exception,e:
-            self.cInfo['soslog'].warning("Problem copying file %s (%s)" % (src, e))
+            self.soslog.warning("Problem copying file %s (%s)" % (src, e))
 
     def addForbiddenPath(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copyPaths[] entry.
@@ -273,7 +275,7 @@ class PluginBase:
         """                        
         # Log if binary is not runnable or does not exist
         if not os.access(prog.split()[0], os.X_OK):
-            self.cInfo['soslog'].log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % prog.split()[0])
+            self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % prog.split()[0])
 
         # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(prog)                                                            
@@ -318,7 +320,7 @@ class PluginBase:
         """
         # First check to make sure the binary exists and is runnable.
         if not os.access(exe.split()[0], os.X_OK):
-            self.cInfo['soslog'].log(logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % exe.split()[0])
+            self.soslog.log(logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % exe.split()[0])
             return
 
         # pylint: disable-msg = W0612
@@ -402,7 +404,7 @@ class PluginBase:
         Collect the data for a plugin
         """
         for path in self.copyPaths:
-            self.cInfo['soslog'].debug("copying pathspec %s" % path)
+            self.soslog.debug("copying pathspec %s" % path)
             try:
                 self.doCopyFileOrDir(path)
             except SystemExit:
@@ -410,9 +412,9 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except Exception, e:
-                self.cInfo['soslog'].log(logging.VERBOSE, "Error copying from pathspec %s (%s)" % (path,e))
+                self.soslog.log(logging.VERBOSE, "Error copying from pathspec %s (%s)" % (path,e))
         for (prog,suggest_filename,root_symlink) in self.collectProgs:
-            self.cInfo['soslog'].debug("collecting output of '%s'" % prog)
+            self.soslog.debug("collecting output of '%s'" % prog)
             try:
                 self.collectOutputNow(prog, suggest_filename, root_symlink)
             except SystemExit:
@@ -420,7 +422,7 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except:
-                self.cInfo['soslog'].log(logging.VERBOSE, "Error collecting output of '%s'" % prog,)
+                self.soslog.log(logging.VERBOSE, "Error collecting output of '%s'" % prog,)
 
     def get_description(self):
         """ This function will return the description for the plugin"""

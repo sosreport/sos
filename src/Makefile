@@ -83,3 +83,6 @@ rpm:
 
 	rpmbuild -ba --define="_topdir $(TOPDIR)" sos.spec
 	@mv $(TOPDIR)/RPMS/noarch/$(NAME)-$(VERSION)*.rpm $(TOPDIR)/SRPMS/$(NAME)-$(VERSION)*.rpm $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz dist/
+
+pot:
+	python tools/pygettext.py -o locale/sos.pot sosreport

@@ -5,6 +5,8 @@ To Do List:
  * Choose sane defaults to satisfy Red Hat support requirements (ie. what
    plugins should be loaded by default, with what options, etc)
 
+ * Display on screen what files/commands are being gathered.
+
  * Make sosreport a drop-in replacement for sysreport
 
  * Allow to use a different rootdir than /
