@@ -1,87 +1,38 @@
-<html>
-  <head>
-    <title>SOS Project Page</title>
-	<style type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />                                 <h3>sos (son of sysreport)</h3>  <h1>Sos Project Home</h1>  The SOS project provides tools for gathering information and running tools.  <ul> <li>Improve on the capabilities of sysreport by adding some analytic abilities</li> <li>Allow applications to deliver modules that integrate with sos to gather support information</li> <li>To put more tools into administrator's hands to help them solve their problems</li> <li>To provide a set of tools to improve the abilities of support organizations to solve customer problems</li> </ul>  <h3>Sos will be delivered with Red Hat Enterprise Linux 5.</h3> 
+<p>
+If you find bugs in that version, please report them against the sos component of version rhel5 at <a target="_blank" title="bugzilla.redhat.com" href="https://bugzilla.redhat.com/bugzilla/enter_bug.cgi?product=Red%20Hat%20Enterprise%20Linux&amp;version=5&amp;component=sos">bugzilla.redhat.com</a>.  
+</p>
 
-	#apphead { display:none }
-	.axial { display:none }
-
-	</style>
-
-  </head>
-  <body>
-<h3>sos (son of sysreport)</h3>
-
-<h1>Sos Project Home</h1>
-
-The SOS project provides tools for gathering information and running tools.
-
-<ul>
-<li>Improve on the capabilities of sysreport by adding some analytic abilities</li>
-<li>Allow applications to deliver modules that integrate with sos to gather support information</li>
-<li>To put more tools into administrator's hands to help them solve their problems</li>
-<li>To provide a set of tools to improve the abilities of support organizations to solve customer problems</li>
-</ul>
-
-<h3>Sos will be delivered with Red Hat Enterprise Linux 5.</h3>
-<p>If you find bugs in that version,
-please report them against the sos component of version rhel5 at <a href="https://bugzilla.redhat.com/bugzilla/">bugzilla.redhat.com</a>.
-
-<p>Although this project was begun by people in Red Hat's support organization, it is released under the GPL
-, with all Red Hat specific parts isolated in plugins so that it will be generally useful to others.</p>
-
-<p>Contributors to this project are welcome, especially if you are interested in writing plugins or in helping
-make this tool useful across many linux distributions. All development and testing to date has occurred on
-Fedora and RHEL5 , and contributors working with other distributions are welcome. Writing plugins in easy - see
-the example_plugins directory in the source tree.</p>
-
-<p>The first stage of the project, sosreport, has a first implementation, and is available now.
-If you maintain linux software, please consider delivering a plugin for sos that will gather the information
-needed to help troubleshoot or debug your application.</p>
-
-This project will provide a number of tools, in the following areas:<br/>
-
-<h2>1. System Information Gathering (released)</h2>
-
-<p>This application (sosreport) performs a function similar to what sysreport does now, but has a
-pluggable architecture that will allow the inclusion of sos plugins to be
-delivered with any package. These plugins can gather information needed
-for troubleshooting that package, provide the ability to turn on other
-debugging or reporting that is of interest for that package, provide some
-analysis to be done to notify the customer of improper configuration or
-operation, and integrate the reporting from the plugin with other system information.</p>
-
-<p>Reports are provided in html. The report integrates reports from various plugins,
-along with the results of analysis performed by those plugins. In addition, future policy
-plugins may provide links in the output for additional operations, such as opening a ticket
-with a Support CRM system, submitting the system information to a web hosted tool for further
-analysis, or submitting the information for attachment to a ticket already open within a support
-CRM system.
-
-<h2>2. Integration of additional debugging tools (future)</h2>
-
-<p>An API will be provided that allows delivery of additional tools which may
-be enabled and disabled through a simple unified interface by the end user.
-For example, we expect to provide scripts that will use sar, systemtap,
-enable performance counters, etc. For all tools that are enabled, reports
-will be included in subsequent system information reports and integrated in
-the heirarchical result navigation.</p>
-
-<p>This will allow Support Organizations to easily walk the customer (by phone or
-email or chat) through a simple interface to enable the gathering of troubleshooting
-information specific to the problem being addressed.</p>
-
-<h2>3. Integration with Support CRM and other ticketing systems</h2>
-
-<p>The tools in the package will allow simplified interaction with Support CRM systems.
-Once system information is gathered, the customer will have an option to open an
-issue with support. Verification of entitlement for support and filing the ticket
-with the system information and problem description attached will be handled by policy plugins
-that can be customized for integration with different CRM systems.</p>
-
-
-<hr>
-<i>sos is the international distress call, and also stands for &quot;son of sysreport&quot;</i>
-<hr>
-  </body>
-</html>
+<p>
+Although this project was begun by people in Red Hat's support organization, it is released under the GPL , with all Red Hat specific parts isolated in plugins so that it will be generally useful to others.
+</p>
+  
+<p>
+Contributors to this project are welcome, especially if you are interested in writing plugins or in helping make this tool useful across many linux distributions. All development and testing to date has occurred on Fedora and RHEL5 , and contributors working with other distributions are welcome. Writing plugins in easy - see the example_plugins directory in the source tree.
+</p>
+  
+<p>
+The first stage of the project, sosreport, has a first implementation, and is available now. If you maintain linux software, please consider delivering a plugin for sos that will gather the information needed to help troubleshoot or debug your application.
+</p>
+  This project will provide a number of tools, in the following areas:<br />
+  <h2>1. System Information Gathering (released)</h2>  
+<p>
+This application (sosreport) performs a function similar to what sysreport does now, but has a pluggable architecture that will allow the inclusion of sos plugins to be delivered with any package. These plugins can gather information needed for troubleshooting that package, provide the ability to turn on other debugging or reporting that is of interest for that package, provide some analysis to be done to notify the customer of improper configuration or operation, and integrate the reporting from the plugin with other system information.
+</p>
+  
+<p>
+Reports are provided in html. The report integrates reports from various plugins, along with the results of analysis performed by those plugins. In addition, future policy plugins may provide links in the output for additional operations, such as opening a ticket with a Support CRM system, submitting the system information to a web hosted tool for further analysis, or submitting the information for attachment to a ticket already open within a support CRM system.  
+</p>
+<h2>2. Integration of additional debugging tools (future)</h2>  
+<p>
+An API will be provided that allows delivery of additional tools which may be enabled and disabled through a simple unified interface by the end user. For example, we expect to provide scripts that will use sar, systemtap, enable performance counters, etc. For all tools that are enabled, reports will be included in subsequent system information reports and integrated in the heirarchical result navigation.
+</p>
+  
+<p>
+This will allow Support Organizations to easily walk the customer (by phone or email or chat) through a simple interface to enable the gathering of troubleshooting information specific to the problem being addressed.
+</p>
+  <h2>3. Integration with Support CRM and other ticketing systems</h2>  
+<p>
+The tools in the package will allow simplified interaction with Support CRM systems. Once system information is gathered, the customer will have an option to open an issue with support. Verification of entitlement for support and filing the ticket with the system information and problem description attached will be handled by policy plugins that can be customized for integration with different CRM systems.
+</p>
+   <hr /> <em>sos is the international distress call, and also stands for &quot;son of sysreport&quot;</em> <hr />                   
