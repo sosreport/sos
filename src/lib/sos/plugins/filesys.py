@@ -39,9 +39,9 @@ class filesys(sos.plugintools.PluginBase):
         disks = commands.getoutput("/bin/cat /proc/partitions | /bin/egrep -v \"^major|^$\" | /bin/awk '{print $4}' | /bin/grep -v / | /bin/egrep -v \"[0123456789]$\"")
         for disk in raiddevs.split('\n'):
           if '' != disk.strip():
-            self.collectExtOutput("/sbin/fdisk -l /dev/%s 2>&1" % (disk,))
+            self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk,))
         for disk in disks.split('\n'):
           if '' != disk.strip():
-            self.collectExtOutput("/sbin/fdisk -l /dev/%s 2>&1" % (disk,))
+            self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk,))
         return
 
