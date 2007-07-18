@@ -19,7 +19,7 @@ class kernel(sos.plugintools.PluginBase):
     """kernel related information
     """
     optionList = [("modinfo", 'Gathers module information on all modules', 'fast', 1),
-                  ('sysrq', 'Trigger SysRq dumps', 'fast', 1)]
+                  ('sysrq', 'Trigger SysRq dumps', 'fast', 0)]
     moduleFile = ""
     taintList = [
         {'regex':'mvfs*', 'description':'Clearcase module'},
@@ -66,7 +66,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/conf.modules")
         self.addCopySpec("/etc/modules.conf")
         self.addCopySpec("/etc/modprobe.conf")
-        self.collectExtOutput("/usr/sbin/dmidecode")
+        self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
         self.collectExtOutput("/usr/sbin/dkms status")
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/proc/driver")
