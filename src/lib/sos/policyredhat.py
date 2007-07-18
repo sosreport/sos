@@ -99,13 +99,15 @@ class SosPolicy:
 
     def packageResults(self):
         localname = commands.getoutput("/bin/uname -n").split(".")[0]
-        name = raw_input("Please enter your first initial and last name [%s]: " % localname)
-        if len(name) == 0: name = localname
 
         try:
+            name = raw_input("Please enter your first initial and last name [%s]: " % localname)
+            if len(name) == 0: name = localname
+
             ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
         except KeyboardInterrupt:
-            print "<interrupted>"
+            print _("<interrupted>")
+            print _("Temporary files have been stored in ") % self.cInfo['dstroot']
             return
 
         if len(ticketNumber):
