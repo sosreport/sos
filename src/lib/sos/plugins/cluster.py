@@ -13,10 +13,34 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import commands
 
 class cluster(sos.plugintools.PluginBase):
-    """cluster related information
+    """cluster suite and GFS related information
     """
+    def diagnose(self):
+        rhelver = self.cInfo["policy"].pkgDictByName("fedora-release")[0]
+        if rhelver == "6":
+           # check if the minimum set of packages is installed
+           # for RHEL4 RHCS(ccs, cman, cman-kernel, magma, magma-plugins, (dlm, dlm-kernel) || gulm, perl-Net-Telnet, rgmanager, fence)
+           # RHEL4 GFS (GFS, GFS-kernel, ccs, lvm2-cluster, fence)
+           for pkg in [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins", "perl-Net-Telnet", "rgmanager", "fence" ]:
+              if self.cInfo["policy"].pkgByName(pkg) == None:
+                 self.addDiagnose("required package is missing: %s" % pkg)
+
+           # check if all the needed daemons are active at sosreport time
+           # check if they are started at boot time in RHEL4 RHCS (cman, ccsd, rgmanager, fenced)
+           # and GFS (gfs, ccsd, clvmd, fenced)
+           for service in [ "cman", "ccsd", "rgmanager", "fence" ]:
+              if commands.getstatus("/sbin/service %s status" % service):
+                 self.addDiagnose("service %s is not running" % service)
+
+              if not self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService(service):
+                 self.addDiagnose("service %s is not started in default runlevel" % service)
+
+           # FIXME: what locking are we using ? check if packages exist
+#           if self.cInfo["policy"].pkgByName(pkg) and self.cInfo["policy"].pkgByName(pkg) and not self.cInfo["policy"].pkgByName(pkg)
+
     def setup(self):
         self.collectExtOutput("/sbin/fdisk -l")
         self.addCopySpec("/etc/cluster.conf")
