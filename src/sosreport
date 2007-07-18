@@ -133,6 +133,17 @@ __cmdParser__.add_option("--no-multithread", action="store_true", \
                      help="Disable multi-threaded gathering mode (slower)", default=False)
 (__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
+def textcolor(text, fg, bg=None, raw=0):
+    colors = {  "black":"30", "red":"31", "green":"32", "brown":"33", "blue":"34",
+		"purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
+		"lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
+		"lcyan":"1;36", "white":"1;37" }
+    opencol = "\033["
+    closecol = "m"
+    clear = opencol + "0" + closecol
+    f = opencol + colors[fg] + closecol
+    return "%s%s%s" % (f, text, clear)
+
 def get_curse_options(alloptions):
     """
     use curses to enable the user to select some options
@@ -457,7 +468,7 @@ def sosreport():
 	   print _("The following plugins are currently enabled:")
            print
            for (plugname,plug) in loadedplugins:
-              print " %-25s  %s" % (plugname,plug.get_description())
+              print " %-25s  %s" % (textcolor(plugname,"lblue"),plug.get_description())
         else:
            print _("No plugin enabled.")
         print
@@ -475,7 +486,7 @@ def sosreport():
            print _("The following plugins are currently disabled:")
            print
            for (plugname,plugclass) in skippedplugins:
-              print " %-25s  %s" % (plugname,plugclass.get_description())
+              print " %-25s  %s" % (textcolor(plugname,"blue"),plugclass.get_description())
 
         print
         sys.exit()
@@ -632,9 +643,6 @@ Press ENTER to continue, or CTRL-C to quit.
     if __cmdLineOpts__.progressbar:
         pbar.finished()
         sys.stdout.write("\n")
-
-    # Sort the module names to do the report in alphabetical order
-    loadedplugins.sort()
 
     # Generate the header for the html output file
     rfd = open(rptdir + "/" + "sosreport.html", "w")
