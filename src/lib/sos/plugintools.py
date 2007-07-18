@@ -94,7 +94,7 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)\n" % (abspath,e))
+                        self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (abspath,e))
                         break
         return False
 
@@ -425,13 +425,13 @@ class PluginBase:
         Collect the data for a plugin
         """
         if threaded and self.thread == None:
-            self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread', args = [True] )
+            self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread', args = [True, semaphore] )
             self.thread.start()
             return self.thread
 
         if semaphore: semaphore.acquire()
 
-        self.soslog.log(logging.VERBOSE2, "starting threaded plugin %s" % self.piName)
+        self.soslog.log(logging.VERBOSE, "starting threaded plugin %s" % self.piName)
 
         self.time_start = time()
         self.time_stop  = None
@@ -462,6 +462,7 @@ class PluginBase:
         self.time_stop = time()
 
         if semaphore: semaphore.release()
+        self.soslog.log(logging.VERBOSE, "plugin %s returning" % self.piName)
 
     def get_description(self):
         """ This function will return the description for the plugin"""
