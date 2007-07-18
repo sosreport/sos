@@ -13,11 +13,28 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import commands
+import commands, os
 
 class cluster(sos.plugintools.PluginBase):
     """cluster suite and GFS related information
     """
+    def checkenabled(self):
+       # enable if any related package is installed
+       for pkg in [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins", 
+		    "rgmanager", "fence", "dlm", "dlm-kernel", "gulm",
+		    "GFS", "GFS-kernel", "lvm2-cluster" ]:
+          if self.cInfo["policy"].pkgByName(pkg) != None:
+             return True
+
+       # enable if any related file is present
+       for fname in [ "/etc/cluster/cluster.conf" ]:
+          try:	 os.stat(fname)
+          except:pass
+          else:  return True
+
+       # no data related to RHCS/GFS exists
+       return False
+
     def diagnose(self):
         rhelver = self.cInfo["policy"].pkgDictByName("fedora-release")[0]
         if rhelver == "6":
