@@ -69,6 +69,28 @@ class SosPolicy:
 
         return pkg
 
+    def pkgDictByName(self, name):
+        pkgName = self.pkgByName(name)
+        if pkgName and len(pkgName) > len(name):
+           return pkgName[len(name)+1:].split("-")
+        else:
+           return None
+
+    def runlevelByService(self, name):
+        ret = []
+        try:
+           for tabs in commands.getoutput("/sbin/chkconfig --list %s" % name).split():
+              (runlevel, onoff) = tabs.split(":")
+              if onoff == "on":
+                 ret.append(int(runlevel))
+        except:
+           pass
+        return ret
+
+    def runlevelDefault(self):
+        # FIXME: get this from /etc/inittab
+        return 3
+
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
         version, release, arch = fields[-3:]
@@ -84,7 +106,7 @@ class SosPolicy:
             ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
         except KeyboardInterrupt:
             print "<interrupted>"
-            print
+            return
 
         if len(ticketNumber):
             namestr = name + "." + ticketNumber
