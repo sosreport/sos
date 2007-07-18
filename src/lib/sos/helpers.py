@@ -48,7 +48,7 @@ def sosFindTmpDir():
 
 
 def makeNonBlocking(afd):
-    """ Make the file desccriptor non-blocking. This prevents deadlocks.
+    """ Make the file descriptor non-blocking. This prevents deadlocks.
     """
     fl = fcntl.fcntl(afd, fcntl.F_GETFL)
     try:
@@ -67,8 +67,9 @@ def sosGetCommandOutput(command):
     return (status, outdata, time()-stime)
 
 
-# this needs to be made clean and moved to the plugin tools, so
-# that it prints nice color output like sysreport
+# FIXME: this needs to be made clean and moved to the plugin tools, so
+# that it prints nice color output like sysreport if the progress bar
+# is not enabled.
 def sosStatus(stat):
     """ Complete a status line that has been output to the console,
     providing pass/fail indication.
