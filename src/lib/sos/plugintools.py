@@ -30,9 +30,10 @@ This is the base class for sosreport plugins
 """
 from sos.helpers import *
 from threading import Thread, activeCount
-import os, os.path, sys, string, itertools, glob, re
+import os, os.path, sys, string, itertools, glob, re, traceback
 import logging
 from stat import *
+from time import time
 
 class PluginBase:
     """
@@ -48,6 +49,7 @@ class PluginBase:
         self.copiedFiles = []
         self.copiedDirs = []
         self.executedCommands = []
+        self.diagnose_msgs = []
         self.alerts = []
         self.customText = ""
         self.optNames = []
@@ -58,7 +60,10 @@ class PluginBase:
         self.copyPaths = []
         self.collectProgs = []
         self.thread = None
+        self.pid = None
         self.eta_weight = 1
+        self.time_start = None
+        self.time_stop  = None
 
         self.soslog = logging.getLogger('sos')
 
@@ -145,7 +150,8 @@ class PluginBase:
                         except KeyboardInterrupt:
                           raise KeyboardInterrupt
                         except Exception, e:
-                            self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath+'/'+afile, e))
+                            self.soslog.warning(traceback.format_exc())
+
                         # if on forbidden list, abspath is null
                         if not abspath == '':
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
@@ -320,8 +326,7 @@ class PluginBase:
         """
         # First check to make sure the binary exists and is runnable.
         if not os.access(exe.split()[0], os.X_OK):
-            self.soslog.log(logging.VERBOSE2, "Binary '%s' does not exist or is not runnable" % exe.split()[0])
-            return
+            self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable, trying anyways" % exe.split()[0])
 
         # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(exe)
@@ -335,12 +340,15 @@ class PluginBase:
             os.mkdir(os.path.dirname(outfn))
 
         outfd = open(outfn, "w")
-        if len(shout): outfd.write(shout+"\n")
+        if status == 127: outfd.write("# the command returned exit status 127, this normally means that the command was not found.\n\n")
+        if len(shout):    outfd.write(shout+"\n")
         outfd.close()
 
         if root_symlink:
-            # FIXME: use python's internal commands
-            os.system('cd "%s" && ln -s "%s" "%s"' % (self.cInfo['dstroot'], outfn[len(self.cInfo['dstroot'])+1:], root_symlink))
+            curdir = os.getcwd()
+            os.chdir(self.cInfo['dstroot'])
+            os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+            os.chdir(curdir)
 
         outfn = outfn[len(self.cInfo['cmddir'])+1:]
 
@@ -367,6 +375,14 @@ class PluginBase:
 
         self.executedCommands.append({'exe': exe, 'file': outfn}) # save in our list
         return outfn
+
+    # For adding warning messages regarding configuration sanity
+    def addDiagnose(self, alertstring):
+        """ Add a configuration sanity warning for this plugin. These
+        will be displayed on-screen before collection and in the report as well.
+        """
+        self.diagnose_msgs.append(alertstring)
+        return
         
     # For adding output
     def addAlert(self, alertstring):
@@ -385,12 +401,17 @@ class PluginBase:
         return
 
     def doCollect(self):
+        """ This function has been replaced with copyStuff(threaded = True).  Please change your
+        module calls.  Calling setup() now.
         """
-        create a thread which calls the copyStuff method for a plugin
+        return self.copyStuff(threaded = True)
+
+    def isRunning(self):
         """
-        verbosity = self.cInfo['verbosity']
-        self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread')
-        self.thread.start()
+        if threaded, is thread running ?
+        """
+        if self.thread: return self.thread.isAlive()
+        return None
         
     def wait(self,timeout=None):
         """
@@ -399,10 +420,22 @@ class PluginBase:
         self.thread.join(timeout)
         return self.thread.isAlive()
 
-    def copyStuff(self):
+    def copyStuff(self, threaded = False, semaphore = None):
         """
         Collect the data for a plugin
         """
+        if threaded and self.thread == None:
+            self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread', args = [True] )
+            self.thread.start()
+            return self.thread
+
+        if semaphore: semaphore.acquire()
+
+        self.soslog.log(logging.VERBOSE2, "starting threaded plugin %s" % self.piName)
+
+        self.time_start = time()
+        self.time_stop  = None
+
         for path in self.copyPaths:
             self.soslog.debug("copying pathspec %s" % path)
             try:
@@ -412,7 +445,8 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except Exception, e:
-                self.soslog.log(logging.VERBOSE, "Error copying from pathspec %s (%s)" % (path,e))
+                self.soslog.log(logging.VERBOSE, "error copying from pathspec %s (%s), traceback follows:" % (path,e))
+                self.soslog.log(logging.VERBOSE, traceback.format_exc())
         for (prog,suggest_filename,root_symlink) in self.collectProgs:
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
@@ -422,7 +456,12 @@ class PluginBase:
             except KeyboardInterrupt:
               raise KeyboardInterrupt
             except:
-                self.soslog.log(logging.VERBOSE, "Error collecting output of '%s'" % prog,)
+                self.soslog.log(logging.VERBOSE, "error collection output of '%s', traceback follows:" % prog)
+                self.soslog.log(logging.VERBOSE, traceback.format_exc())
+
+        self.time_stop = time()
+
+        if semaphore: semaphore.release()
 
     def get_description(self):
         """ This function will return the description for the plugin"""
@@ -447,6 +486,12 @@ class PluginBase:
         module calls.  Calling setup() now.
         """
         self.setup()
+
+    def diagnose(self):
+        """This class must be overridden to check the sanity of the system's
+        configuration before the collection begins.
+        """
+        pass
 
     def setup(self):
         """This class must be overridden to add the copyPaths, forbiddenPaths,

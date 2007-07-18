@@ -39,6 +39,7 @@ from stat import *
 from time import strftime, localtime, time
 from pwd import getpwuid
 import gettext
+from threading import Semaphore
 
 __version__ = 1.7
 
@@ -192,11 +193,11 @@ class progressBar:
         self.min = minValue
         self.max = maxValue
         self.width = totalWidth
-        self.time_start = time()
         self.amount = 0       # When amount == max, we are 100% done
+        self.time_start = time()
         self.eta = 0
         self.last_amount_update = time()
-        self.updateAmount(0)  # Build progress bar string
+        self.update()
 
     def updateAmount(self, newAmount = 0):
         if newAmount < self.min: newAmount = self.min
@@ -256,71 +257,71 @@ class progressBar:
         sys.stdout.flush()
 
 class XmlReport:
-	def __init__(self):
-		try:
-			import libxml2
-		except:
-			self.enabled = False
-			return
-		else:
-			self.enabled = True
-		self.doc = libxml2.newDoc("1.0")
-		self.root = self.doc.newChild(None, "sos", None)
-		self.commands = self.root.newChild(None, "commands", None)
-		self.files = self.root.newChild(None, "files", None)
+    def __init__(self):
+        try:
+            import libxml2
+        except:
+            self.enabled = False
+            return
+        else:
+            self.enabled = True
+        self.doc = libxml2.newDoc("1.0")
+        self.root = self.doc.newChild(None, "sos", None)
+        self.commands = self.root.newChild(None, "commands", None)
+        self.files = self.root.newChild(None, "files", None)
 
-	def add_command(self,cmdline,exitcode,stdout = None,stderr = None,f_stdout=None,f_stderr=None, runtime=None):
-		if not self.enabled: return
+    def add_command(self,cmdline,exitcode,stdout = None,stderr = None,f_stdout=None,f_stderr=None, runtime=None):
+        if not self.enabled: return
 
-		cmd = self.commands.newChild(None, "cmd", None)
+        cmd = self.commands.newChild(None, "cmd", None)
 
-		cmd.setNsProp(None, "cmdline", cmdline)
+        cmd.setNsProp(None, "cmdline", cmdline)
 
-		cmdchild = cmd.newChild(None, "exitcode", str(exitcode))
+        cmdchild = cmd.newChild(None, "exitcode", str(exitcode))
 
-		if runtime:
-			cmd.newChild(None, "runtime", str(runtime))
+        if runtime:
+            cmd.newChild(None, "runtime", str(runtime))
 
-		if stdout or f_stdout:
-			cmdchild = cmd.newChild(None, "stdout", stdout)
-			if f_stdout:
-				cmdchild.setNsProp(None, "file", f_stdout)
+        if stdout or f_stdout:
+            cmdchild = cmd.newChild(None, "stdout", stdout)
+            if f_stdout:
+                cmdchild.setNsProp(None, "file", f_stdout)
 
-		if stderr or f_stderr:
-			cmdchild = cmd.newChild(None, "stderr", stderr)
-			if f_stderr:
-				cmdchild.setNsProp(None, "file", f_stderr)
+        if stderr or f_stderr:
+            cmdchild = cmd.newChild(None, "stderr", stderr)
+            if f_stderr:
+                cmdchild.setNsProp(None, "file", f_stderr)
 
-	def add_file(self,fname,stats):
-		if not self.enabled: return
+    def add_file(self,fname,stats):
+        if not self.enabled: return
 
-		cfile = self.files.newChild(None,"file",None)
+        cfile = self.files.newChild(None,"file",None)
 
-		cfile.setNsProp(None, "fname", fname)
+        cfile.setNsProp(None, "fname", fname)
 
-		cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
-		cchild.setNsProp(None,"name", getpwuid(stats[ST_UID])[0])
-                cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
-		cchild.setNsProp(None,"name", getpwuid(stats[ST_GID])[0])
-		cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
-		cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_CTIME])))
-		cchild.setNsProp(None,"tstamp", str(stats[ST_CTIME]))
-		cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_ATIME])))
-		cchild.setNsProp(None,"tstamp", str(stats[ST_ATIME]))
-		cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_MTIME])))
-		cchild.setNsProp(None,"tstamp", str(stats[ST_MTIME]))
+        cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
+        cchild.setNsProp(None,"name", getpwuid(stats[ST_UID])[0])
+        cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
+        cchild.setNsProp(None,"name", getpwuid(stats[ST_GID])[0])
+        cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
+        cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_CTIME])))
+        cchild.setNsProp(None,"tstamp", str(stats[ST_CTIME]))
+        cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_ATIME])))
+        cchild.setNsProp(None,"tstamp", str(stats[ST_ATIME]))
+        cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_MTIME])))
+        cchild.setNsProp(None,"tstamp", str(stats[ST_MTIME]))
 
-	def serialize(self):
-		if not self.enabled: return
+    def serialize(self):
+        if not self.enabled: return
 
-		print self.doc.serialize(None,  1)
+        print self.doc.serialize(None,  1)
 
-	def serialize_to_file(self,fname):
-		if not self.enabled: return
+    def serialize_to_file(self,fname):
+        if not self.enabled: return
 
-		outfn = open(fname,"w")
-		outfn.write(self.doc.serialize(None,1))
-		outfn.close()
+        outfn = open(fname,"w")
+        outfn.write(self.doc.serialize(None,1))
+        outfn.close()
 
 def sosreport():
     # pylint: disable-msg = R0912
@@ -353,10 +354,8 @@ def sosreport():
     os.mkdir(logdir, 0755)
     os.mkdir(rptdir, 0755)
 
-    # initialize i18n
-    gettext.install('sos', './locale', unicode=False) 
-    presLan_en = gettext.translation("sos", 'locale', languages=['en'])
-    presLan_en.install()
+    # initialize i18n language localization
+    gettext.install('sos', '/usr/share/locale', unicode=False) 
 
     # initialize logging
     soslog = logging.getLogger('sos')
@@ -435,10 +434,10 @@ def sosreport():
                     continue
                 loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
             except:
-                soslog.warning(_("Plugin %s does not install, skipping") % plug)
+                soslog.warning(_("plugin %s does not install, skipping") % plug)
                 raise
         except:
-           soslog.warning(_("plugin load failed for %s") % plug)
+           soslog.warning(_("could not load plugin %s") % plug)
            if __raisePlugins__:
                 raise
 
@@ -454,22 +453,29 @@ def sosreport():
            soslog.error(_("no valid plugins found"))
            sys.exit(1)
 
-        print _("The following plugins are currently enabled:")
+        if len(loadedplugins):
+	   print _("The following plugins are currently enabled:")
+           print
+           for (plugname,plug) in loadedplugins:
+              print " %-25s  %s" % (plugname,plug.get_description())
+        else:
+           print _("No plugin enabled.")
         print
-        for (plugname,plug) in loadedplugins:
-           print " %-25s  %s" % (plugname,plug.get_description())
 
-        print
-        print _("The following plugin options are available:")
-        print
-        for (plug, plugname, optname, optparm)  in alloptions:
-           print " %-25s  %s [%d]" % (plugname + "." + optname, optparm["desc"], optparm["enabled"])
+        if len(alloptions):
+           print _("The following plugin options are available:")
+           print
+           for (plug, plugname, optname, optparm)  in alloptions:
+              print " %-25s  %s [%d]" % (plugname + "." + optname, optparm["desc"], optparm["enabled"])
+        else:
+           print _("No plugin options available.")
 
-        print
-        print _("The following plugins are currently disabled:")
-        print
-        for (plugname,plugclass) in skippedplugins:
-           print " %-25s  %s" % (plugname,plugclass.get_description())
+        if len(skippedplugins):
+           print
+           print _("The following plugins are currently disabled:")
+           print
+           for (plugname,plugclass) in skippedplugins:
+              print " %-25s  %s" % (plugname,plugclass.get_description())
 
         print
         sys.exit()
@@ -539,23 +545,39 @@ Press ENTER to continue, or CTRL-C to quit.
             for plug, plugname, optname, optparm in alloptions:
                 plug.setOption(optname, 1)
 
-    # Setup the progress bar
-    if __cmdLineOpts__.progressbar:
-        pbar = progressBar(minValue = 0, maxValue = len(loadedplugins))
-
-    # Call the setup method for each plugin
+    # Call the diagnose() method for each plugin
+    tmpcount = 0
     for plugname, plug in loadedplugins:
-        soslog.log(logging.VERBOSE2, "Setting up plugin module %s" % plugname)
+        soslog.log(logging.VERBOSE2, "Performing sanity check for plugin %s" % plugname)
+        plug.diagnose()
+        tmpcount += len(plug.diagnose_msgs)
+    if tmpcount > 0:
+        print _("One or more plugin has detected a problem in your configuration.")
+        print _("Please review the following messages:")
+        print
+        for plugname, plug in loadedplugins:
+           for msg in plug.diagnose_msgs:
+               soslog.warning(" * %s: %s", plugname, msg)
+        print
+        try:
+           raw_input( _("Press ENTER to continue, or CTRL-C to quit.\n") )
+        except KeyboardInterrupt:
+           print
+           sys.exit(0)
+
+    # Call the setup() method for each plugin
+    for plugname, plug in loadedplugins:
+        soslog.log(logging.VERBOSE2, "Preloading files and commands to be gathered by plugin %s" % plugname)
         plug.setup()
 
+    # Setup the progress bar
     if __cmdLineOpts__.progressbar:
         # gather information useful for generating ETA
-        eta_weight = 0
+        eta_weight = len(loadedplugins)
         for plugname, plug in loadedplugins:
             eta_weight += plug.eta_weight
-        pbar.max += eta_weight
+        pbar = progressBar(minValue = 0, maxValue = eta_weight)
         # pbar.max = number_of_plugins + weight (default 1 per plugin)
-        pbar.update()
 
     if __cmdLineOpts__.nomultithread:
         soslog.log(logging.VERBOSE, "using single-threading")
@@ -563,22 +585,24 @@ Press ENTER to continue, or CTRL-C to quit.
         soslog.log(logging.VERBOSE, "using multi-threading")
 
     # Call the collect method for each plugin
+    plugrunning = Semaphore(2)
     for plugname, plug in loadedplugins:
-        soslog.log(logging.VERBOSE, "Executing plugin %s" % plugname)
+        soslog.log(logging.VERBOSE, "executing plugin %s" % plugname)
         if not __cmdLineOpts__.nomultithread:
-            plug.doCollect()
+            plug.copyStuff(threaded = True, semaphore = plugrunning)
         else:
             plug.copyStuff()    
             if __cmdLineOpts__.progressbar:
                 pbar.incAmount(plug.eta_weight)
                 pbar.update()
+    del plugrunning
 
     # Wait for all the collection threads to exit
     if not __cmdLineOpts__.nomultithread:
         finishedplugins = []
         while len(loadedplugins) > 0:
             plugname, plug = loadedplugins.pop(0)
-            if not plug.wait(0.2):
+            if not plug.wait(0.5):
                 finishedplugins.append((plugname,plug))
                 soslog.log(logging.VERBOSE2, "plugin %s has returned" % plugname)
                 if __cmdLineOpts__.progressbar:
