@@ -14,10 +14,10 @@ all:
 
 .PHONY: tag-release tarball release install version clean
 
-diff-tag-release:
+diff-tag:
 	svn diff $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG)
 
-tag-release:
+tag:
 	@if ( svn list $(REPO)/tags/$(SVNTAG)/Makefile &> /dev/null ); then \
 		echo "The repository already contains a tag for version $(VERSION)"; \
 		exit 1; \
@@ -25,6 +25,10 @@ tag-release:
 	@svn copy $(REPO)/trunk/src $(REPO)/tags/$(SVNTAG) \
 	-m "Tagging the $(SVNTAG) release of the sos project"
 	@echo "Tagged as $(SVNTAG)"
+
+tag-force:
+	@echo svn del $(REPO)/tags/$(SVNTAG)
+	@echo make diff-tag
 
 tarball: clean
 	@echo "Creating an archive from HEAD of development"
@@ -55,7 +59,7 @@ release: clean
 	@echo " "
 	@echo "The final archive is ./$(NAME)-$(VERSION).tar.bz2."
 
-install:
+install:mo
 	python setup.py install
 
 version:
