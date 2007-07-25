@@ -1,0 +1,21 @@
+To Do List:
+
+ * Gather statistics (time, files collected, commands run) per plugin
+
+ * Choose sane defaults to satisfy Red Hat support requirements (ie. what
+   plugins should be loaded by default, with what options, etc)
+
+ * Display on screen what files/commands are being gathered.
+
+ * Make sosreport a drop-in replacement for sysreport
+
+ * Allow to use a different rootdir than /
+
+ * Add support for distributions other than Fedora.
+
+ * Make it easier to select a policy module and perhaps optionally include
+   plugins from the library, to allow per-distribution customization.
+
+ * Documentation - plugin howto doc, inline doc in plugin template
+
+ * Review and test error handling for things like a full tmp file system
