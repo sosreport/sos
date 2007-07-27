@@ -13,10 +13,18 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
 class x11(sos.plugintools.PluginBase):
     """X related information
     """
+    def checkenabled(self):
+       try:	os.stat("/etc/X11")
+       except:  pass
+       else:	return True
+
+       return False
+
     def setup(self):
         self.addCopySpec("/etc/X11")
         self.addCopySpec("/var/log/Xorg.*.log")

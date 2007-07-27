@@ -15,13 +15,20 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
 class radius(sos.plugintools.PluginBase):
     """radius related information
     """
+    def checkenabled(self):
+       if self.cInfo["policy"].pkgByName("freeradius") or os.path.exists("/etc/raddb"):
+          return True
+       return False
+
     def setup(self):
         self.addCopySpec("/etc/raddb")
         self.addCopySpec("/etc/pam.d/radiusd")
+        self.addCopySpec("/var/log/radius")
         return
 
     def postproc(self):

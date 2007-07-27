@@ -15,10 +15,24 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
+from stat import ST_SIZE
 
 class nfsserver(sos.plugintools.PluginBase):
     """NFS server-related information
     """
+    def checkenabled(self):
+       if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("nfs"):
+          return True
+
+       try:
+          if os.stat("/etc/exports")[ST_SIZE] > 0 or os.stat("/var/lib/nfs/xtab")[ST_SIZE] > 0:
+             return True
+       except:
+          pass
+
+       return False
+
     def setup(self):
         self.addCopySpec("/etc/exports")
         self.collectExtOutput("/usr/sbin/rpcinfo -p localhost")

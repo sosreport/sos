@@ -19,9 +19,18 @@ class satellite(sos.plugintools.PluginBase):
     """
 
     def defaultenabled(self):
+        # enable if any related package is installed
+        for pkg in [ "rhn-satellite" ]:
+           if self.cInfo["policy"].pkgByName(pkg) != None:
+              return True
+
         return False
 
     def setup(self):
+        # made from:
+        # http://svn.rhndev.redhat.com/viewcvs/branches/eng/RELEASE-5.0.5-dev/backend/satellite_tools/satellite-debug?rev=114478&view=markup
+        # FIXME: symlinks and directories for copySpec (same as root_symlink for commands)
+
         self.addCopySpec("/etc/httpd/conf")
         self.addCopySpec("/etc/rhn")
         self.addCopySpec("/etc/sysconfig/rhn")
@@ -35,7 +44,7 @@ class satellite(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/tomcat5")
         self.addCopySpec("/var/log/tomcat5")
 
-	# all these used to go in $DIR/mon-logs
+	# all these used to go in $DIR/mon-logs/
         self.addCopySpec("/opt/notification/var/*.log*")
         self.addCopySpec("/var/tmp/ack_handler.log*")
         self.addCopySpec("/var/tmp/enqueue.log*")
@@ -46,8 +55,8 @@ class satellite(sos.plugintools.PluginBase):
         self.addCopySpec("/var/tmp/enqueue.log*")
 
         self.addCopySpec("/root/ssl-build")
-        self.addCopySpec("rpm -qa --last") # $DIR/rpm-manifest
-        self.addCopySpec("/usr/bin/rhn-schema-version") # $DIR/database-schema-version
-        self.addCopySpec("/usr/bin/rhn-charsets") # $DIR/database-character-sets
+        self.collectExtOutput("rpm -qa --last", root_symlink = "rpm-manifest")
+        self.collectExtOutput("/usr/bin/rhn-schema-version", root_symlink = "database-schema-version")
+        self.collectExtOutput("/usr/bin/rhn-charsets", root_symlink = "database-character-sets")
 
         return

@@ -15,10 +15,16 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
 class sendmail(sos.plugintools.PluginBase):
     """sendmail information
     """
+    def checkenabled(self):
+       if self.cInfo["policy"].pkgByName("sendmail") or os.path.exists("/etc/rc.d/init.d/sendmail"):
+          return True
+       return False
+
     def setup(self):
         self.addCopySpec("/etc/mail/*")
         self.addCopySpec("/var/log/maillog")
