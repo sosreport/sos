@@ -18,8 +18,8 @@ import commands, os, re
 class kernel(sos.plugintools.PluginBase):
     """kernel related information
     """
-    optionList = [("modinfo", 'Gathers module information on all modules', 'fast', 1),
-                  ('sysrq', 'Trigger SysRq dumps', 'fast', 0)]
+    optionList = [("modinfo", 'Gathers module information on all modules', 'fast', True),
+                  ('sysrq', 'Trigger SysRq dumps', 'fast', False)]
     moduleFile = ""
     taintList = [
         {'regex':'mvfs*', 'description':'Clearcase module'},
@@ -57,6 +57,7 @@ class kernel(sos.plugintools.PluginBase):
           if len(runcmd):
             self.collectExtOutput("/sbin/modinfo " + runcmd)
         self.collectExtOutput("/sbin/ksyms")
+        self.addCopySpec("/sys/module")
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/proc/ksyms")
         self.addCopySpec("/proc/slabinfo")

@@ -53,11 +53,16 @@ class SosPolicy:
         #print "validating %s" % pluginpath
         return True
 
+    def pkgRequires(self, name):
+        # FIXME: we're relying on rpm to sort the output list
+        cmd = "/bin/rpm -q --requires %s" % (name)
+        return [requires[:-1].split() for requires in os.popen(cmd).readlines()]
+
     def allPkgsByName(self, name):
         # FIXME: we're relying on rpm to sort the output list
-        cmd = "/bin/rpm --qf '%%{N}-%%{V}-%%{R}-%%{ARCH}\n' -q %s" % (name,)
+        cmd = "/bin/rpm --qf '%%{N} %%{V} %%{R} %%{ARCH}\n' -q %s" % (name,)
         pkgs = os.popen(cmd).readlines()
-        return [pkg[:-1] for pkg in pkgs if pkg.startswith(name)]
+        return [pkg[:-1].split() for pkg in pkgs if pkg.startswith(name)]
 
     def pkgByName(self, name):
         # TODO: do a full NEVRA compare and return newest version, best arch
@@ -91,6 +96,13 @@ class SosPolicy:
         # FIXME: get this from /etc/inittab
         return 3
 
+    def kernelVersion(self):
+        return commands.getoutput("/bin/uname -r").strip("\n")
+
+    def isKernelSMP(self):
+        if self.kernelVersion()[-3:]=="smp": return True
+        else: return False
+
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
         version, release, arch = fields[-3:]
@@ -107,8 +119,9 @@ class SosPolicy:
             ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
         except KeyboardInterrupt:
             print _("<interrupted>")
-            print _("Temporary files have been stored in ") % self.cInfo['dstroot']
-            return
+            print _("Temporary files have been stored in %s") % self.cInfo['dstroot']
+            print
+            sys.exit(1)
 
         if len(ticketNumber):
             namestr = name + "." + ticketNumber

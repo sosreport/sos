@@ -18,7 +18,7 @@ import os,re,commands
 class networking(sos.plugintools.PluginBase):
     """network related information
     """
-    optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", 0)]
+    optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
 
     def get_interface_name(self,ifconfigFile):
         """Return a dictionary for which key are interface name according to the

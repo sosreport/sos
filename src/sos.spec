@@ -21,6 +21,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: http://sos.108.redhat.com/
 BuildRequires: python-devel
+Requires: libxml2-python
 
 %description
 Sos is a set of tools that gathers information about system

@@ -1,0 +1,222 @@
+#!/usr/bin/env python
+
+from optparse import OptionParser, Option
+import time, sys
+
+__cmdParser__ = OptionParser()
+__cmdParser__.add_option("-i", "--logfile", action="append", \
+                     dest="logfiles", type="string", \
+                     help="system log to parse")
+__cmdParser__.add_option("-v", "--verbose", action="count", \
+                     dest="verbosity", \
+                     help="How obnoxious we're being about telling the user what we're doing.")
+(__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
+
+class logfile_class:
+
+   def __init__(self,fname):
+      self.events = []
+      self.curline = ""
+      self.prevline = ""
+      self.eof = False
+      self.hostname = ""
+
+      self.fname = fname
+      self.fp = open(fname)
+      first_line = self.fp.readline().strip()
+      multip = 1
+      readblock = 64
+      while True:
+         self.fp.seek(-readblock * multip,2)
+         newlnpos = self.fp.read(readblock).find("\n")
+         if newlnpos > 0 and newlnpos < readblock - 1:
+            self.fp.seek(-readblock * multip + newlnpos +1, 2)
+            break
+         multip+=1
+      last_line = self.fp.readline().strip()
+      self.fp.seek(0)
+
+      # let's convert the first and last timestamp to something useful
+      # Jul 22 04:48:05
+      self.time_begin = time.strptime(first_line[0:15], "%b %d %H:%M:%S")
+      self.time_end   = time.strptime( last_line[0:15], "%b %d %H:%M:%S")
+
+      # FIXME: check that first_line < last_line
+
+   def readline(self):
+      self.curline_pos = self.fp.tell()
+      self.prevline = self.curline
+      self.curline = self.fp.readline().strip()
+      if len(self.curline) == 0:
+         self.eof = True
+      return self.curline
+
+   def seek(self,pos):
+      self.fp.seek(pos)
+      self.eof = False
+      self.curline = ""
+
+   def parse(self):
+      self.seek(0)
+      while not self.eof:
+         self.readline()
+         self.parse_line()
+      self.seek(0)
+
+   def curmessage(self):
+      return self.curline[17 + self.curline[16:].find(" "):]
+
+   def parse_line(self):
+
+      # is valid log line ?
+      if not self.time_current():
+         return
+
+      # store hostname, if we don't already have it
+      if len(self.hostname) == 0:
+         self.curline.split()[3]
+
+      # system is booting
+      if self.curmessage().startswith("Linux version"):
+         self.add_event("system boot")
+
+      # hostname has changed
+      if len(self.hostname) and self.hostname != self.curline.split()[3]:
+         self.add_event("hostname changed")
+         self.hostname = self.curline.split()[3]
+
+      # the clock is wrong wrong
+      if self.prevline and time.strptime(self.prevline[0:15], "%b %d %H:%M:%S") > self.time_current():
+         self.add_event("clock is fucked up")
+
+   def add_event(self, message):
+      self.events.append( (self.curline_pos,len(self.curline),message) )
+
+   def time_current(self):
+      if len(self.curline) == 0: return None
+      try:
+         return time.strptime(self.curline[0:15], "%b %d %H:%M:%S")
+      except ValueError:
+         print "could not parse time", self.curline
+         return False
+
+logs = []
+
+for logname in __cmdLineOpts__.logfiles:
+   log = logfile_class(logname)
+   log.parse()
+   logs.append(log)
+
+print """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>HTMLogs output</TITLE>
+<style type="text/css">
+body {
+	background: #FFF;
+	color: #000;
+	font: normal normal 12px Verdana, Geneva, Arial, Helvetica, sans-serif;
+	margin: 10px;
+	padding: 0
+}
+
+table, td, a {
+	color: #000;
+	font: normal normal 12px Verdana, Geneva, Arial, Helvetica, sans-serif
+}
+
+/* make the TH elements pretty */
+thead.fixedHeader th {
+	background: #C96;
+	border-left: 1px solid #EB8;
+	border-right: 1px solid #B74;
+	border-top: 1px solid #EB8;
+	font-weight: normal;
+	padding: 4px 3px;
+	text-align: left
+}
+
+/* make the A elements pretty. makes for nice clickable headers                */
+thead.fixedHeader a, thead.fixedHeader a:link, thead.fixedHeader a:visited {
+	color: #FFF;
+	display: block;
+	text-decoration: none;
+	width: 100%
+}
+
+/* make the A elements pretty. makes for nice clickable headers                */
+/* WARNING: swapping the background on hover may cause problems in WinIE 6.x   */
+thead.fixedHeader a:hover {
+	color: #FFF;
+	display: block;
+	text-decoration: underline;
+	width: 100%
+}
+
+ul#toc {list-style:none;width:320px;}
+#toc li {background:url(dot.gif) repeat-x 0 0.85em;}
+#toc li a {float:left;background:#FFF;padding: 0 4px 0 0;}
+#toc li span {float:right;background:#FFF; padding 0 0 0 4px;}
+#toc li br {clear:both;}
+
+-->
+</style>
+</HEAD>
+<BODY>
+"""
+
+print '<ul id="toc">'
+for log in logs:
+#   print logs[idx].fname, logs[idx].events
+   for line, msglen, event in log.events:
+      print ' <li><span>%s</span> <a href="#">Link</a><br /></li>' % event
+print '</ul>'
+
+print "<TABLE>"
+while True:
+   # who is next ?
+   lowest_date = None
+   for log in logs:
+      if log.eof:
+         continue
+
+      if not len(log.curline):
+         log.readline()
+
+      if lowest_date == None or log.time_current() < lowest_date:
+         lowest_date = log.time_current()
+
+   if lowest_date == None:
+      # all logs are EOF
+      break
+
+   print " <TR>"
+   # FIXME: if this tick has an event, add <a name="...">
+   print '  <TD STYLE="white-space:nowrap">' + time.strftime("%b %d %H:%M:%S", lowest_date) + "</TD>"
+   for log in logs:
+      if log.time_current() == lowest_date:
+         print "  <TD>" + log.curmessage() + "</TD>"
+         log.curline = ""
+      else:
+         print "  <TD></TD>"
+#      print log.curline_pos, time.strftime("%b %d %H:%M:%S", log.time_current()), log.curmessage()
+   print " </TR>"
+print "<TABLE>"
+   
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

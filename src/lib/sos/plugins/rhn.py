@@ -12,80 +12,83 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugintools import PluginBase
+import sos.plugintools
 
-class rhn(PluginBase):
-    """RHN server related information
+class rhn(sos.plugintools.PluginBase):
+    """RHN Satellite related information
     """
+    satellite = False
+    proxy = False
+
+    def defaultenabled(self):
+        return False
+
     def checkenabled(self):
-        # XXX check for the presence of requisite packages
-        satellite = self.cInfo["policy"].pkgByName("rhns-satellite-tools")
-        proxy = self.cInfo["policy"].pkgByName("rhns-proxy-tools")
-        if not satellite and not proxy:
-            return False
-        return True
+        # enable if any related package is installed
+
+        self.satellite = self.cInfo["policy"].pkgByName("rhns-satellite-tools")
+        self.proxy = self.cInfo["policy"].pkgByName("rhns-proxy-tools")
+
+        if self.satellite or self.proxy:
+            return True
+
+        return False
 
     def setup(self):
-        #
-        # First, grab things needed from both Satellite and Proxy systems
-        #
-        # TODO: add chain load so we can use existing modules for httpd, &c.
-        #
+        # made from:
+        # http://svn.rhndev.redhat.com/viewcvs/branches/eng/RELEASE-5.0.5-dev/backend/satellite_tools/satellite-debug?rev=114478&view=markup
+        # http://cvs.devel.redhat.com/cgi-bin/cvsweb.cgi/rhn/proxy/proxy/tools/rhn-proxy-debug?rev=1.3;content-type=text%2Fplain;cvsroot=RHN
+        # FIXME: symlinks and directories for copySpec (same as root_symlink for commands)
 
-        # basic RHN logs and configs
-        self.addCopySpec("/var/log/rhn*")
-        self.addCopySpec("/etc/rhn")
-        self.collectExtOutput("/usr/share/rhn/up2date_client/hardware.py")
-
-        # httpd
         self.addCopySpec("/etc/httpd/conf")
-        self.addCopySpec("/var/log/httpd")
+        self.addCopySpec("/etc/rhn")
+        self.addCopySpec("/etc/sysconfig/rhn")
+        self.addCopySpec("/var/log/httpd")	# httpd-logs
+        self.addCopySpec("/var/log/rhn*")	# rhn-logs
+        self.addCopySpec("/var/log/rhn/rhn-database-installation.log")
 
-        # RPM manifests
-        self.collectExtOutput("/bin/rpm -qa --last | sort")
-
-        # monitoring scout logs
-        self.addCopySpec("/home/nocpulse/var/*.log*")
-        self.addCopySpec("/home/nocpulse/var/commands/*.log*")
-
-        satellite = self.cInfo["policy"].pkgByName("rhns-satellite-tools")
-        proxy = self.cInfo["policy"].pkgByName("rhns-proxy-tools")
-
-        #
-        # Now, go for product-specific data
-        #
-        if satellite:
-            self.setupSatellite(satellite)
-
-        if proxy:
-            self.setupProxy(proxy)
-
-    def setupSatellite(self, satellite):
-        self.collectExtOutput("/usr/bin/rhn-schema-version")
-        self.collectExtOutput("/usr/bin/rhn-charsets")
-
-        # oracle
-        self.addCopySpec("/etc/tnsnames.ora")
-
-        # tomcat (4.x and newer satellites only)
-        if not self.cInfo["policy"].pkgNVRA(satellite)[1].startswith("3."):
-            self.addCopySpec("/etc/tomcat5")
-            self.addCopySpec("/var/log/tomcat5")
-
-        # jabberd
-        #  - logs to /var/log/messages
-        self.addCopySpec("/etc/jabberd")
-
-        # SSL build
-        self.addCopySpec("/root/ssl-build")
-    
-        # monitoring logs
+	# all these used to go in $DIR/mon-logs/
         self.addCopySpec("/opt/notification/var/*.log*")
         self.addCopySpec("/var/tmp/ack_handler.log*")
         self.addCopySpec("/var/tmp/enqueue.log*")
 
-    def setupProxy(self, proxy):
-        # squid
-        self.addCopySpec("/etc/squid")
-        self.addCopySpec("/var/log/squid")
- 
+        # monitoring scout logs
+        self.addCopySpec("/home/nocpulse/var/*.log*")
+        self.addCopySpec("/home/nocpulse/var/commands/*.log*")
+        self.addCopySpec("/var/tmp/ack_handler.log*")
+        self.addCopySpec("/var/tmp/enqueue.log*")
+
+        self.addCopySpec("/root/ssl-build")
+        self.collectExtOutput("rpm -qa --last", root_symlink = "rpm-manifest")
+        self.collectExtOutput("/usr/bin/rhn-schema-version", root_symlink = "database-schema-version")
+        self.collectExtOutput("/usr/bin/rhn-charsets", root_symlink = "database-character-sets")
+
+        if self.satellite:
+           self.addCopySpec("/etc/tnsnames.ora")	
+           self.addCopySpec("/etc/jabberd")
+
+           # tomcat (4.x and newer satellites only)
+           if not self.cInfo["policy"].pkgNVRA(satellite)[1].startswith("3."):
+              self.addCopySpec("/etc/tomcat5")
+              self.addCopySpec("/var/log/tomcat5")
+
+           self.addCopySpec("/etc/tomcat5")
+           self.addCopySpec("/var/log/tomcat5")
+
+        if self.proxy:
+           # copying configuration information
+           self.addCopySpec("/etc/httpd/conf")
+           self.addCopySpec("/etc/squid")
+           self.addCopySpec("/etc/rhn")
+           self.addCopySpec("/etc/sysconfig/rhn")
+
+           # copying logs
+           self.addCopySpec("/var/log/httpd")
+           self.addCopySpec("/var/log/squid")
+           self.addCopySpec("/var/log/rhn*")
+
+        return
+
+#    def diagnose(self):
+        # RHN Proxy:
+        # * /etc/sysconfig/rhn/systemid is owned by root.apache with the permissions 0640

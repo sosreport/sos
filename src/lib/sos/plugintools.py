@@ -113,11 +113,12 @@ class PluginBase:
 
         if copyProhibited:
             return ''
-                
+
         if os.path.islink(srcpath):
             # This is a symlink - We need to also copy the file that it points to
             # file and dir symlinks ar ehandled the same
             link = os.readlink(srcpath)
+
             if os.path.isabs(link):
                 # the link was an absolute path, and will not point to the new
                 # tree. We must adjust it.
@@ -138,11 +139,22 @@ class PluginBase:
                 # no adjustment, symlink is the relative path
                 dstslname = link
 
-            if os.path.isdir(srcpath):
+            if os.path.isdir(srcpath): # symlink to a directory
+                # FIXME: don't recurse symlinks until vicious loops are detected
+                return
+
+                abslink = os.path.abspath(os.path.dirname(srcpath) + "/" + link)
+                self.soslog.log(logging.VERBOSE2, "DIRLINK %s to %s [%s]" % (srcpath,link,abslink))
+                for tmplink in self.copiedDirs:
+                   if tmplink["srcpath"] == abslink or tmplink["pointsto"] == abslink:
+                      self.soslog.log(logging.VERBOSE2, "already copied [%s]" % srcpath)
+                      return
+
                 for afile in os.listdir(srcpath):
                     if afile == '.' or afile == '..':
                         pass
                     else:
+                        self.soslog.log(logging.VERBOSE2, "copying (file or dir) %s" % srcpath+'/'+afile)
                         try:
                             abspath = self.doCopyFileOrDir(srcpath+'/'+afile)
                         except SystemExit:
@@ -150,13 +162,14 @@ class PluginBase:
                         except KeyboardInterrupt:
                           raise KeyboardInterrupt
                         except Exception, e:
-                            self.soslog.warning(traceback.format_exc())
+                            self.soslog.verbose(traceback.format_exc())
 
                         # if on forbidden list, abspath is null
                         if not abspath == '':
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
-                            self.copiedDirs.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
+                            self.copiedDirs.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':os.path.abspath(srcpath+'/'+afile) })
             else:
+                self.soslog.log(logging.VERBOSE2, "copying symlink %s" % srcpath)
                 try:
                     dstslname, abspath = self.__copyFile(srcpath)
                     self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
@@ -170,10 +183,10 @@ class PluginBase:
 
             return abspath
 
-        else:
+        else: # not a symlink
             if not os.path.exists(srcpath):
                 self.soslog.debug("File or directory %s does not exist\n" % srcpath)
-            elif  os.path.isdir(srcpath):
+            elif os.path.isdir(srcpath):
                 for afile in os.listdir(srcpath):
                     if afile == '.' or afile == '..':
                         pass
@@ -309,12 +322,12 @@ class PluginBase:
         outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + mangledname
 
         # check for collisions
-        inc = 0
         if os.path.exists(outfn):
             inc = 2
             while True:
-               newfn = outfn + "_" + inc
+               newfn = "%s_%d" % (outfn, inc)
                if not os.path.exists(newfn):
+                  outfn = newfn
                   break
                inc +=1
 
@@ -339,18 +352,22 @@ class PluginBase:
         if not os.path.isdir(os.path.dirname(outfn)):
             os.mkdir(os.path.dirname(outfn))
 
-        outfd = open(outfn, "w")
-        if status == 127: outfd.write("# the command returned exit status 127, this normally means that the command was not found.\n\n")
-        if len(shout):    outfd.write(shout+"\n")
-        outfd.close()
+        if not (status == 127 or status == 32512):
+            outfd = open(outfn, "w")
+            if len(shout):    outfd.write(shout+"\n")
+            outfd.close()
 
-        if root_symlink:
-            curdir = os.getcwd()
-            os.chdir(self.cInfo['dstroot'])
-            os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
-            os.chdir(curdir)
+            if root_symlink:
+                curdir = os.getcwd()
+                os.chdir(self.cInfo['dstroot'])
+                os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+                os.chdir(curdir)
 
-        outfn = outfn[len(self.cInfo['cmddir'])+1:]
+            outfn = outfn[len(self.cInfo['cmddir'])+1:]
+
+        else:
+            self.soslog.log(logging.VERBOSE, "could not run command: %s" % exe)
+            outfn = None
 
         # sosStatus(status)
         # save info for later

@@ -231,9 +231,9 @@ class progressBar:
                ETA = timeElapsed
             else:
                ETA = self.eta
-            ETA = "[%02d:%02d/%02d:%02d]" % (round(timeElapsed/60), timeElapsed % 60, round(ETA/60), ETA % 60)
+            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60), timeElapsed % 60, round(ETA/60), ETA % 60)
         else:
-            ETA = "[%02d:%02d/--:--]" % (round(timeElapsed/60), timeElapsed % 60)
+            ETA = "[%02d:%02d/--:--]" % (int(timeElapsed/60), timeElapsed % 60)
             if self.amount < self.max:
                percentDone = 0
             else:
@@ -453,11 +453,64 @@ def sosreport():
                 raise
 
     # First, gather and process options
+    # using the options specified in the command line (if any)
+    if __cmdLineOpts__.plugopts:
+        opts = {}
+        for opt in __cmdLineOpts__.plugopts:
+           # split up "general.syslogsize=5"
+           try:
+              opt, val = opt.split("=")
+           except:
+              val=True
+           else:
+              if val == "off" or val == "disable" or val == "disabled":
+                 val = False
+              else:
+                 # try to convert string "val" to int()
+                 try:    val = int(val)
+                 except: pass
+
+           # split up "general.syslogsize"
+           plug, opt = opt.split(".")
+
+           try: opts[plug]
+           except KeyError: opts[plug] = []
+           opts[plug].append( (opt,val) )
+
+        for plugname, plug in loadedplugins:
+           if opts.has_key(plugname):
+               for opt,val in opts[plugname]:
+                   soslog.log(logging.VERBOSE, "setting option %s for plugin %s to %s" % (plugname,opt,val))
+                   plug.setOption(opt,val)
+        del opt,opts,val
+    elif not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.usealloptions:
+        if len(alloptions) and __cmdLineOpts__.use_curses:
+            try:
+                get_curse_options(alloptions)
+            except "Cancelled":
+                sys.exit(_("Exiting."))
+    elif __cmdLineOpts__.fastoptions:
+        # FIXME: with int and bool options, fast/slow/all breaks
+        for i in range(len(alloptions)):
+            for plug, plugname, optname, optparm in alloptions:
+                if optparm['speed'] == 'fast':
+                    plug.setOption(optname, 1)
+                else:
+                    plug.setOption(optname, 0)
+    elif __cmdLineOpts__.usealloptions:
+        for i in range(len(alloptions)):
+            for plug, plugname, optname, optparm in alloptions:
+                plug.setOption(optname, 1)
+
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE3, _("processing options from plugin: %s") % plugname)
         names, parms = plug.getAllOptions()
         for optname, optparm  in zip(names, parms):
             alloptions.append((plug, plugname, optname, optparm))
+
+    # when --listplugins is specified we do a dry-run
+    # which tells the user which plugins are going to be enabled
+    # and with what options.
 
     if __cmdLineOpts__.listPlugins:
         if not len(loadedplugins) and not len(skippedplugins):
@@ -473,20 +526,35 @@ def sosreport():
            print _("No plugin enabled.")
         print
 
-        if len(alloptions):
-           print _("The following plugin options are available:")
-           print
-           for (plug, plugname, optname, optparm)  in alloptions:
-              print " %-25s  %s [%d]" % (plugname + "." + optname, optparm["desc"], optparm["enabled"])
-        else:
-           print _("No plugin options available.")
-
         if len(skippedplugins):
-           print
            print _("The following plugins are currently disabled:")
            print
            for (plugname,plugclass) in skippedplugins:
               print " %-25s  %s" % (textcolor(plugname,"blue"),plugclass.get_description())
+        print
+
+        if len(alloptions):
+           print _("The following plugin options are available:")
+           print
+           for (plug, plugname, optname, optparm)  in alloptions:
+              # format and colorize option value based on its type (int or bool)
+              if type(optparm["enabled"])==bool:
+                 if optparm["enabled"]==True:
+                    tmpopt = textcolor("on","lred")
+                 else:
+                    tmpopt = textcolor("off","red")
+              elif type(optparm["enabled"])==int:
+                 if optparm["enabled"] > 0:
+                    tmpopt = textcolor(optparm["enabled"],"lred")
+                 else:
+                    tmpopt = textcolor(optparm["enabled"],"red")
+              else:
+                 tmpopt = optparm["enabled"]
+
+              print " %-21s %-5s %s" % (plugname + "." + optname, tmpopt, optparm["desc"])
+              del tmpopt
+        else:
+           print _("No plugin options available.")
 
         print
         sys.exit()
@@ -520,58 +588,35 @@ Press ENTER to continue, or CTRL-C to quit.
         print
         sys.exit(0)
 
-    # setup plugin options
-    if __cmdLineOpts__.plugopts:
-        opts = {}
-        for opt in __cmdLineOpts__.plugopts:
-           try: opt, val = opt.split("=")
-           except: val=1
-           plug, opt = opt.split(".")
-           try: val = int(val) # try to convert string "val" to int()
-           except: pass
-           try: opts[plug]
-           except KeyError: opts[plug] = []
-           opts[plug].append( (opt,val) )
-        for plugname, plug in loadedplugins:
-           if opts.has_key(plugname):
-               for opt,val in opts[plugname]:
-                   soslog.log(logging.VERBOSE, "setting option %s for plugin %s to %s" % (plugname,opt,val))
-                   plug.setOption(opt,val)
-        del opt,opts,val
-    elif not __cmdLineOpts__.fastoptions and not __cmdLineOpts__.usealloptions:
-        if len(alloptions) and __cmdLineOpts__.use_curses:
-            try:
-                get_curse_options(alloptions)
-            except "Cancelled":
-                sys.exit(_("Exiting."))
-    elif __cmdLineOpts__.fastoptions:
-        for i in range(len(alloptions)):
-            for plug, plugname, optname, optparm in alloptions:
-                if optparm['speed'] == 'fast':
-                    plug.setOption(optname, 1)
-                else:
-                    plug.setOption(optname, 0)
-    elif __cmdLineOpts__.usealloptions:
-        for i in range(len(alloptions)):
-            for plug, plugname, optname, optparm in alloptions:
-                plug.setOption(optname, 1)
-
     # Call the diagnose() method for each plugin
     tmpcount = 0
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE2, "Performing sanity check for plugin %s" % plugname)
-        plug.diagnose()
+        try:
+           plug.diagnose()
+        except:
+           if __raisePlugins__:
+              raise
         tmpcount += len(plug.diagnose_msgs)
     if tmpcount > 0:
         print _("One or more plugin has detected a problem in your configuration.")
         print _("Please review the following messages:")
         print
         for plugname, plug in loadedplugins:
-           for msg in plug.diagnose_msgs:
-               soslog.warning(" * %s: %s", plugname, msg)
+           for tmpcount2 in range(0,len(plug.diagnose_msgs)):
+              if tmpcount2 == 0:
+                 soslog.warning( textcolor("%s:" % plugname, "red") )
+              soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
         print
         try:
-           raw_input( _("Press ENTER to continue, or CTRL-C to quit.\n") )
+           while True:
+              yorno = raw_input( _("Are you sure you would like to continue (Y/n) ? ") )
+              if yorno == "y" or yorno == "Y":
+                 del yorno
+                 print
+                 break
+              else:
+                 sys.exit(0)
         except KeyboardInterrupt:
            print
            sys.exit(0)
@@ -579,7 +624,11 @@ Press ENTER to continue, or CTRL-C to quit.
     # Call the setup() method for each plugin
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE2, "Preloading files and commands to be gathered by plugin %s" % plugname)
-        plug.setup()
+        try:
+           plug.setup()
+        except:
+           if __raisePlugins__:
+              raise
 
     # Setup the progress bar
     if __cmdLineOpts__.progressbar:

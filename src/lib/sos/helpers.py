@@ -113,7 +113,11 @@ def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
         In particular: the empty string, if path1 == path2;
                        path2, if path1 and path2 have no common prefix.
     '''
-    common, (u1, u2) = commonPrefix(path1.split(sep), path2.split(sep))
+    try:
+        common, (u1, u2) = commonPrefix(path1.split(sep), path2.split(sep))
+    except AttributeError:
+        return path2
+
     if not common:
         return path2      # leave path absolute if nothing at all in common
     return sep.join( [pardir]*len(u1) + u2 )

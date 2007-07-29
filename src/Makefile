@@ -70,7 +70,7 @@ clean:
 
 rpm:	mo
 	@test -f sos.spec
-	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD
+	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD $(SRCDIR)/dist
 
 #	this builds an RPM from the current working copy
 	@cd $(TOPDIR)/BUILD ; \
