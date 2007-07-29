@@ -36,8 +36,9 @@ class cluster(sos.plugintools.PluginBase):
        return False
 
     def diagnose(self):
-        rhelver = self.cInfo["policy"].pkgDictByName("fedora-release")[0]
-        if rhelver == "6":
+        try: rhelver = self.cInfo["policy"].pkgDictByName("redhat-release")[0]
+        except: rhelver = None
+        if rhelver == "4" or not rhelver:
            # check if the minimum set of packages is installed
            # for RHEL4 RHCS(ccs, cman, cman-kernel, magma, magma-plugins, (dlm, dlm-kernel) || gulm, perl-Net-Telnet, rgmanager, fence)
            # RHEL4 GFS (GFS, GFS-kernel, ccs, lvm2-cluster, fence)
