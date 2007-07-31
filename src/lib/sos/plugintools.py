@@ -313,13 +313,27 @@ class PluginBase:
         """
         self.collectProgs.append( (exe,suggest_filename,root_symlink) )
 
+    def fileGrep(self, regexp, fname):
+        results = []
+
+        fp = open(fname, "r")
+        for line in fp.readlines():
+            if re.match(regexp, line):
+                results.append(line)
+        fp.close()
+        return results
+
+    def mangleCommand(self, exe):
+        # FIXME: this can be improved
+        mangledname = re.sub(r"^/(usr/|)(bin|sbin)/", "", exe)
+        mangledname = re.sub(r"[^\w\-\.\/]+", "_", mangledname)
+        mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")[0:64]
+        return mangledname
+
     def makeCommandFilename(self, exe):
         """ The internal function to build up a filename based on a command """
 
-        mangledname = re.sub(r"[^\w\-\.\/]+", "_", exe)
-        mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")[0:64]
-
-        outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + mangledname
+        outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + self.mangleCommand(exe)
 
         # check for collisions
         if os.path.exists(outfn):
@@ -340,6 +354,8 @@ class PluginBase:
         # First check to make sure the binary exists and is runnable.
         if not os.access(exe.split()[0], os.X_OK):
             self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable, trying anyways" % exe.split()[0])
+
+        # FIXME: we should have a timeout or we may end waiting forever
 
         # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(exe)
@@ -363,16 +379,17 @@ class PluginBase:
                 os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
                 os.chdir(curdir)
 
-            outfn = outfn[len(self.cInfo['cmddir'])+1:]
+            outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
 
         else:
             self.soslog.log(logging.VERBOSE, "could not run command: %s" % exe)
             outfn = None
+            outfn_strip = None
 
         # sosStatus(status)
         # save info for later
-        self.executedCommands.append({'exe': exe, 'file':outfn}) # save in our list
-        self.cInfo['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn,runtime=runtime)
+        self.executedCommands.append({'exe': exe, 'file':outfn_strip}) # save in our list
+        self.cInfo['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn_strip,runtime=runtime)
         return outfn
 
     def writeTextToCommand(self, exe, text):

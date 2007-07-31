@@ -18,8 +18,8 @@ import commands, os, re
 class kernel(sos.plugintools.PluginBase):
     """kernel related information
     """
-    optionList = [("modinfo", 'Gathers module information on all modules', 'fast', True),
-                  ('sysrq', 'Trigger SysRq dumps', 'fast', False)]
+    optionList = [("modinfo", 'gathers module information on all modules', 'fast', True),
+                  ('sysrq', 'trigger SysRq+t dumps', 'fast', False)]
     moduleFile = ""
     taintList = [
         {'regex':'mvfs*', 'description':'Clearcase module'},
@@ -72,9 +72,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/proc/driver")
         self.addCopySpec("/proc/sys/kernel/tainted")
-        # trigger some sysrq's.  I'm not sure I like doing it this way, but
-        # since we end up with the sysrq dumps in syslog whether we run the 
-        # syslog report before or after this, I suppose I can live with it.
+        # FIXME: both RHEL4 and RHEL5 don't need sysrq to be enabled to trigger via sysrq-trigger
         if self.isOptionEnabled('sysrq') and os.access("/proc/sysrq-trigger", os.W_OK) and os.access("/proc/sys/kernel/sysrq", os.R_OK):
           sysrq_state = commands.getoutput("/bin/cat /proc/sys/kernel/sysrq")
           commands.getoutput("/bin/echo 1 > /proc/sys/kernel/sysrq")

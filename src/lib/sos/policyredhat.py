@@ -24,6 +24,7 @@ import string
 from tempfile import gettempdir
 from sos.helpers import *
 import random
+import re
 
 SOME_PATH = "/tmp/SomePath"
 
@@ -114,9 +115,11 @@ class SosPolicy:
 
         try:
             name = raw_input("Please enter your first initial and last name [%s]: " % localname)
+            name = re.sub(r"[^a-zA-Z.0-9]", "", name)
             if len(name) == 0: name = localname
 
             ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
+            ticketNumber = re.sub(r"[^0-9]", "", ticketNumber)
         except KeyboardInterrupt:
             print _("<interrupted>")
             print _("Temporary files have been stored in %s") % self.cInfo['dstroot']
@@ -155,8 +158,25 @@ class SosPolicy:
         # FIXME: use python internal command
         os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
 
+        # add last 6 chars from md5sum to file name
+        status, md5out = commands.getstatusoutput('''/usr/bin/md5sum "%s"''' % tarballName)
+        if not status and len(md5out):
+            oldtarballName = tarballName
+            try:
+                md5out = md5out.strip().split()[0]
+                tarballName = os.path.join(ourtempdir, "sosreport-%s-%s.tar.bz2" % (namestr, md5out[-6:]) )
+                os.system("/bin/mv %s %s" % (oldtarballName, tarballName) )
+            except:
+                md5out = False
+        else:
+            md5out = False
+
         sys.stdout.write("\n")
-        print "Your sosreport has been generated and saved in %s" % tarballName
+        print "Your sosreport has been generated and saved in:\n  %s" % tarballName
+        print
+        if md5out:
+            print "The md5sum is: " + md5out
+            print
         print "Please send this file to your support representative."
         sys.stdout.write("\n")
 

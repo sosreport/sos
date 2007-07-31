@@ -57,7 +57,7 @@ class networking(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/xinetd.d")
         self.addCopySpec("/etc/host*")
         self.addCopySpec("/etc/resolv.conf")
-        ifconfigFile=self.collectExtOutput("/sbin/ifconfig -a", root_symlink = "ifconfig")
+        ifconfigFile=self.collectOutputNow("/sbin/ifconfig -a", root_symlink = "ifconfig")
         self.collectExtOutput("/sbin/route -n", root_symlink = "route")
         self.collectExtOutput("/sbin/ipchains -nvL")
         self.collectIPTable("filter")

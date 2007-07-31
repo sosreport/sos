@@ -16,10 +16,10 @@ import sos.plugintools
 import glob
 
 class general(sos.plugintools.PluginBase):
-    """very basic system information
+    """basic system information
     """
 
-    optionList = [("syslogsize", "maximum size (in MiB) of logs to collect per syslog file", "", 15)]
+    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15)]
 
     def setup(self):
         self.addCopySpec("/etc/redhat-release")

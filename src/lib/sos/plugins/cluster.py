@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import commands, os
+import commands, os, re
 import time, libxml2
 
 class cluster(sos.plugintools.PluginBase):
@@ -22,7 +22,7 @@ class cluster(sos.plugintools.PluginBase):
 
     optionList = [("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
                   ('lockdump', 'gather dlm lockdumps', 'slow', False),
-                  ('taskdump', 'trigger 3 SysRq+t dumps every 5 seconds', 'slow', False)]
+                  ('taskdump', 'trigger 3 sysrq+t dumps every 5 seconds (dangerous)', 'slow', False)]
 
     def checkenabled(self):
        # enable if any related package is installed
@@ -33,7 +33,7 @@ class cluster(sos.plugintools.PluginBase):
              return True
 
        # enable if any related file is present
-       for fname in [ "/etc/cluster/cluster.conf" ]:
+       for fname in [ "/etc/cluster/cluster.conf", "/proc/cluster" ]:
           try:	 os.stat(fname)
           except:pass
           else:  return True
@@ -93,6 +93,13 @@ class cluster(sos.plugintools.PluginBase):
            if not ((self.cInfo["policy"].pkgByName("dlm") and self.cInfo["policy"].pkgByName("dlm-kernel")) or self.cInfo["policy"].pkgByName("gulm")):
                self.addDiagnose("required packages are missing: (dlm, dlm-kernel) || gulm")
 
+           # let's make modules are loaded
+           mods_check = [ "cman", "dlm" ]
+           if self.has_gfs(): mods_check.append("gfs")
+           for module in mods_check:
+               if len(self.fileGrep("^%s " % module, "/proc/modules")) == 0:
+                   self.addDiagnose("required package is present but not loaded: %s" % module)
+
            # check if all the needed daemons are active at sosreport time
            # check if they are started at boot time in RHEL4 RHCS (cman, ccsd, rgmanager, fenced)
            # and GFS (gfs, ccsd, clvmd, fenced)
@@ -102,28 +109,58 @@ class cluster(sos.plugintools.PluginBase):
                status, output = commands.getstatusoutput("/sbin/service %s status" % service)
                if status:
                    self.addDiagnose("service %s is not running" % service)
+               else:
+                   # service is running, extra sanity checks
+                   if service == "fenced":
+                       # also make sure fenced is a registered cluster service
+                       try:
+                           if len(self.fileGrep("^Fence Domain:\W", "/proc/cluster/services")) == 0:
+                               self.addDiagnose("fencing service is not registered with cman")
+                       except:
+                           pass
+                   elif service == "rgmanager":
+                       # also make sure rgmanager is a registered cluster service
+                       try:
+                           if len(self.fileGrep("^User:\W*usrm::manager", "/proc/cluster/services")) == 0:
+                               self.addDiagnose("rgmanager is not registered with cman")
+                       except:
+                           pass
 
                if not self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService(service):
                    self.addDiagnose("service %s is not started in default runlevel" % service)
+
+           # FIXME: any cman service whose state != run ?
+           # Fence Domain:    "default"                           2   2 run       -
 
            # is cluster quorate
            if not self.is_cluster_quorate():
                self.addDiagnose("cluster node is not quorate")
 
            # if there is no cluster.conf, diagnose() finishes here.
-           try:    os.stat("/etc/cluster/cluster.conf")
-           except: return
+           try:
+               os.stat("/etc/cluster/cluster.conf")
+           except:
+               self.addDiagnose("/etc/cluster/cluster.conf is missing")
+               return
 
            # setup XML xpath context
            xml = libxml2.parseFile("/etc/cluster/cluster.conf")
            xpathContext = xml.xpathNewContext()
 
-           # check fencing (warn on empty or manual)
+           # check fencing (warn on no fencing)
            if len(xpathContext.xpathEval("/cluster/clusternodes/clusternode[not(fence/method/device)]")):
                self.addDiagnose("one or more nodes have no fencing agent configured")
 
+           # check fencing (warn on manual)
            if len(xpathContext.xpathEval("/cluster/clusternodes/clusternode[/cluster/fencedevices/fencedevice[@agent='fence_manual']/@name=fence/method/device/@name]")):
                self.addDiagnose("one or more nodes have manual fencing agent configured (data integrity is not guaranteed)")
+
+           # if fence_ilo or fence_drac, make sure acpid is not running
+           hostname = commands.getoutput("/bin/uname -n").split(".")[0]
+           if len(xpathContext.xpathEval('/cluster/clusternodes/clusternode[@name = "%s" and /cluster/fencedevices/fencedevice[@agent="fence_rsa" or @agent="fence_drac"]/@name=fence/method/device/@name]' % hostname )):
+               status, output = commands.getstatusoutput("/sbin/service acpid status")
+               if status == 0 or self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("acpid"):
+                   self.addDiagnose("acpid is enabled, this may cause problems with your fencing method.")
 
            # check for fs exported via nfs without nfsid attribute
            if len(xpathContext.xpathEval("/cluster/rm/service//fs[not(@fsid)]/nfsexport")):
@@ -142,16 +179,15 @@ class cluster(sos.plugintools.PluginBase):
            # and that the locking protocol is sane
            cluster_name = xpathContext.xpathEval("/cluster/@name")[0].content
 
-           fp = open("/etc/fstab","r")
-           for fs in fp.readline().split():
-#               fs = fs.split()
-               if not fs or fs[0] == "#" or len(fs) < 6 or fs[2]!="gfs": continue
-               lockproto = get_gfs_sb_field(fs[1], "sb_lockproto")
-               if lockproto != "lock_" + get_locking_proto:
+           for fs in self.fileGrep(r'^[^#][/\w]*\W*[/\w]*\W*gfs', "/etc/fstab"):
+               # for each gfs entry
+               fs = fs.split()
+
+               lockproto = self.get_gfs_sb_field(fs[0], "sb_lockproto")
+               if lockproto and lockproto != self.get_locking_proto():
                    self.addDiagnose("gfs mountpoint (%s) is using the wrong locking protocol (%s)" % (fs[0], lockproto) )
 
-               locktable = get_gfs_sb_field(fs[1], "sb_locktable")
-               if not locktable: continue
+               locktable = self.get_gfs_sb_field(fs[0], "sb_locktable")
                try: locktable = locktable.split(":")[0]
                except: continue
                if locktable != cluster_name:
@@ -178,11 +214,15 @@ class cluster(sos.plugintools.PluginBase):
         return
 
     def do_taskdump(self):
+        if not os.access("/proc/sysrq-trigger", os.W_OK):
+            return
+
         commands.getstatusoutput("echo t > /proc/sysrq-trigger")
-        time.sleep(3)
+        time.sleep(5)
         commands.getstatusoutput("echo t > /proc/sysrq-trigger")
-        time.sleep(3)
+        time.sleep(5)
         commands.getstatusoutput("echo t > /proc/sysrq-trigger")
+
         self.addCopySpec("/var/log/messages")
 
     def do_lockdump(self):
@@ -200,22 +240,27 @@ class cluster(sos.plugintools.PluginBase):
 
     def get_locking_proto(self):
         # FIXME: what's the best way to find out ?
-        return "dlm"
-        return "gulm"
+        return "lock_dlm"
+        return "lock_gulm"
 
     def do_gfslockdump(self):
         fp = open("/proc/mounts","r")
         for line in fp.readlines():
            mntline = line.split(" ")
            if mntline[2] == "gfs":
-              self.collectExtOutput("/sbin/gfs_tool lockdump %s" % mntline[1])
+              self.collectExtOutput("/sbin/gfs_tool lockdump %s" % mntline[1], root_symlink = "gfs_lockdump_" + self.mangleCommand(mntline[1]) )
         fp.close()
+
+    def do_rgmgr_bt(self):
+        # FIXME: threads backtrace
+        return
 
     def postproc(self):
         self.doRegexSub("/etc/cluster/cluster.conf", r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1***")
         return
 
     def is_cluster_quorate(self):
+        # FIXME: use self.fileGrep() instead
         output = commands.getoutput("/bin/cat /proc/cluster/status | grep '^Membership state: '")
         try:
             if output[18:] == "Cluster-Member":
@@ -226,32 +271,8 @@ class cluster(sos.plugintools.PluginBase):
             pass
         return None
 
-    def get_gfs_sb_field(self, mntpoint, field):
-        for line in commands.getoutput("/sbin/gfs_tool sb %s all" % fs[1]):
-            tostrip = "  " + field + " = "
-            if line.startwith(tostrip):
-                return line[len(tostrip):]
-        return None
-
-    def xpath_query_count(self, fname, query):
-        return len(self.xpath_query(fname, query))
-
-    def xpath_query(self, fname, query):
-        xml = libxml2.parseFile(fname)
-        xpathContext = xml.xpathNewContext()
-        return xpathContext.xpathEval(query)
-
-        # FIXME: use python libxml internals
-        tmpout = commands.getoutput("/bin/echo xpath %s | /usr/bin/xmllint --shell /etc/cluster/cluster.conf")
-        for tmpline in tmpout:
-            if tmpline.startswith("Set contains "):
-                tmpvalue = tmpline[14:].split(" ")[0]
-                if tmpvalue == "NULL": return 0
-                try: tmpvalue = int(tmpvalue)
-                except: return False
-                return tmpvalue
+    def get_gfs_sb_field(self, device, field):
+        for line in commands.getoutput("/sbin/gfs_tool sb %s all" % device).split("\n"):
+            if re.match('^\W*%s = ' % field, line):
+                return line.split("=")[1].strip()
         return False
-
-
-
-

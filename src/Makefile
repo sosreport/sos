@@ -61,12 +61,14 @@ release: clean
 
 install:mo
 	python setup.py install
+	@rm -rf build/lib
 
 version:
 	@echo "The version is $(NAME)-$(VERSION)"
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
+	@rm -rfv build/*
 
 rpm:	mo
 	@test -f sos.spec
