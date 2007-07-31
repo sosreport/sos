@@ -20,5 +20,8 @@ class process(sos.plugintools.PluginBase):
     def setup(self):
         self.collectExtOutput("/bin/ps auxww", root_symlink = "ps")
         self.collectExtOutput("/usr/bin/pstree", root_symlink = "pstree")
+        self.collectExtOutput("/usr/bin/ipcs -a")
+        self.collectExtOutput("/usr/bin/ipcs -u")
+        self.collectExtOutput("/usr/bin/ipcs -l")
         return
 
