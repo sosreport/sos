@@ -21,5 +21,6 @@ class startup(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/rc.d")
         
         self.collectExtOutput("/sbin/chkconfig --list", root_symlink = "chkconfig")
+        self.collectExtOutput("/sbin/runlevel")
         return
 
