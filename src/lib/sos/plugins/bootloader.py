@@ -27,5 +27,6 @@ class bootloader(sos.plugintools.PluginBase):
         self.addCopySpec("/boot/yaboot.conf")
         
         self.collectExtOutput("/sbin/lilo -q")
+        self.collectExtOutput("/bin/ls -laR /boot")
         return
 
