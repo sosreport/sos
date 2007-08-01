@@ -26,9 +26,6 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/mdstat")
         self.addCopySpec("/etc/raidtab")
         self.addCopySpec("/etc/mdadm.conf")
-        self.addCopySpec("/etc/auto.master")
-        self.addCopySpec("/etc/auto.misc")
-        self.addCopySpec("/etc/auto.net")
         
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
         self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
