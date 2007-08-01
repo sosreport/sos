@@ -21,10 +21,10 @@ import os
 import commands
 import sys
 import string
+import re
 from tempfile import gettempdir
 from sos.helpers import *
 import random
-import re
 
 SOME_PATH = "/tmp/SomePath"
 
@@ -94,8 +94,15 @@ class SosPolicy:
         return ret
 
     def runlevelDefault(self):
-        # FIXME: get this from /etc/inittab
-        return 3
+        inittab=os.path.isfile('/etc/inittab')
+        if inittab is True:
+            f=open(inittab,'r')
+            content=f.read()
+            f.close()
+            reg=re.compile(r"^id:(\d{1}):initdefault:\D",re.MULTILINE)
+            for initlevel in reg.findall(content):
+                return initlevel
+        else: return 3
 
     def kernelVersion(self):
         return commands.getoutput("/bin/uname -r").strip("\n")
