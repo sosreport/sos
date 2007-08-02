@@ -55,6 +55,56 @@ rm -rf ${RPM_BUILD_ROOT}
 %doc README TODO LICENSE ChangeLog
 
 %changelog
+* Mon Aug  9 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-4
+- package obsoletes sysreport and creates a link pointing to sosreport
+- added some commands in cluster and process plugins
+- fixed html output (wrong links to cmds, thanks streeter)
+- process: back down sleep if D state doesn't change
+
+* Mon Aug  1 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-4
+- catch KeyboardInterrupt when entering sosreport name
+- added color output for increased readability
+- list was sorted twice, removing latter .sort()
+
+* Mon Jul 31 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-3
+- added preliminary problem diagnosis support
+- better i18n initialization
+- better user messages
+- more progressbar fixes
+- catch and log python exceptions in report
+- use python native commands to create symlinks
+- limit concurrent running threads
+
+* Mon Jul 28 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-2
+- initial language localization support
+- added italian translation
+
+* Mon Jul 16 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-1
+- split up command outputs in sub-directories (sos_command/plugin/command instead of sos_command/plugin.command)
+- fixed doExitCode() calling thread.wait() instead of join()
+- curses menu is disabled by default
+- multithreading is enabled by default
+- major progressbar changes (now has ETA)
+- multithreading fixes
+- plugins class descriptions shortened to fix better in --list-plugins
+- rpm -Va in plugins/rpm.py sets eta_weight to 200 (plugin 200 longer than other plugins, for ETA calculation)
+- applied patch in BZ#241071 from Karl Abbott <kabbott@redhat.com> to speed up command output collection
+- beautified command output filenames in makeCommandFilename()
+
+* Mon Jul 12 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-0
+- curses menu disabled by default (enable with -c)
+- sosreport output friendlier to the user (and similar to sysreport)
+- smarter plugin listing which also shows options and disable/enabled plugins
+- require root permissions only for actual sosreport generation
+- fix in -k where option value was treated as string instead of int
+- made progressbar wider (60 chars)
+- selinux plugin is enabled only if selinux is also enabled on the system
+- made some errors less verbose to the user
+- made sosreport not copy files pointed by symbolic links (same as sysreport, we don't need /usr/bin/X or /sbin/ifup)
+- copy links as links (cp -P)
+- added plugin get_description() that returns a short decription for the plugin
+- guess sosreport name from system's name
+
 * Mon Jul  5 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.6-5
 - Yet more fixes to make package Fedora compliant.
 

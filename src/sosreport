@@ -85,7 +85,7 @@ signal.signal(signal.SIGTERM, exittermhandler)
 ## multiple SIGTERMs.
 
 # for debugging
-__raisePlugins__ = 1
+__raisePlugins__ = 0
 
 class OptionParser_extended(OptionParser):
     def print_help(self):
@@ -635,7 +635,10 @@ Press ENTER to continue, or CTRL-C to quit.
 
     for plugname, plug in loadedplugins:
         for oneFile in plug.copiedFiles:
-            xmlrep.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
+            try:
+                xmlrep.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
+            except:
+                pass
 
     xmlrep.serialize_to_file(rptdir + "/sosreport.xml")
 
