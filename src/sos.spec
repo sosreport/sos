@@ -56,11 +56,16 @@ rm -rf ${RPM_BUILD_ROOT}
 %doc README TODO LICENSE ChangeLog
 
 %changelog
-* Mon Aug  9 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-4
+* Mon Aug  9 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-5
 - package obsoletes sysreport and creates a link pointing to sosreport
 - added some commands in cluster and process plugins
 - fixed html output (wrong links to cmds, thanks streeter)
 - process: back down sleep if D state doesn't change
+- Resolves: bz241277 Yum Plugin for sos
+- Resolves: bz247520 Spelling mistake in sosreport output
+- Resolves: bz247531 Feature: plugin to gather initial ramdisk scripts
+- Resolves: bz248252 sos to support language localization
+- Resolves: bz241282 Make SOS for RHEL 4
 
 * Mon Aug  1 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-4
 - catch KeyboardInterrupt when entering sosreport name
@@ -89,7 +94,6 @@ rm -rf ${RPM_BUILD_ROOT}
 - multithreading fixes
 - plugins class descriptions shortened to fix better in --list-plugins
 - rpm -Va in plugins/rpm.py sets eta_weight to 200 (plugin 200 longer than other plugins, for ETA calculation)
-- applied patch in BZ#241071 from Karl Abbott <kabbott@redhat.com> to speed up command output collection
 - beautified command output filenames in makeCommandFilename()
 
 * Mon Jul 12 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-0
@@ -122,7 +126,7 @@ rm -rf ${RPM_BUILD_ROOT}
 - Beautified output of --list-plugins.
 - GPL licence is now included in the package.
 - added python-devel requirement for building package
-- fixed incompatibility with python from RHEL4
+- Resolves: bz241282 fixed incompatibility with python from RHEL4
 
 * Fri May 25 2007 Steve Conklin <sconklin at redhat dot com> - 1.5-1
 - Bumped version
