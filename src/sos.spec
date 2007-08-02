@@ -49,6 +49,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_sbindir}/sosreport
 /usr/sbin/sysreport
 /usr/sbin/sysreport.legacy
+/usr/share/sysreport
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1*
 %{_localedir}/*/LC_MESSAGES/sos.mo

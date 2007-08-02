@@ -606,13 +606,17 @@ Press ENTER to continue, or CTRL-C to quit.
     plugrunning = Semaphore(2)
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE, "executing plugin %s" % plugname)
-        if not __cmdLineOpts__.nomultithread:
-            plug.copyStuff(threaded = True, semaphore = plugrunning)
-        else:
-            plug.copyStuff()    
-            if __cmdLineOpts__.progressbar:
-                pbar.incAmount(plug.eta_weight)
-                pbar.update()
+        try:
+            if not __cmdLineOpts__.nomultithread:
+                plug.copyStuff(threaded = True, semaphore = plugrunning)
+            else:
+                plug.copyStuff()    
+                if __cmdLineOpts__.progressbar:
+                    pbar.incAmount(plug.eta_weight)
+                    pbar.update()
+        except:
+            if __raisePlugins__:
+                raise
     del plugrunning
 
     # Wait for all the collection threads to exit
