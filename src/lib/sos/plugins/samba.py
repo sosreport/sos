@@ -22,5 +22,6 @@ class samba(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/samba/*")
         self.collectExtOutput("/usr/bin/wbinfo -g")
         self.collectExtOutput("/usr/bin/wbinfo -u")
+        self.collectExtOutput("/usr/bin/testparm -s -v")
         return
 
