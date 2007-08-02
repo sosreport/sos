@@ -22,6 +22,8 @@ class devicemapper(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/dmsetup table")
         self.collectExtOutput("/sbin/dmsetup status")
 
+        self.collectExtOutput("/usr/bin/systool -v -C -b scsi")
+
         self.collectExtOutput("/usr/sbin/vgscan -vvv")
         self.collectExtOutput("/usr/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
         self.collectExtOutput("/usr/sbin/pvscan -v")

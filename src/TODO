@@ -1,5 +1,7 @@
 To Do List:
 
+ * --batch option
+
  * Gather statistics (time, files collected, commands run) per plugin
 
  * Choose sane defaults to satisfy Red Hat support requirements (ie. what
@@ -7,11 +9,7 @@ To Do List:
 
  * Display on screen what files/commands are being gathered.
 
- * Make sosreport a drop-in replacement for sysreport
-
  * Allow to use a different rootdir than /
-
- * Add support for distributions other than Fedora.
 
  * Make it easier to select a policy module and perhaps optionally include
    plugins from the library, to allow per-distribution customization.

@@ -59,13 +59,15 @@ def makeNonBlocking(afd):
 
 def sosGetCommandOutput(command):
     """ Execute a command and gather stdin, stdout, and return status.
-    Adapted from Python Cookbook - O'Reilly
     """
     stime = time()
-    errdata = ''
-    status,outdata=commands.getstatusoutput(command)
-    return (status, outdata, time()-stime)
-
+    inpipe, pipe = os.popen4(command, 'r')
+    inpipe.close()
+    text = pipe.read()
+    sts = pipe.close()
+    if sts is None: sts = 0
+    if text[-1:] == '\n': text = text[:-1]
+    return (sts, text, time()-stime)
 
 # FIXME: this needs to be made clean and moved to the plugin tools, so
 # that it prints nice color output like sysreport if the progress bar

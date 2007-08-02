@@ -21,10 +21,11 @@ import os
 import commands
 import sys
 import string
-import re
 from tempfile import gettempdir
 from sos.helpers import *
 import random
+import re
+import md5
 
 SOME_PATH = "/tmp/SomePath"
 
@@ -94,15 +95,15 @@ class SosPolicy:
         return ret
 
     def runlevelDefault(self):
-        inittab=os.path.isfile('/etc/inittab')
-        if inittab is True:
-            f=open(inittab,'r')
+        try:
+            f=open("/etc/inittab",'r')
             content=f.read()
             f.close()
             reg=re.compile(r"^id:(\d{1}):initdefault:\D",re.MULTILINE)
             for initlevel in reg.findall(content):
                 return initlevel
-        else: return 3
+        except:
+            return 3
 
     def kernelVersion(self):
         return commands.getoutput("/bin/uname -r").strip("\n")
@@ -117,26 +118,30 @@ class SosPolicy:
         name = "-".join(fields[:-3])
         return (name, version, release, arch)
 
-    def packageResults(self):
+    def preWork(self):
+        # this method will be called before the gathering begins
+
         localname = commands.getoutput("/bin/uname -n").split(".")[0]
 
         try:
-            name = raw_input("Please enter your first initial and last name [%s]: " % localname)
-            name = re.sub(r"[^a-zA-Z.0-9]", "", name)
-            if len(name) == 0: name = localname
+            self.reportName = raw_input("Please enter your first initial and last name [%s]: " % localname)
+            self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
+            if len(self.reportName) == 0:
+                self.reportName = localname
 
-            ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
-            ticketNumber = re.sub(r"[^0-9]", "", ticketNumber)
-        except KeyboardInterrupt:
-            print _("<interrupted>")
-            print _("Temporary files have been stored in %s") % self.cInfo['dstroot']
+            self.ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
+            self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
             print
-            sys.exit(1)
+        except KeyboardInterrupt:
+            print
+            sys.exit(0)
 
-        if len(ticketNumber):
-            namestr = name + "." + ticketNumber
+    def packageResults(self):
+
+        if len(self.ticketNumber):
+            namestr = self.reportName + "." + self.ticketNumber
         else:
-            namestr = name
+            namestr = self.reportName
 
         ourtempdir = gettempdir()
         tarballName = os.path.join(ourtempdir,  "sosreport-" + namestr + ".tar.bz2")
@@ -148,7 +153,7 @@ class SosPolicy:
         tarcmd = "/bin/tar -jcf %s %s" % (tarballName, namestr)
 
         print
-        print "Creating compressed tar archive..."
+        print "Creating compressed archive..."
         if not os.access(string.split(tarcmd)[0], os.X_OK):
             print "Unable to create tarball"
             return
@@ -166,17 +171,16 @@ class SosPolicy:
         os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
 
         # add last 6 chars from md5sum to file name
-        status, md5out = commands.getstatusoutput('''/usr/bin/md5sum "%s"''' % tarballName)
-        if not status and len(md5out):
-            oldtarballName = tarballName
-            try:
-                md5out = md5out.strip().split()[0]
-                tarballName = os.path.join(ourtempdir, "sosreport-%s-%s.tar.bz2" % (namestr, md5out[-6:]) )
-                os.system("/bin/mv %s %s" % (oldtarballName, tarballName) )
-            except:
-                md5out = False
-        else:
-            md5out = False
+        fp = open(tarballName, "r")
+        md5out = md5.new(fp.read()).hexdigest()
+        fp.close()
+        oldtarballName = tarballName
+        tarballName = os.path.join(ourtempdir, "sosreport-%s-%s.tar.bz2" % (namestr, md5out[-6:]) )
+        os.system("/bin/mv %s %s" % (oldtarballName, tarballName) )
+        # store md5 to a file
+        fp = open(tarballName + ".md5", "w")
+        fp.write(md5out + "\n")
+        fp.close()
 
         sys.stdout.write("\n")
         print "Your sosreport has been generated and saved in:\n  %s" % tarballName

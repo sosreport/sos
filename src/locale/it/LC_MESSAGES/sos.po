@@ -24,7 +24,7 @@ msgid "plugin %s does not validate, skipping"
 msgstr ""
 
 #: sosreport:421
-msgid "plug %s skipped (noplugins)"
+msgid "plug %s skipped (--skip-plugins)"
 msgstr ""
 
 #: sosreport:425
@@ -32,7 +32,7 @@ msgid "plugin %s is inactive (use -e or -o to enable)."
 msgstr ""
 
 #: sosreport:433
-msgid "plugin %s not specified in --onlyplugin list"
+msgid "plugin %s not specified in --only-plugins list"
 msgstr ""
 
 #: sosreport:438

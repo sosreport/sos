@@ -50,6 +50,7 @@ class networking(sos.plugintools.PluginBase):
             self.writeTextToCommand(cmd,"IPTables module "+tablename+" not loaded\n")
 
     def setup(self):
+        self.addCopySpec("/proc/net")
         self.addCopySpec("/etc/nsswitch.conf")
         self.addCopySpec("/etc/yp.conf")
         self.addCopySpec("/etc/inetd.conf")
@@ -63,13 +64,16 @@ class networking(sos.plugintools.PluginBase):
         self.collectIPTable("filter")
         self.collectIPTable("nat")
         self.collectIPTable("mangle")
-        self.collectExtOutput("/bin/netstat -nap")
+        self.collectExtOutput("/bin/netstat -s")
+        self.collectExtOutput("/bin/netstat -neopa", root_symlink = "netstat")
+        self.collectExtOutput("/sbin/ip link")
+        self.collectExtOutput("/sbin/ip address")
+        self.collectExtOutput("/sbin/ifenslave -a")
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
         if self.isOptionEnabled("traceroute"):
-            # The semicolon prevents the browser from thinking this is a link when viewing the report
-            self.collectExtOutput("/bin/traceroute  rhn.redhat.com;")
+            self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
             
         return
 

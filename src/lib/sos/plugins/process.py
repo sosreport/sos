@@ -21,7 +21,9 @@ class process(sos.plugintools.PluginBase):
     """process information
     """
     def setup(self):
-        self.collectExtOutput("/bin/ps auxww", root_symlink = "ps")
+        self.collectExtOutput("/bin/ps auxwww", root_symlink = "ps")
+        self.collectExtOutput("/bin/ps auxwwwm")
+        self.collectExtOutput("/bin/ps alxwww")
         self.collectExtOutput("/usr/bin/pstree", root_symlink = "pstree")
         return
 
@@ -38,11 +40,11 @@ class process(sos.plugintools.PluginBase):
                 line = line.split()
                 if line[0] == "D":
                     # keep an eye on the process to see if the stat changes
-                    for inc in range(1,10):
+                    for inc in range(1,5):
                         try:
                             if len(self.fileGrep("^State: D", " /proc/%d/status" % int(line[1]))) == 0:
                                 # status is not D, good. let's get out of the loop.
-                                time.sleep(0.1)
+                                time.sleep(0.1 * inc)
                                 continue
                         except IOError:
                             # this should never happen...
@@ -55,7 +57,7 @@ class process(sos.plugintools.PluginBase):
 #            realpath
 
         if len(dpids):
-            self.addDiagnose("one or more processes are in state D")
+            self.addDiagnose("one or more processes are in state D (sosreport might hang)")
 
         return
 

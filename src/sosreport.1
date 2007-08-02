@@ -3,10 +3,10 @@
 sosreport \- Generate debugging information for this system
 .SH SYNOPSIS
 .B sosreport
-[-a|--alloptions] [-f|--fastoptions] [-g|--gatheronly] 
-          [-l|--list-plugins] [-n|--noplugin \fIplugin-name\fR] 
-          [-o|--onlyplugin \fIplugin-name\fR]
-          [-v|--verbose [...]] [-m|--multithreaded]
+          [-l|--list-plugins]\fR
+          [-n|--skip-plugins plugin-names] [-e|--enable-plugins plugin-names] [-o|--only-plugins plugin-names]\fR
+          [-a|--alloptions] [-v|--verbose]
+          [--no-multithread] [--no-progressbar]
 .SH DESCRIPTION
 \fBsosreport\fR generates a compressed tarball of debugging information 
 for the system it is run on that can be sent to technical support
@@ -14,38 +14,38 @@ reps that will give them a more complete view of the overall system
 status.
 .SH OPTIONS
 .TP
-.B \-a, \--alloptions
-Enable all options for all loaded plugins
-.TP
-.B \-f, \--fastoptions
-Enable all options marked as "fast" for loaded plugins.  This will
-reduce running time while still gathering helpful information, but
-you may be asked to re-run later with some or all "slow" options
-enabled depending on the specific issue.
-.TP
-.B \-g, \--gatheronly
-Gather the diagnostic data and bundle it up, but do not attempt to
-send it to any support site.  This option currently has no effect as
-sosreport currently does not support report transmission.
-.TP
 .B \-l, \--list-plugins
-List available plugins
+This will list all available plugins showing which ones will be enabled by the current configuration. It will also show all plugin options which can be 
+modified using the -k option (see below).
 .TP
-.B \-n, \--noplugin
-Do not load specified plugin(s)
+.B \-n, --skip-plugins PLUGNAME[,PLUGNAME]
+Do not load specified plugin(s). To specify multiple plugins, separate them with a comma.
 .TP
-.B \-o, \--onlyplugin
-Load only the specified plugin(s), all otherplugins should be disabled
+.B \-e, --enable-plugins PLUGNAME[,PLUGNAME]
+Enable the specified plugin(s). To specify multiple plugins, separate them with a comma.
+.TP
+.B \-o, --only-plugins PLUGNAME[,PLUGNAME]
+Enable the specified plugin(s) only (all other plugins should be disabled). To specify multiple plugins, separate them with a comma.
+.TP
+.B \-k PLUGNAME.PLUGOPT[=VALUE]
+This is used to specify options for plugins. A list of available plugin options can be obtained from the output of --list-plugins.
+If no value is specified and the option is a boolean (on/off), it will be set to "on".
+.TP
+.B \-a, \--alloptions
+Enable all (boolean) options for all loaded plugins.
 .TP
 .B \-v, \--verbose
-Increase the verbosity of the output as sosreport is running.  This option
-can be specified more than once.
+Increase the verbosity of the output as sosreport is running. Multiple -v mean more verbosity.
 .TP
-.B \-m, \--multithreaded
-Enable a multithreaded collection and analysis of the sosreport data.  Please
-note that this option is experimental and is known to have intermittent issues.
-.SH BUGS
-The multithreaded option can fail intermittently, please use it with care.
+.B \--no-progressbar
+Do not display a progress bar (ETA will not be available).
+.TP
+.B \--no-multithread
+Disable multithreaded collection and analysis of the sosreport data.
+.SH MAINTAINERS
+.nf
+Navid Sheikhol-Eslami <navid@redhat.com>
+.fi
 .SH AUTHORS
 .nf
 Steve Conklin <sconklin@redhat.com>

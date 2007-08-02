@@ -15,13 +15,18 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
 class xinetd(sos.plugintools.PluginBase):
     """xinetd information
     """
+    def checkenabled(self):
+       if self.cInfo["policy"].pkgByName("xinetd") or os.path.exists("/etc/xinetd.conf"):
+          return True
+       return False
+
     def setup(self):
         self.addCopySpec("/etc/xinetd.conf")
-        self.addCopySpec("/etc/xinetd.d/*")
-        self.collectExtOutput("/sbin/chkconfig --list xinetd")
+        self.addCopySpec("/etc/xinetd.d")
         return
 

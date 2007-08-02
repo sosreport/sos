@@ -32,6 +32,5 @@ class amd(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/rpm -qV am-utils")
         self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
         self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
-        self.collectExtOutput("/sbin/chkconfig --list amd")
         return
 

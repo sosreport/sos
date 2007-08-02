@@ -49,17 +49,26 @@ def exittermhandler(signum, frame):
     doExitCode()
 
 def doExitCode():
+    from threading import enumerate
     global __breakHits__
     __breakHits__ += 1
     if ( ( activeCount() > 1 ) and ( __breakHits__ == 1 ) ):
         print "SIGTERM received, multiple threads detected, waiting for all threads to exit"
         for thread in enumerate():
-            if thread.getName() != "MainThread":
-                thread.join()
-        print "All threads ended, cleaning up."
+            if thread.getName() == "MainThread":
+                continue
+            # until we find a way to kill threads in case of > 1 CTRL+C, ignore KeyboardInterrupt
+            while thread.isAlive():
+                try:
+                    thread.join()
+                except KeyboardInterrupt:
+                    pass
+        else:
+            print "All threads ended, cleaning up."
     if ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
         print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately"
         ## FIXME: Add thread-kill code (see FIXME below)
+#       os.kill(os.getpid(), signal.SIGKILL)
         print "Threads dead, cleaning up."
     if ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
         print "Multiple SIGTERMs, single thread, exiting without cleaning up."
@@ -74,7 +83,6 @@ signal.signal(signal.SIGTERM, exittermhandler)
 
 ## FIXME: Need to figure out how to IPC with child threads in case of
 ## multiple SIGTERMs.
-## FIXME: Need to figure out how to handle SIGKILL - we can't intercept it.
 
 # for debugging
 __raisePlugins__ = 1
@@ -110,13 +118,13 @@ __cmdParser__ = OptionParser_extended(option_class=SosOption)
 __cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
                      dest="listPlugins", default=False, \
                      help="list plugins and available plugin options")
-__cmdParser__.add_option("-n", action="extend", \
+__cmdParser__.add_option("-n", "--skip-plugins", action="extend", \
                      dest="noplugins", type="string", \
                      help="skip these plugins", default = [])
-__cmdParser__.add_option("-e", action="extend", \
+__cmdParser__.add_option("-e", "--enable-plugins", action="extend", \
                      dest="enableplugins", type="string", \
                      help="enable these plugins", default = [])
-__cmdParser__.add_option("-o", action="extend", \
+__cmdParser__.add_option("-o", "--only-plugins", action="extend", \
                      dest="onlyplugins", type="string", \
                      help="enable these plugins only", default = [])
 __cmdParser__.add_option("-k", action="extend", \
@@ -174,7 +182,10 @@ class progressBar:
         timeElapsed = round(time() - self.time_start)
         last_update_relative = round(self.last_amount_update - self.time_start)
         if timeElapsed >= 10 and self.amount > 0:
-            percentDone = round(timeElapsed * 100 / self.eta)
+            try:
+                percentDone = round(timeElapsed * 100 / self.eta)
+            except:
+                percentDone = 0
             if percentDone > 100:
                 percentDone = 100
                 ETA = timeElapsed
@@ -182,7 +193,7 @@ class progressBar:
                 ETA = timeElapsed
             else:
                 ETA = self.eta
-            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60), timeElapsed % 60, round(ETA/60), ETA % 60)
+            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60), timeElapsed % 60, int(ETA/60), ETA % 60)
         else:
             ETA = "[%02d:%02d/--:--]" % (int(timeElapsed/60), timeElapsed % 60)
             if self.amount < self.max:
@@ -198,9 +209,9 @@ class progressBar:
         self.progBar = ""
         for inc in range(0,allFull):
             if inc == int(allFull / 2):
-                self.progBar = self.progBar + textcolor("%d%%" % percentDone, "blue")
+                self.progBar = self.progBar + textcolor("%d%%" % percentDone, "green")
             elif inc < numHashes:
-                self.progBar = self.progBar + textcolor('#', "green")
+                self.progBar = self.progBar + textcolor('#', "gray")
             else:
                 self.progBar = self.progBar + ' '
         self.progBar = " Progress [" + self.progBar + "]" + ETA
@@ -262,9 +273,7 @@ class XmlReport:
         cfile.setNsProp(None, "fname", fname)
 
         cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
-        cchild.setNsProp(None,"name", getpwuid(stats[ST_UID])[0])
         cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
-        cchild.setNsProp(None,"name", getpwuid(stats[ST_GID])[0])
         cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
         cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_CTIME])))
         cchild.setNsProp(None,"tstamp", str(stats[ST_CTIME]))
@@ -322,12 +331,19 @@ def sosreport():
     soslog = logging.getLogger('sos')
     soslog.setLevel(logging.DEBUG)
 
+    logging.VERBOSE  = logging.INFO - 1
+    logging.VERBOSE2 = logging.INFO - 2
+    logging.VERBOSE3 = logging.INFO - 3 
+    logging.addLevelName(logging.VERBOSE, "verbose")
+    logging.addLevelName(logging.VERBOSE2,"verbose2")
+    logging.addLevelName(logging.VERBOSE3,"verbose3")
+
     # FIXME: strip colours if terminal doesn't allow it
 
     # log to a file
     flog = logging.FileHandler(logdir + "/sos.log")
     flog.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
-    flog.setLevel(logging.DEBUG)
+    flog.setLevel(logging.VERBOSE3)
     soslog.addHandler(flog)
 
     # define a Handler which writes INFO messages or higher to the sys.stderr
@@ -339,13 +355,6 @@ def sosreport():
         console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(message)s'))
     soslog.addHandler(console)
-
-    logging.VERBOSE  = logging.INFO - 1
-    logging.VERBOSE2 = logging.INFO - 2
-    logging.VERBOSE3 = logging.INFO - 3 
-    logging.addLevelName(logging.VERBOSE, "verbose")
-    logging.addLevelName(logging.VERBOSE2,"verbose2")
-    logging.addLevelName(logging.VERBOSE3,"verbose3")
 
     xmlrep = XmlReport()
 
@@ -380,7 +389,7 @@ def sosreport():
                     skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                     continue
                 if plugbase in __cmdLineOpts__.noplugins:
-                    soslog.log(logging.VERBOSE, _("plug %s skipped (noplugins)") % plugbase)
+                    soslog.log(logging.VERBOSE, _("plug %s skipped (--skip-plugins)") % plugbase)
                     skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                     continue
                 if not pluginClass(plugbase, commons).checkenabled() and not plugbase in __cmdLineOpts__.enableplugins  and not plugbase in __cmdLineOpts__.onlyplugins:
@@ -392,7 +401,7 @@ def sosreport():
                     skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                     continue
                 if __cmdLineOpts__.onlyplugins and not plugbase in __cmdLineOpts__.onlyplugins:
-                    soslog.log(logging.VERBOSE, _("plugin %s not specified in --onlyplugin list") % plug)
+                    soslog.log(logging.VERBOSE, _("plugin %s not specified in --only-plugins list") % plug)
                     skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                     continue
                 loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
@@ -457,11 +466,12 @@ def sosreport():
            soslog.error(_("no valid plugins found"))
            sys.exit(1)
 
+        # FIXME: make -l output more concise
         if len(loadedplugins):
             print _("The following plugins are currently enabled:")
             print
             for (plugname,plug) in loadedplugins:
-                print " %-25s  %s" % (textcolor(plugname,"lblue"),plug.get_description())
+               print " %-25s  %s" % (textcolor(plugname,"lblue"),plug.get_description())
         else:
             print _("No plugin enabled.")
         print
@@ -470,7 +480,7 @@ def sosreport():
            print _("The following plugins are currently disabled:")
            print
            for (plugname,plugclass) in skippedplugins:
-              print " %-25s  %s" % (textcolor(plugname,"lgray"),plugclass.get_description())
+              print " %-25s  %s" % (textcolor(plugname,"cyan"),plugclass.get_description())
         print
 
         if len(alloptions):
@@ -515,9 +525,10 @@ def sosreport():
     try:
         raw_input(_("""This utility will collect some detailed  information about the
 hardware and  setup of your  Red Hat Enterprise Linux  system.
-This information will be used  to diagnose problems with  your 
-system and will be considered confidential information.
-Red Hat will use this information for diagnostic purposes ONLY.
+The information is collected and an archive is  packaged under
+/tmp, which you can send to a support rappresentative.
+Red Hat will use this information for diagnostic purposes ONLY
+and it will be considered confidential information.
 
 This process may take a while to complete.
 No changes will be made to your system.
@@ -527,6 +538,8 @@ Press ENTER to continue, or CTRL-C to quit.
     except KeyboardInterrupt:
         print
         sys.exit(0)
+
+    policy.preWork()
 
     # Call the diagnose() method for each plugin
     tmpcount = 0
@@ -542,21 +555,26 @@ Press ENTER to continue, or CTRL-C to quit.
         print _("One or more plugins have detected a problem in your configuration.")
         print _("Please review the following messages:")
         print
+
+        fp = open(rptdir + "/diagnose.txt", "w")
         for plugname, plug in loadedplugins:
-           for tmpcount2 in range(0,len(plug.diagnose_msgs)):
-              if tmpcount2 == 0:
-                 soslog.warning( textcolor("%s:" % plugname, "red") )
-              soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
+            for tmpcount2 in range(0,len(plug.diagnose_msgs)):
+                if tmpcount2 == 0:
+                    soslog.warning( textcolor("%s:" % plugname, "red") )
+                soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
+                fp.write("%s: %s\n" % (plugname, plug.diagnose_msgs[tmpcount2]) )
+        fp.close()
+
         print
         try:
            while True:
-              yorno = raw_input( _("Are you sure you would like to continue (Y/n) ? ") )
-              if yorno == "y" or yorno == "Y":
-                 del yorno
+              yorno = raw_input( _("Are you sure you would like to continue (y/n) ? ") )
+              if yorno == _("y") or yorno == _("Y"):
                  print
                  break
-              else:
+              elif yorno == _("n") or yorno == _("N"):
                  sys.exit(0)
+           del yorno
         except KeyboardInterrupt:
            print
            sys.exit(0)
@@ -604,18 +622,22 @@ Press ENTER to continue, or CTRL-C to quit.
             plugname, plug = loadedplugins.pop(0)
             if not plug.wait(0.5):
                 finishedplugins.append((plugname,plug))
-                soslog.log(logging.VERBOSE2, "plugin %s has returned" % plugname)
+                soslog.log(logging.DEBUG, "plugin %s has returned" % plugname)
                 if __cmdLineOpts__.progressbar:
                    pbar.incAmount(plug.eta_weight)
             else:
-                soslog.log(logging.VERBOSE3, "plugin %s still hasn't returned" % plugname)
+                soslog.log(logging.DEBUG, "plugin %s still hasn't returned" % plugname)
                 loadedplugins.append((plugname,plug))
             if __cmdLineOpts__.progressbar:
                 pbar.update()
         loadedplugins = finishedplugins
         del finishedplugins
 
-    xmlrep.serialize_to_file(rptdir + "/" + "sosreport.xml")
+    for plugname, plug in loadedplugins:
+        for oneFile in plug.copiedFiles:
+            xmlrep.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
+
+    xmlrep.serialize_to_file(rptdir + "/sosreport.xml")
 
     # Call the analyze method for each plugin
     for plugname, plug in loadedplugins:
@@ -680,8 +702,13 @@ Press ENTER to continue, or CTRL-C to quit.
 
     # Call the report method for each plugin
     for plugname, plug in loadedplugins:
-        html = plug.report()
-        rfd.write(html)
+        try:
+            html = plug.report()
+        except:
+            if __raisePlugins__:
+                raise
+        else:
+            rfd.write(html)
 
     rfd.write("</body></html>")
 

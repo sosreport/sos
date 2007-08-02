@@ -173,7 +173,6 @@ class PluginBase:
                 try:
                     dstslname, abspath = self.__copyFile(srcpath)
                     self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
-                    self.cInfo['xmlreport'].add_file(srcpath,os.stat(srcpath))
                 except SystemExit:
                   raise SystemExit
                 except KeyboardInterrupt:
@@ -581,7 +580,7 @@ class PluginBase:
             html = html + "<p>Commands Executed:<br><ul>\n"
             # convert file name to relative path from our root
             for cmd in self.executedCommands:
-                cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], cmd['file'])
+                cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], self.cInfo['cmddir'] + "/" + cmd['file'])
                 html = html + '<li><a href="%s">%s</a></li>\n' % (cmdOutRelPath, cmd['exe'])
             html = html + "</ul></p>\n"
 

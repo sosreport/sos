@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.7
-%define release 3
+%define release 5
 
 %define _localedir %_datadir/locale
 
@@ -22,6 +22,7 @@ BuildArch: noarch
 Url: http://sos.108.redhat.com/
 BuildRequires: python-devel
 Requires: libxml2-python
+Obsoletes: sysreport
 
 %description
 Sos is a set of tools that gathers information about system
@@ -38,6 +39,7 @@ python setup.py build
 %install
 rm -rf ${RPM_BUILD_ROOT}
 python setup.py install --optimize 1 --root=$RPM_BUILD_ROOT
+ln -s /usr/sbin/sosreport $RPM_BUILD_ROOT/usr/sbin/sysreport
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -45,6 +47,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(-,root,root,-)
 %{_sbindir}/sosreport
+/usr/sbin/sysreport
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1*
 %{_localedir}/*/LC_MESSAGES/sos.mo

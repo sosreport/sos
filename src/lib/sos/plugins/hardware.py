@@ -38,6 +38,11 @@ class hardware(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
         self.collectExtOutput("""/bin/echo "lspci" ; /bin/echo ; /sbin/lspci ; /bin/echo ; /bin/echo ; /bin/echo "lspci -nvv" ; /bin/echo ; /sbin/lspci -nvv""", suggest_filename = "lspci", root_symlink = "lspci")
 
+        self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
+
+        # FIXME: if arch == i386:
+#        self.collectExtOutput("/usr/sbin/x86info -a")
+
         # FIXME: what is this for?
         self.collectExtOutput("/bin/dmesg | /bin/grep -e 'e820.' -e 'agp.'")
               

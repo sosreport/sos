@@ -54,6 +54,7 @@ class cluster(sos.plugintools.PluginBase):
         try: rhelver = self.cInfo["policy"].pkgDictByName("redhat-release")[0]
         except: rhelver = None
 
+        # FIXME: we should only run tests specific for the version, now just do them all regardless
         if rhelver == "4" or True:
            # check that kernel module packages are installed for
            # running kernel version
@@ -164,7 +165,7 @@ class cluster(sos.plugintools.PluginBase):
 
            # check for fs exported via nfs without nfsid attribute
            if len(xpathContext.xpathEval("/cluster/rm/service//fs[not(@fsid)]/nfsexport")):
-               self.addDiagnose("one or more nfs file-system doesn't have a fsid attribute set.")
+               self.addDiagnose("one or more nfs export do not have a fsid attribute set.")
 
            # cluster.conf file version and the in-memory cluster configuration version matches
            status, cluster_version = commands.getstatusoutput("cman_tool status | grep 'Config version'")
@@ -207,6 +208,8 @@ class cluster(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/openais-cfgtool -s")
         self.collectExtOutput("/usr/bin/clustat")
 
+        self.collectExtOutput("/sbin/ipvsadm -L", root_symlink = "ipvsadm_-L")
+
         if self.isOptionEnabled('gfslockdump'): self.do_gfslockdump()
         if self.isOptionEnabled('lockdump'): self.do_lockdump()
         if self.isOptionEnabled('taskdump'): self.do_taskdump()
@@ -226,7 +229,10 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/messages")
 
     def do_lockdump(self):
-        fp = open("/proc/cluster/services","r")
+        try:
+            fp = open("/proc/cluster/services","r")
+        except:
+            return
         for line in fp.readlines():
            if line[0:14] == "DLM Lock Space":
               try:
