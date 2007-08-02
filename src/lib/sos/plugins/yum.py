@@ -26,6 +26,18 @@ class yum(sos.plugintools.PluginBase):
             return True
         return False
 
+    def diagnose(self):
+        # repo sanity checking
+        # TODO: elaborate/validate actual repo files, however this directory should
+        # be empty on RHEL 5+ systems.
+        try: rhelver = self.cInfo["policy"].pkgDictByName("redhat-release")[0]
+        except: rhelver = None
+        
+        if rhelver == "5" or True:
+            if len(os.listdir('/etc/yum.repos.d/')):
+                self.addDiagnose("/etc/yum.repos.d/ contains additional repository "+
+                                 "information and can cause rpm conflicts.")
+
     def setup(self):
         # Pull all yum related information
         self.addCopySpec("/etc/yum")
