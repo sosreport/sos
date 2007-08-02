@@ -29,13 +29,10 @@ class autofs(sos.plugintools.PluginBase):
         """ testing if autofs debug has been enabled anywhere
         """
         # Global debugging
-        f=open('/etc/sysconfig/autofs','r')
-        content=f.read()
-        f.close()
-        reg=re.compile(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)\D",re.MULTILINE)
         optlist=[]
-        for opt in reg.findall(content):
-            for opt2 in opt.split(" "):
+        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
+        for opt1 in opt:
+            for opt2 in opt1.split(" "):
                 optlist.append(opt2)
         for dtest in optlist:
             if dtest == "--debug" or dtest == "debug":
@@ -44,11 +41,8 @@ class autofs(sos.plugintools.PluginBase):
     def getdaemondebug(self):
         """ capture daemon debug output
         """
-        f=open('/etc/sysconfig/autofs','r')
-        content=f.read()
-        f.close()
-        reg=re.compile(r"^(daemon.*)\s+(\/var\/log\/.*)\D",re.MULTILINE)
-        for i in reg.findall(content):
+        debugout = self.fileGrep(r"^(daemon.*)\s+(\/var\/log\/.*)", "/etc/sysconfig/autofs")
+        for i in debugout:
             return i[1]
     
     def setup(self):
@@ -61,7 +55,7 @@ class autofs(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
         self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
         self.collectExtOutput("/sbin/chkconfig --list autofs")
-        if self.checkdebug() is True:
+        if self.checkdebug():
             self.addCopySpec(self.getdaemondebug())
         return
 
