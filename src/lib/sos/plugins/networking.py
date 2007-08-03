@@ -25,13 +25,9 @@ class networking(sos.plugintools.PluginBase):
         output of ifconifg-a stored in ifconfigFile.
         """
         out={}
-        if(os.path.isfile(ifconfigFile)):
-            f=open(ifconfigFile,'r')
-            content=f.read()
-            f.close()
-            reg=re.compile(r"^(eth\d+)\D",re.MULTILINE)
-            for name in reg.findall(content):
-                out[name]=1
+        reg=self.fileGrep(r"^(eth\d+)\D", ifconfigFile)
+        for name in reg:
+            out[name]=1
         return out
 
     def collectIPTable(self,tablename):

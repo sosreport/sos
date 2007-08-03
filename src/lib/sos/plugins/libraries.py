@@ -20,5 +20,7 @@ class libraries(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/ld.so.conf")
         self.addCopySpec("/etc/ld.so.conf.d")
+        self.collectExtOutput("/sbin/ldconfig -v")
+        self.collectExtOutput("/sbin/ldconfig -p")
         return
 

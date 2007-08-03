@@ -28,7 +28,7 @@ class kernel(sos.plugintools.PluginBase):
         {'regex':'vxportal*', 'description':'Veritas module'},
         {'regex':'vxdmp*', 'description':'Veritas dynamic multipathing module'},
         {'regex':'vxio*', 'description':'Veritas module'},
-        {'regex':'vxspec*"', 'description':'Veritas module'},
+        {'regex':'vxspec*', 'description':'Veritas module'},
         {'regex':'dcd*', 'description':'Dell OpenManage Server Administrator module'},
         {'regex':'ocfs', 'description':'Oracle cluster filesystem module'},
         {'regex':'oracle*', 'description':'Oracle module'},

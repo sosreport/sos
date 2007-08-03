@@ -15,7 +15,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os, re
+import os
 
 class autofs(sos.plugintools.PluginBase):
     """autofs server-related information

@@ -96,11 +96,8 @@ class SosPolicy:
 
     def runlevelDefault(self):
         try:
-            f=open("/etc/inittab",'r')
-            content=f.read()
-            f.close()
-            reg=re.compile(r"^id:(\d{1}):initdefault:\D",re.MULTILINE)
-            for initlevel in reg.findall(content):
+            reg=self.fileGrep(r"^id:(\d{1}):initdefault:", "/etc/inittab")
+            for initlevel in reg:
                 return initlevel
         except:
             return 3

@@ -13,10 +13,34 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
 class ldap(sos.plugintools.PluginBase):
     """LDAP related information
     """
+    def get_ldap_opts(self):
+        # capture /etc/openldap/ldap.conf options in dict
+        # FIXME: possibly not hardcode these options in?
+        ldapopts=["URI","BASE","TLS_CACERTDIR"]
+        results={}
+        tmplist=[]
+        for i in ldapopts:
+            t=fileGrep(r"^%s*" % i,"/etc/openldap/ldap.conf")
+            for x in t:
+                tmplist.append(x.split(" "))
+        for i in tmplist:
+            results[i[0]]=i[1].rstrip("\n")
+        return results
+
+    def diagnose(self):
+        # Validate ldap client options
+        ldapopts=self.get_ldap_opts()
+        try:
+            os.stat(ldapopts["TLS_CACERTDIR"])
+        except:
+            self.addDiagnose("%s does not exist and can cause connection issues "+
+                             "involving TLS" % ldapopts["TLS_CACERTDIR"])
+
     def setup(self):
         self.addCopySpec("/etc/ldap.conf")
         self.addCopySpec("/etc/openldap")
