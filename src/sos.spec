@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.7
-%define release 6pre0
+%define release 6
 
 %define _localedir %_datadir/locale
 
@@ -56,6 +56,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %doc README TODO LICENSE ChangeLog
 
 %changelog
+* Mon Aug  9 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-6
+- more language fixes
+- added arabic, italian and french
+- package prepared for release
+- included sysreport as sysreport.legacy
+
 * Mon Aug  9 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-5
 - package obsoletes sysreport and creates a link pointing to sosreport
 - added some commands in cluster and process plugins

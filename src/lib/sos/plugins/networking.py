@@ -66,6 +66,7 @@ class networking(sos.plugintools.PluginBase):
         self.collectIPTable("mangle")
         self.collectExtOutput("/bin/netstat -s")
         self.collectExtOutput("/bin/netstat -neopa", root_symlink = "netstat")
+        # FIXME: we should collect "ip route table <tablename>" for all tables (from "ip rule")
         self.collectExtOutput("/sbin/ip link")
         self.collectExtOutput("/sbin/ip address")
         self.collectExtOutput("/sbin/ifenslave -a")

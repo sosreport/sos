@@ -14,6 +14,34 @@ msgstr ""
 "Content-Transfer-Encoding: utf-8\n"
 "Generated-By: pygettext.py 1.5\n"
 
+#: lib/sos/policyredhat.py:127
+msgid "Please enter your first initial and last name [%s]: "
+msgstr ""
+msgstr "الرجاء إدخال الإسم [%s]: "
+
+#: lib/sos/policyredhat.py:132
+msgid "Please enter the case number that you are generating this report for: "
+msgstr ""
+msgstr "الرجاء إدخال رقم المعاملة المعنية بهذا التحقيق: "
+
+#: lib/sos/policyredhat.py:155
+msgid "Creating compressed archive..."
+msgstr "جاري كتابة الحزمة المضغوطة..."
+
+#: lib/sos/policyredhat.py:185
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr "تم حفض الحزمة في: \n"
+"  %s"
+
+#: lib/sos/policyredhat.py:188
+msgid "The md5sum is: "
+msgstr "ناتج التدقيق md5sum هو: "
+
+#: lib/sos/policyredhat.py:190
+msgid "Please send this file to your support representative."
+msgstr "الرجاء إرسال هذه الحزمة إلى عملاء الدعم الفني."
 
 #: sosreport:370
 msgid "sosreport (version %s)"

@@ -211,7 +211,7 @@ class cluster(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/openais-cfgtool -s")
         self.collectExtOutput("/usr/bin/clustat")
 
-        self.collectExtOutput("/sbin/ipvsadm -L", root_symlink = "ipvsadm_-L")
+        self.collectExtOutput("/sbin/ipvsadm -L")
 
         if self.isOptionEnabled('gfslockdump'): self.do_gfslockdump()
         if self.isOptionEnabled('lockdump'): self.do_lockdump()
