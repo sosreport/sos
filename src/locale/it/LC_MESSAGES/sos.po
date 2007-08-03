@@ -28,12 +28,12 @@ msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
 msgstr ""
-"Il sosreport e' stato creato ed e' salvato in:\n"
+"Il sosreport é stato creato e salvato in:\n"
 "  %s"
 
 #: lib/sos/policyredhat.py:188
 msgid "The md5sum is: "
-msgstr "L'md5sum e': "
+msgstr "L'md5sum é: "
 
 #: lib/sos/policyredhat.py:190
 msgid "Please send this file to your support representative."
@@ -45,7 +45,7 @@ msgstr "sosreport (versione %s)"
 
 #: sosreport:390
 msgid "plugin %s does not validate, skipping"
-msgstr "la plugin %s non e' valida e verra' ignorata"
+msgstr "la plugin %s non é valida e verrà ignorata"
 
 #: sosreport:394
 msgid "plug %s skipped (--skip-plugins)"
@@ -53,7 +53,7 @@ msgstr "plugin %s disattivata (--skip-plugins)"
 
 #: sosreport:398
 msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "plugin %s e' inattiva (utilizzare -e o -o per riattivarla)."
+msgstr "plugin %s é inattiva (utilizzare -e o -o per riattivarla)."
 
 #: sosreport:406
 msgid "plugin %s not specified in --only-plugins list"
@@ -61,7 +61,7 @@ msgstr "plugin %s non specificata nella lista --only-plugins"
 
 #: sosreport:411
 msgid "plugin %s does not install, skipping"
-msgstr "non e' stato possibile installare la plugin %s"
+msgstr "non é stato possibile installare la plugin %s"
 
 #: sosreport:414
 msgid "could not load plugin %s"
@@ -73,7 +73,7 @@ msgstr "sto processando le opzioni della plugin: %s"
 
 #: sosreport:468
 msgid "no valid plugins found"
-msgstr "nessuna plugin valida e' stata trovata"
+msgstr "nessuna plugin valida é stata trovata"
 
 #: sosreport:473
 msgid "The following plugins are currently enabled:"
@@ -101,7 +101,7 @@ msgstr "sosreport necessita dei permessi di root"
 
 #: sosreport:524
 msgid "no valid plugins were enabled"
-msgstr "non e' stata attivata nessuna plugin valida"
+msgstr "non é stata attivata nessuna plugin valida"
 
 #: sosreport:528
 msgid ""
@@ -117,20 +117,21 @@ msgid ""
 "\n"
 "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr ""
-"Questo programma collezionera' delle informazioni dettagliate sull'hardware\n"
-"e sulla configurazione del vostro sistema Red Hat Enterprise Linux.\n"
-"Queste informazioni verranno usate per diagnosticare i problemi del vostro\n" 
-"sistema e sono considerate strettamente confidenziali. \n"
-"Red Hat utilizzera' queste informazioni SOLAMENTE per scopi diagnostici. \n"
+"Questo  programma collezionerà delle  informazioni dettagliate\n"
+"su  hardware  e configurazione  del  vostro  sistema  Red  Hat\n"
+"Enterprise  Linux.  Queste  informazioni  verranno  usate  per\n"
+"diagnosticare i problemi del vostro sistema e sono considerate\n"
+"strettamente  confidenziali.  Red Hat  utilizzerà questi  dati\n"
+"ESCLUSIVAMENTE per scopi diagnostici.\n"
 "\n"
 "Questo processo potrebbe durare alcuni minuti.\n"
-"Non verra' apportata nessuna modifica al vostro sistema.\n"
+"Non verrà apportata nessuna modifica al vostro sistema.\n"
 "\n"
 "Premere ENTER per continuare, o CTRL-C per uscire.\n"
 
 #: sosreport:555
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Una o piu' plugin hanno determinato un problema nella sua configurazione:"
+msgstr "Una o più plugin hanno determinato un problema nella sua configurazione:"
 
 #: sosreport:556
 msgid "Please review the following messages:"
