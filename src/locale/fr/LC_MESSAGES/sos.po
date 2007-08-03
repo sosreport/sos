@@ -22,6 +22,10 @@ msgstr "Prière d'entrer votre première initiale et votre nom [%s]: "
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Prière de donner le numéro de ticket pour lequel vous avez généré ce rapport: "
 
+#: lib/sos/policyredhat.py:155
+msgid "Creating compressed archive..."
+msgstr ""
+
 #: lib/sos/policyredhat.py:185
 msgid ""
 "Your sosreport has been generated and saved in:\n"

@@ -23,6 +23,10 @@ msgstr "Inserire l'iniziale del nome e il cognome [%s]: "
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Inserire il numero del caso a cui si riferisce questo report: "
 
+#: lib/sos/policyredhat.py:155
+msgid "Creating compressed archive..."
+msgstr "Creazione di un archivio compresso in corso..."
+
 #: lib/sos/policyredhat.py:185
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -37,7 +41,7 @@ msgstr "L'md5sum é: "
 
 #: lib/sos/policyredhat.py:190
 msgid "Please send this file to your support representative."
-msgstr "Perfavore invii questo file al rappresentante del supporto tecnico."
+msgstr "E' pregato di inviare questo file al rappresentante del supporto tecnico."
 
 #: sosreport:372
 msgid "sosreport (version %s)"
@@ -53,7 +57,7 @@ msgstr "plugin %s disattivata (--skip-plugins)"
 
 #: sosreport:398
 msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "plugin %s é inattiva (utilizzare -e o -o per riattivarla)."
+msgstr "plugin %s non é attiva (utilizzare -e o -o per riattivarla)."
 
 #: sosreport:406
 msgid "plugin %s not specified in --only-plugins list"
@@ -77,7 +81,7 @@ msgstr "nessuna plugin valida é stata trovata"
 
 #: sosreport:473
 msgid "The following plugins are currently enabled:"
-msgstr "Le seguenti plugin sono attivate:"
+msgstr "Le seguenti plugin sono attive:"
 
 #: sosreport:478
 msgid "No plugin enabled."
@@ -93,7 +97,7 @@ msgstr "Sono disponibili le seguenti opzioni per la plugin:"
 
 #: sosreport:509
 msgid "No plugin options available."
-msgstr "Nessuna opzione per plugin disponibile."
+msgstr "Nessuna opzione disponibile per le plugins attive."
 
 #: sosreport:517
 msgid "sosreport requires root permissions to run."
@@ -131,7 +135,7 @@ msgstr ""
 
 #: sosreport:555
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Una o più plugin hanno determinato un problema nella sua configurazione:"
+msgstr "Una o più plugin hanno determinato problemi nella configurazione del sistema:"
 
 #: sosreport:556
 msgid "Please review the following messages:"

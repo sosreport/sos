@@ -23,6 +23,7 @@ class general(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/redhat-release")
+        self.addCopySpec("/etc/fedora-release")
         self.addCopySpec("/etc/sysconfig")
         self.addCopySpec("/proc/stat")
         self.addCopySpec("/var/log/dmesg")

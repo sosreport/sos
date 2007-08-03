@@ -23,6 +23,10 @@ msgstr "sosreport (الإصدار %s)"
 msgid "plugin %s does not validate, skipping"
 msgstr "الملحق %s غير سليم، تم تعطيله"
 
+#: lib/sos/policyredhat.py:155
+msgid "Creating compressed archive..."
+msgstr ""
+
 #: sosreport:392
 msgid "plugin %s skipped (--skip-plugins)"
 msgstr "تم تعطيل الملحق %s عبر --skip-plugins"

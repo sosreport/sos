@@ -152,7 +152,7 @@ class SosPolicy:
 
         tarcmd = "/bin/tar -jcf %s %s" % (tarballName, namestr)
 
-        print "Creating compressed archive..."
+        print _("Creating compressed archive...")
         if not os.access(string.split(tarcmd)[0], os.X_OK):
             print "Unable to create tarball"
             return
