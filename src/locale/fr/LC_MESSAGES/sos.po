@@ -24,7 +24,7 @@ msgstr "Prière de donner le numéro de ticket pour lequel vous avez généré c
 
 #: lib/sos/policyredhat.py:155
 msgid "Creating compressed archive..."
-msgstr ""
+msgstr "Création de l'archive compressée en cours..."
 
 #: lib/sos/policyredhat.py:185
 msgid ""
