@@ -150,7 +150,10 @@ class cluster(sos.plugintools.PluginBase):
 
            # check fencing (warn on no fencing)
            if len(xpathContext.xpathEval("/cluster/clusternodes/clusternode[not(fence/method/device)]")):
-               self.addDiagnose("one or more nodes have no fencing agent configured")
+               if self.has_gfs():
+                   self.addDiagnose("one or more nodes have no fencing agent configured: fencing is required for GFS to work")
+               else:
+                   self.addDiagnose("one or more nodes have no fencing agent configured: the cluster infrastructure might not work as intended")
 
            # check fencing (warn on manual)
            if len(xpathContext.xpathEval("/cluster/clusternodes/clusternode[/cluster/fencedevices/fencedevice[@agent='fence_manual']/@name=fence/method/device/@name]")):

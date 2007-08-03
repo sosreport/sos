@@ -124,12 +124,12 @@ class SosPolicy:
         localname = commands.getoutput("/bin/uname -n").split(".")[0]
 
         try:
-            self.reportName = raw_input("Please enter your first initial and last name [%s]: " % localname)
+            self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
             self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
             if len(self.reportName) == 0:
                 self.reportName = localname
 
-            self.ticketNumber = raw_input("Please enter the case number that you are generating this report for: ")
+            self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
             self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
             print
         except KeyboardInterrupt:
@@ -182,12 +182,12 @@ class SosPolicy:
         fp.close()
 
         sys.stdout.write("\n")
-        print "Your sosreport has been generated and saved in:\n  %s" % tarballName
+        print _("Your sosreport has been generated and saved in:\n  %s") % tarballName
         print
         if md5out:
-            print "The md5sum is: " + md5out
+            print _("The md5sum is: ") + md5out
             print
-        print "Please send this file to your support representative."
+        print _("Please send this file to your support representative.")
         sys.stdout.write("\n")
 
         return

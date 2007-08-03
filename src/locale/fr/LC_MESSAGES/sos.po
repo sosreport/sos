@@ -14,6 +14,28 @@ msgstr ""
 "Content-Transfer-Encoding: utf-8\n"
 "Generated-By: pygettext.py 1.5\n"
 
+#: lib/sos/policyredhat.py:127
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Prière d'entrer votre première initiale et votre nom [%s]: "
+
+#: lib/sos/policyredhat.py:132
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Prière de donner le numéro de ticket pour lequel vous avez généré ce rapport: "
+
+#: lib/sos/policyredhat.py:185
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+"Votre sosreport a été généré et copié dans:\n"
+"  %s"
+
+#: lib/sos/policyredhat.py:188
+msgid "The md5sum is: "
+msgstr "La somme md5sum est: "
+
+#: lib/sos/policyredhat.py:190
+msgid "Please send this file to your support representative."
+msgstr "Prière d'envoyer ce rapport à votre représentant de Support."
 
 #: sosreport:370
 msgid "sosreport (version %s)"
@@ -24,7 +46,7 @@ msgid "plugin %s does not validate, skipping"
 msgstr "plugin %s ne s'applique pas, desactivé"
 
 #: sosreport:392
-msgid "plug %s skipped (--skip-plugins)"
+msgid "plugin %s skipped (--skip-plugins)"
 msgstr "plugin %s desactivé (--skip-plugins)"
 
 #: sosreport:396

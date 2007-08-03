@@ -48,7 +48,7 @@ msgid "plugin %s does not validate, skipping"
 msgstr "la plugin %s non é valida e verrà ignorata"
 
 #: sosreport:394
-msgid "plug %s skipped (--skip-plugins)"
+msgid "plugin %s skipped (--skip-plugins)"
 msgstr "plugin %s disattivata (--skip-plugins)"
 
 #: sosreport:398

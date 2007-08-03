@@ -27,6 +27,8 @@ class yum(sos.plugintools.PluginBase):
         return False
 
     def diagnose(self):
+        # FIXME: diagnose should only report actual problems, disabling this for now.
+        return True
         # repo sanity checking
         # TODO: elaborate/validate actual repo files, however this directory should
         # be empty on RHEL 5+ systems.

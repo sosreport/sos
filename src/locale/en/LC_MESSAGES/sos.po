@@ -24,7 +24,7 @@ msgid "plugin %s does not validate, skipping"
 msgstr ""
 
 #: sosreport:421
-msgid "plug %s skipped (--skip-plugins)"
+msgid "plugin %s skipped (--skip-plugins)"
 msgstr ""
 
 #: sosreport:425

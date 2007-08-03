@@ -374,6 +374,8 @@ def sosreport():
     plugins = os.listdir(pluginpath)
     plugins.sort()
 
+    # FIXME: should at least print a warning if the user references a plugin which does not exist
+
     # validate and load plugins
     for plug in plugins:
         plugbase =  plug[:-3]
@@ -389,7 +391,7 @@ def sosreport():
                     skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                     continue
                 if plugbase in __cmdLineOpts__.noplugins:
-                    soslog.log(logging.VERBOSE, _("plug %s skipped (--skip-plugins)") % plugbase)
+                    soslog.log(logging.VERBOSE, _("plugin %s skipped (--skip-plugins)") % plugbase)
                     skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                     continue
                 if not pluginClass(plugbase, commons).checkenabled() and not plugbase in __cmdLineOpts__.enableplugins  and not plugbase in __cmdLineOpts__.onlyplugins:
@@ -539,8 +541,6 @@ Press ENTER to continue, or CTRL-C to quit.
         print
         sys.exit(0)
 
-    policy.preWork()
-
     # Call the diagnose() method for each plugin
     tmpcount = 0
     for plugname, plug in loadedplugins:
@@ -578,6 +578,8 @@ Press ENTER to continue, or CTRL-C to quit.
         except KeyboardInterrupt:
            print
            sys.exit(0)
+
+    policy.preWork()
 
     # Call the setup() method for each plugin
     for plugname, plug in loadedplugins:

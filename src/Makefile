@@ -91,7 +91,7 @@ rpm:	mo
 	@mv $(TOPDIR)/RPMS/noarch/$(NAME)-$(VERSION)*.rpm $(TOPDIR)/SRPMS/$(NAME)-$(VERSION)*.rpm $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz dist/
 
 pot:
-	python tools/pygettext.py -o locale/sos.pot sosreport
+	python tools/pygettext.py -o locale/sos.pot sosreport lib/sos/policyredhat.py
 
 mo:
-	python tools/msgfmt.py locale/*/LC_MESSAGES/sos.po
+	find locale/*/LC_MESSAGES -name sos.po -exec python tools/msgfmt.py {} \;
