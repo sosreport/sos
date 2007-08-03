@@ -1,0 +1,135 @@
+# sos Arabic translation file
+# Copyright (C) 2007, Red Hat UK, Ltd.
+# Imed Chihi <ichihi@redhat.com>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sos 1.7\n"
+"POT-Creation-Date: 2007-08-02 20:16\n"
+"PO-Revision-Date: 2007-08-02 20:16+01\n"
+"Last-Translator: Imed Chihi <ichihi@redhat.com>\n"
+"Language-Team: AR <navid@redhat.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: utf-8\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: sosreport:370
+msgid "sosreport (version %s)"
+msgstr "sosreport (الإصدار %s)"
+
+#: sosreport:388
+msgid "plugin %s does not validate, skipping"
+msgstr "الملحق %s غير سليم، تم تعطيله"
+
+#: sosreport:392
+msgid "plug %s skipped (--skip-plugins)"
+msgstr "تم تعطيل الملحق %s عبر --skip-plugins"
+
+#: sosreport:396
+msgid "plugin %s is inactive (use -e or -o to enable)."
+msgstr "الملحق %s معطل، إستعمل -e أو -o لإعادة تفعيله."
+
+#: sosreport:404
+msgid "plugin %s not specified in --only-plugins list"
+msgstr "الملحق %s لم يرد في قائمة --only-plugins."
+
+#: sosreport:409
+msgid "plugin %s does not install, skipping"
+msgstr "لا يمكن تثبيت الملحق %s، تم تعطيله."
+
+#: sosreport:412
+msgid "could not load plugin %s"
+msgstr "لم يمكن تحميل الملحق %s"
+
+#: sosreport:455
+msgid "processing options from plugin: %s"
+msgstr "معالجة خيارات الملحق %s"
+
+#: sosreport:466
+msgid "no valid plugins found"
+msgstr "لا توجد ملحقات صالحة"
+
+#: sosreport:471
+msgid "The following plugins are currently enabled:"
+msgstr "تم تفعيل الملحقات التالية"
+
+#: sosreport:476
+msgid "No plugin enabled."
+msgstr "لم يتم تفعيل أي ملحق."
+
+#: sosreport:480
+msgid "The following plugins are currently disabled:"
+msgstr "تم تعطيل الملحقات الملحقات التالية"
+
+#: sosreport:487
+msgid "The following plugin options are available:"
+msgstr "يمكن تحديد خيارات الملحقات التالية"
+
+#: sosreport:507
+msgid "No plugin options available."
+msgstr "لا توجد خيارات للملحقات"
+
+#: sosreport:515
+msgid "sosreport requires root permissions to run."
+msgstr "هذا البرنامج يستوجب صلاحيات root"
+
+#: sosreport:522
+msgid "no valid plugins were enabled"
+msgstr "لم يتم تفعيل أي ملحقات"
+
+#: sosreport:526
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support rappresentative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+"Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr ""
+"سوف يقوم هذا البرنامج بتجميع معلومات مفصلة حول\n"
+"جهازكم و إعدادات نظام التشغيل\n"
+"سوف يتم تجميع هذه المعلومات في حزمة في /tmp\n"
+"تستطيعون إرسال هذه الحزمة لعملاء الدعم الفني في رد هات\n"
+"رد هات سوف تستعمل هذه المعلومات للتحقيق في أخطاء النظام حصريا\n"
+"و سوف يتم إعتبار هذه الحزمة معلومات سرية\n"
+"\n"
+"قد يستغرق تشغيل هذا البرنامج بعض الوقت\n"
+"لن يحدث أي تغيير على هذا النظام\n"
+"\n"
+"إضغط على ENTER للمواصلة أو CTRL-C للخروج\n"
+
+#: sosreport:555
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "أحد الملحقات إكتشف خطأ في إعدادات النظام"
+
+#: sosreport:556
+msgid "Please review the following messages:"
+msgstr "الرجاء مراجعة الإعلانات التالية"
+
+#: sosreport:571
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "هل أنت متأكد؟ ن/ل"
+
+#: sosreport:572
+msgid "Y"
+msgstr "ن"
+
+#: sosreport:572
+msgid "y"
+msgstr ""
+
+#: sosreport:575
+msgid "N"
+msgstr "ل"
+
+#: sosreport:575
+msgid "n"
+msgstr ""
+
