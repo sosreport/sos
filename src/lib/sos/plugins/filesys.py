@@ -37,8 +37,10 @@ class filesys(sos.plugintools.PluginBase):
         for disk in raiddevs.split('\n'):
           if '' != disk.strip():
             self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk,))
+            self.collectExtOutput("/sbin/tune2fs -l /dev/%s" % (disk,))
         for disk in disks.split('\n'):
           if '' != disk.strip():
             self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk,))
+            self.collectExtOutput("/sbin/tune2fs -l /dev/%s" % (disk,))
         return
 

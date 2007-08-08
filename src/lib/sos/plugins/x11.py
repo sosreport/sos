@@ -19,11 +19,10 @@ class x11(sos.plugintools.PluginBase):
     """X related information
     """
     def checkenabled(self):
-       try:	os.stat("/etc/X11")
-       except:  pass
-       else:	return True
-
-       return False
+        try:os.stat("/etc/X11")
+        except:pass
+        else:return True
+        return False
 
     def setup(self):
         self.addCopySpec("/etc/X11")

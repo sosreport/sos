@@ -25,12 +25,17 @@ class ldap(sos.plugintools.PluginBase):
         results={}
         tmplist=[]
         for i in ldapopts:
-            t=fileGrep(r"^%s*" % i,"/etc/openldap/ldap.conf")
+            t=self.doRegexFindAll(r"^(%s)\s+(.*)" % i,"/etc/openldap/ldap.conf")
             for x in t:
-                tmplist.append(x.split(" "))
-        for i in tmplist:
-            results[i[0]]=i[1].rstrip("\n")
+                results[x[0]]=x[1].rstrip("\n")
         return results
+
+    def get_slapd_debug(self):
+        """ Capture debugging information based on an existing log level
+        """
+        loglevel=self.doRegexFindAll(r"^local4.*\s+(\/var.*)", "/etc/syslog.conf")
+        for i in loglevel:
+            return i
 
     def diagnose(self):
         # Validate ldap client options
@@ -44,6 +49,7 @@ class ldap(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/ldap.conf")
         self.addCopySpec("/etc/openldap")
+        self.addCopySpec(self.get_slapd_debug())
         return
 
     def postproc(self):

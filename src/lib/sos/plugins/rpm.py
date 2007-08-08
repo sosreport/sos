@@ -22,10 +22,10 @@ class rpm(sos.plugintools.PluginBase):
                   
     def setup(self):
         self.addCopySpec("/var/log/rpmpkgs")
-        
+
         if self.isOptionEnabled("rpmq"):
           self.collectExtOutput("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"", root_symlink = "installed-rpms")
-      
+
         if self.isOptionEnabled("rpmva"):
           self.eta_weight += 800 # this plugins takes 200x longer (for ETA)
           self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va")

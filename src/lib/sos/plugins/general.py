@@ -36,6 +36,7 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
         self.collectExtOutput("/bin/date", root_symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
+        self.collectExtOutput("/bin/env")
         return
 
     def postproc(self):

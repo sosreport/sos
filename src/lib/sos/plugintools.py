@@ -97,7 +97,19 @@ class PluginBase:
                         self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (abspath,e))
                         break
         return False
-
+    
+    def doRegexFindAll(self,regex,fname):
+        ''' Return a list of all non overlapping matches in the string(s)
+        '''
+        out=[]
+        f=open(fname,'r')
+        content=f.read()
+        f.close()
+        reg=re.compile(regex,re.MULTILINE)
+        for i in reg.findall(content):
+            out.append(i)
+        return out
+    
     # Methods for copying files and shelling out
     def doCopyFileOrDir(self, srcpath):
         # pylint: disable-msg = R0912
@@ -290,15 +302,15 @@ class PluginBase:
     def callExtProg(self, prog):
         """ Execute a command independantly of the output gathering part of
         sosreport
-        """                        
+        """
         # Log if binary is not runnable or does not exist
         if not os.access(prog.split()[0], os.X_OK):
             self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % prog.split()[0])
 
         # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(prog)                                                            
+        status, shout, runtime = sosGetCommandOutput(prog)
         return status
-                                                                        
+
     def runExe(self, exe):
         """ Deprecated - use collectExtOutput()
         """
@@ -597,5 +609,4 @@ class PluginBase:
             html = html + self.customText + "</p>\n"
 
         return html
-
 

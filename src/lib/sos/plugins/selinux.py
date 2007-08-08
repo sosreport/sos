@@ -34,3 +34,14 @@ class selinux(sos.plugintools.PluginBase):
         except:
            pass
         return True
+    
+    def analyze(self):
+        # Check for SELinux denials and capture raw output from sealert
+        if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("setroubleshoot"):
+            # TODO: fixup regex for more precise matching
+            sealert=doRegexFindAll(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
+            if sealert:
+                for i in sealert:
+                    self.collectExtOutput("%s" % i)
+                self.addAlert("There are numerous selinux errors present and "+
+                              "possible fixes stated in the sealert output.")

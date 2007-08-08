@@ -24,10 +24,7 @@ class networking(sos.plugintools.PluginBase):
         """Return a dictionary for which key are interface name according to the
         output of ifconifg-a stored in ifconfigFile.
         """
-        out={}
-        reg=self.fileGrep(r"^(eth\d+)\D", ifconfigFile)
-        for name in reg:
-            out[name]=1
+        out=self.doRegexFindAll(r"^(eth\d+)\D", ifconfigFile)
         return out
 
     def collectIPTable(self,tablename):

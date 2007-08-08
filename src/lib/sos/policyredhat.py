@@ -96,7 +96,7 @@ class SosPolicy:
 
     def runlevelDefault(self):
         try:
-            reg=self.fileGrep(r"^id:(\d{1}):initdefault:", "/etc/inittab")
+            reg=self.doRegexFindAll(r"^id:(\d{1}):initdefault:", "/etc/inittab")
             for initlevel in reg:
                 return initlevel
         except:

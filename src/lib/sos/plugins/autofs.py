@@ -24,26 +24,29 @@ class autofs(sos.plugintools.PluginBase):
         if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("autofs"):
             return True
         return False
-    
+
     def checkdebug(self):
-        """ testing if autofs debug has been enabled anywhere
+        """ 
+        Probably not needed? I think we can pretty much assume that if daemon.* is
+        set in /etc/syslog.conf then debugging is enabled.
+        FIXME: remove checkdebug if not needed in future release
         """
+        pass
         # Global debugging
         optlist=[]
-        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
+        opt = self.doRegexFindAll(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
         for opt1 in opt:
-            for opt2 in opt1.split(" "):
-                optlist.append(opt2)
+            optlist.append(opt1)[1]
         for dtest in optlist:
             if dtest == "--debug" or dtest == "debug":
                 return True
-    
+
     def getdaemondebug(self):
         """ capture daemon debug output
         """
-        debugout = self.fileGrep(r"^(daemon.*)\s+(\/var\/log\/.*)", "/etc/sysconfig/autofs")
+        debugout=self.doRegexFindAll(r"^daemon.*\s+(\/var.*)", "/etc/syslog.conf")
         for i in debugout:
-            return i[1]
+            return i
     
     def setup(self):
         self.addCopySpec("/etc/auto*")
@@ -55,7 +58,6 @@ class autofs(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
         self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
         self.collectExtOutput("/sbin/chkconfig --list autofs")
-        if self.checkdebug():
-            self.addCopySpec(self.getdaemondebug())
+        self.addCopySpec(self.getdaemondebug())
         return
 
