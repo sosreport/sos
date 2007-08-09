@@ -38,10 +38,13 @@ class host_class:
    def tell(self):
       sumsize = 0
       if self.log_idx > 0:
-         for inc in range(0, self.log_idx - 1):
+         for inc in range(0, self.log_idx):
             sumsize += self.logs[inc].size()
-      return sumsize + self.logs[self.log_idx].fp.tell()
-      return toret
+      try:
+         sumsize += self.fp().tell()
+      except TypeError:
+         pass
+      return sumsize
 
    def size(self):
       sumsize = 0
@@ -51,6 +54,7 @@ class host_class:
 
    def eof(self):
       if self.tell() >= self.size():
+         sys.exit("HOST IS EOF")
          return True
       return False
 
@@ -74,7 +78,7 @@ class host_class:
       try:
          toret = time.strptime(self.readline()[0:15], "%b %d %H:%M:%S")
       except ValueError:
-         return None
+         toret = None
       self.seek(pos)
       return toret
 
@@ -83,12 +87,23 @@ class host_class:
 
    def readline(self):
       if self.eof():
-         return None
+         return ""
 
       while True:
          toret = self.fp().readline()
+         if len(toret) == 0:
+            if self.log_idx < len(self.logs):
+               self.log_idx += 1
+               self.fp().seek(0)
+               continue
+            else:
+               sys.exit("HOST IS EOF")
+               return ""
+
          if self.validate_line(toret) or toret == "":
             return toret
+         else:
+            print "invalid line"
 
    def validate_line(self, line):
       try:
@@ -138,6 +153,9 @@ class logfile_class:
    def seek(self,pos):
       self.fp.seek(pos)
 
+   def tell(self):
+      return self.fp.tell()
+
    def parse(self):
       self.seek(0)
       while not self.eof:
@@ -186,6 +204,16 @@ for logname in __cmdLineOpts__.logfiles:
    if not hosts.has_key(log.hostname):
       hosts[log.hostname] = host_class()
    hosts[log.hostname].add_log(log)
+
+#print hosts["moka"].readline()
+#print hosts["moka"].readline()
+#print "DIRECT", hosts["moka"].fp().fp.tell()
+#print "HOST TELL", hosts["moka"].tell()
+#print hosts["moka"].readline()
+#print hosts["moka"].time()
+#print hosts["moka"].readline()
+#print hosts["moka"].time()
+#print hosts["moka"].readline()
 
 print """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
  "http://www.w3.org/TR/html4/strict.dtd">
