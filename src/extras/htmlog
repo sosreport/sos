@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 from optparse import OptionParser, Option
-import time, sys
+import time, sys, os
 
 __cmdParser__ = OptionParser()
-__cmdParser__.add_option("-i", "--logfile", action="append", \
+__cmdParser__.add_option("-i", "--input", action="append", \
                      dest="logfiles", type="string", \
                      help="system log to parse")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
@@ -12,49 +12,131 @@ __cmdParser__.add_option("-v", "--verbose", action="count", \
                      help="How obnoxious we're being about telling the user what we're doing.")
 (__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
+class host_class:
+
+   def __init__(self):
+      self.logs = []
+
+      self.log_idx = 0 # first log
+      self.log_ptr = 0 # first char
+
+   def add_log(self, logfile):
+#      if not logfile == logfile_class:
+#         raise "InvalidLogfile"
+
+      for inc in range(0,len(self.logs)):
+         if logfile.time_end() < self.logs[inc].time_begin():
+            self.logs.insert(inc, logfile)
+            break
+      else:
+         self.logs.append(logfile)
+
+   def hostname(self):
+      try:    return self.logs[0].hostname()
+      except: return None
+
+   def tell(self):
+      sumsize = 0
+      if self.log_idx > 0:
+         for inc in range(0, self.log_idx - 1):
+            sumsize += self.logs[inc].size()
+      return sumsize + self.logs[self.log_idx].fp.tell()
+      return toret
+
+   def size(self):
+      sumsize = 0
+      for inc in range(0, len(self.logs)):
+         sumsize += self.logs[inc].size()
+      return sumsize 
+
+   def eof(self):
+      if self.tell() >= self.size():
+         return True
+      return False
+
+   def seek(self, offset, whence = 0):
+      if whence == 1:   offset = self.tell() + offset
+      elif whence == 2: offset = self.size() + offset
+
+      sumsize = 0
+      for inc in range(0, len(self.logs)):
+         if offset <= sumsize + self.logs[inc].size():
+            offset -= sumsize
+            self.log_idx = inc
+            self.log_ptr = offset
+            self.logs[inc].seek(offset)
+            return True
+         sumsize += self.logs[inc].size()
+      raise "Off_Boundaries"   
+
+   def time(self):
+      pos = self.tell()
+      try:
+         toret = time.strptime(self.readline()[0:15], "%b %d %H:%M:%S")
+      except ValueError:
+         return None
+      self.seek(pos)
+      return toret
+
+   def fp(self):
+      return self.logs[self.log_idx]
+
+   def readline(self):
+      if self.eof():
+         return None
+
+      while True:
+         toret = self.fp().readline()
+         if self.validate_line(toret) or toret == "":
+            return toret
+
+   def validate_line(self, line):
+      try:
+         time.strptime(line[0:15], "%b %d %H:%M:%S")
+      except:
+         return False
+      return True
+
+   def readmsg(self):
+      toret = self.readline()
+      if toret:
+         return toret[18:]
+
 class logfile_class:
 
    def __init__(self,fname):
       self.events = []
-      self.curline = ""
-      self.prevline = ""
-      self.eof = False
-      self.hostname = ""
-
       self.fname = fname
       self.fp = open(fname)
-      first_line = self.fp.readline().strip()
-      multip = 1
-      readblock = 64
-      while True:
-         self.fp.seek(-readblock * multip,2)
-         newlnpos = self.fp.read(readblock).find("\n")
-         if newlnpos > 0 and newlnpos < readblock - 1:
-            self.fp.seek(-readblock * multip + newlnpos +1, 2)
-            break
-         multip+=1
-      last_line = self.fp.readline().strip()
+      self.hostname = self.fp.readline()[16:].split(" ")[0]
+
+   def time_begin(self):
+      pos = self.fp.tell()
       self.fp.seek(0)
+      toret = time.strptime(self.fp.readline()[0:15], "%b %d %H:%M:%S")
+      self.fp.seek(pos)
+      return toret
 
-      # let's convert the first and last timestamp to something useful
-      # Jul 22 04:48:05
-      self.time_begin = time.strptime(first_line[0:15], "%b %d %H:%M:%S")
-      self.time_end   = time.strptime( last_line[0:15], "%b %d %H:%M:%S")
+   def time_end(self):
+      pos = self.fp.tell()
+      bs = 1024
+      self.fp.seek(-bs, 2)
+      line = self.fp.read(bs)
+      toret = time.strptime(line[line.rfind("\n", 0, bs - 1) + 1:][0:15], "%b %d %H:%M:%S")
+      self.fp.seek(pos)
+      return toret
 
-      # FIXME: check that first_line < last_line
+   def size(self):
+      return os.path.getsize(self.fname)
+
+   def eof(self):
+      return self.fp.tell() > self.size()
 
    def readline(self):
-      self.curline_pos = self.fp.tell()
-      self.prevline = self.curline
-      self.curline = self.fp.readline().strip()
-      if len(self.curline) == 0:
-         self.eof = True
-      return self.curline
+      return self.fp.readline()
 
    def seek(self,pos):
       self.fp.seek(pos)
-      self.eof = False
-      self.curline = ""
 
    def parse(self):
       self.seek(0)
@@ -62,9 +144,6 @@ class logfile_class:
          self.readline()
          self.parse_line()
       self.seek(0)
-
-   def curmessage(self):
-      return self.curline[17 + self.curline[16:].find(" "):]
 
    def parse_line(self):
 
@@ -100,12 +179,13 @@ class logfile_class:
          print "could not parse time", self.curline
          return False
 
-logs = []
+hosts = {}
 
 for logname in __cmdLineOpts__.logfiles:
    log = logfile_class(logname)
-   log.parse()
-   logs.append(log)
+   if not hosts.has_key(log.hostname):
+      hosts[log.hostname] = host_class()
+   hosts[log.hostname].add_log(log)
 
 print """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
  "http://www.w3.org/TR/html4/strict.dtd">
@@ -212,11 +292,12 @@ th.specalt {
 <body>
 """
 
-print '<ul id="toc">'
-for log in logs:
+#print '<ul id="toc">'
+#for log in logs:
 #   print logs[idx].fname, logs[idx].events
-   for line, msglen, event in log.events:
-      print ' <li><span>%s</span> <a href="#">Link</a><br /></li>' % event
+#   for line, msglen, event in log.events:
+#      print ' <li><span>%s</span> <a href="#">Link</a><br /></li>' % event
+
 print '</ul>'
 
 print """
@@ -230,15 +311,12 @@ inc = 0
 while True:
    # who is next ?
    lowest_date = None
-   for log in logs:
-      if log.eof:
+   for host in hosts:
+      if hosts[host].eof():
          continue
 
-      if not len(log.curline):
-         log.readline()
-
-      if lowest_date == None or log.time_current() < lowest_date:
-         lowest_date = log.time_current()
+      if lowest_date == None or hosts[host].time() < lowest_date:
+         lowest_date = hosts[host].time()
 
    if lowest_date == None:
       # all logs are EOF
@@ -259,13 +337,13 @@ while True:
    else:
       print """<TR><th scope="row" class="spec" style="color: #cacaca">""" + time.strftime("%H:%M:%S", lowest_date) + """</th>"""
 
-   for log in logs:
-      if log.time_current() == lowest_date:
-         print "  <TD>" + log.curmessage() + "</TD>"
-         log.curline = ""
+   for host in hosts:
+      if hosts[host].time() == lowest_date:
+#         print "  <TD>%d</TD>" % hosts[host].tell()
+         print "  <TD>" + hosts[host].readmsg() + "</TD>"
+#         print "  <TD>%d</TD>" % hosts[host].tell()
       else:
          print "  <TD></TD>"
-#      print log.curline_pos, time.strftime("%b %d %H:%M:%S", log.time_current()), log.curmessage()
    print " </TR>"
 
    previous_date = lowest_date
