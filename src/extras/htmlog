@@ -54,7 +54,6 @@ class host_class:
 
    def eof(self):
       if self.tell() >= self.size():
-         sys.exit("HOST IS EOF")
          return True
       return False
 
@@ -123,7 +122,12 @@ class logfile_class:
       self.events = []
       self.fname = fname
       self.fp = open(fname)
-      self.hostname = self.fp.readline()[16:].split(" ")[0]
+
+   def hostname(self):
+      pos = self.fp.tell()
+      toret = self.fp.readline()[16:].split(" ")[0]
+      self.fp.seek(pos)
+      return toret
 
    def time_begin(self):
       pos = self.fp.tell()
@@ -201,9 +205,10 @@ hosts = {}
 
 for logname in __cmdLineOpts__.logfiles:
    log = logfile_class(logname)
-   if not hosts.has_key(log.hostname):
-      hosts[log.hostname] = host_class()
-   hosts[log.hostname].add_log(log)
+   hostname = log.hostname()
+   if not hosts.has_key(hostname):
+      hosts[hostname] = host_class()
+   hosts[hostname].add_log(log)
 
 #print hosts["moka"].readline()
 #print hosts["moka"].readline()
@@ -351,19 +356,19 @@ while True:
       break
 
    if inc == 0 or inc % 200 == 0:
-      print """<tr><th scope="col" abbr="Date/Time" class="nobg">Time of Event</th><th scope="col" abbr="node-1">node-1</th><th scope="col" abbr="node-2">node-2</th><th scope="col" abbr="node-3">node-3</th></tr>"""
+      print """<tr><th scope="col" abbr="Date/Time" class="nobg">Time</th><th scope="col" abbr="node-1">node-1</th><th scope="col" abbr="node-2">node-2</th><th scope="col" abbr="node-3">node-3</th></tr>"""
 
    if not previous_date or time.strftime("%b %d", previous_date) != time.strftime("%b %d", lowest_date):
       print """<tr><th scope="row" class="newday" colspan=4>%s</th></tr>""" % time.strftime("%A, %B %d", lowest_date)
 
    if inc % 2 == 0: row_class = "spec"
-   else: row_class = "altspec"
+   else: row_class = "specalt"
 
    # FIXME: if this tick has an event, add <a name="...">
    if not previous_date or previous_date != lowest_date:
-      print """<TR><th scope="row" class="spec">""" + time.strftime("%H:%M:%S", lowest_date) + """</th>"""
+      print """<TR><th scope="row" class="%s">%s</th>""" % (row_class, time.strftime("%H:%M:%S", lowest_date) )
    else:
-      print """<TR><th scope="row" class="spec" style="color: #cacaca">""" + time.strftime("%H:%M:%S", lowest_date) + """</th>"""
+      print """<TR><th scope="row" class="%s" style="color: #cacaca">%s</th>""" % (row_class, time.strftime("%H:%M:%S", lowest_date) )
 
    for host in hosts:
       if hosts[host].time() == lowest_date:
