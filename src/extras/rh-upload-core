@@ -1,0 +1,324 @@
+#!/bin/bash
+
+#################################################################################
+#										#
+# upload-core									#
+# Version - 0.2									#
+# Copyright (c) 2007 Red Hat, Inc. All rights reserved.				#
+#										#
+#										#
+# Written by David Mair								#
+# Idea stolen from Chris Snook :-)						#
+#										#
+# Purpose - To help in the automation and encryption of kernel vmcore files.	#
+# Specifically, this script will compress, encrypt, md5sum,			#
+# and upload the core file automatically when invoked.				#
+# Items are optional and specified by command line switch.			#
+# ###############################################################################
+
+## Global directives
+umask 0077
+
+## Declare some variables
+date=`/bin/date -u +%G%m%d%k%M%S | /usr/bin/tr -d ' '`
+destination="dropbox.redhat.com"
+NOUPLOAD=NO
+SPLIT=0
+
+
+## Let's explain the usage
+
+function usage {
+	echo
+	echo
+	echo "Upload-core is a shell script for automating the handling of kernel vmcore files"
+	echo "for system administrators when working with support technicians."
+	echo "The script allows echo the user to compress, checksum, encrypt and upload a core"
+	echo "file with one command."
+	echo
+	echo "Usage: upload-core [-cehnNq] [-s size of hunks in MB] -f filename"
+	echo
+	echo "-c|--checksum  : perform an md5 checksum on the file"
+	echo "-e|--encrypt   : encrypt the core file"
+	echo "-f|--file      : file to act on (required)"
+	echo "-h|--help      : show this usage help"
+	echo "-n|--nocompress: do not compress the file (otherwise the file will be gzipped)"
+	echo "-N|--noupload  : Do NOT upload to an ftp drop box"
+	echo "-q|--quiet     : Do everything I ask and do it quietly"
+	echo "-s|--split     : split file into small hunks" 
+	echo
+	echo
+	exit 0
+}
+
+if [ $# == 0 ]; then usage
+fi
+
+TEMP=`getopt -o heucnqs:f:N --long help,encrypt,quiet,noupload,checksum,nocompress,split:,file: -n 'upload-core.sh' -- "$@"`
+
+if [ $? != 0 ]; then echo "Options error -- Terminating..." >&2; exit 1; fi
+
+eval set -- "$TEMP"
+
+while true ; do 
+	case "$1" in
+		-h|--help) usage;;
+		-e|--encrypt) ENCRYPT=yes; shift;;
+		-N|--noupload) NOUPLOAD=yes; shift;;
+		-c|--checksum) CHECKSUM=yes; shift;;
+		-q|--quiet) QUIET=yes; shift;;
+		-n|--nocompress) NOCOMPRESS=yes; shift;;
+		-s|--split) 
+			case $2 in
+			"") echo "You must specify a hunk size." >&2; exit 1 ;;
+			*) SPLIT=$2; shift 2;;
+			esac ;;
+		-F|--force) FORCE=yes; shift;;
+		-f|--file) 
+			case "$2" in
+				"") echo "You must specify a file name." >&2; exit 1 ;;
+				*) FILE=$2; shift 2;;
+			esac ;;
+		--) shift; break ;;
+		*) echo "Wrong options or flag specified"; usage;;
+	esac
+done
+
+
+# Okay, let's do some work!
+
+# Ensure the -f||--file flag was passed or die
+
+if test -z $FILE; then echo; echo "The -f or --file flag is required! Terminating."; echo; exit 1; fi
+
+# Validate the file exists or die
+
+if [ ! -f $FILE ]; then echo "Invalid filename or file not found. Terminating."; exit 1; fi
+
+function repeat {
+
+if [ "$QUIET" = "yes" ]; then return
+else
+
+# Let's repeat back to the user what we're doing and make sure this is what they really wanted.
+echo
+if [ "$ENCRYPT" = "yes" ] ; then echo " ## Will encrypt the file.";echo; fi
+
+if [ "$NOUPLOAD" = "yes" ] ; then echo " ## Will NOT upload the file.";echo; fi
+
+if [ "$CHECKSUM" = "yes" ] ; then echo " ## Will checksum the file.";echo; fi
+
+if [ "$SPLIT" != "FALSE" ] ; then echo " ## Will split the file.";echo; fi
+
+if [ "$NOCOMPRESS" = "yes" ] ; then echo -e " ## Will \E[41;30m\033[5mNOT\033[0m compress the file. Are you sure?";echo; else echo "Compressing $FILE"; echo; fi
+fi
+}
+
+
+function warn {
+
+if [ "$QUIET" = "yes" ]; then return
+else
+echo "Please note that depending upon the size of your vmcore file this could take"
+echo "quite some time to run.  If the options listed above are correct please"
+echo "press enter. Otherwise press <ctrl>-<c> to exit the program and start again."
+echo
+read IGNORE
+echo
+fi
+}
+
+function ticket {
+echo
+echo "We'll need to use your trouble ticket number for a couple of things. Please"
+echo "enter your trouble ticket number:"
+read ticket_number
+echo
+return
+}
+
+function file_ops {
+# Need to rename the core file before we compress it
+if [ "$QUIET" != "yes" ]; then echo "Renaming core file $ticket_number-$date-vmcore"; fi
+
+new_file=$ticket_number-$date-vmcore
+
+/bin/mv $FILE $new_file
+}
+
+# Compress the file
+function compress {
+
+if [ "$NOCOMPRESS" = "yes" ] 
+	then 
+	if [ "$QUIET" != "yes"]; then echo "Skipping compression step.";echo; fi
+	
+	else 
+		if [ "$QUIET" != "yes" ]; then echo "Starting file compression. This will take some time.";echo; fi
+		# Begin compression of file
+		if [ ! /usr/bin/gzip ]; then
+			echo "Cannot find gzip in /usr/bin/. Terminating."; exit 1
+		else
+		/usr/bin/gzip --fast $new_file
+		fi
+		
+fi
+
+new_file="$new_file.gz"
+
+}
+
+# Encrypt the file
+function encrypt {
+
+if [ "$ENCRYPT" = "yes" ]
+	then 
+		if [ "$QUIET" != "yes" ]; then echo "Beginning file encryption.  This should only take a few minutes.";echo; fi
+		# Use the ticket number as the ssl keyfile name
+		if [ ! /usr/bin/openssl ]; then
+			echo "Cannot find openssl in /usr/bin. Terminating."; exit 1
+		fi
+		/usr/bin/openssl rand -out $ticket_number-$date.key -base64 48
+		if [ "$QUIET" != "yes" ]; then
+		echo "You have chosen to encrypt your core file. Your passkey file is"
+		echo "$ticket_number-$date.key. Please attach this key to your ticket."
+		echo
+		fi
+		/usr/bin/openssl aes-128-cbc -in $new_file -out $new_file.aes -pass file:$ticket_number-$date.key
+
+new_file="$new_file.aes"				
+
+fi
+}
+
+function checksum {
+
+if [ "$CHECKSUM" = "yes" ]
+	then
+	
+		if [ "$QUIET" != "yes" ]; then echo "Beginning $new_file checksum. This should only take a few minutes.";echo; fi
+	if [ ! /usr/bin/md5sum ]; then
+		echo "Cannot find md5sum in /usr/bin. Terminating."; exit 1
+	fi
+	md5result=`/usr/bin/md5sum $new_file|awk '{print $1}'`
+	echo $md5result > $ticket_number-$date-checksum.out
+
+fi
+
+}
+
+function split {
+
+if [ "$SPLIT" = "0" ]; then return; fi
+
+		hunk_size=$SPLIT
+		if (( $hunk_size > 0 )) && (( $hunk_size < 1001 ))
+		then
+			if [ ! /usr/bin/split ]; then
+				echo "Cannot find split in /usr/bin. Terminating."; exit 1
+			fi
+		# We need to make a directory to keep things sane
+		if [ "$QUIET" != "yes" ]; then echo "Creating directory $ticket_number-$date to house file hunks"; fi
+		/bin/mkdir $ticket_number-$date 
+		/usr/bin/split -b "$hunk_size"m -d $new_file $ticket_number-$date/$new_file
+		else
+		echo "Invalid hunk size argument. Please enter a number greater than 0 and less than 1001."
+		echo "Terminating."; exit 1
+		fi
+
+
+}
+
+function upload {
+
+if [ "$NOUPLOAD" = "yes" ]; then 
+	echo "All file operations are complete. The file(s) is ready to upload at your convenience."; return
+	else
+	echo "All file operation are complete. The file(s) is now ready to be uploaded."
+	echo "Please enter the destination host (default is dropbox.redhat.com)"
+	read destination_input
+		if [ "$destination_input" != "" ]; then	destination=$destination_input; fi
+	if [ "$QUIET" != "yes" ]; then
+	echo
+	echo "Okay, uploading to $destination.  Depending upon the file size and link throughput"
+	echo "this could take quite a while.  When the upload completes this script will provide"
+	echo "additional information such as the md5sum, ssl key file, etc. and then exit."
+	echo "Unless you do not have lftp installed you should be able to monitor upload status."
+	echo "If lftp is not available then this script will exit and the core file(s) will need"
+	echo "to be uploaded to your target system manually.  The information indicated above"
+	echo "will still be provided."
+	echo
+	else		
+		if [ ! /usr/bin/lftp ]; then 
+		# No lftp installed
+		echo "lftp could not be found in /usr/bin. The file(s) will need to be uploaded manually."
+	
+		else
+		# Make the lftp script first
+		echo "lftp $destination <<EOF" > lftp_scripts
+		if [ "$SPLIT" = "yes" ]; then
+			echo "lcd $ticket_number" >> lftp_scripts
+			echo "mirror -R" >> lftp_scripts
+		else
+			echo "put $new_file" >> lftp_scripts
+		fi
+		echo "quit 0" >> lftp_scripts
+		echo "EOF" >> lftp_scripts
+		/usr/bin/lftp -f lftp_scripts
+		fi
+	fi
+fi
+}
+
+function closure {
+
+if [ "$ENCRYPT" = "yes" ] ; then 
+	echo
+	echo " ## File was encrypted with $ticket_number-$date.key. Please upload the key"
+	echo "to Issue Tracker or send it to your support representative for decryption"
+	echo "after upload.";echo; 
+fi
+
+
+if [ "$CHECKSUM" = "yes" ] ; then 
+	echo
+	echo "## A checksum was performed on your core file (prior to splitting if you chose"
+	echo "to do so)."
+	echo
+	echo "The checksum results are in:"
+	echo "$ticket_number-$date-checksum.out." 
+	echo
+	echo "Please include this when updating your trouble ticket so your support"
+	echo "representative can verify the copy uploaded.";echo
+fi
+
+if [ "$SPLIT" != 0 ]; then
+	echo
+	echo "## Your core file was split and the hunks are in $ticket_number."
+	echo
+fi
+
+echo "This script has completed successfully.  If you performed file encryption and/or file"
+echo "splitting you may want to consider removing those files once your support representative"
+echo "confirms receipt.  This will reduce the amount of space being utilised on your system."
+echo "It is NOT recommended to remove the gzipped copy of the core file."
+echo
+echo -en "\E[40;31m\033[3mThis would be the only remaining copy of the core file on your system.\033[0m"
+echo
+echo
+echo "It is recommended to retain the core file until your support representative indicates"
+echo "that the problem has been identified and/or resolved."
+
+}
+
+# Run through the functions
+repeat
+warn
+ticket
+file_ops
+compress
+encrypt
+checksum
+split
+upload
+closure

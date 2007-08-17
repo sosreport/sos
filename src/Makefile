@@ -4,11 +4,11 @@
 
 NAME    = sos
 VERSION = $(shell awk '/^%define version / { print $$3 }' sos.spec)
+RELEASE = $(shell awk '/^%define release / { print $$3 }' sos.spec)
 REPO = https://sos.108.redhat.com/svn/sos
-SVNTAG  = r$(subst .,-,$(VERSION))
+SVNTAG  = r$(subst .,-,$(VERSION))_$(RELEASE)
 SRCDIR = $(PWD)
 TOPDIR = $(PWD)/build/rpm-$(NAME)-$(VERSION)
-
 
 all:
 
@@ -59,7 +59,7 @@ release: clean
 	@echo " "
 	@echo "The final archive is ./$(NAME)-$(VERSION).tar.bz2."
 
-install:mo
+install:mo gpgkey
 	python setup.py install
 	@rm -rf build/lib
 
@@ -67,7 +67,7 @@ version:
 	@echo "The version is $(NAME)-$(VERSION)"
 
 clean:
-	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
+	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz gpgkeys/rhsupport.*
 	@rm -rfv build/*
 
 rpm:	mo
@@ -79,6 +79,7 @@ rpm:	mo
 	rm -rf $(NAME)-$(VERSION) ; \
 	ln -s $(SRCDIR) $(NAME)-$(VERSION) ; \
 	tar --gzip --exclude=.svn --exclude=svn-commit.tmp --exclude=$(NAME)-$(VERSION)/build --exclude=$(NAME)-$(VERSION)/dist \
+	--exclude gpgkeys/rhsupport.key \
 	-chSpf $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) ; \
 	rm -f $(NAME)-$(VERSION)
 
@@ -95,3 +96,7 @@ pot:
 
 mo:
 	find locale/*/LC_MESSAGES -name sos.po -exec python tools/msgfmt.py {} \;
+
+gpgkey:
+	@test -f gpgkeys/rhsupport.pub && echo "GPG key already exists." || \
+	gpg --batch --gen-key gpgkeys/gpg.template

@@ -25,7 +25,7 @@
 """
 helper functions used by sosreport and plugins
 """
-import os, popen2, fcntl, select, itertools, sys, commands
+import os, popen2, fcntl, select, itertools, sys, commands, logging
 from time import time
 from tempfile import mkdtemp
 
@@ -60,6 +60,19 @@ def makeNonBlocking(afd):
 def sosGetCommandOutput(command):
     """ Execute a command and gather stdin, stdout, and return status.
     """
+    soslog = logging.getLogger('sos')
+
+    # Log if binary is not runnable or does not exist
+    for path in os.environ["PATH"].split(":"):
+        cmdfile = command.strip("(").split()[0]
+        # handle both absolute or relative paths
+        if ( ( not os.path.isabs(cmdfile) and os.access(os.path.join(path,cmdfile), os.X_OK) ) or \
+           ( os.path.isabs(cmdfile) and os.access(cmdfile, os.X_OK) ) ):
+            break
+    else:
+        soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % cmdfile)
+        return (127, "", 0)
+
     stime = time()
     inpipe, pipe = os.popen4(command, 'r')
     inpipe.close()
@@ -123,4 +136,3 @@ def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
     if not common:
         return path2      # leave path absolute if nothing at all in common
     return sep.join( [pardir]*len(u1) + u2 )
-

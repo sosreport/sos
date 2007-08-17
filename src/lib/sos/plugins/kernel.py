@@ -49,22 +49,24 @@ class kernel(sos.plugintools.PluginBase):
     def setup(self):
         self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
         self.moduleFile = self.collectOutputNow("/sbin/lsmod", root_symlink = "lsmod")
+
         if self.isOptionEnabled('modinfo'):
-          runcmd = ""
-          for kmod in commands.getoutput('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null').split('\n'):
-            if '' != kmod.strip():
-              runcmd = runcmd + " " + kmod
-          if len(runcmd):
-            self.collectExtOutput("/sbin/modinfo " + runcmd)
+           runcmd = ""
+           for kmod in commands.getoutput('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null').split('\n'):
+              if '' != kmod.strip():
+                 runcmd = runcmd + " " + kmod
+           if len(runcmd):
+              self.collectExtOutput("/sbin/modinfo " + runcmd)
+
         self.collectExtOutput("/sbin/sysctl -a")
         self.collectExtOutput("/sbin/ksyms")
         self.addCopySpec("/sys/module/*/parameters")
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/proc/ksyms")
         self.addCopySpec("/proc/slabinfo")
+        # FIXME: kver should have this stuff cached somewhere
         kver = commands.getoutput('/bin/uname -r')
-        depfile = "/lib/modules/%s/modules.dep" % (kver,)
-        self.addCopySpec(depfile)
+        self.addCopySpec("/lib/modules/%s/modules.dep" % kver)
         self.addCopySpec("/etc/conf.modules")
         self.addCopySpec("/etc/modules.conf")
         self.addCopySpec("/etc/modprobe.conf")
@@ -72,25 +74,18 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/proc/driver")
         self.addCopySpec("/proc/sys/kernel/tainted")
-        # FIXME: both RHEL4 and RHEL5 don't need sysrq to be enabled to trigger via sysrq-trigger
-        if self.isOptionEnabled('sysrq') and os.access("/proc/sysrq-trigger", os.W_OK) and os.access("/proc/sys/kernel/sysrq", os.R_OK):
-          sysrq_state = commands.getoutput("/bin/cat /proc/sys/kernel/sysrq")
-          commands.getoutput("/bin/echo 1 > /proc/sys/kernel/sysrq")
-          for key in ['m', 'p', 't']:
-            commands.getoutput("/bin/echo %s > /proc/sysrq-trigger" % (key,))
-          commands.getoutput("/bin/echo %s > /proc/sys/kernel/sysrq" % (sysrq_state,))
-          # No need to grab syslog here if we can't trigger sysrq, so keep this
-          # inside the if
-          self.addCopySpec("/var/log/messages")
-        
+
+        if self.isOptionEnabled('sysrq') and os.access("/proc/sysrq-trigger", os.W_OK):
+           for key in ['m', 'p', 't']:
+              commands.getoutput("/bin/echo %s > /proc/sysrq-trigger" % (key,))
+           self.addCopySpec("/var/log/messages")
+
         return
 
-    def analyze(self):
-        infd = open("/proc/modules", "r")
-        modules = infd.readlines()
-        infd.close()
+    def diagnose(self):
 
-        for modname in modules:
+        infd = open("/proc/modules", "r")
+        for modname in infd.readlines():
             modname=modname.split(" ")[0]
             modinfo_srcver = commands.getoutput("/sbin/modinfo -F srcversion %s" % modname)
             if not os.access("/sys/module/%s/srcversion" % modname, os.R_OK):
@@ -99,12 +94,16 @@ class kernel(sos.plugintools.PluginBase):
             sys_srcver = infd.read().strip("\n")
             infd.close()
             if modinfo_srcver != sys_srcver:
-                self.addAlert("Loaded module %s differs from the one present on the file-system")
+                self.addDiagnose("Loaded module %s differs from the one present on the file-system")
 
             # this would be a good moment to check the module's signature
             # but at the moment there's no easy way to do that outside of
             # the kernel. i will probably need to write a C lib (derived from
             # the kernel sources to do this verification.
+
+        infd.close()
+
+    def analyze(self):
 
         savedtaint = os.path.join(self.cInfo['dstroot'], "/proc/sys/kernel/tainted")
         infd = open(savedtaint, "r")
@@ -114,12 +113,10 @@ class kernel(sos.plugintools.PluginBase):
         if (line != "0"):
             self.addAlert("Kernel taint flag is <%s>\n" % line)
 
-
         infd = open(self.moduleFile, "r")
         modules = infd.readlines()
         infd.close()
 
-        #print(modules)
         for tainter in self.taintList:
             p = re.compile(tainter['regex'])
             for line in modules:

@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
-from optparse import OptionParser, Option
-import time, sys, os
+#from optparse import OptionParser, Option
+import time, sys, os, glob
+import getopt
 
-__cmdParser__ = OptionParser()
-__cmdParser__.add_option("-i", "--input", action="append", \
-                     dest="logfiles", type="string", \
-                     help="system log to parse")
-__cmdParser__.add_option("-v", "--verbose", action="count", \
-                     dest="verbosity", \
-                     help="How obnoxious we're being about telling the user what we're doing.")
-(__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
+#__cmdParser__ = OptionParser()
+#__cmdParser__.add_option("-i", "--input", action="append", 
+#                     dest="logfiles", type="string", metavar = "FILE",
+#                     help="system log to parse")
+#__cmdParser__.add_option("-v", "--verbose", action="count",
+#                     dest="verbosity",
+#                     help="How obnoxious we're being about telling the user what we're doing.")
+#(__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
 class host_class:
 
@@ -96,7 +97,6 @@ class host_class:
                self.fp().seek(0)
                continue
             else:
-               sys.exit("HOST IS EOF")
                return ""
 
          if self.validate_line(toret) or toret == "":
@@ -139,6 +139,7 @@ class logfile_class:
    def time_end(self):
       pos = self.fp.tell()
       bs = 1024
+      if self.size() < bs: bs = self.size()
       self.fp.seek(-bs, 2)
       line = self.fp.read(bs)
       toret = time.strptime(line[line.rfind("\n", 0, bs - 1) + 1:][0:15], "%b %d %H:%M:%S")
@@ -201,14 +202,42 @@ class logfile_class:
          print "could not parse time", self.curline
          return False
 
+def usage():
+   print "ciao"
+
+try:
+   opts, args = getopt.getopt(sys.argv[1:], "hi:v", ["help", "input="])
+except getopt.GetoptError:
+   # print help information and exit:
+   usage()
+   sys.exit(2)
+
+cmdline = {}
+cmdline["logfiles"] = []
+
+for o, a in opts:
+   if o == "-v":
+      verbose = True
+   if o in ("-h", "--help"):
+      usage()
+      sys.exit()
+   if o in ("-i", "--input"):
+      print o,a
+      for fname in sys.argv[2:]:
+         cmdline["logfiles"].append(fname)
+         sys.stderr.write("adding log %s\n" % fname)
+
 hosts = {}
 
-for logname in __cmdLineOpts__.logfiles:
+for logname in cmdline["logfiles"]:
    log = logfile_class(logname)
    hostname = log.hostname()
+   sys.stderr.write("log %s for host %s\n" % (logname, hostname))
    if not hosts.has_key(hostname):
       hosts[hostname] = host_class()
    hosts[hostname].add_log(log)
+
+sys.stderr.write("finished adding logs\n")
 
 #print hosts["moka"].readline()
 #print hosts["moka"].readline()

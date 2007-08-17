@@ -65,6 +65,9 @@ class PluginBase:
         self.time_start = None
         self.time_stop  = None
 
+        self.packages = []
+        self.files = []
+
         self.soslog = logging.getLogger('sos')
 
         # get the option list into a dictionary
@@ -181,7 +184,7 @@ class PluginBase:
                             dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
                             self.copiedDirs.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':os.path.abspath(srcpath+'/'+afile) })
             else:
-                self.soslog.log(logging.VERBOSE2, "copying symlink %s" % srcpath)
+                self.soslog.log(logging.VERBOSE3, "copying symlink %s" % srcpath)
                 try:
                     dstslname, abspath = self.__copyFile(srcpath)
                     self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
@@ -206,6 +209,7 @@ class PluginBase:
             else:
                 # This is not a directory or a symlink
                 tdstpath, abspath = self.__copyFile(srcpath)
+                self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
                 self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
                 return abspath
 
@@ -259,6 +263,9 @@ class PluginBase:
     def addCopySpecLimit(self,fname,sizelimit = None):
         """Add a file specification (with limits)
         """
+        if not ( fname and len(fname) ):
+            self.soslog.warning("invalid file path")
+            return False
         files = glob.glob(fname)
         files.sort()
         cursize = 0
@@ -272,51 +279,20 @@ class PluginBase:
         """ Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module
         """
+        if not ( copyspec and len(copyspec) ):
+            self.soslog.warning("invalid file path")
+            return False
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(copyspec):
             self.copyPaths.append(filespec)
 
-    def copyFileGlob(self, srcglob):
-        """ Deprecated - please modify modules to use addCopySpec()
-        """
-        sys.stderr.write("Warning: thecopyFileGlob() function has been deprecated.  Please")
-        sys.stderr.write("use addCopySpec() instead.  Calling addCopySpec() now.")
-        self.addCopySpec(srcglob)
-        
-    def copyFileOrDir(self, srcpath):
-        """ Deprecated - please modify modules to use addCopySpec()
-        """
-        sys.stderr.write("Warning: the copyFileOrDir() function has been deprecated.  Please\n")
-        sys.stderr.write("use addCopySpec() instead.  Calling addCopySpec() now.\n")
-        raise ValueError
-        #self.addCopySpec(srcpath)
-        
-    def runExeInd(self, exe):
-        """ Deprecated - use callExtProg()
-        """
-        sys.stderr.write("Warning: the runExeInd() function has been deprecated.  Please use\n")
-        sys.stderr.write("the callExtProg() function.  This should only be called\n")
-        sys.stderr.write("if collect() is overridden.")
-        pass
-        
     def callExtProg(self, prog):
         """ Execute a command independantly of the output gathering part of
         sosreport
         """
-        # Log if binary is not runnable or does not exist
-        if not os.access(prog.split()[0], os.X_OK):
-            self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % prog.split()[0])
-
         # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(prog)
         return status
-
-    def runExe(self, exe):
-        """ Deprecated - use collectExtOutput()
-        """
-        sys.stderr.write("Warning: the runExe() function has been deprecated.  Please use\n")
-        sys.stderr.write("the collectExtOutput() function.\n")
-        pass
 
     def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None):
         """
@@ -362,10 +338,6 @@ class PluginBase:
         """ Execute a command and save the output to a file for inclusion in
         the report
         """
-        # First check to make sure the binary exists and is runnable.
-        if not os.access(exe.split()[0], os.X_OK):
-            self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable, trying anyways" % exe.split()[0])
-
         # FIXME: we should have a timeout or we may end waiting forever
 
         # pylint: disable-msg = W0612
@@ -379,7 +351,7 @@ class PluginBase:
         if not os.path.isdir(os.path.dirname(outfn)):
             os.mkdir(os.path.dirname(outfn))
 
-        if not (status == 127 or status == 32512):
+        if not (status == 127 or status == 32512): # if not command_not_found
             outfd = open(outfn, "w")
             if len(shout):    outfd.write(shout+"\n")
             outfd.close()
@@ -486,23 +458,35 @@ class PluginBase:
             try:
                 self.doCopyFileOrDir(path)
             except SystemExit:
-              raise SystemExit
+              if threaded:
+                 return SystemExit
+              else:
+                 raise SystemExit
             except KeyboardInterrupt:
-              raise KeyboardInterrupt
+              if threaded:
+                 return KeyboardInterrupt
+              else:
+                 raise KeyboardInterrupt
             except Exception, e:
-                self.soslog.log(logging.VERBOSE, "error copying from pathspec %s (%s), traceback follows:" % (path,e))
-                self.soslog.log(logging.VERBOSE, traceback.format_exc())
+                self.soslog.log(logging.VERBOSE2, "error copying from pathspec %s (%s), traceback follows:" % (path,e))
+                self.soslog.log(logging.VERBOSE2, traceback.format_exc())
         for (prog,suggest_filename,root_symlink) in self.collectProgs:
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
                 self.collectOutputNow(prog, suggest_filename, root_symlink)
             except SystemExit:
-              raise SystemExit
+              if threaded:
+                 return SystemExit
+              else:
+                 raise SystemExit
             except KeyboardInterrupt:
-              raise KeyboardInterrupt
+              if threaded:
+                 return KeyboardInterrupt
+              else:
+                 raise KeyboardInterrupt
             except:
-                self.soslog.log(logging.VERBOSE, "error collection output of '%s', traceback follows:" % prog)
-                self.soslog.log(logging.VERBOSE, traceback.format_exc())
+                self.soslog.log(logging.VERBOSE2, "error collection output of '%s', traceback follows:" % prog)
+                self.soslog.log(logging.VERBOSE2, traceback.format_exc())
 
         self.time_stop = time()
 
@@ -520,6 +504,16 @@ class PluginBase:
         """ This function can be overidden to let the plugin decide whether
         it should run or not.
         """
+        # some files or packages have been specified for this package
+        if len(self.files) or len(self.packages):
+            for file in self.files:
+                if os.path.exists(files):
+                    return True
+            for pkgname in self.packages:
+                if self.cInfo["policy"].pkgByName(pkgname):
+                    return True
+            return False
+
         return True 
 
     def defaultenabled(self):
@@ -592,8 +586,11 @@ class PluginBase:
             html = html + "<p>Commands Executed:<br><ul>\n"
             # convert file name to relative path from our root
             for cmd in self.executedCommands:
-                cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], self.cInfo['cmddir'] + "/" + cmd['file'])
-                html = html + '<li><a href="%s">%s</a></li>\n' % (cmdOutRelPath, cmd['exe'])
+                if cmd["file"] and len(cmd["file"]):
+                    cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], self.cInfo['cmddir'] + "/" + cmd['file'])
+                    html = html + '<li><a href="%s">%s</a></li>\n' % (cmdOutRelPath, cmd['exe'])
+                else:
+                    html = html + '<li>%s</li>\n' % (cmd['exe'])
             html = html + "</ul></p>\n"
 
         # Alerts
@@ -609,4 +606,3 @@ class PluginBase:
             html = html + self.customText + "</p>\n"
 
         return html
-

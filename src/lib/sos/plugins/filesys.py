@@ -28,7 +28,6 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/mdadm.conf")
         
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
-        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
         self.collectExtOutput("/bin/mount -l", root_symlink = "mount")
         self.collectExtOutput("/sbin/blkid")
 

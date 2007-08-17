@@ -25,6 +25,7 @@ class process(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/ps auxwwwm")
         self.collectExtOutput("/bin/ps alxwww")
         self.collectExtOutput("/usr/bin/pstree", root_symlink = "pstree")
+        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
         return
 
     def find_mountpoint(s):
@@ -50,11 +51,8 @@ class process(sos.plugintools.PluginBase):
                             # this should never happen...
                             pass
                     else:
+                        # still D after 0.1 * range(1,5) seconds
                         dpids.append(int(line[1]))
-
-        # FIXME: for each hung PID, list file-systems from /proc/$PID/fd
-#        for pid in dpids:
-#            realpath
 
         if len(dpids):
             self.addDiagnose("one or more processes are in state D (sosreport might hang)")

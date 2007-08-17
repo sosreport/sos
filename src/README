@@ -12,13 +12,24 @@ To access to the public source code repository for this project run:
   svn checkout https://sos.108.redhat.com/svn/sos/trunk sos
 
 (all the following as root)
-to install locally ==> python setup.py install
+to install locally ==> make install
 to build an rpm ==> make rpm
 
 See the Makefile.
 
+Maintainers:
+
+ Navid Sheikhol-Eslami <navid@redhat.com>
+
 Contributors:
-Steve Conklin  <sconklin@redhat.com>
-Pierre Amadio  <pamadio@redhat.com>
-John Berninger <jwb@redhat.com>
-Navid Sheikhol-Eslami <navid@redhat.com>
+
+ Steve Conklin  <sconklin@redhat.com>
+ Pierre Amadio  <pamadio@redhat.com>
+ John Berninger <jwb@redhat.com>
+
+Thanks to:
+
+ Eva Schaller <eschaller@redhat.com> for providing an Italian translation
+ Marco Ceci <mceci@redhat.com> for helping me out with the cluster plugin
+ Leonardo Macchia <lmacchia@redhat.com> for being my personal regexp generator
+ Imed Chihi <ichihi@redhat.com> for providing Arabic and French translations

@@ -26,8 +26,7 @@ from sos.helpers import *
 import random
 import re
 import md5
-
-SOME_PATH = "/tmp/SomePath"
+import rpm
 
 #class SosError(Exception):
 #    def __init__(self, code, message):
@@ -37,11 +36,22 @@ SOME_PATH = "/tmp/SomePath"
 #    def __str__(self):
 #        return 'Sos Error %s: %s' % (self.code, self.message)
 
+def memoized(function):
+    ''' function decorator to allow caching of return values
+    '''
+    function.cache={}
+    def f(*args):
+        try:
+            return function.cache[args]
+        except KeyError:
+            result = function.cache[args] = function(*args)
+            return result
+    return f
 
 class SosPolicy:
     "This class implements various policies for sos"
     def __init__(self):
-        #print "Policy init"
+        self.report_file = None
         return
 
     def setCommons(self, commons):
@@ -55,41 +65,61 @@ class SosPolicy:
         #print "validating %s" % pluginpath
         return True
 
+    def pkgProvides(self, name):
+        pkg = self.pkgByName(name)
+        return pkg['providename']
+
     def pkgRequires(self, name):
-        # FIXME: we're relying on rpm to sort the output list
+        pkg = self.pkgByName(name)
+        return pkg['requirename']
+
         cmd = "/bin/rpm -q --requires %s" % (name)
         return [requires[:-1].split() for requires in os.popen(cmd).readlines()]
 
     def allPkgsByName(self, name):
-        # FIXME: we're relying on rpm to sort the output list
-        cmd = "/bin/rpm --qf '%%{N} %%{V} %%{R} %%{ARCH}\n' -q %s" % (name,)
-        pkgs = os.popen(cmd).readlines()
-        return [pkg[:-1].split() for pkg in pkgs if pkg.startswith(name)]
+        return self.allPkgs("name", name)
+
+    def allPkgsByNameRegex(self, regex_name):
+        reg = re.compile(regex_name)
+        return [pkg for pkg in self.allPkgs() if reg.match(pkg['name'])]
 
     def pkgByName(self, name):
         # TODO: do a full NEVRA compare and return newest version, best arch
         try:
             # lame attempt at locating newest
-            pkg = self.allPkgsByName(name)[-1]
-        except IndexError:
-            pkg = None
-
-        return pkg
+            return self.allPkgsByName(name)[-1]
+        except:
+            pass
+        return None
 
     def pkgDictByName(self, name):
+        # FIXME: what does this do?
         pkgName = self.pkgByName(name)
         if pkgName and len(pkgName) > len(name):
            return pkgName[len(name)+1:].split("-")
         else:
            return None
 
+    def allPkgs(self, ds = None, value = None):
+        if not hasattr(self, "rpm_ts"):
+            self.rpm_ts = rpm.TransactionSet()
+        if ds and value:
+            mi = self.rpm_ts.dbMatch(ds, value)
+        else:
+            mi = self.rpm_ts.dbMatch()
+        return [pkg for pkg in mi]
+
     def runlevelByService(self, name):
         ret = []
         try:
            for tabs in commands.getoutput("/sbin/chkconfig --list %s" % name).split():
-              (runlevel, onoff) = tabs.split(":")
-              if onoff == "on":
-                 ret.append(int(runlevel))
+              try:
+                 (runlevel, onoff) = tabs.split(":", 1)
+              except:
+                 pass
+              else:
+                 if onoff == "on":
+                    ret.append(int(runlevel))
         except:
            pass
         return ret
@@ -105,9 +135,21 @@ class SosPolicy:
     def kernelVersion(self):
         return commands.getoutput("/bin/uname -r").strip("\n")
 
+    def rhelVersion(self):
+        try:
+            pkgname = self.pkgByName("redhat-release")["version"]
+            if pkgname[0] == "4":
+                return 4
+            elif pkgname in [ "5Server", "5Client" ]:
+                return 5
+        except: pass
+        return False
+
     def isKernelSMP(self):
-        if self.kernelVersion()[-3:]=="smp": return True
-        else: return False
+        if commands.getoutput("/bin/uname -v").split()[1] == "SMP":
+            return True
+        else:
+            return False
 
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
@@ -166,6 +208,9 @@ class SosPolicy:
         # FIXME: use python internal command
         os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
 
+        # FIXME: encrypt using gnupg
+        # gpg --trust-model always --batch --keyring /usr/share/sos/rhsupport.pub --no-default-keyring --compress-level 0 --encrypt --recipient support@redhat.com --output filename.gpg filename.tar
+
         # add last 6 chars from md5sum to file name
         fp = open(tarballName, "r")
         md5out = md5.new(fp.read()).hexdigest()
@@ -187,5 +232,37 @@ class SosPolicy:
         print _("Please send this file to your support representative.")
         sys.stdout.write("\n")
 
+        self.report_file = tarballName
+
         return
         
+    def uploadResults(self):
+        # make sure a report exists
+        if not self.report_file:
+           return False
+
+        # make sure it's readable
+        try:
+           fp = open(self.report_file, "r")
+        except:
+           return False
+
+        try:
+           from ftplib import FTP
+           upload_name = os.path.basename(self.report_file)
+
+           ftp = FTP('dropbox.redhat.com')
+           ftp.login()
+           ftp.cwd("/incoming")
+           ftp.set_pasv(True)
+           ftp.storbinary('STOR %s' % upload_name, fp)
+           ftp.quit()
+        except:
+           print _("There was a problem uploading your report to Red Hat support.")
+        else:
+           print _('Your report was uploaded successfully with name:')
+           print "  " + upload_name
+           print
+           print _("Please communicate this name to your support representative.")
+
+        fp.close()

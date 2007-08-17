@@ -84,9 +84,6 @@ signal.signal(signal.SIGTERM, exittermhandler)
 ## FIXME: Need to figure out how to IPC with child threads in case of
 ## multiple SIGTERMs.
 
-# for debugging
-__raisePlugins__ = 0
-
 class OptionParser_extended(OptionParser):
     def print_help(self):
         OptionParser.print_help(self)
@@ -133,9 +130,15 @@ __cmdParser__.add_option("-k", action="extend", \
 __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
                      dest="usealloptions", default=False, \
                      help="enable all options for loaded plugins")
+__cmdParser__.add_option("-u", "--upload", action="store_true", \
+                     dest="upload", default=False, \
+                     help="upload the report to Red Hat support")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="increase verbosity")
+__cmdParser__.add_option("--debug", action="count", \
+                     dest="debug", \
+                     help="enabling debugging")
 __cmdParser__.add_option("--no-progressbar", action="store_false", \
                      dest="progressbar", default=True, \
                      help="do not display a progress bar.")
@@ -293,6 +296,13 @@ class XmlReport:
         outfn = open(fname,"w")
         outfn.write(self.doc.serialize(None,1))
         outfn.close()
+
+# if debugging is enabled, allow plugins to raise exceptions
+
+if __cmdLineOpts__.debug:
+   __raisePlugins__ = 1
+else:
+   __raisePlugins__ = 0
 
 def sosreport():
     # pylint: disable-msg = R0912
@@ -528,7 +538,7 @@ def sosreport():
         raw_input(_("""This utility will collect some detailed  information about the
 hardware and  setup of your  Red Hat Enterprise Linux  system.
 The information is collected and an archive is  packaged under
-/tmp, which you can send to a support rappresentative.
+/tmp, which you can send to a support representative.
 Red Hat will use this information for diagnostic purposes ONLY
 and it will be considered confidential information.
 
@@ -537,7 +547,7 @@ No changes will be made to your system.
 
 Press ENTER to continue, or CTRL-C to quit.
 """))
-    except KeyboardInterrupt:
+    except:
         print
         sys.exit(0)
 
@@ -723,8 +733,6 @@ Press ENTER to continue, or CTRL-C to quit.
 
     rfd.close()
 
-    # Collect any needed user information (name, etc)
-
     # Call the postproc method for each plugin
     for plugname, plug in loadedplugins:
         try:
@@ -737,7 +745,10 @@ Press ENTER to continue, or CTRL-C to quit.
     policy.packageResults()
     # delete gathered files
     os.system("/bin/rm -rf %s" % dstroot)
+
     # automated submission will go here
+    if __cmdLineOpts__.upload:
+        policy.uploadResults()
 
     # Close all log files and perform any cleanup
     logging.shutdown()

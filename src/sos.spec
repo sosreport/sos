@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.7
-%define release 6
+%define release 8
 
 %define _localedir %_datadir/locale
 
@@ -47,15 +47,23 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(-,root,root,-)
 %{_sbindir}/sosreport
+/usr/bin/rh-upload-core
 /usr/sbin/sysreport
 /usr/sbin/sysreport.legacy
 /usr/share/sysreport
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1*
 %{_localedir}/*/LC_MESSAGES/sos.mo
-%doc README TODO LICENSE ChangeLog
+%doc README README.rh-upload-core TODO LICENSE ChangeLog
 
 %changelog
+* Wed Aug 13 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-8
+- added README.rh-upload-core
+
+* Mon Aug 13 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-7
+- Resolves: bz251927 SOS errata needs to be respin to match 4.6 code base
+- added extras/rh-upload-core script from David Mair <dmair@redhat.com>
+
 * Mon Aug  9 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-6
 - more language fixes
 - added arabic, italian and french

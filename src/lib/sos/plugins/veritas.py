@@ -70,9 +70,8 @@ class veritas(sos.plugintools.PluginBase):
                     "VRTSvlic"]
     
     def checkenabled(self):
-        for i in commands.getoutput("/bin/rpm -qa | /bin/grep -i VRTS"):
-            pkg = i.split('-')[0]
-            if self.cInfo["policy"].pkgByName(pkg) != None:
+        for pkgname in self.package_list:
+            if self.cInfo["policy"].allPkgsByName(pkgname):
                 return True
         return False
     

@@ -47,7 +47,7 @@ class autofs(sos.plugintools.PluginBase):
         debugout=self.doRegexFindAll(r"^daemon.*\s+(\/var.*)", "/etc/syslog.conf")
         for i in debugout:
             return i
-    
+
     def setup(self):
         self.addCopySpec("/etc/auto*")
         self.addCopySpec("/etc/sysconfig/autofs")
@@ -58,6 +58,10 @@ class autofs(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
         self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
         self.collectExtOutput("/sbin/chkconfig --list autofs")
-        self.addCopySpec(self.getdaemondebug())
+
+        # if debugging to file is enabled, grab that file too
+        daemon_debug_file = self.getdaemondebug()
+        if daemon_debug_file:
+            self.addCopySpec(daemon_debug_file)
         return
 
