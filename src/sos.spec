@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.7
-%define release 8
+%define release 10pre0
 
 %define _localedir %_datadir/locale
 
