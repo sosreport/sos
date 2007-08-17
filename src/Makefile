@@ -5,7 +5,7 @@
 NAME    = sos
 VERSION = $(shell awk '/^%define version / { print $$3 }' sos.spec)
 RELEASE = $(shell awk '/^%define release / { print $$3 }' sos.spec)
-REPO = https://sos.108.redhat.com/svn/sos
+REPO = svn+ssh://svn.fedoraproject.org/svn/hosted/sos
 SVNTAG  = r$(subst .,-,$(VERSION))_$(RELEASE)
 SRCDIR = $(PWD)
 TOPDIR = $(PWD)/build/rpm-$(NAME)-$(VERSION)
