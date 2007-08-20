@@ -101,13 +101,14 @@ class SosPolicy:
            return None
 
     def allPkgs(self, ds = None, value = None):
-        if not hasattr(self, "rpm_ts"):
-            self.rpm_ts = rpm.TransactionSet()
+        ts = rpm.TransactionSet()
         if ds and value:
-            mi = self.rpm_ts.dbMatch(ds, value)
+            mi = ts.dbMatch(ds, value)
         else:
-            mi = self.rpm_ts.dbMatch()
-        return [pkg for pkg in mi]
+            mi = ts.dbMatch()
+        toret = [pkg for pkg in mi]
+        del mi, ts
+        return toret
 
     def runlevelByService(self, name):
         ret = []
@@ -171,7 +172,7 @@ class SosPolicy:
             self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
             self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
             print
-        except KeyboardInterrupt:
+        except:
             print
             sys.exit(0)
 

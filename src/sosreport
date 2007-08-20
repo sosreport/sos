@@ -50,10 +50,15 @@ def exittermhandler(signum, frame):
 
 def doExitCode():
     from threading import enumerate
-    global __breakHits__
+    global __breakHits__, loadedplugins, dstroot
+
     __breakHits__ += 1
     if ( ( activeCount() > 1 ) and ( __breakHits__ == 1 ) ):
         print "SIGTERM received, multiple threads detected, waiting for all threads to exit"
+
+        for plugname, plug in loadedplugins:
+            plug.exit_please()
+
         for thread in enumerate():
             if thread.getName() == "MainThread":
                 continue
@@ -62,21 +67,40 @@ def doExitCode():
                 try:
                     thread.join()
                 except KeyboardInterrupt:
-                    pass
+                    doExitCode()
         else:
             print "All threads ended, cleaning up."
-    if ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
+            if os.path.isdir(os.path.join(dstroot,"sos_commands")):
+                os.system("/bin/rm -rf %s" % dstroot)
+            sys.exit(1)
+
+    if  ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
         print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately"
         ## FIXME: Add thread-kill code (see FIXME below)
-#       os.kill(os.getpid(), signal.SIGKILL)
-        print "Threads dead, cleaning up."
-    if ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
+        return
+    elif ( ( activeCount() > 1 ) and ( __breakHits__ > 2 ) ):
+        print "Multiple SIGTERMs, multiple threads, process suicides."
+        os.kill(os.getpid(), signal.SIGKILL)
+    elif ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
         print "Multiple SIGTERMs, single thread, exiting without cleaning up."
         sys.exit(3)
 
     # FIXME: Add code here to clean up /tmp
     sys.exit("Abnormal exit")
-    
+
+def doException(type, value, tb):
+   if hasattr(sys, 'ps1') or not sys.stderr.isatty():
+      # we are in interactive mode or we don't have a tty-like
+      # device, so we call the default hook
+      sys.__excepthook__(type, value, tb)
+   else:
+      import traceback, pdb
+      # we are NOT in interactive mode, print the exception...
+      traceback.print_exception(type, value, tb)
+      print
+      # ...then start the debugger in post-mortem mode.
+      pdb.pm()
+
 # Handle any sort of exit signal cleanly
 # Currently, we intercept only sig 15 (TERM)
 signal.signal(signal.SIGTERM, exittermhandler)
@@ -300,9 +324,10 @@ class XmlReport:
 # if debugging is enabled, allow plugins to raise exceptions
 
 if __cmdLineOpts__.debug:
-   __raisePlugins__ = 1
+    sys.excepthook = doException
+    __raisePlugins__ = 1
 else:
-   __raisePlugins__ = 0
+    __raisePlugins__ = 0
 
 def sosreport():
     # pylint: disable-msg = R0912
@@ -311,6 +336,9 @@ def sosreport():
     """
     This is the top-level function that gathers and processes all sosreport information
     """
+
+    global loadedplugins, dstroot
+
     loadedplugins = []
     skippedplugins = []
     alloptions = []
@@ -392,36 +420,31 @@ def sosreport():
         if not plug[-3:] == '.py' or plugbase == "__init__":
             continue
         try:
-            #print "importing plugin: %s" % plugbase
-            try:
-                if policy.validatePlugin(pluginpath + plug):
-                    pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
-                else:
-                    soslog.warning(_("plugin %s does not validate, skipping") % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if plugbase in __cmdLineOpts__.noplugins:
-                    soslog.log(logging.VERBOSE, _("plugin %s skipped (--skip-plugins)") % plugbase)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if not pluginClass(plugbase, commons).checkenabled() and not plugbase in __cmdLineOpts__.enableplugins  and not plugbase in __cmdLineOpts__.onlyplugins:
-                    soslog.log(logging.VERBOSE, _("plugin %s is inactive (use -e or -o to enable).") % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if not pluginClass(plugbase, commons).defaultenabled() and not plugbase in __cmdLineOpts__.enableplugins and not plugbase in __cmdLineOpts__.onlyplugins:
-                    soslog.log(logging.VERBOSE, "plugin %s not loaded by default (use -e or -o to enable)." % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if __cmdLineOpts__.onlyplugins and not plugbase in __cmdLineOpts__.onlyplugins:
-                    soslog.log(logging.VERBOSE, _("plugin %s not specified in --only-plugins list") % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
-            except:
-                soslog.warning(_("plugin %s does not install, skipping") % plug)
-                raise
+            if policy.validatePlugin(pluginpath + plug):
+                pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
+            else:
+                soslog.warning(_("plugin %s does not validate, skipping") % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            if plugbase in __cmdLineOpts__.noplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s skipped (--skip-plugins)") % plugbase)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            if not pluginClass(plugbase, commons).checkenabled() and not plugbase in __cmdLineOpts__.enableplugins  and not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s is inactive (use -e or -o to enable).") % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            if not pluginClass(plugbase, commons).defaultenabled() and not plugbase in __cmdLineOpts__.enableplugins and not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, "plugin %s not loaded by default (use -e or -o to enable)." % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            if __cmdLineOpts__.onlyplugins and not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s not specified in --only-plugins list") % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
         except:
-            soslog.warning(_("could not load plugin %s") % plug)
+            soslog.warning(_("plugin %s does not install, skipping") % plug)
             if __raisePlugins__:
                 raise
 
@@ -595,10 +618,12 @@ Press ENTER to continue, or CTRL-C to quit.
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE2, "Preloading files and commands to be gathered by plugin %s" % plugname)
         try:
-           plug.setup()
+            plug.setup()
+        except KeyboardInterrupt:
+            raise
         except:
-           if __raisePlugins__:
-              raise
+            if __raisePlugins__:
+               raise
 
     # Setup the progress bar
     if __cmdLineOpts__.progressbar:
@@ -617,7 +642,7 @@ Press ENTER to continue, or CTRL-C to quit.
     # Call the collect method for each plugin
     plugrunning = Semaphore(2)
     for plugname, plug in loadedplugins:
-        soslog.log(logging.VERBOSE, "executing plugin %s" % plugname)
+        soslog.log(logging.VERBOSE, "requesting plugin %s" % plugname)
         try:
             if not __cmdLineOpts__.nomultithread:
                 plug.copyStuff(threaded = True, semaphore = plugrunning)
@@ -626,6 +651,8 @@ Press ENTER to continue, or CTRL-C to quit.
                 if __cmdLineOpts__.progressbar:
                     pbar.incAmount(plug.eta_weight)
                     pbar.update()
+        except KeyboardInterrupt:
+            raise
         except:
             if __raisePlugins__:
                 raise

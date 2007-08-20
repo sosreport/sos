@@ -31,7 +31,7 @@ This is the base class for sosreport plugins
 from sos.helpers import *
 from threading import Thread, activeCount
 import os, os.path, sys, string, itertools, glob, re, traceback
-import logging
+import logging, shutil
 from stat import *
 from time import time
 
@@ -68,6 +68,8 @@ class PluginBase:
         self.packages = []
         self.files = []
 
+        self.must_exit = False
+
         self.soslog = logging.getLogger('sos')
 
         # get the option list into a dictionary
@@ -97,7 +99,7 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (abspath,e))
+                        self.soslog.log(logging.VERBOSE, "problem at path %s (%s)" % (abspath,e))
                         break
         return False
     
@@ -129,108 +131,95 @@ class PluginBase:
         if copyProhibited:
             return ''
 
+        if not os.path.exists(srcpath):
+            self.soslog.debug("file or directory %s does not exist" % srcpath)
+            return
+
         if os.path.islink(srcpath):
             # This is a symlink - We need to also copy the file that it points to
-            # file and dir symlinks ar ehandled the same
+
+            # FIXME: ignore directories for now
+            if os.path.isdir(srcpath):
+                return
+
             link = os.readlink(srcpath)
+
+            # What's the name of the symlink on the dest tree?
+            dstslname = os.path.join(self.cInfo['dstroot'], srcpath.lstrip(os.path.sep))
 
             if os.path.isabs(link):
                 # the link was an absolute path, and will not point to the new
                 # tree. We must adjust it.
-
-                # What's the name of the symlink on the dest tree?
-                dstslname = os.path.join(self.cInfo['dstroot'], srcpath.lstrip(os.path.sep))
-
-                # make sure the dst dir exists
-                if not (os.path.exists(os.path.dirname(dstslname)) and os.path.isdir(os.path.dirname(dstslname))):
-                    # create the directory
-                    os.makedirs(os.path.dirname(dstslname))
-
-                dstsldir = os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep))
-                # Create the symlink on the dst tree
-                rpth = sosRelPath(os.path.dirname(dstslname), dstsldir)
-                os.symlink(rpth, dstslname)
+                rpth = sosRelPath(os.path.dirname(dstslname), os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep)))
             else:
                 # no adjustment, symlink is the relative path
-                dstslname = link
+                rpth = link
 
-            if os.path.isdir(srcpath): # symlink to a directory
-                # FIXME: don't recurse symlinks until vicious loops are detected
+            # make sure the link doesn't already exists
+            if os.path.exists(dstslname):
+                self.soslog.log(logging.DEBUG, "skipping symlink creation: already exists (%s)" % dstslname)
                 return
 
-                abslink = os.path.abspath(os.path.dirname(srcpath) + "/" + link)
-                self.soslog.log(logging.VERBOSE2, "DIRLINK %s to %s [%s]" % (srcpath,link,abslink))
-                for tmplink in self.copiedDirs:
-                   if tmplink["srcpath"] == abslink or tmplink["pointsto"] == abslink:
-                      self.soslog.log(logging.VERBOSE2, "already copied [%s]" % srcpath)
-                      return
+            # make sure the dst dir exists
+            if not (os.path.exists(os.path.dirname(dstslname)) and os.path.isdir(os.path.dirname(dstslname))):
+                os.makedirs(os.path.dirname(dstslname))
 
-                for afile in os.listdir(srcpath):
-                    if afile == '.' or afile == '..':
-                        pass
-                    else:
-                        self.soslog.log(logging.VERBOSE2, "copying (file or dir) %s" % srcpath+'/'+afile)
-                        try:
-                            abspath = self.doCopyFileOrDir(srcpath+'/'+afile)
-                        except SystemExit:
-                          raise SystemExit
-                        except KeyboardInterrupt:
-                          raise KeyboardInterrupt
-                        except Exception, e:
-                            self.soslog.verbose(traceback.format_exc())
-
-                        # if on forbidden list, abspath is null
-                        if not abspath == '':
-                            dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
-                            self.copiedDirs.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':os.path.abspath(srcpath+'/'+afile) })
-            else:
-                self.soslog.log(logging.VERBOSE3, "copying symlink %s" % srcpath)
-                try:
-                    dstslname, abspath = self.__copyFile(srcpath)
-                    self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
-                except SystemExit:
-                  raise SystemExit
-                except KeyboardInterrupt:
-                  raise KeyboardInterrupt
-                except Exception, e:
-                    self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath, e))
-
-            return abspath
+            self.soslog.log(logging.VERBOSE3, "creating symlink %s -> %s" % (dstslname, rpth))
+            os.symlink(rpth, dstslname)
+            self.copiedFiles.append({'srcpath':srcpath, 'dstpath':rpth, 'symlink':"yes", 'pointsto':link})
+            self.doCopyFileOrDir(link)
+            return
 
         else: # not a symlink
-            if not os.path.exists(srcpath):
-                self.soslog.debug("File or directory %s does not exist\n" % srcpath)
-            elif os.path.isdir(srcpath):
+            if os.path.isdir(srcpath):
                 for afile in os.listdir(srcpath):
                     if afile == '.' or afile == '..':
                         pass
                     else:
                         self.doCopyFileOrDir(srcpath+'/'+afile)
-            else:
-                # This is not a directory or a symlink
-                tdstpath, abspath = self.__copyFile(srcpath)
-                self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
-                self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
-                return abspath
+
+        # if we get here, it's definitely a regular file (not a symlink or dir)
+
+        self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
+        try:
+            tdstpath, abspath = self.__copyFile(srcpath)
+        except "AlreadyExists":
+            self.soslog.log(logging.DEBUG, "error copying file %s (already exists)" % (srcpath))
+            return
+        except IOError:
+            self.soslog.log(logging.VERBOSE2, "error copying file %s (IOError)" % (srcpath))
+            return 
+        except:
+            self.soslog.log(logging.VERBOSE2, "error copying file %s (SOMETHING HAPPENED)" % (srcpath))
+
+        self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
+
+        return abspath
 
     def __copyFile(self, src):
         """ call cp to copy a file, collect return status and output. Returns the
         destination file name.
         """
-        try:
-            # pylint: disable-msg = W0612
-            status, shout, runtime = sosGetCommandOutput("/bin/cp --parents -P --preserve=mode,ownership,timestamps,links " + src +" " + self.cInfo['dstroot'])
-            if status:
-                self.soslog.debug(shout)
-            abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
-            relpath = sosRelPath(self.cInfo['rptdir'], abspath)
-            return relpath, abspath
-        except SystemExit:
-          raise SystemExit
-        except KeyboardInterrupt:
-          raise KeyboardInterrupt
-        except Exception,e:
-            self.soslog.warning("Problem copying file %s (%s)" % (src, e))
+        rel_dir =  os.path.dirname(src).lstrip(os.path.sep)
+#        if rel_dir[0] == "/": rel_dir = rel_dir[1:]
+        new_dir = os.path.join(self.cInfo['dstroot'], rel_dir)
+        new_fname = os.path.join(new_dir, os.path.basename(src))
+
+        if not os.path.exists(new_fname):
+            if not os.path.isdir(new_dir):
+                os.makedirs(new_dir)
+
+            if os.path.islink(src):
+                linkto = os.readlink(src)
+                os.symlink(linkto, new_fname)
+            else:
+                shutil.copy2(src, new_dir)
+        else:
+            raise "AlreadyExists"
+
+        abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
+        relpath = sosRelPath(self.cInfo['rptdir'], abspath)
+        return (relpath, abspath)
 
     def addForbiddenPath(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copyPaths[] entry.
@@ -448,6 +437,10 @@ class PluginBase:
 
         if semaphore: semaphore.acquire()
 
+        if self.must_exit:
+            semaphore.release()
+            return
+
         self.soslog.log(logging.VERBOSE, "starting threaded plugin %s" % self.piName)
 
         self.time_start = time()
@@ -458,15 +451,13 @@ class PluginBase:
             try:
                 self.doCopyFileOrDir(path)
             except SystemExit:
-              if threaded:
-                 return SystemExit
-              else:
-                 raise SystemExit
+                if semaphore: semaphore.release()
+                if threaded: return KeyboardInterrupt
+                else:        raise  KeyboardInterrupt
             except KeyboardInterrupt:
-              if threaded:
-                 return KeyboardInterrupt
-              else:
-                 raise KeyboardInterrupt
+                if semaphore: semaphore.release()
+                if threaded: return KeyboardInterrupt
+                else:        raise  KeyboardInterrupt
             except Exception, e:
                 self.soslog.log(logging.VERBOSE2, "error copying from pathspec %s (%s), traceback follows:" % (path,e))
                 self.soslog.log(logging.VERBOSE2, traceback.format_exc())
@@ -475,16 +466,14 @@ class PluginBase:
             try:
                 self.collectOutputNow(prog, suggest_filename, root_symlink)
             except SystemExit:
-              if threaded:
-                 return SystemExit
-              else:
-                 raise SystemExit
+                if semaphore: semaphore.release()
+                if threaded: return SystemExit
+                else:        raise  SystemExit
             except KeyboardInterrupt:
-              if threaded:
-                 return KeyboardInterrupt
-              else:
-                 raise KeyboardInterrupt
-            except:
+                if semaphore: semaphore.release()
+                if threaded: return KeyboardInterrupt
+                else:        raise  KeyboardInterrupt
+            except Exception, e:
                 self.soslog.log(logging.VERBOSE2, "error collection output of '%s', traceback follows:" % prog)
                 self.soslog.log(logging.VERBOSE2, traceback.format_exc())
 
@@ -492,6 +481,10 @@ class PluginBase:
 
         if semaphore: semaphore.release()
         self.soslog.log(logging.VERBOSE, "plugin %s returning" % self.piName)
+
+    def exit_please(self):
+        """ This function tells the plugin that it should exit ASAP"""
+        self.must_exit = True
 
     def get_description(self):
         """ This function will return the description for the plugin"""
@@ -506,15 +499,15 @@ class PluginBase:
         """
         # some files or packages have been specified for this package
         if len(self.files) or len(self.packages):
-            for file in self.files:
-                if os.path.exists(files):
+            for fname in self.files:
+                if os.path.exists(fname):
                     return True
             for pkgname in self.packages:
                 if self.cInfo["policy"].pkgByName(pkgname):
                     return True
             return False
 
-        return True 
+        return True
 
     def defaultenabled(self):
         """This devices whether a plugin should be automatically loaded or
