@@ -50,7 +50,7 @@ class kernel(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
         self.moduleFile = self.collectOutputNow("/sbin/lsmod", root_symlink = "lsmod")
 
-        if self.isOptionEnabled('modinfo'):
+        if self.getOption('modinfo'):
            runcmd = ""
            for kmod in commands.getoutput('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null').split('\n'):
               if '' != kmod.strip():
@@ -75,7 +75,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/driver")
         self.addCopySpec("/proc/sys/kernel/tainted")
 
-        if self.isOptionEnabled('sysrq') and os.access("/proc/sysrq-trigger", os.W_OK):
+        if self.getOption('sysrq') and os.access("/proc/sysrq-trigger", os.W_OK):
            for key in ['m', 'p', 't']:
               commands.getoutput("/bin/echo %s > /proc/sysrq-trigger" % (key,))
            self.addCopySpec("/var/log/messages")

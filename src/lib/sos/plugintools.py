@@ -233,14 +233,22 @@ class PluginBase:
         """
         return (self.optNames, self.optParms)
   
-    def setOption(self, optionname, enable):
-        ''' enable or disable the named option.
+    def setOption(self, optionname, value):
+        ''' set the named option to value.
         '''
         for name, parms in zip(self.optNames, self.optParms):
             if name == optionname:
-                parms['enabled'] = enable
+                parms['enabled'] = value
+                return True
+        else:
+            return False
 
     def isOptionEnabled(self, optionname):
+        ''' Deprecated, use getOption() instead
+        '''
+        return self.getOption(optionname)
+
+    def getOption(self, optionname):
         ''' see whether the named option is enabled.
         '''
         for name, parms in zip(self.optNames, self.optParms):

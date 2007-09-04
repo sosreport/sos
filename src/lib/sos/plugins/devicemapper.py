@@ -13,19 +13,27 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
+from sos.helpers import sosGetCommandOutput
 
 class devicemapper(sos.plugintools.PluginBase):
     """device-mapper related information (dm, lvm, multipath)
     """
+
+    optionList = [("lvmdump", 'collect raw metadata from PVs', 'slow', False)]
+
+    def do_lvmdump(self):
+        """Collects raw metadata directly from the PVs using dd
+        """
+        sosGetCommandOutput("lvmdump -d %s" % os.path.join(self.cInfo['dstroot'],"lvmdump"), 120)
+
     def setup(self):
         self.collectExtOutput("/sbin/dmsetup info -c")
         self.collectExtOutput("/sbin/dmsetup table")
         self.collectExtOutput("/sbin/dmsetup status")
 
-        self.collectExtOutput("/usr/bin/systool -v -C -b scsi")
-
-        self.collectExtOutput("/usr/sbin/vgscan -vvv")
         self.collectExtOutput("/usr/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
+        self.collectExtOutput("/usr/sbin/vgscan -vvv")
         self.collectExtOutput("/usr/sbin/pvscan -v")
         self.collectExtOutput("/usr/sbin/lvs -a -o +devices")
         self.collectExtOutput("/usr/sbin/pvs -a -v")
@@ -36,5 +44,13 @@ class devicemapper(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/multipath.conf")
         self.addCopySpec("/var/lib/multipath/bindings")
         self.collectExtOutput("/sbin/multipath -v4 -ll")
+
+        self.collectExtOutput("/usr/bin/systool -v -C -b scsi")
+
+        self.collectExtOutput("/bin/ls -laR /dev")
+        self.collectExtOutput("/bin/ls -laR /sys/block")
+
+        if self.getOption('lvmdump'):
+            self.do_lvmdump()
 
         return

@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.7
-%define release 10pre0
+%define release 10pre1
 
 %define _localedir %_datadir/locale
 
@@ -47,6 +47,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(-,root,root,-)
 %{_sbindir}/sosreport
+/usr/share/sos/rhsupport.pub
 /usr/bin/rh-upload-core
 /usr/sbin/sysreport
 /usr/sbin/sysreport.legacy

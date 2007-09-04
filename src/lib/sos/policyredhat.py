@@ -27,6 +27,16 @@ import random
 import re
 import md5
 import rpm
+import time
+
+sys.path.insert(0, "/usr/share/rhn/")
+try:
+    from up2date_client import up2dateAuth
+    from up2date_client import config
+    from rhn import rpclib
+except:
+    # might fail if non-RHEL
+    pass
 
 #class SosError(Exception):
 #    def __init__(self, code, message):
@@ -73,9 +83,6 @@ class SosPolicy:
         pkg = self.pkgByName(name)
         return pkg['requirename']
 
-        cmd = "/bin/rpm -q --requires %s" % (name)
-        return [requires[:-1].split() for requires in os.popen(cmd).readlines()]
-
     def allPkgsByName(self, name):
         return self.allPkgs("name", name)
 
@@ -101,14 +108,20 @@ class SosPolicy:
            return None
 
     def allPkgs(self, ds = None, value = None):
+        # if possible return the cached values
+        try:                   return self._cache_rpm[ "%s-%s" % (ds,value) ]
+        except AttributeError: self._cache_rpm = {}
+        except KeyError:       pass
+
         ts = rpm.TransactionSet()
         if ds and value:
             mi = ts.dbMatch(ds, value)
         else:
             mi = ts.dbMatch()
-        toret = [pkg for pkg in mi]
+
+        self._cache_rpm[ "%s-%s" % (ds,value) ] = [pkg for pkg in mi]
         del mi, ts
-        return toret
+        return self._cache_rpm[ "%s-%s" % (ds,value) ]
 
     def runlevelByService(self, name):
         ret = []
@@ -136,6 +149,9 @@ class SosPolicy:
     def kernelVersion(self):
         return commands.getoutput("/bin/uname -r").strip("\n")
 
+    def hostName(self):
+        return commands.getoutput("/bin/hostname").split(".")[0]
+
     def rhelVersion(self):
         try:
             pkgname = self.pkgByName("redhat-release")["version"]
@@ -145,6 +161,15 @@ class SosPolicy:
                 return 5
         except: pass
         return False
+
+    def rhnUsername(self):
+        try:
+            cfg = config.initUp2dateConfig()
+
+            return rpclib.xmlrpclib.loads(up2dateAuth.getSystemId())[0][0]['username']
+        except:
+            # ignore any exception and return an empty username
+            return ""
 
     def isKernelSMP(self):
         if commands.getoutput("/bin/uname -v").split()[1] == "SMP":
@@ -158,10 +183,22 @@ class SosPolicy:
         name = "-".join(fields[:-3])
         return (name, version, release, arch)
 
+    def getDstroot(self):
+        """Find a temp directory to form the root for our gathered information
+           and reports.
+        """
+        dstroot = "/tmp/%s-%s" % (self.hostName(), time.strftime("%Y%m%d%H%M%S"))
+        try:
+            os.mkdir(dstroot, 0700)
+        except:
+            return False
+        return dstroot
+
     def preWork(self):
         # this method will be called before the gathering begins
 
-        localname = commands.getoutput("/bin/uname -n").split(".")[0]
+        localname = self.rhnUsername()
+        if len(localname) == 0: localname = self.hostName()
 
         try:
             self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
@@ -178,69 +215,72 @@ class SosPolicy:
 
     def packageResults(self):
 
-        if len(self.ticketNumber):
-            namestr = self.reportName + "." + self.ticketNumber
-        else:
-            namestr = self.reportName
+        self.report_file = os.path.join(gettempdir(), "sosreport-%s-%s.tar.bz2" % (self.reportName,time.strftime("%Y%m%d%H%M%S")))
 
-        ourtempdir = gettempdir()
-        tarballName = os.path.join(ourtempdir,  "sosreport-" + namestr + ".tar.bz2")
-
-        namestr = namestr + "-" + str(random.randint(1, 999999))
-
-        aliasdir = os.path.join(ourtempdir, namestr)
-
-        tarcmd = "/bin/tar -jcf %s %s" % (tarballName, namestr)
+        tarcmd = "/bin/tar -jcf %s %s" % (self.report_file, os.path.basename(self.cInfo['dstroot']))
 
         print _("Creating compressed archive...")
-        if not os.access(string.split(tarcmd)[0], os.X_OK):
-            print "Unable to create tarball"
-            return
 
-        # FIXME: gotta be a better way...
-        os.system("/bin/mv %s %s" % (self.cInfo['dstroot'], aliasdir))
         curwd = os.getcwd()
-        os.chdir(ourtempdir)
+        os.chdir(os.path.dirname(self.cInfo['dstroot']))
         oldmask = os.umask(077)
-        # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(tarcmd)
         os.umask(oldmask)
         os.chdir(curwd)
-        # FIXME: use python internal command
-        os.system("/bin/mv %s %s" % (aliasdir, self.cInfo['dstroot']))
 
-        # FIXME: encrypt using gnupg
-        # gpg --trust-model always --batch --keyring /usr/share/sos/rhsupport.pub --no-default-keyring --compress-level 0 --encrypt --recipient support@redhat.com --output filename.gpg filename.tar
+        return
 
-        # add last 6 chars from md5sum to file name
-        fp = open(tarballName, "r")
+    def cleanDstroot(self):
+        if not os.path.isdir(os.path.join(self.cInfo['dstroot'],"sos_commands")):
+            # doesn't look like a dstroot, refusing to clean
+            return False
+        os.system("/bin/rm -rf %s" % self.cInfo['dstroot'])
+
+    def encryptResults(self):
+        # make sure a report exists
+        if not self.report_file:
+           return False
+
+        print _("Encrypting archive...")
+        gpgname = self.report_file + ".gpg"
+        status, output = commands.getstatusoutput("/usr/bin/gpg --trust-model always --batch --keyring /usr/share/sos/rhsupport.pub --no-default-keyring --compress-level 0 --encrypt --recipient support@redhat.com --output %s %s" % (gpgname,self.report_file))
+        if status == 0:
+            os.unlink(self.report_file)
+            self.report_file = gpgname
+        else:
+           print _("There was a problem encrypting your report.")
+           sys.exit(1)
+
+    def displayResults(self):
+        # make sure a report exists
+        if not self.report_file:
+           return False
+
+        # calculate md5
+        fp = open(self.report_file, "r")
         md5out = md5.new(fp.read()).hexdigest()
         fp.close()
-        oldtarballName = tarballName
-        tarballName = os.path.join(ourtempdir, "sosreport-%s-%s.tar.bz2" % (namestr, md5out[-6:]) )
-        os.system("/bin/mv %s %s" % (oldtarballName, tarballName) )
+
         # store md5 to a file
-        fp = open(tarballName + ".md5", "w")
+        fp = open(self.report_file + ".md5", "w")
         fp.write(md5out + "\n")
         fp.close()
 
-        sys.stdout.write("\n")
-        print _("Your sosreport has been generated and saved in:\n  %s") % tarballName
+        print
+        print _("Your sosreport has been generated and saved in:\n  %s") % self.report_file
         print
         if md5out:
             print _("The md5sum is: ") + md5out
             print
         print _("Please send this file to your support representative.")
-        sys.stdout.write("\n")
+        print
 
-        self.report_file = tarballName
-
-        return
-        
     def uploadResults(self):
         # make sure a report exists
         if not self.report_file:
            return False
+
+        print
 
         # make sure it's readable
         try:
@@ -261,7 +301,7 @@ class SosPolicy:
         except:
            print _("There was a problem uploading your report to Red Hat support.")
         else:
-           print _('Your report was uploaded successfully with name:')
+           print _("Your report was successfully uploaded to Red Hat's ftp server with name:")
            print "  " + upload_name
            print
            print _("Please communicate this name to your support representative.")

@@ -70,9 +70,7 @@ def doExitCode():
                     doExitCode()
         else:
             print "All threads ended, cleaning up."
-            if os.path.isdir(os.path.join(dstroot,"sos_commands")):
-                os.system("/bin/rm -rf %s" % dstroot)
-            sys.exit(1)
+            doExit(1)
 
     if  ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
         print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately"
@@ -83,10 +81,15 @@ def doExitCode():
         os.kill(os.getpid(), signal.SIGKILL)
     elif ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
         print "Multiple SIGTERMs, single thread, exiting without cleaning up."
-        sys.exit(3)
+        doExit(3)
 
     # FIXME: Add code here to clean up /tmp
-    sys.exit("Abnormal exit")
+    doExit("Abnormal exit")
+
+def doExit(error=0):
+    global policy
+    policy.cleanDstroot()
+    sys.exit(error)
 
 def doException(type, value, tb):
    if hasattr(sys, 'ps1') or not sys.stderr.isatty():
@@ -157,6 +160,9 @@ __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
 __cmdParser__.add_option("-u", "--upload", action="store_true", \
                      dest="upload", default=False, \
                      help="upload the report to Red Hat support")
+__cmdParser__.add_option("--encrypt", action="store_true", \
+                     dest="encrypt", default=False, \
+                     help="encrypt with GPG using Red Hat support's public key")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="increase verbosity")
@@ -337,7 +343,7 @@ def sosreport():
     This is the top-level function that gathers and processes all sosreport information
     """
 
-    global loadedplugins, dstroot
+    global loadedplugins, dstroot, policy
 
     loadedplugins = []
     skippedplugins = []
@@ -354,7 +360,11 @@ def sosreport():
 
     # Set up common info and create destinations
     
-    dstroot = sosFindTmpDir()
+    dstroot = policy.getDstroot()
+    if not dstroot:
+        print _("Could not create temporary directory.")
+        doExit()
+
     cmddir = os.path.join(dstroot, "sos_commands")
     logdir = os.path.join(dstroot, "sos_logs")
     rptdir = os.path.join(dstroot, "sos_reports")
@@ -411,8 +421,7 @@ def sosreport():
     # generate list of available plugins
     plugins = os.listdir(pluginpath)
     plugins.sort()
-
-    # FIXME: should at least print a warning if the user references a plugin which does not exist
+    plugin_names = []
 
     # validate and load plugins
     for plug in plugins:
@@ -426,6 +435,8 @@ def sosreport():
                 soslog.warning(_("plugin %s does not validate, skipping") % plug)
                 skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 continue
+            # plug-in is valid, let's decide whether run it or not
+            plugin_names.append(plugbase)
             if plugbase in __cmdLineOpts__.noplugins:
                 soslog.log(logging.VERBOSE, _("plugin %s skipped (--skip-plugins)") % plugbase)
                 skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
@@ -473,7 +484,11 @@ def sosreport():
                     except: pass
 
             # split up "general.syslogsize"
-            plug, opt = opt.split(".")
+            try:
+                plug, opt = opt.split(".")
+            except:
+                plug = opt
+                opt = True
 
             try: opts[plug]
             except KeyError: opts[plug] = []
@@ -482,9 +497,25 @@ def sosreport():
         for plugname, plug in loadedplugins:
            if opts.has_key(plugname):
                for opt,val in opts[plugname]:
-                   soslog.log(logging.VERBOSE, "setting option %s for plugin %s to %s" % (plugname,opt,val))
-                   plug.setOption(opt,val)
+                   soslog.log(logging.VERBOSE, 'setting option "%s" for plugin (%s) to "%s"' % (plugname,opt,val))
+                   if not plug.setOption(opt,val):
+                       soslog.error('no such option "%s" for plugin (%s)' % (opt,plugname))
+                       doExit(1)
+               del opts[plugname]
+        for plugname in opts.keys():
+            soslog.error('unable to set option for disabled or non-existing plugin (%s)' % (plugname))
+            doExit(1)
         del opt,opts,val
+
+    # error if the user references a plugin which does not exist
+    unk_plugs =  [plugname.split(".")[0] for plugname in __cmdLineOpts__.onlyplugins   if not plugname.split(".")[0] in plugin_names]
+    unk_plugs += [plugname.split(".")[0] for plugname in __cmdLineOpts__.noplugins     if not plugname.split(".")[0] in plugin_names]
+    unk_plugs += [plugname.split(".")[0] for plugname in __cmdLineOpts__.enableplugins if not plugname.split(".")[0] in plugin_names]
+    if len(unk_plugs):
+        for plugname in unk_plugs:
+            soslog.error('a non-existing plugin (%s) was specified in the command line' % (plugname))
+        doExit(1)
+    del unk_plugs
 
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE3, _("processing options from plugin: %s") % plugname)
@@ -499,7 +530,7 @@ def sosreport():
     if __cmdLineOpts__.listPlugins:
         if not len(loadedplugins) and not len(skippedplugins):
            soslog.error(_("no valid plugins found"))
-           sys.exit(1)
+           doExit(1)
 
         # FIXME: make -l output more concise
         if len(loadedplugins):
@@ -542,20 +573,20 @@ def sosreport():
            print _("No plugin options available.")
 
         print
-        sys.exit()
+        doExit()
 
     # to go anywhere further than listing the plugins we will need root permissions.
     #
     if os.getuid() != 0:
         print _('sosreport requires root permissions to run.')
-        sys.exit(1)
+        doExit(1)
 
     # we don't need to keep in memory plugins we are not going to use
     del skippedplugins
 
     if not len(loadedplugins):
         soslog.error(_("no valid plugins were enabled"))
-        sys.exit(1)
+        doExit(1)
 
     try:
         raw_input(_("""This utility will collect some detailed  information about the
@@ -572,7 +603,7 @@ Press ENTER to continue, or CTRL-C to quit.
 """))
     except:
         print
-        sys.exit(0)
+        doExit()
 
     # Call the diagnose() method for each plugin
     tmpcount = 0
@@ -606,11 +637,11 @@ Press ENTER to continue, or CTRL-C to quit.
                  print
                  break
               elif yorno == _("n") or yorno == _("N"):
-                 sys.exit(0)
+                 doExit(0)
            del yorno
         except KeyboardInterrupt:
            print
-           sys.exit(0)
+           doExit(0)
 
     policy.preWork()
 
@@ -770,11 +801,18 @@ Press ENTER to continue, or CTRL-C to quit.
   
     # package up the results for the support organization
     policy.packageResults()
+
     # delete gathered files
-    os.system("/bin/rm -rf %s" % dstroot)
+    policy.cleanDstroot()
+
+    # let's encrypt the tar-ball
+    if __cmdLineOpts__.encrypt:
+        policy.encryptResults()
 
     # automated submission will go here
-    if __cmdLineOpts__.upload:
+    if not __cmdLineOpts__.upload:
+        policy.displayResults()
+    else:
         policy.uploadResults()
 
     # Close all log files and perform any cleanup

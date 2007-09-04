@@ -22,9 +22,9 @@ class yum(sos.plugintools.PluginBase):
     optionList = [("yumlist", "list repositories and packages", "slow", False)]
 
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("yum") or os.path.exists("/etc/yum.conf"):
-            return True
-        return False
+        self.files = [ "/etc/yum.conf" ]
+        self.packages = [ "yum" ]
+        return sos.plugintools.PluginBase.checkenabled(self)
 
     def analyze(self):
         # repo sanity checking
@@ -42,7 +42,7 @@ class yum(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/yum.conf")
         self.addCopySpec("/var/log/yum.log")
 
-        if self.isOptionEnabled("yumlist"):
+        if self.getOption("yumlist"):
             # Get a list of channels the machine is subscribed to.
             self.collectExtOutput("/bin/echo \"repo list\" | /usr/bin/yum shell")
             # List various information about available packages

@@ -18,8 +18,10 @@ import os
 class squid(sos.plugintools.PluginBase):
     """squid related information
     """
-    files = [ "/etc/squid/squid.conf" ]
-    packages = [ "squid" ]
+    def checkenabled(self):
+        self.files = [ "/etc/squid/squid.conf" ]
+        self.packages = [ "squid" ]
+        return sos.plugintools.PluginBase.checkenabled(self)
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")

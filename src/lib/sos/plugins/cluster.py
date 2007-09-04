@@ -25,31 +25,21 @@ class cluster(sos.plugintools.PluginBase):
                   ('taskdump', 'trigger 3 sysrq+t dumps every 5 seconds (dangerous)', 'slow', False)]
 
     def checkenabled(self):
-       # enable if any related package is installed
-       rhelver = self.cInfo["policy"].rhelVersion()
-       if rhelver == 4:
-          pkgs_to_check = [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins", 
-                            "rgmanager", "fence", "dlm", "dlm-kernel", "gulm",
-                            "GFS", "GFS-kernel", "lvm2-cluster" ]
-       elif rhelver == 5:
-          pkgs_to_check = [ "rgmanager", "luci", "ricci", "system-config-cluster",
-                            "gfs-utils", "gnbd", "kmod-gfs", "kmod-gnbd", "lvm2-cluster" ]
-       else:
-          # can't guess what RHEL version we are running
-          pkgs_to_check = []
+        self.files = [ "/etc/yum.conf" ]
+        self.packages = [ "yum" ]
 
-       for pkg in pkgs_to_check:
-          if self.cInfo["policy"].pkgByName(pkg) != None:
-             return True
+    def checkenabled(self):
+        rhelver = self.cInfo["policy"].rhelVersion()
+        if rhelver == 4:
+            self.packages = [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins", 
+                              "rgmanager", "fence", "dlm", "dlm-kernel", "gulm",
+                              "GFS", "GFS-kernel", "lvm2-cluster" ]
+        elif rhelver == 5:
+            self.packages = [ "rgmanager", "luci", "ricci", "system-config-cluster",
+                              "gfs-utils", "gnbd", "kmod-gfs", "kmod-gnbd", "lvm2-cluster" ]
 
-       # enable if any related file is present
-       for fname in [ "/etc/cluster/cluster.conf", "/proc/cluster" ]:
-          try:	 os.stat(fname)
-          except:pass
-          else:  return True
-
-       # no data related to RHCS/GFS exists
-       return False
+        self.files = [ "/etc/cluster/cluster.conf", "/proc/cluster" ]
+        return sos.plugintools.PluginBase.checkenabled(self)
 
     def has_gfs(self):
         try:
@@ -109,6 +99,8 @@ class cluster(sos.plugintools.PluginBase):
                           break
                    except IndexError:
                        pass
+               if found == 2:
+                   break
 
            if found == 0:
                self.addDiagnose("required kernel package is missing: %s" % pkgname)
@@ -190,6 +182,10 @@ class cluster(sos.plugintools.PluginBase):
         if status == 0 and conf_version != cluster_version:
            self.addDiagnose("cluster.conf and in-memory configuration version differ (%s != %s)" % (conf_version, cluster_version) )
 
+        status, output = commands.getstatusoutput("/usr/sbin/rg_test test /etc/cluster/cluster.conf")
+        if output.find("Error: ") > 0:
+           self.addDiagnose("configuration errors are present according to rg_test")
+
         # make sure the first part of the lock table matches the cluster name
         # and that the locking protocol is sane
         cluster_name = xpathContext.xpathEval("/cluster/@name")[0].content
@@ -223,9 +219,9 @@ class cluster(sos.plugintools.PluginBase):
 
         self.collectExtOutput("/sbin/ipvsadm -L")
 
-        if self.isOptionEnabled('gfslockdump'): self.do_gfslockdump()
-        if self.isOptionEnabled('lockdump'): self.do_lockdump()
-        if self.isOptionEnabled('taskdump'): self.do_taskdump()
+        if self.getOption('gfslockdump'): self.do_gfslockdump()
+        if self.getOption('lockdump'): self.do_lockdump()
+        if self.getOption('taskdump'): self.do_taskdump()
 
         return
 

@@ -51,13 +51,8 @@ class autofs(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/auto*")
         self.addCopySpec("/etc/sysconfig/autofs")
-        self.addCopySpec("/etc/init.d/autofs")
-        self.collectExtOutput("/bin/rpm -qV autofs")
-        self.collectExtOutput("/etc/init.d/autofs status")
-        self.collectExtOutput("ps auxwww | grep automount")
-        self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
-        self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
-        self.collectExtOutput("/sbin/chkconfig --list autofs")
+        self.addCopySpec("/etc/rc.d/init.d/autofs")
+        self.collectExtOutput("service autofs status")
 
         # if debugging to file is enabled, grab that file too
         daemon_debug_file = self.getdaemondebug()

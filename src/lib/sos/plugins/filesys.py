@@ -13,7 +13,8 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import commands
+from sos.helpers import sosReadFile
+import os
 
 class filesys(sos.plugintools.PluginBase):
     """information on filesystems
@@ -25,21 +26,18 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/mounts")
         self.addCopySpec("/proc/mdstat")
         self.addCopySpec("/etc/raidtab")
+        mounts = self.collectOutputNow("/bin/mount -l", root_symlink = "mount")
         self.addCopySpec("/etc/mdadm.conf")
         
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
-        self.collectExtOutput("/bin/mount -l", root_symlink = "mount")
         self.collectExtOutput("/sbin/blkid")
 
-        raiddevs = commands.getoutput("/bin/cat /proc/partitions | /bin/egrep -v \"^major|^$\" | /bin/awk '{print $4}' | /bin/grep \/ | /bin/egrep -v \"p[0123456789]$\"")
-        disks = commands.getoutput("/bin/cat /proc/partitions | /bin/egrep -v \"^major|^$\" | /bin/awk '{print $4}' | /bin/grep -v / | /bin/egrep -v \"[0123456789]$\"")
-        for disk in raiddevs.split('\n'):
-          if '' != disk.strip():
-            self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk,))
-            self.collectExtOutput("/sbin/tune2fs -l /dev/%s" % (disk,))
-        for disk in disks.split('\n'):
-          if '' != disk.strip():
-            self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk,))
-            self.collectExtOutput("/sbin/tune2fs -l /dev/%s" % (disk,))
-        return
+        for disk in os.listdir("/sys/block"):
+            if disk in [ ".",  ".." ] or disk.startswith("ram") or sosReadFile("/sys/block/%s/removable" % disk ).strip() == "1":
+                continue
+            self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk))
 
+        for extfs in self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts):
+            self.collectExtOutput("/sbin/tune2fs -l %s" % (extfs))
+
+        return

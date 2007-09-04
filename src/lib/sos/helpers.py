@@ -25,8 +25,8 @@
 """
 helper functions used by sosreport and plugins
 """
-import os, popen2, fcntl, select, itertools, sys, commands, logging
-from time import time
+import os, popen2, fcntl, select, itertools, sys, commands, logging, signal
+from time import time, sleep
 from tempfile import mkdtemp
 
 def importPlugin(pluginname, name):
@@ -57,7 +57,7 @@ def makeNonBlocking(afd):
         fcntl.fcntl(afd, fcntl.F_SETFL, fl | os.FNDELAY)
 
 
-def sosGetCommandOutput(command):
+def sosGetCommandOutput(command, timeout = 300):
     """ Execute a command and gather stdin, stdout, and return status.
     """
     soslog = logging.getLogger('sos')
@@ -73,14 +73,49 @@ def sosGetCommandOutput(command):
         soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % cmdfile)
         return (127, "", 0)
 
-    stime = time()
-    inpipe, pipe = os.popen4(command, 'r')
-    inpipe.close()
-    text = pipe.read()
-    sts = pipe.close()
-    if sts is None: sts = 0
-    if text[-1:] == '\n': text = text[:-1]
-    return (sts, text, time()-stime)
+    # these are file descriptors, not file objects
+    r, w = os.pipe()
+
+    pid = os.fork()
+
+    if pid:
+        # we are the parent
+        os.close(w) # use os.close() to close a file descriptor
+        r = os.fdopen(r) # turn r into a file object
+        stime=time()
+        txt = ""
+        while True:
+            # read output from pipe
+            txt = txt + r.read()
+            # is child still running ?
+            try:    os.waitpid(pid, os.WNOHANG)
+            except: break
+            # has 5 secs timeout passed ?
+            if time() - stime > timeout:
+               soslog.log(logging.VERBOSE, 'killing hung child with pid %s after %d seconds (command was "%s")' % (pid,timeout,command) )
+               os.kill(pid, signal.SIGKILL)
+               break
+            sleep(0.1)
+        # make sure the child process gets cleaned up
+        try:    sts = os.waitpid(pid, 0)[1]
+        except: sts = -1
+        if txt[-1:] == '\n': txt = txt[:-1]
+        return (sts, txt, time()-stime)
+    else:
+        # we are the child
+        os.dup2(r, 0)
+        os.dup2(w, 1)
+        os.dup2(w, 2)
+
+        import resource
+        maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1] 
+        if (maxfd == resource.RLIM_INFINITY): 
+           maxfd = MAXFD 
+        for fd in range(3, maxfd): 
+           try:            os.close(fd) 
+           except OSError: pass
+        os.execl("/bin/sh", "/bin/sh", "-c", command)
+        os._exit(127)
 
 # FIXME: this needs to be made clean and moved to the plugin tools, so
 # that it prints nice color output like sysreport if the progress bar
@@ -136,3 +171,10 @@ def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
     if not common:
         return path2      # leave path absolute if nothing at all in common
     return sep.join( [pardir]*len(u1) + u2 )
+
+def sosReadFile(fname):
+    ''' reads a file and returns its contents'''
+    fp = open(fname,"r")
+    content = fp.read()
+    fp.close()
+    return content

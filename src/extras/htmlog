@@ -2,7 +2,7 @@
 
 #from optparse import OptionParser, Option
 import time, sys, os, glob
-import getopt
+import getopt, re
 
 #__cmdParser__ = OptionParser()
 #__cmdParser__.add_option("-i", "--input", action="append", 
@@ -13,243 +13,30 @@ import getopt
 #                     help="How obnoxious we're being about telling the user what we're doing.")
 #(__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
-class host_class:
+class htmlgen_class:
 
    def __init__(self):
-      self.logs = []
+      self.html_fname_base = "/tmp/something"
+      self.page_num =  0
+      self.page_line = 0
+      self.page_fp =  None
+      self.cur_time = None
+      self.old_time = None
 
-      self.log_idx = 0 # first log
-      self.log_ptr = 0 # first char
+      self.summary_fp = open(self.html_fname_base + ".html", "w")
+      self.summary_fp.write("<html><body><ul>")
 
-   def add_log(self, logfile):
-#      if not logfile == logfile_class:
-#         raise "InvalidLogfile"
+   def new_page(self):
 
-      for inc in range(0,len(self.logs)):
-         if logfile.time_end() < self.logs[inc].time_begin():
-            self.logs.insert(inc, logfile)
-            break
-      else:
-         self.logs.append(logfile)
+      # close previous page
+      if self.page_fp:
+          self.close_page()
 
-   def hostname(self):
-      try:    return self.logs[0].hostname()
-      except: return None
+      self.page_fp = open( "%s_%d.html" % (self.html_fname_base, self.page_num), "w")
+      self.page_num += 1
+      self.page_line = 0
 
-   def tell(self):
-      sumsize = 0
-      if self.log_idx > 0:
-         for inc in range(0, self.log_idx):
-            sumsize += self.logs[inc].size()
-      try:
-         sumsize += self.fp().tell()
-      except TypeError:
-         pass
-      return sumsize
-
-   def size(self):
-      sumsize = 0
-      for inc in range(0, len(self.logs)):
-         sumsize += self.logs[inc].size()
-      return sumsize 
-
-   def eof(self):
-      if self.tell() >= self.size():
-         return True
-      return False
-
-   def seek(self, offset, whence = 0):
-      if whence == 1:   offset = self.tell() + offset
-      elif whence == 2: offset = self.size() + offset
-
-      sumsize = 0
-      for inc in range(0, len(self.logs)):
-         if offset <= sumsize + self.logs[inc].size():
-            offset -= sumsize
-            self.log_idx = inc
-            self.log_ptr = offset
-            self.logs[inc].seek(offset)
-            return True
-         sumsize += self.logs[inc].size()
-      raise "Off_Boundaries"   
-
-   def time(self):
-      pos = self.tell()
-      try:
-         toret = time.strptime(self.readline()[0:15], "%b %d %H:%M:%S")
-      except ValueError:
-         toret = None
-      self.seek(pos)
-      return toret
-
-   def fp(self):
-      return self.logs[self.log_idx]
-
-   def readline(self):
-      if self.eof():
-         return ""
-
-      while True:
-         toret = self.fp().readline()
-         if len(toret) == 0:
-            if self.log_idx < len(self.logs):
-               self.log_idx += 1
-               self.fp().seek(0)
-               continue
-            else:
-               return ""
-
-         if self.validate_line(toret) or toret == "":
-            return toret
-         else:
-            print "invalid line"
-
-   def validate_line(self, line):
-      try:
-         time.strptime(line[0:15], "%b %d %H:%M:%S")
-      except:
-         return False
-      return True
-
-   def readmsg(self):
-      toret = self.readline()
-      if toret:
-         return toret[18:]
-
-class logfile_class:
-
-   def __init__(self,fname):
-      self.events = []
-      self.fname = fname
-      self.fp = open(fname)
-
-   def hostname(self):
-      pos = self.fp.tell()
-      toret = self.fp.readline()[16:].split(" ")[0]
-      self.fp.seek(pos)
-      return toret
-
-   def time_begin(self):
-      pos = self.fp.tell()
-      self.fp.seek(0)
-      toret = time.strptime(self.fp.readline()[0:15], "%b %d %H:%M:%S")
-      self.fp.seek(pos)
-      return toret
-
-   def time_end(self):
-      pos = self.fp.tell()
-      bs = 1024
-      if self.size() < bs: bs = self.size()
-      self.fp.seek(-bs, 2)
-      line = self.fp.read(bs)
-      toret = time.strptime(line[line.rfind("\n", 0, bs - 1) + 1:][0:15], "%b %d %H:%M:%S")
-      self.fp.seek(pos)
-      return toret
-
-   def size(self):
-      return os.path.getsize(self.fname)
-
-   def eof(self):
-      return self.fp.tell() > self.size()
-
-   def readline(self):
-      return self.fp.readline()
-
-   def seek(self,pos):
-      self.fp.seek(pos)
-
-   def tell(self):
-      return self.fp.tell()
-
-   def parse(self):
-      self.seek(0)
-      while not self.eof:
-         self.readline()
-         self.parse_line()
-      self.seek(0)
-
-   def parse_line(self):
-
-      # is valid log line ?
-      if not self.time_current():
-         return
-
-      # store hostname, if we don't already have it
-      if len(self.hostname) == 0:
-         self.curline.split()[3]
-
-      # system is booting
-      if self.curmessage().startswith("kernel: Linux version"):
-         self.add_event("system boot")
-
-      # hostname has changed
-      if len(self.hostname) and self.hostname != self.curline.split()[3]:
-         self.add_event("hostname changed")
-         self.hostname = self.curline.split()[3]
-
-      # the clock is wrong wrong
-      if self.prevline and time.strptime(self.prevline[0:15], "%b %d %H:%M:%S") > self.time_current():
-         self.add_event("clock is messed up")
-
-   def add_event(self, message):
-      self.events.append( (self.curline_pos,len(self.curline),message) )
-
-   def time_current(self):
-      if len(self.curline) == 0: return None
-      try:
-         return time.strptime(self.curline[0:15], "%b %d %H:%M:%S")
-      except ValueError:
-         print "could not parse time", self.curline
-         return False
-
-def usage():
-   print "ciao"
-
-try:
-   opts, args = getopt.getopt(sys.argv[1:], "hi:v", ["help", "input="])
-except getopt.GetoptError:
-   # print help information and exit:
-   usage()
-   sys.exit(2)
-
-cmdline = {}
-cmdline["logfiles"] = []
-
-for o, a in opts:
-   if o == "-v":
-      verbose = True
-   if o in ("-h", "--help"):
-      usage()
-      sys.exit()
-   if o in ("-i", "--input"):
-      print o,a
-      for fname in sys.argv[2:]:
-         cmdline["logfiles"].append(fname)
-         sys.stderr.write("adding log %s\n" % fname)
-
-hosts = {}
-
-for logname in cmdline["logfiles"]:
-   log = logfile_class(logname)
-   hostname = log.hostname()
-   sys.stderr.write("log %s for host %s\n" % (logname, hostname))
-   if not hosts.has_key(hostname):
-      hosts[hostname] = host_class()
-   hosts[hostname].add_log(log)
-
-sys.stderr.write("finished adding logs\n")
-
-#print hosts["moka"].readline()
-#print hosts["moka"].readline()
-#print "DIRECT", hosts["moka"].fp().fp.tell()
-#print "HOST TELL", hosts["moka"].tell()
-#print hosts["moka"].readline()
-#print hosts["moka"].time()
-#print hosts["moka"].readline()
-#print hosts["moka"].time()
-#print hosts["moka"].readline()
-
-print """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+      self.page_fp.write("""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
  "http://www.w3.org/TR/html4/strict.dtd">
 
 <html>
@@ -352,7 +139,256 @@ th.specalt {
 
 </head>
 <body>
-"""
+
+<table id="mytable" cellspacing="0" summary="The technical specifications of the Apple PowerMac G5 series">
+<caption>Generated by SOS htmlogger 1.0 on March 16th 2008</caption>
+""")
+
+   def new_line(self, new_time, events = []):
+      self.old_time = self.cur_time
+      self.cur_time = new_time
+
+      # close previous line
+      if self.page_line > 0:
+         self.page_fp.write("</TR>")
+
+      if self.page_line == 0 or self.page_line % 200 == 0:
+         self.page_fp.write("""<tr><th scope="col" abbr="Date/Time" class="nobg">Time</th><th scope="col" abbr="node-1">node-1</th><th scope="col" abbr="node-2">node-2</th><th scope="col" abbr="node-3">node-3</th></tr>""")
+
+      if self.page_line == 0 or self.page_line % 200 == 0 or time.strftime("%b %d", self.old_time) != time.strftime("%b %d", new_time):
+         self.page_fp.write("""<tr><th scope="row" class="newday" colspan=4>%s</th></tr>""" % time.strftime("%A, %B %d", new_time))
+
+      if self.page_line % 2 == 0: row_class = "spec"
+      else: row_class = "specalt"
+
+      if len(events) > 0:
+          stime = """<a name="row_%d">%s</a>""" % (self.page_line, time.strftime("%H:%M:%S", new_time))
+          for event in events:
+              self.summary_fp.write('<li><a href="something_%d.html#row_%s">%s</a>' % (self.page_num-1,self.page_line,event) )
+      else:
+          stime = time.strftime("%H:%M:%S", new_time)
+
+      if not self.old_time or self.old_time != new_time:
+         self.page_fp.write("""<TR><th scope="row" class="%s">%s</th>""" % (row_class, stime))
+      else:
+         self.page_fp.write("""<TR><th scope="row" class="%s" style="color: #cacaca">%s</th>""" % (row_class, stime))
+
+      self.page_line+=1
+
+   def new_tab(self,msg):
+      self.page_fp.write("  <TD>" + msg + "</TD>\n")
+
+   def close_page(self):
+      self.page_fp.write("</table></html>\n")
+      self.page_fp.close()
+
+   def finish(self):
+      self.close_page()
+
+class host_class:
+
+   def __init__(self):
+      self.logs = []
+
+      self.log_idx = 0 # first log
+      self.log_ptr = 0 # first char
+
+      self.cur_line = None
+
+   def add_log(self, logfile):
+#      if not logfile == logfile_class:
+#         raise "InvalidLogfile"
+
+      for inc in range(0,len(self.logs)):
+         if logfile.time_end() < self.logs[inc].time_begin():
+            self.logs.insert(inc, logfile)
+            break
+      else:
+         self.logs.append(logfile)
+
+   def hostname(self):
+      try:    return self.logs[0].hostname()
+      except: return None
+
+   def tell(self):
+      sumsize = 0
+      if self.log_idx > 0:
+         for inc in range(0, self.log_idx):
+            sumsize += self.logs[inc].size()
+      try:
+         sumsize += self.fp().tell()
+      except TypeError:
+         pass
+      return sumsize
+
+   def size(self):
+      sumsize = 0
+      for inc in range(0, len(self.logs)):
+         sumsize += self.logs[inc].size()
+      return sumsize 
+
+   def eof(self):
+      if self.tell() >= self.size():
+         return True
+      return False
+
+   def seek(self, offset, whence = 0):
+      if whence == 1:   offset = self.tell() + offset
+      elif whence == 2: offset = self.size() + offset
+
+      sumsize = 0
+      for inc in range(0, len(self.logs)):
+         if offset <= sumsize + self.logs[inc].size():
+            offset -= sumsize
+            self.log_idx = inc
+            self.log_ptr = offset
+            self.logs[inc].seek(offset)
+            return True
+         sumsize += self.logs[inc].size()
+      raise "Off_Boundaries"   
+
+   def time(self):
+      return time.strptime(self.cur_line[0:15], "%b %d %H:%M:%S")
+      pos = self.tell()
+      try:
+         toret = time.strptime(self.readline()[0:15], "%b %d %H:%M:%S")
+      except ValueError:
+         toret = None
+      self.seek(pos)
+      return toret
+
+   def fp(self):
+      return self.logs[self.log_idx]
+
+   def backline(self):
+      self.seek(-len(self.cur_line), 1)
+
+   def readline(self):
+      if self.eof():
+         return ""
+
+      while True:
+         toret = self.fp().readline()
+         if len(toret) == 0:
+            if self.log_idx < len(self.logs):
+               self.log_idx += 1
+               self.fp().seek(0)
+               continue
+            else:
+               return ""
+
+         if self.validate_line(toret) or toret == "":
+            self.cur_line = toret
+            return toret
+         else:
+            print "invalid line"
+
+   def validate_line(self, line):
+      try:
+         time.strptime(line[0:15], "%b %d %H:%M:%S")
+      except:
+         return False
+      return True
+
+   def cur_msg(self):
+      if not hasattr(self,"_regex_cur_msg"):
+          self._regex_cur_msg = re.compile(r"""^.* %s (\S+:.*)$""" % self.hostname())
+
+      try:    return self._regex_cur_msg.findall(self.cur_line)[0]
+      except: return self.cur_line
+
+class logfile_class:
+
+   def __init__(self,fname):
+      self.events = []
+      self.fname = fname
+      self.fp = open(fname)
+
+   def hostname(self):
+      pos = self.fp.tell()
+      toret = self.fp.readline()[16:].split(" ")[0]
+      self.fp.seek(pos)
+      return toret
+
+   def time_begin(self):
+      pos = self.fp.tell()
+      self.fp.seek(0)
+      toret = time.strptime(self.fp.readline()[0:15], "%b %d %H:%M:%S")
+      self.fp.seek(pos)
+      return toret
+
+   def time_end(self):
+      pos = self.fp.tell()
+      bs = 1024
+      if self.size() < bs: bs = self.size()
+      self.fp.seek(-bs, 2)
+      line = self.fp.read(bs)
+      toret = time.strptime(line[line.rfind("\n", 0, bs - 1) + 1:][0:15], "%b %d %H:%M:%S")
+      self.fp.seek(pos)
+      return toret
+
+   def size(self):
+      return os.path.getsize(self.fname)
+
+   def eof(self):
+      return self.fp.tell() > self.size()
+
+   def readline(self):
+      return self.fp.readline()
+
+   def seek(self,pos):
+      self.fp.seek(pos)
+
+   def tell(self):
+      return self.fp.tell()
+
+   def validate_line(self):
+      return self.time_current(self.curmessage())
+
+   def time_current(self):
+      if len(self.curline) == 0: return None
+      try:
+         return time.strptime(self.curline[0:15], "%b %d %H:%M:%S")
+      except ValueError:
+         print "could not parse time", self.curline
+         return False
+
+def usage():
+   print "ciao"
+
+try:
+   opts, args = getopt.getopt(sys.argv[1:], "hi:v", ["help", "input="])
+except getopt.GetoptError:
+   # print help information and exit:
+   usage()
+   sys.exit(2)
+
+cmdline = {}
+cmdline["logfiles"] = []
+
+for o, a in opts:
+   if o == "-v":
+      verbose = True
+   if o in ("-h", "--help"):
+      usage()
+      sys.exit()
+   if o in ("-i", "--input"):
+      print o,a
+      for fname in sys.argv[2:]:
+         cmdline["logfiles"].append(fname)
+         sys.stderr.write("adding log %s\n" % fname)
+
+hosts = {}
+
+for logname in cmdline["logfiles"]:
+   log = logfile_class(logname)
+   hostname = log.hostname()
+   sys.stderr.write("log %s for host %s\n" % (logname, hostname))
+   if not hosts.has_key(hostname):
+      hosts[hostname] = host_class()
+   hosts[hostname].add_log(log)
+
+sys.stderr.write("finished adding logs\n")
 
 #print '<ul id="toc">'
 #for log in logs:
@@ -360,15 +396,9 @@ th.specalt {
 #   for line, msglen, event in log.events:
 #      print ' <li><span>%s</span> <a href="#">Link</a><br /></li>' % event
 
-print '</ul>'
-
-print """
-<table id="mytable" cellspacing="0" summary="The technical specifications of the Apple PowerMac G5 series">
-<caption>Generated by SOS htmlogger 1.0 on March 16th 2008</caption>
-"""
+htmlgen = htmlgen_class()
 
 previous_date = None
-inc = 0
 
 while True:
    # who is next ?
@@ -377,6 +407,8 @@ while True:
       if hosts[host].eof():
          continue
 
+      hosts[host].readline()
+
       if lowest_date == None or hosts[host].time() < lowest_date:
          lowest_date = hosts[host].time()
 
@@ -384,40 +416,49 @@ while True:
       # all logs are EOF
       break
 
-   if inc == 0 or inc % 200 == 0:
-      print """<tr><th scope="col" abbr="Date/Time" class="nobg">Time</th><th scope="col" abbr="node-1">node-1</th><th scope="col" abbr="node-2">node-2</th><th scope="col" abbr="node-3">node-3</th></tr>"""
+   events = []
+   for host in hosts:
+      if hosts[host].time() == lowest_date:
 
-   if not previous_date or time.strftime("%b %d", previous_date) != time.strftime("%b %d", lowest_date):
-      print """<tr><th scope="row" class="newday" colspan=4>%s</th></tr>""" % time.strftime("%A, %B %d", lowest_date)
+         if   re.match(r'^kernel: Linux version', hosts[host].cur_msg()):
+            events.append("%s rebooted" % host)
 
-   if inc % 2 == 0: row_class = "spec"
-   else: row_class = "specalt"
+         elif re.match(r'^.*fencing node', hosts[host].cur_msg()):
+            events.append(host + " " + hosts[host].cur_msg())
 
-   # FIXME: if this tick has an event, add <a name="...">
-   if not previous_date or previous_date != lowest_date:
-      print """<TR><th scope="row" class="%s">%s</th>""" % (row_class, time.strftime("%H:%M:%S", lowest_date) )
-   else:
-      print """<TR><th scope="row" class="%s" style="color: #cacaca">%s</th>""" % (row_class, time.strftime("%H:%M:%S", lowest_date) )
+         elif re.match(r'.*fence ".*" success', hosts[host].cur_msg()):
+            events.append(host + " " + hosts[host].cur_msg())
+
+         elif re.match(r'.*fence ".*" failed', hosts[host].cur_msg()):
+            events.append(host + " " + hosts[host].cur_msg())
+
+         elif re.match(r'.*quorum lost, blocking activity', hosts[host].cur_msg()):
+            events.append(host + " " + hosts[host].cur_msg())
+
+         elif re.match(r'.*quorum regained, resuming activity', hosts[host].cur_msg()):
+            events.append(host + " " + hosts[host].cur_msg())
+
+         elif re.match(r'.*segfault at', hosts[host].cur_msg()):
+            events.append(host + " " + hosts[host].cur_msg())
+
+      elif not hosts[host].eof():
+         hosts[host].backline()
+
+   if len(events): print time.strftime("%A %B %d %H:%M:%S", lowest_date), events
+
+   if htmlgen.page_line == 0 or htmlgen.page_line > 10000:
+       print "creating new page #%d" % htmlgen.page_num
+       htmlgen.new_page()
+
+   htmlgen.new_line(lowest_date, events)
 
    for host in hosts:
       if hosts[host].time() == lowest_date:
-#         print "  <TD>%d</TD>" % hosts[host].tell()
-         print "  <TD>" + hosts[host].readmsg() + "</TD>"
-#         print "  <TD>%d</TD>" % hosts[host].tell()
+         htmlgen.new_tab(hosts[host].cur_msg())
       else:
-         print "  <TD></TD>"
-   print " </TR>"
+         htmlgen.new_tab("")
 
-   previous_date = lowest_date
-   inc += 1
-
-print "</table>"
-   
-
-   
-
-
-
+htmlgen.close_page()
 
 
 
