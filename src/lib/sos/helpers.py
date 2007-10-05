@@ -81,24 +81,28 @@ def sosGetCommandOutput(command, timeout = 300):
     if pid:
         # we are the parent
         os.close(w) # use os.close() to close a file descriptor
+        oldr = r
         r = os.fdopen(r) # turn r into a file object
         stime=time()
         txt = ""
+        sts = -1
         while True:
             # read output from pipe
-            txt = txt + r.read()
+            ready = select.select([oldr],[],[],1)
+            if len(ready[0]):
+               txt = txt + r.read()
             # is child still running ?
             try:    os.waitpid(pid, os.WNOHANG)
-            except: break
-            # has 5 secs timeout passed ?
+            except:
+               # not running, make sure the child process gets cleaned up
+               try:    sts = os.waitpid(pid, 0)[1]
+               except: pass
+               break
+            # has timeout passed ?
             if time() - stime > timeout:
                soslog.log(logging.VERBOSE, 'killing hung child with pid %s after %d seconds (command was "%s")' % (pid,timeout,command) )
                os.kill(pid, signal.SIGKILL)
                break
-            sleep(0.1)
-        # make sure the child process gets cleaned up
-        try:    sts = os.waitpid(pid, 0)[1]
-        except: sts = -1
         if txt[-1:] == '\n': txt = txt[:-1]
         return (sts, txt, time()-stime)
     else:
