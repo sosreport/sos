@@ -33,14 +33,20 @@ from sos.helpers import *
 from snack import *
 from threading import Thread, activeCount
 import signal
-import logging
 from stat import *
 from time import strftime, localtime, time
 from pwd import getpwuid
 import gettext
 from threading import Semaphore
 
-__version__ = 1.7
+# RHEL3 doesn't have a logging module
+try:
+   import logging
+except ImportError:
+   import sos.rhel3_logging
+   logging = sos.rhel3_logging
+
+__version__ = 1.8
 
 __breakHits__ = 0  # Use this to track how many times we enter the exit routine
 
@@ -73,7 +79,7 @@ def doExitCode():
             doExit(1)
 
     if  ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
-        print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately"
+        print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately."
         ## FIXME: Add thread-kill code (see FIXME below)
         return
     elif ( ( activeCount() > 1 ) and ( __breakHits__ > 2 ) ):
@@ -83,7 +89,6 @@ def doExitCode():
         print "Multiple SIGTERMs, single thread, exiting without cleaning up."
         doExit(3)
 
-    # FIXME: Add code here to clean up /tmp
     doExit("Abnormal exit")
 
 def doExit(error=0):
@@ -163,6 +168,12 @@ __cmdParser__.add_option("-u", "--upload", action="store_true", \
 __cmdParser__.add_option("--encrypt", action="store_true", \
                      dest="encrypt", default=False, \
                      help="encrypt with GPG using Red Hat support's public key")
+__cmdParser__.add_option("--batch", action="store_true", \
+                     dest="batch", default=False, \
+                     help="do not ask any question (batch mode)")
+__cmdParser__.add_option("--no-colors", action="store_true", \
+                     dest="nocolors", default=False, \
+                     help="do not use terminal colors for text")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="increase verbosity")
@@ -175,9 +186,21 @@ __cmdParser__.add_option("--no-progressbar", action="store_false", \
 __cmdParser__.add_option("--no-multithread", action="store_true", \
                      dest="nomultithread", \
                      help="disable multi-threaded gathering mode (slower)", default=False)
+
+if sys.argv[0].endswith("sysreport"):
+    print
+    print "WARNING: sysreport is deprecated, please use sosreport instead."
+    if not sys.stdin.isatty():
+        print
+        os.execl("/bin/sh", "/bin/sh", "-c", "/usr/sbin/sysreport.legacy")
+        os.exit(-1)
+
 (__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
 def textcolor(text, fg, raw=0):
+    global __cmdLineOpts__
+    if __cmdLineOpts__.nocolors:
+       return text
     colors = {  "black":"30", "red":"31", "green":"32", "brown":"33", "blue":"34",
 		"purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
 		"lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
@@ -200,11 +223,11 @@ class progressBar:
         self.last_amount_update = time()
         self.update()
 
-    def updateAmount(self, newAmount = 0):
+    def updateAmount(self, newAmount = 0, finished = False):
         if newAmount < self.min:
             newAmount = self.min
         if newAmount > self.max:
-            newAmount = self.max
+            newAmount = self.max - 1
         if self.amount != newAmount:
             self.last_amount_update = time()
             self.amount = newAmount
@@ -219,6 +242,8 @@ class progressBar:
                 percentDone = round(timeElapsed * 100 / self.eta)
             except:
                 percentDone = 0
+            if percentDone >= 100 and not finished:
+                percentDone = 99
             if percentDone > 100:
                 percentDone = 100
                 ETA = timeElapsed
@@ -253,7 +278,7 @@ class progressBar:
         self.updateAmount(self.amount+toInc)
 
     def finished(self):
-        self.updateAmount(self.max)
+        self.updateAmount(self.max, finished = True)
         sys.stdout.write(self.progBar + '\n')
         sys.stdout.flush()
 
@@ -386,7 +411,10 @@ def sosreport():
     logging.addLevelName(logging.VERBOSE2,"verbose2")
     logging.addLevelName(logging.VERBOSE3,"verbose3")
 
-    # FIXME: strip colours if terminal doesn't allow it
+    # if stdin is not a tty, disable colors and don't ask questions
+    if not sys.stdin.isatty():
+        __cmdLineOpts__.nocolors = True
+        __cmdLineOpts__.batch = True
 
     # log to a file
     flog = logging.FileHandler(logdir + "/sos.log")
@@ -409,7 +437,7 @@ def sosreport():
     # set up dict so everyone can share the following
     commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir,
                'soslog': soslog, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity,
-               'xmlreport' : xmlrep }
+               'xmlreport' : xmlrep, 'cmdlineopts':__cmdLineOpts__ }
 
     # Make policy aware of the commons
     policy.setCommons(commons)
@@ -588,8 +616,7 @@ def sosreport():
         soslog.error(_("no valid plugins were enabled"))
         doExit(1)
 
-    try:
-        raw_input(_("""This utility will collect some detailed  information about the
+    msg = _("""This utility will collect some detailed  information about the
 hardware and  setup of your  Red Hat Enterprise Linux  system.
 The information is collected and an archive is  packaged under
 /tmp, which you can send to a support representative.
@@ -600,10 +627,13 @@ This process may take a while to complete.
 No changes will be made to your system.
 
 Press ENTER to continue, or CTRL-C to quit.
-"""))
-    except:
-        print
-        doExit()
+""")
+    if __cmdLineOpts__.batch:
+        print msg
+    else:
+        try:    raw_input(msg)
+        except: print ; doExit()
+    del msg
 
     # Call the diagnose() method for each plugin
     tmpcount = 0
@@ -630,18 +660,19 @@ Press ENTER to continue, or CTRL-C to quit.
         fp.close()
 
         print
-        try:
-           while True:
-              yorno = raw_input( _("Are you sure you would like to continue (y/n) ? ") )
-              if yorno == _("y") or yorno == _("Y"):
-                 print
-                 break
-              elif yorno == _("n") or yorno == _("N"):
-                 doExit(0)
-           del yorno
-        except KeyboardInterrupt:
-           print
-           doExit(0)
+        if not __cmdLineOpts__.batch:
+           try:
+              while True:
+                 yorno = raw_input( _("Are you sure you would like to continue (y/n) ? ") )
+                 if yorno == _("y") or yorno == _("Y"):
+                    print
+                    break
+                 elif yorno == _("n") or yorno == _("N"):
+                    doExit(0)
+              del yorno
+           except KeyboardInterrupt:
+              print
+              doExit(0)
 
     policy.preWork()
 
@@ -818,7 +849,6 @@ Press ENTER to continue, or CTRL-C to quit.
     # Close all log files and perform any cleanup
     logging.shutdown()
  
-    
 if __name__ == '__main__':
     try:
         sosreport()

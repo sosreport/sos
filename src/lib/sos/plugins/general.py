@@ -12,6 +12,7 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import os
 import sos.plugintools
 import glob
 
@@ -19,7 +20,8 @@ class general(sos.plugintools.PluginBase):
     """basic system information
     """
 
-    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15)]
+    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
+                  ("all_logs", "collect all log files defined in syslog.conf", "", False)]
 
     def setup(self):
         self.addCopySpec("/etc/redhat-release")
@@ -37,6 +39,14 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/date", root_symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
         self.collectExtOutput("/bin/env")
+
+        if self.getOption('all_logs'):
+           logs=self.doRegexFindAll(r"^\S+\s+(\S+)", "/etc/syslog.conf")
+           for i in logs:
+              i = i.lstrip("-")
+              if not os.path.isfile(i): continue
+              self.addCopySpec(i)
+
         return
 
     def postproc(self):

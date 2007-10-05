@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name sos
-%define version 1.7
-%define release 10pre1
+%define version 1.8
+%define release 0pre0
 
 %define _localedir %_datadir/locale
 
@@ -23,6 +23,7 @@ BuildArch: noarch
 Url: http://sos.108.redhat.com/
 BuildRequires: python-devel
 Requires: libxml2-python
+Provides: sysreport = 1.3.15-8
 Obsoletes: sysreport
 
 %description

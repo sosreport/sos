@@ -64,9 +64,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/proc/ksyms")
         self.addCopySpec("/proc/slabinfo")
-        # FIXME: kver should have this stuff cached somewhere
-        kver = commands.getoutput('/bin/uname -r')
-        self.addCopySpec("/lib/modules/%s/modules.dep" % kver)
+        self.addCopySpec("/lib/modules/%s/modules.dep" % self.cInfo["policy"].kernelVersion())
         self.addCopySpec("/etc/conf.modules")
         self.addCopySpec("/etc/modules.conf")
         self.addCopySpec("/etc/modprobe.conf")

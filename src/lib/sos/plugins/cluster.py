@@ -25,10 +25,6 @@ class cluster(sos.plugintools.PluginBase):
                   ('taskdump', 'trigger 3 sysrq+t dumps every 5 seconds (dangerous)', 'slow', False)]
 
     def checkenabled(self):
-        self.files = [ "/etc/yum.conf" ]
-        self.packages = [ "yum" ]
-
-    def checkenabled(self):
         rhelver = self.cInfo["policy"].rhelVersion()
         if rhelver == 4:
             self.packages = [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins", 

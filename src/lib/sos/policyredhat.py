@@ -61,7 +61,10 @@ def memoized(function):
 class SosPolicy:
     "This class implements various policies for sos"
     def __init__(self):
-        self.report_file = None
+        self.report_file = ""
+        self.report_md5 = ""
+        self.reportName = ""
+        self.ticketNumber = ""
         return
 
     def setCommons(self, commons):
@@ -177,6 +180,9 @@ class SosPolicy:
         else:
             return False
 
+    def getArch(self):
+        return commands.getoutput("/bin/uname -m").strip()
+
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
         version, release, arch = fields[-3:]
@@ -200,22 +206,33 @@ class SosPolicy:
         localname = self.rhnUsername()
         if len(localname) == 0: localname = self.hostName()
 
-        try:
-            self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
-            self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
-            if len(self.reportName) == 0:
-                self.reportName = localname
+        if not self.cInfo['cmdlineopts'].batch:
+            try:
+                self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
+                self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
 
-            self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
-            self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
-            print
-        except:
-            print
-            sys.exit(0)
+                self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
+                self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
+                print
+            except:
+                print
+                sys.exit(0)
+
+        if len(self.reportName) == 0:
+            self.reportName = localname
+
+        return
+
+    def renameResults(self, newName):
+        newName = os.path.join(gettempdir(), newName)
+        if len(self.report_file) and os.path.isfile(self.report_file):
+            try:    os.rename(self.report_file, newName)
+            except: return False
+        self.report_file = newName
 
     def packageResults(self):
 
-        self.report_file = os.path.join(gettempdir(), "sosreport-%s-%s.tar.bz2" % (self.reportName,time.strftime("%Y%m%d%H%M%S")))
+        self.renameResults("sosreport-%s-%s.tar.bz2" % (self.reportName, time.strftime("%Y%m%d%H%M%S")))
 
         tarcmd = "/bin/tar -jcf %s %s" % (self.report_file, os.path.basename(self.cInfo['dstroot']))
 
@@ -224,7 +241,7 @@ class SosPolicy:
         curwd = os.getcwd()
         os.chdir(os.path.dirname(self.cInfo['dstroot']))
         oldmask = os.umask(077)
-        status, shout, runtime = sosGetCommandOutput(tarcmd)
+        status, shout = commands.getstatusoutput(tarcmd)
         os.umask(oldmask)
         os.chdir(curwd)
 
@@ -258,19 +275,21 @@ class SosPolicy:
 
         # calculate md5
         fp = open(self.report_file, "r")
-        md5out = md5.new(fp.read()).hexdigest()
+        self.report_md5 = md5.new(fp.read()).hexdigest()
         fp.close()
 
-        # store md5 to a file
+        self.renameResults("sosreport-%s-%s-%s.tar.bz2" % (self.reportName, time.strftime("%Y%m%d%H%M%S"), self.report_md5[-4:]))
+
+        # store md5 into file
         fp = open(self.report_file + ".md5", "w")
-        fp.write(md5out + "\n")
+        fp.write(self.report_md5 + "\n")
         fp.close()
 
         print
         print _("Your sosreport has been generated and saved in:\n  %s") % self.report_file
         print
-        if md5out:
-            print _("The md5sum is: ") + md5out
+        if len(self.report_md5):
+            print _("The md5sum is: ") + self.report_md5
             print
         print _("Please send this file to your support representative.")
         print

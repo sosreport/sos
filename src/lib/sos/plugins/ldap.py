@@ -18,6 +18,11 @@ import os
 class ldap(sos.plugintools.PluginBase):
     """LDAP related information
     """
+    def checkenabled(self):
+        self.packages = [ "openldap" ]
+        self.files = [ "/etc/openldap/ldap.conf" ]
+        return sos.plugintools.PluginBase.checkenabled(self)
+
     def get_ldap_opts(self):
         # capture /etc/openldap/ldap.conf options in dict
         # FIXME: possibly not hardcode these options in?
@@ -30,29 +35,15 @@ class ldap(sos.plugintools.PluginBase):
                 results[x[0]]=x[1].rstrip("\n")
         return results
 
-    def get_slapd_debug(self):
-        """ Capture debugging information based on an existing log level
-        """
-        loglevel=self.doRegexFindAll(r"^local4.*\s+(\/var.*)", "/etc/syslog.conf")
-        for i in loglevel:
-            return i
-
     def diagnose(self):
         # Validate ldap client options
         ldapopts=self.get_ldap_opts()
-        if ldapopts.has_key("TLS_CACERTDIR"):
-            try:
-                os.stat(ldapopts["TLS_CACERTDIR"])
-            except:
+        if ldapopts.has_key("TLS_CACERTDIR") and os.path.exists(ldapopts["TLS_CACERTDIR"]):
                 self.addDiagnose("%s does not exist and can cause connection issues involving TLS" % ldapopts["TLS_CACERTDIR"])
 
     def setup(self):
         self.addCopySpec("/etc/ldap.conf")
         self.addCopySpec("/etc/openldap")
-
-        slapd_debug_file = self.get_slapd_debug()
-        if slapd_debug_file:
-            self.addCopySpec(slapd_debug_file)
 
     def postproc(self):
         self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")

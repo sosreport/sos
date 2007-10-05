@@ -25,38 +25,7 @@ class autofs(sos.plugintools.PluginBase):
             return True
         return False
 
-    def checkdebug(self):
-        """ 
-        Probably not needed? I think we can pretty much assume that if daemon.* is
-        set in /etc/syslog.conf then debugging is enabled.
-        FIXME: remove checkdebug if not needed in future release
-        """
-        pass
-        # Global debugging
-        optlist=[]
-        opt = self.doRegexFindAll(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
-        for opt1 in opt:
-            optlist.append(opt1)[1]
-        for dtest in optlist:
-            if dtest == "--debug" or dtest == "debug":
-                return True
-
-    def getdaemondebug(self):
-        """ capture daemon debug output
-        """
-        debugout=self.doRegexFindAll(r"^daemon.*\s+(\/var.*)", "/etc/syslog.conf")
-        for i in debugout:
-            return i
-
     def setup(self):
         self.addCopySpec("/etc/auto*")
         self.addCopySpec("/etc/sysconfig/autofs")
         self.addCopySpec("/etc/rc.d/init.d/autofs")
-        self.collectExtOutput("service autofs status")
-
-        # if debugging to file is enabled, grab that file too
-        daemon_debug_file = self.getdaemondebug()
-        if daemon_debug_file:
-            self.addCopySpec(daemon_debug_file)
-        return
-

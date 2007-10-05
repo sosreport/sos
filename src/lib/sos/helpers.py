@@ -25,9 +25,29 @@
 """
 helper functions used by sosreport and plugins
 """
-import os, popen2, fcntl, select, itertools, sys, commands, logging, signal
+import os, popen2, fcntl, select, sys, commands, signal
 from time import time, sleep
-from tempfile import mkdtemp
+
+if sys.version_info[0] <= 2 and sys.version_info[1] <= 2:
+    # it's a RHEL3, activate work-arounds
+    #
+    import sos.rhel3_logging
+    logging = sos.rhel3_logging
+
+    def mkdtemp(suffix = "", prefix = "temp_"):
+        import random
+        while True:
+            tempdir = "/tmp/%s_%d%s" % (prefix, random.randint(1,9999999), suffix)
+            if not os.path.exists(tempdir): break
+        os.mkdir(tempdir)
+        return tempdir
+
+    os.path.sep = "/"
+    os.path.pardir = ".."
+else:
+    # RHEL4+, business as usual
+    import logging
+    from tempfile import mkdtemp
 
 def importPlugin(pluginname, name):
     """ Import a plugin to extend capabilities of sosreport
@@ -81,16 +101,16 @@ def sosGetCommandOutput(command, timeout = 300):
     if pid:
         # we are the parent
         os.close(w) # use os.close() to close a file descriptor
-        oldr = r
-        r = os.fdopen(r) # turn r into a file object
+        r_fd = os.fdopen(r) # turn r into a file object
         stime=time()
         txt = ""
         sts = -1
+        soslog.log(logging.VERBOSE2, 'forked command "%s" with pid %d, timeout is %d' % (command, pid, timeout) )
         while True:
             # read output from pipe
-            ready = select.select([oldr],[],[],1)
-            if len(ready[0]):
-               txt = txt + r.read()
+            ready = select.select([r], [], [], 1)
+            if r in ready[0]:
+               txt = txt + r_fd.read()
             # is child still running ?
             try:    os.waitpid(pid, os.WNOHANG)
             except:
@@ -101,7 +121,8 @@ def sosGetCommandOutput(command, timeout = 300):
             # has timeout passed ?
             if time() - stime > timeout:
                soslog.log(logging.VERBOSE, 'killing hung child with pid %s after %d seconds (command was "%s")' % (pid,timeout,command) )
-               os.kill(pid, signal.SIGKILL)
+               try:    os.kill(pid, signal.SIGKILL)
+               except: pass
                break
         if txt[-1:] == '\n': txt = txt[:-1]
         return (sts, txt, time()-stime)
@@ -113,6 +134,8 @@ def sosGetCommandOutput(command, timeout = 300):
 
         import resource
         maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1] 
+        if not hasattr(resource, "RLIM_INFINITY"):
+               resource.RLIM_INFINITY = -1L
         if (maxfd == resource.RLIM_INFINITY): 
            maxfd = MAXFD 
         for fd in range(3, maxfd): 
@@ -144,23 +167,11 @@ def allEqual(elements):
             return False
     return True
 
-
-def commonPrefix(*sequences):
+def commonPrefix(l1, l2, common = []):
     ''' return a list of common elements at the start of all sequences,
         then a list of lists that are the unique tails of each sequence. '''
-    # if there are no sequences at all, we're done
-    if not sequences:
-        return [], []
-    # loop in parallel on the sequences
-    common = []
-    for elements in itertools.izip(*sequences):
-        # unless all elements are equal, bail out of the loop
-        if not allEqual(elements):
-            break
-        # got one more common element, append it and keep looping
-        common.append(elements[0])
-    # return the common prefix and unique tails
-    return common, [ sequence[len(common):] for sequence in sequences ]
+    if len(l1) < 1 or len(l2) < 1 or  l1[0] != l2[0]: return common, [l1, l2]
+    return commonPrefix(l1[1:], l2[1:], common+[l1[0]])
 
 def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
     ''' return a relative path from path1 equivalent to path path2.

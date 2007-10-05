@@ -27,7 +27,7 @@ class rpm(sos.plugintools.PluginBase):
           self.collectExtOutput("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"", root_symlink = "installed-rpms")
 
         if self.getOption("rpmva"):
-          self.eta_weight += 800 # this plugins takes 200x longer (for ETA)
-          self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va")
+          self.eta_weight += 1500 # this plugins takes 200x longer (for ETA)
+          self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
         return
 

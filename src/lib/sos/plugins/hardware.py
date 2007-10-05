@@ -36,23 +36,12 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/dasd")
         self.addCopySpec("/proc/s390dbf/tape")
         self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
-        self.collectExtOutput("""/bin/echo "lspci:" ; /bin/echo ; /sbin/lspci ; /bin/echo ; /bin/echo "lspci -nvv:" ; /bin/echo ; /sbin/lspci -nvv""", suggest_filename = "lspci", root_symlink = "lspci")
+        self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
         self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
 
-        # FIXME: if arch == i386:
-#        self.collectExtOutput("/usr/sbin/x86info -a")
-
-        # FIXME: what is this for?
-        self.collectExtOutput("/bin/dmesg | /bin/grep -e 'e820.' -e 'agp.'")
-              
-        # FIXME: what is this for?
-        tmpreg = ""
-        for hwmodule in commands.getoutput('cat /lib/modules/$(uname -r)/modules.pcimap | cut -d " " -f 1 | grep "[:alpha:]" | sort -u').split("\n"):
-            hwmodule = hwmodule.strip()
-            if len(hwmodule):
-                tmpreg = tmpreg + "|" + hwmodule
-        self.collectExtOutput("/bin/dmesg | /bin/egrep '(%s)'" % tmpreg[1:])        
+        if self.cInfo["policy"].getArch().endswith("386"):
+            self.collectExtOutput("/usr/sbin/x86info -a")
 
         self.collectExtOutput("/sbin/lsusb")
         self.collectExtOutput("/usr/bin/lshal")

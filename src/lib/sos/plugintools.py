@@ -30,10 +30,24 @@ This is the base class for sosreport plugins
 """
 from sos.helpers import *
 from threading import Thread, activeCount
-import os, os.path, sys, string, itertools, glob, re, traceback
-import logging, shutil
+import os, os.path, sys, string, glob, re, traceback
+import shutil
 from stat import *
 from time import time
+
+# RHEL3 doesn't have a logging module
+try:
+   import logging
+except ImportError:
+   import sos.rhel3_logging
+   logging = sos.rhel3_logging
+
+# RHEL3 doesn't have format_exc
+if sys.version_info[0] <= 2 and sys.version_info[1] <= 2:
+   def format_exc():
+       return "ciao"
+
+   traceback.format_exc = format_exc
 
 class PluginBase:
     """
@@ -177,6 +191,7 @@ class PluginBase:
                         pass
                     else:
                         self.doCopyFileOrDir(srcpath+'/'+afile)
+                return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
 
@@ -291,11 +306,11 @@ class PluginBase:
         status, shout, runtime = sosGetCommandOutput(prog)
         return status
 
-    def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None):
+    def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None, timeout = 300):
         """
         Run a program and collect the output
         """
-        self.collectProgs.append( (exe,suggest_filename,root_symlink) )
+        self.collectProgs.append( (exe, suggest_filename, root_symlink, timeout) )
 
     def fileGrep(self, regexp, fname):
         results = []
@@ -331,14 +346,13 @@ class PluginBase:
 
         return outfn
 
-    def collectOutputNow(self, exe, suggest_filename = None, root_symlink = False):
+    def collectOutputNow(self, exe, suggest_filename = None, root_symlink = False, timeout = 300):
         """ Execute a command and save the output to a file for inclusion in
         the report
         """
-        # FIXME: we should have a timeout or we may end waiting forever
 
         # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(exe)
+        status, shout, runtime = sosGetCommandOutput(exe, timeout = timeout)
 
         if suggest_filename:
             outfn = self.makeCommandFilename(suggest_filename)
@@ -356,7 +370,8 @@ class PluginBase:
             if root_symlink:
                 curdir = os.getcwd()
                 os.chdir(self.cInfo['dstroot'])
-                os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+                try:    os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+                except: pass
                 os.chdir(curdir)
 
             outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
@@ -469,10 +484,10 @@ class PluginBase:
             except Exception, e:
                 self.soslog.log(logging.VERBOSE2, "error copying from pathspec %s (%s), traceback follows:" % (path,e))
                 self.soslog.log(logging.VERBOSE2, traceback.format_exc())
-        for (prog,suggest_filename,root_symlink) in self.collectProgs:
+        for (prog, suggest_filename, root_symlink, timeout) in self.collectProgs:
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
-                self.collectOutputNow(prog, suggest_filename, root_symlink)
+                self.collectOutputNow(prog, suggest_filename, root_symlink, timeout)
             except SystemExit:
                 if semaphore: semaphore.release()
                 if threaded: return SystemExit
