@@ -25,7 +25,7 @@ class devicemapper(sos.plugintools.PluginBase):
     def do_lvmdump(self):
         """Collects raw metadata directly from the PVs using dd
         """
-        sosGetCommandOutput("lvmdump -d %s" % os.path.join(self.cInfo['dstroot'],"lvmdump"), 120)
+        sosGetCommandOutput("lvmdump -d %s" % os.path.join(self.cInfo['dstroot'],"lvmdump"))
 
     def setup(self):
         self.collectExtOutput("/sbin/dmsetup info -c")
@@ -52,5 +52,10 @@ class devicemapper(sos.plugintools.PluginBase):
 
         if self.getOption('lvmdump'):
             self.do_lvmdump()
+
+        for disk in os.listdir("/sys/block"):
+            if disk in [ ".",  ".." ] or disk.startswith("ram"):
+                continue
+            self.collectExtOutput("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
 
         return
