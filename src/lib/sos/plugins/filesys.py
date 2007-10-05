@@ -13,7 +13,6 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-from sos.helpers import sosReadFile
 import os
 
 class filesys(sos.plugintools.PluginBase):
@@ -32,10 +31,7 @@ class filesys(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
         self.collectExtOutput("/sbin/blkid")
 
-        for disk in os.listdir("/sys/block"):
-            if disk in [ ".",  ".." ] or disk.startswith("ram") or sosReadFile("/sys/block/%s/removable" % disk ).strip() == "1":
-                continue
-            self.collectExtOutput("/sbin/fdisk -l /dev/%s" % (disk))
+        self.collectExtOutput("/sbin/fdisk -l", root_symlink = "fdisk-l")
 
         for extfs in self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts):
             self.collectExtOutput("/sbin/tune2fs -l %s" % (extfs))

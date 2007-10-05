@@ -19,11 +19,11 @@ class selinux(sos.plugintools.PluginBase):
     """selinux related information
     """
     def setup(self):
-        self.addCopySpec("/etc/selinux/*")
+        self.addCopySpec("/etc/selinux")
         self.collectExtOutput("/usr/bin/selinuxconfig")
         self.collectExtOutput("/usr/sbin/sestatus", root_symlink = "sestatus")
-        self.collectExtOutput("/bin/rpm -q -V selinux-policy-targeted")
-        self.collectExtOutput("/bin/rpm -q -V selinux-policy-strict")
+        self.eta_weight += 120 # this plugins takes 120x longer (for ETA)
+        self.collectExtOutput("/sbin/fixfiles check")
         return
 
     def checkenabled(self):
