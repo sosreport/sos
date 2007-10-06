@@ -4,8 +4,8 @@ package maintainers, and anyone else to provide plugins that will
 collect, analyze, and report information that is useful for supporting
 software packages.
 
-This project is hosted at http://sos.108.redhat.com. For the latest version,
-to contribute, and for more information, please visit there.
+This project is hosted at http://hosted.fedoraproject.org/projects/sos
+For the latest version, to contribute, and for more information, please visit there.
 
 To access to the public source code repository for this project run:
 

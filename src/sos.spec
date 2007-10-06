@@ -20,7 +20,7 @@ Source1: rhsupport.pub
 License: GPL
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: http://sos.108.redhat.com/
+Url: http://hosted.fedoraproject.org/projects/sos
 BuildRequires: python-devel
 Requires: libxml2-python
 Provides: sysreport = 1.3.15-8

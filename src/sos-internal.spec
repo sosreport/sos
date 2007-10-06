@@ -15,7 +15,7 @@ Source1: rhsupport.key
 License: GPL
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: http://sos.108.redhat.com/
+Url: http://hosted.fedoraproject.org/projects/sos
 
 %description
 Sos is a set of tools that gathers information about system
