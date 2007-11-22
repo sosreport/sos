@@ -74,6 +74,16 @@ internal-rpm: gpgkey
 	@test -f sos-internal.spec
 	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD $(SRCDIR)/dist
 	cp gpgkeys/rhsupport.pub gpgkeys/rhsupport.key $(TOPDIR)/SOURCES
+
+#	this builds an RPM from the current working copy
+	@cd $(TOPDIR)/BUILD ; \
+	rm -rf $(NAME)-$(VERSION) ; \
+	ln -s $(SRCDIR) $(NAME)-$(VERSION) ; \
+	tar --gzip --exclude=.svn --exclude=svn-commit.tmp --exclude=$(NAME)-$(VERSION)/build --exclude=$(NAME)-$(VERSION)/dist \
+	--exclude gpgkeys/rhsupport.pub --exclude gpgkeys/rhsupport.key \
+	-chSpf $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) ; \
+	rm -f $(NAME)-$(VERSION)
+
 	rpmbuild -ba --define="_topdir $(TOPDIR)" sos-internal.spec
 	@mv $(TOPDIR)/RPMS/noarch/$(NAME)-internal-*.rpm $(TOPDIR)/SRPMS/$(NAME)-internal-*.rpm dist/
 	cp gpgkeys/rhsupport.key dist/

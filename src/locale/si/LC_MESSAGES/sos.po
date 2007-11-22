@@ -1,0 +1,192 @@
+# translation of si.po to Sinhala
+# Sinhalese translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
+#
+# Automatically generated, 2007.
+# Danishka Navin <snavin@redhat.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: si\n"
+"POT-Creation-Date: 2007-10-24 08:45\n"
+"PO-Revision-Date: 2007-11-07 19:03+0530\n"
+"Last-Translator: Danishka Navin <snavin@redhat.com>\n"
+"Language-Team: Sinhala <en@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/sos/policyredhat.py:203
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "කරුණාකර ඔබගේ පළමු මුළකුර සහ අවසාන නම ඇතුළත් කරන්න [%s]: "
+
+#: lib/sos/policyredhat.py:206
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "කරුණාකර මෙම වාර්තාව ගොඩනැන්වීමට අදාල අවස්ථා අංකය ඇතුළත් කරන්න: "
+
+#: lib/sos/policyredhat.py:231
+msgid "Creating compressed archive..."
+msgstr "හැකිලු සංරක්‍ෂක නිර්මාණය කරමින්..."
+
+#: lib/sos/policyredhat.py:253
+msgid "Encrypting archive..."
+msgstr "සංරක්‍ෂණ සංකේතාංකනය කරමින්..."
+
+#: lib/sos/policyredhat.py:271
+msgid "There was a problem encrypting your report."
+msgstr "ඔබගේ වාර්තාව සංකේතාංනය කිරීමේදි දෝෂයක් ඇතිවිය."
+
+#: lib/sos/policyredhat.py:292
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"ඔබගේ sosreport නිර්මාණය වූ අතර සුරකිනු ලැබු යේ:\n"
+"  %s"
+
+#: lib/sos/policyredhat.py:295
+msgid "The md5sum is: "
+msgstr "md5sum වනුයේ: "
+
+#: lib/sos/policyredhat.py:297
+msgid "Please send this file to your support representative."
+msgstr "කරුණාකර මෙම ගොනුව ඔබගේ සහායක නියෝජිත වෙත යවන්න."
+
+#: lib/sos/policyredhat.py:323
+msgid "Cannot upload to specified URL."
+msgstr "දක්වන ලඳ URL වෙත ලබා දිය නොහැක."
+
+#: lib/sos/policyredhat.py:360
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "ඔබගේ වාර්තාව Red Hat සහය වෙතට ලබා දිමේදි දෝෂයල් ඇති විය."
+
+#: lib/sos/policyredhat.py:362
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "ඔබගේ වාර්තාව සාර්තකව Red Hat's ftp සේවාදායකයට ලබාදුන් අතර නම වූයේ:"
+
+#: lib/sos/policyredhat.py:365
+msgid "Please communicate this name to your support representative."
+msgstr "ඔබගේ සහායක නියෝජිත වෙතට සංනිවේදනයට මෙම නම භාවිතා කරන්න."
+
+#: sosreport:395
+msgid "Could not create temporary directory."
+msgstr "තාවකාලීක බහලුම නිර්මාණය කළ නොහැකි විය."
+
+#: sosreport:451
+msgid "sosreport (version %s)"
+msgstr "sosreport (%s වෙළුම)"
+
+#: sosreport:468
+msgid "plugin %s does not validate, skipping"
+msgstr "%s ප්ලගීනය සත්‍යාපනය වන්නේ නැත, මගහරිමින්"
+
+#: sosreport:474
+msgid "plugin %s skipped (--skip-plugins)"
+msgstr "%s ප්ලගීනය මගහරින ලදි (--skip-plugins)"
+
+#: sosreport:478
+msgid "plugin %s is inactive (use -e or -o to enable)."
+msgstr "%sප්ලගීනය අක්‍රීයව ඇත ( සක්‍රීය කිරීමට -e හෝ -o භාවිතා කරන්න)."
+
+#: sosreport:486
+msgid "plugin %s not specified in --only-plugins list"
+msgstr "--only-plugins ලැයිස්තුව තුළ %s ප්ලගීනය විශේෂිතව දක්වා නැත"
+
+#: sosreport:491
+msgid "plugin %s does not install, skipping"
+msgstr "%s ප්ලගීනය ස්ථාපනය වන්නේ නැත, මගහරි"
+
+#: sosreport:554
+msgid "processing options from plugin: %s"
+msgstr "ප්ලගීන වෙතින් විකල්ප සකසමින්: %s"
+
+#: sosreport:565
+msgid "no valid plugins found"
+msgstr "නිරවද්‍ය පල්ගීන හමුවුයේ නැත"
+
+#: sosreport:570
+msgid "The following plugins are currently enabled:"
+msgstr "පහත දැක්වෙන ප්ලගීන දැනට සක්‍රීයව ඇත:"
+
+#: sosreport:575
+msgid "No plugin enabled."
+msgstr "ප්ලගීන කිසිවක් සක්‍රීය නැත."
+
+#: sosreport:579
+msgid "The following plugins are currently disabled:"
+msgstr "පහත පල්ගීන විකල්ප දැනට අක්‍රීයව ඇත:"
+
+#: sosreport:586
+msgid "The following plugin options are available:"
+msgstr "පහත පල්ගීන විකල්ප භාවිතයට ඇත:"
+
+#: sosreport:606
+msgid "No plugin options available."
+msgstr "කිසිදු පල්ගීන විකල්පයක් භාවිතයට නැත."
+
+#: sosreport:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport ක්‍රියාත්මක වීම සඳහා root අවසර අවශ්‍යව ඇත."
+
+#: sosreport:621
+msgid "no valid plugins were enabled"
+msgstr "කිසිදු නිරවද්‍ය පල්ගිනයක් සක්‍රිය කර නැත"
+
+#: sosreport:624
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"මෙම උපයෝගි තාවය දෘඩාංග පිළිබදව සවිස්තරාත්මක තොරතුරු රැස්කරණ අතර "
+"ඔබගේ  Red Hat Enterprise Linux  පද්ධතිය පිහිටවනු ලැබේ.\n"
+"රැස් කළ තොරතුරු සහ සංරක්‍ෂකය /tmp යටතේ ඇසුරුම් ගත කර ඇති අතර ඔබට "
+"එය සහායක නියෝජිත වෙත යැවිය හැක.\n"
+"Red Hat මෙම තොරතුරු  භාවිතා කරන්නේ දෝෂ විනිශ්චය පමණක් වන අතර එම "
+"තොරතුරු රහසිගත තොරතුරු ලෙස සළකණු ලබයි.\n"
+"\n"
+"මෙම ක්‍රියාව නිම වීමට වේලාවක් ගතවනු ඇත.\n"
+"ඔබගේ පද්ධතියට කිසිදු වෙනසක් සිදු නොවනු ඇත.\n"
+"\n"
+
+#: sosreport:638
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "දිගටම කරගෙන යාමට ENTER හෝ පිට වීමට CTRL-C ඔබන්න.\n"
+
+#: sosreport:654
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "ප්ලගීන එකක හෝ කිහිපයක් ඔබගේ ප්ධතිය තුළ වූ දෝෂයක් අනාවරණය කරගෙන ඇත."
+
+#: sosreport:655
+msgid "Please review the following messages:"
+msgstr "කරුණාකර පහත පණිවිඩ නැවත සළකා බලන්න:"
+
+#: sosreport:671
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "ඔබට විශ්වාසද? ඔබට දිගටම කරගෙන යාමට අවශ්‍යද (y/n) ? "
+
+#: sosreport:672
+msgid "Y"
+msgstr "Y"
+
+#: sosreport:672
+msgid "y"
+msgstr "y"
+
+#: sosreport:675
+msgid "N"
+msgstr "N"
+
+#: sosreport:675
+msgid "n"
+msgstr "n"
+

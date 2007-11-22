@@ -48,14 +48,14 @@ getpciinfo() {
 
 catiffile() {
   if [ -d $1 ]; then
-    /bin/cp -x --parents -R $1 $ROOT 2>>$ROOT/$log
+    /bin/cp -p -x --parents -R $1 $ROOT 2>>$ROOT/$log
     find $ROOT/$1 -type b -o -type c | xargs rm -f 2>/dev/null || :
     echo -n $STATUS
     echo_success
     return 1
   fi
   if [ -f $1 ]; then
-    /bin/cp --parents $1 $ROOT 2>>$ROOT/$log
+    /bin/cp -p --parents $1 $ROOT 2>>$ROOT/$log
     echo -n $STATUS
     echo_success
     return 1

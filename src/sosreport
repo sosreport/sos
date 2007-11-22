@@ -28,6 +28,7 @@ supplied for application-specific information
 import sys
 import os
 from optparse import OptionParser, Option
+import ConfigParser
 import sos.policyredhat
 from sos.helpers import *
 from snack import *
@@ -370,6 +371,10 @@ def sosreport():
 
     global loadedplugins, dstroot, policy
 
+    config = ConfigParser.ConfigParser()
+    try: config.readfp(open('/etc/sos.conf'))
+    except IOError: pass
+
     loadedplugins = []
     skippedplugins = []
     alloptions = []
@@ -437,7 +442,7 @@ def sosreport():
     # set up dict so everyone can share the following
     commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir,
                'soslog': soslog, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity,
-               'xmlreport' : xmlrep, 'cmdlineopts':__cmdLineOpts__ }
+               'xmlreport' : xmlrep, 'cmdlineopts':__cmdLineOpts__, 'config':config }
 
     # Make policy aware of the commons
     policy.setCommons(commons)
@@ -495,6 +500,14 @@ def sosreport():
                 if type(parms["enabled"])==bool:
                     parms["enabled"] = True
 
+    # read plugin tunables from configuration file
+    if config.has_section("tunables"):
+       if not __cmdLineOpts__.plugopts:
+          __cmdLineOpts__.plugopts = []
+
+       for opt, val in config.items("tunables"):
+          __cmdLineOpts__.plugopts.append(opt + "=" + val)
+
     if __cmdLineOpts__.plugopts:
         opts = {}
         for opt in __cmdLineOpts__.plugopts:
@@ -504,7 +517,7 @@ def sosreport():
             except:
                 val=True
             else:
-                if val == "off" or val == "disable" or val == "disabled":
+                if val.lower() in ["off", "disable", "disabled", "false"]:
                     val = False
                 else:
                     # try to convert string "val" to int()
@@ -626,11 +639,11 @@ and it will be considered confidential information.
 This process may take a while to complete.
 No changes will be made to your system.
 
-Press ENTER to continue, or CTRL-C to quit.
 """)
     if __cmdLineOpts__.batch:
         print msg
     else:
+        msg += _("""Press ENTER to continue, or CTRL-C to quit.\n""")
         try:    raw_input(msg)
         except: print ; doExit()
     del msg
@@ -829,7 +842,7 @@ Press ENTER to continue, or CTRL-C to quit.
         except:
            if __raisePlugins__:
                 raise
-  
+
     # package up the results for the support organization
     policy.packageResults()
 

@@ -35,17 +35,23 @@ import shutil
 from stat import *
 from time import time
 
-# RHEL3 doesn't have a logging module
+# RHEL3 doesn't have a logging module, activate work-around
 try:
    import logging
 except ImportError:
    import sos.rhel3_logging
    logging = sos.rhel3_logging
 
-# RHEL3 doesn't have format_exc
-if sys.version_info[0] <= 2 and sys.version_info[1] <= 2:
+# python < 2.4 (RHEL3 and RHEL4) doesn't have format_exc, activate work-around
+if sys.version_info[0] <= 2 and sys.version_info[1] < 4:
    def format_exc():
-       return "ciao"
+      import StringIO
+
+      output = StringIO.StringIO()
+      traceback.print_exc(file = output)
+      toret = output.getvalue()
+      output.close()
+      return toret
 
    traceback.format_exc = format_exc
 

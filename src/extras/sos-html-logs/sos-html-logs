@@ -1,0 +1,670 @@
+#!/usr/bin/env python
+
+#from optparse import OptionParser, Option
+import time, sys, os, glob
+import getopt, traceback
+try:    import cherrypy
+except: print "python-cherrypy is missing. Exiting."; sys.exit(1)
+from cherrypy.lib import cptools
+import pdb
+
+sys.path.append("lib")
+
+import soshtmllogs.database
+from soshtmllogs.logs_abstraction import *
+
+class Root:
+   def header(self):
+      return """
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+<title></title>
+<script type="text/javascript" src="overlib/overlibmws.js"></script>
+<script type="text/javascript" src="overlib/overlibmws_draggable.js"></script>
+<script type="text/javascript" src="overlib/overlibmws_filter.js"></script>
+<script type="text/javascript" src="overlib/overlibmws_overtwo.js"></script>
+<script type="text/javascript" src="overlib/overlibmws_shadow.js"></script>
+<script type="text/javascript" src="overlib/overlibmws_scroll.js"></script>
+
+<script TYPE="text/javascript">
+<!--
+var ol_width=300;
+var ol_fgcolor='#ffffcc';
+var ol_bgcolor='#666666';
+//-->
+</script>
+
+<script type="text/javascript">
+<!--
+OLpageDefaults(BGCLASS,'olbg', CGCLASS,'olcg', FGCLASS,'olfg',
+ CAPTIONFONTCLASS,'olcap', CLOSEFONTCLASS,'olclo', TEXTFONTCLASS,'oltxt');
+
+function OLiframeContent(src, width, height, name, frameborder, scrolling) {
+ return ('<iframe src="'+src+'" width="'+width+'" height="'+height+'"'
+  +(name!=null?' name="'+name+'" id="'+name+'"':'')
+  +(frameborder!=null?' frameborder="'+frameborder+'"':'')
+  +' scrolling="'+(scrolling!=null?scrolling:'auto')+'">'
+  +'<div>[iframe not supported]</div></iframe>');
+}
+//-->
+</script>
+
+<style type="text/css">
+<!--
+.olbg {background-color:#333399;}
+.olcg {background-color:#aa0000; text-align:center;} # title
+.olcgif {background-color:#333399; text-align:center;}
+.olfg {background-color:#ecf5ff; text-align:center;} # body bg
+.olfgif {background-color:#bbddff; text-align:center;}
+.olcap {font-family:Arial; font-size:12px; font-weight:bold; color:#ffffff;}
+a.olclo {font-family:Verdana; font-size:11px; font-weight:bold; color:#ddddff;}
+a.olclo:hover {color:#ffffff;}
+.oltxt {font-family:Arial; font-size:12px; color:#000000;}
+-->
+</style>
+
+<script type="text/javascript">
+<!--
+
+function log_toggle_color(obj) {
+  if (obj.style.color == '') {
+    obj.style.color = 'red';
+    obj.style.fontWeight='bolder';
+  } else {
+    obj.style.color = '';
+    obj.style.fontWeight='normal';
+  }
+  return True;
+}
+
+function get_selection_text() {
+  var txt = '';
+  if (window.getSelection) {
+    txt = window.getSelection();
+  } else if (document.getSelection) {
+    txt = document.getSelection();
+  } else if (document.selection) {
+    txt = document.selection.createRange().text;
+  } else return;
+  return txt;
+}
+
+//-->
+</script>
+
+<style type="text/css">
+<!--
+
+body {
+	font: normal 11px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: #4f6b72;
+	background: #E6EAE9;
+}
+
+a {
+	color: #c75f3e;
+}
+
+#mytable {
+	width: 97%;
+	padding: 0;
+	margin: 0;
+}
+
+caption {
+	padding: 0 0 5px 0;
+	width: 97%;
+	font: italic 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	text-align: right;
+}
+
+th {
+	font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: #4f6b72;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	text-align: left;
+	padding: 6px 6px 6px 12px;
+	background: #a50000;
+	color: white;
+}
+
+th.nobg {
+	border-top: 0;
+	border-left: 0;
+	border-right: 1px solid #C1DAD7;
+	background: none;
+	color: black;
+}
+
+td {
+	border-right: 1px solid #C1DAD7;
+	border-bottom: 1px solid #C1DAD7;
+	background: #fff;
+	color: #4f6b72;
+	letter-spacing: -1px;
+	white-space:pre-wrap;
+	font-family: monospace;
+}
+
+pre {
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+td.alt {
+	background: #ffbaba;
+	color: #797268;
+}
+
+th.newday {
+	text-align: right;
+	padding: 2px;
+}
+
+th.spec {
+	border-left: 1px solid #C1DAD7;
+	border-right: 1px solid #C1DAD7;
+	border-top: 0;
+	background: #fff;
+	font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: #797268;
+	vertical-align: top;
+}
+
+th.specalt {
+	border-left: 1px solid #C1DAD7;
+	border-right: 1px solid #C1DAD7;
+	border-top: 0;
+	background: #cecfce;
+	font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: #797268;
+	vertical-align: top;
+}
+
+.log_invalid_date {
+	color: dark green;
+        font-weight: bold;
+        background-color: yellow;
+}
+
+input {
+  border: 1px solid #cc0000;
+  background: red;
+  color: white;
+}
+
+#fixme { position: fixed; right: 0px; top: 0px; z-index: 2; }
+
+#navigation_enabled {
+  border: 1px solid #cc0000;
+  background: red;
+  color: white;
+  cursor: pointer;
+}
+
+#navigation_disabled {
+  border: 1px solid #cc0000;
+  background: gray;
+  color: white;
+  cursor: not-allowed;
+}
+
+.progressbar {
+   border: 2px solid black;
+   background: #ffa;
+   position: relative;
+   width: 500px;
+   height: 4.5em;
+   margin-bottom: 4px;
+   -moz-border-radius-topright: 2em;
+   -moz-border-radius-bottomright: 2em;
+}
+						
+.progressbar div {
+   position: absolute;
+   top: 0px;
+   left: 0px;
+   height: 99%;
+   background-color: #cf5;
+}
+			
+.progressbar div p {
+   white-space: nowrap;
+   display: block;
+   height: 100%;
+   margin: 0;
+   padding: 0 1em;
+   line-height: 2em;
+   font-weight: bold;
+   font-size: x-large;
+}
+			
+.progressbar p span {
+   display: none;
+}
+
+A:link { font-weight: normal; text-decoration: none; }
+A:visited { font-weight: normal; text-decoration: none; }
+
+-->
+</style>
+
+</head>
+<body>
+
+<a href="/">Index</a> <a href="/browse">Browse</a><p>
+
+"""
+   def footer(self):
+      return """</body></html>"""
+
+   def browse(self):
+      position = cherrypy.session.get('position')
+      dates_per_page = cherrypy.session.get('dates_per_page', 300)
+      filter_daemons = cherrypy.session.get('filter_daemons', [])
+
+      cluster = cluster_master.instance()
+
+      if position:
+         cluster.seek(position)
+      else:
+         cluster.seek_beginning()
+         position = cluster.tell()
+
+      yield self.header()
+
+      yield """<table id="mytable" cellspacing="0" summary="">
+<caption>Generated by sos-logs2html 1.0 on %s</caption>
+<ul id="toc">
+</ul>""" % (time.strftime("%B %d %H:%M:%S"))
+
+      first_date = None
+      prev_date = None
+      line = 0
+      log_lines = 0
+
+      for date in cluster:
+
+         events = myDB.execute_and_fetch("""select host, position, message, css_style from events where date = %d""" % (time.mktime(date.date)))
+
+         lines = {}
+         line_has_content = False
+
+         for host in cluster.host_names():
+            lines[host] = []
+            try:
+               for log in date[host]:
+
+                  if log.daemon() in filter_daemons:
+                     continue
+
+                  lines[host].append(log)
+                  line_has_content = True
+
+            except "Eof":
+               pass
+
+         if not line_has_content:
+            continue
+
+         if line == 0 or line % 200 == 0:
+            yield """<tr><th scope="col" abbr="Date/Time" class="nobg">Time</th>"""
+
+            for host in cluster.host_names():
+               yield """<th scope="col" abbr="%s">%s</th>""" % (host, host)
+
+            yield """</tr>"""
+
+         if line == 0 or line % 200 == 0 or time.strftime("%b %d", prev_date) != time.strftime("%b %d", date.date):
+            yield("""<tr><th scope="row" class="newday" colspan=%d>%s</th></tr>""" % (len(cluster.hosts) + 2, time.strftime("%A, %B %d", date.date)))
+
+         if line % 2 == 0: row_class = "spec"
+         else: row_class = "specalt"
+
+         color_shades = [(181,193,255), (76,102,236), (255,191,100), (255,232,200)]
+         color_shades.append(color_shades[0])
+
+         if date.date[3] in   range(0, 6):
+            shade_idx, shade_div = 0, 6
+         elif date.date[3] in range(6, 12):
+            shade_idx, shade_div = 1, 12
+         elif date.date[3] in range(12, 18):
+            shade_idx, shade_div = 2, 18
+         elif date.date[3] in range(18, 24):
+            shade_idx, shade_div = 3, 24
+           
+         color_hour = rgb_to_hex(color_gradient(color_shades[shade_idx], color_shades[shade_idx+1], (date.date[3] + (date.date[4]/60)) * 100 / shade_div))
+
+         yield("""<TR><th scope="row" class="%s" style="background-color: #%s"><a href="/goto/%s">%s</a></th>""" % (row_class, color_hour, time.strftime("%Y%m%d%H%M%S", date.date), time.strftime("%H:%M:%S", date.date)))
+
+         for host in cluster.host_names():
+            yield """<td style="vertical-align:top">"""
+            if lines.has_key(host):
+               for log in lines[host]:
+                  css_class = None
+                  css_style = None
+
+                  for event_host, event_position, message, event_css_style in events:
+                     if event_host == host and event_position == log.position:
+                        css_style = event_css_style
+
+                  yield """<span style="cursor:pointer;%s" """ % css_style
+
+                  if not log.date() or log.date() != date.date:
+                     yield """class="log_invalid_date" """
+
+                  yield """onclick="javascript:log_toggle_color(this);">%s</span><br>""" % log.message()
+
+            yield "</td>\n"
+
+         yield "</tr>"
+
+         line += 1
+         prev_date = date.date
+
+         if not first_date:
+            first_date = date.date
+
+         if line > dates_per_page:
+            break
+
+      yield "</table>"
+
+      cherrypy.session['first_date_on_page'] = first_date
+      cherrypy.session['last_date_on_page'] = date.date
+
+      cherrypy.session['position'] = position
+      cherrypy.session['dates_per_page'] = dates_per_page
+
+      yield self.navigation()
+
+      yield self.footer()
+
+   def draw_progressbar(self, percent):
+      yield """<div class="progressbar"><div style="width: %d%%;"><p>Parsing in progress (%d%% done)</p></div></div>""" % (percent, percent)
+
+   def index(self):
+
+      cluster = cluster_master.instance()
+
+      yield self.header()
+
+      percent = 100 * cluster_master.tell_sum() / cluster_master.size()
+      if percent < 100:
+         yield self.draw_progressbar(100 * cluster_master.tell_sum() / cluster_master.size())
+
+      yield """<table id="mytable" cellspacing="0" summary="">
+<caption>Generated by sos-logs2html 1.0 on %s</caption>
+""" % (time.strftime("%B %d %H:%M:%S"))
+
+      line = 0
+      prev_date = None
+      prev_host = None
+
+      results = myDB.execute_and_fetch("""select eid, parser, date, host, message, css_style, count(message) as count_m from events group by date, host, message order by date, host""")
+
+      html_row = {}
+
+      for row in results:
+
+         date = time.localtime(row["date"])
+
+         if prev_date and prev_date != date:
+
+            if line == 0 or line % 200 == 0:
+               yield """<tr><th scope="col" abbr="Date/Time" class="nobg" style="width: 100px">Time</th>"""
+
+               for host in cluster.host_names():
+                  yield """<th scope="col" abbr="%s">%s</th>""" % (host, host)
+
+               yield """</tr>"""
+
+            if line == 0 or line % 200 == 0 or time.strftime("%b %d", prev_date) != time.strftime("%b %d", prev_prev_date):
+               yield("""<tr><th scope="row" class="newday" colspan=%d>%s</th></tr>""" % (len(cluster.hosts) + 1, time.strftime("%A, %B %d", prev_date)))
+
+            if line % 2 == 0: row_class = "spec"
+            else: row_class = "specalt"
+
+            color_shades = [(181,193,255), (76,102,236), (255,191,100), (255,232,200)]
+            color_shades.append(color_shades[0])
+
+            if prev_date[3] in   range(0, 6):
+               shade_idx, shade_div = 0, 6
+            elif prev_date[3] in range(6, 12):
+               shade_idx, shade_div = 1, 12
+            elif prev_date[3] in range(12, 18):
+               shade_idx, shade_div = 2, 18
+            elif prev_date[3] in range(18, 24):
+               shade_idx, shade_div = 3, 24
+           
+            color_hour = rgb_to_hex(color_gradient(color_shades[shade_idx], color_shades[shade_idx+1], (prev_date[3] + (prev_date[4]/60)) * 100 / shade_div))
+
+            yield("""<TR><th scope="row" class="%s" style="background-color: #%s"><a style="font-weight:normal;color:black;font-size:larger" href="/goto/%s">%s</a></th>""" % (row_class, color_hour, time.strftime("%Y%m%d%H%M%S", prev_date), time.strftime("%H:%M:%S", prev_date)))
+
+            tab = 0
+            while tab < len(cluster.host_names()):
+               yield "<td><ul>"
+               if html_row.has_key(tab):
+                  for out in html_row[tab]:
+                     yield "<li>" + out + "</li>"
+               yield "</ul></td>"
+               tab+=1
+
+            line += 1
+
+            html_row = {}
+            prev_prev_date = prev_date
+
+         if not html_row.has_key(cluster.host_names().index(row["host"])):
+            html_row[cluster.host_names().index(row["host"])] = []
+
+         toadd = '<a href="javascript:void(0);"'
+         toadd+= ' name="sample%d"' % line
+         toadd+= ' id="sample" style="cursor:pointer;%s"' % row["css_style"]
+         toadd+= """ onclick="overlib(OLiframeContent('/event_tooltip?eid=%d', 510, 145, 'if1', 0, 'auto'), TEXTPADDING,6, CAPTION,'Event #%d - %s',""" % (row["eid"], row["eid"], row["message"])
+         toadd+= """ SCROLL, STICKY, BASE,2, REF,'sample%d', REFC,'UR', REFX,10, REFY,-25,""" % line
+         toadd+= """ DRAGGABLE, SHADOW, SHADOWX,3, SHADOWY,3, STATUS,'Example of Secondary Popups');" onmouseout="nd(); return false;">%s</a>""" % row["message"]
+
+         if row["count_m"] > 1:
+            toadd+= " (repeated %d times)" % row["count_m"]
+
+         html_row[cluster.host_names().index(row["host"])].append(toadd)
+
+         prev_date = date
+
+      if not len(results):
+         yield """<tr><td>No event logged yet, click <a href="/browse">here</a> to start viewing the logs or <a href="/">refresh this page</a>.</td></tr>"""
+
+      yield "</table>"
+
+      yield self.footer()
+
+   def event_tooltip(self, eid):
+      cluster = cluster_master.instance()
+
+      results = myDB.execute_and_fetch("""select eid, host, position, parser, message from events where eid = %d""" % int(eid))
+
+      yield """<html><body>"""
+
+      for row in results:
+         line = cluster.get_host(row["host"]).seek_and_read(row["position"])
+
+         parser = cluster.get_parser(row["parser"])
+         yield parser.analyse_line(log_line_class(None, row["host"], row["position"], line))
+
+      yield """</body></html>"""
+
+      cherrypy.config.update({'logDebugInfoFilter.logBuildTime': False}) 
+      cherrypy.config.update({'logDebugInfoFilter.logPageSize': False}) 
+
+   def navigation(self):
+      yield """<a href="/previous">Previous</a> <a href="/next">Next</a>"""
+
+   def previous(self):
+      cluster = cluster_master.instance()
+      dates = ksort(cluster.index)
+      idx = dates.index(cherrypy.session.get('first_date_on_page'))
+      idx = idx - cherrypy.session.get('dates_per_page')
+      if idx < 0: idx = 0
+      cherrypy.session['position'] = cluster.get_position_by_date(dates[idx])
+      raise cherrypy.HTTPRedirect('/browse')
+
+   def next(self):
+      cluster = cluster_master.instance()
+      cherrypy.session['position'] = cluster.get_position_by_date(cherrypy.session.get('last_date_on_page'))
+      raise cherrypy.HTTPRedirect('/browse')
+
+   def _goto(self, goto_date):
+      cluster = cluster_master.instance()
+
+      try:
+         cherrypy.session['position'] = cluster.get_position_by_date(time.strptime(goto_date, "%Y%m%d%H%M%S"))
+      except:
+         # some other exception, redirect to /
+         raise cherrypy.HTTPRedirect('/browse')
+
+      yield self.browse()
+
+   def default(self, url, value):
+      if url == "goto":
+         yield self._goto(value)
+
+   index.exposed = True
+   browse.exposed = True
+   previous.exposed = True
+   next.exposed = True
+   event_tooltip.exposed = True
+   default.exposed = True
+
+class Filters:
+   def index(self):
+
+      cluster = cluster_master.instance()
+
+      filter_daemons = cherrypy.session.get('filter_daemons', [])
+
+      yield cherrypy.root.header()
+
+      # Daemons to filter out
+      #
+
+      yield """<DIV>Filter out the following daemons from the output"""
+
+      yield """<FORM action="update_filters" method="POST">"""
+
+      yield """<SELECT STYLE="width: 200px" MULTIPLE="true" SIZE=10 NAME="daemons">"""
+      for daemon, occurs in cluster.daemon_log_counter:
+         if daemon in filter_daemons: continue
+         yield """<OPTION VALUE="%s">%s (%d lines)""" % (daemon, daemon, occurs)
+      yield """</SELECT>"""
+
+      yield """<SELECT STYLE="width: 200px" MULTIPLE="true" SIZE=10 NAME="daemons_ex">"""
+      for daemon in filter_daemons:
+         yield """<OPTION VALUE="%s">%s""" % (daemon, daemon)
+      yield """</SELECT>"""
+
+      yield """<INPUT TYPE="submit" VALUE="Update">"""
+
+      yield """</FORM>"""
+
+      yield """</DIV>"""
+
+      yield cherrypy.root.footer()
+
+   def update_filters(self, daemons = None, daemons_ex = None):
+      filter_daemons = cherrypy.session.get('filter_daemons', [])
+
+      if daemons:
+         if type(daemons) == str:
+            filter_daemons.append(daemons)
+         else:
+            for daemon in daemons:
+               filter_daemons.append(daemon)
+
+      if daemons_ex:
+         if type(daemons_ex) == str:
+            filter_daemons.remove(daemons_ex)
+         else:
+            for daemon in daemons_ex:
+               filter_daemons.remove(daemon)
+
+      cherrypy.session['filter_daemons'] = filter_daemons
+
+      raise cherrypy.HTTPRedirect('/')
+
+   index.exposed = True
+   update_filters.exposed = True
+
+def usage():
+   print "ciao"
+
+try:
+   opts, args = getopt.getopt(sys.argv[1:], "hve:", ["help", "input="])
+except getopt.GetoptError:
+   # print help information and exit:
+   usage()
+   sys.exit(2)
+
+cmdline = {}
+cmdline["exclude_regex"] = []
+cmdline["include_regex"] = []
+cmdline["verbose"] = 0
+
+for o, a in opts:
+   if o == "-v":
+      cmdline["verbose"] += 1
+   if o in ("-h", "--help"):
+      usage()
+      sys.exit()
+   if o in ("-e", "--exclude-regex"):
+      cmdline["exclude_regex"].append(re.compile(a))
+   if o in ("-i", "--include-regex"):
+      cmdline["include_regex"].append(re.compile(a))
+
+if __name__ != "__main__":
+   sys.exit()
+
+myDB = soshtmllogs.database.myDB_class()
+
+cluster_master = cluster_class()
+
+sys.stderr.write("adding logs\n")
+for log in args:
+   cluster_master.add_log(log)
+
+from soshtmllogs.parsers.simple_parser import *
+from soshtmllogs.parsers.dmapper_parser import *
+from soshtmllogs.parsers.crazyclock_parser import *
+
+cluster_master.register_parser(simple_Parser(cluster_master, myDB))
+cluster_master.register_parser(dmapper_Parser(cluster_master, myDB))
+#cluster_master.register_parser(crazyclock_Parser(cluster_master, myDB))
+
+cluster_master.parse(threaded = True)
+
+sys.stderr.write("finished adding logs\n")
+
+if len(cluster_master.hosts) == 0:
+   sys.stderr.write("no valid data to parse was found. exiting.\n")
+   sys.exit(1)
+
+cherrypy.root = Root()
+cherrypy.root.filters = Filters()
+cherrypy.config.update({'session_filter.on': True})
+cherrypy.config.update({'autoreload.on': False})
+#cherrypy.config.update({'server.environment': "production"})
+
+cherrypy.config.update({
+	"/":{'static_filter.root': "/usr/share/sos-html-logs"},
+	"/overlib":{'static_filter.on': True, "static_filter.dir":"html/overlib"}
+})
+
+cherrypy.server.start()
+

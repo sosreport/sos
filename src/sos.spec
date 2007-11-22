@@ -20,10 +20,10 @@ Source1: rhsupport.pub
 License: GPL
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: http://hosted.fedoraproject.org/projects/sos
+Url: https://hosted.fedoraproject.org/projects/sos
 BuildRequires: python-devel
 Requires: libxml2-python
-Provides: sysreport = 1.3.15-8
+Provides: sysreport = 1.4.3-13
 Obsoletes: sysreport
 
 %description
@@ -59,8 +59,61 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/sosreport.1*
 %{_localedir}/*/LC_MESSAGES/sos.mo
 %doc README README.rh-upload-core TODO LICENSE ChangeLog
+%config /etc/sos.conf
 
 %changelog
+* Wed Nov 21 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.8-0
+- sosGetCommandOutput() does not block on hung processes (bz368261)
+- work-around missing traceback.format_exc() in RHEL4 (bz361861)
+- device-mapper: use /sbin/lvm_dump to collect dm related info (bz394781)
+- unattended --batch option (bz386691)
+- sos could hang when accessing /sys/hypervisor/uuid (bz371251)
+- added --debug option which causes exceptions not to be trapped
+- updated to sysreport-1.4.3-13.el5
+- ftp upload to dropbox with --upload
+- cluster: major rewrite to support different versions of RHEL
+- cluster: check rg_test for errors
+- minor changes in various plug-ins (yum, networking, process, kernel)
+- fixed some exceptions in threads which were not properly trapped
+- veritas: don't run rpm -qa every time
+- using rpm's python bindings instead of external binary
+- corrected autofs and ldap plugin that were failing when debug option was not found in config file.
+- implemented built-in checkdebug() that uses self.files and self.packages to make the decision
+- missing binaries are properly detected now.
+- better doExitCode handling
+- fixed problem with rpm module intercepting SIGINT
+- error when user specifies an invalid plugin or plugin option
+- named: fixed indentation
+- replaced isOptionEnabled() with getOption()
+- tune2fs and fdisk were not always run against the correct devices/mountpoint
+- added gpg key to package
+- updated README with new svn repo and contributors
+- updated manpage
+- better signal handling
+- caching of rpm -q outputs
+- report filename includes rhnUsername if available
+- report encryption via gpg and support pubkey
+- autofs: removed redundant files
+- filesys: better handling of removable devices
+- added sosReadFile() returns a file's contents
+- return after looping inside a directory
+- collect udevinfo for each block device
+- simply collect output of fdisk -l in one go
+- handle sysreport invocation properly (warn if shell is interactive, otherwise spawn sysreport.legacy)
+- progress bar don't show 100% until finished() is called
+- added lspci -t (bz238778)
+- now runs on RHEL3 as well (python 2.2)
+- replaced commonPrefix() with faster code
+- filesys: one fdisk -l for all
+- selinux: collect fixfilex check output
+- devicemapper: collect udevinfo for all block devices
+- cluster: validate node names according to RFC 2181
+- systemtap: cleaned up and added checkenabled() method
+- added kdump plugin
+- added collection of /etc/inittab
+- apply regex to case number in sysreport for RHEL4 (bz332151)
+- apply regex to case number in sysreport for RHEL5 (bz332211)
+
 * Wed Aug 13 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-8
 - added README.rh-upload-core
 

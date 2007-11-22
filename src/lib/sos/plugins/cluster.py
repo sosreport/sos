@@ -147,6 +147,16 @@ class cluster(sos.plugintools.PluginBase):
         xml = libxml2.parseFile("/etc/cluster/cluster.conf")
         xpathContext = xml.xpathNewContext()
 
+        # make sure that the node names are valid according to RFC 2181
+        for hostname in xpathContext.xpathEval('/cluster/clusternodes/clusternode/@name'):
+           if not re.match('^[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$', hostname.content):
+               self.addDiagnose("node name (%s) contains invalid characters" % hostname.content)
+
+        # do not rely on DNS to resolve node names, must have them in /etc/hosts
+        for hostname in xpathContext.xpathEval('/cluster/clusternodes/clusternode/@name'):
+           if len(self.fileGrep(r'^.*\W+%s' % hostname.content , "/etc/hosts")) == 0:
+               self.addDiagnose("node %s is not defined in /etc/hosts" % hostname.content)
+
         # check fencing (warn on no fencing)
         if len(xpathContext.xpathEval("/cluster/clusternodes/clusternode[not(fence/method/device)]")):
            if self.has_gfs():

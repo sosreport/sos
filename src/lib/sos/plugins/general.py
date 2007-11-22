@@ -26,6 +26,8 @@ class general(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/redhat-release")
         self.addCopySpec("/etc/fedora-release")
+        self.addCopySpec("/etc/inittab")
+        self.addCopySpec("/etc/sos.conf")
         self.addCopySpec("/etc/sysconfig")
         self.addCopySpec("/proc/stat")
         self.addCopySpec("/var/log/dmesg")

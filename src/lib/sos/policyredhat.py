@@ -102,14 +102,6 @@ class SosPolicy:
             pass
         return None
 
-    def pkgDictByName(self, name):
-        # FIXME: what does this do?
-        pkgName = self.pkgByName(name)
-        if pkgName and len(pkgName) > len(name):
-           return pkgName[len(name)+1:].split("-")
-        else:
-           return None
-
     def allPkgs(self, ds = None, value = None):
         # if possible return the cached values
         try:                   return self._cache_rpm[ "%s-%s" % (ds,value) ]
@@ -260,7 +252,18 @@ class SosPolicy:
 
         print _("Encrypting archive...")
         gpgname = self.report_file + ".gpg"
-        status, output = commands.getstatusoutput("/usr/bin/gpg --trust-model always --batch --keyring /usr/share/sos/rhsupport.pub --no-default-keyring --compress-level 0 --encrypt --recipient support@redhat.com --output %s %s" % (gpgname,self.report_file))
+
+        try:
+           keyring = self.cInfo['config'].get("general", "gpg_keyring")
+        except:
+           keyring = "/usr/share/sos/rhsupport.pub"
+
+        try:
+           recipient = self.cInfo['config'].get("general", "gpg_recipient")
+        except:
+           recipient = "support@redhat.com"
+
+        status, output = commands.getstatusoutput("""/usr/bin/gpg --trust-model always --batch --keyring "%s" --no-default-keyring --compress-level 0 --encrypt --recipient "%s" --output "%s" "%s" """ % (keyring, recipient, gpgname, self.report_file))
         if status == 0:
             os.unlink(self.report_file)
             self.report_file = gpgname
@@ -307,13 +310,49 @@ class SosPolicy:
         except:
            return False
 
+        # read ftp URL from configuration
+        try:
+           upload_url = self.cInfo['config'].get("general", "upload_url")
+        except:
+           upload_url = "ftp://dropbox.redhat.com/incoming"
+
+        from urlparse import urlparse
+        url = urlparse(upload_url)
+
+        if url[0] != "ftp":
+           print _("Cannot upload to specified URL.")
+           return
+
+        # extract username and password from URL, if present
+        if url[1].find("@") > 0:
+           username, host = url[1].split("@", 1)
+           if username.find(":") > 0:
+              username, passwd = username.split(":", 1)
+           else:
+              passwd = None
+        else:
+           username, passwd, host = None, None, url[1]
+
+        # extract port, if present
+        if host.find(":") > 0:
+           host, port = host.split(":", 1)
+           port = int(port)
+        else:
+           port = 21
+
+        path = url[2]
+
         try:
            from ftplib import FTP
            upload_name = os.path.basename(self.report_file)
 
-           ftp = FTP('dropbox.redhat.com')
-           ftp.login()
-           ftp.cwd("/incoming")
+           ftp = FTP()
+           ftp.connect(host, port)
+           if username and passwd:
+              ftp.login(username, passwd)
+           else:
+              ftp.login()
+           ftp.cwd(path)
            ftp.set_pasv(True)
            ftp.storbinary('STOR %s' % upload_name, fp)
            ftp.quit()

@@ -1,0 +1,641 @@
+
+Below are described the configuration variables and arrays associated with the
+overlib commands, and their defaults as set in the
+	overlibmws.js
+core module and the
+	overlibmws_bubble.js, overlibmws_crossframe.js, overlibmws_debug.js,
+ 	overlibmws_draggable.js, overlibmws_exclusive.js, overlib_filter.js,
+ 	overlibmws_function.js, overlibmws_hide.js, overlibmws_modal.js,
+        overlibmws_overtwo.js, overlibmws_print.js, overlibmws_scroll.js and
+        overlibmws_shadow.js
+plugin modules.  The
+	overlibmws_iframe.js and overlib_regCore.js
+plugin modules do not have configuration variables or arrays.
+
+You can change any of the configuration default values for all pages by making
+the modifications in overlibmws.js or the plugin modules, or for individual HTML
+pages by declaring any of these variables with the values you prefer in a SCRIPT
+block or imported js file for those pages.
+
+You instead can change the configuration default values for individual HTML pages by
+calling the OLpageDefaults(arguments) function in a SCRIPT block or imported js file
+with "arguments" consisting of a comma-separated list of uppercase command names and
+their parameters if any, homologously to the arguments for an overlib() call.
+
+The overlibmws_overtwo.js module is used by calling overlib2() and nd2() from within
+an overlib() call that invokes a primary popup, to invoke and close secondary popups.
+Its LABLE2 command and its configuration variable are specific to the secondary popups,
+and are complementary to the core module's LABLEL command and its configuration variable
+for primary popups.
+
+The overlibmws_iframe.js module has no additional commands, and thus no configuration
+variables. It should be imported when a page has system controls (e.g., some form
+elements, flash objects, applets) which obscure overlib popups.  It corrects this
+problem for IE v5.5 or higher.  For versions of IE lower than v5.5 and for other browsers,
+you can use commands in the overlibmws_hide.js plugin module.  See the examples in
+http://www.macridesweb.com/oltest/hide.html and http://www.macridesweb.com/oltest/flash.html
+on how to use those command to hide the system controls when overlib popups are invoked.
+
+The overlibmws_regCore.js module has no overlib() or overlib2() commands, and thus
+no configuration variables.  It should be imported in frames which will not themselves
+import the core module and any plugin modules, but instead will use those in another
+frame.  See its header for more information.  Examples of its use are in
+http://www.macridesweb.com/oltest/testFrame.html
+
+See the overlibmws Command Reference (http://www.macridesweb.com/oltest/commandRef.html)
+for more information about the commands, configuration variables, and plugin modules. 
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR CORE MODULE overlibmws.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// FGCOLOR - Main background color (the large area).
+// Usually a bright color (white, yellow etc).
+var ol_fgcolor = "#CCCCFF";
+
+// BGCOLOR - Border color.
+// Usually a dark color (black, brown etc).
+var ol_bgcolor = "#333399";
+
+// CGCOLOR - Caption background color (typically same as border color).
+// Usually a dark color (black, brown etc).
+var ol_cgcolor = "#333399";
+
+// TEXTCOLOR - Text color.
+// Usually a dark color.
+var ol_textcolor = "#000000";
+
+// CAPCOLOR - Color of the caption text.
+// Usually a bright color
+var ol_capcolor = "#FFFFFF";
+
+// CLOSECOLOR - Color of "Close" when using Sticky.
+// Usually a semi-bright color.
+var ol_closecolor = "#9999FF";
+
+// TEXTFONT - Font face for the main text.
+var ol_textfont = "Verdana,Arial,Helvetica";
+
+// CAPTIONFONT - Font face for the caption.
+var ol_captionfont = "Verdana,Arial,Helvetica";
+
+// CLOSEFONT - Font face for the close text.
+var ol_closefont = "Verdana,Arial,Helvetica";
+
+// TEXTSIZE - Font size for the main text.
+var ol_textsize = "1";
+
+// CAPTIONSIZE - Font size for the caption.
+var ol_captionsize = "1";
+
+// CLOSESIZE - Font size for the close text.
+var ol_closesize = "1";
+
+// FGCLASS - Main background class.
+var ol_fgclass = "";
+
+// BGCLASS - Frame background class.
+var ol_bgclass = "";
+
+// CGCLASS - Caption background class.
+var ol_cgclass = "";
+
+// TEXTPADDING - Padding for main text.
+var ol_textpadding = "2";
+
+// TEXTFONTCLASS - Main font class.
+var ol_textfontclass = "";
+
+// CAPTIONPADDING - Padding for caption (including Close text if present).
+var ol_captionpadding = "2";
+
+// CAPTIONFONTCLASS - Caption font class.
+var ol_captionfontclass = "";
+
+// CLOSEFONTCLASS - Close font class.
+var ol_closefontclass = "";
+
+// CLOSECLICK - If the user has to click to close stickies.
+var ol_closeclick = 0;
+
+// CLOSETEXT - Text for the closing sticky popups. Normal is "Close".
+var ol_close = "Close";
+
+// CLOSETITLE - Text to use as value of TITLE attribute for browser-generated TooTips
+// with the "Close" link in captions of stickies when CLOSECLICK is changed to 1;
+var ol_closetitle = "Click to Close";
+
+// Default text for popups
+// Should you forget to pass something to overLIB this will be displayed.
+var ol_text = "Default Text";
+
+// Default caption
+// You should leave this blank or you will have problems making non caps popups.
+var ol_cap = "";
+
+// CAPBELOW - Whether the caption should appear below the main text area.  Default is
+// off (0) such that the caption appears above.
+var ol_capbelow=0;
+
+// BACKGROUND - Default background image. Better left empty unless you always want one.
+var ol_background = "";
+
+// WIDTH - Default width of the popups in pixels. 100-300 pixels is typical.
+// This value is simply a suggestion to the browser, which may change the
+// actual width depending on the content.
+var ol_width = "200";
+
+// WRAP - Intended to keep the popup no wider than its content plus normal padding, but
+// to wrap the content if it would exceed the window width, or if it would exceed WRAPMAX
+// when that has been set to a value greater than zero.
+// Overrides the o3_width setting. Default is no wrap (0).
+var ol_wrap = 0;
+
+// WRAPMAX - If set to a value greater than 0, sets the maximum width of the popup, up to
+// the window width, before wrapping occurs when the WRAP command is set.
+var ol_wrapmax = 0;
+
+// HEIGHT - Default height for popup. Often best left alone.
+var ol_height = -1;
+
+// BORDER - How thick the ol_border should be in pixels.
+// 1-3 pixels is typical.
+var ol_border = "1";
+
+// BASE - Any additional thickening of the border's base in pixels.
+var ol_base = "0";
+
+// OFFSETX - How many pixels to the right (positive values) or left (negative values)
+// of the cursor to show the popup. Values between 3 and 12 are best.
+var ol_offsetx = 10;
+	
+// OFFSETY - How many pixels below (positive values) or above (negative values) the
+// cursor to show the popup. Values between 3 and 20 are best.
+var ol_offsety = 10;
+
+// STICKY - Decides if sticky popups are default. 0 for non, 1 for stickies.
+var ol_sticky = 0;
+
+// NOFOLLOW - Should non-sticky popups not follow cursor movements (i.e., remain
+// stationary where initially positioned on invocation, like title-based tooltips).
+var ol_nofollow = 0;
+
+// NOCLOSE - Omit Close text in stickies with captions, for all stickies use mouse off
+// after mouse over sticky to close, and cancel any timeout while over sticky.
+var ol_noclose = 0;
+
+// MOUSEOFF - For stickies which do have a caption with a CLOSETEXT, also use mouse off
+// after mouse over sticky to close, and cancel any timeout while over sticky.
+var ol_mouseoff = 0;
+
+// OFFDELAY - Default delay for closing NOCLOSE or MOUSEOFF popups.  If a mouse over the
+// sticky occurs during this delay, the close is cancelled.
+var ol_delay = 300;
+
+// RIGHT - Default vertical alignment for popups.
+// It's best to leave RIGHT here. Other options are LEFT and CENTER.
+var ol_hpos = RIGHT;
+
+// BELOW - Default vertical position of the popups.
+// It's best to leave BELOW here. Other options are ABOVE and VCENTER.
+var ol_vpos = BELOW;
+
+// Default status bar text when a popup is invoked.
+var ol_status = "";
+
+// AUTOSTATUS, AUTOSTATUSCAP - If the status bar automatically should load either
+// text or caption. 0=nothing, 1=text, 2=caption
+var ol_autostatus = 0;
+
+// SNAPX - Horizontal grid spacing that popups will snap to.
+// 0 makes no grid, anything else will cause a snap to that grid spacing.
+var ol_snapx = 0;
+
+// SNAPY - Vertical grid spacing that popups will snap to.
+// 0 makes no grid, anything else will cause a snap to that grid spacing.
+var ol_snapy = 0;
+
+// FIXX - Sets the popup horizontal position to a fixed column.
+// Numbers greater than -1 will cause fixed position.
+var ol_fixx = -1;
+
+// FIXY - Sets the popup vertical position to a fixed row.
+// Numbers greater than -1 will cause fixed position.
+var ol_fixy = -1;
+
+// RELX - Sets the popup horizontal position to a column relative to the window display.
+// Anything numeric (non-null) will cause relative position. Positive and 0 is to
+// the right from left window margin for left margin of popup. Negative is to the
+// left from right window margin for right margin of popup.
+var ol_relx = null;
+
+// RELY - Sets the popup vertical position to a row relative to the window display.
+// Anything numeric (non-null) will cause relative position. Positive and 0 is down
+// from top window margin for top margin of popup. Negaive is up from bottom window
+// margin for bottom margin of popup.
+var ol_rely = null;
+
+// MIDX - Sets the popup horizontal midpoint to a column relative to the window horizontal
+// midpoint. Anything numeric (non-null) will cause midpoint position. Positive and
+// 0 is to the right from the window midpoint. Negative is to the left.
+var ol_midx = null;
+
+// MIDY - Sets the popup vertical midpoint to a row relative to the window vertical midpoint.
+// Anything numeric (non-null) will cause midpoint position. Positive and 0 is down from
+// the window midpoint. Negative is up.
+var ol_midy = null;
+
+// REF - The NAME of an anchor or image, or ID of a layer, to serve as a reference object such
+// that a corner of the popup will be positioned relative to a corner of the object.
+var ol_ref = "";
+
+// REFC - Corner of the reference object for positioning.
+// Value can be: 'UL' (Upper Left), 'UR', 'LR', or 'LL'.
+var ol_refc = 'UL';
+
+// REFP - Corner of the popup for positioning.
+// Value can be: 'UL' (Upper Left), 'UR', 'LR', or 'LL'.
+var ol_refp = 'UL';
+
+// REFX - X displacement from the reference point. Positive to the right,
+// negative left.
+var ol_refx = 0;
+
+// REFY - Y displacement from the reference point. Positive down, negative up.
+var ol_refy = 0;
+
+// FGBACKGROUND - Background image for the popup's inside.
+var ol_fgbackground = "";
+
+// BGBACKGROUND - Background image for the popup's frame (border).
+var ol_bgbackground = "";
+
+// CGBACKGROUND - Background image for the caption.
+var ol_cgbackground = "";
+
+// PADX
+// How much horizontal left padding text should get by default when BACKGROUND is used.
+var ol_padxl = 1;
+// How much horizontal right padding text should get by default when BACKGROUND is used.
+var ol_padxr = 1;
+
+// PADY
+// How much vertical top padding text should get by default when BACKGROUND is used.
+var ol_padyt = 1;
+// How much vertical bottom padding text should get by default when BACKGROUND is used.
+var ol_padyb = 1;
+
+// FULLHTML - If the user by default must supply all html for complete control of popup content.
+// Set to 1 to activate, 0 otherwise.
+var ol_fullhtml = 0;
+
+// CAPICON - Default icon to place next to the popups caption.
+var ol_capicon = "";
+
+// FRAME - Default frame. We default to current frame if there is no frame defined.
+var ol_frame = self;
+
+// TIMEOUT - Default timeout. By default there is no timeout.
+var ol_timeout = 0;
+
+// DELAY - Default delay for onset of popup. By default there is no delay.
+var ol_delay = 0;
+
+// HAUTO - If overLIB should decide the horizontal placement.
+var ol_hauto = 0;
+
+// VAUTO - If overLIB should decide the vertical placement.
+var ol_vauto = 0;
+
+// NOJUSTX - If overLIB should let popups overrun the left or right window margins.
+var ol_nojustx = 0;
+
+// NOJUSTY - If overLIB should let popups overrun the top or bottom window margins.
+var ol_nojusty = 0;
+
+// LABEL - A labeling string for the primary popup while it is displayed (visible).
+var ol_label = "";
+
+// DECODE - If overLIB should automatically decode any URL-encoded characters in
+// lead argument and/or caption.
+var ol_decode = "";
+
+////////////////////////////////////////////////////////////////////////////////////
+// ARRAY CONFIGURATION FOR CORE MODULE overlibmws.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// INARRAY - Array with texts.
+var ol_texts = new Array(
+ "Text 0",
+ "Text 1");
+
+// CAPARRAY - Array with captions.
+var ol_caps = new Array(
+ "Caption 0",
+ "Caption 1");
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_bubble.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// BUBBLE - Whether to use a bubble type popup. Default is no (0).
+var ol_bubble = 0;
+
+// BUBBLETYPE - Type of bubble image to use. Default is 'flower'.  Other options are
+// 'oval', 'square', 'pushpin', 'quotation', or 'roundedcorners'. Specify directory
+// for images via the last parameter of registerImages() near the top of the plugin
+// module (default value is './').
+var ol_bubbletype = 'flower';
+
+// ADJBUBBLE - Whether to resize the image in relation to the content.
+// Default is no (0). 
+var ol_adjbubble = 0;
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_bubble.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_crossframe.js
+////////////////////////////////////////////////////////////////////////////////////
+
+You must import this plugin module to use the FRAME command, but its configuration
+variable, ol_frame, is set in the core module.
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_crossframe.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_debug.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// ALLOWDEBUG - The ID or a comma-separated list of IDs for debug layers which, if
+// invoked following an overlib call and then made hidden via the close link at
+// upper right, should be made visible again whenever that overlib call occurs.
+var ol_allowdebug = "";
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_debug.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_draggable.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// DRAGGABLE - If sticky should be draggable.
+var ol_draggable = 0;
+
+// DRAGCAP - Restrict dragging handle to the caption.
+var ol_dragcap = 0;
+
+// DRAGID - The id of a container div with a CSS class that uses overflow:auto
+// for a DRAGGABLE popup that doesn't have iframe content and doesn't use DRAGCAP.
+var ol_dragid = '';
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_draggable.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_exclusive.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// EXCLUSIVE - Decides if a sticky primary popup should be exclusive, such that no other
+// primry popup can be invoked and replace it before the sticky is closed by the user or
+// a timeout (secondary popups can still be invoked from within the exclusive primary).
+var ol_exclusive = 0;
+
+// EXCLUSIVESTATUS - Status line string to use for exclusive stickies
+var ol_exclusivestatus = 'Please act on or close the open popup.';
+
+// EXCLUSIVEOVERRIDE = If a displayed exclusive sticky should be overridden by the
+// current overlib call for a popup.
+var ol_exclusiveoverride=0;
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_exclusive.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_filter.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// FILTER - Toggles on the filter feature set for IE v5.5+ browsers. Defualt is off.
+var ol_filter=0;
+
+// FADEIN - Filter type for stylinzed fadein. Value can be 0 - 50 for the 51 types,
+// or 51 (default) for random selections of the type across successive occurrences
+// of the popup.
+var ol_fadein=51;
+
+// FADETIME - Duration of fadein (millisec).
+var ol_fadetime=800;
+
+// FILTEROPACITY - Opacity of entire popup.  The higher the number in the range of 1-99,
+// the more more opaque (less transparent) the popup will be.  But 0 is handled as
+// equivalent to 100 (no transparency).  This feature also is implemented for Mozilla
+// and Netscape v6+ browsers.
+var ol_filteropacity=100;
+
+// FILTERSHADOW - Type of filter-based shadow.  Default is off (0).
+// Dropshadow is 1. Shadow (tapers from corners) is 2.
+var ol_filtershadow=0;
+
+// FILTERSHADOWCOLOR - Color of filter-based shadow.
+var ol_filtershadowcolor="#cccccc";
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_filter.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_function.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// FUNCTION - Default javascript function. By default there is none.
+var ol_function = null;
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_function.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_hide.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// HIDESELECTBOXES - Whether to hide any select boxes which overlap the popup
+// while the popup is being displayed.
+var ol_hideselectboxes=0;
+
+// HIDEBYID - An id or comma-separated list of id's to be hidden while the popup
+// is displayed.  Is intended for form elements and is ignored for any browsers
+// using HIDESELECTBOXES and for Opera v7+.
+var ol_hidebyid='';
+
+// HIDEBYIDALL - An id or comma=separated list of id's to be hidden while the popup
+// is displayed.  Is intended for non-form elements with system controls, e.g.,
+// flash objects and applets.
+var ol_hidebyidall='';
+
+// HIDEBYIDNS4 - An id or comma-separated list of id's for positioned div's to be
+// hidden while the popup is being displayed by Netscape v4.x browsers.
+var ol_hidebyidns4='';
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_hide.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_modal.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// MODAL - Whether to make the popup modal (block access to any other items in the
+// document via a shield until the popup is acted upon and closed).
+var ol_modal = 0;
+
+// MODALCOLOR - The color of the modal shield.
+var ol_modalcolor = '#bbbbbb';
+
+// MODALOPACITY - The opacity of the modal shield.
+var ol_modalopacity = 40;
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_overtwo.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_overtwo.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// LABEL - A labeling string for the secondary popup while it is displayed (visible).
+var ol_label = "";
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_overtwo.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_print.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// PRINT - Whether sticky should include a Print link or button.
+var ol_print = 0;
+
+// PRINTBUTTON - Whether to use button in main text area even if caption area is present.
+var ol_printbutton=0;
+
+// NOAUTOPRINT - Whether to block automatic printing and deletion of temporary printing window.
+var ol_noautoprint=0;
+
+// PRINTCOLOR - Color of "Print" link in caption area of sticky.
+var ol_printcolor="#eeeeff";
+
+// PRINTFONT - Font face for the print text.
+var ol_printfont="Verdana,Arial,Helvetica";
+
+// PRINTSIZE - Font size for the print text.
+var ol_printsize=1;
+
+// PRINTTEXT - Text for the sticky popup print link. Normal is "Print".
+var ol_printtext='Print';
+
+// PRINTBUTTONTEXT - Text for the sticky popup print button. Normal is "Print".
+var ol_printbuttontext='Print';
+
+// PRINTTITLE - Text to use as value of TITLE attribute for browser-generated TooTips
+// with the "Print" link in captions of stickies or "Print" button in main text area.
+var ol_printtitle="Click to Print";
+
+// PRINTFONTCLASS - Print font class.
+var ol_printfontclass="";
+
+// PRINTCSSFILE - URL for .ccs file with CSS rules for styling the popup.
+var ol_printcssfile="";
+
+// PRINTXML - String for (optional) xml tag for temporary printing window.
+var ol_printxml="";
+
+// PRINTDOCTYPE - String for DOCTYPE declaration for temporary printing window.
+var ol_printdoctype=
+ '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" '
++'"http://www.w3.org/TR/html4/loose.dtd">';
+
+// PRINTROOT - String for root tag for temporary printing window.
+var ol_printroot="<html>";
+
+// PRINTTYPE - String for MIME type for temporary printing window.
+var ol_printtype="text/html";
+
+// PRINTCHARSET - String for charset for temporary printing window.
+var ol_printcharset="iso-8859-1";
+
+// PRINTURL - URL for a document to be printed via the temporary printing window.
+var ol_printurl="";
+
+// PRINTJOB - string for an external function to be used for the temporary printing window.
+var ol_printjob="";
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_print.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_scroll.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// SCROLL - Whether sticky should scroll with the document when positioned via
+// RELX or MIDX, and RELY or MIDY.
+var ol_scroll = 0;
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_scroll.js
+////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// DEFAULT CONFIGURATION FOR PLUGIN MODULE overlibmws_shadow.js
+////////////////////////////////////////////////////////////////////////////////////
+
+// SHADOW - Whether to add a dropshadow. Default is no (0).
+var ol_shadow = 0;
+
+// SHADOWX - Horizontal dropshadow displacement in pixels.
+// Positive is to the right and negative is to the left.
+var ol_shadowx = 5;
+
+// SHADOWY - Vertical dropshadow displacement in pixels.
+// Positive is downward and negative is upward.
+var ol_shadowy = 5;
+
+// SHADOWCOLOR - Dropshadow color.
+var ol_shadowcolor = "#666666";
+
+// SHADOWIMAGE - Dropshadow background image. Default is none.
+var ol_shadowimage = "";
+
+// SHADOWOPACITY - Dropshadow opacity (100 is solid; 0 turns off this feature and
+// thus also yields a solid shadow). Default is 60.
+var ol_shadowopacity = 60;
+
+////////////////////////////////////////////////////////////////////////////////////
+// END CONFIGURATION FOR overlibmws_shadow.js
+////////////////////////////////////////////////////////////////////////////////////
+

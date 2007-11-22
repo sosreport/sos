@@ -18,7 +18,7 @@ import commands, os, re
 class kernel(sos.plugintools.PluginBase):
     """kernel related information
     """
-    optionList = [("modinfo", 'gathers module information on all modules', 'fast', True),
+    optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True),
                   ('sysrq', 'trigger sysrq+[m,p,t] dumps', 'fast', False)]
     moduleFile = ""
     taintList = [
