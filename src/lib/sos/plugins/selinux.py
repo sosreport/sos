@@ -19,9 +19,9 @@ class selinux(sos.plugintools.PluginBase):
     """selinux related information
     """
     def setup(self):
+        # sestatus is always collected in checkenabled()
         self.addCopySpec("/etc/selinux")
         self.collectExtOutput("/usr/bin/selinuxconfig")
-        self.collectExtOutput("/usr/sbin/sestatus", root_symlink = "sestatus")
         self.eta_weight += 120 # this plugins takes 120x longer (for ETA)
         self.collectExtOutput("/sbin/fixfiles check")
         return
@@ -29,7 +29,7 @@ class selinux(sos.plugintools.PluginBase):
     def checkenabled(self):
         # is selinux enabled ?
         try:
-           if commands.getoutput("/usr/sbin/sestatus").split(":")[1].strip() == "disabled":
+           if self.collectOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
               return False
         except:
            pass
