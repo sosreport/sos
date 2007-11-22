@@ -166,9 +166,9 @@ __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
 __cmdParser__.add_option("-u", "--upload", action="store_true", \
                      dest="upload", default=False, \
                      help="upload the report to Red Hat support")
-__cmdParser__.add_option("--encrypt", action="store_true", \
-                     dest="encrypt", default=False, \
-                     help="encrypt with GPG using Red Hat support's public key")
+#__cmdParser__.add_option("--encrypt", action="store_true", \
+#                     dest="encrypt", default=False, \
+#                     help="encrypt with GPG using Red Hat support's public key")
 __cmdParser__.add_option("--batch", action="store_true", \
                      dest="batch", default=False, \
                      help="do not ask any question (batch mode)")
