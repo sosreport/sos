@@ -92,7 +92,7 @@ class kernel(sos.plugintools.PluginBase):
             sys_srcver = infd.read().strip("\n")
             infd.close()
             if modinfo_srcver != sys_srcver:
-                self.addDiagnose("Loaded module %s differs from the one present on the file-system")
+                self.addDiagnose("loaded module %s differs from the one present on the file-system" % modname)
 
             # this would be a good moment to check the module's signature
             # but at the moment there's no easy way to do that outside of
