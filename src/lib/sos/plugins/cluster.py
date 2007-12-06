@@ -51,15 +51,11 @@ class cluster(sos.plugintools.PluginBase):
         # for RHEL4 RHCS(ccs, cman, cman-kernel, magma, magma-plugins, (dlm, dlm-kernel) || gulm, perl-Net-Telnet, rgmanager, fence)
         # RHEL4 GFS (GFS, GFS-kernel, ccs, lvm2-cluster, fence)
 
-        kernel_pkgs = []
         pkgs_check = []
         mods_check = []
         serv_check = []
 
         if rhelver == 4:
-            kernel_pkgs = [ "dlm-kernel" , "cman-kernel" ]
-            if self.has_gfs():
-                kernel_pkgs.append("GFS-kernel")
             pkgs_check.extend( [ "ccs", "cman", "magma", "magma-plugins", "perl-Net-Telnet", "rgmanager", "fence" ] )
             mods_check.extend( [ "cman", "dlm" ] )
             if self.has_gfs():
@@ -68,8 +64,6 @@ class cluster(sos.plugintools.PluginBase):
             if self.has_gfs():
                 serv_check.extend( ["gfs", "clvmd"] )
         elif rhelver == 5:
-            if self.has_gfs():
-                kernel_pkgs.append("kmod-gfs")
             pkgs_check.extend ( [ "cman", "perl-Net-Telnet", "rgmanager" ] )
             mods_check.extend( [ "dlm" ] )
             if self.has_gfs():
@@ -81,27 +75,26 @@ class cluster(sos.plugintools.PluginBase):
         # check that kernel module packages are installed for
         # running kernel version
 
-        for pkgname in kernel_pkgs:
+        for modname in mods_check:
            found = 0
 
-           # FIXME: make sure it works on RHEL4
-           for pkg in self.cInfo["policy"].allPkgsByNameRegex( "^" + pkgname ):
-               found = 1
-               for reqline in pkg.dsFromHeader('requirename'):
-                   reqline = reqline[0].split()
-                   try:
-                       if reqline[1].startswith("kernel") and reqline[2] == "=" and reqline[3] == self.cInfo["policy"].kernelVersion():
-                          found = 2
-                          break
-                   except IndexError:
-                       pass
-               if found == 2:
-                   break
+           if self.cInfo["policy"].allPkgsByNameRegex( "^" + modname ):
+              found = 1
+
+           status, output = commands.getstatusoutput('/sbin/modinfo -F vermagic ' + modname)
+
+           if status == 0:
+              found = 2
+
+           if len(self.fileGrep("^%s\s+" % modname, "/proc/modules")) > 0:
+              found = 3
 
            if found == 0:
-               self.addDiagnose("required kernel package is missing: %s" % pkgname)
+               self.addDiagnose("required kernel module is missing: %s" % modname)
            elif found == 1:
-               self.addDiagnose("required package is not installed for current kernel: %s" % pkgname)
+               self.addDiagnose("required module is not available for current kernel: %s" % modname)
+           elif found == 2:
+               self.addDiagnose("required module is available but not loaded: %s" % module)
 
         for pkg in pkgs_check:
            if self.cInfo["policy"].pkgByName(pkg) == None:
@@ -111,10 +104,6 @@ class cluster(sos.plugintools.PluginBase):
            # (dlm, dlm-kernel) || gulm
            if not ((self.cInfo["policy"].pkgByName("dlm") and self.cInfo["policy"].pkgByName("dlm-kernel")) or self.cInfo["policy"].pkgByName("gulm")):
                self.addDiagnose("required packages are missing: (dlm, dlm-kernel) || gulm")
-
-        for module in mods_check:
-           if len(self.fileGrep("^%s\s+" % module, "/proc/modules")) == 0:
-               self.addDiagnose("required module is not loaded: %s" % module)
 
         # check if all the needed daemons are active at sosreport time
         # check if they are started at boot time in RHEL4 RHCS (cman, ccsd, rgmanager, fenced)
