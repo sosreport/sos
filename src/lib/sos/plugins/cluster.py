@@ -94,7 +94,7 @@ class cluster(sos.plugintools.PluginBase):
            elif found == 1:
                self.addDiagnose("required module is not available for current kernel: %s" % modname)
            elif found == 2:
-               self.addDiagnose("required module is available but not loaded: %s" % module)
+               self.addDiagnose("required module is available but not loaded: %s" % modname)
 
         for pkg in pkgs_check:
            if self.cInfo["policy"].pkgByName(pkg) == None:

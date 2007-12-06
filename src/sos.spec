@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.8
-%define release 0pre0
+%define release 0pre2
 
 %define _localedir %_datadir/locale
 
@@ -63,11 +63,13 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %changelog
 * Wed Nov 21 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.8-0
-- sosGetCommandOutput() does not block on hung processes (bz368261)
-- work-around missing traceback.format_exc() in RHEL4 (bz361861)
-- device-mapper: use /sbin/lvm_dump to collect dm related info (bz394781)
-- unattended --batch option (bz386691)
-- sos could hang when accessing /sys/hypervisor/uuid (bz371251)
+- Resolves: bz368261 sosGetCommandOutput() does not block on hung processes
+- Resolves: bz361861 work-around missing traceback.format_exc() in RHEL4
+- Resolves: bz394781 device-mapper: use /sbin/lvm_dump to collect dm related info
+- Resolves: bz386691 unattended --batch option
+- Resolves: bz371251 sos could hang when accessing /sys/hypervisor/uuid
+- selinux: always collect sestatus
+- added many languages
 - added --debug option which causes exceptions not to be trapped
 - updated to sysreport-1.4.3-13.el5
 - ftp upload to dropbox with --upload
@@ -101,7 +103,7 @@ rm -rf ${RPM_BUILD_ROOT}
 - simply collect output of fdisk -l in one go
 - handle sysreport invocation properly (warn if shell is interactive, otherwise spawn sysreport.legacy)
 - progress bar don't show 100% until finished() is called
-- added lspci -t (bz238778)
+- Resolves: bz238778 added lspci -t
 - now runs on RHEL3 as well (python 2.2)
 - replaced commonPrefix() with faster code
 - filesys: one fdisk -l for all
@@ -111,8 +113,9 @@ rm -rf ${RPM_BUILD_ROOT}
 - systemtap: cleaned up and added checkenabled() method
 - added kdump plugin
 - added collection of /etc/inittab
-- apply regex to case number in sysreport for RHEL4 (bz332151)
-- apply regex to case number in sysreport for RHEL5 (bz332211)
+- Resolves: bz332151 apply regex to case number in sysreport for RHEL4
+- Resolves: bz332211 apply regex to case number in sysreport for RHEL5
+- Resolves: bz400111 sos incorrectly reports cluster data in SMP machine
 
 * Wed Aug 13 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-8
 - added README.rh-upload-core
