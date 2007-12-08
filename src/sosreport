@@ -850,8 +850,8 @@ No changes will be made to your system.
     policy.cleanDstroot()
 
     # let's encrypt the tar-ball
-    if __cmdLineOpts__.encrypt:
-        policy.encryptResults()
+    #if __cmdLineOpts__.encrypt:
+    #   policy.encryptResults()
 
     # automated submission will go here
     if not __cmdLineOpts__.upload:
