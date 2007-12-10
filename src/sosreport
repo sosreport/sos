@@ -194,7 +194,13 @@ if sys.argv[0].endswith("sysreport"):
     if not sys.stdin.isatty():
         print
         os.execl("/bin/sh", "/bin/sh", "-c", "/usr/sbin/sysreport.legacy")
-        os.exit(-1)
+        sys.exit(-1)
+
+if "-norpm" in sys.argv:
+    print
+    print """WARNING: sysreport's "-norpm" option is deprecated, please use "-k rpm.rpmva=off" instead."""
+    print
+    sys.exit(1)
 
 (__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
