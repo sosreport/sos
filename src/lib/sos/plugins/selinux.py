@@ -24,6 +24,9 @@ class selinux(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/selinuxconfig")
         self.eta_weight += 120 # this plugins takes 120x longer (for ETA)
         self.collectExtOutput("/sbin/fixfiles check")
+
+        self.addForbiddenPath("/etc/selinux/targeted")
+
         return
 
     def checkenabled(self):

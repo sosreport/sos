@@ -244,9 +244,10 @@ class PluginBase:
 
     def addForbiddenPath(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copyPaths[] entry.
-        Note:  do NOT use globs here.
         """
-        self.forbiddenPaths.append(forbiddenPath)
+       # Glob case handling is such that a valid non-glob is a reduced glob
+        for filespec in glob.glob(forbiddenPath):
+            self.forbiddenPaths.append(filespec)
     
     def getAllOptions(self):
         """
