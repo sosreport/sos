@@ -38,7 +38,7 @@ class ldap(sos.plugintools.PluginBase):
     def diagnose(self):
         # Validate ldap client options
         ldapopts=self.get_ldap_opts()
-        if ldapopts.has_key("TLS_CACERTDIR") and os.path.exists(ldapopts["TLS_CACERTDIR"]):
+        if ldapopts.has_key("TLS_CACERTDIR") and not os.path.exists(ldapopts["TLS_CACERTDIR"]):
                 self.addDiagnose("%s does not exist and can cause connection issues involving TLS" % ldapopts["TLS_CACERTDIR"])
 
     def setup(self):
