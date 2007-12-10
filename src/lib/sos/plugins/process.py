@@ -41,7 +41,7 @@ class process(sos.plugintools.PluginBase):
                 line = line.split()
                 if line[0] == "D":
                     # keep an eye on the process to see if the stat changes
-                    for inc in range(1,5):
+                    for inc in range(1,10):
                         try:
                             if len(self.fileGrep("^State: D", " /proc/%d/status" % int(line[1]))) == 0:
                                 # status is not D, good. let's get out of the loop.
