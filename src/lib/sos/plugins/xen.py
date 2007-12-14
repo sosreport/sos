@@ -68,7 +68,10 @@ class xen(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/sbin/xm info")
             self.collectExtOutput("/usr/sbin/brctl show")
             self.domCollectProc()
-            self.addCopySpec("/sys/hypervisor")
+            # work-around for BZ#371251 which eventually needs to be fixed in xen
+            status, output = commands.getstatusoutput("/sbin/service xend status &> /dev/null")
+            if status == 0:
+               self.addCopySpec("/sys/hypervisor")
             # FIXME: we *might* want to collect things in /sys/bus/xen*,
             # /sys/class/xen*, /sys/devices/xen*, /sys/modules/blk*,
             # /sys/modules/net*, but I've never heard of them actually being

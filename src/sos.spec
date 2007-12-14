@@ -23,8 +23,10 @@ BuildArch: noarch
 Url: https://hosted.fedoraproject.org/projects/sos
 BuildRequires: python-devel
 Requires: libxml2-python
+%if 0%{?rhel}
 Provides: sysreport = 1.4.3-13
 Obsoletes: sysreport
+%endif
 
 %description
 Sos is a set of tools that gathers information about system
@@ -42,7 +44,16 @@ python setup.py build
 rm -rf ${RPM_BUILD_ROOT}
 install -D -m644 %{SOURCE1} ${RPM_BUILD_ROOT}/usr/share/sos/rhsupport.pub
 python setup.py install --optimize 1 --root=$RPM_BUILD_ROOT
+
+%if 0%{?rhel}
 ln -s /usr/sbin/sosreport $RPM_BUILD_ROOT/usr/sbin/sysreport
+%endif
+%if ! 0%{?rhel}
+rm -f $RPM_BUILD_ROOT/usr/sbin/sysreport.legacy
+rm -f $RPM_BUILD_ROOT/usr/share/sysreport/functions
+rm -f $RPM_BUILD_ROOT/usr/share/sysreport/sysreport-fdisk
+rm -f $RPM_BUILD_ROOT/usr/share/sysreport/text.xsl
+%endif
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -52,9 +63,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_sbindir}/sosreport
 /usr/share/sos/rhsupport.pub
 /usr/bin/rh-upload-core
+%if 0%{?rhel}
 /usr/sbin/sysreport
 /usr/sbin/sysreport.legacy
 /usr/share/sysreport
+%endif
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1*
 %{_localedir}/*/LC_MESSAGES/sos.mo

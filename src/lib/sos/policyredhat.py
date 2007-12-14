@@ -363,5 +363,6 @@ class SosPolicy:
            print "  " + upload_name
            print
            print _("Please communicate this name to your support representative.")
+           print
 
         fp.close()
