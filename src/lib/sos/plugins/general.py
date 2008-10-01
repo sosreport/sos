@@ -39,6 +39,15 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/date", root_symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
         self.addCopySpec("/root/anaconda-ks.cfg")
+        self.collectExtOutput("/bin/env")
+
+        if self.getOption('all_logs'):
+           logs=self.doRegexFindAll(r"^\S+\s+(\S+)", "/etc/syslog.conf")
+           for i in logs:
+              i = i.lstrip("-")
+              if not os.path.isfile(i): continue
+              self.addCopySpec(i)
+
         return
 
     def postproc(self):
