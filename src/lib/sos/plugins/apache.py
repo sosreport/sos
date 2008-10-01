@@ -13,6 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+from threading import Thread
 
 class apache(sos.plugintools.PluginBase):
     """Apache related information

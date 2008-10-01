@@ -15,7 +15,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+import os, re
 
 class autofs(sos.plugintools.PluginBase):
     """autofs server-related information
@@ -24,8 +24,38 @@ class autofs(sos.plugintools.PluginBase):
         if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("autofs"):
             return True
         return False
-
+    
+    def checkdebug(self):
+        """ testing if autofs debug has been enabled anywhere
+        """
+        # Global debugging
+        optlist=[]
+        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
+        for opt1 in opt:
+            for opt2 in opt1.split(" "):
+                optlist.append(opt2)
+        for dtest in optlist:
+            if dtest == "--debug" or dtest == "debug":
+                return True
+    
+    def getdaemondebug(self):
+        """ capture daemon debug output
+        """
+        debugout = self.fileGrep(r"^(daemon.*)\s+(\/var\/log\/.*)", "/etc/sysconfig/autofs")
+        for i in debugout:
+            return i[1]
+    
     def setup(self):
         self.addCopySpec("/etc/auto*")
         self.addCopySpec("/etc/sysconfig/autofs")
-        self.addCopySpec("/etc/rc.d/init.d/autofs")
+        self.addCopySpec("/etc/init.d/autofs")
+        self.collectExtOutput("/bin/rpm -qV autofs")
+        self.collectExtOutput("/etc/init.d/autofs status")
+        self.collectExtOutput("ps auxwww | grep automount")
+        self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
+        self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
+        self.collectExtOutput("/sbin/chkconfig --list autofs")
+        if self.checkdebug():
+            self.addCopySpec(self.getdaemondebug())
+        return
+

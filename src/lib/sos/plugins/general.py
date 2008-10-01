@@ -20,35 +20,25 @@ class general(sos.plugintools.PluginBase):
     """basic system information
     """
 
-    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
-                  ("all_logs", "collect all log files defined in syslog.conf", "", False)]
+    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15)]
 
     def setup(self):
         self.addCopySpec("/etc/redhat-release")
         self.addCopySpec("/etc/fedora-release")
-        self.addCopySpec("/etc/inittab")
-        self.addCopySpec("/etc/sos.conf")
         self.addCopySpec("/etc/sysconfig")
         self.addCopySpec("/proc/stat")
         self.addCopySpec("/var/log/dmesg")
         self.addCopySpec("/var/log/messages")
-        self.addCopySpecLimit("/var/log/messages.*", sizelimit = self.getOption("syslogsize"))
+        self.addCopySpecLimit("/var/log/messages.*", sizelimit = self.isOptionEnabled("syslogsize"))
         self.addCopySpec("/var/log/secure")
-        self.addCopySpecLimit("/var/log/secure.*", sizelimit = self.getOption("syslogsize"))
+        self.addCopySpecLimit("/var/log/secure.*", sizelimit = self.isOptionEnabled("syslogsize"))
         self.addCopySpec("/var/log/sa")
         self.addCopySpec("/var/log/up2date")
+        self.addCopySpec("/etc/exports")        
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
         self.collectExtOutput("/bin/date", root_symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
-        self.collectExtOutput("/bin/env")
-
-        if self.getOption('all_logs'):
-           logs=self.doRegexFindAll(r"^\S+\s+(\S+)", "/etc/syslog.conf")
-           for i in logs:
-              i = i.lstrip("-")
-              if not os.path.isfile(i): continue
-              self.addCopySpec(i)
-
+        self.addCopySpec("/root/anaconda-ks.cfg")
         return
 
     def postproc(self):

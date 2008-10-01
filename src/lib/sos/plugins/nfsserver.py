@@ -35,10 +35,7 @@ class nfsserver(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/exports")
-        self.addCopySpec("/var/lib/nfs/etab")
-        self.addCopySpec("/var/lib/nfs/xtab")
-        self.addCopySpec("/var/lib/nfs/rmtab")
         self.collectExtOutput("/usr/sbin/rpcinfo -p localhost")
-        self.collectExtOutput("/usr/sbin/nfsstat -a")
+        self.collectExtOutput("/usr/sbin/nfsstat")
         return
 

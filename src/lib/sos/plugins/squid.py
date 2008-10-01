@@ -19,12 +19,11 @@ class squid(sos.plugintools.PluginBase):
     """squid related information
     """
     def checkenabled(self):
-        self.files = [ "/etc/squid/squid.conf" ]
-        self.packages = [ "squid" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+       if self.cInfo["policy"].pkgByName("squid") != None or os.path.exists("/etc/squid/squid.conf"):
+          return True
+       return False
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")
-        self.addCopySpec("/var/log/squid")
         return
 

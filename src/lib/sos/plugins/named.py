@@ -20,14 +20,21 @@ class named(sos.plugintools.PluginBase):
     """named related information
     """
     def checkenabled(self):
-        self.files = [ "/etc/named.conf", "/etc/sysconfig/named" ]
-        self.packages = [ "bind", "bind-chroot" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+       if self.cInfo["policy"].pkgByName("bind") or os.path.exists("/etc/named.conf") or os.path.exists("/etc/sysconfig/named"):
+          return True
+       return False
 
     def setup(self):
-        self.addCopySpec("/etc/named.boot")
-        self.addCopySpec("/etc/named.conf")
-        self.addCopySpec("/etc/sysconfig/named")
-        self.addCopySpec("/var/named")
-        self.addForbiddenPath('/var/named/chroot/proc')
-        self.addForbiddenPath('/var/named/chroot/dev')
+       dnsdir = ""
+       self.addCopySpec("/etc/named.boot")
+       self.addCopySpec("/etc/named.conf")
+       self.addCopySpec("/etc/sysconfig/named")
+       if os.access("/etc/named.conf", os.R_OK):
+          dnsdir = commands.getoutput("/bin/grep -i directory /etc/named.conf | /bin/gawk '{print $2}' | /bin/sed 's/\\\"//g' | /bin/sed 's/\;//g'")
+       if os.access("/etc/named.boot", os.R_OK):
+          dnsdir = commands.getoutput("/bin/grep -i directory /etc/named.boot | /bin/gawk '{print $2}' | /bin/sed 's/\\\"//g' | /bin/sed 's/\;//g'")
+       if '' != dnsdir.strip():
+          self.addCopySpec(dnsdir)
+          self.addForbiddenPath('/var/named/chroot/proc')
+          self.addForbiddenPath('/var/named/chroot/dev')
+       return

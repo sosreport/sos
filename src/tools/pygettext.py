@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/python
 # -*- coding: iso-8859-1 -*-
 # Originally written by Barry Warsaw <barry@zope.com>
 #

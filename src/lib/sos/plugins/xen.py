@@ -38,6 +38,11 @@ class xen(sos.plugintools.PluginBase):
             return False
         return True
 
+    def is_running_xenstored(self):
+        xs_pid = os.popen("pidof xenstored").read()
+        xs_pidnum = re.split('\n$',xs_pid)[0]
+        return xs_pidnum.isdigit()
+
     def domCollectProc(self):
         self.addCopySpec("/proc/xen/balloon")
         self.addCopySpec("/proc/xen/capabilities")
@@ -68,10 +73,17 @@ class xen(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/sbin/xm info")
             self.collectExtOutput("/usr/sbin/brctl show")
             self.domCollectProc()
-            # work-around for BZ#371251 which eventually needs to be fixed in xen
-            status, output = commands.getstatusoutput("/sbin/service xend status &> /dev/null")
-            if status == 0:
-               self.addCopySpec("/sys/hypervisor")
+            self.addCopySpec("/sys/hypervisor/version")
+            self.addCopySpec("/sys/hypervisor/compilation")
+            self.addCopySpec("/sys/hypervisor/properties")
+            self.addCopySpec("/sys/hypervisor/type")
+            if is_xenstored_running(): 
+                self.addCopySpec("/sys/hypervisor/uuid")
+                self.collectExtOutput("/usr/bin/xenstore-ls")
+            else:
+                # we need tdb instead of xenstore-ls if cannot get it.
+                self.addCopySpec("/var/lib/xenstored/tdb")
+
             # FIXME: we *might* want to collect things in /sys/bus/xen*,
             # /sys/class/xen*, /sys/devices/xen*, /sys/modules/blk*,
             # /sys/modules/net*, but I've never heard of them actually being

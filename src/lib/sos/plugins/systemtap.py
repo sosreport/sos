@@ -17,15 +17,13 @@
 import sos.plugintools
 
 class systemtap(sos.plugintools.PluginBase):
-    """SystemTap information
+    """SystemTap pre-requisites information
     """
-    def checkenabled(self):
-        self.files = [ "/usr/bin/stap" ]
-        self.packages = [ "systemtap", "systemtap-runtime" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
-
     def setup(self):
         # requires systemtap, systemtap-runtime, kernel-devel,
         # kernel-debuginfo, kernel-debuginfo-common
+        self.collectExtOutput("/bin/rpm -qa | /bin/egrep -e kernel.*`uname -r` -e systemtap -e elfutils | sort")
         self.collectExtOutput("/usr/bin/stap -V 2")
+        self.collectExtOutput("/bin/uname -r")
         return
+

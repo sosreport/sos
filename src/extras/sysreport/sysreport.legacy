@@ -13,8 +13,8 @@ umask 0077
 UTILDIR=/usr/share/sysreport
 VER=`/bin/uname -r`
 PATH=""
-PROGNAME="sysreport"
 DATE=`/bin/date -u +%G%m%d%k%M%S | /usr/bin/tr -d ' '`
+TEMP='/tmp'
 
 function usage {
   echo "Sysreport is a utility that gathers information about a system's"
@@ -27,24 +27,17 @@ function usage {
   echo "   -help     : show help"
   echo "   -norpm    : omit collecting information about currently installed packages"
   echo "   -dmidecode: enable dmidecode, getting information about the hardware"
-  echo "   -firewall : collecting the system firewall rules"
-  echo "   -home     : place sysreport outputs within home directory"
-  echo "   -usesysrq : collecting information about sysrq-trigger"
   echo
   exit 0
 }
 
-[ $# -lt 6 ] || usage
+[ $# -lt 3 ] || usage
 for i
 do
   case "$i" in
      -help) usage;;
      -norpm) NORPM=yes;;
      -dmidecode) DMIDECODE=yes;;
-     -firewall) FIREWALL=yes;;
-     -home) HOMEDIR=yes;;
-     -sysrq) SYSRQ_TRIGGER=yes;;
-     -usesysrq) SYSRQ_TRIGGER=yes;;
      *) usage;;
   esac
 done
@@ -60,15 +53,8 @@ if [ $UID != 0 ]; then
   exit 1
 fi
 
-if [ "$HOMEDIR" = yes ] ; then
-  TEMPDIR=$HOME
-  ROOT=$HOME/sysreport-$DATE
-  /bin/mkdir $ROOT >& /dev/null
-else
-  TEMPDIR=/tmp
-  ROOT=`/bin/mktemp -dq /tmp/sysreport.XXXXXXXX`
-fi
-if [ $? != 0 ] ; then
+ROOT=$TEMP/sysreport-$DATE
+if ( ! mkdir $ROOT >& /dev/null ) ; then
   echo "Cannot make temp dir"
   exit 1
 fi
@@ -212,7 +198,7 @@ STATUS="Collecting information about X:"
 catiffile "/etc/X11"
 
 STATUS="Gathering sysctl information (/proc/sys):"
-catifexec "/sbin/sysctl" "-a"
+catiffile "/proc/sys"
 STATUS="Gathering sysctl information (/etc/sysctl.conf):"
 catiffile "/etc/sysctl.conf"
 
@@ -395,9 +381,6 @@ catiffile "/etc/auto.net"
 STATUS="Collecting LVM information:"
 catifexec "/usr/sbin/vgdisplay" "-vv"
 
-STATUS="Gathering LVM setup"
-catiffile "/etc/lvm"
-
 STATUS="Collecting SCSI Tape information (/etc/stinit.def)"
 catiffile "/etc/stinit.def"
 
@@ -442,25 +425,23 @@ done
 STATUS="Collecting information about ypbind configuration:"
 catiffile "/etc/yp.conf"
 
-if [ "$FIREWALL" == "yes" ]; then
-  KERNELMIN=`/bin/uname -r | /bin/sed -e 's,[^\.]*\.,,' -e 's,\..*,,'`
-  ipchainsmod=`/sbin/lsmod 2>/dev/null| /bin/grep ipchains`
+KERNELMIN=`/bin/uname -r | /bin/sed -e 's,[^\.]*\.,,' -e 's,\..*,,'`
+ipchainsmod=`/sbin/lsmod 2>/dev/null| /bin/grep ipchains`
 
-  if [ "$KERNELMIN" -lt 3 ] || [ -n "${ipchainsmod}" ] ; then
-    STATUS="Getting ipchains information:"
-    catifexec "/sbin/ipchains" "-nvL"
-  elif [ "$KERNELMIN" -gt 3 ]; then
-    STATUS="Getting iptables information:"
-    if [ -f /etc/sysconfig/iptables-config ] ; then
-       catiffile "/etc/sysconfig/iptables-config"
-    fi
-    STATUS="Getting iptables information (filter):"
-    catifexec "/sbin/iptables" "-t filter -nvL"
-    STATUS="Getting iptables information (mangle):"
-    catifexec "/sbin/iptables" "-t mangle -nvL"
-    STATUS="Getting iptables information (nat):"
-    catifexec "/sbin/iptables" "-t nat -nvL"
+if [ "$KERNELMIN" -lt 3 ] || [ -n "${ipchainsmod}" ] ; then
+  STATUS="Getting ipchains information:"
+  catifexec "/sbin/ipchains" "-nvL"
+elif [ "$KERNELMIN" -gt 3 ]; then
+  STATUS="Getting iptables information:"
+  if [ -f /etc/sysconfig/iptables-config ] ; then
+     catiffile "/etc/sysconfig/iptables-config"
   fi
+  STATUS="Getting iptables information (filter):"
+  catifexec "/sbin/iptables" "-t filter -nvL"
+  STATUS="Getting iptables information (mangle):"
+  catifexec "/sbin/iptables" "-t mangle -nvL"
+  STATUS="Getting iptables information (nat):"
+  catifexec "/sbin/iptables" "-t nat -nvL"
 fi
 
 # ldap client and server config
@@ -603,22 +584,23 @@ for x in `/bin/ls -d /etc/cups/*.conf 2>/dev/null` ; do
   catiffile "$x"
 done
 
+STATUS="Getting information about printcap"
+catiffile "/etc/printcap"
+
 echo
 echo "Gathering information from system logs"
 echo
 STATUS="Collecting information from dmesg:"
 catiffile "/var/log/dmesg"
 
-if [ "$SYSRQ_TRIGGER" == "yes" ]; then
-  STATUS="Collecting information from /proc/sysrq-trigger"
-  if [ -f /proc/sysrq-trigger -a -f /proc/sys/kernel/sysrq ] ; then
-    sysr_state="$(/bin/cat /proc/sys/kernel/sysrq)"
-    echo 1 > /proc/sys/kernel/sysrq
-    for key in m p t ; do
-       echo $key > /proc/sysrq-trigger
-    done
-    echo $sysr_state > /proc/sys/kernel/sysrq
-  fi
+STATUS="Collecting information from /proc/sysrq-trigger"
+if [ -f /proc/sysrq-trigger -a -f /proc/sys/kernel/sysrq ] ; then
+  sysr_state="$(/bin/cat /proc/sys/kernel/sysrq)"
+  echo 1 > /proc/sys/kernel/sysrq
+  for key in m p t ; do
+     echo $key > /proc/sysrq-trigger
+  done
+  echo $sysr_state > /proc/sys/kernel/sysrq
 fi
 
 for x in `/bin/ls /var/log/messages*` ; do
@@ -702,7 +684,6 @@ if [ -f $RHNDIR/systemid ] ; then
     catiffile "$RHNDIR/systemid"
   fi
 fi
-
 # Get hardware profile information (for verification with system state and RHN)
 if [ -x /usr/share/rhn/up2date_client/hardware.py ] ; then
   STATUS="Gathering RHN hardware profile information"
@@ -717,7 +698,6 @@ if [ -x /usr/bin/rhn-charsets ] ; then
   catifexec "/usr/bin/rhn-charsets"
 fi
 
-# Get SELinux information
 echo
 echo "Gathering information on SELinux setup"
 echo
@@ -726,8 +706,9 @@ catifexec "/usr/sbin/sestatus"
 catifexec "rpm" "-q -V selinux-policy-targeted"
 catifexec "rpm" "-q -V selinux-policy-strict"
 
-cd $TEMPDIR
+cd $TEMP
 /bin/echo
+HOSTNM=`hostname -s`
 /bin/echo -n "Please enter your case number (if you have one): "
 
 while read CASENUM
@@ -742,9 +723,9 @@ do
   esac
 done
 if [ ! $CASENUM ]; then
-  NAME=$PROGNAME-$HOSTNAME.$DATE
+  NAME=$HOSTNM.$DATE
 else
-  NAME="$PROGNAME-$HOSTNAME-$CASENUM.$DATE"
+  NAME="$HOSTNM-$CASENUM.$DATE"
 fi
 /bin/rm -Rf $NAME
 /bin/mv $ROOT $NAME
@@ -759,7 +740,7 @@ fi
 
 /bin/rm -Rf $NAME
 /bin/echo 
-/bin/echo "Please send $TEMPDIR/${NAME}.${SUFFIX} to your support"
+/bin/echo "Please send $TEMP/${NAME}.${SUFFIX} to your support"
 /bin/echo "representative."
 /bin/echo 
 

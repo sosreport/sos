@@ -37,7 +37,7 @@ class emc(sos.plugintools.PluginBase):
     def get_pp_files(self):
         """ EMC PowerPath specific information - files
         """
-        self.collectExtOutput("/sbin/powermt version") 
+        self.collectExtOutput("/sbin/powermt version")
         self.addCopySpec("/etc/init.d/PowerPath")
         self.addCopySpec("/etc/powermt.custom")
         self.addCopySpec("/etc/emcp_registration")
@@ -50,7 +50,7 @@ class emc(sos.plugintools.PluginBase):
         return
 
     def get_pp_config(self):
-        """ EMC PowerPath specific information - commands 
+        """ EMC PowerPath specific information - commands
         """
         self.collectExtOutput("/sbin/powermt display")
         self.collectExtOutput("/sbin/powermt display dev=all")
@@ -59,12 +59,12 @@ class emc(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/powermt display ports")
         self.collectExtOutput("/sbin/powermt display paths")
         self.collectExtOutput("/sbin/powermt dump")
-        return  
+        return
 
     def get_symcli_files(self):
         """ EMC Solutions Enabler SYMCLI specific information - files
         """
-        self.addCopySpec("/var/symapi/db/symapi_db.bin") 
+        self.addCopySpec("/var/symapi/db/symapi_db.bin")
         self.addCopySpec("/var/symapi/config/[a-z]*")
         self.addCopySpec("/var/symapi/log/[a-z]*")
         return
@@ -116,7 +116,7 @@ class emc(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/symcli/bin/symmask list hba")
         self.collectExtOutput("/usr/symcli/bin/symmask list logins")
         self.collectExtOutput("/usr/symcli/bin/symmaskdb list database")
-        self.collectExtOutput("/usr/symcli/bin/symmaskdb -v list database")	
+        self.collectExtOutput("/usr/symcli/bin/symmaskdb -v list database")
         return
 
     def get_navicli_config(self):
@@ -139,14 +139,14 @@ class emc(sos.plugintools.PluginBase):
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s getdisk" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s getcache" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s getlun" % SP_address)
-        self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s getlun -rg -type -default -owner -crus -capacity" % SP_address)	
+        self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s getlun -rg -type -default -owner -crus -capacity" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s lunmapinfo" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s getcrus" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s port -list -all" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s storagegroup -list" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s spportspeed -get" % SP_address)
         return
-    
+
     def setup(self):
         ## About EMC Corporation default no if no EMC products are installed
         add_about_emc="no"
@@ -184,9 +184,9 @@ class emc(sos.plugintools.PluginBase):
             self.get_navicli_config()
             print " Gathering Navisphere NAVICLI Host Agent information..."
             print " Please enter a CLARiiON SP IP address.  In order to collect"
-            print " information for both SPA and SPB as well as multiple"	
+            print " information for both SPA and SPB as well as multiple"
             print " CLARiiON arrays (if desired) you will be prompted multiple times."
-            print " To exit simply press [Enter]"  
+            print " To exit simply press [Enter]"
             print ""
             add_about_emc = "yes"
             CLARiiON_IP_address_list = []
@@ -194,23 +194,23 @@ class emc(sos.plugintools.PluginBase):
             while CLARiiON_IP_loop == "stay_in":
                 ans = raw_input("CLARiiON SP IP Address or [Enter] to exit: ")
                 ## Check to make sure the CLARiiON SP IP address provided is valid
-                status, output = commands.getstatusoutput("/opt/Navisphere/bin/navicli -h %s getsptime" % ans) 
-        	    if status == 0:
+                status, output = commands.getstatusoutput("/opt/Navisphere/bin/navicli -h %s getsptime" % ans)
+                if status == 0:
                     CLARiiON_IP_address_list.append(ans)
                 else:
                     if ans != "":
-                        print "The IP address you entered, %s, is not to an active CLARiiON SP." % ans 
+                        print "The IP address you entered, %s, is not to an active CLARiiON SP." % ans
                     if ans == "":
                         CLARiiON_IP_loop = "get_out"
             ## Sort and dedup the list of CLARiiON IP Addresses
             CLARiiON_IP_address_list.sort()
             for SP_address in CLARiiON_IP_address_list:
                 if CLARiiON_IP_address_list.count(SP_address) > 1:
-                    CLARiiON_IP_address_list.remove(SP_address) 
+                    CLARiiON_IP_address_list.remove(SP_address)
             for SP_address in CLARiiON_IP_address_list:
                 if SP_address != "":
                     print " Gathering NAVICLI information for %s..." % SP_address
-                    self.get_navicli_SP_info(SP_address)		
+                    self.get_navicli_SP_info(SP_address)
 
         ## Only provide About EMC if EMC products are installed
         if add_about_emc != "no":
