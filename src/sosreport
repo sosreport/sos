@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """
 Gather information about a system and report it using plugins
 supplied for application-specific information
@@ -28,19 +28,26 @@ supplied for application-specific information
 import sys
 import os
 from optparse import OptionParser, Option
+import ConfigParser
 import sos.policyredhat
 from sos.helpers import *
 from snack import *
 from threading import Thread, activeCount
 import signal
-import logging
 from stat import *
 from time import strftime, localtime, time
 from pwd import getpwuid
 import gettext
 from threading import Semaphore
 
-__version__ = 1.7
+# RHEL3 doesn't have a logging module
+try:
+   import logging
+except ImportError:
+   import sos.rhel3_logging
+   logging = sos.rhel3_logging
+
+__version__ = 1.8
 
 __breakHits__ = 0  # Use this to track how many times we enter the exit routine
 
@@ -50,10 +57,15 @@ def exittermhandler(signum, frame):
 
 def doExitCode():
     from threading import enumerate
-    global __breakHits__
+    global __breakHits__, loadedplugins, dstroot
+
     __breakHits__ += 1
     if ( ( activeCount() > 1 ) and ( __breakHits__ == 1 ) ):
         print "SIGTERM received, multiple threads detected, waiting for all threads to exit"
+
+        for plugname, plug in loadedplugins:
+            plug.exit_please()
+
         for thread in enumerate():
             if thread.getName() == "MainThread":
                 continue
@@ -62,20 +74,41 @@ def doExitCode():
                 try:
                     thread.join()
                 except KeyboardInterrupt:
-                    pass
+                    doExitCode()
         else:
             print "All threads ended, cleaning up."
-    if ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
-        print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately"
-        ## FIXME: Add thread-kill code (see FIXME below)
-#       os.kill(os.getpid(), signal.SIGKILL)
-        print "Threads dead, cleaning up."
-    if ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
-        print "Multiple SIGTERMs, single thread, exiting without cleaning up."
-        sys.exit(3)
+            doExit(1)
 
-    # FIXME: Add code here to clean up /tmp
-    sys.exit("Abnormal exit")
+    if  ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
+        print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately."
+        ## FIXME: Add thread-kill code (see FIXME below)
+        return
+    elif ( ( activeCount() > 1 ) and ( __breakHits__ > 2 ) ):
+        print "Multiple SIGTERMs, multiple threads, process suicides."
+        os.kill(os.getpid(), signal.SIGKILL)
+    elif ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
+        print "Multiple SIGTERMs, single thread, exiting without cleaning up."
+        doExit(3)
+
+    doExit("Abnormal exit")
+
+def doExit(error=0):
+    global policy
+    policy.cleanDstroot()
+    sys.exit(error)
+
+def doException(type, value, tb):
+   if hasattr(sys, 'ps1') or not sys.stderr.isatty():
+      # we are in interactive mode or we don't have a tty-like
+      # device, so we call the default hook
+      sys.__excepthook__(type, value, tb)
+   else:
+      import traceback, pdb
+      # we are NOT in interactive mode, print the exception...
+      traceback.print_exception(type, value, tb)
+      print
+      # ...then start the debugger in post-mortem mode.
+      pdb.pm()
 
 # Handle any sort of exit signal cleanly
 # Currently, we intercept only sig 15 (TERM)
@@ -83,9 +116,6 @@ signal.signal(signal.SIGTERM, exittermhandler)
 
 ## FIXME: Need to figure out how to IPC with child threads in case of
 ## multiple SIGTERMs.
-
-# for debugging
-__raisePlugins__ = 0
 
 class OptionParser_extended(OptionParser):
     def print_help(self):
@@ -95,10 +125,10 @@ class OptionParser_extended(OptionParser):
         print
         print " enable cluster plugin only and collect dlm lockdumps:"
         print "   # sosreport -o cluster -k cluster.lockdump"
-        print
+        print 
         print " disable memory and samba plugins, turn off rpm -Va collection:"
         print "   # sosreport -n memory,samba -k rpm.rpmva=off"
-        print
+        print 
 
 class SosOption (Option):
     """Allow to specify comma delimited list of plugins"""
@@ -133,43 +163,55 @@ __cmdParser__.add_option("-k", action="extend", \
 __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
                      dest="usealloptions", default=False, \
                      help="enable all options for loaded plugins")
+__cmdParser__.add_option("-u", "--upload", action="store_true", \
+                     dest="upload", default=False, \
+                     help="upload the report to Red Hat support")
+#__cmdParser__.add_option("--encrypt", action="store_true", \
+#                     dest="encrypt", default=False, \
+#                     help="encrypt with GPG using Red Hat support's public key")
+__cmdParser__.add_option("--batch", action="store_true", \
+                     dest="batch", default=False, \
+                     help="do not ask any question (batch mode)")
+__cmdParser__.add_option("--no-colors", action="store_true", \
+                     dest="nocolors", default=False, \
+                     help="do not use terminal colors for text")
 __cmdParser__.add_option("-v", "--verbose", action="count", \
                      dest="verbosity", \
                      help="increase verbosity")
+__cmdParser__.add_option("--debug", action="count", \
+                     dest="debug", \
+                     help="enabling debugging")
 __cmdParser__.add_option("--no-progressbar", action="store_false", \
                      dest="progressbar", default=True, \
                      help="do not display a progress bar.")
 __cmdParser__.add_option("--no-multithread", action="store_true", \
                      dest="nomultithread", \
                      help="disable multi-threaded gathering mode (slower)", default=False)
-__cmdParser__.add_option("--name", action="store", \
-                     dest="name",type="string", \
-                     help="first initial and last name.", default="")
-__cmdParser__.add_option("--ticket-number", action="store", \
-                     dest="ticketnumber", type="string", \
-                     help="ticket number.", default="")
 
 if sys.argv[0].endswith("sysreport"):
-    try:
-        ppid = os.getppid()
-        fp = open("/proc/%d/cmdline" % ppid, "r")
-        cmd = fp.read()
-        fp.close()
-    except:
-        cmd = ""
-    if not sys.stdin.isatty() or cmd.find("bash") < 0:
-        os.execl("/bin/sh", "/bin/sh", "-c", "/usr/sbin/sysreport.legacy")
-        os.exit(-1)
     print
     print "WARNING: sysreport is deprecated, please use sosreport instead."
+    if not sys.stdin.isatty():
+        print
+        os.execl("/bin/sh", "/bin/sh", "-c", "/usr/sbin/sysreport.legacy")
+        sys.exit(-1)
+
+if "-norpm" in sys.argv:
+    print
+    print """WARNING: sysreport's "-norpm" option is deprecated, please use "-k rpm.rpmva=off" instead."""
+    print
+    sys.exit(1)
 
 (__cmdLineOpts__, __cmdLineArgs__)=__cmdParser__.parse_args()
 
 def textcolor(text, fg, raw=0):
+    global __cmdLineOpts__
+    if __cmdLineOpts__.nocolors:
+       return text
     colors = {  "black":"30", "red":"31", "green":"32", "brown":"33", "blue":"34",
-		"purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
-		"lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
-		"lcyan":"1;36", "white":"1;37" }
+        "purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
+        "lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
+        "lcyan":"1;36", "white":"1;37" }
     opencol = "\033["
     closecol = "m"
     clear = opencol + "0" + closecol
@@ -188,11 +230,11 @@ class progressBar:
         self.last_amount_update = time()
         self.update()
 
-    def updateAmount(self, newAmount = 0):
+    def updateAmount(self, newAmount = 0, finished = False):
         if newAmount < self.min:
             newAmount = self.min
         if newAmount > self.max:
-            newAmount = self.max
+            newAmount = self.max - 1
         if self.amount != newAmount:
             self.last_amount_update = time()
             self.amount = newAmount
@@ -207,6 +249,8 @@ class progressBar:
                 percentDone = round(timeElapsed * 100 / self.eta)
             except:
                 percentDone = 0
+            if percentDone >= 100 and not finished:
+                percentDone = 99
             if percentDone > 100:
                 percentDone = 100
                 ETA = timeElapsed
@@ -241,7 +285,7 @@ class progressBar:
         self.updateAmount(self.amount+toInc)
 
     def finished(self):
-        self.updateAmount(self.max)
+        self.updateAmount(self.max, finished = True)
         sys.stdout.write(self.progBar + '\n')
         sys.stdout.flush()
 
@@ -315,6 +359,14 @@ class XmlReport:
         outfn.write(self.doc.serialize(None,1))
         outfn.close()
 
+# if debugging is enabled, allow plugins to raise exceptions
+
+if __cmdLineOpts__.debug:
+    sys.excepthook = doException
+    __raisePlugins__ = 1
+else:
+    __raisePlugins__ = 0
+
 def sosreport():
     # pylint: disable-msg = R0912
     # pylint: disable-msg = R0914
@@ -322,6 +374,13 @@ def sosreport():
     """
     This is the top-level function that gathers and processes all sosreport information
     """
+
+    global loadedplugins, dstroot, policy
+
+    config = ConfigParser.ConfigParser()
+    try: config.readfp(open('/etc/sos.conf'))
+    except IOError: pass
+
     loadedplugins = []
     skippedplugins = []
     alloptions = []
@@ -336,8 +395,12 @@ def sosreport():
             pluginpath = path + "/sos/plugins"
 
     # Set up common info and create destinations
+    
+    dstroot = policy.getDstroot()
+    if not dstroot:
+        print _("Could not create temporary directory.")
+        doExit()
 
-    dstroot = sosFindTmpDir()
     cmddir = os.path.join(dstroot, "sos_commands")
     logdir = os.path.join(dstroot, "sos_logs")
     rptdir = os.path.join(dstroot, "sos_reports")
@@ -346,7 +409,7 @@ def sosreport():
     os.mkdir(rptdir, 0755)
 
     # initialize i18n language localization
-    gettext.install('sos', '/usr/share/locale', unicode=False)
+    gettext.install('sos', '/usr/share/locale', unicode=False) 
 
     # initialize logging
     soslog = logging.getLogger('sos')
@@ -354,12 +417,15 @@ def sosreport():
 
     logging.VERBOSE  = logging.INFO - 1
     logging.VERBOSE2 = logging.INFO - 2
-    logging.VERBOSE3 = logging.INFO - 3
+    logging.VERBOSE3 = logging.INFO - 3 
     logging.addLevelName(logging.VERBOSE, "verbose")
     logging.addLevelName(logging.VERBOSE2,"verbose2")
     logging.addLevelName(logging.VERBOSE3,"verbose3")
 
-    # FIXME: strip colours if terminal doesn't allow it
+    # if stdin is not a tty, disable colors and don't ask questions
+    if not sys.stdin.isatty():
+        __cmdLineOpts__.nocolors = True
+        __cmdLineOpts__.batch = True
 
     # log to a file
     flog = logging.FileHandler(logdir + "/sos.log")
@@ -382,7 +448,7 @@ def sosreport():
     # set up dict so everyone can share the following
     commons = {'dstroot': dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir,
                'soslog': soslog, 'policy': policy, 'verbosity' : __cmdLineOpts__.verbosity,
-               'xmlreport' : xmlrep }
+               'xmlreport' : xmlrep, 'cmdlineopts':__cmdLineOpts__, 'config':config }
 
     # Make policy aware of the commons
     policy.setCommons(commons)
@@ -390,12 +456,11 @@ def sosreport():
     print
     soslog.info ( _("sosreport (version %s)") % __version__)
     print
-
+    
     # generate list of available plugins
     plugins = os.listdir(pluginpath)
     plugins.sort()
-
-    # FIXME: should at least print a warning if the user references a plugin which does not exist
+    plugin_names = []
 
     # validate and load plugins
     for plug in plugins:
@@ -403,36 +468,33 @@ def sosreport():
         if not plug[-3:] == '.py' or plugbase == "__init__":
             continue
         try:
-            #print "importing plugin: %s" % plugbase
-            try:
-                if policy.validatePlugin(pluginpath + plug):
-                    pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
-                else:
-                    soslog.warning(_("plugin %s does not validate, skipping") % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if plugbase in __cmdLineOpts__.noplugins:
-                    soslog.log(logging.VERBOSE, _("plugin %s skipped (--skip-plugins)") % plugbase)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if not pluginClass(plugbase, commons).checkenabled() and not plugbase in __cmdLineOpts__.enableplugins  and not plugbase in __cmdLineOpts__.onlyplugins:
-                    soslog.log(logging.VERBOSE, _("plugin %s is inactive (use -e or -o to enable).") % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if not pluginClass(plugbase, commons).defaultenabled() and not plugbase in __cmdLineOpts__.enableplugins and not plugbase in __cmdLineOpts__.onlyplugins:
-                    soslog.log(logging.VERBOSE, "plugin %s not loaded by default (use -e or -o to enable)." % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                if __cmdLineOpts__.onlyplugins and not plugbase in __cmdLineOpts__.onlyplugins:
-                    soslog.log(logging.VERBOSE, _("plugin %s not specified in --only-plugins list") % plug)
-                    skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                    continue
-                loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
-            except:
-                soslog.warning(_("plugin %s does not install, skipping") % plug)
-                raise
+            if policy.validatePlugin(pluginpath + plug):
+                pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
+            else:
+                soslog.warning(_("plugin %s does not validate, skipping") % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            # plug-in is valid, let's decide whether run it or not
+            plugin_names.append(plugbase)
+            if plugbase in __cmdLineOpts__.noplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s skipped (--skip-plugins)") % plugbase)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            if not pluginClass(plugbase, commons).checkenabled() and not plugbase in __cmdLineOpts__.enableplugins  and not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s is inactive (use -e or -o to enable).") % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            if not pluginClass(plugbase, commons).defaultenabled() and not plugbase in __cmdLineOpts__.enableplugins and not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, "plugin %s not loaded by default (use -e or -o to enable)." % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            if __cmdLineOpts__.onlyplugins and not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s not specified in --only-plugins list") % plug)
+                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
+                continue
+            loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
         except:
-            soslog.warning(_("could not load plugin %s") % plug)
+            soslog.warning(_("plugin %s does not install, skipping") % plug)
             if __raisePlugins__:
                 raise
 
@@ -444,6 +506,14 @@ def sosreport():
                 if type(parms["enabled"])==bool:
                     parms["enabled"] = True
 
+    # read plugin tunables from configuration file
+    if config.has_section("tunables"):
+       if not __cmdLineOpts__.plugopts:
+          __cmdLineOpts__.plugopts = []
+
+       for opt, val in config.items("tunables"):
+          __cmdLineOpts__.plugopts.append(opt + "=" + val)
+
     if __cmdLineOpts__.plugopts:
         opts = {}
         for opt in __cmdLineOpts__.plugopts:
@@ -453,7 +523,7 @@ def sosreport():
             except:
                 val=True
             else:
-                if val == "off" or val == "disable" or val == "disabled":
+                if val.lower() in ["off", "disable", "disabled", "false"]:
                     val = False
                 else:
                     # try to convert string "val" to int()
@@ -461,7 +531,11 @@ def sosreport():
                     except: pass
 
             # split up "general.syslogsize"
-            plug, opt = opt.split(".")
+            try:
+                plug, opt = opt.split(".")
+            except:
+                plug = opt
+                opt = True
 
             try: opts[plug]
             except KeyError: opts[plug] = []
@@ -470,9 +544,25 @@ def sosreport():
         for plugname, plug in loadedplugins:
            if opts.has_key(plugname):
                for opt,val in opts[plugname]:
-                   soslog.log(logging.VERBOSE, "setting option %s for plugin %s to %s" % (plugname,opt,val))
-                   plug.setOption(opt,val)
+                   soslog.log(logging.VERBOSE, 'setting option "%s" for plugin (%s) to "%s"' % (plugname,opt,val))
+                   if not plug.setOption(opt,val):
+                       soslog.error('no such option "%s" for plugin (%s)' % (opt,plugname))
+                       doExit(1)
+               del opts[plugname]
+        for plugname in opts.keys():
+            soslog.error('unable to set option for disabled or non-existing plugin (%s)' % (plugname))
+            doExit(1)
         del opt,opts,val
+
+    # error if the user references a plugin which does not exist
+    unk_plugs =  [plugname.split(".")[0] for plugname in __cmdLineOpts__.onlyplugins   if not plugname.split(".")[0] in plugin_names]
+    unk_plugs += [plugname.split(".")[0] for plugname in __cmdLineOpts__.noplugins     if not plugname.split(".")[0] in plugin_names]
+    unk_plugs += [plugname.split(".")[0] for plugname in __cmdLineOpts__.enableplugins if not plugname.split(".")[0] in plugin_names]
+    if len(unk_plugs):
+        for plugname in unk_plugs:
+            soslog.error('a non-existing plugin (%s) was specified in the command line' % (plugname))
+        doExit(1)
+    del unk_plugs
 
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE3, _("processing options from plugin: %s") % plugname)
@@ -487,7 +577,7 @@ def sosreport():
     if __cmdLineOpts__.listPlugins:
         if not len(loadedplugins) and not len(skippedplugins):
            soslog.error(_("no valid plugins found"))
-           sys.exit(1)
+           doExit(1)
 
         # FIXME: make -l output more concise
         if len(loadedplugins):
@@ -530,26 +620,22 @@ def sosreport():
            print _("No plugin options available.")
 
         print
-        sys.exit()
+        doExit()
 
     # to go anywhere further than listing the plugins we will need root permissions.
     #
     if os.getuid() != 0:
         print _('sosreport requires root permissions to run.')
-        sys.exit(1)
+        doExit(1)
 
     # we don't need to keep in memory plugins we are not going to use
     del skippedplugins
 
     if not len(loadedplugins):
         soslog.error(_("no valid plugins were enabled"))
-        sys.exit(1)
+        doExit(1)
 
-    isUnattended = False
-    if len(__cmdLineOpts__.name) > 0 and len(__cmdLineOpts__.ticketnumber) > 0: isUnattended = True
-    if not isUnattended:
-        try:
-            raw_input(_("""This utility will collect some detailed  information about the
+    msg = _("""This utility will collect some detailed  information about the
 hardware and  setup of your  Red Hat Enterprise Linux  system.
 The information is collected and an archive is  packaged under
 /tmp, which you can send to a support representative.
@@ -559,11 +645,14 @@ and it will be considered confidential information.
 This process may take a while to complete.
 No changes will be made to your system.
 
-Press ENTER to continue, or CTRL-C to quit.
-"""))
-        except KeyboardInterrupt:
-            print
-            sys.exit(0)
+""")
+    if __cmdLineOpts__.batch:
+        print msg
+    else:
+        msg += _("""Press ENTER to continue, or CTRL-C to quit.\n""")
+        try:    raw_input(msg)
+        except: print ; doExit()
+    del msg
 
     # Call the diagnose() method for each plugin
     tmpcount = 0
@@ -590,37 +679,32 @@ Press ENTER to continue, or CTRL-C to quit.
         fp.close()
 
         print
-        try:
-           while True:
-              if not isUnattended:
+        if not __cmdLineOpts__.batch:
+           try:
+              while True:
                  yorno = raw_input( _("Are you sure you would like to continue (y/n) ? ") )
-              else:
-                 yorno = _("Y")
+                 if yorno == _("y") or yorno == _("Y"):
+                    print
+                    break
+                 elif yorno == _("n") or yorno == _("N"):
+                    doExit(0)
+              del yorno
+           except KeyboardInterrupt:
+              print
+              doExit(0)
 
-              if yorno == _("y") or yorno == _("Y"):
-                 print
-                 break
-              elif yorno == _("n") or yorno == _("N"):
-                 sys.exit(0)
-           del yorno
-        except KeyboardInterrupt:
-           print
-           sys.exit(0)
-
-    if isUnattended:
-       policy.preWork(__cmdLineOpts__.name, __cmdLineOpts__.ticketnumber)
-    else:
-       policy.preWork()
-
+    policy.preWork()
 
     # Call the setup() method for each plugin
     for plugname, plug in loadedplugins:
         soslog.log(logging.VERBOSE2, "Preloading files and commands to be gathered by plugin %s" % plugname)
         try:
-           plug.setup()
+            plug.setup()
+        except KeyboardInterrupt:
+            raise
         except:
-           if __raisePlugins__:
-              raise
+            if __raisePlugins__:
+               raise
 
     # Setup the progress bar
     if __cmdLineOpts__.progressbar:
@@ -639,15 +723,17 @@ Press ENTER to continue, or CTRL-C to quit.
     # Call the collect method for each plugin
     plugrunning = Semaphore(2)
     for plugname, plug in loadedplugins:
-        soslog.log(logging.VERBOSE, "executing plugin %s" % plugname)
+        soslog.log(logging.VERBOSE, "requesting plugin %s" % plugname)
         try:
             if not __cmdLineOpts__.nomultithread:
                 plug.copyStuff(threaded = True, semaphore = plugrunning)
             else:
-                plug.copyStuff()
+                plug.copyStuff()    
                 if __cmdLineOpts__.progressbar:
                     pbar.incAmount(plug.eta_weight)
                     pbar.update()
+        except KeyboardInterrupt:
+            raise
         except:
             if __raisePlugins__:
                 raise
@@ -755,8 +841,6 @@ Press ENTER to continue, or CTRL-C to quit.
 
     rfd.close()
 
-    # Collect any needed user information (name, etc)
-
     # Call the postproc method for each plugin
     for plugname, plug in loadedplugins:
         try:
@@ -767,14 +851,23 @@ Press ENTER to continue, or CTRL-C to quit.
 
     # package up the results for the support organization
     policy.packageResults()
+
     # delete gathered files
-    os.system("/bin/rm -rf %s" % dstroot)
+    policy.cleanDstroot()
+
+    # let's encrypt the tar-ball
+    #if __cmdLineOpts__.encrypt:
+    #   policy.encryptResults()
+
     # automated submission will go here
+    if not __cmdLineOpts__.upload:
+        policy.displayResults()
+    else:
+        policy.uploadResults()
 
     # Close all log files and perform any cleanup
     logging.shutdown()
-
-
+ 
 if __name__ == '__main__':
     try:
         sosreport()

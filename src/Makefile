@@ -59,7 +59,7 @@ release: clean
 	@echo " "
 	@echo "The final archive is ./$(NAME)-$(VERSION).tar.bz2."
 
-install:mo
+install:mo gpgkey
 	python setup.py install
 	@rm -rf build/lib
 
@@ -67,18 +67,40 @@ version:
 	@echo "The version is $(NAME)-$(VERSION)"
 
 clean:
-	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz
+	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.bz2 sosreport.1.gz gpgkeys/rhsupport.*
 	@rm -rfv build/*
 
-rpm:	mo
-	@test -f sos.spec
+internal-rpm: gpgkey
+	@test -f sos-internal.spec
 	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD $(SRCDIR)/dist
+	cp gpgkeys/rhsupport.pub gpgkeys/rhsupport.key $(TOPDIR)/SOURCES
 
 #	this builds an RPM from the current working copy
 	@cd $(TOPDIR)/BUILD ; \
 	rm -rf $(NAME)-$(VERSION) ; \
 	ln -s $(SRCDIR) $(NAME)-$(VERSION) ; \
 	tar --gzip --exclude=.svn --exclude=svn-commit.tmp --exclude=$(NAME)-$(VERSION)/build --exclude=$(NAME)-$(VERSION)/dist \
+	--exclude gpgkeys/rhsupport.pub --exclude gpgkeys/rhsupport.key \
+	-chSpf $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) ; \
+	rm -f $(NAME)-$(VERSION)
+
+	rpmbuild -ba --define="_topdir $(TOPDIR)" sos-internal.spec
+	@mv $(TOPDIR)/RPMS/noarch/$(NAME)-internal-*.rpm $(TOPDIR)/SRPMS/$(NAME)-internal-*.rpm dist/
+	cp gpgkeys/rhsupport.key dist/
+
+rpm:	mo gpgkey
+	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD $(SRCDIR)/dist
+
+	cp gpgkeys/rhsupport.pub $(TOPDIR)/SOURCES
+
+	@test -f sos.spec
+
+#	this builds an RPM from the current working copy
+	@cd $(TOPDIR)/BUILD ; \
+	rm -rf $(NAME)-$(VERSION) ; \
+	ln -s $(SRCDIR) $(NAME)-$(VERSION) ; \
+	tar --gzip --exclude=.svn --exclude=svn-commit.tmp --exclude=$(NAME)-$(VERSION)/build --exclude=$(NAME)-$(VERSION)/dist \
+	--exclude gpgkeys/rhsupport.pub --exclude gpgkeys/rhsupport.key \
 	-chSpf $(TOPDIR)/SOURCES/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) ; \
 	rm -f $(NAME)-$(VERSION)
 
@@ -95,3 +117,7 @@ pot:
 
 mo:
 	find locale/*/LC_MESSAGES -name sos.po -exec python tools/msgfmt.py {} \;
+
+gpgkey:
+	@test -f gpgkeys/rhsupport.pub && echo "GPG key already exists." || \
+	gpg --batch --gen-key gpgkeys/gpg.template

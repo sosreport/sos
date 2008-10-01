@@ -4,8 +4,8 @@ package maintainers, and anyone else to provide plugins that will
 collect, analyze, and report information that is useful for supporting
 software packages.
 
-This project is hosted at http://sos.108.redhat.com. For the latest version,
-to contribute, and for more information, please visit there.
+This project is hosted at http://hosted.fedoraproject.org/projects/sos
+For the latest version, to contribute, and for more information, please visit there.
 
 To access to the public source code repository for this project run:
 
@@ -20,9 +20,20 @@ Maintainer:
 
  Navid Sheikhol-Eslami <navid@redhat.com>
 
-Contributors:
+Developers and Contributors:
 
- Steve Conklin  <sconklin@redhat.com>
- Pierre Amadio  <pamadio@redhat.com>
+ Adam Stokes <astokes@redhat.com>
+ Cris Lalancette <clalance@redhat.com>
+ Eugene Teo <eteo@redhat.com>
  John Berninger <jwb@redhat.com>
- Navid Sheikhol-Eslami <navid@redhat.com>
+ Justin Payne <jpayne@redhat.com>
+ Pierre Amadio  <pamadio@redhat.com>
+ Qian Shen <qshen@redhat.com>
+ Steve Conklin  <sconklin@redhat.com>
+
+Thanks to:
+
+ Eva Schaller <eschaller@redhat.com> for providing an Italian translation
+ Marco Ceci <mceci@redhat.com> for helping me out with the cluster plugin
+ Leonardo Macchia <lmacchia@redhat.com> for being my personal regexp generator
+ Imed Chihi <ichihi@redhat.com> for providing Arabic and French translations

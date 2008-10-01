@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name sos
-%define version 1.7
-%define release 9
+%define version 1.8
+%define release 0pre2
 
 %define _localedir %_datadir/locale
 
@@ -10,19 +10,23 @@ Summary: A set of tools to gather troubleshooting information from a system
 Name: %{name}
 Version: %{version}
 Release: %{release}%{?dist}
+Group: Application/Tools
 # The source for this package was pulled from upstream's svn.  Use the
 # following commands to generate the tarball:
 #  svn --username guest export https://sos.108.redhat.com/svn/sos/tags/r1-7 sos-1.7
 #  tar -czvf sos-1.7.tar.gz sos-1.7
 Source0: %{name}-%{version}.tar.gz
+Source1: rhsupport.pub
 License: GPL
-Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: http://sos.108.redhat.com/
+Url: https://hosted.fedoraproject.org/projects/sos
 BuildRequires: python-devel
 Requires: libxml2-python
+%if 0%{?rhel}
+Provides: sysreport = 1.4.3-13
 Obsoletes: sysreport
+%endif
 
 %description
 Sos is a set of tools that gathers information about system
@@ -38,8 +42,18 @@ python setup.py build
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
+install -D -m644 %{SOURCE1} ${RPM_BUILD_ROOT}/usr/share/sos/rhsupport.pub
 python setup.py install --optimize 1 --root=$RPM_BUILD_ROOT
+
+%if 0%{?rhel}
 ln -s /usr/sbin/sosreport $RPM_BUILD_ROOT/usr/sbin/sysreport
+%endif
+%if ! 0%{?rhel}
+rm -f $RPM_BUILD_ROOT/usr/sbin/sysreport.legacy
+rm -f $RPM_BUILD_ROOT/usr/share/sysreport/functions
+rm -f $RPM_BUILD_ROOT/usr/share/sysreport/sysreport-fdisk
+rm -f $RPM_BUILD_ROOT/usr/share/sysreport/text.xsl
+%endif
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -47,20 +61,76 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(-,root,root,-)
 %{_sbindir}/sosreport
+/usr/share/sos/rhsupport.pub
 /usr/bin/rh-upload-core
+%if 0%{?rhel}
 /usr/sbin/sysreport
 /usr/sbin/sysreport.legacy
 /usr/share/sysreport
+%endif
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1*
 %{_localedir}/*/LC_MESSAGES/sos.mo
 %doc README README.rh-upload-core TODO LICENSE ChangeLog
+%config /etc/sos.conf
 
 %changelog
-* Thu Aug 16 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-9
-- corrected a problem causing sometimes exceptions not to be catched when triggered within a thread
+* Wed Nov 21 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.8-0
+- Resolves: bz368261 sosGetCommandOutput() does not block on hung processes
+- Resolves: bz361861 work-around missing traceback.format_exc() in RHEL4
+- Resolves: bz394781 device-mapper: use /sbin/lvm_dump to collect dm related info
+- Resolves: bz386691 unattended --batch option
+- Resolves: bz371251 sos could hang when accessing /sys/hypervisor/uuid
+- selinux: always collect sestatus
+- added many languages
+- added --debug option which causes exceptions not to be trapped
+- updated to sysreport-1.4.3-13.el5
+- ftp upload to dropbox with --upload
+- cluster: major rewrite to support different versions of RHEL
+- cluster: check rg_test for errors
+- minor changes in various plug-ins (yum, networking, process, kernel)
+- fixed some exceptions in threads which were not properly trapped
+- veritas: don't run rpm -qa every time
+- using rpm's python bindings instead of external binary
+- corrected autofs and ldap plugin that were failing when debug option was not found in config file.
+- implemented built-in checkdebug() that uses self.files and self.packages to make the decision
+- missing binaries are properly detected now.
+- better doExitCode handling
+- fixed problem with rpm module intercepting SIGINT
+- error when user specifies an invalid plugin or plugin option
+- named: fixed indentation
+- replaced isOptionEnabled() with getOption()
+- tune2fs and fdisk were not always run against the correct devices/mountpoint
+- added gpg key to package
+- updated README with new svn repo and contributors
+- updated manpage
+- better signal handling
+- caching of rpm -q outputs
+- report filename includes rhnUsername if available
+- report encryption via gpg and support pubkey
+- autofs: removed redundant files
+- filesys: better handling of removable devices
+- added sosReadFile() returns a file's contents
+- return after looping inside a directory
+- collect udevinfo for each block device
+- simply collect output of fdisk -l in one go
+- handle sysreport invocation properly (warn if shell is interactive, otherwise spawn sysreport.legacy)
+- progress bar don't show 100% until finished() is called
+- Resolves: bz238778 added lspci -t
+- now runs on RHEL3 as well (python 2.2)
+- replaced commonPrefix() with faster code
+- filesys: one fdisk -l for all
+- selinux: collect fixfilex check output
+- devicemapper: collect udevinfo for all block devices
+- cluster: validate node names according to RFC 2181
+- systemtap: cleaned up and added checkenabled() method
+- added kdump plugin
+- added collection of /etc/inittab
+- Resolves: bz332151 apply regex to case number in sysreport for RHEL4
+- Resolves: bz332211 apply regex to case number in sysreport for RHEL5
+- Resolves: bz400111 sos incorrectly reports cluster data in SMP machine
 
-* Mon Aug 13 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-8
+* Wed Aug 13 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-8
 - added README.rh-upload-core
 
 * Mon Aug 13 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.7-7
