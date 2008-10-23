@@ -25,9 +25,29 @@
 """
 helper functions used by sosreport and plugins
 """
-import os, popen2, fcntl, select, itertools, sys, commands
-from time import time
-from tempfile import mkdtemp
+import os, popen2, fcntl, select, sys, commands, signal
+from time import time, sleep
+
+if sys.version_info[0] <= 2 and sys.version_info[1] <= 2:
+    # it's a RHEL3, activate work-arounds
+    #
+    import sos.rhel3_logging
+    logging = sos.rhel3_logging
+
+    def mkdtemp(suffix = "", prefix = "temp_"):
+        import random
+        while True:
+            tempdir = "/tmp/%s_%d%s" % (prefix, random.randint(1,9999999), suffix)
+            if not os.path.exists(tempdir): break
+        os.mkdir(tempdir)
+        return tempdir
+
+    os.path.sep = "/"
+    os.path.pardir = ".."
+else:
+    # RHEL4+, business as usual
+    import logging
+    from tempfile import mkdtemp
 
 def importPlugin(pluginname, name):
     """ Import a plugin to extend capabilities of sosreport
@@ -57,17 +77,72 @@ def makeNonBlocking(afd):
         fcntl.fcntl(afd, fcntl.F_SETFL, fl | os.FNDELAY)
 
 
-def sosGetCommandOutput(command):
+def sosGetCommandOutput(command, timeout = 300):
     """ Execute a command and gather stdin, stdout, and return status.
     """
-    stime = time()
-    inpipe, pipe = os.popen4(command, 'r')
-    inpipe.close()
-    text = pipe.read()
-    sts = pipe.close()
-    if sts is None: sts = 0
-    if text[-1:] == '\n': text = text[:-1]
-    return (sts, text, time()-stime)
+    soslog = logging.getLogger('sos')
+
+    # Log if binary is not runnable or does not exist
+    for path in os.environ["PATH"].split(":"):
+        cmdfile = command.strip("(").split()[0]
+        # handle both absolute or relative paths
+        if ( ( not os.path.isabs(cmdfile) and os.access(os.path.join(path,cmdfile), os.X_OK) ) or \
+           ( os.path.isabs(cmdfile) and os.access(cmdfile, os.X_OK) ) ):
+            break
+    else:
+        soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % cmdfile)
+        return (127, "", 0)
+
+    # these are file descriptors, not file objects
+    r, w = os.pipe()
+
+    pid = os.fork()
+
+    if pid:
+        # we are the parent
+        os.close(w) # use os.close() to close a file descriptor
+        r_fd = os.fdopen(r) # turn r into a file object
+        stime=time()
+        txt = ""
+        sts = -1
+        soslog.log(logging.VERBOSE2, 'forked command "%s" with pid %d, timeout is %d' % (command, pid, timeout) )
+        while True:
+            # read output from pipe
+            ready = select.select([r], [], [], 1)
+            if r in ready[0]:
+               txt = txt + r_fd.read()
+            # is child still running ?
+            try:    os.waitpid(pid, os.WNOHANG)
+            except:
+               # not running, make sure the child process gets cleaned up
+               try:    sts = os.waitpid(pid, 0)[1]
+               except: pass
+               break
+            # has timeout passed ?
+            if time() - stime > timeout:
+               soslog.log(logging.VERBOSE, 'killing hung child with pid %s after %d seconds (command was "%s")' % (pid,timeout,command) )
+               try:    os.kill(pid, signal.SIGKILL)
+               except: pass
+               break
+        if txt[-1:] == '\n': txt = txt[:-1]
+        return (sts, txt, time()-stime)
+    else:
+        # we are the child
+        os.dup2(r, 0)
+        os.dup2(w, 1)
+        os.dup2(w, 2)
+
+        import resource
+        maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1] 
+        if not hasattr(resource, "RLIM_INFINITY"):
+               resource.RLIM_INFINITY = -1L
+        if (maxfd == resource.RLIM_INFINITY): 
+           maxfd = MAXFD 
+        for fd in range(3, maxfd): 
+           try:            os.close(fd) 
+           except OSError: pass
+        os.execl("/bin/sh", "/bin/sh", "-c", command)
+        os._exit(127)
 
 # FIXME: this needs to be made clean and moved to the plugin tools, so
 # that it prints nice color output like sysreport if the progress bar
@@ -92,23 +167,11 @@ def allEqual(elements):
             return False
     return True
 
-
-def commonPrefix(*sequences):
+def commonPrefix(l1, l2, common = []):
     ''' return a list of common elements at the start of all sequences,
         then a list of lists that are the unique tails of each sequence. '''
-    # if there are no sequences at all, we're done
-    if not sequences:
-        return [], []
-    # loop in parallel on the sequences
-    common = []
-    for elements in itertools.izip(*sequences):
-        # unless all elements are equal, bail out of the loop
-        if not allEqual(elements):
-            break
-        # got one more common element, append it and keep looping
-        common.append(elements[0])
-    # return the common prefix and unique tails
-    return common, [ sequence[len(common):] for sequence in sequences ]
+    if len(l1) < 1 or len(l2) < 1 or  l1[0] != l2[0]: return common, [l1, l2]
+    return commonPrefix(l1[1:], l2[1:], common+[l1[0]])
 
 def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
     ''' return a relative path from path1 equivalent to path path2.
@@ -124,3 +187,9 @@ def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
         return path2      # leave path absolute if nothing at all in common
     return sep.join( [pardir]*len(u1) + u2 )
 
+def sosReadFile(fname):
+    ''' reads a file and returns its contents'''
+    fp = open(fname,"r")
+    content = fp.read()
+    fp.close()
+    return content

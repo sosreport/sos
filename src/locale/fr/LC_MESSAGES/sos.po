@@ -1,160 +1,192 @@
-# sosreport Fench translation file
-# Copyright (C) Red Hat UK, Ltd.
-# Imed Chihi <ichihi@redhat.com>, 2007.
+# translation of fr.po to French
+# French translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
 #
+# Automatically generated, 2007.
+# Decroux Fabien <fdecroux@redhat.com>, 2007.
 msgid ""
 msgstr ""
-"Project-Id-Version: sos 1.7\n"
-"POT-Creation-Date: 2007-08-02 10:20\n"
-"PO-Revision-Date: 2007-08-02 13:00+01\n"
-"Last-Translator: Imed Chihi <ichihi@redhat.com>\n"
-"Language-Team: FR <navid@redhat.com>\n"
+"Project-Id-Version: fr\n"
+"POT-Creation-Date: 2007-10-24 08:45\n"
+"PO-Revision-Date: 2007-11-08 10:11+1000\n"
+"Last-Translator: Decroux Fabien <fdecroux@redhat.com>\n"
+"Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: KBabel 1.11.4\n"
 
-#: lib/sos/policyredhat.py:127
+#: lib/sos/policyredhat.py:203
 msgid "Please enter your first initial and last name [%s]: "
-msgstr "Prière d'entrer votre première initiale et votre nom [%s]: "
+msgstr "Veuillez saisir votre premier prénom (si vous en avez plusieurs) et votre nom [%s] :"
 
-#: lib/sos/policyredhat.py:132
+#: lib/sos/policyredhat.py:206
 msgid "Please enter the case number that you are generating this report for: "
-msgstr "Prière de donner le numéro de ticket pour lequel vous avez généré ce rapport: "
+msgstr "Veuillez saisir le numéro de cas pour lequel vous générez ce rapport :"
 
-#: lib/sos/policyredhat.py:155
+#: lib/sos/policyredhat.py:231
 msgid "Creating compressed archive..."
-msgstr "Création de l'archive compressée en cours..."
+msgstr "Création d'une archive compressée..."
 
-#: lib/sos/policyredhat.py:185
+#: lib/sos/policyredhat.py:253
+msgid "Encrypting archive..."
+msgstr "Cryptage de l'archive..."
+
+#: lib/sos/policyredhat.py:271
+msgid "There was a problem encrypting your report."
+msgstr "Une erreur s'est produire lors du cryptage de votre rapport."
+
+#: lib/sos/policyredhat.py:292
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
-"Votre sosreport a été généré et copié dans:\n"
+msgstr ""
+"Votre rapport sos a été généré et enregistré dans :\n"
 "  %s"
 
-#: lib/sos/policyredhat.py:188
+#: lib/sos/policyredhat.py:295
 msgid "The md5sum is: "
-msgstr "La somme md5sum est: "
+msgstr "Le md5sum est :"
 
-#: lib/sos/policyredhat.py:190
+#: lib/sos/policyredhat.py:297
 msgid "Please send this file to your support representative."
-msgstr "Prière d'envoyer ce rapport à votre représentant de Support."
+msgstr "Veuillez envoyer ce fichier à votre représentant de support."
 
-#: sosreport:370
+#: lib/sos/policyredhat.py:323
+msgid "Cannot upload to specified URL."
+msgstr "Impossible de le télécharger vers l'URL spécifié."
+
+#: lib/sos/policyredhat.py:360
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Une erreur s'est produite lors du téléchargement de votre rapport vers le support Red Hat."
+
+#: lib/sos/policyredhat.py:362
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Votre rapport a été téléchargé avec succès vers le serveur ftp de Red Hat avec le nom :"
+
+#: lib/sos/policyredhat.py:365
+msgid "Please communicate this name to your support representative."
+msgstr "Veuillez communiquer ce nom à votre représentant de support."
+
+#: sosreport:395
+msgid "Could not create temporary directory."
+msgstr "Impossible de créer un répertoire temporaire."
+
+#: sosreport:451
 msgid "sosreport (version %s)"
-msgstr ""
+msgstr "sosreport (version %s)"
 
-#: sosreport:388
+#: sosreport:468
 msgid "plugin %s does not validate, skipping"
-msgstr "plugin %s ne s'applique pas, desactivé"
+msgstr "le plugin %s n'a pas été validé, ignoré"
 
-#: sosreport:392
+#: sosreport:474
 msgid "plugin %s skipped (--skip-plugins)"
-msgstr "plugin %s desactivé (--skip-plugins)"
+msgstr "le plugin %s a été ignoré (--skip-plugins)"
 
-#: sosreport:396
+#: sosreport:478
 msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "plugin %s a été desactivé (utiliser -e ou -o pour réactiver)."
+msgstr "le plugin %s est inactif (utilisez -e ou -o pour l'activer)."
 
-#: sosreport:404
+#: sosreport:486
 msgid "plugin %s not specified in --only-plugins list"
-msgstr "plugin %s non specifié dans la liste --only-plugins"
+msgstr "le plugin %s n'a pas été spécifié dans la liste --only-plugins"
 
-#: sosreport:409
+#: sosreport:491
 msgid "plugin %s does not install, skipping"
-msgstr "Plugin %s ne s'installe pas, déscativé"
+msgstr "le plugin %s ne s'installe pas, ignoré"
 
-#: sosreport:412
-msgid "could not load plugin %s"
-msgstr "Echec du chargement du plugin %s"
-
-#: sosreport:455
+#: sosreport:554
 msgid "processing options from plugin: %s"
-msgstr "Traitement des options du plugin: %s"
+msgstr "traitement des options du plugin : %s"
 
-#: sosreport:466
+#: sosreport:565
 msgid "no valid plugins found"
-msgstr "Aucun plugin valide trouvé"
+msgstr "aucun plugin valide n'a été trouvé"
 
-#: sosreport:471
+#: sosreport:570
 msgid "The following plugins are currently enabled:"
-msgstr "Les plugins suivants sont actuellement activés:"
+msgstr "Les plugins suivants sont activés :"
 
-#: sosreport:476
+#: sosreport:575
 msgid "No plugin enabled."
-msgstr "Aucun plugin activé."
+msgstr "Aucun plugin n'est activé."
 
-#: sosreport:480
+#: sosreport:579
 msgid "The following plugins are currently disabled:"
-msgstr "Les plugins suivants sont actuellment déscativés:"
+msgstr "Les plugins suivants sont désactivés :"
 
-#: sosreport:487
+#: sosreport:586
 msgid "The following plugin options are available:"
-msgstr "Les options de plugin suivantes sont disponibles:"
+msgstr "Les options du plugin suivant sont disponibles :"
 
-#: sosreport:507
+#: sosreport:606
 msgid "No plugin options available."
-msgstr "Pas d'options de plugin configurables."
+msgstr "Aucune option n'est disponible pour ce plugin."
 
-#: sosreport:515
+#: sosreport:614
 msgid "sosreport requires root permissions to run."
-msgstr "sosreport doit être lancé avec les privilèges root."
+msgstr "sosreport requiert des permissions root pour démarrer."
 
-#: sosreport:522
+#: sosreport:621
 msgid "no valid plugins were enabled"
-msgstr "Aucun plugin valide n'a été activé"
+msgstr "aucun plugin valide n'a été activé"
 
-#: sosreport:526
+#: sosreport:624
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
 "The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support rappresentative.\n"
+"/tmp, which you can send to a support representative.\n"
 "Red Hat will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
 "No changes will be made to your system.\n"
 "\n"
-"Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr ""
-"Cet outil va collecter des informations détaillées sur le matériel\n"
-"et la configuration de votre système Red Hat Enterprise Linux.\n"
-"Les informations seront assemblées dans une archive sous /tmp,\n"
-"que vous pouvez renvoyer à un représentant du Support Red Hat.\n"
-"Red Hat utilisera ces informations à fin d'anaylser les problèmes UNIQUEMENT\n"
-"et elles seront considérées comme confidentielles.\n"
+"Cet utilitaire collectera des informations détaillées à propos du\n"
+"matériel et de l'installation de votre système Red Hat Enterprise Linux.\n"
+"Les informations sont collectées et une archive est créée sous /tmp.\n"
+"Vous pouvez l'envoyer à un représentant de support.\n"
+"Red Hat utilisera ces informations à des fins de diagnostique SEULEMENT\n"
+"et elles seront considérées commes des informations confidentielles.\n"
 "\n"
-"Ce processus pourrait prendre du temps pour finir.\n"
-"Aucun changement ne sera apporté à votre système.\n"
+"Ce processus peut prendre un certain temps avant d'être terminé.\n"
+"Aucun changement ne sera effectué sur votre système.\n"
 "\n"
-"Tapez ENTREE pour continuer, ou CTRL-C pour quitter.\n.\n"
 
-#: sosreport:555
+#: sosreport:638
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Appuyez sur Entrée pour continuer ou CTRL-C pour quitter.\n"
+
+#: sosreport:654
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Un ou plusieurs plugins ont détecté un problème avec votre configuration."
+msgstr "Un ou plusieurs plugins ont détecté un problème dans votre configuration."
 
-#: sosreport:556
+#: sosreport:655
 msgid "Please review the following messages:"
-msgstr "Prière de vérifier les messages suivants:"
+msgstr "Veuillez revoir les messages suivants :"
 
-#: sosreport:571
+#: sosreport:671
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Voulez vous continuer (y/n)?"
+msgstr "Êtes-vous sûr de vouloir continuer (y/n) ?"
 
-#: sosreport:572
+#: sosreport:672
 msgid "Y"
-msgstr "O"
+msgstr "Y"
 
-#: sosreport:572
+#: sosreport:672
 msgid "y"
-msgstr "o"
+msgstr "y"
 
-#: sosreport:575
+#: sosreport:675
 msgid "N"
 msgstr "N"
 
-#: sosreport:575
+#: sosreport:675
 msgid "n"
 msgstr "n"
+

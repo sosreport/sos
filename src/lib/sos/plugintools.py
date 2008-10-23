@@ -30,10 +30,30 @@ This is the base class for sosreport plugins
 """
 from sos.helpers import *
 from threading import Thread, activeCount
-import os, os.path, sys, string, itertools, glob, re, traceback
-import logging
+import os, os.path, sys, string, glob, re, traceback
+import shutil
 from stat import *
 from time import time
+
+# RHEL3 doesn't have a logging module, activate work-around
+try:
+   import logging
+except ImportError:
+   import sos.rhel3_logging
+   logging = sos.rhel3_logging
+
+# python < 2.4 (RHEL3 and RHEL4) doesn't have format_exc, activate work-around
+if sys.version_info[0] <= 2 and sys.version_info[1] < 4:
+   def format_exc():
+      import StringIO
+
+      output = StringIO.StringIO()
+      traceback.print_exc(file = output)
+      toret = output.getvalue()
+      output.close()
+      return toret
+
+   traceback.format_exc = format_exc
 
 class PluginBase:
     """
@@ -65,6 +85,11 @@ class PluginBase:
         self.time_start = None
         self.time_stop  = None
 
+        self.packages = []
+        self.files = []
+
+        self.must_exit = False
+
         self.soslog = logging.getLogger('sos')
 
         # get the option list into a dictionary
@@ -94,10 +119,10 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (abspath,e))
+                        self.soslog.log(logging.VERBOSE, "problem at path %s (%s)" % (abspath,e))
                         break
         return False
-
+    
     def doRegexFindAll(self,regex,fname):
         ''' Return a list of all non overlapping matches in the string(s)
         '''
@@ -109,7 +134,7 @@ class PluginBase:
         for i in reg.findall(content):
             out.append(i)
         return out
-        
+    
     # Methods for copying files and shelling out
     def doCopyFileOrDir(self, srcpath):
         # pylint: disable-msg = R0912
@@ -126,113 +151,103 @@ class PluginBase:
         if copyProhibited:
             return ''
 
+        if not os.path.exists(srcpath):
+            self.soslog.debug("file or directory %s does not exist" % srcpath)
+            return
+
         if os.path.islink(srcpath):
             # This is a symlink - We need to also copy the file that it points to
-            # file and dir symlinks ar ehandled the same
+
+            # FIXME: ignore directories for now
+            if os.path.isdir(srcpath):
+                return
+
             link = os.readlink(srcpath)
+
+            # What's the name of the symlink on the dest tree?
+            dstslname = os.path.join(self.cInfo['dstroot'], srcpath.lstrip(os.path.sep))
 
             if os.path.isabs(link):
                 # the link was an absolute path, and will not point to the new
                 # tree. We must adjust it.
-
-                # What's the name of the symlink on the dest tree?
-                dstslname = os.path.join(self.cInfo['dstroot'], srcpath.lstrip(os.path.sep))
-
-                # make sure the dst dir exists
-                if not (os.path.exists(os.path.dirname(dstslname)) and os.path.isdir(os.path.dirname(dstslname))):
-                    # create the directory
-                    os.makedirs(os.path.dirname(dstslname))
-
-                dstsldir = os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep))
-                # Create the symlink on the dst tree
-                rpth = sosRelPath(os.path.dirname(dstslname), dstsldir)
-                os.symlink(rpth, dstslname)
+                rpth = sosRelPath(os.path.dirname(dstslname), os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep)))
             else:
                 # no adjustment, symlink is the relative path
-                dstslname = link
+                rpth = link
 
-            if os.path.isdir(srcpath): # symlink to a directory
-                # FIXME: don't recurse symlinks until vicious loops are detected
+            # make sure the link doesn't already exists
+            if os.path.exists(dstslname):
+                self.soslog.log(logging.DEBUG, "skipping symlink creation: already exists (%s)" % dstslname)
                 return
 
-                abslink = os.path.abspath(os.path.dirname(srcpath) + "/" + link)
-                self.soslog.log(logging.VERBOSE2, "DIRLINK %s to %s [%s]" % (srcpath,link,abslink))
-                for tmplink in self.copiedDirs:
-                   if tmplink["srcpath"] == abslink or tmplink["pointsto"] == abslink:
-                      self.soslog.log(logging.VERBOSE2, "already copied [%s]" % srcpath)
-                      return
+            # make sure the dst dir exists
+            if not (os.path.exists(os.path.dirname(dstslname)) and os.path.isdir(os.path.dirname(dstslname))):
+                os.makedirs(os.path.dirname(dstslname))
 
-                for afile in os.listdir(srcpath):
-                    if afile == '.' or afile == '..':
-                        pass
-                    else:
-                        self.soslog.log(logging.VERBOSE2, "copying (file or dir) %s" % srcpath+'/'+afile)
-                        try:
-                            abspath = self.doCopyFileOrDir(srcpath+'/'+afile)
-                        except SystemExit:
-                          raise SystemExit
-                        except KeyboardInterrupt:
-                          raise KeyboardInterrupt
-                        except Exception, e:
-                            self.soslog.verbose(traceback.format_exc())
-
-                        # if on forbidden list, abspath is null
-                        if not abspath == '':
-                            dstslname = sosRelPath(self.cInfo['rptdir'], abspath)
-                            self.copiedDirs.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':os.path.abspath(srcpath+'/'+afile) })
-            else:
-                self.soslog.log(logging.VERBOSE2, "copying symlink %s" % srcpath)
-                try:
-                    dstslname, abspath = self.__copyFile(srcpath)
-                    self.copiedFiles.append({'srcpath':srcpath, 'dstpath':dstslname, 'symlink':"yes", 'pointsto':link})
-                except SystemExit:
-                  raise SystemExit
-                except KeyboardInterrupt:
-                  raise KeyboardInterrupt
-                except Exception, e:
-                    self.soslog.log(logging.VERBOSE, "Problem at path %s (%s)" % (srcpath, e))
-
-            return abspath
+            self.soslog.log(logging.VERBOSE3, "creating symlink %s -> %s" % (dstslname, rpth))
+            os.symlink(rpth, dstslname)
+            self.copiedFiles.append({'srcpath':srcpath, 'dstpath':rpth, 'symlink':"yes", 'pointsto':link})
+            self.doCopyFileOrDir(link)
+            return
 
         else: # not a symlink
-            if not os.path.exists(srcpath):
-                self.soslog.debug("File or directory %s does not exist\n" % srcpath)
-            elif os.path.isdir(srcpath):
+            if os.path.isdir(srcpath):
                 for afile in os.listdir(srcpath):
                     if afile == '.' or afile == '..':
                         pass
                     else:
                         self.doCopyFileOrDir(srcpath+'/'+afile)
-            else:
-                # This is not a directory or a symlink
-                tdstpath, abspath = self.__copyFile(srcpath)
-                self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
-                return abspath
+                return
+
+        # if we get here, it's definitely a regular file (not a symlink or dir)
+
+        self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
+        try:
+            tdstpath, abspath = self.__copyFile(srcpath)
+        except "AlreadyExists":
+            self.soslog.log(logging.DEBUG, "error copying file %s (already exists)" % (srcpath))
+            return
+        except IOError:
+            self.soslog.log(logging.VERBOSE2, "error copying file %s (IOError)" % (srcpath))
+            return 
+        except:
+            self.soslog.log(logging.VERBOSE2, "error copying file %s (SOMETHING HAPPENED)" % (srcpath))
+
+        self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
+
+        return abspath
 
     def __copyFile(self, src):
         """ call cp to copy a file, collect return status and output. Returns the
         destination file name.
         """
-        try:
-            # pylint: disable-msg = W0612
-            status, shout, runtime = sosGetCommandOutput("/bin/cp --parents -P --preserve=mode,ownership,timestamps,links " + src +" " + self.cInfo['dstroot'])
-            if status:
-                self.soslog.debug(shout)
-            abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
-            relpath = sosRelPath(self.cInfo['rptdir'], abspath)
-            return relpath, abspath
-        except SystemExit:
-          raise SystemExit
-        except KeyboardInterrupt:
-          raise KeyboardInterrupt
-        except Exception,e:
-            self.soslog.warning("Problem copying file %s (%s)" % (src, e))
+        rel_dir =  os.path.dirname(src).lstrip(os.path.sep)
+#        if rel_dir[0] == "/": rel_dir = rel_dir[1:]
+        new_dir = os.path.join(self.cInfo['dstroot'], rel_dir)
+        new_fname = os.path.join(new_dir, os.path.basename(src))
+
+        if not os.path.exists(new_fname):
+            if not os.path.isdir(new_dir):
+                os.makedirs(new_dir)
+
+            if os.path.islink(src):
+                linkto = os.readlink(src)
+                os.symlink(linkto, new_fname)
+            else:
+                shutil.copy2(src, new_dir)
+        else:
+            raise "AlreadyExists"
+
+        abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
+        relpath = sosRelPath(self.cInfo['rptdir'], abspath)
+        return (relpath, abspath)
 
     def addForbiddenPath(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copyPaths[] entry.
-        Note:  do NOT use globs here.
         """
-        self.forbiddenPaths.append(forbiddenPath)
+       # Glob case handling is such that a valid non-glob is a reduced glob
+        for filespec in glob.glob(forbiddenPath):
+            self.forbiddenPaths.append(filespec)
     
     def getAllOptions(self):
         """
@@ -240,14 +255,22 @@ class PluginBase:
         """
         return (self.optNames, self.optParms)
   
-    def setOption(self, optionname, enable):
-        ''' enable or disable the named option.
+    def setOption(self, optionname, value):
+        ''' set the named option to value.
         '''
         for name, parms in zip(self.optNames, self.optParms):
             if name == optionname:
-                parms['enabled'] = enable
+                parms['enabled'] = value
+                return True
+        else:
+            return False
 
     def isOptionEnabled(self, optionname):
+        ''' Deprecated, use getOption() instead
+        '''
+        return self.getOption(optionname)
+
+    def getOption(self, optionname):
         ''' see whether the named option is enabled.
         '''
         for name, parms in zip(self.optNames, self.optParms):
@@ -259,6 +282,9 @@ class PluginBase:
     def addCopySpecLimit(self,fname,sizelimit = None):
         """Add a file specification (with limits)
         """
+        if not ( fname and len(fname) ):
+            self.soslog.warning("invalid file path")
+            return False
         files = glob.glob(fname)
         files.sort()
         cursize = 0
@@ -272,57 +298,26 @@ class PluginBase:
         """ Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module
         """
+        if not ( copyspec and len(copyspec) ):
+            self.soslog.warning("invalid file path")
+            return False
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(copyspec):
             self.copyPaths.append(filespec)
 
-    def copyFileGlob(self, srcglob):
-        """ Deprecated - please modify modules to use addCopySpec()
-        """
-        sys.stderr.write("Warning: thecopyFileGlob() function has been deprecated.  Please")
-        sys.stderr.write("use addCopySpec() instead.  Calling addCopySpec() now.")
-        self.addCopySpec(srcglob)
-        
-    def copyFileOrDir(self, srcpath):
-        """ Deprecated - please modify modules to use addCopySpec()
-        """
-        sys.stderr.write("Warning: the copyFileOrDir() function has been deprecated.  Please\n")
-        sys.stderr.write("use addCopySpec() instead.  Calling addCopySpec() now.\n")
-        raise ValueError
-        #self.addCopySpec(srcpath)
-        
-    def runExeInd(self, exe):
-        """ Deprecated - use callExtProg()
-        """
-        sys.stderr.write("Warning: the runExeInd() function has been deprecated.  Please use\n")
-        sys.stderr.write("the callExtProg() function.  This should only be called\n")
-        sys.stderr.write("if collect() is overridden.")
-        pass
-        
     def callExtProg(self, prog):
         """ Execute a command independantly of the output gathering part of
         sosreport
-        """                        
-        # Log if binary is not runnable or does not exist
-        if not os.access(prog.split()[0], os.X_OK):
-            self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % prog.split()[0])
-
-        # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(prog)                                                            
-        return status
-                                                                        
-    def runExe(self, exe):
-        """ Deprecated - use collectExtOutput()
         """
-        sys.stderr.write("Warning: the runExe() function has been deprecated.  Please use\n")
-        sys.stderr.write("the collectExtOutput() function.\n")
-        pass
+        # pylint: disable-msg = W0612
+        status, shout, runtime = sosGetCommandOutput(prog)
+        return status
 
-    def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None):
+    def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None, timeout = 300):
         """
         Run a program and collect the output
         """
-        self.collectProgs.append( (exe,suggest_filename,root_symlink) )
+        self.collectProgs.append( (exe, suggest_filename, root_symlink, timeout) )
 
     def fileGrep(self, regexp, fname):
         results = []
@@ -358,18 +353,13 @@ class PluginBase:
 
         return outfn
 
-    def collectOutputNow(self, exe, suggest_filename = None, root_symlink = False):
+    def collectOutputNow(self, exe, suggest_filename = None, root_symlink = False, timeout = 300):
         """ Execute a command and save the output to a file for inclusion in
         the report
         """
-        # First check to make sure the binary exists and is runnable.
-        if not os.access(exe.split()[0], os.X_OK):
-            self.soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable, trying anyways" % exe.split()[0])
-
-        # FIXME: we should have a timeout or we may end waiting forever
 
         # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(exe)
+        status, shout, runtime = sosGetCommandOutput(exe, timeout = timeout)
 
         if suggest_filename:
             outfn = self.makeCommandFilename(suggest_filename)
@@ -379,7 +369,7 @@ class PluginBase:
         if not os.path.isdir(os.path.dirname(outfn)):
             os.mkdir(os.path.dirname(outfn))
 
-        if not (status == 127 or status == 32512):
+        if not (status == 127 or status == 32512): # if not command_not_found
             outfd = open(outfn, "w")
             if len(shout):    outfd.write(shout+"\n")
             outfd.close()
@@ -387,7 +377,8 @@ class PluginBase:
             if root_symlink:
                 curdir = os.getcwd()
                 os.chdir(self.cInfo['dstroot'])
-                os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+                try:    os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+                except: pass
                 os.chdir(curdir)
 
             outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
@@ -476,6 +467,10 @@ class PluginBase:
 
         if semaphore: semaphore.acquire()
 
+        if self.must_exit:
+            semaphore.release()
+            return
+
         self.soslog.log(logging.VERBOSE, "starting threaded plugin %s" % self.piName)
 
         self.time_start = time()
@@ -486,33 +481,29 @@ class PluginBase:
             try:
                 self.doCopyFileOrDir(path)
             except SystemExit:
-              if threaded:
-                 return SystemExit
-              else:
-                 raise SystemExit
+                if semaphore: semaphore.release()
+                if threaded: return KeyboardInterrupt
+                else:        raise  KeyboardInterrupt
             except KeyboardInterrupt:
-              if threaded:
-                 return KeyboardInterrupt
-              else:
-                 raise KeyboardInterrupt
+                if semaphore: semaphore.release()
+                if threaded: return KeyboardInterrupt
+                else:        raise  KeyboardInterrupt
             except Exception, e:
                 self.soslog.log(logging.VERBOSE2, "error copying from pathspec %s (%s), traceback follows:" % (path,e))
                 self.soslog.log(logging.VERBOSE2, traceback.format_exc())
-        for (prog,suggest_filename,root_symlink) in self.collectProgs:
+        for (prog, suggest_filename, root_symlink, timeout) in self.collectProgs:
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
-                self.collectOutputNow(prog, suggest_filename, root_symlink)
+                self.collectOutputNow(prog, suggest_filename, root_symlink, timeout)
             except SystemExit:
-              if threaded:
-                 return SystemExit
-              else:
-                 raise SystemExit
+                if semaphore: semaphore.release()
+                if threaded: return SystemExit
+                else:        raise  SystemExit
             except KeyboardInterrupt:
-              if threaded:
-                 return KeyboardInterrupt
-              else:
-                 raise KeyboardInterrupt
-            except:
+                if semaphore: semaphore.release()
+                if threaded: return KeyboardInterrupt
+                else:        raise  KeyboardInterrupt
+            except Exception, e:
                 self.soslog.log(logging.VERBOSE2, "error collection output of '%s', traceback follows:" % prog)
                 self.soslog.log(logging.VERBOSE2, traceback.format_exc())
 
@@ -520,6 +511,10 @@ class PluginBase:
 
         if semaphore: semaphore.release()
         self.soslog.log(logging.VERBOSE, "plugin %s returning" % self.piName)
+
+    def exit_please(self):
+        """ This function tells the plugin that it should exit ASAP"""
+        self.must_exit = True
 
     def get_description(self):
         """ This function will return the description for the plugin"""
@@ -532,7 +527,17 @@ class PluginBase:
         """ This function can be overidden to let the plugin decide whether
         it should run or not.
         """
-        return True 
+        # some files or packages have been specified for this package
+        if len(self.files) or len(self.packages):
+            for fname in self.files:
+                if os.path.exists(fname):
+                    return True
+            for pkgname in self.packages:
+                if self.cInfo["policy"].pkgByName(pkgname):
+                    return True
+            return False
+
+        return True
 
     def defaultenabled(self):
         """This devices whether a plugin should be automatically loaded or
@@ -604,11 +609,11 @@ class PluginBase:
             html = html + "<p>Commands Executed:<br><ul>\n"
             # convert file name to relative path from our root
             for cmd in self.executedCommands:
-              if cmd["file"] and len(cmd["file"]):
-                cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], self.cInfo['cmddir'] + "/" + cmd['file'])
-                html = html + '<li><a href="%s">%s</a></li>\n' % (cmdOutRelPath, cmd['exe'])
-              else:
-                html = html + '<li>%s</li>\n' % (cmd['exe'])
+                if cmd["file"] and len(cmd["file"]):
+                    cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], self.cInfo['cmddir'] + "/" + cmd['file'])
+                    html = html + '<li><a href="%s">%s</a></li>\n' % (cmdOutRelPath, cmd['exe'])
+                else:
+                    html = html + '<li>%s</li>\n' % (cmd['exe'])
             html = html + "</ul></p>\n"
 
         # Alerts
@@ -624,5 +629,3 @@ class PluginBase:
             html = html + self.customText + "</p>\n"
 
         return html
-
-

@@ -22,22 +22,17 @@ class yum(sos.plugintools.PluginBase):
     optionList = [("yumlist", "list repositories and packages", "slow", False)]
 
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("yum") or os.path.exists("/etc/yum.conf"):
-            return True
-        return False
+        self.files = [ "/etc/yum.conf" ]
+        self.packages = [ "yum" ]
+        return sos.plugintools.PluginBase.checkenabled(self)
 
-    def diagnose(self):
-        # FIXME: diagnose should only report actual problems, disabling this for now.
-        return True
+    def analyze(self):
         # repo sanity checking
         # TODO: elaborate/validate actual repo files, however this directory should
         # be empty on RHEL 5+ systems.
-        try: rhelver = self.cInfo["policy"].pkgDictByName("redhat-release")[0]
-        except: rhelver = None
-        
-        if rhelver == "5" or True:
-            if len(os.listdir('/etc/yum.repos.d/')):
-                self.addDiagnose("/etc/yum.repos.d/ contains additional repository "+
+        if self.cInfo["policy"].rhelVersion() == 5:
+            if len(os.listdir("/etc/yum.repos.d/")):
+                self.addAlert("/etc/yum.repos.d/ contains additional repository "+
                                  "information and can cause rpm conflicts.")
 
     def setup(self):
@@ -47,7 +42,7 @@ class yum(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/yum.conf")
         self.addCopySpec("/var/log/yum.log")
 
-        if self.isOptionEnabled("yumlist"):
+        if self.getOption("yumlist"):
             # Get a list of channels the machine is subscribed to.
             self.collectExtOutput("/bin/echo \"repo list\" | /usr/bin/yum shell")
             # List various information about available packages

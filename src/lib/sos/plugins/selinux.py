@@ -19,18 +19,32 @@ class selinux(sos.plugintools.PluginBase):
     """selinux related information
     """
     def setup(self):
-        self.addCopySpec("/etc/selinux/*")
+        # sestatus is always collected in checkenabled()
+        self.addCopySpec("/etc/selinux")
         self.collectExtOutput("/usr/bin/selinuxconfig")
-        self.collectExtOutput("/usr/sbin/sestatus", root_symlink = "sestatus")
-        self.collectExtOutput("/bin/rpm -q -V selinux-policy-targeted")
-        self.collectExtOutput("/bin/rpm -q -V selinux-policy-strict")
+        self.eta_weight += 120 # this plugins takes 120x longer (for ETA)
+        self.collectExtOutput("/sbin/fixfiles check")
+
+        self.addForbiddenPath("/etc/selinux/targeted")
+
         return
 
     def checkenabled(self):
         # is selinux enabled ?
         try:
-           if commands.getoutput("/usr/sbin/sestatus").split(":")[1].strip() == "disabled":
+           if self.collectOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
               return False
         except:
            pass
         return True
+    
+    def analyze(self):
+        # Check for SELinux denials and capture raw output from sealert
+        if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("setroubleshoot"):
+            # TODO: fixup regex for more precise matching
+            sealert=doRegexFindAll(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
+            if sealert:
+                for i in sealert:
+                    self.collectExtOutput("%s" % i)
+                self.addAlert("There are numerous selinux errors present and "+
+                              "possible fixes stated in the sealert output.")

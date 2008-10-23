@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import commands
+import os
 
 class filesys(sos.plugintools.PluginBase):
     """information on filesystems
@@ -29,12 +29,11 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/mdadm.conf")
         
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
-        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
         self.collectExtOutput("/sbin/blkid")
-        
+
         self.collectExtOutput("/sbin/fdisk -l", root_symlink = "fdisk-l")
 
         for extfs in self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts):
-            self.collectExtOutput("/sbin/dumpe2fs %s" % (extfs))
-        return
+            self.collectExtOutput("/sbin/tune2fs -l %s" % (extfs))
 
+        return

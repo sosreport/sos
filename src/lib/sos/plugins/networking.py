@@ -24,14 +24,7 @@ class networking(sos.plugintools.PluginBase):
         """Return a dictionary for which key are interface name according to the
         output of ifconifg-a stored in ifconfigFile.
         """
-        out={}
-        if(os.path.isfile(ifconfigFile)):
-            f=open(ifconfigFile,'r')
-            content=f.read()
-            f.close()
-            reg=re.compile(r"^(eth\d+)\D",re.MULTILINE)
-            for name in reg.findall(content):
-                out[name]=1
+        out=self.doRegexFindAll(r"^(eth\d+)\D", ifconfigFile)
         return out
 
     def collectIPTable(self,tablename):
@@ -60,20 +53,19 @@ class networking(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/resolv.conf")
         ifconfigFile=self.collectOutputNow("/sbin/ifconfig -a", root_symlink = "ifconfig")
         self.collectExtOutput("/sbin/route -n", root_symlink = "route")
-        self.collectExtOutput("/sbin/ipchains -nvL")
         self.collectIPTable("filter")
         self.collectIPTable("nat")
         self.collectIPTable("mangle")
         self.collectExtOutput("/bin/netstat -s")
         self.collectExtOutput("/bin/netstat -neopa", root_symlink = "netstat")
-        # FIXME: we should collect "ip route table <tablename>" for all tables (from "ip rule")
+        self.collectExtOutput("/sbin/ip route show table all")
         self.collectExtOutput("/sbin/ip link")
         self.collectExtOutput("/sbin/ip address")
         self.collectExtOutput("/sbin/ifenslave -a")
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
-        if self.isOptionEnabled("traceroute"):
+        if self.getOption("traceroute"):
             self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
             
         return
