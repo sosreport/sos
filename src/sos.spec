@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.8
-%define release 0
+%define release 1
 
 %define _localedir %_datadir/locale
 
@@ -62,6 +62,22 @@ rm -rf ${RPM_BUILD_ROOT}
 %config /etc/sos.conf
 
 %changelog
+* Thu Oct 23 2008 Adam Stokes <astokes at redhat dot com> - 1.8-1
+- Resolves: bz459845 collect krb5.conf
+- Resolves: bz457880 include output of xm list and xm list --long
+- Resolves: bz457919 add support for openswan and ipsec-tools
+- Resolves: bz456378 capture elilo configuration
+- Resolves: bz445007 s390 support
+- Resolves: bz371251 hangs when running with a xen kernel where xend has not been started
+- Resolves: bz452705 Add /root/anaconda-ks-cfg to sosreport archive
+- Resolves: bz445510 Do not rely on env to execute python
+- Resolves: bz446868 add support for emc devices
+- Resolves: bz453797 fails to generate fdisk -l
+- Resolves: bz433183 does not collect ext3 information
+- Resolves: bz444838 systool is passed deprecated arguments
+- Resolves: bz455096 add %{INSTALLTIME:date} to rpm --qf collection
+- Resolves: bz332211 avoid hazardous filenames
+
 * Wed Nov 21 2007 Navid Sheikhol-Eslami <navid at redhat dot com> - 1.8-0
 - Resolves: bz368261 sosGetCommandOutput() does not block on hung processes
 - Resolves: bz361861 work-around missing traceback.format_exc() in RHEL4

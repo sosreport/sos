@@ -4,12 +4,12 @@ package maintainers, and anyone else to provide plugins that will
 collect, analyze, and report information that is useful for supporting
 software packages.
 
-This project is hosted at http://hosted.fedoraproject.org/projects/sos
+This project is hosted at http://fedorahosted.org/sos
 For the latest version, to contribute, and for more information, please visit there.
 
 To access to the public source code repository for this project run:
 
-  svn export http://svn.fedoraproject.org/svn/hosted/sos/trunk sos --username guest
+  svn export http://svn.fedorahosted.org/svn/sos/trunk sos --username guest
 
 to install locally (as root) ==> make install
 to build an rpm ==> make rpm

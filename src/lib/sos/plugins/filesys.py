@@ -29,11 +29,12 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/mdadm.conf")
         
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
+        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
         self.collectExtOutput("/sbin/blkid")
-
+        
         self.collectExtOutput("/sbin/fdisk -l", root_symlink = "fdisk-l")
 
         for extfs in self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts):
-            self.collectExtOutput("/sbin/tune2fs -l %s" % (extfs))
-
+            self.collectExtOutput("/sbin/dumpe2fs %s" % (extfs))
         return
+

@@ -1,3 +1,5 @@
+## Copyright (C) 2007 Sadique Puthen <sputhenp@redhat.com>
+
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -13,16 +15,18 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
-class samba(sos.plugintools.PluginBase):
-    """Samba related information
+class openswan(sos.plugintools.PluginBase):
+    """ipsec related information
     """
-    def setup(self):
-        self.addCopySpec("/etc/samba")
-        self.addCopySpec("/var/log/samba/*")
-        self.addCopySpec("/etc/krb5.conf")
-        self.collectExtOutput("/usr/bin/wbinfo -g")
-        self.collectExtOutput("/usr/bin/wbinfo -u")
-        self.collectExtOutput("/usr/bin/testparm -s -v")
-        return
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("openswan") or os.path.exists("/etc/ipsec.conf"):
+            return True
+        return False
 
+    def setup(self):
+        self.addCopySpec("/etc/ipsec.conf")
+        self.addCopySpec("/etc/ipsec.d")
+        self.collectExtOutput("/usr/sbin/ipsec verify")
+        self.collectExtOutput("/usr/sbin/ipsec barf")

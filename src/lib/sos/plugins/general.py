@@ -37,10 +37,11 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpecLimit("/var/log/secure.*", sizelimit = self.getOption("syslogsize"))
         self.addCopySpec("/var/log/sa")
         self.addCopySpec("/var/log/up2date")
+        self.addCopySpec("/etc/exports")        
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
         self.collectExtOutput("/bin/date", root_symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
-        self.collectExtOutput("/bin/env")
+        self.addCopySpec("/root/anaconda-ks.cfg")
 
         if self.getOption('all_logs'):
            logs=self.doRegexFindAll(r"^\S+\s+(\S+)", "/etc/syslog.conf")

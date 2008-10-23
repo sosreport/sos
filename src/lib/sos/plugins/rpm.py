@@ -24,7 +24,7 @@ class rpm(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/rpmpkgs")
 
         if self.getOption("rpmq"):
-          self.collectExtOutput("/bin/rpm -qa --qf \"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}\n\"", root_symlink = "installed-rpms")
+          self.collectExtOutput("/bin/rpm -qa --qf=\"%{NAME}-%{VERSION}-%{RELEASE}-%{ARCH}~~%{INSTALLTIME:date}\n\"|/bin/awk -F ~~ '{printf \"%-60s%s\\n\",$1,$2}'", root_symlink = "installed-rpms")
 
         if self.getOption("rpmva"):
           self.eta_weight += 1500 # this plugins takes 200x longer (for ETA)
