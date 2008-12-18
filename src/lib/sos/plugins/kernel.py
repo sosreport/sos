@@ -18,8 +18,7 @@ import commands, os, re
 class kernel(sos.plugintools.PluginBase):
     """kernel related information
     """
-    optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True),
-                  ('sysrq', 'trigger sysrq+[m,p,t] dumps', 'fast', False)]
+    optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
     moduleFile = ""
     taintList = [
         {'regex':'mvfs*', 'description':'Clearcase module'},
@@ -73,10 +72,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/driver")
         self.addCopySpec("/proc/sys/kernel/tainted")
 
-        if self.getOption('sysrq') and os.access("/proc/sysrq-trigger", os.W_OK):
-           for key in ['m', 'p', 't']:
-              commands.getoutput("/bin/echo %s > /proc/sysrq-trigger" % (key,))
-           self.addCopySpec("/var/log/messages")
+        self.addCopySpec("/var/log/messages")
 
         return
 
