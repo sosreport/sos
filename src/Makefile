@@ -5,7 +5,7 @@
 NAME    = sos
 VERSION = $(shell awk '/^%define version / { print $$3 }' sos.spec)
 RELEASE = $(shell awk '/^%define release / { print $$3 }' sos.spec)
-REPO = svn+ssh://svn.fedorahosted.org/svn/sos
+REPO = http://svn.fedorahosted.org/svn/sos
 SVNTAG  = r$(subst .,-,$(VERSION))_$(RELEASE)
 SRCDIR = $(PWD)
 TOPDIR = $(PWD)/build/rpm-$(NAME)-$(VERSION)
@@ -88,7 +88,7 @@ internal-rpm: gpgkey
 	@mv $(TOPDIR)/RPMS/noarch/$(NAME)-internal-*.rpm $(TOPDIR)/SRPMS/$(NAME)-internal-*.rpm dist/
 	cp gpgkeys/rhsupport.key dist/
 
-rpm:	mo gpgkey
+rpm: mo gpgkey
 	@mkdir -p $(TOPDIR)/SOURCES $(TOPDIR)/SRPMS $(TOPDIR)/RPMS $(TOPDIR)/BUILD $(SRCDIR)/dist
 
 	cp gpgkeys/rhsupport.pub $(TOPDIR)/SOURCES

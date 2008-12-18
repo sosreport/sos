@@ -11,11 +11,7 @@ Name: %{name}
 Version: %{version}
 Release: %{release}%{?dist}
 Group: Application/Tools
-# The source for this package was pulled from upstream's svn.  Use the
-# following commands to generate the tarball:
-#  svn --username guest export https://sos.108.redhat.com/svn/sos/tags/r1-7 sos-1.7
-#  tar -czvf sos-1.7.tar.gz sos-1.7
-Source0: %{name}-%{version}.tar.gz
+Source0: %{name}-%{version}.tar.bz2
 Source1: rhsupport.pub
 License: GPL
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
