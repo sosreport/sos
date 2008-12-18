@@ -13,13 +13,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class kdump(sos.plugintools.PluginBase):
     """Kdump related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("kexec-tools") or os.path.exists("/etc/kdump.conf"):
+        if self.cInfo["policy"].pkgByName("kexec-tools") or exists("/etc/kdump.conf"):
             return True
         return False
 

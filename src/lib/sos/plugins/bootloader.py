@@ -21,7 +21,7 @@ class bootloader(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/lilo.conf")
         self.addCopySpec("/etc/milo.conf")
         self.addCopySpec("/etc/silo.conf")
-        self.addCopySpec("/boot/efi/*")
+        self.addCopySpec("/boot/efi/efi/redhat/elilo.conf")
         self.addCopySpec("/boot/grub/grub.conf")
         self.addCopySpec("/boot/grub/device.map")
         self.addCopySpec("/boot/yaboot.conf")

@@ -13,7 +13,6 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import commands
 
 class hardware(sos.plugintools.PluginBase):
     """hardware related information

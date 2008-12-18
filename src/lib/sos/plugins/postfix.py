@@ -13,13 +13,20 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+from os.path import exists
 
-class mail(sos.plugintools.PluginBase):
+class postfix(sos.plugintools.PluginBase):
     """mail server related information
     """
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("postfix") or exists("/etc/rc.d/init.d/postfix"):
+            return True
+        return False
+        
     def setup(self):
         self.addCopySpec("/etc/mail")
         self.addCopySpec("/etc/postfix/main.cf")
         self.addCopySpec("/etc/postfix/master.cf")
+        self.collectExtOutput("/usr/sbin/postconf")
         return
 

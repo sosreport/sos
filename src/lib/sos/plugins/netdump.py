@@ -12,22 +12,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#############################################################
-# This plugin assumes is to assist in troubleshooting netdump
-# issues that deal with netdump configuration.  Any improvements
-# to the plugin are appreciated.  Please send them to
-# sos@lists.fedorahosted.org
-# thanks
-#############################################################
-# grabs both client and server netdump configs
-
 import sos.plugintools
-from os import exists
+from os.path import exists
 
 class netdump(sos.plugintools.PluginBase):
     """Netdump Configuration Information
     """
-
     def checkenabled(self):
         if self.cInfo["policy"].pkgByName("netdump") or exists("/etc/sysconfig/netdump*"):
             return True

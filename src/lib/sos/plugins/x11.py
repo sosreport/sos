@@ -32,6 +32,10 @@ class x11(sos.plugintools.PluginBase):
 
         self.addForbiddenPath("/etc/X11/X")
         self.addForbiddenPath("/etc/X11/fontpath.d")
+        
+        # TODO: if there is a need for kde that can be added here as well
+        if os.path.exists("/etc/gdm"):
+            self.addCopySpec("/etc/gdm")
 
         return
 

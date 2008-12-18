@@ -65,6 +65,8 @@ class networking(sos.plugintools.PluginBase):
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
+                self.collectExtOutput("/sbin/ethtool -i "+eth)
+                self.collectExtOutput("/sbin/ethtool -S "+eth)
         if self.getOption("traceroute"):
             self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
             
