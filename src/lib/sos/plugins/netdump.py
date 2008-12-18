@@ -12,18 +12,27 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+#############################################################
+# This plugin assumes is to assist in troubleshooting netdump
+# issues that deal with netdump configuration.  Any improvements
+# to the plugin are appreciated.  Please send them to
+# sos@lists.fedorahosted.org
+# thanks
+#############################################################
+# grabs both client and server netdump configs
+
 import sos.plugintools
-from threading import Thread
+from os import exists
 
-class apache(sos.plugintools.PluginBase):
-    """Apache related information
+class netdump(sos.plugintools.PluginBase):
+    """Netdump Configuration Information
     """
-    optionList = [("log", "gathers all apache logs", "slow", False)]
-    
-    def setup(self):
-        self.addCopySpec("/etc/httpd/conf/httpd.conf")
-        self.addCopySpec("/etc/httpd/conf.d/*.conf")
-        if self.getOption("log"):
-            self.addCopySpec("/var/log/httpd/*")
-        return
 
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("netdump") or exists("/etc/sysconfig/netdump*"):
+            return True
+        return False
+
+    def setup(self):
+        self.addCopySpec("/etc/sysconfig/netdump")
+        return
