@@ -19,12 +19,11 @@ class kdump(sos.plugintools.PluginBase):
     """Kdump related information
     """
     def checkenabled(self):
-       if len(self.fileGrep(".* crashkernel=", "/proc/cmdline")) > 0:
-          return True
-       return False
+        if self.cInfo["policy"].pkgByName("kexec-tools") or os.path.exists("/etc/kdump.conf"):
+            return True
+        return False
 
     def setup(self):
-	self.addCopySpec("/etc/kdump.conf")
-	self.addCopySpec("/etc/sysconfig/kdump")
+        self.addCopySpec("/etc/kdump.conf")
+        self.addCopySpec("/etc/sysconfig/kdump")
         return
-
