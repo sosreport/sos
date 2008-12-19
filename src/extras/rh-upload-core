@@ -21,7 +21,7 @@ umask 0077
 
 ## Declare some variables
 date=`/bin/date -u +%G%m%d%k%M%S | /usr/bin/tr -d ' '`
-destination="dropbox.redhat.com"
+destination="dropbox.redhat.com/incoming"
 NOUPLOAD=NO
 SPLIT=0
 
@@ -248,24 +248,23 @@ if [ "$NOUPLOAD" = "yes" ]; then
 	echo "to be uploaded to your target system manually.  The information indicated above"
 	echo "will still be provided."
 	echo
-	else		
-		if [ ! /usr/bin/lftp ]; then 
+        fi
+	if [ ! /usr/bin/lftp ]; then 
 		# No lftp installed
 		echo "lftp could not be found in /usr/bin. The file(s) will need to be uploaded manually."
 	
-		else
-		# Make the lftp script first
-		echo "lftp $destination <<EOF" > lftp_scripts
-		if [ "$SPLIT" = "yes" ]; then
-			echo "lcd $ticket_number" >> lftp_scripts
-			echo "mirror -R" >> lftp_scripts
-		else
-			echo "put $new_file" >> lftp_scripts
-		fi
-		echo "quit 0" >> lftp_scripts
-		echo "EOF" >> lftp_scripts
-		/usr/bin/lftp -f lftp_scripts
-		fi
+	else
+	# Make the lftp script first
+	echo "lftp $destination <<EOF" > lftp_scripts
+	if [ "$SPLIT" = "yes" ]; then
+		echo "lcd $ticket_number" >> lftp_scripts
+		echo "mirror -R" >> lftp_scripts
+	else
+		echo "put $new_file" >> lftp_scripts
+	fi
+	echo "quit 0" >> lftp_scripts
+	echo "EOF" >> lftp_scripts
+	/usr/bin/lftp -f lftp_scripts
 	fi
 fi
 }
