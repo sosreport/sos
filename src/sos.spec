@@ -1,15 +1,11 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-%define name sos
-%define version 1.8
-%define release 4
-
 %define _localedir %_datadir/locale
 
 Summary: A set of tools to gather troubleshooting information from a system
-Name: %{name}
-Version: %{version}
-Release: %{release}%{?dist}
+Name: sos
+Version: 1.8
+Release: 4%{?dist}
 Group: Application/Tools
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 Source1: sos.conf
