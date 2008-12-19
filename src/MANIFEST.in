@@ -1,9 +1,9 @@
 recursive-include locale *.mo
 recursive-include extras *
 include sosreport*
-include README
+include README*
 include LICENSE
-include READ.rh-upload-core
 include TODO
-include rhsupport.pub
+include ChangeLog
+include gpgkeys/*.pub
 include sos.conf

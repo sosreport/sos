@@ -28,7 +28,7 @@ tarball: clean mo gpgkey
 	@python setup.py sdist -d $(TMPDIR)
 	@cp {$(SOURCE1),$(SOURCE2),$(SOURCE3)} $(TMPDIR)
 	@mkdir $(PWD)/dist
-	@mv $(TMPDIR)/* $(PWD)/dist
+	@cp $(TMPDIR)/* $(PWD)/dist
 	@echo " "
 	@echo "The final archive is $(PWD)/dist/"
 

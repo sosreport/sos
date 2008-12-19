@@ -11,8 +11,11 @@ Name: %{name}
 Version: %{version}
 Release: %{release}%{?dist}
 Group: Application/Tools
-Source0: %{name}-%{version}.tar.gz
-License: GPL
+Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
+Source1: sos.conf
+Source2: rhsupport.pub
+Source3: sosreport.1.gz
+License: GPLv2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: http://fedorahosted.org/sos
@@ -35,7 +38,7 @@ support technicians and developers.
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-#install -D -m644 rhsupport.pub ${RPM_BUILD_ROOT}/usr/share/sos/rhsupport.pub
+install -D -m644 gpgkeys/rhsupport.pub ${RPM_BUILD_ROOT}/usr/share/sos/rhsupport.pub
 %{__python} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 ln -s /usr/sbin/sosreport $RPM_BUILD_ROOT/usr/sbin/sysreport
 
@@ -44,12 +47,12 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,root,root,-)
+%{_bindir}/rh-upload-core
 %{_sbindir}/sosreport
-/usr/share/sos/rhsupport.pub
-/usr/bin/rh-upload-core
-/usr/sbin/sysreport
-/usr/sbin/sysreport.legacy
+%{_sbindir}/sysreport
+%{_sbindir}/sysreport.legacy
 /usr/share/sysreport
+/usr/share/sos/rhsupport.pub
 %{python_sitelib}/sos/
 %{_mandir}/man1/sosreport.1.gz
 %{_localedir}/*/LC_MESSAGES/sos.mo
@@ -57,6 +60,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Fri Dec 19 2008 Adam Stokes <ajs at redhat dot com> - 1.8-4
+- spec cleanup, fixed license, source
+- reworked Makefile to build properly
+
 * Thu Oct 23 2008 Adam Stokes <astokes at redhat dot com> - 1.8-1
 - Resolves: bz459845 collect krb5.conf
 - Resolves: bz457880 include output of xm list and xm list --long
