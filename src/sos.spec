@@ -2,7 +2,7 @@
 
 %define name sos
 %define version 1.8
-%define release 3
+%define release 4
 
 %define _localedir %_datadir/locale
 
@@ -11,12 +11,11 @@ Name: %{name}
 Version: %{version}
 Release: %{release}%{?dist}
 Group: Application/Tools
-Source0: %{name}-%{version}.tar.bz2
-Source1: rhsupport.pub
+Source0: %{name}-%{version}.tar.gz
 License: GPL
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: https://hosted.fedoraproject.org/projects/sos
+Url: http://fedorahosted.org/sos
 BuildRequires: python-devel
 Requires: libxml2-python
 Provides: sysreport = 1.4.3-13
@@ -32,12 +31,12 @@ support technicians and developers.
 %setup -q
 
 %build
-python setup.py build
+%{__python} setup.py build
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-install -D -m644 %{SOURCE1} ${RPM_BUILD_ROOT}/usr/share/sos/rhsupport.pub
-python setup.py install --optimize 1 --root=$RPM_BUILD_ROOT
+#install -D -m644 rhsupport.pub ${RPM_BUILD_ROOT}/usr/share/sos/rhsupport.pub
+%{__python} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 ln -s /usr/sbin/sosreport $RPM_BUILD_ROOT/usr/sbin/sysreport
 
 %clean
@@ -52,10 +51,10 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/sbin/sysreport.legacy
 /usr/share/sysreport
 %{python_sitelib}/sos/
-%{_mandir}/man1/sosreport.1*
+%{_mandir}/man1/sosreport.1.gz
 %{_localedir}/*/LC_MESSAGES/sos.mo
 %doc README README.rh-upload-core TODO LICENSE ChangeLog
-%config /etc/sos.conf
+%config %{_sysconfdir}/sos.conf
 
 %changelog
 * Thu Oct 23 2008 Adam Stokes <astokes at redhat dot com> - 1.8-1
