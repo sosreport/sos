@@ -3,8 +3,8 @@
 #
 
 NAME	= sos
-VERSION = $(shell awk '/^%define version / { print $$3 }' sos.spec)
-RELEASE = $(shell awk '/^%define release / { print $$3 }' sos.spec)
+VERSION = 1.8
+RELEASE = 5
 REPO = http://svn.fedorahosted.org/svn/sos
 SVNTAG	= r$(subst .,-,$(VERSION))_$(RELEASE)
 SRCDIR = $(PWD)
@@ -26,7 +26,6 @@ tarball: clean mo gpgkey
 	@test -f $(SOURCE2) || gzip -c $(MANPAGE) > $(SOURCE2)
 	@mkdir $(TMPDIR)
 	@python setup.py sdist -d $(TMPDIR)
-	@cp {$(SOURCE1),$(SOURCE2),$(SOURCE3)} $(TMPDIR)
 	@mkdir $(PWD)/dist
 	@cp $(TMPDIR)/* $(PWD)/dist
 	@echo " "

@@ -5,12 +5,9 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 4%{?dist}
+Release: 5%{?dist}
 Group: Application/Tools
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
-Source1: sos.conf
-Source2: rhsupport.pub
-Source3: sosreport.1.gz
 License: GPLv2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
@@ -56,6 +53,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Mon Dec 29 2008 Adam Stokes <ajs at redhat dot com> - 1.8-5
+- removed source defines as python manifest handles this
+
 * Fri Dec 19 2008 Adam Stokes <ajs at redhat dot com> - 1.8-4
 - spec cleanup, fixed license, source
 - reworked Makefile to build properly
