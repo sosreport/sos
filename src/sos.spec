@@ -5,10 +5,10 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 5%{?dist}
+Release: 6%{?dist}
 Group: Application/Tools
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
-License: GPLv2
+License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: http://fedorahosted.org/sos
@@ -46,7 +46,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_sbindir}/sysreport.legacy
 /usr/share/sysreport
 /usr/share/sos/rhsupport.pub
-%{python_sitelib}/sos/
+%{python_sitelib}/*
 %{_mandir}/man1/sosreport.1.gz
 %{_localedir}/*/LC_MESSAGES/sos.mo
 %doc README README.rh-upload-core TODO LICENSE ChangeLog

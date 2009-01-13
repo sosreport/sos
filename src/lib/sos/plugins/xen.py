@@ -68,7 +68,6 @@ class xen(sos.plugintools.PluginBase):
             # default of dom0, collect lots of system information
             self.addCopySpec("/var/log/xen")
             self.addCopySpec("/etc/xen")
-            self.collectExtOutput("/usr/bin/xenstore-ls")
             self.collectExtOutput("/usr/sbin/xm dmesg")
             self.collectExtOutput("/usr/sbin/xm info")
             self.collectExtOutput("/usr/sbin/xm list")

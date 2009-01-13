@@ -15,25 +15,23 @@
 import sos.plugintools
 import os
 
-class anaconda(sos.plugintools.PluginBase):
-    """Anaconda / Installation information
+class sar(sos.plugintools.PluginBase):
+    """Generate the sar file from /var/log/sa/saXX files
     """
-    def checkenabled(self):
-        try:
-            os.stat("/var/log/anaconda.log")
-        except:
-            pass
-        else:
-            return True
-
-        return False
-
     def setup(self):
-        self.addCopySpec("/root/anaconda-ks.cfg")
-        self.addCopySpec("/root/install.log")
-        self.addCopySpec("/root/install.log.syslog")
-        self.addCopySpec("/var/log/anaconda.log")
-        self.addCopySpec("/var/log/anaconda.syslog")
-        self.addCopySpec("/var/log/anaconda.xlog")
+        path="/var/log/sa"
+        dirList=os.listdir(path)
+        # find all the sa file that don't have an existing sar file
+        for fname in dirList:
+            if fname[0:2] == 'sa' and fname[2:3] != 'r':
+                sar_filename = 'sar' + fname[2:4]
+                if sar_filename not in dirList:
+                    sar_command = "/usr/bin/sar -A -f /var/log/sa/" + fname
+                    self.collectOutputNow(sar_command, sar_filename, root_symlink=sar_filename)
         return
+
+    def checkenabled(self):
+        if os.path.exists("/var/log/sa") and os.path.exists("/usr/bin/sar"):
+            return True
+        return False    
 

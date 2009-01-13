@@ -1,3 +1,5 @@
+## Copyright (C) 2007 Sadique Puthen <sputhenp@redhat.com>
+
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -15,25 +17,20 @@
 import sos.plugintools
 import os
 
-class anaconda(sos.plugintools.PluginBase):
-    """Anaconda / Installation information
+class smartcard(sos.plugintools.PluginBase):
+    """Smart Card related information
     """
-    def checkenabled(self):
-        try:
-            os.stat("/var/log/anaconda.log")
-        except:
-            pass
-        else:
-            return True
 
-        return False
+    def checkenabled(self):
+       if self.cInfo["policy"].pkgByName("pam_pkcs11") or os.path.exists("/etc/pam_pkcs11/pam_pkcs11.conf"):
+          return True
+       return False
 
     def setup(self):
-        self.addCopySpec("/root/anaconda-ks.cfg")
-        self.addCopySpec("/root/install.log")
-        self.addCopySpec("/root/install.log.syslog")
-        self.addCopySpec("/var/log/anaconda.log")
-        self.addCopySpec("/var/log/anaconda.syslog")
-        self.addCopySpec("/var/log/anaconda.xlog")
+        self.addCopySpec("/etc/reader.conf")
+        self.addCopySpec("/etc/reader.conf.d/")
+        self.addCopySpec("/etc/pam_pkcs11/")
+        self.collectExtOutput("/usr/bin/pkcs11_inspect debug")
+        self.collectExtOutput("/usr/bin/pklogin_finder debug")
+        self.collectExtOutput("/bin/ls -l /usr/lib/pam_pkcs11/")
         return
-

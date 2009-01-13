@@ -1,4 +1,6 @@
-### This program is free software; you can redistribute it and/or modify
+## Copyright (C) 2007 Red Hat, Inc., Kent Lamb <klamb@redhat.com>
+
+## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
@@ -15,25 +17,19 @@
 import sos.plugintools
 import os
 
-class anaconda(sos.plugintools.PluginBase):
-    """Anaconda / Installation information
+class ipa(sos.plugintools.PluginBase):
+    """IPA diagnostic information
     """
-    def checkenabled(self):
-        try:
-            os.stat("/var/log/anaconda.log")
-        except:
-            pass
-        else:
-            return True
+    # ntp and dirserver stuff are covered in existing sos plugins, so we really only
+    # need to get kerberos and ipa specific addons.
 
-        return False
+    def checkenabled(self):
+       if self.cInfo["policy"].pkgByName("ipa-server") or os.path.exists("/etc/ipa"):
+          return True
+       return False
 
     def setup(self):
-        self.addCopySpec("/root/anaconda-ks.cfg")
-        self.addCopySpec("/root/install.log")
-        self.addCopySpec("/root/install.log.syslog")
-        self.addCopySpec("/var/log/anaconda.log")
-        self.addCopySpec("/var/log/anaconda.syslog")
-        self.addCopySpec("/var/log/anaconda.xlog")
+        self.addCopySpec("/etc/dirsrv/ds.keytab")
+        self.addCopySpec("/etc/ipa/ipa.conf")
         return
 

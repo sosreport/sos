@@ -30,7 +30,10 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/sos.conf")
         self.addCopySpec("/etc/sysconfig")
         self.addCopySpec("/proc/stat")
+        # Capture dmesg from system start
         self.addCopySpec("/var/log/dmesg")
+        # Capture second dmesg from time of sos run
+        self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
         self.addCopySpec("/var/log/messages")
         self.addCopySpecLimit("/var/log/messages.*", sizelimit = self.getOption("syslogsize"))
         self.addCopySpec("/var/log/secure")

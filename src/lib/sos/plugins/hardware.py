@@ -44,5 +44,7 @@ class hardware(sos.plugintools.PluginBase):
 
         self.collectExtOutput("/sbin/lsusb")
         self.collectExtOutput("/usr/bin/lshal")
+        self.collectExtOutput("/usr/bin/systool -c fc_host -v")
+        self.collectExtOutput("/usr/bin/systool -c scsi_host -v")
         return
 
