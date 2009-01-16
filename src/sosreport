@@ -61,7 +61,8 @@ def doExitCode():
 
     __breakHits__ += 1
     if ( ( activeCount() > 1 ) and ( __breakHits__ == 1 ) ):
-        print "SIGTERM received, multiple threads detected, waiting for all threads to exit"
+        print "SIGTERM received, multiple threads detected, waiting " \
+              "for all threads to exit"
 
         for plugname, plug in loadedplugins:
             plug.exit_please()
@@ -69,7 +70,8 @@ def doExitCode():
         for thread in enumerate():
             if thread.getName() == "MainThread":
                 continue
-            # until we find a way to kill threads in case of > 1 CTRL+C, ignore KeyboardInterrupt
+            # until we find a way to kill threads in 
+            # case of > 1 CTRL+C, ignore KeyboardInterrupt
             while thread.isAlive():
                 try:
                     thread.join()
@@ -80,7 +82,8 @@ def doExitCode():
             doExit(1)
 
     if  ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
-        print "Multiple SIGTERMs, multiple threads, attempting to signal threads to die immediately."
+        print "Multiple SIGTERMs, multiple threads, attempting to " \
+              "signal threads to die immediately."
         ## FIXME: Add thread-kill code (see FIXME below)
         return
     elif ( ( activeCount() > 1 ) and ( __breakHits__ > 2 ) ):
@@ -186,7 +189,8 @@ __cmdParser__.add_option("--no-progressbar", action="store_false", \
                      help="do not display a progress bar.")
 __cmdParser__.add_option("--no-multithread", action="store_true", \
                      dest="nomultithread", \
-                     help="disable multi-threaded gathering mode (slower)", default=False)
+                     help="disable multi-threaded gathering mode (slower)",
+                     default=False)
 
 if sys.argv[0].endswith("sysreport"):
     print
@@ -209,9 +213,9 @@ def textcolor(text, fg, raw=0):
     if __cmdLineOpts__.nocolors:
        return text
     colors = {  "black":"30", "red":"31", "green":"32", "brown":"33", "blue":"34",
-		"purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
-		"lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
-		"lcyan":"1;36", "white":"1;37" }
+                "purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
+                "lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
+                "lcyan":"1;36", "white":"1;37" }
     opencol = "\033["
     closecol = "m"
     clear = opencol + "0" + closecol
@@ -258,7 +262,8 @@ class progressBar:
                 ETA = timeElapsed
             else:
                 ETA = self.eta
-            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60), timeElapsed % 60, int(ETA/60), ETA % 60)
+            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60), 
+                                             timeElapsed % 60, int(ETA/60), ETA % 60)
         else:
             ETA = "[%02d:%02d/--:--]" % (int(timeElapsed/60), timeElapsed % 60)
             if self.amount < self.max:
@@ -274,7 +279,8 @@ class progressBar:
         self.progBar = ""
         for inc in range(0,allFull):
             if inc == int(allFull / 2):
-                self.progBar = self.progBar + textcolor("%d%%" % percentDone, "green")
+                self.progBar = self.progBar + textcolor("%d%%" % percentDone, 
+                                                        "green")
             elif inc < numHashes:
                 self.progBar = self.progBar + textcolor('#', "gray")
             else:
@@ -308,7 +314,8 @@ class XmlReport:
         self.commands = self.root.newChild(None, "commands", None)
         self.files = self.root.newChild(None, "files", None)
 
-    def add_command(self, cmdline, exitcode, stdout = None, stderr = None, f_stdout=None, f_stderr=None, runtime=None):
+    def add_command(self, cmdline, exitcode, stdout = None, stderr = None, 
+                    f_stdout=None, f_stderr=None, runtime=None):
         if not self.enabled: return
 
         cmd = self.commands.newChild(None, "cmd", None)
@@ -340,11 +347,14 @@ class XmlReport:
         cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
         cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
         cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
-        cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_CTIME])))
+        cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y', 
+                                                        localtime(stats[ST_CTIME])))
         cchild.setNsProp(None,"tstamp", str(stats[ST_CTIME]))
-        cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_ATIME])))
+        cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y', 
+                                                        localtime(stats[ST_ATIME])))
         cchild.setNsProp(None,"tstamp", str(stats[ST_ATIME]))
-        cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y', localtime(stats[ST_MTIME])))
+        cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y', 
+                                                        localtime(stats[ST_MTIME])))
         cchild.setNsProp(None,"tstamp", str(stats[ST_MTIME]))
 
     def serialize(self):
@@ -372,7 +382,8 @@ def sosreport():
     # pylint: disable-msg = R0914
     # pylint: disable-msg = R0915
     """
-    This is the top-level function that gathers and processes all sosreport information
+    This is the top-level function that gathers 
+    and processes all sosreport information
     """
 
     global loadedplugins, dstroot, policy
@@ -391,7 +402,8 @@ def sosreport():
     # find the plugins path
     paths = sys.path
     for path in paths:
-        if path.strip()[-len("site-packages"):] == "site-packages":
+        if path.strip()[-len("site-packages"):] == "site-packages" and \ 
+        os.path.isdir(path + "/sos/plugins"):
             pluginpath = path + "/sos/plugins"
 
     # Set up common info and create destinations
@@ -477,19 +489,28 @@ def sosreport():
             # plug-in is valid, let's decide whether run it or not
             plugin_names.append(plugbase)
             if plugbase in __cmdLineOpts__.noplugins:
-                soslog.log(logging.VERBOSE, _("plugin %s skipped (--skip-plugins)") % plugbase)
+                soslog.log(logging.VERBOSE, _("plugin %s skipped " \
+                                              "(--skip-plugins)") % plugbase)
                 skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 continue
-            if not pluginClass(plugbase, commons).checkenabled() and not plugbase in __cmdLineOpts__.enableplugins  and not plugbase in __cmdLineOpts__.onlyplugins:
-                soslog.log(logging.VERBOSE, _("plugin %s is inactive (use -e or -o to enable).") % plug)
+            if not pluginClass(plugbase, commons).checkenabled() and \
+            not plugbase in __cmdLineOpts__.enableplugins  and \
+            not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s is inactive " \
+                                              "(use -e or -o to enable).") % plug)
                 skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 continue
-            if not pluginClass(plugbase, commons).defaultenabled() and not plugbase in __cmdLineOpts__.enableplugins and not plugbase in __cmdLineOpts__.onlyplugins:
-                soslog.log(logging.VERBOSE, "plugin %s not loaded by default (use -e or -o to enable)." % plug)
+            if not pluginClass(plugbase, commons).defaultenabled() and \
+            not plugbase in __cmdLineOpts__.enableplugins and \
+            not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, "plugin %s not loaded by default " \
+                                            "(use -e or -o to enable)." % plug)
                 skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 continue
-            if __cmdLineOpts__.onlyplugins and not plugbase in __cmdLineOpts__.onlyplugins:
-                soslog.log(logging.VERBOSE, _("plugin %s not specified in --only-plugins list") % plug)
+            if __cmdLineOpts__.onlyplugins and \
+            not plugbase in __cmdLineOpts__.onlyplugins:
+                soslog.log(logging.VERBOSE, _("plugin %s not specified in " \
+                                              "--only-plugins list") % plug)
                 skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
                 continue
             loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
@@ -544,13 +565,16 @@ def sosreport():
         for plugname, plug in loadedplugins:
            if opts.has_key(plugname):
                for opt,val in opts[plugname]:
-                   soslog.log(logging.VERBOSE, 'setting option "%s" for plugin (%s) to "%s"' % (plugname,opt,val))
+                   soslog.log(logging.VERBOSE, 'setting option "%s" for plugin ' \
+                                               '(%s) to "%s"' % (plugname,opt,val))
                    if not plug.setOption(opt,val):
-                       soslog.error('no such option "%s" for plugin (%s)' % (opt,plugname))
+                       soslog.error('no such option "%s" for plugin ' \
+                                    '(%s)' % (opt,plugname))
                        doExit(1)
                del opts[plugname]
         for plugname in opts.keys():
-            soslog.error('unable to set option for disabled or non-existing plugin (%s)' % (plugname))
+            soslog.error('unable to set option for disabled or non-existing ' \
+                         'plugin (%s)' % (plugname))
             doExit(1)
         del opt,opts,val
 
@@ -560,12 +584,14 @@ def sosreport():
     unk_plugs += [plugname.split(".")[0] for plugname in __cmdLineOpts__.enableplugins if not plugname.split(".")[0] in plugin_names]
     if len(unk_plugs):
         for plugname in unk_plugs:
-            soslog.error('a non-existing plugin (%s) was specified in the command line' % (plugname))
+            soslog.error('a non-existing plugin (%s) was specified in the ' \
+                         'command line' % (plugname))
         doExit(1)
     del unk_plugs
 
     for plugname, plug in loadedplugins:
-        soslog.log(logging.VERBOSE3, _("processing options from plugin: %s") % plugname)
+        soslog.log(logging.VERBOSE3, _("processing options from " \
+                                       "plugin: %s") % plugname)
         names, parms = plug.getAllOptions()
         for optname, optparm  in zip(names, parms):
             alloptions.append((plug, plugname, optname, optparm))
@@ -584,7 +610,8 @@ def sosreport():
             print _("The following plugins are currently enabled:")
             print
             for (plugname,plug) in loadedplugins:
-               print " %-25s  %s" % (textcolor(plugname,"lblue"),plug.get_description())
+               print " %-25s  %s" % (textcolor(plugname,"lblue"),
+                                     plug.get_description())
         else:
             print _("No plugin enabled.")
         print
@@ -593,7 +620,8 @@ def sosreport():
            print _("The following plugins are currently disabled:")
            print
            for (plugname,plugclass) in skippedplugins:
-              print " %-25s  %s" % (textcolor(plugname,"cyan"),plugclass.get_description())
+              print " %-25s  %s" % (textcolor(plugname,"cyan"),
+                                    plugclass.get_description())
         print
 
         if len(alloptions):
@@ -614,7 +642,8 @@ def sosreport():
               else:
                  tmpopt = optparm["enabled"]
 
-              print " %-21s %-5s %s" % (plugname + "." + optname, tmpopt, optparm["desc"])
+              print " %-21s %-5s %s" % (plugname + "." + optname, 
+                                        tmpopt, optparm["desc"])
               del tmpopt
         else:
            print _("No plugin options available.")
@@ -622,8 +651,8 @@ def sosreport():
         print
         doExit()
 
-    # to go anywhere further than listing the plugins we will need root permissions.
-    #
+    # to go anywhere further than listing the 
+    # plugins we will need root permissions.
     if os.getuid() != 0:
         print _('sosreport requires root permissions to run.')
         doExit(1)
@@ -657,7 +686,8 @@ No changes will be made to your system.
     # Call the diagnose() method for each plugin
     tmpcount = 0
     for plugname, plug in loadedplugins:
-        soslog.log(logging.VERBOSE2, "Performing sanity check for plugin %s" % plugname)
+        soslog.log(logging.VERBOSE2, "Performing sanity check for plugin " \
+                                     "%s" % plugname)
         try:
            plug.diagnose()
         except:
@@ -665,7 +695,8 @@ No changes will be made to your system.
               raise
         tmpcount += len(plug.diagnose_msgs)
     if tmpcount > 0:
-        print _("One or more plugins have detected a problem in your configuration.")
+        print _("One or more plugins have detected a problem in your " \
+                "configuration.")
         print _("Please review the following messages:")
         print
 
@@ -675,14 +706,15 @@ No changes will be made to your system.
                 if tmpcount2 == 0:
                     soslog.warning( textcolor("%s:" % plugname, "red") )
                 soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
-                fp.write("%s: %s\n" % (plugname, plug.diagnose_msgs[tmpcount2]) )
+                fp.write("%s: %s\n" % (plugname, plug.diagnose_msgs[tmpcount2]))
         fp.close()
 
         print
         if not __cmdLineOpts__.batch:
            try:
               while True:
-                 yorno = raw_input( _("Are you sure you would like to continue (y/n) ? ") )
+                 yorno = raw_input( _("Are you sure you would like to " \
+                                      "continue (y/n) ? ") )
                  if yorno == _("y") or yorno == _("Y"):
                     print
                     break
@@ -697,7 +729,8 @@ No changes will be made to your system.
 
     # Call the setup() method for each plugin
     for plugname, plug in loadedplugins:
-        soslog.log(logging.VERBOSE2, "Preloading files and commands to be gathered by plugin %s" % plugname)
+        soslog.log(logging.VERBOSE2, "Preloading files and commands to be " \
+                                     "gathered by plugin %s" % plugname)
         try:
             plug.setup()
         except KeyboardInterrupt:
@@ -750,7 +783,8 @@ No changes will be made to your system.
                 if __cmdLineOpts__.progressbar:
                    pbar.incAmount(plug.eta_weight)
             else:
-                soslog.log(logging.DEBUG, "plugin %s still hasn't returned" % plugname)
+                soslog.log(logging.DEBUG, "plugin %s still hasn't " \
+                                          "returned" % plugname)
                 loadedplugins.append((plugname,plug))
             if __cmdLineOpts__.progressbar:
                 pbar.update()
@@ -802,7 +836,8 @@ No changes will be made to your system.
     plugNames = []
     for plugname, plug in loadedplugins:
         for alert in plug.alerts:
-            allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname, alert))
+            allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname, 
+                                                           alert))
         plugNames.append(plugname)
 
 
@@ -812,7 +847,8 @@ No changes will be made to your system.
     rfd.write("<table><tr>\n")
     rr = 0
     for i in range(len(plugNames)):
-        rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i], plugNames[i]))
+        rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i], 
+                                                       plugNames[i]))
         rr = divmod(i, 4)[1]
         if (rr == 3):
             rfd.write('</tr>')
