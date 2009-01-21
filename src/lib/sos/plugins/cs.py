@@ -30,9 +30,10 @@ import os
 class cs(sos.plugintools.PluginBase):
     """Certificate System 7.x Diagnostic Information
     """
-    # check for default location of pki services (/var/lib.rhpki-*).  If default path exists, 
-    # assume rhpki- glob and grap all installed subsystems.  If customer has a custom install
-    # path, then ln -s the custom path to /var/lib/rhkpi-installed_subsystem (/var/lib/rhpki-ca, 
+    # check for default location of pki services (/var/lib.rhpki-*).  
+    # If default path exists, assume rhpki- glob and grap all installed 
+    # subsystems.  If customer has a custom install path, then ln -s the 
+    # custom path to /var/lib/rhkpi-installed_subsystem (/var/lib/rhpki-ca, 
     # /var/lib/rhpki-kra ect).
 
     def checkenabled(self):

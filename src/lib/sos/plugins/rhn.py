@@ -47,7 +47,7 @@ class rhn(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/rhn*")	# rhn-logs
         self.addCopySpec("/var/log/rhn/rhn-database-installation.log")
 
-	# all these used to go in $DIR/mon-logs/
+        # all these used to go in $DIR/mon-logs/
         self.addCopySpec("/opt/notification/var/*.log*")
         self.addCopySpec("/var/tmp/ack_handler.log*")
         self.addCopySpec("/var/tmp/enqueue.log*")

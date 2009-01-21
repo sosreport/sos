@@ -71,7 +71,6 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/proc/driver")
         self.addCopySpec("/proc/sys/kernel/tainted")
-        self.addCopySpec("/var/log/messages")
 
         return
 

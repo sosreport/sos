@@ -5,7 +5,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 6%{?dist}
+Release: 9%{?dist}
 Group: Application/Tools
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -31,28 +31,34 @@ support technicians and developers.
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-install -D -m644 gpgkeys/rhsupport.pub ${RPM_BUILD_ROOT}/usr/share/sos/rhsupport.pub
+install -D -m644 gpgkeys/rhsupport.pub ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/rhsupport.pub
+install -D -m644 extras/sysreport/sysreport.legacy ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/sysreport
 %{__python} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 ln -s /usr/sbin/sosreport $RPM_BUILD_ROOT/usr/sbin/sysreport
+%find_lang %{name}
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root,-)
 %{_bindir}/rh-upload-core
 %{_sbindir}/sosreport
 %{_sbindir}/sysreport
 %{_sbindir}/sysreport.legacy
-/usr/share/sysreport
-/usr/share/sos/rhsupport.pub
+%{_datadir}/%{name}
+%{_datadir}/sysreport
 %{python_sitelib}/*
 %{_mandir}/man1/sosreport.1.gz
-%{_localedir}/*/LC_MESSAGES/sos.mo
+#%{_localedir}/*/LC_MESSAGES
 %doc README README.rh-upload-core TODO LICENSE ChangeLog
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Wed Jan 21 2009 Adam Stokes <ajs at redhat dot com> - 1.8-9
+- Resolves: bz436053 /usr/share/sos is not owned by any package 
+- Resolves: bz434626 Wrong directory structure for translations 
+
 * Mon Dec 29 2008 Adam Stokes <ajs at redhat dot com> - 1.8-5
 - removed source defines as python manifest handles this
 

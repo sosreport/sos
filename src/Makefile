@@ -4,9 +4,9 @@
 
 NAME	= sos
 VERSION = 1.8
-RELEASE = 5
+#RELEASE = 6
 REPO = http://svn.fedorahosted.org/svn/sos
-SVNTAG	= r$(subst .,-,$(VERSION))_$(RELEASE)
+#SVNTAG	= r$(subst .,-,$(VERSION))_$(RELEASE)
 SRCDIR = $(PWD)
 # Needs to be changed to reflect
 # your rpm development tree.
@@ -31,7 +31,7 @@ tarball: clean mo gpgkey
 	@echo " "
 	@echo "The final archive is $(PWD)/dist/"
 
-install:mo gpgkey
+install:gpgkey mo
 	python setup.py install
 	@rm -rf build/lib
 
@@ -41,6 +41,11 @@ clean:
 	@rm -rf MANIFEST
 	@rm -rfv $(TMPDIR)
 	@rm -rf {$(SOURCE2),$(SOURCE3)}
+	@for i in `ls po`; do \
+		if [ -d po/$$i ]; then \
+			rm -rf po/$$i; \
+		fi; \
+	done; \
 
 # TODO: This needs work
 internal-rpm: gpgkey
@@ -68,11 +73,16 @@ rpm: tarball
 	rpmbuild -ba sos.spec
 
 pot:
-	python tools/pygettext.py -o locale/sos.pot sosreport lib/sos/policyredhat.py
+	python tools/pygettext.py -o po/sos.pot sosreport lib/sos/policyredhat.py
 
 mo:
 	@echo "Generating mo files"
-	find locale/*/LC_MESSAGES -name sos.po -exec python tools/msgfmt.py {} \;
+	@for i in `ls po`; do \
+		if [ $$i != 'sos.pot' ]; then \
+			mkdir po/$${i%.po}; \
+			python tools/msgfmt.py -o po/$${i%.po}/sos.mo po/$$i; \
+		fi; \
+	done; \
 
 gpgkey:
 	@echo "Building gpg key"

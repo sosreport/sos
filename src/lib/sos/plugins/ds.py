@@ -24,10 +24,12 @@ class ds(sos.plugintools.PluginBase):
     ds_version = None
 
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("redhat-ds-base") or os.path.exists("/etc/dirsrv"):
+        if self.cInfo["policy"].pkgByName("redhat-ds-base") or \
+        os.path.exists("/etc/dirsrv"):
             self.ds_version = "ds8"
             return True
-        elif self.cInfo["policy"].pkgByName("redhat-ds-7") or os.path.exists("/opt/redhat-ds"):
+        elif self.cInfo["policy"].pkgByName("redhat-ds-7") or \
+        os.path.exists("/opt/redhat-ds"):
             self.ds_version = "ds7"
             return True
         return False

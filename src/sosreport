@@ -402,8 +402,8 @@ def sosreport():
     # find the plugins path
     paths = sys.path
     for path in paths:
-        if path.strip()[-len("site-packages"):] == "site-packages" and \ 
-        os.path.isdir(path + "/sos/plugins"):
+        if path.strip()[-len("site-packages"):] == "site-packages" \
+        and os.path.isdir(path + "/sos/plugins"):
             pluginpath = path + "/sos/plugins"
 
     # Set up common info and create destinations
