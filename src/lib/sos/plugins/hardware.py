@@ -34,7 +34,7 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/chandev")
         self.addCopySpec("/proc/dasd")
         self.addCopySpec("/proc/s390dbf/tape")
-        self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
+        self.collectExtOutput("/usr/share/rhn/up2date_client/hardware.py")
         self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
         self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
