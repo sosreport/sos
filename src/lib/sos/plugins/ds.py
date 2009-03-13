@@ -21,24 +21,29 @@ class ds(sos.plugintools.PluginBase):
     """Directory Server information
     """
 
-    ds_version = None
+    def check_version(self):
+        if self.cInfo["policy"].pkgByName("redhat-ds-base") or \
+        os.path.exists("/etc/dirsrv"):
+            return "ds8"
+        elif self.cInfo["policy"].pkgByName("redhat-ds-7") or \
+        os.path.exists("/opt/redhat-ds"):
+            return "ds7"
+        return False
 
     def checkenabled(self):
         if self.cInfo["policy"].pkgByName("redhat-ds-base") or \
         os.path.exists("/etc/dirsrv"):
-            self.ds_version = "ds8"
             return True
         elif self.cInfo["policy"].pkgByName("redhat-ds-7") or \
         os.path.exists("/opt/redhat-ds"):
-            self.ds_version = "ds7"
             return True
         return False
 
     def setup(self):
-        if "ds8" in self.ds_version:
+        if "ds8" in self.check_version():
             self.addCopySpec("/etc/dirsrv/slapd*")
             self.addCopySpec("/var/log/dirsrv/*")
-        if "ds7" in self.ds_version:
+        if "ds7" in self.check_version():
             self.addCopySpec("/opt/redhat-ds/slapd-*/config")
             self.addCopySpec("/opt/redhat-ds/slapd-*/logs")
         return

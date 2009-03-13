@@ -14,6 +14,7 @@
 
 import sos.plugintools
 import os, commands
+import re
 from stat import *
 
 class xen(sos.plugintools.PluginBase):
@@ -78,7 +79,7 @@ class xen(sos.plugintools.PluginBase):
             self.addCopySpec("/sys/hypervisor/compilation")
             self.addCopySpec("/sys/hypervisor/properties")
             self.addCopySpec("/sys/hypervisor/type")
-            if is_xenstored_running(): 
+            if self.is_running_xenstored(): 
                 self.addCopySpec("/sys/hypervisor/uuid")
                 self.collectExtOutput("/usr/bin/xenstore-ls")
             else:

@@ -14,6 +14,7 @@
 
 import sos.plugintools
 import os
+import re
 
 class filesys(sos.plugintools.PluginBase):
     """information on filesystems
@@ -32,7 +33,25 @@ class filesys(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
         self.collectExtOutput("/sbin/blkid")
         
-        self.collectExtOutput("/sbin/fdisk -l", root_symlink = "fdisk-l")
+        part_titlep = re.compile("^major")
+        blankp = re.compile("^$")
+        partlist = []
+        devlist = []
+        try:
+            for line in open('/proc/partitions'):
+                if((bool(part_titlep.match(line))) | (bool(blankp.match(line)))):
+                    continue
+                partlist.append('/dev/' + line.split()[-1])
+        except IOError:
+            exit(1)
+        for dev in partlist:
+            hdparm = commands.getstatusoutput('/sbin/hdparm -g %s' %(dev))
+            if(hdparm[0] == 0):
+                start_geo = hdparm[1].strip().split("\n")[-1].strip().split()[-1]
+                if(start_geo == "0"):
+                    devlist.append(dev)
+        for i in devlist: 
+            self.collectExtOutput("/sbin/parted -s %s print" % (i))
 
         for extfs in self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts):
             self.collectExtOutput("/sbin/dumpe2fs %s" % (extfs))
