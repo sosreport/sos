@@ -70,7 +70,7 @@ def doExitCode():
         for thread in enumerate():
             if thread.getName() == "MainThread":
                 continue
-            # until we find a way to kill threads in 
+            # until we find a way to kill threads in
             # case of > 1 CTRL+C, ignore KeyboardInterrupt
             while thread.isAlive():
                 try:
@@ -128,10 +128,10 @@ class OptionParser_extended(OptionParser):
         print
         print " enable cluster plugin only and collect dlm lockdumps:"
         print "   # sosreport -o cluster -k cluster.lockdump"
-        print 
+        print
         print " disable memory and samba plugins, turn off rpm -Va collection:"
         print "   # sosreport -n memory,samba -k rpm.rpmva=off"
-        print 
+        print
 
 class SosOption (Option):
     """Allow to specify comma delimited list of plugins"""
@@ -262,7 +262,7 @@ class progressBar:
                 ETA = timeElapsed
             else:
                 ETA = self.eta
-            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60), 
+            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60),
                                              timeElapsed % 60, int(ETA/60), ETA % 60)
         else:
             ETA = "[%02d:%02d/--:--]" % (int(timeElapsed/60), timeElapsed % 60)
@@ -279,7 +279,7 @@ class progressBar:
         self.progBar = ""
         for inc in range(0,allFull):
             if inc == int(allFull / 2):
-                self.progBar = self.progBar + textcolor("%d%%" % percentDone, 
+                self.progBar = self.progBar + textcolor("%d%%" % percentDone,
                                                         "green")
             elif inc < numHashes:
                 self.progBar = self.progBar + textcolor('#', "gray")
@@ -314,7 +314,7 @@ class XmlReport:
         self.commands = self.root.newChild(None, "commands", None)
         self.files = self.root.newChild(None, "files", None)
 
-    def add_command(self, cmdline, exitcode, stdout = None, stderr = None, 
+    def add_command(self, cmdline, exitcode, stdout = None, stderr = None,
                     f_stdout=None, f_stderr=None, runtime=None):
         if not self.enabled: return
 
@@ -347,13 +347,13 @@ class XmlReport:
         cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
         cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
         cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
-        cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y', 
+        cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y',
                                                         localtime(stats[ST_CTIME])))
         cchild.setNsProp(None,"tstamp", str(stats[ST_CTIME]))
-        cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y', 
+        cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y',
                                                         localtime(stats[ST_ATIME])))
         cchild.setNsProp(None,"tstamp", str(stats[ST_ATIME]))
-        cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y', 
+        cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y',
                                                         localtime(stats[ST_MTIME])))
         cchild.setNsProp(None,"tstamp", str(stats[ST_MTIME]))
 
@@ -382,7 +382,7 @@ def sosreport():
     # pylint: disable-msg = R0914
     # pylint: disable-msg = R0915
     """
-    This is the top-level function that gathers 
+    This is the top-level function that gathers
     and processes all sosreport information
     """
 
@@ -407,7 +407,7 @@ def sosreport():
             pluginpath = path + "/sos/plugins"
 
     # Set up common info and create destinations
-    
+
     dstroot = policy.getDstroot()
     if not dstroot:
         print _("Could not create temporary directory.")
@@ -421,7 +421,7 @@ def sosreport():
     os.mkdir(rptdir, 0755)
 
     # initialize i18n language localization
-    gettext.install('sos', '/usr/share/locale', unicode=False) 
+    gettext.install('sos', '/usr/share/locale', unicode=False)
 
     # initialize logging
     soslog = logging.getLogger('sos')
@@ -429,7 +429,7 @@ def sosreport():
 
     logging.VERBOSE  = logging.INFO - 1
     logging.VERBOSE2 = logging.INFO - 2
-    logging.VERBOSE3 = logging.INFO - 3 
+    logging.VERBOSE3 = logging.INFO - 3
     logging.addLevelName(logging.VERBOSE, "verbose")
     logging.addLevelName(logging.VERBOSE2,"verbose2")
     logging.addLevelName(logging.VERBOSE3,"verbose3")
@@ -468,7 +468,7 @@ def sosreport():
     print
     soslog.info ( _("sosreport (version %s)") % __version__)
     print
-    
+
     # generate list of available plugins
     plugins = os.listdir(pluginpath)
     plugins.sort()
@@ -642,7 +642,7 @@ def sosreport():
               else:
                  tmpopt = optparm["enabled"]
 
-              print " %-21s %-5s %s" % (plugname + "." + optname, 
+              print " %-21s %-5s %s" % (plugname + "." + optname,
                                         tmpopt, optparm["desc"])
               del tmpopt
         else:
@@ -651,7 +651,7 @@ def sosreport():
         print
         doExit()
 
-    # to go anywhere further than listing the 
+    # to go anywhere further than listing the
     # plugins we will need root permissions.
     if os.getuid() != 0:
         print _('sosreport requires root permissions to run.')
@@ -761,7 +761,7 @@ No changes will be made to your system.
             if not __cmdLineOpts__.nomultithread:
                 plug.copyStuff(threaded = True, semaphore = plugrunning)
             else:
-                plug.copyStuff()    
+                plug.copyStuff()
                 if __cmdLineOpts__.progressbar:
                     pbar.incAmount(plug.eta_weight)
                     pbar.update()
@@ -836,7 +836,7 @@ No changes will be made to your system.
     plugNames = []
     for plugname, plug in loadedplugins:
         for alert in plug.alerts:
-            allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname, 
+            allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname,
                                                            alert))
         plugNames.append(plugname)
 
@@ -847,7 +847,7 @@ No changes will be made to your system.
     rfd.write("<table><tr>\n")
     rr = 0
     for i in range(len(plugNames)):
-        rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i], 
+        rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i],
                                                        plugNames[i]))
         rr = divmod(i, 4)[1]
         if (rr == 3):
@@ -903,7 +903,7 @@ No changes will be made to your system.
 
     # Close all log files and perform any cleanup
     logging.shutdown()
- 
+
 if __name__ == '__main__':
     try:
         sosreport()
