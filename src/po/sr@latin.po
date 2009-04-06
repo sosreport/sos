@@ -1,14 +1,15 @@
-# Serbian translations for PACKAGE package.
-# Copyright (C) 2007 ORGANIZATION
-# Automatically generated, 2007.
+# Serbian(Latin) translations for sos
+# Copyright (C) 2007 Red Hat, Inc.
+# This file is distributed under the same license as the sos package.
+# Miloš Komarčević <kmilos@gmail.com>, 2009.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2007-10-24 08:45\n"
-"PO-Revision-Date: 2007-10-24 08:45\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Project-Id-Version: sos\n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-04-06 20:44+0100\n"
+"Last-Translator: Miloš Komarčević <kmilos@gmail.com>\n"
+"Language-Team: Serbian <fedora-trans-sr@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,120 +19,122 @@ msgstr ""
 
 #: lib/sos/policyredhat.py:203
 msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
+msgstr "Unesite vaš prvi inicijal i prezime [%s]: "
 
 #: lib/sos/policyredhat.py:206
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
+msgstr "Unesite broj slučaja za koji pravite ovaj izveštaj:"
 
 #: lib/sos/policyredhat.py:231
 msgid "Creating compressed archive..."
-msgstr ""
+msgstr "Pravim komprimovanu arhivu..."
 
 #: lib/sos/policyredhat.py:253
 msgid "Encrypting archive..."
-msgstr ""
+msgstr "Šifriram arhivu..."
 
 #: lib/sos/policyredhat.py:271
 msgid "There was a problem encrypting your report."
-msgstr ""
+msgstr "Došlo je do greške pri šifrovanju vašeg izveštaja."
 
 #: lib/sos/policyredhat.py:292
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
 msgstr ""
+"Vaš sos izveštaj je napravljen i sačuvan u:\n"
+"  %s"
 
 #: lib/sos/policyredhat.py:295
 msgid "The md5sum is: "
-msgstr ""
+msgstr "md5sum je: "
 
 #: lib/sos/policyredhat.py:297
 msgid "Please send this file to your support representative."
-msgstr ""
+msgstr "Pošaljite ovu datoteku vašem predstavniku podrške."
 
 #: lib/sos/policyredhat.py:323
 msgid "Cannot upload to specified URL."
-msgstr ""
+msgstr "Ne mogu da pošaljem na navedeni URL."
 
 #: lib/sos/policyredhat.py:360
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
+msgstr "Pojavio se problem pri slanju vašeg izveštaja Red Hat podršci."
 
 #: lib/sos/policyredhat.py:362
 msgid ""
 "Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr ""
+msgstr "Vaš izveštaj je uspešno poslat na Red Hat ftp server sa imenom:"
 
 #: lib/sos/policyredhat.py:365
 msgid "Please communicate this name to your support representative."
-msgstr ""
+msgstr "Prenesite ovo ime vašem predstavniku podrške."
 
-#: sosreport:395
+#: sosreport:401
 msgid "Could not create temporary directory."
-msgstr ""
+msgstr "Ne mogu da napravim privremeni direktorijum."
 
-#: sosreport:451
+#: sosreport:457
 msgid "sosreport (version %s)"
-msgstr ""
-
-#: sosreport:468
-msgid "plugin %s does not validate, skipping"
-msgstr ""
+msgstr "sosreport (verzija %s)"
 
 #: sosreport:474
+msgid "plugin %s does not validate, skipping"
+msgstr "dodatak %s se nije overio, preskačem"
+
+#: sosreport:480
 msgid "plugin %s skipped (--skip-plugins)"
-msgstr ""
+msgstr "dodatak %s je preskočen (--skip-plugins)"
 
-#: sosreport:478
+#: sosreport:484
 msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr ""
+msgstr "dodatak %s nije aktivan (upotrebite -e ili -o da ga uključite)"
 
-#: sosreport:486
+#: sosreport:492
 msgid "plugin %s not specified in --only-plugins list"
-msgstr ""
+msgstr "dodatak %s nije naveden u spisku --only-plugins"
 
-#: sosreport:491
+#: sosreport:497
 msgid "plugin %s does not install, skipping"
-msgstr ""
+msgstr "dodatak %s se nije instalirao, preskačem"
 
-#: sosreport:554
+#: sosreport:568
 msgid "processing options from plugin: %s"
-msgstr ""
-
-#: sosreport:565
-msgid "no valid plugins found"
-msgstr ""
-
-#: sosreport:570
-msgid "The following plugins are currently enabled:"
-msgstr ""
-
-#: sosreport:575
-msgid "No plugin enabled."
-msgstr ""
+msgstr "obrađujem opcije od dodatka: %s"
 
 #: sosreport:579
+msgid "no valid plugins found"
+msgstr "nisu pronađeni valjani dodaci"
+
+#: sosreport:584
+msgid "The following plugins are currently enabled:"
+msgstr "Sledeći dodaci su trenutno uključeni:"
+
+#: sosreport:589
+msgid "No plugin enabled."
+msgstr "Nema uključenih dodataka."
+
+#: sosreport:593
 msgid "The following plugins are currently disabled:"
-msgstr ""
+msgstr "Sledeći dodaci su trenutno isključeni:"
 
-#: sosreport:586
+#: sosreport:600
 msgid "The following plugin options are available:"
-msgstr ""
+msgstr "Dostupne su sledeće opcije dodatka:"
 
-#: sosreport:606
+#: sosreport:620
 msgid "No plugin options available."
-msgstr ""
+msgstr "Nema dostupnih opcija dodatka."
 
-#: sosreport:614
+#: sosreport:628
 msgid "sosreport requires root permissions to run."
-msgstr ""
+msgstr "sosreport zahteva root dozvole za izvršavanje."
 
-#: sosreport:621
+#: sosreport:635
 msgid "no valid plugins were enabled"
-msgstr ""
+msgstr "nisu uključeni valjani dodaci"
 
-#: sosreport:624
+#: sosreport:638
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
@@ -144,35 +147,45 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
+"Ova alatka će sakupiti neke detaljne informacije o\n"
+"hardveru i postavci vašeg  Red Hat Enterprise Linux  sistema.\n"
+"Informacije se sakupljaju i pakuje se arhiva pod\n"
+"/tmp, koju možete poslati predstavniku za podršku.\n"
+"Red Hat će upotrebiti ove informacije SAMO u dijagnostičke\n"
+"svrhe i biće smatrane za poverljive informacije.\n"
+"\n"
+"Ovaj proces može da potraje duže dok se ne završi.\n"
+"Nikakve promene neće bite načinjene na sistemu.\n"
+"\n"
 
-#: sosreport:638
+#: sosreport:652
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
+msgstr "Pritisnite ENTER za nastavak, ili CTRL-C za izlaz.\n"
 
-#: sosreport:654
+#: sosreport:668
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
+msgstr "Jedan ili više dodataka su otkrili problem sa vašim podešavanjima."
 
-#: sosreport:655
+#: sosreport:669
 msgid "Please review the following messages:"
-msgstr ""
+msgstr "Pregledajte sledeće poruke:"
 
-#: sosreport:671
+#: sosreport:685
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr ""
+msgstr "Da li sigurno želite da nastavite (d/n) ?"
 
-#: sosreport:672
+#: sosreport:686
 msgid "Y"
-msgstr ""
+msgstr "D"
 
-#: sosreport:672
+#: sosreport:686
 msgid "y"
-msgstr ""
+msgstr "d"
 
-#: sosreport:675
+#: sosreport:689
 msgid "N"
-msgstr ""
+msgstr "N"
 
-#: sosreport:675
+#: sosreport:689
 msgid "n"
-msgstr ""
+msgstr "n"
