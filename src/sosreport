@@ -31,7 +31,6 @@ from optparse import OptionParser, Option
 import ConfigParser
 import sos.policyredhat
 from sos.helpers import *
-from snack import *
 from threading import Thread, activeCount
 import signal
 from stat import *
