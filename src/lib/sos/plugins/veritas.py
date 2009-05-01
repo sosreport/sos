@@ -71,7 +71,7 @@ class veritas(sos.plugintools.PluginBase):
     
     def checkenabled(self):
         for pkgname in self.package_list:
-            if self.cInfo["policy"].allPkgsByName(pkgname):
+            if self.policy().allPkgsByName(pkgname):
                 return True
         return False
     
@@ -213,9 +213,9 @@ class veritas(sos.plugintools.PluginBase):
         # TODO: Do necessary checks for different archs, i.e. z-series and ia64
         self.collectExtOutput("/bin/rpm -qa | /bin/grep -i VRTS | /bin/grep -v doc | /bin/grep -v man")
         # Determine what information to collect based on installed packages
-        if self.cInfo["policy"].pkgByName("VRTSvxfs"): get_vxfs()
-        if self.cInfo["policy"].pkgByName("VRTSvxfs"): get_vxvm()
+        if self.isInstalled("VRTSvxfs"): get_vxfs()
+        if self.isInstalled("VRTSvxfs"): get_vxvm()
         # I think if one of these is present it is assumed that VCS is installed
-        if self.cInfo["policy"].pkgByName("VRTSvmpro") or self.cInfo["policy"].pkgByName("VRTSfspro"): get_vcs()
+        if self.isInstalled("VRTSvmpro") or self.isInstalled("VRTSfspro"): get_vcs()
         return
 

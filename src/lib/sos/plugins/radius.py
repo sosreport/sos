@@ -21,7 +21,7 @@ class radius(sos.plugintools.PluginBase):
     """radius related information
     """
     def checkenabled(self):
-       if self.cInfo["policy"].pkgByName("freeradius") or os.path.exists("/etc/raddb"):
+       if self.isInstalled("freeradius") or os.path.exists("/etc/raddb"):
           return True
        return False
 

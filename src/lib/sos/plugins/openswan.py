@@ -21,7 +21,7 @@ class openswan(sos.plugintools.PluginBase):
     """ipsec related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("openswan") or os.path.exists("/etc/ipsec.conf"):
+        if self.isInstalled("openswan") or os.path.exists("/etc/ipsec.conf"):
             return True
         return False
 

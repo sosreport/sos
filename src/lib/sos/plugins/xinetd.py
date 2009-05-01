@@ -21,7 +21,7 @@ class xinetd(sos.plugintools.PluginBase):
     """xinetd information
     """
     def checkenabled(self):
-       if self.cInfo["policy"].pkgByName("xinetd") or os.path.exists("/etc/xinetd.conf"):
+       if self.isInstalled("xinetd") or os.path.exists("/etc/xinetd.conf"):
           return True
        return False
 

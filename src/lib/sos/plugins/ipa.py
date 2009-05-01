@@ -24,7 +24,7 @@ class ipa(sos.plugintools.PluginBase):
     # need to get kerberos and ipa specific addons.
 
     def checkenabled(self):
-       if self.cInfo["policy"].pkgByName("ipa-server") or os.path.exists("/etc/ipa"):
+       if self.isInstalled("ipa-server") or os.path.exists("/etc/ipa"):
           return True
        return False
 

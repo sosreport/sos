@@ -22,7 +22,7 @@ class nfsserver(sos.plugintools.PluginBase):
     """NFS server-related information
     """
     def checkenabled(self):
-       if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("nfs"):
+       if self.policy().runlevelDefault() in self.policy().runlevelByService("nfs"):
           return True
 
        try:

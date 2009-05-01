@@ -21,7 +21,7 @@ class amd(sos.plugintools.PluginBase):
     """Amd automounter information
     """
     def checkenabled(self):
-       if self.cInfo["policy"].pkgByName("am-utils") or os.path.exists("/etc/rc.d/init.d/amd"):
+       if self.isInstalled("am-utils") or os.path.exists("/etc/rc.d/init.d/amd"):
           return True
        return False
 

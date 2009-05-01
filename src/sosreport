@@ -95,9 +95,9 @@ def doExitCode():
     doExit("Abnormal exit")
 
 def doExit(error=0):
-    global policy
-    policy.cleanDstroot()
-    sys.exit(error)
+   global policy
+   policy.cleanDstroot()
+   sys.exit(error)
 
 def doException(type, value, tb):
    if hasattr(sys, 'ps1') or not sys.stderr.isatty():

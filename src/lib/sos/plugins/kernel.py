@@ -62,7 +62,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/proc/ksyms")
         self.addCopySpec("/proc/slabinfo")
-        self.addCopySpec("/lib/modules/%s/modules.dep" % self.cInfo["policy"].kernelVersion())
+        self.addCopySpec("/lib/modules/%s/modules.dep" % self.policy().kernelVersion())
         self.addCopySpec("/etc/conf.modules")
         self.addCopySpec("/etc/modules.conf")
         self.addCopySpec("/etc/modprobe.conf")

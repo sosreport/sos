@@ -26,7 +26,7 @@ class s390(sos.plugintools.PluginBase):
     ### Check for s390 arch goes here
 
     def checkenabled(self):
-        sysArch = self.cInfo["policy"].getArch()
+        sysArch = self.policy().getArch()
         if "s390" in sysArch:
             return True
         return False
@@ -68,7 +68,7 @@ class s390(sos.plugintools.PluginBase):
             self.collectExtOutput("/sbin/dasdview -x -i -j -l -f %s" % (x,))
             self.collectExtOutput("/sbin/fdasd -p %s" % (x,))
         try:
-            rhelver = self.cInfo["policy"].pkgByName("redhat-release")[1]
+            rhelver = self.policy().pkgByName("redhat-release")[1]
         except:
             rhelver = None
         if rhelver.startswith("5"):

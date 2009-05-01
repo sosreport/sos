@@ -37,7 +37,7 @@ class cs(sos.plugintools.PluginBase):
     # /var/lib/rhpki-kra ect).
 
     def checkenabled(self):
-       if self.cInfo["policy"].pkgByName("rhpki-common") or os.path.exists("/var/lib/rhpki-*"):
+       if self.isInstalled("rhpki-common") or os.path.exists("/var/lib/rhpki-*"):
           return True
        return False
 

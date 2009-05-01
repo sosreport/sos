@@ -40,7 +40,7 @@ class selinux(sos.plugintools.PluginBase):
     
     def analyze(self):
         # Check for SELinux denials and capture raw output from sealert
-        if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("setroubleshoot"):
+        if self.policy().runlevelDefault() in self.policy().runlevelByService("setroubleshoot"):
             # TODO: fixup regex for more precise matching
             sealert=doRegexFindAll(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
             if sealert:

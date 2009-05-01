@@ -21,7 +21,7 @@ class autofs(sos.plugintools.PluginBase):
     """autofs server-related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("autofs"):
+        if self.policy().runlevelDefault() in self.policy().runlevelByService("autofs"):
             return True
         return False
     

@@ -19,7 +19,7 @@ class netdump(sos.plugintools.PluginBase):
     """Netdump Configuration Information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("netdump") or exists("/etc/sysconfig/netdump*"):
+        if self.isInstalled("netdump") or exists("/etc/sysconfig/netdump*"):
             return True
         return False
 

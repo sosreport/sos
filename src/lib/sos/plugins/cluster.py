@@ -25,7 +25,7 @@ class cluster(sos.plugintools.PluginBase):
                   ('taskdump', 'trigger 3 sysrq+t dumps every 5 seconds (dangerous)', 'slow', False)]
 
     def checkenabled(self):
-        rhelver = self.cInfo["policy"].rhelVersion()
+        rhelver = self.policy().rhelVersion()
         if rhelver == 4:
             self.packages = [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins", 
                               "rgmanager", "fence", "dlm", "dlm-kernel", "gulm",
@@ -45,7 +45,7 @@ class cluster(sos.plugintools.PluginBase):
             return False
 
     def diagnose(self):
-        rhelver = self.cInfo["policy"].rhelVersion()
+        rhelver = self.policy().rhelVersion()
 
         # check if the minimum set of packages is installed
         # for RHEL4 RHCS(ccs, cman, cman-kernel, magma, magma-plugins, (dlm, dlm-kernel) || gulm, perl-Net-Telnet, rgmanager, fence)
@@ -78,7 +78,7 @@ class cluster(sos.plugintools.PluginBase):
         for modname in mods_check:
            found = 0
 
-           if self.cInfo["policy"].allPkgsByNameRegex( "^" + modname ):
+           if self.policy().allPkgsByNameRegex( "^" + modname ):
               found = 1
 
            status, output = commands.getstatusoutput('/sbin/modinfo -F vermagic ' + modname)
@@ -97,12 +97,12 @@ class cluster(sos.plugintools.PluginBase):
                self.addDiagnose("required module is available but not loaded: %s" % modname)
 
         for pkg in pkgs_check:
-           if self.cInfo["policy"].pkgByName(pkg) == None:
+           if not self.isInstalled(pkg):
                self.addDiagnose("required package is missing: %s" % pkg)
 
         if rhelver == "4":
            # (dlm, dlm-kernel) || gulm
-           if not ((self.cInfo["policy"].pkgByName("dlm") and self.cInfo["policy"].pkgByName("dlm-kernel")) or self.cInfo["policy"].pkgByName("gulm")):
+           if not ((self.isInstalled("dlm") and self.isInstalled("dlm-kernel")) or self.isInstalled("gulm")):
                self.addDiagnose("required packages are missing: (dlm, dlm-kernel) || gulm")
 
         # check if all the needed daemons are active at sosreport time
@@ -114,7 +114,7 @@ class cluster(sos.plugintools.PluginBase):
            if status != 0:
                self.addDiagnose("service %s is not running" % service)
 
-           if not self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService(service):
+           if not self.policy().runlevelDefault() in self.policy().runlevelByService(service):
                self.addDiagnose("service %s is not started in default runlevel" % service)
 
         # FIXME: missing important cman services
@@ -161,7 +161,7 @@ class cluster(sos.plugintools.PluginBase):
         hostname = commands.getoutput("/bin/uname -n").split(".")[0]
         if len(xpathContext.xpathEval('/cluster/clusternodes/clusternode[@name = "%s" and /cluster/fencedevices/fencedevice[@agent="fence_rsa" or @agent="fence_drac"]/@name=fence/method/device/@name]' % hostname )):
            status, output = commands.getstatusoutput("/sbin/service acpid status")
-           if status == 0 or self.cInfo["policy"].runlevelDefault() in self.cInfo["policy"].runlevelByService("acpid"):
+           if status == 0 or self.policy().runlevelDefault() in self.policy().runlevelByService("acpid"):
                self.addDiagnose("acpid is enabled, this may cause problems with your fencing method.")
 
         # check for fs exported via nfs without nfsid attribute
@@ -274,11 +274,9 @@ class cluster(sos.plugintools.PluginBase):
         try:
             if output[18:] == "Cluster-Member":
                 return True
-            else:
-                return False
         except:
             pass
-        return None
+        return False
 
     def get_gfs_sb_field(self, device, field):
         for line in commands.getoutput("/sbin/gfs_tool sb %s all" % device).split("\n"):

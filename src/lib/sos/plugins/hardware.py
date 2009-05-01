@@ -39,7 +39,7 @@ class hardware(sos.plugintools.PluginBase):
 
         self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
 
-        if self.cInfo["policy"].getArch().endswith("386"):
+        if self.policy().getArch().endswith("386"):
             self.collectExtOutput("/usr/sbin/x86info -a")
 
         self.collectExtOutput("/sbin/lsusb")

@@ -21,7 +21,7 @@ class ipsec(sos.plugintools.PluginBase):
     """ipsec related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("ipsec-tools") or exists("/etc/racoon/racoon.conf"):
+        if self.isInstalled("ipsec-tools") or exists("/etc/racoon/racoon.conf"):
             return True
         return False
 

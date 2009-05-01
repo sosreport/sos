@@ -19,7 +19,7 @@ class kdump(sos.plugintools.PluginBase):
     """Kdump related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("kexec-tools") or exists("/etc/kdump.conf"):
+        if self.isInstalled("kexec-tools") or exists("/etc/kdump.conf"):
             return True
         return False
 

@@ -19,7 +19,7 @@ class ftp(sos.plugintools.PluginBase):
     """FTP server related information
     """
     def checkenabled(self):
-       if self.cInfo["policy"].pkgByName("vsftpd") or os.path.exists("/etc/vsftpd"):
+       if self.isInstalled("vsftpd") or os.path.exists("/etc/vsftpd"):
           return True
        return False
 

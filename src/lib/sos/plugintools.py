@@ -97,6 +97,14 @@ class PluginBase:
             self.optNames.append(opt[0])
             self.optParms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
 
+    def policy(self):
+        return self.cInfo["policy"]
+
+    def isInstalled(self, package_name):
+        '''Is the package $package_name installed?
+        '''
+        return (self.policy().pkgByName(package_name) != {})
+
     # Method for applying regexp substitutions
     def doRegexSub(self, srcpath, regexp, subst):
         '''Apply a regexp substitution to a file archived by sosreport.
@@ -212,6 +220,7 @@ class PluginBase:
             return 
         except:
             self.soslog.log(logging.VERBOSE2, "error copying file %s (SOMETHING HAPPENED)" % (srcpath))
+            return 
 
         self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
 
@@ -533,7 +542,7 @@ class PluginBase:
                 if os.path.exists(fname):
                     return True
             for pkgname in self.packages:
-                if self.cInfo["policy"].pkgByName(pkgname):
+                if self.isInstalled(pkgname):
                     return True
             return False
 

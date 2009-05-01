@@ -65,7 +65,6 @@ class SosPolicy:
         self.report_md5 = ""
         self.reportName = ""
         self.ticketNumber = ""
-        return
 
     def setCommons(self, commons):
         self.cInfo = commons
@@ -79,12 +78,10 @@ class SosPolicy:
         return True
 
     def pkgProvides(self, name):
-        pkg = self.pkgByName(name)
-        return pkg['providename']
+        return self.pkgByName(name).get('providename')
 
     def pkgRequires(self, name):
-        pkg = self.pkgByName(name)
-        return pkg['requirename']
+        return self.pkgByName(name).get('requirename')
 
     def allPkgsByName(self, name):
         return self.allPkgs("name", name)
@@ -100,7 +97,7 @@ class SosPolicy:
             return self.allPkgsByName(name)[-1]
         except:
             pass
-        return None
+        return {}
 
     def allPkgs(self, ds = None, value = None):
         # if possible return the cached values

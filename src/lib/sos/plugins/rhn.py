@@ -26,8 +26,8 @@ class rhn(sos.plugintools.PluginBase):
     def checkenabled(self):
         # enable if any related package is installed
 
-        self.satellite = self.cInfo["policy"].pkgByName("rhns-satellite-tools")
-        self.proxy = self.cInfo["policy"].pkgByName("rhns-proxy-tools")
+        self.satellite = self.isInstalled("rhns-satellite-tools")
+        self.proxy = self.isInstalled("rhns-proxy-tools")
 
         if self.satellite or self.proxy:
             return True
@@ -68,7 +68,7 @@ class rhn(sos.plugintools.PluginBase):
            self.addCopySpec("/etc/jabberd")
 
            # tomcat (4.x and newer satellites only)
-           if not self.cInfo["policy"].pkgNVRA(satellite)[1].startswith("3."):
+           if not self.policy().pkgNVRA(satellite)[1].startswith("3."):
               self.addCopySpec("/etc/tomcat5")
               self.addCopySpec("/var/log/tomcat5")
 

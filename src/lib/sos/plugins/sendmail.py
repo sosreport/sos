@@ -21,7 +21,7 @@ class sendmail(sos.plugintools.PluginBase):
     """sendmail information
     """
     def checkenabled(self):
-       if self.cInfo["policy"].pkgByName("sendmail") or os.path.exists("/etc/rc.d/init.d/sendmail"):
+       if self.isInstalled("sendmail") or os.path.exists("/etc/rc.d/init.d/sendmail"):
           return True
        return False
 

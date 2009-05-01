@@ -19,7 +19,7 @@ class postfix(sos.plugintools.PluginBase):
     """mail server related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("postfix") or exists("/etc/rc.d/init.d/postfix"):
+        if self.isInstalled("postfix") or exists("/etc/rc.d/init.d/postfix"):
             return True
         return False
         
