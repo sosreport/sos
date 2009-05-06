@@ -21,8 +21,7 @@ class cluster(sos.plugintools.PluginBase):
     """
 
     optionList = [("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
-                  ('lockdump', 'gather dlm lockdumps', 'slow', False),
-                  ('taskdump', 'trigger 3 sysrq+t dumps every 5 seconds (dangerous)', 'slow', False)]
+                  ('lockdump', 'gather dlm lockdumps', 'slow', False)]
 
     def checkenabled(self):
         rhelver = self.policy().rhelVersion()
@@ -216,21 +215,8 @@ class cluster(sos.plugintools.PluginBase):
 
         if self.getOption('gfslockdump'): self.do_gfslockdump()
         if self.getOption('lockdump'): self.do_lockdump()
-        if self.getOption('taskdump'): self.do_taskdump()
 
         return
-
-    def do_taskdump(self):
-        if not os.access("/proc/sysrq-trigger", os.W_OK):
-            return
-
-        commands.getstatusoutput("echo t > /proc/sysrq-trigger")
-        time.sleep(5)
-        commands.getstatusoutput("echo t > /proc/sysrq-trigger")
-        time.sleep(5)
-        commands.getstatusoutput("echo t > /proc/sysrq-trigger")
-
-        self.addCopySpec("/var/log/messages")
 
     def do_lockdump(self):
         status, output = commands.getstatusoutput("cman_tool services")
