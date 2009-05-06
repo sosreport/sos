@@ -5,7 +5,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 9%{?dist}
+Release: 11%{?dist}
 Group: Application/Tools
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -33,8 +33,8 @@ support technicians and developers.
 rm -rf ${RPM_BUILD_ROOT}
 install -D -m644 gpgkeys/rhsupport.pub ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/rhsupport.pub
 install -D -m644 extras/sysreport/sysreport.legacy ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/sysreport
-%{__python} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
-ln -s /usr/sbin/sosreport $RPM_BUILD_ROOT/usr/sbin/sysreport
+%{__python} setup.py install -O1 --skip-build --root ${RPM_BUILD_ROOT}
+ln -s /usr/sbin/sosreport ${RPM_BUILD_ROOT}/usr/sbin/sysreport
 %find_lang %{name}
 
 %clean
@@ -50,11 +50,17 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_datadir}/sysreport
 %{python_sitelib}/*
 %{_mandir}/man1/sosreport.1.gz
-#%{_localedir}/*/LC_MESSAGES
 %doc README README.rh-upload-core TODO LICENSE ChangeLog
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Wed May 05 2009 Adam Stokes <ajs at redhat dot com> - 1.8-11
+- Remove all instances of sysrq
+- Consistent macro usage in spec
+
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Wed Jan 21 2009 Adam Stokes <ajs at redhat dot com> - 1.8-9
 - Resolves: bz436053 /usr/share/sos is not owned by any package 
 - Resolves: bz434626 Wrong directory structure for translations 
