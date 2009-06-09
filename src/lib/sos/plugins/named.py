@@ -20,9 +20,10 @@ class named(sos.plugintools.PluginBase):
     """named related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("bind") or exists("/etc/named.conf") or exists("/etc/sysconfig/named"):
-            return True
-        return False
+        self.files = [ "/etc/named.conf",
+                       "/etc/sysconfig/named" ]
+        self.packages = [ "bind" ]
+        return sos.plugintools.PluginBase.checkenabled(self)
        
     def getDnsDir(self, configFile):
         """ grab directory path from named{conf,boot}
