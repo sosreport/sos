@@ -13,18 +13,20 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class mysql(sos.plugintools.PluginBase):
+    """MySQL related information
     """
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("mysql-server") or os.path.exists("/etc/my.cnf") or \
+           self.cInfo["policy"].pkgByName("mysql"):
+            return True
+        return False
+        
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.addCopySpec("/etc/my.cnf")
+        self.addCopySpec("/etc/sysconfig/network")
+        self.addCopySpec("/etc/ld.so.conf.d/mysql*")
+        self.addCopySpec("/var/log/mysql*")
         return
-

@@ -14,17 +14,10 @@
 
 import sos.plugintools
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class udev(sos.plugintools.PluginBase):
+    """udev related information
     """
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.addCopySpec("/etc/udev/udev.conf")
+        self.addCopySpec("/etc/udev/rules.d/*")
         return
-

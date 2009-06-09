@@ -12,19 +12,19 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+
 import sos.plugintools
+import os
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class lsbrelease(sos.plugintools.PluginBase):
+    """Linux Standard Base information
     """
+    def diagnose(self):
+        if not os.path.exists("/etc/redhat-release"):
+            self.addDiagnose("/etc/redhat-release missing")
+            return
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
-        return
-
+        self.collectExtOutput("/usr/bin/lsb_release -a")
+        self.collectExtOutput("/usr/bin/lsb_release -d", suggest_filename = "lsb_release", root_symlink = "lsb-release")
+        self.addCopySpec("/etc/lsb-release*")
+        return    

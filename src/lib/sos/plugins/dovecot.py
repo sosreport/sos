@@ -13,18 +13,14 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class dovecot(sos.plugintools.PluginBase):
+    """dovecot server related information
     """
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        if os.path.exists("/etc/dovecot.conf"):
+            self.addCopySpec("/etc/dovecot*")
+            self.collectExtOutput("/usr/sbin/dovecot -n")
         return
 

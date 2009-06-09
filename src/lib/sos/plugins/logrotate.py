@@ -14,17 +14,14 @@
 
 import sos.plugintools
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class logrotate(sos.plugintools.PluginBase):
+    """logrotate configuration files and debug info
     """
+    
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.collectExtOutput("/usr/sbin/logrotate --debug /etc/logrotate.conf",
+                              suggest_filename = "logrotate_debug")
+        self.collectExtOutput("/bin/cat /var/lib/logrotate.status",
+                              suggest_filename = "logrotate_status")
+        self.addCopySpec("/etc/logrotate*")
         return
-

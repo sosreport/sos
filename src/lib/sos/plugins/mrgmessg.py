@@ -14,17 +14,11 @@
 
 import sos.plugintools
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class mrgmessg(sos.plugintools.PluginBase):
+    """MRG Messaging related information
     """
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.addCopySpec("/etc/qpidd.conf")
+        self.addCopySpec("/etc/sasl2/qpidd.conf")
+        self.addCopySpec("/var/rhm")
         return
-

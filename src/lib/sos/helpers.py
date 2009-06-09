@@ -27,27 +27,8 @@ helper functions used by sosreport and plugins
 """
 import os, popen2, fcntl, select, sys, commands, signal
 from time import time, sleep
-
-if sys.version_info[0] <= 2 and sys.version_info[1] <= 2:
-    # it's a RHEL3, activate work-arounds
-    #
-    import sos.rhel3_logging
-    logging = sos.rhel3_logging
-
-    def mkdtemp(suffix = "", prefix = "temp_"):
-        import random
-        while True:
-            tempdir = "/tmp/%s_%d%s" % (prefix, random.randint(1,9999999), suffix)
-            if not os.path.exists(tempdir): break
-        os.mkdir(tempdir)
-        return tempdir
-
-    os.path.sep = "/"
-    os.path.pardir = ".."
-else:
-    # RHEL4+, business as usual
-    import logging
-    from tempfile import mkdtemp
+import logging
+from tempfile import mkdtemp
 
 def importPlugin(pluginname, name):
     """ Import a plugin to extend capabilities of sosreport

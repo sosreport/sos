@@ -14,17 +14,15 @@
 
 import sos.plugintools
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class tomcat(sos.plugintools.PluginBase):
+    """Tomcat related information
     """
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("tomcat5"):
+            return True
+        return False
+        
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.addCopySpec("/etc/tomcat5")
+        self.addCopySpec("/var/log/tomcat5")
         return
-

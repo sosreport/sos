@@ -14,17 +14,9 @@
 
 import sos.plugintools
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class psacct(sos.plugintools.PluginBase):
+    """Process accounting related information
     """
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.addCopySpec("/var/account")
         return
-

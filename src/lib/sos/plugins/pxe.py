@@ -13,18 +13,18 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class pxe(sos.plugintools.PluginBase):
+    """PXE related information
     """
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("system-config-netboot-cmd") or os.path.exists("/usr/sbin/pxeos"):
+            return True
+        return False
+        
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.collectExtOutput("/usr/sbin/pxeos -l")
+        self.addCopySpec("/tftpboot")
+        self.addCopySpec("/etc/dhcpd.conf")
         return
-

@@ -40,12 +40,11 @@ class rhn(sos.plugintools.PluginBase):
         # http://cvs.devel.redhat.com/cgi-bin/cvsweb.cgi/rhn/proxy/proxy/tools/rhn-proxy-debug?rev=1.3;content-type=text%2Fplain;cvsroot=RHN
         # FIXME: symlinks and directories for copySpec (same as root_symlink for commands)
 
-        self.addCopySpec("/etc/httpd/conf")
+        self.addCopySpec("/etc/httpd/conf*")
         self.addCopySpec("/etc/rhn")
         self.addCopySpec("/etc/sysconfig/rhn")
-        self.addCopySpec("/var/log/httpd")	# httpd-logs
-        self.addCopySpec("/var/log/rhn*")	# rhn-logs
-        self.addCopySpec("/var/log/rhn/rhn-database-installation.log")
+        self.addCopySpec("/var/log/httpd")  # httpd-logs
+        self.addCopySpec("/var/log/rhn*")   # rhn-logs
 
         # all these used to go in $DIR/mon-logs/
         self.addCopySpec("/opt/notification/var/*.log*")
@@ -57,6 +56,9 @@ class rhn(sos.plugintools.PluginBase):
         self.addCopySpec("/home/nocpulse/var/commands/*.log*")
         self.addCopySpec("/var/tmp/ack_handler.log*")
         self.addCopySpec("/var/tmp/enqueue.log*")
+        self.addCopySpec("/var/log/nocpulse/*.log*")
+        self.addCopySpec("/var/log/notification/*.log*")
+        self.addCopySpec("/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log")
 
         self.addCopySpec("/root/ssl-build")
         self.collectExtOutput("rpm -qa --last", root_symlink = "rpm-manifest")
@@ -64,28 +66,23 @@ class rhn(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/rhn-charsets", root_symlink = "database-character-sets")
 
         if self.satellite:
-           self.addCopySpec("/etc/tnsnames.ora")	
-           self.addCopySpec("/etc/jabberd")
+            self.addCopySpec("/etc/tnsnames.ora")   
+            self.addCopySpec("/etc/jabberd")
 
-           # tomcat (4.x and newer satellites only)
-           if not self.policy().pkgNVRA(satellite)[1].startswith("3."):
-              self.addCopySpec("/etc/tomcat5")
-              self.addCopySpec("/var/log/tomcat5")
+            # tomcat (4.x and newer satellites only)
+            if not self.policy().pkgNVRA(satellite)[1].startswith("3."):
+               self.addCopySpec("/etc/tomcat5")
+               self.addCopySpec("/var/log/tomcat5")
 
-           self.addCopySpec("/etc/tomcat5")
-           self.addCopySpec("/var/log/tomcat5")
+            self.addCopySpec("/etc/tomcat5")
+            self.addCopySpec("/var/log/tomcat5")
 
         if self.proxy:
-           # copying configuration information
-           self.addCopySpec("/etc/httpd/conf")
-           self.addCopySpec("/etc/squid")
-           self.addCopySpec("/etc/rhn")
-           self.addCopySpec("/etc/sysconfig/rhn")
+            # copying configuration information
+            self.addCopySpec("/etc/squid")
 
-           # copying logs
-           self.addCopySpec("/var/log/httpd")
-           self.addCopySpec("/var/log/squid")
-           self.addCopySpec("/var/log/rhn*")
+            # copying logs
+            self.addCopySpec("/var/log/squid")
 
         return
 

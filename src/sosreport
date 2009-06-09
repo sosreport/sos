@@ -39,13 +39,6 @@ from pwd import getpwuid
 import gettext
 from threading import Semaphore
 
-# RHEL3 doesn't have a logging module
-try:
-   import logging
-except ImportError:
-   import sos.rhel3_logging
-   logging = sos.rhel3_logging
-
 __version__ = 1.8
 
 __breakHits__ = 0  # Use this to track how many times we enter the exit routine

@@ -13,18 +13,15 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class crontab(sos.plugintools.PluginBase):
+    """Crontab information
     """
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.addCopySpec("/etc/cron*")
+        self.collectExtOutput("/usr/bin/crontab -l -u root", suggest_filename = "root_crontab")
+        self.collectExtOutput("""for i in `ls /home/`;\
+        do echo "User :" $i;/usr/bin/crontab -l -u $i;\
+        echo "---------------";done""", suggest_filename = "users_crontabs")
         return
-

@@ -14,17 +14,16 @@
 
 import sos.plugintools
 
-class printing(sos.plugintools.PluginBase):
-    """printing related information (cups)
+class dhcp(sos.plugintools.PluginBase):
+    """DHCP related information
     """
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("dhcp") or os.path.exists("/etc/rc.d/init.d/dhcpd"):
+            return True
+        return False
+        
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpec("/var/log/cups")
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
-
+        self.addCopySpec("/etc/sysconfig/dhcrelay")
+        self.addCopySpec("/etc/sysconfig/dhcpd")
+        self.addCopySpec("/etc/dhcpd.conf")
         return
-
