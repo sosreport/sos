@@ -22,7 +22,7 @@ class xen(sos.plugintools.PluginBase):
     """
     def determineXenHost(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):
-            (status, output) = commands.getstatusoutput("/usr/bin/strings /proc/acpi/dsdt | grep -q int-xen")
+            (status, output) = commands.getstatusoutput("grep -qi xen /proc/acpi/dsdt")
             if status == 0:
                 return "hvm"
 

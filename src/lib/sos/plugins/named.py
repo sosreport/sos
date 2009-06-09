@@ -14,27 +14,30 @@
 
 import sos.plugintools
 import commands
-import os
+from os.path import normpath, join, exists
 
 class named(sos.plugintools.PluginBase):
     """named related information
     """
     def checkenabled(self):
-        self.files = [ "/etc/named.conf", "/etc/sysconfig/named" ]
-        self.packages = [ "bind", "bind-chroot" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+        if self.cInfo["policy"].pkgByName("bind") or exists("/etc/named.conf") or exists("/etc/sysconfig/named"):
+            return True
+        return False
+       
+    def getDnsDir(self, configFile):
+        """ grab directory path from named{conf,boot}
+        """
+        directoryList = self.doRegexFindAll("directory\s\"(.*)\"", configFile)
+        return normpath(directoryList[0])
 
     def setup(self):
-       dnsdir = ""
-       self.addCopySpec("/etc/named.boot")
-       self.addCopySpec("/etc/named.conf")
-       self.addCopySpec("/etc/sysconfig/named")
-       if os.access("/etc/named.conf", os.R_OK):
-          dnsdir = commands.getoutput("/bin/grep -i directory /etc/named.conf | /bin/gawk '{print $2}' | /bin/sed 's/\\\"//g' | /bin/sed 's/\;//g'")
-       if os.access("/etc/named.boot", os.R_OK):
-          dnsdir = commands.getoutput("/bin/grep -i directory /etc/named.boot | /bin/gawk '{print $2}' | /bin/sed 's/\\\"//g' | /bin/sed 's/\;//g'")
-       if '' != dnsdir.strip():
-          self.addCopySpec(dnsdir)
-          self.addForbiddenPath('/var/named/chroot/proc')
-          self.addForbiddenPath('/var/named/chroot/dev')
-       return
+        cfgFiles = ("/etc/named.conf",
+                    "/etc/named.boot")
+        for cfg in cfgFiles:
+            if exists(cfg):
+                self.addCopySpec(cfg)
+                self.addCopySpec(self.getDnsDir(cfg))
+                self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/dev"))
+                self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/proc"))
+        self.addCopySpec("/etc/sysconfig/named")
+        return

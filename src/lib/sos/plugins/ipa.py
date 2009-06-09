@@ -31,5 +31,7 @@ class ipa(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/dirsrv/ds.keytab")
         self.addCopySpec("/etc/ipa/ipa.conf")
+        self.addCopySpec("/etc/krb5.conf")
+        self.addCopySpec("/etc/krb5.keytab")
         return
 

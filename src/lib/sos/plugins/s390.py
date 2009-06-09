@@ -57,8 +57,6 @@ class s390(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/chandev.conf")
         self.collectExtOutput("/sbin/lscss")
         self.collectExtOutput("/sbin/lsdasd")
-        self.collectExtOutput("/sbin/lsqeth")
-        self.collectExtOutput("/sbin/lszfcp")
         self.collectExtOutput("/sbin/lstape")
         self.collectExtOutput("find /sys -type f")
         self.collectExtOutput("find /proc/s390dbf -type f")

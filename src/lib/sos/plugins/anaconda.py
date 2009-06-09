@@ -19,11 +19,7 @@ class anaconda(sos.plugintools.PluginBase):
     """Anaconda / Installation information
     """
     def checkenabled(self):
-        try:
-            os.stat("/var/log/anaconda.log")
-        except:
-            pass
-        else:
+        if os.path.exists("/var/log/anaconda.log"):
             return True
 
         return False

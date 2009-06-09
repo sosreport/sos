@@ -30,5 +30,6 @@ class systemtap(sos.plugintools.PluginBase):
         # FIXME: do not use rpm -qa
         self.collectExtOutput("/bin/rpm -qa | /bin/egrep -e kernel.*`uname -r` -e systemtap -e elfutils | sort")
         self.collectExtOutput("/usr/bin/stap -V 2")
+        self.collectExtOutput("/bin/uname -r")
         return
 
