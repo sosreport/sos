@@ -1,136 +1,135 @@
-# Finnish translations for PACKAGE package.
-# Copyright (C) 2007 ORGANIZATION
-# Automatically generated, 2007.
-#
+# Finnish translations for sos package.
+# Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>, 2009
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2007-10-24 08:45\n"
-"PO-Revision-Date: 2007-10-24 08:45\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Project-Id-Version: sos\n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-06-18 23:25+0300\n"
+"Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
+"Language-Team: Finnish <laatu@lokalisointi.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: pygettext.py 1.5\n"
 
 #: lib/sos/policyredhat.py:203
 msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
+msgstr "Syötä etunimesi ensimmäinen kirjain ja sukunimesi [%s]:"
 
 #: lib/sos/policyredhat.py:206
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
+msgstr "Syötä tapausnumero, jota varten olet tekemässä tätä raporttia:"
 
 #: lib/sos/policyredhat.py:231
 msgid "Creating compressed archive..."
-msgstr ""
+msgstr "Luodaan pakattua arkistoa..."
 
 #: lib/sos/policyredhat.py:253
 msgid "Encrypting archive..."
-msgstr ""
+msgstr "Salataan arkistoa..."
 
 #: lib/sos/policyredhat.py:271
 msgid "There was a problem encrypting your report."
-msgstr ""
+msgstr "Raportin salaamisessa oli ongelma."
 
 #: lib/sos/policyredhat.py:292
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
 msgstr ""
+"Sosreport-raportti on luotu ja tallennettu sijaintiin:\n"
+"  %s"
 
 #: lib/sos/policyredhat.py:295
 msgid "The md5sum is: "
-msgstr ""
+msgstr "Md5sum-tarkistussumma on:"
 
 #: lib/sos/policyredhat.py:297
 msgid "Please send this file to your support representative."
-msgstr ""
+msgstr "Lähetä tämä tiedosto käyttötukeen."
 
 #: lib/sos/policyredhat.py:323
 msgid "Cannot upload to specified URL."
-msgstr ""
+msgstr "Annettuun osoitteeseen ei voida lähettää."
 
 #: lib/sos/policyredhat.py:360
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
+msgstr "Raportin lähettämisessä Red Hatin käyttötukeen oli ongelmia."
 
 #: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr ""
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Raportin lähetys Red Hatin ftp-palvelimelle onnistui, käytettiin nimeä:"
 
 #: lib/sos/policyredhat.py:365
 msgid "Please communicate this name to your support representative."
-msgstr ""
+msgstr "Kerro tämä nimi käyttötukeen."
 
-#: sosreport:395
+#: sosreport:401
 msgid "Could not create temporary directory."
-msgstr ""
+msgstr "Väliaikaista hakemistoa ei voitu luoda."
 
-#: sosreport:451
+#: sosreport:457
 msgid "sosreport (version %s)"
-msgstr ""
-
-#: sosreport:468
-msgid "plugin %s does not validate, skipping"
-msgstr ""
+msgstr "sosreport (versio %s)"
 
 #: sosreport:474
+msgid "plugin %s does not validate, skipping"
+msgstr "liitännäinen %s on virheellinen, ohitetaan"
+
+#: sosreport:480
 msgid "plugin %s skipped (--skip-plugins)"
-msgstr ""
+msgstr "liitännäinen %s ohitettiin (--skip-plugins)"
 
-#: sosreport:478
+#: sosreport:484
 msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr ""
+msgstr "liitännäinen %s ei ole käytössä (ota käyttöön valitsimella -e tai -o)."
 
-#: sosreport:486
+#: sosreport:492
 msgid "plugin %s not specified in --only-plugins list"
-msgstr ""
+msgstr "liitännäinen %s ei ole --only-plugins-luettelossa"
 
-#: sosreport:491
+#: sosreport:497
 msgid "plugin %s does not install, skipping"
-msgstr ""
+msgstr "liitännäinen %s ei asennu, ohitetaan"
 
-#: sosreport:554
+#: sosreport:568
 msgid "processing options from plugin: %s"
-msgstr ""
-
-#: sosreport:565
-msgid "no valid plugins found"
-msgstr ""
-
-#: sosreport:570
-msgid "The following plugins are currently enabled:"
-msgstr ""
-
-#: sosreport:575
-msgid "No plugin enabled."
-msgstr ""
+msgstr "käsitellään liitännäisen %s asetukset"
 
 #: sosreport:579
+msgid "no valid plugins found"
+msgstr "kelvollisia liitännäisiä ei löytynyt"
+
+#: sosreport:584
+msgid "The following plugins are currently enabled:"
+msgstr "Seuraavat liitännäiset ovat tällä hetkellä käytössä:"
+
+#: sosreport:589
+msgid "No plugin enabled."
+msgstr "Yhtään liitännäistä ei ole käytössä."
+
+#: sosreport:593
 msgid "The following plugins are currently disabled:"
-msgstr ""
+msgstr "Seuraavat liitännäiset ovat tällä hetkellä poissa käytöstä:"
 
-#: sosreport:586
+#: sosreport:600
 msgid "The following plugin options are available:"
-msgstr ""
+msgstr "Seuraavat liitännäisen asetukset ovat käytettävissä:"
 
-#: sosreport:606
+#: sosreport:620
 msgid "No plugin options available."
-msgstr ""
+msgstr "Liitännäisellä ei ole asetuksia."
 
-#: sosreport:614
+#: sosreport:628
 msgid "sosreport requires root permissions to run."
-msgstr ""
+msgstr "sosreportin käyttö vaatii root-oikeudet."
 
-#: sosreport:621
+#: sosreport:635
 msgid "no valid plugins were enabled"
-msgstr ""
+msgstr "yhtään kelvollista liitännäistä ei ole otettu käyttöön"
 
-#: sosreport:624
+#: sosreport:638
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
@@ -143,35 +142,45 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
+"Tämä ohjelma kerää yksityiskohtaisia tietoja Red Hat\n"
+"Enterprise Linux -järjestelmän laitteistosta ja asetuksista.\n"
+"Tiedot kerätään arkistoon, joka tallennetaan /tmp-hakemistoon.\n"
+"Tämä arkisto voidaan lähettää käyttötukeen.\n"
+"Red Hat käyttää tätä tietoa vain vianetsintätarkoituksiin ja\n"
+"tietoa käsitellään luottamuksellisesti.\n"
+"\n"
+"Tämä toiminto voi kestää jonkin aikaa.\n"
+"Järjestelmään ei tehdä muutoksia.\n"
+"\n"
 
-#: sosreport:638
+#: sosreport:652
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
+msgstr "Paina ENTER jatkaaksesi, CTRL-C lopettaaksesi.\n"
 
-#: sosreport:654
+#: sosreport:668
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
+msgstr "Yksi tai useampi liitännäinen on huomannut ongelman järjestelmässä."
 
-#: sosreport:655
+#: sosreport:669
 msgid "Please review the following messages:"
-msgstr ""
+msgstr "Tarkista seuraavat viestit:"
 
-#: sosreport:671
+#: sosreport:685
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr ""
+msgstr "Haluatko jatkaa (k/e)?"
 
-#: sosreport:672
+#: sosreport:686
 msgid "Y"
-msgstr ""
+msgstr "K"
 
-#: sosreport:672
+#: sosreport:686
 msgid "y"
-msgstr ""
+msgstr "k"
 
-#: sosreport:675
+#: sosreport:689
 msgid "N"
-msgstr ""
+msgstr "E"
 
-#: sosreport:675
+#: sosreport:689
 msgid "n"
-msgstr ""
+msgstr "e"
