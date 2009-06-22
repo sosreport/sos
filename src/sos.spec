@@ -5,7 +5,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 11%{?dist}
+Release: 12%{?dist}
 Group: Application/Tools
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
