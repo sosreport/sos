@@ -25,7 +25,7 @@
 """
 helper functions used by sosreport and plugins
 """
-import os, popen2, fcntl, select, sys, commands, signal
+import os, fcntl, select, sys, commands, signal
 from time import time, sleep
 import logging
 from tempfile import mkdtemp
