@@ -88,22 +88,22 @@ def doExitCode():
     doExit("Abnormal exit")
 
 def doExit(error=0):
-   global policy
-   policy.cleanDstroot()
-   sys.exit(error)
+    global policy
+    policy.cleanDstroot()
+    sys.exit(error)
 
 def doException(type, value, tb):
-   if hasattr(sys, 'ps1') or not sys.stderr.isatty():
-      # we are in interactive mode or we don't have a tty-like
-      # device, so we call the default hook
-      sys.__excepthook__(type, value, tb)
-   else:
-      import traceback, pdb
-      # we are NOT in interactive mode, print the exception...
-      traceback.print_exception(type, value, tb)
-      print
-      # ...then start the debugger in post-mortem mode.
-      pdb.pm()
+    if hasattr(sys, 'ps1') or not sys.stderr.isatty():
+        # we are in interactive mode or we don't have a tty-like
+        # device, so we call the default hook
+        sys.__excepthook__(type, value, tb)
+    else:
+        import traceback, pdb
+        # we are NOT in interactive mode, print the exception...
+        traceback.print_exception(type, value, tb)
+        print
+        # ...then start the debugger in post-mortem mode.
+        pdb.pm()
 
 # Handle any sort of exit signal cleanly
 # Currently, we intercept only sig 15 (TERM)
