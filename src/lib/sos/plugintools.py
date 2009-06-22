@@ -35,6 +35,8 @@ import shutil
 from stat import *
 from time import time
 
+class PluginException(Exception): pass
+
 class PluginBase:
     """
     Base class for plugins
@@ -192,8 +194,8 @@ class PluginBase:
         self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
         try:
             tdstpath, abspath = self.__copyFile(srcpath)
-        except "AlreadyExists":
-            self.soslog.log(logging.DEBUG, "error copying file %s (already exists)" % (srcpath))
+        except PluginException, e:
+            self.soslog.log(logging.DEBUG, "%s:  %s" % (srcpath,e))
             return
         except IOError:
             self.soslog.log(logging.VERBOSE2, "error copying file %s (IOError)" % (srcpath))
@@ -225,7 +227,7 @@ class PluginBase:
             else:
                 shutil.copy2(src, new_dir)
         else:
-            raise "AlreadyExists"
+            raise PluginException('Error copying file: already exists')
 
         abspath = os.path.join(self.cInfo['dstroot'], src.lstrip(os.path.sep))
         relpath = sosRelPath(self.cInfo['rptdir'], abspath)

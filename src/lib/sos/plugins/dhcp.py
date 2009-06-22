@@ -18,9 +18,9 @@ class dhcp(sos.plugintools.PluginBase):
     """DHCP related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("dhcp") or os.path.exists("/etc/rc.d/init.d/dhcpd"):
-            return True
-        return False
+        self.files ['/etc/rc.d/init.d/dhcpd']
+        self.packages = ['dhcp']
+        return  sos.plugintools.PluginBase.checkenabled(self)
         
     def setup(self):
         self.addCopySpec("/etc/sysconfig/dhcrelay")

@@ -275,7 +275,7 @@ class SosPolicy:
 
         # calculate md5
         fp = open(self.report_file, "r")
-        self.report_md5 = hashlib.md5(fp.read()).digest()
+        self.report_md5 = hashlib.md5(fp.read()).hexdigest()
         fp.close()
 
         self.renameResults("sosreport-%s-%s-%s.tar.bz2" % (self.reportName, time.strftime("%Y%m%d%H%M%S"), self.report_md5[-4:]))
