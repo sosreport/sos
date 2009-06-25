@@ -38,6 +38,7 @@ from time import strftime, localtime, time
 from pwd import getpwuid
 import gettext
 from threading import Semaphore
+from multiprocessing import Process, Lock
 
 __version__ = 1.8
 
