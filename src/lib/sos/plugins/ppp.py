@@ -1,3 +1,5 @@
+## Copyright (C) 2007 Sadique Puthen <sputhenp@redhat.com>
+
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -15,20 +17,16 @@
 import sos.plugintools
 import os
 
-class anaconda(sos.plugintools.PluginBase):
-    """Anaconda / Installation information
+class ppp(sos.plugintools.PluginBase):
+    """ppp, wvdial and rp-pppoe related information
     """
     def checkenabled(self):
-        if os.path.exists("/var/log/anaconda.log"):
+        if self.cInfo["policy"].pkgByName("ppp") or os.path.exists("/etc/wvdial.conf"):
             return True
         return False
 
     def setup(self):
-        self.addCopySpec("/root/anaconda-ks.cfg")
-        self.addCopySpec("/root/install.log")
-        self.addCopySpec("/root/install.log.syslog")
-        self.addCopySpec("/var/log/anaconda.log")
-        self.addCopySpec("/var/log/anaconda.syslog")
-        self.addCopySpec("/var/log/anaconda.xlog")
-        return
-
+        self.addCopySpec("/etc/wvdial.conf")
+        self.addCopySpec("/etc/ppp")
+        self.addCopySpec("/var/log/ppp")
+        self.collectExtOutput("/usr/sbin/adsl-status")

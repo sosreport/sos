@@ -20,6 +20,8 @@ class rhn(sos.plugintools.PluginBase):
     satellite = False
     proxy = False
 
+    optionList = [("log", 'gathers all apache logs', 'slow', False)]
+
     def defaultenabled(self):
         return False
 

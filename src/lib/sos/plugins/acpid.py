@@ -13,22 +13,12 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
 
-class anaconda(sos.plugintools.PluginBase):
-    """Anaconda / Installation information
+class acpid(sos.plugintools.PluginBase):
+    """acpid related information
     """
-    def checkenabled(self):
-        if os.path.exists("/var/log/anaconda.log"):
-            return True
-        return False
-
     def setup(self):
-        self.addCopySpec("/root/anaconda-ks.cfg")
-        self.addCopySpec("/root/install.log")
-        self.addCopySpec("/root/install.log.syslog")
-        self.addCopySpec("/var/log/anaconda.log")
-        self.addCopySpec("/var/log/anaconda.syslog")
-        self.addCopySpec("/var/log/anaconda.xlog")
+        self.addCopySpec("/var/log/acpid*")
+        self.addCopySpec("/etc/acpi/events/power.conf")
         return
 
