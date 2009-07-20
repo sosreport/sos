@@ -45,7 +45,8 @@ class rhn(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/httpd/conf*")
         self.addCopySpec("/etc/rhn")
         self.addCopySpec("/etc/sysconfig/rhn")
-        self.addCopySpec("/var/log/httpd")  # httpd-logs
+        if self.getOption("log"):
+            self.addCopySpec("/var/log/httpd")  # httpd-logs
         self.addCopySpec("/var/log/rhn*")   # rhn-logs
 
         # all these used to go in $DIR/mon-logs/

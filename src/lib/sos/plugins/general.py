@@ -39,6 +39,7 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/secure")
         self.addCopySpecLimit("/var/log/secure.*", sizelimit = self.getOption("syslogsize"))
         self.addCopySpec("/var/log/sa")
+        self.addCopySpec("/var/log/pm/suspend.log")
         self.addCopySpec("/var/log/up2date")
         self.addCopySpec("/etc/exports")        
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")

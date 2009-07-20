@@ -184,6 +184,12 @@ __cmdParser__.add_option("--no-multithread", action="store_true", \
                      dest="nomultithread", \
                      help="disable multi-threaded gathering mode (slower)",
                      default=False)
+__cmdParser__.add_option("--ticket-number", action="store", \
+                     dest="ticketNumber", \
+                     help="set ticket number")
+__cmdParser__.add_option("--name", action="store", \
+                     dest="customerName", \
+                     help="define customer name")
 
 if sys.argv[0].endswith("sysreport"):
     print
