@@ -1,11 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-%define _localedir %_datadir/locale
-
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 12%{?dist}
+Release: 13%{?dist}
 Group: Application/Tools
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -14,6 +12,7 @@ BuildArch: noarch
 Url: http://fedorahosted.org/sos
 BuildRequires: python-devel
 Requires: libxml2-python
+Requires: tar, bzip2
 Provides: sysreport = 1.4.3-13
 Obsoletes: sysreport
 
@@ -54,6 +53,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Mon Jul 20 2009 Adam Stokes <ajs at redhat dot com> = 1.8-13
+- Add requirements for tar,bzip2 during minimal installs
+- More merges from reports against RHEL version of plugins
+- Remove unecessary definition of localdir in spec
+
 * Wed May 05 2009 Adam Stokes <ajs at redhat dot com> - 1.8-11
 - Remove all instances of sysrq
 - Consistent macro usage in spec
