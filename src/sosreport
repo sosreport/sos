@@ -667,7 +667,7 @@ def sosreport():
 hardware and  setup of your Fedora system.
 The information is collected and an archive is  packaged under
 /tmp, which you can send to a support representative.
-Red Hat will use this information for diagnostic purposes ONLY
+Fedora will use this information for diagnostic purposes ONLY
 and it will be considered confidential information.
 
 This process may take a while to complete.

@@ -56,8 +56,10 @@ rm -rf ${RPM_BUILD_ROOT}
 * Thu Jul 23 2009 Adam Stokes <ajs at redhat dot com> = 1.8-14
 - resolves: rhbz512536 wrong group in spec file
 - resolves: rhbz498398 A series of refactoring patches to sos
+- resolves: rhbz501149 A series of refactoring patches to sos (2)
+- resolves: rhbz503804 remove obsolete translation
 - resolves: rhbz502455 tricking sosreport into rm -rf /
-- resolves: rhbz501149 a series of refactoring patches (2)
+- resolves: rhbz501146 branding in fedora
 
 * Mon Jul 20 2009 Adam Stokes <ajs at redhat dot com> = 1.8-13
 - Add requirements for tar,bzip2 during minimal installs

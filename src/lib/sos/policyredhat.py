@@ -229,6 +229,11 @@ class SosPolicy:
 
     def packageResults(self):
 
+        if len(self.ticketNumber):
+            self.reportName = self.reportName + "." + self.ticketNumber
+        else:
+            self.reportName = self.reportName
+
         self.renameResults("sosreport-%s-%s.tar.bz2" % (self.reportName, time.strftime("%Y%m%d%H%M%S")))
 
         tarcmd = "/bin/tar -jcf %s %s" % (self.report_file, os.path.basename(self.cInfo['dstroot']))
@@ -241,7 +246,6 @@ class SosPolicy:
         status, shout = commands.getstatusoutput(tarcmd)
         os.umask(oldmask)
         os.chdir(curwd)
-
         return
 
     def cleanDstroot(self):
