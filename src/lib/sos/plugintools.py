@@ -42,12 +42,9 @@ class PluginBase:
     Base class for plugins
     """
     def __init__(self, pluginname, commons):
-        # pylint: disable-msg = E0203
-        try:
-            len(self.optionList)
-        except:
+        if not getattr(self, "optionList", False):
             self.optionList = []
-        # pylint: enable-msg = E0203
+
         self.copiedFiles = []
         self.copiedDirs = []
         self.executedCommands = []
@@ -113,18 +110,14 @@ class PluginBase:
                         break
         return False
     
-    def doRegexFindAll(self,regex,fname):
+    def doRegexFindAll(self, regex, fname):
         ''' Return a list of all non overlapping matches in the string(s)
         '''
-        out=[]
-        f=open(fname,'r')
-        content=f.read()
-        f.close()
-        reg=re.compile(regex,re.MULTILINE)
-        for i in reg.findall(content):
-            out.append(i)
-        return out
-    
+        try:
+            return re.findall(regex, open(fname, 'r').read(), re.MULTILINE)
+        except:  # IOError, AttributeError, etc.
+            return []
+
     # Methods for copying files and shelling out
     def doCopyFileOrDir(self, srcpath):
         # pylint: disable-msg = R0912
@@ -311,14 +304,10 @@ class PluginBase:
         self.collectProgs.append( (exe, suggest_filename, root_symlink, timeout) )
 
     def fileGrep(self, regexp, fname):
-        results = []
-
-        fp = open(fname, "r")
-        for line in fp.readlines():
-            if re.match(regexp, line):
-                results.append(line)
-        fp.close()
-        return results
+        try:
+            return [l for l in open(fname).readlines() if re.match(regexp, l)]
+        except:  # IOError, AttributeError, etc.
+            return []
 
     def mangleCommand(self, exe):
         # FIXME: this can be improved

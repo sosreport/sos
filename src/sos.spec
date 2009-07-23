@@ -3,8 +3,8 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 13%{?dist}
-Group: Application/Tools
+Release: 14%{?dist}
+Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -53,6 +53,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Thu Jul 23 2009 Adam Stokes <ajs at redhat dot com> = 1.8-14
+- resolves: rhbz512536 wrong group in spec file
+- resolves: rhbz498398 A series of refactoring patches to sos
+- resolves: rhbz502455 tricking sosreport into rm -rf /
+
 * Mon Jul 20 2009 Adam Stokes <ajs at redhat dot com> = 1.8-13
 - Add requirements for tar,bzip2 during minimal installs
 - More merges from reports against RHEL version of plugins

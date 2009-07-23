@@ -37,11 +37,7 @@ class cluster(sos.plugintools.PluginBase):
         return sos.plugintools.PluginBase.checkenabled(self)
 
     def has_gfs(self):
-        try:
-            if len(self.doRegexFindAll(r'^\S+\s+\S+\s+gfs\s+.*$', "/etc/mtab")):
-               return True
-        except:
-            return False
+        return (len(self.doRegexFindAll(r'^\S+\s+\S+\s+gfs\s+.*$', "/etc/mtab")) > 0)
 
     def diagnose(self):
         rhelver = self.policy().rhelVersion()
@@ -223,8 +219,6 @@ class cluster(sos.plugintools.PluginBase):
         if status:
             # command somehow failed
             return False
-
-        import re
 
         rhelver = self.get_redhat_release()
 

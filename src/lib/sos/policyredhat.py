@@ -209,6 +209,14 @@ class SosPolicy:
 
         if len(self.reportName) == 0:
             self.reportName = localname
+        
+        if self.cInfo['cmdlineopts'].customerName:
+            self.reportName = self.cInfo['cmdlineopts'].customerName        
+            self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
+
+        if self.cInfo['cmdlineopts'].ticketNumber:
+            self.ticketNumber = self.cInfo['cmdlineopts'].ticketNumber
+            self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
 
         return
 
