@@ -664,7 +664,7 @@ def sosreport():
         doExit(1)
 
     msg = _("""This utility will collect some detailed  information about the
-hardware and  setup of your  Red Hat Enterprise Linux  system.
+hardware and  setup of your Fedora system.
 The information is collected and an archive is  packaged under
 /tmp, which you can send to a support representative.
 Red Hat will use this information for diagnostic purposes ONLY

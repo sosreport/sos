@@ -57,6 +57,7 @@ rm -rf ${RPM_BUILD_ROOT}
 - resolves: rhbz512536 wrong group in spec file
 - resolves: rhbz498398 A series of refactoring patches to sos
 - resolves: rhbz502455 tricking sosreport into rm -rf /
+- resolves: rhbz501149 a series of refactoring patches (2)
 
 * Mon Jul 20 2009 Adam Stokes <ajs at redhat dot com> = 1.8-13
 - Add requirements for tar,bzip2 during minimal installs
