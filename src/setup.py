@@ -70,7 +70,6 @@ setup(
 	('/usr/share/locale/nb/LC_MESSAGES', ['po/nb/sos.mo']),
 	('/usr/share/locale/nl/LC_MESSAGES', ['po/nl/sos.mo']),
 	('/usr/share/locale/nn/LC_MESSAGES', ['po/nn/sos.mo']),
-	('/usr/share/locale/no/LC_MESSAGES', ['po/no/sos.mo']),
 	('/usr/share/locale/nso/LC_MESSAGES', ['po/nso/sos.mo']),
 	('/usr/share/locale/or/LC_MESSAGES', ['po/or/sos.mo']),
 	('/usr/share/locale/pa/LC_MESSAGES', ['po/pa/sos.mo']),
