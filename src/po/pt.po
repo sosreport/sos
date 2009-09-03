@@ -4,16 +4,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2007-10-24 08:45\n"
-"PO-Revision-Date: 2007-10-24 08:45\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Project-Id-Version: sos\n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-09-03 22:31+0100\n"
+"Last-Translator: Rui Gouveia <rui.gouveia@globaltek.pt>\n"
+"Language-Team: PT <fedora-trans-pt@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Portuguese\n"
+"X-Poedit-Country: PORTUGAL\n"
 
 #: lib/sos/policyredhat.py:203
 msgid "Please enter your first initial and last name [%s]: "
@@ -25,11 +27,11 @@ msgstr ""
 
 #: lib/sos/policyredhat.py:231
 msgid "Creating compressed archive..."
-msgstr ""
+msgstr "A criar arquivo comprimido..."
 
 #: lib/sos/policyredhat.py:253
 msgid "Encrypting archive..."
-msgstr ""
+msgstr "A cifrar arquivo..."
 
 #: lib/sos/policyredhat.py:271
 msgid "There was a problem encrypting your report."
@@ -43,7 +45,7 @@ msgstr ""
 
 #: lib/sos/policyredhat.py:295
 msgid "The md5sum is: "
-msgstr ""
+msgstr "O md5sum é: "
 
 #: lib/sos/policyredhat.py:297
 msgid "Please send this file to your support representative."
@@ -58,79 +60,78 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr ""
 
 #: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
 msgstr ""
 
 #: lib/sos/policyredhat.py:365
 msgid "Please communicate this name to your support representative."
 msgstr ""
 
-#: sosreport:395
+#: sosreport:401
 msgid "Could not create temporary directory."
-msgstr ""
+msgstr "Não foi possível criar directório temporário."
 
-#: sosreport:451
+#: sosreport:457
 msgid "sosreport (version %s)"
-msgstr ""
+msgstr "sosreport (versão %s)"
 
-#: sosreport:468
+#: sosreport:474
 msgid "plugin %s does not validate, skipping"
 msgstr ""
 
-#: sosreport:474
+#: sosreport:480
 msgid "plugin %s skipped (--skip-plugins)"
 msgstr ""
 
-#: sosreport:478
+#: sosreport:484
 msgid "plugin %s is inactive (use -e or -o to enable)."
 msgstr ""
 
-#: sosreport:486
+#: sosreport:492
 msgid "plugin %s not specified in --only-plugins list"
 msgstr ""
 
-#: sosreport:491
+#: sosreport:497
 msgid "plugin %s does not install, skipping"
 msgstr ""
 
-#: sosreport:554
+#: sosreport:568
 msgid "processing options from plugin: %s"
 msgstr ""
 
-#: sosreport:565
+#: sosreport:579
 msgid "no valid plugins found"
-msgstr ""
+msgstr "Não foram encontrados plugins válidos"
 
-#: sosreport:570
+#: sosreport:584
 msgid "The following plugins are currently enabled:"
 msgstr ""
 
-#: sosreport:575
+#: sosreport:589
 msgid "No plugin enabled."
-msgstr ""
+msgstr "Nenhum plugin activo."
 
-#: sosreport:579
+#: sosreport:593
 msgid "The following plugins are currently disabled:"
 msgstr ""
 
-#: sosreport:586
+#: sosreport:600
 msgid "The following plugin options are available:"
 msgstr ""
 
-#: sosreport:606
+#: sosreport:620
 msgid "No plugin options available."
-msgstr ""
+msgstr "Nenhumas opções do plugin disponíveis."
 
-#: sosreport:614
+#: sosreport:628
 msgid "sosreport requires root permissions to run."
 msgstr ""
 
-#: sosreport:621
+#: sosreport:635
 msgid "no valid plugins were enabled"
 msgstr ""
 
-#: sosreport:624
+#: sosreport:638
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
@@ -144,34 +145,35 @@ msgid ""
 "\n"
 msgstr ""
 
-#: sosreport:638
+#: sosreport:652
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr ""
 
-#: sosreport:654
+#: sosreport:668
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr ""
 
-#: sosreport:655
+#: sosreport:669
 msgid "Please review the following messages:"
 msgstr ""
 
-#: sosreport:671
+#: sosreport:685
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr ""
 
-#: sosreport:672
+#: sosreport:686
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
-#: sosreport:672
+#: sosreport:686
 msgid "y"
-msgstr ""
+msgstr "s"
 
-#: sosreport:675
+#: sosreport:689
 msgid "N"
-msgstr ""
+msgstr "N"
 
-#: sosreport:675
+#: sosreport:689
 msgid "n"
-msgstr ""
+msgstr "n"
+
