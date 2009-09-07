@@ -1,135 +1,140 @@
+# translation of sos.trunk.te.po to Telugu
 # Telugu translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
-# Automatically generated, 2007.
 #
+# Automatically generated, 2007.
+# Krishna Babu K <kkrothap@redhat.com>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2007-10-24 08:45\n"
-"PO-Revision-Date: 2007-10-24 08:45\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Project-Id-Version: sos.trunk.te\n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-09-07 21:18+0530\n"
+"Last-Translator: Krishna Babu K <kkrothap@redhat.com>\n"
+"Language-Team: Telugu <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n\n"
 
 #: lib/sos/policyredhat.py:203
 msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
+msgstr "దయచేసి మీ పేరు మొదటి అక్షరం మరియు మీ యింటిపేరును ప్రవేశపెట్టండి [%s]"
 
 #: lib/sos/policyredhat.py:206
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
+msgstr "ఈ నివేదికను దేనికొరకు తయారు చేస్తున్నారో దాని కేస్ సంఖ్యను ప్రవేశపెట్టండి: "
 
 #: lib/sos/policyredhat.py:231
 msgid "Creating compressed archive..."
-msgstr ""
+msgstr "కుదించిన ఆర్చీవ్‌ను సృష్టిస్తోంది..."
 
 #: lib/sos/policyredhat.py:253
 msgid "Encrypting archive..."
-msgstr ""
+msgstr "ఆర్చివ్‌ను ఎన్క్రిప్టు చేయుచున్నది..."
 
 #: lib/sos/policyredhat.py:271
 msgid "There was a problem encrypting your report."
-msgstr ""
+msgstr "మీ నివేదికను ఎన్క్రిప్టు చేయుటలో అక్కడ వొక దోషమువుంది."
 
 #: lib/sos/policyredhat.py:292
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
 msgstr ""
+"మీ sosreport తయారుచేయబడింది మరియు దీనినందు దాయబడింది:\n"
+"  %s"
 
 #: lib/sos/policyredhat.py:295
 msgid "The md5sum is: "
-msgstr ""
+msgstr "md5sum : "
 
 #: lib/sos/policyredhat.py:297
 msgid "Please send this file to your support representative."
-msgstr ""
+msgstr "దయచేసి ఈ దస్త్రమును మీ మద్దతు ప్రతినిధికి పంపండి."
 
 #: lib/sos/policyredhat.py:323
 msgid "Cannot upload to specified URL."
-msgstr ""
+msgstr "తెలుపబడిన URLకు అప్‌లోడ్ చేయలేదు."
 
 #: lib/sos/policyredhat.py:360
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
+msgstr "మీ సమస్యను Red Hat మద్దతునకు అప్‌లోడు చేయుటలో వొక సమస్యవుంది."
 
 #: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr ""
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "మీ నివేదిక సమర్దవంతంగా Red Hat ftp సేవికకు నామముతో అప్‌లోడ్ చేయబడింది:"
 
 #: lib/sos/policyredhat.py:365
 msgid "Please communicate this name to your support representative."
-msgstr ""
+msgstr "దయచేసి ఈ నామము మీ మద్దతు ప్రతినిధికి తెలియపరచండి."
 
-#: sosreport:395
+#: sosreport:401
 msgid "Could not create temporary directory."
-msgstr ""
+msgstr "తాత్కాలిక డైరెక్టరీను సృష్టించలేక పోయింది."
 
-#: sosreport:451
+#: sosreport:457
 msgid "sosreport (version %s)"
-msgstr ""
-
-#: sosreport:468
-msgid "plugin %s does not validate, skipping"
-msgstr ""
+msgstr "sosreport (వర్షన్ %s)"
 
 #: sosreport:474
+msgid "plugin %s does not validate, skipping"
+msgstr "ప్లగ్‌యిన్ %s నిర్ధారించబడలేదు, వదిలివేయుచున్నది"
+
+#: sosreport:480
 msgid "plugin %s skipped (--skip-plugins)"
-msgstr ""
+msgstr "%s వదిలివేయబడింది (--skip-plugins)"
 
-#: sosreport:478
+#: sosreport:484
 msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr ""
+msgstr "%s క్రియాహీనమైంది (చేతనం చేయుటకు -e లేదా -o వుపయోగించండి)."
 
-#: sosreport:486
+#: sosreport:492
 msgid "plugin %s not specified in --only-plugins list"
-msgstr ""
+msgstr "ప్లగ్‌యిన్ %s తెలుపబడలేదు --only-plugins జాబితా"
 
-#: sosreport:491
+#: sosreport:497
 msgid "plugin %s does not install, skipping"
-msgstr ""
+msgstr "ప్లగిన్ %s సంస్థాపించబడలేదు, వదిలివేయుచున్నది"
 
-#: sosreport:554
+#: sosreport:568
 msgid "processing options from plugin: %s"
-msgstr ""
-
-#: sosreport:565
-msgid "no valid plugins found"
-msgstr ""
-
-#: sosreport:570
-msgid "The following plugins are currently enabled:"
-msgstr ""
-
-#: sosreport:575
-msgid "No plugin enabled."
-msgstr ""
+msgstr "ప్లగిన్ నుండి ఐచ్చికాలను నిర్వర్తించుచున్నది: %s"
 
 #: sosreport:579
+msgid "no valid plugins found"
+msgstr "చెల్లునటువంటి ప్లగిన్సు కనబడలేదు"
+
+#: sosreport:584
+msgid "The following plugins are currently enabled:"
+msgstr "ఈ క్రింది ప్లగిన్సు ప్రస్తుతం చేతనం చేయబడివున్నాయి:"
+
+#: sosreport:589
+msgid "No plugin enabled."
+msgstr "ఏ ప్లగిన్ చేతనం చేయబడిలేదు."
+
+#: sosreport:593
 msgid "The following plugins are currently disabled:"
-msgstr ""
+msgstr "క్రింది ప్లగిన్సు ప్రస్తుతం అచేతనం చేయబడివున్నాయి:"
 
-#: sosreport:586
+#: sosreport:600
 msgid "The following plugin options are available:"
-msgstr ""
+msgstr "ఈ క్రింది ప్లగిన్ ఐచ్చికాలు అందుబాటులో వున్నాయి:"
 
-#: sosreport:606
+#: sosreport:620
 msgid "No plugin options available."
-msgstr ""
+msgstr "ఎటువంటి ప్లగిన్ ఐచ్చికాలు అందుబాటులో లేవు."
 
-#: sosreport:614
+#: sosreport:628
 msgid "sosreport requires root permissions to run."
-msgstr ""
+msgstr "నడుపుటకు sosreportకు root అనుమతులు కావలెను."
 
-#: sosreport:621
+#: sosreport:635
 msgid "no valid plugins were enabled"
-msgstr ""
+msgstr "చెల్లునటువంటి ప్లగిన్సు చేతనము చేయబడిలేవు"
 
-#: sosreport:624
+#: sosreport:638
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
@@ -142,35 +147,45 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
+"మీ Red Hat Enterprise Linux సిస్టమ్ యొక్క హార్డువేరు మరియు అమర్పు గురించిన\n"
+"కొంత విశదీకృత సమాచారమును ఈ సౌలభ్యము సేకరిస్తుంది. సమాచారము సేకరించబడుతుంది\n"
+"మరియు ఆర్చివ్ /tmp క్రింద ప్యాకేజీ చేయబడుతుంది, దీనిని మీరు మద్దతు ప్రతినిధికి పంపవచ్చు.\n"
+"Red Hat ఈ సమాచారమును విశ్లేషణ ప్రయోజనముల కొరకు మాత్రమే వుపయోగిస్తుంది\n"
+"మరియు అది గోప్యంగా వుంచబడుతుంది.\n"
+"\n"
+"పూర్తగుటకు ఈ కార్యక్రమము కొంత సమయాన్ని తీసుకొంటుంది.\n"
+"మీ సిస్టమ్‌నకు యెటువంటి మార్పులు చేయబడవు.\n"
+"\n"
 
-#: sosreport:638
+#: sosreport:652
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
+msgstr "కొనసాగించుటకు దయచేసి ENTER వత్తండి, లేదా నిష్క్రమించుటకు CTRL-C వత్తండి.\n"
 
-#: sosreport:654
+#: sosreport:668
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
+msgstr "ఒకటి లేదా యెక్కువ ప్లగిన్సు మీ ఆకృతీకరణనందు సమస్యను గుర్తించినవి."
 
-#: sosreport:655
+#: sosreport:669
 msgid "Please review the following messages:"
-msgstr ""
+msgstr "దయచేసి క్రింది సందేశములను పునఃపరిశీలించండి:"
 
-#: sosreport:671
+#: sosreport:685
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr ""
+msgstr "మీరు ఖచ్చితంగా కొనసాగించుటకు యిష్టపడుతున్నారా (y/n) ? "
 
-#: sosreport:672
+#: sosreport:686
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
-#: sosreport:672
+#: sosreport:686
 msgid "y"
-msgstr ""
+msgstr "y"
 
-#: sosreport:675
+#: sosreport:689
 msgid "N"
-msgstr ""
+msgstr "N"
 
-#: sosreport:675
+#: sosreport:689
 msgid "n"
-msgstr ""
+msgstr "n"
+
