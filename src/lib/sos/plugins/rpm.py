@@ -18,7 +18,7 @@ class rpm(sos.plugintools.PluginBase):
     """RPM information
     """
     optionList = [("rpmq", "queries for package information via rpm -q", "fast", True),
-                  ("rpmva", "runs a verify on all packages", "slow", True)]
+                  ("rpmva", "runs a verify on all packages", "slow", False)]
                   
     def setup(self):
         self.addCopySpec("/var/log/rpmpkgs")

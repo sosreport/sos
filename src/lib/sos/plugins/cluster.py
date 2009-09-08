@@ -251,7 +251,7 @@ class cluster(sos.plugintools.PluginBase):
 
     def postproc(self):
         for cluster_conf in glob.glob("/etc/cluster/cluster.conf*"):
-            self.doRegexSub(cluster_conf, r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1\"***\"")
+            self.doRegexSub(cluster_conf, r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1%s" %('"***"'))
         return
 
     def is_cluster_quorate(self):
