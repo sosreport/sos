@@ -263,3 +263,12 @@ class cluster(sos.plugintools.PluginBase):
             if re.match('^\W*%s = ' % field, line):
                 return line.split("=")[1].strip()
         return False
+        
+    # Diagnostic testing functions
+    def test_fence_id(self):
+        # resolves rhbz 499468 and 499472
+        for line in commands.getoutput("/sbin/gfs_tool -v").split("\n")[1:]:
+            for a in line.split():
+                if re.match('00000000', a):
+                    self.addDiagnose('Invalid fence id: %s' % (line,))
+        return
