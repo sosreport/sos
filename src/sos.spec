@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 14%{?dist}
+Release: 15%{?dist}
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -41,7 +41,7 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
-%{_bindir}/rh-upload-core
+%{_bindir}/rh-upload
 %{_sbindir}/sosreport
 %{_sbindir}/sysreport
 %{_sbindir}/sysreport.legacy
@@ -49,10 +49,13 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_datadir}/sysreport
 %{python_sitelib}/*
 %{_mandir}/man1/sosreport.1.gz
-%doc README README.rh-upload-core TODO LICENSE ChangeLog
+%doc README README.rh-upload TODO LICENSE ChangeLog
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Tue Sep 9 2009 Adam Stokes <ajs at redhat dot com> = 1.8-15
+- Update rh-upload-core to rh-upload and allows general files
+
 * Thu Jul 23 2009 Adam Stokes <ajs at redhat dot com> = 1.8-14
 - resolves: rhbz512536 wrong group in spec file
 - resolves: rhbz498398 A series of refactoring patches to sos

@@ -16,7 +16,7 @@ setup(
 	package_dir = {'': 'lib',},
 	data_files = [ ('/etc', [ 'sos.conf']), 
     ('/usr/sbin', ['sosreport', 'extras/sysreport/sysreport.legacy']), 
-    ('/usr/bin', ['extras/rh-upload-core']),
+    ('/usr/bin', ['extras/rh-upload']),
     ('/usr/share/sos/',['gpgkeys/rhsupport.pub']),
     ('/usr/share/sysreport', ['extras/sysreport/text.xsl', 'extras/sysreport/functions', 'extras/sysreport/sysreport-fdisk']), 
     ('/usr/share/man/man1', ['sosreport.1.gz']),

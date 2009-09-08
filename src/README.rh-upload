@@ -1,5 +1,5 @@
 
-rh-upload-core
+rh-upload
 
 This is a script provided with the SOS RPM which provides some automation for RHEL kernel vmcore file
 handling.  The script is capable of compressing, encrypting, checksumming, splitting and uploading a
