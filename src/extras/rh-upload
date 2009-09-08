@@ -251,7 +251,7 @@ function closure(){
     echov 1 "## Your file was split and the hunks are in: $Split_dir/ "
   fi
 
-  if [ "$Ftp_res" -eq 0 ]; then
+  if [ -n "$Ftp_res" ] && [ "$Ftp_res" -eq 0 ]; then
     echov 1 "This script has completed successfully the upload."
     if [ "$Compress" != 0 ] || [ "$Split" != 0 ]; then 
       echov 1 "You performed file encryption and/or file splitting."
