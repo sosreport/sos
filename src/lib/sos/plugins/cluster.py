@@ -246,7 +246,7 @@ class cluster(sos.plugintools.PluginBase):
         return
 
     def postproc(self):
-        self.doRegexSub("/etc/cluster/cluster.conf", r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1***")
+        self.doRegexSub("/etc/cluster/cluster.conf", r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1\"***\"")
         return
 
     def is_cluster_quorate(self):
@@ -267,8 +267,11 @@ class cluster(sos.plugintools.PluginBase):
     # Diagnostic testing functions
     def test_fence_id(self):
         # resolves rhbz 499468 and 499472
-        for line in commands.getoutput("/sbin/gfs_tool -v").split("\n")[1:]:
+        for line in commands.getoutput("/sbin/group_tool ls | grep -v '^\['").split("\n")[1:]:
             for a in line.split():
+                # we can do this since fence id is a fix field
                 if re.match('00000000', a):
                     self.addDiagnose('Invalid fence id: %s' % (line,))
+            if line.split()[-1] != 'none':
+                self.addDiagnose("Possible incorrect state: %s, for group: %s" % (line.split()[-1], line))
         return
