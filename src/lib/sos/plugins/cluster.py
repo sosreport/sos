@@ -39,7 +39,7 @@ class cluster(sos.plugintools.PluginBase):
 
     def has_gfs(self):
         return (len(self.doRegexFindAll(r'^\S+\s+\S+\s+gfs\s+.*$', "/etc/mtab")) > 0)
-
+        
     def diagnose(self):
         rhelver = self.policy().rhelVersion()
 
@@ -193,6 +193,9 @@ class cluster(sos.plugintools.PluginBase):
            except: continue
            if locktable != cluster_name:
                self.addDiagnose("gfs mountpoint (%s) is using the wrong locking table" % fs[0])
+        
+        # Test fence groups for valid id and state
+        self.test_fence_id()
 
     def setup(self):
         self.collectExtOutput("/sbin/fdisk -l")
