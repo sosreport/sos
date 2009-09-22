@@ -5,20 +5,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "POT-Creation-Date: 2008-12-19 06:40\n"
-"PO-Revision-Date: 2009-01-24 15:22+0100\n"
+"PO-Revision-Date: 2009-09-22 22:19+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
-"Language-Team: Polish <pl@li.org>\n"
+"Language-Team: Polish <fedora-trans-pl@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: lib/sos/policyredhat.py:203
 msgid "Please enter your first initial and last name [%s]: "
-msgstr "Podaj swoje imię i nazwisko [%s]: "
+msgstr "Proszę podać imię i nazwisko [%s]: "
 
 #: lib/sos/policyredhat.py:206
 msgid "Please enter the case number that you are generating this report for: "
-msgstr "Podaj numer sprawy, dla której tworzysz ten raport: "
+msgstr "Proszę podać numer sprawy, dla której ten raport jest tworzony: "
 
 #: lib/sos/policyredhat.py:231
 msgid "Creating compressed archive..."
@@ -30,7 +30,7 @@ msgstr "Szyfrowanie archiwum..."
 
 #: lib/sos/policyredhat.py:271
 msgid "There was a problem encrypting your report."
-msgstr "Podczas szyfrowania raportu wystąpił błąd."
+msgstr "Wystąpił problem podczas szyfrowania raportu."
 
 #: lib/sos/policyredhat.py:292
 msgid ""
@@ -46,7 +46,7 @@ msgstr "Suma MD5 to: "
 
 #: lib/sos/policyredhat.py:297
 msgid "Please send this file to your support representative."
-msgstr "Wyślij ten plik do reprezentanta wsparcia technicznego."
+msgstr "Proszę wysłać ten plik do reprezentanta wsparcia technicznego."
 
 #: lib/sos/policyredhat.py:323
 msgid "Cannot upload to specified URL."
@@ -55,21 +55,22 @@ msgstr "Nie można wysłać na podany adres URL."
 #: lib/sos/policyredhat.py:360
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr ""
-"Podczas wysyłania raportu do wsparcia technicznego Red Hata wystąpił błąd."
+"Wystąpił problem podczas wysyłania raportu do wsparcia technicznego Red Hata."
 
 #: lib/sos/policyredhat.py:362
 msgid ""
 "Your report was successfully uploaded to Red Hat's ftp server with name:"
 msgstr ""
-"Raport został pomyślnie wysłany do serwera FTP Red Hata za pomocą tej nazwy:"
+"Raport został pomyślnie wysłany do serwera FTP formy Red Hat za pomocą tej "
+"nazwy:"
 
 #: lib/sos/policyredhat.py:365
 msgid "Please communicate this name to your support representative."
-msgstr "Podaj tę nazwę reprezentantowi wsparcia technicznego."
+msgstr "Proszę podać tę nazwę reprezentantowi wsparcia technicznego."
 
 #: sosreport:401
 msgid "Could not create temporary directory."
-msgstr "Nie można utworzyć folderu tymczasowego."
+msgstr "Nie można utworzyć katalogu tymczasowego."
 
 #: sosreport:457
 msgid "sosreport (version %s)"
@@ -85,7 +86,7 @@ msgstr "wtyczka %s została pominięta (--skip-plugins)"
 
 #: sosreport:484
 msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "wtyczka %s jest nieaktywna (użyj -e lub -o, aby ją włączyć)."
+msgstr "wtyczka %s jest nieaktywna (użycie -e lub -o, aby ją włączyć)."
 
 #: sosreport:492
 msgid "plugin %s not specified in --only-plugins list"
@@ -101,7 +102,7 @@ msgstr "przetwarzanie opcji wtyczki: %s"
 
 #: sosreport:579
 msgid "no valid plugins found"
-msgstr "nie znaleziono prawidłowych wtyczek"
+msgstr "nie odnaleziono prawidłowych wtyczek"
 
 #: sosreport:584
 msgid "The following plugins are currently enabled:"
@@ -147,9 +148,9 @@ msgstr ""
 "To narzędzie zbiera niektóre szczegółowe informacje o sprzęcie\n"
 "i ustawieniach systemu Red Hat Enterprise Linux. Informacje są\n"
 "zbierane i archiwizowane w formie pakietu w /tmp, który można\n"
-"wysłać reprezentantowi wsparcia technicznego. Red Hat użyje\n"
-"tych informacji TYLKO do celów diagnostycznych i zachowa je\n"
-"jako informacje poufne.\n"
+"wysłać reprezentantowi wsparcia technicznego. Firma Red Hat\n"
+"użyje tych informacji TYLKO do celów diagnostycznych i zachowa\n"
+"je jako informacje poufne.\n"
 "\n"
 "Ten proces może chwilę zająć.\n"
 "Żadne zmiany nie będą wprowadzane do systemu.\n"
@@ -157,7 +158,8 @@ msgstr ""
 
 #: sosreport:652
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Naciśnij ENTER, aby kontynuować lub CTRL-C, aby zakończyć.\n"
+msgstr ""
+"Należy nacisnąć przycisk Enter, aby kontynuować lub Ctrl-C, aby zakończyć.\n"
 
 #: sosreport:668
 msgid "One or more plugins have detected a problem in your configuration."
@@ -165,11 +167,11 @@ msgstr "Jedna lub więcej wtyczek wykryły problem w konfiguracji."
 
 #: sosreport:669
 msgid "Please review the following messages:"
-msgstr "Przejrzyj poniższe komunikaty:"
+msgstr "Proszę przejrzęć poniższe komunikaty:"
 
 #: sosreport:685
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Czy na pewno chcesz kontynuować (t/n)? "
+msgstr "Na pewno kontynuować (t/n)? "
 
 #: sosreport:686
 msgid "Y"
