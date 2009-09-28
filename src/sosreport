@@ -470,9 +470,12 @@ def sosreport():
     # disable plugins that we read from conf files
     conf_disable_plugins_list = []
     if config.has_section("plugins"):
-        conf_disable_plugins = config.get("plugins", "disable").split(',')
-        for item in conf_disable_plugins:
-            conf_disable_plugins_list.append(item.strip())
+        try:
+            conf_disable_plugins = config.get("plugins", "disable").split(',')
+            for item in conf_disable_plugins:
+                conf_disable_plugins_list.append(item.strip())
+        except ConfigParser.NoOptionError:
+            conf_disable_plugins = None
 
     # generate list of available plugins
     plugins = os.listdir(pluginpath)
