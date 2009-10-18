@@ -3,13 +3,13 @@
 # Copyright © 2009 Free Software Foundation, Inc.
 # Göran Uddeborg <goeran@uddeborg.se>, 2009.
 #
-# $Revision: 1.2 $
+# $Revision: 1.4 $
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
 "POT-Creation-Date: 2008-12-19 06:40\n"
-"PO-Revision-Date: 2009-08-30 10:41+0200\n"
+"PO-Revision-Date: 2009-10-18 17:19+0200\n"
 "Last-Translator: Göran Uddeborg <goeran@uddeborg.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: lib/sos/policyredhat.py:203
 msgid "Please enter your first initial and last name [%s]: "
-msgstr "Ange initalen till ditt förnamn och ditt efternam [%s]: "
+msgstr "Ange din förnamnsinitial och ditt efternam [%s]: "
 
 #: lib/sos/policyredhat.py:206
 msgid "Please enter the case number that you are generating this report for: "
@@ -28,7 +28,7 @@ msgstr "Ange ärendenumret som du genererar denna rapport för: "
 
 #: lib/sos/policyredhat.py:231
 msgid "Creating compressed archive..."
-msgstr "Skapar komprimerade arkiv ..."
+msgstr "Skapar komprimerat arkiv ..."
 
 #: lib/sos/policyredhat.py:253
 msgid "Encrypting archive..."
@@ -148,8 +148,8 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"Detta verktyg kommer samla en del detaljerad information om hårdvaran\n"
-"och inställningarna hos dit Red Hat Enterprise Linux-system.\n"
+"Detta verktyg kommer att samla en del detaljerad information om\n"
+"hårdvaran och inställningarna hos dit Red Hat Enterprise Linux-system.\n"
 "Informationen samlas och ett akriv paketeras under /tmp, som du kan\n"
 "skicka till en servicerepresentant.  Red Hat kommer använda denna\n"
 "information ENDAST för diagnostiksyften och det betraktas som\n"
@@ -165,7 +165,8 @@ msgstr "Tryck RETUR för att fortsätta, eller CTRL-C för att avbryta.\n"
 
 #: sosreport:668
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "En eller flera insticksmoduler har upptäckt problem i din konfiguration."
+msgstr ""
+"En eller flera insticksmoduler har upptäckt problem i din konfiguration."
 
 #: sosreport:669
 msgid "Please review the following messages:"
