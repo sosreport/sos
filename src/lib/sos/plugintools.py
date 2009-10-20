@@ -29,11 +29,11 @@
 This is the base class for sosreport plugins
 """
 from sos.helpers import *
-from threading import Thread, activeCount
 import os, os.path, sys, string, glob, re, traceback
 import shutil
 from stat import *
 from time import time
+from multiprocessing import Process
 
 class PluginException(Exception): pass
 
@@ -426,7 +426,7 @@ class PluginBase:
         """
         if threaded, is thread running ?
         """
-        if self.thread: return self.thread.isAlive()
+        if self.thread: return self.thread.is_alive()
         return None
         
     def wait(self,timeout=None):
@@ -434,14 +434,14 @@ class PluginBase:
         wait for a thread to complete - only called for threaded execution
         """
         self.thread.join(timeout)
-        return self.thread.isAlive()
+        return self.thread.is_alive()
 
     def copyStuff(self, threaded = False, semaphore = None):
         """
         Collect the data for a plugin
         """
         if threaded and self.thread == None:
-            self.thread = Thread(target=self.copyStuff, name=self.piName+'-thread', args = [True, semaphore] )
+            self.thread = Process(target=self.copyStuff, name=self.piName+'-thread', args = [True, semaphore] )
             self.thread.start()
             return self.thread
 

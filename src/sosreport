@@ -31,61 +31,27 @@ from optparse import OptionParser, Option
 import ConfigParser
 import sos.policyredhat
 from sos.helpers import *
-from threading import Thread, activeCount
 import signal
 from stat import *
 from time import strftime, localtime, time
 from pwd import getpwuid
 import gettext
-from threading import Semaphore
+from multiprocessing import Semaphore
 
 __version__ = 1.8
-
-__breakHits__ = 0  # Use this to track how many times we enter the exit routine
 
 ## Set up routines to be linked to signals for termination handling
 def exittermhandler(signum, frame):
     doExitCode()
 
 def doExitCode():
-    from threading import enumerate
-    global __breakHits__, loadedplugins, dstroot
+    global loadedplugins, dstroot
 
-    __breakHits__ += 1
-    if ( ( activeCount() > 1 ) and ( __breakHits__ == 1 ) ):
-        print "SIGTERM received, multiple threads detected, waiting " \
-              "for all threads to exit"
+    for plugname, plug in loadedplugins:
+        plug.exit_please()
 
-        for plugname, plug in loadedplugins:
-            plug.exit_please()
-
-        for thread in enumerate():
-            if thread.getName() == "MainThread":
-                continue
-            # until we find a way to kill threads in
-            # case of > 1 CTRL+C, ignore KeyboardInterrupt
-            while thread.isAlive():
-                try:
-                    thread.join()
-                except KeyboardInterrupt:
-                    doExitCode()
-        else:
-            print "All threads ended, cleaning up."
-            doExit(1)
-
-    if  ( ( activeCount() > 1 ) and ( __breakHits__ > 1 ) ):
-        print "Multiple SIGTERMs, multiple threads, attempting to " \
-              "signal threads to die immediately."
-        ## FIXME: Add thread-kill code (see FIXME below)
-        return
-    elif ( ( activeCount() > 1 ) and ( __breakHits__ > 2 ) ):
-        print "Multiple SIGTERMs, multiple threads, process suicides."
-        os.kill(os.getpid(), signal.SIGKILL)
-    elif ( ( activeCount() == 1 ) and ( __breakHits__ > 2 ) ):
-        print "Multiple SIGTERMs, single thread, exiting without cleaning up."
-        doExit(3)
-
-    doExit("Abnormal exit")
+    print "All processes ended, cleaning up."
+    doExit(1)
 
 def doExit(error=0):
     global policy
@@ -583,7 +549,8 @@ def sosreport():
         for plugname in opts.keys():
             soslog.error('unable to set option for disabled or non-existing ' \
                          'plugin (%s)' % (plugname))
-            doExit(1)
+            # Do not want to exit on invalid opts due to a misconfiguration in sos.conf
+            # doExit(1)
         del opt,opts,val
 
     # error if the user references a plugin which does not exist

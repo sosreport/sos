@@ -18,13 +18,14 @@ import commands
 class selinux(sos.plugintools.PluginBase):
     """selinux related information
     """
+    optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
     def setup(self):
         # sestatus is always collected in checkenabled()
         self.addCopySpec("/etc/selinux")
         self.collectExtOutput("/usr/bin/selinuxconfig")
-        self.eta_weight += 120 # this plugins takes 120x longer (for ETA)
-        self.collectExtOutput("/sbin/fixfiles check")
-
+        self.eta_weight += 240 # this plugins takes 240x longer (for ETA)
+        if self.getOption('fixfiles'):
+            self.collectExtOutput("/sbin/fixfiles check")
         self.addForbiddenPath("/etc/selinux/targeted")
 
         return
