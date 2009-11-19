@@ -53,6 +53,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Tue Nov 19 2009 Adam Stokes <ajs at redhat dot com> = 1.8-19
+- Always treat symlinks as hardlinks within sos root
+- More plugin enhancements
+
 * Tue Nov 5 2009 Adam Stokes <ajs at redhat dot com> = 1.8-18
 - Option to enable selinux fixfiles check
 - Start of replacing Thread module with multiprocessing
