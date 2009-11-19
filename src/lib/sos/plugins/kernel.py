@@ -40,10 +40,6 @@ class kernel(sos.plugintools.PluginBase):
         {'regex':'ati-', 'description':'ATI module'}
         ]
 
-        # HP
-        #
-        #
-
     def setup(self):
         self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
         self.moduleFile = self.collectOutputNow("/sbin/lsmod", root_symlink = "lsmod")
@@ -69,6 +65,7 @@ class kernel(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/sbin/dkms status")
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/proc/driver")
+        self.addCopySpec("/proc/zoneinfo")
         self.addCopySpec("/proc/sys/kernel/tainted")
 
         return

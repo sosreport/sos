@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 18%{?dist}
+Release: 19%{?dist}
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -53,9 +53,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
-* Tue Oct 20 2009 Adam Stokes <ajs at redhat dot com> = 1.8-18
+* Tue Nov 5 2009 Adam Stokes <ajs at redhat dot com> = 1.8-18
 - Option to enable selinux fixfiles check
 - Start of replacing Thread module with multiprocessing
+- Update translations
+- More checks against conf file versus command line opts
 
 * Tue Sep 9 2009 Adam Stokes <ajs at redhat dot com> = 1.8-16
 - Update rh-upload-core to rh-upload and allows general files

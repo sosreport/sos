@@ -162,7 +162,13 @@ class cluster(sos.plugintools.PluginBase):
 
         # check for fs exported via nfs without nfsid attribute
         if len(xpathContext.xpathEval("/cluster/rm/service//fs[not(@fsid)]/nfsexport")):
-           self.addDiagnose("one or more nfs export do not have a fsid attribute set.")
+            for xmlNode in xpathContext.xpathEval("/cluster/rm/service//fs[not(@fsid)]"):
+                fsRefAttribute = xmlNode.xpathEval("@ref")
+                if (len(fsRefAttribute) > 0) :
+                    fsRefName = fsRefAttribute[0].content
+                    if len(xpathContext.xpathEval("cluster/rm/resources/fs[@name='%s'][not(@fsid)]" % fsRefName)):
+                        self.addDiagnose("one or more nfs export do not have a fsid attribute set.")
+                        break
 
         # cluster.conf file version and the in-memory cluster configuration version matches
         status, cluster_version = commands.getstatusoutput("cman_tool status | grep 'Config version'")
@@ -280,3 +286,4 @@ class cluster(sos.plugintools.PluginBase):
             if line.split()[-1] != 'none':
                 self.addDiagnose("Possible incorrect state: %s, for group: %s" % (line.split()[-1], line))
         return
+

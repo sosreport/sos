@@ -145,7 +145,7 @@ class PluginBase:
             if os.path.isdir(srcpath):
                 return
 
-            link = os.readlink(srcpath)
+            link = os.path.abspath(os.readlink(srcpath))
 
             # What's the name of the symlink on the dest tree?
             dstslname = os.path.join(self.cInfo['dstroot'], srcpath.lstrip(os.path.sep))

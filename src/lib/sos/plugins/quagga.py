@@ -1,3 +1,5 @@
+## Copyright (C) 2007 Ranjith Rajaram <rrajaram@redhat.com>
+
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -13,15 +15,16 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+from os.path import exists
 
-class auditd(sos.plugintools.PluginBase):
-    """Auditd related information
+class quagga(sos.plugintools.PluginBase):
+    """quagga related information
     """
-
-    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15)]
+    def checkenabled(self):
+        if self.cInfo["policy"].pkgByName("quagga") or exists("/etc/quagga/zebra.conf"):
+            return True
+        return False
 
     def setup(self):
-        self.addCopySpec("/etc/audit/auditd.conf")
-        self.addCopySpec("/etc/audit/audit.rules")
-        self.addCopySpecLimit("/var/log/audit*", sizelimit = self.getOption("syslogsize"))
+        self.addCopySpec("/etc/quagga/")
         return

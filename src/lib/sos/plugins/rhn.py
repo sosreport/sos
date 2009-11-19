@@ -37,11 +37,6 @@ class rhn(sos.plugintools.PluginBase):
         return False
 
     def setup(self):
-        # made from:
-        # http://svn.rhndev.redhat.com/viewcvs/branches/eng/RELEASE-5.0.5-dev/backend/satellite_tools/satellite-debug?rev=114478&view=markup
-        # http://cvs.devel.redhat.com/cgi-bin/cvsweb.cgi/rhn/proxy/proxy/tools/rhn-proxy-debug?rev=1.3;content-type=text%2Fplain;cvsroot=RHN
-        # FIXME: symlinks and directories for copySpec (same as root_symlink for commands)
-
         self.addCopySpec("/etc/httpd/conf*")
         self.addCopySpec("/etc/rhn")
         self.addCopySpec("/etc/sysconfig/rhn")

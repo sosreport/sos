@@ -21,6 +21,7 @@ class devicemapper(sos.plugintools.PluginBase):
     """
 
     optionList = [("lvmdump", 'collect raw metadata from PVs', 'slow', False)]
+    dmraidOptions = ['V','b','r','s','tay','rD']
 
     def do_lvmdump(self):
         """Collects raw metadata directly from the PVs using dd
@@ -58,5 +59,7 @@ class devicemapper(sos.plugintools.PluginBase):
               if disk in [ ".",  ".." ] or disk.startswith("ram"):
                  continue
               self.collectExtOutput("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
+        for opt in self.dmraidOptions:
+            self.collectExtOutput("/sbin/dmraid -%s" % (opt,))
 
         return

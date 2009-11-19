@@ -39,6 +39,10 @@ import gettext
 from multiprocessing import Semaphore
 
 __version__ = 1.8
+if os.path.isfile('/etc/fedora-release'):
+    __distro__ = 'Fedora'
+else:
+    __distro__ = 'Red Hat Enterprise Linux'
 
 ## Set up routines to be linked to signals for termination handling
 def exittermhandler(signum, frame):
@@ -640,16 +644,16 @@ def sosreport():
         doExit(1)
 
     msg = _("""This utility will collect some detailed  information about the
-hardware and  setup of your Fedora system.
+hardware and setup of your %s system.
 The information is collected and an archive is  packaged under
 /tmp, which you can send to a support representative.
-Fedora will use this information for diagnostic purposes ONLY
+%s will use this information for diagnostic purposes ONLY
 and it will be considered confidential information.
 
 This process may take a while to complete.
 No changes will be made to your system.
 
-""")
+""" % (__distro__, __distro__))
     if __cmdLineOpts__.batch:
         print msg
     else:

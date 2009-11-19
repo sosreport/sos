@@ -57,11 +57,14 @@ class networking(sos.plugintools.PluginBase):
         self.collectIPTable("nat")
         self.collectIPTable("mangle")
         self.collectExtOutput("/bin/netstat -s")
+        self.collectExtOutput("/bin/netstat -agn")
         self.collectExtOutput("/bin/netstat -neopa", root_symlink = "netstat")
         self.collectExtOutput("/sbin/ip route show table all")
         self.collectExtOutput("/sbin/ip link")
         self.collectExtOutput("/sbin/ip address")
         self.collectExtOutput("/sbin/ifenslave -a")
+        self.collectExtOutput("/sbin/ip mroute show")
+        self.collectExtOutput("/sbin/ip maddr show")
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)

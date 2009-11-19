@@ -18,6 +18,9 @@ import os
 class pxe(sos.plugintools.PluginBase):
     """PXE related information
     """
+
+    optionList = [("tftpboot", 'gathers content in /tftpboot', 'slow', False)]
+
     def checkenabled(self):
         if self.cInfo["policy"].pkgByName("system-config-netboot-cmd") or os.path.exists("/usr/sbin/pxeos"):
             return True
@@ -25,6 +28,7 @@ class pxe(sos.plugintools.PluginBase):
         
     def setup(self):
         self.collectExtOutput("/usr/sbin/pxeos -l")
-        self.addCopySpec("/tftpboot")
         self.addCopySpec("/etc/dhcpd.conf")
+        if self.getOption("tftpboot"):
+            self.addCopySpec("/tftpboot")
         return

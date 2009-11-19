@@ -14,12 +14,14 @@
 
 import sos.plugintools
 import os
+import commands
 
 class yum(sos.plugintools.PluginBase):
     """yum information
     """
 
     optionList = [("yumlist", "list repositories and packages", "slow", False)]
+    optionList = [("yumdebug", "gather yum debugging data", "slow", False)]
 
     def checkenabled(self):
         self.files = [ "/etc/yum.conf" ]
@@ -47,5 +49,12 @@ class yum(sos.plugintools.PluginBase):
             self.collectExtOutput("/bin/echo \"repo list\" | /usr/bin/yum shell")
             # List various information about available packages
             self.collectExtOutput("/usr/bin/yum list")
-      
+
+        if self.getOption("yumdebug") and self.isInstalled('yum-utils'):
+            for output in commands.getoutput("/usr/bin/yum-debug-dump").split("\n"):
+                if "Output written to:" in output:
+                    try:
+                        self.collectExtOutput("/bin/zcat %s" % (output.split()[-1:][0],))
+                    except IndexError:
+                        pass
         return

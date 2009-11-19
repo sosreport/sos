@@ -21,6 +21,7 @@ class system(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/sys")
         self.addCopySpec("/etc/sysctl.conf")
         self.addCopySpec("/etc/cron*")
+        self.addCopySpec("/var/spool/cron*")
         self.addCopySpec("/var/log/cron*")
         self.addCopySpec("/etc/syslog.conf")
         self.addCopySpec("/etc/ntp.conf")
