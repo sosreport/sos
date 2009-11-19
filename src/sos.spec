@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 19%{?dist}
+Release: 20%{?dist}
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -53,8 +53,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
-* Tue Nov 19 2009 Adam Stokes <ajs at redhat dot com> = 1.8-19
-- Always treat symlinks as hardlinks within sos root
+* Tue Nov 19 2009 Adam Stokes <ajs at redhat dot com> = 1.8-20
+- dont copy unwanted files due to symlinks
 - More plugin enhancements
 
 * Tue Nov 5 2009 Adam Stokes <ajs at redhat dot com> = 1.8-18

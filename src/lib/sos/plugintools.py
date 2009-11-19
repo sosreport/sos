@@ -138,68 +138,40 @@ class PluginBase:
             self.soslog.debug("file or directory %s does not exist" % srcpath)
             return
 
-        if os.path.islink(srcpath):
-            # This is a symlink - We need to also copy the file that it points to
-
-            # FIXME: ignore directories for now
-            if os.path.isdir(srcpath):
-                return
-
-            link = os.path.abspath(os.readlink(srcpath))
-
+        try:
             # What's the name of the symlink on the dest tree?
             dstslname = os.path.join(self.cInfo['dstroot'], srcpath.lstrip(os.path.sep))
-
-            if os.path.isabs(link):
-                # the link was an absolute path, and will not point to the new
-                # tree. We must adjust it.
-                rpth = sosRelPath(os.path.dirname(dstslname), os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep)))
-            else:
-                # no adjustment, symlink is the relative path
-                rpth = link
-
-            # make sure the link doesn't already exists
-            if os.path.exists(dstslname):
-                self.soslog.log(logging.DEBUG, "skipping symlink creation: already exists (%s)" % dstslname)
-                return
-
             # make sure the dst dir exists
             if not (os.path.exists(os.path.dirname(dstslname)) and os.path.isdir(os.path.dirname(dstslname))):
                 os.makedirs(os.path.dirname(dstslname))
-
-            self.soslog.log(logging.VERBOSE3, "creating symlink %s -> %s" % (dstslname, rpth))
-            os.symlink(rpth, dstslname)
-            self.copiedFiles.append({'srcpath':srcpath, 'dstpath':rpth, 'symlink':"yes", 'pointsto':link})
-            self.doCopyFileOrDir(link)
-            return
-
-        else: # not a symlink
-            if os.path.isdir(srcpath):
-                for afile in os.listdir(srcpath):
-                    if afile == '.' or afile == '..':
-                        pass
-                    else:
-                        self.doCopyFileOrDir(srcpath+'/'+afile)
-                return
-
-        # if we get here, it's definitely a regular file (not a symlink or dir)
-
-        self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
-        try:
-            tdstpath, abspath = self.__copyFile(srcpath)
-        except PluginException, e:
-            self.soslog.log(logging.DEBUG, "%s:  %s" % (srcpath,e))
-            return
-        except IOError:
-            self.soslog.log(logging.VERBOSE2, "error copying file %s (IOError)" % (srcpath))
-            return 
-        except:
-            self.soslog.log(logging.VERBOSE2, "error copying file %s (SOMETHING HAPPENED)" % (srcpath))
-            return 
-
-        self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
-
-        return abspath
+            if symlinks and os.path.islink(srcpath):
+                link = os.readlink(srcpath)
+                os.symlink(link, dstslname)
+                rpth = sosRelPath(os.path.dirname(dstslname), os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep)))
+                self.copiedFiles.append({'srcpath':srcpath, 'dstpath':rpth, 'symlink':"yes", 'pointsto':link})
+            elif os.path.isdir(srcpath):
+                shutil.copytree(srcpath, dstslname, symlinks)
+            else:
+                # if we get here, it's definitely a regular file (not a symlink or dir)
+                self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
+                try:
+                    tdstpath, abspath = self.__copyFile(srcpath)
+                except "AlreadyExists":
+                    self.soslog.log(logging.DEBUG, "error copying file %s (already exists)" % (srcpath))
+                    return
+                except IOError:
+                    self.soslog.log(logging.VERBOSE2, "error copying file %s (IOError)" % (srcpath))
+                    return 
+                except:
+                    self.soslog.log(logging.VERBOSE2, "error copying file %s (SOMETHING HAPPENED)" % (srcpath))
+                    return 
+                self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
+        except (IOError, os.error), why:
+                self.soslog.log(logging.DEBUG, "skipping symlink creation: (%s)" % (why,))
+        except shutil.Error, err:
+                self.soslog.log(logging.DEBUG, "error copying file %s (shutil.Error)" % (srcpath,))
+ 
+        return
 
     def __copyFile(self, src):
         """ call cp to copy a file, collect return status and output. Returns the
