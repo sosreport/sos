@@ -119,7 +119,7 @@ class PluginBase:
             return []
 
     # Methods for copying files and shelling out
-    def doCopyFileOrDir(self, srcpath):
+    def doCopyFileOrDir(self, srcpath, symlinks=True):
         # pylint: disable-msg = R0912
         # pylint: disable-msg = R0915
         ''' Copy file or directory to the destination tree. If a directory, then everything
@@ -147,7 +147,10 @@ class PluginBase:
             if symlinks and os.path.islink(srcpath):
                 link = os.readlink(srcpath)
                 os.symlink(link, dstslname)
-                rpth = sosRelPath(os.path.dirname(dstslname), os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep)))
+                if os.path.isabs(srcpath):
+                    rpth = sosRelPath(os.path.dirname(dstslname), os.path.join(self.cInfo['dstroot'], link.lstrip(os.path.sep)))
+                else:
+                    rpth = link
                 self.copiedFiles.append({'srcpath':srcpath, 'dstpath':rpth, 'symlink':"yes", 'pointsto':link})
             elif os.path.isdir(srcpath):
                 shutil.copytree(srcpath, dstslname, symlinks)
