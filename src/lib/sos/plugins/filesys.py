@@ -15,6 +15,7 @@
 import sos.plugintools
 import os
 import re
+import commands
 
 class filesys(sos.plugintools.PluginBase):
     """information on filesystems
