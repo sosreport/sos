@@ -20,6 +20,10 @@ from os.path import exists
 class nscd(sos.plugintools.PluginBase):
     """NSCD related information
     """
+
+    optionList = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
+                   "", 50)]
+
     def checkenabled(self):
          if self.cInfo["policy"].pkgByName("nscd") or exists("/etc/nscd.conf"):
              return True
@@ -27,5 +31,13 @@ class nscd(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/nscd.conf")
+
+        opt = self.fileGrep(r"^\s*logfile", "/etc/nscd.conf")
+        if (len(opt) > 0):
+            for o in opt:
+                f = o.split()
+                self.addCopySpecLimit(f[1],
+                    sizelimit = self.isOptionEnabled("nscdlogsize"))
+
         return
 

@@ -202,6 +202,16 @@ class cluster(sos.plugintools.PluginBase):
         
         # Test fence groups for valid id and state
         self.test_fence_id()
+        
+        # Check for existence of weak-updates in gfs2 prior to 2.6.18-128
+        if rhelver == 5:
+            vermagic = commands.getoutput("modinfo -F vermagic gfs2")
+            # just kernel release from vermagic line
+            vermagic = vermagic.split()[0].lstrip('2.6.18-')
+            vermagic = vermagic[:vermagic.find('.')]
+            if int(vermagic) < 128:
+                self.addDiagnose('GFS2 is being used via weak-updates, kmod-gfs2 should be uninstalled and system reboot' \
+                                 'to allow for kernel provided gfs2 module to be used.')
 
     def setup(self):
         self.collectExtOutput("/sbin/fdisk -l")

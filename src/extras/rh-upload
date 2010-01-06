@@ -1,20 +1,20 @@
 #!/bin/bash
 
 #################################################################################
-#										#
+#										                                        #
 # rh-upload                                                                     # 
-# Version - 0.3									#
-# Copyright (c) 2007 Red Hat, Inc. All rights reserved.				#
-#										#
-#										#
-# Written by David Mair								#
+# Version - 0.3									                                #
+# Copyright (c) 2007 Red Hat, Inc. All rights reserved.			            	#
+#										                                        #
+#										                                        #
+# Written by David Mair								                            #
 # Cleanup and generalized for any kind of file by Olivier Arsac                 #
-# Idea stolen from Chris Snook :-)						#
-#										#
+# Idea stolen from Chris Snook :-)						                        #
+#										                                        #
 # Purpose - To help in the automatic upload of files.	                        #
-# Specifically, this script will compress, encrypt, md5sum,			#
-# and upload the file automatically when invoked.				#
-# Items are optional and specified by command line switch.			#
+# Specifically, this script will compress, encrypt, md5sum,			            #
+# and upload the file automatically when invoked.				                #
+# Items are optional and specified by command line switch.			            #
 # ###############################################################################
 
 

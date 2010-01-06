@@ -26,7 +26,7 @@ class sar(sos.plugintools.PluginBase):
             if fname[0:2] == 'sa' and fname[2:3] != 'r':
                 sar_filename = 'sar' + fname[2:4]
                 if sar_filename not in dirList:
-                    sar_command = "/usr/bin/sar -A -f /var/log/sa/" + fname
+                    sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar -A -f /var/log/sa/" + fname + "\""
                     self.collectOutputNow(sar_command, sar_filename, root_symlink=sar_filename)
         return
 
