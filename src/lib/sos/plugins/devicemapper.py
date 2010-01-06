@@ -39,8 +39,9 @@ class devicemapper(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/sbin/lvs -a -o +devices")
         self.collectExtOutput("/usr/sbin/pvs -a -v")
         self.collectExtOutput("/usr/sbin/vgs -v")
+        self.collectExtOutput("/sbin/mdadm -D /dev/md*")
 
-        self.addCopySpec("/etc/lvm/lvm.conf")
+        self.addCopySpec("/etc/lvm")
 
         self.addCopySpec("/etc/multipath.conf")
         self.addCopySpec("/var/lib/multipath/bindings")

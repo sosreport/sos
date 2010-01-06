@@ -67,6 +67,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/driver")
         self.addCopySpec("/proc/zoneinfo")
         self.addCopySpec("/proc/sys/kernel/tainted")
+        self.addCopySpec("/proc/buddyinfo")
 
         return
 
