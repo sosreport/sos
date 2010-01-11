@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.8
-Release: 20%{?dist}
+Release: 21%{?dist}
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -53,6 +53,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
+* Mon Jan 11 2010 Adam Stokes <ajs at redhat dot com> = 1.8-21
+- more sanitizing options for log files
+- rhbz fixes from RHEL version merged into trunk
+
 * Tue Nov 19 2009 Adam Stokes <ajs at redhat dot com> = 1.8-20
 - dont copy unwanted files due to symlinks
 - More plugin enhancements
