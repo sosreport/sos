@@ -15,13 +15,18 @@
 import os
 import sos.plugintools
 import glob
+import commands
 
 class general(sos.plugintools.PluginBase):
     """basic system information
     """
 
     optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
-                  ("all_logs", "collect all log files defined in syslog.conf", "", False)]
+                  ("all_logs", "collect all log files defined in syslog.conf", "", False)
+                  ("sanitize", "scrub hostname/ip's from log files", "", False)]
+                  
+    rhelver = self.policy().rhelVersion()
+    hostname = commands.getoutput("/bin/hostname")
 
     def setup(self):
         self.addCopySpec("/etc/redhat-release")
@@ -45,14 +50,24 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
 
         if self.getOption('all_logs'):
-           logs=self.doRegexFindAll(r"^\S+\s+(\S+)", "/etc/syslog.conf")
-           for i in logs:
-              i = i.lstrip("-")
-              if not os.path.isfile(i): continue
-              self.addCopySpec(i)
+            if self.rhelver == 5 or self.rhelver == 4:
+                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/syslog.conf")
+            for i in logs:
+                if not os.path.isfile(i): continue
+                self.addCopySpec(i)
 
         return
 
     def postproc(self):
         self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
+        
+        # sanitize ip's, hostnames in logs
+        if self.getOption('sanitize'):
+            if self.rhelver == 5 or self.rhelver == 4:
+                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/syslog.conf")
+            else:
+                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/rsyslog.conf")
+            for log in logs:
+                self.doRegexSub(log, r"(\s*%s)\S+" % (self.hostname,), r"\1sanitized-hostname")
+                self.doRegexSub(log, r"([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\})", r"\1sanitized-ip")
         return
