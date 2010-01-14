@@ -22,10 +22,7 @@ class general(sos.plugintools.PluginBase):
     """
 
     optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
-                  ("all_logs", "collect all log files defined in syslog.conf", "", False),
-                  ("sanitize", "scrub hostname/ip's from log files", "", False)]
-                  
-    hostname = commands.getoutput("/bin/hostname")
+                  ("all_logs", "collect all log files defined in syslog.conf", "", False)]
 
     def setup(self):
         self.addCopySpec("/etc/redhat-release")
@@ -55,20 +52,8 @@ class general(sos.plugintools.PluginBase):
                 for i in logs:
                     if not os.path.isfile(i): continue
                     self.addCopySpec(i)
-
         return
 
     def postproc(self):
         self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
-        
-        # sanitize ip's, hostnames in logs
-        if self.getOption('sanitize'):
-            rhelver = self.policy().rhelVersion()
-            if rhelver == 5 or rhelver == 4:
-                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/syslog.conf")
-            else:
-                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/rsyslog.conf")
-            for log in logs:
-                self.doRegexSub(log, r"\s+(%s.*)" % (self.hostname,), r"\1sanitized-hostname")
-                self.doRegexSub(log, r"([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", r"\1sanitized-ip")
         return
