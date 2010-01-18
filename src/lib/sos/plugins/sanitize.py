@@ -15,20 +15,26 @@
 import os
 import sos.plugintools
 import glob
+import socket
 
 class sanitize(sos.plugintools.PluginBase):
     """ sanitize plugin
     """
     def defaultenabled(self):
         return False
-    
+
     def setup(self):
         # sanitize ip's, hostnames in logs
+        hostname = socket.gethostname()
         rhelver = self.policy().rhelVersion()
         if rhelver == 5 or rhelver == 4:
             logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/syslog.conf")
         else:
             logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/rsyslog.conf")
         for log in logs:
-            self.doRegexSub(log, r"\s+(%s.*)" % (self.hostname,), r"\1sanitized-hostname")
-            self.doRegexSub(log, r"([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", r"\1sanitized-ip")
+            self.addCopySpec(log)
+
+    def postproc(self):
+        self.doRegexSub('/var/log/messages', r"^\s+(%s)" % (hostname,), r"\1sanitized-hostname")
+        self.doRegexSub('/var/log/messages', r"([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", r"\1sanitized-ip")
+

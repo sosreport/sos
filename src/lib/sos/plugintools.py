@@ -52,7 +52,7 @@ class PluginBase:
         self.alerts = []
         self.customText = ""
         self.optNames = []
-        self.optParms = [] 
+        self.optParms = []
         self.piName = pluginname
         self.cInfo = commons
         self.forbiddenPaths = []
@@ -109,7 +109,7 @@ class PluginBase:
                         self.soslog.log(logging.VERBOSE, "problem at path %s (%s)" % (abspath,e))
                         break
         return False
-    
+
     def doRegexFindAll(self, regex, fname):
         ''' Return a list of all non overlapping matches in the string(s)
         '''
@@ -164,16 +164,16 @@ class PluginBase:
                     return
                 except IOError:
                     self.soslog.log(logging.VERBOSE2, "error copying file %s (IOError)" % (srcpath))
-                    return 
+                    return
                 except:
                     self.soslog.log(logging.VERBOSE2, "error copying file %s (SOMETHING HAPPENED)" % (srcpath))
-                    return 
+                    return
                 self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
         except (IOError, os.error), why:
                 self.soslog.log(logging.DEBUG, "skipping symlink creation: (%s)" % (why,))
         except shutil.Error, err:
                 self.soslog.log(logging.DEBUG, "error copying file %s (shutil.Error)" % (srcpath,))
- 
+
         return
 
     def __copyFile(self, src):
@@ -207,13 +207,13 @@ class PluginBase:
        # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(forbiddenPath):
             self.forbiddenPaths.append(filespec)
-    
+
     def getAllOptions(self):
         """
         return a list of all options selected
         """
         return (self.optNames, self.optParms)
-  
+
     def setOption(self, optionname, value):
         ''' set the named option to value.
         '''
@@ -374,7 +374,7 @@ class PluginBase:
         """
         self.diagnose_msgs.append(alertstring)
         return
-        
+
     # For adding output
     def addAlert(self, alertstring):
         """ Add an alert to the collection of alerts for this plugin. These
@@ -403,7 +403,7 @@ class PluginBase:
         """
         if self.thread: return self.thread.is_alive()
         return None
-        
+
     def wait(self,timeout=None):
         """
         wait for a thread to complete - only called for threaded execution
@@ -498,7 +498,7 @@ class PluginBase:
         """This devices whether a plugin should be automatically loaded or
         only if manually specified in the command line."""
         return True
-    
+
     def collect(self):
         """ This function has been replaced with setup().  Please change your
         module calls.  Calling setup() now.
@@ -528,7 +528,7 @@ class PluginBase:
         perform any postprocessing. To be replaced by a plugin if desired
         """
         pass
-    
+
     def report(self):
         """ Present all information that was gathered in an html file that allows browsing
         the results.
@@ -584,3 +584,4 @@ class PluginBase:
             html = html + self.customText + "</p>\n"
 
         return html
+
