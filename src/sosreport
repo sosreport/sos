@@ -37,6 +37,7 @@ from time import strftime, localtime, time
 from pwd import getpwuid
 import gettext
 from multiprocessing import Semaphore
+from sos.progressbar import ProgressBar, Bar, ETA, Percentage
 
 __version__ = 1.8
 if os.path.isfile('/etc/fedora-release'):
@@ -189,84 +190,6 @@ def textcolor(text, fg, raw=0):
     clear = opencol + "0" + closecol
     f = opencol + colors[fg] + closecol
     return "%s%s%s" % (f, text, clear)
-
-class progressBar:
-    def __init__(self, minValue = 0, maxValue = 10, totalWidth=40):
-        self.progBar = "[]"   # This holds the progress bar string
-        self.min = minValue
-        self.max = maxValue
-        self.width = totalWidth
-        self.amount = 0       # When amount == max, we are 100% done
-        self.time_start = time()
-        self.eta = 0
-        self.last_amount_update = time()
-        self.update()
-
-    def updateAmount(self, newAmount = 0, finished = False):
-        if newAmount < self.min:
-            newAmount = self.min
-        if newAmount > self.max:
-            newAmount = self.max - 1
-        if self.amount != newAmount:
-            self.last_amount_update = time()
-            self.amount = newAmount
-            last_update_relative = round(self.last_amount_update - self.time_start)
-            self.eta = round(last_update_relative * self.max / self.amount)
-
-        # generate ETA
-        timeElapsed = round(time() - self.time_start)
-        last_update_relative = round(self.last_amount_update - self.time_start)
-        if timeElapsed >= 10 and self.amount > 0:
-            try:
-                percentDone = round(timeElapsed * 100 / self.eta)
-            except:
-                percentDone = 0
-            if percentDone >= 100 and not finished:
-                percentDone = 99
-            if percentDone > 100:
-                percentDone = 100
-                ETA = timeElapsed
-            elif self.eta < timeElapsed:
-                ETA = timeElapsed
-            else:
-                ETA = self.eta
-            ETA = "[%02d:%02d/%02d:%02d]" % (int(timeElapsed/60),
-                                             timeElapsed % 60, int(ETA/60), ETA % 60)
-        else:
-            ETA = "[%02d:%02d/--:--]" % (int(timeElapsed/60), timeElapsed % 60)
-            if self.amount < self.max:
-                percentDone = 0
-            else:
-                percentDone = 100
-
-        # Figure out how many hash bars the percentage should be
-        allFull = self.width - 2
-        numHashes = (percentDone / 100.0) * allFull
-        numHashes = int(round(numHashes))
-
-        self.progBar = ""
-        for inc in range(0,allFull):
-            if inc == int(allFull / 2):
-                self.progBar = self.progBar + textcolor("%d%%" % percentDone,
-                                                        "green")
-            elif inc < numHashes:
-                self.progBar = self.progBar + textcolor('#', "gray")
-            else:
-                self.progBar = self.progBar + ' '
-        self.progBar = " Progress [" + self.progBar + "]" + ETA
-
-    def incAmount(self, toInc = 1):
-        self.updateAmount(self.amount+toInc)
-
-    def finished(self):
-        self.updateAmount(self.max, finished = True)
-        sys.stdout.write(self.progBar + '\n')
-        sys.stdout.flush()
-
-    def update(self):
-        self.updateAmount(self.amount)
-        sys.stdout.write(self.progBar + '\r')
-        sys.stdout.flush()
 
 class XmlReport:
     def __init__(self):
@@ -436,7 +359,7 @@ def sosreport():
     print
     soslog.info ( _("sosreport (version %s)") % __version__)
     print
-    
+
     # disable plugins that we read from conf files
     conf_disable_plugins_list = []
     conf_disable_plugins = None
@@ -724,7 +647,9 @@ No changes will be made to your system.
         eta_weight = len(loadedplugins)
         for plugname, plug in loadedplugins:
             eta_weight += plug.eta_weight
-        pbar = progressBar(minValue = 0, maxValue = eta_weight)
+        widgets = ['Progress', ' ', Percentage(), ' ', 
+                   Bar(marker='=', left='[', right=']'),' ', ETA()]
+        pbar = ProgressBar(widgets=widgets, maxval = eta_weight, term_width=79).start()
         # pbar.max = number_of_plugins + weight (default 1 per plugin)
 
     if __cmdLineOpts__.nomultithread:
@@ -742,8 +667,10 @@ No changes will be made to your system.
             else:
                 plug.copyStuff()
                 if __cmdLineOpts__.progressbar:
-                    pbar.incAmount(plug.eta_weight)
-                    pbar.update()
+                    if pbar.currval >= plug.eta_weight:
+                        pbar.update(pbar.currval+1)
+                    else:
+                        pbar.update(plug.eta_weight)
         except KeyboardInterrupt:
             raise
         except:
@@ -760,13 +687,11 @@ No changes will be made to your system.
                 finishedplugins.append((plugname,plug))
                 soslog.log(logging.DEBUG, "plugin %s has returned" % plugname)
                 if __cmdLineOpts__.progressbar:
-                   pbar.incAmount(plug.eta_weight)
+                   pbar.update(pbar.currval+1)
             else:
                 soslog.log(logging.DEBUG, "plugin %s still hasn't " \
                                           "returned" % plugname)
                 loadedplugins.append((plugname,plug))
-            if __cmdLineOpts__.progressbar:
-                pbar.update()
         loadedplugins = finishedplugins
         del finishedplugins
 
@@ -788,11 +713,10 @@ No changes will be made to your system.
             # catch exceptions in analyse() and keep working
             pass
         if __cmdLineOpts__.progressbar:
-            pbar.incAmount()
-            pbar.update()
+            pbar.update(pbar.currval+1)
 
     if __cmdLineOpts__.progressbar:
-        pbar.finished()
+        pbar.finish()
         sys.stdout.write("\n")
 
     # Generate the header for the html output file
@@ -888,3 +812,4 @@ if __name__ == '__main__':
         sosreport()
     except KeyboardInterrupt:
         doExitCode()
+

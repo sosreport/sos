@@ -18,9 +18,10 @@ import glob
 import socket
 
 class sanitize(sos.plugintools.PluginBase):
-    """ sanitize plugin
+    """ sanitize specified log files, etc
     """
     def defaultenabled(self):
+        # disabled by default b/c still a work in progress
         return False
 
     def setup(self):

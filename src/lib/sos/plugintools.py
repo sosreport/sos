@@ -159,7 +159,7 @@ class PluginBase:
                 self.soslog.log(logging.VERBOSE3, "copying file %s" % srcpath)
                 try:
                     tdstpath, abspath = self.__copyFile(srcpath)
-                except "AlreadyExists":
+                except PluginException:
                     self.soslog.log(logging.DEBUG, "error copying file %s (already exists)" % (srcpath))
                     return
                 except IOError:

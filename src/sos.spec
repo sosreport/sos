@@ -56,6 +56,7 @@ rm -rf ${RPM_BUILD_ROOT}
 * Mon Jan 18 2010 Adam Stokes <ajs at redhat dot com> = 1.8-21
 - more sanitizing options for log files
 - rhbz fixes from RHEL version merged into trunk
+- progressbar update
 
 * Tue Nov 19 2009 Adam Stokes <ajs at redhat dot com> = 1.8-20
 - dont copy unwanted files due to symlinks
