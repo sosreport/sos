@@ -53,7 +53,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %config %{_sysconfdir}/sos.conf
 
 %changelog
-* Mon Jan 11 2010 Adam Stokes <ajs at redhat dot com> = 1.8-21
+* Mon Jan 18 2010 Adam Stokes <ajs at redhat dot com> = 1.8-21
 - more sanitizing options for log files
 - rhbz fixes from RHEL version merged into trunk
 
@@ -94,8 +94,8 @@ rm -rf ${RPM_BUILD_ROOT}
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
 * Wed Jan 21 2009 Adam Stokes <ajs at redhat dot com> - 1.8-9
-- Resolves: bz436053 /usr/share/sos is not owned by any package 
-- Resolves: bz434626 Wrong directory structure for translations 
+- Resolves: bz436053 /usr/share/sos is not owned by any package
+- Resolves: bz434626 Wrong directory structure for translations
 
 * Mon Dec 29 2008 Adam Stokes <ajs at redhat dot com> - 1.8-5
 - removed source defines as python manifest handles this
@@ -335,3 +335,4 @@ rm -rf ${RPM_BUILD_ROOT}
 
 * Mon May 22 2006 John Berninger <jwb at redhat dot com> - 0.1-1
 - initial package build
+
