@@ -20,13 +20,16 @@ class openais(sos.plugintools.PluginBase):
     """
     def checkenabled(self):
         if self.isInstalled("openais") or os.path.exists("/usr/sbin/openais-confdb-display"):
-            return True
+            openais_ver = commands.getoutput("rpm -q --queryformat='%{VERSION}' openais")
+            v, r, m = openais_ver.split('.')
+            if int(r) >= 80 and int(m) >= 6:
+                return True
         return False
         
-    openais_config_opts = [('totem,token'), ('totem,consensus'),
-                           ('totem,token_retransmits_before_loss_const'),
-                           ('cman,quorum_dev_poll'), ('cman,expected_votes'),
-                           ('cman,two_node')]
+    openais_config_opts = [('totem','token'), ('totem','consensus'),
+                           ('totem','token_retransmits_before_loss_const'),
+                           ('cman','quorum_dev_poll'), ('cman','expected_votes'),
+                           ('cman','two_node')]
     
     def setup(self):
         self.collectExtOutput("openais-confdb-display")
