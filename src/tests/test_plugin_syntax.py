@@ -19,7 +19,7 @@ class testPluginSanity(unittest.TestCase):
         self.plugins = os.listdir(pluginpath)
         self.plugins.sort()
 
-    def testPluginLoad(self):
+    def test_plugin_load(self):
         for plug in self.plugins:
             plugbase = plug[:-3]
             if not plug[-3:] == '.py' or plugbase == "__init__":
