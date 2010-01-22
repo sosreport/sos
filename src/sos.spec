@@ -50,7 +50,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %{python_sitelib}/*
 %{_mandir}/man1/sosreport.1.gz
 %doc README README.rh-upload TODO LICENSE ChangeLog
-%config %{_sysconfdir}/sos.conf
+%config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
 * Mon Jan 18 2010 Adam Stokes <ajs at redhat dot com> = 1.8-21
