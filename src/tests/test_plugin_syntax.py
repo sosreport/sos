@@ -5,9 +5,6 @@ import sos.policyredhat
 from sos.helpers import *
 
 class testPluginSanity(unittest.TestCase):
-    """ tests plugins don't fail due to indentation errors
-        etc.
-    """
     def setUp(self):
         self.policy = sos.policyredhat.SosPolicy()
         # build plugins list
@@ -30,5 +27,6 @@ class testPluginSanity(unittest.TestCase):
                 self.fail("Plugin exception on %s" % (plugbase,))
 
 if __name__=="__main__":
-    unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(testPluginSanity)
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
