@@ -1,5 +1,6 @@
 recursive-include po *.mo
 recursive-include extras *
+recursive-include tests *
 include sosreport*
 include README*
 include LICENSE
