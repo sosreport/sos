@@ -53,7 +53,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
-* Wed Feb 10 2010 Adam Stokes <ajs at redhat dot com> = 1.9-1
+* Wed Feb 17 2010 Adam Stokes <ajs at redhat dot com> = 1.9-1
+- version bump 1.9
 - replaced compression utility with xz
 - strip threading/multiprocessing
 - simplified progress indicator
