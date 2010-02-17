@@ -1,0 +1,192 @@
+# translation of sos.trunk.po to Marathi
+# Marathi translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
+#
+# Automatically generated, 2007.
+# Sandeep Shedmake <sshedmak@redhat.com>, 2009.
+msgid ""
+msgstr ""
+"Project-Id-Version: sos.trunk\n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-09-04 10:58+0530\n"
+"Last-Translator: Sandeep Shedmake <sshedmak@redhat.com>\n"
+"Language-Team: Marathi <fedora-trans-mr@redhat.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: lib/sos/policyredhat.py:203
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "कृपया तुमची प्रथम व शेवटचे नाव द्या [%s]: "
+
+#: lib/sos/policyredhat.py:206
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "ही तपशील निर्माणसाठी कृपया केस क्रमांक द्या: "
+
+#: lib/sos/policyredhat.py:231
+msgid "Creating compressed archive..."
+msgstr "आकुंचीत आर्काइव्ह निर्माण करत आहे..."
+
+#: lib/sos/policyredhat.py:253
+msgid "Encrypting archive..."
+msgstr "आर्काइव्ह एनक्रिप्ट करत आहे..."
+
+#: lib/sos/policyredhat.py:271
+msgid "There was a problem encrypting your report."
+msgstr "तुमचे तपशील एनक्रिप्ट करतेवेळी अडचण."
+
+#: lib/sos/policyredhat.py:292
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"तुमचे sosreport निर्माण झाले व येथे साठले गेले आहे:\n"
+"  %s"
+
+#: lib/sos/policyredhat.py:295
+msgid "The md5sum is: "
+msgstr "md5sum याप्रमाणे आहे: "
+
+#: lib/sos/policyredhat.py:297
+msgid "Please send this file to your support representative."
+msgstr "तुमच्या समर्थीत प्रतिनीधीकरीता कृपया फाइल पाठवा."
+
+#: lib/sos/policyredhat.py:323
+msgid "Cannot upload to specified URL."
+msgstr "निर्देशीत URL अपलोड करण्यास अशक्य."
+
+#: lib/sos/policyredhat.py:360
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "तुमचा अहवाल Red Hat सपोर्टकडे पाठवतेवेळी अडचण आढळली."
+
+#: lib/sos/policyredhat.py:362
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "तुमचा अहवाल यशस्वीरित्या नावासह Red Hat च्या ftp सर्व्हरवर अपलोड केले:"
+
+#: lib/sos/policyredhat.py:365
+msgid "Please communicate this name to your support representative."
+msgstr "कृपया हे नाव तुमच्या सपोर्ट प्रतिनीधीला कळवा."
+
+#: sosreport:401
+msgid "Could not create temporary directory."
+msgstr "तात्पुर्ती डिरेक्ट्री निर्माण करण्यास अशक्य."
+
+#: sosreport:457
+msgid "sosreport (version %s)"
+msgstr "sosreport (आवृत्ती %s)"
+
+#: sosreport:474
+msgid "plugin %s does not validate, skipping"
+msgstr "प्लगइन %s तपासले गेले नाही, वगळत आहे"
+
+#: sosreport:480
+msgid "plugin %s skipped (--skip-plugins)"
+msgstr "प्लगइन %s वगळले (--skip-plugins)"
+
+#: sosreport:484
+msgid "plugin %s is inactive (use -e or -o to enable)."
+msgstr "प्लगइन %s निष्क्रीय आहे (कार्यक्षम करण्यासाठी -e किंवा -o वापरा)."
+
+#: sosreport:492
+msgid "plugin %s not specified in --only-plugins list"
+msgstr " --only-plugins सूचीमध्ये प्लगइन %s निर्देशीत केले नाही"
+
+#: sosreport:497
+msgid "plugin %s does not install, skipping"
+msgstr "प्लगइन %s चे प्रतिष्ठापान अशक्य, वगळत आहे"
+
+#: sosreport:568
+msgid "processing options from plugin: %s"
+msgstr "प्लगइनपासून पर्याय विश्लेषीत करत आहे: %s"
+
+#: sosreport:579
+msgid "no valid plugins found"
+msgstr "वैध प्लगइनस् आढळले नाही"
+
+#: sosreport:584
+msgid "The following plugins are currently enabled:"
+msgstr "खालील प्लगइनस् सध्या कार्यक्षम केले आहेत:"
+
+#: sosreport:589
+msgid "No plugin enabled."
+msgstr "प्लगइन कार्यक्षम केले नाही."
+
+#: sosreport:593
+msgid "The following plugins are currently disabled:"
+msgstr "खालील प्लगइनस् सध्या अकार्यक्षम केले आहे:"
+
+#: sosreport:600
+msgid "The following plugin options are available:"
+msgstr "खालील प्लगइन पर्याय उपलब्ध आहे:"
+
+#: sosreport:620
+msgid "No plugin options available."
+msgstr "प्लगइन पर्याय उपलब्ध नाही."
+
+#: sosreport:628
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport ला चालवण्यासाठी रूट परवानगी आवश्यक आहे."
+
+#: sosreport:635
+msgid "no valid plugins were enabled"
+msgstr "वैध प्लगइनस् कार्यक्षम केले नाही"
+
+#: sosreport:638
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"ही युटीलीटी हार्डवेअर विषयी काहिक तपशील माहिती\n"
+"गोळा करते व तुमची Red Hat Enterprise Linux  प्रणली सेटअप करते.\n"
+"माहिती गोळा केली जाते व एक आर्काइव्ह\n"
+"/tmp अंतर्गत पॅकेज्ड् केले जाते, जे तुम्ही सपोर्ट प्रतिनीधीकडे पाठवू शकता.\n"
+"Red Hat या माहितीचा वापर फक्त विश्लेषण कारणास्तवच करेल\n"
+"व त्यांस गोपणीय म्हणून ठरवते.\n"
+"\n"
+"हे कार्य पूर्ण व्हायला काहिक वेळ जरूर लागेल.\n"
+"परंतु तुमच्या प्रणलीत कोणताही बदल केला जाणार नाही.\n"
+"\n"
+
+#: sosreport:652
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "पुढे जाण्यासाठी ENTER दाबा, किंवा बाहेर पडण्यासाठी CTRL-C दाबा.\n"
+
+#: sosreport:668
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "तुमच्या संयोजनात एक किंवा जास्त प्लगइनमध्ये अडचणी आढळल्यात."
+
+#: sosreport:669
+msgid "Please review the following messages:"
+msgstr "कृपया खालील संदेशचे पूनरावलोकन करा:"
+
+#: sosreport:685
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "तुम्हाला नक्की पुढे जायचे (y/n) ? "
+
+#: sosreport:686
+msgid "Y"
+msgstr "Y"
+
+#: sosreport:686
+msgid "y"
+msgstr "y"
+
+#: sosreport:689
+msgid "N"
+msgstr "N"
+
+#: sosreport:689
+msgid "n"
+msgstr "n"
+

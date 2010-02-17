@@ -1,0 +1,12 @@
+recursive-include po *.mo
+recursive-include extras *
+recursive-include test *
+include sosreport*
+include README*
+include LICENSE
+include TODO
+include ChangeLog
+include gpgkeys/*.pub
+include sos.conf
+include docs/*.rst
+include docs/conf.py

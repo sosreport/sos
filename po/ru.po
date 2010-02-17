@@ -1,0 +1,193 @@
+# translation of ru.po to
+# Russian translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
+#
+# Automatically generated, 2007.
+# Yulia Poyarkova <yulia.poyarkova@redhat.com>, 2009.
+msgid ""
+msgstr ""
+"Project-Id-Version: ru\n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-09-03 16:17+1000\n"
+"Last-Translator: Yulia Poyarkova <yulia.poyarkova@redhat.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: lib/sos/policyredhat.py:203
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Пожалуйста, укажите имя и фамилию [%s]: "
+
+#: lib/sos/policyredhat.py:206
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Пожалуйста, введите номер проверки для генерируемого отчёта:"
+
+#: lib/sos/policyredhat.py:231
+msgid "Creating compressed archive..."
+msgstr "Создаётся архив..."
+
+#: lib/sos/policyredhat.py:253
+msgid "Encrypting archive..."
+msgstr "Выполняется кодирование архива..."
+
+#: lib/sos/policyredhat.py:271
+msgid "There was a problem encrypting your report."
+msgstr "Произошла ошибка при кодировании вашего отчёта."
+
+#: lib/sos/policyredhat.py:292
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Созданный отчёт сохранен в: "
+"\n"
+"  %s"
+
+#: lib/sos/policyredhat.py:295
+msgid "The md5sum is: "
+msgstr "md5sum:"
+
+#: lib/sos/policyredhat.py:297
+msgid "Please send this file to your support representative."
+msgstr "Отправьте этот файл представителю службы поддержки."
+
+#: lib/sos/policyredhat.py:323
+msgid "Cannot upload to specified URL."
+msgstr "Не удалось отправить файл."
+
+#: lib/sos/policyredhat.py:360
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Произошла ошибка при попытке отправить отчёт в службу поддержки Red Hat."
+
+#: lib/sos/policyredhat.py:362
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Ваш отчёт был успешно размещён на ftp-сервере Red Hat под именем:"
+
+#: lib/sos/policyredhat.py:365
+msgid "Please communicate this name to your support representative."
+msgstr "Пожалуйста, сообщите это имя представителю службы поддержки."
+
+#: sosreport:401
+msgid "Could not create temporary directory."
+msgstr "Не удалось создать временный каталог."
+
+#: sosreport:457
+msgid "sosreport (version %s)"
+msgstr "sosreport (версия %s)"
+
+#: sosreport:474
+msgid "plugin %s does not validate, skipping"
+msgstr "модуль %s не прошёл проверку подлинности. Пропускается."
+
+#: sosreport:480
+msgid "plugin %s skipped (--skip-plugins)"
+msgstr "пропущен модуль %s (--skip-plugins)"
+
+#: sosreport:484
+msgid "plugin %s is inactive (use -e or -o to enable)."
+msgstr "неактивный модуль %s (для активации используйте -e или -o)"
+
+#: sosreport:492
+msgid "plugin %s not specified in --only-plugins list"
+msgstr "модуль %s не указан в списке --only-plugins"
+
+#: sosreport:497
+msgid "plugin %s does not install, skipping"
+msgstr "модуль %s не устанавливается. Пропускается."
+
+#: sosreport:568
+msgid "processing options from plugin: %s"
+msgstr "обрабатываются опции модуля: %s"
+
+#: sosreport:579
+msgid "no valid plugins found"
+msgstr "не найдены модули"
+
+#: sosreport:584
+msgid "The following plugins are currently enabled:"
+msgstr "В настоящее время включены модули:"
+
+#: sosreport:589
+msgid "No plugin enabled."
+msgstr "Нет активных модулей."
+
+#: sosreport:593
+msgid "The following plugins are currently disabled:"
+msgstr "В настоящее время отключены модули:"
+
+#: sosreport:600
+msgid "The following plugin options are available:"
+msgstr "Доступны следующие опции модулей:"
+
+#: sosreport:620
+msgid "No plugin options available."
+msgstr "Нет опций."
+
+#: sosreport:628
+msgid "sosreport requires root permissions to run."
+msgstr "Для выполнения sosreport необходимы права root."
+
+#: sosreport:635
+msgid "no valid plugins were enabled"
+msgstr "подходящие модули не включены"
+
+#: sosreport:638
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Эта программа выполнит сбор подробной информации об оборудовании\n"
+"и настройках вашей системы Red Hat Enterprise Linux.\n"
+"Полученные сведения будут упакованы в архив, который будет помещён в каталог /tmp.\n"
+"Этот архив можно отправить в службу поддержки для анализа.\n"
+"Red Hat рассматривает эту информацию как конфиденциальную и использует\n"
+"исключительно в целях диагностики.\n"
+"\n"
+"Этот процесс может занять некоторое время.\n"
+"Система при этом изменена не будет.\n"
+"\n"
+
+#: sosreport:652
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Нажмите ENTER для продолжения или CTRL-C для выхода.\n"
+
+#: sosreport:668
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Модули обнаружили ошибки конфигурации."
+
+#: sosreport:669
+msgid "Please review the following messages:"
+msgstr "Пожалуйста, просмотрите сообщения:"
+
+#: sosreport:685
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Вы действительно хотите продолжить? (y/n)"
+
+#: sosreport:686
+msgid "Y"
+msgstr "Y"
+
+#: sosreport:686
+msgid "y"
+msgstr "y"
+
+#: sosreport:689
+msgid "N"
+msgstr "N"
+
+#: sosreport:689
+msgid "n"
+msgstr "n"
+

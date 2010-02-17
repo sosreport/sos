@@ -1,0 +1,145 @@
+#!/usr/bin/python
+
+# profile reporter
+
+import sys, os, operator, string
+from optparse import OptionParser
+from glob import glob
+from subprocess import Popen, PIPE
+import tarfile
+
+class GlobalVars:
+    def __init__(self):
+        pass
+
+class MyWriter:
+    def __init__(self, stdout, filename):
+        self.stdout = stdout
+        self.logfile = file(filename, 'w')
+    
+    def write(self, text):
+        self.stdout.write(text)
+        self.logfile.write(text)
+    
+    def close(self):
+        self.stdout.close()
+        self.logfile.close()
+
+def parse_options(opts):
+    """ parse cmd line opts """
+
+    parser = OptionParser()
+    parser.add_option("-f","--filename", dest="filename",
+                      help="write report to FILENAME")
+    parser.add_option("-t", "--time", dest="rtime",
+                      help="set minimum RUNTIME to report", action="store",
+                      default=float(0.1), type="float")
+    parser.add_option("-i", "--input", dest="rpt_dir",
+                      help="define directory of sosreport archives",
+                      action="store", default=False)
+
+    GlobalVars.cmdlineopts, GlobalVars.cmdlineargs = parser.parse_args(opts)
+
+    if not GlobalVars.cmdlineopts.rpt_dir:
+        raise SystemExit("\nPlease make sure to specify --input FILES\n")
+    
+def uncompress_reports(fname):
+    """ uncompresses the sosreport """
+    p = Popen(["xz","-d", fname], stdout=PIPE, stdin=PIPE)
+    out, err = p.communicate()
+    if err:
+        print "Problem extracting %s" % (fname,)
+    return
+
+def read_archive(fname):
+    """ reads tarfile archive and grabs the sosprofile.log fileobj """
+    tar = tarfile.open(os.path.abspath(fname), "r:")
+    for tarinfo in tar.getmembers():
+        if 'sosprofile.log' in tarinfo.name:
+            fobj = tar.extractfile(tarinfo)
+            buf = fobj.read()
+            tar.close()
+            return buf
+
+def timeoutput(secs):
+    if secs > 60:
+        secs = round(secs) / 60
+        return (secs, 'm')
+    elif secs < 60:
+        return (secs, 's')
+
+def sort_profile():
+    """ provide reports on sosreport profiling """
+    # uncompress reports from input files
+    for rpt in glob(GlobalVars.cmdlineopts.rpt_dir+"/*.xz"):
+        uncompress_reports(os.path.abspath(rpt))
+    GlobalVars.rpt_count = 0
+    GlobalVars.timecount = 0
+    GlobalVars.lrc = {}
+    for rpt in glob(GlobalVars.cmdlineopts.rpt_dir+"/*.tar"):
+        buf = read_archive(rpt)
+        time_sorts=[]
+        if not buf:
+            continue
+        for line in buf.split("\n"):
+            try:
+                cmd, rtime = line.split("time:")
+                try:
+                    # cmds that span multiple lines still need time calculated
+                    cmd = cmd.split(":")[1]
+                except IndexError:
+                    cmd, rtime = line.split("time:")
+                time_sorts.append((cmd.strip(), rtime.strip()))
+            except ValueError:
+                continue
+        time_count = 0
+        b_val_count = 0
+        write_stats = open(rpt + ".profile_report", 'w') 
+        write_stats.write(28 * ' ' + 'SOSreport Profile Report' + 27 * ' ' + "\n")
+        write_stats.write(79 * '.' + "\n")
+        for a,b in sorted(time_sorts, key=operator.itemgetter(1)):
+            b_val = float(b)
+            time_count += b_val
+            if b_val > float(GlobalVars.cmdlineopts.rtime):
+                b_val_count += b_val
+                write_stats.write("%-79s %s\n" % (a[:78], b))
+                if GlobalVars.lrc.has_key(a) and \
+                GlobalVars.lrc[a] < b_val:
+                    GlobalVars.lrc[a] = b_val
+                else:
+                    GlobalVars.lrc[a] = b_val 
+        # Keep up with total run time for all reports
+        GlobalVars.timecount += time_count
+        # Write out totals per report
+        write_stats.write(79 * '.' + "\n")
+        write_stats.write("Totals:\n")
+        secs, fmt = timeoutput(b_val_count)
+        write_stats.write("cumulative > %s: \t%f%s\n" % (GlobalVars.cmdlineopts.rtime, secs, fmt))
+        secs, fmt = timeoutput(time_count)
+        write_stats.write("cumulative total:\t%f%s\n" % (secs,fmt))
+        write_stats.close()
+        # increment report count so we can get an average runtime
+        GlobalVars.rpt_count += 1
+
+if __name__ == "__main__":
+    parse_options(sys.argv[1:])
+    if GlobalVars.cmdlineopts.filename:
+        writer = MyWriter(sys.stdout, GlobalVars.cmdlineopts.filename)
+        sys.stdout = writer
+    print "Building reports ..."
+    sort_profile()
+    print 79 * "-"
+    print "Total runtime for %d reports is %fs" % (round(GlobalVars.rpt_count, 2), GlobalVars.timecount)
+    print "Average total runtime of %d reports is %fs" % (round(GlobalVars.rpt_count, 2), GlobalVars.timecount / GlobalVars.rpt_count)
+    print 79 * "-"
+    print 
+    print "Longest running commands > %s:" % (GlobalVars.cmdlineopts.rtime,)
+    print 79 * "-"
+    for cmd, rtime in sorted(GlobalVars.lrc.iteritems(), key=operator.itemgetter(1)):
+        print "%-75s %s" % (cmd[:69], rtime)
+
+    if GlobalVars.cmdlineopts.filename:
+        print 79 * "-"
+        print "Report log written to: %s" % (GlobalVars.cmdlineopts.filename,)
+        writer.close()
+     

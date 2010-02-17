@@ -1,0 +1,191 @@
+# Hungarian translations for sos package.
+# Copyright (C) 2007 ORGANIZATION
+# Automatically generated, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sos trunk\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-03-23 07:40+0100\n"
+"Last-Translator: Sulyok Péter <peti@fedoraproject.org>\n"
+"Language-Team: Hungarian <fedora-trans-hu@redhat.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);"
+
+#: lib/sos/policyredhat.py:203
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Kérem adja meg utónevét és vezetéknevét [%s]:·"
+
+#: lib/sos/policyredhat.py:206
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Kérem adja meg az eset számát, amire e jelentést készíti: "
+
+#: lib/sos/policyredhat.py:231
+msgid "Creating compressed archive..."
+msgstr "Tömörített archívum teremtése…"
+
+#: lib/sos/policyredhat.py:253
+msgid "Encrypting archive..."
+msgstr "Archívum titkosítása…"
+
+#: lib/sos/policyredhat.py:271
+msgid "There was a problem encrypting your report."
+msgstr "A jelentést titkosítván hiba történt."
+
+#: lib/sos/policyredhat.py:292
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"A sos jelentés elkészült ide mentve:\n"
+"  %s"
+
+#: lib/sos/policyredhat.py:295
+msgid "The md5sum is: "
+msgstr "Az md5sum: "
+
+#: lib/sos/policyredhat.py:297
+msgid "Please send this file to your support representative."
+msgstr "Kérem küldje e fájlt a támogatás képviselőjének."
+
+#: lib/sos/policyredhat.py:323
+msgid "Cannot upload to specified URL."
+msgstr "Nem lehet az URL-re feltölteni."
+
+#: lib/sos/policyredhat.py:360
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "A jelentést a Red Hat támogatáshoz feltöltvén baj történt."
+
+#: lib/sos/policyredhat.py:362
+msgid ""
+"Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr ""
+"A jelentést sikerült a Red Hat FTP szolgálójára feltölteni a következő néven:"
+
+#: lib/sos/policyredhat.py:365
+msgid "Please communicate this name to your support representative."
+msgstr "Kérem e nevet adja meg a támogatás képviselőjének."
+
+#: sosreport:401
+msgid "Could not create temporary directory."
+msgstr "Nem sikerült ideiglenes mappát teremteni."
+
+#: sosreport:457
+msgid "sosreport (version %s)"
+msgstr "sosreport·(%s változat)"
+
+#: sosreport:474
+msgid "plugin %s does not validate, skipping"
+msgstr "%s dugasz érvénytelen, kihagyás"
+
+#: sosreport:480
+msgid "plugin %s skipped (--skip-plugins)"
+msgstr "%s dugasz kihagyva (--skip-plugins)"
+
+#: sosreport:484
+msgid "plugin %s is inactive (use -e or -o to enable)."
+msgstr "%s dugasz kikapcsolva (-e vagy -o kapcsolóval engedélyezheti)"
+
+#: sosreport:492
+msgid "plugin %s not specified in --only-plugins list"
+msgstr "%s dugasz nincs megadva --only-plugins listában"
+
+#: sosreport:497
+msgid "plugin %s does not install, skipping"
+msgstr "%s dugasz nem települ, kihagyás"
+
+#: sosreport:568
+msgid "processing options from plugin: %s"
+msgstr "%s dugasz opcióinak feldolgozása"
+
+#: sosreport:579
+msgid "no valid plugins found"
+msgstr "nincs érvényes dugasz"
+
+#: sosreport:584
+msgid "The following plugins are currently enabled:"
+msgstr "A következő dugaszokat engedélyezték:"
+
+#: sosreport:589
+msgid "No plugin enabled."
+msgstr "Nincs engedélyezett dugasz."
+
+#: sosreport:593
+msgid "The following plugins are currently disabled:"
+msgstr "A következő dugaszokat tiltották le:"
+
+#: sosreport:600
+msgid "The following plugin options are available:"
+msgstr "A következő dugasz opciók érhetők el:"
+
+#: sosreport:620
+msgid "No plugin options available."
+msgstr "Nincs elérhető dugasz opció."
+
+#: sosreport:628
+msgid "sosreport requires root permissions to run."
+msgstr "sosreportnak root jogsi kell a futáshoz."
+
+#: sosreport:635
+msgid "no valid plugins were enabled"
+msgstr "nem engedélyeztek érvényes dugaszt"
+
+#: sosreport:638
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"E segédprogram részletes adatokat gyűjt a hardverről és a  \n"
+"Red·Hat·Enterprise·Linux  rendszer beállításáról.\n"
+"Az adatokat a /tmp mappába gyűjtik és az archíválják, amit \n"
+"elküldhet a támogatás képviselőjének.\n"
+"Red Hat CSAK diagnosztikai célból használja ezen adatokat, \n"
+"és bizalmasnak tekinti azokat.\n"
+"\n"
+"E folyamat befejezése eltarthat egy ideig.\n"
+"A rendszert nem változtatja meg.\n"
+"\n"
+
+#: sosreport:652
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Nyomjon ENTER-t a folytatáshoz, vagy CTRL-C-t a kilépéshez.\n"
+
+#: sosreport:668
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Egy vagy több dugasz bajt érzékelt a konfigurációban."
+
+#: sosreport:669
+msgid "Please review the following messages:"
+msgstr "Kérem nézze át a következő üzeneteket:"
+
+#: sosreport:685
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Biztosan folytatni akarja? (i/n) "
+
+#: sosreport:686
+msgid "Y"
+msgstr "I"
+
+#: sosreport:686
+msgid "y"
+msgstr "i"
+
+#: sosreport:689
+msgid "N"
+msgstr "N"
+
+#: sosreport:689
+msgid "n"
+msgstr "n"
+

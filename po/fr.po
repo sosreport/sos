@@ -1,0 +1,192 @@
+# translation of fr.po to French
+# French translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
+#
+# Automatically generated, 2007.
+# Decroux Fabien <fdecroux@redhat.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: fr\n"
+"POT-Creation-Date: 2007-10-24 08:45\n"
+"PO-Revision-Date: 2007-11-08 10:11+1000\n"
+"Last-Translator: Decroux Fabien <fdecroux@redhat.com>\n"
+"Language-Team: French <fr@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: lib/sos/policyredhat.py:203
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Veuillez saisir votre premier prénom (si vous en avez plusieurs) et votre nom [%s] :"
+
+#: lib/sos/policyredhat.py:206
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Veuillez saisir le numéro de cas pour lequel vous générez ce rapport :"
+
+#: lib/sos/policyredhat.py:231
+msgid "Creating compressed archive..."
+msgstr "Création d'une archive compressée..."
+
+#: lib/sos/policyredhat.py:253
+msgid "Encrypting archive..."
+msgstr "Cryptage de l'archive..."
+
+#: lib/sos/policyredhat.py:271
+msgid "There was a problem encrypting your report."
+msgstr "Une erreur s'est produire lors du cryptage de votre rapport."
+
+#: lib/sos/policyredhat.py:292
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Votre rapport sos a été généré et enregistré dans :\n"
+"  %s"
+
+#: lib/sos/policyredhat.py:295
+msgid "The md5sum is: "
+msgstr "Le md5sum est :"
+
+#: lib/sos/policyredhat.py:297
+msgid "Please send this file to your support representative."
+msgstr "Veuillez envoyer ce fichier à votre représentant de support."
+
+#: lib/sos/policyredhat.py:323
+msgid "Cannot upload to specified URL."
+msgstr "Impossible de le télécharger vers l'URL spécifié."
+
+#: lib/sos/policyredhat.py:360
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Une erreur s'est produite lors du téléchargement de votre rapport vers le support Red Hat."
+
+#: lib/sos/policyredhat.py:362
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Votre rapport a été téléchargé avec succès vers le serveur ftp de Red Hat avec le nom :"
+
+#: lib/sos/policyredhat.py:365
+msgid "Please communicate this name to your support representative."
+msgstr "Veuillez communiquer ce nom à votre représentant de support."
+
+#: sosreport:395
+msgid "Could not create temporary directory."
+msgstr "Impossible de créer un répertoire temporaire."
+
+#: sosreport:451
+msgid "sosreport (version %s)"
+msgstr "sosreport (version %s)"
+
+#: sosreport:468
+msgid "plugin %s does not validate, skipping"
+msgstr "le plugin %s n'a pas été validé, ignoré"
+
+#: sosreport:474
+msgid "plugin %s skipped (--skip-plugins)"
+msgstr "le plugin %s a été ignoré (--skip-plugins)"
+
+#: sosreport:478
+msgid "plugin %s is inactive (use -e or -o to enable)."
+msgstr "le plugin %s est inactif (utilisez -e ou -o pour l'activer)."
+
+#: sosreport:486
+msgid "plugin %s not specified in --only-plugins list"
+msgstr "le plugin %s n'a pas été spécifié dans la liste --only-plugins"
+
+#: sosreport:491
+msgid "plugin %s does not install, skipping"
+msgstr "le plugin %s ne s'installe pas, ignoré"
+
+#: sosreport:554
+msgid "processing options from plugin: %s"
+msgstr "traitement des options du plugin : %s"
+
+#: sosreport:565
+msgid "no valid plugins found"
+msgstr "aucun plugin valide n'a été trouvé"
+
+#: sosreport:570
+msgid "The following plugins are currently enabled:"
+msgstr "Les plugins suivants sont activés :"
+
+#: sosreport:575
+msgid "No plugin enabled."
+msgstr "Aucun plugin n'est activé."
+
+#: sosreport:579
+msgid "The following plugins are currently disabled:"
+msgstr "Les plugins suivants sont désactivés :"
+
+#: sosreport:586
+msgid "The following plugin options are available:"
+msgstr "Les options du plugin suivant sont disponibles :"
+
+#: sosreport:606
+msgid "No plugin options available."
+msgstr "Aucune option n'est disponible pour ce plugin."
+
+#: sosreport:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport requiert des permissions root pour démarrer."
+
+#: sosreport:621
+msgid "no valid plugins were enabled"
+msgstr "aucun plugin valide n'a été activé"
+
+#: sosreport:624
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Cet utilitaire collectera des informations détaillées à propos du\n"
+"matériel et de l'installation de votre système Red Hat Enterprise Linux.\n"
+"Les informations sont collectées et une archive est créée sous /tmp.\n"
+"Vous pouvez l'envoyer à un représentant de support.\n"
+"Red Hat utilisera ces informations à des fins de diagnostique SEULEMENT\n"
+"et elles seront considérées commes des informations confidentielles.\n"
+"\n"
+"Ce processus peut prendre un certain temps avant d'être terminé.\n"
+"Aucun changement ne sera effectué sur votre système.\n"
+"\n"
+
+#: sosreport:638
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Appuyez sur Entrée pour continuer ou CTRL-C pour quitter.\n"
+
+#: sosreport:654
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Un ou plusieurs plugins ont détecté un problème dans votre configuration."
+
+#: sosreport:655
+msgid "Please review the following messages:"
+msgstr "Veuillez revoir les messages suivants :"
+
+#: sosreport:671
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Êtes-vous sûr de vouloir continuer (y/n) ?"
+
+#: sosreport:672
+msgid "Y"
+msgstr "Y"
+
+#: sosreport:672
+msgid "y"
+msgstr "y"
+
+#: sosreport:675
+msgid "N"
+msgstr "N"
+
+#: sosreport:675
+msgid "n"
+msgstr "n"
+

@@ -1,0 +1,89 @@
+.TH SOSREPORT 1 "Tue Feb 09 2010"
+.SH NAME
+sosreport \- Generate debugging information for this system
+.SH SYNOPSIS
+.B sosreport
+          [-l|--list-plugins]\fR
+          [-n|--skip-plugins plugin-names]\fR
+          [-e|--enable-plugins plugin-names]\fR
+          [-o|--only-plugins plugin-names]\fR
+          [-a|--alloptions] [-v|--verbose]
+          [--diagnose] [--analyze] [--report]
+          [--config-file conf] [--batch]
+          [--build] [--name name] [--no-colors]
+          [--ticket-number number] [--debug]
+          [--upload] [--tmp-dir directory]
+.SH DESCRIPTION
+\fBsosreport\fR generates a compressed tarball of debugging information 
+for the system it is run on that can be sent to technical support
+reps that will give them a more complete view of the overall system
+status.
+.SH OPTIONS
+.TP
+.B \-l, \--list-plugins
+This will list all available plugins showing which ones will be enabled by the current configuration. It will also show all plugin options which can be 
+modified using the -k option (see below).
+.TP
+.B \-n, --skip-plugins PLUGNAME[,PLUGNAME]
+Do not load specified plugin(s). To specify multiple plugins, separate them with a comma.
+.TP
+.B \-e, --enable-plugins PLUGNAME[,PLUGNAME]
+Enable the specified plugin(s). To specify multiple plugins, separate them with a comma.
+.TP
+.B \-o, --only-plugins PLUGNAME[,PLUGNAME]
+Enable the specified plugin(s) only (all other plugins should be disabled). To specify multiple plugins, separate them with a comma.
+.TP
+.B \-k PLUGNAME.PLUGOPT[=VALUE]
+This is used to specify options for plugins. A list of available plugin options can be obtained from the output of --list-plugins.
+If no value is specified and the option is a boolean (on/off), it will be set to "on".
+.TP
+.B \-a, \--alloptions
+Enable all (boolean) options for all loaded plugins.
+.TP
+.B \--upload FTP_SERVER
+Upload the report to Red Hat (use exclusively if advised from a Red Hat support representative).
+.TP
+.B \-v, \--verbose
+Increase the verbosity of the output as sosreport is running. Multiple -v mean more verbosity.
+.TP
+.B \--diagnose
+Turn on diagnostic functions
+.TP
+.B \--analyze
+Turn on analyzation functions
+.TP
+.B \--report
+Enable html/xml report writing
+.TP
+.B \--config-file CONFIG
+Specify alternate configuration file
+.TP
+.B \--tmp-dir
+Specify alternate temporary directory to copy data
+.TP
+.B \--batch
+Perform data gathering unattended
+.TP
+.B \--name NAME
+Define a unique name for archive
+.TP
+.B \--ticket-number NUMBER
+Define a unique number for archive
+.TP
+.B \--build
+Do not archive copied data, leave directory tree untouched for further modification
+.TP
+.B \--no-colors
+Disable colors written to console
+.TP
+.B \--debug
+Run in trace mode for exceptions
+.SH MAINTAINER
+.nf
+Adam Stokes <ajs@redhat.com>
+.fi
+.SH TRANSLATIONS
+.nf
+Translations are handled by transifex (https://fedorahosted.org/transifex/)
+.fi
+.fi

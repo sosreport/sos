@@ -1,0 +1,132 @@
+#! /bin/sh
+export PATH="/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin"
+export LANG=C
+export LC_ALL=C
+export LC_CTYPE=C
+
+log="sysreport.log"
+
+fixupfile() {
+   if [ -f $2 ] ; then
+      /bin/sed -e$1 $2 > $2.newfile
+      /bin/mv $2.newfile $2
+   fi
+   return 0
+}
+
+getpartinfo() {
+  # Get fdisk -l output from all disks/partitionable raid devices from /proc/partitions
+  raiddevs=`/bin/cat /proc/partitions | /bin/egrep -v "^major|^$" | /bin/awk '{print $4}' | /bin/grep \/ | /bin/egrep -v "p[0123456789]$"`
+  disks=`/bin/cat /proc/partitions | /bin/egrep -v "^major|^$" | /bin/awk '{print $4}' | /bin/grep -v / | /bin/egrep -v "[0123456789]$"`
+  echo "fdisk -l output"
+  for d in $raiddevs $disks ; do
+    echo "<----  Disk: /dev/${d}  ---->"
+    echo ""
+    /sbin/fdisk -l /dev/${d} 2>&1
+    echo ""
+    echo "<----    END     ---->"
+    done
+}
+
+getpciinfo() {
+( echo "lspci"
+  echo
+  /sbin/lspci
+  echo
+  echo "lspci -n"
+  echo
+  /sbin/lspci -n
+  echo
+  echo "lspci -nv"
+  echo
+  /sbin/lspci -nv
+  echo 
+  echo "lspci -nvv"
+  echo
+  /sbin/lspci -nvv ) 2>&1
+}
+
+catiffile() {
+  if [ -d $1 ]; then
+    /bin/cp -p -x --parents -R $1 $ROOT 2>>$ROOT/$log
+    find $ROOT/$1 -type b -o -type c | xargs rm -f 2>/dev/null || :
+    echo -n $STATUS
+    echo_success
+    return 1
+  fi
+  if [ -f $1 ]; then
+    /bin/cp -p --parents $1 $ROOT 2>>$ROOT/$log
+    echo -n $STATUS
+    echo_success
+    return 1
+  fi
+
+  return 0
+}
+
+catifexec() {
+  if [ -x $1 ]; then
+    echo -n $STATUS
+    echo "$*" >> $ROOT/`/bin/basename $1`
+    $* >> $ROOT/`/bin/basename $1` 2>&1
+    echo_success
+    return 1
+  fi
+  return 0
+}
+
+# The following was borrowed from the Red Hat 6.x init scripts function 
+# to aid in letting the user know the application was still working.
+#
+# Get a sane screen width
+[ -z "$COLUMNS" ] && COLUMNS=80
+
+# Read in our configuration
+if [ -z "$BOOTUP" ]; then
+  if [ -f /etc/sysconfig/init ]; then
+      . /etc/sysconfig/init
+  else
+    # This all seem confusing? Look in /etc/sysconfig/init,
+    # or in /usr/doc/initscripts-*/sysconfig.txt
+    BOOTUP=color
+    RES_COL=60
+    MOVE_TO_COL="echo -en \\033[300C\\033[$[${COLUMNS}-${RES_COL}]D"
+    SETCOLOR_SUCCESS="echo -en \\033[1;32m"
+    SETCOLOR_FAILURE="echo -en \\033[1;31m"
+    SETCOLOR_WARNING="echo -en \\033[1;33m"
+    SETCOLOR_NORMAL="echo -en \\033[0;39m"
+    LOGLEVEL=1
+  fi
+fi
+
+echo_success() {
+  [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+  echo -n "[  "
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_SUCCESS
+  echo -n "OK"
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+  echo "  ]"
+  return 0
+}
+
+echo_failure() {
+  [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+  echo -n "["
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
+  echo -n "FAILED"
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+  echo "]"
+  return 1
+}
+
+echo_passed() {
+  [ "$BOOTUP" = "color" ] && $MOVE_TO_COL
+  echo -n "["
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_WARNING
+  echo -n "PASSED"
+  [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+  echo "]"
+  return 1
+}
+
+

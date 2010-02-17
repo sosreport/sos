@@ -1,0 +1,191 @@
+# Portuguese translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
+# Automatically generated, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sos\n"
+"POT-Creation-Date: 2008-12-19 06:40\n"
+"PO-Revision-Date: 2009-09-05 04:14+0100\n"
+"Last-Translator: Rui Gouveia <rui.gouveia@globaltek.pt>\n"
+"Language-Team: PT <fedora-trans-pt@redhat.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Portuguese\n"
+"X-Poedit-Country: PORTUGAL\n"
+
+#: lib/sos/policyredhat.py:203
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Por favor, insira a sua primeira inicial e último nome [%s]: "
+
+#: lib/sos/policyredhat.py:206
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Por favor, insira o número do processo para o qual está a gerar este relatório: "
+
+#: lib/sos/policyredhat.py:231
+msgid "Creating compressed archive..."
+msgstr "A criar arquivo comprimido..."
+
+#: lib/sos/policyredhat.py:253
+msgid "Encrypting archive..."
+msgstr "A cifrar arquivo..."
+
+#: lib/sos/policyredhat.py:271
+msgid "There was a problem encrypting your report."
+msgstr "Ocorreu um erro ao cifrar o seu relatório."
+
+#: lib/sos/policyredhat.py:292
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"O seu relatório sosreport foi gerado e guardado em:\n"
+"  %s"
+
+#: lib/sos/policyredhat.py:295
+msgid "The md5sum is: "
+msgstr "O md5sum é: "
+
+#: lib/sos/policyredhat.py:297
+msgid "Please send this file to your support representative."
+msgstr "Por favor, envie este ficheiro para o seu representante do suporte."
+
+#: lib/sos/policyredhat.py:323
+msgid "Cannot upload to specified URL."
+msgstr "Não foi possível submeter para o URL especificado."
+
+#: lib/sos/policyredhat.py:360
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Ocorreu um erro ao submeter o seu relatório para o suporte Red Hat."
+
+#: lib/sos/policyredhat.py:362
+msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "O seu relatório foi submetido com sucesso para o servidor ftp da Red Hat com o nome:"
+
+#: lib/sos/policyredhat.py:365
+msgid "Please communicate this name to your support representative."
+msgstr "Por favor, comunique este nome para o seu representante do suporte."
+
+#: sosreport:401
+msgid "Could not create temporary directory."
+msgstr "Não foi possível criar directório temporário."
+
+#: sosreport:457
+msgid "sosreport (version %s)"
+msgstr "sosreport (versão %s)"
+
+#: sosreport:474
+msgid "plugin %s does not validate, skipping"
+msgstr "plugin %s não valida. A passar ao seguinte"
+
+#: sosreport:480
+msgid "plugin %s skipped (--skip-plugins)"
+msgstr "plugin %s ignorado (--skip-plugins)"
+
+#: sosreport:484
+msgid "plugin %s is inactive (use -e or -o to enable)."
+msgstr "plugin %s está desactivado (utilize -e ou -o para activar)."
+
+#: sosreport:492
+msgid "plugin %s not specified in --only-plugins list"
+msgstr "plugin %s não é especificado na lista --only-plugins"
+
+#: sosreport:497
+msgid "plugin %s does not install, skipping"
+msgstr "plugin %s não instala. A passar ao seguinte"
+
+#: sosreport:568
+msgid "processing options from plugin: %s"
+msgstr "A processar opções do plugin: %s"
+
+#: sosreport:579
+msgid "no valid plugins found"
+msgstr "Não foram encontrados plugins válidos"
+
+#: sosreport:584
+msgid "The following plugins are currently enabled:"
+msgstr "Os seguintes plugins estão actualmente activos:"
+
+#: sosreport:589
+msgid "No plugin enabled."
+msgstr "Nenhum plugin activo."
+
+#: sosreport:593
+msgid "The following plugins are currently disabled:"
+msgstr "Os seguintes plugins estão actualmente desactivados:"
+
+#: sosreport:600
+msgid "The following plugin options are available:"
+msgstr "As seguintes opções de plugins estão disponíveis:"
+
+#: sosreport:620
+msgid "No plugin options available."
+msgstr "Nenhumas opções do plugin disponíveis."
+
+#: sosreport:628
+msgid "sosreport requires root permissions to run."
+msgstr "o sosreport necessita de permissões de root para executar."
+
+#: sosreport:635
+msgid "no valid plugins were enabled"
+msgstr "Não foram activados plugins válidos"
+
+#: sosreport:638
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Este utilitário vai recolher informações detalhadas acerca do\n"
+"hardware e configuração do seu sistema Red Hat Enterprise Linux.\n"
+"Esta informação é recolhida e compilada num ficheiro em /tmp,\n"
+"o qual poderá ser enviado para um representante de suporte.\n"
+"A Red Hat irá utilizar esta informação UNICAMENTE para efeitos\n"
+"de diagnóstico e será considerada informação confidencial.\n"
+"\n"
+"Este processo pode demorar um pouco a completar.\n"
+"Nenhuma alteração será efectuada ao seu sistema.\n"
+"\n"
+
+#: sosreport:652
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Carregue em ENTER para continuar, ou CTRL-C para sair.\n"
+
+#: sosreport:668
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Um ou mais plugins detectaram um problema na sua configuração."
+
+#: sosreport:669
+msgid "Please review the following messages:"
+msgstr "Por favor, reveja as seguintes mensagens:"
+
+#: sosreport:685
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Tem a certeza que deseja continuar (y para sim/n para não) ? "
+
+#: sosreport:686
+msgid "Y"
+msgstr "Y"
+
+#: sosreport:686
+msgid "y"
+msgstr "s"
+
+#: sosreport:689
+msgid "N"
+msgstr "N"
+
+#: sosreport:689
+msgid "n"
+msgstr "n"
+
