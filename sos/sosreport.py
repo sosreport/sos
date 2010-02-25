@@ -698,9 +698,10 @@ No changes will be made to your system.
     print
     plugruncount = 0
     for i in izip(GlobalVars.loadedplugins):
+        plugruncount += 1
         sys.stdout.write("\r")
-        sys.stdout.write("Completed [%d/%d] ...      " % (plugruncount, 
-                                                          len(Globalvars.loadedplugins)))
+        sys.stdout.write("  Completed [%d/%d] ...      " % (plugruncount, 
+                                                          len(GlobalVars.loadedplugins)))
         plugname, plug = i[0]
         try:
             plug.copyStuff()
@@ -709,6 +710,7 @@ No changes will be made to your system.
         except:
             if GlobalVars.__raisePlugins__:
                 raise
+    print
 
     if GlobalVars.__cmdLineOpts__.report:
         for plugname, plug in GlobalVars.loadedplugins:
