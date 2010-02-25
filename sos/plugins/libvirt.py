@@ -13,20 +13,9 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-
-class rpm(sos.plugintools.PluginBase):
-    """RPM information
+class libvirt(sos.plugintools.PluginBase):
+    """libvirt-related information
     """
-    optionList = [("rpmq", "queries for package information via rpm -q", "fast", True),
-                  ("rpmva", "runs a verify on all packages", "slow", False)]
-                  
     def setup(self):
-        self.addCopySpec("/var/log/rpmpkgs")
-
-        if self.getOption("rpmq"):
-            self.collectExtOutput("/bin/rpm -qa --qf=\"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~%{INSTALLTIME:date}\n\" --nosignature --nodigest|/bin/awk -F ~~ '{printf \"%-60s%s\\n\",$1,$2}'", root_symlink = "installed-rpms")
-
-        if self.getOption("rpmva"):
-            self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
-        return
-
+        self.addCopySpec("/etc/libvirt/")
+        self.addCopySpec("/var/log/libvirt/")

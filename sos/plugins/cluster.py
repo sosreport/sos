@@ -169,6 +169,8 @@ class cluster(sos.plugintools.PluginBase):
                     if len(xpathContext.xpathEval("cluster/rm/resources/fs[@name='%s'][not(@fsid)]" % fsRefName)):
                         self.addDiagnose("one or more nfs export do not have a fsid attribute set.")
                         break
+                    else:
+                        self.addDiagnose("one or more nfs export do not have a fsid attribute set.")
 
         # cluster.conf file version and the in-memory cluster configuration version matches
         status, cluster_version, time = self.callExtProg("cman_tool status | grep 'Config version'")
