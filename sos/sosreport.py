@@ -515,7 +515,7 @@ def sosreport(opts):
             opts[plug].append( (opt, val) )
 
         for plugname, plug in GlobalVars.loadedplugins:
-            if opts.has_key(plugname):
+            if plugname in opts:
                 for opt, val in opts[plugname]:
                     if not plug.setOption(opt, val):
                         soslog.error('no such option "%s" for plugin ' \
@@ -696,7 +696,11 @@ No changes will be made to your system.
 
     print _("  Running plugins. Please wait ...")
     print
+    plugruncount = 0
     for i in izip(GlobalVars.loadedplugins):
+        sys.stdout.write("\r")
+        sys.stdout.write("Completed [%d/%d] ...      " % (plugruncount, 
+                                                          len(Globalvars.loadedplugins)))
         plugname, plug = i[0]
         try:
             plug.copyStuff()
