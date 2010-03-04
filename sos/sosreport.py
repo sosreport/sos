@@ -699,9 +699,9 @@ No changes will be made to your system.
     plugruncount = 0
     for i in izip(GlobalVars.loadedplugins):
         plugruncount += 1
-        sys.stdout.write("\r")
-        sys.stdout.write("  Completed [%d/%d] ...      " % (plugruncount, 
+        sys.stdout.write("\r  Completed [%d/%d] ...      " % (plugruncount, 
                                                           len(GlobalVars.loadedplugins)))
+        sys.stdout.flush()
         plugname, plug = i[0]
         try:
             plug.copyStuff()

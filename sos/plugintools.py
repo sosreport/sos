@@ -300,7 +300,8 @@ class PluginBase:
             return False
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(copyspec):
-            self.copyPaths.append(filespec)
+            if filespec not in self.copyPaths:
+                self.copyPaths.append(filespec)
 
     def callExtProg(self, prog):
         """ Execute a command independantly of the output gathering part of
