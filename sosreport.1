@@ -13,6 +13,7 @@ sosreport \- Generate debugging information for this system
           [--build] [--name name] [--no-colors]
           [--ticket-number number] [--debug]
           [--upload] [--tmp-dir directory]
+          [--profile]
 .SH DESCRIPTION
 \fBsosreport\fR generates a compressed tarball of debugging information 
 for the system it is run on that can be sent to technical support
@@ -78,9 +79,12 @@ Disable colors written to console
 .TP
 .B \--debug
 Run in trace mode for exceptions
+.TP
+.B \--profile
+Turn on profiling for cmds run
 .SH MAINTAINER
 .nf
-Adam Stokes <ajs@redhat.com>
+Adam Stokes <astokes@fedoraproject.org>
 .fi
 .SH TRANSLATIONS
 .nf
