@@ -6,141 +6,118 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
-"POT-Creation-Date: 2008-12-19 06:40\n"
-"PO-Revision-Date: 2009-04-06 20:44+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-10 14:45-0500\n"
+"PO-Revision-Date: 2010-03-15 23:42+0100\n"
 "Last-Translator: Miloš Komarčević <kmilos@gmail.com>\n"
-"Language-Team: Serbian <fedora-trans-sr@redhat.com>\n"
+"Language-Team: Serbian <trans-sr@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: pygettext.py 1.5\n"
 
-#: lib/sos/policyredhat.py:203
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "Унесите ваш први иницијал и презиме [%s]: "
-
-#: lib/sos/policyredhat.py:206
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "Унесите број случаја за који правите овај извештај:"
-
-#: lib/sos/policyredhat.py:231
-msgid "Creating compressed archive..."
-msgstr "Правим компримовану архиву..."
-
-#: lib/sos/policyredhat.py:253
-msgid "Encrypting archive..."
-msgstr "Шифрирам архиву..."
-
-#: lib/sos/policyredhat.py:271
-msgid "There was a problem encrypting your report."
-msgstr "Дошло је до грешке при шифровању вашег извештаја."
-
-#: lib/sos/policyredhat.py:292
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-"Ваш sos извештај је направљен и сачуван у:\n"
-"  %s"
-
-#: lib/sos/policyredhat.py:295
-msgid "The md5sum is: "
-msgstr "md5sum је: "
-
-#: lib/sos/policyredhat.py:297
-msgid "Please send this file to your support representative."
-msgstr "Пошаљите ову датотеку вашем представнику подршке."
-
-#: lib/sos/policyredhat.py:323
-msgid "Cannot upload to specified URL."
-msgstr "Не могу да пошаљем на наведени УРЛ."
-
-#: lib/sos/policyredhat.py:360
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Појавио се проблем при слању вашег извештаја Red Hat подршци."
-
-#: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr "Ваш извештај је успешно послат на Red Hat ftp сервер са именом:"
-
-#: lib/sos/policyredhat.py:365
-msgid "Please communicate this name to your support representative."
-msgstr "Пренесите ово име вашем представнику подршке."
-
-#: sosreport:401
+#: sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "Не могу да направим привремени директоријум."
 
-#: sosreport:457
+#: sos/sosreport.py:411
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (верзија %s)"
 
-#: sosreport:474
+#: sos/sosreport.py:436
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "додатак %s се није оверио, прескачем"
 
-#: sosreport:480
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "додатак %s је прескочен (--skip-plugins)"
-
-#: sosreport:484
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "додатак %s није активан (употребите -e или -o да га укључите)"
-
-#: sosreport:492
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "додатак %s није наведен у списку --only-plugins"
-
-#: sosreport:497
+#: sos/sosreport.py:465
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "додатак %s се није инсталирао, прескачем"
 
-#: sosreport:568
-msgid "processing options from plugin: %s"
-msgstr "обрађујем опције од додатка: %s"
-
-#: sosreport:579
+#: sos/sosreport.py:561
 msgid "no valid plugins found"
 msgstr "нису пронађени ваљани додаци"
 
-#: sosreport:584
+#: sos/sosreport.py:565
 msgid "The following plugins are currently enabled:"
 msgstr "Следећи додаци су тренутно укључени:"
 
-#: sosreport:589
+#: sos/sosreport.py:571
 msgid "No plugin enabled."
 msgstr "Нема укључених додатака."
 
-#: sosreport:593
+#: sos/sosreport.py:575
 msgid "The following plugins are currently disabled:"
 msgstr "Следећи додаци су тренутно искључени:"
 
-#: sosreport:600
+#: sos/sosreport.py:583
 msgid "The following plugin options are available:"
 msgstr "Доступне су следеће опције додатка:"
 
-#: sosreport:620
+#: sos/sosreport.py:604
 msgid "No plugin options available."
 msgstr "Нема доступних опција додатка."
 
-#: sosreport:628
+#: sos/sosreport.py:612
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport захтева root дозволе за извршавање."
 
-#: sosreport:635
+#: sos/sosreport.py:619
 msgid "no valid plugins were enabled"
 msgstr "нису укључени ваљани додаци"
 
-#: sosreport:638
+#: sos/sosreport.py:637
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Притисните ENTER за наставак, или CTRL-C за излаз.\n"
+
+#: sos/sosreport.py:656
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Један или више додатака су открили проблем са вашим подешавањима."
+
+#: sos/sosreport.py:658
+msgid "Please review the following messages:"
+msgstr "Прегледајте следеће поруке:"
+
+#: sos/sosreport.py:674
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Да ли сигурно желите да наставите (d/n) ?"
+
+#: sos/sosreport.py:676
+msgid "y"
+msgstr "d"
+
+#: sos/sosreport.py:676
+msgid "Y"
+msgstr "D"
+
+#: sos/sosreport.py:679
+msgid "n"
+msgstr "n"
+
+#: sos/sosreport.py:679
+msgid "N"
+msgstr "N"
+
+#: sos/sosreport.py:698
+msgid "\tRunning plugins. Please wait ..."
+msgstr "\tПокрећем додатке. Молимо сачекајте ..."
+
+#: sos/sosreport.py:796
+#, python-format
+msgid "\tsosreport build tree is located at : %s"
+msgstr "\tстабло sosreport изградње се налази на : %s"
+
+#: sos/sosreport.py:622
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
@@ -148,44 +125,79 @@ msgid ""
 "\n"
 msgstr ""
 "Ова алатка ће сакупити неке детаљне информације о\n"
-"хардверу и поставци вашег  Red Hat Enterprise Linux  система.\n"
+"хардверу и поставци вашег %(distroa)s система.\n"
 "Информације се сакупљају и пакује се архива под\n"
 "/tmp, коју можете послати представнику за подршку.\n"
-"Red Hat ће употребити ове информације САМО у дијагностичке\n"
-"сврхе и биће сматране за поверљиве информације.\n"
+"%(distrob)s ће употребити ове информације САМО у дијагностичке\n"
+"сврхе и биће сматране поверљивим информацијама.\n"
 "\n"
 "Овај процес може да потраје дуже док се не заврши.\n"
 "Никакве промене неће бите начињене на систему.\n"
 "\n"
 
-#: sosreport:652
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Притисните ENTER за наставак, или CTRL-C за излаз.\n"
+#: sos/policyredhat.py:208
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Унесите ваш први иницијал и презиме [%s]: "
 
-#: sosreport:668
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Један или више додатака су открили проблем са вашим подешавањима."
+#: sos/policyredhat.py:211
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Унесите број случаја за који правите овај извештај:"
 
-#: sosreport:669
-msgid "Please review the following messages:"
-msgstr "Прегледајте следеће поруке:"
+#: sos/policyredhat.py:251
+msgid "Creating compressed archive..."
+msgstr "Правим компримовану архиву..."
 
-#: sosreport:685
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Да ли сигурно желите да наставите (d/n) ?"
+#: sos/policyredhat.py:281
+msgid "Encrypting archive..."
+msgstr "Шифрирам архиву..."
 
-#: sosreport:686
-msgid "Y"
-msgstr "D"
+#: sos/policyredhat.py:301
+msgid "There was a problem encrypting your report."
+msgstr "Дошло је до грешке при шифровању вашег извештаја."
 
-#: sosreport:686
-msgid "y"
-msgstr "d"
+#: sos/policyredhat.py:325
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Ваш sos извештај је направљен и сачуван у:\n"
+"  %s"
 
-#: sosreport:689
-msgid "N"
-msgstr "N"
+#: sos/policyredhat.py:328
+msgid "The md5sum is: "
+msgstr "md5sum је: "
 
-#: sosreport:689
-msgid "n"
-msgstr "n"
+#: sos/policyredhat.py:330
+msgid "Please send this file to your support representative."
+msgstr "Пошаљите ову датотеку вашем представнику подршке."
+
+#: sos/policyredhat.py:356
+msgid "Cannot upload to specified URL."
+msgstr "Не могу да пошаљем на наведени УРЛ."
+
+#: sos/policyredhat.py:393
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Појавио се проблем при слању вашег извештаја Red Hat подршци."
+
+#: sos/policyredhat.py:395
+msgid ""
+"Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Ваш извештај је успешно послат на Red Hat ftp сервер са именом:"
+
+#: sos/policyredhat.py:398
+msgid "Please communicate this name to your support representative."
+msgstr "Пренесите ово име вашем представнику подршке."
+
+#~ msgid "plugin %s skipped (--skip-plugins)"
+#~ msgstr "додатак %s је прескочен (--skip-plugins)"
+
+#~ msgid "plugin %s is inactive (use -e or -o to enable)."
+#~ msgstr "додатак %s није активан (употребите -e или -o да га укључите)"
+
+#~ msgid "plugin %s not specified in --only-plugins list"
+#~ msgstr "додатак %s није наведен у списку --only-plugins"
+
+#~ msgid "processing options from plugin: %s"
+#~ msgstr "обрађујем опције од додатка: %s"
