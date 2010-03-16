@@ -1,15 +1,16 @@
 # Swedish translations for the sos package.
 # This file is distributed under the same license as the sos package.
-# Copyright © 2009 Free Software Foundation, Inc.
-# Göran Uddeborg <goeran@uddeborg.se>, 2009.
+# Copyright © 2009-2010 Free Software Foundation, Inc.
+# Göran Uddeborg <goeran@uddeborg.se>, 2009-2010.
 #
-# $Revision: 1.4 $
+# $Revision: 1.6 $
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
-"POT-Creation-Date: 2008-12-19 06:40\n"
-"PO-Revision-Date: 2009-10-18 17:19+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-10 14:45-0500\n"
+"PO-Revision-Date: 2010-03-16 09:33+0100\n"
 "Last-Translator: Göran Uddeborg <goeran@uddeborg.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -18,130 +19,107 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/sos/policyredhat.py:203
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "Ange din förnamnsinitial och ditt efternam [%s]: "
-
-#: lib/sos/policyredhat.py:206
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "Ange ärendenumret som du genererar denna rapport för: "
-
-#: lib/sos/policyredhat.py:231
-msgid "Creating compressed archive..."
-msgstr "Skapar komprimerat arkiv ..."
-
-#: lib/sos/policyredhat.py:253
-msgid "Encrypting archive..."
-msgstr "Krypterar arkiv ..."
-
-#: lib/sos/policyredhat.py:271
-msgid "There was a problem encrypting your report."
-msgstr "Ett problem uppstod vid kryptering av din rapport."
-
-#: lib/sos/policyredhat.py:292
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-"Din sos-rapport har genererats och sparats i:\n"
-"  %s"
-
-#: lib/sos/policyredhat.py:295
-msgid "The md5sum is: "
-msgstr "MD5-summan är: "
-
-#: lib/sos/policyredhat.py:297
-msgid "Please send this file to your support representative."
-msgstr "Skicka denna fil till din servicerepresentant."
-
-#: lib/sos/policyredhat.py:323
-msgid "Cannot upload to specified URL."
-msgstr "Kan inte skicka till angiven URL."
-
-#: lib/sos/policyredhat.py:360
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Ett problem uppstod när din rapport skickades till Red Hat support."
-
-#: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr "Din rapport har skickats till Red Hats ftp-server med namnet:"
-
-#: lib/sos/policyredhat.py:365
-msgid "Please communicate this name to your support representative."
-msgstr "Berätta detta namn för din servicerepresentant."
-
-#: sosreport:401
+#: sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "Kunde inte skapa en temporärkatalog."
 
-#: sosreport:457
+#: sos/sosreport.py:411
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (version %s)"
 
-#: sosreport:474
+#: sos/sosreport.py:436
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "insticksmodul %s validerar inte, hoppar över"
 
-#: sosreport:480
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "insticksmodul %s hoppas över (--skip-plugins)"
-
-#: sosreport:484
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "insticksmodul %s är inaktiv (använd -e eller -o för att aktivera)."
-
-#: sosreport:492
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "instickmodul %s är inte angiven i listan --only-plugins"
-
-#: sosreport:497
+#: sos/sosreport.py:465
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "insticksmodul %s installerar inte, hoppar över"
 
-#: sosreport:568
-msgid "processing options from plugin: %s"
-msgstr "bearbetar flaggor från insticksmodul: %s"
-
-#: sosreport:579
+#: sos/sosreport.py:561
 msgid "no valid plugins found"
 msgstr "inga giltiga insticksmoduler funna"
 
-#: sosreport:584
+#: sos/sosreport.py:565
 msgid "The following plugins are currently enabled:"
 msgstr "Följande insticksmoduler är för närvarande aktiva:"
 
-#: sosreport:589
+#: sos/sosreport.py:571
 msgid "No plugin enabled."
 msgstr "Inga insticksmoduler aktiverade."
 
-#: sosreport:593
+#: sos/sosreport.py:575
 msgid "The following plugins are currently disabled:"
 msgstr "Följande insticksmoduler är för närvarande inaktiva:"
 
-#: sosreport:600
+#: sos/sosreport.py:583
 msgid "The following plugin options are available:"
 msgstr "Följande flaggor för insticksmoduler är tillgängliga:"
 
-#: sosreport:620
+#: sos/sosreport.py:604
 msgid "No plugin options available."
 msgstr "Inga flaggor för insticksmoduler finns tillgängliga."
 
-#: sosreport:628
+#: sos/sosreport.py:612
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport behöver root-rättigheter för att köra."
 
-#: sosreport:635
+#: sos/sosreport.py:619
 msgid "no valid plugins were enabled"
 msgstr "inga giltiga insticksmoduler var aktiva"
 
-#: sosreport:638
+#: sos/sosreport.py:637
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Tryck RETUR för att fortsätta, eller CTRL-C för att avbryta.\n"
+
+#: sos/sosreport.py:656
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr ""
+"En eller flera insticksmoduler har upptäckt problem i din konfiguration."
+
+#: sos/sosreport.py:658
+msgid "Please review the following messages:"
+msgstr "Se över följande meddelanden:"
+
+#: sos/sosreport.py:674
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Är du säker på att du vill fortsätta (j/n)? "
+
+#: sos/sosreport.py:676
+msgid "y"
+msgstr "j"
+
+#: sos/sosreport.py:676
+msgid "Y"
+msgstr "J"
+
+#: sos/sosreport.py:679
+msgid "n"
+msgstr "n"
+
+#: sos/sosreport.py:679
+msgid "N"
+msgstr "N"
+
+#: sos/sosreport.py:698
+msgid "\tRunning plugins. Please wait ..."
+msgstr "\tKör insticksmoduler.  Var god dröj ..."
+
+#: sos/sosreport.py:796
+#, python-format
+msgid "\tsosreport build tree is located at : %s"
+msgstr "\tsosreports byggträd finns på: %s"
+
+#: sos/sosreport.py:622
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
@@ -149,9 +127,9 @@ msgid ""
 "\n"
 msgstr ""
 "Detta verktyg kommer att samla en del detaljerad information om\n"
-"hårdvaran och inställningarna hos dit Red Hat Enterprise Linux-system.\n"
-"Informationen samlas och ett akriv paketeras under /tmp, som du kan\n"
-"skicka till en servicerepresentant.  Red Hat kommer använda denna\n"
+"hårdvaran och inställningarna hos ditt %(distroa)s-system.\n"
+"Informationen samlas och ett arkiv paketeras under /tmp, som du kan\n"
+"skicka till en servicerepresentant.  %(distrob)s kommer använda denna\n"
 "information ENDAST för diagnostiksyften och det betraktas som\n"
 "konfidentiell information.\n"
 "\n"
@@ -159,35 +137,57 @@ msgstr ""
 "Inga ändringar kommer att göras i ditt system.\n"
 "\n"
 
-#: sosreport:652
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Tryck RETUR för att fortsätta, eller CTRL-C för att avbryta.\n"
+#: sos/policyredhat.py:208
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Ange din förnamnsinitial och ditt efternam [%s]: "
 
-#: sosreport:668
-msgid "One or more plugins have detected a problem in your configuration."
+#: sos/policyredhat.py:211
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Ange ärendenumret som du genererar denna rapport för: "
+
+#: sos/policyredhat.py:251
+msgid "Creating compressed archive..."
+msgstr "Skapar komprimerat arkiv ..."
+
+#: sos/policyredhat.py:281
+msgid "Encrypting archive..."
+msgstr "Krypterar arkiv ..."
+
+#: sos/policyredhat.py:301
+msgid "There was a problem encrypting your report."
+msgstr "Ett problem uppstod vid kryptering av din rapport."
+
+#: sos/policyredhat.py:325
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
 msgstr ""
-"En eller flera insticksmoduler har upptäckt problem i din konfiguration."
+"Din sos-rapport har genererats och sparats i:\n"
+"  %s"
 
-#: sosreport:669
-msgid "Please review the following messages:"
-msgstr "Se över följande meddelanden:"
+#: sos/policyredhat.py:328
+msgid "The md5sum is: "
+msgstr "MD5-summan är: "
 
-#: sosreport:685
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Är du säker på att du vill fortsätta (j/n)? "
+#: sos/policyredhat.py:330
+msgid "Please send this file to your support representative."
+msgstr "Skicka denna fil till din servicerepresentant."
 
-#: sosreport:686
-msgid "Y"
-msgstr "J"
+#: sos/policyredhat.py:356
+msgid "Cannot upload to specified URL."
+msgstr "Kan inte skicka till angiven URL."
 
-#: sosreport:686
-msgid "y"
-msgstr "j"
+#: sos/policyredhat.py:393
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Ett problem uppstod när din rapport skickades till Red Hat support."
 
-#: sosreport:689
-msgid "N"
-msgstr "N"
+#: sos/policyredhat.py:395
+msgid ""
+"Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Din rapport har skickats till Red Hats ftp-server med namnet:"
 
-#: sosreport:689
-msgid "n"
-msgstr "n"
+#: sos/policyredhat.py:398
+msgid "Please communicate this name to your support representative."
+msgstr "Berätta detta namn för din servicerepresentant."
