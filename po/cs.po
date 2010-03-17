@@ -1,177 +1,191 @@
-# Czech translations for PACKAGE package.
-# Copyright (C) 2007 ORGANIZATION
-# Automatically generated, 2007.
+# Czech translations for sos package.
+# Copyright (C) 2007 Free Software Foundation.
+#
+# Milan Keršláger <milan@kerslager.cz>, 2010.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2007-10-24 08:45\n"
-"PO-Revision-Date: 2007-10-24 08:45\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Project-Id-Version: 1\n"
+"Report-Msgid-Bugs-To: diskuse@lists.l10n.cz\n"
+"POT-Creation-Date: 2010-02-10 14:45-0500\n"
+"PO-Revision-Date: 2010-03-17 21:23+0100\n"
+"Last-Translator: Milan Kerslager <milan@kerslager.cz>\n"
+"Language-Team: Czech <Czech <cs-users@lists.fedoraproject.org>>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: lib/sos/policyredhat.py:203
-msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
-
-#: lib/sos/policyredhat.py:206
-msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-
-#: lib/sos/policyredhat.py:231
-msgid "Creating compressed archive..."
-msgstr ""
-
-#: lib/sos/policyredhat.py:253
-msgid "Encrypting archive..."
-msgstr ""
-
-#: lib/sos/policyredhat.py:271
-msgid "There was a problem encrypting your report."
-msgstr ""
-
-#: lib/sos/policyredhat.py:292
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-
-#: lib/sos/policyredhat.py:295
-msgid "The md5sum is: "
-msgstr ""
-
-#: lib/sos/policyredhat.py:297
-msgid "Please send this file to your support representative."
-msgstr ""
-
-#: lib/sos/policyredhat.py:323
-msgid "Cannot upload to specified URL."
-msgstr ""
-
-#: lib/sos/policyredhat.py:360
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
-
-#: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr ""
-
-#: lib/sos/policyredhat.py:365
-msgid "Please communicate this name to your support representative."
-msgstr ""
-
-#: sosreport:395
+#: sos/sosreport.py:345
 msgid "Could not create temporary directory."
-msgstr ""
+msgstr "Nelze vytvořit dočasný adresář."
 
-#: sosreport:451
+#: sos/sosreport.py:411
+#, python-format
 msgid "sosreport (version %s)"
-msgstr ""
+msgstr "sosreport (verze %s)"
 
-#: sosreport:468
+#: sos/sosreport.py:436
+#, python-format
 msgid "plugin %s does not validate, skipping"
-msgstr ""
+msgstr "plugin %s není validní, přeskakuji"
 
-#: sosreport:474
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr ""
-
-#: sosreport:478
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr ""
-
-#: sosreport:486
-msgid "plugin %s not specified in --only-plugins list"
-msgstr ""
-
-#: sosreport:491
+#: sos/sosreport.py:465
+#, python-format
 msgid "plugin %s does not install, skipping"
-msgstr ""
+msgstr "plugin %s nejde nainstalovat, přeskakuji"
 
-#: sosreport:554
-msgid "processing options from plugin: %s"
-msgstr ""
-
-#: sosreport:565
+#: sos/sosreport.py:561
 msgid "no valid plugins found"
-msgstr ""
+msgstr "žádné validní pluginy"
 
-#: sosreport:570
+#: sos/sosreport.py:565
 msgid "The following plugins are currently enabled:"
-msgstr ""
+msgstr "Právě jsou povoleny tyto pluginy:"
 
-#: sosreport:575
+#: sos/sosreport.py:571
 msgid "No plugin enabled."
-msgstr ""
+msgstr "Žádné pluginy nejsou povoleny."
 
-#: sosreport:579
+#: sos/sosreport.py:575
 msgid "The following plugins are currently disabled:"
-msgstr ""
+msgstr "Následující pluginy jsou právě zakázány:"
 
-#: sosreport:586
+#: sos/sosreport.py:583
 msgid "The following plugin options are available:"
-msgstr ""
+msgstr "K dispozici jsou tato nastavení pluginů:"
 
-#: sosreport:606
+#: sos/sosreport.py:604
 msgid "No plugin options available."
-msgstr ""
+msgstr "Žádné nastavení pro pluginy."
 
-#: sosreport:614
+#: sos/sosreport.py:612
 msgid "sosreport requires root permissions to run."
-msgstr ""
+msgstr "sosreport vyžaduje pro poškození práva roota."
 
-#: sosreport:621
+#: sos/sosreport.py:619
 msgid "no valid plugins were enabled"
-msgstr ""
+msgstr "Žádné validní pluginy nejsou povoleny."
 
-#: sosreport:624
+#: sos/sosreport.py:637
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Pro pokračování stiskněte ENTER, pro přerušení CTRL+c.\n"
+
+#: sos/sosreport.py:656
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Jeden nebo více pluginů detekovalo problém ve vaší konfiguraci."
+
+#: sos/sosreport.py:658
+msgid "Please review the following messages:"
+msgstr "Prohlédněte si následující hlášení:"
+
+#: sos/sosreport.py:674
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Jste si jisti, že chcete pokračovat?"
+
+#: sos/sosreport.py:676
+msgid "y"
+msgstr "a"
+
+#: sos/sosreport.py:676
+msgid "Y"
+msgstr "A"
+
+#: sos/sosreport.py:679
+msgid "n"
+msgstr "n"
+
+#: sos/sosreport.py:679
+msgid "N"
+msgstr "N"
+
+#: sos/sosreport.py:698
+msgid "\tRunning plugins. Please wait ..."
+msgstr "\tPluginy běží. Čekejte prosím..."
+
+#: sos/sosreport.py:796
+#, python-format
+msgid "\tsosreport build tree is located at : %s"
+msgstr "\tstrom pro vytvoření sosreportu je umístěn v: %s"
+
+#: sos/sosreport.py:622
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
+"Nástroj sosreport sbírá některé podrobné informace o\n"
+"hardware počítače a nastavení systému %(distroa)s.\n"
+"Informace jsou uloženy do archivu v adresáři /tmp,\n"
+"abyste je mohli odeslat svému oddělení podpory.\n"
+"%(distrob)s použije tyto informace POUZE pro\n"
+"diagnostické potřeby a budou považovány za\n"
+"privátní.\n"
+"\n"
+"Celý proces bude chvíli trvat.\n"
+"V systému nebudou provedeny žádné změny.\n"
 
-#: sosreport:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
+#: sos/policyredhat.py:208
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Vložte své jméno a příjmení [%s]: "
 
-#: sosreport:654
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
+#: sos/policyredhat.py:211
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Vložte číslo hlášení, pro které vytváříte zprávu."
 
-#: sosreport:655
-msgid "Please review the following messages:"
-msgstr ""
+#: sos/policyredhat.py:251
+msgid "Creating compressed archive..."
+msgstr "Vytváření komprimovaného archivu..."
 
-#: sosreport:671
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr ""
+#: sos/policyredhat.py:281
+msgid "Encrypting archive..."
+msgstr "Šifrování archivu..."
 
-#: sosreport:672
-msgid "Y"
-msgstr ""
+#: sos/policyredhat.py:301
+msgid "There was a problem encrypting your report."
+msgstr "Při šifrování zprávy se vyskytla chyba."
 
-#: sosreport:672
-msgid "y"
+#: sos/policyredhat.py:325
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
 msgstr ""
+"Váš sosreport byl vygenerován a uložen v:\n"
+"  %s"
 
-#: sosreport:675
-msgid "N"
-msgstr ""
+#: sos/policyredhat.py:328
+msgid "The md5sum is: "
+msgstr "md5sum je:"
 
-#: sosreport:675
-msgid "n"
-msgstr ""
+#: sos/policyredhat.py:330
+msgid "Please send this file to your support representative."
+msgstr "Odešlete tento soubor svému oddělení podpory."
+
+#: sos/policyredhat.py:356
+msgid "Cannot upload to specified URL."
+msgstr "Nelze uložit na uvedené URL."
+
+#: sos/policyredhat.py:393
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Při odesílání zprávy do firmy Red Hat vznikla chyba."
+
+#: sos/policyredhat.py:395
+msgid ""
+"Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Vaše zpráva byla úspěšně odeslána na FTP server firmy Red Hat:"
+
+#: sos/policyredhat.py:398
+msgid "Please communicate this name to your support representative."
+msgstr "Komunikujte prosím s vaší podporou tohoto jména."
