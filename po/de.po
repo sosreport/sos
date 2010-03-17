@@ -1,18 +1,20 @@
+# translation of sos.trunk.po to
 # German translation of sos
 # This file is distributed under the same license as the sos package.
 # Copyright (C) 2007 Red hat, Inc.
 #
+#
 # Timo Trinks <ttrinks@redhat.com>, 2007.
 # Fabian Affolter <fab@fedoraproject.org>, 2009.
-#
+# sknirT omiT <moc.tahder@sknirtt>, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: SOS\n"
+"Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-10 14:45-0500\n"
-"PO-Revision-Date: 2010-03-12 05:48+0100\n"
-"Last-Translator: Jens Maucher <jensm@fedoraproject.org>\n"
-"Language-Team: German <fedora-trans-de@redhat.com>\n"
+"PO-Revision-Date: 2010-03-17 15:22+1000\n"
+"Last-Translator: sknirT omiT <moc.tahder@sknirtt>\n"
+"Language-Team:  <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -111,10 +113,10 @@ msgstr "\tFühre Plugins aus. Bitte warten ..."
 #: sos/sosreport.py:796
 #, python-format
 msgid "\tsosreport build tree is located at : %s"
-msgstr ""
+msgstr "\tsosreport-Build-Tree befindet sich unter : %s"
 
 #: sos/sosreport.py:622
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -128,10 +130,10 @@ msgid ""
 "\n"
 msgstr ""
 "Dieses Dienstprogramm sammelt einige detaillierte Informationen\n"
-"zur Hardware und Einrichtung Ihres Red Hat Enterprise Linux Systems.\n"
+"zur Hardware und Einrichtung Ihres %(distroa)s Systems.\n"
 "Die Informationen werden gesammelt und in einem Archiv unter /tmp\n"
 "zusammengefasst, welches Sie an einen Support-Vertreter schicken\n"
-"können. Red Hat verwendet diese Informationen AUSSCHLIEßLICH zu\n"
+"können. %(distrob)s verwendet diese Informationen AUSSCHLIEßLICH zu\n"
 "Diagnosezwecken und behandelt sie als vertrauliche Informationen.\n"
 "\n"
 "Die Fertigstellung dieses Prozesses kann eine Weile dauern.\n"
@@ -192,15 +194,3 @@ msgstr "Ihr Bericht wurde erfolgreich auf den Red Hat FTP-Server hochgeladen, mi
 msgid "Please communicate this name to your support representative."
 msgstr "Bitte teilen Sie diesen Namen Ihrem Support-Vertreter mit."
 
-#~ msgid "plugin %s skipped (--skip-plugins)"
-#~ msgstr "Plugin %s ausgelassen (--skip-plugins)"
-
-#~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr ""
-#~ "Plugin %s ist inaktiv (verwenden Sie -e oder -o, um es zu aktivieren)."
-
-#~ msgid "plugin %s not specified in --only-plugins list"
-#~ msgstr "Plugin %s nicht in der --only-plugins-Liste angegeben"
-
-#~ msgid "processing options from plugin: %s"
-#~ msgstr "Verarbeitung von Optionen des Plugins: %s"
