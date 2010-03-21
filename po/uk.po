@@ -6,8 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
-"POT-Creation-Date: 2008-12-19 06:40\n"
-"PO-Revision-Date: 2009-12-19 08:45\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-10 14:45-0500\n"
+"PO-Revision-Date: 2010-03-21 08:45\n"
 "Last-Translator: Maxim Dzіumanenko <dziumanenko@gmail.com>\n"
 "Language-Team: <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,131 +18,106 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: lib/sos/policyredhat.py:203
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "Вкажіть ім'я та прізвище [%s]: "
-
-#: lib/sos/policyredhat.py:206
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "Введіть номер перевірки для звіту, що створюється:"
-
-#: lib/sos/policyredhat.py:231
-msgid "Creating compressed archive..."
-msgstr "Створюється архів..."
-
-#: lib/sos/policyredhat.py:253
-msgid "Encrypting archive..."
-msgstr "Виконується кодування архіву..."
-
-#: lib/sos/policyredhat.py:271
-msgid "There was a problem encrypting your report."
-msgstr "Виникла помилка при кодуванні вашого звіту."
-
-#: lib/sos/policyredhat.py:292
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-"Створений звіт збережено у: \n"
-"  %s"
-
-#: lib/sos/policyredhat.py:295
-msgid "The md5sum is: "
-msgstr "md5sum:"
-
-#: lib/sos/policyredhat.py:297
-msgid "Please send this file to your support representative."
-msgstr "Відправте цей файл представнику служби підтримки."
-
-#: lib/sos/policyredhat.py:323
-msgid "Cannot upload to specified URL."
-msgstr "Не вдається надіслати файл."
-
-#: lib/sos/policyredhat.py:360
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
-"Виникла помилка при спробі надіслати звіт до служби підтримки Red Hat."
-
-#: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr "Ваш звіт успішно розміщено на ftp-сервері Red Hat з під назвою:"
-
-#: lib/sos/policyredhat.py:365
-msgid "Please communicate this name to your support representative."
-msgstr "Повідомте це ім'я представнику служби підтримки."
-
-#: sosreport:401
+#: sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "Не вдається створити тимчасовий каталог."
 
-#: sosreport:457
+#: sos/sosreport.py:411
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (версія %s)"
 
-#: sosreport:474
+#: sos/sosreport.py:436
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "модуль %s не пройшов перевірку автентичності. Пропускається."
 
-#: sosreport:480
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "пропущено модуль %s (--skip-plugins)"
-
-#: sosreport:484
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "неактивний модуль %s (для активації використовуйте -e або -o)"
-
-#: sosreport:492
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "модуль %s не вказано у списку --only-plugins"
-
-#: sosreport:497
+#: sos/sosreport.py:465
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "модуль %s не встановлюється. Пропускається."
 
-#: sosreport:568
-msgid "processing options from plugin: %s"
-msgstr "оброблюються опції модуля: %s"
-
-#: sosreport:579
+#: sos/sosreport.py:561
 msgid "no valid plugins found"
 msgstr "не знайдено модулі"
 
-#: sosreport:584
+#: sos/sosreport.py:565
 msgid "The following plugins are currently enabled:"
 msgstr "Наразі увімкнені модулі:"
 
-#: sosreport:589
+#: sos/sosreport.py:571
 msgid "No plugin enabled."
 msgstr "Немає активних модулій."
 
-#: sosreport:593
+#: sos/sosreport.py:575
 msgid "The following plugins are currently disabled:"
 msgstr "Наразі вимкнені модулі:"
 
-#: sosreport:600
+#: sos/sosreport.py:583
 msgid "The following plugin options are available:"
 msgstr "Доступні наступні параметри модулів:"
 
-#: sosreport:620
+#: sos/sosreport.py:604
 msgid "No plugin options available."
 msgstr "Немає параметрів."
 
-#: sosreport:628
+#: sos/sosreport.py:612
 msgid "sosreport requires root permissions to run."
 msgstr "Для виконання sosreport потрібні права root."
 
-#: sosreport:635
+#: sos/sosreport.py:619
 msgid "no valid plugins were enabled"
 msgstr "відповідні модулі не увімкнені"
 
-#: sosreport:638
+#: sos/sosreport.py:637
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Натисніть ENTER для продовження або CTRL-C для виходу.\n"
+
+#: sos/sosreport.py:656
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Модулі виявили помилки конфігурації."
+
+#: sos/sosreport.py:658
+msgid "Please review the following messages:"
+msgstr "Будь ласка, перегляньте повідомлення:"
+
+#: sos/sosreport.py:674
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Ви дійсно бажаєте продовжити? (y/n)"
+
+#: sos/sosreport.py:676
+msgid "y"
+msgstr "y"
+
+#: sos/sosreport.py:676
+msgid "Y"
+msgstr "Y"
+
+#: sos/sosreport.py:679
+msgid "n"
+msgstr "n"
+
+#: sos/sosreport.py:679
+msgid "N"
+msgstr "N"
+
+#: sos/sosreport.py:698
+msgid "\tRunning plugins. Please wait ..."
+msgstr "\t Виконуються модулі. Зачекайте, будь ласка..."
+
+#: sos/sosreport.py:796
+#, python-format
+msgid "\tsosreport build tree is located at : %s"
+msgstr "\t розташування дерева sosreport: %s"
+
+#: sos/sosreport.py:622
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
@@ -149,47 +125,69 @@ msgid ""
 "\n"
 msgstr ""
 "Ця програма виконає збір докладної інформації про обладнання\n"
-"та параметри вашої системи Red Hat Enterprise Linux.\n"
-"Отримані відомості будуть упаковані у архів, який буде розміщено у "
-"каталозі /tmp.\n"
+"та параметри вашої системи %(distroa)s.\n"
+"Отримані відомості будуть упаковані у архів, який буде розміщено у каталозі /"
+"tmp.\n"
 "Цей архів можна надсилати до служби підтримки для аналізу.\n"
-"Red Hat розглядає цю інформацію як конфіденційну та використовує\n"
+"%(distrob)s розглядає цю інформацію як конфіденційну та використовує\n"
 "виключно з метою діагностики.\n"
 "\n"
 "Цей процес може тривати деякий час.\n"
 "Систему при цьому змінено не буде.\n"
-"\n"
 
-#: sosreport:652
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Натисніть ENTER для продовження або CTRL-C для виходу.\n"
+#: sos/policyredhat.py:208
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Вкажіть ім'я та прізвище [%s]: "
 
-#: sosreport:668
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Модулі виявили помилки конфігурації."
+#: sos/policyredhat.py:211
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Введіть номер перевірки для звіту, що створюється:"
 
-#: sosreport:669
-msgid "Please review the following messages:"
-msgstr "Будь ласка, перегляньте повідомлення:"
+#: sos/policyredhat.py:251
+msgid "Creating compressed archive..."
+msgstr "Створюється архів..."
 
-#: sosreport:685
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Ви дійсно бажаєте продовжити? (y/n)"
+#: sos/policyredhat.py:281
+msgid "Encrypting archive..."
+msgstr "Виконується кодування архіву..."
 
-#: sosreport:686
-msgid "Y"
-msgstr "Y"
+#: sos/policyredhat.py:301
+msgid "There was a problem encrypting your report."
+msgstr "Виникла помилка при кодуванні вашого звіту."
 
-#: sosreport:686
-msgid "y"
-msgstr "y"
+#: sos/policyredhat.py:325
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Створений звіт збережено у: \n"
+"  %s"
 
-#: sosreport:689
-msgid "N"
-msgstr "N"
+#: sos/policyredhat.py:328
+msgid "The md5sum is: "
+msgstr "md5sum:"
 
-#: sosreport:689
-msgid "n"
-msgstr "n"
+#: sos/policyredhat.py:330
+msgid "Please send this file to your support representative."
+msgstr "Відправте цей файл представнику служби підтримки."
+
+#: sos/policyredhat.py:356
+msgid "Cannot upload to specified URL."
+msgstr "Не вдається надіслати файл."
+
+#: sos/policyredhat.py:393
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Виникла помилка при спробі надіслати звіт до служби підтримки Red Hat."
+
+#: sos/policyredhat.py:395
+msgid ""
+"Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Ваш звіт успішно розміщено на ftp-сервері Red Hat з під назвою:"
+
+#: sos/policyredhat.py:398
+msgid "Please communicate this name to your support representative."
+msgstr "Повідомте це ім'я представнику служби підтримки."
 
 
