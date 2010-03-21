@@ -1,90 +1,89 @@
-# translation of ru.po to
-# Russian translations for PACKAGE package.
-# Copyright (C) 2007 ORGANIZATION
+# Ukrainian translations for sos package.
+# Copyright (C) Free Software Foundation
+# This file is distributed under the same license as the system-config-display package.
+# Maxim Dzіumanenko <dziumanenko@gmail.com>, 2009
 #
-# Automatically generated, 2007.
-# Yulia <ypoyarko@redhat.com>, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: ru\n"
+"Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-10 14:45-0500\n"
-"PO-Revision-Date: 2010-03-12 11:58+1100\n"
-"Last-Translator: Yulia <ypoyarko@redhat.com>\n"
-"Language-Team: Russian\n"
+"PO-Revision-Date: 2010-03-21 08:45\n"
+"Last-Translator: Maxim Dzіumanenko <dziumanenko@gmail.com>\n"
+"Language-Team: <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: sos/sosreport.py:345
 msgid "Could not create temporary directory."
-msgstr "Не удалось создать временный каталог."
+msgstr "Не вдається створити тимчасовий каталог."
 
 #: sos/sosreport.py:411
 #, python-format
 msgid "sosreport (version %s)"
-msgstr "sosreport (версия %s)"
+msgstr "sosreport (версія %s)"
 
 #: sos/sosreport.py:436
 #, python-format
 msgid "plugin %s does not validate, skipping"
-msgstr "модуль %s не прошёл проверку. Пропускается."
+msgstr "модуль %s не пройшов перевірку автентичності. Пропускається."
 
 #: sos/sosreport.py:465
 #, python-format
 msgid "plugin %s does not install, skipping"
-msgstr "модуль %s не устанавливается. Пропускается."
+msgstr "модуль %s не встановлюється. Пропускається."
 
 #: sos/sosreport.py:561
 msgid "no valid plugins found"
-msgstr "модули не найдены"
+msgstr "не знайдено модулі"
 
 #: sos/sosreport.py:565
 msgid "The following plugins are currently enabled:"
-msgstr "В настоящее время включены модули:"
+msgstr "Наразі увімкнені модулі:"
 
 #: sos/sosreport.py:571
 msgid "No plugin enabled."
-msgstr "Нет активных модулей."
+msgstr "Немає активних модулій."
 
 #: sos/sosreport.py:575
 msgid "The following plugins are currently disabled:"
-msgstr "В настоящее время отключены модули:"
+msgstr "Наразі вимкнені модулі:"
 
 #: sos/sosreport.py:583
 msgid "The following plugin options are available:"
-msgstr "Доступные опции модулей:"
+msgstr "Доступні наступні параметри модулів:"
 
 #: sos/sosreport.py:604
 msgid "No plugin options available."
-msgstr "Нет опций."
+msgstr "Немає параметрів."
 
 #: sos/sosreport.py:612
 msgid "sosreport requires root permissions to run."
-msgstr "Для выполнения sosreport необходимы права root."
+msgstr "Для виконання sosreport потрібні права root."
 
 #: sos/sosreport.py:619
 msgid "no valid plugins were enabled"
-msgstr "подходящие модули не включены"
+msgstr "відповідні модулі не увімкнені"
 
 #: sos/sosreport.py:637
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Нажмите ENTER для продолжения или CTRL-C для выхода.\n"
+msgstr "Натисніть ENTER для продовження або CTRL-C для виходу.\n"
 
 #: sos/sosreport.py:656
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Модули обнаружили ошибки конфигурации."
+msgstr "Модулі виявили помилки конфігурації."
 
 #: sos/sosreport.py:658
 msgid "Please review the following messages:"
-msgstr "Пожалуйста, просмотрите сообщения:"
+msgstr "Будь ласка, перегляньте повідомлення:"
 
 #: sos/sosreport.py:674
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Вы действительно хотите продолжить? (y/n)"
+msgstr "Ви дійсно бажаєте продовжити? (y/n)"
 
 #: sos/sosreport.py:676
 msgid "y"
@@ -104,12 +103,12 @@ msgstr "N"
 
 #: sos/sosreport.py:698
 msgid "\tRunning plugins. Please wait ..."
-msgstr "\t Выполняются модули. Пожалуйста, подождите..."
+msgstr "\t Виконуються модулі. Зачекайте, будь ласка..."
 
 #: sos/sosreport.py:796
 #, python-format
 msgid "\tsosreport build tree is located at : %s"
-msgstr "\t расположение дерева sosreport: %s"
+msgstr "\t розташування дерева sosreport: %s"
 
 #: sos/sosreport.py:622
 #, python-format
@@ -125,38 +124,37 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"Эта программа выполнит сбор подробной информации об оборудовании\n"
-"и настройках вашей системы %(distroa)s.\n"
-"Полученные сведения будут упакованы в архив, который будет помещён в "
-"каталог /tmp.\n"
-"Этот архив можно отправить в службу поддержки для анализа.\n"
-"%(distrob)s рассматривает эту информацию как конфиденциальную и использует\n"
-"исключительно в целях диагностики.\n"
+"Ця програма виконає збір докладної інформації про обладнання\n"
+"та параметри вашої системи %(distroa)s.\n"
+"Отримані відомості будуть упаковані у архів, який буде розміщено у каталозі /"
+"tmp.\n"
+"Цей архів можна надсилати до служби підтримки для аналізу.\n"
+"%(distrob)s розглядає цю інформацію як конфіденційну та використовує\n"
+"виключно з метою діагностики.\n"
 "\n"
-"Этот процесс может занять некоторое время.\n"
-"Система при этом изменена не будет.\n"
-"\n"
+"Цей процес може тривати деякий час.\n"
+"Систему при цьому змінено не буде.\n"
 
 #: sos/policyredhat.py:208
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
-msgstr "Пожалуйста, укажите первую букву имени и фамилию [%s]: "
+msgstr "Вкажіть ім'я та прізвище [%s]: "
 
 #: sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
-msgstr "Пожалуйста, введите номер проверки для создаваемого отчёта:"
+msgstr "Введіть номер перевірки для звіту, що створюється:"
 
 #: sos/policyredhat.py:251
 msgid "Creating compressed archive..."
-msgstr "Создаётся архив..."
+msgstr "Створюється архів..."
 
 #: sos/policyredhat.py:281
 msgid "Encrypting archive..."
-msgstr "Выполняется шифрование архива..."
+msgstr "Виконується кодування архіву..."
 
 #: sos/policyredhat.py:301
 msgid "There was a problem encrypting your report."
-msgstr "Произошла ошибка при шифровании отчёта."
+msgstr "Виникла помилка при кодуванні вашого звіту."
 
 #: sos/policyredhat.py:325
 #, python-format
@@ -164,7 +162,7 @@ msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
 msgstr ""
-"Созданный отчёт сохранен в: \n"
+"Створений звіт збережено у: \n"
 "  %s"
 
 #: sos/policyredhat.py:328
@@ -173,21 +171,23 @@ msgstr "md5sum:"
 
 #: sos/policyredhat.py:330
 msgid "Please send this file to your support representative."
-msgstr "Отправьте этот файл представителю службы поддержки."
+msgstr "Відправте цей файл представнику служби підтримки."
 
 #: sos/policyredhat.py:356
 msgid "Cannot upload to specified URL."
-msgstr "Не удалось отправить файл."
+msgstr "Не вдається надіслати файл."
 
 #: sos/policyredhat.py:393
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Произошла ошибка при попытке отправить отчёт в службу поддержки Red Hat."
+msgstr "Виникла помилка при спробі надіслати звіт до служби підтримки Red Hat."
 
 #: sos/policyredhat.py:395
-msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr "Ваш отчёт был успешно размещён на FTP-сервере Red Hat под именем:"
+msgid ""
+"Your report was successfully uploaded to Red Hat's ftp server with name:"
+msgstr "Ваш звіт успішно розміщено на ftp-сервері Red Hat з під назвою:"
 
 #: sos/policyredhat.py:398
 msgid "Please communicate this name to your support representative."
-msgstr "Пожалуйста, сообщите это имя представителю службы поддержки."
+msgstr "Повідомте це ім'я представнику служби підтримки."
+
 
