@@ -8,28 +8,31 @@ RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
 REPO = http://svn.fedorahosted.org/svn/sos
 TMPDIR = /tmp/$(NAME)-$(VERSION)
 
-SUBDIRS = po sos sos/plugins gpgkeys extras doc doc/_build/html doc/_build/html/_sources doc/_build/html/_static
+SUBDIRS = po sos sos/plugins
 PYFILES = $(wildcard *.py)
 
 all: subdirs
 
 subdirs:
-	for d in $(SUBDIRS); do make -C $$d; [$$? = 0] || exit 1; done
+	for d in $(SUBDIRS); do make -C $$d; [ $$? = 0 ] || exit 1 ; done
 
 install: document
+	mkdir -p $(DESTDIR)/usr/sbin
 	mkdir -p $(DESTDIR)/usr/share/man/man1
+	mkdir -p $(DESTDIR)/usr/share/$(NAME)/extras
 	@gzip -c man/en/sosreport.1 > sosreport.1.gz
-	mkdir -p $(DESTDIR)/usr/share/$(NAME)
 	mkdir -p $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_sources
 	mkdir -p $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_static
 	mkdir -p $(DESTDIR)/etc
+	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
+	install -m755 extras/rh-upload $(DESTDIR)/usr/share/$(NAME)/extras/rh-upload
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
 	install -m644 LICENSE README README.rh-upload TODO $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 doc/_build/html/*.{html,inv,js} $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/.
 	install -m644 doc/_build/html/_sources/* $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_sources/.
 	install -m644 doc/_build/html/_static/* $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_static/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
-	make DESTDIR=`cd $(DESTDIR); pwd` -C po install
+	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 document:
 	make -C $(PWD)/doc html
