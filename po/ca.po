@@ -18,7 +18,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
-"POT-Creation-Date: 2008-12-19 06:40\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-26 16:16-0400\n"
 "PO-Revision-Date: 2009-05-17 08:45\n"
 "Last-Translator: Xavier Faus i Torà <xfaus@diei.udl.cat>\n"
 "Language-Team: Catalan <fedora@softcatala.net>\n"
@@ -27,137 +28,135 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: lib/sos/policyredhat.py:203
+#: ../sos/policyredhat.py:208
+#, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Si us plau entreu la vostra inicial i el cognom [%s]: "
 
-#: lib/sos/policyredhat.py:206
+#: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
-msgstr "Si us plau introduïu el número del cas per al qual esteu generant l'informe :"
+msgstr ""
+"Si us plau introduïu el número del cas per al qual esteu generant l'informe :"
 
-#: lib/sos/policyredhat.py:231
+#: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
 msgstr "S'està creant l'arxiu comprimit..."
 
-#: lib/sos/policyredhat.py:253
+#: ../sos/policyredhat.py:281
 msgid "Encrypting archive..."
 msgstr "S'està xifrant l'arxiu..."
 
-#: lib/sos/policyredhat.py:271
+#: ../sos/policyredhat.py:301
 msgid "There was a problem encrypting your report."
 msgstr "Hi ha hagut un problema xifrant el vostre informe."
 
-#: lib/sos/policyredhat.py:292
+#: ../sos/policyredhat.py:325
+#, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
-msgstr "El vostre informe del sos ha estat generat i desat a:\n"
+msgstr ""
+"El vostre informe del sos ha estat generat i desat a:\n"
 "  %s"
 
-#: lib/sos/policyredhat.py:295
+#: ../sos/policyredhat.py:328
 msgid "The md5sum is: "
 msgstr "L'md5sum és:"
 
-#: lib/sos/policyredhat.py:297
+#: ../sos/policyredhat.py:330
 msgid "Please send this file to your support representative."
 msgstr "Si us plau envieu aquest fitxer al vostre responsable del manteniment."
 
-#: lib/sos/policyredhat.py:323
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr ""
+
+#: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "No es pot pujar a la URL especificada."
 
-#: lib/sos/policyredhat.py:360
+#: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Hi ha hagut un problema en pujar l'informe al manteniment de Red Hat."
 
-#: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
+#: ../sos/policyredhat.py:398
+#, fuzzy, python-format
+msgid "Your report was successfully uploaded to %s with name:"
 msgstr ""
 "L'informe s'ha pujat correctament al servidor d'ftp de Red Hat amb el nom:"
 
-#: lib/sos/policyredhat.py:365
+#: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
-msgstr "Si us plau comuniqueu aquest nom a la vostra persona encarregada del "
+msgstr ""
+"Si us plau comuniqueu aquest nom a la vostra persona encarregada del "
 "manteniment."
 
-#: sosreport:401
+#: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "No es pot crear el directori temporal."
 
-#: sosreport:457
+#: ../sos/sosreport.py:408
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "informe d'ajuda (versió %s)"
 
-#: sosreport:474
+#: ../sos/sosreport.py:433
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "el connector %s no es valida, ometent"
 
-#: sosreport:480
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "el connector %s s'ha omés (--skip-plugins)"
-
-#: sosreport:484
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "el connector %s és inactiu (utilitzeu -e o -o per activar-lo)"
-
-#: sosreport:492
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "el connector %s no s'ha especificat a la llista --only-plugins"
-
-#: sosreport:497
+#: ../sos/sosreport.py:462
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "el connector %s no s'instal·la, ometent"
 
-#: sosreport:568
-msgid "processing options from plugin: %s"
-msgstr "processant opcions del connector: %s"
-
-#: sosreport:579
+#: ../sos/sosreport.py:558
 msgid "no valid plugins found"
 msgstr "cap connector vàlid trobat"
 
-#: sosreport:584
+#: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
 msgstr "Els següents connectors estan actualment activats:"
 
-#: sosreport:589
+#: ../sos/sosreport.py:568
 msgid "No plugin enabled."
 msgstr "Cap connector activat."
 
-#: sosreport:593
+#: ../sos/sosreport.py:572
 msgid "The following plugins are currently disabled:"
 msgstr "Els següents connectors estan desactivats:"
 
-#: sosreport:600
+#: ../sos/sosreport.py:580
 msgid "The following plugin options are available:"
 msgstr "Les següents opcions dels connectors són disponibles:"
 
-#: sosreport:620
+#: ../sos/sosreport.py:601
 msgid "No plugin options available."
 msgstr "No hi ha cap opció disponible dels connectors."
 
-#: sosreport:628
+#: ../sos/sosreport.py:609
 msgid "sosreport requires root permissions to run."
 msgstr "el sosreport necessita privilegis de root."
 
-#: sosreport:635
+#: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
 msgstr "cap connector vàlid està activat"
 
-#: sosreport:638
+#: ../sos/sosreport.py:619
+#, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
 "No changes will be made to your system.\n"
 "\n"
-msgstr "Aquesta utilitat recollirà informació detallada sobre\n"
+msgstr ""
+"Aquesta utilitat recollirà informació detallada sobre\n"
 "el maquinari i la configuració del vostre sistema Red Had Enterprise Linux.\n"
 "La informació recollida és adjuntada i desada en un arxiu en el directori\n"
 "/tmp, que podeu enviar a la persona encarregada del manteniment.\n"
@@ -168,34 +167,55 @@ msgstr "Aquesta utilitat recollirà informació detallada sobre\n"
 "No es realitzarà cap canvi al vostre sistema.\n"
 "\n"
 
-#: sosreport:652
+#: ../sos/sosreport.py:634
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Premeu Entrar per continuar, o Control-C per sortir.\n"
 
-#: sosreport:668
+#: ../sos/sosreport.py:653
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "Un o més connectors han detectat un problema en la configuració."
 
-#: sosreport:669
+#: ../sos/sosreport.py:655
 msgid "Please review the following messages:"
 msgstr "Si us plau reviseu els següents missatges:"
 
-#: sosreport:685
+#: ../sos/sosreport.py:671
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "Esteu segurs que voleu continuar (s/n) ? "
 
-#: sosreport:686
-msgid "Y"
-msgstr "S"
-
-#: sosreport:686
+#: ../sos/sosreport.py:673
 msgid "y"
 msgstr "s"
 
-#: sosreport:689
+#: ../sos/sosreport.py:673
+msgid "Y"
+msgstr "S"
+
+#: ../sos/sosreport.py:676
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:676
 msgid "N"
 msgstr "N"
 
-#: sosreport:689
-msgid "n"
-msgstr "n"
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:802
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
+
+#~ msgid "plugin %s skipped (--skip-plugins)"
+#~ msgstr "el connector %s s'ha omés (--skip-plugins)"
+
+#~ msgid "plugin %s is inactive (use -e or -o to enable)."
+#~ msgstr "el connector %s és inactiu (utilitzeu -e o -o per activar-lo)"
+
+#~ msgid "plugin %s not specified in --only-plugins list"
+#~ msgstr "el connector %s no s'ha especificat a la llista --only-plugins"
+
+#~ msgid "processing options from plugin: %s"
+#~ msgstr "processant opcions del connector: %s"

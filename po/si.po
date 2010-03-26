@@ -7,7 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: si\n"
-"POT-Creation-Date: 2007-10-24 08:45\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-26 16:16-0400\n"
 "PO-Revision-Date: 2007-11-07 19:03+0530\n"
 "Last-Translator: Danishka Navin <snavin@redhat.com>\n"
 "Language-Team: Sinhala <en@li.org>\n"
@@ -18,27 +19,29 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/sos/policyredhat.py:203
+#: ../sos/policyredhat.py:208
+#, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "කරුණාකර ඔබගේ පළමු මුළකුර සහ අවසාන නම ඇතුළත් කරන්න [%s]: "
 
-#: lib/sos/policyredhat.py:206
+#: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "කරුණාකර මෙම වාර්තාව ගොඩනැන්වීමට අදාල අවස්ථා අංකය ඇතුළත් කරන්න: "
 
-#: lib/sos/policyredhat.py:231
+#: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
 msgstr "හැකිලු සංරක්‍ෂක නිර්මාණය කරමින්..."
 
-#: lib/sos/policyredhat.py:253
+#: ../sos/policyredhat.py:281
 msgid "Encrypting archive..."
 msgstr "සංරක්‍ෂණ සංකේතාංකනය කරමින්..."
 
-#: lib/sos/policyredhat.py:271
+#: ../sos/policyredhat.py:301
 msgid "There was a problem encrypting your report."
 msgstr "ඔබගේ වාර්තාව සංකේතාංනය කිරීමේදි දෝෂයක් ඇතිවිය."
 
-#: lib/sos/policyredhat.py:292
+#: ../sos/policyredhat.py:325
+#, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
@@ -46,147 +49,160 @@ msgstr ""
 "ඔබගේ sosreport නිර්මාණය වූ අතර සුරකිනු ලැබු යේ:\n"
 "  %s"
 
-#: lib/sos/policyredhat.py:295
+#: ../sos/policyredhat.py:328
 msgid "The md5sum is: "
 msgstr "md5sum වනුයේ: "
 
-#: lib/sos/policyredhat.py:297
+#: ../sos/policyredhat.py:330
 msgid "Please send this file to your support representative."
 msgstr "කරුණාකර මෙම ගොනුව ඔබගේ සහායක නියෝජිත වෙත යවන්න."
 
-#: lib/sos/policyredhat.py:323
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr ""
+
+#: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "දක්වන ලඳ URL වෙත ලබා දිය නොහැක."
 
-#: lib/sos/policyredhat.py:360
+#: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "ඔබගේ වාර්තාව Red Hat සහය වෙතට ලබා දිමේදි දෝෂයල් ඇති විය."
 
-#: lib/sos/policyredhat.py:362
-msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+#: ../sos/policyredhat.py:398
+#, fuzzy, python-format
+msgid "Your report was successfully uploaded to %s with name:"
 msgstr "ඔබගේ වාර්තාව සාර්තකව Red Hat's ftp සේවාදායකයට ලබාදුන් අතර නම වූයේ:"
 
-#: lib/sos/policyredhat.py:365
+#: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
 msgstr "ඔබගේ සහායක නියෝජිත වෙතට සංනිවේදනයට මෙම නම භාවිතා කරන්න."
 
-#: sosreport:395
+#: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "තාවකාලීක බහලුම නිර්මාණය කළ නොහැකි විය."
 
-#: sosreport:451
+#: ../sos/sosreport.py:408
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (%s වෙළුම)"
 
-#: sosreport:468
+#: ../sos/sosreport.py:433
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "%s ප්ලගීනය සත්‍යාපනය වන්නේ නැත, මගහරිමින්"
 
-#: sosreport:474
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "%s ප්ලගීනය මගහරින ලදි (--skip-plugins)"
-
-#: sosreport:478
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "%sප්ලගීනය අක්‍රීයව ඇත ( සක්‍රීය කිරීමට -e හෝ -o භාවිතා කරන්න)."
-
-#: sosreport:486
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "--only-plugins ලැයිස්තුව තුළ %s ප්ලගීනය විශේෂිතව දක්වා නැත"
-
-#: sosreport:491
+#: ../sos/sosreport.py:462
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "%s ප්ලගීනය ස්ථාපනය වන්නේ නැත, මගහරි"
 
-#: sosreport:554
-msgid "processing options from plugin: %s"
-msgstr "ප්ලගීන වෙතින් විකල්ප සකසමින්: %s"
-
-#: sosreport:565
+#: ../sos/sosreport.py:558
 msgid "no valid plugins found"
 msgstr "නිරවද්‍ය පල්ගීන හමුවුයේ නැත"
 
-#: sosreport:570
+#: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
 msgstr "පහත දැක්වෙන ප්ලගීන දැනට සක්‍රීයව ඇත:"
 
-#: sosreport:575
+#: ../sos/sosreport.py:568
 msgid "No plugin enabled."
 msgstr "ප්ලගීන කිසිවක් සක්‍රීය නැත."
 
-#: sosreport:579
+#: ../sos/sosreport.py:572
 msgid "The following plugins are currently disabled:"
 msgstr "පහත පල්ගීන විකල්ප දැනට අක්‍රීයව ඇත:"
 
-#: sosreport:586
+#: ../sos/sosreport.py:580
 msgid "The following plugin options are available:"
 msgstr "පහත පල්ගීන විකල්ප භාවිතයට ඇත:"
 
-#: sosreport:606
+#: ../sos/sosreport.py:601
 msgid "No plugin options available."
 msgstr "කිසිදු පල්ගීන විකල්පයක් භාවිතයට නැත."
 
-#: sosreport:614
+#: ../sos/sosreport.py:609
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport ක්‍රියාත්මක වීම සඳහා root අවසර අවශ්‍යව ඇත."
 
-#: sosreport:621
+#: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
 msgstr "කිසිදු නිරවද්‍ය පල්ගිනයක් සක්‍රිය කර නැත"
 
-#: sosreport:624
+#: ../sos/sosreport.py:619
+#, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"මෙම උපයෝගි තාවය දෘඩාංග පිළිබදව සවිස්තරාත්මක තොරතුරු රැස්කරණ අතර "
-"ඔබගේ  Red Hat Enterprise Linux  පද්ධතිය පිහිටවනු ලැබේ.\n"
-"රැස් කළ තොරතුරු සහ සංරක්‍ෂකය /tmp යටතේ ඇසුරුම් ගත කර ඇති අතර ඔබට "
-"එය සහායක නියෝජිත වෙත යැවිය හැක.\n"
-"Red Hat මෙම තොරතුරු  භාවිතා කරන්නේ දෝෂ විනිශ්චය පමණක් වන අතර එම "
-"තොරතුරු රහසිගත තොරතුරු ලෙස සළකණු ලබයි.\n"
+"මෙම උපයෝගි තාවය දෘඩාංග පිළිබදව සවිස්තරාත්මක තොරතුරු රැස්කරණ අතර ඔබගේ  Red Hat "
+"Enterprise Linux  පද්ධතිය පිහිටවනු ලැබේ.\n"
+"රැස් කළ තොරතුරු සහ සංරක්‍ෂකය /tmp යටතේ ඇසුරුම් ගත කර ඇති අතර ඔබට එය සහායක නියෝජිත වෙත "
+"යැවිය හැක.\n"
+"Red Hat මෙම තොරතුරු  භාවිතා කරන්නේ දෝෂ විනිශ්චය පමණක් වන අතර එම තොරතුරු රහසිගත තොරතුරු "
+"ලෙස සළකණු ලබයි.\n"
 "\n"
 "මෙම ක්‍රියාව නිම වීමට වේලාවක් ගතවනු ඇත.\n"
 "ඔබගේ පද්ධතියට කිසිදු වෙනසක් සිදු නොවනු ඇත.\n"
 "\n"
 
-#: sosreport:638
+#: ../sos/sosreport.py:634
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "දිගටම කරගෙන යාමට ENTER හෝ පිට වීමට CTRL-C ඔබන්න.\n"
 
-#: sosreport:654
+#: ../sos/sosreport.py:653
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "ප්ලගීන එකක හෝ කිහිපයක් ඔබගේ ප්ධතිය තුළ වූ දෝෂයක් අනාවරණය කරගෙන ඇත."
 
-#: sosreport:655
+#: ../sos/sosreport.py:655
 msgid "Please review the following messages:"
 msgstr "කරුණාකර පහත පණිවිඩ නැවත සළකා බලන්න:"
 
-#: sosreport:671
+#: ../sos/sosreport.py:671
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "ඔබට විශ්වාසද? ඔබට දිගටම කරගෙන යාමට අවශ්‍යද (y/n) ? "
 
-#: sosreport:672
-msgid "Y"
-msgstr "Y"
-
-#: sosreport:672
+#: ../sos/sosreport.py:673
 msgid "y"
 msgstr "y"
 
-#: sosreport:675
-msgid "N"
-msgstr "N"
+#: ../sos/sosreport.py:673
+msgid "Y"
+msgstr "Y"
 
-#: sosreport:675
+#: ../sos/sosreport.py:676
 msgid "n"
 msgstr "n"
 
+#: ../sos/sosreport.py:676
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:802
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
+
+#~ msgid "plugin %s skipped (--skip-plugins)"
+#~ msgstr "%s ප්ලගීනය මගහරින ලදි (--skip-plugins)"
+
+#~ msgid "plugin %s is inactive (use -e or -o to enable)."
+#~ msgstr "%sප්ලගීනය අක්‍රීයව ඇත ( සක්‍රීය කිරීමට -e හෝ -o භාවිතා කරන්න)."
+
+#~ msgid "plugin %s not specified in --only-plugins list"
+#~ msgstr "--only-plugins ලැයිස්තුව තුළ %s ප්ලගීනය විශේෂිතව දක්වා නැත"
+
+#~ msgid "processing options from plugin: %s"
+#~ msgstr "ප්ලගීන වෙතින් විකල්ප සකසමින්: %s"

@@ -7,7 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk.te\n"
-"POT-Creation-Date: 2008-12-19 06:40\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-26 16:16-0400\n"
 "PO-Revision-Date: 2009-09-07 21:18+0530\n"
 "Last-Translator: Krishna Babu K <kkrothap@redhat.com>\n"
 "Language-Team: Telugu <en@li.org>\n"
@@ -16,29 +17,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"\n"
 
-#: lib/sos/policyredhat.py:203
+#: ../sos/policyredhat.py:208
+#, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "దయచేసి మీ పేరు మొదటి అక్షరం మరియు మీ యింటిపేరును ప్రవేశపెట్టండి [%s]"
 
-#: lib/sos/policyredhat.py:206
+#: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "ఈ నివేదికను దేనికొరకు తయారు చేస్తున్నారో దాని కేస్ సంఖ్యను ప్రవేశపెట్టండి: "
 
-#: lib/sos/policyredhat.py:231
+#: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
 msgstr "కుదించిన ఆర్చీవ్‌ను సృష్టిస్తోంది..."
 
-#: lib/sos/policyredhat.py:253
+#: ../sos/policyredhat.py:281
 msgid "Encrypting archive..."
 msgstr "ఆర్చివ్‌ను ఎన్క్రిప్టు చేయుచున్నది..."
 
-#: lib/sos/policyredhat.py:271
+#: ../sos/policyredhat.py:301
 msgid "There was a problem encrypting your report."
 msgstr "మీ నివేదికను ఎన్క్రిప్టు చేయుటలో అక్కడ వొక దోషమువుంది."
 
-#: lib/sos/policyredhat.py:292
+#: ../sos/policyredhat.py:325
+#, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
@@ -46,101 +50,94 @@ msgstr ""
 "మీ sosreport తయారుచేయబడింది మరియు దీనినందు దాయబడింది:\n"
 "  %s"
 
-#: lib/sos/policyredhat.py:295
+#: ../sos/policyredhat.py:328
 msgid "The md5sum is: "
 msgstr "md5sum : "
 
-#: lib/sos/policyredhat.py:297
+#: ../sos/policyredhat.py:330
 msgid "Please send this file to your support representative."
 msgstr "దయచేసి ఈ దస్త్రమును మీ మద్దతు ప్రతినిధికి పంపండి."
 
-#: lib/sos/policyredhat.py:323
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr ""
+
+#: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "తెలుపబడిన URLకు అప్‌లోడ్ చేయలేదు."
 
-#: lib/sos/policyredhat.py:360
+#: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "మీ సమస్యను Red Hat మద్దతునకు అప్‌లోడు చేయుటలో వొక సమస్యవుంది."
 
-#: lib/sos/policyredhat.py:362
-msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+#: ../sos/policyredhat.py:398
+#, fuzzy, python-format
+msgid "Your report was successfully uploaded to %s with name:"
 msgstr "మీ నివేదిక సమర్దవంతంగా Red Hat ftp సేవికకు నామముతో అప్‌లోడ్ చేయబడింది:"
 
-#: lib/sos/policyredhat.py:365
+#: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
 msgstr "దయచేసి ఈ నామము మీ మద్దతు ప్రతినిధికి తెలియపరచండి."
 
-#: sosreport:401
+#: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "తాత్కాలిక డైరెక్టరీను సృష్టించలేక పోయింది."
 
-#: sosreport:457
+#: ../sos/sosreport.py:408
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (వర్షన్ %s)"
 
-#: sosreport:474
+#: ../sos/sosreport.py:433
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "ప్లగ్‌యిన్ %s నిర్ధారించబడలేదు, వదిలివేయుచున్నది"
 
-#: sosreport:480
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "%s వదిలివేయబడింది (--skip-plugins)"
-
-#: sosreport:484
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "%s క్రియాహీనమైంది (చేతనం చేయుటకు -e లేదా -o వుపయోగించండి)."
-
-#: sosreport:492
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "ప్లగ్‌యిన్ %s తెలుపబడలేదు --only-plugins జాబితా"
-
-#: sosreport:497
+#: ../sos/sosreport.py:462
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "ప్లగిన్ %s సంస్థాపించబడలేదు, వదిలివేయుచున్నది"
 
-#: sosreport:568
-msgid "processing options from plugin: %s"
-msgstr "ప్లగిన్ నుండి ఐచ్చికాలను నిర్వర్తించుచున్నది: %s"
-
-#: sosreport:579
+#: ../sos/sosreport.py:558
 msgid "no valid plugins found"
 msgstr "చెల్లునటువంటి ప్లగిన్సు కనబడలేదు"
 
-#: sosreport:584
+#: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
 msgstr "ఈ క్రింది ప్లగిన్సు ప్రస్తుతం చేతనం చేయబడివున్నాయి:"
 
-#: sosreport:589
+#: ../sos/sosreport.py:568
 msgid "No plugin enabled."
 msgstr "ఏ ప్లగిన్ చేతనం చేయబడిలేదు."
 
-#: sosreport:593
+#: ../sos/sosreport.py:572
 msgid "The following plugins are currently disabled:"
 msgstr "క్రింది ప్లగిన్సు ప్రస్తుతం అచేతనం చేయబడివున్నాయి:"
 
-#: sosreport:600
+#: ../sos/sosreport.py:580
 msgid "The following plugin options are available:"
 msgstr "ఈ క్రింది ప్లగిన్ ఐచ్చికాలు అందుబాటులో వున్నాయి:"
 
-#: sosreport:620
+#: ../sos/sosreport.py:601
 msgid "No plugin options available."
 msgstr "ఎటువంటి ప్లగిన్ ఐచ్చికాలు అందుబాటులో లేవు."
 
-#: sosreport:628
+#: ../sos/sosreport.py:609
 msgid "sosreport requires root permissions to run."
 msgstr "నడుపుటకు sosreportకు root అనుమతులు కావలెను."
 
-#: sosreport:635
+#: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
 msgstr "చెల్లునటువంటి ప్లగిన్సు చేతనము చేయబడిలేవు"
 
-#: sosreport:638
+#: ../sos/sosreport.py:619
+#, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
@@ -157,35 +154,55 @@ msgstr ""
 "మీ సిస్టమ్‌నకు యెటువంటి మార్పులు చేయబడవు.\n"
 "\n"
 
-#: sosreport:652
+#: ../sos/sosreport.py:634
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "కొనసాగించుటకు దయచేసి ENTER వత్తండి, లేదా నిష్క్రమించుటకు CTRL-C వత్తండి.\n"
 
-#: sosreport:668
+#: ../sos/sosreport.py:653
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "ఒకటి లేదా యెక్కువ ప్లగిన్సు మీ ఆకృతీకరణనందు సమస్యను గుర్తించినవి."
 
-#: sosreport:669
+#: ../sos/sosreport.py:655
 msgid "Please review the following messages:"
 msgstr "దయచేసి క్రింది సందేశములను పునఃపరిశీలించండి:"
 
-#: sosreport:685
+#: ../sos/sosreport.py:671
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "మీరు ఖచ్చితంగా కొనసాగించుటకు యిష్టపడుతున్నారా (y/n) ? "
 
-#: sosreport:686
-msgid "Y"
-msgstr "Y"
-
-#: sosreport:686
+#: ../sos/sosreport.py:673
 msgid "y"
 msgstr "y"
 
-#: sosreport:689
-msgid "N"
-msgstr "N"
+#: ../sos/sosreport.py:673
+msgid "Y"
+msgstr "Y"
 
-#: sosreport:689
+#: ../sos/sosreport.py:676
 msgid "n"
 msgstr "n"
 
+#: ../sos/sosreport.py:676
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:802
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
+
+#~ msgid "plugin %s skipped (--skip-plugins)"
+#~ msgstr "%s వదిలివేయబడింది (--skip-plugins)"
+
+#~ msgid "plugin %s is inactive (use -e or -o to enable)."
+#~ msgstr "%s క్రియాహీనమైంది (చేతనం చేయుటకు -e లేదా -o వుపయోగించండి)."
+
+#~ msgid "plugin %s not specified in --only-plugins list"
+#~ msgstr "ప్లగ్‌యిన్ %s తెలుపబడలేదు --only-plugins జాబితా"
+
+#~ msgid "processing options from plugin: %s"
+#~ msgstr "ప్లగిన్ నుండి ఐచ్చికాలను నిర్వర్తించుచున్నది: %s"

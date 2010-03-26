@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1\n"
-"Report-Msgid-Bugs-To: diskuse@lists.l10n.cz\n"
-"POT-Creation-Date: 2010-02-10 14:45-0500\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-26 16:16-0400\n"
 "PO-Revision-Date: 2010-03-17 21:23+0100\n"
 "Last-Translator: Milan Kerslager <milan@kerslager.cz>\n"
 "Language-Team: Czech <Czech <cs-users@lists.fedoraproject.org>>\n"
@@ -18,99 +18,117 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: sos/sosreport.py:345
+#: ../sos/policyredhat.py:208
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Vložte své jméno a příjmení [%s]: "
+
+#: ../sos/policyredhat.py:211
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Vložte číslo hlášení, pro které vytváříte zprávu."
+
+#: ../sos/policyredhat.py:251
+msgid "Creating compressed archive..."
+msgstr "Vytváření komprimovaného archivu..."
+
+#: ../sos/policyredhat.py:281
+msgid "Encrypting archive..."
+msgstr "Šifrování archivu..."
+
+#: ../sos/policyredhat.py:301
+msgid "There was a problem encrypting your report."
+msgstr "Při šifrování zprávy se vyskytla chyba."
+
+#: ../sos/policyredhat.py:325
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Váš sosreport byl vygenerován a uložen v:\n"
+"  %s"
+
+#: ../sos/policyredhat.py:328
+msgid "The md5sum is: "
+msgstr "md5sum je:"
+
+#: ../sos/policyredhat.py:330
+msgid "Please send this file to your support representative."
+msgstr "Odešlete tento soubor svému oddělení podpory."
+
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr ""
+
+#: ../sos/policyredhat.py:359
+msgid "Cannot upload to specified URL."
+msgstr "Nelze uložit na uvedené URL."
+
+#: ../sos/policyredhat.py:396
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Při odesílání zprávy do firmy Red Hat vznikla chyba."
+
+#: ../sos/policyredhat.py:398
+#, fuzzy, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "Vaše zpráva byla úspěšně odeslána na FTP server firmy Red Hat:"
+
+#: ../sos/policyredhat.py:401
+msgid "Please communicate this name to your support representative."
+msgstr "Komunikujte prosím s vaší podporou tohoto jména."
+
+#: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "Nelze vytvořit dočasný adresář."
 
-#: sos/sosreport.py:411
+#: ../sos/sosreport.py:408
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (verze %s)"
 
-#: sos/sosreport.py:436
+#: ../sos/sosreport.py:433
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "plugin %s není validní, přeskakuji"
 
-#: sos/sosreport.py:465
+#: ../sos/sosreport.py:462
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "plugin %s nejde nainstalovat, přeskakuji"
 
-#: sos/sosreport.py:561
+#: ../sos/sosreport.py:558
 msgid "no valid plugins found"
 msgstr "žádné validní pluginy"
 
-#: sos/sosreport.py:565
+#: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
 msgstr "Právě jsou povoleny tyto pluginy:"
 
-#: sos/sosreport.py:571
+#: ../sos/sosreport.py:568
 msgid "No plugin enabled."
 msgstr "Žádné pluginy nejsou povoleny."
 
-#: sos/sosreport.py:575
+#: ../sos/sosreport.py:572
 msgid "The following plugins are currently disabled:"
 msgstr "Následující pluginy jsou právě zakázány:"
 
-#: sos/sosreport.py:583
+#: ../sos/sosreport.py:580
 msgid "The following plugin options are available:"
 msgstr "K dispozici jsou tato nastavení pluginů:"
 
-#: sos/sosreport.py:604
+#: ../sos/sosreport.py:601
 msgid "No plugin options available."
 msgstr "Žádné nastavení pro pluginy."
 
-#: sos/sosreport.py:612
+#: ../sos/sosreport.py:609
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport vyžaduje pro poškození práva roota."
 
-#: sos/sosreport.py:619
+#: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
 msgstr "Žádné validní pluginy nejsou povoleny."
 
-#: sos/sosreport.py:637
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Pro pokračování stiskněte ENTER, pro přerušení CTRL+c.\n"
-
-#: sos/sosreport.py:656
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Jeden nebo více pluginů detekovalo problém ve vaší konfiguraci."
-
-#: sos/sosreport.py:658
-msgid "Please review the following messages:"
-msgstr "Prohlédněte si následující hlášení:"
-
-#: sos/sosreport.py:674
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Jste si jisti, že chcete pokračovat?"
-
-#: sos/sosreport.py:676
-msgid "y"
-msgstr "a"
-
-#: sos/sosreport.py:676
-msgid "Y"
-msgstr "A"
-
-#: sos/sosreport.py:679
-msgid "n"
-msgstr "n"
-
-#: sos/sosreport.py:679
-msgid "N"
-msgstr "N"
-
-#: sos/sosreport.py:698
-msgid "\tRunning plugins. Please wait ..."
-msgstr "\tPluginy běží. Čekejte prosím..."
-
-#: sos/sosreport.py:796
-#, python-format
-msgid "\tsosreport build tree is located at : %s"
-msgstr "\tstrom pro vytvoření sosreportu je umístěn v: %s"
-
-#: sos/sosreport.py:622
+#: ../sos/sosreport.py:619
 #, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -135,57 +153,44 @@ msgstr ""
 "Celý proces bude chvíli trvat.\n"
 "V systému nebudou provedeny žádné změny.\n"
 
-#: sos/policyredhat.py:208
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "Vložte své jméno a příjmení [%s]: "
+#: ../sos/sosreport.py:634
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Pro pokračování stiskněte ENTER, pro přerušení CTRL+c.\n"
 
-#: sos/policyredhat.py:211
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "Vložte číslo hlášení, pro které vytváříte zprávu."
+#: ../sos/sosreport.py:653
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Jeden nebo více pluginů detekovalo problém ve vaší konfiguraci."
 
-#: sos/policyredhat.py:251
-msgid "Creating compressed archive..."
-msgstr "Vytváření komprimovaného archivu..."
+#: ../sos/sosreport.py:655
+msgid "Please review the following messages:"
+msgstr "Prohlédněte si následující hlášení:"
 
-#: sos/policyredhat.py:281
-msgid "Encrypting archive..."
-msgstr "Šifrování archivu..."
+#: ../sos/sosreport.py:671
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Jste si jisti, že chcete pokračovat?"
 
-#: sos/policyredhat.py:301
-msgid "There was a problem encrypting your report."
-msgstr "Při šifrování zprávy se vyskytla chyba."
+#: ../sos/sosreport.py:673
+msgid "y"
+msgstr "a"
 
-#: sos/policyredhat.py:325
-#, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-"Váš sosreport byl vygenerován a uložen v:\n"
-"  %s"
+#: ../sos/sosreport.py:673
+msgid "Y"
+msgstr "A"
 
-#: sos/policyredhat.py:328
-msgid "The md5sum is: "
-msgstr "md5sum je:"
+#: ../sos/sosreport.py:676
+msgid "n"
+msgstr "n"
 
-#: sos/policyredhat.py:330
-msgid "Please send this file to your support representative."
-msgstr "Odešlete tento soubor svému oddělení podpory."
+#: ../sos/sosreport.py:676
+msgid "N"
+msgstr "N"
 
-#: sos/policyredhat.py:356
-msgid "Cannot upload to specified URL."
-msgstr "Nelze uložit na uvedené URL."
+#: ../sos/sosreport.py:695
+#, fuzzy
+msgid "  Running plugins. Please wait ..."
+msgstr "\tPluginy běží. Čekejte prosím..."
 
-#: sos/policyredhat.py:393
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Při odesílání zprávy do firmy Red Hat vznikla chyba."
-
-#: sos/policyredhat.py:395
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr "Vaše zpráva byla úspěšně odeslána na FTP server firmy Red Hat:"
-
-#: sos/policyredhat.py:398
-msgid "Please communicate this name to your support representative."
-msgstr "Komunikujte prosím s vaší podporou tohoto jména."
+#: ../sos/sosreport.py:802
+#, fuzzy, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "\tstrom pro vytvoření sosreportu je umístěn v: %s"

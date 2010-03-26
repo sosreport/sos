@@ -5,7 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trunk\n"
-"POT-Creation-Date: 2008-12-19 06:40\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-26 16:16-0400\n"
 "PO-Revision-Date: 2010-03-10 16:21-0500\n"
 "Last-Translator: Giannis Konstantinidis <gloooabvoe9a@gmail.com>\n"
 "Language-Team: Greek <trans-el@lists.fedoraproject.org>\n"
@@ -15,27 +16,29 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/sos/policyredhat.py:203
+#: ../sos/policyredhat.py:208
+#, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Παρακαλώ εισάγετε το ονοματεπώνυμό σας [%s]:"
 
-#: lib/sos/policyredhat.py:206
+#: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Παρακαλώ εισάγετε το case number για το οποίο γράφετε την αναφορά:"
 
-#: lib/sos/policyredhat.py:231
+#: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
 msgstr "Δημιουργία συμπιεσμένου αρχείου..."
 
-#: lib/sos/policyredhat.py:253
+#: ../sos/policyredhat.py:281
 msgid "Encrypting archive..."
 msgstr "Το αρχείο κρυπτογραφείται..."
 
-#: lib/sos/policyredhat.py:271
+#: ../sos/policyredhat.py:301
 msgid "There was a problem encrypting your report."
 msgstr "Υπήρξε ένα πρόβλημα κατα την διαδικασία κρυπτογράφησης της αναφοράς."
 
-#: lib/sos/policyredhat.py:292
+#: ../sos/policyredhat.py:325
+#, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
@@ -43,143 +46,160 @@ msgstr ""
 "Η αναφορά σας δημιουργήθηκε και αποθηκεύτηκε στο:\n"
 " %s"
 
-#: lib/sos/policyredhat.py:295
+#: ../sos/policyredhat.py:328
 msgid "The md5sum is: "
 msgstr "Το md5sum είναι:"
 
-#: lib/sos/policyredhat.py:297
+#: ../sos/policyredhat.py:330
 msgid "Please send this file to your support representative."
 msgstr "Παρακαλώ στείλτε το αρχείο αυτό στο αντιπρόσωπο υποστήριξης σας."
 
-#: lib/sos/policyredhat.py:323
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr ""
+
+#: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "Δεν είναι δυνατό το upload στο καθορισμένο URL."
 
-#: lib/sos/policyredhat.py:360
+#: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Υπήρξε ένα πρόβλημα κατα το upload της αναφοράς σας στην Red Hat."
 
-#: lib/sos/policyredhat.py:362
-msgid "Your report was successfully uploaded to Red Hat's ftp server with name:"
+#: ../sos/policyredhat.py:398
+#, fuzzy, python-format
+msgid "Your report was successfully uploaded to %s with name:"
 msgstr "Η αναφορά σας στάλθηκε επιτυχώς στο ftp server της Red Hat με όνομα:"
 
-#: lib/sos/policyredhat.py:365
+#: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
 msgstr "Παρακαλώ επικοινωνήστε με τον αντιπρόσωπο υποστήριξής σας."
 
-#: sosreport:401
+#: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "Δεν μπόρεσε να δημιουργηθεί προσωρινή τοποθεσία."
 
-#: sosreport:457
+#: ../sos/sosreport.py:408
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (έκδοση %s)"
 
-#: sosreport:474
+#: ../sos/sosreport.py:433
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "το πρόσθετο %s δεν είναι έγκυρο,η διαδικασία προσπερνάται."
 
-#: sosreport:480
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "το πρόσθετο %s προσπερνάται (--skip plugins)"
-
-#: sosreport:484
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "το πρόσθετο %s είναι ανένεργο (χρησιμποιήστε τα -e ή -o για ενεργοποίηση)"
-
-#: sosreport:492
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "το πρόσθετο %s δεν είναι δηλωμένο --only plugins list"
-
-#: sosreport:497
+#: ../sos/sosreport.py:462
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "το πρόσθετο %s δεν μπορεί να εγκατασταθεί,η διαδικασία προσπερνάται"
 
-#: sosreport:568
-msgid "processing options from plugin: %s"
-msgstr "γίνεται επεξεργασία των ρυθμίσεων από το πρόσθετο: %s"
-
-#: sosreport:579
+#: ../sos/sosreport.py:558
 msgid "no valid plugins found"
 msgstr "δεν βρέθηκαν έγκυρα πρόσθετα"
 
-#: sosreport:584
+#: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
 msgstr "Τα παρακάτω πρόσθετα είναι αυτη τη στιγμή ενεργοποιημένα:"
 
-#: sosreport:589
+#: ../sos/sosreport.py:568
 msgid "No plugin enabled."
 msgstr "Δεν ενεργοποιήθηκε κάποιο πρόσθετο."
 
-#: sosreport:593
+#: ../sos/sosreport.py:572
 msgid "The following plugins are currently disabled:"
 msgstr "Τα παρακάτω πρόσθετα είναι αυτη τη στιγμή απενεργοποιημένα:"
 
-#: sosreport:600
+#: ../sos/sosreport.py:580
 msgid "The following plugin options are available:"
 msgstr "Οι παρακάτω ρυθμίσεις για τα πρόσθετα είναι διαθέσιμες:"
 
-#: sosreport:620
+#: ../sos/sosreport.py:601
 msgid "No plugin options available."
 msgstr "Δεν υπάρχουν διαθέσιμες ρυθμίσεις για τα πρόσθετα."
 
-#: sosreport:628
+#: ../sos/sosreport.py:609
 msgid "sosreport requires root permissions to run."
-msgstr "το sosreport χρειάζεται να έχετε δικαιώματα διαχειρηστή για να εκτελεστεί."
+msgstr ""
+"το sosreport χρειάζεται να έχετε δικαιώματα διαχειρηστή για να εκτελεστεί."
 
-#: sosreport:635
+#: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
 msgstr "δεν ενεργοποιήθηκε κάποιο έγκυρο πρόσθετο"
 
-#: sosreport:638
+#: ../sos/sosreport.py:619
+#, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"Αυτό το εργαλείο θα συγκετρώσει ορισμένες πληροφορίες για τον υπολογιστή σας και την εγκατάσταση του Red Hat Enterprise Linux συστήματος.\n"
+"Αυτό το εργαλείο θα συγκετρώσει ορισμένες πληροφορίες για τον υπολογιστή σας "
+"και την εγκατάσταση του Red Hat Enterprise Linux συστήματος.\n"
 "Οι πληροφορίες συγκετρώνονται και το archive δημιουργήται στο\n"
 "/tmp,το οποίο και μπορείτε να στείλετε σε έναν αντιπρόσωπο υποστήριξης.\n"
 "Η Red Hat θα χρησιμοποιήσει αυτα τα δεδομένα ΜΟΝΟ για διαγνωστικούς σκοπούς\n"
 "και θα παραμείνουν εμπιστευτηκά.\n"
 "\n"
 
-#: sosreport:652
+#: ../sos/sosreport.py:634
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Πατήστε ENTER για να συνεχίσετε ή  CTRL-C για έξοδο.\n"
 
-#: sosreport:668
+#: ../sos/sosreport.py:653
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Ένα ή περισσότερα plugins αντιμετώπησαν πρόβλημα κατα τις ρυθμίσεις σας."
+msgstr ""
+"Ένα ή περισσότερα plugins αντιμετώπησαν πρόβλημα κατα τις ρυθμίσεις σας."
 
-#: sosreport:669
+#: ../sos/sosreport.py:655
 msgid "Please review the following messages:"
 msgstr "Παρακαλώ δείτε τα παρακάτω μυνήματα:"
 
-#: sosreport:685
+#: ../sos/sosreport.py:671
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "Είστε σίγουρος οτι θέλετε να συνεχίσετε (ν/ο) ;"
 
-#: sosreport:686
-msgid "Y"
-msgstr "Ν"
-
-#: sosreport:686
+#: ../sos/sosreport.py:673
 msgid "y"
 msgstr "ν"
 
-#: sosreport:689
-msgid "N"
-msgstr "Ο"
+#: ../sos/sosreport.py:673
+msgid "Y"
+msgstr "Ν"
 
-#: sosreport:689
+#: ../sos/sosreport.py:676
 msgid "n"
 msgstr "ο"
 
+#: ../sos/sosreport.py:676
+msgid "N"
+msgstr "Ο"
+
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:802
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
+
+#~ msgid "plugin %s skipped (--skip-plugins)"
+#~ msgstr "το πρόσθετο %s προσπερνάται (--skip plugins)"
+
+#~ msgid "plugin %s is inactive (use -e or -o to enable)."
+#~ msgstr ""
+#~ "το πρόσθετο %s είναι ανένεργο (χρησιμποιήστε τα -e ή -o για ενεργοποίηση)"
+
+#~ msgid "plugin %s not specified in --only-plugins list"
+#~ msgstr "το πρόσθετο %s δεν είναι δηλωμένο --only plugins list"
+
+#~ msgid "processing options from plugin: %s"
+#~ msgstr "γίνεται επεξεργασία των ρυθμίσεων από το πρόσθετο: %s"

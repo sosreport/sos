@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-10 14:45-0500\n"
+"POT-Creation-Date: 2010-03-26 16:16-0400\n"
 "PO-Revision-Date: 2010-03-12 14:10+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
@@ -13,100 +13,120 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: sos/sosreport.py:345
+#: ../sos/policyredhat.py:208
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Proszę podać imię i nazwisko [%s]: "
+
+#: ../sos/policyredhat.py:211
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Proszę podać numer sprawy, dla której ten raport jest tworzony: "
+
+#: ../sos/policyredhat.py:251
+msgid "Creating compressed archive..."
+msgstr "Tworzenie skompresowanego archiwum..."
+
+#: ../sos/policyredhat.py:281
+msgid "Encrypting archive..."
+msgstr "Szyfrowanie archiwum..."
+
+#: ../sos/policyredhat.py:301
+msgid "There was a problem encrypting your report."
+msgstr "Wystąpił problem podczas szyfrowania raportu."
+
+#: ../sos/policyredhat.py:325
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Raport sos został utworzony i zapisany w:\n"
+"  %s"
+
+#: ../sos/policyredhat.py:328
+msgid "The md5sum is: "
+msgstr "Suma MD5 to: "
+
+#: ../sos/policyredhat.py:330
+msgid "Please send this file to your support representative."
+msgstr "Proszę wysłać ten plik do reprezentanta wsparcia technicznego."
+
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr ""
+
+#: ../sos/policyredhat.py:359
+msgid "Cannot upload to specified URL."
+msgstr "Nie można wysłać na podany adres URL."
+
+#: ../sos/policyredhat.py:396
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr ""
+"Wystąpił problem podczas wysyłania raportu do wsparcia technicznego Red Hata."
+
+#: ../sos/policyredhat.py:398
+#, fuzzy, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr ""
+"Raport został pomyślnie wysłany do serwera FTP formy Red Hat za pomocą tej "
+"nazwy:"
+
+#: ../sos/policyredhat.py:401
+msgid "Please communicate this name to your support representative."
+msgstr "Proszę podać tę nazwę reprezentantowi wsparcia technicznego."
+
+#: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr "Nie można utworzyć katalogu tymczasowego."
 
-#: sos/sosreport.py:411
+#: ../sos/sosreport.py:408
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (wersja %s)"
 
-#: sos/sosreport.py:436
+#: ../sos/sosreport.py:433
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "nie można sprawdzić wtyczki %s, pomijanie"
 
-#: sos/sosreport.py:465
+#: ../sos/sosreport.py:462
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "nie można zainstalować wtyczki %s, pomijanie"
 
-#: sos/sosreport.py:561
+#: ../sos/sosreport.py:558
 msgid "no valid plugins found"
 msgstr "nie odnaleziono prawidłowych wtyczek"
 
-#: sos/sosreport.py:565
+#: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
 msgstr "Następujące wtyczki są obecnie włączone:"
 
-#: sos/sosreport.py:571
+#: ../sos/sosreport.py:568
 msgid "No plugin enabled."
 msgstr "Brak włączonych wtyczek."
 
-#: sos/sosreport.py:575
+#: ../sos/sosreport.py:572
 msgid "The following plugins are currently disabled:"
 msgstr "Następujące wtyczki są obecnie wyłączone:"
 
-#: sos/sosreport.py:583
+#: ../sos/sosreport.py:580
 msgid "The following plugin options are available:"
 msgstr "Następujące wtyczki są dostępne:"
 
-#: sos/sosreport.py:604
+#: ../sos/sosreport.py:601
 msgid "No plugin options available."
 msgstr "Brak dostępnych wtyczek."
 
-#: sos/sosreport.py:612
+#: ../sos/sosreport.py:609
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport wymaga uprawnień roota do uruchomienia."
 
-#: sos/sosreport.py:619
+#: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
 msgstr "brak włączonych prawidłowych wtyczek"
 
-#: sos/sosreport.py:637
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
-"Należy nacisnąć przycisk Enter, aby kontynuować lub Ctrl-C, aby zakończyć.\n"
-
-#: sos/sosreport.py:656
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Jedna lub więcej wtyczek wykryły problem w konfiguracji."
-
-#: sos/sosreport.py:658
-msgid "Please review the following messages:"
-msgstr "Proszę przejrzeć poniższe komunikaty:"
-
-#: sos/sosreport.py:674
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Na pewno kontynuować (t/n)? "
-
-#: sos/sosreport.py:676
-msgid "y"
-msgstr "t"
-
-#: sos/sosreport.py:676
-msgid "Y"
-msgstr "T"
-
-#: sos/sosreport.py:679
-msgid "n"
-msgstr "n"
-
-#: sos/sosreport.py:679
-msgid "N"
-msgstr "N"
-
-#: sos/sosreport.py:698
-msgid "\tRunning plugins. Please wait ..."
-msgstr "\tWykonywanie wtyczek. Proszę czekać..."
-
-#: sos/sosreport.py:796
-#, python-format
-msgid "\tsosreport build tree is located at : %s"
-msgstr "\tDrzewo budowania sosreport znajduje się w: %s"
-
-#: sos/sosreport.py:622
+#: ../sos/sosreport.py:619
 #, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -131,60 +151,45 @@ msgstr ""
 "Żadne zmiany nie zostaną wprowadzane do systemu.\n"
 "\n"
 
-#: sos/policyredhat.py:208
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "Proszę podać imię i nazwisko [%s]: "
-
-#: sos/policyredhat.py:211
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "Proszę podać numer sprawy, dla której ten raport jest tworzony: "
-
-#: sos/policyredhat.py:251
-msgid "Creating compressed archive..."
-msgstr "Tworzenie skompresowanego archiwum..."
-
-#: sos/policyredhat.py:281
-msgid "Encrypting archive..."
-msgstr "Szyfrowanie archiwum..."
-
-#: sos/policyredhat.py:301
-msgid "There was a problem encrypting your report."
-msgstr "Wystąpił problem podczas szyfrowania raportu."
-
-#: sos/policyredhat.py:325
-#, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
+#: ../sos/sosreport.py:634
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr ""
-"Raport sos został utworzony i zapisany w:\n"
-"  %s"
+"Należy nacisnąć przycisk Enter, aby kontynuować lub Ctrl-C, aby zakończyć.\n"
 
-#: sos/policyredhat.py:328
-msgid "The md5sum is: "
-msgstr "Suma MD5 to: "
+#: ../sos/sosreport.py:653
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Jedna lub więcej wtyczek wykryły problem w konfiguracji."
 
-#: sos/policyredhat.py:330
-msgid "Please send this file to your support representative."
-msgstr "Proszę wysłać ten plik do reprezentanta wsparcia technicznego."
+#: ../sos/sosreport.py:655
+msgid "Please review the following messages:"
+msgstr "Proszę przejrzeć poniższe komunikaty:"
 
-#: sos/policyredhat.py:356
-msgid "Cannot upload to specified URL."
-msgstr "Nie można wysłać na podany adres URL."
+#: ../sos/sosreport.py:671
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Na pewno kontynuować (t/n)? "
 
-#: sos/policyredhat.py:393
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
-"Wystąpił problem podczas wysyłania raportu do wsparcia technicznego Red Hata."
+#: ../sos/sosreport.py:673
+msgid "y"
+msgstr "t"
 
-#: sos/policyredhat.py:395
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
-msgstr ""
-"Raport został pomyślnie wysłany do serwera FTP formy Red Hat za pomocą tej "
-"nazwy:"
+#: ../sos/sosreport.py:673
+msgid "Y"
+msgstr "T"
 
-#: sos/policyredhat.py:398
-msgid "Please communicate this name to your support representative."
-msgstr "Proszę podać tę nazwę reprezentantowi wsparcia technicznego."
+#: ../sos/sosreport.py:676
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:676
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:695
+#, fuzzy
+msgid "  Running plugins. Please wait ..."
+msgstr "\tWykonywanie wtyczek. Proszę czekać..."
+
+#: ../sos/sosreport.py:802
+#, fuzzy, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "\tDrzewo budowania sosreport znajduje się w: %s"

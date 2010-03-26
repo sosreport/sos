@@ -17,7 +17,7 @@
 
 import gettext
 
-gettext_dir = "::LOCALEDIR::"
+gettext_dir = "/usr/share/locale"
 gettext_app = "sos"
 
 gettext.bindtextdomain(gettext_app, gettext_dir)

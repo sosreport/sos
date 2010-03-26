@@ -5,7 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sos 1.7\n"
-"POT-Creation-Date: 2008-12-19 06:40\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-26 16:16-0400\n"
 "PO-Revision-Date: 2007-08-02 20:16+01\n"
 "Last-Translator: Imed Chihi <ichihi@redhat.com>\n"
 "Language-Team: AR <navid@redhat.com>\n"
@@ -13,28 +14,30 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: UTF-8\n"
 
-#: lib/sos/policyredhat.py:203
+#: ../sos/policyredhat.py:208
+#, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "الرجاء إدخال الإسم [%s]: "
 
-#: lib/sos/policyredhat.py:206
+#: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "الرجاء إدخال رقم المعاملة المعنية بهذا التحقيق: "
 
-#: lib/sos/policyredhat.py:231
+#: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
 msgstr "جاري كتابة الحزمة المضغوطة..."
 
-#: lib/sos/policyredhat.py:253
+#: ../sos/policyredhat.py:281
 #, fuzzy
 msgid "Encrypting archive..."
 msgstr "جاري كتابة الحزمة المضغوطة..."
 
-#: lib/sos/policyredhat.py:271
+#: ../sos/policyredhat.py:301
 msgid "There was a problem encrypting your report."
 msgstr ""
 
-#: lib/sos/policyredhat.py:292
+#: ../sos/policyredhat.py:325
+#, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
@@ -42,104 +45,95 @@ msgstr ""
 "تم حفض الحزمة في: \n"
 "  %s"
 
-#: lib/sos/policyredhat.py:295
+#: ../sos/policyredhat.py:328
 msgid "The md5sum is: "
 msgstr "ناتج التدقيق md5sum هو: "
 
-#: lib/sos/policyredhat.py:297
+#: ../sos/policyredhat.py:330
 msgid "Please send this file to your support representative."
 msgstr "الرجاء إرسال هذه الحزمة إلى عملاء الدعم الفني."
 
-#: lib/sos/policyredhat.py:323
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr ""
+
+#: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr ""
 
-#: lib/sos/policyredhat.py:360
+#: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr ""
 
-#: lib/sos/policyredhat.py:362
-msgid ""
-"Your report was successfully uploaded to Red Hat's ftp server with name:"
+#: ../sos/policyredhat.py:398
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
 msgstr ""
 
-#: lib/sos/policyredhat.py:365
+#: ../sos/policyredhat.py:401
 #, fuzzy
 msgid "Please communicate this name to your support representative."
 msgstr "الرجاء إرسال هذه الحزمة إلى عملاء الدعم الفني."
 
-#: sosreport:401
+#: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
 msgstr ""
 
-#: sosreport:457
+#: ../sos/sosreport.py:408
+#, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (الإصدار %s)"
 
-#: sosreport:474
+#: ../sos/sosreport.py:433
+#, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "الملحق %s غير سليم، تم تعطيله"
 
-#: sosreport:480
-msgid "plugin %s skipped (--skip-plugins)"
-msgstr "تم تعطيل الملحق %s عبر --skip-plugins"
-
-#: sosreport:484
-msgid "plugin %s is inactive (use -e or -o to enable)."
-msgstr "الملحق %s معطل، إستعمل -e أو -o لإعادة تفعيله."
-
-#: sosreport:492
-msgid "plugin %s not specified in --only-plugins list"
-msgstr "الملحق %s لم يرد في قائمة --only-plugins."
-
-#: sosreport:497
+#: ../sos/sosreport.py:462
+#, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "لا يمكن تثبيت الملحق %s، تم تعطيله."
 
-#: sosreport:568
-msgid "processing options from plugin: %s"
-msgstr "معالجة خيارات الملحق %s"
-
-#: sosreport:579
+#: ../sos/sosreport.py:558
 msgid "no valid plugins found"
 msgstr "لا توجد ملحقات صالحة"
 
-#: sosreport:584
+#: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
 msgstr "تم تفعيل الملحقات التالية"
 
-#: sosreport:589
+#: ../sos/sosreport.py:568
 msgid "No plugin enabled."
 msgstr "لم يتم تفعيل أي ملحق."
 
-#: sosreport:593
+#: ../sos/sosreport.py:572
 msgid "The following plugins are currently disabled:"
 msgstr "تم تعطيل الملحقات الملحقات التالية"
 
-#: sosreport:600
+#: ../sos/sosreport.py:580
 msgid "The following plugin options are available:"
 msgstr "يمكن تحديد خيارات الملحقات التالية"
 
-#: sosreport:620
+#: ../sos/sosreport.py:601
 msgid "No plugin options available."
 msgstr "لا توجد خيارات للملحقات"
 
-#: sosreport:628
+#: ../sos/sosreport.py:609
 msgid "sosreport requires root permissions to run."
 msgstr "هذا البرنامج يستوجب صلاحيات root"
 
-#: sosreport:635
+#: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
 msgstr "لم يتم تفعيل أي ملحقات"
 
-#: sosreport:638
-#, fuzzy
+#: ../sos/sosreport.py:619
+#, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"hardware and setup of your %(distroa)s system.\n"
 "The information is collected and an archive is  packaged under\n"
 "/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
 "and it will be considered confidential information.\n"
 "\n"
 "This process may take a while to complete.\n"
@@ -158,34 +152,55 @@ msgstr ""
 "\n"
 "إضغط على ENTER للمواصلة أو CTRL-C للخروج\n"
 
-#: sosreport:652
+#: ../sos/sosreport.py:634
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr ""
 
-#: sosreport:668
+#: ../sos/sosreport.py:653
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "أحد الملحقات إكتشف خطأ في إعدادات النظام"
 
-#: sosreport:669
+#: ../sos/sosreport.py:655
 msgid "Please review the following messages:"
 msgstr "الرجاء مراجعة الإعلانات التالية"
 
-#: sosreport:685
+#: ../sos/sosreport.py:671
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "هل أنت متأكد؟ ن/ل"
 
-#: sosreport:686
-msgid "Y"
-msgstr "ن"
-
-#: sosreport:686
+#: ../sos/sosreport.py:673
 msgid "y"
 msgstr ""
 
-#: sosreport:689
+#: ../sos/sosreport.py:673
+msgid "Y"
+msgstr "ن"
+
+#: ../sos/sosreport.py:676
+msgid "n"
+msgstr ""
+
+#: ../sos/sosreport.py:676
 msgid "N"
 msgstr "ل"
 
-#: sosreport:689
-msgid "n"
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
 msgstr ""
+
+#: ../sos/sosreport.py:802
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
+
+#~ msgid "plugin %s skipped (--skip-plugins)"
+#~ msgstr "تم تعطيل الملحق %s عبر --skip-plugins"
+
+#~ msgid "plugin %s is inactive (use -e or -o to enable)."
+#~ msgstr "الملحق %s معطل، إستعمل -e أو -o لإعادة تفعيله."
+
+#~ msgid "plugin %s not specified in --only-plugins list"
+#~ msgstr "الملحق %s لم يرد في قائمة --only-plugins."
+
+#~ msgid "processing options from plugin: %s"
+#~ msgstr "معالجة خيارات الملحق %s"

@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.9
-Release: 2%{?dist}.1
+Release: 2%{?dist}.2
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -11,7 +11,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: http://fedorahosted.org/sos
 BuildRequires: python-devel
-BuildRequires: python-setuptools
 BuildRequires: gettext
 Requires: libxml2-python
 Requires: tar
@@ -30,12 +29,12 @@ support technicians and developers.
 %setup -q
 
 %build
-%{__python} setup.py build
+make
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
 install -D -m644 gpgkeys/rhsupport.pub ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/rhsupport.pub
-%{__python} setup.py install -O1 --root=${RPM_BUILD_ROOT}
+make DESTDIR=${RPM_BUILD_ROOT} install
 %find_lang %{name} || echo 0
 
 %clean
@@ -44,7 +43,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %files -f %{name}.lang
 %defattr(-,root,root,-)
 %{_bindir}/rh-upload
-%{_sbindir}/sosreport
+%{_bindir}/sosreport
 %{_datadir}/%{name}
 %{python_sitelib}/*
 %{_mandir}/man1/*

@@ -4,31 +4,44 @@
 
 NAME	= sos
 VERSION = $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
-RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' cas.spec`)
-#RELEASE = 6
+RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
 REPO = http://svn.fedorahosted.org/svn/sos
-#SVNTAG	= r$(subst .,-,$(VERSION))_$(RELEASE)
-SRCDIR = $(PWD)
-# Needs to be changed to reflect
-# your rpm development tree.
-TOPDIR = $(HOME)/rpmbuild/SOURCES
 TMPDIR = /tmp/$(NAME)-$(VERSION)
-MANPAGE = $(PWD)/sosreport.1
-SOURCE1 = $(PWD)/sos.conf
-SOURCE3 = $(PWD)/gpgkeys/rhsupport.pub
 
-all:
+SUBDIRS = po sos sos/plugins gpgkeys extras doc doc/_build/html doc/_build/html/_sources doc/_build/html/_static
+PYFILES = $(wildcard *.py)
 
-.PHONY: tarball install clean rpm
+all: subdirs
 
-tarball: clean gpgkey
-	@echo "Build Archive"
-	@mkdir $(TMPDIR)
-	@python setup.py sdist -d $(TMPDIR)
-	@mkdir $(PWD)/dist
-	@cp $(TMPDIR)/* $(PWD)/dist
-	@echo " "
-	@echo "The final archive is $(PWD)/dist/"
+subdirs:
+	for d in $(SUBDIRS); do make -C $$d; [$$? = 0] || exit 1; done
+
+install: document
+	mkdir -p $(DESTDIR)/usr/share/man/man1
+	@gzip -c man/en/sosreport.1 > sosreport.1.gz
+	mkdir -p $(DESTDIR)/usr/share/$(NAME)
+	mkdir -p $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_sources
+	mkdir -p $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_static
+	mkdir -p $(DESTDIR)/etc
+	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
+	install -m644 LICENSE README README.rh-upload TODO $(DESTDIR)/usr/share/$(NAME)/.
+	install -m644 doc/_build/html/*.{html,inv,js} $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/.
+	install -m644 doc/_build/html/_sources/* $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_sources/.
+	install -m644 doc/_build/html/_static/* $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_static/.
+	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
+	make DESTDIR=`cd $(DESTDIR); pwd` -C po install
+
+document:
+	make -C $(PWD)/doc html
+
+archive: 
+	@rm -rf $(NAME)-$(VERSION).tar.gz
+	@rm -rf $(TMPDIR)
+	@svn export --force $(PWD) $(TMPDIR)
+	@tar Ccvzf /tmp $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
+	@cp $(NAME)-$(VERSION).tar.gz $(shell rpm -E '%_sourcedir')
+	@rm -rf $(NAME)-$(VERSION).tar.gz
+	@echo "Archive is $(NAME)-$(VERSION).tar.gz"
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz
@@ -38,12 +51,11 @@ clean:
 	@for i in `find . -iname *.pyc`; do \
 		rm $$i; \
 	done; \
+	for d in $(SUBDIRS); do make -C $$d clean ; done
 
-rpm:
-	@test -d $(TOPDIR) || mkdir -p $(TOPDIR)
-	@mv dist/* $(TOPDIR)
-	@test -f sos.spec
-	rpmbuild -ba sos.spec
+rpm: gpgkey
+	@$(MAKE) archive
+	@rpmbuild -ba sos.spec
 
 gpgkey:
 	@echo "Building gpg key"
