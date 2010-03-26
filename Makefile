@@ -38,10 +38,12 @@ install: document
 document:
 	make -C $(PWD)/doc html
 
-archive: 
+archive: gpgkey
 	@rm -rf $(NAME)-$(VERSION).tar.gz
 	@rm -rf $(TMPDIR)
 	@svn export --force $(PWD) $(TMPDIR)
+	@mkdir -p $(TMPDIR)/gpgkeys
+	@cp gpgkeys/rhsupport.pub $(TMPDIR)/gpgkeys/.
 	@tar Ccvzf /tmp $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
 	@cp $(NAME)-$(VERSION).tar.gz $(shell rpm -E '%_sourcedir')
 	@rm -rf $(NAME)-$(VERSION).tar.gz
@@ -57,7 +59,7 @@ clean:
 	done; \
 	for d in $(SUBDIRS); do make -C $$d clean ; done
 
-rpm: gpgkey
+rpm:
 	@$(MAKE) archive
 	@rpmbuild -ba sos.spec
 
