@@ -3,16 +3,20 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.9
-Release: 2%{?dist}
+Release: 2%{?dist}.1
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: http://fedorahosted.org/sos
-BuildRequires: python-devel, python-setuptools
+BuildRequires: python-devel
+BuildRequires: python-setuptools
+BuildRequires: gettext
 Requires: libxml2-python
-Requires: tar, bzip2, xz
+Requires: tar
+Requires: bzip2
+Requires: xz
 Provides: sysreport = 1.4.3-13
 Obsoletes: sysreport
 
@@ -31,10 +35,8 @@ support technicians and developers.
 %install
 rm -rf ${RPM_BUILD_ROOT}
 install -D -m644 gpgkeys/rhsupport.pub ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/rhsupport.pub
-install -D -m644 extras/sysreport/sysreport.legacy ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/sysreport
-%{__python} setup.py install -O1 --skip-build --root ${RPM_BUILD_ROOT}
-ln -s /usr/sbin/sosreport ${RPM_BUILD_ROOT}/usr/sbin/sysreport
-%find_lang %{name}
+%{__python} setup.py install -O1 --root=${RPM_BUILD_ROOT}
+%find_lang %{name} || echo 0
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -43,16 +45,16 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(-,root,root,-)
 %{_bindir}/rh-upload
 %{_sbindir}/sosreport
-%{_sbindir}/sysreport
-%{_sbindir}/sysreport.legacy
 %{_datadir}/%{name}
-%{_datadir}/sysreport
 %{python_sitelib}/*
-%{_mandir}/man1/sosreport.1.gz
-%doc README README.rh-upload TODO LICENSE ChangeLog docs/*
+%{_mandir}/man1/*
+%doc README README.rh-upload TODO LICENSE ChangeLog doc/*
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Fir Mar 26 2010 Adam Stokes <ajs at redhat dot com> = 1.9-3
+- fix setup.py to autocompile translations and man pages
+
 * Fri Mar 19 2010 Adam Stokes <ajs at redhat dot com> = 1.9-2
 - updated translations
 

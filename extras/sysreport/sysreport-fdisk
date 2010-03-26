@@ -1,8 +1,0 @@
-#! /bin/sh
-
-/sbin/fdisk -l /dev/hd[a-g]
-/sbin/fdisk -l /dev/sd[a-p]
-/sbin/fdisk -l /dev/md[0-9] /dev/md[1][0-5]
-for i in `/bin/ls /dev/rd/ | /bin/grep -v p[0-9]`; do
-   /sbin/fdisk -l /dev/rd/"$i" 2>&1
-done

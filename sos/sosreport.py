@@ -43,9 +43,10 @@ from sos.helpers import importPlugin
 import signal
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
-import gettext
 from itertools import *
 from collections import deque
+
+from sos import _sos as _
 
 __version__ = 1.9
 if os.path.isfile('/etc/fedora-release'):
@@ -350,9 +351,6 @@ def sosreport(opts):
     os.mkdir(cmddir, 0755)
     os.mkdir(logdir, 0755)
     os.mkdir(rptdir, 0755)
-
-    # initialize i18n language localization
-    gettext.install('sos', '/usr/share/locale', unicode=False)
 
     # initialize logging
     soslog = logging.getLogger('sos')

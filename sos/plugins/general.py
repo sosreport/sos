@@ -44,6 +44,9 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
         self.collectExtOutput("/bin/date", root_symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
+        self.collectExtOutput("/bin/dmesg")
+        self.addCopySpec("/root/anaconda-ks.cfg")
+        self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
 
         if self.getOption('all_logs'):
             rhelver = self.policy().rhelVersion()

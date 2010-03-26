@@ -29,6 +29,7 @@
 This is the base class for sosreport plugins
 """
 from sos.helpers import *
+from sos import _sos as _
 import os, os.path, sys, string, glob, re, traceback
 import shutil
 from stat import *

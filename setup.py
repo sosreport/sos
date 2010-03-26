@@ -1,64 +1,172 @@
 #!/usr/bin/python
 """
-setup.py - Setup package with the help from Python's DistUtils
+setup.py - Setup package with the help from Python's DistUtils and friends.
 """
+from distutils.core import setup, Command
+from distutils.command.sdist import sdist as _sdist
+from distutils.command.build import build as _build
+from distutils.command.install_data import install_data as _install_data
+from distutils.command.install_lib import install_lib as _install_lib
+from distutils.command.install import install as _install
+from unittest import TextTestRunner, TestLoader
+from glob import glob
+from os.path import splitext, basename, join as pjoin
+import os, sys
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from ez_setup import use_setuptools
-    from setuptools import setup, find_packages
-
-import glob
-import os
+locale = None
+builddir = None
 
 data_files = [ ('/etc', [ 'sos.conf']), 
-    ('/usr/sbin', ['sosreport', 'extras/sysreport/sysreport.legacy']), 
-    ('/usr/bin', ['extras/rh-upload']),
-    ('/usr/share/sos/',['gpgkeys/rhsupport.pub']),
-    ('/usr/share/sysreport', ['extras/sysreport/text.xsl', 'extras/sysreport/functions', 'extras/sysreport/sysreport-fdisk']), 
-    ('/usr/share/man/man1', ['sosreport.1.gz']),
-    ]
+    ('share/sos/', ['gpgkeys/rhsupport.pub']),
+    ('share/man/man1', ['sosreport.1'])]
 
-lang_files = glob.glob('po/*/sos.mo')
-for i18n in lang_files:
-    topdir, basedir, fname = i18n.split('/')
-    data_files.append(('/usr/share/locale/%s/LC_MESSAGES' % (basedir,) , [i18n]))
 
-test_sub_dirs = []
-def test_files_add(dir='test',test_dir='/usr/share/sos'):
-    """ test file dir addition """
-    test_sub_dirs.append(dir)
-    for root, dirs, fname in os.walk(dir):
-        if '.svn' in dirs:
-            dirs.remove('.svn')
-        for name in dirs:
-            test_sub_dirs.append(os.path.join(dir,name))
-    for dr in test_sub_dirs:
-        files = os.listdir(dr)
+class refresh_translations(Command):
+    user_options = []
+    description = "Regenerate POT file and merge with current translations."
+    def initialize_options(self):
+        pass
+    
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        # generate POT file
+        files = [ "sos/*.py" ]
+        pot_cmd = "xgettext --language=Python -o po/sos.pot"
         for f in files:
-            if os.path.isfile(os.path.join(dr,f)):
-                data_files.append((os.path.join(test_dir,dr),[os.path.join(dr,f)]))
+            pot_cmd += " %s " % f
+        os.system(pot_cmd)
 
+        # merge new template with existing translations
+        for po in glob.glob(os.path.pjoin(os.getcwd(), 'po', '*.po')):
+            os.system("msgmerge -U po/%s po/sos.pot" %
+                      os.path.basename(po))
 
-test_files_add()
+class sdist(_sdist):
+    """ updates man pages """
+    def run(self):
+        self._update_manpages()
+        _sdist.run(self)
 
-test_requirements = ['nose >= 0.10']
+    def _update_manpages(self):
+        if os.system("make -C man/en"):
+            raise RuntimeError("Couldn't generate man pages.")
+        
+class build(_build):
+    """ compile i18n files """
+    def run(self):
+        global builddir
+        if not os.path.exists("build/po"):
+            os.makedirs("build/po")
+
+        for filename in glob(pjoin(os.getcwd(), 'po', '*.po')):
+            filename = os.path.basename(filename)
+            lang = os.path.basename(filename)[0:len(filename)-3]
+            if not os.path.exists("build/po/%s" % lang):
+                os.makedirs("build/po/%s" % lang)
+            newname = "build/po/%s/sos.mo" % lang
+
+            print "Building %s from %s" % (newname, filename)
+            os.system("msgfmt po/%s -o %s" % (filename, newname))
+
+        _build.run(self)
+        builddir = self.build_lib
+        
+class install(_install):
+    """ extract install base for locale install """
+    def finalize_options(self):
+        global locale
+        _install.finalize_options(self)
+        locale = self.install_base + "/share/locale"
+        
+class install_lib(_install_lib):
+    """ custom install_lib command to place locale/docs location into library"""
+
+    def run(self):
+        for initfile in [ "sos/__init__.py" ]:
+            cmd =  "cat %s | " % initfile
+            cmd += """sed -e "s,::LOCALEDIR::,%s," > """ % locale
+            cmd += "%s/%s" % (builddir, initfile)
+            os.system(cmd)
+
+        _install_lib.run(self)
+                                                            
+class install_data(_install_data):
+    """ custom install_data command to prepare i18n/docs files for install"""
+    def run(self):
+        dirlist = os.listdir("build/po")
+        for lang in dirlist:
+            if lang != "." and lang != "..":
+                install_path = "share/locale/%s/LC_MESSAGES/" % lang
+                src_path = "build/po/%s/sos.mo" % lang
+                print "Installing %s to %s" % (src_path, install_path)
+                toadd = (install_path, [src_path])
+                # Add these to the datafiles list
+                datafiles.append(toadd)
+
+class TestBaseCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        self.debug = 0
+        self._testfiles = []
+        self._dir = os.getcwd()
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        tests = TestLoader().loadTestsFromNames(self._testfiles)
+        t = TextTestRunner(verbosity = 1)
+
+        result = t.run(tests)
+        if len(result.failures) > 0 or len(result.errors) > 0:
+            sys.exit(1)
+        else:
+            sys.exit(0)
+
+class TestSOS(TestBaseCommand):
+    description = "Runs unittest"
+    user_options = TestBaseCommand.user_options + \
+                   [("testfile=", None, "Specify test to run"),]
+
+    def initialize_options(self):
+        TestBaseCommand.initialize_options(self)
+        test.testfile = None
+
+    def finalize_options(self):
+        TestBaseCommand.finalize_options(self)
+
+    def run(self):
+        """ find all tests """
+        testfiles = []
+        for t in glob(pjoin(self._dir, 'tests', '*.py')):
+            if self.testfile:
+                base = os.path.basename(t)
+                check = os.path.basename(self.testfile)
+                if base != check and base != (check + ".py"):
+                    continue
+            testfiles.append('.'.join(['tests',splitext(basename(t))[0]]))
+
+        self._testfiles = testfiles
+        TestBaseCommand.run(self)
 
 setup(
     name = 'sos',
     version = '1.9',
     author = 'Adam Stokes',
-    author_email = 'ajs@redhat.com',
+    author_email = 'astokes@fedoraproject.org',
     url = 'http://fedorahosted.org/sos',
     description = 'SOS - son of sysreport',
-    packages = find_packages(exclude=['test*']),
-    include_package_data = True,
+    packages = ['sos'],
     data_files = data_files,
-    test_suite = "test",
-    tests_require = test_requirements,
-    extras_require = {
-        'docs' : ['sphinx >= 0.5'],
-    },
+    cmdclass = {
+        'test': TestSOS,
+        'sdist': sdist, 'build' : build,
+        'install_data' : install_data,
+        'install_lib' : install_lib,
+        'install' : install,
+        'refresh_translations' : refresh_translations}
 )
 
