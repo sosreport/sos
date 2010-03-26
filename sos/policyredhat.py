@@ -32,6 +32,7 @@ import rpm
 import time
 from subprocess import Popen, PIPE
 from collections import deque
+from sos import _sos as _
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
