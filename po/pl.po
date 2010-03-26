@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-26 16:42-0400\n"
-"PO-Revision-Date: 2010-03-12 14:10+0100\n"
+"PO-Revision-Date: 2010-03-26 23:42+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
@@ -53,7 +53,7 @@ msgstr "Proszę wysłać ten plik do reprezentanta wsparcia technicznego."
 
 #: ../sos/policyredhat.py:352
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Nie podano adresu URL w pliku konfiguracji."
 
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
@@ -62,14 +62,13 @@ msgstr "Nie można wysłać na podany adres URL."
 #: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr ""
-"Wystąpił problem podczas wysyłania raportu do wsparcia technicznego Red Hata."
+"Wystąpił problem podczas wysyłania raportu do wsparcia technicznego firmy "
+"Red Hat."
 
 #: ../sos/policyredhat.py:398
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"Raport został pomyślnie wysłany do serwera FTP formy Red Hat za pomocą tej "
-"nazwy:"
+msgstr "Raport został pomyślnie wysłany do %s za pomocą nazwy:"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -185,11 +184,10 @@ msgid "N"
 msgstr "N"
 
 #: ../sos/sosreport.py:695
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
-msgstr "\tWykonywanie wtyczek. Proszę czekać..."
+msgstr "  Wykonywanie wtyczek. Proszę czekać..."
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tDrzewo budowania sosreport znajduje się w: %s"
+msgstr "  Drzewo budowania sosreport znajduje się w: %s"
