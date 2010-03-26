@@ -32,6 +32,7 @@ install: document
 	install -m644 doc/_build/html/_sources/* $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_sources/.
 	install -m644 doc/_build/html/_static/* $(DESTDIR)/usr/share/doc/$(NAME)-$(VERSION)/_static/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
+	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 document:
