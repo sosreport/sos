@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Gather information about a system and report it using plugins
 supplied for application-specific information
