@@ -33,7 +33,6 @@ make
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-install -D -m644 gpgkeys/rhsupport.pub ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/rhsupport.pub
 make DESTDIR=${RPM_BUILD_ROOT} install
 %find_lang %{name} || echo 0
 
