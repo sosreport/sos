@@ -42,7 +42,7 @@ archive: gpgkey
 	@echo "Archive is $(NAME)-$(VERSION).tar.gz"
 
 clean:
-	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz
+	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz
 	@rm -rfv {dist,build,sos.egg-info}
 	@rm -rf MANIFEST
 	@rm -rfv $(TMPDIR)
