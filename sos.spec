@@ -41,8 +41,7 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
-%{_bindir}/rh-upload
-%{_bindir}/sosreport
+%{_sbindir}/sosreport
 %{_datadir}/%{name}
 %{python_sitelib}/*
 %{_mandir}/man1/*
