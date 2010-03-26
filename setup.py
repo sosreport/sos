@@ -18,7 +18,7 @@ builddir = None
 
 data_files = [ ('/etc', [ 'sos.conf']), 
     ('share/sos/', ['gpgkeys/rhsupport.pub']),
-    ('share/man/man1', ['sosreport.1'])]
+    ('share/man/man1', ['man/en/sosreport.1'])]
 
 
 class refresh_translations(Command):
@@ -81,7 +81,7 @@ class install(_install):
         locale = self.install_base + "/share/locale"
         
 class install_lib(_install_lib):
-    """ custom install_lib command to place locale/docs location into library"""
+    """ custom install_lib command to place locale location into library"""
 
     def run(self):
         for initfile in [ "sos/__init__.py" ]:
@@ -103,7 +103,7 @@ class install_data(_install_data):
                 print "Installing %s to %s" % (src_path, install_path)
                 toadd = (install_path, [src_path])
                 # Add these to the datafiles list
-                datafiles.append(toadd)
+                data_files.append(toadd)
 
 class TestBaseCommand(Command):
     user_options = []
@@ -133,7 +133,7 @@ class TestSOS(TestBaseCommand):
 
     def initialize_options(self):
         TestBaseCommand.initialize_options(self)
-        test.testfile = None
+        self.testfile = None
 
     def finalize_options(self):
         TestBaseCommand.finalize_options(self)
@@ -160,6 +160,7 @@ setup(
     url = 'http://fedorahosted.org/sos',
     description = 'SOS - son of sysreport',
     packages = ['sos'],
+    scripts = ["sosreport"],
     data_files = data_files,
     cmdclass = {
         'test': TestSOS,

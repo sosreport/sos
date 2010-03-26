@@ -52,7 +52,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
-* Fir Mar 26 2010 Adam Stokes <ajs at redhat dot com> = 1.9-3
+* Fri Mar 26 2010 Adam Stokes <ajs at redhat dot com> = 1.9-3
 - fix setup.py to autocompile translations and man pages
 
 * Fri Mar 19 2010 Adam Stokes <ajs at redhat dot com> = 1.9-2
