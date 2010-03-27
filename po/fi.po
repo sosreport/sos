@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-26 16:42-0400\n"
-"PO-Revision-Date: 2010-03-13 14:00+0200\n"
+"PO-Revision-Date: 2010-03-28 01:03+0200\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
 "Language-Team: Finnish <laatu@lokalisointi.org>\n"
 "MIME-Version: 1.0\n"
@@ -54,7 +54,7 @@ msgstr "Lähetä tämä tiedosto käyttötukeen."
 
 #: ../sos/policyredhat.py:352
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Asetustiedostossa ei ole määritelty osoitetta."
 
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
@@ -65,10 +65,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Raportin lähettämisessä Red Hatin käyttötukeen oli ongelmia."
 
 #: ../sos/policyredhat.py:398
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"Raportin lähetys Red Hatin ftp-palvelimelle onnistui, käytettiin nimeä:"
+msgstr "Raportin lähetys kohteeseen %s onnistui, käytettiin nimeä:"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -183,14 +182,13 @@ msgid "N"
 msgstr "E"
 
 #: ../sos/sosreport.py:695
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
-msgstr "\tSuoritetaan liitännäisiä. Odota..."
+msgstr "  Suoritetaan liitännäisiä. Odota..."
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tsosreport-käännöspuu on sijainnissa: %s"
+msgstr "  sosreport-käännöspuu on sijainnissa: %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "liitännäinen %s ohitettiin (--skip-plugins)"
