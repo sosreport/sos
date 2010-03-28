@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-26 16:42-0400\n"
-"PO-Revision-Date: 2010-03-15 23:42+0100\n"
+"PO-Revision-Date: 2010-03-28 23:56+0100\n"
 "Last-Translator: Miloš Komarčević <kmilos@gmail.com>\n"
 "Language-Team: Serbian <trans-sr@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"Generated-By: pygettext.py 1.5\n"
 
 #: ../sos/policyredhat.py:208
 #, python-format
@@ -58,7 +57,7 @@ msgstr "Pošaljite ovu datoteku vašem predstavniku podrške."
 
 #: ../sos/policyredhat.py:352
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Nema definisane URL adrese u datoteci podešavanja."
 
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
@@ -69,9 +68,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Pojavio se problem pri slanju vašeg izveštaja Red Hat podršci."
 
 #: ../sos/policyredhat.py:398
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Vaš izveštaj je uspešno poslat na Red Hat ftp server sa imenom:"
+msgstr "Vaš izveštaj je uspešno poslat na %s sa imenom:"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -186,14 +185,13 @@ msgid "N"
 msgstr "N"
 
 #: ../sos/sosreport.py:695
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
-msgstr "\tPokrećem dodatke. Molimo sačekajte ..."
+msgstr "  Pokrećem dodatke. Molimo sačekajte ..."
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tstablo sosreport izgradnje se nalazi na : %s"
+msgstr "  stablo sosreport izgradnje se nalazi na : %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "dodatak %s je preskočen (--skip-plugins)"
