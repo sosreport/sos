@@ -1,7 +1,7 @@
 # Portuguese translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
 # Automatically generated, 2007.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
@@ -25,9 +25,7 @@ msgstr "Por favor, insira a sua primeira inicial e último nome [%s]: "
 
 #: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-"Por favor, insira o número do processo para o qual está a gerar este "
-"relatório: "
+msgstr "Por favor, insira o número do processo para o qual está a gerar este relatório: "
 
 #: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
@@ -58,10 +56,6 @@ msgstr "O md5sum é: "
 msgid "Please send this file to your support representative."
 msgstr "Por favor, envie este ficheiro para o seu representante do suporte."
 
-#: ../sos/policyredhat.py:352
-msgid "No URL defined in config file."
-msgstr ""
-
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "Não foi possível submeter para o URL especificado."
@@ -69,13 +63,6 @@ msgstr "Não foi possível submeter para o URL especificado."
 #: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Ocorreu um erro ao submeter o seu relatório para o suporte Red Hat."
-
-#: ../sos/policyredhat.py:398
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"O seu relatório foi submetido com sucesso para o servidor ftp da Red Hat com "
-"o nome:"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -189,15 +176,23 @@ msgstr "n"
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
-#, fuzzy
-msgid "  Running plugins. Please wait ..."
-msgstr "\tA executar plugins. Por favor, aguarde ..."
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr "Nenhum URL definido no ficheiro de configuração."
+
+#: ../sos/policyredhat.py:398
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "O seu relatório foi submetido com sucesso para %s com o nome:"
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tárvore de construção do sosreport está localizada em : %s"
+msgstr "a árvore de construção do sosreport está localizada em : %s"
+
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr "A executar plugins. Por favor, aguarde ..."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "plugin %s ignorado (--skip-plugins)"
