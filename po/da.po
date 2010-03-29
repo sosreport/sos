@@ -2,7 +2,7 @@
 # Copyright (C) 2007-10
 # Automatically generated, 2007.
 # Kris Thomsen <lakristho@gmail.com>, 2009, 2010.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
@@ -14,8 +14,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: pygettext.py 1.5\n"
 
 #: ../sos/policyredhat.py:208
 #, python-format
@@ -24,8 +24,7 @@ msgstr "Indtast venligst dit for- og efternavn [%s]: "
 
 #: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-"Indtast venligst nummeret på sagen, som du opretter denne rapport for: "
+msgstr "Indtast venligst nummeret på sagen, som du opretter denne rapport for: "
 
 #: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
@@ -56,24 +55,13 @@ msgstr "MD5summen er: "
 msgid "Please send this file to your support representative."
 msgstr "Indsend venligst denne fil til din supportrepræsentant."
 
-#: ../sos/policyredhat.py:352
-msgid "No URL defined in config file."
-msgstr ""
-
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "Kan ikke overføre til den angivne URL."
 
 #: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
-"Der opstod et problem under overførsel af din rapport til Red Hat-support."
-
-#: ../sos/policyredhat.py:398
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"Din rapport er overført til Red Hats ftp-server med succes, under navnet:"
+msgstr "Der opstod et problem under overførsel af din rapport til Red Hat-support."
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -161,8 +149,7 @@ msgstr "Tryk ENTER for at fortsætte, eller CTRL-C for at afslutte.\n"
 
 #: ../sos/sosreport.py:653
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
-"Èn eller flere udvidelsesmoduler har fundet et problem i din konfiguration."
+msgstr "Èn eller flere udvidelsesmoduler har fundet et problem i din konfiguration."
 
 #: ../sos/sosreport.py:655
 msgid "Please review the following messages:"
@@ -188,22 +175,29 @@ msgstr "n"
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
-#, fuzzy
-msgid "  Running plugins. Please wait ..."
-msgstr "\tKører udvidelsesmoduler. Vent venligst ..."
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr "Ingen URL defineret i konfigurationsfil."
+
+#: ../sos/policyredhat.py:398
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "Din rapport er overført til %s med succes, under navnet:"
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tsosreport bygningstræ er placeret på : %s"
+msgstr "sosreport bygningstræ er placeret på : %s"
+
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr "Kører udvidelsesmoduler. Vent venligst ..."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "udvidelsesmodulet %s sprunget over (--skip-plugins)"
 
 #~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr ""
-#~ "udvidelsesmodulet %s er inaktivt (brug -e eller -o for at aktivere)."
+#~ msgstr "udvidelsesmodulet %s er inaktivt (brug -e eller -o for at aktivere)."
 
 #~ msgid "plugin %s not specified in --only-plugins list"
 #~ msgstr "udvidelsesmodulet %s er er ikke angivet i --only-plugins listen"
