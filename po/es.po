@@ -1,9 +1,9 @@
 # Fedora Spanish translation of sos.trunk.
 # This file is distributed under the same license as the sos.trunk package.
-#
+# 
 # Manuel Ospina <mospina@redhat.com>, 2007.
 # Héctor Daniel Cabrera <logan@fedoraproject.org>, 2010.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk\n"
@@ -15,23 +15,20 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: KBabel 1.11.4\n"
 "X-Poedit-Language: Spanish\n"
+"Generated-By: pygettext.py 1.5\n"
 "X-Poedit-Country: ARGENTINA\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ../sos/policyredhat.py:208
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
-"Por favor introduzca la inicial de su primer nombre y su apellido [%s]:"
+msgstr "Por favor introduzca la inicial de su primer nombre y su apellido [%s]:"
 
 #: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-"Por favor introduzca el número de caso para el cual está generando este "
-"reporte:"
+msgstr "Por favor introduzca el número de caso para el cual está generando este reporte:"
 
 #: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
@@ -62,25 +59,13 @@ msgstr "El md5sum es:"
 msgid "Please send this file to your support representative."
 msgstr "Por favor envíe este archivo a su representante de soporte."
 
-#: ../sos/policyredhat.py:352
-msgid "No URL defined in config file."
-msgstr ""
-
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "No se puede cargar a la URL especificada."
 
 #: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
-"Hubo un problema al cargar su reporte al equipo de asistencia de Red Hat"
-
-#: ../sos/policyredhat.py:398
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"Su reporte ha sido cargado satisfactoriamente a los servidores ftp e Red Hat "
-"con el nombre:"
+msgstr "Hubo un problema al cargar su reporte al equipo de asistencia de Red Hat"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -194,15 +179,23 @@ msgstr "n"
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
-#, fuzzy
-msgid "  Running plugins. Please wait ..."
-msgstr "\tEjecutando complementos. Aguarde por favor ..."
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr "No hay URL definida en el archivo de configuración."
+
+#: ../sos/policyredhat.py:398
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "Su reporte ha sido cargado satisfactoriamente a %s con el nombre:"
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tárbol de compilación de sosreport se encuentra ubicado en : %s"
+msgstr "el árbol de compilación de sosreport se encuentra ubicado en : %s"
+
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr "Ejecutando complementos. Por favor espere..."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "plugin %s ignorado (--skip-plugins)"
