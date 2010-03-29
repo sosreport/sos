@@ -1,7 +1,7 @@
 # Hungarian translations for sos package.
 # Copyright (C) 2007 ORGANIZATION
 # Automatically generated, 2007.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: sos trunk\n"
@@ -53,10 +53,6 @@ msgstr "Az md5sum: "
 msgid "Please send this file to your support representative."
 msgstr "Kérem küldje e fájlt a támogatás képviselőjének."
 
-#: ../sos/policyredhat.py:352
-msgid "No URL defined in config file."
-msgstr ""
-
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
 msgstr "Nem lehet az URL-re feltölteni."
@@ -64,12 +60,6 @@ msgstr "Nem lehet az URL-re feltölteni."
 #: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "A jelentést a Red Hat támogatáshoz feltöltvén baj történt."
-
-#: ../sos/policyredhat.py:398
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"A jelentést sikerült a Red Hat FTP szolgálójára feltölteni a következő néven:"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -183,15 +173,23 @@ msgstr "n"
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
-#, fuzzy
-msgid "  Running plugins. Please wait ..."
-msgstr "\tPlugin-ek futtatása, kérem várjon…"
+#: ../sos/policyredhat.py:352
+msgid "No URL defined in config file."
+msgstr "Nincs URL meghatározva a config fájlban."
+
+#: ../sos/policyredhat.py:398
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "A jelentést sikerült a %s kiszolgálóra feltölteni a következő néven:"
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tsosreport fordításának fája itt található: %s"
+msgstr "Sosreport építési fája itt található: %s"
+
+#: ../sos/sosreport.py:695
+msgid "  Running plugins. Please wait ..."
+msgstr "Plugin-ek futtatása, kérem várjon…"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "%s dugasz kihagyva (--skip-plugins)"
