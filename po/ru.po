@@ -9,15 +9,14 @@ msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-26 16:42-0400\n"
-"PO-Revision-Date: 2010-03-12 11:58+1100\n"
+"PO-Revision-Date: 2010-03-30 08:47\n"
 "Last-Translator: Yulia <ypoyarko@redhat.com>\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
-"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: KBabel 1.11.4\n"
 
 #: ../sos/policyredhat.py:208
@@ -60,7 +59,7 @@ msgstr "Отправьте этот файл представителю служ
 
 #: ../sos/policyredhat.py:352
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Файл конфигурации не содержит URL."
 
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
@@ -68,17 +67,16 @@ msgstr "Не удалось отправить файл."
 
 #: ../sos/policyredhat.py:396
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
-"Произошла ошибка при попытке отправить отчёт в службу поддержки Red Hat."
+msgstr "Произошла ошибка при попытке отправить отчёт в службу поддержки Red Hat."
 
 #: ../sos/policyredhat.py:398
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Ваш отчёт был успешно размещён на FTP-сервере Red Hat под именем:"
+msgstr "Ваш отчёт был успешно отправлен на %s под именем:"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
-msgstr "Пожалуйста, сообщите это имя представителю службы поддержки."
+msgstr "Сообщите это имя представителю службы поддержки."
 
 #: ../sos/sosreport.py:345
 msgid "Could not create temporary directory."
@@ -101,7 +99,7 @@ msgstr "модуль %s не устанавливается. Пропускае�
 
 #: ../sos/sosreport.py:558
 msgid "no valid plugins found"
-msgstr "модули не найдены"
+msgstr "верные модули не найдены"
 
 #: ../sos/sosreport.py:562
 msgid "The following plugins are currently enabled:"
@@ -129,7 +127,7 @@ msgstr "Для выполнения sosreport необходимы права ro
 
 #: ../sos/sosreport.py:616
 msgid "no valid plugins were enabled"
-msgstr "подходящие модули не включены"
+msgstr "не включены верные модули"
 
 #: ../sos/sosreport.py:619
 #, python-format
@@ -190,11 +188,11 @@ msgid "N"
 msgstr "N"
 
 #: ../sos/sosreport.py:695
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
-msgstr "\t Выполняются модули. Пожалуйста, подождите..."
+msgstr "  Выполняются модули. Пожалуйста, подождите..."
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\t расположение дерева sosreport: %s"
+msgstr "  расположение дерева sosreport: %s"
+
