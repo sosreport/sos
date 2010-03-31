@@ -1,0 +1,6 @@
+set test "BATCHMODE"
+spawn /usr/sbin/sosreport --batch
+set timeout 15
+expect {
+    -re "^.*send this file to your support representative." { pass $test }
+}
