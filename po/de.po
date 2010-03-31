@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-26 16:42-0400\n"
-"PO-Revision-Date: 2010-03-17 15:22+1000\n"
+"PO-Revision-Date: 2010-03-31 14:19+1000\n"
 "Last-Translator: sknirT omiT <moc.tahder@sknirtt>\n"
 "Language-Team:  <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -30,8 +30,7 @@ msgstr "Bitte geben Sie Ihren Vor- und Nachnamen ein [%s]: "
 
 #: ../sos/policyredhat.py:211
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-"Bitte geben Sie die Fallnummer an, für die Sie diesen Bericht generieren: "
+msgstr "Bitte geben Sie die Fallnummer an, für die Sie diesen Bericht generieren: "
 
 #: ../sos/policyredhat.py:251
 msgid "Creating compressed archive..."
@@ -64,7 +63,7 @@ msgstr "Bitte senden Sie diese Datei an Ihren Support-Vertreter."
 
 #: ../sos/policyredhat.py:352
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Keine URL in Konfigurationsdatei definiert."
 
 #: ../sos/policyredhat.py:359
 msgid "Cannot upload to specified URL."
@@ -75,11 +74,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Beim Hochladen Ihres Berichts zum Red Hat Support trat ein Fehler auf."
 
 #: ../sos/policyredhat.py:398
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"Ihr Bericht wurde erfolgreich auf den Red Hat FTP-Server hochgeladen, mit "
-"dem Namen:"
+msgstr "Ihr Bericht wurde erfolgreich auf %s hochgeladen, mit dem Namen:"
 
 #: ../sos/policyredhat.py:401
 msgid "Please communicate this name to your support representative."
@@ -163,13 +160,11 @@ msgstr ""
 
 #: ../sos/sosreport.py:634
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
-"Drücken Sie die EINGABETASTE, um fortzufahren, oder STRG-C, um abzubrechen.\n"
+msgstr "Drücken Sie die EINGABETASTE, um fortzufahren, oder STRG-C, um abzubrechen.\n"
 
 #: ../sos/sosreport.py:653
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
-"Ein oder mehrere Plugins haben ein Problem in Ihrer Konfiguration entdeckt."
+msgstr "Ein oder mehrere Plugins haben ein Problem in Ihrer Konfiguration entdeckt."
 
 #: ../sos/sosreport.py:655
 msgid "Please review the following messages:"
@@ -196,11 +191,11 @@ msgid "N"
 msgstr "N"
 
 #: ../sos/sosreport.py:695
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
-msgstr "\tFühre Plugins aus. Bitte warten ..."
+msgstr "  Plugins werden ausgeführt. Bitte warten ..."
 
 #: ../sos/sosreport.py:802
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\tsosreport-Build-Tree befindet sich unter : %s"
+msgstr "  sosreport-Build-Tree befindet sich unter : %s"
+
