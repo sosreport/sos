@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 1.9
-Release: 3%{?dist}
+Release: 5%{?dist}
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -45,11 +45,14 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_datadir}/%{name}
 %{python_sitelib}/*
 %{_mandir}/man1/*
-%doc README README.rh-upload TODO LICENSE ChangeLog doc/*
+%doc README TODO LICENSE ChangeLog doc/*
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
-* Fri Mar 26 2010 Adam Stokes <ajs at redhat dot com> = 1.9-3
+* Tue Mar 30 2010 Adam Stokes <ajs at redhat dot com> = 1.9-5
+- Remove references to rh-upload
+
+* Fri Mar 26 2010 Adam Stokes <ajs at redhat dot com> = 1.9-4
 - fix setup.py to autocompile translations and man pages
 
 * Fri Mar 19 2010 Adam Stokes <ajs at redhat dot com> = 1.9-2
