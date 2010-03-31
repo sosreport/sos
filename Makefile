@@ -41,7 +41,7 @@ $(NAME)-$(VERSION).tar.gz: clean gpgkey
 	@svn export --force $(PWD) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
 	@mkdir -p $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys
 	@cp gpgkeys/rhsupport.pub $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys/.
-	@tar Ccvzf $(RPM_BUILD_DIR) $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
+	@tar Ccvzf $(RPM_BUILD_DIR) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz
