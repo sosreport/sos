@@ -1,5 +1,0 @@
-set test "Test run as normal user"
-exec "/usr/sbin/sosreport"
-expect {
-    -re "root" { pass $test }
-}
