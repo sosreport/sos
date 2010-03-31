@@ -1,12 +1,12 @@
 # translation of sos.trunk-nl.po to Dutch
 # Copyright (C) YEAR ORGANIZATION
-# 
+#
 # R.E. van der Luit <nippur@fedoraproject.org>, 2009, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk-nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2010-03-12 13:47+0100\n"
 "Last-Translator: R.E. van der Luit <nippur@fedoraproject.org>\n"
 "Language-Team: Dutch <nippur@fedoraproject.org>\n"
@@ -17,28 +17,28 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Voer je eerste initiaal en je achternaam in [%s]: "
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Voer aub het zaaknummer in waarvoor je deze melding doet:"
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "Gecomprimeerd archiefbestand wordt gemaakt..."
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "Archiefbestand wordt versleuteld..."
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "Er trad een probleem op bij het versleutelen van jouw melding."
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -47,78 +47,89 @@ msgstr ""
 "Jouw sosmelding is gegenereerd en opgeslagen in:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "De md5sum is: "
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "Zendt dit bestand naar jouw support representant."
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:353
+msgid "No URL defined in config file."
+msgstr "Er is geen URL gedefinieerd in het config bestand."
+
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "Kan niet naar de opgegeven URL uploaden."
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Er trad een probleem op bij het uploaden van jouw melding naar Red Hat support."
+msgstr ""
+"Er trad een probleem op bij het uploaden van jouw melding naar Red Hat "
+"support."
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:399
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "Jouw melding is succesvol verstuurd naar %s met de naam:"
+
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "Meldt deze naam alstublieft aan jouw support representant."
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "Kon geen tijdelijke map maken."
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosmelding (versie %s)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "plugin %s valideerde niet, wordt overgeslagen"
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "plugin %s laat zich niet installeren, wordt overgeslagen"
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "geen geldige plugin gevonden"
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "De volgende plugins zijn momenteel actief:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "Geen plugin aangezet."
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "De volgende plugins zijn momenteel actief:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "De volgende plugin opties zijn beschikbaar:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "Geen plugin-opties beschikbaar."
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sosmelding vereist root rechten om te draaien."
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "er waren geen geldige plugins aangezet"
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -143,55 +154,47 @@ msgstr ""
 "Er zullen geen veranderingen aan jouw systeem gemaakt worden.\n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Druk op ENTER om verder te gaan, of op CTRL-C om te stoppen.\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Eén of meerdere plugins hebben een probleem in jouw configuratie bemerkt."
+msgstr ""
+"Eén of meerdere plugins hebben een probleem in jouw configuratie bemerkt."
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "Lees aub de volgende berichten goed door:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "Weet je zeker dat je door wilt gaan (j/n) ? "
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "j"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "J"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/policyredhat.py:352
-msgid "No URL defined in config file."
-msgstr "Er is geen URL gedefinieerd in het config bestand."
+#: ../sos/sosreport.py:694
+msgid "  Running plugins. Please wait ..."
+msgstr "Plug-ins worden gedraaid. Wachten a.u.b. ..."
 
-#: ../sos/policyredhat.py:398
-#, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Jouw melding is succesvol verstuurd naar %s met de naam:"
-
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr "De sosmelding opbouw boom bevindt zich in : %s"
-
-#: ../sos/sosreport.py:695
-msgid "  Running plugins. Please wait ..."
-msgstr "Plug-ins worden gedraaid. Wachten a.u.b. ..."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "plugin %s overgeslagen (--skip-plugins)"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2009-09-20 14:43+0200\n"
 "Last-Translator: Ondrej Šulek <feonsu@gmail.com>\n"
 "Language-Team: Slovak <fedora-trans-sk@redhat.com>\n"
@@ -17,28 +17,28 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Lokalize 1.0\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Prosím zadajte svoje meno a priezvisko [%s]: "
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Prosím zadajte číslo, pod ktorým vygenerovať túto správu: "
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "Vytváranie komprimovaného archívu..."
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "Šifrovanie archívu..."
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "Nastal problém pri šifrovaní vašej správy."
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -47,87 +47,87 @@ msgstr ""
 "Váš sosreport bol vygenerovaný a uložený v :\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "Kontrolný súčet MD5: "
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "Prosím pošlite tento súbor zástupcovi technickej podpory."
 
-#: ../sos/policyredhat.py:352
+#: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "Nie je možné odoslať na zadanú adresu URL."
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Nastal problém pri odosielaní vašej správy na podporu Red Hat."
 
-#: ../sos/policyredhat.py:398
+#: ../sos/policyredhat.py:399
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "Vaša správa bola úspešne odoslaná na ftp server Red Hatu s názvom:"
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "Prosím kontaktujte zástupcu technickej podpory s týmto názvom."
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "Nepodarilo sa vytvoriť dočasný adresár."
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (verzia %s)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "nie je možné overiť modul %s, preskakujem"
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "nie je možné nainštalovať modul %s, preskakujem"
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "nenájdené žiadne platné moduly"
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "Nasledujúce moduly sú aktuálne povolené:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "Žiadny modul nie je povolený."
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "Nasledujúce moduly sú aktuálne zakázané:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "Nasledujúce možnosti modulov sú dostupné:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "Nie sú dostupné žiadne možnosti modulov."
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport vyžaduje root-ovský prístup"
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "neboli povolené žiadne platné moduly"
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -152,43 +152,43 @@ msgstr ""
 "V systéme nebudú vykonané žiadne zmeny.\n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Stlačte ENTER na pokračovanie, alebo CTRL-C na ukončenie.\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "Jeden alebo viacero modulov má problémy s konfiguráciou."
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "Prosím skontrolujte nasledujúce správy:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "Naozaj chcete pokračovať (a/n) ? "
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "a"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "A"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
+#: ../sos/sosreport.py:694
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""

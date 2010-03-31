@@ -1,12 +1,12 @@
 # Hungarian translations for sos package.
 # Copyright (C) 2007 ORGANIZATION
 # Automatically generated, 2007.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: sos trunk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2010-03-16 17:23+0100\n"
 "Last-Translator: Peter Bojtos <ptr@ulx.hu>\n"
 "Language-Team: Hungarian <fedora-trans-hu@redhat.com>\n"
@@ -15,28 +15,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Kérem adja meg utónevét és vezetéknevét [%s]:·"
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Kérem adja meg az eset számát, amire e jelentést készíti: "
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "Tömörített archívum teremtése…"
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "Archívum titkosítása…"
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "A jelentést titkosítván hiba történt."
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -45,78 +45,87 @@ msgstr ""
 "A sos jelentés elkészült ide mentve:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "Az md5sum: "
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "Kérem küldje e fájlt a támogatás képviselőjének."
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:353
+msgid "No URL defined in config file."
+msgstr "Nincs URL meghatározva a config fájlban."
+
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "Nem lehet az URL-re feltölteni."
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "A jelentést a Red Hat támogatáshoz feltöltvén baj történt."
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:399
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "A jelentést sikerült a %s kiszolgálóra feltölteni a következő néven:"
+
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "Kérem e nevet adja meg a támogatás képviselőjének."
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "Nem sikerült ideiglenes mappát teremteni."
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport·(%s változat)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "%s dugasz érvénytelen, kihagyás"
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "%s dugasz nem települ, kihagyás"
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "nincs érvényes dugasz"
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "A következő dugaszokat engedélyezték:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "Nincs engedélyezett dugasz."
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "A következő dugaszokat tiltották le:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "A következő dugasz opciók érhetők el:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "Nincs elérhető dugasz opció."
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sosreportnak root jogsi kell a futáshoz."
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "nem engedélyeztek érvényes dugaszt"
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -141,55 +150,46 @@ msgstr ""
 "A rendszert nem változtatja meg.\n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Nyomjon ENTER-t a folytatáshoz, vagy CTRL-C-t a kilépéshez.\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "Egy vagy több dugasz bajt érzékelt a konfigurációban."
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "Kérem nézze át a következő üzeneteket:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "Biztosan folytatni akarja? (i/n) "
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "i"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "I"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/policyredhat.py:352
-msgid "No URL defined in config file."
-msgstr "Nincs URL meghatározva a config fájlban."
+#: ../sos/sosreport.py:694
+msgid "  Running plugins. Please wait ..."
+msgstr "Plugin-ek futtatása, kérem várjon…"
 
-#: ../sos/policyredhat.py:398
-#, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "A jelentést sikerült a %s kiszolgálóra feltölteni a következő néven:"
-
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr "Sosreport építési fája itt található: %s"
-
-#: ../sos/sosreport.py:695
-msgid "  Running plugins. Please wait ..."
-msgstr "Plugin-ek futtatása, kérem várjon…"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "%s dugasz kihagyva (--skip-plugins)"

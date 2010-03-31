@@ -2,12 +2,12 @@
 # Copyright (C) 2007-10
 # Automatically generated, 2007.
 # Kris Thomsen <lakristho@gmail.com>, 2009, 2010.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2010-03-12 13:39+0100\n"
 "Last-Translator: Kris Thomsen <lakristho@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk\n"
@@ -17,28 +17,29 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Indtast venligst dit for- og efternavn [%s]: "
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
-msgstr "Indtast venligst nummeret på sagen, som du opretter denne rapport for: "
+msgstr ""
+"Indtast venligst nummeret på sagen, som du opretter denne rapport for: "
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "Opretter komprimeret arkiv..."
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "Krypterer arkiv..."
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "Der opstod et problem under kryptering af din rapport."
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -47,78 +48,88 @@ msgstr ""
 "Din sosrapport er blevet oprettet og gemt i:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "MD5summen er: "
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "Indsend venligst denne fil til din supportrepræsentant."
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:353
+msgid "No URL defined in config file."
+msgstr "Ingen URL defineret i konfigurationsfil."
+
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "Kan ikke overføre til den angivne URL."
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Der opstod et problem under overførsel af din rapport til Red Hat-support."
+msgstr ""
+"Der opstod et problem under overførsel af din rapport til Red Hat-support."
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:399
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "Din rapport er overført til %s med succes, under navnet:"
+
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "Giv venligst dit navn til din supportrepræsentant."
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "Kunne ikke oprette midlertidig mappe."
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (version %s)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "udvidelsesmodulet %s validerer ikke, springer over"
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "udvidelsesmodulet %s installerer ikke, springer over"
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "ingen gyldige udvidelsesmoduler fundet"
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "Følgende udvidelsesmoduler er aktiveret i øjeblikket:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "Ingen udvidelsesmoduler aktiveret."
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "Følgende udvidelsesmoduler er deaktiveret i øjeblikket:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "Følgende indstillinger for udvidelsesmodul er tilgængelige:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "Ingen indstillinger tilgængelige for udvidelsesmodul."
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport behøver administratorrettigheder for at køre."
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "ingen gyldige udvidelsesmoduler er aktiveret"
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -143,61 +154,54 @@ msgstr ""
 "Ingen ændringer vil blive foretaget på dit system.\n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Tryk ENTER for at fortsætte, eller CTRL-C for at afslutte.\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Èn eller flere udvidelsesmoduler har fundet et problem i din konfiguration."
+msgstr ""
+"Èn eller flere udvidelsesmoduler har fundet et problem i din konfiguration."
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "Gennemse venligst følgende beskeder:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "Er du sikker på, at du vil fortsætte (j/n) ? "
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "j"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "J"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/policyredhat.py:352
-msgid "No URL defined in config file."
-msgstr "Ingen URL defineret i konfigurationsfil."
+#: ../sos/sosreport.py:694
+msgid "  Running plugins. Please wait ..."
+msgstr "Kører udvidelsesmoduler. Vent venligst ..."
 
-#: ../sos/policyredhat.py:398
-#, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Din rapport er overført til %s med succes, under navnet:"
-
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr "sosreport bygningstræ er placeret på : %s"
-
-#: ../sos/sosreport.py:695
-msgid "  Running plugins. Please wait ..."
-msgstr "Kører udvidelsesmoduler. Vent venligst ..."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "udvidelsesmodulet %s sprunget over (--skip-plugins)"
 
 #~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "udvidelsesmodulet %s er inaktivt (brug -e eller -o for at aktivere)."
+#~ msgstr ""
+#~ "udvidelsesmodulet %s er inaktivt (brug -e eller -o for at aktivere)."
 
 #~ msgid "plugin %s not specified in --only-plugins list"
 #~ msgstr "udvidelsesmodulet %s er er ikke angivet i --only-plugins listen"

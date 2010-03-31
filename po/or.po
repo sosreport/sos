@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk.or\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2009-09-02 17:02+0530\n"
 "Last-Translator: Manoj Kumar Giri <mgiri@redhat.com>\n"
 "Language-Team: Oriya <oriya-it@googlegroups.com>\n"
@@ -23,28 +23,28 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "ଦୟାକରି ଆପଣଙ୍କର ନାମର ପ୍ରଥମ ଏବଂ ଅନ୍ତିମ ଭାଗ ଭରଣ କରନ୍ତୁ [%s]: "
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "ଦୟାକରି ଅଭିଯୋଗ କ୍ରମ ସଂଖ୍ୟା ଭରଣ କରନ୍ତୁ ଯାହା ପାଇଁ ଆପଣ ଏହି ଖବରକୁ ସୃଷ୍ଟି କରିଛନ୍ତି: "
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "ସଙ୍କୁଚିତ ଅଭିଲେଖ ନିର୍ମାଣ କରୁଅଛି..."
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "ଅଭିଲେଖକୁ ସଂଗୁପ୍ତ ରଖୁଅଛି..."
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "ଆପଣଙ୍କର ଖବରକୁ ସଂଗୁପ୍ତ କରିବା ସମୟରେ ଗୋଟିଏ ସମସ୍ୟା ଦେଖାଦେଇଥିଲା।"
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -53,87 +53,87 @@ msgstr ""
 "ଆପଣଙ୍କର sosreport ସୃଷ୍ଟିହୋଇଛି ଏବଂ ଏଥିରେ ସଂରକ୍ଷିତ ହୋଇଛି:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "ଏହି md5sum ଟି ହେଉଛି: "
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "ଦୟାକରି ଏହି ଫାଇଲକୁ ଆପଣଙ୍କର ସହାୟତା ପ୍ରତିନିଧିଙ୍କ ପାଖକୁ ପଠାନ୍ତୁ।"
 
-#: ../sos/policyredhat.py:352
+#: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "ଉଲ୍ଲିଖିତ URL କୁ ଧାରଣ କରିପାରିବେ ନାହିଁ।"
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Red Hat ସହାୟତାରେ ଆପଣଙ୍କର ବିବରଣୀକୁ ଧାରଣ କରିବାରେ ସମସ୍ୟା ଦୋଇଥିଲା।"
 
-#: ../sos/policyredhat.py:398
+#: ../sos/policyredhat.py:399
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "ଆପଣଙ୍କର ବିବରଣୀ Red Hat's ftp ସର୍ଭରରେ ନିମ୍ନଲିଖିତ ନାମରେ ସଫଳତାର ସହିତ ଧାରଣ ହୋଇଛି:"
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "ଦୟାକରି ଏହି ନାମକୁ ଆପଣଙ୍କର ସହାୟତା ପ୍ରତିନିଧିଙ୍କ ପାଖକୁ ପଠାନ୍ତୁ।"
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "ଅସ୍ଥାୟୀ ଡିରେକ୍ଟୋରୀ ନିର୍ମାଣ କରିହେଲା ନାହିଁ।"
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (ସସ୍କରଣ %s)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "ପ୍ଲଗଇନ %s କୁ ବୈଧିକୃତ କରେ ନାହିଁ, ଏଡ଼ାଇଦେଉଅଛି"
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "ପ୍ଲଗଇନ %s ସ୍ଥାପନ କରେନାହିଁ, ଏଡ଼ାଇ ଦେଉଛି"
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "କୌଣସି ବୈଧ ପ୍ଲଗଇନ ମିଳୁନାହିଁ"
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "ନିମ୍ନଲିଖିତ ପ୍ଲଗଇନଗୁଡ଼ିକ ବର୍ତ୍ତମାନ ସକ୍ରିୟ ହୋଇଛି:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "କୌଣସି ପ୍ଲଗଇନ ସକ୍ରିୟ ହୋଇନାହିଁ।"
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "ନିମ୍ନଲିଖିତ ପ୍ଲଗଇନଗୁଡ଼ିକ ବର୍ତ୍ତମାନ ନିଷ୍କ୍ରିୟ ହୋଇଛି:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "ନିମ୍ନଲିଖିତ ପ୍ଲଗଇନ ବିକଳ୍ପଗୁଡ଼ିକ ଉପଲବ୍ଧ ଅଛି:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "କୌଣସି ପ୍ଲଗଇନ ବିକଳ୍ପ ଉପଲବ୍ଧ ନାହିଁ।"
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport ଚାଲିବା ପାଇଁ ମୂଖ୍ୟଚାଳକ ଅନୁମତି ଆବଶ୍ୟକ କରିଥାଏ।"
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "କୌଣସି ବୈଧ ପ୍ଲଗଇନକୁ ସକ୍ରିୟ କରାହୋଇନାହିଁ"
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -158,43 +158,43 @@ msgstr ""
 "ଆପଣଙ୍କର ତନ୍ତ୍ରରେ କୌଣସି ପରିବର୍ତ୍ତନ କରାଯିବ ନାହିଁ।\n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "ଅଗ୍ରସର ହେବା ପାଇଁ ENTER ଦବାନ୍ତୁ, ଅଥବା ବିଦାୟ ନେବା ପାଇଁ CTRL-C ଦବାନ୍ତୁ।\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "ଆପଣଙ୍କର ସଂରଚନାରେ ଗୋଟିଏ କିମ୍ବା ଅଧିକ ପ୍ଲଗଇନରେ ସମସ୍ୟା ଦେଖାଦେଇଛି।"
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "ଦୟାକରି ନିମ୍ନଲିଖିତ ସନ୍ଦେଶଗୁଡ଼ିକୁ ପ୍ରାକଦର୍ଶନ କରନ୍ତୁ:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "ଆପଣ ଅଗ୍ରସର ହେବା ପାଇଁ ଚାହୁଁଛନ୍ତି ବୋଲି ନିଶ୍ଚିତ କି (y/n) ? "
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "ହଁ"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "Y"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "ନାଁ"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
+#: ../sos/sosreport.py:694
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""

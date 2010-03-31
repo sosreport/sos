@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ast\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2009-10-24 20:58+0100\n"
 "Last-Translator: Xandru Martino Ruz <xandru.martino@gmail.com>\n"
 "Language-Team: Asturian <alministradores@softastur.org>\n"
@@ -19,28 +19,28 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Por favor pon la inicial del to nome nome y del to apellíu [%s]:"
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Por favor pon el númberu de casu pal que tas xenerando esti informe:"
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "Criando un ficheru comprimíu..."
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "Encriptando'l ficheru..."
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "Hebo un problema mientres s'encriptaba l'informe."
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -49,88 +49,88 @@ msgstr ""
 "El to informe sos xeneróse y guardóse en:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "El md5sum ye:"
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "Por favor manda esti ficheru al to representante de sofitu."
 
-#: ../sos/policyredhat.py:352
+#: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "Nun se puede cargar a la URL especificada."
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr ""
 "Hebo un problema al cargar el to informe al equipu d'asistencia de Red Hat"
 
-#: ../sos/policyredhat.py:398
+#: ../sos/policyredhat.py:399
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "El to informe cargóse bien a los sirvidores ftp e Red Hat col nome:"
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "Por favor comunica esti nome al to representante de sofitu."
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "Nun se pudo criar un direutoriu temporal."
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (versión %s)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "nun se validó'l plugin %s, inorándolu"
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "nun s'instaló'l plugin %s, inorándolu"
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "nun s'atopó un plugin válidu"
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "Los siguientes plugins tán activaos anguaño:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "Dengún plugin ta activáu."
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "Los siguientes plugins nun tán activaos:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "Les siguientes opciones del plugin tán disponibles:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "Nun hai opciones de plugin disponibles."
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport requier privilexos de root pa executalu."
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "nun s'activó dengún plugin válidu"
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -155,43 +155,43 @@ msgstr ""
 "Nun se fadrá dengún cambéu nel sistema.\n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Calca INTRO pa siguir o CTRL-C pa colar.\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "Ún o más plugins deteutaron un problema na to configuración."
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "Por favor revisa los siguientes mensaxes:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "¿Daveres quies siguir (s/n)?"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "s"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "S"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
+#: ../sos/sosreport.py:694
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""

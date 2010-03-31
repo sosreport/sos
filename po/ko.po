@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ko\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2007-11-07 09:56+1000\n"
 "Last-Translator: \n"
 "Language-Team:  <ko@li.org>\n"
@@ -18,28 +18,28 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "영문 이름의 첫 글자와 성을 입력하십시오[%s]:"
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "이 리포트에 해당하는 문제 번호를 입력하십시오:"
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "압축 아카이브를 생성 중입니다..."
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "아카이브를 암호화하고 있습니다..."
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "리포트를 암호화하는 데 문제가 발생했습니다."
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -48,88 +48,88 @@ msgstr ""
 "sos 리포트가 생성되었으며 아래에 저장되었습니다:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "md5sum: "
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "이 파일을 지원 담당자에게 보내주시기 바랍니다."
 
-#: ../sos/policyredhat.py:352
+#: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "지정된 URL에서 업로드할 수 없습니다."
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "리포트를 Red Hat 지원 센터로 업로드하는 데 문제가 발생했습니다."
 
-#: ../sos/policyredhat.py:398
+#: ../sos/policyredhat.py:399
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr ""
 "리포트가 다음과 같은 이름으로 Red Hat FTP 서버에 성공적으로 업로드되었습니다:"
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "지원 담당자와 연락할 때 이 이름을 사용하시기 바랍니다."
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "임시 디렉토리를 생성할 수 없습니다."
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sos 리포트 (버전 %s)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "%s 플러그인이 유효하지 않아 생략합니다."
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "%s 플러그인이 설치되지 않아 생략합니다."
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "사용 가능한 플러그인이 없습니다."
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "현재 다음과 같은 플러그인이 활성화되어 있습니다:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "활성화된 플러그인이 없습니다:"
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "현재 다음과 같은 플러그인이 비활성화되어 있습니다:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "다음과 같은 플러그인 옵션을 사용할 수 있습니다:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "사용 가능한 플러그인 옵션이 없습니다:"
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sos 리포트를 실행하려면 루트 권한이 필요합니다."
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "활성화된 사용 가능한 플러그인이 없습니다."
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -154,43 +154,43 @@ msgstr ""
 "시스템에 아무런 영향을 주지 않습니다. \n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "계속하려면 ENTER를 입력하고, 종료하려면 CTRL-C를 입력하십시오.\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "하나 이상의 플러그인이 사용자 설정에서 문제를 발견했습니다."
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "다음 메시지를 다시 살펴보시기 바랍니다:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "계속 진행하시겠습니까? (y/n)"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "y"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "Y"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
+#: ../sos/sosreport.py:694
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""

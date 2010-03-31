@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-26 16:42-0400\n"
+"POT-Creation-Date: 2010-03-31 16:24-0400\n"
 "PO-Revision-Date: 2007-11-07 14:23+0530\n"
 "Last-Translator: \n"
 "Language-Team:  <en@li.org>\n"
@@ -17,28 +17,28 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/policyredhat.py:208
+#: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "உங்கள் பெயரின் முதல் எழுத்து மற்றும் கடைசி பெயரை உள்ளிடவும் [%s]: "
 
-#: ../sos/policyredhat.py:211
+#: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "இந்த அறிக்கையை உருவாக்க அதற்கான எண்ணை உள்ளிடவும்:"
 
-#: ../sos/policyredhat.py:251
+#: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
 msgstr "குறுக்கப்பட்ட காப்பினை உருவாக்குகிறது..."
 
-#: ../sos/policyredhat.py:281
+#: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
 msgstr "காப்பினை மறைகுறியாக்குகிறது..."
 
-#: ../sos/policyredhat.py:301
+#: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
 msgstr "உங்கள் அறிக்கையை மறைகுறியாக்குவதில் சிக்கல்."
 
-#: ../sos/policyredhat.py:325
+#: ../sos/policyredhat.py:326
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -47,87 +47,87 @@ msgstr ""
 "உங்கள் sosreport உருவாக்கப்பட்டு இதில் சேமிக்கப்பட்டுள்ளது:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:328
+#: ../sos/policyredhat.py:329
 msgid "The md5sum is: "
 msgstr "md5sum : "
 
-#: ../sos/policyredhat.py:330
+#: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
 msgstr "இந்த கோப்பினை உங்கள் சேவை பிரதிநிதியிடம் அனுப்பவும்."
 
-#: ../sos/policyredhat.py:352
+#: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:359
+#: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "குறிப்பிட்ட இணைய முகவரியில் ஏற்ற முடியவில்லை."
 
-#: ../sos/policyredhat.py:396
+#: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "உங்கள் அறிக்கையை Red Hat சேவைக்கு அனுப்புவதில் சிக்கல்."
 
-#: ../sos/policyredhat.py:398
+#: ../sos/policyredhat.py:399
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "உங்கள் அறிக்கை வெற்றிகரமாக Red Hat ftp சேவையகத்தில் பெயருடன் ஏற்றப்பட்டது:"
 
-#: ../sos/policyredhat.py:401
+#: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "இந்த பெயரை உங்கள் சேவை பிரதிநிதியிடம் தெரிவிக்கவும்."
 
-#: ../sos/sosreport.py:345
+#: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
 msgstr "தற்காலிக அடைவை உருவாக்க முடியவில்லை"
 
-#: ../sos/sosreport.py:408
+#: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (version %s)"
 
-#: ../sos/sosreport.py:433
+#: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "கூடுதல் இணைப்பு %s தவறாக உள்ளது, எனவே தவிர்க்கிறது"
 
-#: ../sos/sosreport.py:462
+#: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "கூடுதல் இணைப்பு %s நிறுவப்படவில்லை, தவிர்க்கப்படுகிறது"
 
-#: ../sos/sosreport.py:558
+#: ../sos/sosreport.py:557
 msgid "no valid plugins found"
 msgstr "சரியான கூடுதல் இணைப்புகள் இல்லை"
 
-#: ../sos/sosreport.py:562
+#: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
 msgstr "பின்வரும் கூடுதல் இணைப்புகள் தற்போது செயல்படுத்தப்படுகிறது:"
 
-#: ../sos/sosreport.py:568
+#: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "கூடுதல் இணைப்புகள் எதுவும் செயல்படுத்தப்படவில்லை."
 
-#: ../sos/sosreport.py:572
+#: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
 msgstr "பின்வரும் கூடுதல் இணைப்புகள் தற்போது செயல்நீக்கப்பட்டுள்ளது:"
 
-#: ../sos/sosreport.py:580
+#: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
 msgstr "பின்வரும் கூடுதல் இணைப்பு விருப்பங்கள் உள்ளன:"
 
-#: ../sos/sosreport.py:601
+#: ../sos/sosreport.py:600
 msgid "No plugin options available."
 msgstr "கூடுதல் இணைப்பு விருப்பங்கள் எதுவும் இல்லை."
 
-#: ../sos/sosreport.py:609
+#: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
 msgstr "sosreportஐ இயக்க ரூட் அனுமதிகள் வேண்டும்."
 
-#: ../sos/sosreport.py:616
+#: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
 msgstr "சரியான கூடுதல் இணைப்புகள் எதுவும் செயல்படுத்தப்படவில்லை"
 
-#: ../sos/sosreport.py:619
+#: ../sos/sosreport.py:618
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -152,45 +152,45 @@ msgstr ""
 "உங்கள் கணினியில் எந்த மாற்றமும் செய்யப்படாது.\n"
 "\n"
 
-#: ../sos/sosreport.py:634
+#: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "ENTER ஐ அழுத்தவும் அல்லது CTRL-C ஐ அழுத்தி வெளியேறவும்.\n"
 
-#: ../sos/sosreport.py:653
+#: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr ""
 "ஒன்று அல்லது அதற்கு மேல் கூடுதல் இணைப்புகள் கண்டறியப்பட்டதால் உங்கள் கட்டமைப்பில் பிழை "
 "ஏற்பட்டுள்ளது."
 
-#: ../sos/sosreport.py:655
+#: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
 msgstr "பின்வரும் செய்திகளை மறுபார்வையிடவும்:"
 
-#: ../sos/sosreport.py:671
+#: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "நீங்கள் தொடர வேண்டுமா (y/n) ?"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "y"
 msgstr "y"
 
-#: ../sos/sosreport.py:673
+#: ../sos/sosreport.py:672
 msgid "Y"
 msgstr "Y"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:676
+#: ../sos/sosreport.py:675
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:695
+#: ../sos/sosreport.py:694
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:802
+#: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""
