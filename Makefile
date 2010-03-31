@@ -6,7 +6,6 @@ NAME	= sos
 VERSION = $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
 RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
 REPO = http://svn.fedorahosted.org/svn/sos
-TMPDIR = /tmp/$(NAME)-$(VERSION)
 
 SUBDIRS = po sos sos/plugins testsuite
 PYFILES = $(wildcard *.py)
@@ -37,22 +36,16 @@ install:
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
-$(NAME)-$(VERSION).tar.gz: gpgkey
-	@rm -rf $(NAME)-$(VERSION).tar.gz
-	@rm -rf $(TMPDIR)
-	@svn export --force $(PWD) $(TMPDIR)
-	@mkdir -p $(TMPDIR)/gpgkeys
-	@cp gpgkeys/rhsupport.pub $(TMPDIR)/gpgkeys/.
-	@tar Ccvzf /tmp $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
-	@mkdir $(RPM_BUILD_DIR)
-	@cp $(NAME)-$(VERSION).tar.gz $(RPM_BUILD_DIR)/.
-	@rm -rf $(NAME)-$(VERSION).tar.gz
-	@echo "Archive is $(NAME)-$(VERSION).tar.gz"
+$(NAME)-$(VERSION).tar.gz: clean gpgkey
+	@mkdir -p $(RPM_BUILD_DIR)
+	@svn export --force $(PWD) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
+	@mkdir -p $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys
+	@cp gpgkeys/rhsupport.pub $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys/.
+	@tar Ccvzf $(RPM_BUILD_DIR) $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz
 	@rm -rf rpm-build
-	@rm -rfv $(TMPDIR)
 	@for i in `find . -iname *.pyc`; do \
 		rm $$i; \
 	done; \
