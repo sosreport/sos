@@ -23,9 +23,8 @@ install:
 	@gzip -c man/en/sosreport.1 > sosreport.1.gz
 	mkdir -p $(DESTDIR)/etc
 	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
-	install -m755 extras/rh-upload $(DESTDIR)/usr/share/$(NAME)/extras/rh-upload
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
-	install -m644 LICENSE README README.rh-upload TODO $(DESTDIR)/usr/share/$(NAME)/.
+	install -m644 LICENSE README TODO $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
