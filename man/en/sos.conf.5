@@ -1,0 +1,34 @@
+.TH "sos.conf" "5" "SOSREPORT" "sosreport configuration file"
+.SH NAME
+sos.conf \- sosreport configuration
+.SH DESCRIPTION
+.sp
+sosreport uses a configuration file at /etc/sos.conf.
+.SH PARAMETERS
+.sp
+There are 3 sections of configuration in the sosreport configuration file: general,
+plugins, and tunables.
+.SH [general] OPTIONS
+.sp
+.in
+ftp_upload_url Default ftp server to send reports.
+.in
+gpg_keyring Default gpgkey.
+.in
+gpg_recipient GPG recipient
+.in
+smtp_server Mail server
+.SH [plugins] OPTIONS
+.sp
+.in
+disable Comma separated list of plugins to disable.
+.SH [tunables] OPTIONS
+.sp
+.in
+(plugin, option) Alter available options for defined plugin.
+.SH FILES
+.sp
+/etc/sos.conf
+.SH SEE ALSO
+.sp
+sosreport(1)
