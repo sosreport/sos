@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-31 16:24-0400\n"
-"PO-Revision-Date: 2010-03-21 08:45\n"
+"PO-Revision-Date: 2010-04-11 08:45\n"
 "Last-Translator: Maxim Dzіumanenko <dziumanenko@gmail.com>\n"
 "Language-Team: <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -58,7 +58,7 @@ msgstr "Відправте цей файл представнику служби
 
 #: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Файл конфігурації не містить URL."
 
 #: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
@@ -69,9 +69,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Виникла помилка при спробі надіслати звіт до служби підтримки Red Hat."
 
 #: ../sos/policyredhat.py:399
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Ваш звіт успішно розміщено на ftp-сервері Red Hat з під назвою:"
+msgstr "Ваш звіт успішно надіслано до %s під назвою:"
 
 #: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
@@ -186,11 +186,10 @@ msgid "N"
 msgstr "N"
 
 #: ../sos/sosreport.py:694
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
-msgstr "\t Виконуються модулі. Зачекайте, будь ласка..."
+msgstr " Виконуються модулі. Зачекайте, будь ласка..."
 
 #: ../sos/sosreport.py:801
-#, fuzzy, python-format
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "\t розташування дерева sosreport: %s"
+msgstr " розташування дерева sosreport: %s"
