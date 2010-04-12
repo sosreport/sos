@@ -149,7 +149,7 @@ class SosPolicy:
         return Popen("/bin/uname -r", shell=True, stdout=PIPE, bufsize=-1).stdout.read().strip("\n")
 
     def hostName(self):
-        return Popen("/bin/hostname", shell=True, stdout=PIPE, bufsize=-1).stdout.read().split(".")[0]
+        return Popen("/bin/hostname", shell=True, stdout=PIPE, bufsize=-1).stdout.read().strip("\n").split(".")[0]
 
     def rhelVersion(self):
         try:

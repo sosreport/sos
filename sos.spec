@@ -52,6 +52,7 @@ rm -rf ${RPM_BUILD_ROOT}
 * Sun Apr 11 2010 Adam Stokes <ajs at redhat dot com> = 2.0-0
 - Bump release to 2
 - Fix problem where sos generates error on newline in hostname
+- Remove references to sysreport*
 
 * Tue Mar 30 2010 Adam Stokes <ajs at redhat dot com> = 1.9-5
 - Remove references to rh-upload
