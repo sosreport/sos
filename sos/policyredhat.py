@@ -123,7 +123,7 @@ class SosPolicy:
 
     def runlevelByService(self, name):
         ret = []
-        p = Popen("/sbin/chkconfig --list %s" % name, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
+        p = Popen("LC_ALL=C /sbin/chkconfig --list %s" % name, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
         out, err = p.communicate() 
         if err:
             return ret

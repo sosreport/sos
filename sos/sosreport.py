@@ -47,7 +47,7 @@ from collections import deque
 
 from sos import _sos as _
 
-__version__ = 1.9
+__version__ = 2.0
 if os.path.isfile('/etc/fedora-release'):
     __distro__ = 'Fedora'
 else:

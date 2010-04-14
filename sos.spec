@@ -45,6 +45,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_datadir}/%{name}
 %{python_sitelib}/*
 %{_mandir}/man1/*
+%{_mandir}/man5/*
 %doc README TODO LICENSE ChangeLog doc/*
 %config(noreplace) %{_sysconfdir}/sos.conf
 

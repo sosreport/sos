@@ -26,11 +26,14 @@ build:
 install:
 	mkdir -p $(DESTDIR)/usr/sbin
 	mkdir -p $(DESTDIR)/usr/share/man/man1
+	mkdir -p $(DESTDIR)/usr/share/man/man5
 	mkdir -p $(DESTDIR)/usr/share/$(NAME)/extras
 	@gzip -c man/en/sosreport.1 > sosreport.1.gz
+	@gzip -c man/en/sos.conf.5 > sos.conf.5.gz
 	mkdir -p $(DESTDIR)/etc
 	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
+	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
 	install -m644 LICENSE README TODO $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
