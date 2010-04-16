@@ -1,13 +1,13 @@
 # Slovak translations for sos package.
 # Copyright (C) 2007 ORGANIZATION
 #
-# Ondrej Šulek <feonsu@gmail.com>, 2009.
+# Ondrej Šulek <feonsu@gmail.com>, 2009, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-31 16:24-0400\n"
-"PO-Revision-Date: 2009-09-20 14:43+0200\n"
+"PO-Revision-Date: 2010-04-15 17:38+0200\n"
 "Last-Translator: Ondrej Šulek <feonsu@gmail.com>\n"
 "Language-Team: Slovak <fedora-trans-sk@redhat.com>\n"
 "MIME-Version: 1.0\n"
@@ -57,7 +57,7 @@ msgstr "Prosím pošlite tento súbor zástupcovi technickej podpory."
 
 #: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Nezadaná žiadna URL adresa v konfiguračnom súbore."
 
 #: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
@@ -68,9 +68,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Nastal problém pri odosielaní vašej správy na podporu Red Hat."
 
 #: ../sos/policyredhat.py:399
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Vaša správa bola úspešne odoslaná na ftp server Red Hatu s názvom:"
+msgstr "Vaša správa bola úspešne odoslaná na %s s názvom:"
 
 #: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
@@ -128,7 +128,7 @@ msgid "no valid plugins were enabled"
 msgstr "neboli povolené žiadne platné moduly"
 
 #: ../sos/sosreport.py:618
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -142,10 +142,10 @@ msgid ""
 "\n"
 msgstr ""
 "Tento nástroj zhromažďuje podrobné informácie o\n"
-"hardvéry a nastavení systému Red Hat Enterprise Linux.\n"
+"hardvéry a nastavení systému %(distroa)s.\n"
 "Informácie sa zhromažďujú a archivujú v podobe balíčka \n"
 "v /tmp, odkiaľ ich môžete poslať zástupcovi technickej podpory.\n"
-"Red Hat bude používať tieto informácie LEN pre diagnostické\n"
+"%(distrob)s bude používať tieto informácie LEN pre diagnostické\n"
 " účely a budú považované za dôverné.\n"
 "\n"
 "Tento proces môže chvíľu trvať.\n"
@@ -186,12 +186,12 @@ msgstr "N"
 
 #: ../sos/sosreport.py:694
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr "  Moduly bežia. Prosím čakajte ..."
 
 #: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  strom pre vytvorenie sosreportu je umiestnený v : %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "modul %s preskočený (--skip-plugins)"
