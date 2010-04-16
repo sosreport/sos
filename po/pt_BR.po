@@ -61,11 +61,6 @@ msgstr "Não foi possível enviar para a URL especificada."
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Houve um problema ao enviar o seu relatório para o suporte da Red Hat."
 
-#: ../sos/policyredhat.py:399
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "O seu relatório foi enviado com sucesso para o servidor ftp da Red Hat com o nome:"
-
 #: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
 msgstr "Por favor, comunique este nome para o seu representante de suporte."
@@ -178,19 +173,23 @@ msgstr "n"
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:694
-#, fuzzy
-msgid "  Running plugins. Please wait ..."
-msgstr "\tExecutando os plugins. Por favor aguarde..."
-
-#: ../sos/sosreport.py:801
-#, fuzzy, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "\ta árvore de construção do sosreport está localizada em : %s"
-
 #: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
 msgstr "Nenhuma URL definida no arquivo de configuração."
+
+#: ../sos/policyredhat.py:399
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "O seu relatório foi enviado com sucesso para %s com o nome:"
+
+#: ../sos/sosreport.py:801
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "a árvore de construção do sosreport está localizada em : %s"
+
+#: ../sos/sosreport.py:694
+msgid "  Running plugins. Please wait ..."
+msgstr "Executando os plugins. Por favor aguarde..."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "plugin %s ignorado (--skip-plugins)"
