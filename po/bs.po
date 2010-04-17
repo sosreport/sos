@@ -15,26 +15,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: ../sos/sosreport.py:571
-msgid "The following plugins are currently disabled:"
-msgstr ""
-
-#: ../sos/sosreport.py:579
-msgid "The following plugin options are available:"
-msgstr ""
-
-#: ../sos/sosreport.py:600
-msgid "No plugin options available."
-msgstr ""
-
-#: ../sos/sosreport.py:608
-msgid "sosreport requires root permissions to run."
-msgstr ""
-
-#: ../sos/sosreport.py:615
-msgid "no valid plugins were enabled"
-msgstr ""
-
 #: ../sos/sosreport.py:618
 #, python-format
 msgid ""
@@ -180,3 +160,23 @@ msgstr "plugin %s se nije mogao potvrditi, preskace se"
 #: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "Nema osposobljenih plugin-a."
+
+#: ../sos/sosreport.py:571
+msgid "The following plugins are currently disabled:"
+msgstr "Sljedeci su plugin-i onesposobljeni:"
+
+#: ../sos/sosreport.py:600
+msgid "No plugin options available."
+msgstr "Nema plugin-a na raspolaganju."
+
+#: ../sos/sosreport.py:579
+msgid "The following plugin options are available:"
+msgstr "Sjedeci su plugini-i na raspolaganju:"
+
+#: ../sos/sosreport.py:615
+msgid "no valid plugins were enabled"
+msgstr "Nema ispravnih plugin-a na raspolaganju."
+
+#: ../sos/sosreport.py:608
+msgid "sosreport requires root permissions to run."
+msgstr "sosizvjestaj zahtijeva 'root' privilegije da bi se pokrenuo."
