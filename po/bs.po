@@ -1,7 +1,7 @@
 # Bosnian translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
 # Automatically generated, 2007.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -14,94 +14,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-
-#: ../sos/policyredhat.py:209
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
-
-#: ../sos/policyredhat.py:212
-msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-
-#: ../sos/policyredhat.py:252
-msgid "Creating compressed archive..."
-msgstr ""
-
-#: ../sos/policyredhat.py:282
-msgid "Encrypting archive..."
-msgstr ""
-
-#: ../sos/policyredhat.py:302
-msgid "There was a problem encrypting your report."
-msgstr ""
-
-#: ../sos/policyredhat.py:326
-#, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-
-#: ../sos/policyredhat.py:329
-msgid "The md5sum is: "
-msgstr ""
-
-#: ../sos/policyredhat.py:331
-msgid "Please send this file to your support representative."
-msgstr ""
-
-#: ../sos/policyredhat.py:353
-msgid "No URL defined in config file."
-msgstr ""
-
-#: ../sos/policyredhat.py:360
-msgid "Cannot upload to specified URL."
-msgstr ""
-
-#: ../sos/policyredhat.py:397
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
-
-#: ../sos/policyredhat.py:399
-#, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-
-#: ../sos/policyredhat.py:402
-msgid "Please communicate this name to your support representative."
-msgstr ""
-
-#: ../sos/sosreport.py:344
-msgid "Could not create temporary directory."
-msgstr ""
-
-#: ../sos/sosreport.py:407
-#, python-format
-msgid "sosreport (version %s)"
-msgstr ""
-
-#: ../sos/sosreport.py:432
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr ""
-
-#: ../sos/sosreport.py:461
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr ""
-
-#: ../sos/sosreport.py:557
-msgid "no valid plugins found"
-msgstr ""
-
-#: ../sos/sosreport.py:561
-msgid "The following plugins are currently enabled:"
-msgstr ""
-
-#: ../sos/sosreport.py:567
-msgid "No plugin enabled."
-msgstr ""
 
 #: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
@@ -178,3 +90,93 @@ msgstr ""
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""
+
+#: ../sos/policyredhat.py:209
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Molim vas unesite prvo slovo vaseg imena i prezime [%s]"
+
+#: ../sos/policyredhat.py:252
+msgid "Creating compressed archive..."
+msgstr "Kreira se komprimirana arhiva ..."
+
+#: ../sos/policyredhat.py:212
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Molim vas unesite broj slucaja za koji pripremate ovaj izvjestaj:"
+
+#: ../sos/policyredhat.py:302
+msgid "There was a problem encrypting your report."
+msgstr "Bilo je problema u sifriranju vaseg izvjestaja."
+
+#: ../sos/policyredhat.py:282
+msgid "Encrypting archive..."
+msgstr "Sifrira se arhiva ..."
+
+#: ../sos/policyredhat.py:329
+msgid "The md5sum is: "
+msgstr "md5sum je:"
+
+#: ../sos/policyredhat.py:326
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Vas sosizvjestaj je kreiran i sacuvan u:\n"
+" %s"
+
+#: ../sos/policyredhat.py:353
+msgid "No URL defined in config file."
+msgstr "Nema URL definiranog u konfiguracijskoj datoteci."
+
+#: ../sos/policyredhat.py:331
+msgid "Please send this file to your support representative."
+msgstr "Molim vas posaljite ovu datoteku vasem predstavniku za podrsku."
+
+#: ../sos/sosreport.py:561
+msgid "The following plugins are currently enabled:"
+msgstr "Sljedeci plugin-i su trenutno osposobljeni:"
+
+#: ../sos/sosreport.py:557
+msgid "no valid plugins found"
+msgstr "ispravan plugin nije nadjen"
+
+#: ../sos/policyredhat.py:397
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Bilo je problema u postavljanju vaseg izvjestaja na Red Hat podrsku. "
+
+#: ../sos/policyredhat.py:360
+msgid "Cannot upload to specified URL."
+msgstr "Nije se mogao postaviti specificirani URL,"
+
+#: ../sos/policyredhat.py:402
+msgid "Please communicate this name to your support representative."
+msgstr "Molim vas prenesite ovo ime vasem predstavniku za podrsku."
+
+#: ../sos/policyredhat.py:399
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "Vas je izvjestaj uspjesno postavljen u %s sa nazivom:"
+
+#: ../sos/sosreport.py:407
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosizjestaj (verzija %s)"
+
+#: ../sos/sosreport.py:344
+msgid "Could not create temporary directory."
+msgstr "Nije se mogao kreirati privremeni direktorij."
+
+#: ../sos/sosreport.py:461
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "plugin %s se nije instalirao, preskace se "
+
+#: ../sos/sosreport.py:432
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "plugin %s se nije mogao potvrditi, preskace se"
+
+#: ../sos/sosreport.py:567
+msgid "No plugin enabled."
+msgstr "Nema osposobljenih plugin-a."
