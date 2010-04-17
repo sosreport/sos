@@ -30,43 +30,6 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../sos/sosreport.py:652
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
-
-#: ../sos/sosreport.py:654
-msgid "Please review the following messages:"
-msgstr ""
-
-#: ../sos/sosreport.py:670
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr ""
-
-#: ../sos/sosreport.py:672
-msgid "y"
-msgstr ""
-
-#: ../sos/sosreport.py:672
-msgid "Y"
-msgstr ""
-
-#: ../sos/sosreport.py:675
-msgid "n"
-msgstr ""
-
-#: ../sos/sosreport.py:675
-msgid "N"
-msgstr ""
-
-#: ../sos/sosreport.py:694
-msgid "  Running plugins. Please wait ..."
-msgstr ""
-
-#: ../sos/sosreport.py:801
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
-
 #: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
@@ -180,3 +143,40 @@ msgstr "sosizvjestaj zahtijeva 'root' privilegije da bi se pokrenuo."
 #: ../sos/sosreport.py:633
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Pritisnite ENTER da nastavite, ili CTRL-C da odustanete.\n"
+
+#: ../sos/sosreport.py:654
+msgid "Please review the following messages:"
+msgstr "Molim vas pregledajte sljedece poruke:"
+
+#: ../sos/sosreport.py:652
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Jedan ili vise plugin-a su otkrili probleme u vasoj konfiguraciji."
+
+#: ../sos/sosreport.py:672
+msgid "y"
+msgstr "d"
+
+#: ../sos/sosreport.py:670
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Jeste li sigurni da zelite nastaviti (d/n)?"
+
+#: ../sos/sosreport.py:675
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:672
+msgid "Y"
+msgstr "D"
+
+#: ../sos/sosreport.py:694
+msgid "  Running plugins. Please wait ..."
+msgstr "Pokrecu se plugin-i. Molim vas pricekajte ..."
+
+#: ../sos/sosreport.py:675
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:801
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "sosizvjestaj 'build' stable se nalazi pod: %s"
