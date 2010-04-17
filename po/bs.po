@@ -179,4 +179,4 @@ msgstr "N"
 #: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "sosizvjestaj 'build' stable se nalazi pod: %s"
+msgstr "sosizvjestaj 'build' stablo nalazi se pod: %s"
