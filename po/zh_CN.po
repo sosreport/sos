@@ -2,7 +2,7 @@
 # Chinese translations for PACKAGE package
 # PACKAGE �ļ���ķ�.
 # Copyright (C) 2007 ORGANIZATION
-#
+# 
 # Automatically generated, 2007.
 # Leah Liu <lliu@redhat.com>, 2007.
 msgid ""
@@ -57,10 +57,6 @@ msgstr "md5sum 值为："
 msgid "Please send this file to your support representative."
 msgstr "请将此文件发送给您的支持代表。"
 
-#: ../sos/policyredhat.py:353
-msgid "No URL defined in config file."
-msgstr ""
-
 #: ../sos/policyredhat.py:360
 msgid "Cannot upload to specified URL."
 msgstr "无法上传到指定的网址。"
@@ -68,11 +64,6 @@ msgstr "无法上传到指定的网址。"
 #: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "在将您的报告上传到红帽支持时出错。"
-
-#: ../sos/policyredhat.py:399
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "已经成功将您的报告使用以下名称上传到红帽的 ftp 服务器："
 
 #: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
@@ -191,10 +182,20 @@ msgstr "N "
 msgid "  Running plugins. Please wait ..."
 msgstr "\t正在运行插件，请等候 ..."
 
+#: ../sos/policyredhat.py:353
+#, fuzzy
+msgid "No URL defined in config file."
+msgstr "在配置文件中没有 URL 定义."
+
+#: ../sos/policyredhat.py:399
+#, fuzzy, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "已经成功将您的报告使用以下名称上传到红帽的 ftp 服务器：%s"
+
 #: ../sos/sosreport.py:801
-#, python-format
+#, python-format, fuzzy
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "建立嵌入程序树位于: %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "跳过插件 %s（--skip-plugins）"
