@@ -32,9 +32,12 @@ class cluster(sos.plugintools.PluginBase):
                               "GFS", "GFS-kernel", "lvm2-cluster" ]
         elif rhelver == 5:
             self.packages = [ "rgmanager", "luci", "ricci", "system-config-cluster",
-                              "gfs-utils", "gnbd", "kmod-gfs", "kmod-gnbd", "lvm2-cluster" ]
+                              "gfs-utils", "gnbd", "kmod-gfs", "kmod-gnbd", "lvm2-cluster", "gfs2-utils" ]
 
-        self.files = [ "/etc/cluster/cluster.conf", "/proc/cluster" ]
+        elif rhelver == 6:
+            self.packages = [ "luci", "ricci" ]
+
+        self.files = [ "/etc/cluster/cluster.conf" ]
         return sos.plugintools.PluginBase.checkenabled(self)
 
     def has_gfs(self):
@@ -204,9 +207,6 @@ class cluster(sos.plugintools.PluginBase):
            if locktable != cluster_name:
                self.addDiagnose("gfs mountpoint (%s) is using the wrong locking table" % fs[0])
         
-        # Test fence groups for valid id and state
-        self.test_fence_id()
-        
         # Check for existence of weak-updates in gfs2 prior to 2.6.18-128
         if rhelver == 5:
             ret, vermagic, time = self.callExtProg("modinfo -F vermagic gfs2")
@@ -222,13 +222,27 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/cluster.conf")
         self.addCopySpec("/etc/cluster.xml")
         self.addCopySpec("/etc/cluster")
+        self.addCopySpec("/etc/sysconfig/cluster")
+        self.addCopySpec("/etc/sysconfig/cman")
+        self.addCopySpec("/var/lib/ricci")
         self.collectExtOutput("/usr/sbin/rg_test test /etc/cluster/cluster.conf")
-        self.addCopySpec("/proc/cluster")
         self.collectExtOutput("cman_tool status")
-        self.collectExtOutput("cman_tool services")
-        self.collectExtOutput("cman_tool -af nodes")
+        self.collectExtOutput("cman_tool -a nodes")
+        self.collectOutputNow("group_tool ls -g1")
+        self.collectOutputNow("group_tool dump")
+        self.collectExtOutput("corosync-quorumtool -l")
+        self.collectExtOutput("corosync-quorumtool -s")
+        self.collectExtOutput("corosync-cpgtool")
+        self.collectExtOutput("corosync-objctl -a")
         self.collectExtOutput("ccs_tool lsnode")
-        self.collectExtOutput("openais-cfgtool -s")
+        self.collectExtOutput("fence_tool ls -n")
+        self.collectExtOutput("dlm_tool ls -n")
+        self.collectExtOutput("gfs_control ls -n")
+        self.collectExtOutput("fence_tool dump", root_symlink="fenced.txt")
+        self.collectExtOutput("dlm_tool dump", root_symlink="dlm_controld.txt")
+        self.collectExtOutput("gfs_control dump", root_symlink="gfs_controld.txt")
+        self.collectExtOutput("dlm_tool log_plock", root_symlink="log_plock.txt")
+        
         self.collectExtOutput("clustat")
 
         self.collectExtOutput("/sbin/ipvsadm -L")
@@ -288,16 +302,4 @@ class cluster(sos.plugintools.PluginBase):
             if re.match('^\W*%s = ' % field, line):
                 return line.split("=")[1].strip()
         return False
-        
-    # Diagnostic testing functions
-    def test_fence_id(self):
-        # resolves rhbz 499468 and 499472
-        for ret, line, time in self.callExtProg("/sbin/group_tool ls | grep -v '^\['").split("\n")[1:]:
-            for a in line.split():
-                # we can do this since fence id is a fix field
-                if re.match('00000000', a):
-                    self.addDiagnose('Invalid fence id: %s' % (line,))
-            if line.split()[-1] != 'none':
-                self.addDiagnose("Possible incorrect state: %s, for group: %s" % (line.split()[-1], line))
-        return
 
