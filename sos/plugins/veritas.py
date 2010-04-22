@@ -34,6 +34,7 @@ class veritas(sos.plugintools.PluginBase):
         for line in out.readlines():
             line = line.strip()
             tarfile = self.doRegexFindAll(r"ftp (.*tar.gz)", line)
-        self.addCopySpec(tarfile)
+        if len(tarfile) == 1:
+            self.addCopySpec(tarfile[0])
         return
 
