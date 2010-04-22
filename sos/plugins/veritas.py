@@ -19,14 +19,17 @@ import os
 class veritas(sos.plugintools.PluginBase):
     """veritas related information
     """
+    # Information about VRTSexplorer obtained from
+    # http://seer.entsupport.symantec.com/docs/243150.htm
+    optionList = [("script", "Define VRTSexplorer script path", "", "/opt/VRTSspt/VRTSexplorer")]
+
     def checkenabled(self):
-        if os.path.isfile("/usr/sbin/VRTSexplorer"): 
+        if os.path.isfile(self.getOption("script")): 
             return True
         return False
     
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
-        # TODO: set appropriate switches
-        self.collectExtOutput("/usr/sbin/VRTSexplorer")
+        self.collectExtOutput(self.getOption("script"))
         return
 
