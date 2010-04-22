@@ -186,9 +186,6 @@ def parse_options(opts):
     __cmdParser__.add_option("--tmp-dir", action="store", \
                          dest="tmp_dir", \
                          help="specify alternate temporary directory", default="/tmp")
-    __cmdParser__.add_option("--dst-dir", action="store", \
-                         dest="dst_dir", \
-                         help="specify alternate directory to store compressed report", default="/tmp")
     __cmdParser__.add_option("--diagnose", action="store_true", \
                          dest="diagnose", \
                          help="enable diagnostics", default=False)

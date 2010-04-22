@@ -13,7 +13,7 @@ sosreport \- Generate debugging information for this system
           [--build] [--name name] [--no-colors]\fR
           [--ticket-number number] [--debug]\fR
           [--upload] [--tmp-dir directory]\fR
-          [--dst-dir directory] [--profile] [--help]\fR
+          [--profile] [--help]\fR
 .SH DESCRIPTION
 \fBsosreport\fR generates a compressed tarball of debugging information 
 for the system it is run on that can be sent to technical support
@@ -60,10 +60,7 @@ Enable html/xml report writing
 Specify alternate configuration file
 .TP
 .B \--tmp-dir DIRECTORY
-Specify alternate temporary directory to copy data
-.TP
-.B \--dst-dir DIRECTORY
-Specify alternate directory to store compressed report
+Specify alternate temporary directory to copy data as well as the compressed report.
 .TP
 .B \--batch
 Perform data gathering unattended

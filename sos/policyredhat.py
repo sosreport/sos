@@ -191,7 +191,7 @@ class SosPolicy:
            and reports.
         """
         uniqname = "%s-%s" % (self.hostName(), time.strftime("%Y%m%d%H%M%s"))
-        dstroot = os.path.join(tmpdir,uniqname)
+        dstroot = os.path.join(dir,uniqname)
         try:
             os.mkdir(dstroot, 0700)
         except:
@@ -230,7 +230,7 @@ class SosPolicy:
         return
 
     def renameResults(self, newName):
-        newName = os.path.join(gettempdir(), newName)
+        newName = os.path.join(os.path.dirname(self.cInfo['dstroot']), newName)
         if len(self.report_file) and os.path.isfile(self.report_file):
             try:    
                 os.rename(self.report_file, newName)
@@ -313,9 +313,9 @@ class SosPolicy:
         fp.close()
 
         self.renameResults("sosreport-%s-%s-%s.%s" % (self.reportName, 
-                                                          time.strftime("%Y%m%d%H%M%S"),
-                                                          self.report_md5[-4:], 
-                                                          self.report_file_ext))
+                                                      time.strftime("%Y%m%d%H%M%S"),
+                                                      self.report_md5[-4:], 
+                                                      self.report_file_ext))
 
         # store md5 into file
         fp = open(self.report_file + ".md5", "w")
