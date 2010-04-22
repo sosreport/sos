@@ -30,6 +30,10 @@ class veritas(sos.plugintools.PluginBase):
     
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
-        self.collectExtOutput(self.getOption("script"))
+        stat, out, runtime = self.callExtProg(self.getOption("script"))
+        for line in out.readlines():
+            line = line.strip()
+            tarfile = self.doRegexFindAll(r"ftp (.*tar.gz)", line)
+        self.addCopySpec(tarfile)
         return
 
