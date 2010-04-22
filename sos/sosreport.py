@@ -84,7 +84,7 @@ def doException(etype, eval, etrace):
     if hasattr(sys, 'ps1') or not sys.stderr.isatty():
         # we are in interactive mode or we don't have a tty-like
         # device, so we call the default hook
-        sys.__excepthook__(etype, value, traceback)
+        sys.__excepthook__(etype, eval, etrace)
     else:
         import traceback, pdb
         # we are NOT in interactive mode, print the exception...
@@ -173,7 +173,7 @@ def parse_options(opts):
                          help="increase verbosity")
     __cmdParser__.add_option("--debug", action="count", \
                          dest="debug", \
-                         help="enabling debugging")
+                         help="enabling debugging through python debugger")
     __cmdParser__.add_option("--ticket-number", action="store", \
                          dest="ticketNumber", \
                          help="set ticket number")
@@ -186,6 +186,9 @@ def parse_options(opts):
     __cmdParser__.add_option("--tmp-dir", action="store", \
                          dest="tmp_dir", \
                          help="specify alternate temporary directory", default="/tmp")
+    __cmdParser__.add_option("--dst-dir", action="store", \
+                         dest="dst_dir", \
+                         help="specify alternate directory to store compressed report", default="/tmp")
     __cmdParser__.add_option("--diagnose", action="store_true", \
                          dest="diagnose", \
                          help="enable diagnostics", default=False)
@@ -194,7 +197,7 @@ def parse_options(opts):
                          help="enable analyzations", default=False)
     __cmdParser__.add_option("--report", action="store_true", \
                          dest="report", \
-                         help="disable html/xml reporting", default=False)
+                         help="Enable html/xml reporting", default=False)
     __cmdParser__.add_option("--profile", action="store_true", \
                          dest="profiler", \
                          help="turn on profiling", default=False)
@@ -365,7 +368,7 @@ def sosreport(opts):
     if GlobalVars.__cmdLineOpts__.profiler:
         proflog = logging.getLogger('sosprofile')
         proflog.setLevel(logging.DEBUG)
-
+        
     # if stdin is not a tty, disable colors and don't ask questions
     if not sys.stdin.isatty():
         GlobalVars.__cmdLineOpts__.nocolors = True
@@ -690,6 +693,11 @@ No changes will be made to your system.
         except:
             if GlobalVars.__raisePlugins__:
                 raise
+            else:
+                error_log = open(logdir + "/sosreport-plugin-errors.txt", "a")
+                traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
+                error_log.write(traceback.format_exc)
+                error_log.close()
 
     print _("  Running plugins. Please wait ...")
     print
@@ -707,6 +715,12 @@ No changes will be made to your system.
         except:
             if GlobalVars.__raisePlugins__:
                 raise
+            else:
+                error_log = open(logdir + "/sosreport-plugin-errors.txt", "a")
+                traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
+                error_log.write(traceback.format_exc)
+                error_log.close()
+
     print
 
     if GlobalVars.__cmdLineOpts__.report:

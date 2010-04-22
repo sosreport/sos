@@ -7,13 +7,13 @@ sosreport \- Generate debugging information for this system
           [-n|--skip-plugins plugin-names]\fR
           [-e|--enable-plugins plugin-names]\fR
           [-o|--only-plugins plugin-names]\fR
-          [-a|--alloptions] [-v|--verbose]
-          [--diagnose] [--analyze] [--report]
-          [--config-file conf] [--batch]
-          [--build] [--name name] [--no-colors]
-          [--ticket-number number] [--debug]
-          [--upload] [--tmp-dir directory]
-          [--profile]
+          [-a|--alloptions] [-v|--verbose]\fR
+          [--diagnose] [--analyze] [--report]\fR
+          [--config-file conf] [--batch]\fR
+          [--build] [--name name] [--no-colors]\fR
+          [--ticket-number number] [--debug]\fR
+          [--upload] [--tmp-dir directory]\fR
+          [--dst-dir directory] [--profile] [--help]\fR
 .SH DESCRIPTION
 \fBsosreport\fR generates a compressed tarball of debugging information 
 for the system it is run on that can be sent to technical support
@@ -59,8 +59,11 @@ Enable html/xml report writing
 .B \--config-file CONFIG
 Specify alternate configuration file
 .TP
-.B \--tmp-dir
+.B \--tmp-dir DIRECTORY
 Specify alternate temporary directory to copy data
+.TP
+.B \--dst-dir DIRECTORY
+Specify alternate directory to store compressed report
 .TP
 .B \--batch
 Perform data gathering unattended
@@ -78,10 +81,13 @@ Do not archive copied data, leave directory tree untouched for further modificat
 Disable colors written to console
 .TP
 .B \--debug
-Run in trace mode for exceptions
+Give opportunity to debug python exceptions through the python debugger.
 .TP
 .B \--profile
 Turn on profiling for cmds run
+.TP
+.B \--help
+Display sosreport help system.
 .SH MAINTAINER
 .nf
 Adam Stokes <astokes@fedoraproject.org>
