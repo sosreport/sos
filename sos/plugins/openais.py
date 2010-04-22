@@ -19,21 +19,13 @@ class openais(sos.plugintools.PluginBase):
     """openais related information
     """
     def checkenabled(self):
-        if self.isInstalled("openais") or os.path.exists("/usr/sbin/openais-confdb-display"):
+        if self.isInstalled("openais"):
             ret, openais_ver, rtime = self.callExtProg("rpm -q --queryformat='%{VERSION}' openais")
             v, r, m = openais_ver.split('.')
             if int(r) >= 80 and int(m) >= 6:
                 return True
         return False
         
-    openais_config_opts = [('totem','token'), ('totem','consensus'),
-                           ('totem','token_retransmits_before_loss_const'),
-                           ('cman','quorum_dev_poll'), ('cman','expected_votes'),
-                           ('cman','two_node')]
-    
     def setup(self):
-        self.collectExtOutput("openais-confdb-display")
-        for item in self.openais_config_opts:
-            obj, opt = item
-            self.collectExtOutput("openais-confdb-display %s %s" % (obj, opt))
+        self.addCopySpec("/etc/corosync")
         return
