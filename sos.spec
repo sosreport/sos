@@ -53,7 +53,7 @@ rm -rf ${RPM_BUILD_ROOT}
 * Thu Apr 22 2010 Adam Stokes <ajs at redhat dot com> = 2.1-0
 - Include --help in manpage
 - If tmp-dir is defined then put compressed archive there
--
+
 * Sun Apr 11 2010 Adam Stokes <ajs at redhat dot com> = 2.0-0
 - Bump release to 2
 - Fix problem where sos generates error on newline in hostname
