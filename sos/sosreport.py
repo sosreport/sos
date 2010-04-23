@@ -76,7 +76,13 @@ def doExitCode():
 
 def doExit(error=0):
     """ Exit with return """
-    GlobalVars.policy.cleanDstroot()
+    # We will attempt to clean dstroot; there is only
+    # one instance where the policy is not set and that is
+    # during the actual creation of dstroot
+    try:
+        GlobalVars.policy.cleanDstroot()
+    except AttributeError:
+        sys.exit(error)
     sys.exit(error)
 
 def doException(etype, eval, etrace):
