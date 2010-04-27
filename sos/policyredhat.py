@@ -158,6 +158,8 @@ class SosPolicy:
                 return 4
             elif pkgname in [ "5Server", "5Client" ]:
                 return 5
+            elif pkgname == "6":
+                return 6
         except: pass
         return False
 

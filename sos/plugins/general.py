@@ -47,6 +47,7 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/dmesg")
         self.addCopySpec("/root/anaconda-ks.cfg")
         self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
+        self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
 
         if self.getOption('all_logs'):
             rhelver = self.policy().rhelVersion()

@@ -66,8 +66,8 @@ class s390(sos.plugintools.PluginBase):
             self.collectExtOutput("/sbin/fdasd -p %s" % (x,))
         try:
             rhelver = self.policy().pkgByName("redhat-release")[1]
+            if rhelver == "5":
+                self.collectExtOutput("/sbin/lsqeth")
+                self.collectExtOutput("/sbin/lszfcp")
         except:
             rhelver = None
-        if rhelver.startswith("5"):
-            self.collectExtOutput("/sbin/lsqeth")
-            self.collectExtOutput("/sbin/lszfcp")
