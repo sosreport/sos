@@ -32,7 +32,7 @@ supplied for application-specific information
 # pylint: disable-msg = R0904
 # pylint: disable-msg = R0903
 
-import sys
+import sys, traceback
 import os
 import logging
 from optparse import OptionParser, Option
