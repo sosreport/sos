@@ -50,10 +50,9 @@ class yum(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/bin/yum list")
 
         if self.getOption("yumdebug") and self.isInstalled('yum-utils'):
-            for ret, output, rtime in self.callExtProg("/usr/bin/yum-debug-dump").split("\n"):
-                if "Output written to:" in output:
-                    try:
-                        self.collectExtOutput("/bin/zcat %s" % (output.split()[-1:][0],))
-                    except IndexError:
-                        pass
+            ret, output, rtime = self.callExtProg("/usr/bin/yum-debug-dump")
+            try:
+                self.collectExtOutput("/bin/zcat %s" % (output.split()[-1],))
+            except IndexError:
+                pass
         return
