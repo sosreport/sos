@@ -46,5 +46,7 @@ class ds(sos.plugintools.PluginBase):
         if "ds7" in self.check_version():
             self.addCopySpec("/opt/redhat-ds/slapd-*/config")
             self.addCopySpec("/opt/redhat-ds/slapd-*/logs")
+        if not self.check_version():
+            self.addAlert("Directory Server not found.")
         return
 
