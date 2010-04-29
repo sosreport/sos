@@ -37,6 +37,6 @@ class sanitize(sos.plugintools.PluginBase):
             self.addCopySpec(log)
 
     def postproc(self):
-        self.doRegexSub('/var/log/messages', r"^\s+(%s)" % (self.hostname,), r"\1sanitized-hostname")
-        self.doRegexSub('/var/log/messages', r"([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", r"\1sanitized-ip")
+        self.doRegexSub('/var/log/messages', r"(%s|localhost)" % (self.hostname,), r"sanitized-hostname")
+        self.doRegexSub('/var/log/messages', r"([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})", r"sanitized-ip")
 
