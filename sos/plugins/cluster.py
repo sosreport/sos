@@ -258,7 +258,7 @@ class cluster(sos.plugintools.PluginBase):
             # command somehow failed
             return False
 
-        rhelver = self.get_redhat_release()
+        rhelver = self.policy().rhelVersion()
 
         if rhelver == "4":
             regex = r'^DLM Lock Space:\s*"([^"]*)".*$'
