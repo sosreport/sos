@@ -49,13 +49,13 @@ class filesys(sos.plugintools.PluginBase):
                 partlist.append('/dev/' + line.split()[-1])
         except IOError:
             exit(1)
-        for dev in izip(partlist):
+        for dev in partlist:
             ret, hdparm, time = self.callExtProg('/sbin/hdparm -g %s' %(dev))
             if(ret == 0):
                 start_geo = hdparm.strip().split("\n")[-1].strip().split()[-1]
                 if(start_geo == "0"):
                     devlist.append(dev)
-        for i in izip(devlist): 
+        for i in devlist: 
             self.collectExtOutput("/sbin/parted -s %s print" % (i))
 
         if self.getOption('dumpe2fs'):
