@@ -187,14 +187,14 @@ msgstr "Pas d'URL définie dans le fichier de configuration."
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "Votre rapport a été téléchargé avec succès vers %s avec le nom :"
 
-#: ../sos/sosreport.py:801
-#, fuzzy, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "L'arborescence construite par sosreport est située dans : %s"
-
 #: ../sos/sosreport.py:694
 msgid "  Running plugins. Please wait ..."
 msgstr "Lancement des extensions. Veuillez patienter..."
+
+#: ../sos/sosreport.py:801
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "L'arborescence construite par sosreport est située dans : %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "le plugin %s a été ignoré (--skip-plugins)"
