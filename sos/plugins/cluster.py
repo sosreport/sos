@@ -20,7 +20,6 @@ import glob
 class cluster(sos.plugintools.PluginBase):
     """cluster suite and GFS related information
     """
-
     optionList = [("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
                   ('lockdump', 'gather dlm lockdumps', 'slow', False)]
 
@@ -43,11 +42,6 @@ class cluster(sos.plugintools.PluginBase):
     def has_gfs(self):
         return (len(self.doRegexFindAll(r'^\S+\s+\S+\s+gfs\s+.*$', "/etc/mtab")) > 0)
 
-    def sig_corosync_pid(self, name="corosync"):
-        stat, out, run = self.callExtProg("pidof %s" % (name,))
-        if stat == 0:
-            self.callExtProg("kill -s 12 %s" % (out.strip(),))
-        
     def diagnose(self):
         rhelver = self.policy().rhelVersion()
 
@@ -236,10 +230,6 @@ class cluster(sos.plugintools.PluginBase):
         self.collectExtOutput("cman_tool -a nodes")
         self.collectOutputNow("group_tool ls -g1")
         self.collectOutputNow("group_tool dump")
-        self.collectExtOutput("corosync-quorumtool -l")
-        self.collectExtOutput("corosync-quorumtool -s")
-        self.collectExtOutput("corosync-cpgtool")
-        self.collectExtOutput("corosync-objctl -a")
         self.collectExtOutput("ccs_tool lsnode")
         self.collectExtOutput("fence_tool ls -n")
         self.collectExtOutput("dlm_tool ls -n")
@@ -248,8 +238,6 @@ class cluster(sos.plugintools.PluginBase):
         self.collectExtOutput("dlm_tool dump", root_symlink="dlm_controld.txt")
         self.collectExtOutput("gfs_control dump", root_symlink="gfs_controld.txt")
         self.collectExtOutput("dlm_tool log_plock", root_symlink="log_plock.txt")
-        # Signal corosync to capture diagnostic data to corosync.log
-        self.sig_corosync_pid()
         self.addCopySpec("/var/log/cluster")
         
         self.collectExtOutput("clustat")
