@@ -2,7 +2,7 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 2.1
+Version: 2.2
 Release: 0%{?dist}
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
@@ -50,6 +50,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Thu May 20 2010 Adam Stokes <ajs at redhat dot com> = 2.2-0
+- Corosync plugin added
+- Cluster plugin updated
+
 * Thu Apr 22 2010 Adam Stokes <ajs at redhat dot com> = 2.1-0
 - Include --help in manpage
 - If tmp-dir is defined then put compressed archive there
