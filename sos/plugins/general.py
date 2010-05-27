@@ -56,6 +56,13 @@ class general(sos.plugintools.PluginBase):
                 for i in logs:
                     if not os.path.isfile(i): continue
                     self.addCopySpec(i)
+
+            if rhelver == 6:
+                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/rsyslog.conf")
+                for i in logs:
+                    if not os.path.isfile(i): continue
+                    self.addCopySpec(i)
+
         return
 
     def postproc(self):
