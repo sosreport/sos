@@ -1,18 +1,18 @@
-# translation of zh_CN.po to Chinese, Simplied（简体中文）
+# translation of sos.trunk.po to Wei Liu
 # Chinese translations for PACKAGE package
 # PACKAGE �ļ���ķ�.
 # Copyright (C) 2007 ORGANIZATION
-# 
+#
 # Automatically generated, 2007.
-# Leah Liu <lliu@redhat.com>, 2007.
+# Leah Liu <lliu@redhat.com>, 2007, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: zh_CN\n"
+"Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-31 16:24-0400\n"
-"PO-Revision-Date: 2007-11-08 09:32+1000\n"
+"PO-Revision-Date: 2010-05-28 12:38+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
-"Language-Team: Chinese, Simplied（简体中文） <zh_CN@li.org>\n"
+"Language-Team: Wei Liu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -121,7 +121,7 @@ msgid "no valid plugins were enabled"
 msgstr "没有启用任何可用插件"
 
 #: ../sos/sosreport.py:618
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -135,10 +135,10 @@ msgid ""
 "\n"
 msgstr ""
 "此工具程序将收集一些有关硬件和\n"
-"您的红帽企业版 Linux 系统设置的信息。\n"
+"您的 %(distroa)s 系统设置的信息。\n"
 "收集这些信息后会在 /tmp 中打包一个归档文件，\n"
 "然后您就可将这个归档发送给您的支持代表。\n"
-"红帽将只以诊断为目的使用这些信息，\n"
+"%(distrob)s 将只以诊断为目的使用这些信息，\n"
 "并将其视为保密信息。\n"
 "\n"
 "这个过程要过一会儿才能完成。\n"
@@ -178,33 +178,20 @@ msgid "N"
 msgstr "N "
 
 #: ../sos/sosreport.py:694
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
-msgstr "\t正在运行插件，请等候 ..."
+msgstr "  正在运行插件，请等候 ..."
 
 #: ../sos/policyredhat.py:353
-#, fuzzy
 msgid "No URL defined in config file."
-msgstr "在配置文件中没有 URL 定义."
+msgstr "在配置文件中定义 URL。"
 
 #: ../sos/policyredhat.py:399
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "已经成功将您的报告使用以下名称上传到红帽的 ftp 服务器：%s"
+msgstr "已经成功将您的报告使用以下名称上传到 %s："
 
 #: ../sos/sosreport.py:801
-#, python-format, fuzzy
+#, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "建立嵌入程序树位于: %s"
+msgstr "  sosreport 构建树位于：%s"
 
-#~ msgid "plugin %s skipped (--skip-plugins)"
-#~ msgstr "跳过插件 %s（--skip-plugins）"
-
-#~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "插件 %s 未激活（请使用 -e 或者 -o 将其激活）。"
-
-#~ msgid "plugin %s not specified in --only-plugins list"
-#~ msgstr "未在 --only-plugins 列表中指定插件 %s"
-
-#~ msgid "processing options from plugin: %s"
-#~ msgstr "插件 %s 的处理选项"
