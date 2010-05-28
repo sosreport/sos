@@ -1,7 +1,7 @@
 # Indonesian translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
 # Automatically generated, 2007.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -14,38 +14,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-
-#: ../sos/policyredhat.py:209
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
-
-#: ../sos/policyredhat.py:212
-msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-
-#: ../sos/policyredhat.py:252
-msgid "Creating compressed archive..."
-msgstr ""
-
-#: ../sos/policyredhat.py:282
-msgid "Encrypting archive..."
-msgstr ""
-
-#: ../sos/policyredhat.py:302
-msgid "There was a problem encrypting your report."
-msgstr ""
-
-#: ../sos/policyredhat.py:326
-#, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-
-#: ../sos/policyredhat.py:329
-msgid "The md5sum is: "
-msgstr ""
 
 #: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
@@ -97,10 +65,6 @@ msgstr ""
 
 #: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
-msgstr ""
-
-#: ../sos/sosreport.py:567
-msgid "No plugin enabled."
 msgstr ""
 
 #: ../sos/sosreport.py:571
@@ -178,3 +142,41 @@ msgstr ""
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""
+
+#: ../sos/policyredhat.py:209
+#, python-format
+msgid "Please enter your first initial and last name [%s]: "
+msgstr "Harap masukkan nama depan dan nama belakang Anda [%s]:"
+
+#: ../sos/policyredhat.py:252
+msgid "Creating compressed archive..."
+msgstr "Membuat arsip yang dikompresi..."
+
+#: ../sos/policyredhat.py:212
+msgid "Please enter the case number that you are generating this report for: "
+msgstr "Please enter the case number that you are generating this report for: "
+
+#: ../sos/policyredhat.py:302
+msgid "There was a problem encrypting your report."
+msgstr "Ada masalah dalam mengekripsi laporan Anda."
+
+#: ../sos/policyredhat.py:282
+msgid "Encrypting archive..."
+msgstr "Mengekripsi arsip..."
+
+#: ../sos/policyredhat.py:329
+msgid "The md5sum is: "
+msgstr "md5sum adalah:"
+
+#: ../sos/policyredhat.py:326
+#, python-format
+msgid ""
+"Your sosreport has been generated and saved in:\n"
+"  %s"
+msgstr ""
+"Laporan sos Anda telah digenerate dan disimpan di:\n"
+" %s"
+
+#: ../sos/sosreport.py:567
+msgid "No plugin enabled."
+msgstr "Tidak ada plugin yang memungkinkan."
