@@ -40,10 +40,6 @@ msgstr ""
 msgid "Please communicate this name to your support representative."
 msgstr ""
 
-#: ../sos/sosreport.py:344
-msgid "Could not create temporary directory."
-msgstr ""
-
 #: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
@@ -59,32 +55,8 @@ msgstr ""
 msgid "plugin %s does not install, skipping"
 msgstr ""
 
-#: ../sos/sosreport.py:557
-msgid "no valid plugins found"
-msgstr ""
-
-#: ../sos/sosreport.py:561
-msgid "The following plugins are currently enabled:"
-msgstr ""
-
-#: ../sos/sosreport.py:571
-msgid "The following plugins are currently disabled:"
-msgstr ""
-
-#: ../sos/sosreport.py:579
-msgid "The following plugin options are available:"
-msgstr ""
-
 #: ../sos/sosreport.py:600
 msgid "No plugin options available."
-msgstr ""
-
-#: ../sos/sosreport.py:608
-msgid "sosreport requires root permissions to run."
-msgstr ""
-
-#: ../sos/sosreport.py:615
-msgid "no valid plugins were enabled"
 msgstr ""
 
 #: ../sos/sosreport.py:618
@@ -100,14 +72,6 @@ msgid ""
 "This process may take a while to complete.\n"
 "No changes will be made to your system.\n"
 "\n"
-msgstr ""
-
-#: ../sos/sosreport.py:633
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
-
-#: ../sos/sosreport.py:652
-msgid "One or more plugins have detected a problem in your configuration."
 msgstr ""
 
 #: ../sos/sosreport.py:654
@@ -180,3 +144,39 @@ msgstr ""
 #: ../sos/sosreport.py:567
 msgid "No plugin enabled."
 msgstr "Tidak ada plugin yang memungkinkan."
+
+#: ../sos/sosreport.py:344
+msgid "Could not create temporary directory."
+msgstr "Tidak dapat menciptakan direktori sementara."
+
+#: ../sos/sosreport.py:633
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Tekan ENTER untuk melanjutkan, atau CTRL+C untuk keluar.\n"
+
+#: ../sos/sosreport.py:557
+msgid "no valid plugins found"
+msgstr "Tidak ada plugin yang valid ditemukan"
+
+#: ../sos/sosreport.py:571
+msgid "The following plugins are currently disabled:"
+msgstr "Opsi plugin ini sedang tidak mungkin:"
+
+#: ../sos/sosreport.py:561
+msgid "The following plugins are currently enabled:"
+msgstr "Opsi plugin ini memungkinkan:"
+
+#: ../sos/sosreport.py:579
+msgid "The following plugin options are available:"
+msgstr "Opsi plugin ini tersedia:"
+
+#: ../sos/sosreport.py:615
+msgid "no valid plugins were enabled"
+msgstr "Tidak ada plugin yang valid yang dimungkinkan."
+
+#: ../sos/sosreport.py:608
+msgid "sosreport requires root permissions to run."
+msgstr "laporan sos membutuhkan hak akses root untuk berjalan."
+
+#: ../sos/sosreport.py:652
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Satu atau lebih plugin telah mendeteksi sebuah masalah di konfigurasi Anda."
