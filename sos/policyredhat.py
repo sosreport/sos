@@ -193,9 +193,9 @@ class SosPolicy:
            and reports.
         """
         uniqname = "%s-%s" % (self.hostName(), time.strftime("%Y%m%d%H%M%s"))
-        dstroot = os.path.join(tmpdir,uniqname)
+        dstroot = os.path.join(os.path.abspath(tmpdir),uniqname)
         try:
-            os.mkdir(dstroot, 0700)
+            os.makedirs(dstroot, 0700)
         except:
             return False
         return dstroot
