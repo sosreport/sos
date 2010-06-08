@@ -239,6 +239,7 @@ class cluster(sos.plugintools.PluginBase):
         self.collectExtOutput("gfs_control dump", root_symlink="gfs_controld.txt")
         self.collectExtOutput("dlm_tool log_plock", root_symlink="log_plock.txt")
         self.addCopySpec("/var/log/cluster")
+        self.addCopySpec("/var/log/luci/luci.log")
         
         self.collectExtOutput("clustat")
 

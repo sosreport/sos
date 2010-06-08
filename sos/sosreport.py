@@ -653,6 +653,12 @@ No changes will be made to your system.
             except:
                 if GlobalVars.__raisePlugins__:
                     raise
+                else:
+                    error_log = open(logdir + "/sosreport-plugin-errors.txt", "a")
+                    traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
+                    error_log.write(traceback.format_exc)
+                    error_log.close()
+
             tmpcount += len(plug.diagnose_msgs)
         if tmpcount > 0:
             print _("One or more plugins have detected a problem in your " \
