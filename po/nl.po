@@ -1,38 +1,39 @@
 # translation of sos.trunk-nl.po to Dutch
 # Copyright (C) YEAR ORGANIZATION
-#
 # R.E. van der Luit <nippur@fedoraproject.org>, 2009, 2010.
+# Geert Warrink <geert.warrink@onsnet.nu>, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk-nl\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-31 16:24-0400\n"
-"PO-Revision-Date: 2010-03-12 13:47+0100\n"
-"Last-Translator: R.E. van der Luit <nippur@fedoraproject.org>\n"
-"Language-Team: Dutch <nippur@fedoraproject.org>\n"
+"PO-Revision-Date: 2010-07-04 18:00+0200\n"
+"Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
+"Language-Team: Fedora\n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Virtaal 0.6.1\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: KBabel 1.11.4\n"
 
 #: ../sos/policyredhat.py:209
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
-msgstr "Voer je eerste initiaal en je achternaam in [%s]: "
+msgstr "Voer jouw eerste initiaal en jouw achternaam in [%s]: "
 
 #: ../sos/policyredhat.py:212
 msgid "Please enter the case number that you are generating this report for: "
-msgstr "Voer aub het zaaknummer in waarvoor je deze melding doet:"
+msgstr "Voer a.u.b. het zaak nummer in waarvoor je dit rapport aanmaakt:"
 
 #: ../sos/policyredhat.py:252
 msgid "Creating compressed archive..."
-msgstr "Gecomprimeerd archiefbestand wordt gemaakt..."
+msgstr "Gecomprimeerd archief bestand wordt gemaakt..."
 
 #: ../sos/policyredhat.py:282
 msgid "Encrypting archive..."
-msgstr "Archiefbestand wordt versleuteld..."
+msgstr "Archief bestand wordt versleuteld..."
 
 #: ../sos/policyredhat.py:302
 msgid "There was a problem encrypting your report."
@@ -44,7 +45,7 @@ msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
 msgstr ""
-"Jouw sosmelding is gegenereerd en opgeslagen in:\n"
+"Jouw sos rapport is gegenereerd en opgeslagen in:\n"
 "  %s"
 
 #: ../sos/policyredhat.py:329
@@ -53,7 +54,7 @@ msgstr "De md5sum is: "
 
 #: ../sos/policyredhat.py:331
 msgid "Please send this file to your support representative."
-msgstr "Zendt dit bestand naar jouw support representant."
+msgstr "Zendt dit bestand a.u.b. naar jouw ondersteuning representant."
 
 #: ../sos/policyredhat.py:353
 msgid "No URL defined in config file."
@@ -66,7 +67,7 @@ msgstr "Kan niet naar de opgegeven URL uploaden."
 #: ../sos/policyredhat.py:397
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr ""
-"Er trad een probleem op bij het uploaden van jouw melding naar Red Hat "
+"Er trad een probleem op bij het uploaden van jouw rapport naar Red Hat "
 "support."
 
 #: ../sos/policyredhat.py:399
@@ -76,7 +77,7 @@ msgstr "Jouw melding is succesvol verstuurd naar %s met de naam:"
 
 #: ../sos/policyredhat.py:402
 msgid "Please communicate this name to your support representative."
-msgstr "Meldt deze naam alstublieft aan jouw support representant."
+msgstr "Meldt deze naam a.u.b. aan jouw ondersteuning representant."
 
 #: ../sos/sosreport.py:344
 msgid "Could not create temporary directory."
@@ -85,49 +86,49 @@ msgstr "Kon geen tijdelijke map maken."
 #: ../sos/sosreport.py:407
 #, python-format
 msgid "sosreport (version %s)"
-msgstr "sosmelding (versie %s)"
+msgstr "sos rapport (versie %s)"
 
 #: ../sos/sosreport.py:432
 #, python-format
 msgid "plugin %s does not validate, skipping"
-msgstr "plugin %s valideerde niet, wordt overgeslagen"
+msgstr "plug-in %s valideerde niet, wordt overgeslagen"
 
 #: ../sos/sosreport.py:461
 #, python-format
 msgid "plugin %s does not install, skipping"
-msgstr "plugin %s laat zich niet installeren, wordt overgeslagen"
+msgstr "plug-in %s laat zich niet installeren, wordt overgeslagen"
 
 #: ../sos/sosreport.py:557
 msgid "no valid plugins found"
-msgstr "geen geldige plugin gevonden"
+msgstr "geen geldige plug-in gevonden"
 
 #: ../sos/sosreport.py:561
 msgid "The following plugins are currently enabled:"
-msgstr "De volgende plugins zijn momenteel actief:"
+msgstr "De volgende plug-ins zijn momenteel actief:"
 
 #: ../sos/sosreport.py:567
 msgid "No plugin enabled."
-msgstr "Geen plugin aangezet."
+msgstr "Geen plug-in aangezet."
 
 #: ../sos/sosreport.py:571
 msgid "The following plugins are currently disabled:"
-msgstr "De volgende plugins zijn momenteel actief:"
+msgstr "De volgende plug-ins zijn momenteel actief:"
 
 #: ../sos/sosreport.py:579
 msgid "The following plugin options are available:"
-msgstr "De volgende plugin opties zijn beschikbaar:"
+msgstr "De volgende plug-in opties zijn beschikbaar:"
 
 #: ../sos/sosreport.py:600
 msgid "No plugin options available."
-msgstr "Geen plugin-opties beschikbaar."
+msgstr "Geen plug-in opties beschikbaar."
 
 #: ../sos/sosreport.py:608
 msgid "sosreport requires root permissions to run."
-msgstr "sosmelding vereist root rechten om te draaien."
+msgstr "sos rapport vereist root rechten om te draaien."
 
 #: ../sos/sosreport.py:615
 msgid "no valid plugins were enabled"
-msgstr "er waren geen geldige plugins aangezet"
+msgstr "er waren geen geldige plug-ins aangezet"
 
 #: ../sos/sosreport.py:618
 #, python-format
@@ -145,8 +146,8 @@ msgid ""
 msgstr ""
 "Dit programma zal enige gedetailleerde informatie over de hardware\n"
 "en instelling van jouw %(distroa)s systeem verzamelen.\n"
-"De informatie wordt verzameld en een archiefbestand wordt ingepakt in\n"
-"/tmp, welke je naar jouw support representant kunt sturen.\n"
+"De informatie wordt verzameld en een archief bestand wordt ingepakt in\n"
+"/tmp, welke je naar jouw ondersteuning representant kunt sturen.\n"
 "%(distrob)s zal deze informatie ALLEEN voor diagnose doeleinden\n"
 "gebruiken en het zal beschouwd worden als vertrouwelijke informatie.\n"
 "\n"
@@ -161,11 +162,11 @@ msgstr "Druk op ENTER om verder te gaan, of op CTRL-C om te stoppen.\n"
 #: ../sos/sosreport.py:652
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr ""
-"Eén of meerdere plugins hebben een probleem in jouw configuratie bemerkt."
+"Eén of meerdere plug-ins hebben een probleem in jouw configuratie bemerkt."
 
 #: ../sos/sosreport.py:654
 msgid "Please review the following messages:"
-msgstr "Lees aub de volgende berichten goed door:"
+msgstr "Lees a.u.b. de volgende berichten door:"
 
 #: ../sos/sosreport.py:670
 msgid "Are you sure you would like to continue (y/n) ? "
@@ -194,7 +195,7 @@ msgstr "Plug-ins worden gedraaid. Wachten a.u.b. ..."
 #: ../sos/sosreport.py:801
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "De sosmelding opbouw boom bevindt zich in : %s"
+msgstr "De sos melding opbouw boom bevindt zich in : %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "plugin %s overgeslagen (--skip-plugins)"
