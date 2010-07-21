@@ -34,8 +34,8 @@ class cluster(sos.plugintools.PluginBase):
                               "gfs-utils", "gnbd", "kmod-gfs", "kmod-gnbd", "lvm2-cluster", "gfs2-utils" ]
 
         elif rhelver == 6:
-            self.packages = [ "ricci", "corosync", "fenced",
-                              "dlm_controld", "gfs_controld" ]
+            self.packages = [ "ricci", "corosync", "openais",
+                              "cman", "clusterlib", "fence-agents" ]
 
         self.files = [ "/etc/cluster/cluster.conf" ]
         return sos.plugintools.PluginBase.checkenabled(self)
