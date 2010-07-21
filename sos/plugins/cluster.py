@@ -34,7 +34,8 @@ class cluster(sos.plugintools.PluginBase):
                               "gfs-utils", "gnbd", "kmod-gfs", "kmod-gnbd", "lvm2-cluster", "gfs2-utils" ]
 
         elif rhelver == 6:
-            self.packages = [ "luci", "ricci" ]
+            self.packages = [ "ricci", "corosync", "fenced",
+                              "dlm_controld", "gfs_controld" ]
 
         self.files = [ "/etc/cluster/cluster.conf" ]
         return sos.plugintools.PluginBase.checkenabled(self)
@@ -69,6 +70,10 @@ class cluster(sos.plugintools.PluginBase):
             serv_check.extend( [ "cman", "rgmanager" ] )
             if self.has_gfs():
                 serv_check.extend( ["gfs", "clvmd"] )
+        elif rhelver == 6:
+            serv_check.extend( [ "fenced", "corosync", "dlm_controld"] )
+            if self.has_gfs():
+                serv_check.extend( ["gfs_controld"] )
 
         # check that kernel module packages are installed for
         # running kernel version
@@ -156,7 +161,8 @@ class cluster(sos.plugintools.PluginBase):
            self.addDiagnose("one or more nodes have manual fencing agent configured (data integrity is not guaranteed)")
 
         # if fence_ilo or fence_drac, make sure acpid is not running
-        ret, hostname, time = self.callExtProg("/bin/uname -n").split(".")[0]
+        ret, hostname, time = self.callExtProg("/bin/uname -n")
+        hostname = hostname.split(".")[0]
         if len(xpathContext.xpathEval('/cluster/clusternodes/clusternode[@name = "%s" and /cluster/fencedevices/fencedevice[@agent="fence_rsa" or @agent="fence_drac"]/@name=fence/method/device/@name]' % hostname )):
            ret, out, time = self.callExtProg("/sbin/service acpid status")
            if ret == 0 or self.policy().runlevelDefault() in self.policy().runlevelByService("acpid"):
