@@ -9,38 +9,39 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zh_TW\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-31 16:24-0400\n"
+"POT-Creation-Date: 2010-07-21 14:17-0400\n"
 "PO-Revision-Date: 2007-11-07 15:10+1000\n"
 "Last-Translator: Chester Cheng <ccheng@redhat.com>\n"
 "Language-Team: Chinese, Tradition <zh_TW@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/policyredhat.py:209
+#: ../sos/policyredhat.py:211
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "請輸入您的頭文字與姓 [%s]："
 
-#: ../sos/policyredhat.py:212
+#: ../sos/policyredhat.py:214
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "請輸入本報告的編號："
 
-#: ../sos/policyredhat.py:252
+#: ../sos/policyredhat.py:254
 msgid "Creating compressed archive..."
 msgstr "建立壓縮檔..."
 
-#: ../sos/policyredhat.py:282
+#: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
 msgstr "加密壓縮檔..."
 
-#: ../sos/policyredhat.py:302
+#: ../sos/policyredhat.py:304
 msgid "There was a problem encrypting your report."
 msgstr "壓縮您的報告時出現問題。"
 
-#: ../sos/policyredhat.py:326
+#: ../sos/policyredhat.py:328
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -49,87 +50,87 @@ msgstr ""
 "您的 sosreport 報告已經產生，並儲存於：\n"
 "  %s"
 
-#: ../sos/policyredhat.py:329
+#: ../sos/policyredhat.py:331
 msgid "The md5sum is: "
 msgstr "md5sum 檢查碼為："
 
-#: ../sos/policyredhat.py:331
+#: ../sos/policyredhat.py:333
 msgid "Please send this file to your support representative."
 msgstr "請將這檔案傳送給技術人員。"
 
-#: ../sos/policyredhat.py:353
+#: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:360
+#: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
 msgstr "無法上傳指定的網址。"
 
-#: ../sos/policyredhat.py:397
+#: ../sos/policyredhat.py:399
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "將報告上傳至 Red Hat 技術支援時，出現問題。"
 
-#: ../sos/policyredhat.py:399
+#: ../sos/policyredhat.py:401
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "您的報告已經成功地傳送至 Red Hat 的 FTP 伺服器，名稱為："
 
-#: ../sos/policyredhat.py:402
+#: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "請將這名稱告知您的技術支援人員。"
 
-#: ../sos/sosreport.py:344
+#: ../sos/sosreport.py:349
 msgid "Could not create temporary directory."
 msgstr "無法建立暫存目錄。"
 
-#: ../sos/sosreport.py:407
+#: ../sos/sosreport.py:412
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport（版本 %s）"
 
-#: ../sos/sosreport.py:432
+#: ../sos/sosreport.py:437
 #, fuzzy, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "嵌入程式無法驗證，故而跳過"
 
-#: ../sos/sosreport.py:461
+#: ../sos/sosreport.py:466
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "未安裝嵌入程式 %s，故而跳過"
 
-#: ../sos/sosreport.py:557
+#: ../sos/sosreport.py:562
 msgid "no valid plugins found"
 msgstr "找不到正確的嵌入程式"
 
-#: ../sos/sosreport.py:561
+#: ../sos/sosreport.py:566
 msgid "The following plugins are currently enabled:"
 msgstr "目前以下嵌入程式已經啟用："
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:572
 msgid "No plugin enabled."
 msgstr "並未啟用任何嵌入程式。"
 
-#: ../sos/sosreport.py:571
+#: ../sos/sosreport.py:576
 msgid "The following plugins are currently disabled:"
 msgstr "目前以下嵌入程式已經停用："
 
-#: ../sos/sosreport.py:579
+#: ../sos/sosreport.py:584
 msgid "The following plugin options are available:"
 msgstr "嵌入程式有以下選項可用："
 
-#: ../sos/sosreport.py:600
+#: ../sos/sosreport.py:605
 msgid "No plugin options available."
 msgstr "沒有可用的嵌入程式選項。"
 
-#: ../sos/sosreport.py:608
+#: ../sos/sosreport.py:613
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport 需要 root 權限才可以執行。"
 
-#: ../sos/sosreport.py:615
+#: ../sos/sosreport.py:620
 msgid "no valid plugins were enabled"
 msgstr "並未啟用合用的嵌入程式"
 
-#: ../sos/sosreport.py:618
+#: ../sos/sosreport.py:623
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -152,43 +153,43 @@ msgstr ""
 "您的系統不會有任何改變。\n"
 "\n"
 
-#: ../sos/sosreport.py:633
+#: ../sos/sosreport.py:638
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "請按下「Enter」繼續，或按下「CTRL-C」離開。\n"
 
-#: ../sos/sosreport.py:652
+#: ../sos/sosreport.py:663
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "一或多個嵌入程式在您的設定中偵測到一個問題。"
 
-#: ../sos/sosreport.py:654
+#: ../sos/sosreport.py:665
 msgid "Please review the following messages:"
 msgstr "請檢視以下訊息："
 
-#: ../sos/sosreport.py:670
+#: ../sos/sosreport.py:681
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "確定要繼續嗎 (y/n) ？"
 
-#: ../sos/sosreport.py:672
+#: ../sos/sosreport.py:683
 msgid "y"
 msgstr "y"
 
-#: ../sos/sosreport.py:672
+#: ../sos/sosreport.py:683
 msgid "Y"
 msgstr "Y"
 
-#: ../sos/sosreport.py:675
+#: ../sos/sosreport.py:686
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:675
+#: ../sos/sosreport.py:686
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:694
+#: ../sos/sosreport.py:711
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:801
+#: ../sos/sosreport.py:824
 #, fuzzy, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr "\tsosreport 建構樹位於：%s"

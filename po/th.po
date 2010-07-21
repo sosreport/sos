@@ -6,10 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.th\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-31 16:24-0400\n"
+"POT-Creation-Date: 2010-07-21 14:17-0400\n"
 "PO-Revision-Date: 2009-05-13 12:12+0000\n"
 "Last-Translator: \n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
+"Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,28 +18,28 @@ msgstr ""
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: ../sos/policyredhat.py:209
+#: ../sos/policyredhat.py:211
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "กรุณากรอกชื่อสกุล [%s]:"
 
-#: ../sos/policyredhat.py:212
+#: ../sos/policyredhat.py:214
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "กรุณากรอกหมายเลขปัญหาที่จะสร้างรายงาน:"
 
-#: ../sos/policyredhat.py:252
+#: ../sos/policyredhat.py:254
 msgid "Creating compressed archive..."
 msgstr "กำลังสร้างไฟล์บีบอัด..."
 
-#: ../sos/policyredhat.py:282
+#: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
 msgstr "กำลังเข้ารหัสไฟล์..."
 
-#: ../sos/policyredhat.py:302
+#: ../sos/policyredhat.py:304
 msgid "There was a problem encrypting your report."
 msgstr "มีปัญหาระหว่างการเข้ารหัสรายงาน"
 
-#: ../sos/policyredhat.py:326
+#: ../sos/policyredhat.py:328
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -47,87 +48,87 @@ msgstr ""
 "รายงาน sos ของคุณได้ถูกสร้างและบันทึกใน:\n"
 " %s"
 
-#: ../sos/policyredhat.py:329
+#: ../sos/policyredhat.py:331
 msgid "The md5sum is: "
 msgstr "md5sum คือ:"
 
-#: ../sos/policyredhat.py:331
+#: ../sos/policyredhat.py:333
 msgid "Please send this file to your support representative."
 msgstr "กรุณาส่งไฟล์นี้ไปยังตัวแทนผู้สนับสนุนของคุณ"
 
-#: ../sos/policyredhat.py:353
+#: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:360
+#: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
 msgstr "ไม่สามารถอัพโหลดไปยัง URL ที่ระบุ"
 
-#: ../sos/policyredhat.py:397
+#: ../sos/policyredhat.py:399
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "มีปัญหาในการอัพโหลดรายงานของคุณไปยังฝ่ายสนับสนุน Red Hat"
 
-#: ../sos/policyredhat.py:399
+#: ../sos/policyredhat.py:401
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "รายงานของคุณได้ถูกส่งไปยังเซิร์ฟเวอร์ ftp ของ Red Hat ในชื่อ:"
 
-#: ../sos/policyredhat.py:402
+#: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "กรุณาบอกชื่อนี้กับตัวแทนผู้สนับสนุนของคุณ"
 
-#: ../sos/sosreport.py:344
+#: ../sos/sosreport.py:349
 msgid "Could not create temporary directory."
 msgstr "ไม่สามารถสร้างไดเรคทอรีชั่วคราว"
 
-#: ../sos/sosreport.py:407
+#: ../sos/sosreport.py:412
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (รุ่น %s)"
 
-#: ../sos/sosreport.py:432
+#: ../sos/sosreport.py:437
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "ส่วนขยาย %s ไม่ถูกต้อง จะข้ามไป"
 
-#: ../sos/sosreport.py:461
+#: ../sos/sosreport.py:466
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "ส่วนขยาย %s ติดตั้งไม่ได้ จะข้ามไป"
 
-#: ../sos/sosreport.py:557
+#: ../sos/sosreport.py:562
 msgid "no valid plugins found"
 msgstr "ไม่พบส่วนขยายที่ถูกต้อง"
 
-#: ../sos/sosreport.py:561
+#: ../sos/sosreport.py:566
 msgid "The following plugins are currently enabled:"
 msgstr "ส่วนขยายต่อไปนี้เปิดใช้งานอยู่"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:572
 msgid "No plugin enabled."
 msgstr "ไม่มีส่วนขยายเปิดใช้งาน"
 
-#: ../sos/sosreport.py:571
+#: ../sos/sosreport.py:576
 msgid "The following plugins are currently disabled:"
 msgstr "ส่วนขยายต่อไปนี้ปิดการใช้งานอยู่:"
 
-#: ../sos/sosreport.py:579
+#: ../sos/sosreport.py:584
 msgid "The following plugin options are available:"
 msgstr "มีตัวเลือกเหล่านี้จากส่วนขยาย:"
 
-#: ../sos/sosreport.py:600
+#: ../sos/sosreport.py:605
 msgid "No plugin options available."
 msgstr "ไม่มีตัวเลือกจากส่วนขยาย"
 
-#: ../sos/sosreport.py:608
+#: ../sos/sosreport.py:613
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport ต้องใช้สิทธิ root ในการทำงาน"
 
-#: ../sos/sosreport.py:615
+#: ../sos/sosreport.py:620
 msgid "no valid plugins were enabled"
 msgstr "ไม่มีส่วนขยายที่ถูกต้องเปิดใช้งาน"
 
-#: ../sos/sosreport.py:618
+#: ../sos/sosreport.py:623
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -150,43 +151,43 @@ msgstr ""
 "กระบวนการนี้อาจจะใช้เวลาสักครู่ในการทำงาน จะไม่มีการแก้ไข\n"
 "ดัดแปลงระบบของคุณ\n"
 
-#: ../sos/sosreport.py:633
+#: ../sos/sosreport.py:638
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "กด ENTER เพื่อทำงานต่อ หรือ CTRL+C เพื่อออก\n"
 
-#: ../sos/sosreport.py:652
+#: ../sos/sosreport.py:663
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "มีส่วนขยายตัวใดตัวหนึ่งตรวจพบปัญหาในการตั้งค่าของคุณ"
 
-#: ../sos/sosreport.py:654
+#: ../sos/sosreport.py:665
 msgid "Please review the following messages:"
 msgstr "กรุณาอ่านข้อความเหล่านี้:"
 
-#: ../sos/sosreport.py:670
+#: ../sos/sosreport.py:681
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "คุณต้องการทำต่อไปหรือไม่ (y/n)?"
 
-#: ../sos/sosreport.py:672
+#: ../sos/sosreport.py:683
 msgid "y"
 msgstr "y"
 
-#: ../sos/sosreport.py:672
+#: ../sos/sosreport.py:683
 msgid "Y"
 msgstr "Y"
 
-#: ../sos/sosreport.py:675
+#: ../sos/sosreport.py:686
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:675
+#: ../sos/sosreport.py:686
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:694
+#: ../sos/sosreport.py:711
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:801
+#: ../sos/sosreport.py:824
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""

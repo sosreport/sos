@@ -2,8 +2,8 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 2.2
-Release: 0%{?dist}
+Version: 2.3
+Release: 1%{?dist}
 Group: Applications/System
 Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
 License: GPLv2+
@@ -50,6 +50,10 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Wed Jul 21 2010 Adam Stokes <ajs at redhat dot com> = 2.3-1
+- Auto update version during build
+- Capture plugin tracebacks properly into a separate file
+
 * Thu May 20 2010 Adam Stokes <ajs at redhat dot com> = 2.2-0
 - Corosync plugin added
 - Cluster plugin updated

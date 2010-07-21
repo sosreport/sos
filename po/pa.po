@@ -8,38 +8,39 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pa\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-31 16:24-0400\n"
+"POT-Creation-Date: 2010-07-21 14:17-0400\n"
 "PO-Revision-Date: 2007-11-06 16:55+0530\n"
 "Last-Translator: Jaswinder Singh <jsingh@redhat.com>\n"
 "Language-Team: Punjabi <fedora-trans-pa@redhat.com>\n"
+"Language: pa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/policyredhat.py:209
+#: ../sos/policyredhat.py:211
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਪਹਿਲਾ ਅਤੇ ਆਖਰੀ ਨਾਂ ਦਿਓ [%s]: "
 
-#: ../sos/policyredhat.py:212
+#: ../sos/policyredhat.py:214
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "ਕਿਰਪਾ ਕਰਕੇ ਮੁੱਦਾ ਨੰਬਰ ਦਿਓ ਜੋ ਤੁਸੀਂ ਇਸ ਰਿਪੋਰਟ ਵਿੱਚ ਦੇ ਰਹੇ ਹੋ: "
 
-#: ../sos/policyredhat.py:252
+#: ../sos/policyredhat.py:254
 msgid "Creating compressed archive..."
 msgstr "ਸੰਕੁਚਿਤ ਆਰਚੀਵ ਬਣਾ ਰਿਹਾ ਹੈ..."
 
-#: ../sos/policyredhat.py:282
+#: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
 msgstr "ਆਰਚੀਵ ਇਨਕ੍ਰਿਪਟ ਹੋ ਰਿਹਾ ਹੈ..."
 
-#: ../sos/policyredhat.py:302
+#: ../sos/policyredhat.py:304
 msgid "There was a problem encrypting your report."
 msgstr "ਤੁਹਾਡੀ ਰਿਪੋਰਟ ਇਨਕ੍ਰਿਪਟ ਕਰਨ ਵਿੱਚ ਸਮੱਸਿਆ ਆਈ ਹੈ..."
 
-#: ../sos/policyredhat.py:326
+#: ../sos/policyredhat.py:328
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -48,87 +49,87 @@ msgstr ""
 "ਤੁਹਾਡੀ sosreport ਬਣਾਈ ਗਈ ਹੈ ਅਤੇ ਇੱਥੇ ਸੰਭਾਲੀ ਗਈ ਹੈ:\n"
 "  %s"
 
-#: ../sos/policyredhat.py:329
+#: ../sos/policyredhat.py:331
 msgid "The md5sum is: "
 msgstr "md5sum ਇਹ ਹੈ: "
 
-#: ../sos/policyredhat.py:331
+#: ../sos/policyredhat.py:333
 msgid "Please send this file to your support representative."
 msgstr "ਕਿਰਪਾ ਕਰਕੇ ਇਸ ਫਾਇਲ ਨੂੰ ਆਪਣੇ ਸਹਿਯੋਗ ਪ੍ਰਤੀਨਿਧ ਨੂੰ ਭੇਜੋ।"
 
-#: ../sos/policyredhat.py:353
+#: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
 msgstr ""
 
-#: ../sos/policyredhat.py:360
+#: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
 msgstr "ਦਿੱਤੇ URL ਤੇ ਅੱਪਲੋਡ ਨਹੀਂ ਕਰ ਸਕਦਾ।"
 
-#: ../sos/policyredhat.py:397
+#: ../sos/policyredhat.py:399
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "ਤੁਹਾਡੀ ਰਿਪੋਰਟ ਨੂੰ Red Hat ਸਹਿਯੋਗ ਤੇ ਅੱਪਲੋਡ ਕਰਨ ਵੇਲੇ ਗਲਤੀ ਆਈ ਹੈ।"
 
-#: ../sos/policyredhat.py:399
+#: ../sos/policyredhat.py:401
 #, fuzzy, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "ਤੁਹਾਡੀ ਰਿਪੋਰਟ ਸਫਲਤਾਪੂਰਕ Red Hat ਦੇ ftp ਸਰਵਰ ਤੇ ਇਸ ਨਾਂ ਨਾਲ ਅੱਪਲੋਡ ਹੋ ਗਈ ਹੈ:"
 
-#: ../sos/policyredhat.py:402
+#: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "ਕਿਰਪਾ ਕਰਕੇ ਇਸ ਨਾਂ ਨੂੰ ਸਹਿਯੋਗੀ ਪ੍ਰਤੀਨਿਧ ਨਾਲ ਜੋੜੋ।"
 
-#: ../sos/sosreport.py:344
+#: ../sos/sosreport.py:349
 msgid "Could not create temporary directory."
 msgstr "ਆਰਜੀ ਡਾਇਰੈਕਟਰੀ ਨਹੀਂ ਬਣਾ ਸਕਦਾ।"
 
-#: ../sos/sosreport.py:407
+#: ../sos/sosreport.py:412
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (ਵਰਜਨ %s)"
 
-#: ../sos/sosreport.py:432
+#: ../sos/sosreport.py:437
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "ਪਲੱਗਇਨ %s ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਹੈ, ਛੱਡ ਰਿਹਾ ਹੈ"
 
-#: ../sos/sosreport.py:461
+#: ../sos/sosreport.py:466
 #, python-format
 msgid "plugin %s does not install, skipping"
 msgstr "ਪਲੱਗਇਨ %s ਇੰਸਟਾਲ ਨਹੀਂ ਹੋਇਆ, ਛੱਡ ਰਿਹਾ ਹੈ"
 
-#: ../sos/sosreport.py:557
+#: ../sos/sosreport.py:562
 msgid "no valid plugins found"
 msgstr "ਕੋਈ ਯੋਗ ਪਲੱਗਿਨ ਨਹੀਂ ਲੱਭਿਆ"
 
-#: ../sos/sosreport.py:561
+#: ../sos/sosreport.py:566
 msgid "The following plugins are currently enabled:"
 msgstr "ਹੇਠਲੇ ਪਲੱਗਇਨ ਯੋਗ ਕੀਤੇ ਹਨ:"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:572
 msgid "No plugin enabled."
 msgstr "ਕੋਈ ਪਲੱਗਇਨ ਯੋਗ ਨਹੀਂ ਹੈ।"
 
-#: ../sos/sosreport.py:571
+#: ../sos/sosreport.py:576
 msgid "The following plugins are currently disabled:"
 msgstr "ਹੇਠਲੇ ਪਲੱਗਇਨ ਅਯੋਗ ਹਨ।"
 
-#: ../sos/sosreport.py:579
+#: ../sos/sosreport.py:584
 msgid "The following plugin options are available:"
 msgstr "ਹੇਠਲੀਆਂ ਪਲੱਗਇਨ ਚੋਣਾਂ ਉਪਲੱਬਧ ਹਨ:"
 
-#: ../sos/sosreport.py:600
+#: ../sos/sosreport.py:605
 msgid "No plugin options available."
 msgstr "ਕੋਈ ਪਲੱਗਇਨ ਚੋਣ ਉਪਲੱਬਧ ਨਹੀਂ ਹੈ।"
 
-#: ../sos/sosreport.py:608
+#: ../sos/sosreport.py:613
 msgid "sosreport requires root permissions to run."
 msgstr "sosreport ਚਲਾਉਣ ਲਈ ਪਰਬੰਧਕ ਅਧਿਕਾਰ ਹੋਣੇ ਜਰੂਰੀ ਹਨ।"
 
-#: ../sos/sosreport.py:615
+#: ../sos/sosreport.py:620
 msgid "no valid plugins were enabled"
 msgstr "ਕੋਈ ਸਹੀ ਪਲੱਗਇਨ ਯੋਗ ਨਹੀਂ ਕੀਤਾ"
 
-#: ../sos/sosreport.py:618
+#: ../sos/sosreport.py:623
 #, fuzzy, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -153,43 +154,43 @@ msgstr ""
 "ਤੁਹਾਡੇ ਸਿਸਟਮ ਉੱਪਰ ਕੋਈ ਤਬਦੀਲੀ ਨਹੀਂ ਕੀਤੀ ਜਾਏਗੀ।\n"
 "\n"
 
-#: ../sos/sosreport.py:633
+#: ../sos/sosreport.py:638
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "ਜਾਰੀ ਰੱਖਣ ਲਈ ENTER ਦਬਾਓ, ਜਾਂ ਬੰਦ ਕਰਨ ਲਈ CTRL-C ਦਬਾਓ।\n"
 
-#: ../sos/sosreport.py:652
+#: ../sos/sosreport.py:663
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "ਤੁਹਾਡੀ ਸੰਰਚਨਾ ਵਿੱਚ ਇੱਕ ਜਾਂ ਜਿਆਦਾ ਪਲੱਗਇਨ ਸਮੱਸਿਆ ਪੈਦਾ ਕਰਦੇ ਹਨ।"
 
-#: ../sos/sosreport.py:654
+#: ../sos/sosreport.py:665
 msgid "Please review the following messages:"
 msgstr "ਕਿਰਪਾ ਕਰਕੇ ਹੇਠਲੇ ਸੁਨੇਹੇ ਵੇਖੋ:"
 
-#: ../sos/sosreport.py:670
+#: ../sos/sosreport.py:681
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "ਕੀ ਤੁਸੀਂ ਯਕੀਨਨ ਜਾਰੀ ਰੱਖਣਾ ਚਾਹੁੰਦੇ ਹੋ (y/n) ? "
 
-#: ../sos/sosreport.py:672
+#: ../sos/sosreport.py:683
 msgid "y"
 msgstr "y"
 
-#: ../sos/sosreport.py:672
+#: ../sos/sosreport.py:683
 msgid "Y"
 msgstr "Y"
 
-#: ../sos/sosreport.py:675
+#: ../sos/sosreport.py:686
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:675
+#: ../sos/sosreport.py:686
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:694
+#: ../sos/sosreport.py:711
 msgid "  Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:801
+#: ../sos/sosreport.py:824
 #, python-format
 msgid "  sosreport build tree is located at : %s"
 msgstr ""

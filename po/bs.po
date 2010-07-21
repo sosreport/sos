@@ -1,46 +1,43 @@
 # Bosnian translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
 # Automatically generated, 2007.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-31 16:24-0400\n"
+"POT-Creation-Date: 2010-07-21 14:17-0400\n"
 "PO-Revision-Date: 2007-10-24 08:45\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: ../sos/policyredhat.py:209
+#: ../sos/policyredhat.py:211
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
 msgstr "Molim vas unesite prvo slovo vaseg imena i prezime [%s]"
 
-#: ../sos/policyredhat.py:252
-msgid "Creating compressed archive..."
-msgstr "Kreira se komprimirana arhiva ..."
-
-#: ../sos/policyredhat.py:212
+#: ../sos/policyredhat.py:214
 msgid "Please enter the case number that you are generating this report for: "
 msgstr "Molim vas unesite broj slucaja za koji pripremate ovaj izvjestaj:"
 
-#: ../sos/policyredhat.py:302
-msgid "There was a problem encrypting your report."
-msgstr "Bilo je problema u sifriranju vaseg izvjestaja."
+#: ../sos/policyredhat.py:254
+msgid "Creating compressed archive..."
+msgstr "Kreira se komprimirana arhiva ..."
 
-#: ../sos/policyredhat.py:282
+#: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
 msgstr "Sifrira se arhiva ..."
 
-#: ../sos/policyredhat.py:329
-msgid "The md5sum is: "
-msgstr "md5sum je:"
+#: ../sos/policyredhat.py:304
+msgid "There was a problem encrypting your report."
+msgstr "Bilo je problema u sifriranju vaseg izvjestaja."
 
-#: ../sos/policyredhat.py:326
+#: ../sos/policyredhat.py:328
 #, python-format
 msgid ""
 "Your sosreport has been generated and saved in:\n"
@@ -49,124 +46,87 @@ msgstr ""
 "Vas sosizvjestaj je kreiran i sacuvan u:\n"
 " %s"
 
-#: ../sos/policyredhat.py:353
-msgid "No URL defined in config file."
-msgstr "Nema URL definiranog u konfiguracijskoj datoteci."
-
 #: ../sos/policyredhat.py:331
+msgid "The md5sum is: "
+msgstr "md5sum je:"
+
+#: ../sos/policyredhat.py:333
 msgid "Please send this file to your support representative."
 msgstr "Molim vas posaljite ovu datoteku vasem predstavniku za podrsku."
 
-#: ../sos/sosreport.py:561
-msgid "The following plugins are currently enabled:"
-msgstr "Sljedeci plugin-i su trenutno osposobljeni:"
+#: ../sos/policyredhat.py:355
+msgid "No URL defined in config file."
+msgstr "Nema URL definiranog u konfiguracijskoj datoteci."
 
-#: ../sos/sosreport.py:557
-msgid "no valid plugins found"
-msgstr "ispravan plugin nije nadjen"
-
-#: ../sos/policyredhat.py:397
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Bilo je problema u postavljanju vaseg izvjestaja na Red Hat podrsku. "
-
-#: ../sos/policyredhat.py:360
+#: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
 msgstr "Nije se mogao postaviti specificirani URL,"
 
-#: ../sos/policyredhat.py:402
-msgid "Please communicate this name to your support representative."
-msgstr "Molim vas prenesite ovo ime vasem predstavniku za podrsku."
-
 #: ../sos/policyredhat.py:399
+msgid "There was a problem uploading your report to Red Hat support."
+msgstr "Bilo je problema u postavljanju vaseg izvjestaja na Red Hat podrsku. "
+
+#: ../sos/policyredhat.py:401
 #, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "Vas je izvjestaj uspjesno postavljen u %s sa nazivom:"
 
-#: ../sos/sosreport.py:407
+#: ../sos/policyredhat.py:404
+msgid "Please communicate this name to your support representative."
+msgstr "Molim vas prenesite ovo ime vasem predstavniku za podrsku."
+
+#: ../sos/sosreport.py:349
+msgid "Could not create temporary directory."
+msgstr "Nije se mogao kreirati privremeni direktorij."
+
+#: ../sos/sosreport.py:412
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosizjestaj (verzija %s)"
 
-#: ../sos/sosreport.py:344
-msgid "Could not create temporary directory."
-msgstr "Nije se mogao kreirati privremeni direktorij."
-
-#: ../sos/sosreport.py:461
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "plugin %s se nije instalirao, preskace se "
-
-#: ../sos/sosreport.py:432
+#: ../sos/sosreport.py:437
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "plugin %s se nije mogao potvrditi, preskace se"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:466
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "plugin %s se nije instalirao, preskace se "
+
+#: ../sos/sosreport.py:562
+msgid "no valid plugins found"
+msgstr "ispravan plugin nije nadjen"
+
+#: ../sos/sosreport.py:566
+msgid "The following plugins are currently enabled:"
+msgstr "Sljedeci plugin-i su trenutno osposobljeni:"
+
+#: ../sos/sosreport.py:572
 msgid "No plugin enabled."
 msgstr "Nema osposobljenih plugin-a."
 
-#: ../sos/sosreport.py:571
+#: ../sos/sosreport.py:576
 msgid "The following plugins are currently disabled:"
 msgstr "Sljedeci su plugin-i onesposobljeni:"
 
-#: ../sos/sosreport.py:600
-msgid "No plugin options available."
-msgstr "Nema plugin-a na raspolaganju."
-
-#: ../sos/sosreport.py:579
+#: ../sos/sosreport.py:584
 msgid "The following plugin options are available:"
 msgstr "Sjedeci su plugini-i na raspolaganju:"
 
-#: ../sos/sosreport.py:615
-msgid "no valid plugins were enabled"
-msgstr "Nema ispravnih plugin-a na raspolaganju."
+#: ../sos/sosreport.py:605
+msgid "No plugin options available."
+msgstr "Nema plugin-a na raspolaganju."
 
-#: ../sos/sosreport.py:608
+#: ../sos/sosreport.py:613
 msgid "sosreport requires root permissions to run."
 msgstr "sosizvjestaj zahtijeva 'root' privilegije da bi se pokrenuo."
 
-#: ../sos/sosreport.py:633
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Pritisnite ENTER da nastavite, ili CTRL-C da odustanete.\n"
+#: ../sos/sosreport.py:620
+msgid "no valid plugins were enabled"
+msgstr "Nema ispravnih plugin-a na raspolaganju."
 
-#: ../sos/sosreport.py:654
-msgid "Please review the following messages:"
-msgstr "Molim vas pregledajte sljedece poruke:"
-
-#: ../sos/sosreport.py:652
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Jedan ili vise plugin-a su otkrili probleme u vasoj konfiguraciji."
-
-#: ../sos/sosreport.py:672
-msgid "y"
-msgstr "d"
-
-#: ../sos/sosreport.py:670
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Jeste li sigurni da zelite nastaviti (d/n)?"
-
-#: ../sos/sosreport.py:675
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:672
-msgid "Y"
-msgstr "D"
-
-#: ../sos/sosreport.py:694
-msgid "  Running plugins. Please wait ..."
-msgstr "Pokrecu se plugin-i. Molim vas pricekajte ..."
-
-#: ../sos/sosreport.py:675
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:801
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "sosizvjestaj 'build' stablo nalazi se pod: %s"
-
-#: ../sos/sosreport.py:618
+#: ../sos/sosreport.py:623
 #, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
@@ -199,3 +159,44 @@ msgstr ""
 "Nikakve promjene neće biti ucinjene vasem sistemu.\n"
 "\r\n"
 "\n"
+
+#: ../sos/sosreport.py:638
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Pritisnite ENTER da nastavite, ili CTRL-C da odustanete.\n"
+
+#: ../sos/sosreport.py:663
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Jedan ili vise plugin-a su otkrili probleme u vasoj konfiguraciji."
+
+#: ../sos/sosreport.py:665
+msgid "Please review the following messages:"
+msgstr "Molim vas pregledajte sljedece poruke:"
+
+#: ../sos/sosreport.py:681
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Jeste li sigurni da zelite nastaviti (d/n)?"
+
+#: ../sos/sosreport.py:683
+msgid "y"
+msgstr "d"
+
+#: ../sos/sosreport.py:683
+msgid "Y"
+msgstr "D"
+
+#: ../sos/sosreport.py:686
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:686
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:711
+msgid "  Running plugins. Please wait ..."
+msgstr "Pokrecu se plugin-i. Molim vas pricekajte ..."
+
+#: ../sos/sosreport.py:824
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "sosizvjestaj 'build' stablo nalazi se pod: %s"
