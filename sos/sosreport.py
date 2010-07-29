@@ -46,8 +46,8 @@ from itertools import *
 from collections import deque
 
 from sos import _sos as _
+from sos import __version__
 
-__version__ = 2.1
 if os.path.isfile('/etc/fedora-release'):
     __distro__ = 'Fedora'
 else:
@@ -655,8 +655,9 @@ No changes will be made to your system.
                     raise
                 else:
                     error_log = open(logdir + "/sosreport-plugin-errors.txt", "a")
+                    etype, eval, etrace = sys.exc_info()
                     traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
-                    error_log.write(traceback.format_exc)
+                    error_log.write(traceback.format_exc())
                     error_log.close()
 
             tmpcount += len(plug.diagnose_msgs)
@@ -727,8 +728,9 @@ No changes will be made to your system.
                 raise
             else:
                 error_log = open(logdir + "/sosreport-plugin-errors.txt", "a")
+                etype, eval, etrace = sys.exc_info()
                 traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
-                error_log.write(traceback.format_exc)
+                error_log.write(traceback.format_exc())
                 error_log.close()
 
     print
