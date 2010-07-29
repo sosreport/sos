@@ -22,5 +22,6 @@ gettext_app = "sos"
 
 gettext.bindtextdomain(gettext_app, gettext_dir)
 
+__version__="@SOSVERSION@"
 def _sos(msg):
     return gettext.dgettext(gettext_app, msg)
