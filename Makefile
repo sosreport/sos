@@ -37,6 +37,7 @@ install:
 	install -m644 LICENSE README TODO $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
+	sed 's/@SOSVERSION@/$(VERSION)/g'<sos/__init__.py.in >sos/__init__.py
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
