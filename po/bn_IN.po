@@ -1,21 +1,21 @@
-# translation of bn_IN.po to Bengali INDIA
+# translation of sos.trunk.po to Bengali INDIA
 # Bengali translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
 #
 # Automatically generated, 2007.
-# Runa Bhattacharjee <runab@redhat.com>, 2007.
+# Runa Bhattacharjee <runab@redhat.com>, 2007, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: bn_IN\n"
+"Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-21 14:17-0400\n"
-"PO-Revision-Date: 2007-11-06 13:09+0530\n"
+"PO-Revision-Date: 2010-08-05 13:46+0530\n"
 "Last-Translator: Runa Bhattacharjee <runab@redhat.com>\n"
-"Language-Team: Bengali INDIA\n"
-"Language: \n"
+"Language-Team: Bengali INDIA <anubad@lists.ankur.org.in>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -60,7 +60,7 @@ msgstr "অনুগ্রহ করে সহায়তা প্রতিনি
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "কনফিগ ফাইলের মধ্যে কোনো URL নির্ধারিত হয়নি।"
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
@@ -71,11 +71,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "আপনার রিপোর্টটি Red Hat সহায়তা ব্যবস্থায় আপলোড করতে সমস্যা।"
 
 #: ../sos/policyredhat.py:401
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"আপনার প্রদত্ত রিপোর্টটি সাফল্যের সাথে Red Hat-র ftp সার্ভারে নিম্নলিখিত নামে আপলোড "
-"করা হয়েছে:"
+msgstr "আপনার প্রদত্ত রিপোর্টটি সাফল্যের সাথে %s-এ নিম্নলিখিত নামে আপলোড করা হয়েছে:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
@@ -133,7 +131,7 @@ msgid "no valid plugins were enabled"
 msgstr "কোনো বৈধ প্লাগ-ইন সক্রিয় করা হয়নি"
 
 #: ../sos/sosreport.py:623
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -146,11 +144,11 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"এই সামগ্রীর সাহায্যে হার্ডওয়্যার ও Red Hat Enterprise Linux\n"
+"এই সামগ্রীর সাহায্যে হার্ডওয়্যার ও %(distroa)s\n"
 "সিস্টেমের পরিকাঠামো সম্পর্কে বিশদ তথ্য সংগ্রহ করা হবে।\n"
 "তথ্য সংগ্রহের পরে /tmp ডিরেক্টরির অধীন একটি আর্কাইভ নির্মিত হয়।\n"
 "এই আর্কাইভটি আপনি সহায়তা প্রতিনিধির কাছে পাঠিয়ে দিতে পারবেন।\n"
-"Red Hat দ্বারা এই তথ্য শুধমাত্র সমস্যার কারণ নির্ণয় করার জন্য ব্যবহার করা হবে\n"
+"%(distrob)s দ্বারা এই তথ্য শুধমাত্র সমস্যার কারণ নির্ণয় করার জন্য ব্যবহার করা হবে\n"
 "এবং এর গোপনীয়তা বজায় রাখা হবে।\n"
 "\n"
 "এই কর্ম সম্পন্ন হতে কিছু সময় ব্যয় হতে পারে।\n"
@@ -191,21 +189,10 @@ msgstr "N"
 
 #: ../sos/sosreport.py:711
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr "  প্লাগ-ইন সঞ্চালিত হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন ..."
 
 #: ../sos/sosreport.py:824
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  sosreport বিল্ড-ট্রির অবস্থান : %s"
 
-#~ msgid "plugin %s skipped (--skip-plugins)"
-#~ msgstr "প্লাগ-ইন %s উপেক্ষা করা হয়েছে (--skip-plugins)"
-
-#~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "প্লাগ-ইন %s সক্রিয় নয় (সক্রিয় করার জন্য -e অথবা -o ব্যবহার করুন)।"
-
-#~ msgid "plugin %s not specified in --only-plugins list"
-#~ msgstr "--only-plugins তালিকায় প্লাগ-ইন %s উল্লিখিত হয়নি"
-
-#~ msgid "processing options from plugin: %s"
-#~ msgstr "প্লাগ-ইন থেকে বিকল্প প্রক্রিয়াকরণ হচ্ছে: %s"
