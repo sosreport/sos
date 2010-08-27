@@ -2,19 +2,19 @@
 # Copyright (C) 2009 Free Software Foundation
 # This file is distributed under the same license as the iok package.
 # Xavier Conde Rueda <xavi.conde@gmail.com>, 2009.
-#
+# 
 # This file is translated according to the glossary and style guide of
 #   Softcatalà. If you plan to modify this file, please read first the page
 #   of the Catalan translation team for the Fedora project at:
 #   http://www.softcatala.org/projectes/fedora/
 #   and contact the previous translator.
-#
+# 
 # Aquest fitxer s'ha de traduir d'acord amb el recull de termes i la guia
 #   d'estil de Softcatalà. Si voleu modificar aquest fitxer, llegiu si
 #   us plau la pàgina de catalanització del projecte Fedora a:
 #   http://www.softcatala.org/projectes/fedora/
 #   i contacteu l'anterior traductor/a.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
@@ -23,10 +23,10 @@ msgstr ""
 "PO-Revision-Date: 2009-05-17 08:45\n"
 "Last-Translator: Xavier Faus i Torà <xfaus@diei.udl.cat>\n"
 "Language-Team: Catalan <fedora@softcatala.net>\n"
-"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: ca\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: ../sos/policyredhat.py:211
@@ -36,8 +36,7 @@ msgstr "Si us plau entreu la vostra inicial i el cognom [%s]: "
 
 #: ../sos/policyredhat.py:214
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
-"Si us plau introduïu el número del cas per al qual esteu generant l'informe :"
+msgstr "Si us plau introduïu el número del cas per al qual esteu generant l'informe :"
 
 #: ../sos/policyredhat.py:254
 msgid "Creating compressed archive..."
@@ -68,10 +67,6 @@ msgstr "L'md5sum és:"
 msgid "Please send this file to your support representative."
 msgstr "Si us plau envieu aquest fitxer al vostre responsable del manteniment."
 
-#: ../sos/policyredhat.py:355
-msgid "No URL defined in config file."
-msgstr ""
-
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
 msgstr "No es pot pujar a la URL especificada."
@@ -80,17 +75,9 @@ msgstr "No es pot pujar a la URL especificada."
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Hi ha hagut un problema en pujar l'informe al manteniment de Red Hat."
 
-#: ../sos/policyredhat.py:401
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
-"L'informe s'ha pujat correctament al servidor d'ftp de Red Hat amb el nom:"
-
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
-msgstr ""
-"Si us plau comuniqueu aquest nom a la vostra persona encarregada del "
-"manteniment."
+msgstr "Si us plau comuniqueu aquest nom a la vostra persona encarregada del manteniment."
 
 #: ../sos/sosreport.py:349
 msgid "Could not create temporary directory."
@@ -143,31 +130,6 @@ msgstr "el sosreport necessita privilegis de root."
 msgid "no valid plugins were enabled"
 msgstr "cap connector vàlid està activat"
 
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"Aquesta utilitat recollirà informació detallada sobre\n"
-"el maquinari i la configuració del vostre sistema Red Had Enterprise Linux.\n"
-"La informació recollida és adjuntada i desada en un arxiu en el directori\n"
-"/tmp, que podeu enviar a la persona encarregada del manteniment.\n"
-"Red Hat utilitzarà aquesta informació únicament per a diagnòstics\n"
-"i es considerarà informació confidencial.\n"
-"\n"
-"Aquest procés pot tardar una mica en completar-se.\n"
-"No es realitzarà cap canvi al vostre sistema.\n"
-"\n"
-
 #: ../sos/sosreport.py:638
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Premeu Entrar per continuar, o Control-C per sortir.\n"
@@ -200,14 +162,48 @@ msgstr "n"
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
+#: ../sos/policyredhat.py:355
+msgid "No URL defined in config file."
+msgstr "Cap URL definida en el fitxer de configuració."
+
+#: ../sos/policyredhat.py:401
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "El vostre informe s'ha pujat correctament a %s amb el nom:"
+
+#: ../sos/sosreport.py:623
+#, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
 msgstr ""
+"Aquesta utilitat recollirà informació detallada quant\n"
+"al maquinari i la configuració del vostre sistema %(distroa)s.\n"
+"La informació es recollida i s'empaqueta en un arxiu sota el directori\n"
+"/tmp, el qual es pot enviar a l'encarregat del suport.\n"
+"%(distrob)s utilitzarà aquesta informació únicament per a diagnòstics\n"
+"i es considerarà com a informació confidencial.\n"
+"\n"
+"Aquest procés pot trigar una estona en completar-se.\n"
+"No es realitzarà cap canvi en el vostre sistema.\n"
+"\n"
 
 #: ../sos/sosreport.py:824
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "L'arbre de la construcció sosreport està localitzat a : %s"
+
+#: ../sos/sosreport.py:711
+msgid "  Running plugins. Please wait ..."
+msgstr "Executant complements. Espereu ..."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "el connector %s s'ha omés (--skip-plugins)"
