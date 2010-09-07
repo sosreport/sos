@@ -175,20 +175,19 @@ msgstr "ο"
 msgid "N"
 msgstr "Ο"
 
-#: ../sos/policyredhat.py:401
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Η αναφορά σας στάλθηκε επιτυχώς στον ftp server της Red Hat με όνομα:"
-
-#: ../sos/sosreport.py:824
-#, python-format, fuzzy
-msgid "  sosreport build tree is located at : %s"
-msgstr "Η δημιουργημένη αναφορά βρίσκεται στον φάκελο: %s"
-
 #: ../sos/sosreport.py:711
-#, fuzzy
 msgid "  Running plugins. Please wait ..."
 msgstr "Εκτέλεση πρόσθετων. Παρακαλώ περιμένετε ..."
+
+#: ../sos/sosreport.py:824
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "Το δημιουργημένο sosreport βρίσκεται στον φάκελο: %s"
+
+#: ../sos/policyredhat.py:401
+#, python-format
+msgid "Your report was successfully uploaded to %s with name:"
+msgstr "Η αναφορά σας στάλθηκε επιτυχώς στo %s με όνομα:"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "το πρόσθετο %s προσπερνάται (--skip plugins)"
