@@ -1,29 +1,26 @@
-# translation of zh_TW.po to Chinese, Tradition
-# Chinese translations for PACKAGE package
-# traditional Chinese translation for PACKAGE.
-# Copyright (C) 2007 ORGANIZATION
-# 
-# Automatically generated, 2007.
+# Traditional Chinese Messages for sos.
+# Copyright (C) 2010 The sos Project (msgids)
+# This file is distributed under the same license as the sos package.
 # Chester Cheng <ccheng@redhat.com>, 2007.
+# Wei-Lun Chao <chaoweilun@gmail.com>, 2010.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: zh_TW\n"
+"Project-Id-Version: sos 2.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-21 14:17-0400\n"
-"PO-Revision-Date: 2007-11-07 15:10+1000\n"
-"Last-Translator: Chester Cheng <ccheng@redhat.com>\n"
-"Language-Team: Chinese, Tradition <zh_TW@li.org>\n"
+"PO-Revision-Date: 2010-09-19 00:10+1000\n"
+"Last-Translator: Wei-Lun Chao <chaoweilun@gmail.com>\n"
+"Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
-"Generated-By: pygettext.py 1.5\n"
-"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../sos/policyredhat.py:211
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
-msgstr "請輸入您的頭文字與姓 [%s]："
+msgstr "請輸入您的名與姓 [%s]："
 
 #: ../sos/policyredhat.py:214
 msgid "Please enter the case number that you are generating this report for: "
@@ -31,11 +28,11 @@ msgstr "請輸入本報告的編號："
 
 #: ../sos/policyredhat.py:254
 msgid "Creating compressed archive..."
-msgstr "建立壓縮檔..."
+msgstr "建立壓縮檔…"
 
 #: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
-msgstr "加密壓縮檔..."
+msgstr "加密壓縮檔…"
 
 #: ../sos/policyredhat.py:304
 msgid "There was a problem encrypting your report."
@@ -82,31 +79,31 @@ msgstr "sosreport（版本 %s）"
 #: ../sos/sosreport.py:466
 #, python-format
 msgid "plugin %s does not install, skipping"
-msgstr "未安裝嵌入程式 %s，故而跳過"
+msgstr "未安裝外掛程式 %s，故而跳過"
 
 #: ../sos/sosreport.py:562
 msgid "no valid plugins found"
-msgstr "找不到正確的嵌入程式"
+msgstr "找不到正確的外掛程式"
 
 #: ../sos/sosreport.py:566
 msgid "The following plugins are currently enabled:"
-msgstr "目前以下嵌入程式已經啟用："
+msgstr "目前以下外掛程式已經啟用："
 
 #: ../sos/sosreport.py:572
 msgid "No plugin enabled."
-msgstr "並未啟用任何嵌入程式。"
+msgstr "並未啟用任何外掛程式。"
 
 #: ../sos/sosreport.py:576
 msgid "The following plugins are currently disabled:"
-msgstr "目前以下嵌入程式已經停用："
+msgstr "目前以下外掛程式已經停用："
 
 #: ../sos/sosreport.py:584
 msgid "The following plugin options are available:"
-msgstr "嵌入程式有以下選項可用："
+msgstr "外掛程式有以下選項可用："
 
 #: ../sos/sosreport.py:605
 msgid "No plugin options available."
-msgstr "沒有可用的嵌入程式選項。"
+msgstr "沒有可用的外掛程式選項。"
 
 #: ../sos/sosreport.py:613
 msgid "sosreport requires root permissions to run."
@@ -114,7 +111,7 @@ msgstr "sosreport 需要 root 權限才可以執行。"
 
 #: ../sos/sosreport.py:620
 msgid "no valid plugins were enabled"
-msgstr "並未啟用合用的嵌入程式"
+msgstr "並未啟用合用的外掛程式"
 
 #: ../sos/sosreport.py:638
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
@@ -122,7 +119,7 @@ msgstr "請按下「Enter」繼續，或按下「CTRL-C」離開。\n"
 
 #: ../sos/sosreport.py:663
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr "一或多個嵌入程式在您的設定中偵測到一個問題。"
+msgstr "一或多個外掛程式在您的設定中偵測到一個問題。"
 
 #: ../sos/sosreport.py:665
 msgid "Please review the following messages:"
@@ -130,7 +127,7 @@ msgstr "請檢視以下訊息："
 
 #: ../sos/sosreport.py:681
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "確定要繼續嗎 (y/n) ？"
+msgstr "確定要繼續嗎 (y/n)？"
 
 #: ../sos/sosreport.py:683
 msgid "y"
@@ -188,20 +185,8 @@ msgstr ""
 #: ../sos/sosreport.py:824
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr "sosreport 建構樹位於：%s"
+msgstr "  sosreport 建構樹位於：%s"
 
 #: ../sos/sosreport.py:711
 msgid "  Running plugins. Please wait ..."
-msgstr "正在執行外掛程式，請稍待…"
-
-#~ msgid "plugin %s skipped (--skip-plugins)"
-#~ msgstr "跳過嵌入程式 %s（--skip-plugins）"
-
-#~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "嵌入程式 %s 已經停用（請使用 -e 或 -o 啟用）。"
-
-#~ msgid "plugin %s not specified in --only-plugins list"
-#~ msgstr "嵌入程式 %s 並沒有在 --only-plugins 清單中指定"
-
-#~ msgid "processing options from plugin: %s"
-#~ msgstr "嵌入程式的處理選項：%s"
+msgstr "  正在執行外掛程式，請稍待…"
