@@ -1,42 +1,45 @@
 # Turkish translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
-# Automatically generated, 2007.
 #
+# Automatically generated, 2007.
+# Hasan Alp iNAN <hasanalpinan@gmail.com>, 2010.
+# Hasan Alp İNAN <hasanalpinan@gmail.com>, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-21 14:17-0400\n"
-"PO-Revision-Date: 2007-10-24 08:45\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: \n"
+"PO-Revision-Date: 2010-10-19 21:49+0300\n"
+"Last-Translator: Hasan Alp İNAN <hasanalpinan@gmail.com>\n"
+"Language-Team: Turkish <none>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: tr_TR\n"
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Lokalize 1.0\n"
 
 #: ../sos/policyredhat.py:211
 #, python-format
 msgid "Please enter your first initial and last name [%s]: "
-msgstr ""
+msgstr "Lütfen ilk adınızı ve soyadınızı giriniz [%s]: "
 
 #: ../sos/policyredhat.py:214
 msgid "Please enter the case number that you are generating this report for: "
-msgstr ""
+msgstr "Lütfen bu rapor için üretiğiniz durum numarasını girin: "
 
 #: ../sos/policyredhat.py:254
 msgid "Creating compressed archive..."
-msgstr ""
+msgstr "Sıkıştırılmış arşiv oluşturuluyor..."
 
 #: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
-msgstr ""
+msgstr "Arşiv şifreleniyor..."
 
 #: ../sos/policyredhat.py:304
 msgid "There was a problem encrypting your report."
-msgstr ""
+msgstr "Raporunuz şifrelenirken bir sorunla karşılaşıldı."
 
 #: ../sos/policyredhat.py:328
 #, python-format
@@ -44,86 +47,88 @@ msgid ""
 "Your sosreport has been generated and saved in:\n"
 "  %s"
 msgstr ""
+"sosreport'unuz oluşturuldu ve kaydedildi:\n"
+"  %s"
 
 #: ../sos/policyredhat.py:331
 msgid "The md5sum is: "
-msgstr ""
+msgstr "md5sum:"
 
 #: ../sos/policyredhat.py:333
 msgid "Please send this file to your support representative."
-msgstr ""
+msgstr "Lütfen bu dosyayı destek temsilcinize gönderiniz."
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Yapılandırma dosyasında hiç URL tanımlanmadı."
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
-msgstr ""
+msgstr "Belirtilen URL 'ye yükleme yapılamadı."
 
 #: ../sos/policyredhat.py:399
 msgid "There was a problem uploading your report to Red Hat support."
-msgstr ""
+msgstr "Raporunuz Red Hat desteğe yüklenirken bir sorunla karşılaşıldı."
 
 #: ../sos/policyredhat.py:401
 #, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr ""
+msgstr "Raporunuz %s adıyla başarıyla yüklendi:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
-msgstr ""
+msgstr "Lütfen bu ismi destek temsilcinize bildiriniz."
 
 #: ../sos/sosreport.py:349
 msgid "Could not create temporary directory."
-msgstr ""
+msgstr "Geçici dizin oluşturulamadı."
 
 #: ../sos/sosreport.py:412
 #, python-format
 msgid "sosreport (version %s)"
-msgstr ""
+msgstr "sosreport (sürüm %s)"
 
 #: ../sos/sosreport.py:437
 #, python-format
 msgid "plugin %s does not validate, skipping"
-msgstr ""
+msgstr "%s eklentisi doğrulanamadı, atlanıyor"
 
 #: ../sos/sosreport.py:466
 #, python-format
 msgid "plugin %s does not install, skipping"
-msgstr ""
+msgstr "%s eklentisi kurulamıyor, atlanıyor"
 
 #: ../sos/sosreport.py:562
 msgid "no valid plugins found"
-msgstr ""
+msgstr "hiç geçerli eklenti bulunamadı"
 
 #: ../sos/sosreport.py:566
 msgid "The following plugins are currently enabled:"
-msgstr ""
+msgstr "Aşağıdaki eklentiler şu an etkin:"
 
 #: ../sos/sosreport.py:572
 msgid "No plugin enabled."
-msgstr ""
+msgstr "Hiçbir eklenti etkin değil."
 
 #: ../sos/sosreport.py:576
 msgid "The following plugins are currently disabled:"
-msgstr ""
+msgstr "Aşağıdaki eklentiler şu an devre dışı:"
 
 #: ../sos/sosreport.py:584
 msgid "The following plugin options are available:"
-msgstr ""
+msgstr "Aşağıdaki eklenti seçenekleri kullanılabilir:"
 
 #: ../sos/sosreport.py:605
 msgid "No plugin options available."
-msgstr ""
+msgstr "Hiç eklenti seçeneği mevcut değil."
 
 #: ../sos/sosreport.py:613
 msgid "sosreport requires root permissions to run."
-msgstr ""
+msgstr "sosreport çalışmak için root yetkisi gerektirir."
 
 #: ../sos/sosreport.py:620
 msgid "no valid plugins were enabled"
-msgstr ""
+msgstr "hiç geçerli eklenti etkinleştirilmedi"
 
 #: ../sos/sosreport.py:623
 #, python-format
@@ -139,44 +144,56 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
+"Bu uygulama donanım ve %(distroa)s sistem yapılandırmanız\n"
+"hakkında ayrıntılı bazı bilgiler toplayacaktır.\n"
+"Bu bilgiler toplanır ve bir arşiv olarak /tmp altında paketlenir\n"
+"ki bu bilgileri bir destek temsilcisine gönderebilirsiniz.\n"
+"%(distrob)s SADECE tanı amacıyla bu bilgileri kullanacak\n"
+"ve gizli bilgi olarak kabul edilecektir.\n"
+"\n"
+"Bu işlemin tamamlanması biraz zaman alabilir.\n"
+"Sisteminizde hiç bir değişiklik yapılmayacaktır.\n"
+"\n"
 
 #: ../sos/sosreport.py:638
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
+msgstr "Devam etmek için ENTER'a basınız veya çıkmak için CTRL-C 'ye basınız.\n"
 
 #: ../sos/sosreport.py:663
 msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
+msgstr "Bir veya daha fazla eklenti yapılandırmanızda bir sorun tespit etti."
 
 #: ../sos/sosreport.py:665
 msgid "Please review the following messages:"
-msgstr ""
+msgstr "Lütfen aşağıdaki mesajları yeniden inceleyin:"
 
 #: ../sos/sosreport.py:681
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr ""
+msgstr "Devam etmek istediğinizden emin misiniz (e/h) ?"
 
 #: ../sos/sosreport.py:683
 msgid "y"
-msgstr ""
+msgstr "e"
 
 #: ../sos/sosreport.py:683
 msgid "Y"
-msgstr ""
+msgstr "E"
 
 #: ../sos/sosreport.py:686
 msgid "n"
-msgstr ""
+msgstr "h"
 
 #: ../sos/sosreport.py:686
 msgid "N"
-msgstr ""
+msgstr "H"
 
 #: ../sos/sosreport.py:711
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr "Eklentiler çalışıyor. Lütfen bekleyiniz ..."
 
 #: ../sos/sosreport.py:824
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  sosreport inşaa ağacı burada bulunmaktadır : %s"
+
+
