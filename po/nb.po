@@ -1,15 +1,16 @@
-# Norwegian Bokmal translations for PACKAGE package.
-# Copyright (C) 2007 ORGANIZATION
+# Norwegian bokmål translations for the sos package.
+# Copyright (C) 2007 Red Hat, Inc.
+# Kjartan Maraas <kmaraas@gnome.org>, 2010.
 # Automatically generated, 2007.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-21 14:17-0400\n"
-"PO-Revision-Date: 2007-10-24 08:45\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2010-10-31 19:50+0100\n"
+"Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
+"Language-Team: Norwegian bokmål <i18n-nb@lister.ping.uio.no>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,11 +29,11 @@ msgstr ""
 
 #: ../sos/policyredhat.py:254
 msgid "Creating compressed archive..."
-msgstr ""
+msgstr "Lager komprimert arkiv..."
 
 #: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
-msgstr ""
+msgstr "Krypterer arkiv..."
 
 #: ../sos/policyredhat.py:304
 msgid "There was a problem encrypting your report."
@@ -47,7 +48,7 @@ msgstr ""
 
 #: ../sos/policyredhat.py:331
 msgid "The md5sum is: "
-msgstr ""
+msgstr "md5sum er: "
 
 #: ../sos/policyredhat.py:333
 msgid "Please send this file to your support representative."
@@ -55,11 +56,11 @@ msgstr ""
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "Ingen URL definert i konfigurasjonsfilen."
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
-msgstr ""
+msgstr "Kan ikke laste opp til oppgitt URL."
 
 #: ../sos/policyredhat.py:399
 msgid "There was a problem uploading your report to Red Hat support."
@@ -76,12 +77,12 @@ msgstr ""
 
 #: ../sos/sosreport.py:349
 msgid "Could not create temporary directory."
-msgstr ""
+msgstr "Kunne ikke lage midlertidig katalog."
 
 #: ../sos/sosreport.py:412
 #, python-format
 msgid "sosreport (version %s)"
-msgstr ""
+msgstr "sosreport (versjon %s)"
 
 #: ../sos/sosreport.py:437
 #, python-format
@@ -95,7 +96,7 @@ msgstr ""
 
 #: ../sos/sosreport.py:562
 msgid "no valid plugins found"
-msgstr ""
+msgstr "ingen gyldige tillegg funnet"
 
 #: ../sos/sosreport.py:566
 msgid "The following plugins are currently enabled:"
@@ -103,7 +104,7 @@ msgstr ""
 
 #: ../sos/sosreport.py:572
 msgid "No plugin enabled."
-msgstr ""
+msgstr "Ingen tillegg slått på."
 
 #: ../sos/sosreport.py:576
 msgid "The following plugins are currently disabled:"
@@ -142,7 +143,7 @@ msgstr ""
 
 #: ../sos/sosreport.py:638
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
+msgstr "Trykk LINJESKIFT for å fortsette, eller CTRL-C for å avslutte.\n"
 
 #: ../sos/sosreport.py:663
 msgid "One or more plugins have detected a problem in your configuration."
@@ -154,23 +155,23 @@ msgstr ""
 
 #: ../sos/sosreport.py:681
 msgid "Are you sure you would like to continue (y/n) ? "
-msgstr ""
+msgstr "Er du sikker på at du vil fortsette (j/n)?"
 
 #: ../sos/sosreport.py:683
 msgid "y"
-msgstr ""
+msgstr "j"
 
 #: ../sos/sosreport.py:683
 msgid "Y"
-msgstr ""
+msgstr "J"
 
 #: ../sos/sosreport.py:686
 msgid "n"
-msgstr ""
+msgstr "n"
 
 #: ../sos/sosreport.py:686
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: ../sos/sosreport.py:711
 msgid "  Running plugins. Please wait ..."
