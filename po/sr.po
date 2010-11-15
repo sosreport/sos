@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2010-03-28 23:56+0100\n"
 "Last-Translator: Miloš Komarčević <kmilos@gmail.com>\n"
 "Language-Team: Serbian <trans-sr@lists.fedoraproject.org>\n"
@@ -17,6 +17,123 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "Не могу да направим привремени директоријум."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (верзија %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "додатак %s се није оверио, прескачем"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "додатак %s се није инсталирао, прескачем"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "нису пронађени ваљани додаци"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "Следећи додаци су тренутно укључени:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "Нема укључених додатака."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "Следећи додаци су тренутно искључени:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "Доступне су следеће опције додатка:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "Нема доступних опција додатка."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport захтева root дозволе за извршавање."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "нису укључени ваљани додаци"
+
+#: ../sos/sosreport.py:624
+#, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Ова алатка ће сакупити неке детаљне информације о\n"
+"хардверу и поставци вашег %(distroa)s система.\n"
+"Информације се сакупљају и пакује се архива под\n"
+"/tmp, коју можете послати представнику за подршку.\n"
+"%(distrob)s ће употребити ове информације САМО у дијагностичке\n"
+"сврхе и биће сматране поверљивим информацијама.\n"
+"\n"
+"Овај процес може да потраје дуже док се не заврши.\n"
+"Никакве промене неће бите начињене на систему.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Притисните ENTER за наставак, или CTRL-C за излаз.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Један или више додатака су открили проблем са вашим подешавањима."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "Прегледајте следеће поруке:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Да ли сигурно желите да наставите (d/n) ?"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "d"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "D"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr "  Покрећем додатке. Молимо сачекајте ..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "  стабло sosreport изградње се налази на : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -76,123 +193,6 @@ msgstr "Ваш извештај је успешно послат на %s са и
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "Пренесите ово име вашем представнику подршке."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "Не могу да направим привремени директоријум."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (верзија %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "додатак %s се није оверио, прескачем"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "додатак %s се није инсталирао, прескачем"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "нису пронађени ваљани додаци"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "Следећи додаци су тренутно укључени:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "Нема укључених додатака."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "Следећи додаци су тренутно искључени:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "Доступне су следеће опције додатка:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "Нема доступних опција додатка."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport захтева root дозволе за извршавање."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "нису укључени ваљани додаци"
-
-#: ../sos/sosreport.py:623
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"Ова алатка ће сакупити неке детаљне информације о\n"
-"хардверу и поставци вашег %(distroa)s система.\n"
-"Информације се сакупљају и пакује се архива под\n"
-"/tmp, коју можете послати представнику за подршку.\n"
-"%(distrob)s ће употребити ове информације САМО у дијагностичке\n"
-"сврхе и биће сматране поверљивим информацијама.\n"
-"\n"
-"Овај процес може да потраје дуже док се не заврши.\n"
-"Никакве промене неће бите начињене на систему.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Притисните ENTER за наставак, или CTRL-C за излаз.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Један или више додатака су открили проблем са вашим подешавањима."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "Прегледајте следеће поруке:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Да ли сигурно желите да наставите (d/n) ?"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "d"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "D"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr "  Покрећем додатке. Молимо сачекајте ..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "  стабло sosreport изградње се налази на : %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "додатак %s је прескочен (--skip-plugins)"

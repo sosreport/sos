@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2007-10-24 08:45\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,6 +16,123 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "Could not create temporary directory."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (version %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "plugin %s does not validate, skipping"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "plugin %s does not install, skipping"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "no valid plugins found"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "The following plugins are currently enabled:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "No plugin enabled."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "The following plugins are currently disabled:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "The following plugin options are available:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "No plugin options available."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport requires root permissions to run."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "no valid plugins were enabled"
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"This utility will collect some detailed  information about the\n"
+"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"Red Hat will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Press ENTER to continue, or CTRL-C to quit.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "One or more plugins have detected a problem in your configuration."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "Please review the following messages:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Are you sure you would like to continue (y/n) ? "
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -76,123 +193,6 @@ msgstr ""
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "Please communicate this name to your support representative."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "Could not create temporary directory."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (version %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "plugin %s does not validate, skipping"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "plugin %s does not install, skipping"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "no valid plugins found"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "The following plugins are currently enabled:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "No plugin enabled."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "The following plugins are currently disabled:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "The following plugin options are available:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "No plugin options available."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport requires root permissions to run."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "no valid plugins were enabled"
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"This utility will collect some detailed  information about the\n"
-"hardware and  setup of your  Red Hat Enterprise Linux  system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"Red Hat will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Press ENTER to continue, or CTRL-C to quit.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "One or more plugins have detected a problem in your configuration."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "Please review the following messages:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Are you sure you would like to continue (y/n) ? "
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr ""
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "plugin %s skipped (--skip-plugins)"

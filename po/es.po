@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2010-03-12 10:56-0300\n"
 "Last-Translator: Héctor Daniel Cabrera <logan@fedoraproject.org>\n"
 "Language-Team: Español <trans-es@lists.fedoraproject.org>\n"
@@ -21,6 +21,123 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Poedit-Country: ARGENTINA\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "No se pudo crear un directorio temporal."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (versión %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "no se validó el plugin %s, ignorándolo"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "no se instaló el plugin %s, ignorándolo"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "no se encontró un plugin válido"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "Los siguientes plugins están activados actualmente:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "Ningún plugin está activado."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "Los siguientes plugins no están activados:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "Las siguientes opciones del plugin están disponibles:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "No hay opciones de plugin disponibles."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport requiere privilegios de root para ser ejecutado."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "ningún plugin válido fue activado"
+
+#: ../sos/sosreport.py:624
+#, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Esta herramienta obtendrá cierta información detallada relacionada\n"
+"con la configuración y el hardware de su sistema %(distroa)s.\n"
+"La información conseguida se empaquetará en un archivo del directorio\n"
+"/tmp, archivo que usted podrá enviar a un representante de soporte técnico.\n"
+"%(distrob)s utilizará esta información con el UNICO fin de poder realizar\n"
+"un diagnóstico, iserá considerado como información confidencial.\n"
+"\n"
+"Este proceso puede demorar algún tiempo en completarse.\n"
+"No se realizará ninguna modificación en su sistema.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Presione INTRO para continuar o CTRL-C para salir.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Uno o más plugins han detectado un problema en su configuración."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "Por favor revise los siguientes mensajes:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "¿Está seguro que desea continuar (s/n)?"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "s"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "S"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr "Ejecutando complementos. Por favor espere..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "el árbol de compilación de sosreport se encuentra ubicado en : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -84,123 +201,6 @@ msgstr "Su reporte ha sido cargado satisfactoriamente a %s con el nombre:"
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "Por favor comunique este nombre a su representante de soporte."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "No se pudo crear un directorio temporal."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (versión %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "no se validó el plugin %s, ignorándolo"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "no se instaló el plugin %s, ignorándolo"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "no se encontró un plugin válido"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "Los siguientes plugins están activados actualmente:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "Ningún plugin está activado."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "Los siguientes plugins no están activados:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "Las siguientes opciones del plugin están disponibles:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "No hay opciones de plugin disponibles."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport requiere privilegios de root para ser ejecutado."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "ningún plugin válido fue activado"
-
-#: ../sos/sosreport.py:623
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"Esta herramienta obtendrá cierta información detallada relacionada\n"
-"con la configuración y el hardware de su sistema %(distroa)s.\n"
-"La información conseguida se empaquetará en un archivo del directorio\n"
-"/tmp, archivo que usted podrá enviar a un representante de soporte técnico.\n"
-"%(distrob)s utilizará esta información con el UNICO fin de poder realizar\n"
-"un diagnóstico, iserá considerado como información confidencial.\n"
-"\n"
-"Este proceso puede demorar algún tiempo en completarse.\n"
-"No se realizará ninguna modificación en su sistema.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Presione INTRO para continuar o CTRL-C para salir.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Uno o más plugins han detectado un problema en su configuración."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "Por favor revise los siguientes mensajes:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "¿Está seguro que desea continuar (s/n)?"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "s"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "S"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr "Ejecutando complementos. Por favor espere..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "el árbol de compilación de sosreport se encuentra ubicado en : %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "plugin %s ignorado (--skip-plugins)"

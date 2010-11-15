@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.th\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2009-05-13 12:12+0000\n"
 "Last-Translator: \n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
@@ -17,6 +17,121 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "ไม่สามารถสร้างไดเรคทอรีชั่วคราว"
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (รุ่น %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "ส่วนขยาย %s ไม่ถูกต้อง จะข้ามไป"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "ส่วนขยาย %s ติดตั้งไม่ได้ จะข้ามไป"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "ไม่พบส่วนขยายที่ถูกต้อง"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "ส่วนขยายต่อไปนี้เปิดใช้งานอยู่"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "ไม่มีส่วนขยายเปิดใช้งาน"
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "ส่วนขยายต่อไปนี้ปิดการใช้งานอยู่:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "มีตัวเลือกเหล่านี้จากส่วนขยาย:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "ไม่มีตัวเลือกจากส่วนขยาย"
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport ต้องใช้สิทธิ root ในการทำงาน"
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "ไม่มีส่วนขยายที่ถูกต้องเปิดใช้งาน"
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"เครื่องมือนี้จะเก็บข้อมูลโดยละเอียดเกี่ยวกับฮาร์ดแวร์และการตั้งค่า\n"
+"ระบบ Red Hat Enterprise Linux ของคุณ ข้อมูลจะถูกเก็บและ\n"
+"สร้างเป็นไฟล์ที่ /tmp ซึ่งคุณสามารถส่งไปยังผู้สนับสนุนได้\n"
+"Red Hat จะใช้ข้อมูลนี้ในการแก้ไขปัญหาเท่านั้น และจะถือว่าเป็น\n"
+"ความลับ\n"
+"\n"
+"กระบวนการนี้อาจจะใช้เวลาสักครู่ในการทำงาน จะไม่มีการแก้ไข\n"
+"ดัดแปลงระบบของคุณ\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "กด ENTER เพื่อทำงานต่อ หรือ CTRL+C เพื่อออก\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "มีส่วนขยายตัวใดตัวหนึ่งตรวจพบปัญหาในการตั้งค่าของคุณ"
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "กรุณาอ่านข้อความเหล่านี้:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "คุณต้องการทำต่อไปหรือไม่ (y/n)?"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -76,121 +191,6 @@ msgstr "รายงานของคุณได้ถูกส่งไปย
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "กรุณาบอกชื่อนี้กับตัวแทนผู้สนับสนุนของคุณ"
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "ไม่สามารถสร้างไดเรคทอรีชั่วคราว"
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (รุ่น %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "ส่วนขยาย %s ไม่ถูกต้อง จะข้ามไป"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "ส่วนขยาย %s ติดตั้งไม่ได้ จะข้ามไป"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "ไม่พบส่วนขยายที่ถูกต้อง"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "ส่วนขยายต่อไปนี้เปิดใช้งานอยู่"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "ไม่มีส่วนขยายเปิดใช้งาน"
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "ส่วนขยายต่อไปนี้ปิดการใช้งานอยู่:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "มีตัวเลือกเหล่านี้จากส่วนขยาย:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "ไม่มีตัวเลือกจากส่วนขยาย"
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport ต้องใช้สิทธิ root ในการทำงาน"
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "ไม่มีส่วนขยายที่ถูกต้องเปิดใช้งาน"
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"เครื่องมือนี้จะเก็บข้อมูลโดยละเอียดเกี่ยวกับฮาร์ดแวร์และการตั้งค่า\n"
-"ระบบ Red Hat Enterprise Linux ของคุณ ข้อมูลจะถูกเก็บและ\n"
-"สร้างเป็นไฟล์ที่ /tmp ซึ่งคุณสามารถส่งไปยังผู้สนับสนุนได้\n"
-"Red Hat จะใช้ข้อมูลนี้ในการแก้ไขปัญหาเท่านั้น และจะถือว่าเป็น\n"
-"ความลับ\n"
-"\n"
-"กระบวนการนี้อาจจะใช้เวลาสักครู่ในการทำงาน จะไม่มีการแก้ไข\n"
-"ดัดแปลงระบบของคุณ\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "กด ENTER เพื่อทำงานต่อ หรือ CTRL+C เพื่อออก\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "มีส่วนขยายตัวใดตัวหนึ่งตรวจพบปัญหาในการตั้งค่าของคุณ"
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "กรุณาอ่านข้อความเหล่านี้:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "คุณต้องการทำต่อไปหรือไม่ (y/n)?"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr ""
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "ส่วนขยาย %s ถูกข้าม (--skip-plugins)"

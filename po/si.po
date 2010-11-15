@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: si\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2007-11-07 19:03+0530\n"
 "Last-Translator: Danishka Navin <snavin@redhat.com>\n"
 "Language-Team: Sinhala <en@li.org>\n"
@@ -19,6 +19,123 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "තාවකාලීක බහලුම නිර්මාණය කළ නොහැකි විය."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (%s වෙළුම)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "%s ප්ලගීනය සත්‍යාපනය වන්නේ නැත, මගහරිමින්"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "%s ප්ලගීනය ස්ථාපනය වන්නේ නැත, මගහරි"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "නිරවද්‍ය පල්ගීන හමුවුයේ නැත"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "පහත දැක්වෙන ප්ලගීන දැනට සක්‍රීයව ඇත:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "ප්ලගීන කිසිවක් සක්‍රීය නැත."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "පහත පල්ගීන විකල්ප දැනට අක්‍රීයව ඇත:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "පහත පල්ගීන විකල්ප භාවිතයට ඇත:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "කිසිදු පල්ගීන විකල්පයක් භාවිතයට නැත."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport ක්‍රියාත්මක වීම සඳහා root අවසර අවශ්‍යව ඇත."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "කිසිදු නිරවද්‍ය පල්ගිනයක් සක්‍රිය කර නැත"
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"මෙම උපයෝගි තාවය දෘඩාංග පිළිබදව සවිස්තරාත්මක තොරතුරු රැස්කරණ අතර ඔබගේ  Red Hat "
+"Enterprise Linux  පද්ධතිය පිහිටවනු ලැබේ.\n"
+"රැස් කළ තොරතුරු සහ සංරක්‍ෂකය /tmp යටතේ ඇසුරුම් ගත කර ඇති අතර ඔබට එය සහායක නියෝජිත වෙත "
+"යැවිය හැක.\n"
+"Red Hat මෙම තොරතුරු  භාවිතා කරන්නේ දෝෂ විනිශ්චය පමණක් වන අතර එම තොරතුරු රහසිගත තොරතුරු "
+"ලෙස සළකණු ලබයි.\n"
+"\n"
+"මෙම ක්‍රියාව නිම වීමට වේලාවක් ගතවනු ඇත.\n"
+"ඔබගේ පද්ධතියට කිසිදු වෙනසක් සිදු නොවනු ඇත.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "දිගටම කරගෙන යාමට ENTER හෝ පිට වීමට CTRL-C ඔබන්න.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "ප්ලගීන එකක හෝ කිහිපයක් ඔබගේ ප්ධතිය තුළ වූ දෝෂයක් අනාවරණය කරගෙන ඇත."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "කරුණාකර පහත පණිවිඩ නැවත සළකා බලන්න:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "ඔබට විශ්වාසද? ඔබට දිගටම කරගෙන යාමට අවශ්‍යද (y/n) ? "
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -78,123 +195,6 @@ msgstr "ඔබගේ වාර්තාව සාර්තකව Red Hat's ftp �
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "ඔබගේ සහායක නියෝජිත වෙතට සංනිවේදනයට මෙම නම භාවිතා කරන්න."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "තාවකාලීක බහලුම නිර්මාණය කළ නොහැකි විය."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (%s වෙළුම)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "%s ප්ලගීනය සත්‍යාපනය වන්නේ නැත, මගහරිමින්"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "%s ප්ලගීනය ස්ථාපනය වන්නේ නැත, මගහරි"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "නිරවද්‍ය පල්ගීන හමුවුයේ නැත"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "පහත දැක්වෙන ප්ලගීන දැනට සක්‍රීයව ඇත:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "ප්ලගීන කිසිවක් සක්‍රීය නැත."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "පහත පල්ගීන විකල්ප දැනට අක්‍රීයව ඇත:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "පහත පල්ගීන විකල්ප භාවිතයට ඇත:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "කිසිදු පල්ගීන විකල්පයක් භාවිතයට නැත."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport ක්‍රියාත්මක වීම සඳහා root අවසර අවශ්‍යව ඇත."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "කිසිදු නිරවද්‍ය පල්ගිනයක් සක්‍රිය කර නැත"
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"මෙම උපයෝගි තාවය දෘඩාංග පිළිබදව සවිස්තරාත්මක තොරතුරු රැස්කරණ අතර ඔබගේ  Red Hat "
-"Enterprise Linux  පද්ධතිය පිහිටවනු ලැබේ.\n"
-"රැස් කළ තොරතුරු සහ සංරක්‍ෂකය /tmp යටතේ ඇසුරුම් ගත කර ඇති අතර ඔබට එය සහායක නියෝජිත වෙත "
-"යැවිය හැක.\n"
-"Red Hat මෙම තොරතුරු  භාවිතා කරන්නේ දෝෂ විනිශ්චය පමණක් වන අතර එම තොරතුරු රහසිගත තොරතුරු "
-"ලෙස සළකණු ලබයි.\n"
-"\n"
-"මෙම ක්‍රියාව නිම වීමට වේලාවක් ගතවනු ඇත.\n"
-"ඔබගේ පද්ධතියට කිසිදු වෙනසක් සිදු නොවනු ඇත.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "දිගටම කරගෙන යාමට ENTER හෝ පිට වීමට CTRL-C ඔබන්න.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "ප්ලගීන එකක හෝ කිහිපයක් ඔබගේ ප්ධතිය තුළ වූ දෝෂයක් අනාවරණය කරගෙන ඇත."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "කරුණාකර පහත පණිවිඩ නැවත සළකා බලන්න:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "ඔබට විශ්වාසද? ඔබට දිගටම කරගෙන යාමට අවශ්‍යද (y/n) ? "
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr ""
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "%s ප්ලගීනය මගහරින ලදි (--skip-plugins)"

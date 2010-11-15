@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2010-05-28 12:38+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Wei Liu\n"
@@ -19,6 +19,123 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "无法生成临时目录。"
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (version %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "插件 %s 无效，跳过"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "未安装插件 %s，跳过"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "未发现可用插件"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "目前已启用了以下插件："
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "没有启用插件。"
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "目前禁用了以下插件："
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "以下插件选项可用："
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "没有可用的插件选项。"
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport 需要根权限才可运行。"
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "没有启用任何可用插件"
+
+#: ../sos/sosreport.py:624
+#, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"此工具程序将收集一些有关硬件和\n"
+"您的 %(distroa)s 系统设置的信息。\n"
+"收集这些信息后会在 /tmp 中打包一个归档文件，\n"
+"然后您就可将这个归档发送给您的支持代表。\n"
+"%(distrob)s 将只以诊断为目的使用这些信息，\n"
+"并将其视为保密信息。\n"
+"\n"
+"这个过程要过一会儿才能完成。\n"
+"不会对您的系统做任何修改。\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "按 ENTER 键继续，或者 CTRL-C 组合键退出。\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "一个或者更多的插件检测出您的配置中的问题。"
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "请浏览以下信息："
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "您确定要继续吗（y/n）？"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N "
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr "  正在运行插件，请等候 ..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "  sosreport 构建树位于：%s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -78,120 +195,3 @@ msgstr "已经成功将您的报告使用以下名称上传到 %s："
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "请将此名称告知您的支持代表。"
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "无法生成临时目录。"
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (version %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "插件 %s 无效，跳过"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "未安装插件 %s，跳过"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "未发现可用插件"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "目前已启用了以下插件："
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "没有启用插件。"
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "目前禁用了以下插件："
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "以下插件选项可用："
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "没有可用的插件选项。"
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport 需要根权限才可运行。"
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "没有启用任何可用插件"
-
-#: ../sos/sosreport.py:623
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"此工具程序将收集一些有关硬件和\n"
-"您的 %(distroa)s 系统设置的信息。\n"
-"收集这些信息后会在 /tmp 中打包一个归档文件，\n"
-"然后您就可将这个归档发送给您的支持代表。\n"
-"%(distrob)s 将只以诊断为目的使用这些信息，\n"
-"并将其视为保密信息。\n"
-"\n"
-"这个过程要过一会儿才能完成。\n"
-"不会对您的系统做任何修改。\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "按 ENTER 键继续，或者 CTRL-C 组合键退出。\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "一个或者更多的插件检测出您的配置中的问题。"
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "请浏览以下信息："
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "您确定要继续吗（y/n）？"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N "
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr "  正在运行插件，请等候 ..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "  sosreport 构建树位于：%s"

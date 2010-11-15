@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ml\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2007-11-06 16:05+0530\n"
 "Last-Translator: Ani Peter <apeter@redhat.com>\n"
 "Language-Team: Malayalam\n"
@@ -18,6 +18,123 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "താല്‍ക്കാലിക ഡയറക്ടറി ഉണ്ടാക്കുവാന്‍ സാധ്യമായില്ല."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (%s ലക്കം)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "%s എന്നത് ശരിയായ പ്ളഗ്ഗിന്‍ അല്ല, വേണ്ടെന്ന് വയ്ക്കുന്നു"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "%s എന്ന പ്ളഗ്ഗിന്‍ ഇന്‍സ്റ്റോള്‍ ചെയ്യുവാന്‍ സാധ്യമല്ല, ഉപേക്ഷിക്കുന്നു"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ ലഭ്യമല്ല"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിനുകള്‍ നിലവില്‍ സജീവമാണ്:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "ഒരു പ്ളഗ്ഗിനും സജ്ജമല്ല."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിനുകള്‍ നിലവില്‍ നിറ്‍ജ്ജീവമാണ്:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിന്‍ ഉപാധികള്‍ ലഭ്യമാണ്:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "പ്ളഗ്ഗിന്‍ ഉപാധികള്‍ ലഭ്യമല്ല."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport പ്റവറ്‍ത്തിപ്പിക്കുന്നതിനായി റൂട്ട് ആയിരിക്കണം."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ സജ്ജമല്ല"
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"ഈ പ്റയോഗം നിങ്ങളുടെ Red Hat Enterprise Linux  സിസ്റ്റവും ഹാറ്‍ഡ്‌വെയറും\n"
+"സംബന്ധിച്ചുള്ള വിശദ വിവരങ്ങള്‍ ശേഖരിക്കുന്നു.ശേഖരിച്ച വിവരങ്ങള്‍\n"
+"ഒരു ആറ്‍ക്കൈവ് ആയി /tmp എന്ന ഫോള്‍ഡറില്‍ സൂക്ഷിക്കുന്നു. നിങ്ങള്‍ക്കിത്\n"
+"പിന്തുണ ലഭ്യമാക്കുന്നവറ്‍ക്ക് അയയ്ക്കുവാന്‍ സാധിക്കുന്നു. പ്റശ്നങ്ങള്‍ അറിയുന്നതിനും\n"
+"പരിഹരിക്കുന്നതിനും മാത്റം Red Hat ഈ വിവരങ്ങള്‍ ഉപയോഗിക്കുന്നതാകുന്നു.\n"
+"ഇവ അതീവ രഹസ്യമായി സൂക്ഷിക്കപ്പെടുന്നു.\n"
+"\n"
+"ഈ പ്റക്റിയയ്ക്കായി കുറച്ച് സമയമെടുക്കുന്നു.\n"
+"നിങ്ങളുടെ സിസ്റ്റമില്‍ മാറ്റങ്ങള്‍ വരുത്തുന്നതല്ല.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "മുമ്പോട്ട് തുടരുന്നതിനായി ENTER അല്ലെങ്കില്‍ പുറത്ത് കടക്കുന്നതിനായി CTRL-C അമറ്‍ത്തുക.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "ഒന്നോ അതിലധികമോ പ്ളഗ്ഗിനുകള്‍ക്ക് നിങ്ങളുടെ ക്റമികരണത്തില്‍ തകരാറുണ്ട്."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന സന്ദേശങ്ങള്‍ ദയവായി വായിക്കുക: "
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "നിങ്ങള്‍ക്ക് തുടരണമെന്ന് ഉറപ്പാണോ?"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -78,123 +195,6 @@ msgstr ""
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "നിങ്ങള്‍ക്ക് പിന്തുണ ലഭ്യമാക്കുന്നവറ്‍ക്ക് ഈ പേര് അയയ്ക്കുക."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "താല്‍ക്കാലിക ഡയറക്ടറി ഉണ്ടാക്കുവാന്‍ സാധ്യമായില്ല."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (%s ലക്കം)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "%s എന്നത് ശരിയായ പ്ളഗ്ഗിന്‍ അല്ല, വേണ്ടെന്ന് വയ്ക്കുന്നു"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "%s എന്ന പ്ളഗ്ഗിന്‍ ഇന്‍സ്റ്റോള്‍ ചെയ്യുവാന്‍ സാധ്യമല്ല, ഉപേക്ഷിക്കുന്നു"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ ലഭ്യമല്ല"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിനുകള്‍ നിലവില്‍ സജീവമാണ്:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "ഒരു പ്ളഗ്ഗിനും സജ്ജമല്ല."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിനുകള്‍ നിലവില്‍ നിറ്‍ജ്ജീവമാണ്:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിന്‍ ഉപാധികള്‍ ലഭ്യമാണ്:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "പ്ളഗ്ഗിന്‍ ഉപാധികള്‍ ലഭ്യമല്ല."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport പ്റവറ്‍ത്തിപ്പിക്കുന്നതിനായി റൂട്ട് ആയിരിക്കണം."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ സജ്ജമല്ല"
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"ഈ പ്റയോഗം നിങ്ങളുടെ Red Hat Enterprise Linux  സിസ്റ്റവും ഹാറ്‍ഡ്‌വെയറും\n"
-"സംബന്ധിച്ചുള്ള വിശദ വിവരങ്ങള്‍ ശേഖരിക്കുന്നു.ശേഖരിച്ച വിവരങ്ങള്‍\n"
-"ഒരു ആറ്‍ക്കൈവ് ആയി /tmp എന്ന ഫോള്‍ഡറില്‍ സൂക്ഷിക്കുന്നു. നിങ്ങള്‍ക്കിത്\n"
-"പിന്തുണ ലഭ്യമാക്കുന്നവറ്‍ക്ക് അയയ്ക്കുവാന്‍ സാധിക്കുന്നു. പ്റശ്നങ്ങള്‍ അറിയുന്നതിനും\n"
-"പരിഹരിക്കുന്നതിനും മാത്റം Red Hat ഈ വിവരങ്ങള്‍ ഉപയോഗിക്കുന്നതാകുന്നു.\n"
-"ഇവ അതീവ രഹസ്യമായി സൂക്ഷിക്കപ്പെടുന്നു.\n"
-"\n"
-"ഈ പ്റക്റിയയ്ക്കായി കുറച്ച് സമയമെടുക്കുന്നു.\n"
-"നിങ്ങളുടെ സിസ്റ്റമില്‍ മാറ്റങ്ങള്‍ വരുത്തുന്നതല്ല.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "മുമ്പോട്ട് തുടരുന്നതിനായി ENTER അല്ലെങ്കില്‍ പുറത്ത് കടക്കുന്നതിനായി CTRL-C അമറ്‍ത്തുക.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "ഒന്നോ അതിലധികമോ പ്ളഗ്ഗിനുകള്‍ക്ക് നിങ്ങളുടെ ക്റമികരണത്തില്‍ തകരാറുണ്ട്."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന സന്ദേശങ്ങള്‍ ദയവായി വായിക്കുക: "
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "നിങ്ങള്‍ക്ക് തുടരണമെന്ന് ഉറപ്പാണോ?"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr ""
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "%s എന്ന പ്ളഗ്ഗിന്‍ വേണ്ടെന്ന് വച്ചിരിക്കുന്നു (--skip-plugins)"

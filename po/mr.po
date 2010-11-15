@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2009-09-04 10:58+0530\n"
 "Last-Translator: Sandeep Shedmake <sshedmak@redhat.com>\n"
 "Language-Team: Marathi <fedora-trans-mr@redhat.com>\n"
@@ -19,6 +19,123 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "तात्पुर्ती डिरेक्ट्री निर्माण करण्यास अशक्य."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (आवृत्ती %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "प्लगइन %s तपासले गेले नाही, वगळत आहे"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "प्लगइन %s चे प्रतिष्ठापान अशक्य, वगळत आहे"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "वैध प्लगइनस् आढळले नाही"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "खालील प्लगइनस् सध्या कार्यक्षम केले आहेत:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "प्लगइन कार्यक्षम केले नाही."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "खालील प्लगइनस् सध्या अकार्यक्षम केले आहे:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "खालील प्लगइन पर्याय उपलब्ध आहे:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "प्लगइन पर्याय उपलब्ध नाही."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport ला चालवण्यासाठी रूट परवानगी आवश्यक आहे."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "वैध प्लगइनस् कार्यक्षम केले नाही"
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"ही युटीलीटी हार्डवेअर विषयी काहिक तपशील माहिती\n"
+"गोळा करते व तुमची Red Hat Enterprise Linux  प्रणली सेटअप करते.\n"
+"माहिती गोळा केली जाते व एक आर्काइव्ह\n"
+"/tmp अंतर्गत पॅकेज्ड् केले जाते, जे तुम्ही सपोर्ट प्रतिनीधीकडे पाठवू शकता.\n"
+"Red Hat या माहितीचा वापर फक्त विश्लेषण कारणास्तवच करेल\n"
+"व त्यांस गोपणीय म्हणून ठरवते.\n"
+"\n"
+"हे कार्य पूर्ण व्हायला काहिक वेळ जरूर लागेल.\n"
+"परंतु तुमच्या प्रणलीत कोणताही बदल केला जाणार नाही.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "पुढे जाण्यासाठी ENTER दाबा, किंवा बाहेर पडण्यासाठी CTRL-C दाबा.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "तुमच्या संयोजनात एक किंवा जास्त प्लगइनमध्ये अडचणी आढळल्यात."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "कृपया खालील संदेशचे पूनरावलोकन करा:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "तुम्हाला नक्की पुढे जायचे (y/n) ? "
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -78,123 +195,6 @@ msgstr "तुमचा अहवाल यशस्वीरित्या न
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "कृपया हे नाव तुमच्या सपोर्ट प्रतिनीधीला कळवा."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "तात्पुर्ती डिरेक्ट्री निर्माण करण्यास अशक्य."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (आवृत्ती %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "प्लगइन %s तपासले गेले नाही, वगळत आहे"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "प्लगइन %s चे प्रतिष्ठापान अशक्य, वगळत आहे"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "वैध प्लगइनस् आढळले नाही"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "खालील प्लगइनस् सध्या कार्यक्षम केले आहेत:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "प्लगइन कार्यक्षम केले नाही."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "खालील प्लगइनस् सध्या अकार्यक्षम केले आहे:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "खालील प्लगइन पर्याय उपलब्ध आहे:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "प्लगइन पर्याय उपलब्ध नाही."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport ला चालवण्यासाठी रूट परवानगी आवश्यक आहे."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "वैध प्लगइनस् कार्यक्षम केले नाही"
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"ही युटीलीटी हार्डवेअर विषयी काहिक तपशील माहिती\n"
-"गोळा करते व तुमची Red Hat Enterprise Linux  प्रणली सेटअप करते.\n"
-"माहिती गोळा केली जाते व एक आर्काइव्ह\n"
-"/tmp अंतर्गत पॅकेज्ड् केले जाते, जे तुम्ही सपोर्ट प्रतिनीधीकडे पाठवू शकता.\n"
-"Red Hat या माहितीचा वापर फक्त विश्लेषण कारणास्तवच करेल\n"
-"व त्यांस गोपणीय म्हणून ठरवते.\n"
-"\n"
-"हे कार्य पूर्ण व्हायला काहिक वेळ जरूर लागेल.\n"
-"परंतु तुमच्या प्रणलीत कोणताही बदल केला जाणार नाही.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "पुढे जाण्यासाठी ENTER दाबा, किंवा बाहेर पडण्यासाठी CTRL-C दाबा.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "तुमच्या संयोजनात एक किंवा जास्त प्लगइनमध्ये अडचणी आढळल्यात."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "कृपया खालील संदेशचे पूनरावलोकन करा:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "तुम्हाला नक्की पुढे जायचे (y/n) ? "
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr ""
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "प्लगइन %s वगळले (--skip-plugins)"

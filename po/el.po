@@ -1,21 +1,137 @@
 # Greek translation for sos.trunk package.
 # Copyright (C) 2010 Fedora Project Greek Translation Team
 # Giannis Konstantinidis <gloooabvoe9a@gmail.com>, 2010.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: trunk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2010-03-10 16:21-0500\n"
 "Last-Translator: Giannis Konstantinidis <gloooabvoe9a@gmail.com>\n"
 "Language-Team: Greek <trans-el@lists.fedoraproject.org>\n"
+"Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: el\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: pygettext.py 1.5\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "Δεν μπόρεσε να δημιουργηθεί προσωρινή τοποθεσία."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (έκδοση %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "το πρόσθετο %s δεν είναι έγκυρο,η διαδικασία προσπερνάται."
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "το πρόσθετο %s δεν μπορεί να εγκατασταθεί,η διαδικασία προσπερνάται"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "δεν βρέθηκαν έγκυρα πρόσθετα"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "Τα παρακάτω πρόσθετα είναι αυτη τη στιγμή ενεργοποιημένα:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "Δεν ενεργοποιήθηκε κάποιο πρόσθετο."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "Τα παρακάτω πρόσθετα είναι αυτη τη στιγμή απενεργοποιημένα:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "Οι παρακάτω ρυθμίσεις για τα πρόσθετα είναι διαθέσιμες:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "Δεν υπάρχουν διαθέσιμες ρυθμίσεις για τα πρόσθετα."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr ""
+"το sosreport χρειάζεται να έχετε δικαιώματα διαχειρηστή για να εκτελεστεί."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "δεν ενεργοποιήθηκε κάποιο έγκυρο πρόσθετο"
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Αυτό το εργαλείο θα συγκετρώσει ορισμένες πληροφορίες για τον υπολογιστή σας "
+"και την εγκατάσταση του Red Hat Enterprise Linux συστήματος.\n"
+"Οι πληροφορίες συγκετρώνονται και το archive δημιουργήται στο\n"
+"/tmp,το οποίο και μπορείτε να στείλετε σε έναν αντιπρόσωπο υποστήριξης.\n"
+"Η Red Hat θα χρησιμοποιήσει αυτα τα δεδομένα ΜΟΝΟ για διαγνωστικούς σκοπούς\n"
+"και θα παραμείνουν εμπιστευτηκά.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Πατήστε ENTER για να συνεχίσετε ή  CTRL-C για έξοδο.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr ""
+"Ένα ή περισσότερα plugins αντιμετώπησαν πρόβλημα κατα τις ρυθμίσεις σας."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "Παρακαλώ δείτε τα παρακάτω μυνήματα:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Είστε σίγουρος οτι θέλετε να συνεχίσετε (ν/ο) ;"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "ν"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Ν"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "ο"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "Ο"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr "Εκτέλεση πρόσθετων. Παρακαλώ περιμένετε ..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "Το δημιουργημένο sosreport βρίσκεται στον φάκελο: %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -67,133 +183,21 @@ msgstr "Δεν είναι δυνατό το upload στο καθορισμένο
 msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Υπήρξε ένα πρόβλημα κατα το upload της αναφοράς σας στην Red Hat."
 
-#: ../sos/policyredhat.py:404
-msgid "Please communicate this name to your support representative."
-msgstr "Παρακαλώ επικοινωνήστε με τον αντιπρόσωπο υποστήριξής σας."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "Δεν μπόρεσε να δημιουργηθεί προσωρινή τοποθεσία."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (έκδοση %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "το πρόσθετο %s δεν είναι έγκυρο,η διαδικασία προσπερνάται."
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "το πρόσθετο %s δεν μπορεί να εγκατασταθεί,η διαδικασία προσπερνάται"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "δεν βρέθηκαν έγκυρα πρόσθετα"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "Τα παρακάτω πρόσθετα είναι αυτη τη στιγμή ενεργοποιημένα:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "Δεν ενεργοποιήθηκε κάποιο πρόσθετο."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "Τα παρακάτω πρόσθετα είναι αυτη τη στιγμή απενεργοποιημένα:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "Οι παρακάτω ρυθμίσεις για τα πρόσθετα είναι διαθέσιμες:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "Δεν υπάρχουν διαθέσιμες ρυθμίσεις για τα πρόσθετα."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "το sosreport χρειάζεται να έχετε δικαιώματα διαχειρηστή για να εκτελεστεί."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "δεν ενεργοποιήθηκε κάποιο έγκυρο πρόσθετο"
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"Αυτό το εργαλείο θα συγκετρώσει ορισμένες πληροφορίες για τον υπολογιστή σας και την εγκατάσταση του Red Hat Enterprise Linux συστήματος.\n"
-"Οι πληροφορίες συγκετρώνονται και το archive δημιουργήται στο\n"
-"/tmp,το οποίο και μπορείτε να στείλετε σε έναν αντιπρόσωπο υποστήριξης.\n"
-"Η Red Hat θα χρησιμοποιήσει αυτα τα δεδομένα ΜΟΝΟ για διαγνωστικούς σκοπούς\n"
-"και θα παραμείνουν εμπιστευτηκά.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Πατήστε ENTER για να συνεχίσετε ή  CTRL-C για έξοδο.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Ένα ή περισσότερα plugins αντιμετώπησαν πρόβλημα κατα τις ρυθμίσεις σας."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "Παρακαλώ δείτε τα παρακάτω μυνήματα:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Είστε σίγουρος οτι θέλετε να συνεχίσετε (ν/ο) ;"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "ν"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Ν"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "ο"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "Ο"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr "Εκτέλεση πρόσθετων. Παρακαλώ περιμένετε ..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "Το δημιουργημένο sosreport βρίσκεται στον φάκελο: %s"
-
 #: ../sos/policyredhat.py:401
 #, python-format
 msgid "Your report was successfully uploaded to %s with name:"
 msgstr "Η αναφορά σας στάλθηκε επιτυχώς στo %s με όνομα:"
 
+#: ../sos/policyredhat.py:404
+msgid "Please communicate this name to your support representative."
+msgstr "Παρακαλώ επικοινωνήστε με τον αντιπρόσωπο υποστήριξής σας."
+
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "το πρόσθετο %s προσπερνάται (--skip plugins)"
 
 #~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "το πρόσθετο %s είναι ανένεργο (χρησιμποιήστε τα -e ή -o για ενεργοποίηση)"
+#~ msgstr ""
+#~ "το πρόσθετο %s είναι ανένεργο (χρησιμποιήστε τα -e ή -o για ενεργοποίηση)"
 
 #~ msgid "plugin %s not specified in --only-plugins list"
 #~ msgstr "το πρόσθετο %s δεν είναι δηλωμένο --only plugins list"

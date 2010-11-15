@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2010-04-11 08:45\n"
 "Last-Translator: Maxim Dzіumanenko <dziumanenko@gmail.com>\n"
 "Language-Team: <uk@li.org>\n"
@@ -18,6 +18,123 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "Не вдається створити тимчасовий каталог."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (версія %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "модуль %s не пройшов перевірку автентичності. Пропускається."
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "модуль %s не встановлюється. Пропускається."
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "не знайдено модулі"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "Наразі увімкнені модулі:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "Немає активних модулій."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "Наразі вимкнені модулі:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "Доступні наступні параметри модулів:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "Немає параметрів."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "Для виконання sosreport потрібні права root."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "відповідні модулі не увімкнені"
+
+#: ../sos/sosreport.py:624
+#, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Ця програма виконає збір докладної інформації про обладнання\n"
+"та параметри вашої системи %(distroa)s.\n"
+"Отримані відомості будуть упаковані у архів, який буде розміщено у каталозі /"
+"tmp.\n"
+"Цей архів можна надсилати до служби підтримки для аналізу.\n"
+"%(distrob)s розглядає цю інформацію як конфіденційну та використовує\n"
+"виключно з метою діагностики.\n"
+"\n"
+"Цей процес може тривати деякий час.\n"
+"Систему при цьому змінено не буде.\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Натисніть ENTER для продовження або CTRL-C для виходу.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "Модулі виявили помилки конфігурації."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "Будь ласка, перегляньте повідомлення:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Ви дійсно бажаєте продовжити? (y/n)"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr " Виконуються модулі. Зачекайте, будь ласка..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr " розташування дерева sosreport: %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -77,120 +194,3 @@ msgstr "Ваш звіт успішно надіслано до %s під наз�
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "Повідомте це ім'я представнику служби підтримки."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "Не вдається створити тимчасовий каталог."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (версія %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "модуль %s не пройшов перевірку автентичності. Пропускається."
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "модуль %s не встановлюється. Пропускається."
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "не знайдено модулі"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "Наразі увімкнені модулі:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "Немає активних модулій."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "Наразі вимкнені модулі:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "Доступні наступні параметри модулів:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "Немає параметрів."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "Для виконання sosreport потрібні права root."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "відповідні модулі не увімкнені"
-
-#: ../sos/sosreport.py:623
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"Ця програма виконає збір докладної інформації про обладнання\n"
-"та параметри вашої системи %(distroa)s.\n"
-"Отримані відомості будуть упаковані у архів, який буде розміщено у каталозі /"
-"tmp.\n"
-"Цей архів можна надсилати до служби підтримки для аналізу.\n"
-"%(distrob)s розглядає цю інформацію як конфіденційну та використовує\n"
-"виключно з метою діагностики.\n"
-"\n"
-"Цей процес може тривати деякий час.\n"
-"Систему при цьому змінено не буде.\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Натисніть ENTER для продовження або CTRL-C для виходу.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "Модулі виявили помилки конфігурації."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "Будь ласка, перегляньте повідомлення:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Ви дійсно бажаєте продовжити? (y/n)"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr " Виконуються модулі. Зачекайте, будь ласка..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr " розташування дерева sosreport: %s"

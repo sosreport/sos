@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ko\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2007-11-07 09:56+1000\n"
 "Last-Translator: \n"
 "Language-Team: <ko@li.org>\n"
@@ -18,6 +18,123 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "임시 디렉토리를 생성할 수 없습니다."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sos 리포트 (버전 %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "%s 플러그인이 유효하지 않아 생략합니다."
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "%s 플러그인이 설치되지 않아 생략합니다."
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "사용 가능한 플러그인이 없습니다."
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "현재 다음과 같은 플러그인이 활성화되어 있습니다:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "활성화된 플러그인이 없습니다:"
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "현재 다음과 같은 플러그인이 비활성화되어 있습니다:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "다음과 같은 플러그인 옵션을 사용할 수 있습니다:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "사용 가능한 플러그인 옵션이 없습니다:"
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sos 리포트를 실행하려면 루트 권한이 필요합니다."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "활성화된 사용 가능한 플러그인이 없습니다."
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"이 유틸리티는 Red Hat Enterprise Linux 시스템의 하드웨어와 \n"
+"시스템 설정 사항에 대한 상세 정보를 수집하게 됩니다. 수집된 \n"
+"정보는 지원 담당자에게 보낼 수 있도록 /tmp 디렉토리 안에 \n"
+"아카이브로 저장됩니다. Red Hat은 이 정보를 문제 해결 목적으로만 사용하며 기"
+"밀 정보로 \n"
+"취급할 것입니다. \n"
+"\n"
+"이 과정을 모두 완료하는 데 약간의 시간이 소요될 수 있으며, \n"
+"시스템에 아무런 영향을 주지 않습니다. \n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "계속하려면 ENTER를 입력하고, 종료하려면 CTRL-C를 입력하십시오.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "하나 이상의 플러그인이 사용자 설정에서 문제를 발견했습니다."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "다음 메시지를 다시 살펴보시기 바랍니다:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "계속 진행하시겠습니까? (y/n)"
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr "플러그인을 실행중입니다. 잠시만 기다려주십시오..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "sosreport 빌드 트리가 %s에 위치돼있습니다."
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -77,123 +194,6 @@ msgstr "%s(을)를 성공적으로 보고하였습니다."
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "지원 담당자와 연락할 때 이 이름을 사용하시기 바랍니다."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "임시 디렉토리를 생성할 수 없습니다."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sos 리포트 (버전 %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "%s 플러그인이 유효하지 않아 생략합니다."
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "%s 플러그인이 설치되지 않아 생략합니다."
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "사용 가능한 플러그인이 없습니다."
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "현재 다음과 같은 플러그인이 활성화되어 있습니다:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "활성화된 플러그인이 없습니다:"
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "현재 다음과 같은 플러그인이 비활성화되어 있습니다:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "다음과 같은 플러그인 옵션을 사용할 수 있습니다:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "사용 가능한 플러그인 옵션이 없습니다:"
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sos 리포트를 실행하려면 루트 권한이 필요합니다."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "활성화된 사용 가능한 플러그인이 없습니다."
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"이 유틸리티는 Red Hat Enterprise Linux 시스템의 하드웨어와 \n"
-"시스템 설정 사항에 대한 상세 정보를 수집하게 됩니다. 수집된 \n"
-"정보는 지원 담당자에게 보낼 수 있도록 /tmp 디렉토리 안에 \n"
-"아카이브로 저장됩니다. Red Hat은 이 정보를 문제 해결 목적으로만 사용하며 기"
-"밀 정보로 \n"
-"취급할 것입니다. \n"
-"\n"
-"이 과정을 모두 완료하는 데 약간의 시간이 소요될 수 있으며, \n"
-"시스템에 아무런 영향을 주지 않습니다. \n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "계속하려면 ENTER를 입력하고, 종료하려면 CTRL-C를 입력하십시오.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "하나 이상의 플러그인이 사용자 설정에서 문제를 발견했습니다."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "다음 메시지를 다시 살펴보시기 바랍니다:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "계속 진행하시겠습니까? (y/n)"
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr "플러그인을 실행중입니다. 잠시만 기다려주십시오..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "sosreport 빌드 트리가 %s에 위치돼있습니다."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "%s 플러그인을 생략합니다. (--skip-plugins)"

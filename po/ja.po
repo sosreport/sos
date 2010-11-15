@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ja\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2010-05-31 15:20+0900\n"
 "Last-Translator: Kiyoto Hashida <khashida@redhat.com>\n"
 "Language-Team: Japanese <jp@li.org>\n"
@@ -21,6 +21,122 @@ msgstr ""
 "\n"
 "\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "一時ディレクトリを作成できませんでした。"
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sos レポート （バージョン %s）"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "プラグイン %s は認証できません、スキップします"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "プラグイン %s は インストールできません。スキップします"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "有効なプラグインは見付かりません"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "以下のプラグインが現在有効になっています:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "有効なプラグインはありません"
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "以下のプラグインは現在無効になっています:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "以下のプラグインオプションが使用できます:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "プラグインオプションは使用できません。"
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sos レポートは実行するのに root 権限が必要です。"
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "有効な正当プラグインはありませんでした"
+
+#: ../sos/sosreport.py:624
+#, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"このユーティリティは、ご使用の %(distroa)s システムのハードウェアと \n"
+"セットアップに関する詳細情報を収集します。情報は収集されて、\n"
+" そのアーカイブが /tmp にパッケージされますので、それをサポート担当者に \n"
+" 送信することが出来ます。%(distrob)s は、この情報を分析の為にのみ使用し、\n"
+" これは内密情報として扱われます。\n"
+"\n"
+"このプロセスは完了するまでしばらく時間がかかるかも知れません。\n"
+" ご使用のシステムは変更されません。\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "ENTER を押して継続するか、又は CTRL-C で終了します。\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "１つ、又は複数のプラグインが現在の設定に問題を検知しています。"
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "以下のメッセージを確認してください:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "本当に継続したいですか (y/n) ? "
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr " プラグインを実行中です。少しお待ち下さい ..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr " sosreport のビルドツリーは以下の場所にあります: %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -80,119 +196,3 @@ msgstr "レポートは以下の名前で正常に %s にアップロードさ�
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "担当のサポート代表者とはこの名前を使用して通信してください。"
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "一時ディレクトリを作成できませんでした。"
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sos レポート （バージョン %s）"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "プラグイン %s は認証できません、スキップします"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "プラグイン %s は インストールできません。スキップします"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "有効なプラグインは見付かりません"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "以下のプラグインが現在有効になっています:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "有効なプラグインはありません"
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "以下のプラグインは現在無効になっています:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "以下のプラグインオプションが使用できます:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "プラグインオプションは使用できません。"
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sos レポートは実行するのに root 権限が必要です。"
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "有効な正当プラグインはありませんでした"
-
-#: ../sos/sosreport.py:623
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"このユーティリティは、ご使用の %(distroa)s システムのハードウェアと \n"
-"セットアップに関する詳細情報を収集します。情報は収集されて、\n"
-" そのアーカイブが /tmp にパッケージされますので、それをサポート担当者に \n"
-" 送信することが出来ます。%(distrob)s は、この情報を分析の為にのみ使用し、\n"
-" これは内密情報として扱われます。\n"
-"\n"
-"このプロセスは完了するまでしばらく時間がかかるかも知れません。\n"
-" ご使用のシステムは変更されません。\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "ENTER を押して継続するか、又は CTRL-C で終了します。\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "１つ、又は複数のプラグインが現在の設定に問題を検知しています。"
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "以下のメッセージを確認してください:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "本当に継続したいですか (y/n) ? "
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr " プラグインを実行中です。少しお待ち下さい ..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr " sosreport のビルドツリーは以下の場所にあります: %s"

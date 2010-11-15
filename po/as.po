@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk.as\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2009-09-08 19:15+0530\n"
 "Last-Translator: Amitakhya Phukan <aphukan@fedoraproject.org>\n"
 "Language-Team: Assamese\n"
@@ -19,6 +19,123 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "অস্থাতী পঞ্জিকা নিৰ্মাণ কৰিবলৈ ব্যৰ্থ ।"
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (সংস্কৰণ %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "প্লাগ-ইন %s অনুমোদন কৰা নাযায়, উপেক্ষা কৰা হৈছে"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "প্লাগ-ইন %s ইনস্টল কৰা নাযায়, উপেক্ষা কৰা হৈছে "
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "কোনো বৈধ প্লাগ-ইন পোৱা নাযায়"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "নিম্নলিখিত প্লাগ-ইনসমূহ বৰ্তমানে সক্ৰিয় কৰা হৈছে:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "কোনো প্লাগ-ইন সক্ৰিয় নাই ।"
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "নিম্নলিখিত প্লাগ-ইনসমূহ বৰ্তমানে নিষ্ক্ৰিয় অৱস্থাত আছে:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "প্লাগ-ইন সংক্ৰান্ত নিম্নলিখিত বিকল্পসমূহ উপলব্ধ আছে:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "প্লাগ-ইন সংক্ৰান্ত কোনো বিকল্প উপলব্ধ নহয় ।"
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport সঞ্চালনৰ বাবে root ব্যৱহাৰকাৰীৰ অনুমতি আৱশ্যক ।"
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "কোনো বৈধ প্লাগ-ইন সক্ৰিয় কৰা নহয়"
+
+#: ../sos/sosreport.py:624
+#, fuzzy, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"এই সামগ্ৰীৰ সহায়ত যান্ত্ৰিক সামগ্ৰী আৰু Red Hat Enterprise Linux\n"
+"প্ৰণালীৰ প্ৰতিষ্ঠা সম্পৰ্কে বিশদ তথ্য সংগ্ৰহ কৰা হ'ব ।\n"
+"তথ্য সংগ্ৰহৰ পিছত /tmp পঞ্জিকাৰ অধীন এটা আৰ্কাইভ নিৰ্মিত হয় ।\n"
+"এই আৰ্কাইভ আপুনি সহায়তা প্ৰতিনিধিৰ কাশত পঠায় দিব পাৰে ।\n"
+"Red Hat দ্বাৰা এই তথ্য অকল সমস্যাৰ কাৰণ নিৰ্ণয় কৰাৰ বাবে ব্যৱহাৰ কৰা হ'ব\n"
+"আৰু ইয়াৰ গোপনীয়তা বজায় ৰাখা হ'ব ।\n"
+"\n"
+"এই কাম সম্পন্ন হ'বলৈ কিছু সময় ব্যয় হ'ব পাৰে ।\n"
+"ইয়াৰ ফলত প্ৰণালীত কোনো ধৰনৰ পৰিবৰ্তন কৰা ন'হ'ব ।\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "আগবঢ়াৰ বাবে ENTER টিপক বা প্ৰস্থান কৰিবলৈ CTRL-C টিপক ।\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr "একাধিক প্লাগ-ইন দ্বাৰা আপোনাৰ বিন্যাসত সমস্যা চিনাক্ত কৰা হৈছে ।"
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "অনুগ্ৰহ কৰি নিম্নলিখিত বাৰ্তাসমূহ পৰিদৰ্শন কৰক:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "আপুনি নিশ্চিতৰূপে আগবাঢ়িবলৈ ইচ্ছুক নে (y/n) ? "
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "y"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "Y"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr ""
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -80,123 +197,6 @@ msgstr ""
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "অনুগ্ৰহ কৰি সহায়তা প্ৰতিনিধিক এই নাম জনায় দিয়ক ।"
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "অস্থাতী পঞ্জিকা নিৰ্মাণ কৰিবলৈ ব্যৰ্থ ।"
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (সংস্কৰণ %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "প্লাগ-ইন %s অনুমোদন কৰা নাযায়, উপেক্ষা কৰা হৈছে"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "প্লাগ-ইন %s ইনস্টল কৰা নাযায়, উপেক্ষা কৰা হৈছে "
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "কোনো বৈধ প্লাগ-ইন পোৱা নাযায়"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "নিম্নলিখিত প্লাগ-ইনসমূহ বৰ্তমানে সক্ৰিয় কৰা হৈছে:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "কোনো প্লাগ-ইন সক্ৰিয় নাই ।"
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "নিম্নলিখিত প্লাগ-ইনসমূহ বৰ্তমানে নিষ্ক্ৰিয় অৱস্থাত আছে:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "প্লাগ-ইন সংক্ৰান্ত নিম্নলিখিত বিকল্পসমূহ উপলব্ধ আছে:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "প্লাগ-ইন সংক্ৰান্ত কোনো বিকল্প উপলব্ধ নহয় ।"
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport সঞ্চালনৰ বাবে root ব্যৱহাৰকাৰীৰ অনুমতি আৱশ্যক ।"
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "কোনো বৈধ প্লাগ-ইন সক্ৰিয় কৰা নহয়"
-
-#: ../sos/sosreport.py:623
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"এই সামগ্ৰীৰ সহায়ত যান্ত্ৰিক সামগ্ৰী আৰু Red Hat Enterprise Linux\n"
-"প্ৰণালীৰ প্ৰতিষ্ঠা সম্পৰ্কে বিশদ তথ্য সংগ্ৰহ কৰা হ'ব ।\n"
-"তথ্য সংগ্ৰহৰ পিছত /tmp পঞ্জিকাৰ অধীন এটা আৰ্কাইভ নিৰ্মিত হয় ।\n"
-"এই আৰ্কাইভ আপুনি সহায়তা প্ৰতিনিধিৰ কাশত পঠায় দিব পাৰে ।\n"
-"Red Hat দ্বাৰা এই তথ্য অকল সমস্যাৰ কাৰণ নিৰ্ণয় কৰাৰ বাবে ব্যৱহাৰ কৰা হ'ব\n"
-"আৰু ইয়াৰ গোপনীয়তা বজায় ৰাখা হ'ব ।\n"
-"\n"
-"এই কাম সম্পন্ন হ'বলৈ কিছু সময় ব্যয় হ'ব পাৰে ।\n"
-"ইয়াৰ ফলত প্ৰণালীত কোনো ধৰনৰ পৰিবৰ্তন কৰা ন'হ'ব ।\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "আগবঢ়াৰ বাবে ENTER টিপক বা প্ৰস্থান কৰিবলৈ CTRL-C টিপক ।\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "একাধিক প্লাগ-ইন দ্বাৰা আপোনাৰ বিন্যাসত সমস্যা চিনাক্ত কৰা হৈছে ।"
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "অনুগ্ৰহ কৰি নিম্নলিখিত বাৰ্তাসমূহ পৰিদৰ্শন কৰক:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "আপুনি নিশ্চিতৰূপে আগবাঢ়িবলৈ ইচ্ছুক নে (y/n) ? "
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr ""
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "প্লাগ-ইন %s উপেক্ষা কৰা হৈছে (--skip-plugins)"

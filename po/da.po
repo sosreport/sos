@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-21 14:17-0400\n"
+"POT-Creation-Date: 2010-11-15 15:02+0000\n"
 "PO-Revision-Date: 2010-03-12 13:39+0100\n"
 "Last-Translator: Kris Thomsen <lakristho@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk\n"
@@ -17,6 +17,124 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: pygettext.py 1.5\n"
+
+#: ../sos/sosreport.py:350
+msgid "Could not create temporary directory."
+msgstr "Kunne ikke oprette midlertidig mappe."
+
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (version %s)"
+
+#: ../sos/sosreport.py:438
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "udvidelsesmodulet %s validerer ikke, springer over"
+
+#: ../sos/sosreport.py:467
+#, python-format
+msgid "plugin %s does not install, skipping"
+msgstr "udvidelsesmodulet %s installerer ikke, springer over"
+
+#: ../sos/sosreport.py:563
+msgid "no valid plugins found"
+msgstr "ingen gyldige udvidelsesmoduler fundet"
+
+#: ../sos/sosreport.py:567
+msgid "The following plugins are currently enabled:"
+msgstr "Følgende udvidelsesmoduler er aktiveret i øjeblikket:"
+
+#: ../sos/sosreport.py:573
+msgid "No plugin enabled."
+msgstr "Ingen udvidelsesmoduler aktiveret."
+
+#: ../sos/sosreport.py:577
+msgid "The following plugins are currently disabled:"
+msgstr "Følgende udvidelsesmoduler er deaktiveret i øjeblikket:"
+
+#: ../sos/sosreport.py:585
+msgid "The following plugin options are available:"
+msgstr "Følgende indstillinger for udvidelsesmodul er tilgængelige:"
+
+#: ../sos/sosreport.py:606
+msgid "No plugin options available."
+msgstr "Ingen indstillinger tilgængelige for udvidelsesmodul."
+
+#: ../sos/sosreport.py:614
+msgid "sosreport requires root permissions to run."
+msgstr "sosreport behøver administratorrettigheder for at køre."
+
+#: ../sos/sosreport.py:621
+msgid "no valid plugins were enabled"
+msgstr "ingen gyldige udvidelsesmoduler er aktiveret"
+
+#: ../sos/sosreport.py:624
+#, python-format
+msgid ""
+"This utility will collect some detailed  information about the\n"
+"hardware and setup of your %(distroa)s system.\n"
+"The information is collected and an archive is  packaged under\n"
+"/tmp, which you can send to a support representative.\n"
+"%(distrob)s will use this information for diagnostic purposes ONLY\n"
+"and it will be considered confidential information.\n"
+"\n"
+"This process may take a while to complete.\n"
+"No changes will be made to your system.\n"
+"\n"
+msgstr ""
+"Dette hjælpeværktøj vil indsamle detaljeret information om\n"
+"hardwaren og din %(distroa)s systemopsætning\n"
+"Informationen er indsamlet og et arkiv er pakket under /tmp,\n"
+"som du kan sende til din supportrepræsentant.\n"
+"%(distrob)s vil KUN bruge denne information til diagnostiske\n"
+"formål, og det vil blive behandlet som fortrolig information.\n"
+"\n"
+"Denne proces kan tage et stykke tid at gennemføre.\n"
+"Ingen ændringer vil blive foretaget på dit system.\n"
+"\n"
+
+#: ../sos/sosreport.py:639
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Tryk ENTER for at fortsætte, eller CTRL-C for at afslutte.\n"
+
+#: ../sos/sosreport.py:665
+msgid "One or more plugins have detected a problem in your configuration."
+msgstr ""
+"Èn eller flere udvidelsesmoduler har fundet et problem i din konfiguration."
+
+#: ../sos/sosreport.py:667
+msgid "Please review the following messages:"
+msgstr "Gennemse venligst følgende beskeder:"
+
+#: ../sos/sosreport.py:683
+msgid "Are you sure you would like to continue (y/n) ? "
+msgstr "Er du sikker på, at du vil fortsætte (j/n) ? "
+
+#: ../sos/sosreport.py:685
+msgid "y"
+msgstr "j"
+
+#: ../sos/sosreport.py:685
+msgid "Y"
+msgstr "J"
+
+#: ../sos/sosreport.py:688
+msgid "n"
+msgstr "n"
+
+#: ../sos/sosreport.py:688
+msgid "N"
+msgstr "N"
+
+#: ../sos/sosreport.py:713
+msgid "  Running plugins. Please wait ..."
+msgstr "Kører udvidelsesmoduler. Vent venligst ..."
+
+#: ../sos/sosreport.py:827
+#, python-format
+msgid "  sosreport build tree is located at : %s"
+msgstr "sosreport bygningstræ er placeret på : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -78,124 +196,6 @@ msgstr "Din rapport er overført til %s med succes, under navnet:"
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "Giv venligst dit navn til din supportrepræsentant."
-
-#: ../sos/sosreport.py:349
-msgid "Could not create temporary directory."
-msgstr "Kunne ikke oprette midlertidig mappe."
-
-#: ../sos/sosreport.py:412
-#, python-format
-msgid "sosreport (version %s)"
-msgstr "sosreport (version %s)"
-
-#: ../sos/sosreport.py:437
-#, python-format
-msgid "plugin %s does not validate, skipping"
-msgstr "udvidelsesmodulet %s validerer ikke, springer over"
-
-#: ../sos/sosreport.py:466
-#, python-format
-msgid "plugin %s does not install, skipping"
-msgstr "udvidelsesmodulet %s installerer ikke, springer over"
-
-#: ../sos/sosreport.py:562
-msgid "no valid plugins found"
-msgstr "ingen gyldige udvidelsesmoduler fundet"
-
-#: ../sos/sosreport.py:566
-msgid "The following plugins are currently enabled:"
-msgstr "Følgende udvidelsesmoduler er aktiveret i øjeblikket:"
-
-#: ../sos/sosreport.py:572
-msgid "No plugin enabled."
-msgstr "Ingen udvidelsesmoduler aktiveret."
-
-#: ../sos/sosreport.py:576
-msgid "The following plugins are currently disabled:"
-msgstr "Følgende udvidelsesmoduler er deaktiveret i øjeblikket:"
-
-#: ../sos/sosreport.py:584
-msgid "The following plugin options are available:"
-msgstr "Følgende indstillinger for udvidelsesmodul er tilgængelige:"
-
-#: ../sos/sosreport.py:605
-msgid "No plugin options available."
-msgstr "Ingen indstillinger tilgængelige for udvidelsesmodul."
-
-#: ../sos/sosreport.py:613
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport behøver administratorrettigheder for at køre."
-
-#: ../sos/sosreport.py:620
-msgid "no valid plugins were enabled"
-msgstr "ingen gyldige udvidelsesmoduler er aktiveret"
-
-#: ../sos/sosreport.py:623
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"Dette hjælpeværktøj vil indsamle detaljeret information om\n"
-"hardwaren og din %(distroa)s systemopsætning\n"
-"Informationen er indsamlet og et arkiv er pakket under /tmp,\n"
-"som du kan sende til din supportrepræsentant.\n"
-"%(distrob)s vil KUN bruge denne information til diagnostiske\n"
-"formål, og det vil blive behandlet som fortrolig information.\n"
-"\n"
-"Denne proces kan tage et stykke tid at gennemføre.\n"
-"Ingen ændringer vil blive foretaget på dit system.\n"
-"\n"
-
-#: ../sos/sosreport.py:638
-msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr "Tryk ENTER for at fortsætte, eller CTRL-C for at afslutte.\n"
-
-#: ../sos/sosreport.py:663
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr ""
-"Èn eller flere udvidelsesmoduler har fundet et problem i din konfiguration."
-
-#: ../sos/sosreport.py:665
-msgid "Please review the following messages:"
-msgstr "Gennemse venligst følgende beskeder:"
-
-#: ../sos/sosreport.py:681
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "Er du sikker på, at du vil fortsætte (j/n) ? "
-
-#: ../sos/sosreport.py:683
-msgid "y"
-msgstr "j"
-
-#: ../sos/sosreport.py:683
-msgid "Y"
-msgstr "J"
-
-#: ../sos/sosreport.py:686
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:686
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:711
-msgid "  Running plugins. Please wait ..."
-msgstr "Kører udvidelsesmoduler. Vent venligst ..."
-
-#: ../sos/sosreport.py:824
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "sosreport bygningstræ er placeret på : %s"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "udvidelsesmodulet %s sprunget over (--skip-plugins)"
