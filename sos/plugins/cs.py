@@ -25,7 +25,7 @@
 
 
 import sos.plugintools
-import os
+import glob
 
 class cs(sos.plugintools.PluginBase):
     """Certificate System 7.x Diagnostic Information
@@ -37,7 +37,8 @@ class cs(sos.plugintools.PluginBase):
     # /var/lib/rhpki-kra ect).
 
     def checkenabled(self):
-       if self.isInstalled("rhpki-common") or os.path.exists("/var/lib/rhpki-*"):
+       if self.isInstalled("rhpki-common") or \
+       len(glob.glob("/var/lib/rhpki-*")):
           return True
        return False
 
