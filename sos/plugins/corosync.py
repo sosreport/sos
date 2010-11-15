@@ -27,6 +27,7 @@ class corosync(sos.plugintools.PluginBase):
         return sos.plugintools.PluginBase.checkenabled(self)
 
     def setup(self):
+        self.addCopySpec("/etc/corosync")
         self.collectExtOutput("corosync-quorumtool -l")
         self.collectExtOutput("corosync-quorumtool -s")
         self.collectExtOutput("corosync-cpgtool")
