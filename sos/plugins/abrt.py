@@ -20,13 +20,27 @@ import os
 class abrt(sos.plugintools.PluginBase):
     """ABRT log dump
     """
+
+    optionList = [("backtraces", 'collect backtraces for every report', 'slow', False)]
+
     def checkenabled(self):
         if self.isInstalled("abrt-cli") or \
         os.path.exists("/var/spool/abrt"):
             return True
         return False
+    
+    def do_backtraces(self):
+        ret, output, rtime = self.callExtProg('/usr/bin/sqlite3 /var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')
+        try:
+            for uuid in output.split():
+                self.collectExtOutput("/usr/bin/abrt-cli -ib %s" % uuid,
+                    suggest_filename=("backtrace_%s" % uuid))
+        except IndexError:
+            pass
 
     def setup(self):
         self.collectExtOutput("/usr/bin/abrt-cli -lf",
                 suggest_filename="abrt-log")
+        if self.getOption('backtraces'):
+            self.do_backtraces()
         return
