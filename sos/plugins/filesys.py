@@ -49,12 +49,22 @@ class filesys(sos.plugintools.PluginBase):
                 partlist.append('/dev/' + line.split()[-1])
         except IOError:
             exit(1)
-        for dev in partlist:
-            ret, hdparm, time = self.callExtProg('/sbin/hdparm -g %s' %(dev))
-            if(ret == 0):
-                start_geo = hdparm.strip().split("\n")[-1].strip().split()[-1]
-                if(start_geo == "0"):
+        if os.path.exists("/sbin/hdparm"):
+            for dev in partlist:
+                ret, hdparm, time = self.callExtProg('/sbin/hdparm -g %s' %(dev))
+                if(ret == 0):
+                    start_geo = hdparm.strip().split("\n")[-1].strip().split()[-1]
+                    if(start_geo == "0"):
+      	                devlist.append(dev)
+            # RHEL* does not ship hdparm for S390(x)
+            # Cheaper heuristic handling at least dm-.* correctly
+        else:
+            part_in_disk = re.compile("/dev/[a-z]+[0-9]+$")
+            for dev in partlist:
+                print part_in_disk.match(dev)
+                if not bool(part_in_disk.match(dev)):
                     devlist.append(dev)
+
         for i in devlist: 
             self.collectExtOutput("/sbin/parted -s %s print" % (i))
 
