@@ -37,6 +37,6 @@ class sssd(sos.plugintools.PluginBase):
        return False
 
     def setup(self):
-        self.addcopyspec("/etc/sssd")
-        self.addcopyspec("/var/log/sssd/*")
+        self.addCopySpec("/etc/sssd")
+        self.addCopySpec("/var/log/sssd/*")
         return
