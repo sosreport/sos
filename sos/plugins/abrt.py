@@ -17,7 +17,7 @@
 import sos.plugintools
 import os
 
-class abrtlog(sos.plugintools.PluginBase):
+class abrt(sos.plugintools.PluginBase):
     """ABRT log dump
     """
     def checkenabled(self):

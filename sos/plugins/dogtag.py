@@ -23,7 +23,7 @@ class dogtag(sos.plugintools.PluginBase):
     # This is for dogtag Certificate System
 
     def checkenabled(self):
-       if self.isInstalled("pki-ca") or leng(glob.glob("/var/lib/pki-*")):
+       if self.isInstalled("pki-ca") or len(glob.glob("/var/lib/pki-*")):
           return True
        return False
 
