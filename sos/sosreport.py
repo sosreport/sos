@@ -710,15 +710,16 @@ No changes will be made to your system.
                 error_log.write(traceback.format_exc())
                 error_log.close()
 
-    print _("  Running plugins. Please wait ...")
+    print _(" Running plugins. Please wait ...")
     print
     plugruncount = 0
     for i in izip(GlobalVars.loadedplugins):
         plugruncount += 1
-        sys.stdout.write("\r  Completed [%d/%d] ...      " % (plugruncount, 
-                                                          len(GlobalVars.loadedplugins)))
-        sys.stdout.flush()
         plugname, plug = i[0]
+        sys.stdout.write("\r  Running %d/%d: %s... " % (plugruncount, 
+                                                        len(GlobalVars.loadedplugins),
+                                                        plugname))
+        sys.stdout.flush()
         try:
             plug.copyStuff()
         except KeyboardInterrupt:
