@@ -286,11 +286,19 @@ class PluginBase:
         files = glob.glob(fname)
         files.sort()
         cursize = 0
+        limit_reached = False
+        sizelimit *= 1024 * 1024 # in MB
         for flog in files:
             cursize += os.stat(flog)[ST_SIZE]
-            if sizelimit and (cursize / 1024 / 1024) > sizelimit:
-               break
+            if sizelimit and cursize > sizelimit:
+                limit_reached = True
+                break
             self.addCopySpec(flog)
+        # Truncate the first file (others would likely be compressed),
+        # ensuring we get at least some logs
+        if flog == files[0] and limit_reached:
+            self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
+                "tail_" + os.path.basename(flog), flog[1:] + ".tailed")
 
     def addCopySpec(self, copyspec):
         """ Add a file specification (can be file, dir,or shell glob) to be
@@ -377,7 +385,9 @@ class PluginBase:
                 curdir = os.getcwd()
                 os.chdir(self.cInfo['dstroot'])
                 try:
-                    os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+                    dst_from_root = outfn[len(self.cInfo['dstroot'])+1:]
+                    target = ("../" * string.count(dst_from_root, "/")) + dst_from_root
+                    os.symlink(target, root_symlink.strip("/."))
                 except:
                     pass
                 os.chdir(curdir)
