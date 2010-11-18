@@ -66,7 +66,7 @@ class s390(sos.plugintools.PluginBase):
             self.collectExtOutput("/sbin/fdasd -p %s" % (x,))
         try:
             rhelver = self.policy().rhelVersion()
-            if rhelver == "5":
+            if rhelver == 5:
                 self.collectExtOutput("/sbin/lsqeth")
                 self.collectExtOutput("/sbin/lszfcp")
         except:

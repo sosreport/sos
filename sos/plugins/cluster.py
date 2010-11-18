@@ -103,7 +103,7 @@ class cluster(sos.plugintools.PluginBase):
            if not self.isInstalled(pkg):
                self.addDiagnose("required package is missing: %s" % pkg)
 
-        if rhelver == "4":
+        if rhelver == 4:
            # (dlm, dlm-kernel) || gulm
            if not ((self.isInstalled("dlm") and self.isInstalled("dlm-kernel")) or self.isInstalled("gulm")):
                self.addDiagnose("required packages are missing: (dlm, dlm-kernel) || gulm")
@@ -264,9 +264,9 @@ class cluster(sos.plugintools.PluginBase):
 
         rhelver = self.policy().rhelVersion()
 
-        if rhelver == "4":
+        if rhelver == 4:
             regex = r'^DLM Lock Space:\s*"([^"]*)".*$'
-        elif rhelver == "5Server" or rhelver == "5Client":
+        elif rhelver == 5:
             regex = r'^dlm\s+[^\s]+\s+([^\s]+)\s.*$'
 
         reg=re.compile(regex,re.MULTILINE)
