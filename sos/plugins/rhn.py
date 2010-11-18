@@ -28,8 +28,12 @@ class rhn(sos.plugintools.PluginBase):
     def checkenabled(self):
         # enable if any related package is installed
 
-        self.satellite = self.isInstalled("rhns-satellite-tools")
-        self.proxy = self.isInstalled("rhns-proxy-tools")
+        self.satellite = self.isInstalled("rhns-satellite-tools") \
+                      or self.isInstalled("spacewalk-proxy-management" \ # 5.3+
+                      or self.isInstalled("rhn-proxy-management")    # pre-5.3
+        self.proxy = self.isInstalled("rhns-proxy-tools") \
+                  or self.isInstalled("spacewalk-java") \ # 5.3+
+                  or self.isInstalled("rhn-base")     # pre-5.3
 
         if self.satellite or self.proxy:
             return True
