@@ -33,10 +33,9 @@ class autofs(sos.plugintools.PluginBase):
         opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
         for opt1 in opt:
             for opt2 in opt1.split(" "):
-                optlist.append(opt2)
-        for dtest in optlist:
-            if dtest == "--debug" or dtest == "debug":
-                return True
+                if opt2 in ("--debug", "debug"):
+                    return True
+        return False
     
     def getdaemondebug(self):
         """ capture daemon debug output
