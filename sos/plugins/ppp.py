@@ -15,15 +15,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class ppp(sos.plugintools.PluginBase):
     """ppp, wvdial and rp-pppoe related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("ppp") or os.path.exists("/etc/wvdial.conf"):
-            return True
-        return False
+        return self.isInstalled("ppp") or exists("/etc/wvdial.conf")
 
     def setup(self):
         self.addCopySpec("/etc/wvdial.conf")

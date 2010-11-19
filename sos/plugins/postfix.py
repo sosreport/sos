@@ -19,10 +19,8 @@ class postfix(sos.plugintools.PluginBase):
     """mail server related information
     """
     def checkenabled(self):
-        if self.isInstalled("postfix") or exists("/etc/rc.d/init.d/postfix"):
-            return True
-        return False
-        
+        return self.isInstalled("postfix") or exists("/etc/rc.d/init.d/postfix")
+ 
     def setup(self):
         self.addCopySpec("/etc/mail")
         self.addCopySpec("/etc/postfix/main.cf")

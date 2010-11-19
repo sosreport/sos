@@ -15,15 +15,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class radius(sos.plugintools.PluginBase):
     """radius related information
     """
     def checkenabled(self):
-       if self.isInstalled("freeradius") or os.path.exists("/etc/raddb"):
-          return True
-       return False
+        return self.isInstalled("freeradius") or exists("/etc/raddb")
 
     def setup(self):
         self.addCopySpec("/etc/raddb")

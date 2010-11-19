@@ -15,7 +15,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class ipa(sos.plugintools.PluginBase):
     """IPA diagnostic information
@@ -24,9 +24,7 @@ class ipa(sos.plugintools.PluginBase):
     # need to get kerberos and ipa specific addons.
 
     def checkenabled(self):
-       if self.isInstalled("ipa-server") or os.path.exists("/etc/ipa"):
-          return True
-       return False
+        return self.isInstalled("ipa-server") or exists("/etc/ipa"):
 
     def setup(self):
         self.addCopySpec("/etc/dirsrv/ds.keytab")

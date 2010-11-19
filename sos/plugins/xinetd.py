@@ -21,9 +21,7 @@ class xinetd(sos.plugintools.PluginBase):
     """xinetd information
     """
     def checkenabled(self):
-       if self.isInstalled("xinetd") or os.path.exists("/etc/xinetd.conf"):
-          return True
-       return False
+       return self.isInstalled("xinetd") or os.path.exists("/etc/xinetd.conf")
 
     def setup(self):
         self.addCopySpec("/etc/xinetd.conf")

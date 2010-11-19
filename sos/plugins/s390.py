@@ -25,10 +25,7 @@ class s390(sos.plugintools.PluginBase):
     ### Check for s390 arch goes here
 
     def checkenabled(self):
-        sysArch = self.policy().getArch()
-        if "s390" in sysArch:
-            return True
-        return False
+        return (self.policy().getArch() == "s390")
 
     ### Gather s390 specific information
 

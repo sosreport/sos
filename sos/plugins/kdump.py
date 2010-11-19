@@ -19,9 +19,7 @@ class kdump(sos.plugintools.PluginBase):
     """Kdump related information
     """
     def checkenabled(self):
-        if self.isInstalled("kexec-tools") or exists("/etc/kdump.conf"):
-            return True
-        return False
+        return self.isInstalled("kexec-tools") or exists("/etc/kdump.conf")
 
     def setup(self):
         self.addCopySpec("/etc/kdump.conf")

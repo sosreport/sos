@@ -13,15 +13,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class anaconda(sos.plugintools.PluginBase):
     """Anaconda / Installation information
     """
     def checkenabled(self):
-        if os.path.exists("/var/log/anaconda.log"):
-            return True
-        return False
+        return exists("/var/log/anaconda.log")
 
     def setup(self):
         self.addCopySpec("/root/anaconda-ks.cfg")

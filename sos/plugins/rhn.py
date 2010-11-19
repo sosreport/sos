@@ -26,8 +26,6 @@ class rhn(sos.plugintools.PluginBase):
         return False
 
     def checkenabled(self):
-        # enable if any related package is installed
-
         self.satellite = self.isInstalled("rhns-satellite-tools") \
                       or self.isInstalled("spacewalk-proxy-management" \ # 5.3+
                       or self.isInstalled("rhn-proxy-management")    # pre-5.3
@@ -35,10 +33,7 @@ class rhn(sos.plugintools.PluginBase):
                   or self.isInstalled("spacewalk-java") \ # 5.3+
                   or self.isInstalled("rhn-base")     # pre-5.3
 
-        if self.satellite or self.proxy:
-            return True
-
-        return False
+        return self.satellite or self.proxy
 
     def setup(self):
         self.addCopySpec("/etc/httpd/conf*")

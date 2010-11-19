@@ -32,9 +32,7 @@ class sssd(sos.plugintools.PluginBase):
     """
 
     def checkenabled(self):
-       if self.isInstalled("sssd"):
-          return True
-       return False
+       return self.isInstalled("sssd")
 
     def setup(self):
         self.addCopySpec("/etc/sssd")

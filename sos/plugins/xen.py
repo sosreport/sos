@@ -35,9 +35,7 @@ class xen(sos.plugintools.PluginBase):
         return "baremetal"
 
     def checkenabled(self):
-        if self.determineXenHost() == "baremetal":
-            return False
-        return True
+        return (self.determineXenHost() == "baremetal")
 
     def is_running_xenstored(self):
         xs_pid = os.popen("pidof xenstored").read()

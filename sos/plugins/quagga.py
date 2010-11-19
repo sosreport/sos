@@ -20,10 +20,9 @@ from os.path import exists
 class quagga(sos.plugintools.PluginBase):
     """quagga related information
     """
+
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("quagga") or exists("/etc/quagga/zebra.conf"):
-            return True
-        return False
+        return self.isInstalled("quagga") or exists("/etc/quagga/zebra.conf")
 
     def setup(self):
         self.addCopySpec("/etc/quagga/")

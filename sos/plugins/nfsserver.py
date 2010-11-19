@@ -41,4 +41,3 @@ class nfsserver(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/sbin/rpcinfo -p localhost")
         self.collectExtOutput("/usr/sbin/nfsstat -a")
         return
-

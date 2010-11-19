@@ -13,16 +13,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class x11(sos.plugintools.PluginBase):
     """X related information
     """
     def checkenabled(self):
-        try:os.stat("/etc/X11")
-        except:pass
-        else:return True
-        return False
+        return exists("/etc/X11")
 
     def setup(self):
         self.addCopySpec("/etc/X11")
@@ -33,9 +30,6 @@ class x11(sos.plugintools.PluginBase):
         self.addForbiddenPath("/etc/X11/X")
         self.addForbiddenPath("/etc/X11/fontpath.d")
         
-        # TODO: if there is a need for kde that can be added here as well
-        if os.path.exists("/etc/gdm"):
-            self.addCopySpec("/etc/gdm")
+        self.addCopySpec("/etc/gdm")
 
         return
-

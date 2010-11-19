@@ -18,10 +18,8 @@ class tomcat(sos.plugintools.PluginBase):
     """Tomcat related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("tomcat5"):
-            return True
-        return False
-        
+        return self.isInstalled("tomcat5")
+ 
     def setup(self):
         self.addCopySpec("/etc/tomcat5")
         self.addCopySpec("/var/log/tomcat5")

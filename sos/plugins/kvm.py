@@ -25,9 +25,7 @@ class kvm(sos.plugintools.PluginBase):
     optionList = [("topOutput", '5x iterations of top data', 'slow', False)]
 
     def checkenabled(self):
-        if os.access("/sys/module/kvm", os.R_OK):
-            return True
-        return False
+        return os.access("/sys/module/kvm", os.R_OK)
 
     def setup(self):
         if not os.path.ismount("/sys/kernel/debug"):

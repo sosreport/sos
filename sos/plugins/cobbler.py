@@ -13,15 +13,12 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
 
 class cobbler(sos.plugintools.PluginBase):
     """cobbler related information
     """
     def checkenabled(self):
-        if self.isInstalled("cobbler"):
-            return True
-        return False
+        return self.isInstalled("cobbler")
 
     def setup(self):
         self.addCopySpec("/etc/cobbler")

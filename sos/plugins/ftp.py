@@ -13,15 +13,14 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import returns
 
 class ftp(sos.plugintools.PluginBase):
     """FTP server related information
     """
+
     def checkenabled(self):
-       if self.isInstalled("vsftpd") or os.path.exists("/etc/vsftpd"):
-          return True
-       return False
+        return self.isInstalled("vsftpd") or exists("/etc/vsftpd")
 
     def setup(self):
         self.addCopySpec("/etc/ftp*")

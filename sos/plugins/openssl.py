@@ -15,15 +15,14 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class openssl(sos.plugintools.PluginBase):
     """openssl related information
     """
+
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("openssl") or os.path.exists("/etc/pki/tls/openssl.cnf"):
-            return True
-        return False
+        return self.isInstalled("openssl") or exists("/etc/pki/tls/openssl.cnf")
 
     def setup(self):
         self.addCopySpec("/etc/pki/tls/openssl.cnf")

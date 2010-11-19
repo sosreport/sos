@@ -13,16 +13,14 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class vmware(sos.plugintools.PluginBase):
     """VMWare related information
     """
     def checkenabled(self):
-        if os.path.exists("/usr/bin/vmware"):
-            return True
-        return False
-        
+        return exists("/usr/bin/vmware")
+ 
     def setup(self):
         self.collectExtOutput("/usr/bin/vmware -v")
         self.addCopySpec("/etc/vmware/locations")

@@ -21,9 +21,7 @@ class tftpserver(sos.plugintools.PluginBase):
     """tftpserver related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("tftp-server") or exists("/etc/xinetd.d/tftp"):
-            return True
-        return False
+        return self.isInstalled("tftp-server") or exists("/etc/xinetd.d/tftp")
 
     def setup(self):
         self.collectExtOutput("/bin/ls -laR /tftpboot")

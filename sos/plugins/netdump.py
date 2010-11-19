@@ -19,9 +19,7 @@ class netdump(sos.plugintools.PluginBase):
     """Netdump Configuration Information
     """
     def checkenabled(self):
-        if self.isInstalled("netdump") or exists("/etc/sysconfig/netdump*"):
-            return True
-        return False
+        return self.isInstalled("netdump") or exists("/etc/sysconfig/netdump*")
 
     def setup(self):
         self.addCopySpec("/etc/sysconfig/netdump")

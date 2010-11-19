@@ -15,15 +15,14 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class amd(sos.plugintools.PluginBase):
     """Amd automounter information
     """
+
     def checkenabled(self):
-       if self.isInstalled("am-utils") or os.path.exists("/etc/rc.d/init.d/amd"):
-          return True
-       return False
+        return self.isInstalled("am-utils") or exists("/etc/rc.d/init.d/amd")
 
     def setup(self):
         self.addCopySpec("/etc/amd.*")

@@ -25,9 +25,7 @@ class nscd(sos.plugintools.PluginBase):
                    "", 50)]
 
     def checkenabled(self):
-         if self.cInfo["policy"].pkgByName("nscd") or exists("/etc/nscd.conf"):
-             return True
-         return False
+         return self.isInstalled("nscd") or exists("/etc/nscd.conf")
 
     def setup(self):
         self.addCopySpec("/etc/nscd.conf")

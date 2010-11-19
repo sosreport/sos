@@ -29,7 +29,6 @@ class selinux(sos.plugintools.PluginBase):
         return
 
     def checkenabled(self):
-        # is selinux enabled ?
         try:
             if self.collectOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
                 return False

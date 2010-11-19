@@ -23,9 +23,7 @@ class smartcard(sos.plugintools.PluginBase):
     """
 
     def checkenabled(self):
-       if self.isInstalled("pam_pkcs11") or os.path.exists("/etc/pam_pkcs11/pam_pkcs11.conf"):
-          return True
-       return False
+        return self.isInstalled("pam_pkcs11") or os.path.exists("/etc/pam_pkcs11/pam_pkcs11.conf")
 
     def setup(self):
         self.addCopySpec("/etc/reader.conf")

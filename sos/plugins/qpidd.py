@@ -19,10 +19,7 @@ class qpidd(sos.plugintools.PluginBase):
     """
     def checkenabled(self):
         """ checks if mrg enabled """
-        if self.cInfo["policy"].pkgByName("qpidd") and \
-        self.cInfo["policy"].pkgByName("python-qpid"):
-            return True
-        return False
+        return self.isInstalled("qpidd") and self.isInstalled("python-qpid")
 
     def setup(self):
         """ performs data collection for mrg """

@@ -15,15 +15,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class openswan(sos.plugintools.PluginBase):
     """ipsec related information
     """
     def checkenabled(self):
-        if self.isInstalled("openswan") or os.path.exists("/etc/ipsec.conf"):
-            return True
-        return False
+        return self.isInstalled("openswan") or exists("/etc/ipsec.conf")
 
     def setup(self):
         self.addCopySpec("/etc/ipsec.conf")

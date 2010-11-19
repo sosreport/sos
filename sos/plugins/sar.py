@@ -13,14 +13,15 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os import listdir
+from os.path import exists
 
 class sar(sos.plugintools.PluginBase):
     """Generate the sar file from /var/log/sa/saXX files
     """
     def setup(self):
         path="/var/log/sa"
-        dirList=os.listdir(path)
+        dirList=listdir(path)
         # find all the sa file that don't have an existing sar file
         for fname in dirList:
             if fname[0:2] == 'sa' and fname[2] != 'r':
@@ -31,7 +32,4 @@ class sar(sos.plugintools.PluginBase):
         return
 
     def checkenabled(self):
-        if os.path.exists("/var/log/sa") and os.path.exists("/usr/bin/sar"):
-            return True
-        return False    
-
+        return exists("/var/log/sa") and os.path.exists("/usr/bin/sar")

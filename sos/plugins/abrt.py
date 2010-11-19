@@ -15,7 +15,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class abrt(sos.plugintools.PluginBase):
     """ABRT log dump
@@ -24,10 +24,8 @@ class abrt(sos.plugintools.PluginBase):
     optionList = [("backtraces", 'collect backtraces for every report', 'slow', False)]
 
     def checkenabled(self):
-        if self.isInstalled("abrt-cli") or \
-        os.path.exists("/var/spool/abrt"):
-            return True
-        return False
+        return self.isInstalled("abrt-cli") or \
+               exists("/var/spool/abrt")
     
     def do_backtraces(self):
         ret, output, rtime = self.callExtProg('/usr/bin/sqlite3 /var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')

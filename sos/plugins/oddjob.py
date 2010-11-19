@@ -15,15 +15,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class oddjob(sos.plugintools.PluginBase):
     """oddjob related information
     """
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("oddjob") or os.path.exists("/etc/oddjobd.conf"):
-            return True
-        return False
+        return self.isInstalled("oddjob") or exists("/etc/oddjobd.conf")
 
     def setup(self):
         self.addCopySpec("/etc/oddjobd.conf")

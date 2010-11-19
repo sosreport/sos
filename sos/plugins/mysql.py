@@ -13,17 +13,17 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class mysql(sos.plugintools.PluginBase):
     """MySQL related information
     """
+
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("mysql-server") or os.path.exists("/etc/my.cnf") or \
-           self.cInfo["policy"].pkgByName("mysql"):
-            return True
-        return False
-        
+        return self.isInstalled("mysql-server") or \
+               exists("/etc/my.cnf") or \
+               self.isInstalled("mysql")
+ 
     def setup(self):
         self.addCopySpec("/etc/my.cnf")
         self.addCopySpec("/etc/sysconfig/network")

@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import os
+from os.path import exists
 
 class pxe(sos.plugintools.PluginBase):
     """PXE related information
@@ -22,9 +22,7 @@ class pxe(sos.plugintools.PluginBase):
     optionList = [("tftpboot", 'gathers content in /tftpboot', 'slow', False)]
 
     def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("system-config-netboot-cmd") or os.path.exists("/usr/sbin/pxeos"):
-            return True
-        return False
+        return self.isInstalled("system-config-netboot-cmd") or exists("/usr/sbin/pxeos")
         
     def setup(self):
         self.collectExtOutput("/usr/sbin/pxeos -l")
