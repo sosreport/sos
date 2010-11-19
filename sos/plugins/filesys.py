@@ -33,6 +33,7 @@ class filesys(sos.plugintools.PluginBase):
         mounts = self.collectOutputNow("/bin/mount -l", root_symlink = "mount")
         self.addCopySpec("/etc/mdadm.conf")
         
+        self.collectExtOutput("/bin/findmnt")
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
         if self.getOption('lsof'):
             self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
