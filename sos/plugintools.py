@@ -300,11 +300,15 @@ class PluginBase:
             self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
                 "tail_" + os.path.basename(flog), flog[1:] + ".tailed")
 
+    def addCopySpecs(self, copyspecs):
+        for copyspec in copyspecs:
+            self.addCopySpec(copyspec)
+
     def addCopySpec(self, copyspec):
         """ Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module
         """
-        if not ( copyspec and len(copyspec) ):
+        if not (copyspec and len(copyspec)):
             # self.soslog.warning("invalid file path")
             return False
         # Glob case handling is such that a valid non-glob is a reduced glob
