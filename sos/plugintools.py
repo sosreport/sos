@@ -418,7 +418,6 @@ class PluginBase:
         will be displayed on-screen before collection and in the report as well.
         """
         self.diagnose_msgs.append(alertstring)
-        return
 
     # For adding output
     def addAlert(self, alertstring):
@@ -426,15 +425,12 @@ class PluginBase:
         will be displayed in the report
         """
         self.alerts.append(alertstring)
-        return
-
 
     def addCustomText(self, text):
         """ Append text to the custom text that is included in the report. This
         is freeform and can include html.
         """
-        self.customText = self.customText + text
-        return
+        self.customText += text
 
     def copyStuff(self):
         """
