@@ -18,10 +18,11 @@ class samba(sos.plugintools.PluginBase):
     """Samba related information
     """
     def setup(self):
-        self.addCopySpec("/etc/samba")
-        self.addCopySpec("/var/log/samba/*")
-        self.addCopySpec("/etc/krb5.conf")
-        self.addCopySpec("/etc/krb5.keytab")
+        self.addCopySpecs([
+            "/etc/samba",
+            "/var/log/samba/*",
+            "/etc/krb5.conf",
+            "/etc/krb5.keytab"])
         self.collectExtOutput("/usr/bin/wbinfo -g")
         self.collectExtOutput("/usr/bin/wbinfo -u")
         self.collectExtOutput("/usr/bin/testparm -s -v")

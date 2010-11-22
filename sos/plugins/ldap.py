@@ -42,8 +42,7 @@ class ldap(sos.plugintools.PluginBase):
                 self.addDiagnose("%s does not exist and can cause connection issues involving TLS" % ldapopts["TLS_CACERTDIR"])
 
     def setup(self):
-        self.addCopySpec("/etc/ldap.conf")
-        self.addCopySpec("/etc/openldap")
+        self.addCopySpecs(["/etc/ldap.conf", "/etc/openldap"])
 
     def postproc(self):
         self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")

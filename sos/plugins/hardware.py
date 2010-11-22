@@ -18,24 +18,25 @@ class hardware(sos.plugintools.PluginBase):
     """hardware related information
     """
     def setup(self):
-        self.addCopySpec("/proc/partitions")
-        self.addCopySpec("/proc/cpuinfo")
-        self.addCopySpec("/proc/meminfo")
-        self.addCopySpec("/proc/ioports")
-        self.addCopySpec("/proc/interrupts")
-        self.addCopySpec("/proc/scsi")
-        self.addCopySpec("/proc/dma")
-        self.addCopySpec("/proc/devices")
-        self.addCopySpec("/proc/rtc")
-        self.addCopySpec("/proc/ide")
-        self.addCopySpec("/proc/bus")
-        self.addCopySpec("/etc/stinit.def")
-        self.addCopySpec("/etc/sysconfig/hwconf")
-        self.addCopySpec("/proc/chandev")
-        self.addCopySpec("/proc/dasd")
-        self.addCopySpec("/proc/s390dbf/tape")
-        self.addCopySpec("/sys/bus/scsi")
-        self.addCopySpec("/sys/state")
+        self.addCopySpecs([
+            "/proc/partitions",
+            "/proc/cpuinfo",
+            "/proc/meminfo",
+            "/proc/ioports",
+            "/proc/interrupts",
+            "/proc/scsi",
+            "/proc/dma",
+            "/proc/devices",
+            "/proc/rtc",
+            "/proc/ide",
+            "/proc/bus",
+            "/etc/stinit.def",
+            "/etc/sysconfig/hwconf",
+            "/proc/chandev",
+            "/proc/dasd",
+            "/proc/s390dbf/tape",
+            "/sys/bus/scsi",
+            "/sys/state"])
         self.collectExtOutput("/usr/share/rhn/up2dateclient/hardware.py")
         self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 

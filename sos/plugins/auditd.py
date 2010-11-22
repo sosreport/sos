@@ -21,6 +21,5 @@ class auditd(sos.plugintools.PluginBase):
     optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15)]
 
     def setup(self):
-        self.addCopySpec("/etc/audit/auditd.conf")
-        self.addCopySpec("/etc/audit/audit.rules")
+        self.addCopySpecs(["/etc/audit/auditd.conf", "/etc/audit/audit.rules"])
         self.addCopySpecLimit("/var/log/audit*", sizelimit = self.getOption("syslogsize"))

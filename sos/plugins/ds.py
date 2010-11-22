@@ -43,8 +43,10 @@ class ds(sos.plugintools.PluginBase):
         if not self.check_version():
             self.addAlert("Directory Server not found.")
         elif "ds8" in self.check_version():
-            self.addCopySpec("/etc/dirsrv/slapd*")
-            self.addCopySpec("/var/log/dirsrv/*")
+            self.addCopySpecs([
+                "/etc/dirsrv/slapd*",
+                "/var/log/dirsrv/*"])
         elif "ds7" in self.check_version():
-            self.addCopySpec("/opt/redhat-ds/slapd-*/config")
-            self.addCopySpec("/opt/redhat-ds/slapd-*/logs")
+            self.addCopySpecs([
+                "/opt/redhat-ds/slapd-*/config",
+                "/opt/redhat-ds/slapd-*/logs"])

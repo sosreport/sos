@@ -17,5 +17,4 @@ class libvirt(sos.plugintools.PluginBase):
     """libvirt-related information
     """
     def setup(self):
-        self.addCopySpec("/etc/libvirt/")
-        self.addCopySpec("/var/log/libvirt/")
+        self.addCopySpecs(["/etc/libvirt/", "/var/log/libvirt/"])

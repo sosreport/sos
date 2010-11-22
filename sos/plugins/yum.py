@@ -38,10 +38,11 @@ class yum(sos.plugintools.PluginBase):
 
     def setup(self):
         # Pull all yum related information
-        self.addCopySpec("/etc/yum")
-        self.addCopySpec("/etc/yum.repos.d")
-        self.addCopySpec("/etc/yum.conf")
-        self.addCopySpec("/var/log/yum.log")
+        self.addCopySpecs([
+            "/etc/yum",
+            "/etc/yum.repos.d",
+            "/etc/yum.conf",
+            "/var/log/yum.log"])
 
         if self.getOption("yumlist"):
             # Get a list of channels the machine is subscribed to.

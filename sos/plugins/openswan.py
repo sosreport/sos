@@ -24,7 +24,8 @@ class openswan(sos.plugintools.PluginBase):
         return self.isInstalled("openswan") or exists("/etc/ipsec.conf")
 
     def setup(self):
-        self.addCopySpec("/etc/ipsec.conf")
-        self.addCopySpec("/etc/ipsec.d")
+        self.addCopySpecs([
+            "/etc/ipsec.conf",
+            "/etc/ipsec.d"])
         self.collectExtOutput("/usr/sbin/ipsec verify")
         self.collectExtOutput("/usr/sbin/ipsec barf")

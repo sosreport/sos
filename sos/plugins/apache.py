@@ -20,7 +20,8 @@ class apache(sos.plugintools.PluginBase):
     optionList = [("log", "gathers all apache logs", "slow", False)]
     
     def setup(self):
-        self.addCopySpec("/etc/httpd/conf/httpd.conf")
-        self.addCopySpec("/etc/httpd/conf.d/*.conf")
+        self.addCopySpecs([
+            "/etc/httpd/conf/httpd.conf",
+            "/etc/httpd/conf.d/*.conf"])
         if self.getOption("log"):
             self.addCopySpec("/var/log/httpd/*")

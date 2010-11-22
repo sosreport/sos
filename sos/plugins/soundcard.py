@@ -23,9 +23,10 @@ class soundcard(sos.plugintools.PluginBase):
         return False
 
     def setup(self):
-        self.addCopySpec("/proc/asound/*")
-        self.addCopySpec("/etc/alsa/*")
-        self.addCopySpec("/etc/asound.*")
+        self.addCopySpecs([
+            "/proc/asound/*",
+            "/etc/alsa/*",
+            "/etc/asound.*"])
         self.collectExtOutput("/sbin/lspci | grep -i audio")
         self.collectExtOutput("/usr/bin/aplay -l")
         self.collectExtOutput("/usr/bin/aplay -L")

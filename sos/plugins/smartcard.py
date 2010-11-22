@@ -26,9 +26,10 @@ class smartcard(sos.plugintools.PluginBase):
         return self.isInstalled("pam_pkcs11") or os.path.exists("/etc/pam_pkcs11/pam_pkcs11.conf")
 
     def setup(self):
-        self.addCopySpec("/etc/reader.conf")
-        self.addCopySpec("/etc/reader.conf.d/")
-        self.addCopySpec("/etc/pam_pkcs11/")
+        self.addCopySpecs([
+            "/etc/reader.conf",
+            "/etc/reader.conf.d/",
+            "/etc/pam_pkcs11/"])
         self.collectExtOutput("/usr/bin/pkcs11_inspect debug")
         self.collectExtOutput("/usr/bin/pklogin_finder debug")
         self.collectExtOutput("/bin/ls -l /usr/lib*/pam_pkcs11/")

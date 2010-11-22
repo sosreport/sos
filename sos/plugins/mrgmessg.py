@@ -18,6 +18,7 @@ class mrgmessg(sos.plugintools.PluginBase):
     """MRG Messaging related information
     """
     def setup(self):
-        self.addCopySpec("/etc/qpidd.conf")
-        self.addCopySpec("/etc/sasl2/qpidd.conf")
-        self.addCopySpec("/var/rhm")
+        self.addCopySpecs([
+            "/etc/qpidd.conf",
+            "/etc/sasl2/qpidd.conf",
+            "/var/rhm"])

@@ -44,9 +44,10 @@ class autofs(sos.plugintools.PluginBase):
             return i[1]
     
     def setup(self):
-        self.addCopySpec("/etc/auto*")
-        self.addCopySpec("/etc/sysconfig/autofs")
-        self.addCopySpec("/etc/init.d/autofs")
+        self.addCopySpecs([
+            "/etc/auto*",
+            "/etc/sysconfig/autofs",
+            "/etc/init.d/autofs"])
         self.collectExtOutput("/bin/rpm -qV autofs")
         self.collectExtOutput("/etc/init.d/autofs status")
         self.collectExtOutput("ps auxwww | grep automount")

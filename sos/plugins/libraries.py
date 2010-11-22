@@ -22,8 +22,7 @@ class libraries(sos.plugintools.PluginBase):
                     "slow", False)]
 
     def setup(self):
-        self.addCopySpec("/etc/ld.so.conf")
-        self.addCopySpec("/etc/ld.so.conf.d")
+        self.addCopySpecs(["/etc/ld.so.conf", "/etc/ld.so.conf.d"])
         if self.getOption("ldconfigv"):
             self.collectExtOutput("/sbin/ldconfig -v -N -X")
         self.collectExtOutput("/sbin/ldconfig -p -N -X")

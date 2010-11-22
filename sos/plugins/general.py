@@ -25,30 +25,29 @@ class general(sos.plugintools.PluginBase):
                   ("all_logs", "collect all log files defined in syslog.conf", "", False)]
 
     def setup(self):
-        self.addCopySpec("/etc/redhat-release")
-        self.addCopySpec("/etc/fedora-release")
-        self.addCopySpec("/etc/inittab")
-        self.addCopySpec("/etc/sos.conf")
-        self.addCopySpec("/etc/sysconfig")
-        self.addCopySpec("/proc/stat")
-        # Capture dmesg from system start
-        self.addCopySpec("/var/log/dmesg")
-        # Capture second dmesg from time of sos run
+        self.addCopySpecs([
+            "/etc/redhat-release",
+            "/etc/fedora-release",
+            "/etc/inittab",
+            "/etc/sos.conf",
+            "/etc/sysconfig",
+            "/proc/stat",
+            "/var/log/dmesg",
+            "/var/log/sa",
+            "/var/log/pm/suspend.log",
+            "/var/log/up2date",
+            "/etc/hostid",
+            "/var/lib/dbus/machine-id",
+            "/etc/exports",
+            "/root/anaconda-ks.cfg"])
         self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
         self.addCopySpecLimit("/var/log/messages*", sizelimit = self.getOption("syslogsize"))
         self.addCopySpecLimit("/var/log/secure*", sizelimit = self.getOption("syslogsize"))
-        self.addCopySpec("/var/log/sa")
-        self.addCopySpec("/var/log/pm/suspend.log")
-        self.addCopySpec("/var/log/up2date")
         self.collectExtOutput("/usr/bin/hostid")
-        self.addCopySpec("/etc/hostid")        
-        self.addCopySpec("/var/lib/dbus/machine-id")
-        self.addCopySpec("/etc/exports")        
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
         self.collectExtOutput("/bin/date", root_symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
         self.collectExtOutput("/bin/dmesg")
-        self.addCopySpec("/root/anaconda-ks.cfg")
         self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
         self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
 

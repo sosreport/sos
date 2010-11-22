@@ -18,6 +18,7 @@ class iscsi(sos.plugintools.PluginBase):
     """iscsi-initiator related information
     """
     def setup(self):
-        self.addCopySpec("/etc/iscsi/iscsid.conf")
-        self.addCopySpec("/etc/iscsi/initiatorname.iscsi")
-        self.addCopySpec("/var/lib/iscsi")
+        self.addCopySpecs([
+            "/etc/iscsi/iscsid.conf",
+            "/etc/iscsi/initiatorname.iscsi",
+            "/var/lib/iscsi"])

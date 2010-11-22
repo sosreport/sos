@@ -35,5 +35,4 @@ class sssd(sos.plugintools.PluginBase):
        return self.isInstalled("sssd")
 
     def setup(self):
-        self.addCopySpec("/etc/sssd")
-        self.addCopySpec("/var/log/sssd/*")
+        self.addCopySpecs(["/etc/sssd", "/var/log/sssd/*"])

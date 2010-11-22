@@ -27,14 +27,15 @@ class corosync(sos.plugintools.PluginBase):
         return sos.plugintools.PluginBase.checkenabled(self)
 
     def setup(self):
-        self.addCopySpec("/etc/corosync")
+        self.addCopySpecs([
+            "/etc/corosync",
+            "/var/lib/corosync/fdata",
+            "/var/log/cluster/corosync.log"])
         self.collectExtOutput("corosync-quorumtool -l")
         self.collectExtOutput("corosync-quorumtool -s")
         self.collectExtOutput("corosync-cpgtool")
         self.collectExtOutput("corosync-objctl -a")
         self.collectExtOutput("corosync-fplay")
-        self.addCopySpec("/var/lib/corosync/fdata")
         self.collectExtOutput("/usr/sbin/corosync-objctl -w runtime.blackbox.dump_state=$(date +\%s)")
         self.collectExtOutput("/usr/sbin/corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)")
         self.callExtProg("killall -USR2 corosync")
-        self.addCopySpec("/var/log/cluster/corosync.log")

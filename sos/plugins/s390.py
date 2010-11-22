@@ -30,27 +30,28 @@ class s390(sos.plugintools.PluginBase):
     ### Gather s390 specific information
 
     def setup(self):
-        self.addCopySpec("/proc/cio_ignore")
-        self.addCopySpec("/proc/crypto")
-        self.addCopySpec("/proc/dasd/devices")
-        self.addCopySpec("/proc/dasd/statistics")
-        self.addCopySpec("/proc/misc")
-        self.addCopySpec("/proc/qeth")
-        self.addCopySpec("/proc/qeth_perf")
-        self.addCopySpec("/proc/qeth_ipa_takeover")
-        self.addCopySpec("/proc/sys/appldata/*")
-        self.addCopySpec("/proc/sys/kernel/hz_timer")
-        self.addCopySpec("/proc/sysinfo")
-        self.addCopySpec("/sys/bus/ccwgroup/drivers/qeth/0.*/*")
-        self.addCopySpec("/sys/bus/ccw/drivers/zfcp/0.*/*")
-        self.addCopySpec("/sys/bus/ccw/drivers/zfcp/0.*/0x*/*")
-        self.addCopySpec("/sys/bus/ccw/drivers/zfcp/0.*/0x*/0x*/*")
-        self.addCopySpec("/etc/zipl.conf")
-        self.addCopySpec("/etc/zfcp.conf")
-        self.addCopySpec("/etc/sysconfig/dumpconf")
-        self.addCopySpec("/etc/src_vipa.conf")
-        self.addCopySpec("/etc/ccwgroup.conf")
-        self.addCopySpec("/etc/chandev.conf")
+        self.addCopySpecs([
+            "/proc/cio_ignore"
+            "/proc/crypto",
+            "/proc/dasd/devices",
+            "/proc/dasd/statistics",
+            "/proc/misc",
+            "/proc/qeth",
+            "/proc/qeth_perf",
+            "/proc/qeth_ipa_takeover",
+            "/proc/sys/appldata/*",
+            "/proc/sys/kernel/hz_timer",
+            "/proc/sysinfo",
+            "/sys/bus/ccwgroup/drivers/qeth/0.*/*",
+            "/sys/bus/ccw/drivers/zfcp/0.*/*",
+            "/sys/bus/ccw/drivers/zfcp/0.*/0x*/*",
+            "/sys/bus/ccw/drivers/zfcp/0.*/0x*/0x*/*",
+            "/etc/zipl.conf",
+            "/etc/zfcp.conf",
+            "/etc/sysconfig/dumpconf",
+            "/etc/src_vipa.conf",
+            "/etc/ccwgroup.conf",
+            "/etc/chandev.conf"])
         self.collectExtOutput("/sbin/lscss")
         self.collectExtOutput("/sbin/lsdasd")
         self.collectExtOutput("/sbin/lstape")

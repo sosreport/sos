@@ -18,15 +18,16 @@ class system(sos.plugintools.PluginBase):
     """core system related information
     """
     def setup(self):
-        self.addCopySpec("/proc/sys")
-        self.addCopySpec("/etc/sysctl.conf")
-        self.addCopySpec("/etc/cron*")
-        self.addCopySpec("/etc/anacrontab")
-        self.addCopySpec("/var/spool/cron*")
-        self.addCopySpec("/var/log/cron*")
-        self.addCopySpec("/etc/syslog.conf")
-        self.addCopySpec("/etc/rsyslog.conf")
-        self.addCopySpec("/etc/ntp.conf")
-        self.addCopySpec("/etc/ntp/step-tickers")
-        self.addCopySpec("/etc/ntp/ntpservers")
+        self.addCopySpecs([
+            "/proc/sys",
+            "/etc/sysctl.conf",
+            "/etc/cron*",
+            "/etc/anacrontab",
+            "/var/spool/cron*",
+            "/var/log/cron*",
+            "/etc/syslog.conf",
+            "/etc/rsyslog.conf",
+            "/etc/ntp.conf",
+            "/etc/ntp/step-tickers",
+            "/etc/ntp/ntpservers"])
         self.collectExtOutput("/usr/bin/crontab -l")

@@ -50,34 +50,38 @@ class cs(sos.plugintools.PluginBase):
             self.addAlert("Red Hat Certificate System not found.")
             return
         if csversion == 71:
-            self.addCopySpec("/opt/redhat-cs/slapd-*/logs/access")
-            self.addCopySpec("/opt/redhat-cs/slapd-*/logs/errors")
-            self.addCopySpec("/opt/redhat-cs/slapd-*/config/dse.ldif")
-            self.addCopySpec("/opt/redhat-cs/cert-*/errors")
-            self.addCopySpec("/opt/redhat-cs/cert-*/config/CS.cfg")
-            self.addCopySpec("/opt/redhat-cs/cert-*/access")
-            self.addCopySpec("/opt/redhat-cs/cert-*/errors")
-            self.addCopySpec("/opt/redhat-cs/cert-*/system")
-            self.addCopySpec("/opt/redhat-cs/cert-*/transactions")
-            self.addCopySpec("/opt/redhat-cs/cert-*/debug")
-            self.addCopySpec("/opt/redhat-cs/cert-*/tps-debug.log")
+            self.addCopySpecs([
+                "/opt/redhat-cs/slapd-*/logs/access",
+                "/opt/redhat-cs/slapd-*/logs/errors",
+                "/opt/redhat-cs/slapd-*/config/dse.ldif",
+                "/opt/redhat-cs/cert-*/errors",
+                "/opt/redhat-cs/cert-*/config/CS.cfg",
+                "/opt/redhat-cs/cert-*/access",
+                "/opt/redhat-cs/cert-*/errors",
+                "/opt/redhat-cs/cert-*/system",
+                "/opt/redhat-cs/cert-*/transactions",
+                "/opt/redhat-cs/cert-*/debug",
+                "/opt/redhat-cs/cert-*/tps-debug.log"])
         if csversion == 73:
-            self.addCopySpec("/var/lib/rhpki-*/conf/*cfg*")
-            self.addCopySpec("/var/lib/rhpki-*/conf/*.ldif")
-            self.addCopySpec("/var/lib/rhpki-*/logs/debug")
-            self.addCopySpec("/var/lib/rhpki-*/logs/catalina.*")
-            self.addCopySpec("/var/lib/rhpki-*/logs/ra-debug.log")
-            self.addCopySpec("/var/lib/rhpki-*/logs/transactions")
-            self.addCopySpec("/var/lib/rhpki-*/logs/system")
+            self.addCopySpecs([
+                "/var/lib/rhpki-*/conf/*cfg*",
+                "/var/lib/rhpki-*/conf/*.ldif",
+                "/var/lib/rhpki-*/logs/debug",
+                "/var/lib/rhpki-*/logs/catalina.*",
+                "/var/lib/rhpki-*/logs/ra-debug.log",
+                "/var/lib/rhpki-*/logs/transactions",
+                "/var/lib/rhpki-*/logs/system"])
         if csversion in (73, 8):
-            self.addCopySpec("/etc/dirsrv/slapd-*/dse.ldif")
-            self.addCopySpec("/var/log/dirsrv/slapd-*/access")
-            self.addCopySpec("/var/log/dirsrv/slapd-*/errors")
+            self.addCopySpecs([
+                "/etc/dirsrv/slapd-*/dse.ldif",
+                "/var/log/dirsrv/slapd-*/access",
+                "/var/log/dirsrv/slapd-*/errors"])
         if csversion == 8:
-            self.addCopySpec("/etc/pki-*/CS.cfg")
-            self.addCopySpec("/var/lib/pki-*/conf/*cfg*")
-            self.addCopySpec("/var/log/pki-*/debug")
-            self.addCopySpec("/var/log/pki-*/catalina.*")
-            self.addCopySpec("/var/log/pki-*/ra-debug.log")
-            self.addCopySpec("/var/log/pki-*/transactions")
-            self.addCopySpec("/var/log/pki-*/system")
+            self.addCopySpecs([
+                "/etc/pki-*/CS.cfg",
+                "/var/lib/pki-*/conf/*cfg*",
+                "/var/log/pki-*/debug",
+                "/var/log/pki-*/catalina.*",
+                "/var/log/pki-*/ra-debug.log",
+                "/var/log/pki-*/transactions",
+                "/var/log/pki-*/system"])

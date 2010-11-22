@@ -22,9 +22,10 @@ class anaconda(sos.plugintools.PluginBase):
         return exists("/var/log/anaconda.log")
 
     def setup(self):
-        self.addCopySpec("/root/anaconda-ks.cfg")
-        self.addCopySpec("/root/install.log")
-        self.addCopySpec("/root/install.log.syslog")
-        self.addCopySpec("/var/log/anaconda.log")
-        self.addCopySpec("/var/log/anaconda.syslog")
-        self.addCopySpec("/var/log/anaconda.xlog")
+        self.addCopySpecs([
+            "/root/anaconda-ks.cfg",
+            "/root/install.log",
+            "/root/install.log.syslog",
+            "/var/log/anaconda.log",
+            "/var/log/anaconda.syslog",
+            "/var/log/anaconda.xlog"])

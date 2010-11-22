@@ -36,26 +36,30 @@ class rhn(sos.plugintools.PluginBase):
         return self.satellite or self.proxy
 
     def setup(self):
-        self.addCopySpec("/etc/httpd/conf*")
-        self.addCopySpec("/etc/rhn")
-        self.addCopySpec("/etc/sysconfig/rhn")
+        self.addCopySpecs([
+            "/etc/httpd/conf*",
+            "/etc/rhn",
+            "/etc/sysconfig/rhn"
+            "/var/log/rhn*"])
+
         if self.getOption("log"):
-            self.addCopySpec("/var/log/httpd")  # httpd-logs
-        self.addCopySpec("/var/log/rhn*")   # rhn-logs
+            self.addCopySpec("/var/log/httpd")
 
         # all these used to go in $DIR/mon-logs/
-        self.addCopySpec("/opt/notification/var/*.log*")
-        self.addCopySpec("/var/tmp/ack_handler.log*")
-        self.addCopySpec("/var/tmp/enqueue.log*")
+        self.addCopySpecs([
+            "/opt/notification/var/*.log*",
+            "/var/tmp/ack_handler.log*",
+            "/var/tmp/enqueue.log*"])
 
         # monitoring scout logs
-        self.addCopySpec("/home/nocpulse/var/*.log*")
-        self.addCopySpec("/home/nocpulse/var/commands/*.log*")
-        self.addCopySpec("/var/tmp/ack_handler.log*")
-        self.addCopySpec("/var/tmp/enqueue.log*")
-        self.addCopySpec("/var/log/nocpulse/*.log*")
-        self.addCopySpec("/var/log/notification/*.log*")
-        self.addCopySpec("/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log")
+        self.addCopySpecs([
+            "/home/nocpulse/var/*.log*",
+            "/home/nocpulse/var/commands/*.log*",
+            "/var/tmp/ack_handler.log*",
+            "/var/tmp/enqueue.log*",
+            "/var/log/nocpulse/*.log*",
+            "/var/log/notification/*.log*",
+            "/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log"])
 
         self.addCopySpec("/root/ssl-build")
         self.collectExtOutput("rpm -qa --last", root_symlink = "rpm-manifest")
@@ -63,23 +67,16 @@ class rhn(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/rhn-charsets", root_symlink = "database-character-sets")
 
         if self.satellite:
-            self.addCopySpec("/etc/tnsnames.ora")   
-            self.addCopySpec("/etc/jabberd")
+            self.addCopySpecs(["/etc/tnsnames.ora", "/etc/jabberd"])
 
             # tomcat (4.x and newer satellites only)
             if not self.policy().pkgNVRA(satellite)[1].startswith("3."):
-               self.addCopySpec("/etc/tomcat5")
-               self.addCopySpec("/var/log/tomcat5")
+               self.addCopySpecs(["/etc/tomcat5", "/var/log/tomcat5"])
 
-            self.addCopySpec("/etc/tomcat5")
-            self.addCopySpec("/var/log/tomcat5")
+            self.addCopySpecs(["/etc/tomcat5", "/var/log/tomcat5"])
 
         if self.proxy:
-            # copying configuration information
-            self.addCopySpec("/etc/squid")
-
-            # copying logs
-            self.addCopySpec("/var/log/squid")
+            self.addCopySpecs(["/etc/squid", "/var/log/squid"])
 
 #    def diagnose(self):
         # RHN Proxy:

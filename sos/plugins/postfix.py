@@ -22,7 +22,8 @@ class postfix(sos.plugintools.PluginBase):
         return self.isInstalled("postfix") or exists("/etc/rc.d/init.d/postfix")
  
     def setup(self):
-        self.addCopySpec("/etc/mail")
-        self.addCopySpec("/etc/postfix/main.cf")
-        self.addCopySpec("/etc/postfix/master.cf")
+        self.addCopySpecs([
+            "/etc/mail",
+            "/etc/postfix/main.cf",
+            "/etc/postfix/master.cf"])
         self.collectExtOutput("/usr/sbin/postconf")

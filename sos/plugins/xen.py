@@ -43,10 +43,11 @@ class xen(sos.plugintools.PluginBase):
         return xs_pidnum.isdigit()
 
     def domCollectProc(self):
-        self.addCopySpec("/proc/xen/balloon")
-        self.addCopySpec("/proc/xen/capabilities")
-        self.addCopySpec("/proc/xen/xsd_kva")
-        self.addCopySpec("/proc/xen/xsd_port")
+        self.addCopySpecs([
+            "/proc/xen/balloon",
+            "/proc/xen/capabilities",
+            "/proc/xen/xsd_kva",
+            "/proc/xen/xsd_port"])
         # determine if CPU has PAE support
         self.collectExtOutput("/bin/grep pae /proc/cpuinfo")
         # determine if CPU has Intel-VT or AMD-V support
@@ -65,18 +66,19 @@ class xen(sos.plugintools.PluginBase):
             pass
         elif host_type == "dom0":
             # default of dom0, collect lots of system information
-            self.addCopySpec("/var/log/xen")
-            self.addCopySpec("/etc/xen")
+            self.addCopySpecs([
+                "/var/log/xen",
+                "/etc/xen",
+                "/sys/hypervisor/version",
+                "/sys/hypervisor/compilation",
+                "/sys/hypervisor/properties",
+                "/sys/hypervisor/type"])
             self.collectExtOutput("/usr/sbin/xm dmesg")
             self.collectExtOutput("/usr/sbin/xm info")
             self.collectExtOutput("/usr/sbin/xm list")
             self.collectExtOutput("/usr/sbin/xm list --long")
             self.collectExtOutput("/usr/sbin/brctl show")
             self.domCollectProc()
-            self.addCopySpec("/sys/hypervisor/version")
-            self.addCopySpec("/sys/hypervisor/compilation")
-            self.addCopySpec("/sys/hypervisor/properties")
-            self.addCopySpec("/sys/hypervisor/type")
             if self.is_running_xenstored(): 
                 self.addCopySpec("/sys/hypervisor/uuid")
                 self.collectExtOutput("/usr/bin/xenstore-ls")

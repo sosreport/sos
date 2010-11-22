@@ -21,5 +21,4 @@ class tomcat(sos.plugintools.PluginBase):
         return self.isInstalled("tomcat5")
  
     def setup(self):
-        self.addCopySpec("/etc/tomcat5")
-        self.addCopySpec("/var/log/tomcat5")
+        self.addCopySpecs(["/etc/tomcat5", "/var/log/tomcat5"])

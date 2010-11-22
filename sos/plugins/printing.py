@@ -21,10 +21,11 @@ class printing(sos.plugintools.PluginBase):
                    "", 50)]
 
     def setup(self):
-        self.addCopySpec("/etc/cups/*.conf")
+        self.addCopySpecs([
+            "/etc/cups/*.conf",
+            "/etc/cups/lpoptions",
+            "/etc/cups/ppd/*.ppd"])
         self.addCopySpecLimit("/var/log/cups", sizelimit=self.isOptionEnabled("cupslogsize"))
-        self.addCopySpec("/etc/cups/lpoptions")
-        self.addCopySpec("/etc/cups/ppd/*.ppd")
         self.collectExtOutput("/usr/bin/lpstat -t")
         self.collectExtOutput("/usr/bin/lpstat -s")
         self.collectExtOutput("/usr/bin/lpstat -d")

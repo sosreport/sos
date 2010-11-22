@@ -22,12 +22,12 @@ class x11(sos.plugintools.PluginBase):
         return exists("/etc/X11")
 
     def setup(self):
-        self.addCopySpec("/etc/X11")
-        self.addCopySpec("/var/log/Xorg.*.log")
-        self.addCopySpec("/var/log/XFree86.*.log")
+        self.addCopySpecs([
+            "/etc/X11",
+            "/var/log/Xorg.*.log",
+            "/var/log/XFree86.*.log",
+            "/etc/gdm"])
         self.collectExtOutput("/bin/dmesg | grep -e 'agpgart.'")
 
         self.addForbiddenPath("/etc/X11/X")
         self.addForbiddenPath("/etc/X11/fontpath.d")
-        
-        self.addCopySpec("/etc/gdm")

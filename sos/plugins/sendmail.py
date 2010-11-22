@@ -24,5 +24,4 @@ class sendmail(sos.plugintools.PluginBase):
         return self.isInstalled("sendmail") or exists("/etc/rc.d/init.d/sendmail")
 
     def setup(self):
-        self.addCopySpec("/etc/mail/*")
-        self.addCopySpec("/var/log/maillog")
+        self.addCopySpecs(["/etc/mail/*", "/var/log/maillog"])

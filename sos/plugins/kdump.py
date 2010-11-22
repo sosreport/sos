@@ -22,7 +22,8 @@ class kdump(sos.plugintools.PluginBase):
         return self.isInstalled("kexec-tools") or exists("/etc/kdump.conf")
 
     def setup(self):
-        self.addCopySpec("/etc/kdump.conf")
-        self.addCopySpec("/etc/sysconfig/kdump")
-        self.addCopySpec("/proc/cmdline")
-        self.addCopySpec("/etc/udev/rules.d/*kexec.rules")
+        self.addCopySpecs([
+            "/etc/kdump.conf",
+            "/etc/sysconfig/kdump",
+            "/proc/cmdline",
+            "/etc/udev/rules.d/*kexec.rules"])

@@ -24,9 +24,7 @@ class radius(sos.plugintools.PluginBase):
         return self.isInstalled("freeradius") or exists("/etc/raddb")
 
     def setup(self):
-        self.addCopySpec("/etc/raddb")
-        self.addCopySpec("/etc/pam.d/radiusd")
-        self.addCopySpec("/var/log/radius")
+        self.addCopySpecs(["/etc/raddb", "/etc/pam.d/radiusd", "/var/log/radius"])
 
     def postproc(self):
         self.doRegexSub("/etc/raddb/sql.conf", r"(\s*password\s*=\s*)\S+", r"\1***")

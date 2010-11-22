@@ -42,14 +42,15 @@ class networking(sos.plugintools.PluginBase):
             self.collectExtOutput(cmd)
 
     def setup(self):
-        self.addCopySpec("/proc/net")
-        self.addCopySpec("/etc/nsswitch.conf")
-        self.addCopySpec("/etc/yp.conf")
-        self.addCopySpec("/etc/inetd.conf")
-        self.addCopySpec("/etc/xinetd.conf")
-        self.addCopySpec("/etc/xinetd.d")
-        self.addCopySpec("/etc/host*")
-        self.addCopySpec("/etc/resolv.conf")
+        self.addCopySpecs([
+            "/proc/net",
+            "/etc/nsswitch.conf",
+            "/etc/yp.conf",
+            "/etc/inetd.conf",
+            "/etc/xinetd.conf",
+            "/etc/xinetd.d",
+            "/etc/host*",
+            "/etc/resolv.conf"])
         ifconfigFile=self.collectOutputNow("/sbin/ifconfig -a", root_symlink = "ifconfig")
         self.collectExtOutput("/sbin/route -n", root_symlink = "route")
         self.collectIPTable("filter")

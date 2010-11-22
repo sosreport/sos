@@ -24,14 +24,15 @@ class filesys(sos.plugintools.PluginBase):
     optionList = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
 
     def setup(self):
-        self.addCopySpec("/proc/filesystems")
-        self.addCopySpec("/etc/fstab")
-        self.addCopySpec("/proc/self/mounts")
-        self.addCopySpec("/proc/mounts")
-        self.addCopySpec("/proc/mdstat")
-        self.addCopySpec("/etc/raidtab")
+        self.addCopySpecs([
+            "/proc/filesystems",
+            "/etc/fstab",
+            "/proc/self/mounts",
+            "/proc/mounts",
+            "/proc/mdstat",
+            "/etc/raidtab",
+            "/etc/mdadm.conf"])
         mounts = self.collectOutputNow("/bin/mount -l", root_symlink = "mount")
-        self.addCopySpec("/etc/mdadm.conf")
         
         self.collectExtOutput("/bin/findmnt")
         self.collectExtOutput("/bin/df -al", root_symlink = "df")

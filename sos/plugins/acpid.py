@@ -18,5 +18,6 @@ class acpid(sos.plugintools.PluginBase):
     """acpid related information
     """
     def setup(self):
-        self.addCopySpec("/var/log/acpid*")
-        self.addCopySpec("/etc/acpi/events/power.conf")
+        self.addCopySpecs([
+            "/var/log/acpid*",
+            "/etc/acpi/events/power.conf"])

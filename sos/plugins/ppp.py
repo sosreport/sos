@@ -24,7 +24,8 @@ class ppp(sos.plugintools.PluginBase):
         return self.isInstalled("ppp") or exists("/etc/wvdial.conf")
 
     def setup(self):
-        self.addCopySpec("/etc/wvdial.conf")
-        self.addCopySpec("/etc/ppp")
-        self.addCopySpec("/var/log/ppp")
+        self.addCopySpecs([
+            "/etc/wvdial.conf",
+            "/etc/ppp",
+            "/var/log/ppp"])
         self.collectExtOutput("/usr/sbin/adsl-status")

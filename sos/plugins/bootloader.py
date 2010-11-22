@@ -18,13 +18,13 @@ class bootloader(sos.plugintools.PluginBase):
     """Bootloader information
     """
     def setup(self):
-        self.addCopySpec("/etc/lilo.conf")
-        self.addCopySpec("/etc/milo.conf")
-        self.addCopySpec("/etc/silo.conf")
-        self.addCopySpec("/boot/efi/efi/redhat/elilo.conf")
-        self.addCopySpec("/boot/grub/grub.conf")
-        self.addCopySpec("/boot/grub/device.map")
-        self.addCopySpec("/boot/yaboot.conf")
-        
+        self.addCopySpecs([
+            "/etc/lilo.conf",
+            "/etc/milo.conf",
+            "/etc/silo.conf",
+            "/boot/efi/efi/redhat/elilo.conf",
+            "/boot/grub/grub.conf",
+            "/boot/grub/device.map",
+            "/boot/yaboot.conf"])
         self.collectExtOutput("/sbin/lilo -q")
         self.collectExtOutput("/bin/ls -laR /boot")

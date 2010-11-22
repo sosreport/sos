@@ -56,22 +56,23 @@ class kernel(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/sysctl -a")
         if os.path.isfile("/sbin/ksyms"):
             self.collectExtOutput("/sbin/ksyms")
-        self.addCopySpec("/proc/sys/kernel/random/boot_id")
-        self.addCopySpec("/sys/module/*/parameters")
-        self.addCopySpec("/proc/filesystems")
-        self.addCopySpec("/proc/ksyms")
-        self.addCopySpec("/proc/slabinfo")
-        self.addCopySpec("/lib/modules/%s/modules.dep" % self.policy().kernelVersion())
-        self.addCopySpec("/etc/conf.modules")
-        self.addCopySpec("/etc/modules.conf")
-        self.addCopySpec("/etc/modprobe.conf")
-        self.addCopySpec("/etc/modprobe.d")
+        self.addCopySpecs([
+            "/proc/sys/kernel/random/boot_id",
+            "/sys/module/*/parameters",
+            "/proc/filesystems",
+            "/proc/ksyms",
+            "/proc/slabinfo",
+            "/lib/modules/%s/modules.dep" % self.policy().kernelVersion(),
+            "/etc/conf.modules",
+            "/etc/modules.conf",
+            "/etc/modprobe.conf",
+            "/etc/modprobe.d",
+            "/proc/cmdline",
+            "/proc/driver",
+            "/proc/zoneinfo",
+            "/proc/sys/kernel/tainted",
+            "/proc/buddyinfo"])
         self.collectExtOutput("/usr/sbin/dkms status")
-        self.addCopySpec("/proc/cmdline")
-        self.addCopySpec("/proc/driver")
-        self.addCopySpec("/proc/zoneinfo")
-        self.addCopySpec("/proc/sys/kernel/tainted")
-        self.addCopySpec("/proc/buddyinfo")
 
     def diagnose(self):
 

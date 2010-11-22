@@ -18,10 +18,11 @@ class memory(sos.plugintools.PluginBase):
     """memory usage information
     """
     def setup(self):
-        self.addCopySpec("/proc/pci")
-        self.addCopySpec("/proc/meminfo")
-        self.addCopySpec("/proc/vmstat")
-        self.addCopySpec("/proc/slabinfo")
+        self.addCopySpecs([
+            "/proc/pci",
+            "/proc/meminfo",
+            "/proc/vmstat",
+            "/proc/slabinfo"])
         
         self.collectExtOutput("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
         self.collectExtOutput("/usr/bin/free", root_symlink = "free")

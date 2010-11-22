@@ -23,5 +23,4 @@ class vmware(sos.plugintools.PluginBase):
  
     def setup(self):
         self.collectExtOutput("/usr/bin/vmware -v")
-        self.addCopySpec("/etc/vmware/locations")
-        self.addCopySpec("/etc/vmware/config")
+        self.addCopySpecs(["/etc/vmware/locations", "/etc/vmware/config"])

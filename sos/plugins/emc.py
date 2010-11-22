@@ -37,15 +37,16 @@ class emc(sos.plugintools.PluginBase):
         """ EMC PowerPath specific information - files
         """
         self.collectExtOutput("/sbin/powermt version")
-        self.addCopySpec("/etc/init.d/PowerPath")
-        self.addCopySpec("/etc/powermt.custom")
-        self.addCopySpec("/etc/emcp_registration")
-        self.addCopySpec("/etc/emc/mpaa.excluded")
-        self.addCopySpec("/etc/emc/mpaa.lams")
-        self.addCopySpec("/etc/emcp_devicesDB.dat")
-        self.addCopySpec("/etc/emcp_devicesDB.idx")
-        self.addCopySpec("/etc/emc/powerkmd.custom")
-        self.addCopySpec("/etc/modprobe.conf.pp")
+        self.addCopySpecs([
+            "/etc/init.d/PowerPath",
+            "/etc/powermt.custom",
+            "/etc/emcp_registration",
+            "/etc/emc/mpaa.excluded",
+            "/etc/emc/mpaa.lams",
+            "/etc/emcp_devicesDB.dat",
+            "/etc/emcp_devicesDB.idx",
+            "/etc/emc/powerkmd.custom",
+            "/etc/modprobe.conf.pp"])
 
     def get_pp_config(self):
         """ EMC PowerPath specific information - commands
@@ -61,9 +62,10 @@ class emc(sos.plugintools.PluginBase):
     def get_symcli_files(self):
         """ EMC Solutions Enabler SYMCLI specific information - files
         """
-        self.addCopySpec("/var/symapi/db/symapi_db.bin")
-        self.addCopySpec("/var/symapi/config/[a-z]*")
-        self.addCopySpec("/var/symapi/log/[a-z]*")
+        self.addCopySpecs([
+            "/var/symapi/db/symapi_db.bin",
+            "/var/symapi/config/[a-z]*",
+            "/var/symapi/log/[a-z]*"])
 
     def get_symcli_config(self):
         """ EMC Solutions Enabler SYMCLI specific information - Symmetrix/DMX - commands
@@ -117,11 +119,12 @@ class emc(sos.plugintools.PluginBase):
     def get_navicli_config(self):
         """ EMC Navisphere Host Agent NAVICLI specific information - files
         """
-        self.addCopySpec("/etc/Navisphere/agent.config")
-        self.addCopySpec("/etc/Navisphere/Navimon.cfg")
-        self.addCopySpec("/etc/Navisphere/Quietmode.cfg")
-        self.addCopySpec("/etc/Navisphere/messages/[a-z]*")
-        self.addCopySpec("/etc/Navisphere/log/[a-z]*")
+        self.addCopySpecs([
+            "/etc/Navisphere/agent.config",
+            "/etc/Navisphere/Navimon.cfg",
+            "/etc/Navisphere/Quietmode.cfg",
+            "/etc/Navisphere/messages/[a-z]*",
+            "/etc/Navisphere/log/[a-z]*"])
 
     def get_navicli_SP_info(self,SP_address):
         """ EMC Navisphere Host Agent NAVICLI specific information - CLARiiON - commands

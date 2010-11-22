@@ -23,18 +23,19 @@ class qpidd(sos.plugintools.PluginBase):
 
     def setup(self):
         """ performs data collection for mrg """
-        self.addCopySpec("/etc/qpidd.conf")
         self.collectExtOutput("/usr/bin/qpid-stat -q")
         self.collectExtOutput("/usr/bin/qpid-stat -e")
         self.collectExtOutput("/usr/bin/qpid-stat -b")
-        self.addCopySpec("/var/lib/qpid/syslog")
         self.collectExtOutput("/usr/bin/qpid-config")
         self.collectExtOutput("/usr/bin/qpid-config -b exchanges")
         self.collectExtOutput("/usr/bin/qpid-config -b queues")
         self.collectExtOutput("/usr/bin/qpid-stat -c")
         self.collectExtOutput("/usr/bin/qpid-route link list")
         self.collectExtOutput("/usr/bin/qpid-route route list")
-        self.addCopySpec("/etc/ais/openais.conf")
         self.collectExtOutput("ls -lR /var/lib/qpidd")
-        self.addCopySpec("/var/log/cumin.log")
-        self.addCopySpec("/var/log/mint.log")
+        self.addCopySpecs([
+            "/etc/qpidd.conf",
+            "/var/lib/qpid/syslog",
+            "/etc/ais/openais.conf",
+            "/var/log/cumin.log",
+            "/var/log/mint.log"])
