@@ -716,9 +716,9 @@ No changes will be made to your system.
     for i in izip(GlobalVars.loadedplugins):
         plugruncount += 1
         plugname, plug = i[0]
-        sys.stdout.write("\r  Running %d/%d: %s... " % (plugruncount, 
-                                                        len(GlobalVars.loadedplugins),
-                                                        plugname))
+        sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, 
+                                                              len(GlobalVars.loadedplugins),
+                                                              plugname))
         sys.stdout.flush()
         try:
             plug.copyStuff()
