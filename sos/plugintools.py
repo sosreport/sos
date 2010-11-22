@@ -60,7 +60,6 @@ class PluginBase:
         self.forbiddenPaths = deque() 
         self.copyPaths = deque()
         self.collectProgs = deque() 
-        self.pid = None
 
         self.packages = deque()
         self.files = deque()
