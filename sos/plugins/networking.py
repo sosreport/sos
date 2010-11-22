@@ -35,13 +35,11 @@ class networking(sos.plugintools.PluginBase):
         the command.  If they aren't loaded, there can't possibly be any
         relevant rules in that table """
 
-        cmd = "/sbin/iptables -t "+tablename+" -nvL"
 
         (status, output, time) = self.callExtProg("/sbin/lsmod | grep -q "+tablename)
         if status == 0:
+            cmd = "/sbin/iptables -t "+tablename+" -nvL"
             self.collectExtOutput(cmd)
-        else:
-            self.writeTextToCommand(cmd,"IPTables module "+tablename+" not loaded\n")
 
     def setup(self):
         self.addCopySpec("/proc/net")

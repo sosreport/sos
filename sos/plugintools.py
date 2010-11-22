@@ -409,24 +409,6 @@ class PluginBase:
 
         return outfn
 
-    def writeTextToCommand(self, exe, text):
-        """ A function that allows you to write a random text string to the
-        command output location referenced by exe; this is useful if you want
-        to conditionally collect information, but still want the output file
-        to exist so as not to confuse readers """
-
-        outfn = self.makeCommandFilename(exe)
-
-        if not os.path.isdir(os.path.dirname(outfn)):
-            os.mkdir(os.path.dirname(outfn))
-
-        outfd = open(outfn, "w")
-        outfd.write(text)
-        outfd.close()
-
-        self.executedCommands.append({'exe': exe, 'file': outfn}) # save in our list
-        return outfn
-
     # For adding warning messages regarding configuration sanity
     def addDiagnose(self, alertstring):
         """ Add a configuration sanity warning for this plugin. These
