@@ -24,7 +24,7 @@ class ipa(sos.plugintools.PluginBase):
     # need to get kerberos and ipa specific addons.
 
     def checkenabled(self):
-        return self.isInstalled("ipa-server") or exists("/etc/ipa"):
+        return self.isInstalled("ipa-server") or exists("/etc/ipa")
 
     def setup(self):
         self.addCopySpec("/etc/dirsrv/ds.keytab")

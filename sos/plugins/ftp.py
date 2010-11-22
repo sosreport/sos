@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-from os.path import returns
+from os.path import exists
 
 class ftp(sos.plugintools.PluginBase):
     """FTP server related information
