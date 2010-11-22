@@ -29,7 +29,6 @@ class autofs(sos.plugintools.PluginBase):
         """ testing if autofs debug has been enabled anywhere
         """
         # Global debugging
-        optlist=[]
         opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
         for opt1 in opt:
             for opt2 in opt1.split(" "):
