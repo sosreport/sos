@@ -55,5 +55,3 @@ class autofs(sos.plugintools.PluginBase):
         self.collectExtOutput("LC_ALL=C /sbin/chkconfig --list autofs")
         if self.checkdebug():
             self.addCopySpec(self.getdaemondebug())
-        return
-

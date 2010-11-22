@@ -23,4 +23,3 @@ class netdump(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/sysconfig/netdump")
-        return

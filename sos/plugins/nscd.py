@@ -36,6 +36,3 @@ class nscd(sos.plugintools.PluginBase):
                 f = o.split()
                 self.addCopySpecLimit(f[1],
                     sizelimit = self.isOptionEnabled("nscdlogsize"))
-
-        return
-

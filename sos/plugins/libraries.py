@@ -27,5 +27,3 @@ class libraries(sos.plugintools.PluginBase):
         if self.getOption("ldconfigv"):
             self.collectExtOutput("/sbin/ldconfig -v -N -X")
         self.collectExtOutput("/sbin/ldconfig -p -N -X")
-        return
-

@@ -40,4 +40,3 @@ class nfsserver(sos.plugintools.PluginBase):
         self.addCopySpec("/var/lib/nfs/rmtab")
         self.collectExtOutput("/usr/sbin/rpcinfo -p localhost")
         self.collectExtOutput("/usr/sbin/nfsstat -a")
-        return

@@ -26,5 +26,3 @@ class xinetd(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/xinetd.conf")
         self.addCopySpec("/etc/xinetd.d")
-        return
-

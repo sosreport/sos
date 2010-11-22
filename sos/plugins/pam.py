@@ -21,5 +21,3 @@ class pam(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/pam.d")
         self.addCopySpec("/etc/security")
         self.collectExtOutput("/bin/ls -laF /lib/security")
-        return
-

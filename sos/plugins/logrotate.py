@@ -24,4 +24,3 @@ class logrotate(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/cat /var/lib/logrotate.status",
                               suggest_filename = "logrotate_status")
         self.addCopySpec("/etc/logrotate*")
-        return

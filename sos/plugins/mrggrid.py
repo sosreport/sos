@@ -20,4 +20,3 @@ class mrggrid(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/condor/condor_config")
         self.addCopySpec("/usr/bin/condor_status")
-        return

@@ -27,8 +27,6 @@ class radius(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/raddb")
         self.addCopySpec("/etc/pam.d/radiusd")
         self.addCopySpec("/var/log/radius")
-        return
 
     def postproc(self):
         self.doRegexSub("/etc/raddb/sql.conf", r"(\s*password\s*=\s*)\S+", r"\1***")
-        return

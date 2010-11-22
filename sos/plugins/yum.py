@@ -55,4 +55,3 @@ class yum(sos.plugintools.PluginBase):
                 self.collectExtOutput("/bin/zcat %s" % (output.split()[-1],))
             except IndexError:
                 pass
-        return

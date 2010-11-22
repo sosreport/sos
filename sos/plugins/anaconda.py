@@ -28,5 +28,3 @@ class anaconda(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/anaconda.log")
         self.addCopySpec("/var/log/anaconda.syslog")
         self.addCopySpec("/var/log/anaconda.xlog")
-        return
-

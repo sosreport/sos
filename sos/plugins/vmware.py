@@ -25,4 +25,3 @@ class vmware(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/vmware -v")
         self.addCopySpec("/etc/vmware/locations")
         self.addCopySpec("/etc/vmware/config")
-        return

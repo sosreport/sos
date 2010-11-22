@@ -25,5 +25,3 @@ class ftp(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/ftp*")
         self.addCopySpec("/etc/vsftpd")
-        return
-

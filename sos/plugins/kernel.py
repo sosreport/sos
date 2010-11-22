@@ -73,8 +73,6 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/sys/kernel/tainted")
         self.addCopySpec("/proc/buddyinfo")
 
-        return
-
     def diagnose(self):
 
         infd = open("/proc/modules", "r")
@@ -117,4 +115,3 @@ class kernel(sos.plugintools.PluginBase):
                     # found a taint match, create an alert
                     moduleName = line.split()[0]
                     self.addAlert("Check for tainted kernel by module %s, which is %s" % (moduleName, tainter['description']))
-        return

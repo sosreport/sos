@@ -21,4 +21,3 @@ class mrgmessg(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/qpidd.conf")
         self.addCopySpec("/etc/sasl2/qpidd.conf")
         self.addCopySpec("/var/rhm")
-        return

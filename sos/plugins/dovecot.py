@@ -22,5 +22,3 @@ class dovecot(sos.plugintools.PluginBase):
         if os.path.exists("/etc/dovecot.conf"):
             self.addCopySpec("/etc/dovecot*")
             self.collectExtOutput("/usr/sbin/dovecot -n")
-        return
-

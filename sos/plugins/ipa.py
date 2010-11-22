@@ -31,5 +31,3 @@ class ipa(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/ipa/ipa.conf")
         self.addCopySpec("/etc/krb5.conf")
         self.addCopySpec("/etc/krb5.keytab")
-        return
-

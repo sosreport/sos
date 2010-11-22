@@ -26,8 +26,6 @@ class selinux(sos.plugintools.PluginBase):
             self.collectExtOutput("/sbin/fixfiles check")
         self.addForbiddenPath("/etc/selinux/targeted")
 
-        return
-
     def checkenabled(self):
         try:
             if self.collectOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":

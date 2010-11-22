@@ -26,4 +26,3 @@ class sendmail(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/mail/*")
         self.addCopySpec("/var/log/maillog")
-        return

@@ -20,4 +20,3 @@ class hts(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/httpd/conf.d/hts.conf")
         self.addCopySpec("/var/hts")
-        return

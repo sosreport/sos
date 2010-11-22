@@ -24,5 +24,3 @@ class apache(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/httpd/conf.d/*.conf")
         if self.getOption("log"):
             self.addCopySpec("/var/log/httpd/*")
-        return
-

@@ -26,5 +26,3 @@ class startup(sos.plugintools.PluginBase):
         if self.getOption('servicestatus'):
             self.collectExtOutput("/sbin/service --status-all")
         self.collectExtOutput("/sbin/runlevel")
-        return
-

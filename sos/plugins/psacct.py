@@ -19,4 +19,3 @@ class psacct(sos.plugintools.PluginBase):
     """
     def setup(self):
         self.addCopySpec("/var/account")
-        return

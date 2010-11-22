@@ -41,4 +41,3 @@ class named(sos.plugintools.PluginBase):
                 self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/dev"))
                 self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/proc"))
         self.addCopySpec("/etc/sysconfig/named")
-        return

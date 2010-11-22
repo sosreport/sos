@@ -40,10 +40,7 @@ class kvm(sos.plugintools.PluginBase):
         if self.getOption('topOutput'):
             self.collectExtOutput("/usr/bin/top -b -d 1 -n 5")
         self.collectExtOutput("/usr/bin/kvm_stat --once")
-        return
 
     def postproc(self):
         if self._debugfs_cleanup and os.path.ismount("/sys/kernel/debug"):
             os.popen("umount /sys/kernel/debug")
-        return
-

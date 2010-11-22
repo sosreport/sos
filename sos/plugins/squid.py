@@ -25,5 +25,3 @@ class squid(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")
-        return
-

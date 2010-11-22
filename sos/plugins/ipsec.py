@@ -25,4 +25,3 @@ class ipsec(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/racoon")
-        return

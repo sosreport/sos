@@ -25,5 +25,3 @@ class tftpserver(sos.plugintools.PluginBase):
 
     def setup(self):
         self.collectExtOutput("/bin/ls -laR /tftpboot")
-        return
-

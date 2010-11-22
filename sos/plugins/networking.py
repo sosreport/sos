@@ -74,6 +74,3 @@ class networking(sos.plugintools.PluginBase):
                 self.collectExtOutput("/sbin/ethtool -S "+eth)
         if self.getOption("traceroute"):
             self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
-            
-        return
-

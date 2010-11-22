@@ -20,4 +20,3 @@ class udev(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/udev/udev.conf")
         self.addCopySpec("/etc/udev/rules.d/*")
-        return

@@ -24,4 +24,3 @@ class auditd(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/audit/auditd.conf")
         self.addCopySpec("/etc/audit/audit.rules")
         self.addCopySpecLimit("/var/log/audit*", sizelimit = self.getOption("syslogsize"))
-        return

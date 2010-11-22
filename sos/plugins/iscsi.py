@@ -21,4 +21,3 @@ class iscsi(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/iscsi/iscsid.conf")
         self.addCopySpec("/etc/iscsi/initiatorname.iscsi")
         self.addCopySpec("/var/lib/iscsi")
-        return

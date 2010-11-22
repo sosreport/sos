@@ -28,5 +28,3 @@ class bootloader(sos.plugintools.PluginBase):
         
         self.collectExtOutput("/sbin/lilo -q")
         self.collectExtOutput("/bin/ls -laR /boot")
-        return
-

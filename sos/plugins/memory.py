@@ -26,5 +26,3 @@ class memory(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
         self.collectExtOutput("/usr/bin/free", root_symlink = "free")
         self.collectExtOutput("/usr/bin/free -m")
-        return
-

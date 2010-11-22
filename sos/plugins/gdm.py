@@ -19,4 +19,3 @@ class gdm(sos.plugintools.PluginBase):
     """
     def setup(self):
         self.addCopySpec("/etc/gdm/*")
-        return 

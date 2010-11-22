@@ -36,5 +36,3 @@ class veritas(sos.plugintools.PluginBase):
                 self.addCopySpec(tarfile[0])
         except AttributeError, e:
             self.addAlert(e)
-            return
-        return

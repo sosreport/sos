@@ -22,5 +22,3 @@ class i18n(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/sysconfig/i18n")
         self.addCopySpec("/etc/X11/xinit/xinput.d/*")
 	self.collectExtOutput("/usr/bin/locale")
-        return
-

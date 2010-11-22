@@ -72,5 +72,3 @@ class filesys(sos.plugintools.PluginBase):
         if self.getOption('dumpe2fs'):
             for extfs in izip(self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts)):
                 self.collectExtOutput("/sbin/dumpe2fs %s" % (extfs))
-        return
-

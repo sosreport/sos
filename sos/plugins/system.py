@@ -30,5 +30,3 @@ class system(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/ntp/step-tickers")
         self.addCopySpec("/etc/ntp/ntpservers")
         self.collectExtOutput("/usr/bin/crontab -l")
-        return
-

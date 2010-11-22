@@ -22,5 +22,3 @@ class ssh(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/ssh/ssh_config")
         self.addCopySpec("/etc/ssh/sshd_config")
-        return
-

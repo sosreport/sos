@@ -32,7 +32,6 @@ class emc(sos.plugintools.PluginBase):
         self.addCustomText("the way they compete and create value from their information. &nbsp;")
         self.addCustomText("Information about EMC's products and services can be found at ")
         self.addCustomText('<a href="http://www.EMC.com/">www.EMC.com</a>.</center>')
-        return
 
     def get_pp_files(self):
         """ EMC PowerPath specific information - files
@@ -47,7 +46,6 @@ class emc(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/emcp_devicesDB.idx")
         self.addCopySpec("/etc/emc/powerkmd.custom")
         self.addCopySpec("/etc/modprobe.conf.pp")
-        return
 
     def get_pp_config(self):
         """ EMC PowerPath specific information - commands
@@ -59,7 +57,6 @@ class emc(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/powermt display ports")
         self.collectExtOutput("/sbin/powermt display paths")
         self.collectExtOutput("/sbin/powermt dump")
-        return
 
     def get_symcli_files(self):
         """ EMC Solutions Enabler SYMCLI specific information - files
@@ -67,7 +64,6 @@ class emc(sos.plugintools.PluginBase):
         self.addCopySpec("/var/symapi/db/symapi_db.bin")
         self.addCopySpec("/var/symapi/config/[a-z]*")
         self.addCopySpec("/var/symapi/log/[a-z]*")
-        return
 
     def get_symcli_config(self):
         """ EMC Solutions Enabler SYMCLI specific information - Symmetrix/DMX - commands
@@ -117,7 +113,6 @@ class emc(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/symcli/bin/symmask list logins")
         self.collectExtOutput("/usr/symcli/bin/symmaskdb list database")
         self.collectExtOutput("/usr/symcli/bin/symmaskdb -v list database")
-        return
 
     def get_navicli_config(self):
         """ EMC Navisphere Host Agent NAVICLI specific information - files
@@ -127,7 +122,6 @@ class emc(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/Navisphere/Quietmode.cfg")
         self.addCopySpec("/etc/Navisphere/messages/[a-z]*")
         self.addCopySpec("/etc/Navisphere/log/[a-z]*")
-        return
 
     def get_navicli_SP_info(self,SP_address):
         """ EMC Navisphere Host Agent NAVICLI specific information - CLARiiON - commands
@@ -145,7 +139,6 @@ class emc(sos.plugintools.PluginBase):
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s port -list -all" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s storagegroup -list" % SP_address)
         self.collectExtOutput("/opt/Navisphere/bin/navicli -h %s spportspeed -get" % SP_address)
-        return
 
     def checkenabled(self):
         self.packages = [ "EMCpower" ]
@@ -222,4 +215,3 @@ class emc(sos.plugintools.PluginBase):
         ## Only provide About EMC if EMC products are installed
         if add_about_emc != "no":
             self.about_emc()
-        return

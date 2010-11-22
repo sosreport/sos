@@ -66,8 +66,5 @@ class general(sos.plugintools.PluginBase):
                     if not os.path.isfile(i): continue
                     self.addCopySpec(i)
 
-        return
-
     def postproc(self):
         self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
-        return

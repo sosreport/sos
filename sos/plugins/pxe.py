@@ -29,4 +29,3 @@ class pxe(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/dhcpd.conf")
         if self.getOption("tftpboot"):
             self.addCopySpec("/tftpboot")
-        return

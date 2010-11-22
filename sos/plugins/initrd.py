@@ -22,7 +22,6 @@ class initrd(sos.plugintools.PluginBase):
         for initrd in glob.glob('/boot/initrd-*.img'):
             self.collectExtOutput("/bin/zcat "+initrd+" | /bin/cpio "+
                 "--extract --to-stdout init" )
-        return
 
     def defaultenabled(self):
         return False

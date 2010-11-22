@@ -22,9 +22,8 @@ class lsbrelease(sos.plugintools.PluginBase):
     def diagnose(self):
         if not os.path.exists("/etc/redhat-release"):
             self.addDiagnose("/etc/redhat-release missing")
-            return
+
     def setup(self):
         self.collectExtOutput("/usr/bin/lsb_release -a")
         self.collectExtOutput("/usr/bin/lsb_release -d", suggest_filename = "lsb_release", root_symlink = "lsb-release")
         self.addCopySpec("/etc/lsb-release*")
-        return    

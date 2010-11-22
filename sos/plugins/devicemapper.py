@@ -62,5 +62,3 @@ class devicemapper(sos.plugintools.PluginBase):
               self.collectExtOutput("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
         for opt in self.dmraidOptions:
             self.collectExtOutput("/sbin/dmraid -%s" % (opt,))
-
-        return

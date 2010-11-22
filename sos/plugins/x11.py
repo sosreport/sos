@@ -31,5 +31,3 @@ class x11(sos.plugintools.PluginBase):
         self.addForbiddenPath("/etc/X11/fontpath.d")
         
         self.addCopySpec("/etc/gdm")
-
-        return

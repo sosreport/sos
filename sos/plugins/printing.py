@@ -28,6 +28,3 @@ class printing(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/lpstat -t")
         self.collectExtOutput("/usr/bin/lpstat -s")
         self.collectExtOutput("/usr/bin/lpstat -d")
-
-        return
-

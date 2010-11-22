@@ -28,5 +28,3 @@ class rpm(sos.plugintools.PluginBase):
 
         if self.getOption("rpmva"):
             self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
-        return
-

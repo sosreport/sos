@@ -90,8 +90,6 @@ class xen(sos.plugintools.PluginBase):
             # useful, so I'll leave it out for now
         else:
             # for bare-metal, we don't have to do anything special
-            return
+            return #USEFUL
 
         self.addCustomText("Xen hostType: "+host_type)
-        return
-

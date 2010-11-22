@@ -41,4 +41,3 @@ class abrt(sos.plugintools.PluginBase):
                 suggest_filename="abrt-log")
         if self.getOption('backtraces'):
             self.do_backtraces()
-        return

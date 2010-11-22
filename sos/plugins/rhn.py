@@ -81,8 +81,6 @@ class rhn(sos.plugintools.PluginBase):
             # copying logs
             self.addCopySpec("/var/log/squid")
 
-        return
-
 #    def diagnose(self):
         # RHN Proxy:
         # * /etc/sysconfig/rhn/systemid is owned by root.apache with the permissions 0640

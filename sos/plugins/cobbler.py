@@ -25,4 +25,3 @@ class cobbler(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/cobbler")
         self.addCopySpec("/var/lib/rhn/kickstarts") 
         self.addCopySpec("/var/lib/cobbler")
-        return

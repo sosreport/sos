@@ -26,5 +26,3 @@ class postfix(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/postfix/main.cf")
         self.addCopySpec("/etc/postfix/master.cf")
         self.collectExtOutput("/usr/sbin/postconf")
-        return
-

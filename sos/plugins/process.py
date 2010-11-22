@@ -25,7 +25,6 @@ class process(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/ps alxwww")
         self.collectExtOutput("/usr/bin/pstree", root_symlink = "pstree")
         self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
-        return
 
     def find_mountpoint(s):
         if (os.path.ismount(s) or len(s)==0): return s
@@ -57,8 +56,3 @@ class process(sos.plugintools.PluginBase):
 
         if len(dpids):
             self.addDiagnose("one or more processes are in state D (sosreport might hang)")
-
-        return
-
-
-

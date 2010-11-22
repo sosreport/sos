@@ -24,4 +24,3 @@ class crontab(sos.plugintools.PluginBase):
         self.collectExtOutput("""for i in `ls /home/`;\
         do echo "User :" $i;/usr/bin/crontab -l -u $i;\
         echo "---------------";done""", suggest_filename = "users_crontabs")
-        return

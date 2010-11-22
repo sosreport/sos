@@ -31,4 +31,3 @@ class soundcard(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/aplay -L")
         self.collectExtOutput("/usr/bin/amixer")
         self.collectExtOutput("/sbin/lsmod | /bin/grep snd | /bin/awk '{print $1}'", suggest_filename = "sndmodules_loaded")
-        return 

@@ -47,4 +47,3 @@ class ldap(sos.plugintools.PluginBase):
 
     def postproc(self):
         self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
-        return

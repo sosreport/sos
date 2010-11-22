@@ -26,4 +26,3 @@ class quagga(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/quagga/")
-        return

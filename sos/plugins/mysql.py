@@ -29,4 +29,3 @@ class mysql(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/sysconfig/network")
         self.addCopySpec("/etc/ld.so.conf.d/mysql*")
         self.addCopySpec("/var/log/mysql*")
-        return

@@ -20,4 +20,3 @@ class ntp(sos.plugintools.PluginBase):
     def setup(self):
         self.collectExtOutput("/usr/bin/ntpstat")
         self.collectExtOutput("/usr/sbin/ntptrace -n")
-        return

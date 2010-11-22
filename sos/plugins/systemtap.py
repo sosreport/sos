@@ -33,5 +33,3 @@ class systemtap(sos.plugintools.PluginBase):
         #self.collectExtOutput("/bin/rpm -qa 'kernel*' systemtap elfutils --nosignature --nodigest | /bin/egrep -e kernel.*`uname -r` -e systemtap -e elfutils | sort")
         self.collectExtOutput("/usr/bin/stap -V 2")
         self.collectExtOutput("/bin/uname -r")
-        return
-

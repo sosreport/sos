@@ -48,5 +48,3 @@ class ds(sos.plugintools.PluginBase):
         elif "ds7" in self.check_version():
             self.addCopySpec("/opt/redhat-ds/slapd-*/config")
             self.addCopySpec("/opt/redhat-ds/slapd-*/logs")
-        return
-

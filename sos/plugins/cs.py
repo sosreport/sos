@@ -81,4 +81,3 @@ class cs(sos.plugintools.PluginBase):
             self.addCopySpec("/var/log/pki-*/ra-debug.log")
             self.addCopySpec("/var/log/pki-*/transactions")
             self.addCopySpec("/var/log/pki-*/system")
-        return

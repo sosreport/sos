@@ -254,8 +254,6 @@ class cluster(sos.plugintools.PluginBase):
         if self.getOption('gfslockdump'): self.do_gfslockdump()
         if self.getOption('lockdump'): self.do_lockdump()
 
-        return
-
     def do_lockdump(self):
         status, output, time= self.callExtProg("cman_tool services")
         if status:

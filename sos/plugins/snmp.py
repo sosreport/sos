@@ -25,5 +25,3 @@ class snmp(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/snmp")
-        return
-
