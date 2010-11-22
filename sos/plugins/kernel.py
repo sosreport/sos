@@ -56,6 +56,7 @@ class kernel(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/sysctl -a")
         if os.path.isfile("/sbin/ksyms"):
             self.collectExtOutput("/sbin/ksyms")
+        self.addCopySpec("/proc/sys/kernel/random/boot_id")
         self.addCopySpec("/sys/module/*/parameters")
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/proc/ksyms")

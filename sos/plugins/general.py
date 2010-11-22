@@ -42,6 +42,7 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/up2date")
         self.collectExtOutput("/usr/bin/hostid")
         self.addCopySpec("/etc/hostid")        
+        self.addCopySpec("/var/lib/dbus/machine-id")
         self.addCopySpec("/etc/exports")        
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
         self.collectExtOutput("/bin/date", root_symlink = "date")
