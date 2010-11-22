@@ -40,6 +40,8 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/sa")
         self.addCopySpec("/var/log/pm/suspend.log")
         self.addCopySpec("/var/log/up2date")
+        self.collectExtOutput("/usr/bin/hostid")
+        self.addCopySpec("/etc/hostid")        
         self.addCopySpec("/etc/exports")        
         self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
         self.collectExtOutput("/bin/date", root_symlink = "date")
