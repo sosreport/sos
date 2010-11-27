@@ -42,7 +42,25 @@ class PexpectTest(unittest.TestCase):
     def test_exit(self):
         self.sendlines(['exit'])
         self.__finishes_ok__()
+
+    def test_ctrlc_on_cmd_prompt_quits(self):
+        self.sig(SIGINT)
         self.expect(pexpect.EOF)
+        self.__finishes_ok__()
+
+    def test_ctrlc_when_entering_command_quits(self):
+        # "Mon clavier se blo" -- French reference
+        self.send('glo')
+        self.sig(SIGINT)
+        self.expect(pexpect.EOF)
+
+    def test_ctrlc_on_readparms_drops(self):
+        self.sendlines(['exec'])
+        self.sig(SIGINT)
+        self.expect('#0#\r\n')
+        self.sendlines(['glob'])
+        self.sig(SIGINT)
+        self.expect('#0#\r\n')
 
     def test_basic_noop(self):
         self.sendlines(['noop'])
