@@ -85,15 +85,6 @@ Returns:
 - The length of its stderr output as return by len(), in decimal.
 - Its stderr output, followed by a trailing '\n'
 
-Command: "exec2file"
-Params:
-- The command to send to a shell
-- The filename to send the standard output to
-Action:
-- If the command is found, it is executed with this file as stdout and stderr.
-Returns:
-- The return code of the command in decimal.
-
 Command: "cp"
 -- to be defined after staring at the current sosreport code.
 
