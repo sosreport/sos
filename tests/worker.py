@@ -14,17 +14,34 @@ class PexpectTest(unittest.TestCase):
         # worker should always be very fast to span
         self.expect('#0#\r\n')
 
-    def sendlines(self, lines):
-        for line in lines:
-            self.worker.sendline(line)
-            self.worker.expect(line+'\r\n')
+    def sig(self, sig):
+        kill(self.worker.pid, sig)
+
+    def lose_expect(self, v, timeout = 3):
+        self.worker.expect(v, timeout)
 
     def expect(self, v, timeout = 3):
-        self.worker.expect(v, timeout)
-        self.assertEqual(self.worker.before, "")
+        self.lose_expect(v, timeout)
+        self.assertEqual(self.worker.before, '')
+
+    def send(self, text):
+        self.worker.send(text)
+        self.expect(escape(text))
+
+    def sendlines(self, lines):
+        for line in lines:
+            self.worker.send(line+'\n')
+        for line in lines:
+            self.expect(escape(line)+'\r\n')
+
+    def __finishes_ok__(self):
+        self.expect(pexpect.EOF)
+        self.worker.close()
+        self.assertEqual(self.worker.exitstatus, 0)
 
     def test_exit(self):
         self.sendlines(['exit'])
+        self.__finishes_ok__()
         self.expect(pexpect.EOF)
 
     def test_basic_noop(self):
