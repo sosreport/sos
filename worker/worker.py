@@ -82,7 +82,7 @@ class Shell:
         self.__status_stream__ = status_stream
         self.__bork_action__ = bork_action or self.exit
         self.__exit__ = False
-        self.__cmd_number__ = 0
+        self.__req_counter__ = 0
 
     def loop(self):
         while self.__exit__ == False:
@@ -98,7 +98,7 @@ class Shell:
                 except KeyboardInterrupt:
                     pass
                 else:
-                    self.__cmd_number__ += 1
+                    self.__req_counter__ += 1
                     try:
                         request.execute()
                     except KeyboardInterrupt:
@@ -111,7 +111,7 @@ class Shell:
         self.__bork_action__()
 
     def show_prompt(self):
-        self.write("#%i#\n" % self.__cmd_number__)
+        self.write("#%i#\n" % self.__req_counter__)
 
     def status(self, str):
         print >> self.__status_stream__, str
