@@ -3,8 +3,11 @@
 import unittest
 import pexpect
 
-class PexpectTest(unittest.TestCase):
+from re import search, escape
+from os import kill
+from signal import SIGINT, SIGUSR1
 
+class PexpectTest(unittest.TestCase):
 
     def setUp(self):
         self.worker = pexpect.spawn('python ../worker/worker.py')
