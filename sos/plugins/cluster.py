@@ -255,7 +255,7 @@ class cluster(sos.plugintools.PluginBase):
         if self.getOption('lockdump'): self.do_lockdump()
 
     def do_lockdump(self):
-        status, output, time= self.callExtProg("cman_tool services")
+        status, output, time = self.callExtProg("cman_tool services")
         if status:
             # command somehow failed
             return False
@@ -267,10 +267,11 @@ class cluster(sos.plugintools.PluginBase):
         elif rhelver == 5:
             regex = r'^dlm\s+[^\s]+\s+([^\s]+)\s.*$'
 
-        reg=re.compile(regex,re.MULTILINE)
+        reg=re.compile(regex, re.MULTILINE)
         for lockspace in reg.findall(output):
-           ret, out, time = self.callExtProg("echo %s > /proc/cluster/dlm_locks" % lockspace)
-           self.collectOutputNow("cat /proc/cluster/dlm_locks", root_symlink = "dlm_locks_%s" % lockspace)
+            ret, out, time = self.callExtProg("echo %s > /proc/cluster/dlm_locks" % lockspace)
+            self.collectOutputNow("cat /proc/cluster/dlm_locks",
+                suggest_filename = "dlm_locks_%s" % lockspace)
 
     def get_locking_proto(self):
         # FIXME: what's the best way to find out ?
@@ -279,7 +280,8 @@ class cluster(sos.plugintools.PluginBase):
 
     def do_gfslockdump(self):
         for mntpoint in self.doRegexFindAll(r'^\S+\s+([^\s]+)\s+gfs\s+.*$', "/proc/mounts"):
-           self.collectExtOutput("/sbin/gfs_tool lockdump %s" % mntpoint, root_symlink = "gfs_lockdump_" + self.mangleCommand(mntpoint) )
+           self.collectExtOutput("/sbin/gfs_tool lockdump %s" % mntpoint,
+               suggest_filename = "gfs_lockdump_" + self.mangleCommand(mntpoint))
 
     def do_rgmanager_bt(self):
         # FIXME: threads backtrace via SIGALRM
