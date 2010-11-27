@@ -1,7 +1,0 @@
-# Tests for any plugins that do not install
-
-set test "plugin installs"
-spawn /usr/sbin/sosreport -l
-expect {
-    -re "plugin.*does not install, skipping" { fail $test }
-}

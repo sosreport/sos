@@ -1,3 +1,0 @@
-set tool sos
-set srcdir .
-set objdir sos.test
