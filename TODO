@@ -1,7 +1,5 @@
 To Do List:
 
- * --batch option
-
  * Gather statistics (time, files collected, commands run) per plugin
 
  * Choose sane defaults to satisfy Red Hat support requirements (ie. what
