@@ -75,18 +75,12 @@ class ExecRequest(Request):
         self.shell.write_blob(stderr)
 
 class Shell:
-    def __init__(self,
-        input_stream  = None,
-        output_stream = None,
-        status_stream = None,
-        bork_action   = None):
+    def __init__(self, input_stream, output_stream, status_stream,
+                 bork_action = None):
         self.__input_stream__  = input_stream
         self.__output_stream__ = output_stream
         self.__status_stream__ = status_stream
-        if bork_action:
-            self.__bork_action__ = bork_action
-        else:
-            self.__bork_action__ = self.exit
+        self.__bork_action__ = bork_action or self.exit
         self.__exit__ = False
         self.__cmd_number__ = 0
 
@@ -153,7 +147,4 @@ if __name__ == "__main__":
     signal(SIGUSR1, handler)
     def bork():
         exit(-1)
-    Shell(input_stream = stdin,
-          output_stream = stdout,
-          status_stream = stderr,
-          bork_action = bork).loop()
+    Shell(stdin, stdout, stderr, bork_action = bork).loop()
