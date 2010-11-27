@@ -22,23 +22,33 @@ When gatherer is expected to write in a file, its parent directory should exist
 and it will be opened with the "w" flag (unless stated otherwise).
 
 No timeout handling should be implemented in gatherer.
-SIGTERM should be intercepted and:
-- stop the current request and continue the normal flow of execution when a
-  request is being handled,
+SIGINT should be handled and:
+- stop the current request, write INTERRUPTED to stderr then continue the normal
+  flow of execution when a request is being handled,
 - be treated as an 'exit' request is a command was being read
 - be treated as a 'reset' if a command was already read, but the request is
   still being read. The current request should be dropped and a new request
   should be read, the request counter is not incremented as no request was
   processed.
 
-stderr is only used:
-- by Python, for example to display exceptions.
-- to print "ALIVE" when SIGUSR1 is received or after a "noop" request.
+stderr is used:
+- by Python to display exceptions;
+- to print "ALIVE" when SIGUSR1 is received or after a "ping" request;
+- to print "UNKNOWN COMMAND" when a command is unknown;
+- to print "INTERRUPTED" when a command is interrupted with SIGINT.
 
 Requests
 --------
 
 Command: "noop"
+Params:
+- None
+Action:
+- None
+Returns:
+- Nothing
+
+Command: "ping"
 Params:
 - None
 Action:
@@ -69,12 +79,10 @@ Params:
 Action:
 - Executes the command in a shell using subprocess.Popen
 Returns:
-- On the first line, the return code
-- On the second line, the length of its stdout output as return by len(), in
-  decimal.
-- On the third line, the length of its stderr output as return by len(), in
-  decimal.
+- The return code of the command
+- The length of its stdout output as return by len(), in decimal.
 - Its stdout output, followed by a trailing '\n'
+- The length of its stderr output as return by len(), in decimal.
 - Its stderr output, followed by a trailing '\n'
 
 Command: "exec2file"
