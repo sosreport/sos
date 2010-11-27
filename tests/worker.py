@@ -77,6 +77,27 @@ class PexpectTest(unittest.TestCase):
         self.expect('2\r\n(/bin\r\n/sbin|/sbin\r\n/bin)\r\n#1#\r\n')
         self.test_exit()
 
+    def test_empty_glob(self):
+        self.sendlines(['glob', '/?kyzh?'])
+        self.expect('0\r\n#1#\r\n')
+        self.test_exit()
+
+    def test_increasing_counter(self):
+        for req_counter in range(1, 5):
+            self.sendlines(['noop'])
+            self.expect('#%i#\r\n' % req_counter)
+        for req_counter in range(5, 10):
+            self.sendlines(['ping'])
+            self.expect('ALIVE\r\n#%i#\r\n' % req_counter)
+        self.test_exit()
+
+    def test_queuecommands(self):
+        self.worker.send('ping\n'*5)
+        self.worker.send('exec\necho lol\n'*5)
+        for req_counter in range(1,6):
+            self.lose_expect('ALIVE\r\n#%i#\r\n' % req_counter)
+        for req_counter in range(6,11):
+            self.lose_expect('0\r\n4\r\nlol\r\n\r\n0\r\n\r\n#%i#\r\n' % req_counter)
         self.test_exit()
 
 if __name__ == '__main__':
