@@ -1,0 +1,93 @@
+==============
+gatherer specs
+==============
+
+WORK IN PROGRESS
+
+When a command is expected, the line "#X#" is printed, where X is the number of
+the request, starting a 0 and incremented after each processed request.
+
+Requests are spanned on multiple lines. The first line is the command, the
+following lines are parameters (one parameter per line unless stated otherwise).
+
+Requests are all blocking. As they are read from stdin using readline(),
+they can be buffered in stdin.
+
+When the number of parameters or returns is variable, it should be indicated
+first.
+When a parameter or returned value is not one line of printable characters,
+its length as returned by len() should be indicated first.
+
+When gatherer is expected to write in a file, its parent directory should exist
+and it will be opened with the "w" flag (unless stated otherwise).
+
+No timeout handling should be implemented in gatherer.
+SIGTERM should be intercepted and:
+- stop the current request and continue the normal flow of execution when a
+  request is being handled,
+- be treated as an 'exit' request is a command was being read
+- be treated as a 'reset' if a command was already read, but the request is
+  still being read. The current request should be dropped and a new request
+  should be read, the request counter is not incremented as no request was
+  processed.
+
+stderr is only used:
+- by Python, for example to display exceptions.
+- to print "ALIVE" when SIGUSR1 is received or after a "noop" request.
+
+Requests
+--------
+
+Command: "noop"
+Params:
+- None
+Action:
+- Prints "ALIVE" on stderr
+Returns:
+- Nothing
+
+Command: "exit"
+Params:
+- None
+Action:
+- The gatherer process returns 0
+Returns:
+- Nothing
+
+Command: "glob"
+Params:
+- The globbing pattern
+Action:
+- Performs a glob.glob()
+Returns:
+- On the first line, a number of results, n
+- On the following n lines, filenames, line by line
+
+Command: "exec"
+Params:
+- The command to send to a shell
+Action:
+- Executes the command in a shell using subprocess.Popen
+Returns:
+- On the first line, the return code
+- On the second line, the length of its stdout output as return by len(), in
+  decimal.
+- On the third line, the length of its stderr output as return by len(), in
+  decimal.
+- Its stdout output, followed by a trailing '\n'
+- Its stderr output, followed by a trailing '\n'
+
+Command: "exec2file"
+Params:
+- The command to send to a shell
+- The filename to send the standard output to
+Action:
+- If the command is found, it is executed with this file as stdout and stderr.
+Returns:
+- The return code of the command in decimal.
+
+Command: "cp"
+-- to be defined after staring at the current sosreport code.
+
+Command: "globcp"
+-- to be defined after staring at the current sosreport code.
