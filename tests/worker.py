@@ -74,7 +74,9 @@ class PexpectTest(unittest.TestCase):
 
     def test_basic_glob(self):
         self.sendlines(['glob', '/*bin'])
-        self.expect('2\r\n(/bin\r\n/sbin|/sbin\r\n/bin)\r\n')
+        self.expect('2\r\n(/bin\r\n/sbin|/sbin\r\n/bin)\r\n#1#\r\n')
+        self.test_exit()
+
         self.test_exit()
 
 if __name__ == '__main__':
