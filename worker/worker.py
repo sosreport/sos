@@ -55,7 +55,7 @@ class GlobRequest(Request):
     def execute(self):
         from glob import glob
         results = glob(self.pattern)
-        self.shell.write(len(results)+"\n")
+        self.shell.write("%i\n" % len(results))
         for result in results:
             self.shell.write(result+"\n")
 
