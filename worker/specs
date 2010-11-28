@@ -29,16 +29,10 @@ WORK IN PROGRESS
 /No timeout handling should be implemented in gatherer.
 [statement]
 
-SIGINT should be handled and:
-- stop the current request, write INTERRUPTED to stderr then continue the normal
-  flow of execution when a request is being handled,
-/- be treated as an 'exit' request is a command was being read
-[test_ctrl_on_cmd_prompt_quits, test_ctrl_when_entering_command_quits]
-/- be treated as a 'reset' if a command was already read, but the request is
-/  still being read. The current request should be dropped and a new request
-/  should be read, the request counter is not incremented as no request was
-/  processed.
-[test_ctrlc_on_readparms_drops]
+SIGINT should stop the current request parsing or execution,
+write '#X# INTERRUPTED' to stderr where X is the number of the request,
+then continue the normal flow of execution including incrementing the request
+number.
 
 /stderr is only used:
 /- by Python to display exceptions;
