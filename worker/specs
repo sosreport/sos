@@ -38,7 +38,7 @@ number.
 /- by Python to display exceptions;
 /- to print "ALIVE" when SIGUSR1 is received or after a "ping" request;
 /- to print "UNKNOWN COMMAND" when a command is unknown;
-/- to print "INTERRUPTED" when a command is interrupted with SIGINT.
+/- to print "INTERRUPTED #X#" when a command is interrupted with SIGINT.
 [statement(easy to prove wrong, hard to prove right)]
 
 Requests

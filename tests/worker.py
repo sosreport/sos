@@ -14,6 +14,9 @@ class WorkerTests(unittest.TestCase):
     def prompt(self, n):
         return ('#%i#\r\n' % n)
 
+    def interrupted(self, n):
+        return ('#%i# INTERRUPTED\r\n' % n)
+
     def setUp(self):
         self.worker = pexpect.spawn('python ../worker/worker.py')
         # worker should always be very fast to span
@@ -48,24 +51,32 @@ class WorkerTests(unittest.TestCase):
         self.sendlines(['exit'])
         self.__finishes_ok__()
 
-    def test_ctrlc_on_cmd_prompt_quits(self):
+    def test_ctrlc_when_running(self):
+        self.sendlines(['exec', 'sleep 1; exec echo lol'])
         self.sig(SIGINT)
-        self.expect(pexpect.EOF)
-        self.__finishes_ok__()
+        self.expect(self.interrupted(0)+self.prompt(1))
+        self.test_exit()
 
-    def test_ctrlc_when_entering_command_quits(self):
+    def test_ctrlc_on_cmd_prompt(self):
+        self.sig(SIGINT)
+        self.expect(self.interrupted(0)+self.prompt(1))
+        self.test_exit()
+
+    def test_ctrlc_when_entering_command(self):
         # "Mon clavier se blo" -- French reference
         self.send('glo')
         self.sig(SIGINT)
-        self.expect(pexpect.EOF)
+        self.expect(self.interrupted(0)+self.prompt(1))
+        self.test_exit()
 
     def test_ctrlc_on_readparms_drops(self):
         self.sendlines(['exec'])
         self.sig(SIGINT)
-        self.expect(self.prompt(0))
+        self.expect(self.interrupted(0)+self.prompt(1))
         self.sendlines(['glob'])
         self.sig(SIGINT)
-        self.expect(self.prompt(0))
+        self.expect(self.interrupted(1)+self.prompt(2))
+        self.test_exit()
 
     def test_basic_noop(self):
         self.sendlines(['noop'])
