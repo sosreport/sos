@@ -67,7 +67,6 @@ class WorkerTests(unittest.TestCase):
         self.sig(SIGINT)
         self.expect(self.prompt(0))
 
-
     def test_basic_noop(self):
         self.sendlines(['noop'])
         self.expect(self.prompt(1))
@@ -86,6 +85,34 @@ class WorkerTests(unittest.TestCase):
     def test_empty_glob(self):
         self.sendlines(['glob', '/?kyzh?'])
         self.expect('0\r\n'+self.prompt(1))
+        self.test_exit()
+
+    def test_basic_sigusr1(self):
+        self.sig(SIGUSR1)
+        self.expect('ALIVE\r\n')
+        self.test_exit()
+
+    def test_sigusr1_when_entering_command(self):
+        self.worker.send('pin')
+        self.sig(SIGUSR1)
+        self.expect('pinALIVE\r\n')
+        self.sendlines(['g'])
+        self.expect('ALIVE\r\n' + self.prompt(1))
+        self.test_exit()
+
+    def test_sigusr1_on_readparms(self):
+        self.worker.send('exec\nech')
+        self.sig(SIGUSR1)
+        self.worker.send('o lol\n')
+        self.expect('exec\r\nechALIVE\r\no lol\r\n'+
+            self.__exec_echo_lol_output__ + self.prompt(1))
+        self.test_exit()
+
+    def test_exec_continues_after_sigusr1(self):
+        self.worker.send('exec\nsleep 0.1; exec echo lol\n')
+        self.sig(SIGUSR1)
+        self.expect('exec\r\nsleep 0.1; exec echo lol\r\nALIVE\r\n'+
+            self.__exec_echo_lol_output__ + self.prompt(1))
         self.test_exit()
 
     def test_increasing_counter(self):
