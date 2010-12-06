@@ -2,8 +2,8 @@
 # Low German translation of sos
 # This file is distributed under the same license as the sos package.
 # Copyright (C) 2007 Red hat, Inc.
-#
-#
+# 
+# 
 # Nils-Christoph Fiedler <ncfiedler@fedoraproject.org>, 2010.
 msgid ""
 msgstr ""
@@ -17,19 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: nds\n"
-"Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: KBabel 1.11.4\n"
 "X-Poedit-Language: Low German\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ../sos/sosreport.py:350
 msgid "Could not create temporary directory."
 msgstr "Künn keen twüschentiedliches Verteeknis erstellen."
-
-#: ../sos/sosreport.py:413
-#, python-format
-msgid "sosreport (version %s)"
-msgstr ""
 
 #: ../sos/sosreport.py:438
 #, python-format
@@ -138,10 +133,6 @@ msgstr ""
 msgid "Please enter the case number that you are generating this report for: "
 msgstr ""
 
-#: ../sos/policyredhat.py:254
-msgid "Creating compressed archive..."
-msgstr ""
-
 #: ../sos/policyredhat.py:284
 msgid "Encrypting archive..."
 msgstr "Entslötel Archiv..."
@@ -186,3 +177,11 @@ msgstr ""
 msgid "Please communicate this name to your support representative."
 msgstr ""
 
+#: ../sos/sosreport.py:413
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (Verschoon %s)"
+
+#: ../sos/policyredhat.py:254
+msgid "Creating compressed archive..."
+msgstr "Erstelle komprimertes Archiv..."
