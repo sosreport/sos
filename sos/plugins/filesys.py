@@ -36,6 +36,7 @@ class filesys(sos.plugintools.PluginBase):
         
         self.collectExtOutput("/bin/findmnt")
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
+        self.collectExtOutput("/bin/df -ali")
         if self.getOption('lsof'):
             self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
         self.collectExtOutput("/sbin/blkid -c /dev/null")
