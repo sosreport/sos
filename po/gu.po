@@ -1,24 +1,25 @@
-# translation of gu.po to Gujarati
+# translation of sos.trunk.gu.po to Gujarati
 # Gujarati translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
 #
 # Automatically generated, 2007.
 # Ankit Patel <ankit@redhat.com>, 2007.
+# Sweta Kothari <swkothar@redhat.com>, 2011.
 msgid ""
 msgstr ""
-"Project-Id-Version: gu\n"
+"Project-Id-Version: sos.trunk.gu\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-15 15:02+0000\n"
-"PO-Revision-Date: 2007-11-06 16:53+0530\n"
-"Last-Translator: Ankit Patel <ankit@redhat.com>\n"
-"Language-Team: Gujarati <fedora-trans-gu@redhat.com>\n"
-"Language: gu\n"
+"PO-Revision-Date: 2011-01-04 17:39+0530\n"
+"Last-Translator: Sweta Kothari <swkothar@redhat.com>\n"
+"Language-Team: Gujarati\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: gu\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
-"Plural-Forms:  nplurals=2; plural=(n!=1);\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "\n"
 
 #: ../sos/sosreport.py:350
@@ -73,7 +74,7 @@ msgid "no valid plugins were enabled"
 msgstr "કોઈ માન્ય પ્લગઈનો સક્રિય કરેલ હતા નહિં"
 
 #: ../sos/sosreport.py:624
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -87,10 +88,10 @@ msgid ""
 "\n"
 msgstr ""
 "આ ઉપયોગીતા હાર્ડવેર વિશે અમુક વિગતવાર જાણકારી\n"
-"ભેગી કરશે અને તમારી Red Hat Enterprise Linux સિસ્ટમ સુયોજીત કરશે.\n"
+"ભેગી કરશે અને તમારી %(distroa)s સિસ્ટમ સુયોજીત કરશે.\n"
 "જાણકારી ભેગી થયેલ છે અને પેટી એ /tmp ડિરેક્ટરી હેઠળ પેકેજ\n"
 "થયેલ છે, કે જેને તમે આધાર રજૂઆતકને મોકલી શકો છો.\n"
-"Red Hat આ જાણકારીનો માત્ર તપાસ હેતુઓ માટે જ ઉપયોગ કરશે\n"
+"%(distrob)s આ જાણકારીનો માત્ર તપાસ હેતુઓ માટે જ ઉપયોગ કરશે\n"
 "અને તે ખાનગી જાણકારી તરીકે ધ્યાનમાં લેવામાં આવશે.\n"
 "\n"
 "આ પ્રક્રિયા સમાપ્ત થવા માટે થોડો સમય લેશે.\n"
@@ -131,12 +132,12 @@ msgstr "N"
 
 #: ../sos/sosreport.py:713
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr "  પ્લગઇનોને ચલાવી રહ્યા છીએ. મહેરબાની કરીને થોભો ..."
 
 #: ../sos/sosreport.py:827
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  sosreport બિલ્ડ ટ્રી તેની પર સ્થિત થયેલ છે : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -178,7 +179,7 @@ msgstr "મહેરબાની કરીને આ ફાઈલ તમાર�
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "config ફાઇલમાં URL વ્યાખ્યાયિત થયેલ નથી."
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
@@ -189,22 +190,11 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "તમારા અહેવાલને Red Hat આધારમાં અપલોડ કરવામાં સમસ્યા હતી."
 
 #: ../sos/policyredhat.py:401
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "તમારો અહેવાલ Red Hat ના ftp સર્વરમાં આ નામ સાથે સફળતાપૂર્વક અપલોડ થયો હતો:"
+msgstr "તમારો અહેવાલ %s નામ સાથે સફળતાપૂર્વક અપલોડ થયો હતો:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "મહેરબાની કરીને આ નામ તમારા આધાર રજૂઆતકને મોકલો."
 
-#~ msgid "plugin %s skipped (--skip-plugins)"
-#~ msgstr "પ્લગઈન %s છોડી દેવામાં આવ્યું (--skip-plugins)"
-
-#~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "પ્લગઈન %s અસક્રિય છે (સક્રિય કરવા માટે -e અથવા -o વાપરો)."
-
-#~ msgid "plugin %s not specified in --only-plugins list"
-#~ msgstr "પ્લગઈન %s --only-plugins યાદીમાં સ્પષ્ટ થયેલ નથી"
-
-#~ msgid "processing options from plugin: %s"
-#~ msgstr "આ પ્લગઈનમાંથી પ્રક્રિયાકરણ વિકલ્પો: %s"
