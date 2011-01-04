@@ -3,21 +3,21 @@
 # Copyright (C) 2007 ORGANIZATION
 #
 # Automatically generated, 2007.
-# Manoj Kumar Giri <mgiri@redhat.com>, 2009.
+# Manoj Kumar Giri <mgiri@redhat.com>, 2009, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk.or\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-15 15:02+0000\n"
-"PO-Revision-Date: 2009-09-02 17:02+0530\n"
+"PO-Revision-Date: 2011-01-04 18:25+0530\n"
 "Last-Translator: Manoj Kumar Giri <mgiri@redhat.com>\n"
 "Language-Team: Oriya <oriya-it@googlegroups.com>\n"
-"Language: or\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: or\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Lokalize 1.1\n"
 "Plural-Forms:  nplurals=2; plural=(n!=1);\n"
 "\n"
 "\n"
@@ -76,7 +76,7 @@ msgid "no valid plugins were enabled"
 msgstr "କୌଣସି ବୈଧ ପ୍ଲଗଇନକୁ ସକ୍ରିୟ କରାହୋଇନାହିଁ"
 
 #: ../sos/sosreport.py:624
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -89,11 +89,11 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"ଏହି ଉପଯୋଗିତାଟି ହାର୍ଡୱେର ବିଷୟରେ କିଛି ବିସ୍ତୃତ ସୂଚନା ସଂଗ୍ରହ ସଂଗ୍ରହ କରିଥାଏ\n"
-"ଏବଂ ଆପଣଙ୍କର Red Hat Enterprise Linux  ତନ୍ତ୍ରକୁ ବିନ୍ୟାସ କରିଥାଏ।\n"
+"ଏହି ଉପଯୋଗିତାଟି ହାର୍ଡୱେର ବିଷୟରେ କିଛି ବିସ୍ତୃତ ସୂଚନା ସଂଗ୍ରହ ସଂଗ୍ରହ କରିବ\n"
+"ଏବଂ ଆପଣଙ୍କର %(distroa)s ତନ୍ତ୍ରକୁ ବିନ୍ୟାସ କରିବ।\n"
 "ସୂଚନା ସଂଗ୍ରହ କରାଯାଇଥାଏ ଏବଂ ଅଭିଲେଖକୁ /tmp ଅନ୍ତର୍ଗତରେ ପ୍ୟାକେଜ ହୋଇଥାଏ\n"
 ", ଯାହାକୁକି ଆପଣ ଜଣେ ସହାୟକ ପ୍ରତିନିଧିଙ୍କ ପାଖକୁ ପଠାଇପାରିବେ।\n"
-"Red Hat ଏହି ସୂଚନାକୁ କେବଳ ନିରୂପଣ କରିବା ଉଦ୍ଦେଶ୍ୟରେ ବ୍ୟବହାର କରିଥାଏ\n"
+"%(distrob)s ଏହି ସୂଚନାକୁ କେବଳ ନିରୂପଣ କରିବା ଉଦ୍ଦେଶ୍ୟରେ ବ୍ୟବହାର କରିଥାଏ\n"
 "ଏବଂ ଏହାକୁ ଗୁପ୍ତ ସୂଚନା ଭାବରେ ଗ୍ରହଣ କରାଯାଇଥାଏ।\n"
 "\n"
 "ଏହି ପଦ୍ଧତି ସମ୍ପୂର୍ଣ୍ଣ ହେବା ପାଇଁ କିଛି ସମୟ ନେଇପାରେ।\n"
@@ -134,12 +134,12 @@ msgstr "N"
 
 #: ../sos/sosreport.py:713
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr "  ପ୍ଲଗଇନଗୁଡ଼ିକ ଚାଲୁଅଛି। ଦୟାକରି  ଅପେକ୍ଷାକରନ୍ତୁ ..."
 
 #: ../sos/sosreport.py:827
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  sos ବିବରଣୀ ନିର୍ମାଣ ବୃକ୍ଷଟି ଏଠାରେ ଅବସ୍ଥିତ : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -181,7 +181,7 @@ msgstr "ଦୟାକରି ଏହି ଫାଇଲକୁ ଆପଣଙ୍କର �
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "ବିନ୍ୟାସ ଫାଇଲରେ କୌଣସି URL କୁ ବ୍ୟାଖ୍ଯା କରାଯାଇନାହିଁ।"
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
@@ -192,9 +192,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "Red Hat ସହାୟତାରେ ଆପଣଙ୍କର ବିବରଣୀକୁ ଧାରଣ କରିବାରେ ସମସ୍ୟା ଦୋଇଥିଲା।"
 
 #: ../sos/policyredhat.py:401
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "ଆପଣଙ୍କର ବିବରଣୀ Red Hat's ftp ସର୍ଭରରେ ନିମ୍ନଲିଖିତ ନାମରେ ସଫଳତାର ସହିତ ଧାରଣ ହୋଇଛି:"
+msgstr "ଆପଣଙ୍କର ବିବରଣୀକୁ %s ରେ ନିମ୍ନଲିଖିତ ନାମରେ ସଫଳତାର ସହିତ ଧାରଣ ହୋଇଛି:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
