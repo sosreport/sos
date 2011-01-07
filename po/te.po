@@ -4,20 +4,21 @@
 #
 # Automatically generated, 2007.
 # Krishna Babu K <kkrothap@redhat.com>, 2009.
+# Krishnababu Krothapalli <kkrothap@redhat.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk.te\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-15 15:02+0000\n"
-"PO-Revision-Date: 2009-09-07 21:18+0530\n"
-"Last-Translator: Krishna Babu K <kkrothap@redhat.com>\n"
+"PO-Revision-Date: 2011-01-07 17:21+0530\n"
+"Last-Translator: Krishnababu Krothapalli <kkrothap@redhat.com>\n"
 "Language-Team: Telugu <en@li.org>\n"
-"Language: te\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: te\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Lokalize 1.1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "\n"
 
@@ -73,7 +74,7 @@ msgid "no valid plugins were enabled"
 msgstr "చెల్లునటువంటి ప్లగిన్సు చేతనము చేయబడిలేవు"
 
 #: ../sos/sosreport.py:624
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -86,10 +87,10 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"మీ Red Hat Enterprise Linux సిస్టమ్ యొక్క హార్డువేరు మరియు అమర్పు గురించిన\n"
+"మీ %(distroa)s సిస్టమ్ యొక్క హార్డువేరు మరియు అమర్పు గురించిన\n"
 "కొంత విశదీకృత సమాచారమును ఈ సౌలభ్యము సేకరిస్తుంది. సమాచారము సేకరించబడుతుంది\n"
 "మరియు ఆర్చివ్ /tmp క్రింద ప్యాకేజీ చేయబడుతుంది, దీనిని మీరు మద్దతు ప్రతినిధికి పంపవచ్చు.\n"
-"Red Hat ఈ సమాచారమును విశ్లేషణ ప్రయోజనముల కొరకు మాత్రమే వుపయోగిస్తుంది\n"
+"%(distrob)s ఈ సమాచారమును విశ్లేషణ ప్రయోజనముల కొరకు మాత్రమే వుపయోగిస్తుంది\n"
 "మరియు అది గోప్యంగా వుంచబడుతుంది.\n"
 "\n"
 "పూర్తగుటకు ఈ కార్యక్రమము కొంత సమయాన్ని తీసుకొంటుంది.\n"
@@ -130,12 +131,12 @@ msgstr "N"
 
 #: ../sos/sosreport.py:713
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr " ప్లగిన్స్ నడుపుచున్నది. దయచేసి వేచివుండండి ..."
 
 #: ../sos/sosreport.py:827
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  సాస్‌రిపోర్ట్ బుల్డ్ ట్రీ దీని వద్ద వుంది : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -177,7 +178,7 @@ msgstr "దయచేసి ఈ దస్త్రమును మీ మద్�
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "ఆకృతీకరణ ఫైల్ నందు యే URL నిర్వచించబడలేదు."
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
@@ -188,9 +189,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "మీ సమస్యను Red Hat మద్దతునకు అప్‌లోడు చేయుటలో వొక సమస్యవుంది."
 
 #: ../sos/policyredhat.py:401
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "మీ నివేదిక సమర్దవంతంగా Red Hat ftp సేవికకు నామముతో అప్‌లోడ్ చేయబడింది:"
+msgstr "మీ ఫిర్యాదు %s నకు విజయవంతంగా అప్‌లోడ్ చేయబడింది యీ నామంతో:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
