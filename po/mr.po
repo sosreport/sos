@@ -3,19 +3,19 @@
 # Copyright (C) 2007 ORGANIZATION
 #
 # Automatically generated, 2007.
-# Sandeep Shedmake <sshedmak@redhat.com>, 2009.
+# Sandeep Shedmake <sshedmak@redhat.com>, 2009, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-15 15:02+0000\n"
-"PO-Revision-Date: 2009-09-04 10:58+0530\n"
+"PO-Revision-Date: 2011-01-11 14:15+0530\n"
 "Last-Translator: Sandeep Shedmake <sshedmak@redhat.com>\n"
 "Language-Team: Marathi <fedora-trans-mr@redhat.com>\n"
-"Language: mr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: mr\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
@@ -72,7 +72,7 @@ msgid "no valid plugins were enabled"
 msgstr "वैध प्लगइनस् कार्यक्षम केले नाही"
 
 #: ../sos/sosreport.py:624
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -86,10 +86,10 @@ msgid ""
 "\n"
 msgstr ""
 "ही युटीलीटी हार्डवेअर विषयी काहिक तपशील माहिती\n"
-"गोळा करते व तुमची Red Hat Enterprise Linux  प्रणली सेटअप करते.\n"
+"गोळा करते व तुमची %(distroa)s प्रणली सेटअप करते.\n"
 "माहिती गोळा केली जाते व एक आर्काइव्ह\n"
 "/tmp अंतर्गत पॅकेज्ड् केले जाते, जे तुम्ही सपोर्ट प्रतिनीधीकडे पाठवू शकता.\n"
-"Red Hat या माहितीचा वापर फक्त विश्लेषण कारणास्तवच करेल\n"
+"%(distrob)s या माहितीचा वापर फक्त विश्लेषण कारणास्तवच करेल\n"
 "व त्यांस गोपणीय म्हणून ठरवते.\n"
 "\n"
 "हे कार्य पूर्ण व्हायला काहिक वेळ जरूर लागेल.\n"
@@ -130,12 +130,12 @@ msgstr "N"
 
 #: ../sos/sosreport.py:713
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr "  प्लगईन्स् चालवत आहे. कृपया थांबा ..."
 
 #: ../sos/sosreport.py:827
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  sosreport बिल्ड ट्री येथे स्थीत आहे : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -177,7 +177,7 @@ msgstr "तुमच्या समर्थीत प्रतिनीधी�
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "संरचना फाइलमध्ये URL ठरवले नाही."
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
@@ -188,22 +188,11 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "तुमचा अहवाल Red Hat सपोर्टकडे पाठवतेवेळी अडचण आढळली."
 
 #: ../sos/policyredhat.py:401
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "तुमचा अहवाल यशस्वीरित्या नावासह Red Hat च्या ftp सर्व्हरवर अपलोड केले:"
+msgstr "तुमचे अहवाल %s करीता नावासह यशस्वीरित्या अपलोड केले:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
 msgstr "कृपया हे नाव तुमच्या सपोर्ट प्रतिनीधीला कळवा."
 
-#~ msgid "plugin %s skipped (--skip-plugins)"
-#~ msgstr "प्लगइन %s वगळले (--skip-plugins)"
-
-#~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "प्लगइन %s निष्क्रीय आहे (कार्यक्षम करण्यासाठी -e किंवा -o वापरा)."
-
-#~ msgid "plugin %s not specified in --only-plugins list"
-#~ msgstr " --only-plugins सूचीमध्ये प्लगइन %s निर्देशीत केले नाही"
-
-#~ msgid "processing options from plugin: %s"
-#~ msgstr "प्लगइनपासून पर्याय विश्लेषीत करत आहे: %s"
