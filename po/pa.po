@@ -1,23 +1,24 @@
 # translation of pa.po to Punjabi
 # Punjabi translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
-#
 # Automatically generated, 2007.
 # Jaswinder Singh <jsingh@redhat.com>, 2007.
+# Jaswinder Singh <j.phulewala@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: pa\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-15 15:02+0000\n"
-"PO-Revision-Date: 2007-11-06 16:55+0530\n"
-"Last-Translator: Jaswinder Singh <jsingh@redhat.com>\n"
-"Language-Team: Punjabi <fedora-trans-pa@redhat.com>\n"
+"PO-Revision-Date: 2011-01-11 15:33+0530\n"
+"Last-Translator: Jaswinder Singh <j.phulewala@gmail.com>\n"
+"Language-Team: PLTG\n"
 "Language: pa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Virtaal 0.6.1\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: KBabel 1.11.4\n"
 
 #: ../sos/sosreport.py:350
 msgid "Could not create temporary directory."
@@ -71,7 +72,7 @@ msgid "no valid plugins were enabled"
 msgstr "ਕੋਈ ਸਹੀ ਪਲੱਗਇਨ ਯੋਗ ਨਹੀਂ ਕੀਤਾ"
 
 #: ../sos/sosreport.py:624
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -85,10 +86,10 @@ msgid ""
 "\n"
 msgstr ""
 "ਇਹ ਸਹੂਲਤ ਹਾਰਡਵੇਅਰ ਬਾਰੇ ਕੁਝ ਵਿਸਥਾਰ ਜਾਣਕਾਰੀ ਇਕੱਠੀ\n"
-"ਕਰੇਗੀ ਅਤੇ ਤੁਹਾਡੇ Red Hat Enterprise Linux ਸਿਸਟਮ ਨੂੰ ਨਿਰਧਾਰਤ ਕਰੇਗੀ।\n"
+"ਕਰੇਗੀ ਅਤੇ ਤੁਹਾਡੇ %(distroa)s ਸਿਸਟਮ ਨੂੰ ਨਿਰਧਾਰਤ ਕਰੇਗੀ।\n"
 "ਜਾਣਕਾਰੀ ਇਕੱਠੀ ਕੀਤੀ ਜਾਂਦੀ ਹੈ ਅਤੇ /tmp ਵਿੱਚ ਇੱਕ ਆਰਚੀਵ ਬਣਾਈ ਜਾਂਦੀ\n"
 "ਹੈ, ਜੋ ਤੁਸੀਂ ਸਹਿਯੋਗ ਪ੍ਰਤੀਨਿਧ ਨੂੰ ਭੇਜ ਸਕਦੇ ਹੋ।\n"
-"Red Hat ਇਸ ਜਾਣਕਾਰੀ ਨੂੰ ਸਿਰਫ ਹੱਲ ਕਰਨ ਲਈ ਵਰਤੇਗਾ\n"
+"%(distrob)s ਇਸ ਜਾਣਕਾਰੀ ਨੂੰ ਸਿਰਫ ਹੱਲ ਕਰਨ ਲਈ ਵਰਤੇਗਾ\n"
 "ਅਤੇ ਇਹ ਜਾਣਕਾਰੀ ਗੁਪਤ ਰੱਖੀ ਜਾਏਗੀ।\n"
 "\n"
 "ਇਹ ਕਾਰਜ ਮੁਕੰਮਲ ਹੋਣ ਲਈ ਕੁਝ ਸਮਾਂ ਲੈ ਸਕਦਾ ਹੈ।\n"
@@ -129,12 +130,12 @@ msgstr "N"
 
 #: ../sos/sosreport.py:713
 msgid "  Running plugins. Please wait ..."
-msgstr ""
+msgstr "  ਪਲੱਗਇਨ ਚਲਾ ਰਿਹਾ। ਉਡੀਕ ਕਰੋ ਜੀ ..."
 
 #: ../sos/sosreport.py:827
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  sosreport ਬਿਲਡ ਟਰੀ ਇੱਥੇ ਰੱਖਿਆ ਹੈ : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -176,7 +177,7 @@ msgstr "ਕਿਰਪਾ ਕਰਕੇ ਇਸ ਫਾਇਲ ਨੂੰ ਆਪਣੇ 
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "ਸੰਰਚਨਾ ਫਾਇਲ ਵਿੱਚ ਕੋਈ URL ਨਹੀਂ ਦਿੱਤਾ।"
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
@@ -187,9 +188,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "ਤੁਹਾਡੀ ਰਿਪੋਰਟ ਨੂੰ Red Hat ਸਹਿਯੋਗ ਤੇ ਅੱਪਲੋਡ ਕਰਨ ਵੇਲੇ ਗਲਤੀ ਆਈ ਹੈ।"
 
 #: ../sos/policyredhat.py:401
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "ਤੁਹਾਡੀ ਰਿਪੋਰਟ ਸਫਲਤਾਪੂਰਕ Red Hat ਦੇ ftp ਸਰਵਰ ਤੇ ਇਸ ਨਾਂ ਨਾਲ ਅੱਪਲੋਡ ਹੋ ਗਈ ਹੈ:"
+msgstr "ਤੁਹਾਡੀ ਰਿਪੋਰਟ ਸਫਲਤਾਪੂਰਕ %s ਉੱਪਰ ਇਸ ਨਾਂ ਨਾਲ ਅੱਪਲੋਡ ਹੋ ਗਈ ਹੈ:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
