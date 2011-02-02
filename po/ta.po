@@ -1,26 +1,28 @@
 # translation of ta.po to
 # Tamil translations for PACKAGE package.
 # Copyright (C) 2007 ORGANIZATION
-# Automatically generated, 2007.
 #
+# Automatically generated, 2007.
+# I Felix <ifelix@redhat.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: ta\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-15 15:02+0000\n"
-"PO-Revision-Date: 2007-11-07 14:23+0530\n"
-"Last-Translator: \n"
-"Language-Team:  <en@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2011-02-02 15:23+0530\n"
+"Last-Translator: I Felix <ifelix@redhat.com>\n"
+"Language-Team: Tamil <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Lokalize 1.1\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 #: ../sos/sosreport.py:350
 msgid "Could not create temporary directory."
-msgstr "தற்காலிக அடைவை உருவாக்க முடியவில்லை"
+msgstr "தற்காலிக அடைவை உருவாக்க முடியவில்லை."
 
 #: ../sos/sosreport.py:413
 #, python-format
@@ -70,7 +72,7 @@ msgid "no valid plugins were enabled"
 msgstr "சரியான கூடுதல் இணைப்புகள் எதுவும் செயல்படுத்தப்படவில்லை"
 
 #: ../sos/sosreport.py:624
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This utility will collect some detailed  information about the\n"
 "hardware and setup of your %(distroa)s system.\n"
@@ -83,11 +85,11 @@ msgid ""
 "No changes will be made to your system.\n"
 "\n"
 msgstr ""
-"இந்த வசதி வன்பொருள் பற்றியும் மற்றும் உங்கள் Red Hat Enterprise \n"
-"Linux கணினியை அமைப்பது பற்றியும் விரிவான தகவலை கொண்டிருக்கும்.\n"
+"இந்த வசதி வன்பொருள் பற்றியும் மற்றும் உங்கள் %(distroa)s \n"
+"கணினியை அமைப்பது பற்றியும் விரிவான தகவலை கொண்டிருக்கும்.\n"
 "இந்த தகவல்கள் சேகரிக்கப்பட்டு /tmpஇல் தொகுக்கப்படுகிறது,\n"
 "இதனை நீங்கள் சேவை பிரதிநிதிக்கு அனுப்பலாம்.\n"
-"Red Hat இந்த தகவலை ஆராய மட்டுமே பயன்படுத்தி\n"
+"%(distrob)s இந்த தகவலை ஆராய மட்டுமே பயன்படுத்தி\n"
 "இரகசியமாக வைத்து கொள்ளும்.\n"
 "\n"
 "இந்தப் பணி முடிய சிறிது நேரம் ஆகும்.\n"
@@ -131,11 +133,13 @@ msgstr "N"
 #: ../sos/sosreport.py:713
 msgid "  Running plugins. Please wait ..."
 msgstr ""
+" கூடுதல் இணைப்புகள் இயங்குகிறது. காத்திருக்கவும் ... கூடுதல் இணைப்புகள் இயங்குகிறது. "
+"பகாத்தஇஉ"
 
 #: ../sos/sosreport.py:827
 #, python-format
 msgid "  sosreport build tree is located at : %s"
-msgstr ""
+msgstr "  sosreport உருவாக்கும் மரம் இங்குள்ளது : %s"
 
 #: ../sos/policyredhat.py:211
 #, python-format
@@ -177,7 +181,7 @@ msgstr "இந்த கோப்பினை உங்கள் சேவை �
 
 #: ../sos/policyredhat.py:355
 msgid "No URL defined in config file."
-msgstr ""
+msgstr "URL எதுவும் கட்டமைப்பு கோப்பில் இல்லை."
 
 #: ../sos/policyredhat.py:362
 msgid "Cannot upload to specified URL."
@@ -188,9 +192,9 @@ msgid "There was a problem uploading your report to Red Hat support."
 msgstr "உங்கள் அறிக்கையை Red Hat சேவைக்கு அனுப்புவதில் சிக்கல்."
 
 #: ../sos/policyredhat.py:401
-#, fuzzy, python-format
+#, python-format
 msgid "Your report was successfully uploaded to %s with name:"
-msgstr "உங்கள் அறிக்கை வெற்றிகரமாக Red Hat ftp சேவையகத்தில் பெயருடன் ஏற்றப்பட்டது:"
+msgstr "உங்கள் அறிக்கை வெற்றிகரமாக  %s இல் பெயருடன் ஏற்றப்பட்டது:"
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
