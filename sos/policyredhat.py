@@ -153,12 +153,14 @@ class SosPolicy:
 
     def rhelVersion(self):
         try:
-            pkgname = self.pkgByName("redhat-release")["version"]
+            pkg = self.pkgByName("redhat-release") or \
+            self.allPkgsByNameRegex("redhat-release-.*")[-1]
+            pkgname = pkg["version"]
             if pkgname[0] == "4":
                 return 4
             elif pkgname in [ "5Server", "5Client" ]:
                 return 5
-            elif pkgname == "6":
+            elif pkgname[0] == "6":
                 return 6
         except: pass
         return False
