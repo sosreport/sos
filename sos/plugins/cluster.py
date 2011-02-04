@@ -102,20 +102,20 @@ class cluster(sos.plugintools.PluginBase):
 
         if rhelver is 4:
           status, output, time = self.callExtProg("cman_tool services")
-          for lockspace in self.doRegexFindAll(r'^DLM Lock Space:\s*"([^"]*)".*$', output):
+          for lockspace in re.compile(r'^DLM Lock Space:\s*"([^"]*)".*$', re.MULTILINE).findall(output):
               self.callExtProg("echo %s > /proc/cluster/dlm_locks" % lockspace)
               self.collectOutputNow("cat /proc/cluster/dlm_locks",
                   suggest_filename = "dlm_locks_%s" % lockspace)
 
         if rhelver is 5:
           status, output, time = self.callExtProg("group_tool")
-          for lockspace in self.doRegexFindAll(r'^dlm\s+[^\s]+\s+([^\s]+)$', output):
+          for lockspace in re.compile(r'^dlm\s+[^\s]+\s+([^\s]+)$', re.MULTILINE).findall(output):
             self.collectExtOutput("dlm_tool lockdebug '%s'" % lockspace,
                 suggest_filename = "dlm_locks_%s" % lockspace)
 
         else: # RHEL6 or recent Fedora
           status, output, time = self.callExtProg("dlm_tool ls")
-          for lockspace in self.doRegexFindAll(r'^name\s+([^\s]+)$', output):
+          for lockspace in re.compile(r'^name\s+([^\s]+)$', re.MULTILINE).findall(output):
             self.collectExtOutput("dlm_tool lockdebug -svw '%s'" % lockspace,
                 suggest_filename = "dlm_locks_%s" % lockspace)
 
