@@ -26,7 +26,7 @@ class devicemapper(sos.plugintools.PluginBase):
     def do_lvmdump(self):
         """Collects raw metadata directly from the PVs using dd
         """
-        self.collectExtOutput("lvmdump -d %s" % os.path.join(self.cInfo['dstroot'],"lvmdump"))
+        self.collectExtOutput("lvmdump -d '%s'" % os.path.join(self.cInfo['dstroot'],"lvmdump"))
 
     def setup(self):
         self.collectExtOutput("/sbin/dmsetup info -c")

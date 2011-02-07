@@ -51,6 +51,8 @@ class yum(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/bin/yum list")
 
         if self.getOption("yumdebug") and self.isInstalled('yum-utils'):
+            # RHEL6+ alternative for this whole function:
+            # self.collectExtOutput("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.cInfo['dstroot'],"yum-debug-dump"))
             ret, output, rtime = self.callExtProg("/usr/bin/yum-debug-dump")
             try:
                 self.collectExtOutput("/bin/zcat %s" % (output.split()[-1],))
