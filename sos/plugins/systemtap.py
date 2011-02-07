@@ -25,11 +25,5 @@ class systemtap(sos.plugintools.PluginBase):
         return sos.plugintools.PluginBase.checkenabled(self)
 
     def setup(self):
-        self.collectExtOutput("/bin/rpm -qa 'kernel*' systemtap elfutils --nosignature --nodigest \
-                               | egrep -e kernel.*`uname -r | sed 's/xen//'` \
-                                 -e systemtap \
-                                 -e elfutils \
-                               | sort")
-        #self.collectExtOutput("/bin/rpm -qa 'kernel*' systemtap elfutils --nosignature --nodigest | /bin/egrep -e kernel.*`uname -r` -e systemtap -e elfutils | sort")
         self.collectExtOutput("/usr/bin/stap -V 2")
         self.collectExtOutput("/bin/uname -r")

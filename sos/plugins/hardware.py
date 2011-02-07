@@ -31,7 +31,6 @@ class hardware(sos.plugintools.PluginBase):
             "/proc/ide",
             "/proc/bus",
             "/etc/stinit.def",
-            "/etc/sysconfig/hwconf",
             "/proc/chandev",
             "/proc/dasd",
             "/proc/s390dbf/tape",

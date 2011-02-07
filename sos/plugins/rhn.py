@@ -61,7 +61,6 @@ class rhn(sos.plugintools.PluginBase):
             "/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log"])
 
         self.addCopySpec("/root/ssl-build")
-        self.collectExtOutput("rpm -qa --last", root_symlink = "rpm-manifest")
         self.collectExtOutput("/usr/bin/rhn-schema-version", root_symlink = "database-schema-version")
         self.collectExtOutput("/usr/bin/rhn-charsets", root_symlink = "database-character-sets")
 
@@ -79,4 +78,4 @@ class rhn(sos.plugintools.PluginBase):
 
 #    def diagnose(self):
         # RHN Proxy:
-        # * /etc/sysconfig/rhn/systemid is owned by root.apache with the permissions 0640
+        # * /etc/g/rhn/systemid is owned by root.apache with the permissions 0640

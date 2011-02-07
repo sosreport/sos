@@ -154,8 +154,7 @@ class emc(sos.plugintools.PluginBase):
         add_about_emc="no"
 
         ## If PowerPath is installed collect PowerPath specific information
-        emc_pp_installed = Popen("/bin/rpm -qa | /bin/grep -i EMCpower", shell=True, stdout=PIPE).stdout.read()
-        if emc_pp_installed != "":
+        if self.isInstalled("EMCpower"):
             print "EMC PowerPath is installed."
             print " Gathering EMC PowerPath information..."
             self.addCustomText("EMC PowerPath is installed.<br>")
@@ -169,8 +168,7 @@ class emc(sos.plugintools.PluginBase):
             self.get_pp_config()
 
         ## If Solutions Enabler is installed collect Symmetrix/DMX specific information
-        emc_symcli_installed = Popen("/bin/rpm -qa | /bin/grep -i symcli-symcli", shell=True, stdout=PIPE).stdout.read()
-        if emc_symcli_installed != "":
+        if len(self.allPkgsByNameRegex('[Ss][Yy][Mm][Cc][Ll][Ii]-[Ss][Yy][Mm][Cc][Ll][Ii]')) > 0:
             print "EMC Solutions Enabler SYMCLI is installed."
             print " Gathering EMC Solutions Enabler SYMCLI information..."
             self.addCustomText("EMC Solutions Enabler is installed.<br>")
