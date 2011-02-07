@@ -19,7 +19,5 @@ class i18n(sos.plugintools.PluginBase):
     """i18n related information
     """
     def setup(self):
-        self.addCopySpecs([
-            "/etc/sysconfig/i18n",
-            "/etc/X11/xinit/xinput.d/*"])
+        self.addCopySpec("/etc/X11/xinit/xinput.d/*")
 	self.collectExtOutput("/usr/bin/locale")

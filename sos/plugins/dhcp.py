@@ -23,7 +23,4 @@ class dhcp(sos.plugintools.PluginBase):
         return sos.plugintools.PluginBase.checkenabled(self)
         
     def setup(self):
-        self.addCopySpecs([
-            "/etc/sysconfig/dhcrelay",
-            "/etc/sysconfig/dhcpd",
-            "/etc/dhcpd.conf"])
+        self.addCopySpec("/etc/dhcpd.conf")

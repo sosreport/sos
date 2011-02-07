@@ -27,6 +27,5 @@ class mysql(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpecs([
             "/etc/my.cnf",
-            "/etc/sysconfig/network",
             "/etc/ld.so.conf.d/mysql*",
             "/var/log/mysql*"])

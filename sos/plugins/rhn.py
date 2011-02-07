@@ -39,7 +39,6 @@ class rhn(sos.plugintools.PluginBase):
         self.addCopySpecs([
             "/etc/httpd/conf*",
             "/etc/rhn",
-            "/etc/sysconfig/rhn"
             "/var/log/rhn*"])
 
         if self.getOption("log"):

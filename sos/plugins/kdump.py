@@ -24,6 +24,5 @@ class kdump(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpecs([
             "/etc/kdump.conf",
-            "/etc/sysconfig/kdump",
             "/proc/cmdline",
             "/etc/udev/rules.d/*kexec.rules"])
