@@ -21,6 +21,6 @@ class logrotate(sos.plugintools.PluginBase):
     def setup(self):
         self.collectExtOutput("/usr/sbin/logrotate --debug /etc/logrotate.conf",
                               suggest_filename = "logrotate_debug")
-        self.collectExtOutput("/bin/cat /var/lib/logrotate.status",
-                              suggest_filename = "logrotate_status")
-        self.addCopySpec("/etc/logrotate*")
+        self.addCopySpecs([
+            "/etc/logrotate*",
+            "/var/lig/logrotate.status"])
