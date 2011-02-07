@@ -48,6 +48,5 @@ class autofs(sos.plugintools.PluginBase):
         self.collectExtOutput("ps auxwww | grep automount")
         self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
         self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
-        self.collectExtOutput("LC_ALL=C /sbin/chkconfig --list autofs")
         if self.checkdebug():
             self.addCopySpec(self.getdaemondebug())
