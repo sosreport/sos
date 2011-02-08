@@ -26,8 +26,6 @@ class x11(sos.plugintools.PluginBase):
             "/etc/X11",
             "/var/log/Xorg.*.log",
             "/var/log/XFree86.*.log",
-            "/etc/gdm"])
-        self.collectExtOutput("/bin/dmesg | grep -e 'agpgart.'")
-
+        )
         self.addForbiddenPath("/etc/X11/X")
         self.addForbiddenPath("/etc/X11/fontpath.d")
