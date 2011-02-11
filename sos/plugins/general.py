@@ -27,6 +27,7 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpecs([
             "/etc/redhat-release",
             "/etc/fedora-release",
+            "/etc/init",
             "/etc/inittab",
             "/etc/sos.conf",
             "/etc/sysconfig",
