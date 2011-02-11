@@ -209,7 +209,7 @@ def parse_options(opts):
 
 def textcolor(text, color, raw=0):
     """ Terminal text coloring function """
-    if GlobalVars.__cmdLineOpts__.nocolors or not os.isatty(1):
+    if GlobalVars.__cmdLineOpts__.nocolors or not sys.stdout.isatty():
         return text
     colors = {  "black":"30", "red":"31", "green":"32", "brown":"33", "blue":"34",
                 "purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
