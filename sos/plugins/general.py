@@ -14,7 +14,6 @@
 
 import os
 import sos.plugintools
-import glob
 import commands
 
 class general(sos.plugintools.PluginBase):

@@ -18,7 +18,7 @@
 
 import sos.plugintools
 from os.path import exists
-import glob
+from glob import glob
 
 class cs(sos.plugintools.PluginBase):
     """Red Hat Certificate System 7.1, 7.3, 8.0 and dogtag related information
@@ -27,7 +27,7 @@ class cs(sos.plugintools.PluginBase):
     def checkversion(self):
         if self.isInstalled("redhat-cs") or exists("/opt/redhat-cs"):
             return 71
-        elif self.isInstalled("rhpki-common") or len(glob.glob("/var/lib/rhpki-*")):
+        elif self.isInstalled("rhpki-common") or len(glob("/var/lib/rhpki-*")):
             return 73
         # 8 should cover dogtag
         elif self.isInstalled("pki-common") or exists("/usr/share/java/pki"):

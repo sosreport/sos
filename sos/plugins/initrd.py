@@ -13,13 +13,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import glob
+from glob import glob
 
 class initrd(sos.plugintools.PluginBase):
     """initrd related information
     """
     def setup(self):
-        for initrd in glob.glob('/boot/initrd-*.img'):
+        for initrd in glob('/boot/initrd-*.img'):
             self.collectExtOutput("/bin/zcat "+initrd+" | /bin/cpio "+
                 "--extract --to-stdout init" )
 

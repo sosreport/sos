@@ -15,7 +15,6 @@
 import sos.plugintools
 import os, re
 import time, libxml2
-import glob
 
 class corosync(sos.plugintools.PluginBase):
     """ corosync information
