@@ -21,12 +21,16 @@ class devicemapper(sos.plugintools.PluginBase):
     """
 
     optionList = [("lvmdump", 'collect raw metadata from PVs', 'slow', False)]
+    optionList = [("lvmdump-a", 'use the -a option of lvmdump (requires the "lvmdump" option)', 'slow', False)]
     dmraidOptions = ['V','b','r','s','tay','rD']
 
     def do_lvmdump(self):
         """Collects raw metadata directly from the PVs using dd
         """
-        self.collectExtOutput("lvmdump -d '%s'" % os.path.join(self.cInfo['dstroot'],"lvmdump"))
+        cmd = "lvmdump -d '%s'" % os.path.join(self.cInfo['dstroot'],"lvmdump")
+        if self.getOption('lvmdump-a'):
+          cmd += " -a"
+        self.collectExtOutput(cmd)
 
     def setup(self):
         self.collectExtOutput("/sbin/dmsetup info -c")
