@@ -48,7 +48,7 @@ msgstr "Наразі увімкнені модулі:"
 
 #: ../sos/sosreport.py:573
 msgid "No plugin enabled."
-msgstr "Немає активних модулій."
+msgstr "Немає активних модулів."
 
 #: ../sos/sosreport.py:577
 msgid "The following plugins are currently disabled:"
@@ -193,4 +193,4 @@ msgstr "Ваш звіт успішно надіслано до %s під наз�
 
 #: ../sos/policyredhat.py:404
 msgid "Please communicate this name to your support representative."
-msgstr "Повідомте це ім'я представнику служби підтримки."
+msgstr "Повідомте цю назву представнику служби підтримки."
