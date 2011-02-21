@@ -60,6 +60,7 @@ class networking(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/netstat -agn")
         self.collectExtOutput("/bin/netstat -neopa", root_symlink = "netstat")
         self.collectExtOutput("/sbin/ip route show table all")
+        self.collectExtOutput("/sbin/ip -6 route show table all")
         self.collectExtOutput("/sbin/ip link")
         self.collectExtOutput("/sbin/ip address")
         self.collectExtOutput("/sbin/ifenslave -a")
