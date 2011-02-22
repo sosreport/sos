@@ -14,16 +14,6 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#############################################################
-# This plugin assumes default location of Certificate System 7.x on RHEL4
-# Certificate System 7.x is not supported on RHEL5.
-# Any improvemts for this plugin are appreciated.  Please send them to
-# klamb@redhat.com
-# thanks,
-# kent lamb
-#############################################################
-
-
 import sos.plugintools
 import os
 
