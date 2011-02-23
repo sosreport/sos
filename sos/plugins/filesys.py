@@ -24,6 +24,23 @@ class filesys(sos.plugintools.PluginBase):
     optionList = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
 
     def setup(self):
+        self.addCopySpecs([
+            "/proc/filesystems",
+            "/etc/fstab",
+            "/proc/self/mounts",
+            "/proc/mounts",
+            "/proc/mdstat",
+            "/etc/raidtab",
+            "/etc/mdadm.conf"])
+        mounts = self.collectOutputNow("/bin/mount -l", root_symlink = "mount")
+        
+        self.collectExtOutput("/bin/findmnt")
+        self.collectExtOutput("/bin/df -al", root_symlink = "df")
+        self.collectExtOutput("/bin/df -ali")
+        if self.getOption('lsof'):
+            self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
+        self.collectExtOutput("/sbin/blkid -c /dev/null")
+        
         part_titlep = re.compile("^major")
         blankp = re.compile("^$")
         partlist = []

@@ -47,6 +47,7 @@ class s390(sos.plugintools.PluginBase):
             "/sys/bus/ccw/drivers/zfcp/0.*/0x*/0x*/*",
             "/etc/zipl.conf",
             "/etc/zfcp.conf",
+            "/etc/sysconfig/dumpconf",
             "/etc/src_vipa.conf",
             "/etc/ccwgroup.conf",
             "/etc/chandev.conf"])

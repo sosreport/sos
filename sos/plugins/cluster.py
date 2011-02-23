@@ -46,6 +46,8 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/cluster.conf")
         self.addCopySpec("/etc/cluster.xml")
         self.addCopySpec("/etc/cluster")
+        self.addCopySpec("/etc/sysconfig/cluster")
+        self.addCopySpec("/etc/sysconfig/cman")
         self.addCopySpec("/var/lib/ricci")
         self.addCopySpec("/var/lib/luci")
         self.addCopySpec("/var/log/cluster")
