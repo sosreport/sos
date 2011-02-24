@@ -37,12 +37,21 @@ class yum(sos.plugintools.PluginBase):
                                  "information and can cause rpm conflicts.")
 
     def setup(self):
+        rhelver = self.policy().rhelVersion()
+
         # Pull all yum related information
         self.addCopySpecs([
             "/etc/yum",
             "/etc/yum.repos.d",
             "/etc/yum.conf",
             "/var/log/yum.log"])
+
+        # candlepin info
+        self.addForbiddenPath("/etc/pki/entitlements/key.pem")
+        self.addCopySpecs([
+            "/etc/pki/product/*.pem",
+            "/etc/pki/consumer/cert.pem",
+            "/etc/pki/entitlements/*.pem"])
 
         if self.getOption("yumlist"):
             # Get a list of channels the machine is subscribed to.
