@@ -37,6 +37,7 @@ class filesys(sos.plugintools.PluginBase):
         if self.getOption('lsof'):
             self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
         self.collectExtOutput("/sbin/blkid -c /dev/null")
+        self.collectExtOutput("/bin/lsblk")
         
         part_titlep = re.compile("^major")
         blankp = re.compile("^$")
