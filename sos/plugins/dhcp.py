@@ -26,4 +26,5 @@ class dhcp(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/sysconfig/dhcrelay")
         self.addCopySpec("/etc/sysconfig/dhcpd")
         self.addCopySpec("/etc/dhcpd.conf")
+        self.addCopySpec("/etc/dhcp")
         return
