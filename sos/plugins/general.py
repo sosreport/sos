@@ -25,6 +25,7 @@ class general(sos.plugintools.PluginBase):
                   ("all_logs", "collect all log files defined in syslog.conf", "", False)]
 
     def setup(self):
+        rhelver = self.policy().rhelVersion()
         self.addCopySpec("/etc/redhat-release")
         self.addCopySpec("/etc/fedora-release")
         self.addCopySpec("/etc/inittab")
@@ -49,8 +50,14 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
         self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
 
+	# new entitlement certificate support
+	if rhelver == 6 or rhelver == 5:
+		self.addCopySpec("/etc/pki/product/*.pem")
+		self.addCopySpec("/etc/pki/consumer/cert.pem")
+		self.addCopySpec("/etc/pki/entitlement/*.pem")
+		self.addForbiddenPath("/etc/pki/entitlement/key.pem")
+
         if self.getOption('all_logs'):
-            rhelver = self.policy().rhelVersion()
             if rhelver == 5 or rhelver == 4:
                 logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/syslog.conf")
                 for i in logs:
