@@ -86,10 +86,6 @@ class cluster(sos.plugintools.PluginBase):
           self.collectExtOutput("group_tool dump gfs")
 
         if rhelver not in (4,5): # 6+
-          self.collectExtOutput("corosync-quorumtool -l")
-          self.collectExtOutput("corosync-quorumtool -s")
-          self.collectExtOutput("corosync-cpgtool")
-          self.collectExtOutput("corosync-objctl")
           self.collectExtOutput("group_tool ls -g1")
           self.collectExtOutput("gfs_control ls -n")
           self.collectExtOutput("gfs_control dump")
