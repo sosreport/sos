@@ -62,7 +62,6 @@ class filesys(sos.plugintools.PluginBase):
         else:
             part_in_disk = re.compile("^/dev/[a-z]+$")
             for dev in partlist:
-                print part_in_disk.match(dev)
                 if bool(part_in_disk.match(dev)):
                     devlist.append(dev)
 
