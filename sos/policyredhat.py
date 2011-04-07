@@ -24,10 +24,7 @@ from tempfile import gettempdir
 from sos.helpers import *
 import random
 import re
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
+import hashlib
 import rpm
 import time
 from subprocess import Popen, PIPE
@@ -68,7 +65,7 @@ class SosPolicy:
     def __init__(self):
         self.report_file = ""
         self.report_file_ext = ""
-        self.report_md5 = ""
+        self.report_checksum = ""
         self.reportName = ""
         self.ticketNumber = ""
 
@@ -306,31 +303,49 @@ class SosPolicy:
            print _("There was a problem encrypting your report.")
            sys.exit(1)
 
+    def getChecksumAlgorithm(self):
+        checksum = "md5"
+        # this is the canonical check for FIPS
+        try:
+            fp = open("/proc/sys/crypto/fips_enabled", "r")
+        except:
+            return checksum
+        fips_enabled = fp.read()
+        if fips_enabled.find("1") >= 0:
+             checksum = "sha256"
+        fp.close()
+        return checksum
+        
     def displayResults(self):
         # make sure a report exists
         if not self.report_file:
            return False
 
-        # calculate md5
+        # determine checksum algo and instantiate
+        checksum = self.getChecksumAlgorithm()
+        digest = hashlib.new(checksum)
+
+        # calculate checksum
         fp = open(self.report_file, "r")
-        self.report_md5 = md5(fp.read()).hexdigest()
+        digest.update(fp.read())
         fp.close()
+        self.report_checksum = digest.hexdigest()
 
         self.renameResults("sosreport-%s-%s-%s.%s" % (self.reportName, 
                                                       time.strftime("%Y%m%d%H%M%S"),
-                                                      self.report_md5[-4:], 
+                                                      self.report_checksum[-4:], 
                                                       self.report_file_ext))
 
-        # store md5 into file
-        fp = open(self.report_file + ".md5", "w")
-        fp.write(self.report_md5 + "\n")
+        # store checksum into file
+        fp = open(self.report_file + "." + checksum, "w")
+        fp.write(self.report_checksum + "\n")
         fp.close()
 
         print
         print _("Your sosreport has been generated and saved in:\n  %s") % self.report_file
         print
-        if len(self.report_md5):
-            print _("The md5sum is: ") + self.report_md5
+        if len(self.report_checksum):
+            print _("The " + checksum + "sum is: ") + self.report_checksum
             print
         print _("Please send this file to your support representative.")
         print
