@@ -32,4 +32,4 @@ class smartcard(sos.plugintools.PluginBase):
             "/etc/pam_pkcs11/"])
         self.collectExtOutput("/usr/bin/pkcs11_inspect debug")
         self.collectExtOutput("/usr/bin/pklogin_finder debug")
-        self.collectExtOutput("/bin/ls -l /usr/lib*/pam_pkcs11/")
+        self.collectExtOutput("/bin/ls -nl /usr/lib*/pam_pkcs11/")

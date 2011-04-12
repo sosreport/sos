@@ -54,8 +54,8 @@ class devicemapper(sos.plugintools.PluginBase):
 
         self.collectExtOutput("/usr/bin/systool -v -c -b scsi")
 
-        self.collectExtOutput("/bin/ls -laR /dev")
-        self.collectExtOutput("/bin/ls -laR /sys/block")
+        self.collectExtOutput("/bin/ls -lanR /dev")
+        self.collectExtOutput("/bin/ls -lanR /sys/block")
 
         if self.getOption('lvmdump'):
             self.do_lvmdump()

@@ -24,4 +24,4 @@ class tftpserver(sos.plugintools.PluginBase):
         return self.isInstalled("tftp-server") or exists("/etc/xinetd.d/tftp")
 
     def setup(self):
-        self.collectExtOutput("/bin/ls -laR /tftpboot")
+        self.collectExtOutput("/bin/ls -lanR /tftpboot")

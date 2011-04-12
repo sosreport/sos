@@ -32,7 +32,7 @@ class qpidd(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/qpid-stat -c")
         self.collectExtOutput("/usr/bin/qpid-route link list")
         self.collectExtOutput("/usr/bin/qpid-route route list")
-        self.collectExtOutput("ls -lR /var/lib/qpidd")
+        self.collectExtOutput("/bin/ls -lanR /var/lib/qpidd")
         self.addCopySpecs([
             "/etc/qpidd.conf",
             "/var/lib/qpid/syslog",

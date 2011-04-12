@@ -27,4 +27,4 @@ class bootloader(sos.plugintools.PluginBase):
             "/boot/grub/device.map",
             "/boot/yaboot.conf"])
         self.collectExtOutput("/sbin/lilo -q")
-        self.collectExtOutput("/bin/ls -laR /boot")
+        self.collectExtOutput("/bin/ls -lanR /boot")

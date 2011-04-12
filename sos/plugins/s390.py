@@ -57,7 +57,7 @@ class s390(sos.plugintools.PluginBase):
         self.collectExtOutput("find /sys -type f")
         self.collectExtOutput("find /proc/s390dbf -type f")
         self.collectExtOutput("/sbin/qethconf list_all")
-        ret, dasdDev, rtime = self.callExtProg("ls /dev/dasd?")
+        ret, dasdDev, rtime = self.callExtProg("/bin/ls /dev/dasd?")
         for x in dasdDev.split('\n'):
             self.collectExtOutput("/sbin/dasdview -x -i -j -l -f %s" % (x,))
             self.collectExtOutput("/sbin/fdasd -p %s" % (x,))
