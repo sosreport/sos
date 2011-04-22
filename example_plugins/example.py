@@ -19,21 +19,18 @@ import sos.plugintools
 
 # Class name must be the same as file name and method names must not change
 class example(sos.plugintools.PluginBase):
-    """This is an example plugin for sos. Plugins gather, analyze, and report on various aspects
-    of system operation that are of interest. plugins are based on the PluginBase class, which
-    you should inspect if you wish to override any methods in your plugin. The methods of use
-    to plugin developers are:
-    collect() - use the functions sosCp and sosRunExe to gether information
-    analyze() - perform any special analysis you require beyond just saving the
-                information gathered by collect(). Use sosAlert() and sosAddCustomText()
-                to add information to the report.
-    report() - override this method if you wish to replace the default reporting
+    '''dummy example plugin'''
+    # Plugin developers want to override setup() from which they will call
+    # addCopySpec() to collect files and collectExtOutPut() to collect programs
+    # output.
+    # If you want to go fancy you may also want to override diagnose(),
+    # analyze() and postproc(). Have a look at the PluginBase definition
+    # for details.
 
-    All plugins will use collect(), some will use analyze(), few will override report()
-    """
-
-    # Add your options here, indicate whether they are slow to run, and set whether they are enabled by default
-    # Options are python dictionaries that conatin a short name, long description, speed, and whether they are enabled by default
+    # Add your options here, indicate whether they are slow to run, and set
+    # whether they are enabled by default
+    # Options are python dictionaries that contain a short name,
+    # long description, speed, and whether they are enabled by default
     optionList = [("init.d",  'Gathers the init.d directory', 'slow', 0),
                   ('follicles', 'Gathers information about each follicle on every toe', 'slow', 0),
                   ('color', 'Gathers toenail polish color', 'fast', 0)]
@@ -41,9 +38,10 @@ class example(sos.plugintools.PluginBase):
     def setup(self):
         ''' First phase - Collect all the information we need.
         Directories are copied recursively. arbitrary commands may be
-        executed using the susRunExe method. Information is automatically saved, and
-        links are presented in the report to each file or directory which has been
-        copied to the saved tree. Also, links are provided to the output from each command.
+        executed using the collectExtOutput() method. Information is
+        automatically saved, and links are presented in the report to each
+        file or directory which has been copied to the saved tree. Also, links
+        are provided to the output from each command.
         '''
         # Here's how to copy files and directory trees
         self.addCopySpec("/etc/hosts")
@@ -58,14 +56,14 @@ class example(sos.plugintools.PluginBase):
         # Here's how to execute a command
         # you can save the path to the copied file for later analysis if desired
         # FIXME: Need to figure out how to do this
-        self.psCmdDstFileName = self.runExe("/bin/ps -ef")
+        self.psCmdDstFileName = self.collectExtOutput("/bin/ps -ef")
         return
 
     def analyze(self):
         ''' This is optional and need not be defined.
         If you wish to perform some analysis on either files
         that were gathered or on the output of commands, then save the filenames on the
-        destination file system when gathering that information in the collect() method
+        destination file system when gathering that information in the setup() method
         and use them here
         '''
         # This is an example of opening and reading the output of a command that
@@ -83,12 +81,3 @@ class example(sos.plugintools.PluginBase):
         #
         self.addAlert("This is an alert")
         return
-
-#    def report(self):
-#        """ Usually, this doesn't even need to be defined, and you can inherit the
-#        base class, unless you want to replace what sosGetResults()
-#        does with your own custom report generator. If you are going to do that, have a good
-#        look at that method to see what it does. Custom text and alerts can still be added
-#        here using sosAddCustomText() and sosAddAlert()
-#        This method returns html that will be included inline in the report
-#        """
