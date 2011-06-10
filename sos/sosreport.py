@@ -37,7 +37,7 @@ import os
 import logging
 from optparse import OptionParser, Option
 import ConfigParser
-import sos.policyredhat
+import sos.policydummy
 from sos.helpers import importPlugin
 import signal
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
@@ -334,10 +334,11 @@ def sosreport(opts):
     alloptions = deque() 
 
     # perhaps we should automatically locate the policy module??
-    GlobalVars.policy = sos.policyredhat.SosPolicy()
+    GlobalVars.policy = sos.policydummy.SosPolicy()
 
     # find the plugins path
     paths = sys.path
+    pluginpath = ""
     for path in paths:
         if path.strip()[-len("site-packages"):] == "site-packages" \
         and os.path.isdir(path + "/sos/plugins"):
