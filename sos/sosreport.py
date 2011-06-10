@@ -441,7 +441,7 @@ def sosreport(opts):
 
     # I'm building a list of plugin names and paths for every possible loadable plugin on the system
     # I'm deduping the plugins and the earliest found plugins win
-    plugins = [MyPlugin(plugname, path) for path in pluginpaths for plugname in os.listdir(path) if plugname.endswith(".py")]
+    plugins = [MyPlugin(plugname, path) for path in pluginpaths for plugname in os.listdir(path)]
     plugins = list(set(plugins))
     plugins = [plug.fmt() for plug in plugins]
     plugins.sort()
