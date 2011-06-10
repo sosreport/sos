@@ -329,20 +329,20 @@ def sosreport(opts):
     except IOError:
         pass
 
-    GlobalVars.loadedplugins = deque() 
-    skippedplugins = deque() 
-    alloptions = deque() 
+    GlobalVars.loadedplugins = deque()
+    skippedplugins = deque()
+    alloptions = deque()
 
     # perhaps we should automatically locate the policy module??
     GlobalVars.policy = sos.policydummy.SosPolicy()
 
     # find the plugins path
     paths = sys.path
-    pluginpath = ""
+    pluginpaths = []
     for path in paths:
-        if path.strip()[-len("site-packages"):] == "site-packages" \
-        and os.path.isdir(path + "/sos/plugins"):
-            pluginpath = path + "/sos/plugins"
+        candidate = os.path.join(path, "sos", "plugins")
+        if os.path.isdir(candidate):
+            pluginpaths.append(candidate)
 
     # Set up common info and create destinations
 
@@ -415,7 +415,7 @@ def sosreport(opts):
     print
 
     # disable plugins that we read from conf files
-    conf_disable_plugins_list = deque() 
+    conf_disable_plugins_list = deque()
     conf_disable_plugins = None
     if config.has_option("plugins", "disable"):
         conf_disable_plugins = config.get("plugins", "disable").split(',')
@@ -423,12 +423,32 @@ def sosreport(opts):
             conf_disable_plugins_list.append(item.strip())
 
     # generate list of available plugins
-    plugins = os.listdir(pluginpath)
+    class MyPlugin(object):
+        """This class is used to prune out 'duplicates' via sets"""
+
+        def __init__(self, name, path):
+            self.name = name
+            self.path = path
+
+        def __hash__(self):
+            return 0
+
+        def __eq__(self, other):
+            return self.name == other.name
+
+        def fmt(self):
+            return (self.name, self.path)
+
+    # I'm building a list of plugin names and paths for every possible loadable plugin on the system
+    # I'm deduping the plugins and the earliest found plugins win
+    plugins = [MyPlugin(plugname, path) for path in pluginpaths for plugname in os.listdir(path) if plugname.endswith(".py")]
+    plugins = list(set(plugins))
+    plugins = [plug.fmt() for plug in plugins]
     plugins.sort()
     plugin_names = deque()
 
     # validate and load plugins
-    for plug in plugins:
+    for plug, pluginpath in plugins:
         plugbase =  plug[:-3]
         if not plug[-3:] == '.py' or plugbase == "__init__":
             continue
