@@ -29,11 +29,12 @@ import os, sys
 import logging
 from subprocess import Popen, PIPE
 
-def importPlugin(pluginname, name):
+def importPlugin(name):
     """ Import a plugin to extend capabilities of sosreport
     """
     try:
-        plugin = __import__(pluginname, globals(), locals(), [name])
+        plugin_path = "sos.plugins.%s" % name
+        plugin = __import__(plugin_path, globals(), locals(), [name])
     except ImportError, e:
         return None
     return getattr(plugin, name)

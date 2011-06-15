@@ -428,12 +428,12 @@ No changes will be made to your system.
                 plugin_name in self._get_disabled_plugins())
 
     def _is_inactive(self, plugin_name, pluginClass):
-        return (not pluginClass(plugin_name, self.get_commons()).checkenabled() and
+        return (not pluginClass(self.get_commons()).checkenabled() and
                 not plugin_name in self.opts.enableplugins  and
                 not plugin_name in self.opts.onlyplugins)
 
     def _is_not_default(self, plugin_name, pluginClass):
-        return (not pluginClass(plugin_name, self.get_commons()).defaultenabled() and
+        return (not pluginClass(self.get_commons()).defaultenabled() and
                 not plugin_name in self.opts.enableplugins and
                 not plugin_name in self.opts.onlyplugins)
 
@@ -441,16 +441,16 @@ No changes will be made to your system.
         return (self.opts.onlyplugins and
                 not plugin_name in self.opts.onlyplugins)
 
-    def _skip(self, plugin_name, plugin_class):
+    def _skip(self, plugin_class):
         self.skipped_plugins.append((
-            plugin_name,
-            plugin_class(plugin_name, self.get_commons())
+            plugin_class.name(),
+            plugin_class(self.get_commons())
         ))
 
-    def _load(self, plugin_name, plugin_class):
+    def _load(self, plugin_class):
         self.loaded_plugins.append((
-            plugin_name,
-            plugin_class(plugin_name, self.get_commons())
+            plugin_class.name(),
+            plugin_class(self.get_commons())
         ))
 
     def _find_pluginpath(self):
@@ -479,10 +479,10 @@ No changes will be made to your system.
                 continue
             try:
                 if self.policy.validatePlugin(pluginpath + plug):
-                    pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
+                    pluginClass = importPlugin(plugbase)
                 else:
                     self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
-                    self._skip(plugbase, pluginClass)
+                    self._skip(pluginClass)
                     continue
 
                 # plug-in is valid, let's decide whether run it or not
@@ -493,10 +493,10 @@ No changes will be made to your system.
                         self._is_not_default(plugbase, pluginClass),
                         self._is_not_specified(plugbase),
                         )):
-                    self._skip(plugbase, pluginClass)
+                    self._skip(pluginClass)
                     continue
 
-                self._load(plugbase, pluginClass)
+                self._load(pluginClass)
             except Exception, e:
                 self.soslog.warning(_("plugin %s does not install, skipping: %s") % (plug, e))
                 if self.raise_plugins:
@@ -638,7 +638,7 @@ No changes will be made to your system.
                 self._exit()
 
     def _exception_to_logfile(self, logfile_name):
-        error_log = open(logfile_name)
+        error_log = open(logfile_name, 'a')
         etype, eval, etrace = sys.exc_info()
         traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
         error_log.write(traceback.format_exc())
@@ -646,7 +646,7 @@ No changes will be made to your system.
 
     def _log_plugin_exception(self):
         self._exception_to_logfile(
-            os.path.join(logdir, "sosreport-plugin-errors.txt"))
+            os.path.join(self.logdir, "sosreport-plugin-errors.txt"))
 
     def diagnose(self):
         tmpcount = 0
@@ -726,7 +726,7 @@ No changes will be made to your system.
                 else:
                     self._log_plugin_exception()
 
-    def xml_report(self):
+    def report(self):
         for plugname, plug in self.loaded_plugins:
             for oneFile in plug.copiedFiles:
                 try:
@@ -734,12 +734,12 @@ No changes will be made to your system.
                 except:
                     pass
 
-        self.xmlrep.serialize_to_file(
-            os.path.join(rptdir, "sosreport.xml"))
+        self.xml_report.serialize_to_file(
+            os.path.join(self.rptdir, "sosreport.xml"))
 
     def html_report(self):
         # Generate the header for the html output file
-        rfd = open(os.path.join(rptdir, "sosreport.html"), "w")
+        rfd = open(os.path.join(self.rptdir, "sosreport.html"), "w")
         rfd.write("""
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -866,7 +866,7 @@ def main(args):
     print
 
     if sos.opts.report:
-        sos.xml_report()
+        sos.report()
         sos.html_report()
 
     sos.postproc()

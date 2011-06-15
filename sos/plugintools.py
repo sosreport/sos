@@ -44,9 +44,9 @@ class PluginBase(object):
     """
     Base class for plugins
     """
-    def __init__(self, pluginname, commons):
+    def __init__(self, commons):
         if not getattr(self, "optionList", False):
-            self.optionList = deque() 
+            self.optionList = deque()
 
         self.copiedFiles = deque()
         self.copiedDirs = deque()
@@ -56,11 +56,10 @@ class PluginBase(object):
         self.customText = ""
         self.optNames = deque()
         self.optParms = deque()
-        self.piName = pluginname
         self.cInfo = commons
-        self.forbiddenPaths = deque() 
+        self.forbiddenPaths = deque()
         self.copyPaths = deque()
-        self.collectProgs = deque() 
+        self.collectProgs = deque()
 
         self.packages = deque()
         self.files = deque()
@@ -74,6 +73,11 @@ class PluginBase(object):
         for opt in self.optionList:
             self.optNames.append(opt[0])
             self.optParms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
+
+    @classmethod
+    def name(class_):
+        "Returns the plugin's name as a string"
+        return class_.__name__
 
     def policy(self):
         return self.cInfo["policy"]
@@ -199,10 +203,10 @@ class PluginBase(object):
             return
         except IOError:
             # self.soslog.debug("error copying file %s (IOError)" % (srcpath))
-            return 
+            return
         except:
             # self.soslog.debug("error copying file %s (SOMETHING HAPPENED)" % (srcpath))
-            return 
+            return
 
         self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
 
@@ -229,7 +233,7 @@ class PluginBase(object):
                 os.symlink(linkto, new_fname)
             else:
                 fsrc = open(src,'r')
-                fdst = open(new_fname, 'w') 
+                fdst = open(new_fname, 'w')
                 shutil.copyfileobj(fsrc, fdst, -1)
                 fsrc.close()
                 fdst.close()
@@ -346,7 +350,7 @@ class PluginBase(object):
     def makeCommandFilename(self, exe):
         """ The internal function to build up a filename based on a command """
 
-        outfn = self.cInfo['cmddir'] + "/" + self.piName + "/" + self.mangleCommand(exe)
+        outfn = self.cInfo['cmddir'] + "/" + self.name() + "/" + self.mangleCommand(exe)
 
         # check for collisions
         if os.path.exists(outfn):
@@ -508,10 +512,10 @@ class PluginBase(object):
         the results.
         """
         # make this prettier
-        html = '<hr/><a name="%s"></a>\n' % self.piName
+        html = '<hr/><a name="%s"></a>\n' % self.name()
 
         # Intro
-        html = html + "<h2> Plugin <em>" + self.piName + "</em></h2>\n"
+        html = html + "<h2> Plugin <em>" + self.name() + "</em></h2>\n"
 
         # Files
         if len(self.copiedFiles):
