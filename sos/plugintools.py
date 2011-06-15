@@ -389,12 +389,12 @@ class PluginBase(object):
                 outfd.write(shout+"\n")
             outfd.close()
 
+            # maybe do a platform check or something, symlink only works on unix
             if root_symlink:
                 curdir = os.getcwd()
                 os.chdir(self.cInfo['dstroot'])
                 try:
-                    dst_from_root = outfn[len(self.cInfo['dstroot'])+1:]
-                    target = ("../" * string.count(dst_from_root, "/")) + dst_from_root
+                    target = outfn[len(self.cInfo['dstroot'])+1:]
                     os.symlink(target, root_symlink.strip("/."))
                 except:
                     pass

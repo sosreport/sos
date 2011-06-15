@@ -58,7 +58,9 @@ def sosGetCommandOutput(command, timeout = 300):
     stdout, stderr = p.communicate()
     return (p.returncode, stdout.strip(), 0)
 
-def commonPrefix(l1, l2, common = []):
+def commonPrefix(l1, l2, common = None):
+    if common is None:
+        common = []
     ''' return a list of common elements at the start of all sequences,
         then a list of lists that are the unique tails of each sequence. '''
     if len(l1) < 1 or len(l2) < 1 or  l1[0] != l2[0]: return common, [l1, l2]

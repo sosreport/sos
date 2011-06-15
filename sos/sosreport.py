@@ -811,7 +811,7 @@ No changes will be made to your system.
             print
             print _("  sosreport build tree is located at : %s" % (self.dstroot,))
             print
-            self._exit()
+            sys.exit(0)
 
         # package up the results for the support organization
         self.policy.packageResults()
@@ -870,6 +870,5 @@ def main(args):
         sos.html_report()
 
     sos.postproc()
-
 
     sos.final_work()
