@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class pam(sos.plugintools.PluginBase):
+class pam(sos.plugintools.RedHatPlugin):
     """PAM related information
     """
     def setup(self):

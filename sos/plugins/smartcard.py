@@ -18,7 +18,7 @@ import sos.plugintools
 import os
 from time import time
 
-class smartcard(sos.plugintools.PluginBase):
+class smartcard(sos.plugintools.RedHatPlugin):
     """Smart Card related information
     """
 

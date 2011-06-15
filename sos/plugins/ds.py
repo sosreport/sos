@@ -17,7 +17,7 @@
 import sos.plugintools
 import os
 
-class ds(sos.plugintools.PluginBase):
+class ds(sos.plugintools.RedHatPlugin):
     """Directory Server information
     """
 

@@ -15,7 +15,7 @@
 import sos.plugintools
 import os
 
-class veritas(sos.plugintools.PluginBase):
+class veritas(sos.plugintools.RedHatPlugin):
     """Veritas related information
     """
     # Information about VRTSexplorer obtained from

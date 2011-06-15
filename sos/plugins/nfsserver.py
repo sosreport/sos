@@ -18,7 +18,7 @@ import sos.plugintools
 import os
 from stat import ST_SIZE
 
-class nfsserver(sos.plugintools.PluginBase):
+class nfsserver(sos.plugintools.RedHatPlugin):
     """NFS server-related information
     """
     def checkenabled(self):

@@ -17,7 +17,7 @@ import os
 import re
 from stat import *
 
-class xen(sos.plugintools.PluginBase):
+class xen(sos.plugintools.RedHatPlugin):
     """Xen related information
     """
     def determineXenHost(self):

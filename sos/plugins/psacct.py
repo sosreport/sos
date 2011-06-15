@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class psacct(sos.plugintools.PluginBase):
+class psacct(sos.plugintools.RedHatPlugin):
     """Process accounting related information
     """
     def setup(self):

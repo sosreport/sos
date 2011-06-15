@@ -17,7 +17,7 @@
 import os
 import sos.plugintools
 
-class s390(sos.plugintools.PluginBase):
+class s390(sos.plugintools.RedHatPlugin):
     """s390 related information
     """
 

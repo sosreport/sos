@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class iscsi(sos.plugintools.PluginBase):
+class iscsi(sos.plugintools.RedHatPlugin):
     """iscsi-initiator related information
     """
     def setup(self):

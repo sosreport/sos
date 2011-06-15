@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class mysql(sos.plugintools.PluginBase):
+class mysql(sos.plugintools.RedHatPlugin):
     """MySQL related information
     """
 

@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class pxe(sos.plugintools.PluginBase):
+class pxe(sos.plugintools.RedHatPlugin):
     """PXE related information
     """
 

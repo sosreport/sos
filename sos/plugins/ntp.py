@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class ntp(sos.plugintools.PluginBase):
+class ntp(sos.plugintools.RedHatPlugin):
     """NTP related information
     """
     def setup(self):

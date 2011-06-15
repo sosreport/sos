@@ -17,7 +17,7 @@
 import sos.plugintools
 import os
 
-class sssd(sos.plugintools.PluginBase):
+class sssd(sos.plugintools.RedHatPlugin):
     """sssd-related Diagnostic Information
     """
 

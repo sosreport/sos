@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class udev(sos.plugintools.PluginBase):
+class udev(sos.plugintools.RedHatPlugin):
     """udev related information
     """
     def setup(self):

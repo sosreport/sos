@@ -15,7 +15,7 @@
 import sos.plugintools
 import os, re
 
-class kernel(sos.plugintools.PluginBase):
+class kernel(sos.plugintools.RedHatPlugin):
     """kernel related information
     """
     optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]

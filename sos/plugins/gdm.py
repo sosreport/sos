@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class gdm(sos.plugintools.PluginBase):
+class gdm(sos.plugintools.RedHatPlugin):
     """gdm related information
     """
     def setup(self):

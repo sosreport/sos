@@ -16,13 +16,13 @@
 
 import sos.plugintools
 
-class iscsitarget(sos.plugintools.PluginBase):
+class iscsitarget(sos.plugintools.RedHatPlugin):
     """iscsi-target related information
     """
 
     def checkenabled(self):
         self.packages = [ "scsi-target-utils" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return sos.plugintools.RedHatPlugin.checkenabled(self)
 
     def setup(self):
         self.addCopySpec("/etc/tgt/targets.conf")

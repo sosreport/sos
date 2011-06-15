@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class logrotate(sos.plugintools.PluginBase):
+class logrotate(sos.plugintools.RedHatPlugin):
     """logrotate configuration files and debug info
     """
     

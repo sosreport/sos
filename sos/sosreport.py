@@ -44,6 +44,7 @@ from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
 from itertools import izip
+import distutils.sysconfig
 
 from sos import _sos as _
 from sos import __version__
@@ -52,56 +53,6 @@ if os.path.isfile('/etc/fedora-release'):
     __distro__ = 'Fedora'
 else:
     __distro__ = 'Red Hat Enterprise Linux'
-
-class GlobalVars:
-    """ Generic container for shared vars """
-    def __init__(self):
-        pass
-
-## Set up routines to be linked to signals for termination handling
-def exittermhandler(signum, frame):
-    """ Handle signals cleanly """
-    del frame, signum
-    doExitCode()
-
-def doExitCode():
-    """ Exit with return """
-
-    for plugname, plug in GlobalVars.loadedplugins:
-        plug.exit_please()
-        del plugname
-
-    print "All processes ended, cleaning up."
-    doExit(1)
-
-def doExit(error=0):
-    """ Exit with return """
-    # We will attempt to clean dstroot; there is only
-    # one instance where the policy is not set and that is
-    # during the actual creation of dstroot
-    try:
-        GlobalVars.policy.cleanDstroot()
-    except AttributeError:
-        sys.exit(error)
-    sys.exit(error)
-
-def doException(etype, eval, etrace):
-    """ Wrap exception in debugger if not in tty """
-    if hasattr(sys, 'ps1') or not sys.stderr.isatty():
-        # we are in interactive mode or we don't have a tty-like
-        # device, so we call the default hook
-        sys.__excepthook__(etype, eval, etrace)
-    else:
-        import traceback, pdb
-        # we are NOT in interactive mode, print the exception...
-        traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
-        print
-        # ...then start the debugger in post-mortem mode.
-        pdb.pm()
-
-# Handle any sort of exit signal cleanly
-# Currently, we intercept only sig 15 (TERM)
-signal.signal(signal.SIGTERM, exittermhandler)
 
 class OptionParserExtended(OptionParser):
     """ Show examples """
@@ -140,87 +91,73 @@ class SosOption (Option):
 def parse_options(opts):
     """ Parse command line options """
 
-    __cmdParser__ = OptionParserExtended(option_class=SosOption)
-    __cmdParser__.add_option("-l", "--list-plugins", action="store_true", \
-                         dest="listPlugins", default=False, \
+    parser = OptionParserExtended(option_class=SosOption)
+    parser.add_option("-l", "--list-plugins", action="store_true",
+                         dest="listPlugins", default=False,
                          help="list plugins and available plugin options")
-    __cmdParser__.add_option("-n", "--skip-plugins", action="extend", \
-                         dest="noplugins", type="string", \
+    parser.add_option("-n", "--skip-plugins", action="extend",
+                         dest="noplugins", type="string",
                          help="skip these plugins", default = deque())
-    __cmdParser__.add_option("-e", "--enable-plugins", action="extend", \
-                         dest="enableplugins", type="string", \
+    parser.add_option("-e", "--enable-plugins", action="extend",
+                         dest="enableplugins", type="string",
                          help="enable these plugins", default = deque())
-    __cmdParser__.add_option("-o", "--only-plugins", action="extend", \
-                         dest="onlyplugins", type="string", \
+    parser.add_option("-o", "--only-plugins", action="extend",
+                         dest="onlyplugins", type="string",
                          help="enable these plugins only", default = deque())
-    __cmdParser__.add_option("-k", action="extend", \
-                         dest="plugopts", type="string", \
+    parser.add_option("-k", action="extend",
+                         dest="plugopts", type="string",
                          help="plugin options in plugname.option=value format (see -l)")
-    __cmdParser__.add_option("-a", "--alloptions", action="store_true", \
-                         dest="usealloptions", default=False, \
+    parser.add_option("-a", "--alloptions", action="store_true",
+                         dest="usealloptions", default=False,
                          help="enable all options for loaded plugins")
-    __cmdParser__.add_option("-u", "--upload", action="store", \
-                         dest="upload", default=False, \
+    parser.add_option("-u", "--upload", action="store",
+                         dest="upload", default=False,
                          help="upload the report to an ftp server")
-    #__cmdParser__.add_option("--encrypt", action="store_true", \
-    #                     dest="encrypt", default=False, \
+    #parser.add_option("--encrypt", action="store_true",
+    #                     dest="encrypt", default=False,
     #                     help="encrypt with GPG using Red Hat support's public key")
-    __cmdParser__.add_option("--batch", action="store_true", \
-                         dest="batch", default=False, \
+    parser.add_option("--batch", action="store_true",
+                         dest="batch", default=False,
                          help="do not ask any question (batch mode)")
-    __cmdParser__.add_option("--build", action="store_true", \
-                         dest="build", default=False, \
+    parser.add_option("--build", action="store_true",
+                         dest="build", default=False,
                          help="keep sos tree available and dont package results")
-    __cmdParser__.add_option("--no-colors", action="store_true", \
-                         dest="nocolors", default=False, \
+    parser.add_option("--no-colors", action="store_true",
+                         dest="nocolors", default=False,
                          help="do not use terminal colors for text")
-    __cmdParser__.add_option("-v", "--verbose", action="count", \
-                         dest="verbosity", \
+    parser.add_option("-v", "--verbose", action="count",
+                         dest="verbosity",
                          help="increase verbosity")
-    __cmdParser__.add_option("--debug", action="count", \
-                         dest="debug", \
+    parser.add_option("--debug", action="count",
+                         dest="debug",
                          help="enabling debugging through python debugger")
-    __cmdParser__.add_option("--ticket-number", action="store", \
-                         dest="ticketNumber", \
+    parser.add_option("--ticket-number", action="store",
+                         dest="ticketNumber",
                          help="set ticket number")
-    __cmdParser__.add_option("--name", action="store", \
-                         dest="customerName", \
+    parser.add_option("--name", action="store",
+                         dest="customerName",
                          help="define customer name")
-    __cmdParser__.add_option("--config-file", action="store", \
-                         dest="config_file", \
+    parser.add_option("--config-file", action="store",
+                         dest="config_file",
                          help="specify alternate configuration file")
-    __cmdParser__.add_option("--tmp-dir", action="store", \
-                         dest="tmp_dir", \
+    parser.add_option("--tmp-dir", action="store",
+                         dest="tmp_dir",
                          help="specify alternate temporary directory", default="/tmp")
-    __cmdParser__.add_option("--diagnose", action="store_true", \
-                         dest="diagnose", \
+    parser.add_option("--diagnose", action="store_true",
+                         dest="diagnose",
                          help="enable diagnostics", default=False)
-    __cmdParser__.add_option("--analyze", action="store_true", \
-                         dest="analyze", \
+    parser.add_option("--analyze", action="store_true",
+                         dest="analyze",
                          help="enable analyzations", default=False)
-    __cmdParser__.add_option("--report", action="store_true", \
-                         dest="report", \
+    parser.add_option("--report", action="store_true",
+                         dest="report",
                          help="Enable html/xml reporting", default=False)
-    __cmdParser__.add_option("--profile", action="store_true", \
-                         dest="profiler", \
+    parser.add_option("--profile", action="store_true",
+                         dest="profiler",
                          help="turn on profiling", default=False)
 
-    (GlobalVars.__cmdLineOpts__, GlobalVars.__cmdLineArgs__) = __cmdParser__.parse_args(opts)
+    return parser.parse_args(opts)
 
-def textcolor(text, color, raw=0):
-    """ Terminal text coloring function """
-    if GlobalVars.__cmdLineOpts__.nocolors or not sys.stdout.isatty():
-        return text
-    colors = {  "black":"30", "red":"31", "green":"32", "brown":"33", "blue":"34",
-                "purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
-                "lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
-                "lcyan":"1;36", "white":"1;37" }
-    opencol = "\033["
-    closecol = "m"
-    clear = opencol + "0" + closecol
-    f = opencol + colors[color] + closecol
-    del raw
-    return "%s%s%s" % (f, text, clear)
 
 class XmlReport:
     """ Report build class """
@@ -301,14 +238,626 @@ class XmlReport:
         outfn.write(self.doc.serialize(None, 1))
         outfn.close()
 
-# if debugging is enabled, allow plugins to raise exceptions
-def isDebug():
-    """ Enable plugin to raise exception """
-    if GlobalVars.__cmdLineOpts__.debug:
-        sys.excepthook = doException
-        GlobalVars.__raisePlugins__ = 1
-    else:
-        GlobalVars.__raisePlugins__ = 0
+
+class SoSReport(object):
+
+    msg = _("""This utility will collect some detailed  information about the
+hardware and setup of your %(distroa)s system.
+The information is collected and an archive is  packaged under
+/tmp, which you can send to a support representative.
+%(distrob)s will use this information for diagnostic purposes ONLY
+and it will be considered confidential information.
+
+This process may take a while to complete.
+No changes will be made to your system.
+
+""" % {'distroa':__distro__, 'distrob':__distro__})
+
+    def __init__(self, opts):
+        self.loaded_plugins = deque()
+        self.skipped_plugins = deque()
+        self.all_options = deque()
+        self.xml_report = XmlReport()
+
+        signal.signal(signal.SIGTERM, self.get_exit_handler())
+
+        self.opts, self.args = parse_options(opts)
+        self._set_debug()
+        self._read_config()
+        self.policy = self.load_policy()
+        self._set_directories()
+        self._setup_logging()
+        self.policy.setCommons(self.get_commons())
+        self.print_header()
+        self.load_plugins()
+        self._set_tunables()
+        self._check_for_unknown_plugins()
+        self._set_plugin_options()
+
+    def print_header(self):
+        print "\n%s\n" % _("sosreport (version %s)" % (__version__,))
+
+    def textcolor(self, text, color, raw=0):
+        """ Terminal text coloring function """
+        if self.opts.nocolors or not sys.stdout.isatty():
+            return text
+        colors = {  "black":"30", "red":"31", "green":"32", "brown":"33", "blue":"34",
+                    "purple":"35", "cyan":"36", "lgray":"37", "gray":"1;30", "lred":"1;31",
+                    "lgreen":"1;32", "yellow":"1;33", "lblue":"1;34", "pink":"1;35",
+                    "lcyan":"1;36", "white":"1;37" }
+        opencol = "\033["
+        closecol = "m"
+        clear = opencol + "0" + closecol
+        f = opencol + colors[color] + closecol
+        return "%s%s%s" % (f, text, clear)
+
+    def get_commons(self):
+        return {'dstroot': self.dstroot,
+                'cmddir': self.cmddir,
+                'logdir': self.logdir,
+                'rptdir': self.rptdir,
+                'soslog': self.soslog,
+                'policy': self.policy,
+                'verbosity': self.opts.verbosity,
+                'xmlreport': self.xml_report,
+                'cmdlineopts': self.opts,
+                'config': self.config }
+
+    def _set_directories(self):
+        self.dstroot = self.policy.getDstroot(self.opts.tmp_dir)
+        if not self.dstroot:
+            print _("Could not create temporary directory.")
+            self._exit()
+
+        self.cmddir = os.path.join(self.dstroot,
+                                   'sos_commands')
+        self.logdir = os.path.join(self.dstroot,
+                                   'sos_logs')
+        self.rptdir = os.path.join(self.dstroot,
+                                   'sos_reports')
+        os.mkdir(self.cmddir, 0755)
+        os.mkdir(self.logdir, 0755)
+        os.mkdir(self.rptdir, 0755)
+
+    def _set_debug(self):
+        if self.opts.debug:
+            sys.excepthook = self._exception
+            self.raise_plugins = True
+        else:
+            self.raise_plugins = False
+
+    @staticmethod
+    def _exception(etype, eval_, etrace):
+        """ Wrap exception in debugger if not in tty """
+        if hasattr(sys, 'ps1') or not sys.stderr.isatty():
+            # we are in interactive mode or we don't have a tty-like
+            # device, so we call the default hook
+            sys.__excepthook__(etype, eval_, etrace)
+        else:
+            import traceback, pdb
+            # we are NOT in interactive mode, print the exception...
+            traceback.print_exception(etype, eval_, etrace, limit=2, file=sys.stdout)
+            print
+            # ...then start the debugger in post-mortem mode.
+            pdb.pm()
+
+    def _exit(self, error=0):
+        try:
+            self.policy.cleanDstroot()
+        finally:
+            sys.exit(error)
+
+    def _exit_nice(self):
+        for plugname, plugin in self.loaded_plugins:
+            plugin.exit_please()
+        print "All processes ended, cleaning up."
+        self._exit(1)
+
+    def get_exit_handler(self):
+        def exit_handler(signum, frame):
+            self._exit_nice()
+        return exit_handler
+
+    def _read_config(self):
+        self.config = ConfigParser.ConfigParser()
+        if self.opts.config_file:
+            config_file = self.opts.config_file
+        else:
+            config_file = '/etc/sos.conf'
+        try:
+            self.config.readfp(open(config_file))
+        except IOError:
+            pass
+
+    def load_policy(self):
+        return sos.policydummy.SosPolicy()
+
+    def _setup_logging(self):
+        self.soslog = logging.getLogger('sos')
+        self.soslog.setLevel(logging.DEBUG)
+
+        logging.VERBOSE  = logging.INFO - 1
+        logging.VERBOSE2 = logging.INFO - 2
+        logging.VERBOSE3 = logging.INFO - 3
+        logging.addLevelName(logging.VERBOSE, "verbose")
+        logging.addLevelName(logging.VERBOSE2,"verbose2")
+        logging.addLevelName(logging.VERBOSE3,"verbose3")
+
+        if self.opts.profiler:
+            self.proflog = logging.getLogger('sosprofile')
+            self.proflog.setLevel(logging.DEBUG)
+
+        # if stdin is not a tty, disable colors and don't ask questions
+        if not sys.stdin.isatty():
+            self.opts.nocolors = True
+            self.opts.batch = True
+
+        # log to a file
+        flog = logging.FileHandler(os.path.join(self.logdir, "sos.log"))
+        flog.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
+        flog.setLevel(logging.VERBOSE3)
+        self.soslog.addHandler(flog)
+
+        if self.opts.profiler:
+            # setup profile log
+            plog = logging.FileHandler(logdir + "/sosprofile.log")
+            plog.setFormatter(logging.Formatter('%(message)s'))
+            plog.setLevel(logging.DEBUG)
+            self.proflog.addHandler(plog)
+
+        # define a Handler which writes INFO messages or higher to the sys.stderr
+        console = logging.StreamHandler(sys.stderr)
+        if self.opts.verbosity > 0:
+            console.setLevel(20 - self.opts.verbosity)
+        else:
+            console.setLevel(logging.INFO)
+        console.setFormatter(logging.Formatter('%(message)s'))
+        self.soslog.addHandler(console)
+
+
+    def _get_disabled_plugins(self):
+        disabled = []
+        if self.config.has_option("plugins", "disable"):
+            disabled = [plugin.strip() for plugin in
+                        self.config.get("plugins", "disable").split(',')]
+        return disabled
+
+
+    def _is_skipped(self, plugin_name):
+        return (plugin_name in self.opts.noplugins or
+                plugin_name in self._get_disabled_plugins())
+
+    def _is_inactive(self, plugin_name, pluginClass):
+        return (not pluginClass(plugin_name, self.get_commons()).checkenabled() and
+                not plugin_name in self.opts.enableplugins  and
+                not plugin_name in self.opts.onlyplugins)
+
+    def _is_not_default(self, plugin_name, pluginClass):
+        return (not pluginClass(plugin_name, self.get_commons()).defaultenabled() and
+                not plugin_name in self.opts.enableplugins and
+                not plugin_name in self.opts.onlyplugins)
+
+    def _is_not_specified(self, plugin_name):
+        return (self.opts.onlyplugins and
+                not plugin_name in self.opts.onlyplugins)
+
+    def _skip(self, plugin_name, plugin_class):
+        self.skipped_plugins.append((
+            plugin_name,
+            plugin_class(plugin_name, self.get_commons())
+        ))
+
+    def _load(self, plugin_name, plugin_class):
+        self.loaded_plugins.append((
+            plugin_name,
+            plugin_class(plugin_name, self.get_commons())
+        ))
+
+    def load_plugins(self):
+        pluginpath = os.path.join(distutils.sysconfig.get_python_lib(), 'sos', 'plugins')
+
+        plugins = [plugin for plugin in os.listdir(pluginpath) if plugin.endswith(".py")]
+        plugins.sort()
+        self.plugin_names = deque()
+
+        # validate and load plugins
+        for plug in plugins:
+            plugbase, ext = os.path.splitext(plug)
+            if plugbase == "__init__":
+                continue
+            try:
+                if self.policy.validatePlugin(pluginpath + plug):
+                    pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
+                else:
+                    self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
+                    self._skip(plugbase, pluginClass)
+                    continue
+
+                # plug-in is valid, let's decide whether run it or not
+                self.plugin_names.append(plugbase)
+
+                if any((self._is_skipped(plugbase),
+                        self._is_inactive(plugbase, pluginClass),
+                        self._is_not_default(plugbase, pluginClass),
+                        self._is_not_specified(plugbase),
+                        )):
+                    self._skip(plugbase, pluginClass)
+                    continue
+
+                self._load(plugbase, pluginClass)
+            except Exception, e:
+                self.soslog.warning(_("plugin %s does not install, skipping: %s") % (plug, e))
+                if self.raise_plugins:
+                    raise
+
+    def _set_all_options(self):
+        if self.opts.usealloptions:
+            for plugname, plug in self.loaded_plugins:
+                for name, parms in zip(plug.optNames, plug.optParms):
+                    if type(parms["enabled"])==bool:
+                        parms["enabled"] = True
+
+    def _set_tunables(self):
+        if self.config.has_section("tunables"):
+            if not self.opts.plugopts:
+                self.opts.plugopts = deque()
+
+            for opt, val in self.config.items("tunables"):
+                if not opt.split('.')[0] in self.disabled:
+                    self.opts.plugopts.append(opt + "=" + val)
+        if self.opts.plugopts:
+            opts = {}
+            for opt in self.opts.plugopts:
+                # split up "general.syslogsize=5"
+                try:
+                    opt, val = opt.split("=")
+                except:
+                    val = True
+                else:
+                    if val.lower() in ["off", "disable", "disabled", "false"]:
+                        val = False
+                    else:
+                        # try to convert string "val" to int()
+                        try:
+                            val = int(val)
+                        except:
+                            pass
+
+                # split up "general.syslogsize"
+                try:
+                    plug, opt = opt.split(".")
+                except:
+                    plug = opt
+                    opt = True
+
+                try:
+                    opts[plug]
+                except KeyError:
+                    opts[plug] = deque()
+                opts[plug].append( (opt, val) )
+
+            for plugname, plug in self.loaded_plugins:
+                if plugname in opts:
+                    for opt, val in opts[plugname]:
+                        if not plug.setOption(opt, val):
+                            self.soslog.error('no such option "%s" for plugin '
+                                         '(%s)' % (opt,plugname))
+                            self._exit(1)
+                    del opts[plugname]
+            for plugname in opts.keys():
+                self.soslog.error('unable to set option for disabled or non-existing '
+                             'plugin (%s)' % (plugname))
+
+    def _check_for_unknown_plugins(self):
+        import itertools
+        for plugin in itertools.chain(self.opts.onlyplugins,
+                                      self.opts.noplugins,
+                                      self.opts.enableplugins):
+            plugin_name = plugin.split(".")[0]
+            if not plugin_name in self.plugin_names:
+                soslog.error('a non-existing plugin (%s) was specified in the '
+                             'command line' % (plugin_name))
+                self._exit(1)
+
+    def _set_plugin_options(self):
+        for plugin_name, plugin in self.loaded_plugins:
+            names, parms = plugin.getAllOptions()
+            for optname, optparm in zip(names, parms):
+                self.all_options.append((plugin, plugin_name, optname, optparm))
+
+    def list_plugins(self):
+        if not self.loaded_plugins and not self.skipped_plugins:
+            self.soslog.error(_("no valid plugins found"))
+            self._exit(1)
+
+        if self.loaded_plugins:
+            print _("The following plugins are currently enabled:")
+            print
+            for (plugname, plug) in self.loaded_plugins:
+                print " %-25s  %s" % (self.textcolor(plugname,"lblue"),
+                                     plug.get_description())
+        else:
+            print _("No plugin enabled.")
+        print
+
+        if self.skipped_plugins:
+            print _("The following plugins are currently disabled:")
+            print
+            for (plugname, plugclass) in self.skipped_plugins:
+                print " %-25s  %s" % (self.textcolor(plugname,"cyan"),
+                                     plugclass.get_description())
+        print
+
+        if self.all_options:
+            print _("The following plugin options are available:")
+            print
+            for (plug, plugname, optname, optparm)  in self.all_options:
+                # format and colorize option value based on its type (int or bool)
+                if type(optparm["enabled"]) == bool:
+                    if optparm["enabled"] == True:
+                        tmpopt = self.textcolor("on","lred")
+                    else:
+                        tmpopt = self.textcolor("off","red")
+                elif type(optparm["enabled"]) == int:
+                    if optparm["enabled"] > 0:
+                        tmpopt = self.textcolor(optparm["enabled"],"lred")
+                    else:
+                        tmpopt = self.textcolor(optparm["enabled"],"red")
+                else:
+                    tmpopt = optparm["enabled"]
+
+                print " %-21s %-5s %s" % (plugname + "." + optname,
+                                          tmpopt, optparm["desc"])
+        else:
+            print _("No plugin options available.")
+
+        print
+        self._exit()
+
+    def batch(self):
+        if self.opts.batch:
+            print self.msg
+        else:
+            self.msg += _("Press ENTER to continue, or CTRL-C to quit.\n")
+            try:
+                raw_input(self.msg)
+            except:
+                print
+                self._exit()
+
+    def _exception_to_logfile(self, logfile_name):
+        error_log = open(logfile_name)
+        etype, eval, etrace = sys.exc_info()
+        traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
+        error_log.write(traceback.format_exc())
+        error_log.close()
+
+    def _log_plugin_exception(self):
+        self._exception_to_logfile(
+            os.path.join(logdir, "sosreport-plugin-errors.txt"))
+
+    def diagnose(self):
+        tmpcount = 0
+        for plugname, plug in GlobalVars.loadedplugins:
+            try:
+                plug.diagnose()
+            except:
+                if self.raise_plugins:
+                    raise
+                else:
+                    self._log_plugin_exception()
+
+            tmpcount += len(plug.diagnose_msgs)
+        if tmpcount > 0:
+            print _("One or more plugins have detected a problem in your "
+                    "configuration.")
+            print _("Please review the following messages:")
+            print
+
+            fp = open(os.path.join(rptdir, "diagnose.txt"), "w")
+            for plugname, plug in self.loaded_plugins:
+                for tmpcount2 in range(0, len(plug.diagnose_msgs)):
+                    if tmpcount2 == 0:
+                        soslog.warning( self.textcolor("%s:" % plugname, "red") )
+                    soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
+                    fp.write("%s: %s\n" % (plugname, plug.diagnose_msgs[tmpcount2]))
+            fp.close()
+
+            print
+            if not self.opts.batch:
+                try:
+                    while True:
+                        yorno = raw_input( _("Are you sure you would like to "
+                                             "continue (y/n) ? ") )
+                        if yorno == _("y") or yorno == _("Y"):
+                            print
+                            break
+                        elif yorno == _("n") or yorno == _("N"):
+                            self._exit(0)
+                    del yorno
+                except KeyboardInterrupt:
+                    print
+                    self._exit(0)
+
+    def prework(self):
+        self.policy.preWork()
+
+
+    def setup(self):
+        for plugname, plug in self.loaded_plugins:
+            try:
+                plug.setup()
+            except KeyboardInterrupt:
+                raise
+            except:
+                if self.raise_plugins:
+                    raise
+                else:
+                    self._log_plugin_exception()
+
+    def copy_stuff(self):
+        plugruncount = 0
+        for i in izip(self.loaded_plugins):
+            plugruncount += 1
+            plugname, plug = i[0]
+            sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount,
+                                                                  len(self.loaded_plugins),
+                                                                  plugname))
+            sys.stdout.flush()
+            try:
+                plug.copyStuff()
+            except KeyboardInterrupt:
+                raise
+            except:
+                if self.raise_plugins:
+                    raise
+                else:
+                    self._log_plugin_exception()
+
+    def xml_report(self):
+        for plugname, plug in self.loaded_plugins:
+            for oneFile in plug.copiedFiles:
+                try:
+                    xmlrep.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
+                except:
+                    pass
+
+        self.xmlrep.serialize_to_file(
+            os.path.join(rptdir, "sosreport.xml"))
+
+    def html_report(self):
+        # Generate the header for the html output file
+        rfd = open(os.path.join(rptdir, "sosreport.html"), "w")
+        rfd.write("""
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+            <head>
+        <link rel="stylesheet" type="text/css" media="screen" href="donot.css" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Sos System Report</title>
+            </head>
+
+            <body>
+        """)
+
+
+        # Make a pass to gather Alerts and a list of module names
+        allAlerts = deque()
+        plugNames = deque()
+        for plugname, plug in self.loaded_plugins:
+            for alert in plug.alerts:
+                allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname,
+                                                               alert))
+            plugNames.append(plugname)
+
+        # Create a table of links to the module info
+        rfd.write("<hr/><h3>Loaded Plugins:</h3>")
+        rfd.write("<table><tr>\n")
+        rr = 0
+        for i in range(len(plugNames)):
+            rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i],
+                                                           plugNames[i]))
+            rr = divmod(i, 4)[1]
+            if (rr == 3):
+                rfd.write('</tr>')
+        if not (rr == 3):
+            rfd.write('</tr>')
+        rfd.write('</table>\n')
+
+        rfd.write('<hr/><h3>Alerts:</h3>')
+        rfd.write('<ul>')
+        for alert in allAlerts:
+            rfd.write('<li>%s</li>' % alert)
+        rfd.write('</ul>')
+
+
+        # Call the report method for each plugin
+        for plugname, plug in self.loaded_plugins:
+            try:
+                html = plug.report()
+            except:
+                if self.raise_plugins:
+                    raise
+            else:
+                rfd.write(html)
+
+        rfd.write("</body></html>")
+
+        rfd.close()
+
+    def postproc(self):
+        for plugname, plug in self.loaded_plugins:
+            try:
+                plug.postproc()
+            except:
+                if self.raise_plugins:
+                    raise
+
+    def final_work(self):
+        # package up the results for the support organization
+        self.policy.packageResults()
+
+        # delete gathered files
+        self.policy.cleanDstroot()
+
+        # let's encrypt the tar-ball
+        #if self.__cmdLineOpts__.encrypt:
+        #   policy.encryptResults()
+
+        # automated submission will go here
+        if not self.opts.upload:
+            self.policy.displayResults()
+        else:
+            self.policy.uploadResults()
+
+        # Close all log files and perform any cleanup
+        logging.shutdown()
+
+    def ensure_root(self):
+        if os.getuid() != 0:
+            print _("sosreport requires root permissions to run.")
+            self._exit(1)
+
+    def ensure_plugins(self):
+        if not self.loaded_plugins:
+            self.soslog.error(_("no valid plugins were enabled"))
+            self._exit(1)
+
+def main(args):
+    """The main entry point"""
+    sos = SoSReport(args)
+    if sos.opts.listPlugins:
+        sos.list_plugins()
+
+    sos.ensure_root()
+    sos.ensure_plugins()
+    sos.batch()
+
+    if sos.opts.diagnose:
+        sos.diagnose()
+
+    sos.prework()
+    sos.setup()
+
+    print _(" Running plugins. Please wait ...")
+    print
+
+    sos.copy_stuff()
+
+    print
+
+    if sos.opts.report:
+        sos.xml_report()
+        sos.html_report()
+
+    sos.postproc()
+
+    if sos.opts.build:
+        print
+        print _("  sosreport build tree is located at : %s" % (sos.dstroot,))
+        print
+
+    sos.final_work()
 
 def sosreport(opts):
     """
@@ -372,7 +921,7 @@ def sosreport(opts):
     if GlobalVars.__cmdLineOpts__.profiler:
         proflog = logging.getLogger('sosprofile')
         proflog.setLevel(logging.DEBUG)
-        
+
     # if stdin is not a tty, disable colors and don't ask questions
     if not sys.stdin.isatty():
         GlobalVars.__cmdLineOpts__.nocolors = True
@@ -415,79 +964,9 @@ def sosreport(opts):
     print
 
     # disable plugins that we read from conf files
-    conf_disable_plugins_list = deque()
-    conf_disable_plugins = None
-    if config.has_option("plugins", "disable"):
-        conf_disable_plugins = config.get("plugins", "disable").split(',')
-        for item in conf_disable_plugins:
-            conf_disable_plugins_list.append(item.strip())
+    conf_disable_plugins_list = get_disabled_plugins(config)
 
-    # generate list of available plugins
-    class MyPlugin(object):
-        """This class is used to prune out 'duplicates' via sets"""
-
-        def __init__(self, name, path):
-            self.name = name
-            self.path = path
-
-        def __hash__(self):
-            return 0
-
-        def __eq__(self, other):
-            return self.name == other.name
-
-        def fmt(self):
-            return (self.name, self.path)
-
-    # I'm building a list of plugin names and paths for every possible loadable plugin on the system
-    # I'm deduping the plugins and the earliest found plugins win
-    plugins = [MyPlugin(plugname, path) for path in pluginpaths for plugname in os.listdir(path)]
-    plugins = list(set(plugins))
-    plugins = [plug.fmt() for plug in plugins]
-    plugins.sort()
-    plugin_names = deque()
-
-    # validate and load plugins
-    for plug, pluginpath in plugins:
-        plugbase =  plug[:-3]
-        if not plug[-3:] == '.py' or plugbase == "__init__":
-            continue
-        try:
-            if GlobalVars.policy.validatePlugin(pluginpath + plug):
-                pluginClass = importPlugin("sos.plugins." + plugbase, plugbase)
-            else:
-                soslog.warning(_("plugin %s does not validate, skipping") % plug)
-                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                continue
-            # plug-in is valid, let's decide whether run it or not
-            plugin_names.append(plugbase)
-            if plugbase in GlobalVars.__cmdLineOpts__.noplugins or \
-            plugbase in conf_disable_plugins_list:
-                # skipped
-                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                continue
-            if not pluginClass(plugbase, commons).checkenabled() and \
-            not plugbase in GlobalVars.__cmdLineOpts__.enableplugins  and \
-            not plugbase in GlobalVars.__cmdLineOpts__.onlyplugins:
-                # inactive
-                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                continue
-            if not pluginClass(plugbase, commons).defaultenabled() and \
-            not plugbase in GlobalVars.__cmdLineOpts__.enableplugins and \
-            not plugbase in GlobalVars.__cmdLineOpts__.onlyplugins:
-                # not loaded by default
-                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                continue
-            if GlobalVars.__cmdLineOpts__.onlyplugins and \
-            not plugbase in GlobalVars.__cmdLineOpts__.onlyplugins:
-                # not specified
-                skippedplugins.append((plugbase, pluginClass(plugbase, commons)))
-                continue
-            GlobalVars.loadedplugins.append((plugbase, pluginClass(plugbase, commons)))
-        except:
-            soslog.warning(_("plugin %s does not install, skipping") % plug)
-            if GlobalVars.__raisePlugins__:
-                raise
+    plugin_names = load_plugins()
 
     # First, gather and process options
     # using the options specified in the command line (if any)
@@ -501,7 +980,7 @@ def sosreport(opts):
     # read plugin tunables from configuration file
     if config.has_section("tunables"):
         if not GlobalVars.__cmdLineOpts__.plugopts:
-            GlobalVars.__cmdLineOpts__.plugopts = deque() 
+            GlobalVars.__cmdLineOpts__.plugopts = deque()
 
         for opt, val in config.items("tunables"):
             if not opt.split('.')[0] in conf_disable_plugins_list:
@@ -534,38 +1013,38 @@ def sosreport(opts):
 
             try:
                 opts[plug]
-            except KeyError: 
-                opts[plug] = deque() 
+            except KeyError:
+                opts[plug] = deque()
             opts[plug].append( (opt, val) )
 
         for plugname, plug in GlobalVars.loadedplugins:
             if plugname in opts:
                 for opt, val in opts[plugname]:
                     if not plug.setOption(opt, val):
-                        soslog.error('no such option "%s" for plugin ' \
+                        soslog.error('no such option "%s" for plugin '
                                      '(%s)' % (opt,plugname))
                         doExit(1)
                 del opts[plugname]
         for plugname in opts.keys():
-            soslog.error('unable to set option for disabled or non-existing ' \
+            soslog.error('unable to set option for disabled or non-existing '
                          'plugin (%s)' % (plugname))
             # Do not want to exit on invalid opts due to a misconfiguration in sos.conf
             # doExit(1)
         del opt, opts, val
 
     # error if the user references a plugin which does not exist
-    unk_plugs =  [plugname.split(".")[0] for plugname in \
-                 GlobalVars.__cmdLineOpts__.onlyplugins \
+    unk_plugs =  [plugname.split(".")[0] for plugname in
+                 GlobalVars.__cmdLineOpts__.onlyplugins
                  if not plugname.split(".")[0] in plugin_names]
-    unk_plugs += [plugname.split(".")[0] for plugname in \
-                 GlobalVars.__cmdLineOpts__.noplugins \
+    unk_plugs += [plugname.split(".")[0] for plugname in
+                 GlobalVars.__cmdLineOpts__.noplugins
                  if not plugname.split(".")[0] in plugin_names]
-    unk_plugs += [plugname.split(".")[0] for plugname in \
-                 GlobalVars.__cmdLineOpts__.enableplugins \
+    unk_plugs += [plugname.split(".")[0] for plugname in
+                 GlobalVars.__cmdLineOpts__.enableplugins
                  if not plugname.split(".")[0] in plugin_names]
     if len(unk_plugs):
         for plugname in unk_plugs:
-            soslog.error('a non-existing plugin (%s) was specified in the ' \
+            soslog.error('a non-existing plugin (%s) was specified in the '
                          'command line' % (plugname))
         doExit(1)
     del unk_plugs
@@ -660,7 +1139,7 @@ No changes will be made to your system.
         msg += _("""Press ENTER to continue, or CTRL-C to quit.\n""")
         try:
             raw_input(msg)
-        except: 
+        except:
             print
             doExit()
     del msg
@@ -683,7 +1162,7 @@ No changes will be made to your system.
 
             tmpcount += len(plug.diagnose_msgs)
         if tmpcount > 0:
-            print _("One or more plugins have detected a problem in your " \
+            print _("One or more plugins have detected a problem in your "
                     "configuration.")
             print _("Please review the following messages:")
             print
@@ -701,7 +1180,7 @@ No changes will be made to your system.
             if not GlobalVars.__cmdLineOpts__.batch:
                 try:
                     while True:
-                        yorno = raw_input( _("Are you sure you would like to " \
+                        yorno = raw_input( _("Are you sure you would like to "
                                              "continue (y/n) ? ") )
                         if yorno == _("y") or yorno == _("Y"):
                             print
@@ -737,7 +1216,7 @@ No changes will be made to your system.
     for i in izip(GlobalVars.loadedplugins):
         plugruncount += 1
         plugname, plug = i[0]
-        sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, 
+        sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount,
                                                               len(GlobalVars.loadedplugins),
                                                               plugname))
         sys.stdout.flush()
@@ -793,8 +1272,8 @@ No changes will be made to your system.
 
 
         # Make a pass to gather Alerts and a list of module names
-        allAlerts = deque() 
-        plugNames = deque() 
+        allAlerts = deque()
+        plugNames = deque()
         for plugname, plug in GlobalVars.loadedplugins:
             for alert in plug.alerts:
                 allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname,

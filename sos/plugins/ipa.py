@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class ipa(sos.plugintools.PluginBase):
+class ipa(sos.plugintools.RedHatPlugin):
     """IPA diagnostic information
     """
     # ntp and dirserver stuff are covered in existing sos plugins, so we really only

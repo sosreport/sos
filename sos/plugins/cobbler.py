@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class cobbler(sos.plugintools.PluginBase):
+class cobbler(sos.plugintools.RedHatPlugin):
     """cobbler related information
     """
     def checkenabled(self):

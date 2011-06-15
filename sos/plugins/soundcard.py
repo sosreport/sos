@@ -15,7 +15,7 @@
 import sos.plugintools
 import os
 
-class soundcard(sos.plugintools.PluginBase):
+class soundcard(sos.plugintools.RedHatPlugin):
     """ Sound card information
     """
 

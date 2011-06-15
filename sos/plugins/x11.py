@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class x11(sos.plugintools.PluginBase):
+class x11(sos.plugintools.RedHatPlugin):
     """X related information
     """
     def checkenabled(self):
@@ -26,6 +26,6 @@ class x11(sos.plugintools.PluginBase):
             "/etc/X11",
             "/var/log/Xorg.*.log",
             "/var/log/XFree86.*.log",
-        )
+        ])
         self.addForbiddenPath("/etc/X11/X")
         self.addForbiddenPath("/etc/X11/fontpath.d")

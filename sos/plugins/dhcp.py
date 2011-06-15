@@ -14,13 +14,13 @@
 
 import sos.plugintools
 
-class dhcp(sos.plugintools.PluginBase):
+class dhcp(sos.plugintools.RedHatPlugin):
     """DHCP related information
     """
     def checkenabled(self):
         self.files = ['/etc/rc.d/init.d/dhcpd']
         self.packages = ['dhcp']
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return sos.plugintools.RedHatPlugin.checkenabled(self)
         
     def setup(self):
         self.addCopySpecs([

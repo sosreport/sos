@@ -16,7 +16,7 @@ import sos.plugintools
 from os import listdir
 from os.path import exists
 
-class sar(sos.plugintools.PluginBase):
+class sar(sos.plugintools.RedHatPlugin):
     """Generate the sar file from /var/log/sa/saXX files
     """
     def setup(self):
@@ -31,4 +31,4 @@ class sar(sos.plugintools.PluginBase):
                     self.collectOutputNow(sar_command, sar_filename, root_symlink=sar_filename)
 
     def checkenabled(self):
-        return exists("/var/log/sa") and os.path.exists("/usr/bin/sar")
+        return exists("/var/log/sa") and exists("/usr/bin/sar")

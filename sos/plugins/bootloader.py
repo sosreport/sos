@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class bootloader(sos.plugintools.PluginBase):
+class bootloader(sos.plugintools.RedHatPlugin):
     """Bootloader information
     """
     def setup(self):

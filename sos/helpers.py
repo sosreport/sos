@@ -34,7 +34,7 @@ def importPlugin(pluginname, name):
     """
     try:
         plugin = __import__(pluginname, globals(), locals(), [name])
-    except ImportError:
+    except ImportError, e:
         return None
     return getattr(plugin, name)
 

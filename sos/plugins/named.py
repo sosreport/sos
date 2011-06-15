@@ -16,14 +16,14 @@ import sos.plugintools
 import commands
 from os.path import normpath, join, exists
 
-class named(sos.plugintools.PluginBase):
+class named(sos.plugintools.RedHatPlugin):
     """named related information
     """
     def checkenabled(self):
         self.files = [ "/etc/named.conf",
                        "/etc/sysconfig/named" ]
         self.packages = [ "bind" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return sos.plugintools.RedHatPlugin.checkenabled(self)
        
     def getDnsDir(self, configFile):
         """ grab directory path from named{conf,boot}

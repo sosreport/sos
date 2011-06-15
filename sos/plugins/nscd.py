@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class nscd(sos.plugintools.PluginBase):
+class nscd(sos.plugintools.RedHatPlugin):
     """NSCD related information
     """
 

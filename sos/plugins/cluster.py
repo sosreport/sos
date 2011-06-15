@@ -16,7 +16,7 @@ import sos.plugintools
 import os, re
 from glob import glob
 
-class cluster(sos.plugintools.PluginBase):
+class cluster(sos.plugintools.RedHatPlugin):
     """cluster suite and GFS related information
     """
 
@@ -38,7 +38,7 @@ class cluster(sos.plugintools.PluginBase):
                               "cman", "clusterlib", "fence-agents" ]
 
         self.files = [ "/etc/cluster/cluster.conf" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return sos.plugintools.RedHatPlugin.checkenabled(self)
 
     def setup(self):
         rhelver = self.policy().rhelVersion()

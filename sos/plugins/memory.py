@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class memory(sos.plugintools.PluginBase):
+class memory(sos.plugintools.RedHatPlugin):
     """memory usage information
     """
     def setup(self):

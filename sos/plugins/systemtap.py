@@ -16,13 +16,13 @@
 
 import sos.plugintools
 
-class systemtap(sos.plugintools.PluginBase):
+class systemtap(sos.plugintools.RedHatPlugin):
     """SystemTap information
     """
     def checkenabled(self):
         self.files = [ "/usr/bin/stap" ]
         self.packages = [ "systemtap", "systemtap-runtime" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return sos.plugintools.RedHatPlugin.checkenabled(self)
 
     def setup(self):
         self.collectExtOutput("/usr/bin/stap -V 2")

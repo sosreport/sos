@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class sendmail(sos.plugintools.PluginBase):
+class sendmail(sos.plugintools.RedHatPlugin):
     """sendmail information
     """
     def checkenabled(self):

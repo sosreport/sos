@@ -20,7 +20,7 @@ import sos.plugintools
 from os.path import exists
 from glob import glob
 
-class cs(sos.plugintools.PluginBase):
+class cs(sos.plugintools.RedHatPlugin):
     """Red Hat Certificate System 7.1, 7.3, 8.0 and dogtag related information
     """
 

@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class printing(sos.plugintools.PluginBase):
+class printing(sos.plugintools.RedHatPlugin):
     """printing related information (cups)
     """
     optionList = [("cups", "max size (MiB) to collect per cups log file",

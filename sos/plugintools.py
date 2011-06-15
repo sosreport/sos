@@ -37,9 +37,10 @@ from time import time
 from itertools import *
 from collections import deque
 
-class PluginException(Exception): pass
+class PluginException(Exception):
+    pass
 
-class PluginBase:
+class PluginBase(object):
     """
     Base class for plugins
     """
@@ -557,4 +558,9 @@ class PluginBase:
             html = html + self.customText + "</p>\n"
 
         return html
+
+
+class RedHatPlugin(PluginBase):
+    pass
+
 # vim:ts=4 sw=4 et

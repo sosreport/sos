@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-class libvirt(sos.plugintools.PluginBase):
+class libvirt(sos.plugintools.RedHatPlugin):
     """libvirt-related information
     """
     def setup(self):

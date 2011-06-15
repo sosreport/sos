@@ -16,7 +16,7 @@ import sos.plugintools
 import time
 import os
 
-class process(sos.plugintools.PluginBase):
+class process(sos.plugintools.RedHatPlugin):
     """process information
     """
     def setup(self):

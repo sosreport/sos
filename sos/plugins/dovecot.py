@@ -15,7 +15,7 @@
 import sos.plugintools
 import os
 
-class dovecot(sos.plugintools.PluginBase):
+class dovecot(sos.plugintools.RedHatPlugin):
     """dovecot server related information
     """
     def setup(self):

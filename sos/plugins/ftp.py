@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class ftp(sos.plugintools.PluginBase):
+class ftp(sos.plugintools.RedHatPlugin):
     """FTP server related information
     """
 

@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class openswan(sos.plugintools.PluginBase):
+class openswan(sos.plugintools.RedHatPlugin):
     """ipsec related information
     """
     def checkenabled(self):

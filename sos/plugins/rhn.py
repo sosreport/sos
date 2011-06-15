@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class rhn(sos.plugintools.PluginBase):
+class rhn(sos.plugintools.RedHatPlugin):
     """RHN Satellite related information
     """
     satellite = False
