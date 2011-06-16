@@ -28,16 +28,18 @@ helper functions used by sosreport and plugins
 import os, sys
 import logging
 from subprocess import Popen, PIPE
+import inspect
 
 def importPlugin(name):
-    """ Import a plugin to extend capabilities of sosreport
-    """
+    """Import name as a module and return a list of all classes defined in that
+    module"""
     try:
         plugin_path = "sos.plugins.%s" % name
-        plugin = __import__(plugin_path, globals(), locals(), [name])
+        plugin_module = __import__(plugin_path, globals(), locals(), [name])
+        return [class_ for cname, class_ in
+                inspect.getmembers(plugin_module, inspect.isclass)]
     except ImportError, e:
         return None
-    return getattr(plugin, name)
 
 def sosGetCommandOutput(command, timeout = 300):
     """ Execute a command and gather stdin, stdout, and return status.

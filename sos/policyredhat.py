@@ -28,7 +28,6 @@ try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
-import rpm
 import time
 from subprocess import Popen, PIPE
 from collections import deque
@@ -106,6 +105,7 @@ class SosPolicy:
         return {}
 
     def allPkgs(self, ds = None, value = None):
+        import rpm
         # if possible return the cached values
         try:                   return self._cache_rpm[ "%s-%s" % (ds,value) ]
         except AttributeError: self._cache_rpm = {}

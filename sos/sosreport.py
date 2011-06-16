@@ -38,8 +38,8 @@ import os
 import logging
 from optparse import OptionParser, Option
 import ConfigParser
-import sos.policydummy
-from sos.helpers import importPlugin
+import sos.policies
+from sos.plugintools import import_plugin
 import signal
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
@@ -264,7 +264,7 @@ No changes will be made to your system.
         self.opts, self.args = parse_options(opts)
         self._set_debug()
         self._read_config()
-        self.policy = self.load_policy()
+        self.policy = sos.policies.load()
         self._set_directories()
         self._setup_logging()
         self.policy.setCommons(self.get_commons())
@@ -368,9 +368,6 @@ No changes will be made to your system.
             self.config.readfp(open(config_file))
         except IOError:
             pass
-
-    def load_policy(self):
-        return sos.policydummy.SosPolicy()
 
     def _setup_logging(self):
         self.soslog = logging.getLogger('sos')
@@ -478,25 +475,26 @@ No changes will be made to your system.
             if plugbase == "__init__":
                 continue
             try:
-                pluginClass = importPlugin(plugbase)
+                plugin_classes = import_plugin(plugbase)
 
-                if not self.policy.validatePlugin(pluginClass):
-                    self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
-                    self._skip(pluginClass)
-                    continue
+                for plugin_class in plugin_classes:
+                    if not self.policy.validatePlugin(plugin_class):
+                        self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
+                        self._skip(plugin_class)
+                        continue
 
-                # plug-in is valid, let's decide whether run it or not
-                self.plugin_names.append(plugbase)
+                    # plug-in is valid, let's decide whether run it or not
+                    self.plugin_names.append(plugbase)
 
-                if any((self._is_skipped(plugbase),
-                        self._is_inactive(plugbase, pluginClass),
-                        self._is_not_default(plugbase, pluginClass),
-                        self._is_not_specified(plugbase),
-                        )):
-                    self._skip(pluginClass)
-                    continue
+                    if any((self._is_skipped(plugbase),
+                            self._is_inactive(plugbase, plugin_class),
+                            self._is_not_default(plugbase, plugin_class),
+                            self._is_not_specified(plugbase),
+                            )):
+                        self._skip(plugin_class)
+                        continue
 
-                self._load(pluginClass)
+                    self._load(plugin_class)
             except Exception, e:
                 self.soslog.warning(_("plugin %s does not install, skipping: %s") % (plug, e))
                 if self.raise_plugins:

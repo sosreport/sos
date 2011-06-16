@@ -36,6 +36,7 @@ from stat import *
 from time import time
 from itertools import *
 from collections import deque
+import inspect
 
 class PluginException(Exception):
     pass
@@ -566,5 +567,19 @@ class PluginBase(object):
 
 class RedHatPlugin(PluginBase):
     pass
+
+
+def import_plugin(name):
+    """Import name as a module and return a list of all classes defined in that
+    module"""
+    try:
+        plugin_path = "sos.plugins.%s" % name
+        plugin_module = __import__(plugin_path, globals(), locals(), [name])
+        return [class_ for cname, class_ in
+                inspect.getmembers(plugin_module, inspect.isclass)
+                if issubclass(class_, PluginBase)]
+
+    except ImportError, e:
+        return None
 
 # vim:ts=4 sw=4 et
