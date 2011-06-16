@@ -478,9 +478,9 @@ No changes will be made to your system.
             if plugbase == "__init__":
                 continue
             try:
-                if self.policy.validatePlugin(pluginpath + plug):
-                    pluginClass = importPlugin(plugbase)
-                else:
+                pluginClass = importPlugin(plugbase)
+
+                if not self.policy.validatePlugin(pluginClass):
                     self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
                     self._skip(pluginClass)
                     continue

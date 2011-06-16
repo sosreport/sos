@@ -32,6 +32,9 @@ import time
 from subprocess import Popen, PIPE
 from collections import deque
 from sos import _sos as _
+from sos.plugintools import RedHatPlugin
+
+import platform
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
@@ -62,7 +65,7 @@ def memoized(function):
             return result
     return f
 
-class SosPolicy:
+class SosPolicy(object):
     "This class implements various policies for sos"
     def __init__(self):
         self.report_file = ""
@@ -75,12 +78,9 @@ class SosPolicy:
         self.cInfo = commons
         return
 
-    def validatePlugin(self, pluginpath):
+    def validatePlugin(self, plugin_class):
         "Validates the plugin as being acceptable to run"
-        # return value
-        # TODO implement this
-        #print "validating %s" % pluginpath
-        return True
+        return issubclass(plugin_class, RedHatPlugin)
 
     def pkgProvides(self, name):
         return self.pkgByName(name).get('providename')
