@@ -104,7 +104,7 @@ def parse_options(opts):
     parser.add_option("-o", "--only-plugins", action="extend",
                          dest="onlyplugins", type="string",
                          help="enable these plugins only", default = deque())
-    parser.add_option("-k", action="extend",
+    parser.add_option("-k", action="append",
                          dest="plugopts", type="string",
                          help="plugin options in plugname.option=value format (see -l)")
     parser.add_option("-a", "--alloptions", action="store_true",
