@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class mrgmessg(sos.plugintools.RedHatPlugin):
+class mrgmessg(sos.plugins.RedHatPlugin):
     """MRG Messaging related information
     """
     def setup(self):

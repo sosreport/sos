@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class x11(sos.plugintools.RedHatPlugin):
+class x11(sos.plugins.RedHatPlugin):
     """X related information
     """
     def checkenabled(self):

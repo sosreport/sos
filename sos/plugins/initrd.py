@@ -15,7 +15,7 @@
 import sos.plugintools
 from glob import glob
 
-class initrd(sos.plugintools.RedHatPlugin):
+class initrd(sos.plugins.RedHatPlugin):
     """initrd related information
     """
     def setup(self):

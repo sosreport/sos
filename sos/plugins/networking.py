@@ -16,7 +16,7 @@ import sos.plugintools
 import os
 import re
 
-class networking(sos.plugintools.RedHatPlugin):
+class networking(sos.plugins.RedHatPlugin):
     """network related information
     """
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]

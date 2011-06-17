@@ -15,7 +15,7 @@
 import sos.plugintools
 import os
 
-class i18n(sos.plugintools.RedHatPlugin):
+class i18n(sos.plugins.RedHatPlugin):
     """i18n related information
     """
     def setup(self):

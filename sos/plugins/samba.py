@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class samba(sos.plugintools.RedHatPlugin):
+class samba(sos.plugins.RedHatPlugin):
     """Samba related information
     """
     def setup(self):

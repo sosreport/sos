@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class ppp(sos.plugintools.RedHatPlugin):
+class ppp(sos.plugins.RedHatPlugin):
     """ppp, wvdial and rp-pppoe related information
     """
     def checkenabled(self):

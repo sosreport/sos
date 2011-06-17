@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class postfix(sos.plugintools.RedHatPlugin):
+class postfix(sos.plugins.RedHatPlugin):
     """mail server related information
     """
     def checkenabled(self):

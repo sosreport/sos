@@ -15,7 +15,7 @@
 import sos.plugintools
 from glob import glob
 
-class hardware(sos.plugintools.RedHatPlugin):
+class hardware(sos.plugins.RedHatPlugin):
     """hardware related information
     """
     def setup(self):

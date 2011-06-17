@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class radius(sos.plugintools.RedHatPlugin):
+class radius(sos.plugins.RedHatPlugin):
     """radius related information
     """
     def checkenabled(self):

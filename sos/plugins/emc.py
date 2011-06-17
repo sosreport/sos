@@ -18,7 +18,7 @@
 
 import sos.plugintools, os 
 
-class emc(sos.plugintools.RedHatPlugin):
+class emc(sos.plugins.RedHatPlugin):
     """EMC related information (PowerPath, Solutions Enabler CLI and Navisphere CLI)
     """
 
@@ -146,7 +146,7 @@ class emc(sos.plugintools.RedHatPlugin):
     def checkenabled(self):
         self.packages = [ "EMCpower" ]
         self.files = [ "/opt/Navisphere/bin", "/proc/emcp" ]
-        return sos.plugintools.RedHatPlugin.checkenabled(self)
+        return sos.plugins.RedHatPlugin.checkenabled(self)
 
     def setup(self):
         from subprocess import Popen, PIPE

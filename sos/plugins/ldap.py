@@ -15,13 +15,13 @@
 import sos.plugintools
 import os
 
-class ldap(sos.plugintools.RedHatPlugin):
+class ldap(sos.plugins.RedHatPlugin):
     """LDAP related information
     """
     def checkenabled(self):
         self.packages = [ "openldap" ]
         self.files = [ "/etc/openldap/ldap.conf" ]
-        return sos.plugintools.RedHatPlugin.checkenabled(self)
+        return sos.plugins.RedHatPlugin.checkenabled(self)
 
     def get_ldap_opts(self):
         # capture /etc/openldap/ldap.conf options in dict

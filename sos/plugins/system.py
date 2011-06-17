@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class system(sos.plugintools.RedHatPlugin):
+class system(sos.plugins.RedHatPlugin):
     """core system related information
     """
     def setup(self):

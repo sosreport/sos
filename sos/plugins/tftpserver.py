@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class tftpserver(sos.plugintools.RedHatPlugin):
+class tftpserver(sos.plugins.RedHatPlugin):
     """tftpserver related information
     """
     def checkenabled(self):

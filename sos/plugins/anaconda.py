@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class anaconda(sos.plugintools.RedHatPlugin):
+class anaconda(sos.plugins.RedHatPlugin):
     """Anaconda / Installation information
     """
     def checkenabled(self):

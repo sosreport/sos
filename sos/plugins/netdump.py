@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class netdump(sos.plugintools.RedHatPlugin):
+class netdump(sos.plugins.RedHatPlugin):
     """Netdump Configuration Information
     """
     def checkenabled(self):

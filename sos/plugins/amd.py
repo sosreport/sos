@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class amd(sos.plugintools.RedHatPlugin):
+class amd(sos.plugins.RedHatPlugin):
     """Amd automounter information
     """
 

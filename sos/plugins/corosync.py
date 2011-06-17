@@ -16,14 +16,14 @@ import sos.plugintools
 import os, re
 import time, libxml2
 
-class corosync(sos.plugintools.RedHatPlugin):
+class corosync(sos.plugins.RedHatPlugin):
     """ corosync information
     """
 
     def checkenabled(self):
         self.files = ['/usr/sbin/corosync']
         self.packages = ['corosync']
-        return sos.plugintools.RedHatPlugin.checkenabled(self)
+        return sos.plugins.RedHatPlugin.checkenabled(self)
 
     def setup(self):
         self.addCopySpecs([

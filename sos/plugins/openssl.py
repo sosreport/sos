@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class openssl(sos.plugintools.RedHatPlugin):
+class openssl(sos.plugins.RedHatPlugin):
     """openssl related information
     """
 

@@ -15,13 +15,13 @@
 import sos.plugintools
 import os
 
-class squid(sos.plugintools.RedHatPlugin):
+class squid(sos.plugins.RedHatPlugin):
     """squid related information
     """
     def checkenabled(self):
         self.files = [ "/etc/squid/squid.conf" ]
         self.packages = [ "squid" ]
-        return sos.plugintools.RedHatPlugin.checkenabled(self)
+        return sos.plugins.RedHatPlugin.checkenabled(self)
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")

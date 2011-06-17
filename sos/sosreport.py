@@ -39,7 +39,7 @@ import logging
 from optparse import OptionParser, Option
 import ConfigParser
 import sos.policies
-from sos.plugintools import import_plugin
+from sos.plugins import import_plugin
 import signal
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime

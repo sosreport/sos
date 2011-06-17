@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class libraries(sos.plugintools.RedHatPlugin):
+class libraries(sos.plugins.RedHatPlugin):
     """information on shared libraries
     """
 

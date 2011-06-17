@@ -18,7 +18,7 @@
 import sos.plugintools
 import os
 
-class kvm(sos.plugintools.RedHatPlugin):
+class kvm(sos.plugins.RedHatPlugin):
     """KVM related information
     """
 

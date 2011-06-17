@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class oddjob(sos.plugintools.RedHatPlugin):
+class oddjob(sos.plugins.RedHatPlugin):
     """oddjob related information
     """
     def checkenabled(self):

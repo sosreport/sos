@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class vmware(sos.plugintools.RedHatPlugin):
+class vmware(sos.plugins.RedHatPlugin):
     """VMWare related information
     """
     def checkenabled(self):

@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class apache(sos.plugintools.RedHatPlugin):
+class apache(sos.plugins.RedHatPlugin):
     """Apache related information
     """
     optionList = [("log", "gathers all apache logs", "slow", False)]

@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class tomcat(sos.plugintools.RedHatPlugin):
+class tomcat(sos.plugins.RedHatPlugin):
     """Tomcat related information
     """
     def checkenabled(self):

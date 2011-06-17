@@ -32,7 +32,7 @@ import time
 from subprocess import Popen, PIPE
 from collections import deque
 from sos import _sos as _
-from sos.plugintools import RedHatPlugin
+from sos.plugins import RedHatPlugin
 
 import platform
 

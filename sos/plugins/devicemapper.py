@@ -16,7 +16,7 @@ import sos.plugintools
 import os
 from sos.helpers import sosGetCommandOutput
 
-class devicemapper(sos.plugintools.RedHatPlugin):
+class devicemapper(sos.plugins.RedHatPlugin):
     """device-mapper related information (dm, lvm, multipath)
     """
 

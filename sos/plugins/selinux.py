@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class selinux(sos.plugintools.RedHatPlugin):
+class selinux(sos.plugins.RedHatPlugin):
     """selinux related information
     """
     optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]

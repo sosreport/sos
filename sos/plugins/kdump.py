@@ -15,7 +15,7 @@
 import sos.plugintools
 from os.path import exists
 
-class kdump(sos.plugintools.RedHatPlugin):
+class kdump(sos.plugins.RedHatPlugin):
     """Kdump related information
     """
     def checkenabled(self):

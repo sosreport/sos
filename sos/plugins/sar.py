@@ -16,7 +16,7 @@ import sos.plugintools
 from os import listdir
 from os.path import exists
 
-class sar(sos.plugintools.RedHatPlugin):
+class sar(sos.plugins.RedHatPlugin):
     """Generate the sar file from /var/log/sa/saXX files
     """
     def setup(self):

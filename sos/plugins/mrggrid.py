@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class mrggrid(sos.plugintools.RedHatPlugin):
+class mrggrid(sos.plugins.RedHatPlugin):
     """MRG GRID related information
     """
     def setup(self):

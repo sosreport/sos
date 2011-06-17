@@ -17,13 +17,13 @@
 import sos.plugintools
 import os, re
 
-class autofs(sos.plugintools.RedHatPlugin):
+class autofs(sos.plugins.RedHatPlugin):
     """autofs server-related information
     """
     def checkenabled(self):
         self.packages = [ "autofs" ]
         self.files = [ "/etc/sysconfig/autofs" ]
-        return sos.plugintools.RedHatPlugin.checkenabled(self)
+        return sos.plugins.RedHatPlugin.checkenabled(self)
     
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere

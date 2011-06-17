@@ -16,7 +16,7 @@
 import sos.plugintools
 import os
 
-class lsbrelease(sos.plugintools.RedHatPlugin):
+class lsbrelease(sos.plugins.RedHatPlugin):
     """Linux Standard Base information
     """
     def diagnose(self):

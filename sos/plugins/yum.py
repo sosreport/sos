@@ -15,7 +15,7 @@
 import sos.plugintools
 import os
 
-class yum(sos.plugintools.RedHatPlugin):
+class yum(sos.plugins.RedHatPlugin):
     """yum information
     """
 
@@ -25,7 +25,7 @@ class yum(sos.plugintools.RedHatPlugin):
     def checkenabled(self):
         self.files = [ "/etc/yum.conf" ]
         self.packages = [ "yum" ]
-        return sos.plugintools.RedHatPlugin.checkenabled(self)
+        return sos.plugins.RedHatPlugin.checkenabled(self)
 
     def analyze(self):
         # repo sanity checking

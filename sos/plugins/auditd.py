@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class auditd(sos.plugintools.RedHatPlugin):
+class auditd(sos.plugins.RedHatPlugin):
     """Auditd related information
     """
 

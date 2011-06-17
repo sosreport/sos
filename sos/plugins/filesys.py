@@ -17,7 +17,7 @@ import os
 import re
 from itertools import *
 
-class filesys(sos.plugintools.RedHatPlugin):
+class filesys(sos.plugins.RedHatPlugin):
     """information on filesystems
     """
     optionList = [("lsof", 'gathers information on all open files', 'slow', False)]

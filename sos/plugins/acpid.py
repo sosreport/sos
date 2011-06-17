@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class acpid(sos.plugintools.RedHatPlugin):
+class acpid(sos.plugins.RedHatPlugin):
     """acpid related information
     """
     def setup(self):

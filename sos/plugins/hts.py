@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class hts(sos.plugintools.RedHatPlugin):
+class hts(sos.plugins.RedHatPlugin):
     """Red Hat Hardware Test Suite related information
     """
     def setup(self):

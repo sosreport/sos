@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class ipsec(sos.plugintools.RedHatPlugin):
+class ipsec(sos.plugins.RedHatPlugin):
     """ipsec related information
     """
     def checkenabled(self):

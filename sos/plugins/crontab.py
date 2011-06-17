@@ -15,7 +15,7 @@
 import sos.plugintools
 import os
 
-class crontab(sos.plugintools.RedHatPlugin):
+class crontab(sos.plugins.RedHatPlugin):
     """Crontab information
     """
     def setup(self):

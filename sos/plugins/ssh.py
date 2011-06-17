@@ -16,7 +16,7 @@
 
 import sos.plugintools
 
-class ssh(sos.plugintools.RedHatPlugin):
+class ssh(sos.plugins.RedHatPlugin):
     """ssh-related information
     """
     def setup(self):

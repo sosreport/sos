@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class rpm(sos.plugintools.RedHatPlugin):
+class rpm(sos.plugins.RedHatPlugin):
     """RPM information
     """
     optionList = [("rpmq", "queries for package information via rpm -q", "fast", True),

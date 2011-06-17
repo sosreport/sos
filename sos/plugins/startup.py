@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class startup(sos.plugintools.RedHatPlugin):
+class startup(sos.plugins.RedHatPlugin):
     """startup information
     """
 

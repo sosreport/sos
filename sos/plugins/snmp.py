@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class snmp(sos.plugintools.RedHatPlugin):
+class snmp(sos.plugins.RedHatPlugin):
     """snmp related information
     """
     def checkenabled(self):

@@ -16,7 +16,7 @@ import os
 import sos.plugintools
 import commands
 
-class general(sos.plugintools.RedHatPlugin):
+class general(sos.plugins.RedHatPlugin):
     """basic system information
     """
 

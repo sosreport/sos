@@ -17,7 +17,7 @@
 import sos.plugintools
 import os
 
-class xinetd(sos.plugintools.RedHatPlugin):
+class xinetd(sos.plugins.RedHatPlugin):
     """xinetd information
     """
     def checkenabled(self):

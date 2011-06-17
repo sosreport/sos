@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class abrt(sos.plugintools.RedHatPlugin):
+class abrt(sos.plugins.RedHatPlugin):
     """ABRT log dump
     """
 

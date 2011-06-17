@@ -17,7 +17,7 @@
 import sos.plugintools
 from os.path import exists
 
-class quagga(sos.plugintools.RedHatPlugin):
+class quagga(sos.plugins.RedHatPlugin):
     """quagga related information
     """
 

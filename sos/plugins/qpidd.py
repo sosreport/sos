@@ -14,7 +14,7 @@
 
 import sos.plugintools
 
-class qpidd(sos.plugintools.RedHatPlugin):
+class qpidd(sos.plugins.RedHatPlugin):
     """Messaging related information
     """
     def checkenabled(self):
