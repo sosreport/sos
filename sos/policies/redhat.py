@@ -1,4 +1,3 @@
-## policy-redhat.py
 ## Implement policies required for the sos system support tool
 
 ## Copyright (C) Steve Conklin <sconklin@redhat.com>
@@ -42,28 +41,8 @@ except:
     # might fail if non-RHEL
     pass
 
-#class SosError(Exception):
-#    def __init__(self, code, message):
-#        self.code = code
-#        self.message = message
-#    
-#    def __str__(self):
-#        return 'Sos Error %s: %s' % (self.code, self.message)
+class Both(object):
 
-def memoized(function):
-    ''' function decorator to allow caching of return values
-    '''
-    function.cache={}
-    def f(*args):
-        try:
-            return function.cache[args]
-        except KeyError:
-            result = function.cache[args] = function(*args)
-            return result
-    return f
-
-class SosPolicy:
-    "This class implements various policies for sos"
     def __init__(self):
         self.report_file = ""
         self.report_file_ext = ""
@@ -75,56 +54,10 @@ class SosPolicy:
         self.cInfo = commons
         return
 
-    def validatePlugin(self, pluginpath):
-        "Validates the plugin as being acceptable to run"
-        # return value
-        # TODO implement this
-        #print "validating %s" % pluginpath
-        return True
-
-    def pkgProvides(self, name):
-        return self.pkgByName(name).get('providename')
-
-    def pkgRequires(self, name):
-        return self.pkgByName(name).get('requirename')
-
-    def allPkgsByName(self, name):
-        return self.allPkgs("name", name)
-
-    def allPkgsByNameRegex(self, regex_name):
-        reg = re.compile(regex_name)
-        return [pkg for pkg in self.allPkgs() if reg.match(pkg['name'])]
-
-    def pkgByName(self, name):
-        # TODO: do a full NEVRA compare and return newest version, best arch
-        try:
-            # lame attempt at locating newest
-            return self.allPkgsByName(name)[-1]
-        except:
-            pass
-        return {}
-
-    def allPkgs(self, ds = None, value = None):
-        import rpm
-        # if possible return the cached values
-        try:                   return self._cache_rpm[ "%s-%s" % (ds,value) ]
-        except AttributeError: self._cache_rpm = {}
-        except KeyError:       pass
-
-        ts = rpm.TransactionSet()
-        if ds and value:
-            mi = ts.dbMatch(ds, value)
-        else:
-            mi = ts.dbMatch()
-
-        self._cache_rpm[ "%s-%s" % (ds,value) ] = [pkg for pkg in mi]
-        del mi, ts
-        return self._cache_rpm[ "%s-%s" % (ds,value) ]
-
     def runlevelByService(self, name):
         ret = []
         p = Popen("LC_ALL=C /sbin/chkconfig --list %s" % name, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
-        out, err = p.communicate() 
+        out, err = p.communicate()
         if err:
             return ret
         for tabs in out.split()[1:]:
@@ -222,9 +155,9 @@ class SosPolicy:
 
         if len(self.reportName) == 0:
             self.reportName = localname
-        
+
         if self.cInfo['cmdlineopts'].customerName:
-            self.reportName = self.cInfo['cmdlineopts'].customerName        
+            self.reportName = self.cInfo['cmdlineopts'].customerName
             self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
 
         if self.cInfo['cmdlineopts'].ticketNumber:
@@ -236,7 +169,7 @@ class SosPolicy:
     def renameResults(self, newName):
         newName = os.path.join(os.path.dirname(self.cInfo['dstroot']), newName)
         if len(self.report_file) and os.path.isfile(self.report_file):
-            try:    
+            try:
                 os.rename(self.report_file, newName)
             except:
                 return False
@@ -316,9 +249,9 @@ class SosPolicy:
         self.report_md5 = md5(fp.read()).hexdigest()
         fp.close()
 
-        self.renameResults("sosreport-%s-%s-%s.%s" % (self.reportName, 
+        self.renameResults("sosreport-%s-%s-%s.%s" % (self.reportName,
                                                       time.strftime("%Y%m%d%H%M%S"),
-                                                      self.report_md5[-4:], 
+                                                      self.report_md5[-4:],
                                                       self.report_file_ext))
 
         # store md5 into file
@@ -407,5 +340,61 @@ class SosPolicy:
             print
 
         fp.close()
+
+class CPython(Both):
+    """This policy class will work with the CPython interpreter only."""
+
+    def validatePlugin(self, pluginpath):
+        "Validates the plugin as being acceptable to run"
+        # return value
+        # TODO implement this
+        #print "validating %s" % pluginpath
+        return True
+
+    def pkgProvides(self, name):
+        return self.pkgByName(name).get('providename')
+
+    def pkgRequires(self, name):
+        return self.pkgByName(name).get('requirename')
+
+    def allPkgsByName(self, name):
+        return self.allPkgs("name", name)
+
+    def allPkgsByNameRegex(self, regex_name):
+        reg = re.compile(regex_name)
+        return [pkg for pkg in self.allPkgs() if reg.match(pkg['name'])]
+
+    def pkgByName(self, name):
+        # TODO: do a full NEVRA compare and return newest version, best arch
+        try:
+            # lame attempt at locating newest
+            return self.allPkgsByName(name)[-1]
+        except:
+            pass
+        return {}
+
+    def allPkgs(self, ds = None, value = None):
+        import rpm
+        # if possible return the cached values
+        try:                   return self._cache_rpm[ "%s-%s" % (ds,value) ]
+        except AttributeError: self._cache_rpm = {}
+        except KeyError:       pass
+
+        ts = rpm.TransactionSet()
+        if ds and value:
+            mi = ts.dbMatch(ds, value)
+        else:
+            mi = ts.dbMatch()
+
+        self._cache_rpm[ "%s-%s" % (ds,value) ] = [pkg for pkg in mi]
+        del mi, ts
+        return self._cache_rpm[ "%s-%s" % (ds,value) ]
+
+
+class Jython(Both):
+
+    def validatePlugin(self, plugin_class):
+        "Checks that the plugin will execute given the environment"
+        return issubclass(plugin_class, RedHatPlugin)
 
 # vim: ts=4 sw=4 et

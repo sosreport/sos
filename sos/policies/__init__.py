@@ -1,15 +1,14 @@
 import platform
 
-import policyredhat
-import policydummy
+import redhat
 
 SYSTEM = platform.system()
 
 def load():
     if SYSTEM == "Java":
-        return policydummy.SosPolicy()
+        return redhat.Jython()
     elif SYSTEM == "Linux":
-        return policyredhat.SosPolicy()
+        return redhat.CPython()
     elif SYSTEM == "Windows":
         return None  # Need to build a windows policy
     else:

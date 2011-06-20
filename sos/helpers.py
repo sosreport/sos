@@ -30,17 +30,6 @@ import logging
 from subprocess import Popen, PIPE
 import inspect
 
-def importPlugin(name):
-    """Import name as a module and return a list of all classes defined in that
-    module"""
-    try:
-        plugin_path = "sos.plugins.%s" % name
-        plugin_module = __import__(plugin_path, globals(), locals(), [name])
-        return [class_ for cname, class_ in
-                inspect.getmembers(plugin_module, inspect.isclass)]
-    except ImportError, e:
-        return None
-
 def sosGetCommandOutput(command, timeout = 300):
     """ Execute a command and gather stdin, stdout, and return status.
     """
@@ -82,3 +71,14 @@ def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
         return path2      # leave path absolute if nothing at all in common
     return sep.join( [pardir]*len(u1) + u2 )
 
+def memoized(function):
+    ''' function decorator to allow caching of return values
+    '''
+    function.cache={}
+    def f(*args):
+        try:
+            return function.cache[args]
+        except KeyError:
+            result = function.cache[args] = function(*args)
+            return result
+    return f
