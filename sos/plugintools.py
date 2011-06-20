@@ -56,7 +56,6 @@ class DirTree(object):
         self.buf(os.path.abspath(self.top_directory))
         self.tree_i(self.top_directory, first=True)
 
-
     def _convert_bytes(self, n):
         K, M, G, T = 1 << 10, 1 << 20, 1 << 30, 1 << 40
         if n >= T:
@@ -83,7 +82,8 @@ class DirTree(object):
 
     def tree_i(self, dir_, padding='', first=False):
         if not first:
-            self.buf(padding[:-1] + "+-- " + self._format(os.path.abspath(dir_)))
+            self.buf(padding[:-1] +
+                "+-- " + self._format(os.path.abspath(dir_)))
             padding += '   '
 
         count = 0
@@ -99,7 +99,10 @@ class DirTree(object):
                 self.file_count += 1
                 self.buf(padding + '+-- ' + self._format(path))
             elif os.path.islink(path):
-                self.buf(padding + '+-- ' + f + ' -> ' + os.path.basename(os.path.realpath(path)))
+                self.buf(padding +
+                         '+-- ' +
+                         f +
+                         ' -> ' + os.path.basename(os.path.realpath(path)))
                 if os.path.isdir(path):
                     self.directory_count += 1
                 else:
@@ -130,5 +133,5 @@ def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
             continue
 
         for name in fnmatch.filter(filelist, file_pattern):
-            yield os.path.join(path,name)
+            yield os.path.join(path, name)
 # vim:ts=4 sw=4 et
