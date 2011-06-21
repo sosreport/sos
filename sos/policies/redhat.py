@@ -16,6 +16,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+# This enables the use of with syntax in python 2.5 (aka jython)
+from __future__ import with_statement
+
 import os
 import sys
 import string
@@ -43,9 +46,6 @@ except:
     # might fail if non-RHEL
     pass
 
-# This enables the use of with syntax in python 2.5 (aka jython)
-from __future__ import with_statement
-
 
 class Both(object):
 
@@ -55,6 +55,7 @@ class Both(object):
         self.report_md5 = ""
         self.reportName = ""
         self.ticketNumber = ""
+        self._parse_uname()
 
     def setCommons(self, commons):
         self.cInfo = commons
@@ -65,7 +66,7 @@ class Both(object):
          version, machine, processor) = platform.uname()
         self.hostname = node
         self.release = release
-        self.smp = release.split()[1] == "SMP"
+        self.smp = version.split()[1] == "SMP"
         self.machine = machine
 
     def _system(self, cmd):
