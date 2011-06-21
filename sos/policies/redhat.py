@@ -20,9 +20,9 @@ import os
 import sys
 import string
 from tempfile import gettempdir
-from sos.helpers import *
 import random
 import re
+import platform
 try:
     from hashlib import md5
 except ImportError:
@@ -30,7 +30,9 @@ except ImportError:
 import time
 from subprocess import Popen, PIPE
 from collections import deque
+
 from sos import _sos as _
+from sos.helpers import *
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
@@ -40,6 +42,10 @@ try:
 except:
     # might fail if non-RHEL
     pass
+
+# This enables the use of with syntax in python 2.5 (aka jython)
+from __future__ import with_statement
+
 
 class Both(object):
 
@@ -54,10 +60,27 @@ class Both(object):
         self.cInfo = commons
         return
 
+    def _parse_uname(self):
+        (system, node, release,
+         version, machine, processor) = platform.uname()
+        self.hostname = node
+        self.release = release
+        self.smp = release.split()[1] == "SMP"
+        self.machine = machine
+
+    def _system(self, cmd):
+        p = Popen(cmd,
+                  shell=True,
+                  stdout=PIPE,
+                  stderr=PIPE,
+                  bufsize=-1)
+        stdout, stderr = p.communicate()
+        status = p.returncode
+        return stdout, stderr, status
+
     def runlevelByService(self, name):
         ret = []
-        p = Popen("LC_ALL=C /sbin/chkconfig --list %s" % name, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
-        out, err = p.communicate()
+        out, err, sts = self._system("LC_ALL=C /sbin/chkconfig --list %s" % name)
         if err:
             return ret
         for tabs in out.split()[1:]:
@@ -72,17 +95,18 @@ class Both(object):
 
     def runlevelDefault(self):
         try:
-            reg=self.doRegexFindAll(r"^id:(\d{1}):initdefault:", "/etc/inittab")
-            for initlevel in reg:
-                return initlevel
+            with open("/etc/inittab") as fp:
+                pattern = r"id:(\d{1}):initdefault:"
+                text = fp.read()
+                return int(re.findall(pattern, text)[0])
         except:
             return 3
 
     def kernelVersion(self):
-        return Popen("/bin/uname -r", shell=True, stdout=PIPE, bufsize=-1).stdout.read().strip("\n")
+        return self.release
 
     def hostName(self):
-        return Popen("/bin/hostname", shell=True, stdout=PIPE, bufsize=-1).stdout.read().strip("\n").split(".")[0]
+        return self.hostname
 
     def rhelVersion(self):
         try:
@@ -108,14 +132,10 @@ class Both(object):
             return ""
 
     def isKernelSMP(self):
-        pipe = Popen("/bin/hostname", shell=True, stdout=PIPE, bufsize=-1).read().stdout
-        if pipe.split()[1] == "SMP":
-            return True
-        else:
-            return False
+        return self.smp
 
     def getArch(self):
-        return Popen("/bin/uname -m", shell=True, stdout=PIPE, bufsize=-1).stdout.read().strip()
+        return self.machine
 
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
