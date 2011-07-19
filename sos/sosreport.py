@@ -45,7 +45,6 @@ from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
 from itertools import izip
-import distutils.sysconfig
 
 from sos import _sos as _
 from sos import __version__
