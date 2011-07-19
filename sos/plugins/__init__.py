@@ -592,14 +592,13 @@ class RedHatPlugin(PluginBase):
 def import_plugin(name):
     """Import name as a module and return a list of all classes defined in that
     module"""
-    import imp
     try:
-        plugin_module = imp.load_module(name, *imp.find_module(
-            name, [os.path.join('sos', 'plugins')]))
+        plugin_path = "sos.plugins.%s" % name
+        plugin_module = __import__(plugin_path, globals(), locals(), [name])
         return [class_ for cname, class_ in
                 inspect.getmembers(plugin_module, inspect.isclass)
                 if issubclass(class_, PluginBase)
-                and plugin_module.__name__ in class_.__module__]
+                and class_.__module__ == plugin_path]
 
     except ImportError, e:
         return None
