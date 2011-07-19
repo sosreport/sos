@@ -15,9 +15,9 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
-import sos.plugintools
+from sos.plugins import RedHatPlugin
 
-class s390(sos.plugins.RedHatPlugin):
+class s390(RedHatPlugin):
     """s390 related information
     """
 

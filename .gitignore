@@ -1,2 +1,3 @@
 *.class
 *swp*
+*.pyc

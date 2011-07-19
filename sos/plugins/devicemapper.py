@@ -12,11 +12,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import RedHatPlugin
 import os
 from sos.helpers import sosGetCommandOutput
 
-class devicemapper(sos.plugins.RedHatPlugin):
+class devicemapper(RedHatPlugin):
     """device-mapper related information (dm, lvm, multipath)
     """
 

@@ -12,10 +12,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import RedHatPlugin
 import os, re
 
-class kernel(sos.plugins.RedHatPlugin):
+class kernel(RedHatPlugin):
     """kernel related information
     """
     optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
@@ -47,7 +47,7 @@ class kernel(sos.plugins.RedHatPlugin):
         if self.getOption('modinfo'):
             runcmd = ""
             ret, mods, rtime = self.callExtProg('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null')
-            for kmod in mods.split('\n'): 
+            for kmod in mods.split('\n'):
                 if '' != kmod.strip():
                     runcmd = runcmd + " " + kmod
             if len(runcmd):

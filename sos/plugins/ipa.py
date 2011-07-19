@@ -14,10 +14,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import RedHatPlugin
 from os.path import exists
 
-class ipa(sos.plugins.RedHatPlugin):
+class ipa(RedHatPlugin):
     """IPA diagnostic information
     """
     # ntp and dirserver stuff are covered in existing sos plugins, so we really only

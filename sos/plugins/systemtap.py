@@ -14,15 +14,15 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import RedHatPlugin
 
-class systemtap(sos.plugins.RedHatPlugin):
+class systemtap(RedHatPlugin):
     """SystemTap information
     """
     def checkenabled(self):
         self.files = [ "/usr/bin/stap" ]
         self.packages = [ "systemtap", "systemtap-runtime" ]
-        return sos.plugins.RedHatPlugin.checkenabled(self)
+        return RedHatPlugin.checkenabled(self)
 
     def setup(self):
         self.collectExtOutput("/usr/bin/stap -V 2")

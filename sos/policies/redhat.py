@@ -36,6 +36,7 @@ from collections import deque
 
 from sos import _sos as _
 from sos.helpers import *
+from sos.plugins import RedHatPlugin
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
@@ -413,6 +414,9 @@ class CPython(Both):
 
 
 class Jython(Both):
+
+    def pkgByName(self, name):
+        return {}
 
     def validatePlugin(self, plugin_class):
         "Checks that the plugin will execute given the environment"
