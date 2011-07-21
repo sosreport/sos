@@ -84,7 +84,7 @@ class PluginBase(object):
     @classmethod
     def name(class_):
         "Returns the plugin's name as a string"
-        return class_.__name__
+        return class_.__name__.lower()
 
     def policy(self):
         return self.cInfo["policy"]
