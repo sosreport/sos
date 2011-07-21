@@ -31,7 +31,7 @@ try:
 except ImportError:
     from md5 import md5
 import time
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, call
 from collections import deque
 
 from sos import _sos as _
@@ -214,8 +214,7 @@ class Both(object):
             self.report_file_ext = "tar.xz"
             self.renameResults("sosreport-%s-%s.%s" % (self.reportName, time.strftime("%Y%m%d%H%M%S"), self.report_file_ext))
             cmd = "/bin/tar -c %s | /usr/bin/xz -1 > %s" % (os.path.basename(self.cInfo['dstroot']),self.report_file)
-            p = Popen(cmd, shell=True, bufsize=-1)
-            sts = os.waitpid(p.pid, 0)[1]
+            sts = call(cmd, shell=True, bufsize=-1)
         else:
             self.report_file_ext = "tar.bz2"
             self.renameResults("sosreport-%s-%s.%s" % (self.reportName, time.strftime("%Y%m%d%H%M%S"), self.report_file_ext))
