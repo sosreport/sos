@@ -45,6 +45,7 @@ from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
 from itertools import izip
+import zipfile
 
 from sos import _sos as _
 from sos import __version__
@@ -236,6 +237,68 @@ class XmlReport(object):
         outfn = open(fname,"w")
         outfn.write(self.doc.serialize(None, 1))
         outfn.close()
+
+
+class ImporterHelper(object):
+    """Provides a list of plugins that can be imported"""
+
+    def __init__(self, base_path=sys.path):
+        self.base_path = base_path
+
+    def _plugin_name(self, path):
+        "Returns the plugin module name given the path"
+        base = os.path.basename(path)
+        name, ext = os.path.splitext(base)
+        return name
+
+    def _get_plugins_from_list(self, list_):
+        plugins = [self._plugin_name(plugin)
+                for plugin in list_
+                if os.path.join('sos','plugins') in plugin
+                and plugin.endswith(".py")]
+        plugins.sort()
+        return plugins
+
+    def _find_plugins_in_dir(self, path):
+        import sos.plugintools
+        candidate = os.path.join(path, 'sos', 'plugins')
+        if os.path.exists(candidate):
+           pnames = self._get_plugins_from_list(
+                   list(sos.plugintools.find("*.py", candidate)))
+           if pnames:
+               return pnames
+
+    def _get_path_to_zip(self, path):
+        if path.endswith(('.jar', '.zip', '.egg')):
+            return path
+
+        head, tail = os.path.split(path)
+
+        if head == path:
+            return path
+        else:
+            return self._get_path_to_zip(head)
+
+    def _find_plugins_in_zipfile(self, path):
+        try:
+            zf = zipfile.ZipFile(self._get_path_to_zip(path))
+            candidates = self._get_plugins_from_list(zf.namelist())
+            if candidates:
+                return candidates
+        except IOError:
+            pass
+
+    def get_plugins(self):
+
+        for path in self.base_path:
+            if os.path.isdir(path) or path == '':
+                plugins = self._find_plugins_in_dir(path)
+            else:
+                plugins = self._find_plugins_in_zipfile(path)
+
+            if plugins:
+                return plugins
+        return []
 
 
 class SoSReport(object):
@@ -449,23 +512,11 @@ No changes will be made to your system.
             plugin_class(self.get_commons())
         ))
 
-    def _find_pluginpath(self):
-        for path in sys.path:
-            candidate = os.path.join(path, 'sos', 'plugins')
-            if os.path.exists(candidate):
-                return candidate
 
     def load_plugins(self):
-        pluginpath = self._find_pluginpath()
 
-        if not pluginpath:
-            print _("Could not find a valid plugin path.")
-            self._exit()
-
-        self.soslog.info(_("Plugin path is %s") % pluginpath)
-
-        plugins = [plugin for plugin in os.listdir(pluginpath) if plugin.endswith(".py")]
-        plugins.sort()
+        helper = ImporterHelper()
+        plugins = helper.get_plugins()
         self.plugin_names = deque()
 
         # validate and load plugins
