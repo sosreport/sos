@@ -12,16 +12,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class squid(RedHatPlugin):
+class squid(Plugin, RedHatPlugin):
     """squid related information
     """
     def checkenabled(self):
         self.files = [ "/etc/squid/squid.conf" ]
         self.packages = [ "squid" ]
-        return RedHatPlugin.checkenabled(self)
+        return Plugin.checkenabled(self)
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")

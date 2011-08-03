@@ -12,9 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 
-class selinux(RedHatPlugin):
+class selinux(Plugin, RedHatPlugin):
     """selinux related information
     """
     optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]

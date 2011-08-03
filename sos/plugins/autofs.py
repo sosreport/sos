@@ -14,16 +14,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 import os, re
 
-class autofs(RedHatPlugin):
+class autofs(Plugin, RedHatPlugin):
     """autofs server-related information
     """
     def checkenabled(self):
         self.packages = [ "autofs" ]
         self.files = [ "/etc/sysconfig/autofs" ]
-        return RedHatPlugin.checkenabled(self)
+        return Plugin.checkenabled(self)
 
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere

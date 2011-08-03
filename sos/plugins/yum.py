@@ -12,10 +12,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class yum(RedHatPlugin):
+class yum(Plugin, RedHatPlugin):
     """yum information
     """
 
@@ -25,7 +25,7 @@ class yum(RedHatPlugin):
     def checkenabled(self):
         self.files = [ "/etc/yum.conf" ]
         self.packages = [ "yum" ]
-        return RedHatPlugin.checkenabled(self)
+        return Plugin.checkenabled(self)
 
     def analyze(self):
         # repo sanity checking

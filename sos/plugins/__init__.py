@@ -45,7 +45,7 @@ class PluginException(Exception):
     pass
 
 
-class PluginBase(object):
+class Plugin(object):
     """
     This is the base class for sosreport plugins. This class should
     be subclassed by platform specific superclasses. Actual plugins
@@ -585,7 +585,8 @@ class PluginBase(object):
         return html
 
 
-class RedHatPlugin(PluginBase):
+class RedHatPlugin(object):
+    """Tagging class to indicate that this plugin works with Red Hat Linux"""
     pass
 
 
@@ -597,7 +598,7 @@ def import_plugin(name):
         plugin_module = __import__(plugin_path, globals(), locals(), [name])
         return [class_ for cname, class_ in
                 inspect.getmembers(plugin_module, inspect.isclass)
-                if issubclass(class_, PluginBase)
+                if issubclass(class_, Plugin)
                 and class_.__module__ == plugin_path]
 
     except ImportError, e:

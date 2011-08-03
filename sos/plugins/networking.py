@@ -12,11 +12,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 import os
 import re
 
-class networking(RedHatPlugin):
+class networking(Plugin, RedHatPlugin):
     """network related information
     """
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]

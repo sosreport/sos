@@ -12,11 +12,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 import os, re
 from glob import glob
 
-class cluster(RedHatPlugin):
+class cluster(Plugin, RedHatPlugin):
     """cluster suite and GFS related information
     """
 
@@ -38,7 +38,7 @@ class cluster(RedHatPlugin):
                               "cman", "clusterlib", "fence-agents" ]
 
         self.files = [ "/etc/cluster/cluster.conf" ]
-        return RedHatPlugin.checkenabled(self)
+        return Plugin.checkenabled(self)
 
     def setup(self):
         rhelver = self.policy().rhelVersion()

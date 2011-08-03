@@ -12,9 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 
-class qpidd(RedHatPlugin):
+class qpidd(Plugin, RedHatPlugin):
     """Messaging related information
     """
     def checkenabled(self):

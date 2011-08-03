@@ -12,11 +12,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin
 from os import listdir
 from os.path import exists
 
-class sar(RedHatPlugin):
+class sar(Plugin, RedHatPlugin):
     """Generate the sar file from /var/log/sa/saXX files
     """
     def setup(self):
