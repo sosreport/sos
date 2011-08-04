@@ -38,8 +38,8 @@ class postgresql(Plugin, RedHatPlugin):
                 self.tmp_dir = tempfile.mkdtemp()
                 self.pg_dump()
             else:
-                self.addAlert("WARN: password must be supplied to dump a database.")   
-            
+                self.addAlert("WARN: password must be supplied to dump a database.")
+
         # Copy PostgreSQL log files.
         for file in find("*.log", self.getOption("pghome")):
             self.addCopySpec(file)

@@ -239,13 +239,13 @@ Default=\'all default minimal production standard web\'.', '', False),
         chunks.  This might be slightly slower but, the intent of a SOS report is to collect data from
         a system that could be under stress and we shouldn't stress it more by loading entire Jars into
         real memory.
-        
-        Note: This fcn expects hashlib; however, this isn't always available.  If it isn't then 
-        we will use md5sum        
+
+        Note: This fcn expects hashlib; however, this isn't always available.  If it isn't then
+        we will use md5sum
         """
-        
+
         retVal="????????????????????????????????"
-        
+
         try:
             import hashlib
             try:
@@ -254,26 +254,26 @@ Default=\'all default minimal production standard web\'.', '', False),
                 msg = "ERROR: Unable to open %s for reading.  Error: " % (file,ioe)
                 print msg
                 self.addAlert(msg)
-    
+
             md5 = hashlib.md5()
             data = fd.read(self.__MD5_CHUNK_SIZE)
             while data:
                 md5.update(data)
                 data = fd.read(self.__MD5_CHUNK_SIZE)
-            retVal = md5.hexdigest()            
+            retVal = md5.hexdigest()
         except ImportError, e:
-            process = subprocess.Popen(['md5sum', file], 
-                                       shell=False, 
-                                       stdout=subprocess.PIPE, 
+            process = subprocess.Popen(['md5sum', file],
+                                       shell=False,
+                                       stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             result = process.communicate()
             if (process.returncode == 0):
-                retVal = result[0].partition(' ')[0] 
+                retVal = result[0].partition(' ')[0]
             else:
                 msg = "ERROR: Unable to compute md5sum of %s.  Msg (%s)" % (file, result[1])
                 print msg
-                self.addAlert(msg) 
-            
+                self.addAlert(msg)
+
         return retVal
 
 
