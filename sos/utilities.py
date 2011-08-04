@@ -26,11 +26,12 @@
 # pylint: disable-msg = W0613
 
 import os
-import os.path
 import string
 import fnmatch
 from stat import *
 from itertools import *
+from subprocess import Popen, PIPE
+import logging
 
 
 class DirTree(object):
@@ -134,4 +135,24 @@ def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
 
         for name in fnmatch.filter(filelist, file_pattern):
             yield os.path.join(path, name)
+
+
+def sosGetCommandOutput(command, timeout = 300):
+    """ Execute a command and gather stdin, stdout, and return status.
+    """
+    # soslog = logging.getLogger('sos')
+    # Log if binary is not runnable or does not exist
+    for path in os.environ["PATH"].split(":"):
+        cmdfile = command.strip("(").split()[0]
+        # handle both absolute or relative paths
+        if ( ( not os.path.isabs(cmdfile) and os.access(os.path.join(path,cmdfile), os.X_OK) ) or \
+           ( os.path.isabs(cmdfile) and os.access(cmdfile, os.X_OK) ) ):
+            break
+    else:
+        # soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % cmdfile)
+        return (127, "", 0)
+
+    p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
+    stdout, stderr = p.communicate()
+    return (p.returncode, stdout.strip(), 0)
 # vim:ts=4 sw=4 et

@@ -24,11 +24,10 @@
 # pylint: disable-msg = W0611
 # pylint: disable-msg = W0613
 
-from sos.helpers import *
+from sos.utilities import sosGetCommandOutput
 from sos import _sos as _
 import inspect
 import os
-import os.path
 import sys
 import string
 import glob
@@ -39,6 +38,30 @@ from stat import *
 from time import time
 from itertools import *
 from collections import deque
+import logging
+
+
+def commonPrefix(l1, l2, common = None):
+    if common is None:
+        common = []
+    ''' return a list of common elements at the start of all sequences,
+        then a list of lists that are the unique tails of each sequence. '''
+    if len(l1) < 1 or len(l2) < 1 or  l1[0] != l2[0]: return common, [l1, l2]
+    return commonPrefix(l1[1:], l2[1:], common+[l1[0]])
+
+def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
+    ''' return a relative path from path1 equivalent to path path2.
+        In particular: the empty string, if path1 == path2;
+                       path2, if path1 and path2 have no common prefix.
+    '''
+    try:
+        common, (u1, u2) = commonPrefix(path1.split(sep), path2.split(sep))
+    except AttributeError:
+        return path2
+
+    if not common:
+        return path2      # leave path absolute if nothing at all in common
+    return sep.join( [pardir]*len(u1) + u2 )
 
 
 class PluginException(Exception):

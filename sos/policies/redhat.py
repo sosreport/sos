@@ -35,7 +35,6 @@ from subprocess import Popen, PIPE, call
 from collections import deque
 
 from sos import _sos as _
-from sos.helpers import *
 from sos.plugins import RedHatPlugin
 
 sys.path.insert(0, "/usr/share/rhn/")

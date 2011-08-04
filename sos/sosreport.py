@@ -260,11 +260,11 @@ class ImporterHelper(object):
         return plugins
 
     def _find_plugins_in_dir(self, path):
-        import sos.plugintools
+        import sos.utilities
         candidate = os.path.join(path, 'sos', 'plugins')
         if os.path.exists(candidate):
            pnames = self._get_plugins_from_list(
-                   list(sos.plugintools.find("*.py", candidate)))
+                   list(sos.utilities.find("*.py", candidate)))
            if pnames:
                return pnames
 

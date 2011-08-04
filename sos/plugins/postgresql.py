@@ -5,28 +5,8 @@ import subprocess
 import tempfile
 
 from sos.plugins import Plugin, RedHatPlugin
+from sos.utilities import find
 
-def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
-    """generate function to find files recursively. Usage:
-
-    for filename in find("*.properties", /var/log/foobar):
-        print filename
-    """
-    if max_depth:
-        base_depth = os.path.dirname(top_dir).count(os.path.sep)
-        max_depth += base_depth
-
-    for path, dirlist, filelist in os.walk(top_dir):
-        if max_depth and path.count(os.path.sep) >= max_depth:
-            del dirlist[:]
-
-        if path_pattern and not fnmatch.fnmatch(path, path_pattern):
-            continue
-
-        for name in fnmatch.filter(filelist, file_pattern):
-            yield os.path.join(path,name)
-
-# Class name must be the same as file name and method names must not change
 class postgresql(Plugin, RedHatPlugin):
     """PostgreSQL related information"""
 
