@@ -47,7 +47,7 @@ except:
     pass
 
 
-class Both(object):
+class Policy(object):
 
     def __init__(self):
         self.report_file = ""
@@ -361,16 +361,6 @@ class Both(object):
 
         fp.close()
 
-class CPython(Both):
-    """This policy class will work with the CPython interpreter only."""
-
-    def validatePlugin(self, pluginpath):
-        "Validates the plugin as being acceptable to run"
-        # return value
-        # TODO implement this
-        #print "validating %s" % pluginpath
-        return True
-
     def pkgProvides(self, name):
         return self.pkgByName(name).get('providename')
 
@@ -390,8 +380,7 @@ class CPython(Both):
             # lame attempt at locating newest
             return self.allPkgsByName(name)[-1]
         except:
-            pass
-        return {}
+            return {}
 
     def allPkgs(self, ds = None, value = None):
         import rpm
@@ -409,12 +398,6 @@ class CPython(Both):
         self._cache_rpm[ "%s-%s" % (ds,value) ] = [pkg for pkg in mi]
         del mi, ts
         return self._cache_rpm[ "%s-%s" % (ds,value) ]
-
-
-class Jython(Both):
-
-    def pkgByName(self, name):
-        return {}
 
     def validatePlugin(self, plugin_class):
         "Checks that the plugin will execute given the environment"
