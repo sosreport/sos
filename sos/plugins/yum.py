@@ -19,8 +19,8 @@ class yum(sos.plugintools.PluginBase):
     """yum information
     """
 
-    optionList = [("yumlist", "list repositories and packages", "slow", False)]
-    optionList = [("yumdebug", "gather yum debugging data", "slow", False)]
+    optionList = [("yumlist", "list repositories and packages", "slow", False),
+                  ("yumdebug", "gather yum debugging data", "slow", False)]
 
     def checkenabled(self):
         self.files = [ "/etc/yum.conf" ]
@@ -43,9 +43,10 @@ class yum(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/yum.conf")
         self.addCopySpec("/var/log/yum.log")
 
+        # Get a list of channels the machine is subscribed to.
+        self.collectExtOutput("yum -C repolist")
+
         if self.getOption("yumlist"):
-            # Get a list of channels the machine is subscribed to.
-            self.collectExtOutput("/bin/echo \"repo list\" | /usr/bin/yum shell")
             # List various information about available packages
             self.collectExtOutput("/usr/bin/yum list")
 
