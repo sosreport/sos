@@ -44,7 +44,9 @@ class hardware(sos.plugintools.PluginBase):
         if self.policy().getArch().endswith("386"):
             self.collectExtOutput("/usr/sbin/x86info -a")
 
-        self.collectExtOutput("/sbin/lsusb")
+        self.collectExtOutput("/usr/sbin/lsusb")
+        self.collectExtOutput("/usr/sbin/lsusb -v")
+        self.collectExtOutput("/usr/sbin/lsusb -t 2>&1", suggest_filename = "lsusb_-t")
         self.collectExtOutput("/usr/bin/lshal")
         self.collectExtOutput("/usr/bin/systool -c fc_host -v")
         self.collectExtOutput("/usr/bin/systool -c scsi_host -v")
