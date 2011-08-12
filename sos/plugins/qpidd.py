@@ -19,25 +19,36 @@ class qpidd(sos.plugintools.PluginBase):
     """
     def checkenabled(self):
         """ checks if mrg enabled """
-        if self.cInfo["policy"].pkgByName("qpidd") and \
-        self.cInfo["policy"].pkgByName("python-qpid"):
+        if self.cInfo["policy"].pkgByName("qpid-cpp-server") and \
+        self.cInfo["policy"].pkgByName("qpid-tools"):
             return True
         return False
 
     def setup(self):
         """ performs data collection for mrg """
         self.addCopySpec("/etc/qpidd.conf")
-        self.collectExtOutput("/usr/bin/qpid-stat -q")
-        self.collectExtOutput("/usr/bin/qpid-stat -e")
+        self.addCopySpec("/etc/sasl2/qpidd.conf")
+        self.addCopySpec("/etc/qpid/qpidc.conf")
+        self.addCopySpec("/etc/sesame/sesame.conf")
+        self.addCopySpec("/etc/cumin/cumin.conf")
+        self.addCopySpec("/etc/corosync/corosync.conf")
+        self.addCopySpec("/var/lib/sesame")
+        self.addCopySpec("/var/log/qpidd.log")
+        self.addCopySpec("/var/log/sesame")
+        self.addCopySpec("/var/log/cumin")
+        self.addCopySpec("/var/log/cluster")
+
+        self.collectExtOutput("/usr/bin/qpid-config queues")
+        self.collectExtOutput("/usr/bin/qpid-config exchanges")
+        self.collectExtOutput("/usr/bin/qpid-config exchanges -b")
         self.collectExtOutput("/usr/bin/qpid-stat -b")
-        self.addCopySpec("/var/lib/qpid/syslog")
-        self.collectExtOutput("/usr/bin/qpid-config")
-        self.collectExtOutput("/usr/bin/qpid-config -b exchanges")
-        self.collectExtOutput("/usr/bin/qpid-config -b queues")
+        self.collectExtOutput("/usr/bin/qpid-stat -e")
+        self.collectExtOutput("/usr/bin/qpid-stat -q")
+        self.collectExtOutput("/usr/bin/qpid-stat -u")
         self.collectExtOutput("/usr/bin/qpid-stat -c")
-        self.collectExtOutput("/usr/bin/qpid-route link list")
         self.collectExtOutput("/usr/bin/qpid-route route list")
-        self.addCopySpec("/etc/ais/openais.conf")
+        self.collectExtOutput("/usr/bin/qpid-route link list")
+        self.collectExtOutput("/usr/bin/qpid-cluster")
+        self.collectExtOutput("/usr/bin/qpid-cluster -c")
         self.collectExtOutput("ls -lR /var/lib/qpidd")
-        self.addCopySpec("/var/log/cumin.log")
-        self.addCopySpec("/var/log/mint.log")
+        self.collectExtOutput("ls -lR /opt/rh-qpid")
