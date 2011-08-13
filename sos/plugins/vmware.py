@@ -19,7 +19,7 @@ class vmware(sos.plugintools.PluginBase):
     """VMWare related information
     """
     def checkenabled(self):
-        if os.path.exists("/usr/bin/vmware"):
+        if os.path.exists("/usr/bin/vmware") or os.path.exists("/usr/init.d/vmware-tools"):
             return True
         return False
         
@@ -27,4 +27,5 @@ class vmware(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/vmware -v")
         self.addCopySpec("/etc/vmware/locations")
         self.addCopySpec("/etc/vmware/config")
+	self.addCopySpec("/proc/vmmemctl")
         return
