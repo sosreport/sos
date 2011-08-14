@@ -66,6 +66,7 @@ class networking(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/ifenslave -a")
         self.collectExtOutput("/sbin/ip mroute show")
         self.collectExtOutput("/sbin/ip maddr show")
+        self.collectExtOutput("/sbin/ip neigh show")
         if ifconfigFile:
             for eth in self.get_interface_name(ifconfigFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
