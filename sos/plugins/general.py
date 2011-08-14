@@ -56,6 +56,7 @@ class general(sos.plugintools.PluginBase):
                 self.addCopySpec("/etc/pki/product/*.pem")
                 self.addCopySpec("/etc/pki/consumer/cert.pem")
                 self.addCopySpec("/etc/pki/entitlement/*.pem")
+                self.addCopySpec("/etc/rhsm/")
                 self.addForbiddenPath("/etc/pki/entitlement/key.pem")
 
         if self.getOption('all_logs'):
