@@ -21,6 +21,20 @@ class networking(Plugin, RedHatPlugin):
     """
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
 
+    def get_bridge_name(self,brctlOut):
+        """Return a list for which items are bridge name according to the
+        output of brctl show stored in brctlFile.
+        """
+        out=[]
+        for line in brctlOut[1].splitlines():
+            if line.startswith("bridge name") \
+		or line.isspace() \
+		or line[:1].isspace():
+                continue
+            brName, brRest = line.split(None, 1)
+            out.append(brName)
+        return out
+
     def get_interface_name(self,ipaddrOut):
         """Return a dictionary for which key are interface name according to the
         output of ifconifg-a stored in ifconfigFile.
@@ -84,3 +98,12 @@ class networking(Plugin, RedHatPlugin):
                 self.collectExtOutput("/sbin/ethtool -g "+eth)
         if self.getOption("traceroute"):
             self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
+
+        if os.path.exists("/usr/sbin/brctl"):
+            brctlFile=self.collectExtOutput("/usr/sbin/brctl show")
+            brctlOut=self.callExtProg("/usr/sbin/brctl show")
+            if brctlOut:
+                for brName in self.get_bridge_name(brctlOut):
+                    self.collectExtOutput("/usr/sbin/brctl showstp "+brName)
+        return
+
