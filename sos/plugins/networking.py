@@ -21,6 +21,20 @@ class networking(sos.plugintools.PluginBase):
     """
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
 
+    def get_bridge_name(self,brctlFile):
+        """Return a dictionary for which key are bridge name according to the
+        output of brctl show stored in brctlFile.
+        """
+        out=[]
+        fp = open(brctlFile, 'r')
+        for line in fp.readlines():
+            if line.startswith("bridge name") or line.isspace():
+                continue
+            brName, brRest = line.split(None, 1)
+            out.append(brName)
+        fp.close()
+        return out
+
     def get_interface_name(self,ifconfigFile):
         """Return a dictionary for which key are interface name according to the
         output of ifconifg-a stored in ifconfigFile.
@@ -78,6 +92,10 @@ class networking(sos.plugintools.PluginBase):
                 self.collectExtOutput("/sbin/ethtool -g "+eth)
         if self.getOption("traceroute"):
             self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
-            
+        if os.path.exists("/usr/sbin/brctl"):
+            brctlFile=self.collectOutputNow("/usr/sbin/brctl show")
+            if brctlFile:
+                for brName in self.get_bridge_name(brctlFile):
+                    self.collectExtOutput("/usr/sbin/brctl showstp "+brName)
         return
 
