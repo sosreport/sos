@@ -830,6 +830,7 @@ No changes will be made to your system.
 def main(args):
     """The main entry point"""
     sos = SoSReport(args)
+
     if sos.opts.listPlugins:
         sos.list_plugins()
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-JYTHON_STANDALONE_JAR=$1
-
 BUILD_DIR=buildjar
 DEST_JAR=$BUILD_DIR/sosreport.jar
 PO_DIR=$BUILD_DIR/sos/po
@@ -23,8 +21,8 @@ done
 echo "Duplicating en ..."
 cp $PO_DIR/en.properties $PO_DIR/en_US.properties
 
-echo "Pulling in standalone jython.jar ..."
-cp $JYTHON_STANDALONE_JAR $DEST_JAR
+echo "Removing .class files"
+find sos -name "*.class" | xargs rm
 
 echo "Adding in sos ..."
 zip -r $DEST_JAR sos

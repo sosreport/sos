@@ -29,6 +29,7 @@ from stat import *
 from itertools import *
 from subprocess import Popen, PIPE
 import logging
+import zipfile
 
 
 class DirTree(object):
