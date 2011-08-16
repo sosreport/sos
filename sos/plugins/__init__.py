@@ -24,7 +24,7 @@
 # pylint: disable-msg = W0611
 # pylint: disable-msg = W0613
 
-from sos.utilities import sosGetCommandOutput
+from sos.utilities import sosGetCommandOutput, import_module
 from sos import _sos as _
 import inspect
 import os
@@ -617,12 +617,7 @@ def import_plugin(name):
     """Import name as a module and return a list of all classes defined in that
     module"""
     try:
-        plugin_path = "sos.plugins.%s" % name
-        plugin_module = __import__(plugin_path, globals(), locals(), [name])
-        return [class_ for cname, class_ in
-                inspect.getmembers(plugin_module, inspect.isclass)
-                if issubclass(class_, Plugin)
-                and class_.__module__ == plugin_path]
-
+        plugin_fqname = "sos.plugins.%s" % name
+        return import_module(plugin_fqname, superclass=Plugin)
     except ImportError, e:
         return None

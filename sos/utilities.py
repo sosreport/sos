@@ -1,8 +1,3 @@
-## plugintools.py
-## This exports methods available for use by plugins for sos
-
-## Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
-
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -26,8 +21,10 @@
 # pylint: disable-msg = W0613
 
 import os
+import sys
 import string
 import fnmatch
+import inspect
 from stat import *
 from itertools import *
 from subprocess import Popen, PIPE
@@ -116,6 +113,71 @@ class DirTree(object):
                     self.tree_i(path, padding + '|')
 
 
+class ImporterHelper(object):
+    """Provides a list of modules that can be imported in a package.
+    The package is located along the base_path (default = sys.path)
+    and modules are files that end in .py. This class will read from
+    PKZip archives as well for listing out jar and egg contents."""
+
+    def __init__(self, package_path, base_path=sys.path):
+        self.package_path = package_path
+        self.base_path = base_path
+
+    def _plugin_name(self, path):
+        "Returns the plugin module name given the path"
+        base = os.path.basename(path)
+        name, ext = os.path.splitext(base)
+        return name
+
+    def _get_plugins_from_list(self, list_):
+        plugins = [self._plugin_name(plugin)
+                for plugin in list_
+                if self.package_path in plugin
+                and "__init__" not in plugin
+                and plugin.endswith(".py")]
+        plugins.sort()
+        return plugins
+
+    def _find_plugins_in_dir(self, path):
+        candidate = os.path.join(path, self.package_path)
+        if os.path.exists(candidate):
+           pnames = self._get_plugins_from_list(
+                   list(find("*.py", candidate)))
+           if pnames:
+               return pnames
+
+    def _get_path_to_zip(self, path):
+        if path.endswith(('.jar', '.zip', '.egg')):
+            return path
+
+        head, tail = os.path.split(path)
+
+        if head == path:
+            return path
+        else:
+            return self._get_path_to_zip(head)
+
+    def _find_plugins_in_zipfile(self, path):
+        try:
+            zf = zipfile.ZipFile(self._get_path_to_zip(path))
+            candidates = self._get_plugins_from_list(zf.namelist())
+            if candidates:
+                return candidates
+        except IOError:
+            pass
+
+    def get_modules(self):
+        "Returns the list of importable modules in the configured python package."
+        for path in self.base_path:
+            if os.path.isdir(path) or path == '':
+                plugins = self._find_plugins_in_dir(path)
+            else:
+                plugins = self._find_plugins_in_zipfile(path)
+
+            if plugins:
+                return plugins
+        return []
+
 def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
     """generate function to find files recursively. Usage:
 
@@ -155,4 +217,15 @@ def sosGetCommandOutput(command, timeout = 300):
     p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
     stdout, stderr = p.communicate()
     return (p.returncode, stdout.strip(), 0)
+
+def import_module(module_fqname, superclass=None):
+    module_name = module_fqname.rpartition(".")[-1]
+    module = __import__(module_fqname, globals(), locals(), [module_name])
+    modules = [class_ for cname, class_ in
+               inspect.getmembers(module, inspect.isclass)
+               if class_.__module__ == module_fqname]
+    if superclass:
+        modules = [m for m in modules if issubclass(m, superclass)]
+
+    return modules
 # vim:ts=4 sw=4 et

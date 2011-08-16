@@ -403,4 +403,8 @@ class Policy(object):
         "Checks that the plugin will execute given the environment"
         return issubclass(plugin_class, RedHatPlugin)
 
+    def check(self):
+        "This method checks to see if we are running on RHEL. It returns True or False."
+        return os.path.isfile('/etc/redhat-release')
+
 # vim: ts=4 sw=4 et
