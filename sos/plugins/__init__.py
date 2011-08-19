@@ -74,6 +74,9 @@ class Plugin(object):
     be subclassed by platform specific superclasses. Actual plugins
     should not subclass this class directly.
     """
+
+    requires_root = True
+
     def __init__(self, commons):
         if not getattr(self, "optionList", False):
             self.optionList = deque()

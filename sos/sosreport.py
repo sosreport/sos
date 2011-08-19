@@ -262,6 +262,8 @@ No changes will be made to your system.
 
         signal.signal(signal.SIGTERM, self.get_exit_handler())
 
+        self._is_root = (os.getuid() == 0)
+
         self.opts, self.args = parse_options(opts)
         self._set_debug()
         self._read_config()
@@ -274,6 +276,7 @@ No changes will be made to your system.
         self._set_tunables()
         self._check_for_unknown_plugins()
         self._set_plugin_options()
+
 
     def print_header(self):
         print "\n%s\n" % _("sosreport (version %s)" % (__version__,))
@@ -467,6 +470,11 @@ No changes will be made to your system.
                 for plugin_class in plugin_classes:
                     if not self.policy.validatePlugin(plugin_class):
                         self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
+                        self._skip(plugin_class)
+                        continue
+
+                    if plugin_class.requires_root and not self._is_root:
+                        self.soslog.warning(_("plugin %s requires root permissions to execute, skipping") % plug)
                         self._skip(plugin_class)
                         continue
 
@@ -817,11 +825,6 @@ No changes will be made to your system.
         # Close all log files and perform any cleanup
         logging.shutdown()
 
-    def ensure_root(self):
-        if os.getuid() != 0:
-            print _("sosreport requires root permissions to run.")
-            self._exit(1)
-
     def ensure_plugins(self):
         if not self.loaded_plugins:
             self.soslog.error(_("no valid plugins were enabled"))
@@ -834,7 +837,6 @@ def main(args):
     if sos.opts.listPlugins:
         sos.list_plugins()
 
-    sos.ensure_root()
     sos.ensure_plugins()
     sos.batch()
 
