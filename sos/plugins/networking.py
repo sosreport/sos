@@ -30,7 +30,7 @@ class networking(sos.plugintools.PluginBase):
         for line in fp.readlines():
             if line.startswith("bridge name") or line.isspace():
                 continue
-            brName, brId, brStp, brInt = line.split()
+            brName, brRest = line.split(None, 1)
             out.append(brName)
         fp.close()
         return out
