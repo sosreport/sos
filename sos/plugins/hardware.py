@@ -13,6 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
 class hardware(sos.plugintools.PluginBase):
     """hardware related information
@@ -44,9 +45,14 @@ class hardware(sos.plugintools.PluginBase):
         if self.policy().getArch().endswith("386"):
             self.collectExtOutput("/usr/sbin/x86info -a")
 
-        self.collectExtOutput("/usr/sbin/lsusb")
-        self.collectExtOutput("/usr/sbin/lsusb -v")
-        self.collectExtOutput("/usr/sbin/lsusb -t 2>&1", suggest_filename = "lsusb_-t")
+        if os.path.exists("/usr/bin/lsusb"):
+            self.collectExtOutput("/usr/bin/lsusb")
+            self.collectExtOutput("/usr/bin/lsusb -v")
+            self.collectExtOutput("/usr/bin/lsusb -t 2>&1", suggest_filename = "lsusb_-t")
+        elif os.path.exists("/sbin/lsusb"):
+            self.collectExtOutput("/sbin/lsusb")
+            self.collectExtOutput("/sbin/lsusb -v")
+            self.collectExtOutput("/sbin/lsusb -t 2>&1", suggest_filename = "lsusb_-t")
         self.collectExtOutput("/usr/bin/lshal")
         self.collectExtOutput("/usr/bin/systool -c fc_host -v")
         self.collectExtOutput("/usr/bin/systool -c scsi_host -v")
