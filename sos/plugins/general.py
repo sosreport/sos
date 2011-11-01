@@ -58,6 +58,7 @@ class general(sos.plugintools.PluginBase):
                 self.addCopySpec("/etc/pki/entitlement/*.pem")
                 self.addCopySpec("/etc/rhsm/")
                 self.addForbiddenPath("/etc/pki/entitlement/key.pem")
+                self.addForbiddenPath("/etc/pki/entitlement/*-key.pem")
 
         if self.getOption('all_logs'):
             if rhelver == 5 or rhelver == 4:
