@@ -12,10 +12,15 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import os.path
 import sos.plugintools
 
 class gluster(sos.plugintools.PluginBase):
     '''gluster related information'''
 
+    def checkenabled(self):
+        return os.path.exists("/etc/glusterd")
+
     def setup(self):
-        self.addCopySpecs(["/etc/glusterd/", "/var/log/glusterfs/"])
+        self.addCopySpec("/etc/glusterd/")
+        self.addCopySpec("/var/log/glusterfs/")
