@@ -22,5 +22,6 @@ class gluster(sos.plugintools.PluginBase):
         return os.path.exists("/etc/glusterd")
 
     def setup(self):
-        self.addCopySpec("/etc/glusterd/")
-        self.addCopySpec("/var/log/glusterfs/")
+        self.addForbiddenPath("/etc/glusterd/geo-replication/secret.pem")
+        self.addCopySpec("/etc/glusterd")
+        self.addCopySpec("/var/log/glusterfs")
