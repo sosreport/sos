@@ -23,4 +23,4 @@ class logrotate(sos.plugintools.PluginBase):
                               suggest_filename = "logrotate_debug")
         self.addCopySpecs([
             "/etc/logrotate*",
-            "/var/lig/logrotate.status"])
+            "/var/lib/logrotate.status"])
