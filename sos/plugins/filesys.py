@@ -12,12 +12,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os
 import re
 from itertools import *
 
-class filesys(sos.plugintools.PluginBase):
+class filesys(Plugin, RedHatPlugin):
     """information on filesystems
     """
     optionList = [("lsof", 'gathers information on all open files', 'slow', False)]
@@ -33,14 +33,14 @@ class filesys(sos.plugintools.PluginBase):
             "/etc/raidtab",
             "/etc/mdadm.conf"])
         mounts = self.collectOutputNow("/bin/mount -l", root_symlink = "mount")
-        
+
         self.collectExtOutput("/bin/findmnt")
         self.collectExtOutput("/bin/df -al", root_symlink = "df")
         self.collectExtOutput("/bin/df -ali")
         if self.getOption('lsof'):
             self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
         self.collectExtOutput("/sbin/blkid -c /dev/null")
-        
+
         part_titlep = re.compile("^major")
         blankp = re.compile("^$")
         partlist = []
@@ -68,7 +68,7 @@ class filesys(sos.plugintools.PluginBase):
                 if bool(part_in_disk.match(dev)):
                     devlist.append(dev)
 
-        for i in devlist: 
+        for i in devlist:
             self.collectExtOutput("/sbin/parted -s %s print" % (i))
 
         if self.getOption('dumpe2fs'):

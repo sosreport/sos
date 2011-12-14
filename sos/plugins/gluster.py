@@ -13,9 +13,9 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os.path
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class gluster(sos.plugintools.PluginBase):
+class gluster(Plugin, RedHatPlugin):
     '''gluster related information'''
 
     def checkenabled(self):

@@ -12,16 +12,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class startup(sos.plugintools.PluginBase):
+class startup(Plugin, RedHatPlugin):
     """startup information
     """
 
     optionList = [("servicestatus", "get a status of all running services", "slow", False)]
     def setup(self):
         self.addCopySpec("/etc/rc.d")
-        
+
         self.collectExtOutput("LC_ALL=C /sbin/chkconfig --list", root_symlink = "chkconfig")
         if self.getOption('servicestatus'):
             self.collectExtOutput("/sbin/service --status-all")

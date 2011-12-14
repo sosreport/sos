@@ -16,11 +16,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 from glob import glob
 
-class cs(sos.plugintools.PluginBase):
+class cs(Plugin, RedHatPlugin):
     """Red Hat Certificate System 7.1, 7.3, 8.0 and dogtag related information
     """
 

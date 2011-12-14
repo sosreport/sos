@@ -12,9 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class hts(sos.plugintools.PluginBase):
+class hts(Plugin, RedHatPlugin):
     """Red Hat Hardware Test Suite related information
     """
     def setup(self):

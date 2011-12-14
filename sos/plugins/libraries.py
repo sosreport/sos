@@ -12,13 +12,13 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class libraries(sos.plugintools.PluginBase):
+class libraries(Plugin, RedHatPlugin):
     """information on shared libraries
     """
 
-    optionList = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.', 
+    optionList = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.',
                     "slow", False)]
 
     def setup(self):

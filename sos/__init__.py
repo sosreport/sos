@@ -15,13 +15,24 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import gettext
+__version__ = "@SOSVERSION@"
 
-gettext_dir = "/usr/share/locale"
-gettext_app = "sos"
+try:
+    from java.util import ResourceBundle
 
-gettext.bindtextdomain(gettext_app, gettext_dir)
+    rb = ResourceBundle.getBundle("sos.po.sos")
 
-__version__="@SOSVERSION@"
-def _sos(msg):
-    return gettext.dgettext(gettext_app, msg)
+    def _sos(msg):
+        try:
+            return rb.getString(msg).encode('utf-8')
+        except:
+            return msg
+except:
+    import gettext
+    gettext_dir = "/usr/share/locale"
+    gettext_app = "sos"
+
+    gettext.bindtextdomain(gettext_app, gettext_dir)
+
+    def _sos(msg):
+        return gettext.dgettext(gettext_app, msg)

@@ -13,10 +13,10 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import commands
 
-class general(sos.plugintools.PluginBase):
+class general(Plugin, RedHatPlugin):
     """basic system information
     """
 

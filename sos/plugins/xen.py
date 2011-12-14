@@ -12,12 +12,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os
 import re
 from stat import *
 
-class xen(sos.plugintools.PluginBase):
+class xen(Plugin, RedHatPlugin):
     """Xen related information
     """
     def determineXenHost(self):
@@ -79,7 +79,7 @@ class xen(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/sbin/xm list --long")
             self.collectExtOutput("/usr/sbin/brctl show")
             self.domCollectProc()
-            if self.is_running_xenstored(): 
+            if self.is_running_xenstored():
                 self.addCopySpec("/sys/hypervisor/uuid")
                 self.collectExtOutput("/usr/bin/xenstore-ls")
             else:

@@ -12,10 +12,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 
-class pxe(sos.plugintools.PluginBase):
+class pxe(Plugin, RedHatPlugin):
     """PXE related information
     """
 
@@ -23,7 +23,7 @@ class pxe(sos.plugintools.PluginBase):
 
     def checkenabled(self):
         return self.isInstalled("system-config-netboot-cmd") or exists("/usr/sbin/pxeos")
-        
+
     def setup(self):
         self.collectExtOutput("/usr/sbin/pxeos -l")
         self.addCopySpec("/etc/dhcpd.conf")

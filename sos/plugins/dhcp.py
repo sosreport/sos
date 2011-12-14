@@ -12,16 +12,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class dhcp(sos.plugintools.PluginBase):
+class dhcp(Plugin, RedHatPlugin):
     """DHCP related information
     """
     def checkenabled(self):
         self.files = ['/etc/rc.d/init.d/dhcpd']
         self.packages = ['dhcp']
-        return sos.plugintools.PluginBase.checkenabled(self)
-        
+        return Plugin.checkenabled(self)
+
     def setup(self):
         self.addCopySpecs([
             "/etc/dhcpd.conf",

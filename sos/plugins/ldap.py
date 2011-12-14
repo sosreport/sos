@@ -12,16 +12,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class ldap(sos.plugintools.PluginBase):
+class ldap(Plugin, RedHatPlugin):
     """LDAP related information
     """
     def checkenabled(self):
         self.packages = [ "openldap" ]
         self.files = [ "/etc/openldap/ldap.conf" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return Plugin.checkenabled(self)
 
     def get_ldap_opts(self):
         # capture /etc/openldap/ldap.conf options in dict
