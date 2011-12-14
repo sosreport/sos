@@ -12,18 +12,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
-import os, re
-import time, libxml2
+from sos.plugins import Plugin, RedHatPlugin
 
-class corosync(sos.plugintools.PluginBase):
+class corosync(Plugin, RedHatPlugin):
     """ corosync information
     """
 
     def checkenabled(self):
         self.files = ['/usr/sbin/corosync']
         self.packages = ['corosync']
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return Plugin.checkenabled(self)
 
     def setup(self):
         self.addCopySpecs([

@@ -14,10 +14,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 
-class snmp(sos.plugintools.PluginBase):
+class snmp(Plugin, RedHatPlugin):
     """snmp related information
     """
     def checkenabled(self):

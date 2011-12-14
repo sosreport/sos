@@ -12,10 +12,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class veritas(sos.plugintools.PluginBase):
+class veritas(Plugin, RedHatPlugin):
     """Veritas related information
     """
     # Information about VRTSexplorer obtained from
@@ -24,7 +24,7 @@ class veritas(sos.plugintools.PluginBase):
 
     def checkenabled(self):
         return os.path.isfile(self.getOption("script"))
- 
+
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
         stat, out, runtime = self.callExtProg(self.getOption("script"))

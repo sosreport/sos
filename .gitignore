@@ -1,0 +1,9 @@
+*~
+*.class
+*swp*
+*.pyc
+*.sw*
+tags
+buildjar/
+gpgkeys/rhsupport.*
+rpm-build/*

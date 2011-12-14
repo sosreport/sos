@@ -12,10 +12,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 
-class anaconda(sos.plugintools.PluginBase):
+class anaconda(Plugin, RedHatPlugin):
     """Anaconda / Installation information
     """
     def checkenabled(self):

@@ -14,11 +14,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os
 from stat import ST_SIZE
 
-class nfsserver(sos.plugintools.PluginBase):
+class nfsserver(Plugin, RedHatPlugin):
     """NFS server-related information
     """
     def checkenabled(self):

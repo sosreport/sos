@@ -12,13 +12,13 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class apache(sos.plugintools.PluginBase):
+class apache(Plugin, RedHatPlugin):
     """Apache related information
     """
     optionList = [("log", "gathers all apache logs", "slow", False)]
-    
+
     def setup(self):
         self.addCopySpecs([
             "/etc/httpd/conf/httpd.conf",

@@ -13,10 +13,10 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class lsbrelease(sos.plugintools.PluginBase):
+class lsbrelease(Plugin, RedHatPlugin):
     """Linux Standard Base information
     """
     def diagnose(self):

@@ -12,12 +12,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class logrotate(sos.plugintools.PluginBase):
+class logrotate(Plugin, RedHatPlugin):
     """logrotate configuration files and debug info
     """
-    
+
     def setup(self):
         self.collectExtOutput("/usr/sbin/logrotate --debug /etc/logrotate.conf",
                               suggest_filename = "logrotate_debug")

@@ -12,11 +12,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os, re
 from glob import glob
 
-class cluster(sos.plugintools.PluginBase):
+class cluster(Plugin, RedHatPlugin):
     """cluster suite and GFS related information
     """
 
@@ -26,7 +26,7 @@ class cluster(sos.plugintools.PluginBase):
     def checkenabled(self):
         rhelver = self.policy().rhelVersion()
         if rhelver == 4:
-            self.packages = [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins", 
+            self.packages = [ "ccs", "cman", "cman-kernel", "magma", "magma-plugins",
                               "rgmanager", "fence", "dlm", "dlm-kernel", "gulm",
                               "GFS", "GFS-kernel", "lvm2-cluster" ]
         elif rhelver == 5:
@@ -38,7 +38,7 @@ class cluster(sos.plugintools.PluginBase):
                               "cman", "clusterlib", "fence-agents" ]
 
         self.files = [ "/etc/cluster/cluster.conf" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+        return Plugin.checkenabled(self)
 
     def setup(self):
         rhelver = self.policy().rhelVersion()
@@ -76,10 +76,10 @@ class cluster(sos.plugintools.PluginBase):
         if rhelver is 4:
           self.addCopySpec("/proc/cluster/*")
           self.collectExtOutput("cman_tool nodes")
-          
+
         if rhelver is not 4: # 5+
           self.collectExtOutput("cman_tool -a nodes")
-        
+
         if rhelver is 5:
           self.collectExtOutput("group_tool -v")
           self.collectExtOutput("group_tool dump fence")

@@ -12,10 +12,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 
-class mysql(sos.plugintools.PluginBase):
+class mysql(Plugin, RedHatPlugin):
     """MySQL related information
     """
 
@@ -23,7 +23,7 @@ class mysql(sos.plugintools.PluginBase):
         return self.isInstalled("mysql-server") or \
                exists("/etc/my.cnf") or \
                self.isInstalled("mysql")
- 
+
     def setup(self):
         self.addCopySpecs([
             "/etc/my.cnf",
