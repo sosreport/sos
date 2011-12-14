@@ -14,17 +14,17 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os, re
 
-class autofs(sos.plugintools.PluginBase):
+class autofs(Plugin, RedHatPlugin):
     """autofs server-related information
     """
     def checkenabled(self):
         self.packages = [ "autofs" ]
         self.files = [ "/etc/sysconfig/autofs" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
-    
+        return Plugin.checkenabled(self)
+
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere
         """
@@ -35,14 +35,14 @@ class autofs(sos.plugintools.PluginBase):
                 if opt2 in ("--debug", "debug"):
                     return True
         return False
-    
+
     def getdaemondebug(self):
         """ capture daemon debug output
         """
         debugout = self.fileGrep(r"^(daemon.*)\s+(\/var\/log\/.*)", "/etc/sysconfig/autofs")
         for i in debugout:
             return i[1]
-    
+
     def setup(self):
         self.addCopySpec("/etc/auto*")
         self.collectExtOutput("/bin/rpm -qV autofs")

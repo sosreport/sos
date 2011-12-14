@@ -12,13 +12,13 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 
-class tomcat(sos.plugintools.PluginBase):
+class tomcat(Plugin, RedHatPlugin):
     """Tomcat related information
     """
     def checkenabled(self):
         return self.isInstalled("tomcat5")
- 
+
     def setup(self):
         self.addCopySpecs(["/etc/tomcat5", "/var/log/tomcat5"])

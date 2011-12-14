@@ -12,19 +12,19 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import commands
 from os.path import normpath, join, exists
 
-class named(sos.plugintools.PluginBase):
+class named(Plugin, RedHatPlugin):
     """named related information
     """
     def checkenabled(self):
         self.files = [ "/etc/named.conf",
                        "/etc/sysconfig/named" ]
         self.packages = [ "bind" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
-       
+        return Plugin.checkenabled(self)
+
     def getDnsDir(self, configFile):
         """ grab directory path from named{conf,boot}
         """

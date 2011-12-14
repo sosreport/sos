@@ -12,8 +12,8 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
-class libvirt(sos.plugintools.PluginBase):
+from sos.plugins import Plugin, RedHatPlugin
+class libvirt(Plugin, RedHatPlugin):
     """libvirt-related information
     """
     def setup(self):

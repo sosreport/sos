@@ -15,10 +15,10 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class kvm(sos.plugintools.PluginBase):
+class kvm(Plugin, RedHatPlugin):
     """KVM related information
     """
 

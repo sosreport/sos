@@ -9,6 +9,10 @@ REPO = http://svn.fedorahosted.org/svn/sos
 
 SUBDIRS = po sos sos/plugins
 PYFILES = $(wildcard *.py)
+# OS X via brew
+# MSGCAT = /usr/local/Cellar/gettext/0.18.1.1/bin/msgcat
+MSGCAT = msgcat
+
 
 RPM_BUILD_DIR = rpm-build
 RPM_DEFINES = --define "_topdir %(pwd)/$(RPM_BUILD_DIR)" \
@@ -19,6 +23,12 @@ RPM_DEFINES = --define "_topdir %(pwd)/$(RPM_BUILD_DIR)" \
 	--define "_sourcedir %{_topdir}"
 RPM = rpmbuild
 RPM_WITH_DIRS = $(RPM) $(RPM_DEFINES)
+ARCHIVE_DIR = $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
+
+ARCHIVE_NAME = sosreport.zip
+SRC_BUILD = $(RPM_BUILD_DIR)/sdist
+PO_DIR = $(SRC_BUILD)/sos/po
+ZIP_DEST = $(SRC_BUILD)/$(ARCHIVE_NAME)
 
 build:
 	for d in $(SUBDIRS); do make -C $$d; [ $$? = 0 ] || exit 1 ; done
@@ -37,14 +47,14 @@ install:
 	install -m644 LICENSE README TODO $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
-	sed 's/@SOSVERSION@/$(VERSION)/g'<sos/__init__.py.in >sos/__init__.py
+	sed 's/@SOSVERSION@/$(VERSION)/g' < sos/__init__.py > sos/__init__.py
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
-	@mkdir -p $(RPM_BUILD_DIR)
-	@svn export --force $(PWD) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
-	@mkdir -p $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys
-	@cp gpgkeys/rhsupport.pub $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys/.
+	@mkdir -p $(ARCHIVE_DIR)
+	@tar -cv sosreport sos doc man po sos.conf TODO LICENSE README sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
+	@mkdir -p $(ARCHIVE_DIR)/gpgkeys
+	@cp gpgkeys/rhsupport.pub $(ARCHIVE_DIR)/gpgkeys/.
 	@tar Ccvzf $(RPM_BUILD_DIR) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
 
 clean:
@@ -65,3 +75,27 @@ gpgkey:
 	@echo "Building gpg key"
 	@test -f gpgkeys/rhsupport.pub && echo "GPG key already exists." || \
 	gpg --batch --gen-key gpgkeys/gpg.template
+
+po: clean
+	mkdir -p $(PO_DIR)
+	for po in `ls po/*.po`; do \
+		$(MSGCAT) -p -o $(PO_DIR)/$$(basename $$po | awk -F. '{print $$1}').properties $$po; \
+	done; \
+
+	cp $(PO_DIR)/en.properties $(PO_DIR)/en_US.properties
+
+eap6: po
+	cp -r sos/* $(SRC_BUILD)/sos/
+	find $(SRC_BUILD)/sos/plugins/ -not -name "*eap6.py" -not -name "*__init__.py" -type f -delete
+
+zip: po
+	zip -r $(ZIP_DEST) sos
+	zip -r $(ZIP_DEST) __run__.py
+	cd $(SRC_BUILD) && zip -r $(ARCHIVE_NAME) sos
+	cd $(SRC_BUILD) && rm -rf sos
+
+test:
+	@for test in `ls tests/*test*.py`; do \
+		echo $$test; \
+		PYTHONPATH=`pwd` python $$test; \
+	done; \
