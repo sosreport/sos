@@ -2,6 +2,7 @@ import os
 import re
 import zipfile
 import urllib2
+import tempfile
 
 try:
     import json
@@ -281,6 +282,23 @@ class AS7(Plugin, IndependentPlugin):
                     self.addCopySpecLimit(logFile,
                             self.getOption("logsize"),
                             sub=(self.__jbossHome, 'JBOSSHOME'))
+
+                for deployment in find("*", os.path.join(path, "deployments")):
+                    self._get_tree_from_deployment(deployment)
+
+
+    def _get_tree_from_deployment(self, path):
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            zf = zipfile.ZipFile(path)
+            zf.extractall(path=tmp_dir)
+            zf.close()
+            tree = DirTree(tmp_dir).as_string()
+            self.addStringAsFile(tree, "%s.tree.txt" % os.path.basename(path))
+        except zipfile.BadZipfile:
+            pass
+        os.rmdir(tmp_dir)
+
 
     def setup(self):
 
