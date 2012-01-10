@@ -34,7 +34,7 @@ class Request(object):
             yield (parts.pop(0), parts.pop(0))
 
 
-class EAP6(Plugin, IndependentPlugin):
+class AS7(Plugin, IndependentPlugin):
     """JBoss related information
     """
 
@@ -282,12 +282,6 @@ class EAP6(Plugin, IndependentPlugin):
                             self.getOption("logsize"),
                             sub=(self.__jbossHome, 'JBOSSHOME'))
 
-                ## Deploy dir
-                deployDir = os.path.join(path, "deployments")
-
-                for deployFile in find("*", deployDir, max_depth=1):
-                    self.addCopySpec(deployFile, sub=(self.__jbossHome, 'JBOSSHOME'))
-
     def setup(self):
 
         ## We need to know where JBoss is installed and if we can't find it we
@@ -310,7 +304,6 @@ class EAP6(Plugin, IndependentPlugin):
 
         self.__getFiles(self.__jbossServerConfigDirs)
 
-    # FIXME: this is still not right, tweak the search paths to pick up the right files
     def postproc(self):
         """
         Obfuscate passwords.

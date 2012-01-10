@@ -25,7 +25,7 @@ def load(cache={}):
             if policy.check():
                 cache['policy'] = policy()
                 return policy()
-    raise Exception("No policy could be loaded.")
+    return GenericPolicy()
 
 
 class PackageManager(object):
@@ -133,6 +133,7 @@ No changes will be made to your system.
     def _parse_uname(self):
         (system, node, release,
          version, machine, processor) = platform.uname()
+        self.system = system
         self.hostname = node
         self.release = release
         self.smp = version.split()[1] == "SMP"
@@ -274,3 +275,11 @@ No changes will be made to your system.
         text will be substituted accordingly. You can also override this
         method to do something more complicated."""
         return self.msg % {'distro': self.distro}
+
+
+class GenericPolicy(Policy):
+    """This Policy will be returned if no other policy can be loaded. This
+    should allow for IndependentPlugins to be executed on any system"""
+
+    def get_msg(self):
+        return self.msg % {'distro': self.system}
