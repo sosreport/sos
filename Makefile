@@ -82,8 +82,8 @@ po: clean
 		$(MSGCAT) -p -o $(PO_DIR)/sos_$$(basename $$po | awk -F. '{print $$1}').properties $$po; \
 	done; \
 
-	cp $(PO_DIR)/en.properties $(PO_DIR)/en_US.properties
-	cp $(PO_DIR)/en.properties $(PO_DIR)/sos.properties
+	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos_en_US.properties
+	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos.properties
 
 as7: po
 	cp -r sos/* $(SRC_BUILD)/sos/
