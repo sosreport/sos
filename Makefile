@@ -84,9 +84,9 @@ po: clean
 
 	cp $(PO_DIR)/en.properties $(PO_DIR)/en_US.properties
 
-eap6: po
+as7: po
 	cp -r sos/* $(SRC_BUILD)/sos/
-	find $(SRC_BUILD)/sos/plugins/ -not -name "*eap6.py" -not -name "*__init__.py" -type f -delete
+	find $(SRC_BUILD)/sos/plugins/ -not -name "*as7.py" -not -name "*__init__.py" -type f -delete
 
 zip: po
 	zip -r $(ZIP_DEST) sos
