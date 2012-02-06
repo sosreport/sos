@@ -79,14 +79,15 @@ gpgkey:
 po: clean
 	mkdir -p $(PO_DIR)
 	for po in `ls po/*.po`; do \
-		$(MSGCAT) -p -o $(PO_DIR)/$$(basename $$po | awk -F. '{print $$1}').properties $$po; \
+		$(MSGCAT) -p -o $(PO_DIR)/sos_$$(basename $$po | awk -F. '{print $$1}').properties $$po; \
 	done; \
 
-	cp $(PO_DIR)/en.properties $(PO_DIR)/en_US.properties
+	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos_en_US.properties
+	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos.properties
 
-eap6: po
+as7: po
 	cp -r sos/* $(SRC_BUILD)/sos/
-	find $(SRC_BUILD)/sos/plugins/ -not -name "*eap6.py" -not -name "*__init__.py" -type f -delete
+	find $(SRC_BUILD)/sos/plugins/ -not -name "*as7.py" -not -name "*__init__.py" -type f -delete
 
 zip: po
 	zip -r $(ZIP_DEST) sos
