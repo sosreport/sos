@@ -1,1 +1,7 @@
-# ubuntu packging for sosreport
+#!/usr/bin/make -f
+
+
+
+%:
+	dh $@
+	

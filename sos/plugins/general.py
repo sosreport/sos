@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import commands
 
 class general(Plugin, RedHatPlugin):
@@ -63,3 +63,17 @@ class general(Plugin, RedHatPlugin):
 
     def postproc(self):
         self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
+        
+class generalUbuntu(Plugin, UbuntuPlugin):
+    """Basic system information for Ubuntu based distributions"""    
+    def setup(self):
+        self.addCopySpecs([
+                "/etc/lsb-release",
+        ])
+        
+class generalDebian(Plugin, DebianPlugin):
+    """Basic system information for Debian based distributions"""
+    def setup(self):
+        self.addCopySpecs([
+                "/etc/debian_version",
+        ])

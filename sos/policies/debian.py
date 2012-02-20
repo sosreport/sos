@@ -1,10 +1,12 @@
-from sos.plugins import UbuntuPlugin, IndependentPlugin
+from sos.plugins import DebianPlugin, IndependentPlugin
 from sos.policies import PackageManager, Policy
 from sos.utilities import shell_out
 
 import os
+import sys
+import re
 
-class UbuntuPackageManager(PackageManager):
+class DebianPackageManager(PackageManager):
 
     def _get_deb_list(self):
         pkg_list = shell_out(["dpkg-query",
@@ -33,9 +35,9 @@ class UbuntuPackageManager(PackageManager):
             return None
 
     def allPkgs(self):
-        if not self._rpms:
-            self._rpms = self._get_deb_list()
-        return self._rpms
+        if not self._debs:
+            self._debs = self._get_deb_list()
+        return self._debs
 
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
@@ -43,29 +45,23 @@ class UbuntuPackageManager(PackageManager):
         name = "-".join(fields[:-3])
         return (name, version, release, arch)
         
-class UbuntuPolicy(Policy):
+class DebianPolicy(Policy):
     def __init__(self):
-        super(UbuntuPolicy, self).__init__()
+        super(DebianPolicy, self).__init__()
         self.reportName = ""
         self.ticketNumber = ""
-        self.package_manager = UbuntuPackageManager()
+        self.package_manager = DebianPackageManager()
 
     def validatePlugin(self, plugin_class):
         "Checks that the plugin will execute given the environment"
-        return issubclass(plugin_class, UbuntuPlugin) or issubclass(plugin_class, IndependentPlugin)
+        return issubclass(plugin_class, DebianPlugin) or issubclass(plugin_class, IndependentPlugin)
 
     @classmethod
     def check(self):
-        """This method checks to see if we are running on Ubuntu.
+        """This method checks to see if we are running on Debian.
            It returns True or False."""
-        if os.path.isfile('/etc/lsb-release'):
-            try:
-                fp = open('/etc/lsb-release', 'r')
-                if "Ubuntu" in fp.read():
-                    fp.close()
-                    return True
-            except:
-                return False
+        if os.path.isfile('/etc/debian_version'):
+            return True
         return False
 
     def preferedArchive(self):
@@ -124,7 +120,7 @@ class UbuntuPolicy(Policy):
     def hostName(self):
         return self.hostname
 
-    def ubuntuVersion(self):
+    def debianVersion(self):
         #try:
         #    pkg = self.pkgByName("redhat-release") or \
         #    self.allPkgsByNameRegex("redhat-release-.*")[-1]
@@ -138,6 +134,7 @@ class UbuntuPolicy(Policy):
         #except:
         #    pass
         #return False
+        # read /etc/debian_version
         pass
 
     def isKernelSMP(self):
@@ -149,8 +146,7 @@ class UbuntuPolicy(Policy):
     def preWork(self):
         # this method will be called before the gathering begins
 
-        localname = self.rhnUsername()
-        if len(localname) == 0: localname = self.hostName()
+        localname = self.hostName()
 
         if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].silent:
             try:
@@ -181,5 +177,5 @@ class UbuntuPolicy(Policy):
         self._print(_("Creating compressed archive..."))
 
     def get_msg(self):
-        msg_dict = {"distro": "Ubuntu"}
+        msg_dict = {"distro": "Debian"}
         return self.msg % msg_dict

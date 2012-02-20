@@ -5,7 +5,7 @@
 NAME	= sos
 VERSION = $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
 RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
-REPO = http://svn.fedorahosted.org/svn/sos
+REPO = http://github.com/sosreport
 
 SUBDIRS = po sos sos/plugins
 PYFILES = $(wildcard *.py)
