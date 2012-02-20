@@ -75,5 +75,28 @@ class generalDebian(Plugin, DebianPlugin):
     """Basic system information for Debian based distributions"""
     def setup(self):
         self.addCopySpecs([
-                "/etc/debian_version",
-        ])
+            "/etc/debian_version",
+            "/etc/init",    # upstart
+            "/etc/event.d", # "
+            "/etc/inittab",
+            "/etc/sos.conf",
+            "/etc/sysconfig",
+            "/proc/stat",
+            "/var/log/dmesg",
+            "/var/log/sa",
+            "/var/log/pm/suspend.log",
+            "/var/log/up2date",
+            "/etc/hostid",
+            "/var/lib/dbus/machine-id",
+            "/etc/exports",
+            "/root/anaconda-ks.cfg"])
+        self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
+        self.addCopySpecLimit("/var/log/messages*", sizelimit = self.getOption("syslogsize"))
+        self.addCopySpecLimit("/var/log/secure*", sizelimit = self.getOption("syslogsize"))
+        self.collectExtOutput("/usr/bin/hostid")
+        self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
+        self.collectExtOutput("/bin/date", root_symlink = "date")
+        self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
+        self.collectExtOutput("/bin/dmesg")
+        self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
+        self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")

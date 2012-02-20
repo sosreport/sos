@@ -1,3 +1,4 @@
+from sos import _sos as _
 from sos.plugins import UbuntuPlugin, IndependentPlugin
 from sos.policies import PackageManager, Policy
 from sos.utilities import shell_out
