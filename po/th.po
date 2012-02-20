@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.th\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-15 15:02+0000\n"
+"POT-Creation-Date: 2012-02-20 17:31+0000\n"
 "PO-Revision-Date: 2009-05-13 12:12+0000\n"
 "Last-Translator: \n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
@@ -18,179 +18,169 @@ msgstr ""
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: ../sos/sosreport.py:350
-msgid "Could not create temporary directory."
-msgstr "ไม่สามารถสร้างไดเรคทอรีชั่วคราว"
-
-#: ../sos/sosreport.py:413
+#: ../sos/sosreport.py:224
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (รุ่น %s)"
 
-#: ../sos/sosreport.py:438
+#: ../sos/sosreport.py:431
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "ส่วนขยาย %s ไม่ถูกต้อง จะข้ามไป"
 
-#: ../sos/sosreport.py:467
-#, python-format
-msgid "plugin %s does not install, skipping"
+#: ../sos/sosreport.py:432
+#, fuzzy
+msgid "does not validate"
+msgstr "ส่วนขยาย %s ไม่ถูกต้อง จะข้ามไป"
+
+#: ../sos/sosreport.py:436
+#, fuzzy, python-format
+msgid "plugin %s requires root permissions to execute, skipping"
+msgstr "sosreport ต้องใช้สิทธิ root ในการทำงาน"
+
+#: ../sos/sosreport.py:437
+msgid "requires root"
+msgstr ""
+
+#: ../sos/sosreport.py:448
+msgid "inactive"
+msgstr ""
+
+#: ../sos/sosreport.py:453
+#, fuzzy, python-format
+msgid "plugin %s does not install, skipping: %s"
 msgstr "ส่วนขยาย %s ติดตั้งไม่ได้ จะข้ามไป"
 
-#: ../sos/sosreport.py:563
+#: ../sos/sosreport.py:534
 msgid "no valid plugins found"
 msgstr "ไม่พบส่วนขยายที่ถูกต้อง"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:538
 msgid "The following plugins are currently enabled:"
 msgstr "ส่วนขยายต่อไปนี้เปิดใช้งานอยู่"
 
-#: ../sos/sosreport.py:573
+#: ../sos/sosreport.py:543
 msgid "No plugin enabled."
 msgstr "ไม่มีส่วนขยายเปิดใช้งาน"
 
-#: ../sos/sosreport.py:577
+#: ../sos/sosreport.py:547
 msgid "The following plugins are currently disabled:"
 msgstr "ส่วนขยายต่อไปนี้ปิดการใช้งานอยู่:"
 
-#: ../sos/sosreport.py:585
+#: ../sos/sosreport.py:556
 msgid "The following plugin options are available:"
 msgstr "มีตัวเลือกเหล่านี้จากส่วนขยาย:"
 
-#: ../sos/sosreport.py:606
+#: ../sos/sosreport.py:571
 msgid "No plugin options available."
 msgstr "ไม่มีตัวเลือกจากส่วนขยาย"
 
-#: ../sos/sosreport.py:614
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport ต้องใช้สิทธิ root ในการทำงาน"
-
-#: ../sos/sosreport.py:621
-msgid "no valid plugins were enabled"
-msgstr "ไม่มีส่วนขยายที่ถูกต้องเปิดใช้งาน"
-
-#: ../sos/sosreport.py:624
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"เครื่องมือนี้จะเก็บข้อมูลโดยละเอียดเกี่ยวกับฮาร์ดแวร์และการตั้งค่า\n"
-"ระบบ Red Hat Enterprise Linux ของคุณ ข้อมูลจะถูกเก็บและ\n"
-"สร้างเป็นไฟล์ที่ /tmp ซึ่งคุณสามารถส่งไปยังผู้สนับสนุนได้\n"
-"Red Hat จะใช้ข้อมูลนี้ในการแก้ไขปัญหาเท่านั้น และจะถือว่าเป็น\n"
-"ความลับ\n"
-"\n"
-"กระบวนการนี้อาจจะใช้เวลาสักครู่ในการทำงาน จะไม่มีการแก้ไข\n"
-"ดัดแปลงระบบของคุณ\n"
-
-#: ../sos/sosreport.py:639
+#: ../sos/sosreport.py:580
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "กด ENTER เพื่อทำงานต่อ หรือ CTRL+C เพื่อออก\n"
 
-#: ../sos/sosreport.py:665
+#: ../sos/sosreport.py:603
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "มีส่วนขยายตัวใดตัวหนึ่งตรวจพบปัญหาในการตั้งค่าของคุณ"
 
-#: ../sos/sosreport.py:667
+#: ../sos/sosreport.py:605
 msgid "Please review the following messages:"
 msgstr "กรุณาอ่านข้อความเหล่านี้:"
 
-#: ../sos/sosreport.py:683
+#: ../sos/sosreport.py:621
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "คุณต้องการทำต่อไปหรือไม่ (y/n)?"
 
-#: ../sos/sosreport.py:685
+#: ../sos/sosreport.py:623
 msgid "y"
 msgstr "y"
 
-#: ../sos/sosreport.py:685
+#: ../sos/sosreport.py:623
 msgid "Y"
 msgstr "Y"
 
-#: ../sos/sosreport.py:688
+#: ../sos/sosreport.py:626
 msgid "n"
 msgstr "n"
 
-#: ../sos/sosreport.py:688
+#: ../sos/sosreport.py:626
 msgid "N"
 msgstr "N"
 
-#: ../sos/sosreport.py:713
-msgid "  Running plugins. Please wait ..."
+#: ../sos/sosreport.py:819
+msgid "no valid plugins were enabled"
+msgstr "ไม่มีส่วนขยายที่ถูกต้องเปิดใช้งาน"
+
+#: ../sos/sosreport.py:926
+msgid " Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/sosreport.py:827
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr ""
+#~ msgid "Could not create temporary directory."
+#~ msgstr "ไม่สามารถสร้างไดเรคทอรีชั่วคราว"
 
-#: ../sos/policyredhat.py:211
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "กรุณากรอกชื่อสกุล [%s]:"
+#, fuzzy
+#~ msgid ""
+#~ "This utility will collect some detailed  information about the\n"
+#~ "hardware and setup of your %(distroa)s system.\n"
+#~ "The information is collected and an archive is  packaged under\n"
+#~ "/tmp, which you can send to a support representative.\n"
+#~ "%(distrob)s will use this information for diagnostic purposes ONLY\n"
+#~ "and it will be considered confidential information.\n"
+#~ "\n"
+#~ "This process may take a while to complete.\n"
+#~ "No changes will be made to your system.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "เครื่องมือนี้จะเก็บข้อมูลโดยละเอียดเกี่ยวกับฮาร์ดแวร์และการตั้งค่า\n"
+#~ "ระบบ Red Hat Enterprise Linux ของคุณ ข้อมูลจะถูกเก็บและ\n"
+#~ "สร้างเป็นไฟล์ที่ /tmp ซึ่งคุณสามารถส่งไปยังผู้สนับสนุนได้\n"
+#~ "Red Hat จะใช้ข้อมูลนี้ในการแก้ไขปัญหาเท่านั้น และจะถือว่าเป็น\n"
+#~ "ความลับ\n"
+#~ "\n"
+#~ "กระบวนการนี้อาจจะใช้เวลาสักครู่ในการทำงาน จะไม่มีการแก้ไข\n"
+#~ "ดัดแปลงระบบของคุณ\n"
 
-#: ../sos/policyredhat.py:214
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "กรุณากรอกหมายเลขปัญหาที่จะสร้างรายงาน:"
+#~ msgid "Please enter your first initial and last name [%s]: "
+#~ msgstr "กรุณากรอกชื่อสกุล [%s]:"
 
-#: ../sos/policyredhat.py:254
-msgid "Creating compressed archive..."
-msgstr "กำลังสร้างไฟล์บีบอัด..."
+#~ msgid ""
+#~ "Please enter the case number that you are generating this report for: "
+#~ msgstr "กรุณากรอกหมายเลขปัญหาที่จะสร้างรายงาน:"
 
-#: ../sos/policyredhat.py:284
-msgid "Encrypting archive..."
-msgstr "กำลังเข้ารหัสไฟล์..."
+#~ msgid "Creating compressed archive..."
+#~ msgstr "กำลังสร้างไฟล์บีบอัด..."
 
-#: ../sos/policyredhat.py:304
-msgid "There was a problem encrypting your report."
-msgstr "มีปัญหาระหว่างการเข้ารหัสรายงาน"
+#~ msgid "Encrypting archive..."
+#~ msgstr "กำลังเข้ารหัสไฟล์..."
 
-#: ../sos/policyredhat.py:328
-#, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-"รายงาน sos ของคุณได้ถูกสร้างและบันทึกใน:\n"
-" %s"
+#~ msgid "There was a problem encrypting your report."
+#~ msgstr "มีปัญหาระหว่างการเข้ารหัสรายงาน"
 
-#: ../sos/policyredhat.py:331
-msgid "The md5sum is: "
-msgstr "md5sum คือ:"
+#~ msgid ""
+#~ "Your sosreport has been generated and saved in:\n"
+#~ "  %s"
+#~ msgstr ""
+#~ "รายงาน sos ของคุณได้ถูกสร้างและบันทึกใน:\n"
+#~ " %s"
 
-#: ../sos/policyredhat.py:333
-msgid "Please send this file to your support representative."
-msgstr "กรุณาส่งไฟล์นี้ไปยังตัวแทนผู้สนับสนุนของคุณ"
+#~ msgid "The md5sum is: "
+#~ msgstr "md5sum คือ:"
 
-#: ../sos/policyredhat.py:355
-msgid "No URL defined in config file."
-msgstr ""
+#~ msgid "Please send this file to your support representative."
+#~ msgstr "กรุณาส่งไฟล์นี้ไปยังตัวแทนผู้สนับสนุนของคุณ"
 
-#: ../sos/policyredhat.py:362
-msgid "Cannot upload to specified URL."
-msgstr "ไม่สามารถอัพโหลดไปยัง URL ที่ระบุ"
+#~ msgid "Cannot upload to specified URL."
+#~ msgstr "ไม่สามารถอัพโหลดไปยัง URL ที่ระบุ"
 
-#: ../sos/policyredhat.py:399
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "มีปัญหาในการอัพโหลดรายงานของคุณไปยังฝ่ายสนับสนุน Red Hat"
+#~ msgid "There was a problem uploading your report to Red Hat support."
+#~ msgstr "มีปัญหาในการอัพโหลดรายงานของคุณไปยังฝ่ายสนับสนุน Red Hat"
 
-#: ../sos/policyredhat.py:401
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "รายงานของคุณได้ถูกส่งไปยังเซิร์ฟเวอร์ ftp ของ Red Hat ในชื่อ:"
+#, fuzzy
+#~ msgid "Your report was successfully uploaded to %s with name:"
+#~ msgstr "รายงานของคุณได้ถูกส่งไปยังเซิร์ฟเวอร์ ftp ของ Red Hat ในชื่อ:"
 
-#: ../sos/policyredhat.py:404
-msgid "Please communicate this name to your support representative."
-msgstr "กรุณาบอกชื่อนี้กับตัวแทนผู้สนับสนุนของคุณ"
+#~ msgid "Please communicate this name to your support representative."
+#~ msgstr "กรุณาบอกชื่อนี้กับตัวแทนผู้สนับสนุนของคุณ"
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "ส่วนขยาย %s ถูกข้าม (--skip-plugins)"

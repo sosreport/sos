@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-15 15:02+0000\n"
+"POT-Creation-Date: 2012-02-20 17:31+0000\n"
 "PO-Revision-Date: 2010-03-28 01:03+0200\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
 "Language-Team: Finnish <laatu@lokalisointi.org>\n"
@@ -15,181 +15,176 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: ../sos/sosreport.py:350
-msgid "Could not create temporary directory."
-msgstr "Väliaikaista hakemistoa ei voitu luoda."
-
-#: ../sos/sosreport.py:413
+#: ../sos/sosreport.py:224
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (versio %s)"
 
-#: ../sos/sosreport.py:438
+#: ../sos/sosreport.py:431
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "liitännäinen %s on virheellinen, ohitetaan"
 
-#: ../sos/sosreport.py:467
-#, python-format
-msgid "plugin %s does not install, skipping"
+#: ../sos/sosreport.py:432
+#, fuzzy
+msgid "does not validate"
+msgstr "liitännäinen %s on virheellinen, ohitetaan"
+
+#: ../sos/sosreport.py:436
+#, fuzzy, python-format
+msgid "plugin %s requires root permissions to execute, skipping"
+msgstr "sosreportin käyttö vaatii root-oikeudet."
+
+#: ../sos/sosreport.py:437
+msgid "requires root"
+msgstr ""
+
+#: ../sos/sosreport.py:448
+msgid "inactive"
+msgstr ""
+
+#: ../sos/sosreport.py:453
+#, fuzzy, python-format
+msgid "plugin %s does not install, skipping: %s"
 msgstr "liitännäinen %s ei asennu, ohitetaan"
 
-#: ../sos/sosreport.py:563
+#: ../sos/sosreport.py:534
 msgid "no valid plugins found"
 msgstr "kelvollisia liitännäisiä ei löytynyt"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:538
 msgid "The following plugins are currently enabled:"
 msgstr "Seuraavat liitännäiset ovat tällä hetkellä käytössä:"
 
-#: ../sos/sosreport.py:573
+#: ../sos/sosreport.py:543
 msgid "No plugin enabled."
 msgstr "Yhtään liitännäistä ei ole käytössä."
 
-#: ../sos/sosreport.py:577
+#: ../sos/sosreport.py:547
 msgid "The following plugins are currently disabled:"
 msgstr "Seuraavat liitännäiset ovat tällä hetkellä poissa käytöstä:"
 
-#: ../sos/sosreport.py:585
+#: ../sos/sosreport.py:556
 msgid "The following plugin options are available:"
 msgstr "Seuraavat liitännäisen asetukset ovat käytettävissä:"
 
-#: ../sos/sosreport.py:606
+#: ../sos/sosreport.py:571
 msgid "No plugin options available."
 msgstr "Liitännäisellä ei ole asetuksia."
 
-#: ../sos/sosreport.py:614
-msgid "sosreport requires root permissions to run."
-msgstr "sosreportin käyttö vaatii root-oikeudet."
-
-#: ../sos/sosreport.py:621
-msgid "no valid plugins were enabled"
-msgstr "yhtään kelvollista liitännäistä ei ole otettu käyttöön"
-
-#: ../sos/sosreport.py:624
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"Tämä ohjelma kerää yksityiskohtaisia tietoja\n"
-"%(distroa)s -järjestelmän laitteistosta ja asetuksista.\n"
-"Tiedot kerätään arkistoon, joka tallennetaan /tmp-hakemistoon.\n"
-"Tämä arkisto voidaan lähettää käyttötukeen.\n"
-"%(distrob)s käyttää tätä tietoa vain vianetsintätarkoituksiin ja\n"
-"tietoa käsitellään luottamuksellisesti.\n"
-"\n"
-"Tämä toiminto voi kestää jonkin aikaa.\n"
-"Järjestelmään ei tehdä muutoksia.\n"
-"\n"
-
-#: ../sos/sosreport.py:639
+#: ../sos/sosreport.py:580
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "Paina ENTER jatkaaksesi, CTRL-C lopettaaksesi.\n"
 
-#: ../sos/sosreport.py:665
+#: ../sos/sosreport.py:603
 msgid "One or more plugins have detected a problem in your configuration."
 msgstr "Yksi tai useampi liitännäinen on huomannut ongelman järjestelmässä."
 
-#: ../sos/sosreport.py:667
+#: ../sos/sosreport.py:605
 msgid "Please review the following messages:"
 msgstr "Tarkista seuraavat viestit:"
 
-#: ../sos/sosreport.py:683
+#: ../sos/sosreport.py:621
 msgid "Are you sure you would like to continue (y/n) ? "
 msgstr "Haluatko jatkaa (k/e)?"
 
-#: ../sos/sosreport.py:685
+#: ../sos/sosreport.py:623
 msgid "y"
 msgstr "k"
 
-#: ../sos/sosreport.py:685
+#: ../sos/sosreport.py:623
 msgid "Y"
 msgstr "K"
 
-#: ../sos/sosreport.py:688
+#: ../sos/sosreport.py:626
 msgid "n"
 msgstr "e"
 
-#: ../sos/sosreport.py:688
+#: ../sos/sosreport.py:626
 msgid "N"
 msgstr "E"
 
-#: ../sos/sosreport.py:713
-msgid "  Running plugins. Please wait ..."
+#: ../sos/sosreport.py:819
+msgid "no valid plugins were enabled"
+msgstr "yhtään kelvollista liitännäistä ei ole otettu käyttöön"
+
+#: ../sos/sosreport.py:926
+#, fuzzy
+msgid " Running plugins. Please wait ..."
 msgstr "  Suoritetaan liitännäisiä. Odota..."
 
-#: ../sos/sosreport.py:827
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "  sosreport-käännöspuu on sijainnissa: %s"
+#~ msgid "Could not create temporary directory."
+#~ msgstr "Väliaikaista hakemistoa ei voitu luoda."
 
-#: ../sos/policyredhat.py:211
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "Syötä etunimesi ensimmäinen kirjain ja sukunimesi [%s]:"
+#~ msgid ""
+#~ "This utility will collect some detailed  information about the\n"
+#~ "hardware and setup of your %(distroa)s system.\n"
+#~ "The information is collected and an archive is  packaged under\n"
+#~ "/tmp, which you can send to a support representative.\n"
+#~ "%(distrob)s will use this information for diagnostic purposes ONLY\n"
+#~ "and it will be considered confidential information.\n"
+#~ "\n"
+#~ "This process may take a while to complete.\n"
+#~ "No changes will be made to your system.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Tämä ohjelma kerää yksityiskohtaisia tietoja\n"
+#~ "%(distroa)s -järjestelmän laitteistosta ja asetuksista.\n"
+#~ "Tiedot kerätään arkistoon, joka tallennetaan /tmp-hakemistoon.\n"
+#~ "Tämä arkisto voidaan lähettää käyttötukeen.\n"
+#~ "%(distrob)s käyttää tätä tietoa vain vianetsintätarkoituksiin ja\n"
+#~ "tietoa käsitellään luottamuksellisesti.\n"
+#~ "\n"
+#~ "Tämä toiminto voi kestää jonkin aikaa.\n"
+#~ "Järjestelmään ei tehdä muutoksia.\n"
+#~ "\n"
 
-#: ../sos/policyredhat.py:214
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "Syötä tapausnumero, jota varten olet tekemässä tätä raporttia:"
+#~ msgid "  sosreport build tree is located at : %s"
+#~ msgstr "  sosreport-käännöspuu on sijainnissa: %s"
 
-#: ../sos/policyredhat.py:254
-msgid "Creating compressed archive..."
-msgstr "Luodaan pakattua arkistoa..."
+#~ msgid "Please enter your first initial and last name [%s]: "
+#~ msgstr "Syötä etunimesi ensimmäinen kirjain ja sukunimesi [%s]:"
 
-#: ../sos/policyredhat.py:284
-msgid "Encrypting archive..."
-msgstr "Salataan arkistoa..."
+#~ msgid ""
+#~ "Please enter the case number that you are generating this report for: "
+#~ msgstr "Syötä tapausnumero, jota varten olet tekemässä tätä raporttia:"
 
-#: ../sos/policyredhat.py:304
-msgid "There was a problem encrypting your report."
-msgstr "Raportin salaamisessa oli ongelma."
+#~ msgid "Creating compressed archive..."
+#~ msgstr "Luodaan pakattua arkistoa..."
 
-#: ../sos/policyredhat.py:328
-#, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-"Sosreport-raportti on luotu ja tallennettu sijaintiin:\n"
-"  %s"
+#~ msgid "Encrypting archive..."
+#~ msgstr "Salataan arkistoa..."
 
-#: ../sos/policyredhat.py:331
-msgid "The md5sum is: "
-msgstr "Md5sum-tarkistussumma on:"
+#~ msgid "There was a problem encrypting your report."
+#~ msgstr "Raportin salaamisessa oli ongelma."
 
-#: ../sos/policyredhat.py:333
-msgid "Please send this file to your support representative."
-msgstr "Lähetä tämä tiedosto käyttötukeen."
+#~ msgid ""
+#~ "Your sosreport has been generated and saved in:\n"
+#~ "  %s"
+#~ msgstr ""
+#~ "Sosreport-raportti on luotu ja tallennettu sijaintiin:\n"
+#~ "  %s"
 
-#: ../sos/policyredhat.py:355
-msgid "No URL defined in config file."
-msgstr "Asetustiedostossa ei ole määritelty osoitetta."
+#~ msgid "The md5sum is: "
+#~ msgstr "Md5sum-tarkistussumma on:"
 
-#: ../sos/policyredhat.py:362
-msgid "Cannot upload to specified URL."
-msgstr "Annettuun osoitteeseen ei voida lähettää."
+#~ msgid "Please send this file to your support representative."
+#~ msgstr "Lähetä tämä tiedosto käyttötukeen."
 
-#: ../sos/policyredhat.py:399
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Raportin lähettämisessä Red Hatin käyttötukeen oli ongelmia."
+#~ msgid "No URL defined in config file."
+#~ msgstr "Asetustiedostossa ei ole määritelty osoitetta."
 
-#: ../sos/policyredhat.py:401
-#, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "Raportin lähetys kohteeseen %s onnistui, käytettiin nimeä:"
+#~ msgid "Cannot upload to specified URL."
+#~ msgstr "Annettuun osoitteeseen ei voida lähettää."
 
-#: ../sos/policyredhat.py:404
-msgid "Please communicate this name to your support representative."
-msgstr "Kerro tämä nimi käyttötukeen."
+#~ msgid "There was a problem uploading your report to Red Hat support."
+#~ msgstr "Raportin lähettämisessä Red Hatin käyttötukeen oli ongelmia."
+
+#~ msgid "Your report was successfully uploaded to %s with name:"
+#~ msgstr "Raportin lähetys kohteeseen %s onnistui, käytettiin nimeä:"
+
+#~ msgid "Please communicate this name to your support representative."
+#~ msgstr "Kerro tämä nimi käyttötukeen."
 
 #~ msgid "plugin %s skipped (--skip-plugins)"
 #~ msgstr "liitännäinen %s ohitettiin (--skip-plugins)"
