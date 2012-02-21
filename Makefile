@@ -58,7 +58,7 @@ $(NAME)-$(VERSION).tar.gz: clean gpgkey
 	@tar Ccvzf $(RPM_BUILD_DIR) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
 
 clean:
-	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz
+	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz sos.conf.5.gz
 	@rm -rf rpm-build
 	@for i in `find . -iname *.pyc`; do \
 		rm $$i; \
