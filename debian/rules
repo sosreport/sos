@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+DH_ALWAYS_EXCLUDE=.git
+
+%:
+	dh $@
+	
