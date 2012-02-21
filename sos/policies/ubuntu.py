@@ -2,6 +2,7 @@ from sos import _sos as _
 from sos.plugins import UbuntuPlugin, IndependentPlugin
 from sos.policies.debian import DebianPolicy, DebianPackageManager
 from sos.utilities import shell_out
+from __future__ import with_statement
 
 import os
         
@@ -19,10 +20,8 @@ class UbuntuPolicy(DebianPolicy):
            It returns True or False."""
         if os.path.isfile('/etc/lsb-release'):
             try:
-                fp = open('/etc/lsb-release', 'r')
-                if "Ubuntu" in fp.read():
-                    fp.close()
-                    return True
+                with open('/etc/lsb-release', 'r') as fp:
+                    return "Ubuntu" in fp.read()
             except:
                 return False
         return False
