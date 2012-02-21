@@ -5,9 +5,9 @@
 NAME	= sos
 VERSION = $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
 RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
-REPO = http://svn.fedorahosted.org/svn/sos
+REPO = http://github.com/sosreport
 
-SUBDIRS = po sos sos/plugins
+SUBDIRS = po sos sos/plugins sos/policies
 PYFILES = $(wildcard *.py)
 # OS X via brew
 # MSGCAT = /usr/local/Cellar/gettext/0.18.1.1/bin/msgcat
@@ -47,7 +47,7 @@ install:
 	install -m644 LICENSE README TODO $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
-	sed 's/@SOSVERSION@/$(VERSION)/g' < sos/__init__.py > sos/__init__.py
+	sed 's/@SOSVERSION@/$(VERSION)/g' sos/__init__.py.in > sos/__init__.py
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
