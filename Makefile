@@ -33,7 +33,7 @@ ZIP_DEST = $(SRC_BUILD)/$(ARCHIVE_NAME)
 build:
 	for d in $(SUBDIRS); do make -C $$d; [ $$? = 0 ] || exit 1 ; done
 
-install:
+install: updateversion
 	mkdir -p $(DESTDIR)/usr/sbin
 	mkdir -p $(DESTDIR)/usr/share/man/man1
 	mkdir -p $(DESTDIR)/usr/share/man/man5
@@ -47,9 +47,11 @@ install:
 	install -m644 LICENSE README TODO $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
-	sed 's/@SOSVERSION@/$(VERSION)/g' sos/__init__.py.in > sos/__init__.py
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
+updateversion:
+  sed 's/@SOSVERSION@/$(VERSION)/g' sos/__init__.py.in > sos/__init__.py
+  
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
 	@mkdir -p $(ARCHIVE_DIR)
 	@tar -cv sosreport sos doc man po sos.conf TODO LICENSE README sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
@@ -85,7 +87,7 @@ po: clean
 	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos_en_US.properties
 	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos.properties
 
-as7: po
+as7: po updateversion
 	cp -r sos/* $(SRC_BUILD)/sos/
 	find $(SRC_BUILD)/sos/plugins/ -not -name "*as7.py" -not -name "*__init__.py" -type f -delete
 
