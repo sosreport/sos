@@ -50,7 +50,7 @@ install: updateversion
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 updateversion:
-  sed 's/@SOSVERSION@/$(VERSION)/g' sos/__init__.py.in > sos/__init__.py
+	sed 's/@SOSVERSION@/$(VERSION)/g' sos/__init__.py.in > sos/__init__.py
   
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
 	@mkdir -p $(ARCHIVE_DIR)
