@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 from sos import _sos as _
 from sos.plugins import DebianPlugin, IndependentPlugin
 from sos.policies import PackageManager, Policy
@@ -45,7 +47,7 @@ class DebianPackageManager(PackageManager):
         version, release, arch = fields[-3:]
         name = "-".join(fields[:-3])
         return (name, version, release, arch)
-        
+
 class DebianPolicy(Policy):
     def __init__(self):
         super(DebianPolicy, self).__init__()
