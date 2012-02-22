@@ -1,8 +1,8 @@
+from __future__ import with_statement
 from sos import _sos as _
 from sos.plugins import UbuntuPlugin, IndependentPlugin
 from sos.policies.debian import DebianPolicy, DebianPackageManager
 from sos.utilities import shell_out
-from __future__ import with_statement
 
 import os
         
