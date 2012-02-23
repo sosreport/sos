@@ -8,3 +8,5 @@ buildjar/
 gpgkeys/rhsupport.*
 rpm-build/*
 sos/__init__.py
+cover/
+.coverage

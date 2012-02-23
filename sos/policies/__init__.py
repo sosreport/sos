@@ -173,7 +173,6 @@ No changes will be made to your system.
         archive_fp.close()
         return digest.hexdigest()
 
-
     def getPreferredHashAlgorithm(self):
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""

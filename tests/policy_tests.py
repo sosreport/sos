@@ -1,6 +1,6 @@
 import unittest
 
-from sos.policies import Policy
+from sos.policies import Policy, import_policy
 from sos.plugins import Plugin, IndependentPlugin, RedHatPlugin, DebianPlugin
 
 class FauxPolicy(Policy):
@@ -40,6 +40,12 @@ class PolicyTests(unittest.TestCase):
         p.valid_subclasses = []
 
         self.assertFalse(p.validatePlugin(FauxDebianPlugin))
+
+    def test_can_import(self):
+        self.assertTrue(import_policy('redhat') is not None)
+
+    def test_cant_import(self):
+        self.assertTrue(import_policy('notreal') is None)
 
 if __name__ == "__main__":
     unittest.main()
