@@ -1,4 +1,5 @@
-### This program is free software; you can redistribute it and/or modify
+## Copyright (c) 2012 Adam Stokes <adam.stokes@canonical.com>
+## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
@@ -12,9 +13,18 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
-class libvirt(Plugin, RedHatPlugin, UbuntuPlugin):
-    """libvirt-related information
+from sos.plugins import Plugin, UbuntuPlugin
+
+class udhcp(Plugin, UbuntuPlugin):
+    """DHCP related information
     """
+    def checkenabled(self):
+        self.files = ['/etc/init.d/udhcpd']
+        self.packages = ['udhcpd']
+        return Plugin.checkenabled(self)
+
     def setup(self):
-        self.addCopySpecs(["/etc/libvirt/", "/var/log/libvirt/"])
+        self.addCopySpecs([
+            "/etc/default/udhcpd",
+            "/etc/udhcpd.conf"
+        ])
