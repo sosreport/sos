@@ -317,15 +317,18 @@ class TarFileArchive(Archive):
         else:
             dest = self.prepend(src)
 
-        fp = open(src, 'rb')
-        content = fp.read()
-        fp.close()
+        if os.path.isdir(src):
+            self.tarfile.add(src, dest)
+        else:
+            fp = open(src, 'rb')
+            content = fp.read()
+            fp.close()
 
-        tar_info = tarfile.TarInfo(name=dest)
-        tar_info.size = len(content)
-        tar_info.mtime = os.stat(src).st_mtime
+            tar_info = tarfile.TarInfo(name=dest)
+            tar_info.size = len(content)
+            tar_info.mtime = os.stat(src).st_mtime
 
-        self.tarfile.addfile(tar_info, StringIO(content))
+            self.tarfile.addfile(tar_info, StringIO(content))
 
     def add_string(self, content, dest):
         dest = self.prepend(dest)
@@ -423,29 +426,25 @@ def compress(archive, method):
 
     methods = ['xz', 'bzip2', 'gzip']
 
-    if method in ('xz', 'bzip2', 'gzip'):
+    if method in methods:
         methods = [method]
 
-    compressed = False
-    last_error = None
-    for cmd in ('xz', 'bzip2', 'gzip'):
-        if compressed:
-            break
+    last_error = Exception("compression failed for an unknown reason")
+    log = logging.getLogger('sos')
+
+    for cmd in methods:
         try:
             command = shlex.split("%s %s" % (cmd,archive.name()))
             p = Popen(command, stdout=PIPE, stderr=PIPE, bufsize=-1)
             stdout, stderr = p.communicate()
-            log = logging.getLogger('sos')
             if stdout:
                 log.info(stdout)
             if stderr:
                 log.error(stderr)
-            compressed = True
             return archive.name() + "." + cmd.replace('ip','')
         except Exception, e:
             last_error = e
-
-    if not compressed:
+    else:
         raise last_error
 
 
