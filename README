@@ -13,3 +13,7 @@ To access to the public source code repository for this project run:
 to install locally (as root) ==> make install
 to build an rpm ==> make rpm
 to build a zipfile for use with jython ==> make zip
+
+I recommend nose to run the unittests:
+
+nosetests -v --with-cover --cover-package=sos --cover-html
