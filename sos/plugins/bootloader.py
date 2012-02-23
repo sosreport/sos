@@ -12,9 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
-class bootloader(Plugin, RedHatPlugin):
+class bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
     """Bootloader information
     """
     def setup(self):
@@ -25,6 +25,7 @@ class bootloader(Plugin, RedHatPlugin):
             "/boot/efi/efi/redhat/elilo.conf",
             "/boot/grub/grub.conf",
             "/boot/grub/device.map",
+            "/etc/grub.d",
             "/boot/yaboot.conf"])
         self.collectExtOutput("/sbin/lilo -q")
         self.collectExtOutput("/bin/ls -lanR /boot")
