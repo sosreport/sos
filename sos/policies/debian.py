@@ -40,7 +40,7 @@ class DebianPolicy(LinuxPolicy):
     def check(self):
         """This method checks to see if we are running on Debian.
            It returns True or False."""
-        return os.path.isfile('/etc/debian_version'):
+        return os.path.isfile('/etc/debian_version')
 
     def debianVersion(self):
         try:
