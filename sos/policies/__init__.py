@@ -1,4 +1,5 @@
 import os
+import re
 import platform
 import time
 
@@ -37,25 +38,35 @@ class PackageManager(object):
         """
         Return a list of packages that match name.
         """
-        return []
+        return fnmatch.filter(self.allPkgs().keys(), name)
 
     def allPkgsByNameRegex(self, regex_name, flags=None):
         """
         Return a list of packages that match regex_name.
         """
-        return []
+        reg = re.compile(regex_name, flags)
+        return [pkg for pkg in self.allPkgs().keys() if reg.match(pkg)]
 
     def pkgByName(self, name):
         """
         Return a single package that matches name.
         """
-        return None
+        try:
+            self.AllPkgsByName(name)[-1]
+        except Exception:
+            return None
 
     def allPkgs(self):
         """
         Return a list of all packages.
         """
         return []
+
+    def pkgNVRA(self, pkg):
+        fields = pkg.split("-")
+        version, release, arch = fields[-3:]
+        name = "-".join(fields[:-3])
+        return (name, version, release, arch)
 
 
 class Policy(object):
@@ -82,6 +93,7 @@ No changes will be made to your system.
         self.reportName = self.hostname
         self.ticketNumber = None
         self.package_manager = PackageManager()
+        self.valid_subclasses = []
 
     def check(self):
         """
@@ -110,7 +122,8 @@ No changes will be made to your system.
         """
         Verifies that the plugin_class should execute under this policy
         """
-        return issubclass(plugin_class, IndependentPlugin)
+        valid_subclasses = [IndependentPlugin] + self.valid_subclasses
+        return any(issubclass(plugin_class, class_) for class_ in valid_subclasses)
 
     def preWork(self):
         """
@@ -131,7 +144,7 @@ No changes will be made to your system.
         pass
 
     def pkgByName(self, pkg):
-        return None
+        return self.package_manager.pkgByName(pkg)
 
     def _parse_uname(self):
         (system, node, release,
@@ -286,3 +299,82 @@ class GenericPolicy(Policy):
 
     def get_msg(self):
         return self.msg % {'distro': self.system}
+
+
+class LinuxPolicy(Policy):
+    """This policy is meant to be an abc class that provides common implementations used
+       in Linux distros"""
+
+    def __init__(self):
+        super(LinuxPolicy, self).__init__()
+
+    def getPreferredHashAlgorithm(self):
+        checksum = "md5"
+        try:
+            fp = open("/proc/sys/crypto/fips_enabled", "r")
+        except:
+            return checksum
+
+        fips_enabled = fp.read()
+        if fips_enabled.find("1") >= 0:
+            checksum = "sha256"
+        fp.close()
+        return checksum
+
+    def runlevelDefault(self):
+        try:
+            with open("/etc/inittab") as fp:
+                pattern = r"id:(\d{1}):initdefault:"
+                text = fp.read()
+                return int(re.findall(pattern, text)[0])
+        except:
+            return 3
+
+    def kernelVersion(self):
+        return self.release
+
+    def hostName(self):
+        return self.hostname
+
+    def isKernelSMP(self):
+        return self.smp
+
+    def getArch(self):
+        return self.machine
+
+    def getLocalName(self):
+        """Returns the name usd in the preWork step"""
+        return self.hostName()
+
+    def preWork(self):
+        # this method will be called before the gathering begins
+
+        localname = self.getLocalName()
+
+        if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].silent:
+            try:
+                self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
+                self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
+
+                self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
+                self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
+                self._print()
+            except:
+                self._print()
+                sys.exit(0)
+
+        if len(self.reportName) == 0:
+            self.reportName = localname
+
+        if self.commons['cmdlineopts'].customerName:
+            self.reportName = self.commons['cmdlineopts'].customerName
+            self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
+
+        if self.commons['cmdlineopts'].ticketNumber:
+            self.ticketNumber = self.commons['cmdlineopts'].ticketNumber
+            self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
+
+        return
+
+    def packageResults(self, archive_filename):
+        self._print(_("Creating compressed archive..."))
