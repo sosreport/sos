@@ -2,6 +2,7 @@ import os
 import re
 import platform
 import time
+import fnmatch
 
 from sos.utilities import ImporterHelper, import_module, get_hash_name
 from sos.plugins import IndependentPlugin
@@ -40,7 +41,7 @@ class PackageManager(object):
         """
         return fnmatch.filter(self.allPkgs().keys(), name)
 
-    def allPkgsByNameRegex(self, regex_name, flags=None):
+    def allPkgsByNameRegex(self, regex_name, flags=0):
         """
         Return a list of packages that match regex_name.
         """
@@ -60,7 +61,7 @@ class PackageManager(object):
         """
         Return a list of all packages.
         """
-        return []
+        return {}
 
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
