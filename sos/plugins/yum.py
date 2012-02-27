@@ -19,13 +19,10 @@ class yum(Plugin, RedHatPlugin):
     """yum information
     """
 
+    files = ('/etc/yum.conf')
+    packages = ('yum')
     optionList = [("yumlist", "list repositories and packages", "slow", False)]
     optionList = [("yumdebug", "gather yum debugging data", "slow", False)]
-
-    def checkenabled(self):
-        self.files = [ "/etc/yum.conf" ]
-        self.packages = [ "yum" ]
-        return Plugin.checkenabled(self)
 
     def analyze(self):
         # repo sanity checking

@@ -17,10 +17,9 @@ from sos.plugins import Plugin, RedHatPlugin
 class dhcp(Plugin, RedHatPlugin):
     """DHCP related information
     """
-    def checkenabled(self):
-        self.files = ['/etc/rc.d/init.d/dhcpd']
-        self.packages = ['dhcp']
-        return Plugin.checkenabled(self)
+
+    files = ('/etc/rc.d/init.d/dhcpd')
+    packages = ('dhcp')
 
     def setup(self):
         self.addCopySpecs([

@@ -19,8 +19,8 @@ class ftp(Plugin, RedHatPlugin):
     """FTP server related information
     """
 
-    def checkenabled(self):
-        return self.isInstalled("vsftpd") or exists("/etc/vsftpd")
+    files = ('/etc/vsftpd')
+    packages = ('vsftpd')
 
     def setup(self):
         self.addCopySpec("/etc/ftp*")

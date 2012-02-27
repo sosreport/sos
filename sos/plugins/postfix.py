@@ -18,8 +18,9 @@ from os.path import exists
 class postfix(Plugin, RedHatPlugin):
     """mail server related information
     """
-    def checkenabled(self):
-        return self.isInstalled("postfix") or exists("/etc/rc.d/init.d/postfix")
+
+    files = ('/etc/rc.d/init.d/postfix')
+    packages = ('postfix')
 
     def setup(self):
         self.addCopySpecs([

@@ -21,6 +21,9 @@ class ds(Plugin, RedHatPlugin):
     """Directory Server information
     """
 
+    files = ('/etc/dirsrv', '/opt/redhat-ds')
+    packages = ('redhat-ds-base', 'redhat-ds-7')
+
     def check_version(self):
         if self.isInstalled("redhat-ds-base") or \
         os.path.exists("/etc/dirsrv"):
@@ -28,15 +31,6 @@ class ds(Plugin, RedHatPlugin):
         elif self.isInstalled("redhat-ds-7") or \
         os.path.exists("/opt/redhat-ds"):
             return "ds7"
-        return False
-
-    def checkenabled(self):
-        if self.isInstalled("redhat-ds-base") or \
-        os.path.exists("/etc/dirsrv"):
-            return True
-        elif self.isInstalled("redhat-ds-7") or \
-        os.path.exists("/opt/redhat-ds"):
-            return True
         return False
 
     def setup(self):

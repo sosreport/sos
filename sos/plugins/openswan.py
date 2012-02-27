@@ -20,8 +20,9 @@ from os.path import exists
 class openswan(Plugin, RedHatPlugin):
     """ipsec related information
     """
-    def checkenabled(self):
-        return self.isInstalled("openswan") or exists("/etc/ipsec.conf")
+
+    files = ('/etc/ipsec.conf')
+    packages = ('openswan')
 
     def setup(self):
         self.addCopySpecs([

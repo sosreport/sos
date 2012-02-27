@@ -63,13 +63,13 @@ class general(Plugin, RedHatPlugin):
 
     def postproc(self):
         self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
-              
+
 class generalDebian(Plugin, DebianPlugin, UbuntuPlugin):
     """Basic system information for Debian based distributions"""
     @classmethod
     def name(self):
         return "general"
-        
+
     def setup(self):
         self.addCopySpecs([
             "/etc/debian_version",

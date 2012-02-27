@@ -20,8 +20,9 @@ from os.path import exists
 class radius(Plugin, RedHatPlugin):
     """radius related information
     """
-    def checkenabled(self):
-        return self.isInstalled("freeradius") or exists("/etc/raddb")
+
+    files = ('/etc/raddb')
+    packages = ('freeradius')
 
     def setup(self):
         self.addCopySpecs(["/etc/raddb", "/etc/pam.d/radiusd", "/var/log/radius"])

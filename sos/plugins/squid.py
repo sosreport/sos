@@ -18,10 +18,9 @@ import os
 class squid(Plugin, RedHatPlugin):
     """squid related information
     """
-    def checkenabled(self):
-        self.files = [ "/etc/squid/squid.conf" ]
-        self.packages = [ "squid" ]
-        return Plugin.checkenabled(self)
+
+    files = ('/etc/squid/squid.conf')
+    packages = ('squid')
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")

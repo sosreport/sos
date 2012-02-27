@@ -19,11 +19,9 @@ from os.path import normpath, join, exists
 class named(Plugin, RedHatPlugin):
     """named related information
     """
-    def checkenabled(self):
-        self.files = [ "/etc/named.conf",
-                       "/etc/sysconfig/named" ]
-        self.packages = [ "bind" ]
-        return Plugin.checkenabled(self)
+
+    files = ('/etc/named.conf', '/etc/sysconfig/named')
+    packages = ('bind')
 
     def getDnsDir(self, configFile):
         """ grab directory path from named{conf,boot}

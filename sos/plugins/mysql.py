@@ -19,10 +19,8 @@ class mysql(Plugin, RedHatPlugin):
     """MySQL related information
     """
 
-    def checkenabled(self):
-        return self.isInstalled("mysql-server") or \
-               exists("/etc/my.cnf") or \
-               self.isInstalled("mysql")
+    files = ('/etc/my.cnf')
+    packages = ('mysql-server', 'mysql')
 
     def setup(self):
         self.addCopySpecs([

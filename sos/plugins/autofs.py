@@ -20,10 +20,9 @@ import os, re
 class autofs(Plugin, RedHatPlugin):
     """autofs server-related information
     """
-    def checkenabled(self):
-        self.packages = [ "autofs" ]
-        self.files = [ "/etc/sysconfig/autofs" ]
-        return Plugin.checkenabled(self)
+
+    files = ('/etc/sysconfig/autofs')
+    packages = ('autofs')
 
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere

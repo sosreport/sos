@@ -20,8 +20,9 @@ import os
 class xinetd(Plugin, RedHatPlugin):
     """xinetd information
     """
-    def checkenabled(self):
-       return self.isInstalled("xinetd") or os.path.exists("/etc/xinetd.conf")
+
+    files = ('/etc/xinetd.conf')
+    packages = ('xinetd')
 
     def setup(self):
         self.addCopySpec("/etc/xinetd.conf")

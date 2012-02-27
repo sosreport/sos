@@ -17,9 +17,8 @@ from sos.plugins import Plugin, RedHatPlugin
 class qpidd(Plugin, RedHatPlugin):
     """Messaging related information
     """
-    def checkenabled(self):
-        """ checks if mrg enabled """
-        return self.isInstalled("qpidd") and self.isInstalled("python-qpid")
+
+    packages = ('qpidd', 'python-qpid')
 
     def setup(self):
         """ performs data collection for mrg """

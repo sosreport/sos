@@ -18,8 +18,8 @@ from os.path import exists
 class x11(Plugin, RedHatPlugin):
     """X related information
     """
-    def checkenabled(self):
-        return exists("/etc/X11")
+
+    files = ('/etc/X11')
 
     def setup(self):
         self.addCopySpecs([

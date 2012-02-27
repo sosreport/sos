@@ -18,8 +18,9 @@ from os.path import exists
 class netdump(Plugin, RedHatPlugin):
     """Netdump Configuration Information
     """
-    def checkenabled(self):
-        return self.isInstalled("netdump") or exists("/etc/sysconfig/netdump*")
+
+    files = ('/etc/sysconfig/netdump')
+    packages = ('netdump')
 
     def setup(self):
         self.addCopySpec("/etc/sysconfig/netdump")

@@ -20,8 +20,9 @@ from os.path import exists
 class tftpserver(Plugin, RedHatPlugin):
     """tftpserver related information
     """
-    def checkenabled(self):
-        return self.isInstalled("tftp-server") or exists("/etc/xinetd.d/tftp")
+
+    files = ('/etc/xinetd.d/tftp')
+    packages = ('tftp-server')
 
     def setup(self):
         self.collectExtOutput("/bin/ls -lanR /tftpboot")

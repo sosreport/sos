@@ -18,8 +18,9 @@ from os.path import exists
 class kdump(Plugin, RedHatPlugin):
     """Kdump related information
     """
-    def checkenabled(self):
-        return self.isInstalled("kexec-tools") or exists("/etc/kdump.conf")
+
+    files = ('/etc/kdump.conf')
+    packages = ('kexec-tools')
 
     def setup(self):
         self.addCopySpecs([

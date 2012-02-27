@@ -18,8 +18,8 @@ from os.path import exists
 class vmware(Plugin, RedHatPlugin):
     """VMWare related information
     """
-    def checkenabled(self):
-        return exists("/usr/bin/vmware")
+
+    files = ('/usr/bin/vmware')
 
     def setup(self):
         self.collectExtOutput("/usr/bin/vmware -v")

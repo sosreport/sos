@@ -20,8 +20,9 @@ from os.path import exists
 class snmp(Plugin, RedHatPlugin):
     """snmp related information
     """
-    def checkenabled(self):
-        return self.isInstalled("net-snmp") or exists("/etc/snmp/snmpd.conf")
+
+    files = ('/etc/snmp/snmpd.conf')
+    packages = ('net-snmp')
 
     def setup(self):
         self.addCopySpec("/etc/snmp")

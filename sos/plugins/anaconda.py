@@ -13,13 +13,12 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
-from os.path import exists
 
 class anaconda(Plugin, RedHatPlugin):
     """Anaconda / Installation information
     """
-    def checkenabled(self):
-        return exists("/var/log/anaconda.log")
+
+    files = ('/var/log/anaconda.log')
 
     def setup(self):
         self.addCopySpecs([

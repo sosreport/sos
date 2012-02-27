@@ -20,8 +20,9 @@ from os.path import exists
 class sendmail(Plugin, RedHatPlugin):
     """sendmail information
     """
-    def checkenabled(self):
-        return self.isInstalled("sendmail") or exists("/etc/rc.d/init.d/sendmail")
+
+    files = ('/etc/rc.d/init.d/sendmail')
+    packages = ('sendmail')
 
     def setup(self):
         self.addCopySpecs(["/etc/mail/*", "/var/log/maillog"])

@@ -20,8 +20,9 @@ from os.path import exists
 class ppp(Plugin, RedHatPlugin):
     """ppp, wvdial and rp-pppoe related information
     """
-    def checkenabled(self):
-        return self.isInstalled("ppp") or exists("/etc/wvdial.conf")
+
+    files = ('/etc/wvdial.conf')
+    packages = ('ppp')
 
     def setup(self):
         self.addCopySpecs([

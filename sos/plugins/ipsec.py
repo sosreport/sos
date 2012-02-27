@@ -20,8 +20,9 @@ from os.path import exists
 class ipsec(Plugin, RedHatPlugin):
     """ipsec related information
     """
-    def checkenabled(self):
-        return self.isInstalled("ipsec-tools") or exists("/etc/racoon/racoon.conf")
+
+    files = ('/etc/racoon/racoon.conf')
+    packages = ('ipsec-tools')
 
     def setup(self):
         self.addCopySpec("/etc/racoon")

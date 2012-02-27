@@ -19,6 +19,9 @@ from os.path import exists
 class sar(Plugin, RedHatPlugin):
     """Generate the sar file from /var/log/sa/saXX files
     """
+
+    files = ('/var/log/sa', '/usr/bin/sar')
+
     def setup(self):
         path="/var/log/sa"
         dirList=listdir(path)
@@ -30,5 +33,3 @@ class sar(Plugin, RedHatPlugin):
                     sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar -A -f /var/log/sa/" + fname + "\""
                     self.collectOutputNow(sar_command, sar_filename, root_symlink=sar_filename)
 
-    def checkenabled(self):
-        return exists("/var/log/sa") and exists("/usr/bin/sar")

@@ -21,8 +21,8 @@ class quagga(Plugin, RedHatPlugin):
     """quagga related information
     """
 
-    def checkenabled(self):
-        return self.isInstalled("quagga") or exists("/etc/quagga/zebra.conf")
+    files = ('/etc/quagga/zebra.conf')
+    packages = ('quagga')
 
     def setup(self):
         self.addCopySpec("/etc/quagga/")

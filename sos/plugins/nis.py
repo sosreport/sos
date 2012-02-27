@@ -21,8 +21,8 @@ import os
 class nis(Plugin, RedHatPlugin):
     """NIS related information
     """
-    def checkenabled(self):
-        return os.path.exists("/var/yp")
+
+    files = ('/var/yp')
 
     def setup(self):
         self.addCopySpec("/etc/yp*.conf")

@@ -15,14 +15,12 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
-from os.path import exists
 
 class amd(Plugin, RedHatPlugin):
     """Amd automounter information
     """
-
-    def checkenabled(self):
-        return self.isInstalled("am-utils") or exists("/etc/rc.d/init.d/amd")
+    files = ('/etc/rc.d/init.d/amd')
+    packages = ('am-utils')
 
     def setup(self):
         self.addCopySpecs("/etc/amd.*")
