@@ -20,9 +20,7 @@ class iscsitarget(Plugin, RedHatPlugin):
     """iscsi-target related information
     """
 
-    def checkenabled(self):
-        self.packages = [ "scsi-target-utils" ]
-        return Plugin.checkenabled(self)
+    packages = ('scsi-target-utils')
 
     def setup(self):
         self.addCopySpec("/etc/tgt/targets.conf")

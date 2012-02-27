@@ -17,9 +17,9 @@ from sos.plugins import Plugin, RedHatPlugin
 class cobbler(Plugin, RedHatPlugin):
     """cobbler related information
     """
-    def checkenabled(self):
-        return self.isInstalled("cobbler")
-
+    
+    packages = ('cobbler')
+    
     def setup(self):
         self.addCopySpec("/etc/cobbler")
         self.addCopySpec("/var/log/cobbler")

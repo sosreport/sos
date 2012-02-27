@@ -18,8 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 class gluster(Plugin, RedHatPlugin):
     '''gluster related information'''
 
-    def checkenabled(self):
-        return os.path.exists("/etc/glusterd")
+    files = ('/etc/glusterd')
 
     def setup(self):
         self.addForbiddenPath("/etc/glusterd/geo-replication/secret.pem")

@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import commands
 
 class general(Plugin, RedHatPlugin):
@@ -63,3 +63,38 @@ class general(Plugin, RedHatPlugin):
 
     def postproc(self):
         self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
+              
+class generalDebian(Plugin, DebianPlugin, UbuntuPlugin):
+    """Basic system information for Debian based distributions"""
+    @classmethod
+    def name(self):
+        return "general"
+        
+    def setup(self):
+        self.addCopySpecs([
+            "/etc/debian_version",
+            "/etc/init",    # upstart
+            "/etc/event.d", # "
+            "/etc/inittab",
+            "/etc/sos.conf",
+            "/etc/sysconfig",
+            "/proc/stat",
+            "/var/log/dmesg",
+            "/var/log/sa",
+            "/var/log/pm/suspend.log",
+            "/var/log/up2date",
+            "/etc/hostid",
+            "/var/lib/dbus/machine-id",
+            "/etc/exports",
+            "/etc/lsb-release"
+        ])
+        self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
+        self.addCopySpecLimit("/var/log/messages*", sizelimit = self.getOption("syslogsize"))
+        self.addCopySpecLimit("/var/log/secure*", sizelimit = self.getOption("syslogsize"))
+        self.collectExtOutput("/usr/bin/hostid")
+        self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
+        self.collectExtOutput("/bin/date", root_symlink = "date")
+        self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
+        self.collectExtOutput("/bin/dmesg")
+        self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
+        self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")

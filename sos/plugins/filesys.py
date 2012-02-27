@@ -12,12 +12,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 import os
 import re
 from itertools import *
 
-class filesys(Plugin, RedHatPlugin):
+class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on filesystems
     """
     optionList = [("lsof", 'gathers information on all open files', 'slow', False)]
