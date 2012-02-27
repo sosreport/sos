@@ -20,9 +20,8 @@ class pxe(Plugin, RedHatPlugin):
     """
 
     optionList = [("tftpboot", 'gathers content in /tftpboot', 'slow', False)]
-
-    def checkenabled(self):
-        return self.isInstalled("system-config-netboot-cmd") or exists("/usr/sbin/pxeos")
+    files = ('/usr/sbin/pxeos')
+    packages = ('system-config-netboot-cmd')
 
     def setup(self):
         self.collectExtOutput("/usr/sbin/pxeos -l")
