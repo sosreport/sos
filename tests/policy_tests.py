@@ -1,6 +1,6 @@
 import unittest
 
-from sos.policies import Policy, import_policy
+from sos.policies import Policy, PackageManager, import_policy
 from sos.plugins import Plugin, IndependentPlugin, RedHatPlugin, DebianPlugin
 
 class FauxPolicy(Policy):
@@ -46,6 +46,24 @@ class PolicyTests(unittest.TestCase):
 
     def test_cant_import(self):
         self.assertTrue(import_policy('notreal') is None)
+
+
+class PackageManagerTests(unittest.TestCase):
+
+    def setUp(self):
+        self.pm = PackageManager()
+
+    def test_default_all_pkgs(self):
+        self.assertEquals(self.pm.allPkgs(), {})
+
+    def test_default_all_pkgs_by_name(self):
+        self.assertEquals(self.pm.allPkgsByName('doesntmatter'), [])
+
+    def test_default_all_pkgs_by_name_regex(self):
+        self.assertEquals(self.pm.allPkgsByNameRegex('.*doesntmatter$'), [])
+
+    def test_default_pkg_by_name(self):
+        self.assertEquals(self.pm.pkgByName('foo'), None)
 
 if __name__ == "__main__":
     unittest.main()
