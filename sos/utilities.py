@@ -34,23 +34,31 @@ import logging
 import zipfile
 import tarfile
 import hashlib
+from contextlib import closing
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
 import time
 
-def checksum(filename, chunk_size=128):
+def fileobj(path_or_file, mode='r'):
+    if isinstance(path_or_file, basestring):
+        return open(path_or_file, mode)
+    else:
+        return closing(path_or_file)
+
+def checksum(file_, chunk_size=128, algorithm=None):
     """Returns the checksum of the supplied filename. The file is read in
     chunk_size blocks"""
-    name = get_hash_name()
-    digest = hashlib.new(name)
-    fd = open(filename, 'rb')
-    data = fd.read(chunk_size)
-    while data:
-        digest.update(data)
+    if not algorithm:
+        algorithm = get_hash_name()
+    digest = hashlib.new(algorithm)
+    with fileobj(file_, 'rb') as fd:
         data = fd.read(chunk_size)
-    return digest.hexdigest()
+        while data:
+            digest.update(data)
+            data = fd.read(chunk_size)
+        return digest.hexdigest()
 
 def get_hash_name():
     """Returns the algorithm used when computing a hash"""
@@ -77,9 +85,12 @@ class DirTree(object):
         self.buffer.append(s)
 
     def printtree(self):
-        print self.as_string()
+        print str(self)
 
     def as_string(self):
+        return str(self)
+
+    def __str__(self):
         return "\n".join(self.buffer)
 
     def _build_tree(self):
@@ -260,6 +271,18 @@ def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
 
         for name in fnmatch.filter(filelist, file_pattern):
             yield os.path.join(path, name)
+
+
+def grep(pattern, *files_or_paths):
+    """Returns lines matched in fnames, where fnames can either be pathnames to files
+    to grep through or open file objects to grep through line by line"""
+    matches = []
+
+    for fop in files_or_paths:
+        with fileobj(fop) as fo:
+            matches.extend((line for line in fo if re.match(pattern, line)))
+
+    return matches
 
 
 def sosGetCommandOutput(command, timeout=300):

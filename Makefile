@@ -102,3 +102,6 @@ test:
 		echo $$test; \
 		PYTHONPATH=`pwd` python $$test; \
 	done; \
+
+nose:
+	nosetests -v --with-cover --cover-package=sos --cover-html
