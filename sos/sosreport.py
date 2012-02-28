@@ -644,7 +644,7 @@ class SoSReport(object):
     def setup(self):
         for plugname, plug in self.loaded_plugins:
             try:
-                plug.setArchive(self.archive)
+                plug.archive = self.archive
                 plug.setup()
             except KeyboardInterrupt:
                 raise
