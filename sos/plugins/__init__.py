@@ -514,6 +514,12 @@ class Plugin(object):
         """
         # some files or packages have been specified for this package
         if self.files or self.packages:
+            if isinstance(self.files, basestring):
+                self.files = [self.files]
+
+            if isinstance(self.packages, basestring):
+                self.packages = [self.packages]
+
             return (any(os.path.exists(fname) for fname in self.files) or
                     any(self.isInstalled(pkg) for pkg in self.packages))
         return True
