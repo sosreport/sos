@@ -24,28 +24,28 @@ class ZipFileArchiveTest(unittest.TestCase):
         self.zf.close()
 
     def test_add_file(self):
-        self.zf.add_file('tests/worker.py')
+        self.zf.add_file('tests/ziptest')
         self.zf.close()
 
-        self.check_for_file('test/tests/worker.py')
+        self.check_for_file('test/tests/ziptest')
 
     def test_add_dir(self):
         self.zf.add_file('tests/')
         self.zf.close()
 
-        self.check_for_file('test/tests/worker.py')
+        self.check_for_file('test/tests/ziptest')
 
     def test_add_renamed(self):
-        self.zf.add_file('tests/worker.py', dest='tests/worker_renamed.py')
+        self.zf.add_file('tests/ziptest', dest='tests/ziptest_renamed')
         self.zf.close()
 
-        self.check_for_file('test/tests/worker_renamed.py')
+        self.check_for_file('test/tests/ziptest_renamed')
 
     def test_add_renamed_dir(self):
         self.zf.add_file('tests/', 'tests_renamed/')
         self.zf.close()
 
-        self.check_for_file('test/tests_renamed/worker.py')
+        self.check_for_file('test/tests_renamed/ziptest')
 
     def test_add_string(self):
         self.zf.add_string('this is content', 'tests/string_test.txt')
@@ -84,28 +84,28 @@ class TarFileArchiveTest(unittest.TestCase):
         self.assertTrue(os.path.exists('test.tar'))
 
     def test_add_file(self):
-        self.tf.add_file('tests/worker.py')
+        self.tf.add_file('tests/ziptest')
         self.tf.close()
 
-        self.check_for_file('test/tests/worker.py')
+        self.check_for_file('test/tests/ziptest')
 
     def test_add_dir(self):
         self.tf.add_file('tests/')
         self.tf.close()
 
-        self.check_for_file('test/tests/worker.py')
+        self.check_for_file('test/tests/ziptest')
 
     def test_add_renamed(self):
-        self.tf.add_file('tests/worker.py', dest='tests/worker_renamed.py')
+        self.tf.add_file('tests/ziptest', dest='tests/ziptest_renamed')
         self.tf.close()
 
-        self.check_for_file('test/tests/worker_renamed.py')
+        self.check_for_file('test/tests/ziptest_renamed')
 
     def test_add_renamed_dir(self):
         self.tf.add_file('tests/', 'tests_renamed/')
         self.tf.close()
 
-        self.check_for_file('test/tests_renamed/worker.py')
+        self.check_for_file('test/tests_renamed/ziptest')
 
     def test_add_string(self):
         self.tf.add_string('this is content', 'tests/string_test.txt')

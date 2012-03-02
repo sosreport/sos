@@ -124,9 +124,6 @@ class Plugin(object):
         "Returns the plugin's name as a string"
         return class_.__name__.lower()
 
-    def setArchive(self, archive):
-        self.archive = archive
-
     def policy(self):
         return self.cInfo["policy"]
 
@@ -518,15 +515,9 @@ class Plugin(object):
         it should run or not.
         """
         # some files or packages have been specified for this package
-        if len(self.files) or len(self.packages):
-            for fname in self.files:
-                if os.path.exists(fname):
-                    return True
-            for pkgname in self.packages:
-                if self.isInstalled(pkgname):
-                    return True
-            return False
-
+        if self.files or self.packages:
+            return (any(os.path.exists(fname) for fname in self.files) or
+                    any(self.isInstalled(pkg) for pkg in self.packages))
         return True
 
     def defaultenabled(self):
