@@ -21,8 +21,7 @@ class sssd(Plugin, RedHatPlugin):
     """sssd-related Diagnostic Information
     """
 
-    def checkenabled(self):
-       return self.isInstalled("sssd")
+    packages = ('sssd')
 
     def setup(self):
         self.addCopySpecs(["/etc/sssd", "/var/log/sssd/*"])

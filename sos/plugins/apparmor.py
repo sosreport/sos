@@ -1,6 +1,5 @@
-## Copyright (C) 2007 Ranjith Rajaram <rrajaram@redhat.com>
-
-### This program is free software; you can redistribute it and/or modify
+## Copyright (c) 2012 Adam Stokes <adam.stokes@canonical.com>
+## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
@@ -14,15 +13,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
-from os.path import exists
+from sos.plugins import Plugin, UbuntuPlugin
 
-class quagga(Plugin, RedHatPlugin):
-    """quagga related information
+class apparmor(Plugin, UbuntuPlugin):
+    """Apparmor related information
     """
-
-    files = ('/etc/quagga/zebra.conf')
-    packages = ('quagga')
-
     def setup(self):
-        self.addCopySpec("/etc/quagga/")
+        self.addCopySpecs([
+            "/etc/apparmor"
+        ])
