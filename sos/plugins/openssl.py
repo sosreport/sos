@@ -20,8 +20,8 @@ class openssl(Plugin, RedHatPlugin):
     """openssl related information
     """
 
-    files = ('/etc/pki/tls/openssl.cnf')
-    packages = ('openssl')
+    files = ('/etc/pki/tls/openssl.cnf',)
+    packages = ('openssl',)
 
     def setup(self):
         self.addCopySpec("/etc/pki/tls/openssl.cnf")

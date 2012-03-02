@@ -21,8 +21,8 @@ class radius(Plugin, RedHatPlugin):
     """radius related information
     """
 
-    files = ('/etc/raddb')
-    packages = ('freeradius')
+    files = ('/etc/raddb',)
+    packages = ('freeradius',)
 
     def setup(self):
         self.addCopySpecs(["/etc/raddb", "/etc/pam.d/radiusd", "/var/log/radius"])

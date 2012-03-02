@@ -18,7 +18,7 @@ class tomcat(Plugin, RedHatPlugin):
     """Tomcat related information
     """
 
-    packages = ('tomcat5')
+    packages = ('tomcat5',)
 
     def setup(self):
         self.addCopySpecs(["/etc/tomcat5", "/var/log/tomcat5"])

@@ -19,8 +19,8 @@ class ldap(Plugin, RedHatPlugin):
     """LDAP related information
     """
 
-    files = ('/etc/openldap/ldap.conf')
-    packages = ('openldap')
+    files = ('/etc/openldap/ldap.conf',)
+    packages = ('openldap',)
 
     def get_ldap_opts(self):
         # capture /etc/openldap/ldap.conf options in dict

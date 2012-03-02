@@ -18,7 +18,7 @@ class cobbler(Plugin, RedHatPlugin):
     """cobbler related information
     """
 
-    packages = ('cobbler')
+    packages = ('cobbler',)
 
     def setup(self):
         self.addCopySpec("/etc/cobbler")

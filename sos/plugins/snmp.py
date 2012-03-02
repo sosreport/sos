@@ -21,8 +21,8 @@ class snmp(Plugin, RedHatPlugin):
     """snmp related information
     """
 
-    files = ('/etc/snmp/snmpd.conf')
-    packages = ('net-snmp')
+    files = ('/etc/snmp/snmpd.conf',)
+    packages = ('net-snmp',)
 
     def setup(self):
         self.addCopySpec("/etc/snmp")

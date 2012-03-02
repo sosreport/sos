@@ -21,8 +21,8 @@ class xinetd(Plugin, RedHatPlugin):
     """xinetd information
     """
 
-    files = ('/etc/xinetd.conf')
-    packages = ('xinetd')
+    files = ('/etc/xinetd.conf',)
+    packages = ('xinetd',)
 
     def setup(self):
         self.addCopySpec("/etc/xinetd.conf")

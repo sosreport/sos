@@ -23,8 +23,8 @@ class ipa(Plugin, RedHatPlugin):
     # ntp and dirserver stuff are covered in existing sos plugins, so we really only
     # need to get kerberos and ipa specific addons.
 
-    files = ('/etc/ipa')
-    packages = ('ipa-server')
+    files = ('/etc/ipa',)
+    packages = ('ipa-server',)
 
     def setup(self):
         self.addCopySpec("/etc/dirsrv/ds.keytab")

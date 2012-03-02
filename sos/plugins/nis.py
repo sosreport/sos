@@ -22,7 +22,7 @@ class nis(Plugin, RedHatPlugin):
     """NIS related information
     """
 
-    files = ('/var/yp')
+    files = ('/var/yp',)
 
     def setup(self):
         self.addCopySpec("/etc/yp*.conf")

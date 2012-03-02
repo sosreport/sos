@@ -21,8 +21,8 @@ class ipsec(Plugin, RedHatPlugin):
     """ipsec related information
     """
 
-    files = ('/etc/racoon/racoon.conf')
-    packages = ('ipsec-tools')
+    files = ('/etc/racoon/racoon.conf',)
+    packages = ('ipsec-tools',)
 
     def setup(self):
         self.addCopySpec("/etc/racoon")

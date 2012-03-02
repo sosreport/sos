@@ -24,8 +24,8 @@ class nscd(Plugin, RedHatPlugin):
     optionList = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
                    "", 50)]
 
-    files = ('/etc/nscd.conf')
-    packages = ('nscd')
+    files = ('/etc/nscd.conf',)
+    packages = ('nscd',)
 
     def setup(self):
         self.addCopySpec("/etc/nscd.conf")

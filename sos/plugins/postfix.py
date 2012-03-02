@@ -19,8 +19,8 @@ class postfix(Plugin, RedHatPlugin):
     """mail server related information
     """
 
-    files = ('/etc/rc.d/init.d/postfix')
-    packages = ('postfix')
+    files = ('/etc/rc.d/init.d/postfix',)
+    packages = ('postfix',)
 
     def setup(self):
         self.addCopySpecs([

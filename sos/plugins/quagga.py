@@ -21,8 +21,8 @@ class quagga(Plugin, RedHatPlugin):
     """quagga related information
     """
 
-    files = ('/etc/quagga/zebra.conf')
-    packages = ('quagga')
+    files = ('/etc/quagga/zebra.conf',)
+    packages = ('quagga',)
 
     def setup(self):
         self.addCopySpec("/etc/quagga/")

@@ -19,8 +19,8 @@ class netdump(Plugin, RedHatPlugin):
     """Netdump Configuration Information
     """
 
-    files = ('/etc/sysconfig/netdump')
-    packages = ('netdump')
+    files = ('/etc/sysconfig/netdump',)
+    packages = ('netdump',)
 
     def setup(self):
         self.addCopySpec("/etc/sysconfig/netdump")

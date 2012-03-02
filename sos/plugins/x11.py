@@ -19,7 +19,7 @@ class x11(Plugin, RedHatPlugin):
     """X related information
     """
 
-    files = ('/etc/X11')
+    files = ('/etc/X11',)
 
     def setup(self):
         self.addCopySpecs([

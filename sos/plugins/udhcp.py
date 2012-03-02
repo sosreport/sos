@@ -18,8 +18,8 @@ from sos.plugins import Plugin, UbuntuPlugin
 class udhcp(Plugin, UbuntuPlugin):
     """DHCP related information
     """
-    files = ('/etc/init.d/udhcpd')
-    packages = ('udhcpd')
+    files = ('/etc/init.d/udhcpd',)
+    packages = ('udhcpd',)
 
     def setup(self):
         self.addCopySpecs([

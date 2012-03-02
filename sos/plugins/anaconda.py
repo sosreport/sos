@@ -18,7 +18,7 @@ class anaconda(Plugin, RedHatPlugin):
     """Anaconda / Installation information
     """
 
-    files = ('/var/log/anaconda.log')
+    files = ('/var/log/anaconda.log',)
 
     def setup(self):
         self.addCopySpecs([

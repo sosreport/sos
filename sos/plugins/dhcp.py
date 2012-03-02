@@ -18,8 +18,8 @@ class dhcp(Plugin, RedHatPlugin):
     """DHCP related information
     """
 
-    files = ('/etc/rc.d/init.d/dhcpd')
-    packages = ('dhcp')
+    files = ('/etc/rc.d/init.d/dhcpd',)
+    packages = ('dhcp',)
 
     def setup(self):
         self.addCopySpecs([

@@ -19,8 +19,8 @@ class ftp(Plugin, RedHatPlugin):
     """FTP server related information
     """
 
-    files = ('/etc/vsftpd')
-    packages = ('vsftpd')
+    files = ('/etc/vsftpd',)
+    packages = ('vsftpd',)
 
     def setup(self):
         self.addCopySpec("/etc/ftp*")

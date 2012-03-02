@@ -19,8 +19,8 @@ class kdump(Plugin, RedHatPlugin):
     """Kdump related information
     """
 
-    files = ('/etc/kdump.conf')
-    packages = ('kexec-tools')
+    files = ('/etc/kdump.conf',)
+    packages = ('kexec-tools',)
 
     def setup(self):
         self.addCopySpecs([

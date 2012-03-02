@@ -21,8 +21,8 @@ class tftpserver(Plugin, RedHatPlugin):
     """tftpserver related information
     """
 
-    files = ('/etc/xinetd.d/tftp')
-    packages = ('tftp-server')
+    files = ('/etc/xinetd.d/tftp',)
+    packages = ('tftp-server',)
 
     def setup(self):
         self.collectExtOutput("/bin/ls -lanR /tftpboot")

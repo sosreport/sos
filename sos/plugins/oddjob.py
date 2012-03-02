@@ -20,8 +20,8 @@ class oddjob(Plugin, RedHatPlugin):
     """oddjob related information
     """
 
-    files = ('/etc/oddjobd.conf')
-    packages = ('oddjob')
+    files = ('/etc/oddjobd.conf',)
+    packages = ('oddjob',)
 
     def setup(self):
         self.addCopySpec("/etc/oddjobd.conf")

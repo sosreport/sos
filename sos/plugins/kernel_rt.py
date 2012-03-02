@@ -22,7 +22,7 @@ class kernel_rt(RedHatPlugin):
 
     # this file exists only when the realtime kernel is booted
     # this plugin will not be called is this file does not exist
-    files = ('/sys/kernel/realtime')
+    files = ('/sys/kernel/realtime',)
 
     def setup(self):
         self.addCopySpec('/etc/rtgroups')

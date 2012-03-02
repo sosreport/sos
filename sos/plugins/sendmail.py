@@ -21,8 +21,8 @@ class sendmail(Plugin, RedHatPlugin):
     """sendmail information
     """
 
-    files = ('/etc/rc.d/init.d/sendmail')
-    packages = ('sendmail')
+    files = ('/etc/rc.d/init.d/sendmail',)
+    packages = ('sendmail',)
 
     def setup(self):
         self.addCopySpecs(["/etc/mail/*", "/var/log/maillog"])

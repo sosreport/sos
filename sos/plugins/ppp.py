@@ -21,8 +21,8 @@ class ppp(Plugin, RedHatPlugin):
     """ppp, wvdial and rp-pppoe related information
     """
 
-    files = ('/etc/wvdial.conf')
-    packages = ('ppp')
+    files = ('/etc/wvdial.conf',)
+    packages = ('ppp',)
 
     def setup(self):
         self.addCopySpecs([

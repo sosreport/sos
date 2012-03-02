@@ -20,7 +20,7 @@ class systemtap(Plugin, RedHatPlugin):
     """SystemTap information
     """
 
-    files = ('/usr/bin/stap')
+    files = ('/usr/bin/stap',)
     packages = ('systemtap', 'systemtap-runtime')
 
     def setup(self):

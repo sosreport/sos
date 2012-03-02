@@ -19,7 +19,7 @@ class vmware(Plugin, RedHatPlugin):
     """VMWare related information
     """
 
-    files = ('/usr/bin/vmware')
+    files = ('/usr/bin/vmware',)
 
     def setup(self):
         self.collectExtOutput("/usr/bin/vmware -v")

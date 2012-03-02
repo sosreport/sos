@@ -38,11 +38,11 @@ except:
 
 class RHELPackageManager(PackageManager):
 
+    _rpms = None
+
     def _get_rpm_list(self):
-        pkg_list = shell_out(["rpm",
-            "-qa",
-            "--queryformat",
-            "%{NAME}|%{VERSION}\\n"]).splitlines()
+        cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
+        pkg_list = shell_out(cmd).splitlines()
         self._rpms = {}
         for pkg in pkg_list:
             name, version = pkg.split("|")

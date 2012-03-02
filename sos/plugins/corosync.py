@@ -18,8 +18,8 @@ class corosync(Plugin, RedHatPlugin):
     """ corosync information
     """
 
-    files = ('/usr/bin/corosync')
-    packages = ('corosync')
+    files = ('/usr/bin/corosync',)
+    packages = ('corosync',)
 
     def setup(self):
         self.addCopySpecs([

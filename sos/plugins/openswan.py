@@ -21,8 +21,8 @@ class openswan(Plugin, RedHatPlugin):
     """ipsec related information
     """
 
-    files = ('/etc/ipsec.conf')
-    packages = ('openswan')
+    files = ('/etc/ipsec.conf',)
+    packages = ('openswan',)
 
     def setup(self):
         self.addCopySpecs([

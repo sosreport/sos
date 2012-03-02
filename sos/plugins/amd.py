@@ -19,8 +19,8 @@ from sos.plugins import Plugin, RedHatPlugin
 class amd(Plugin, RedHatPlugin):
     """Amd automounter information
     """
-    files = ('/etc/rc.d/init.d/amd')
-    packages = ('am-utils')
+    files = ('/etc/rc.d/init.d/amd',)
+    packages = ('am-utils',)
 
     def setup(self):
         self.addCopySpecs("/etc/amd.*")

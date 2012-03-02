@@ -19,8 +19,8 @@ class yum(Plugin, RedHatPlugin):
     """yum information
     """
 
-    files = ('/etc/yum.conf')
-    packages = ('yum')
+    files = ('/etc/yum.conf',)
+    packages = ('yum',)
     optionList = [("yumlist", "list repositories and packages", "slow", False)]
     optionList = [("yumdebug", "gather yum debugging data", "slow", False)]
 

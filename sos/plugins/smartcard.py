@@ -22,8 +22,8 @@ class smartcard(Plugin, RedHatPlugin):
     """Smart Card related information
     """
 
-    files = ('/etc/pam_pkcs11/pam_pkcs11.conf')
-    packages = ('pam_pkcs11')
+    files = ('/etc/pam_pkcs11/pam_pkcs11.conf',)
+    packages = ('pam_pkcs11',)
 
     def setup(self):
         self.addCopySpecs([

@@ -21,7 +21,7 @@ class named(Plugin, RedHatPlugin):
     """
 
     files = ('/etc/named.conf', '/etc/sysconfig/named')
-    packages = ('bind')
+    packages = ('bind',)
 
     def getDnsDir(self, configFile):
         """ grab directory path from named{conf,boot}

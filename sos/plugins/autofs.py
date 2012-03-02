@@ -21,8 +21,8 @@ class autofs(Plugin, RedHatPlugin):
     """autofs server-related information
     """
 
-    files = ('/etc/sysconfig/autofs')
-    packages = ('autofs')
+    files = ('/etc/sysconfig/autofs',)
+    packages = ('autofs',)
 
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere

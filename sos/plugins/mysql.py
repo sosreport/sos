@@ -19,7 +19,7 @@ class mysql(Plugin, RedHatPlugin):
     """MySQL related information
     """
 
-    files = ('/etc/my.cnf')
+    files = ('/etc/my.cnf',)
     packages = ('mysql-server', 'mysql')
 
     def setup(self):

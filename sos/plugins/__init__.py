@@ -37,7 +37,6 @@ import shutil
 from stat import *
 from time import time
 from itertools import *
-from collections import deque
 import logging
 import urllib2
 
@@ -88,26 +87,25 @@ class Plugin(object):
 
     requires_root = True
     version = 'unversioned'
+    packages = ()
+    files = ()
 
     def __init__(self, commons):
         if not getattr(self, "optionList", False):
-            self.optionList = deque()
+            self.optionList = []
 
-        self.copiedFiles = deque()
-        self.executedCommands = deque()
-        self.diagnose_msgs = deque()
-        self.alerts = deque()
+        self.copiedFiles = []
+        self.executedCommands = []
+        self.diagnose_msgs = []
+        self.alerts = []
         self.customText = ""
-        self.optNames = deque()
-        self.optParms = deque()
+        self.optNames = []
+        self.optParms = []
         self.cInfo = commons
-        self.forbiddenPaths = deque()
-        self.copyPaths = deque()
-        self.copyStrings = deque()
-        self.collectProgs = deque()
-
-        self.packages = deque()
-        self.files = deque()
+        self.forbiddenPaths = []
+        self.copyPaths = []
+        self.copyStrings = []
+        self.collectProgs = []
 
         self.must_exit = False
 

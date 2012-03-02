@@ -19,8 +19,8 @@ class squid(Plugin, RedHatPlugin):
     """squid related information
     """
 
-    files = ('/etc/squid/squid.conf')
-    packages = ('squid')
+    files = ('/etc/squid/squid.conf',)
+    packages = ('squid',)
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")
