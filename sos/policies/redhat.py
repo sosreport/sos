@@ -1,5 +1,3 @@
-## Implement policies required for the sos system support tool
-
 ## Copyright (C) Steve Conklin <sconklin@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
@@ -17,14 +15,11 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 # This enables the use of with syntax in python 2.5 (e.g. jython)
-from __future__ import with_statement
-
 import os
 import sys
 
 from sos.plugins import RedHatPlugin
 from sos.policies import LinuxPolicy, PackageManager
-from sos.utilities import shell_out
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
