@@ -1,11 +1,11 @@
-Source: sosreport
+Source: sos
 Maintainer: Adam Stokes <adam.stokes@canonical.com>
 Section: python
 Priority: optional
 Standards-Version: 3.9.2
 Build-Depends: debhelper (>= 8), python-support, python (>=2.7), gettext
 
-Package: sosreport
+Package: sos
 Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}
 Description: A set of tools to gather troubleshooting information from a system
