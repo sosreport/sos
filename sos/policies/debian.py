@@ -8,11 +8,11 @@ import os
 
 class DebianPackageManager(PackageManager):
 
+    _debs = None
+
     def _get_deb_list(self):
-        pkg_list = shell_out(["dpkg-query",
-            "-W",
-            "-f=",
-        "'${Package}|${Version}\\n' \*"]).splitlines()
+        cmd = "dpkg-query -W -f='${Package}|${Version}\\n' \*"
+        pkg_list = shell_out(cmd).splitlines()
         self._debs = {}
         for pkg in pkg_list:
             name, version = pkg.split("|")

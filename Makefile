@@ -13,9 +13,11 @@ PYFILES = $(wildcard *.py)
 # MSGCAT = /usr/local/Cellar/gettext/0.18.1.1/bin/msgcat
 MSGCAT = msgcat
 
+# Default to Red Hat GPG template
+GPG_TPL=rh
 
-RPM_BUILD_DIR = rpm-build
-RPM_DEFINES = --define "_topdir %(pwd)/$(RPM_BUILD_DIR)" \
+DIST_BUILD_DIR = dist-build
+RPM_DEFINES = --define "_topdir %(pwd)/$(DIST_BUILD_DIR)" \
 	--define "_builddir %{_topdir}" \
 	--define "_rpmdir %{_topdir}" \
 	--define "_srcrpmdir %{_topdir}" \
@@ -23,10 +25,10 @@ RPM_DEFINES = --define "_topdir %(pwd)/$(RPM_BUILD_DIR)" \
 	--define "_sourcedir %{_topdir}"
 RPM = rpmbuild
 RPM_WITH_DIRS = $(RPM) $(RPM_DEFINES)
-ARCHIVE_DIR = $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
+ARCHIVE_DIR = $(DIST_BUILD_DIR)/$(NAME)-$(VERSION)
 
 ARCHIVE_NAME = sosreport.zip
-SRC_BUILD = $(RPM_BUILD_DIR)/sdist
+SRC_BUILD = $(DIST_BUILD_DIR)/sdist
 PO_DIR = $(SRC_BUILD)/sos/po
 ZIP_DEST = $(SRC_BUILD)/$(ARCHIVE_NAME)
 
@@ -44,7 +46,7 @@ install: updateversion
 	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
 	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
-	install -m644 LICENSE README TODO $(DESTDIR)/usr/share/$(NAME)/.
+	install -m644 LICENSE README $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
@@ -54,10 +56,10 @@ updateversion:
   
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
 	@mkdir -p $(ARCHIVE_DIR)
-	@tar -cv sosreport sos doc man po sos.conf TODO LICENSE README sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
+	@tar -cv sosreport sos doc man po sos.conf LICENSE README sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
 	@mkdir -p $(ARCHIVE_DIR)/gpgkeys
-	@cp gpgkeys/rhsupport.pub $(ARCHIVE_DIR)/gpgkeys/.
-	@tar Ccvzf $(RPM_BUILD_DIR) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
+	@cp gpgkeys/$(GPG_TPL)support.pub $(ARCHIVE_DIR)/gpgkeys/.
+	@tar Ccvzf $(DIST_BUILD_DIR) $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz sos.conf.5.gz
@@ -68,15 +70,15 @@ clean:
 	for d in $(SUBDIRS); do make -C $$d clean ; done
 
 srpm: clean $(NAME)-$(VERSION).tar.gz
-	$(RPM_WITH_DIRS) -ts $(RPM_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
+	$(RPM_WITH_DIRS) -ts $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
 
 rpm: clean $(NAME)-$(VERSION).tar.gz
-	$(RPM_WITH_DIRS) -tb $(RPM_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
+	$(RPM_WITH_DIRS) -tb $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
 
 gpgkey:
 	@echo "Building gpg key"
-	@test -f gpgkeys/rhsupport.pub && echo "GPG key already exists." || \
-	gpg --batch --gen-key gpgkeys/gpg.template
+	@test -f gpgkeys/$(GPG_TPL)support.pub && echo "GPG key already exists." || \
+	gpg --batch --gen-key gpgkeys/$(GPG_TPL).template
 
 po: clean
 	mkdir -p $(PO_DIR)

@@ -5,3 +5,9 @@ DH_ALWAYS_EXCLUDE=.git
 %:
 	dh $@
 	
+override_dh_pysupport:
+	dh_python2 -p sos
+override_dh_fixperms:
+	dh_fixperms -Xsos
+override_dh_auto_test:
+	
