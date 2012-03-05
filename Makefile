@@ -48,7 +48,7 @@ install: updateversion
 	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
 	install -m644 LICENSE README $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
-	install -m644 gpgkeys/rhsupport.pub $(DESTDIR)/usr/share/$(NAME)/.
+	install -m644 gpgkeys/$(GPG_TPL)support.pub $(DESTDIR)/usr/share/$(NAME)/.
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 updateversion:
