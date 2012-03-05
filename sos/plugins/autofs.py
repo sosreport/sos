@@ -14,21 +14,23 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, IndependentPlugin
 import os, re
 
-class autofs(Plugin, RedHatPlugin):
+class autofs(Plugin, IndependentPlugin):
     """autofs server-related information
     """
 
-    files = ('/etc/sysconfig/autofs',)
+    files = ('/etc/sysconfig/autofs','/etc/default/autofs')
     packages = ('autofs',)
 
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere
         """
         # Global debugging
-        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
+        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", 
+                             "/etc/sysconfig/autofs",
+                             "/etc/default/autofs")
         for opt1 in opt:
             for opt2 in opt1.split(" "):
                 if opt2 in ("--debug", "debug"):
