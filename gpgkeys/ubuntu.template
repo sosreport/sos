@@ -7,7 +7,7 @@ Name-Real: Ubuntu Support
 Name-Comment: SoS Encryption Key
 Name-Email: support@canonical.com
 Expire-Date: 0
-Passphrase: ubuntu
+Passphrase: ubuntutemplateexample
 %pubring gpgkeys/ubuntusupport.pub
 %secring gpgkeys/ubuntusupport.key
 %commit
