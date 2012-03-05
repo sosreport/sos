@@ -50,7 +50,7 @@ import tempfile
 from sos import _sos as _
 from sos import __version__
 import sos.policies
-from sos.utilities import TarFileArchive, ZipFileArchive, compress
+from sos.utilities import TarFileArchive, ZipFileArchive
 from sos.reporting import Report, Section, Command, CopiedFile, CreatedFile, Alert, Note, PlainTextReport
 
 class TempFileUtil(object):
