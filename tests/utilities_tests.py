@@ -2,8 +2,10 @@ import os.path
 import unittest
 from StringIO import StringIO
 
-from sos.utilities import grep, DirTree, checksum
+from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sosGetCommandOutput, find
 import sos
+
+TEST_DIR = os.path.dirname(__file__)
 
 class GrepTest(unittest.TestCase):
 
@@ -30,8 +32,52 @@ class DirTreeTest(unittest.TestCase):
         t = DirTree(os.path.dirname(sos.__file__)).as_string()
         self.assertTrue('Makefile' in t)
 
+
 class ChecksumTest(unittest.TestCase):
 
     def test_simple_hash(self):
         self.assertEquals(checksum(StringIO('this is a test'), algorithm="sha256"),
                 '2e99758548972a8e8822ad47fa1017ff72f06f3ff6a016851f45c398732bc50c')
+
+    def test_hash_loading(self):
+       # not the greatest test, since we are asking the policy to pick for us
+       name = get_hash_name()
+       self.assertTrue(name in ('md5', 'sha256'))
+
+
+class ExecutableTest(unittest.TestCase):
+
+    def test_nonexe_file(self):
+        path = os.path.join(TEST_DIR, 'utility_tests.py')
+        self.assertFalse(is_executable(path))
+
+    def test_exe_file(self):
+        path = os.path.join(TEST_DIR, 'test_exe.py')
+        self.assertTrue(is_executable(path))
+
+    def test_output(self):
+        path = os.path.join(TEST_DIR, 'test_exe.py')
+        ret, out, junk = sosGetCommandOutput(path)
+        self.assertEquals(ret, 0)
+        self.assertEquals(out, "executed")
+
+    def test_output_non_exe(self):
+        path = os.path.join(TEST_DIR, 'utility_tests.py')
+        ret, out, junk = sosGetCommandOutput(path)
+        self.assertEquals(ret, 127)
+        self.assertEquals(out, "")
+
+
+class FindTest(unittest.TestCase):
+
+    def test_find_leaf(self):
+        leaves = find("leaf", TEST_DIR)
+        self.assertTrue(any(name.endswith("leaf") for name in leaves))
+
+    def test_too_shallow(self):
+        leaves = find("leaf", TEST_DIR, max_depth=1)
+        self.assertFalse(any(name.endswith("leaf") for name in leaves))
+
+    def test_not_in_pattern(self):
+        leaves = find("leaf", TEST_DIR, path_pattern="tests/path")
+        self.assertFalse(any(name.endswith("leaf") for name in leaves))

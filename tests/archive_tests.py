@@ -66,13 +66,27 @@ class ZipFileArchiveTest(unittest.TestCase):
         afp = self.zf.open_file('tests/string_test.txt')
         self.assertEquals('this is my new content', afp.read())
 
+    def test_make_link(self):
+        self.zf.add_file('tests/ziptest')
+        self.zf.add_link('tests/ziptest', 'link_name')
+
+        self.zf.close()
+        try:
+            self.check_for_file('test/link_name')
+            self.fail("link should not exist")
+        except KeyError:
+            pass
+
+    def test_compress(self):
+        self.assertEquals(self.zf.compress("zip"), self.zf.name())
+
 class TarFileArchiveTest(unittest.TestCase):
 
     def setUp(self):
         self.tf = TarFileArchive('test')
 
     def tearDown(self):
-        os.unlink('test.tar')
+        os.unlink(self.tf.name())
 
     def check_for_file(self, filename):
         rtf = tarfile.open('test.tar')
@@ -125,6 +139,16 @@ class TarFileArchiveTest(unittest.TestCase):
 
         afp = self.tf.open_file('tests/string_test.txt')
         self.assertEquals('this is my new content', afp.read())
+
+    def test_make_link(self):
+        self.tf.add_file('tests/ziptest')
+        self.tf.add_link('tests/ziptest', 'link_name')
+
+        self.tf.close()
+        self.check_for_file('test/link_name')
+
+    def test_compress(self):
+        name = self.tf.compress("gzip")
 
 if __name__ == "__main__":
     unittest.main()

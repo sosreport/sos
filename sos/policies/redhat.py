@@ -36,40 +36,21 @@ except:
     pass
 
 
-class RHELPackageManager(PackageManager):
-
-    _rpms = None
-
-    def _get_rpm_list(self):
-        cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
-        pkg_list = shell_out(cmd).splitlines()
-        self._rpms = {}
-        for pkg in pkg_list:
-            name, version = pkg.split("|")
-            self._rpms[name] = {
-                    'name': name,
-                    'version': version
-                    }
-
-    def allPkgs(self):
-        if not self._rpms:
-            self._rpms = self._get_rpm_list()
-        return self._rpms
-
-
 class RHELPolicy(LinuxPolicy):
 
     def __init__(self):
         super(RHELPolicy, self).__init__()
         self.reportName = ""
         self.ticketNumber = ""
-        self.package_manager = RHELPackageManager()
+        self.package_manager = PackageManager('rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
         self.valid_subclasses = [RedHatPlugin]
 
     @classmethod
     def check(self):
-        "This method checks to see if we are running on RHEL. It returns True or False."
-        return os.path.isfile('/etc/redhat-release') or os.path.isfile('/etc/fedora-release')
+        """This method checks to see if we are running on RHEL. It returns True
+        or False."""
+        return (os.path.isfile('/etc/redhat-release')
+             or os.path.isfile('/etc/fedora-release'))
 
     def runlevelByService(self, name):
         from subprocess import Popen, PIPE
@@ -99,7 +80,7 @@ class RHELPolicy(LinuxPolicy):
             pkgname = pkg["version"]
             if pkgname[0] == "4":
                 return 4
-            elif pkgname in [ "5Server", "5Client" ]:
+            elif pkgname[0] in [ "5Server", "5Client" ]:
                 return 5
             elif pkgname[0] == "6":
                 return 6

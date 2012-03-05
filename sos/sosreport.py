@@ -801,9 +801,7 @@ class SoSReport(object):
 
         self._finish_logging()
 
-        self.archive.close()
-
-        final_filename = compress(self.archive, self.opts.compression_type)
+        final_filename = self.archive.compress(self.opts.compression_type)
 
         # automated submission will go here
         if not self.opts.upload:

@@ -34,6 +34,21 @@ def load(cache={}):
 
 
 class PackageManager(object):
+    """Encapsulates a package manager. If you provide a query_command to the
+    constructor it should print each package on the system in the following
+    format:
+        package name|package.version\n
+
+    You may also subclass this class and provide a getPackageList method to
+    build the list of packages and versions.
+    """
+
+    query_command = None
+
+    def __init__(self, query_command=None):
+        self.packages = {}
+        if query_command:
+            self.query_command = query_command
 
     def allPkgsByName(self, name):
         """
@@ -57,11 +72,29 @@ class PackageManager(object):
         except Exception:
             return None
 
+    def getPackageList(self):
+        """
+        returns a dictionary of packages in the following format:
+        {'package_name': {'name': 'package_name', 'version': 'major.minor.version'}}
+        """
+        if self.query_command:
+            pkg_list = shell_out(self.query_command).splitlines()
+            for pkg in pkg_list:
+                name, version = pkg.split("|")
+                self.packages[name] = {
+                    'name': name,
+                    'version': version.split(".")
+                }
+
+        return self.packages
+
     def allPkgs(self):
         """
         Return a list of all packages.
         """
-        return {}
+        if not self.packages:
+            self.packages = self.getPackageList()
+        return self.packages
 
     def pkgNVRA(self, pkg):
         fields = pkg.split("-")
