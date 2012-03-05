@@ -5,3 +5,5 @@ DH_ALWAYS_EXCLUDE=.git
 %:
 	dh $@
 	
+override_dh_auto_test:
+	
