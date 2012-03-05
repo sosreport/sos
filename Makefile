@@ -100,10 +100,4 @@ zip: po
 	cd $(SRC_BUILD) && rm -rf sos
 
 test:
-	@for test in `ls tests/*test*.py`; do \
-		echo $$test; \
-		PYTHONPATH=`pwd` python $$test; \
-	done; \
-
-nose:
 	nosetests -v --with-cover --cover-package=sos --cover-html
