@@ -41,6 +41,7 @@ class hardware(sos.plugintools.PluginBase):
         self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
         self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
+	self.collectExtOutput("/usr/bin/cpufreq-info")
 
         if self.policy().getArch().endswith("386"):
             self.collectExtOutput("/usr/sbin/x86info -a")
