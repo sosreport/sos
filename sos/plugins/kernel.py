@@ -65,6 +65,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/modules.conf")
         self.addCopySpec("/etc/modprobe.conf")
         self.addCopySpec("/etc/modprobe.d/")
+	self.addCopySpec("/proc/irq/")
         self.collectExtOutput("/usr/sbin/dkms status")
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/proc/driver")
