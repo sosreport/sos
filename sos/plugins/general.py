@@ -61,18 +61,14 @@ class general(sos.plugintools.PluginBase):
                 self.addForbiddenPath("/etc/pki/entitlement/*-key.pem")
 
         if self.getOption('all_logs'):
-            if rhelver == 5 or rhelver == 4:
-                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/syslog.conf")
-                for i in logs:
-                    if not os.path.isfile(i): continue
-                    self.addCopySpec(i)
-
-            if rhelver == 6:
-                logs=self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", "/etc/rsyslog.conf")
-                for i in logs:
-                    if not os.path.isfile(i): continue
-                    self.addCopySpec(i)
-
+            logs = self.doRegexFindAll("^\S+\s+(-?\/.*$)\s+", "/etc/syslog.conf")
+            if self.cInfo["policy"].pkgByName("rsyslog") or os.path.exists("/etc/rsyslog.conf"):
+                logs += self.doRegexFindAll("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
+            for i in logs:
+                if i.startswith("-"):
+                    i = i[1:]
+                if os.path.isfile(i):
+                    self.addCopySpecLimit(i, sizelimit = self.isOptionEnabled("syslogsize"))
         return
 
     def postproc(self):
