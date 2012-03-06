@@ -19,6 +19,7 @@ class cgroups(sos.plugintools.PluginBase):
     """
 
     def setup(self):
+        self.addCopySpec("/proc/cgroups")
         self.addCopySpec("/etc/sysconfig/cgconfig")
         self.addCopySpec("/etc/sysconfig/cgred.conf")
         self.addCopySpec("/etc/cgsnapshot_blacklist.conf")
