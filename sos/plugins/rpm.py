@@ -24,7 +24,12 @@ class rpm(Plugin, RedHatPlugin):
         self.addCopySpec("/var/log/rpmpkgs")
 
         if self.getOption("rpmq"):
-            self.collectExtOutput("/bin/rpm -qa --qf=\"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~%{INSTALLTIME:date}\t%{INSTALLTIME}\t%{VENDOR}\n\" --nosignature --nodigest|/bin/awk -F ~~ '{printf \"%-60s%s\\n\",$1,$2}'|sort", root_symlink = "installed-rpms")
+            self.collectExtOutput("/bin/rpm -qa --qf="
+                "\"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~"
+                "%{INSTALLTIME:date}\t%{INSTALLTIME}\t%{VENDOR}\n\""
+                " --nosignature --nodigest | /bin/awk -F '~~' "
+                "'{printf \"%-59s %s\\n\",$1,$2}'|sort",
+                root_symlink = "installed-rpms")
 
         if self.getOption("rpmva"):
             self.collectExtOutput("/bin/rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
