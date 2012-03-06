@@ -176,6 +176,10 @@ class PluginBase:
             except OSError:
                 # self.soslog.debug("skipping symlink creation: already exists (%s)" % dstslname)
                 return
+            if os.path.isabs(link):
+                self.doCopyFileOrDir(link)
+            else:
+                self.doCopyFileOrDir(os.path.join(os.path.dirname(srcpath), link))
 
             self.copiedFiles.append({'srcpath':srcpath, 'dstpath':rpth, 'symlink':"yes", 'pointsto':link})
             return
