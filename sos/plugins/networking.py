@@ -58,7 +58,7 @@ class networking(sos.plugintools.PluginBase):
             self.writeTextToCommand(cmd,"IPTables module "+tablename+" not loaded\n")
 
     def setup(self):
-        self.addCopySpec("/proc/net")
+        self.addCopySpec("/proc/net/")
         self.addCopySpec("/etc/nsswitch.conf")
         self.addCopySpec("/etc/yp.conf")
         self.addCopySpec("/etc/inetd.conf")
