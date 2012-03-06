@@ -32,3 +32,6 @@ class anaconda(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/anaconda.xlog")
         return
 
+    def postproc(self):
+        self.doRegexSub("/root/anaconda-ks.cfg", r"(\s*rootpw\s*).*", r"\1*** PASSWORD ELIDED ***")
+        return

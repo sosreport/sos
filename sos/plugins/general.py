@@ -47,7 +47,6 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/date", symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", symlink = "uptime")
         self.collectExtOutput("/bin/dmesg")
-        self.addCopySpec("/root/anaconda-ks.cfg")
         self.collectExtOutput("/usr/sbin/alternatives --display java", symlink = "java")
         self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
 
