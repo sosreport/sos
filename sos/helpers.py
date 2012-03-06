@@ -27,7 +27,7 @@ helper functions used by sosreport and plugins
 """
 import os, sys
 import logging
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 
 def importPlugin(pluginname, name):
     """ Import a plugin to extend capabilities of sosreport
@@ -53,7 +53,7 @@ def sosGetCommandOutput(command, timeout = 300):
         # soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % cmdfile)
         return (127, "", 0)
 
-    p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
+    p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
     stdout, stderr = p.communicate()
     return (p.returncode, stdout, 0)
 
