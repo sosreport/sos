@@ -25,6 +25,6 @@ class lsbrelease(sos.plugintools.PluginBase):
             return
     def setup(self):
         self.collectExtOutput("/usr/bin/lsb_release -a")
-        self.collectExtOutput("/usr/bin/lsb_release -d", suggest_filename = "lsb_release", root_symlink = "lsb-release")
+        self.collectExtOutput("/usr/bin/lsb_release -d", suggest_filename = "lsb_release", symlink = "lsb-release")
         self.addCopySpec("/etc/lsb-release*")
         return    

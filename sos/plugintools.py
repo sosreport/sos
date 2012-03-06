@@ -302,7 +302,7 @@ class PluginBase:
             # ensuring we get at least some logs
             if flog == files[0] and limit_reached:
                 self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
-                    "tail_" + os.path.basename(flog))
+                    "tail_" + os.path.basename(flog), flog[1:])
 
     def addCopySpec(self, copyspec):
         """ Add a file specification (can be file, dir,or shell glob) to be
@@ -324,11 +324,11 @@ class PluginBase:
         status, shout, runtime = sosGetCommandOutput(prog)
         return (status, shout, runtime)
 
-    def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None, timeout = 300):
+    def collectExtOutput(self, exe, suggest_filename = None, symlink = None, timeout = 300):
         """
         Run a program and collect the output
         """
-        self.collectProgs.append( (exe, suggest_filename, root_symlink, timeout) )
+        self.collectProgs.append( (exe, suggest_filename, symlink, timeout) )
 
     def fileGrep(self, regexp, fname):
         try:
@@ -360,7 +360,7 @@ class PluginBase:
 
         return outfn
 
-    def collectOutputNow(self, exe, suggest_filename = None, root_symlink = False, timeout = 300):
+    def collectOutputNow(self, exe, suggest_filename = None, symlink = False, timeout = 300):
         """ Execute a command and save the output to a file for inclusion in
         the report
         """
@@ -385,11 +385,13 @@ class PluginBase:
                 outfd.write(shout+"\n")
             outfd.close()
 
-            if root_symlink:
+            if symlink:
+                dst_from_root = outfn[len(self.cInfo['dstroot'])+1:]
+                target = ("../" * string.count(symlink, "/")) + dst_from_root
                 curdir = os.getcwd()
                 os.chdir(self.cInfo['dstroot'])
                 try:
-                    os.symlink(outfn[len(self.cInfo['dstroot'])+1:], root_symlink.strip("/."))
+                    os.symlink(target, symlink.strip("/."))
                 except:
                     pass
                 os.chdir(curdir)

@@ -34,7 +34,7 @@ class devicemapper(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/dmsetup status")
         self.collectExtOutput("/sbin/dmsetup ls --tree")
 
-        self.collectExtOutput("/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
+        self.collectExtOutput("/sbin/vgdisplay -vv", symlink = "vgdisplay")
         self.collectExtOutput("/sbin/vgscan -vvv")
         self.collectExtOutput("/sbin/pvscan -v")
         self.collectExtOutput("/sbin/lvs -a -o +devices")

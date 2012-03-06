@@ -43,12 +43,12 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/pm/suspend.log")
         self.addCopySpec("/var/log/up2date")
         self.addCopySpec("/etc/exports")        
-        self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
-        self.collectExtOutput("/bin/date", root_symlink = "date")
-        self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
+        self.collectExtOutput("/bin/hostname", symlink = "hostname")
+        self.collectExtOutput("/bin/date", symlink = "date")
+        self.collectExtOutput("/usr/bin/uptime", symlink = "uptime")
         self.collectExtOutput("/bin/dmesg")
         self.addCopySpec("/root/anaconda-ks.cfg")
-        self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
+        self.collectExtOutput("/usr/sbin/alternatives --display java", symlink = "java")
         self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
 
         # new entitlement certificate support

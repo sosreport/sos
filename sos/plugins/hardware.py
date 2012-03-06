@@ -38,9 +38,9 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/sys/bus/scsi")
         self.addCopySpec("/sys/state")
         self.collectExtOutput("python /usr/share/rhn/up2date_client/hardware.py", suggest_filename="hardware.py")
-        self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
+        self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", symlink = "lspci")
 
-        self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
+        self.collectExtOutput("/usr/sbin/dmidecode", symlink = "dmidecode")
 	self.collectExtOutput("/usr/bin/cpufreq-info")
 
         if self.policy().getArch().endswith("386"):
