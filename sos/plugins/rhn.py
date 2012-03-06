@@ -72,13 +72,8 @@ class rhn(sos.plugintools.PluginBase):
             self.addCopySpec("/etc/tnsnames.ora")   
             self.addCopySpec("/etc/jabberd")
 
-            # tomcat (4.x and newer satellites only)
-            if not self.policy().pkgNVRA(satellite)[1].startswith("3."):
-               self.addCopySpec("/etc/tomcat5")
-               self.addCopySpec("/var/log/tomcat5")
-
-            self.addCopySpec("/etc/tomcat5/")
-            self.addCopySpec("/var/log/tomcat5/")
+            self.addCopySpec("/etc/tomcat6/")
+            self.addCopySpec("/var/log/tomcat6/")
 
         if self.proxy:
             # copying configuration information
