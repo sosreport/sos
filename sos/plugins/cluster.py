@@ -48,6 +48,7 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/cluster")
         self.addCopySpec("/etc/sysconfig/cluster")
         self.addCopySpec("/etc/sysconfig/cman")
+	self.addCopySpec("/etc/fence_virt.conf")
         self.addCopySpec("/var/lib/ricci")
         self.addCopySpec("/var/lib/luci")
         self.addCopySpec("/var/log/cluster")
