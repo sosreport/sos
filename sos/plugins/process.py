@@ -20,11 +20,11 @@ class process(sos.plugintools.PluginBase):
     """process information
     """
     def setup(self):
-        self.collectExtOutput("/bin/ps auxwww", root_symlink = "ps")
+        self.collectExtOutput("/bin/ps auxwww", symlink = "ps")
         self.collectExtOutput("/bin/ps auxwwwm")
         self.collectExtOutput("/bin/ps alxwww")
-        self.collectExtOutput("/usr/bin/pstree", root_symlink = "pstree")
-        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
+        self.collectExtOutput("/usr/bin/pstree", symlink = "pstree")
+        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", symlink = "lsof")
         return
 
     def find_mountpoint(s):

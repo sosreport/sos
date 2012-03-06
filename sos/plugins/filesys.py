@@ -30,12 +30,12 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/mounts")
         self.addCopySpec("/proc/mdstat")
         self.addCopySpec("/etc/raidtab")
-        mounts = self.collectOutputNow("/bin/mount -l", root_symlink = "mount")
+        mounts = self.collectOutputNow("/bin/mount -l", symlink = "mount")
         self.addCopySpec("/etc/mdadm.conf")
         
-        self.collectExtOutput("/bin/df -al", root_symlink = "df")
+        self.collectExtOutput("/bin/df -al", symlink = "df")
         if self.getOption('lsof'):
-            self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
+            self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", symlink = "lsof")
         self.collectExtOutput("/sbin/blkid -c /dev/null")
         self.collectExtOutput("/bin/lsblk")
         

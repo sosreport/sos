@@ -27,7 +27,7 @@ class sar(sos.plugintools.PluginBase):
                 sar_filename = 'sar' + fname[2:4]
                 if sar_filename not in dirList:
                     sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar -A -f /var/log/sa/" + fname + "\""
-                    self.collectOutputNow(sar_command, sar_filename, root_symlink=sar_filename)
+                    self.collectOutputNow(sar_command, sar_filename, symlink=sar_filename)
         return
 
     def checkenabled(self):

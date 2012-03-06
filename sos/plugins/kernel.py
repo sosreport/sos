@@ -41,8 +41,8 @@ class kernel(sos.plugintools.PluginBase):
         ]
 
     def setup(self):
-        self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
-        self.moduleFile = self.collectOutputNow("/sbin/lsmod", root_symlink = "lsmod")
+        self.collectExtOutput("/bin/uname -a", symlink = "uname")
+        self.moduleFile = self.collectOutputNow("/sbin/lsmod", symlink = "lsmod")
 
         if self.getOption('modinfo'):
             runcmd = ""
