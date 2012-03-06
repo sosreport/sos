@@ -28,7 +28,7 @@ class networking(sos.plugintools.PluginBase):
         out=[]
         fp = open(brctlFile, 'r')
         for line in fp.readlines():
-            if line.startswith("bridge name") or line.isspace():
+            if line.startswith("bridge name") or line.isspace() or line[:1].isspace():
                 continue
             brName, brRest = line.split(None, 1)
             out.append(brName)
