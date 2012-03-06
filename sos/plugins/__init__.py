@@ -599,6 +599,9 @@ class Plugin(object):
 
         return html
 
+class LinuxPlugin(object):
+    """Tagging class to indicate that this plugin works with Linux in general"""
+    pass
 
 class RedHatPlugin(object):
     """Tagging class to indicate that this plugin works with Red Hat Linux"""

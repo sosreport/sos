@@ -2,14 +2,14 @@ from __future__ import with_statement
 
 import os
 
-from sos.plugins import UbuntuPlugin, IndependentPlugin
+from sos.plugins import UbuntuPlugin, LinuxPlugin
 from sos.policies.debian import DebianPolicy
 
 class UbuntuPolicy(DebianPolicy):
     def __init__(self):
         super(UbuntuPolicy, self).__init__()
         self.distro = "Ubuntu"
-        self.valid_subclasses = [UbuntuPlugin]
+        self.valid_subclasses = [UbuntuPlugin, LinuxPlugin]
 
     @classmethod
     def check(self):

@@ -4,6 +4,8 @@
 
 NAME	= sos
 VERSION = $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
+MAJOR   = $(shell echo $(VERSION) | cut -f 1 -d '.')
+MINOR   = $(shell echo $(VERSION) | cut -f 2 -d '.')
 RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
 REPO = http://github.com/sosreport
 
@@ -74,6 +76,10 @@ srpm: clean $(NAME)-$(VERSION).tar.gz
 
 rpm: clean $(NAME)-$(VERSION).tar.gz
 	$(RPM_WITH_DIRS) -tb $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
+
+deb-unsign: clean $(NAME)-$(VERSION).tar.gz
+	@mv $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz ../$(NAME)-$(MAJOR)_$(MINOR).orig.tar.gz
+	@debuild -us -uc -i
 
 gpgkey:
 	@echo "Building gpg key"

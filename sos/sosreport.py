@@ -199,7 +199,7 @@ class XmlReport(object):
 class SoSReport(object):
 
     def __init__(self, opts):
-        self.loaded_plugins = deque()
+        self.loaded_plugins = {}
         self.skipped_plugins = deque()
         self.all_options = deque()
         self.xml_report = XmlReport()
@@ -284,8 +284,9 @@ class SoSReport(object):
 #        sys.exit(error)
 
     def _exit_nice(self):
-        for plugname, plugin in self.loaded_plugins:
-            plugin.exit_please()
+        for plugname, plugins in self.loaded_plugins.items():
+            for plugin in plugins:
+                plugin.exit_please()
         self.ui_log.info("All processes ended, cleaning up.")
         self._exit(1)
 
@@ -407,11 +408,10 @@ class SoSReport(object):
         ))
 
     def _load(self, plugin_class):
-        self.loaded_plugins.append((
-            plugin_class.name(),
-            plugin_class(self.get_commons())
-        ))
-
+        if plugin_class.name() in self.loaded_plugins:
+            self.loaded_plugins[plugin_class.name()].append(plugin_class(self.get_commons()))
+        else:
+            self.loaded_plugins[plugin_class.name()] = [plugin_class(self.get_commons())]
 
     def load_plugins(self):
 
@@ -457,10 +457,11 @@ class SoSReport(object):
 
     def _set_all_options(self):
         if self.opts.usealloptions:
-            for plugname, plug in self.loaded_plugins:
-                for name, parms in zip(plug.optNames, plug.optParms):
-                    if type(parms["enabled"])==bool:
-                        parms["enabled"] = True
+            for plugname, plugins in self.loaded_plugins.items():
+                for plug in plugins:
+                    for name, parms in zip(plug.optNames, plug.optParms):
+                        if type(parms["enabled"])==bool:
+                            parms["enabled"] = True
 
     def _set_tunables(self):
         if self.config.has_section("tunables"):
@@ -501,7 +502,7 @@ class SoSReport(object):
                     opts[plug] = deque()
                 opts[plug].append( (opt, val) )
 
-            for plugname, plug in self.loaded_plugins:
+            for plugname in self.loaded_plugins.keys():
                 if plugname in opts:
                     for opt, val in opts[plugname]:
                         if not plug.setOption(opt, val):
@@ -525,10 +526,11 @@ class SoSReport(object):
                 self._exit(1)
 
     def _set_plugin_options(self):
-        for plugin_name, plugin in self.loaded_plugins:
-            names, parms = plugin.getAllOptions()
-            for optname, optparm in zip(names, parms):
-                self.all_options.append((plugin, plugin_name, optname, optparm))
+        for plugin_name, plugins in self.loaded_plugins.items():
+            for plugin in plugins:
+                names, parms = plugin.getAllOptions()
+                for optname, optparm in zip(names, parms):
+                    self.all_options.append((plugin, plugin_name, optname, optparm))
 
     def list_plugins(self):
         if not self.loaded_plugins and not self.skipped_plugins:
@@ -538,7 +540,8 @@ class SoSReport(object):
         if self.loaded_plugins:
             self.ui_log.info(_("The following plugins are currently enabled:"))
             self.ui_log.info("")
-            for (plugname, plug) in self.loaded_plugins:
+            for (plugname, plugins) in self.loaded_plugins.items():
+                plug = plugins[-1]
                 self.ui_log.info(" %-15s %s" % (plugname, plug.get_description()))
         else:
             self.ui_log.info(_("No plugin enabled."))
@@ -590,16 +593,17 @@ class SoSReport(object):
 
     def diagnose(self):
         tmpcount = 0
-        for plugname, plug in self.loaded_plugins:
-            try:
-                plug.diagnose()
-            except:
-                if self.raise_plugins:
-                    raise
-                else:
-                    self._log_plugin_exception(plugname)
+        for plugname, plugins in self.loaded_plugins.items():
+            for plugin in plugins:
+                try:
+                    plug.diagnose()
+                except:
+                    if self.raise_plugins:
+                        raise
+                    else:
+                        self._log_plugin_exception(plugname)
 
-            tmpcount += len(plug.diagnose_msgs)
+                tmpcount += len(plug.diagnose_msgs)
         if tmpcount > 0:
             self.ui_log.info(_("One or more plugins have detected a problem in your "
                 "configuration."))
@@ -607,12 +611,13 @@ class SoSReport(object):
             self.ui_log.info("")
 
             fp = self.get_temp_file()
-            for plugname, plug in self.loaded_plugins:
-                for tmpcount2 in range(0, len(plug.diagnose_msgs)):
-                    if tmpcount2 == 0:
-                        soslog.warning("%s:" % plugname)
-                    soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
-                    fp.write("%s: %s\n" % (plugname, plug.diagnose_msgs[tmpcount2]))
+            for plugname, plugins in self.loaded_plugins.items():
+                for plug in plugins:
+                    for tmpcount2 in range(0, len(plug.diagnose_msgs)):
+                        if tmpcount2 == 0:
+                            soslog.warning("%s:" % plugname)
+                        soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
+                        fp.write("%s: %s\n" % (plugname, plug.diagnose_msgs[tmpcount2]))
             self.archive.add_file(fp.name, dest=os.path.join(self.rptdir, 'diagnose.txt'))
 
             self.ui_log.info("")
@@ -642,17 +647,18 @@ class SoSReport(object):
             self._exit(0)
 
     def setup(self):
-        for plugname, plug in self.loaded_plugins:
-            try:
-                plug.archive = self.archive
-                plug.setup()
-            except KeyboardInterrupt:
-                raise
-            except:
-                if self.raise_plugins:
+        for plugname, plugins in self.loaded_plugins.items():
+            for plug in plugins:
+                try:
+                    plug.archive = self.archive
+                    plug.setup()
+                except KeyboardInterrupt:
                     raise
-                else:
-                    self._log_plugin_exception(plugname)
+                except:
+                    if self.raise_plugins:
+                        raise
+                    else:
+                        self._log_plugin_exception(plugname)
 
     def version(self):
         """Fetch version information from all plugins and store in the report
@@ -660,36 +666,38 @@ class SoSReport(object):
 
         versions = []
         versions.append("sosreport: %s" % __version__)
-        for plugname, plug in self.loaded_plugins:
-            versions.append("%s: %s" % (plugname, plug.version))
+        for plugname, plugins in self.loaded_plugins.items():
+            for plug in plugins:
+                versions.append("%s: %s" % (plugname, plug.version))
         self.archive.add_string(content="\n".join(versions), dest='version.txt')
 
 
     def copy_stuff(self):
         plugruncount = 0
-        for i in izip(self.loaded_plugins):
+        for plugname, plugins in self.loaded_plugins.items():
             plugruncount += 1
-            plugname, plug = i[0]
-            if not self.opts.silent:
-                sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, len(self.loaded_plugins), plugname))
-                sys.stdout.flush()
-            try:
-                plug.copyStuff()
-            except KeyboardInterrupt:
-                raise
-            except:
-                if self.raise_plugins:
+            for plug in plugins:
+                if not self.opts.silent:
+                    sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, len(self.loaded_plugins), plugname))
+                    sys.stdout.flush()
+                try:
+                    plug.copyStuff()
+                except KeyboardInterrupt:
                     raise
-                else:
-                    self._log_plugin_exception(plugname)
+                except:
+                    if self.raise_plugins:
+                        raise
+                    else:
+                        self._log_plugin_exception(plugname)
 
     def report(self):
-        for plugname, plug in self.loaded_plugins:
-            for oneFile in plug.copiedFiles:
-                try:
-                    self.xml_report.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
-                except:
-                    pass
+        for plugname, plugins in self.loaded_plugins.items(): 
+            for plug in plugins:
+                for oneFile in plug.copiedFiles:
+                    try:
+                        self.xml_report.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
+                    except:
+                        pass
 
         self.xml_report.serialize_to_file(
             os.path.join(self.rptdir, "sosreport.xml"))
@@ -698,25 +706,26 @@ class SoSReport(object):
     def plain_report(self):
         report = Report()
 
-        for plugname, plug in self.loaded_plugins:
-            section = Section(name=plugname)
+        for plugname, plugins in self.loaded_plugins.items():
+            for plug in plugins:
+                section = Section(name=plugname)
 
-            for alert in plug.alerts:
-                section.add(Alert(alert))
+                for alert in plug.alerts:
+                    section.add(Alert(alert))
 
-            if plug.customText:
-                section.add(Note(plug.customText))
+                if plug.customText:
+                    section.add(Note(plug.customText))
 
-            for f in plug.copiedFiles:
-                section.add(CopiedFile(name=f["srcpath"], href=f["dstpath"]))
+                for f in plug.copiedFiles:
+                    section.add(CopiedFile(name=f["srcpath"], href=f["dstpath"]))
 
-            for cmd in plug.executedCommands:
-                section.add(Command(name=cmd['exe'], return_code=0, href=cmd['file']))
+                for cmd in plug.executedCommands:
+                    section.add(Command(name=cmd['exe'], return_code=0, href=cmd['file']))
 
-            for content, f in plug.copyStrings:
-                section.add(CreatedFile(name=f))
+                for content, f in plug.copyStrings:
+                    section.add(CreatedFile(name=f))
 
-            report.add(section)
+                report.add(section)
 
         fd = self.get_temp_file()
         fd.write(str(PlainTextReport(report)))
@@ -743,11 +752,12 @@ class SoSReport(object):
         # Make a pass to gather Alerts and a list of module names
         allAlerts = deque()
         plugNames = deque()
-        for plugname, plug in self.loaded_plugins:
-            for alert in plug.alerts:
-                allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname,
-                                                               alert))
-            plugNames.append(plugname)
+        for plugname, plugins in self.loaded_plugins.items():
+            for plug in plugins:
+                for alert in plug.alerts:
+                    allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname,
+                                                                   alert))
+                plugNames.append(plugname)
 
         # Create a table of links to the module info
         rfd.write("<hr/><h3>Loaded Plugins:</h3>")
@@ -771,14 +781,15 @@ class SoSReport(object):
 
 
         # Call the report method for each plugin
-        for plugname, plug in self.loaded_plugins:
-            try:
-                html = plug.report()
-            except:
-                if self.raise_plugins:
-                    raise
-            else:
-                rfd.write(html)
+        for plugname, plugins in self.loaded_plugins.items():
+            for plug in plugins:
+                try:
+                    html = plug.report()
+                except:
+                    if self.raise_plugins:
+                        raise
+                else:
+                    rfd.write(html)
 
         rfd.write("</body></html>")
 
@@ -787,12 +798,13 @@ class SoSReport(object):
         self.archive.add_file(rfd.name, dest=os.path.join('sos_reports', 'sos.html'))
 
     def postproc(self):
-        for plugname, plug in self.loaded_plugins:
-            try:
-                plug.postproc()
-            except:
-                if self.raise_plugins:
-                    raise
+        for plugname, plugins in self.loaded_plugins.items():
+            for plug in plugins:
+                try:
+                    plug.postproc()
+                except:
+                    if self.raise_plugins:
+                        raise
 
     def final_work(self):
 
