@@ -60,6 +60,12 @@ def memoized(function):
             return result
     return f
 
+def sanitizeReportName(report_name):
+    return re.sub(r"[^-a-zA-Z.0-9]", "", report_name)
+
+def sanitizeTicketNumber(ticket_number):
+    return re.sub(r"[^0-9]", "", ticket_number)
+
 class SosPolicy:
     "This class implements various policies for sos"
     def __init__(self):
@@ -208,10 +214,7 @@ class SosPolicy:
         if not self.cInfo['cmdlineopts'].batch:
             try:
                 self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
-                self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
-
                 self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
-                self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
                 print
             except:
                 print
@@ -222,11 +225,12 @@ class SosPolicy:
         
         if self.cInfo['cmdlineopts'].customerName:
             self.reportName = self.cInfo['cmdlineopts'].customerName        
-            self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
 
         if self.cInfo['cmdlineopts'].ticketNumber:
             self.ticketNumber = self.cInfo['cmdlineopts'].ticketNumber
-            self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
+
+        self.reportName = sanitizeReportName(self.reportName)
+        self.ticketNumber = sanitizeTicketNumber(self.ticketNumber)
 
         return
 
