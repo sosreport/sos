@@ -72,6 +72,11 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/zoneinfo")
         self.addCopySpec("/proc/sys/kernel/tainted")
         self.addCopySpec("/proc/buddyinfo")
+        self.addCopySpec("/proc/softirqs")
+        self.addCopySpec("/proc/timer*")
+        self.addCopySpec("/proc/lock*")
+        self.addCopySpec("/sys/devices/system/clocksource/clocksource0/available_clocksource")
+        self.addCopySpec("/sys/devices/system/clocksource/clocksource0/current_clocksource")
 
         return
 
