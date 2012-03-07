@@ -14,6 +14,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os.path, os.mkdir
 
 class cloudforms(sos.plugintools.PluginBase):
     """CloudForms related information
@@ -24,9 +25,18 @@ class cloudforms(sos.plugintools.PluginBase):
 
     def checkenabled(self):
         # enable if any related package is installed
-        self.packages = ["katello"]
+        self.packages = ["katello", "katello-common", \
+                    "katello-headpin", "aeoleus-conductor" ]
+
         return sos.plugintools.PluginBase.checkenabled(self)
 
     def setup(self):
-        self.collectExtOutput("/usr/share/katello/scripts/katello-debug -d %s" \
-            % os.path.join(self.cInfo['dstroot'],"cloudforms"))
+        katello_debug = "/usr/share/katello/script/katello-debug"
+        aeolus_debug = "/usr/bin/aeolus-debug"
+
+        if os.path.isfile(katello_debug):
+            katello_debug_path = os.path.join(self.cInfo['dstroot'],"katello-debug")
+            self.collectExtOutput("%s -d %s" % katello_debug, katello_debug_path)
+        if os.path.isfile(aeolus_debug):
+            aeolus_debug_path = os.path.join(self.cInfo['dstroot'],"aeolus-debug"))
+            self.collectExtOutput("%s -d %s" % katello_debug, aeolus_debug_path)
