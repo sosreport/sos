@@ -138,18 +138,18 @@ def sosGetCommandOutput(command, timeout=300):
     else:
         return (127, "", 0)
 
-def import_module(module_fqname, superclass=None):
+def import_module(module_fqname, superclasses=None):
     """Imports the module module_fqname and returns a list of defined classes
-    from that module. If superclass is defined then the classes returned will
-    be subclasses of the specified superclass."""
-
+    from that module. If superclasses is defined then the classes returned will
+    be subclasses of the specified superclass or superclasses. If superclasses
+    is plural it must be a tuple of classes."""
     module_name = module_fqname.rpartition(".")[-1]
     module = __import__(module_fqname, globals(), locals(), [module_name])
     modules = [class_ for cname, class_ in
                inspect.getmembers(module, inspect.isclass)
                if class_.__module__ == module_fqname]
-    if superclass:
-        modules = [m for m in modules if issubclass(m, superclass)]
+    if superclasses:
+        modules = [m for m in modules if issubclass(m, superclasses)]
 
     return modules
 

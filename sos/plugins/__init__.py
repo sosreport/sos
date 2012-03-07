@@ -85,6 +85,7 @@ class Plugin(object):
     should not subclass this class directly.
     """
 
+    plugin_name = None
     requires_root = True
     version = 'unversioned'
     packages = ()
@@ -120,6 +121,8 @@ class Plugin(object):
     @classmethod
     def name(class_):
         "Returns the plugin's name as a string"
+        if class_.plugin_name:
+            return class_.plugin_name
         return class_.__name__.lower()
 
     def policy(self):
@@ -750,11 +753,13 @@ class AS7Mixin(object):
         self.addStringAsFile(self.query(r), filename=outfile)
 
 
-def import_plugin(name):
+def import_plugin(name, superclasses=None):
     """Import name as a module and return a list of all classes defined in that
     module"""
     try:
         plugin_fqname = "sos.plugins.%s" % name
-        return import_module(plugin_fqname, superclass=Plugin)
+        if not superclasses:
+            superclasses = (Plugin,)
+        return import_module(plugin_fqname, superclasses)
     except ImportError, e:
         return None

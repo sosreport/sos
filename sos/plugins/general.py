@@ -14,19 +14,17 @@
 
 import os
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
-import commands
 
-class general(Plugin, RedHatPlugin):
-    """basic system information
-    """
+class general(Plugin):
+    """basic system information"""
+
+    plugin_name = "general"
 
     optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
                   ("all_logs", "collect all log files defined in syslog.conf", "", False)]
 
     def setup(self):
         self.addCopySpecs([
-            "/etc/redhat-release",
-            "/etc/fedora-release",
             "/etc/init",    # upstart
             "/etc/event.d", # "
             "/etc/inittab",
@@ -52,6 +50,18 @@ class general(Plugin, RedHatPlugin):
         self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
         self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
 
+
+class RedHatGeneral(general, RedHatPlugin):
+    """Basic system information for RedHat based distributions"""
+
+    def setup(self):
+        super(RedHatGeneral, self).setup()
+
+        self.addCopySpecs([
+            "/etc/redhat-release",
+            "/etc/fedora-release",
+        ])
+
         if self.getOption('all_logs'):
             rhelver = self.policy().rhelVersion()
             logconf = (rhelver in (4, 5)) and "/etc/syslog.conf" \
@@ -62,39 +72,17 @@ class general(Plugin, RedHatPlugin):
                     self.addCopySpec(i)
 
     def postproc(self):
-        self.doRegexSub("/etc/sysconfig/rhn/up2date", r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
+        self.doRegexSub("/etc/sysconfig/rhn/up2date",
+                r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
 
-class generalDebian(Plugin, DebianPlugin, UbuntuPlugin):
+
+class GeneralDebian(general, DebianPlugin, UbuntuPlugin):
     """Basic system information for Debian based distributions"""
-    @classmethod
-    def name(self):
-        return "general"
 
     def setup(self):
+        super(GeneralDebian, self).setup()
         self.addCopySpecs([
             "/etc/debian_version",
-            "/etc/init",    # upstart
-            "/etc/event.d", # "
-            "/etc/inittab",
-            "/etc/sos.conf",
-            "/etc/sysconfig",
-            "/proc/stat",
-            "/var/log/dmesg",
-            "/var/log/sa",
-            "/var/log/pm/suspend.log",
             "/var/log/up2date",
-            "/etc/hostid",
-            "/var/lib/dbus/machine-id",
-            "/etc/exports",
             "/etc/lsb-release"
         ])
-        self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
-        self.addCopySpecLimit("/var/log/messages*", sizelimit = self.getOption("syslogsize"))
-        self.addCopySpecLimit("/var/log/secure*", sizelimit = self.getOption("syslogsize"))
-        self.collectExtOutput("/usr/bin/hostid")
-        self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
-        self.collectExtOutput("/bin/date", root_symlink = "date")
-        self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
-        self.collectExtOutput("/bin/dmesg")
-        self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
-        self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")

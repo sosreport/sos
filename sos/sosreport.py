@@ -424,7 +424,8 @@ class SoSReport(object):
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
             try:
-                plugin_classes = import_plugin(plugbase)
+                plugin_classes = import_plugin(plugbase,
+                        tuple(self.policy.valid_subclasses))
 
                 for plugin_class in plugin_classes:
                     if not self.policy.validatePlugin(plugin_class):
@@ -441,12 +442,20 @@ class SoSReport(object):
                     # plug-in is valid, let's decide whether run it or not
                     self.plugin_names.append(plugbase)
 
-                    if any((self._is_skipped(plugbase),
-                            self._is_inactive(plugbase, plugin_class),
-                            self._is_not_default(plugbase, plugin_class),
-                            self._is_not_specified(plugbase),
-                            )):
+                    if  self._is_skipped(plugbase):
+                        self._skip(plugin_class, _("skipped"))
+                        continue
+
+                    if  self._is_inactive(plugbase, plugin_class):
                         self._skip(plugin_class, _("inactive"))
+                        continue
+
+                    if  self._is_not_default(plugbase, plugin_class):
+                        self._skip(plugin_class, _("not default"))
+                        continue
+
+                    if  self._is_not_specified(plugbase):
+                        self._skip(plugin_class, _("not specified"))
                         continue
 
                     self._load(plugin_class)
