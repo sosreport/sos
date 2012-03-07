@@ -361,17 +361,16 @@ def sosreport(opts):
     soslog = logging.getLogger('sos')
     soslog.setLevel(logging.DEBUG)
 
-    logging.VERBOSE  = logging.INFO - 1
-    logging.VERBOSE2 = logging.INFO - 2
-    logging.VERBOSE3 = logging.INFO - 3
-    logging.addLevelName(logging.VERBOSE, "verbose")
-    logging.addLevelName(logging.VERBOSE2,"verbose2")
-    logging.addLevelName(logging.VERBOSE3,"verbose3")
-
     if GlobalVars.__cmdLineOpts__.profiler:
         proflog = logging.getLogger('sosprofile')
         proflog.setLevel(logging.DEBUG)
-        
+    else:
+        proflog = None
+
+    # limit verbosity to DEBUG
+    if GlobalVars.__cmdLineOpts__.verbosity > 3:
+        GlobalVars.__cmdLineOpts__.verbosity = 3 
+
     # if stdin is not a tty, disable colors and don't ask questions
     if not sys.stdin.isatty():
         GlobalVars.__cmdLineOpts__.nocolors = True
@@ -380,7 +379,11 @@ def sosreport(opts):
     # log to a file
     flog = logging.FileHandler(logdir + "/sos.log")
     flog.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
-    flog.setLevel(logging.VERBOSE3)
+    if GlobalVars.__cmdLineOpts__.verbosity > 0:
+        # standard log levels have a step of 10
+        flog.setLevel(logging.INFO - (GlobalVars.__cmdLineOpts__.verbosity * 10))
+    else:
+        flog.setLevel(logging.INFO)
     soslog.addHandler(flog)
 
     if GlobalVars.__cmdLineOpts__.profiler:
@@ -393,9 +396,10 @@ def sosreport(opts):
     # define a Handler which writes INFO messages or higher to the sys.stderr
     console = logging.StreamHandler(sys.stderr)
     if GlobalVars.__cmdLineOpts__.verbosity > 0:
-        console.setLevel(20 - GlobalVars.__cmdLineOpts__.verbosity)
+        # standard log levels have a step of 10
+        console.setLevel(logging.WARNING - (GlobalVars.__cmdLineOpts__.verbosity * 10))
     else:
-        console.setLevel(logging.INFO)
+        console.setLevel(logging.WARNING)
     console.setFormatter(logging.Formatter('%(message)s'))
     soslog.addHandler(console)
 
@@ -403,7 +407,7 @@ def sosreport(opts):
 
     # set up dict so everyone can share the following
     commons = {'dstroot': GlobalVars.dstroot, 'cmddir': cmddir, 'logdir': logdir, 'rptdir': rptdir,
-               'soslog': soslog, 'policy': GlobalVars.policy, 'verbosity' : GlobalVars.__cmdLineOpts__.verbosity,
+               'soslog': soslog, 'proflog': proflog, 'policy': GlobalVars.policy, 'verbosity' : GlobalVars.__cmdLineOpts__.verbosity,
                'xmlreport' : xmlrep, 'cmdlineopts':GlobalVars.__cmdLineOpts__, 'config':config }
 
     # Make policy aware of the commons

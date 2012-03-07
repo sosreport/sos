@@ -67,8 +67,8 @@ class PluginBase:
 
         self.must_exit = False
 
-        self.soslog = logging.getLogger('sos')
-        self.proflog = logging.getLogger('sosprofile')
+        self.soslog = self.cInfo['soslog']
+        self.proflog = self.cInfo['proflog']
 
         # get the option list into a dictionary
         for opt in self.optionList:
@@ -105,7 +105,7 @@ class PluginBase:
                     except KeyboardInterrupt:
                       raise KeyboardInterrupt
                     except Exception, e:
-                        # self.soslog.debug("problem at path %s (%s)" % (abspath,e))
+                        self.soslog.info("could not apply regex substitution at path %s (%s)" % (abspath,e))
                         break
         return False
 
@@ -137,7 +137,7 @@ class PluginBase:
             return ''
 
         if not os.path.exists(srcpath):
-            # self.soslog.debug("file or directory %s does not exist" % srcpath)
+            self.soslog.info("file or directory %s does not exist" % srcpath)
             return
 
         if os.path.islink(srcpath):
@@ -162,19 +162,19 @@ class PluginBase:
 
             # make sure the link doesn't already exists
             if os.path.exists(dstslname):
-                # self.soslog.debug("skipping symlink creation: already exists (%s)" % dstslname)
+                self.soslog.info("skipping symlink creation: already exists (%s)" % dstslname)
                 return
 
             # make sure the dst dir exists
             if not (os.path.exists(os.path.dirname(dstslname)) and os.path.isdir(os.path.dirname(dstslname))):
                 os.makedirs(os.path.dirname(dstslname))
 
-            # self.soslog.debug("creating symlink %s -> %s" % (dstslname, rpth))
+            self.soslog.debug("creating symlink %s -> %s" % (dstslname, rpth))
 
             try:
                 os.symlink(rpth, dstslname)
             except OSError:
-                # self.soslog.debug("skipping symlink creation: already exists (%s)" % dstslname)
+                self.soslog.info("skipping symlink creation: already exists (%s)" % dstslname)
                 return
             if os.path.isabs(link):
                 self.doCopyFileOrDir(link)
@@ -195,17 +195,17 @@ class PluginBase:
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
 
-        # self.soslog.debug("copying file %s" % srcpath)
+        self.soslog.debug("copying file %s" % srcpath)
         try:
             tdstpath, abspath = self.__copyFile(srcpath)
-        except EnvironmentError:
-            # self.soslog.debug("error copying file %s (already exists)" % (srcpath))
+        except PluginException:
+            self.soslog.debug("error copying file %s (already exists)" % (srcpath))
             return
         except IOError:
-            # self.soslog.debug("error copying file %s (IOError)" % (srcpath))
+            self.soslog.info("error copying file %s (IOError)" % (srcpath))
             return 
         except:
-            # self.soslog.debug("error copying file %s (SOMETHING HAPPENED)" % (srcpath))
+            self.soslog.exception("error copying file %s" % (srcpath))
             return 
 
         self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
@@ -285,7 +285,7 @@ class PluginBase:
         """Add a file specification (with limits)
         """
         if not ( fname and len(fname) ):
-            # self.soslog.warning("invalid file path")
+            self.soslog.warning("invalid file path")
             return False
         files = glob.glob(fname)
         files.sort()
@@ -309,7 +309,7 @@ class PluginBase:
         copied into the sosreport by this module
         """
         if not ( copyspec and len(copyspec) ):
-            # self.soslog.warning("invalid file path")
+            self.soslog.warning("invalid file path")
             return False
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(copyspec):
@@ -399,7 +399,7 @@ class PluginBase:
             outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
 
         else:
-            # self.soslog.debug("could not run command: %s" % exe)
+            self.soslog.info("could not run command: %s" % exe)
             outfn = None
             outfn_strip = None
 
@@ -463,11 +463,11 @@ class PluginBase:
 
         for progs in izip(self.collectProgs):
             prog, suggest_filename, root_symlink, timeout = progs[0]
-            # self.soslog.debug("collecting output of '%s'" % prog)
+            self.soslog.debug("collecting output of '%s'" % prog)
             try:
                 self.collectOutputNow(prog, suggest_filename, root_symlink, timeout)
             except Exception, e:
-                self.soslog.debug("error collection output of '%s', traceback follows:" % prog)
+                self.soslog.info("error collection output of '%s', traceback follows:" % prog)
 
     def exit_please(self):
         """ This function tells the plugin that it should exit ASAP"""
