@@ -127,7 +127,15 @@ No changes will be made to your system.
         self.reportName = self.hostname
         self.ticketNumber = None
         self.package_manager = PackageManager()
-        self.valid_subclasses = []
+        self._valid_subclasses = []
+
+    @property
+    def valid_subclasses(self):
+        return [IndependentPlugin] + self._valid_subclasses
+
+    @valid_subclasses.setter
+    def valid_subclasses(self, subclasses):
+        self._valid_subclasses = subclasses
 
     def check(self):
         """
