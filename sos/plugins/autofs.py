@@ -14,15 +14,21 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import os, re
 
-class autofs(Plugin, RedHatPlugin):
+class autofs(Plugin):
     """autofs server-related information
     """
 
-    files = ('/etc/sysconfig/autofs',)
+    plugin_name = "autofs"
+
+    files = ('/etc/sysconfig/autofs', '/etc/default/autofs')
     packages = ('autofs',)
+
+    @classmethod
+    def name(self):
+        return "autofs"
 
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere
@@ -44,10 +50,23 @@ class autofs(Plugin, RedHatPlugin):
 
     def setup(self):
         self.addCopySpec("/etc/auto*")
-        self.collectExtOutput("/bin/rpm -qV autofs")
         self.collectExtOutput("/etc/init.d/autofs status")
         self.collectExtOutput("ps auxwww | grep automount")
         self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
         self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
         if self.checkdebug():
             self.addCopySpec(self.getdaemondebug())
+
+class RedHatAutofs(autofs, RedHatPlugin):
+    """autofs server-related on RedHat based distributions"""
+
+    def setup(self):
+        super(RedHatAutofs, self).setup()
+        self.collectExtOutput("/bin/rpm -qV autofs")
+
+class DebianAutofs(autofs, DebianPlugin, UbuntuPlugin):
+    """autofs server-related on Debian based distributions"""
+
+    def setup(self):
+        super(DebianAutofs, self).setup()
+        self.collectExtOutput("/usr/bin/dpkg-query -s autofs")
