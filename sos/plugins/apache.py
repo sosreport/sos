@@ -12,16 +12,37 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class apache(Plugin, RedHatPlugin):
+class apache(Plugin):
     """Apache related information
     """
+    plugin_name = "apache"
+
     optionList = [("log", "gathers all apache logs", "slow", False)]
 
+class RedHatApache(apache, RedHatPlugin):
+    """Apache related information for Red Hat distributions
+    """
+    files = ('/etc/httpd/conf/httpd.conf',)
+
     def setup(self):
+        super(RedHatApache, self).setup()
         self.addCopySpecs([
             "/etc/httpd/conf/httpd.conf",
             "/etc/httpd/conf.d/*.conf"])
         if self.getOption("log"):
             self.addCopySpec("/var/log/httpd/*")
+
+class DebianApache(apache, DebianPlugin, UbuntuPlugin):
+    """Apache related information for Debian distributions
+    """
+    files = ('/etc/apache2/apache2.conf',)
+
+    def setup(self):
+        super(DebianApache, self).setup()
+        self.addCopySpecs([
+            "/etc/apache2/*",
+            "/etc/default/apache2"])
+        if self.getOption("log"):
+            self.addCopySpec("/var/log/apache2/*")

@@ -12,8 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
-class libvirt(Plugin, RedHatPlugin, UbuntuPlugin):
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+
+class libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
     """
     def setup(self):

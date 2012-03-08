@@ -13,16 +13,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, UbuntuPlugin
+from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
-class udhcp(Plugin, UbuntuPlugin):
-    """DHCP related information
+class apport(Plugin, DebianPlugin, UbuntuPlugin):
+    """apport information
     """
-    files = ('/etc/init.d/udhcpd',)
-    packages = ('udhcpd',)
-
     def setup(self):
-        self.addCopySpecs([
-            "/etc/default/udhcpd",
-            "/etc/udhcpd.conf"
-        ])
+        self.addCopySpec("/etc/apport/*")

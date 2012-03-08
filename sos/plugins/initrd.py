@@ -12,10 +12,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from glob import glob
 
-class initrd(Plugin, RedHatPlugin):
+class initrd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """initrd related information
     """
     def setup(self):
