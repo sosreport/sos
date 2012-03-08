@@ -190,7 +190,7 @@ class PluginBase:
                     if afile == '.' or afile == '..':
                         pass
                     else:
-                        self.doCopyFileOrDir(srcpath+'/'+afile)
+                        self.doCopyFileOrDir(os.path.join(srcpath, afile))
                 return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
