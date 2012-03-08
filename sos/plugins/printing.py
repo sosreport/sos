@@ -12,9 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class printing(Plugin, RedHatPlugin):
+class printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """printing related information (cups)
     """
     optionList = [("cups", "max size (MiB) to collect per cups log file",

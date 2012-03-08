@@ -12,11 +12,22 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from os.path import exists
 
-class kdump(Plugin, RedHatPlugin):
+class kdump(Plugin):
     """Kdump related information
+    """
+
+    plugin_name = "kdump"
+
+    def setup(self):
+        self.addCopySpecs([
+            "/proc/cmdline"
+            ])
+
+class RedHatKdump(kdump, RedHatPlugin):
+    """Kdump related information for Red Hat distributions
     """
 
     files = ('/etc/kdump.conf',)
@@ -25,5 +36,16 @@ class kdump(Plugin, RedHatPlugin):
     def setup(self):
         self.addCopySpecs([
             "/etc/kdump.conf",
-            "/proc/cmdline",
             "/etc/udev/rules.d/*kexec.rules"])
+
+class DebianKdump(kdump, DebianPlugin, UbuntuPlugin):
+    """Kdump related information for Debian distributions
+    """
+
+    files = ('/etc/default/kdump-tools',)
+    packages = ('kdump-tools',)
+
+    def setup(self):
+        self.addCopySpecs([
+            "/etc/default/kdump-tools"
+            ])
