@@ -39,15 +39,16 @@ class general(Plugin):
             "/var/lib/dbus/machine-id",
             "/etc/exports",
             "/root/anaconda-ks.cfg"])
+
         self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
-        self.addCopySpecLimit("/var/log/messages*", sizelimit = self.getOption("syslogsize"))
-        self.addCopySpecLimit("/var/log/secure*", sizelimit = self.getOption("syslogsize"))
+        self.addCopySpecLimit("/var/log/messages*", sizelimit=self.getOption("syslogsize"))
+        self.addCopySpecLimit("/var/log/secure*", sizelimit=self.getOption("syslogsize"))
         self.collectExtOutput("/usr/bin/hostid")
-        self.collectExtOutput("/bin/hostname", root_symlink = "hostname")
-        self.collectExtOutput("/bin/date", root_symlink = "date")
-        self.collectExtOutput("/usr/bin/uptime", root_symlink = "uptime")
+        self.collectExtOutput("/bin/hostname", root_symlink="hostname")
+        self.collectExtOutput("/bin/date", root_symlink="date")
+        self.collectExtOutput("/usr/bin/uptime", root_symlink="uptime")
         self.collectExtOutput("/bin/dmesg")
-        self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink = "java")
+        self.collectExtOutput("/usr/sbin/alternatives --display java", root_symlink="java")
         self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
 
 

@@ -348,7 +348,8 @@ class Plugin(object):
         # Truncate the first file (others would likely be compressed),
         # ensuring we get at least some logs
         # FIXME: figure this out for jython
-        if flog == files[0] and limit_reached:
+        if len(files) == 1 and limit_reached:
+            flog = files[0]
             self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
                 "tail_" + os.path.basename(flog), flog[1:] + ".tailed")
 
@@ -384,7 +385,7 @@ class Plugin(object):
         return (status == 0)
 
 
-    def collectExtOutput(self, exe, suggest_filename = None, root_symlink = None, timeout = 300):
+    def collectExtOutput(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
         """
         Run a program and collect the output
         """
