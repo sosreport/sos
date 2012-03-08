@@ -28,7 +28,7 @@ class autofs(Plugin, RedHatPlugin):
         """ testing if autofs debug has been enabled anywhere
         """
         # Global debugging
-        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", "/etc/sysconfig/autofs")
+        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", *self.files)
         for opt1 in opt:
             for opt2 in opt1.split(" "):
                 if opt2 in ("--debug", "debug"):
@@ -38,7 +38,7 @@ class autofs(Plugin, RedHatPlugin):
     def getdaemondebug(self):
         """ capture daemon debug output
         """
-        debugout = self.fileGrep(r"^(daemon.*)\s+(\/var\/log\/.*)", "/etc/sysconfig/autofs")
+        debugout = self.fileGrep(r"^(daemon.*)\s+(\/var\/log\/.*)", *self.files)
         for i in debugout:
             return i[1]
 

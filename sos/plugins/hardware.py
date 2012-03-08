@@ -12,12 +12,15 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 from glob import glob
 
-class hardware(Plugin, RedHatPlugin, UbuntuPlugin):
+class hardware(Plugin, DebianPlugin, UbuntuPlugin):
     """hardware related information
     """
+
+    plugin_name = "hardware"
+
     def setup(self):
         self.addCopySpecs([
             "/proc/partitions",
@@ -37,7 +40,6 @@ class hardware(Plugin, RedHatPlugin, UbuntuPlugin):
             "/proc/s390dbf/tape",
             "/sys/bus/scsi",
             "/sys/state"])
-        self.collectExtOutput(glob("/usr/share/rhn/up2date*client/hardware.py")[0]) # RHBZ#572353
         self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
         self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
@@ -50,3 +52,11 @@ class hardware(Plugin, RedHatPlugin, UbuntuPlugin):
         self.collectExtOutput("/usr/bin/lshal")
         self.collectExtOutput("/usr/bin/systool -c fc_host -v")
         self.collectExtOutput("/usr/bin/systool -c scsi_host -v")
+
+class RedHatHardware(hardware, RedHatPlugin):
+    """hardware related information for Red Hat distribution
+    """
+
+    def setup(self):
+        super(RedHatHardware, self).setup()
+        self.collectExtOutput(glob("/usr/share/rhn/up2date*client/hardware.py")[0]) # RHBZ#572353
