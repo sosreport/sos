@@ -394,7 +394,7 @@ class Plugin(object):
     def fileGrep(self, regexp, *fnames):
         """Returns lines matched in fnames, where fnames can either be pathnames to files
         to grep through or open file objects to grep through line by line"""
-        return grep(regexp, fnames)
+        return grep(regexp, *fnames)
 
     def mangleCommand(self, exe):
         # FIXME: this can be improved

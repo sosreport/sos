@@ -23,6 +23,10 @@ class GrepTest(unittest.TestCase):
         matches = grep(".*unittest$", open(__file__.replace(".pyc", ".py")))
         self.assertEquals(matches, ['import unittest\n'])
 
+    def test_grep_multiple_files(self):
+        matches = grep(".*unittest$", __file__.replace(".pyc", ".py"), "does_not_exist.txt")
+        self.assertEquals(matches, ['import unittest\n'])
+
 
 class DirTreeTest(unittest.TestCase):
 

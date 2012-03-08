@@ -42,7 +42,10 @@ import time
 
 def fileobj(path_or_file, mode='r'):
     if isinstance(path_or_file, basestring):
-        return open(path_or_file, mode)
+        try:
+            return open(path_or_file, mode)
+        except:
+            return closing(StringIO())
     else:
         return closing(path_or_file)
 
