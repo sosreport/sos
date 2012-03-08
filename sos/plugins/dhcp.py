@@ -12,16 +12,35 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
-class dhcp(Plugin, RedHatPlugin):
+class dhcp(Plugin):
     """DHCP related information
     """
+
+    plugin_name = "dhcp"
+
+class DhcpRedHat(dhcp, RedHatPlugin):
+    """DHCP related information for Red Hat based distributions"""
 
     files = ('/etc/rc.d/init.d/dhcpd',)
     packages = ('dhcp',)
 
     def setup(self):
+        super(DhcpRedHat, self).setup()
         self.addCopySpecs([
             "/etc/dhcpd.conf",
             "/etc/dhcp"])
+
+class DhcpDebian(dhcp, UbuntuPlugin):
+    """DHCP related information for Debian based distributions"""
+
+    files = ('/etc/init.d/udhcpd',)
+    packages = ('udhcpd',)
+
+    def setup(self):
+        super(DhcpDebian, self).setup()
+        self.addCopySpecs([
+            "/etc/default/udhcpd",
+            "/etc/udhcpd.conf"
+        ])
