@@ -33,6 +33,7 @@ import logging
 import zipfile
 import tarfile
 import hashlib
+import logging
 from contextlib import closing
 try:
     from cStringIO import StringIO
@@ -45,6 +46,8 @@ def fileobj(path_or_file, mode='r'):
         try:
             return open(path_or_file, mode)
         except:
+            log = logging.getLogger('sos')
+            log.debug("fileobj: %s could not be opened" % path_or_file)
             return closing(StringIO())
     else:
         return closing(path_or_file)
