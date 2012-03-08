@@ -26,6 +26,10 @@ class autofs(Plugin):
     files = ('/etc/sysconfig/autofs', '/etc/default/autofs')
     packages = ('autofs',)
 
+    @classmethod
+    def name(self):
+        return "autofs"
+
     def checkdebug(self):
         """ testing if autofs debug has been enabled anywhere
         """
