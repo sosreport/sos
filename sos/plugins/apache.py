@@ -24,7 +24,7 @@ class apache(Plugin):
 class RedHatApache(apache, RedHatPlugin):
     """Apache related information for Red Hat distributions
     """
-    files = ('/etc/httpd/conf/httpd.conf')
+    files = ('/etc/httpd/conf/httpd.conf',)
 
     def setup(self):
         super(RedHatApache, self).setup()
@@ -37,7 +37,7 @@ class RedHatApache(apache, RedHatPlugin):
 class DebianApache(apache, DebianPlugin, UbuntuPlugin):
     """Apache related information for Debian distributions
     """
-    files = ('/etc/apache2/apache2.conf')
+    files = ('/etc/apache2/apache2.conf',)
 
     def setup(self):
         super(DebianApache, self).setup()
