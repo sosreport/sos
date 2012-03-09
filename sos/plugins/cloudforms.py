@@ -20,8 +20,8 @@ class cloudforms(sos.plugintools.PluginBase):
         aeolus_debug = "/usr/bin/aeolus-debug"
         if os.path.isfile(katello_debug):
             katello_debug_path = os.path.join(self.cInfo['dstroot'],"katello-debug")
-            self.collectExtOutput("%s -d %s" % katello_debug, katello_debug_path)
+            self.collectExtOutput("%s --notar -d %s" % (katello_debug, katello_debug_path))
         if os.path.isfile(aeolus_debug):
             aeolus_debug_path = os.path.join(self.cInfo['dstroot'],"aeolus-debug")
-            self.collectExtOutput("%s -d %s" % katello_debug, aeolus_debug_path)
+            self.collectExtOutput("%s --notar -d %s" % (aeolus_debug, aeolus_debug_path))
 
