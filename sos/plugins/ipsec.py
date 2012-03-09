@@ -14,15 +14,31 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
-from os.path import exists
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class ipsec(Plugin, RedHatPlugin):
+class ipsec(Plugin):
     """ipsec related information
     """
 
-    files = ('/etc/racoon/racoon.conf',)
+    plugin_name = "ipsec"
     packages = ('ipsec-tools',)
+
+class RedHatIpsec(ipsec, RedHatPlugin):
+    """ipsec related information for Red Hat distributions
+    """
+
+    files = ('/etc/racoon/racoon.conf',)
 
     def setup(self):
         self.addCopySpec("/etc/racoon")
+
+class DebianIpsec(ipsec, DebianPlugin, UbuntuPlugin):
+    """ipsec related information for Debian distributions
+    """
+
+    files = ('/etc/ipsec-tools.conf',)
+
+    def setup(self):
+        self.addCopySpecs(["/etc/ipsec-tools.conf",
+                           "/etc/ipsec-tools.d",
+                           "/etc/default/setkey"])
