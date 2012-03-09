@@ -14,14 +14,29 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
-import os
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class sssd(Plugin, RedHatPlugin):
+class sssd(Plugin):
     """sssd-related Diagnostic Information
     """
 
+    plugin_name = "sssd"
     packages = ('sssd',)
 
     def setup(self):
         self.addCopySpecs(["/etc/sssd", "/var/log/sssd/*"])
+
+class RedHatSssd(sssd, RedHatPlugin):
+    """sssd-related Diagnostic Information on Red Hat based distributions
+    """
+
+    def setup(self):
+        super(RedHatSssd, self).setup()
+
+class DebianSssd(sssd, DebianPlugin, UbuntuPlugin):
+    """sssd-related Diagnostic Information on Debian based distributions
+    """
+
+    def setup(self):
+        super(DebianSssd, self).setup()
+        self.addCopySpecs(["/etc/default/sssd"])

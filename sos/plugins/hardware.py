@@ -15,7 +15,7 @@
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 from glob import glob
 
-class hardware(Plugin, DebianPlugin, UbuntuPlugin):
+class hardware(Plugin):
     """hardware related information
     """
 
@@ -60,3 +60,11 @@ class RedHatHardware(hardware, RedHatPlugin):
     def setup(self):
         super(RedHatHardware, self).setup()
         self.collectExtOutput(glob("/usr/share/rhn/up2date*client/hardware.py")[0]) # RHBZ#572353
+
+
+class DebianHardware(hardware, DebianPlugin, UbuntuPlugin):
+    """hardware related information for Debian distribution
+    """
+
+    def setup(self):
+        super(DebianHardware, self).setup()

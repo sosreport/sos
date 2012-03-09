@@ -12,12 +12,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
-import os
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class i18n(Plugin, RedHatPlugin):
+class i18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """i18n related information
     """
     def setup(self):
         self.addCopySpec("/etc/X11/xinit/xinput.d/*")
-	self.collectExtOutput("/usr/bin/locale")
+        self.collectExtOutput("/usr/bin/locale")
