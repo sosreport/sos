@@ -33,7 +33,7 @@ class RedHatSssd(sssd, RedHatPlugin):
     def setup(self):
         super(RedHatSssd, self).setup()
 
-class DebianSssd(sssd, DebianPlugin, RedHatPlugin):
+class DebianSssd(sssd, DebianPlugin, UbuntuPlugin):
     """sssd-related Diagnostic Information on Debian based distributions
     """
 
