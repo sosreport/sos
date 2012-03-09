@@ -6,7 +6,7 @@ class cloudforms(sos.plugintools.PluginBase):
     """
 
     def defaultenabled(self):
-        return False
+        return True
 
     def checkenabled(self):
         self.packages = ["katello", "katello-common",

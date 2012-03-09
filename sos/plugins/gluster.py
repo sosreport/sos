@@ -19,7 +19,7 @@ class gluster(sos.plugintools.PluginBase):
     '''gluster related information'''
 
     def defaultenabled(self):
-        return False
+        return True
 
     def get_volume_names(self, volume_file):
         """Return a dictionary for which key are volume names according to the
