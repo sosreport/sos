@@ -12,13 +12,34 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class iscsi(Plugin, RedHatPlugin):
+class iscsi(Plugin):
     """iscsi-initiator related information
     """
+
+    plugin_name = "iscsi"
+
+class RedHatIscsi(iscsi, RedHatPlugin):
+    """iscsi-initiator related information Red Hat based distributions
+    """
     def setup(self):
+        super(RedHatIscsi, self).setup()
         self.addCopySpecs([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"])
+
+class DebianIscsi(iscsi, DebianPlugin, UbuntuPlugin):
+    """iscsi-initiator related information Debian based distributions
+    """
+
+    packages = ('iscsitarget',)
+
+    def setup(self):
+        super(DebianIscsi, self).setup()
+        self.addCopySpecs([
+            "/etc/iet",
+            "/etc/sysctl.d/30-iscsitarget.conf",
+            "/etc/default/iscsitarget"
+            ])
