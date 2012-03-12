@@ -12,10 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
-from os.path import exists
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class x11(Plugin, RedHatPlugin):
+class x11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """X related information
     """
 
