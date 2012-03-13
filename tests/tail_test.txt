@@ -1,0 +1,4 @@
+this is a file to test tail with
+I have a few lines in here
+I just need enough text to mess with it
+this is the last line

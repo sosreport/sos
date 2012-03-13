@@ -20,6 +20,8 @@
 # pylint: disable-msg = W0611
 # pylint: disable-msg = W0613
 
+from __future__ import with_statement
+
 import os
 import re
 import string
@@ -41,7 +43,16 @@ except ImportError:
     from StringIO import StringIO
 import time
 
+def tail(filename, number_of_bytes):
+    """Returns the last number_of_bytes of filename"""
+    with open(filename, "rb") as f:
+        if os.stat(filename).st_size > number_of_bytes:
+            f.seek(-number_of_bytes, 2)
+        return f.read()
+
+
 def fileobj(path_or_file, mode='r'):
+    """Returns a file-like object that can be used as a context manager"""
     if isinstance(path_or_file, basestring):
         try:
             return open(path_or_file, mode)
