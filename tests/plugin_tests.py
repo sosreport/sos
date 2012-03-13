@@ -6,6 +6,11 @@ from StringIO import StringIO
 from sos.plugins import Plugin, regex_findall, sosRelPath
 from sos.utilities import Archive
 
+PATH = os.path.dirname(__file__)
+
+def j(filename):
+    return os.path.join(PATH, filename)
+
 def create_file(size):
    f = tempfile.NamedTemporaryFile(delete=False)
    f.write("*" * size * 1024 * 1024)
@@ -28,13 +33,13 @@ class MockArchive(Archive):
         self.m[src] = dest
 
     def add_string(self, content, dest):
-        self.strings[dest] = "added"
+        self.m[dest] = content
 
     def add_link(self, dest, link_name):
         pass
 
     def open_file(self, name):
-        pass
+        return open(self.m.get(name), 'r')
 
     def close(self):
         pass
@@ -68,6 +73,14 @@ class ForbiddenMockPlugin(Plugin):
 
     def setup(self):
         self.addForbiddenPath("tests")
+
+
+class EnablerPlugin(Plugin):
+
+    is_installed = False
+
+    def isInstalled(self, pkg):
+        return self.is_installed
 
 
 class MockOptions(object):
@@ -232,6 +245,67 @@ class AddCopySpecLimitTests(unittest.TestCase):
         self.assertFalse(self.mp.addCopySpecLimit('', 1))
         self.assertFalse(self.mp.addCopySpecLimit(None, 1))
 
+    def test_glob_file_over_limit(self):
+        # assume these are in /tmp
+        fn = create_file(2)
+        fn2 = create_file(2)
+        self.mp.addCopySpecLimit("/tmp/tmp*", 1)
+        self.assertEquals(len(self.mp.copyStrings), 1)
+        content, fname = self.mp.copyStrings[0]
+        self.assertTrue("tailed" in fname)
+        self.assertEquals(1024 * 1024, len(content))
+        os.unlink(fn)
+        os.unlink(fn2)
+
+
+class CheckEnabledTests(unittest.TestCase):
+
+    def setUp(self):
+        self.mp = EnablerPlugin({})
+
+    def test_checks_for_file(self):
+        f = j("tail_test.txt")
+        self.mp.files = (f,)
+        self.assertTrue(self.mp.checkenabled())
+
+    def test_checks_for_package(self):
+        self.mp.packages = ('foo',)
+        self.mp.is_installed = True
+        self.assertTrue(self.mp.checkenabled())
+
+    def test_allows_bad_tuple(self):
+        f = j("tail_test.txt")
+        self.mp.files = (f)
+        self.mp.packages = ('foo')
+        self.assertTrue(self.mp.checkenabled())
+
+    def test_enabled_by_default(self):
+        self.assertTrue(self.mp.checkenabled())
+
+
+class RegexSubTests(unittest.TestCase):
+
+    def setUp(self):
+        self.mp = MockPlugin({
+            'cmdlineopts': MockOptions()
+        })
+        self.mp.archive = MockArchive()
+
+    def test_file_never_copied(self):
+        self.assertEquals(0, self.mp.doRegexSub("never_copied", r"^(.*)$", "foobar"))
+
+    def test_no_replacements(self):
+        self.mp.addCopySpec(j("tail_test.txt"))
+        self.mp.copyStuff()
+        replacements = self.mp.doRegexSub(j("tail_test.txt"), r"wont_match", "foobar")
+        self.assertEquals(0, replacements)
+
+    def test_replacements(self):
+        self.mp.addCopySpec(j("tail_test.txt"))
+        self.mp.copyStuff()
+        replacements = self.mp.doRegexSub(j("tail_test.txt"), r"(tail)", "foobar")
+        self.assertEquals(1, replacements)
+        self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
 
 if __name__ == "__main__":
     unittest.main()
