@@ -2,7 +2,7 @@ import os.path
 import unittest
 from StringIO import StringIO
 
-from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sosGetCommandOutput, find
+from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sosGetCommandOutput, find, tail
 import sos
 
 TEST_DIR = os.path.dirname(__file__)
@@ -26,6 +26,18 @@ class GrepTest(unittest.TestCase):
     def test_grep_multiple_files(self):
         matches = grep(".*unittest$", __file__.replace(".pyc", ".py"), "does_not_exist.txt")
         self.assertEquals(matches, ['import unittest\n'])
+
+
+class TailTest(unittest.TestCase):
+
+    def test_tail(self):
+        t = tail("tests/tail_test.txt", 10)
+        self.assertEquals(t, "last line\n")
+
+    def test_tail_too_many(self):
+        t = tail("tests/tail_test.txt", 200)
+        expected = open("tests/tail_test.txt", "r").read()
+        self.assertEquals(t, expected)
 
 
 class DirTreeTest(unittest.TestCase):

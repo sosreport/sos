@@ -24,7 +24,7 @@
 # pylint: disable-msg = W0611
 # pylint: disable-msg = W0613
 
-from sos.utilities import sosGetCommandOutput, import_module, grep
+from sos.utilities import sosGetCommandOutput, import_module, grep, fileobj, tail
 from sos import _sos as _
 import inspect
 import os
@@ -72,6 +72,15 @@ def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
     if not common:
         return path2      # leave path absolute if nothing at all in common
     return sep.join( [pardir]*len(u1) + u2 )
+
+
+def regex_findall(regex, fname):
+    '''Return a list of all non overlapping matches in the string(s)'''
+    try:
+        with fileobj(fname) as f:
+            return re.findall(regex, f.read(), re.MULTILINE)
+    except AttributeError:
+        return []
 
 
 class PluginException(Exception):
@@ -157,12 +166,7 @@ class Plugin(object):
             return 0
 
     def doRegexFindAll(self, regex, fname):
-        ''' Return a list of all non overlapping matches in the string(s)
-        '''
-        try:
-            return re.findall(regex, open(fname, 'r').read(), re.MULTILINE)
-        except:  # IOError, AttributeError, etc.
-            return []
+        return regex_findall(regex, fname)
 
     def _path_in_path_list(self, path, path_list):
         for p in path_list:
@@ -329,29 +333,34 @@ class Plugin(object):
             return default
 
     def addCopySpecLimit(self, fname, sizelimit=None, sub=None):
-        """Add a file specification (with limits)
-        """
-        if not ( fname and len(fname) ):
-            # self.soslog.warning("invalid file path")
+        """Add a file or glob but limit it to sizelimit megabytes. If fname is
+        a single file the file will be tailed to meet sizelimit. If fname is a
+        glob and the first file is over sizelimit nothing will be copied."""
+        if not (fname and len(fname)):
             return False
+
         files = glob.glob(fname)
         files.sort()
         cursize = 0
         limit_reached = False
         sizelimit *= 1024 * 1024 # in MB
+
         for flog in files:
             cursize += os.stat(flog)[ST_SIZE]
             if sizelimit and cursize > sizelimit:
                 limit_reached = True
                 break
             self.addCopySpec(flog, sub)
-        # Truncate the first file (others would likely be compressed),
-        # ensuring we get at least some logs
-        # FIXME: figure this out for jython
+
         if len(files) == 1 and limit_reached:
-            flog = files[0]
-            self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
-                "tail_" + os.path.basename(flog), flog[1:] + ".tailed")
+            flog_name = flog = files[0]
+
+            if sub:
+                old, new = sub
+                flog_name = flog.replace(old, new)
+
+            self.addStringAsFile(tail(flog, sizelimit),
+                 flog_name.replace(os.path.sep, ".") + ".tailed")
 
     def addCopySpecs(self, copyspecs, sub=None):
         for copyspec in copyspecs:
