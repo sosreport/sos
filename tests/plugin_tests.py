@@ -3,7 +3,7 @@ import os
 import tempfile
 from StringIO import StringIO
 
-from sos.plugins import Plugin, regex_findall, sosRelPath
+from sos.plugins import Plugin, regex_findall, sosRelPath, mangle_command
 from sos.utilities import Archive
 
 PATH = os.path.dirname(__file__)
@@ -125,6 +125,14 @@ class PluginToolTests(unittest.TestCase):
         path1 = None
         path2 = "foo/lib/boo"
         self.assertEquals(sosRelPath(path1, path2), "foo/lib/boo")
+
+    def test_mangle_command(self):
+        self.assertEquals("foo", mangle_command("/usr/bin/foo"))
+        self.assertEquals("foo_-x", mangle_command("/usr/bin/foo -x"))
+        self.assertEquals("foo_--verbose", mangle_command("/usr/bin/foo --verbose"))
+        self.assertEquals("foo_.path.to.stuff", mangle_command("/usr/bin/foo /path/to/stuff"))
+        expected = "foo_.path.to.stuff.this.is.very.long.and.i.only.expect.part.of.it.maybe.this.is.enough.i.hope.so"[0:64]
+        self.assertEquals(expected, mangle_command("/usr/bin/foo /path/to/stuff/this/is/very/long/and/i/only/expect/part/of/it/maybe/this/is/enough/i/hope/so"))
 
 
 class PluginTests(unittest.TestCase):
