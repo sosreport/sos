@@ -6,7 +6,7 @@
 tags
 buildjar/
 gpgkeys/rhsupport.*
-rpm-build/*
+dist-build/*
 sos/__init__.py
 cover/
 .coverage
