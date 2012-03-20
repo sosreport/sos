@@ -2,7 +2,7 @@ import os.path
 import unittest
 from StringIO import StringIO
 
-from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sosGetCommandOutput, find, tail
+from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sosGetCommandOutput, find, tail, shell_out
 import sos
 
 TEST_DIR = os.path.dirname(__file__)
@@ -71,6 +71,9 @@ class ExecutableTest(unittest.TestCase):
         path = os.path.join(TEST_DIR, 'test_exe.py')
         self.assertTrue(is_executable(path))
 
+    def test_exe_file_abs_path(self):
+        self.assertTrue(is_executable("/usr/bin/timeout"))
+
     def test_output(self):
         path = os.path.join(TEST_DIR, 'test_exe.py')
         ret, out, junk = sosGetCommandOutput(path)
@@ -82,6 +85,10 @@ class ExecutableTest(unittest.TestCase):
         ret, out, junk = sosGetCommandOutput(path)
         self.assertEquals(ret, 127)
         self.assertEquals(out, "")
+
+    def test_shell_out(self):
+        path = os.path.join(TEST_DIR, 'test_exe.py')
+        self.assertEquals("executed", shell_out(path))
 
 
 class FindTest(unittest.TestCase):
