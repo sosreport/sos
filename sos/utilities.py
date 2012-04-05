@@ -149,6 +149,11 @@ def sosGetCommandOutput(command, timeout=300):
     cmdfile = command.strip("(").split()[0]
 
     if is_executable(cmdfile):
+
+        # use /usr/bin/timeout to implement a timeout
+        if timeout and is_executable("/usr/bin/timeout"):
+            command = "/usr/bin/timeout %ds %s" % (timeout, command)
+
         p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
         stdout, stderr = p.communicate()
         return (p.returncode, stdout.strip(), 0)
@@ -173,9 +178,7 @@ def import_module(module_fqname, superclasses=None):
 def shell_out(cmd):
     """Uses subprocess.Popen to make a system call and returns stdout.
     Does not handle exceptions."""
-    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
-    return p.communicate()[0]
-
+    return sosGetCommandOutput(cmd)[1]
 
 class Archive(object):
 
