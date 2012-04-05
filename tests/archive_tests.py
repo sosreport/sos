@@ -29,6 +29,12 @@ class ZipFileArchiveTest(unittest.TestCase):
 
         self.check_for_file('test/tests/ziptest')
 
+    def test_add_unicode_file(self):
+        self.zf.add_file(u'tests/')
+        self.zf.close()
+
+        self.check_for_file('test/tests/ziptest')
+
     def test_add_dir(self):
         self.zf.add_file('tests/')
         self.zf.close()
