@@ -22,7 +22,7 @@ class general(sos.plugintools.PluginBase):
     """
 
     optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
-                  ("all_logs", "collect all log files defined in syslog.conf", "", False)]
+                  ("all_logs", "collect all log files defined in syslog.conf", "", True)]
 
     def setup(self):
         rhelver = self.policy().rhelVersion()
@@ -42,7 +42,7 @@ class general(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/sa")
         self.addCopySpec("/var/log/pm/suspend.log")
         self.addCopySpec("/var/log/up2date")
-        self.addCopySpec("/etc/exports")        
+        self.addCopySpec("/etc/exports")
         self.collectExtOutput("/bin/hostname", symlink = "hostname")
         self.collectExtOutput("/bin/date", symlink = "date")
         self.collectExtOutput("/usr/bin/uptime", symlink = "uptime")
@@ -67,7 +67,7 @@ class general(sos.plugintools.PluginBase):
                 if i.startswith("-"):
                     i = i[1:]
                 if os.path.isfile(i):
-                    self.addCopySpecLimit(i, sizelimit = self.isOptionEnabled("syslogsize"))
+                    self.addCopySpecLimit(i, sizelimit = self.getOption("syslogsize"))
         return
 
     def postproc(self):
