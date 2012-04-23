@@ -57,6 +57,7 @@ class gluster(sos.plugintools.PluginBase):
             self.addForbiddenPath("/etc/glusterd/geo-replication/secret.pem")
         else:
             self.addCopySpec("/var/lib/glusterd/")
+            self.addForbiddenPath("/var/lib/glusterd/geo-replication/secret.pem")
 
         self.addCopySpec("/etc/glusterfs")
             
