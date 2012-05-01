@@ -47,7 +47,7 @@ class kernel(sos.plugintools.PluginBase):
         if self.getOption('modinfo'):
             runcmd = ""
             ret, mods, rtime = self.callExtProg('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null')
-            for kmod in mods.split('\n'): 
+            for kmod in mods.split('\n'):
                 if '' != kmod.strip():
                     runcmd = runcmd + " " + kmod
             if len(runcmd):
@@ -71,6 +71,7 @@ class kernel(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/driver")
         self.addCopySpec("/proc/zoneinfo")
         self.addCopySpec("/proc/sys/kernel/tainted")
+        self.addCopySpec("/proc/version"),
         self.addCopySpec("/proc/buddyinfo")
         self.addCopySpec("/proc/softirqs")
         self.addCopySpec("/proc/timer*")
