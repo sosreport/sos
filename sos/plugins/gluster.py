@@ -30,7 +30,7 @@ class gluster(sos.plugintools.PluginBase):
         for line in fp.readlines():
             if not line.startswith("Volume Name:"):
                 continue
-            volname = line[12:]
+            volname = line[12:-1]
             out.append(volname)
         fp.close()
         return out
@@ -44,11 +44,13 @@ class gluster(sos.plugintools.PluginBase):
     def setup(self):
         self.collectExtOutput("/usr/sbin/gluster peer status")
 
+        # check package version handling rename of glusterfs-core -> glusterfs
         pkg = self.policy().pkgByName("glusterfs-core");
-
-        # need to handle "no package" case for users who force-enable with -e/-o
         if not pkg:
-            return
+            pkg = self.policy().pkgByName("glusterfs");
+            # need to handle "no package" case for users who enable with -e/-o
+            if not pkg:
+                return
 
         gluster_major = int((pkg["version"])[:1])
         gluster_minor = int((pkg["version"])[2:3])
@@ -59,13 +61,19 @@ class gluster(sos.plugintools.PluginBase):
             self.addCopySpec("/var/lib/glusterd/")
             self.addForbiddenPath("/var/lib/glusterd/geo-replication/secret.pem")
 
+        # glusterfs-server rpm scripts stash this on migration to 3.3.x
+        self.addCopySpec("/etc/glusterd.rpmsave")
+
+        # common to all versions
         self.addCopySpec("/etc/glusterfs")
-            
+
+        # This will fail on <3.3.x but has no harmful side-effects 
         volume_file = self.collectOutputNow("/usr/sbin/gluster volume info",
                         "gluster_volume_info")
         if volume_file:
             for volname in self.get_volume_names(volume_file):
                 self.collectExtOutput("gluster volume statedump %s" % volname)
+                self.collectExtOutput("gluster volume statedump %s nfs" % volname)
                 self.collectExtOutput("gluster volume status %s detail" % volname)
                 self.collectExtOutput("gluster volume status %s clients" % volname)
                 self.collectExtOutput("gluster volume status %s mem" % volname)
