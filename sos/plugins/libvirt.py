@@ -18,4 +18,4 @@ class libvirt(sos.plugintools.PluginBase):
     """
     def setup(self):
         self.addCopySpec("/etc/libvirt/")
-        self.addCopySpec("/var/log/libvirt/")
+        self.addCopySpec("/var/log/libvirt*")
