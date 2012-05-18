@@ -37,6 +37,7 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/s390dbf/tape")
         self.addCopySpec("/sys/bus/scsi")
         self.addCopySpec("/sys/state")
+        self.addCopySpec("/var/log/mcelog")
         self.collectExtOutput("python /usr/share/rhn/up2date_client/hardware.py", suggest_filename="hardware.py")
         self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", symlink = "lspci")
 
