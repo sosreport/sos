@@ -20,14 +20,58 @@ from os.path import exists
 class ipa(Plugin, RedHatPlugin):
     """IPA diagnostic information
     """
-    # ntp and dirserver stuff are covered in existing sos plugins, so we really only
-    # need to get kerberos and ipa specific addons.
+
+    ipa_server = False
+    ipa_client = False
 
     files = ('/etc/ipa',)
-    packages = ('ipa-server',)
+    packages = ('ipa-server', 'ipa-client')
+
+    def checkenabled(self):
+        self.ipa_server = self.isInstalled("ipa-server")
+        self.ipa_client = self.isInstalled("ipa-client")
+        return Plugin.checkenabled(self)
 
     def setup(self):
-        self.addCopySpec("/etc/dirsrv/ds.keytab")
-        self.addCopySpec("/etc/ipa/ipa.conf")
-        self.addCopySpec("/etc/krb5.conf")
-        self.addCopySpec("/etc/krb5.keytab")
+        if self.ipa_server:
+            self.addCopySpec("/var/log/ipaserver-install.log")
+            self.addCopySpec("/var/log/ipareplica-install.log")
+        if self.ipa_client:
+            self.addCopySpec("/var/log/ipaclient-install.log")
+
+        self.addCopySpecs(["/var/log/ipaupgrade.log",
+                        "/var/log/krb5kdc.log",
+                        "/var/log/pki-ca/debug",
+                        "/var/log/pki-ca/catalina.out",
+                        "/var/log/pki-ca/system",
+                        "/var/log/pki-ca/transactions",
+                        "/var/log/dirsrv/slapd-*/logs/access",
+                        "/var/log/dirsrv/slapd-*/logs/errors",
+                        "/etc/dirsrv/slapd-*/dse.ldif",
+                        "/etc/dirsrv/slapd-*/schema/99user.ldif",
+                        "/etc/hosts",
+                        "/etc/named.*"])
+ 
+        self.addForbiddenPath("/etc/pki/nssdb/key*")
+        self.addForbiddenPath("/etc/pki-ca/flatfile.txt")
+        self.addForbiddenPath("/etc/pki-ca/password.conf")
+        self.addForbiddenPath("/var/lib/pki-ca/alias/key*")
+
+        self.addForbiddenPath("/etc/dirsrv/slapd-*/key*")
+        self.addForbiddenPath("/etc/dirsrv/slapd-*/pin.txt")
+        self.addForbiddenPath("/etc/dirsrv/slapd-*/pwdfile.txt")
+
+        self.addForbiddenPath("/etc/named.keytab")
+
+        self.collectExtOutput("ls -la /etc/dirsrv/slapd-*/schema/")
+
+        self.collectExtOutput("ipa-getcert list")
+
+        self.collectExtOutput("certutil -L -d /etc/httpd/alias/")
+        self.collectExtOutput("certutil -L -d /etc/dirsrv/slapd-*/")
+
+        self.collectExtOutput("klist -ket /etc/dirsrv/ds.keytab")
+        self.collectExtOutput("klist -ket /etc/httpd/conf/ipa.keytab")
+        self.collectExtOutput("klist -ket /etc/krb5.keytab")
+
+        return

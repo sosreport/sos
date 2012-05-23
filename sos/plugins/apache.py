@@ -28,9 +28,13 @@ class RedHatApache(apache, RedHatPlugin):
 
     def setup(self):
         super(RedHatApache, self).setup()
+
         self.addCopySpecs([
             "/etc/httpd/conf/httpd.conf",
             "/etc/httpd/conf.d/*.conf"])
+
+        self.addForbiddenPath("/etc/httpd/conf/password.conf")
+
         if self.getOption("log"):
             self.addCopySpec("/var/log/httpd/*")
 
