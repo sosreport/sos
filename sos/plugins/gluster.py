@@ -61,6 +61,9 @@ class gluster(sos.plugintools.PluginBase):
             self.addCopySpec("/var/lib/glusterd/")
             self.addForbiddenPath("/var/lib/glusterd/geo-replication/secret.pem")
 
+        # collect unified file and object storage configuration
+        self.addCopySpec("/etc/swift/")
+
         # glusterfs-server rpm scripts stash this on migration to 3.3.x
         self.addCopySpec("/etc/glusterd.rpmsave")
 
