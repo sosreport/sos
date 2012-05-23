@@ -18,10 +18,16 @@ class apache(sos.plugintools.PluginBase):
     """Apache related information
     """
     optionList = [("log", "gathers all apache logs", "slow", False)]
+
+    def checkenabled(self):
+        if self.isInstalled("httpd"):
+            return True
+        return False
     
     def setup(self):
         self.addCopySpec("/etc/httpd/conf/httpd.conf")
         self.addCopySpec("/etc/httpd/conf.d/*.conf")
+        self.addForbiddenPath("/etc/httpd/conf/password.conf")
         if self.getOption("log"):
             self.addCopySpec("/var/log/httpd/*")
         return

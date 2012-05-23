@@ -40,5 +40,15 @@ class named(sos.plugintools.PluginBase):
                 self.addCopySpec(self.getDnsDir(cfg))
                 self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/dev"))
                 self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/proc"))
+
+        self.addCopySpec("/etc/named/")
         self.addCopySpec("/etc/sysconfig/named")
+        self.collectExtOutput("klist -ket /etc/named.keytab")
+        self.addForbiddenPath("/etc/named.keytab")
         return
+
+    def postproc(self):
+        match = r"(\s*arg \"password )[^\"]*"
+        subst = r"\1*** PASSWORD REDACTED ***"
+        self.doRegexSub("/etc/named.conf", match, subst)
+
