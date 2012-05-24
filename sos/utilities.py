@@ -381,14 +381,14 @@ class DirTree(object):
         try:
             import pwd
             return pwd.getpwuid(stats.st_uid)[0]
-        except ImportError:
+        except:
             return str(stats.st_uid)
 
     def _get_group(self, stats):
         try:
             import grp
             return grp.getgrgid(stats.st_gid)[0]
-        except ImportError:
+        except:
             return str(stats.st_uid)
 
     def _format(self, path):
