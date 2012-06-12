@@ -21,13 +21,13 @@ class networking(Plugin, RedHatPlugin):
     """
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
 
-    def get_interface_name(self,ipaddrFile):
+    def get_interface_name(self,ipaddrOut):
         """Return a dictionary for which key are interface name according to the
         output of ifconifg-a stored in ifconfigFile.
         """
         out={}
-        for interface in open(ipaddrFile, 'r').readlines():
-            match=re.match(r'link/ether', interface)
+        for line in ipaddrOut[1].splitlines():
+            match=re.match('.*link/ether', line)
             if match:
                 int=match.string.split(':')[1].lstrip()
                 out[int]=True
@@ -57,6 +57,7 @@ class networking(Plugin, RedHatPlugin):
             "/etc/host*",
             "/etc/resolv.conf"])
         ipaddrFile=self.collectOutputNow("/sbin/ip -o addr", root_symlink = "ip_addr")
+        ipaddrOut=self.callExtProg("/sbin/ip -o addr")
         self.collectExtOutput("/sbin/route -n", root_symlink = "route")
         self.collectIPTable("filter")
         self.collectIPTable("nat")
@@ -71,8 +72,8 @@ class networking(Plugin, RedHatPlugin):
         self.collectExtOutput("/sbin/ifenslave -a")
         self.collectExtOutput("/sbin/ip mroute show")
         self.collectExtOutput("/sbin/ip maddr show")
-        if ipaddrFile:
-            for eth in self.get_interface_name(ipaddrFile):
+        if ipaddrOut:
+            for eth in self.get_interface_name(ipaddrOut):
                 self.collectExtOutput("/sbin/ethtool "+eth)
                 self.collectExtOutput("/sbin/ethtool -i "+eth)
                 self.collectExtOutput("/sbin/ethtool -k "+eth)
