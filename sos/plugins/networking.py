@@ -51,7 +51,7 @@ class networking(Plugin, RedHatPlugin):
             "/etc/xinetd.d",
             "/etc/host*",
             "/etc/resolv.conf"])
-        ifconfigFile=self.collectOutputNow("/sbin/ifconfig -a", root_symlink = "ifconfig")
+        ifconfigFile=self.collectOutputNow("/sbin/ip -o addr", root_symlink = "ip_addr")
         self.collectExtOutput("/sbin/route -n", root_symlink = "route")
         self.collectIPTable("filter")
         self.collectIPTable("nat")
