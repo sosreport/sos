@@ -140,7 +140,6 @@ class RedHatOpenStack(openstack, RedHatPlugin):
         if (os.path.isfile('/etc/redhat-release')
             or os.path.isfile('/etc/fedora-release')):
             self.collectExtOutput("/usr/bin/openstack-status")
-            self.collectExtOutput("/usr/bin/nova-manage service list")
 
         # Nova
         self.addCopySpecs(["/etc/nova/",
