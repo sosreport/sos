@@ -27,7 +27,6 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
     """
 
-    files = ('/etc/nova/nova.conf','/etc/glance/glance-api.conf','/etc/glance-registry.conf')
     packages = ('glance',
                 'glance-api',
                 'glance-client',
