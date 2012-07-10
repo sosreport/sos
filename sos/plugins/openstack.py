@@ -1,5 +1,3 @@
-## Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
-
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -14,9 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import os
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-import os
 
 class openstack(Plugin):
     """openstack related information
@@ -26,35 +24,129 @@ class openstack(Plugin):
     optionList = [("log", "gathers all openstack logs", "slow", False)]
 
 class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
-    """OpenStack related information for Red Hat distributions
+    """OpenStack related information for Debian based distributions
     """
 
     files = ('/etc/nova/nova.conf','/etc/glance/glance-api.conf','/etc/glance-registry.conf')
-    packages = ('nova-common','nova-compute'-server', 'mysql')
+    packages = ('glance',
+                'glance-api',
+                'glance-client',
+                'glance-common',
+                'glance-registry',
+                'keystone',
+                'melange',
+                'nova-api-ec2',
+                'nova-api-metadata',
+                'nova-api-os-compute',
+                'nova-api-os-volume',
+                'nova-common',
+                'nova-compute',
+                'nova-compute-kvm',
+                'nova-compute-lxc',
+                'nova-compute-qemu',
+                'nova-compute-uml',
+                'nova-compute-xcp',
+                'nova-compute-xen',
+                'nova-xcp-plugins',
+                'nova-consoleauth',
+                'nova-network',
+                'nova-scheduler',
+                'nova-volume',
+                'novnc',
+                'openstack-dashboard',
+                'quantum-common',
+                'quantum-plugin-cisco',
+                'quantum-plugin-linuxbridge-agent',
+                'quantum-plugin-nicira',
+                'quantum-plugin-openvswitch',
+                'quantum-plugin-openvswitch-agent',
+                'quantum-plugin-ryu',
+                'quantum-plugin-ryu-agent',
+                'quantum-server',
+                'swift',
+                'swift-account',
+                'swift-container',
+                'swift-object',
+                'swift-proxy',
+                'swauth',
+                'python-django-horizon',
+                'python-glance',
+                'python-keystone',
+                'python-keystoneclient',
+                'python-melange',
+                'python-nova',
+                'python-novaclient',
+                'python-novnc',
+                'python-quantum',
+                'python-quantumclient',
+                'python-swift',
+                'python-swauth')
 
     def setup(self):
-        self.addCopySpecs([
-            "/etc/nova/*",
-            "/etc/glance/*",
-            "/etc/keystone/*])
-        self.addCopySpecs([
-            "/var/log/nova/*",
-            "/var/log/glance/*",
-            "/var/log/keystone/*])
+        # Nova
+        self.addCopySpecs(["/etc/nova/",
+                           "/var/log/nova/",
+                           "/etc/sudoers.d/nova_sudoers",
+                           "/etc/logrotate.d/nova-*"])
+        # Glance
+        self.addCopySpecs(["/etc/glance/",
+                           "/var/log/glance/",
+                           "/etc/logrotate.d/glance-*"])
+        # Keystone
+        self.addCopySpecs(["/etc/keystone/",
+                           "/var/log/keystone/",
+                           "/etc/logrotate.d/keystone"])
+        # Swift
+        self.addCopySpecs(["/etc/swift/"])
+        # Quantum
+        self.addCopySpecs(["/etc/quantum/",
+                           "/var/log/quantum/"])
 
 class RedHatOpenStack(openstack, RedHatPlugin):
     """OpenStack related information for Red Hat distributions
     """
 
-    files = ('/etc/nova/nova.conf','/etc/glance/glance-api.conf','/etc/glance-registry.conf')
-    packages = ('nova-common','nova-compute'-server', 'mysql')
+    packages = ('openstack-nova',
+                'openstack-glance',
+                'openstack-dashboard',
+                'openstack-keystone',
+                'openstack-quantum',
+                'openstack-swift',
+                'openstack-swift-account',
+                'openstack-swift-container',
+                'openstack-swift-object',
+                'openstack-swift-proxy',
+                'swift',
+                'python-nova',
+                'python-glanceclient',
+                'python-keystoneclient',
+                'python-novaclient',
+                'python-openstackclient',
+                'python-quantumclient')
 
     def setup(self):
-        self.addCopySpecs([
-            "/etc/nova/*",
-            "/etc/glance/*",
-            "/etc/keystone/*])
-        self.addCopySpecs([
-            "/var/log/nova/*",
-            "/var/log/glance/*",
-            "/var/log/keystone/*])
+        # If RHEL or Fedora then invoke script for openstack-status
+        if (os.path.isfile('/etc/redhat-release')
+            or os.path.isfile('/etc/fedora-release')):
+            self.collectExtOutput("/usr/bin/openstack-status")
+
+        # Nova
+        self.addCopySpecs(["/etc/nova/",
+                           "/var/log/nova/",
+                           "/var/lib/nova/",
+                           "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
+                           "/etc/sudoers.d/nova",
+                           "/etc/logrotate.d/openstack-nova"])
+
+        # Glance
+        self.addCopySpecs(["/etc/glance/",
+                           "/var/log/glance/",
+                           "/etc/logrotate.d/openstack-glance"])
+
+        # Keystone
+        self.addCopySpecs(["/etc/keystone/",
+                           "/var/log/keystone/"])
+
+        # Quantum
+        self.addCopySpecs(["/etc/quantum/",
+                           "/var/log/quantum/"])
