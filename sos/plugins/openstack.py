@@ -16,12 +16,14 @@ import os
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
+
 class openstack(Plugin):
     """openstack related information
     """
     plugin_name = "openstack"
 
     optionList = [("log", "gathers all openstack logs", "slow", False)]
+
 
 class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
@@ -84,14 +86,30 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
     def setup(self):
         # Nova
         if os.path.exists("/usr/bin/nova-manage"):
-            self.collectExtOutput("/usr/bin/nova-manage config list 2>/dev/null | sort", suggest_filename = "nova_config_list")
-            self.collectExtOutput("/usr/bin/nova-manage service list 2>/dev/null", suggest_filename = "nova_service_list")
-            self.collectExtOutput("/usr/bin/nova-manage db version 2>/dev/null", suggest_filename = "nova_db_version")
-            self.collectExtOutput("/usr/bin/nova-manage fixed list 2>/dev/null", suggest_filename = "nova_fixed_ip_list")
-            self.collectExtOutput("/usr/bin/nova-manage floating list 2>/dev/null", suggest_filename = "nova_floating_ip_list")
-            self.collectExtOutput("/usr/bin/nova-manage flavor list 2>/dev/null", suggest_filename = "nova_flavor_list")
-            self.collectExtOutput("/usr/bin/nova-manage network list 2>/dev/null", suggest_filename = "nova_network_list")
-            self.collectExtOutput("/usr/bin/nova-manage vm list 2>/dev/null", suggest_filename = "nova_vm_list")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage config list 2>/dev/null | sort",
+                suggest_filename="nova_config_list")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage service list 2>/dev/null",
+                suggest_filename="nova_service_list")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage db version 2>/dev/null",
+                suggest_filename="nova_db_version")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage fixed list 2>/dev/null",
+                suggest_filename="nova_fixed_ip_list")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage floating list 2>/dev/null",
+                suggest_filename="nova_floating_ip_list")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage flavor list 2>/dev/null",
+                suggest_filename="nova_flavor_list")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage network list 2>/dev/null",
+                suggest_filename="nova_network_list")
+            self.collectExtOutput(
+                "/usr/bin/nova-manage vm list 2>/dev/null",
+                suggest_filename="nova_vm_list")
         self.addCopySpecs(["/etc/nova/",
                            "/var/log/nova/",
                            "/etc/default/nova-volume",
@@ -99,7 +117,9 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
                            "/etc/logrotate.d/nova-*"])
         # Glance
         if os.path.exists("/usr/bin/glance-manage"):
-            self.collectExtOutput("/usr/bin/glance-manage db_version", suggest_filename = "glance_db_version")
+            self.collectExtOutput(
+                "/usr/bin/glance-manage db_version",
+                suggest_filename="glance_db_version")
         self.addCopySpecs(["/etc/glance/",
                            "/var/log/glance/",
                            "/etc/logrotate.d/glance-*"])
@@ -112,6 +132,7 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
         # Quantum
         self.addCopySpecs(["/etc/quantum/",
                            "/var/log/quantum/"])
+
 
 class RedHatOpenStack(openstack, RedHatPlugin):
     """OpenStack related information for Red Hat distributions
