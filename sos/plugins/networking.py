@@ -21,11 +21,16 @@ class networking(Plugin, RedHatPlugin):
     """
     optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
 
-    def get_interface_name(self,ifconfigFile):
+    def get_interface_name(self,ipaddrOut):
         """Return a dictionary for which key are interface name according to the
         output of ifconifg-a stored in ifconfigFile.
         """
-        out=self.doRegexFindAll(r"^(eth\d+)\D", ifconfigFile)
+        out={}
+        for line in ipaddrOut[1].splitlines():
+            match=re.match('.*link/ether', line)
+            if match:
+                int=match.string.split(':')[1].lstrip()
+                out[int]=True
         return out
 
     def collectIPTable(self,tablename):
@@ -51,7 +56,8 @@ class networking(Plugin, RedHatPlugin):
             "/etc/xinetd.d",
             "/etc/host*",
             "/etc/resolv.conf"])
-        ifconfigFile=self.collectOutputNow("/sbin/ifconfig -a", root_symlink = "ifconfig")
+        ipaddrFile=self.collectOutputNow("/sbin/ip -o addr", root_symlink = "ip_addr")
+        ipaddrOut=self.callExtProg("/sbin/ip -o addr")
         self.collectExtOutput("/sbin/route -n", root_symlink = "route")
         self.collectIPTable("filter")
         self.collectIPTable("nat")
@@ -66,11 +72,14 @@ class networking(Plugin, RedHatPlugin):
         self.collectExtOutput("/sbin/ifenslave -a")
         self.collectExtOutput("/sbin/ip mroute show")
         self.collectExtOutput("/sbin/ip maddr show")
-        if ifconfigFile:
-            for eth in self.get_interface_name(ifconfigFile):
+        if ipaddrOut:
+            for eth in self.get_interface_name(ipaddrOut):
                 self.collectExtOutput("/sbin/ethtool "+eth)
                 self.collectExtOutput("/sbin/ethtool -i "+eth)
                 self.collectExtOutput("/sbin/ethtool -k "+eth)
                 self.collectExtOutput("/sbin/ethtool -S "+eth)
+                self.collectExtOutput("/sbin/ethtool -a "+eth)
+                self.collectExtOutput("/sbin/ethtool -c "+eth)
+                self.collectExtOutput("/sbin/ethtool -g "+eth)
         if self.getOption("traceroute"):
             self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
