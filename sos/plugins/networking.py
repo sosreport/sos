@@ -35,11 +35,16 @@ class networking(sos.plugintools.PluginBase):
         fp.close()
         return out
 
-    def get_interface_name(self,ifconfigFile):
+    def get_interface_name(self,ipaddrFile):
         """Return a dictionary for which key are interface name according to the
         output of ifconifg-a stored in ifconfigFile.
         """
-        out=self.doRegexFindAll(r"^(eth\d+)\D", ifconfigFile)
+        out={}
+        for interface in open(ipaddrFile, 'r').readlines():
+            match=re.match(r'.*link/ether.*', interface)
+            if match:
+                int=match.string.split(':')[1].lstrip()
+                out[int]=True
         return out
 
     def collectIPTable(self,tablename):
@@ -66,7 +71,8 @@ class networking(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/xinetd.d")
         self.addCopySpec("/etc/host*")
         self.addCopySpec("/etc/resolv.conf")
-        ifconfigFile=self.collectOutputNow("/sbin/ifconfig -a", symlink = "ifconfig")
+        self.collectExtOutput("/sbin/ifconfig -a", symlink = "ifconfig")
+        ipaddrFile=self.collectOutputNow("/sbin/ip -o addr", symlink = "ip_addr")
         self.collectExtOutput("/sbin/route -n", symlink = "route")
         self.collectIPTable("filter")
         self.collectIPTable("nat")
@@ -81,8 +87,8 @@ class networking(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/ip mroute show")
         self.collectExtOutput("/sbin/ip maddr show")
         self.collectExtOutput("/sbin/ip neigh show")
-        if ifconfigFile:
-            for eth in self.get_interface_name(ifconfigFile):
+        if ipaddrFile:
+            for eth in self.get_interface_name(ipaddrFile):
                 self.collectExtOutput("/sbin/ethtool "+eth)
                 self.collectExtOutput("/sbin/ethtool -i "+eth)
                 self.collectExtOutput("/sbin/ethtool -k "+eth)
