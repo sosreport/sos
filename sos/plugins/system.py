@@ -19,6 +19,8 @@ class system(sos.plugintools.PluginBase):
     """
     def setup(self):
         self.addCopySpec("/proc/sys")
+        self.addForbiddenPath("/proc/sys/net/ipv6/neigh/*/retrans_time")
+        self.addForbiddenPath("/proc/sys/net/ipv6/neigh/*/base_reachable_time")
         self.addCopySpec("/etc/sysctl.conf")
         self.addCopySpec("/etc/cron*")
         self.addCopySpec("/etc/anacrontab")
