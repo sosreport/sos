@@ -33,6 +33,8 @@ class ipa(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/hosts")
+        self.addCopySpec("/etc/named.*")
+        self.addForbiddenPath("/etc/named.keytab")
         if self.ipa_server:
             self.addCopySpec("/var/log/ipaserver-install.log")
             self.addCopySpec("/var/log/ipareplica-install.log")
@@ -42,6 +44,7 @@ class ipa(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/ipaupgrade.log")
 
         self.addCopySpec("/var/log/krb5kdc.log")
+        self.addCopySpec("/var/kerberos/krb5kdc/kdc.conf")
 
         self.addCopySpec("/var/log/pki-ca/debug")
         self.addCopySpec("/var/log/pki-ca/catalina.out")
@@ -72,4 +75,10 @@ class ipa(sos.plugintools.PluginBase):
         self.collectExtOutput("klist -ket /etc/krb5.keytab")
 
         return
+
+
+    def postproc(self):
+        match = r"(\s*arg \"password )[^\"]*"
+        subst = r"\1********"
+        self.doRegexSub("/etc/named.conf", match, subst)
 

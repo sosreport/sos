@@ -49,6 +49,6 @@ class named(sos.plugintools.PluginBase):
 
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"
-        subst = r"\1*** PASSWORD REDACTED ***"
+        subst = r"\1********"
         self.doRegexSub("/etc/named.conf", match, subst)
 
