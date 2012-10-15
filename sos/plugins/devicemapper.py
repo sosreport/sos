@@ -45,6 +45,7 @@ class devicemapper(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/lvm")
 
         self.addCopySpec("/etc/multipath.conf")
+        self.addCopySpec("/etc/multipath/")
         self.addCopySpec("/var/lib/multipath/bindings")
         self.collectExtOutput("/sbin/multipath -v4 -ll")
 
