@@ -232,6 +232,8 @@ class SosPolicy:
         self.reportName = sanitizeReportName(self.reportName)
         self.ticketNumber = sanitizeTicketNumber(self.ticketNumber)
 
+        if (self.reportName == ""):
+            self.reportName = "default"
         return
 
     def renameResults(self, newName):
