@@ -322,6 +322,8 @@ class PluginBase:
         """
         # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(prog)
+        if (status == 127):
+           self.soslog.info("could not run '%s'" % prog) 
         return (status, shout, runtime)
 
     def collectExtOutput(self, exe, suggest_filename = None, symlink = None, timeout = 300):

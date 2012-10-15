@@ -41,16 +41,15 @@ def importPlugin(pluginname, name):
 def sosGetCommandOutput(command, timeout = 300):
     """ Execute a command and gather stdin, stdout, and return status.
     """
-    # soslog = logging.getLogger('sos')
-    # Log if binary is not runnable or does not exist
     for path in os.environ["PATH"].split(":"):
+        exists = False
         cmdfile = command.strip("(").split()[0]
         # handle both absolute or relative paths
         if ( ( not os.path.isabs(cmdfile) and os.access(os.path.join(path,cmdfile), os.X_OK) ) or \
            ( os.path.isabs(cmdfile) and os.access(cmdfile, os.X_OK) ) ):
+            exists = True
             break
-    else:
-        # soslog.log(logging.VERBOSE, "binary '%s' does not exist or is not runnable" % cmdfile)
+    if not exists:
         return (127, "", 0)
 
     p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
