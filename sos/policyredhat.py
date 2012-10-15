@@ -197,7 +197,9 @@ class SosPolicy:
         """Find a temp directory to form the root for our gathered information
            and reports.
         """
-        uniqname = "%s-%s" % (self.hostName(), time.strftime("%Y%m%d%H%M%s"))
+        # no slashes in hostnames to avoid path aliasing problems
+        hostname = re.sub(r"[^_a-zA-Z.0-9-]", "", self.hostName())
+        uniqname = "%s-%s" % (hostname, time.strftime("%Y%m%d%H%M%s"))
         dstroot = os.path.join(os.path.abspath(tmpdir),uniqname)
         try:
             os.makedirs(dstroot, 0700)
