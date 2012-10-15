@@ -24,7 +24,7 @@ class rpm(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/rpmpkgs")
 
         if self.getOption("rpmq"):
-            self.collectExtOutput("/bin/rpm -qa --qf=\"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~%{INSTALLTIME:date}\n\" --nosignature --nodigest|/bin/awk -F ~~ '{printf \"%-59s %s\\n\",$1,$2}'|sort", symlink = "installed-rpms")
+            self.collectExtOutput("/bin/rpm -qa --qf=\"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~%{INSTALLTIME:date}\n\" --nosignature --nodigest|/bin/awk -F '~~' '{printf \"%-59s %s\\n\",$1,$2}'|sort", symlink = "installed-rpms")
 
         if self.getOption("rpmva"):
             self.collectExtOutput("/bin/rpm -Va", symlink = "rpm-Va", timeout = 3600)
