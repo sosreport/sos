@@ -22,6 +22,7 @@ class memory(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/meminfo")
         self.addCopySpec("/proc/vmstat")
         self.addCopySpec("/proc/slabinfo")
+        self.addCopySpec("/proc/pagetypeinfo")
         
         self.collectExtOutput("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
         self.collectExtOutput("/usr/bin/free", symlink = "free")
