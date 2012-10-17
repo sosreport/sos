@@ -13,6 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import os
 
 class rhn(sos.plugintools.PluginBase):
     """RHN Satellite related information
@@ -25,9 +26,7 @@ class rhn(sos.plugintools.PluginBase):
     def defaultenabled(self):
         return False
 
-    def checkenabled(self):
-        # enable if any related package is installed
-
+    def rhn_package_check(self):
         self.satellite = self.isInstalled("rhns-satellite-tools") \
                         or self.isInstalled("spacewalk-java") \
                         or self.isInstalled("rhn-base")
@@ -35,13 +34,15 @@ class rhn(sos.plugintools.PluginBase):
         self.proxy = self.isInstalled("rhns-proxy-tools") \
                     or self.isInstalled("spacewalk-proxy-management") \
                     or self.isInstalled("rhn-proxy-management")
+        return (self.satellite or self.proxy)
 
-        if self.satellite or self.proxy:
-            return True
 
-        return False
+    def checkenabled(self):
+        # enable if any related package is installed
+        return self.rhn_package_check()
 
     def setup(self):
+        self.rhn_package_check()
         self.addCopySpec("/etc/httpd/conf*")
         self.addCopySpec("/etc/rhn")
         self.addCopySpec("/etc/sysconfig/rhn")
@@ -69,6 +70,9 @@ class rhn(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/bin/rhn-charsets", symlink = "database-character-sets")
 
         if self.satellite:
+            if os.path.exists("/usr/bin/spacewalk-debug"):
+                self.collectExtOutput("/usr/bin/spacewalk-debug --dir %s"
+                        % os.path.join(self.cInfo['dstroot'], "sos_commands/rhn"))
             self.addCopySpec("/etc/tnsnames.ora")   
             self.addCopySpec("/etc/jabberd")
 
