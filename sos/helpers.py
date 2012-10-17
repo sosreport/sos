@@ -54,6 +54,8 @@ def sosGetCommandOutput(command, timeout = 300):
 
     p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
     stdout, stderr = p.communicate()
+    # hack to delete trailing '\n' added by p.communicate()
+    if stdout[-1:] == '\n': stdout = stdout[:-1]
     return (p.returncode, stdout, 0)
 
 def commonPrefix(l1, l2, common = []):
