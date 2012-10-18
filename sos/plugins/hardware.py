@@ -23,6 +23,7 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/cpuinfo")
         self.addCopySpec("/proc/meminfo")
         self.addCopySpec("/proc/ioports")
+        self.addCopySpec("/proc/iomem")
         self.addCopySpec("/proc/interrupts")
         self.addCopySpec("/proc/scsi")
         self.addCopySpec("/proc/dma")
