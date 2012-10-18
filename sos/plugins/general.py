@@ -55,9 +55,11 @@ class general(sos.plugintools.PluginBase):
                 self.addCopySpec("/etc/pki/product/*.pem")
                 self.addCopySpec("/etc/pki/consumer/cert.pem")
                 self.addCopySpec("/etc/pki/entitlement/*.pem")
-                self.addCopySpec("/etc/rhsm/")
                 self.addForbiddenPath("/etc/pki/entitlement/key.pem")
                 self.addForbiddenPath("/etc/pki/entitlement/*-key.pem")
+                self.addCopySpec("/etc/rhsm/")
+                self.collectExtOutput("subscription-manager list --installed")
+                self.collectExtOutput("subscription-manager list --consumed")
 
         if self.getOption('all_logs'):
             logs = self.doRegexFindAll("^\S+\s+(-?\/.*$)\s+", "/etc/syslog.conf")
