@@ -69,11 +69,15 @@ class gluster(sos.plugintools.PluginBase):
                 ret = string.count (last_line, 'DUMP_END_TIME');
 
     def postproc(self):
-         for dirs in os.listdir(self.statedump_dir):
-             os.remove(self.statedump_dir + '/' + dirs);
-
-         os.rmdir(self.statedump_dir);
-         os.unlink('/tmp/glusterdump.options');
+        if not os.path.exists(self.statedump_dir):
+            return
+        try:
+            for dirs in os.listdir(self.statedump_dir):
+                os.remove(os.path.join(self.statedump_dir,dirs));
+            os.rmdir(self.statedump_dir);
+            os.unlink('/tmp/glusterdump.options');
+        except:
+            pass
 
     def setup(self):
         self.collectExtOutput("/usr/sbin/gluster peer status")
