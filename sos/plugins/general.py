@@ -58,6 +58,8 @@ class general(sos.plugintools.PluginBase):
                 self.addForbiddenPath("/etc/pki/entitlement/key.pem")
                 self.addForbiddenPath("/etc/pki/entitlement/*-key.pem")
                 self.addCopySpec("/etc/rhsm/")
+                self.addCopySpec("/var/log/rhsm/rhsm.log")
+                self.addCopySpec("/var/log/rhsm/rhsmcertd.log")
                 self.collectExtOutput("subscription-manager list --installed")
                 self.collectExtOutput("subscription-manager list --consumed")
 
