@@ -30,6 +30,10 @@ class psql(sos.plugintools.PluginBase):
     __username = 'postgres'
     __dbport = 5432
 
+    packages = [ 'postgresql' ]
+
+    tmp_dir = None
+
     optionList = [
         ("pghome",  'PostgreSQL server home directory (default=/var/lib/pgsql)', '', False),
         ("username",  'username for pg_dump (default=postgres)', '', False),
@@ -91,6 +95,8 @@ class psql(sos.plugintools.PluginBase):
 
     def postproc(self):
         import shutil
+        if self.tmp_dir == None:
+            return
         try:
             shutil.rmtree(self.tmp_dir)
         except:
