@@ -16,16 +16,20 @@ import sos.plugintools
 import os
 
 class rhui(sos.plugintools.PluginBase):
-    """Red Hat Update Infrastructure for Cloud Providers data
+    """Red Hat Update Infrastructure for Cloud Providers
     """
     rhui_debug_path = "/usr/share/rh-rhua/rhui-debug.py"
     def checkenabled(self):
-       self.packages = [ "rh-rhui-tools" ]
+       self.packages = [ "rh-rhui-tools", "pulp-cds" ]
        self.files = [ self.rhui_debug_path ]
        return sos.plugintools.PluginBase.checkenabled(self)
 
     def setup(self):
-        cds = ""
+        if self.isInstalled("pulp-cds"):
+            cds = "--cds"
+        else:
+            cds = ""
+
         rhui_debug_dst_path = os.path.join(self.cInfo['dstroot'],
                 "sos_commands/rhui")
         try:
