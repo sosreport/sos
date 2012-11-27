@@ -109,13 +109,10 @@ class Plugin(object):
     version is a string representing the version of the plugin. This can be
     useful for post-collection tooling.
 
-    packages is an iterable of the names of packages to check for before
-    running this plugin. If any of these packages is found on the system, the
-    default implementation of checkenabled will return True.
-
-    files is an iterable of the paths of files to check for before running this
-    plugin. If any of these packages is found on the system, the default
-    implementation of checkenabled will return True.
+    packages (files) is an iterable of the names of packages (the paths
+    of files) to check for before running this plugin. If any of these packages
+    or files is found on the system, the default implementation of checkenabled
+    will return True.
     """
 
     plugin_name = None
@@ -548,7 +545,7 @@ class Plugin(object):
         class.packages is specified. If either are specified the plugin will
         check for the existence of any of the supplied files or packages and
         return True if any exist. It is encouraged to override this method if
-        this behavior isn't applicabled.
+        this behavior isn't applicable.
         """
         # some files or packages have been specified for this package
         if self.files or self.packages:
