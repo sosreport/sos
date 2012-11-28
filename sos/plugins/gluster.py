@@ -23,4 +23,6 @@ class gluster(Plugin, RedHatPlugin):
     def setup(self):
         self.addForbiddenPath("/etc/glusterd/geo-replication/secret.pem")
         self.addCopySpec("/etc/glusterd")
+        # glusterd location changed from gluster 3.3 onwards
+        self.addCopySpec("/var/lib/glusterd") 
         self.addCopySpec("/var/log/glusterfs")
