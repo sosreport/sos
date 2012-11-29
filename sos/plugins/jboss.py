@@ -642,9 +642,9 @@ Default=\'all default minimal production standard web\'.', '', False),
         return
 
     def checkenabled(self):
-	if not self.__getJbossHome():
-		return False
-	return True
+        if not self.__getJbossHome():
+            return False
+        return True
 
     def setup(self):
 
