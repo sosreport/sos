@@ -37,12 +37,12 @@ class devicemapper(Plugin, RedHatPlugin):
         self.collectExtOutput("/sbin/dmsetup status")
         self.collectExtOutput("/sbin/dmsetup ls --tree")
 
-        self.collectExtOutput("/usr/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
-        self.collectExtOutput("/usr/sbin/vgscan -vvv")
-        self.collectExtOutput("/usr/sbin/pvscan -v")
-        self.collectExtOutput("/usr/sbin/lvs -a -o +devices")
-        self.collectExtOutput("/usr/sbin/pvs -a -v")
-        self.collectExtOutput("/usr/sbin/vgs -v")
+        self.collectExtOutput("/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
+        self.collectExtOutput("/sbin/vgscan -vvv")
+        self.collectExtOutput("/sbin/pvscan -v")
+        self.collectExtOutput("/sbin/lvs -a -o +devices")
+        self.collectExtOutput("/sbin/pvs -a -v")
+        self.collectExtOutput("/sbin/vgs -v")
         self.collectExtOutput("/sbin/mdadm -D /dev/md*")
 
         self.addCopySpecs([
