@@ -47,8 +47,10 @@ class hardware(Plugin):
         if self.policy().getArch().endswith("386"):
             self.collectExtOutput("/usr/sbin/x86info -a")
 
-#        self.collectExtOutput("/usr/sbin/lsusb")
-        self.collectExtOutput("""/bin/echo -e "lsusb:\n" ; /usr/sbin/lsusb ; /bin/echo -e "\nlsusb -v:\n" ; /usr/sbin/lsusb -v""", suggest_filename = "lsusb")
+        self.collectExtOutput("/usr/bin/lsusb")
+        self.collectExtOutput("/usr/bin/lsusb -v")
+        self.collectExtOutput("/usr/bin/lsusb -t")
+
         self.collectExtOutput("/usr/bin/lshal")
         self.collectExtOutput("/usr/bin/systool -c fc_host -v")
         self.collectExtOutput("/usr/bin/systool -c scsi_host -v")
