@@ -10,6 +10,10 @@ from sos.utilities import find
 class postgresql(Plugin, RedHatPlugin):
     """PostgreSQL related information"""
 
+    packages = ('postgresql',)
+
+    tmp_dir = None
+
     optionList = [
         ("pghome",  'PostgreSQL server home directory.', '', '/var/lib/pgsql'),
         ("username",  'username for pg_dump', '', 'postgres'),
