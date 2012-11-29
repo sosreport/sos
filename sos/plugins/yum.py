@@ -48,7 +48,7 @@ class yum(Plugin, RedHatPlugin):
         self.addCopySpecs([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",
-            "/etc/pki/entitlements/*.pem"])
+            "/etc/pki/entitlement/*.pem"])
 
         if self.getOption("yumlist"):
             # Get a list of channels the machine is subscribed to.
