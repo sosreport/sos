@@ -20,7 +20,7 @@ class ldap(Plugin, RedHatPlugin):
     """
 
     files = ('/etc/openldap/ldap.conf',)
-    packages = ('openldap',)
+    packages = ('openldap', 'nss-pam-ldapd')
 
     def get_ldap_opts(self):
         # capture /etc/openldap/ldap.conf options in dict
@@ -41,7 +41,8 @@ class ldap(Plugin, RedHatPlugin):
                 self.addDiagnose("%s does not exist and can cause connection issues involving TLS" % ldapopts["TLS_CACERTDIR"])
 
     def setup(self):
-        self.addCopySpecs(["/etc/ldap.conf", "/etc/openldap"])
+        self.addCopySpecs(["/etc/ldap.conf", "/etc/openldap", "/etc/nslcd.conf"])
 
     def postproc(self):
         self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.doRegexSub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
