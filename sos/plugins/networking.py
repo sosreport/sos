@@ -72,6 +72,7 @@ class networking(Plugin, RedHatPlugin):
         self.collectExtOutput("/sbin/ifenslave -a")
         self.collectExtOutput("/sbin/ip mroute show")
         self.collectExtOutput("/sbin/ip maddr show")
+        self.collectExtOutput("/sbin/ip neigh show")
         if ipaddrOut:
             for eth in self.get_interface_name(ipaddrOut):
                 self.collectExtOutput("/sbin/ethtool "+eth)
