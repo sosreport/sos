@@ -45,6 +45,12 @@ class hardware(Plugin):
 
         self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
 
+	if os.path.exists("/usr/bin/cpufreq-info"):
+	        self.collectExtOutput("/usr/bin/cpufreq-info")
+	if os.path.exists("/usr/bin/cpupower"):
+		self.collectExtOutput("/usr/bin/cpupower info")
+		self.collectExtOutput("/usr/bin/cpupower frequency-info")
+
         if self.policy().getArch().endswith("386"):
             self.collectExtOutput("/usr/sbin/x86info -a")
 
