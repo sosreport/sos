@@ -61,7 +61,10 @@ class RedHatHardware(hardware, RedHatPlugin):
 
     def setup(self):
         super(RedHatHardware, self).setup()
-        self.collectExtOutput(glob("/usr/share/rhn/up2date*client/hardware.py")[0]) # RHBZ#572353
+        try:
+            self.collectExtOutput(glob("/usr/share/rhn/up2date*client/hardware.py"))
+        except NameError:
+            pass
 
 
 class DebianHardware(hardware, DebianPlugin, UbuntuPlugin):
