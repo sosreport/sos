@@ -156,7 +156,7 @@ def sosGetCommandOutput(command, timeout=300):
 
         p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
         stdout, stderr = p.communicate()
-        return (p.returncode, stdout.strip(), 0)
+        return (p.returncode, stdout, 0)
     else:
         return (127, "", 0)
 
