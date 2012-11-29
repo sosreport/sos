@@ -641,6 +641,11 @@ Default=\'all default minimal production standard web\'.', '', False),
                             self.addCopySpec(file)
         return
 
+    def checkenabled(self):
+	if not self.__getJbossHome():
+		return False
+	return True
+
     def setup(self):
 
         ## We need to know where JBoss is installed and if we can't find it we
