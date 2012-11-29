@@ -51,7 +51,8 @@ class yum(Plugin, RedHatPlugin):
         self.addCopySpecs([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",
-            "/etc/pki/entitlement/*.pem"])
+            "/etc/pki/entitlement/*.pem",
+            "/etc/rhsm/"])
 
         if self.getOption("yumlist"):
             # List various information about available packages
