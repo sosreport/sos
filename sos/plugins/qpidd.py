@@ -18,11 +18,10 @@ class qpidd(Plugin, RedHatPlugin):
     """Messaging related information
     """
 
-    packages = ('qpidd', 'python-qpid')
+    packages = ('qpidd', 'qpid-cpp-server', 'qpid-tools')
 
     def setup(self):
         """ performs data collection for mrg """
-        self.collectExtOutput("/usr/bin/qpid-stat -q")
         self.collectExtOutput("/usr/bin/qpid-stat -e")
         self.collectExtOutput("/usr/bin/qpid-stat -b")
         self.collectExtOutput("/usr/bin/qpid-config")
@@ -32,9 +31,20 @@ class qpidd(Plugin, RedHatPlugin):
         self.collectExtOutput("/usr/bin/qpid-route link list")
         self.collectExtOutput("/usr/bin/qpid-route route list")
         self.collectExtOutput("/bin/ls -lanR /var/lib/qpidd")
+
         self.addCopySpecs([
             "/etc/qpidd.conf",
             "/var/lib/qpid/syslog",
             "/etc/ais/openais.conf",
             "/var/log/cumin.log",
-            "/var/log/mint.log"])
+            "/var/log/mint.log"
+            "/etc/sasl2/qpidd.conf",
+            "/etc/qpid/qpidc.conf",
+            "/etc/sesame/sesame.conf",
+            "/etc/cumin/cumin.conf",
+            "/etc/corosync/corosync.conf",
+            "/var/lib/sesame",
+            "/var/log/qpidd.log",
+            "/var/log/sesame",
+            "/var/log/cumin",
+            "/var/log/cluster"])
