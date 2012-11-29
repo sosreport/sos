@@ -14,6 +14,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 from glob import glob
+import os
 
 class hardware(Plugin):
     """hardware related information
@@ -47,9 +48,14 @@ class hardware(Plugin):
         if self.policy().getArch().endswith("386"):
             self.collectExtOutput("/usr/sbin/x86info -a")
 
-        self.collectExtOutput("/usr/bin/lsusb")
-        self.collectExtOutput("/usr/bin/lsusb -v")
-        self.collectExtOutput("/usr/bin/lsusb -t")
+        if os.path.exists("/usr/bin/lsusb"):
+            lsusb_path = "/usr/bin/lsusb"
+        else:
+            lsusb_path = "/usr/bin/lsusb"
+
+        self.collectExtOutput("%s"% lsusb_path)
+        self.collectExtOutput("%s -v"% lsusb_path)
+        self.collectExtOutput("%s -t"% lsusb_path)
 
         self.collectExtOutput("/usr/bin/lshal")
         self.collectExtOutput("/usr/bin/systool -c fc_host -v")
