@@ -12,11 +12,13 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugintools import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 class cgroups(Plugin, DebianPlugin, UbuntuPlugin):
     """cgroup subsystem information
     """
+
+    plugin_name = "cgroups"
 
     files = ('/proc/cgroups',)
 
