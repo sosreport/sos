@@ -60,12 +60,11 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
                     start_geo = hdparm.strip().split("\n")[-1].strip().split()[-1]
                     if(start_geo == "0"):
       	                devlist.append(dev)
+        else:
             # Cheaper heuristic as RHEL* does not ship hdparm for S390(x)
             # Skips least dm-.* correctly
-        else:
             part_in_disk = re.compile("^/dev/[a-z]+$")
             for dev in partlist:
-                print part_in_disk.match(dev)
                 if bool(part_in_disk.match(dev)):
                     devlist.append(dev)
 
