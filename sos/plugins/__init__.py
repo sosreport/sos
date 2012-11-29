@@ -363,6 +363,8 @@ class Plugin(object):
 
         files = glob.glob(fname)
         files.sort()
+        if len(files) == 0:
+            return
         cursize = 0
         limit_reached = False
         sizelimit *= 1024 * 1024 # in MB
