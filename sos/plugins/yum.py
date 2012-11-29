@@ -21,8 +21,8 @@ class yum(Plugin, RedHatPlugin):
 
     files = ('/etc/yum.conf',)
     packages = ('yum',)
-    optionList = [("yumlist", "list repositories and packages", "slow", False)]
-    optionList = [("yumdebug", "gather yum debugging data", "slow", False)]
+    optionList = [("yumlist", "list repositories and packages", "slow", False),
+                  ("yumdebug", "gather yum debugging data", "slow", False)]
 
     def analyze(self):
         # repo sanity checking
@@ -43,6 +43,9 @@ class yum(Plugin, RedHatPlugin):
             "/etc/yum.conf",
             "/var/log/yum.log"])
 
+        # Get a list of channels the machine is subscribed to.
+        self.collectExtOutput("/usr/bin/yum -C repolist")
+
         # candlepin info
         self.addForbiddenPath("/etc/pki/entitlements/key.pem")
         self.addCopySpecs([
@@ -51,8 +54,6 @@ class yum(Plugin, RedHatPlugin):
             "/etc/pki/entitlement/*.pem"])
 
         if self.getOption("yumlist"):
-            # Get a list of channels the machine is subscribed to.
-            self.collectExtOutput("/bin/echo \"repo list\" | /usr/bin/yum shell")
             # List various information about available packages
             self.collectExtOutput("/usr/bin/yum list")
 
