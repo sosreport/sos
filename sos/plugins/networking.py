@@ -62,7 +62,7 @@ class networking(Plugin, RedHatPlugin):
 
     def setup(self):
         self.addCopySpecs([
-            "/proc/net",
+            "/proc/net/",
             "/etc/nsswitch.conf",
             "/etc/yp.conf",
             "/etc/inetd.conf",
