@@ -29,7 +29,7 @@ import fnmatch
 import inspect
 from stat import *
 #from itertools import *
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 import shlex
 import logging
 import zipfile
@@ -154,7 +154,7 @@ def sosGetCommandOutput(command, timeout=300):
         if timeout and is_executable("/usr/bin/timeout"):
             command = "/usr/bin/timeout %ds %s" % (timeout, command)
 
-        p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
+        p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
         stdout, stderr = p.communicate()
         return (p.returncode, stdout, 0)
     else:
