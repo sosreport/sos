@@ -29,6 +29,7 @@ class hardware(Plugin):
             "/proc/meminfo",
             "/proc/ioports",
             "/proc/interrupts",
+            "/proc/irq",
             "/proc/scsi",
             "/proc/dma",
             "/proc/devices",
