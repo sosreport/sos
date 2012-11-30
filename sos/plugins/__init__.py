@@ -198,42 +198,39 @@ class Plugin(object):
     def copy_symlink(self, srcpath, sub=None):
 	# the target stored in the original symlink
         linkdest = os.readlink(srcpath)
-	self.soslog.debug("copying link %s pointing to %s with sub=%s"
-			% (srcpath, linkdest, sub))
+	# absolute path to the link target
+	absdest = os.path.normpath(os.path.join(
+			os.path.dirname(srcpath), linkdest))
+	# adjust the target used inside the report to always be relative
+	if os.path.isabs(linkdest):
+		reldest = os.path.relpath(linkdest,
+				os.path.dirname(srcpath))
+		self.soslog.debug("made link target %s relative as %s"
+				% (linkdest, reldest))
+	else:
+	        reldest = linkdest
 
-        if os.path.isdir(linkdest):
+	self.soslog.debug(
+		"copying link %s pointing to %s with sub=%s, isdir=%s"
+		% (srcpath, linkdest, sub, os.path.isdir(absdest)))
+
+        if os.path.isdir(absdest):
             self.soslog.debug("link %s is a directory, skipping..."
 			    % linkdest)
             return
 
-	# adjust the target used inside the report to always be relative
-	if os.path.isabs(linkdest):
-		adjdest = os.path.relpath(linkdest,
-				os.path.dirname(srcpath))
-		self.soslog.debug("made link target %s relative as %s"
-				% (linkdest, adjdest))
-	else:
-	        adjdest = linkdest
-
         if sub:
             old, new = sub
-            adjdest = srcpath.replace(old, new)
+            reldest = srcpath.replace(old, new)
 
-        self.archive.add_link(adjdest,srcpath)
+	# use the relative target path in the tarball
+        self.archive.add_link(reldest,srcpath)
 
 	# copy the symlink target translating relative targets
 	# to absolute paths to pass to doCopyFileOrDir.
-	self.soslog.debug("copying target %s for link %s"
-			% (linkdest, srcpath))
-
-	if(os.path.isabs(linkdest)):
-		self.doCopyFileOrDir(linkdest)
-	else:
-		absdest = os.path.normpath(os.path.join(
-				os.path.dirname(srcpath), linkdest))
-		self.soslog.debug("normalized link target %s as %s"
-				%(linkdest, absdest))
-		self.doCopyFileOrDir(absdest)
+	self.soslog.debug("normalized link target %s as %s"
+			%(linkdest, absdest))
+	self.doCopyFileOrDir(absdest)
 
         self.copiedFiles.append({
             'srcpath':srcpath,
