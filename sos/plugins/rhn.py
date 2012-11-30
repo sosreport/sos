@@ -27,11 +27,11 @@ class rhn(Plugin, RedHatPlugin):
 
     def checkenabled(self):
         self.satellite = self.isInstalled("rhns-satellite-tools") \
-                      or self.isInstalled("spacewalk-proxy-management") \
-                      or self.isInstalled("rhn-proxy-management")
+                      or self.isInstalled("spacewalk-java") \
+                      or self.isInstalled("rhn-base")
         self.proxy = self.isInstalled("rhns-proxy-tools") \
-                  or self.isInstalled("spacewalk-java") \
-                  or self.isInstalled("rhn-base")
+                  or self.isInstalled("spacewalk-proxy-management") \
+                  or self.isInstalled("rhn-proxy-management")
 
         return self.satellite or self.proxy
 
