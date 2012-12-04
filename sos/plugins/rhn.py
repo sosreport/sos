@@ -67,11 +67,8 @@ class rhn(Plugin, RedHatPlugin):
         if self.satellite:
             self.addCopySpecs(["/etc/tnsnames.ora", "/etc/jabberd"])
 
-            # tomcat (4.x and newer satellites only)
-            if not self.policy().pkgNVRA(satellite)[1].startswith("3."):
-               self.addCopySpecs(["/etc/tomcat5", "/var/log/tomcat5"])
-
-            self.addCopySpecs(["/etc/tomcat5", "/var/log/tomcat5"])
+        self.addCopySpec("/etc/tomcat6/")
+        self.addCopySpec("/var/log/tomcat6/")
 
         if self.proxy:
             self.addCopySpecs(["/etc/squid", "/var/log/squid"])
