@@ -30,4 +30,10 @@ class system(Plugin, RedHatPlugin):
             "/etc/ntp.conf",
             "/etc/ntp/step-tickers",
             "/etc/ntp/ntpservers"])
+        self.addForbiddenPath(
+                "/proc/sys/net/ipv8/neigh/*/retrans_time")
+        self.addForbiddenPath(
+                "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
+
         self.collectExtOutput("/usr/bin/crontab -l")
+        
