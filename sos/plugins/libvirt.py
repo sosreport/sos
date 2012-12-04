@@ -18,4 +18,4 @@ class libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
     """
     def setup(self):
-        self.addCopySpecs(["/etc/libvirt/", "/var/log/libvirt/"])
+        self.addCopySpecs(["/etc/libvirt/", "/var/log/libvirt*"])
