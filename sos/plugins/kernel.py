@@ -71,7 +71,11 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/driver",
             "/proc/zoneinfo",
             "/proc/sys/kernel/tainted",
-            "/proc/buddyinfo"])
+            "/proc/buddyinfo",
+            "/proc/softirqs",
+            "/proc/timer*",
+            "/proc/lock*"])
+
         self.collectExtOutput("/usr/sbin/dkms status")
 
     def diagnose(self):
