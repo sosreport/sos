@@ -28,3 +28,8 @@ class anaconda(Plugin, RedHatPlugin):
             "/var/log/anaconda.log",
             "/var/log/anaconda.syslog",
             "/var/log/anaconda.xlog"])
+
+    def postproc(self):
+        self.doRegexSub("/root/anaconda-ks.cfg",
+                        r"(\s*rootpw\s*).*",
+                        r"\1******")
