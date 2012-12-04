@@ -140,8 +140,8 @@ class Plugin(object):
 
         self.must_exit = False
 
-        self.soslog = logging.getLogger('sos')
-        self.proflog = logging.getLogger('sosprofile')
+        self.soslog = self.cInfo['soslog']
+        self.proflog = self.cInfo['proflog']
 
         # get the option list into a dictionary
         for opt in self.optionList:

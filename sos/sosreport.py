@@ -229,6 +229,7 @@ class SoSReport(object):
                 'logdir': self.logdir,
                 'rptdir': self.rptdir,
                 'soslog': self.soslog,
+                'proflog' : self.proflog,
                 'policy': self.policy,
                 'verbosity': self.opts.verbosity,
                 'xmlreport': self.xml_report,
@@ -326,6 +327,7 @@ class SoSReport(object):
             console.setFormatter(logging.Formatter('%(message)s'))
             if self.opts.verbosity > 1:
                 console.setLevel(logging.DEBUG)
+                flog.setLevel(logging.DEBUG)
             elif self.opts.verbosity > 0:
                 console.setLevel(logging.INFO)
             else:
@@ -357,6 +359,9 @@ class SoSReport(object):
             plog.setFormatter(logging.Formatter('%(message)s'))
             plog.setLevel(logging.DEBUG)
             self.proflog.addHandler(plog)
+        else:
+             self.proflog = logging.getLogger('sosprofile')
+             self.proflog.setLevel(logging.FATAL)
 
     def _finish_logging(self):
         logging.shutdown()
