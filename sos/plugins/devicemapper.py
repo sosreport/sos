@@ -47,6 +47,7 @@ class devicemapper(Plugin, RedHatPlugin):
 
         self.addCopySpecs([
             "/etc/lvm",
+            "/etc/multipath/",
             "/etc/multipath.conf",
             "/var/lib/multipath/bindings"])
         self.collectExtOutput("/sbin/multipath -v4 -ll")
