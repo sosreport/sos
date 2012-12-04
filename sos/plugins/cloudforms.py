@@ -20,10 +20,18 @@ class cloudforms(Plugin, RedHatPlugin):
     """CloudForms related information
     """
 
-    packages = ["katello"]
+    packages = ["katello", "katello-common",
+                    "katello-headpin", "aeoleus-conductor"]
+    files = ["/usr/share/katello/script/katello-debug",
+                "/usr/bin/aeolus-debug"]
 
     def setup(self):
-	katello_debug = "/usr/share/katello/scripts/katello-debug"
-        self.collectExtOutput("%s -d %s" \
-            % (katello_debug, 
-		os.path.join(self.cInfo['dstroot'],"cloudforms")))
+        katello_debug = "/usr/share/katello/script/katello-debug"
+        aeolus_debug = "/usr/bin/aeolus-debug"
+        if os.path.isfile(katello_debug):
+            katello_debug_path = os.path.join(self.cInfo['dstroot'],"katello-debug")
+            self.collectExtOutput("%s --notar -d %s" % (katello_debug, katello_debug_path))
+        if os.path.isfile(aeolus_debug):
+            aeolus_debug_path = os.path.join(self.cInfo['dstroot'],"aeolus-debug")
+            self.collectExtOutput("%s --notar -d %s" % (aeolus_debug, aeolus_debug_path))
+
