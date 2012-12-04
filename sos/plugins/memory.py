@@ -22,7 +22,8 @@ class memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/pci",
             "/proc/meminfo",
             "/proc/vmstat",
-            "/proc/slabinfo"])
+            "/proc/slabinfo",
+            "/proc/pagetypeinfo"])
 
         self.collectExtOutput("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
         self.collectExtOutput("/usr/bin/free", root_symlink = "free")
