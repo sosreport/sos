@@ -428,6 +428,9 @@ class LinuxPolicy(Policy):
         self.reportName = self.sanitizeReportName(self.reportName)
         self.ticketNumber = self.sanitizeTicketNumber(self.ticketNumber)
 
+        if (self.reportName == ""):
+            self.reportName = "default"
+        
         return
 
     def packageResults(self, archive_filename):
