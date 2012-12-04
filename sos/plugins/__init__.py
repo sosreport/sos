@@ -482,6 +482,8 @@ class Plugin(object):
 
         # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(exe, timeout=timeout)
+        if (status == 127):
+            self.soslog.info("could not run '%s'" % prog)
 
         if suggest_filename:
             outfn = self.makeCommandFilename(suggest_filename)
