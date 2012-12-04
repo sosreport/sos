@@ -395,6 +395,12 @@ class LinuxPolicy(Policy):
         """Returns the name usd in the preWork step"""
         return self.hostName()
 
+    def sanitizeReportName(self, report_name):
+        return re.sub(r"[^-a-zA-Z.0-9]", "", report_name)
+
+    def sanitizeTicketNumber(self, ticket_number):
+        return re.sub(r"[^0-9]", "", ticket_number)
+
     def preWork(self):
         # this method will be called before the gathering begins
 
@@ -403,10 +409,8 @@ class LinuxPolicy(Policy):
         if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].silent:
             try:
                 self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
-                self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
 
                 self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
-                self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
                 self._print()
             except:
                 self._print()
@@ -417,11 +421,12 @@ class LinuxPolicy(Policy):
 
         if self.commons['cmdlineopts'].customerName:
             self.reportName = self.commons['cmdlineopts'].customerName
-            self.reportName = re.sub(r"[^a-zA-Z.0-9]", "", self.reportName)
 
         if self.commons['cmdlineopts'].ticketNumber:
             self.ticketNumber = self.commons['cmdlineopts'].ticketNumber
-            self.ticketNumber = re.sub(r"[^0-9]", "", self.ticketNumber)
+
+        self.reportName = self.sanitizeReportName(self.reportName)
+        self.ticketNumber = self.sanitizeTicketNumber(self.ticketNumber)
 
         return
 
