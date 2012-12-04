@@ -75,3 +75,9 @@ class ipa(Plugin, RedHatPlugin):
         self.collectExtOutput("klist -ket /etc/krb5.keytab")
 
         return
+
+    def postproc(self):
+        match = r"(\s*arg \"password )[^\"]*"
+        subst = r"\1********"
+        self.doRegexSub("/etc/named.conf", match, subst)
+
