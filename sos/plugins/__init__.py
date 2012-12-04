@@ -399,9 +399,12 @@ class Plugin(object):
             if sub:
                 old, new = sub
                 flog_name = flog.replace(old, new)
-
-            self.addStringAsFile(tail(flog, sizelimit),
-                 flog_name.replace(os.path.sep, ".") + ".tailed")
+            strfile = flog_name.replace(os.path.sep, ".") + ".tailed"
+            self.addStringAsFile(tail(flog, sizelimit), strfile)
+            self.archive.add_link(os.path.join(
+                os.path.relpath('/', os.path.dirname(flog)), 'sos_strings',
+                self.name(), strfile), flog)
+                
 
     def addCopySpecs(self, copyspecs, sub=None):
         for copyspec in copyspecs:
