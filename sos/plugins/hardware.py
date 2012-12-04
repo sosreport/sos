@@ -41,7 +41,8 @@ class hardware(Plugin):
             "/proc/dasd",
             "/proc/s390dbf/tape",
             "/sys/bus/scsi",
-            "/sys/state"])
+            "/sys/state",
+            "/var/log/mcelog"])
         self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
         self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
