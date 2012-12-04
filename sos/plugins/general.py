@@ -64,13 +64,21 @@ class RedHatGeneral(general, RedHatPlugin):
         ])
 
         if self.getOption('all_logs'):
-            rhelver = self.policy().rhelVersion()
-            logconf = (rhelver in (4, 5)) and "/etc/syslog.conf" \
-                                          or "/etc/rsyslog.conf"
-            logs = self.doRegexFindAll(r"^\S+\s+(\/.*log.*)\s+$", logconf)
+            print "doing all_logs..."
+            limit = self.isOptionEnabled("syslogsize")
+            logs = self.doRegexFindAll("^\S+\s+(-?\/.*$)\s+",
+                                "/etc/syslog.conf")
+            print logs
+            if self.policy().pkgByName("rsyslog") \
+              or os.path.exists("/etc/rsyslog.conf"):
+                logs += self.doRegexFindAll("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
+                print logs
             for i in logs:
+                if i.startswith("-"):
+                    i = i[1:]
                 if os.path.isfile(i):
-                    self.addCopySpec(i)
+                    self.addCopySpecLimit(i, sizelimit = limit)
+
 
     def postproc(self):
         self.doRegexSub("/etc/sysconfig/rhn/up2date",
