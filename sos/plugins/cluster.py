@@ -129,4 +129,5 @@ class cluster(Plugin, RedHatPlugin):
     def postproc(self):
         for cluster_conf in glob("/etc/cluster/cluster.conf*"):
             self.doFileSub(cluster_conf, r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1%s" %('"***"'))
+        self.doExtOutputSub("corosync-objctl", r"(.*fence.*\.passwd=)(.*)", r"\1******")
         return
