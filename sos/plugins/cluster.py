@@ -48,6 +48,7 @@ class cluster(Plugin, RedHatPlugin):
         self.addCopySpec("/etc/cluster")
         self.addCopySpec("/etc/sysconfig/cluster")
         self.addCopySpec("/etc/sysconfig/cman")
+        self.addCopySpec("/etc/fence_virt.conf")
         self.addCopySpec("/var/lib/ricci")
         self.addCopySpec("/var/lib/luci")
         self.addCopySpec("/var/log/cluster")
@@ -87,6 +88,10 @@ class cluster(Plugin, RedHatPlugin):
           self.collectExtOutput("group_tool dump gfs")
 
         if rhelver not in (4,5): # 6+
+          self.collectExtOutput("corosync-quorumtool -l")
+          self.collectExtOutput("corosync-quorumtool -s")
+          self.collectExtOutput("corosync-cpgtool")
+          self.collectExtOutput("corosync-objctl")
           self.collectExtOutput("group_tool ls -g1")
           self.collectExtOutput("gfs_control ls -n")
           self.collectExtOutput("gfs_control dump")
