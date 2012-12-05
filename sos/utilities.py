@@ -25,7 +25,6 @@ from __future__ import with_statement
 import os
 import re
 import string
-import fnmatch
 import inspect
 from stat import *
 #from itertools import *
@@ -36,6 +35,8 @@ import zipfile
 import tarfile
 import hashlib
 import logging
+import fnmatch
+
 from contextlib import closing
 try:
     from cStringIO import StringIO

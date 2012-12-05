@@ -40,6 +40,7 @@ from time import time
 from itertools import *
 import logging
 import urllib2
+import fnmatch
 
 try:
     import json
@@ -163,6 +164,34 @@ class Plugin(object):
     def isInstalled(self, package_name):
         '''Is the package $package_name installed?'''
         return (self.policy().pkgByName(package_name) is not None)
+
+    def doRegexExtOutputSub(self, cmd, regexp, subst):
+        '''Apply a regexp substitution to command output archived by sosreport.
+        cmd is the command name from which output is collected (i.e. excluding
+        parameters). The regexp can be a string or a compiled re object. The
+        substitution string, subst, is a string that replaces each occurrence
+        of regexp in each file collected from cmd. Internally 'cmd' is treated
+        as a glob with a trailing '*' and each matching file from the current
+        module's command list is subjected to the replacement.
+
+        This function returns the number of replacements made.
+        '''
+        globstr = '*' + cmd + '*'
+        cmdpath = os.path.join(self.cInfo['cmddir'], "foo")
+        try:
+            for called in self.executedCommands:
+                if fnmatch.fnmatch(called['exe'], globstr):
+                    path = os.path.join(self.cInfo['cmddir'], called['file'])
+                    readable = self.archive.open_file(path)
+                    result, replacements = re.subn(
+                            regexp, subst, readable.read())
+                    if replacements:
+                        self.archive.add_string(result, path)
+                        return replacements
+                    else:
+                        return 0
+        except Exception, e:
+            return 0
 
     def doRegexSub(self, srcpath, regexp, subst):
         '''Apply a regexp substitution to a file archived by sosreport.
