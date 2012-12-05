@@ -79,5 +79,5 @@ class ipa(Plugin, RedHatPlugin):
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"
         subst = r"\1********"
-        self.doRegexSub("/etc/named.conf", match, subst)
+        self.doFileSub("/etc/named.conf", match, subst)
 

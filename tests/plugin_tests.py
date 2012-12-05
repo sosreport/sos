@@ -300,18 +300,18 @@ class RegexSubTests(unittest.TestCase):
         self.mp.archive = MockArchive()
 
     def test_file_never_copied(self):
-        self.assertEquals(0, self.mp.doRegexSub("never_copied", r"^(.*)$", "foobar"))
+        self.assertEquals(0, self.mp.doFileSub("never_copied", r"^(.*)$", "foobar"))
 
     def test_no_replacements(self):
         self.mp.addCopySpec(j("tail_test.txt"))
         self.mp.copyStuff()
-        replacements = self.mp.doRegexSub(j("tail_test.txt"), r"wont_match", "foobar")
+        replacements = self.mp.doFileSub(j("tail_test.txt"), r"wont_match", "foobar")
         self.assertEquals(0, replacements)
 
     def test_replacements(self):
         self.mp.addCopySpec(j("tail_test.txt"))
         self.mp.copyStuff()
-        replacements = self.mp.doRegexSub(j("tail_test.txt"), r"(tail)", "foobar")
+        replacements = self.mp.doFileSub(j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEquals(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
 

@@ -128,5 +128,5 @@ class cluster(Plugin, RedHatPlugin):
 
     def postproc(self):
         for cluster_conf in glob("/etc/cluster/cluster.conf*"):
-            self.doRegexSub(cluster_conf, r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1%s" %('"***"'))
+            self.doFileSub(cluster_conf, r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1%s" %('"***"'))
         return

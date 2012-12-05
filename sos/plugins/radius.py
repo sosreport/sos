@@ -35,7 +35,7 @@ class RedHatRadius(radius, RedHatPlugin):
         self.addCopySpecs(["/etc/raddb", "/etc/pam.d/radiusd", "/var/log/radius"])
 
     def postproc(self):
-        self.doRegexSub("/etc/raddb/sql.conf", r"(\s*password\s*=\s*)\S+", r"\1***")
+        self.doFileSub("/etc/raddb/sql.conf", r"(\s*password\s*=\s*)\S+", r"\1***")
 
 class DebianRadius(radius, DebianPlugin, UbuntuPlugin):
     """radius related information on Debian distributions

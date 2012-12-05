@@ -23,6 +23,6 @@ class libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     def postproc(self):
        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
-            self.doRegexSub(xmlfile,
+            self.doFileSub(xmlfile,
                     r"(\s*passwd=\s*')([^']*)('.*$)",
                     r"\1******\3")

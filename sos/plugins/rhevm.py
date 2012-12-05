@@ -18,6 +18,6 @@ class rhevm(Plugin, RedHatPlugin):
         Obfuscate passwords.
         """
 
-        self.doRegexSub("/etc/rhevm/rhevm-config/rhevm-config.properties",
+        self.doFileSub("/etc/rhevm/rhevm-config/rhevm-config.properties",
                         r"Password.type=(.*)",
                         r'Password.type=********')

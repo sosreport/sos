@@ -165,7 +165,7 @@ class Plugin(object):
         '''Is the package $package_name installed?'''
         return (self.policy().pkgByName(package_name) is not None)
 
-    def doRegexExtOutputSub(self, cmd, regexp, subst):
+    def doExtOutputSub(self, cmd, regexp, subst):
         '''Apply a regexp substitution to command output archived by sosreport.
         cmd is the command name from which output is collected (i.e. excluding
         parameters). The regexp can be a string or a compiled re object. The
@@ -193,7 +193,7 @@ class Plugin(object):
         except Exception, e:
             return 0
 
-    def doRegexSub(self, srcpath, regexp, subst):
+    def doFileSub(self, srcpath, regexp, subst):
         '''Apply a regexp substitution to a file archived by sosreport.
         srcpath is the path in the archive where the file can be found.  regexp
         can be a regexp string or a compiled re object.  subst is a string to

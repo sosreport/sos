@@ -694,20 +694,20 @@ Default=\'all default minimal production standard web\'.', '', False),
             path=os.path.join(self.__jbossHome, "server", dir)
             ## Really annoying that there appears to be no vehicle to
             ## say I want ignore case...argh!
-            self.doRegexSub(os.path.join(path,"conf","login-config.xml"),
+            self.doFileSub(os.path.join(path,"conf","login-config.xml"),
                             r"\"[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]\".*>.*</[Mm][Oo][Dd][Uu][Ll][Ee]-[Oo][Pp][Tt][Ii][Oo][Nn].*>",
                             r'"password">********</module-option>')
 
             tmp = os.path.join(path,"conf", "props")
             for propFile in find("*-users.properties", tmp):
-                self.doRegexSub(propFile,
+                self.doFileSub(propFile,
                                 r"=(.*)",
                                 r'=********')
 
             ## Remove PW from -ds.xml files
             tmp=os.path.join(path, "deploy")
             for dsFile in find("*-ds.xml", tmp):
-                self.doRegexSub(dsFile,
+                self.doFileSub(dsFile,
                                 r"<[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd].*>.*</[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd].*>",
                                 r"<password>********</password>")
         return

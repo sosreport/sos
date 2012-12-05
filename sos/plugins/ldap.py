@@ -44,5 +44,5 @@ class ldap(Plugin, RedHatPlugin):
         self.addCopySpecs(["/etc/ldap.conf", "/etc/openldap", "/etc/nslcd.conf"])
 
     def postproc(self):
-        self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
-        self.doRegexSub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.doFileSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.doFileSub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")

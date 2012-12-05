@@ -235,19 +235,19 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
         for dir_ in self.__jbossServerConfigDirs:
             path = os.path.join(self.__jbossHome, dir_)
 
-            self.doRegexSub(os.path.join(path,"configuration","*.xml"),
+            self.doFileSub(os.path.join(path,"configuration","*.xml"),
                             password_xml_regex,
                             r'<password>********</password>')
 
             tmp = os.path.join(path,"configuration")
             for propFile in find("*-users.properties", tmp):
-                self.doRegexSub(propFile,
+                self.doFileSub(propFile,
                                 r"=(.*)",
                                 r'=********')
 
 #           Remove PW from -ds.xml files
             tmp = os.path.join(path, "deployments")
             for dsFile in find("*-ds.xml", tmp):
-                self.doRegexSub(dsFile,
+                self.doFileSub(dsFile,
                                 password_xml_regex,
                                 r"<password>********</password>")

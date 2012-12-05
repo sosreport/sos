@@ -83,7 +83,7 @@ class RedHatGeneral(general, RedHatPlugin):
 
 
     def postproc(self):
-        self.doRegexSub("/etc/sysconfig/rhn/up2date",
+        self.doFileSub("/etc/sysconfig/rhn/up2date",
                 r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
 
 
