@@ -13,9 +13,17 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import glob
+
 class libvirt(sos.plugintools.PluginBase):
     """libvirt-related information
     """
     def setup(self):
         self.addCopySpec("/etc/libvirt/")
         self.addCopySpec("/var/log/libvirt*")
+
+    def postproc(self):
+        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
+            self.doRegexSub(xmlfile,
+                    r"(\s*passwd=\s*')([^']*)('.*$)",
+                    r"\1******\3")
