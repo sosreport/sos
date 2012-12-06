@@ -236,10 +236,20 @@ class TarFileArchive(Archive):
             self.tarfile.addfile(tar_info, StringIO(content))
 
     def add_string(self, content, dest):
+        fstat = None
+        if os.path.exists(dest):
+            fstat = os.stat(dest)
         dest = self.prepend(dest)
         tar_info = tarfile.TarInfo(name=dest)
         tar_info.size = len(content)
-        tar_info.mtime = time.time()
+        if fstat:
+            tar_info.mtime = fstat.st_mtime
+            tar_info.pax_headers['atime'] = fstat.st_atime
+            tar_info.mode = fstat.st_mode
+            tar_info.uid = fstat.st_uid
+            tar_info.gid = fstat.st_gid
+        else:
+            tar_info.mtime = time.time()
         self.tarfile.addfile(tar_info, StringIO(content))
 
     def add_link(self, dest, link_name):
