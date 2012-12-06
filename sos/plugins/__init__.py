@@ -171,13 +171,12 @@ class Plugin(object):
         parameters). The regexp can be a string or a compiled re object. The
         substitution string, subst, is a string that replaces each occurrence
         of regexp in each file collected from cmd. Internally 'cmd' is treated
-        as a glob with a trailing '*' and each matching file from the current
-        module's command list is subjected to the replacement.
+        as a glob with a leading and trailing '*' and each matching file from
+        the current module's command list is subjected to the replacement.
 
         This function returns the number of replacements made.
         '''
         globstr = '*' + cmd + '*'
-        cmdpath = os.path.join(self.cInfo['cmddir'], "foo")
         try:
             for called in self.executedCommands:
                 if fnmatch.fnmatch(called['exe'], globstr):
