@@ -512,22 +512,18 @@ class Plugin(object):
         # pylint: disable-msg = W0612
         status, shout, runtime = sosGetCommandOutput(exe, timeout=timeout)
         if (status == 127):
-            self.soslog.info("could not run '%s'" % prog)
+            self.soslog.info("could not run '%s': command not found" % exe)
+            return None
 
         if suggest_filename:
             outfn = self.makeCommandFilename(suggest_filename)
         else:
             outfn = self.makeCommandFilename(exe)
 
-        if not (status == 127 or status == 32512): # if not command_not_found
-            outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
-            self.archive.add_string(shout, outfn)
-            if root_symlink:
-                self.archive.add_link(outfn, root_symlink)
-        else:
-            self.soslog.debug("could not run command: %s" % exe)
-            outfn = None
-            outfn_strip = None
+        outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
+        self.archive.add_string(shout, outfn)
+        if root_symlink:
+            self.archive.add_link(outfn, root_symlink)
 
         # save info for later
         self.executedCommands.append({'exe': exe, 'file':outfn_strip}) # save in our list
@@ -575,12 +571,12 @@ class Plugin(object):
         for progs in izip(self.collectProgs):
             prog, suggest_filename, root_symlink, timeout = progs[0]
             # self.soslog.debug("collecting output of '%s'" % prog)
-            try:
-                self.collectOutputNow(prog, suggest_filename,
+#            try:
+            self.collectOutputNow(prog, suggest_filename,
                         root_symlink, timeout)
-            except Exception, e:
-                self.soslog.debug("error collecting output of '%s' (%s)"
-                        % (prog, e))
+#            except Exception, e:
+#                self.soslog.debug("error collecting output of '%s' (%s)"
+#                        % (prog, e))
 
     def exit_please(self):
         """ This function tells the plugin that it should exit ASAP"""
