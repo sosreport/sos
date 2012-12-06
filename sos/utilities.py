@@ -224,10 +224,14 @@ class TarFileArchive(Archive):
             fp = open(src, 'rb')
             content = fp.read()
             fp.close()
-
+            fstat = os.stat(src)
             tar_info = tarfile.TarInfo(name=dest)
             tar_info.size = len(content)
-            tar_info.mtime = os.stat(src).st_mtime
+            tar_info.mtime = fstat.st_mtime
+            tar_info.pax_headers['atime'] = fstat.st_atime
+            tar_info.mode = fstat.st_mode
+            tar_info.uid = fstat.st_uid
+            tar_info.gid = fstat.st_gid
 
             self.tarfile.addfile(tar_info, StringIO(content))
 
