@@ -569,13 +569,13 @@ class Plugin(object):
 
         for progs in izip(self.collectProgs):
             prog, suggest_filename, root_symlink, timeout = progs[0]
-            # self.soslog.debug("collecting output of '%s'" % prog)
-#            try:
-            self.collectOutputNow(prog, suggest_filename,
+            self.soslog.debug("collecting output of '%s'" % prog)
+            try:
+                self.collectOutputNow(prog, suggest_filename,
                         root_symlink, timeout)
-#            except Exception, e:
-#                self.soslog.debug("error collecting output of '%s' (%s)"
-#                        % (prog, e))
+            except Exception, e:
+                self.soslog.debug("error collecting output of '%s' (%s)"
+                        % (prog, e))
 
     def exit_please(self):
         """ This function tells the plugin that it should exit ASAP"""
