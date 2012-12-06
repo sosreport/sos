@@ -13,6 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+import os
 
 class rhn(Plugin, RedHatPlugin):
     """RHN Satellite related information
@@ -25,17 +26,21 @@ class rhn(Plugin, RedHatPlugin):
     def defaultenabled(self):
         return False
 
-    def checkenabled(self):
+    def rhn_package_check(self):
         self.satellite = self.isInstalled("rhns-satellite-tools") \
                       or self.isInstalled("spacewalk-java") \
                       or self.isInstalled("rhn-base")
         self.proxy = self.isInstalled("rhns-proxy-tools") \
-                  or self.isInstalled("spacewalk-proxy-management") \
-                  or self.isInstalled("rhn-proxy-management")
-
+                      or self.isInstalled("spacewalk-proxy-management") \
+                      or self.isInstalled("rhn-proxy-management")
         return self.satellite or self.proxy
 
+    def checkenabled(self):
+        # enable if any related package is installed
+        return self.rhn_package_check()
+
     def setup(self):
+        self.rhn_package_check()
         self.addCopySpecs([
             "/etc/httpd/conf*",
             "/etc/rhn",
@@ -65,14 +70,11 @@ class rhn(Plugin, RedHatPlugin):
         self.collectExtOutput("/usr/bin/rhn-charsets", root_symlink = "database-character-sets")
 
         if self.satellite:
-            self.addCopySpecs(["/etc/tnsnames.ora", "/etc/jabberd"])
-
-        self.addCopySpec("/etc/tomcat6/")
-        self.addCopySpec("/var/log/tomcat6/")
+            self.addCopySpecs(["/etc/tnsnames.ora", "/etc/jabberd",
+                                "/etc/tomcat6/", "/var/log/tomcat6/"])
+            if os.path.exists("/usr/bin/spacewalk-debug"):
+                self.collectExtOutput("/usr/bin/spacewalk-debug --dir %s"
+                        % os.path.join(self.cInfo['dstroot'], "sos_commands/rhn"))
 
         if self.proxy:
             self.addCopySpecs(["/etc/squid", "/var/log/squid"])
-
-#    def diagnose(self):
-        # RHN Proxy:
-        # * /etc/g/rhn/systemid is owned by root.apache with the permissions 0640
