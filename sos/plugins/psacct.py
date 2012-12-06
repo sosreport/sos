@@ -17,5 +17,13 @@ from sos.plugins import Plugin, RedHatPlugin
 class psacct(Plugin, RedHatPlugin):
     """Process accounting related information
     """
+
+    optionList = [("all", "collect all process accounting files",
+                        "slow", False)]
+
+    packages = [ "psacct" ]
+
     def setup(self):
-        self.addCopySpec("/var/account")
+        self.addCopySpec("/var/account/pacct")
+        if self.getOption("all"):
+            self.addCopySpec("/var/account/pacct*.gz")
