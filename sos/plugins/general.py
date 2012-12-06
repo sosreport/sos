@@ -38,6 +38,7 @@ class general(Plugin):
             "/etc/hostid",
             "/var/lib/dbus/machine-id",
             "/etc/exports",
+            "/etc/localtime",
             "/root/anaconda-ks.cfg"])
 
         limit = self.getOption("syslogsize")
