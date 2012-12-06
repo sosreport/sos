@@ -57,9 +57,5 @@ class postgresql(Plugin, RedHatPlugin):
 
     def postproc(self):
         import shutil
-        if self.tmp_dir == None:
-            return
-        try:
+        if self.tmp_dir:
             shutil.rmtree(self.tmp_dir)
-        except:
-            pass
