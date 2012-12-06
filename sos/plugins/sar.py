@@ -13,7 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-from os import listdir
+import os
 
 class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Generate the sar file from /var/log/sa/saXX files
@@ -22,8 +22,10 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     files = ('/var/log/sa', '/usr/bin/sar')
 
     def setup(self):
-        path="/var/log/sa"
-        dirList=listdir(path)
+        sapath="/var/log/sa"
+        if not os.path.exists(sapath):
+            return
+        dirList=listdir(sapath)
         # find all the sa file that don't have an existing sar file
         for fname in dirList:
             if fname[0:2] == 'sa' and fname[2] != 'r':
