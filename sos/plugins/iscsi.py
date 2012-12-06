@@ -1,3 +1,4 @@
+## Copyright (C) 2007-2012 Red Hat, Inc., Ben Turner <bturner@redhat.com>
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -30,16 +31,3 @@ class RedHatIscsi(iscsi, RedHatPlugin):
             "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"])
 
-class DebianIscsi(iscsi, DebianPlugin, UbuntuPlugin):
-    """iscsi-initiator related information Debian based distributions
-    """
-
-    packages = ('iscsitarget',)
-
-    def setup(self):
-        super(DebianIscsi, self).setup()
-        self.addCopySpecs([
-            "/etc/iet",
-            "/etc/sysctl.d/30-iscsitarget.conf",
-            "/etc/default/iscsitarget"
-            ])

@@ -1,4 +1,5 @@
-## Copyright (C) 2007-2010 Red Hat, Inc., Ben Turner <bturner@redhat.com>
+## Copyright (C) 2007-2012 Red Hat, Inc., Ben Turner <bturner@redhat.com>
+## Copyright (C) 2012 Adam Stokes <adam.stokes@canonical.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,10 +15,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class iscsitarget(Plugin, RedHatPlugin):
+class iscsitarget(Plugin):
     """iscsi-target related information
+    """
+
+    plugin_name = "iscsitarget"
+
+class RedHatIscsiTarget(Plugin, RedHatPlugin):
+    """iscsi-target related information for Red Hat distributions
     """
 
     packages = ('scsi-target-utils',)
@@ -25,3 +32,17 @@ class iscsitarget(Plugin, RedHatPlugin):
     def setup(self):
         self.addCopySpec("/etc/tgt/targets.conf")
         self.collectExtOutput("tgtadm --lld iscsi --op show --mode target")
+
+class DebianIscsiTarget(iscsitarget, DebianPlugin, UbuntuPlugin):
+    """iscsi-target related information for Debian based distributions
+    """
+
+    packages = ('iscsitarget',)
+
+    def setup(self):
+        super(DebianIscsi, self).setup()
+        self.addCopySpecs([
+            "/etc/iet",
+            "/etc/sysctl.d/30-iscsitarget.conf",
+            "/etc/default/iscsitarget"
+            ])
