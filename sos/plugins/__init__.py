@@ -319,7 +319,13 @@ class Plugin(object):
         self.soslog.debug("copying file %s to %s" % (srcpath,dest))
 
         try:
-            self.archive.add_file(srcpath, dest)
+            stat = os.stat(srcpath)
+            # if not readable(srcpath)
+            if not (stat.st_mode & 0444):
+                # FIXME: reflect permissions in archive
+                self.archive.add_string("", dest)
+            else:
+                self.archive.add_file(srcpath, dest)
 
             self.copiedFiles.append({
                 'srcpath':srcpath,
