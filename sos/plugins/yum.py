@@ -54,6 +54,8 @@ class yum(Plugin, RedHatPlugin):
             "/etc/pki/consumer/cert.pem",
             "/etc/pki/entitlement/*.pem",
             "/etc/rhsm/"])
+        self.collectExtOutput("subscription-manager list --installed")
+        self.collectExtOutput("subscription-manager list --consumed")
 
         if self.getOption("yumlist"):
             # List various information about available packages
