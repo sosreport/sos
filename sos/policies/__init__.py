@@ -6,7 +6,10 @@ import platform
 import time
 import fnmatch
 
-from sos.utilities import ImporterHelper, import_module, get_hash_name
+from sos.utilities import ImporterHelper, \
+                        import_module, \
+                        get_hash_name, \
+                        shell_out
 from sos.plugins import IndependentPlugin
 from sos import _sos as _
 import hashlib
@@ -69,9 +72,10 @@ class PackageManager(object):
         """
         Return a single package that matches name.
         """
-        try:
-            self.AllPkgsByName(name)[-1]
-        except Exception:
+        pkgmatches = self.allPkgsByName(name)
+        if (len(pkgmatches) != 0):
+            return self.allPkgsByName(name)[-1]
+        else:
             return None
 
     def getPackageList(self):
