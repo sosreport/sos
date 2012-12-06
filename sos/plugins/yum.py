@@ -53,7 +53,9 @@ class yum(Plugin, RedHatPlugin):
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",
             "/etc/pki/entitlement/*.pem",
-            "/etc/rhsm/"])
+            "/etc/rhsm/",
+            "/var/log/rhsm/rhsm.log",
+            "/var/log/rhsm/rhsmcertd.log"])
         self.collectExtOutput("subscription-manager list --installed")
         self.collectExtOutput("subscription-manager list --consumed")
 
