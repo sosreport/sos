@@ -569,15 +569,18 @@ class Plugin(object):
                 self.archive.add_string(string,
                         os.path.join('sos_strings', self.name(), file_name))
             except Exception, e:
-                self.soslog.debug("could not create %s, traceback follows: %s" % (file_name, e))
+                self.soslog.debug("could not create %s, traceback follows: %s"
+                        % (file_name, e))
 
         for progs in izip(self.collectProgs):
             prog, suggest_filename, root_symlink, timeout = progs[0]
             # self.soslog.debug("collecting output of '%s'" % prog)
             try:
-                self.collectOutputNow(prog, suggest_filename, root_symlink, timeout)
+                self.collectOutputNow(prog, suggest_filename,
+                        root_symlink, timeout)
             except Exception, e:
-                self.soslog.debug("error collection output of '%s', traceback follows: %s" % (prog, e))
+                self.soslog.debug("error collecting output of '%s' (%s)"
+                        % (prog, e))
 
     def exit_please(self):
         """ This function tells the plugin that it should exit ASAP"""
