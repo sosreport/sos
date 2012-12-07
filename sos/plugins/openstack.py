@@ -185,3 +185,8 @@ class RedHatOpenStack(openstack, RedHatPlugin):
         # Quantum
         self.addCopySpecs(["/etc/quantum/",
                            "/var/log/quantum/"])
+
+    def postproc(self):
+        self.doFileSub('/etc/keystone/keystone.conf',
+                    r"(admin_password\s*=\s*)(.*)",
+                    r"\1******")
