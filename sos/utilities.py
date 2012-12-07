@@ -219,7 +219,6 @@ class TarFileArchive(Archive):
         if(context):
             tar_info.pax_headers['RHT.security.selinux'] = context
         self.set_tar_info_from_stat(tar_info,fstat)
-        print "filtering orig_path=%s context=%s" % (orig_path, context)
         return tar_info
 
     def get_selinux_context(self, path):
