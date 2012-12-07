@@ -16,8 +16,6 @@ Requires: libxml2-python
 Requires: tar
 Requires: bzip2
 Requires: xz
-Provides: sysreport = 1.4.3-13
-Obsoletes: sysreport
 
 %description
 Sos is a set of tools that gathers information about system
