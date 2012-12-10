@@ -17,7 +17,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class systemd(Plugin):
+class systemd(Plugin, RedHatPlugin):
     """ Information on systemd and related subsystems
     """
 
@@ -38,9 +38,7 @@ class systemd(Plugin):
         self.collectExtOutput("journalctl --all --this-boot --no-pager -o verbose")
 
         self.addCopySpecs(["/etc/systemd",
-                           "/lib/systemd"
+                           "/lib/systemd",
                            "/etc/vconsole.conf",
                            "/etc/yum/protected.d/systemd.conf"])
-
-class RedHatSystemd(systemd, RedHatPlugin):
 
