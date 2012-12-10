@@ -263,9 +263,13 @@ class TarFileArchive(Archive):
             tar_info.size = len(content)
             fileobj = StringIO(content)
         fstat = os.stat(src)
-        context = self.get_selinux_context(src)
-        if context:
-            tar_info.pax_headers['RHT.security.selinux'] = context
+        # FIXME: handle this at a higher level?
+        if src.startswith("/sys/") or src.startswith ("/proc/"):
+            context = None
+        else:
+            context = self.get_selinux_context(src)
+            if context:
+                tar_info.pax_headers['RHT.security.selinux'] = context
         self.set_tar_info_from_stat(tar_info,fstat)
         self.add_parent(src)
         self.tarfile.addfile(tar_info, fileobj)
