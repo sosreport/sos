@@ -20,7 +20,6 @@ class system(Plugin, RedHatPlugin):
     def setup(self):
         self.addCopySpecs([
             "/proc/sys",
-            "/etc/sysctl.conf",
             "/etc/cron*",
             "/etc/anacrontab",
             "/var/spool/cron*",
