@@ -26,15 +26,9 @@ class selinux(Plugin, RedHatPlugin):
             self.collectExtOutput("/sbin/fixfiles check")
         self.addForbiddenPath("/etc/selinux/targeted")
 
-    def checkenabled(self):
-        try:
-            if self.collectOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
-                return False
-        except:
-            pass
-        return True
+        if not self.policy().pkgByName('setroubleshoot'):
+            return
 
-    def analyze(self):
         # Check for SELinux denials and capture raw output from sealert
         if self.policy().runlevelDefault() in self.policy().runlevelByService("setroubleshoot"):
             # TODO: fixup regex for more precise matching
@@ -44,3 +38,10 @@ class selinux(Plugin, RedHatPlugin):
                     self.collectExtOutput("%s" % i)
                 self.addAlert("There are numerous selinux errors present and "+
                               "possible fixes stated in the sealert output.")
+    def checkenabled(self):
+        try:
+            if self.collectOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
+                return False
+        except:
+            pass
+        return True
