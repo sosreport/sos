@@ -229,7 +229,7 @@ class TarFileArchive(Archive):
             return None
 
     def set_tar_info_from_stat(self, tar_info, fstat):
-        tar_info.mtime = "%.9f" % fstat.st_mtime
+        tar_info.mtime = fstat.st_mtime
         tar_info.pax_headers['atime'] = "%.9f" % fstat.st_atime
         tar_info.pax_headers['ctime'] = "%.9f" % fstat.st_ctime
         tar_info.mode = fstat.st_mode
