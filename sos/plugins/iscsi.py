@@ -24,10 +24,16 @@ class iscsi(Plugin):
 class RedHatIscsi(iscsi, RedHatPlugin):
     """iscsi-initiator related information Red Hat based distributions
     """
+
+    packages = ('iscsi-initiator-utils',)
+
     def setup(self):
         super(RedHatIscsi, self).setup()
         self.addCopySpecs([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"])
-
+        self.collectExtOutput("iscsiadm -m session -P 3")
+        self.collectExtOutput("iscsiadm -m node -P 3")
+        self.collectExtOutput("iscsiadm -m iface -P 1")
+        self.collectExtOutput("iscsiadm -m node --op=show")
