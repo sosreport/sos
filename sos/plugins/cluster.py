@@ -103,6 +103,7 @@ class cluster(Plugin, RedHatPlugin):
             self.collectExtOutput("fence_tool dump")
             self.collectExtOutput("dlm_tool dump")
             self.collectExtOutput("dlm_tool ls -n")
+            self.collectExtOutput("mkqdisk -L")
 
     def do_lockdump(self):
         rhelver = self.policy().rhelVersion()
