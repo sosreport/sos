@@ -841,9 +841,6 @@ class SoSReport(object):
         parser.add_option("--tmp-dir", action="store",
                              dest="tmp_dir",
                              help="specify alternate temporary directory", default=tempfile.gettempdir())
-        parser.add_option("--analyze", action="store_true",
-                             dest="analyze",
-                             help="enable analyzations", default=False)
         parser.add_option("--report", action="store_true",
                              dest="report",
                              help="Enable html/xml reporting", default=False)

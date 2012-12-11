@@ -618,12 +618,6 @@ class Plugin(object):
         """
         pass
 
-    def analyze(self):
-        """
-        perform any analysis. To be replaced by a plugin if desired
-        """
-        pass
-
     def postproc(self):
         """
         perform any postprocessing. To be replaced by a plugin if desired
