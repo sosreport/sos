@@ -602,49 +602,6 @@ class SoSReport(object):
     def _log_plugin_exception(self, plugin_name):
         self.soslog.error("%s\n%s" % (plugin_name, traceback.format_exc()))
 
-    def diagnose(self):
-        tmpcount = 0
-        for plugname, plug in self.loaded_plugins:
-            try:
-                plug.diagnose()
-            except:
-                if self.raise_plugins:
-                    raise
-                else:
-                    self._log_plugin_exception(plugname)
-
-            tmpcount += len(plug.diagnose_msgs)
-        if tmpcount > 0:
-            self.ui_log.info(_("One or more plugins have detected a problem in your "
-                "configuration."))
-            self.ui_log.info(_("Please review the following messages:"))
-            self.ui_log.info("")
-
-            fp = self.get_temp_file()
-            for plugname, plug in self.loaded_plugins:
-                for tmpcount2 in range(0, len(plug.diagnose_msgs)):
-                    if tmpcount2 == 0:
-                        soslog.warning("%s:" % plugname)
-                    soslog.warning("    * %s" % plug.diagnose_msgs[tmpcount2])
-                    fp.write("%s: %s\n" % (plugname, plug.diagnose_msgs[tmpcount2]))
-            self.archive.add_file(fp.name, dest=os.path.join(self.rptdir, 'diagnose.txt'))
-
-            self.ui_log.info("")
-            if not self.opts.batch:
-                try:
-                    while True:
-                        yorno = raw_input( _("Are you sure you would like to "
-                                             "continue (y/n) ? ") )
-                        if yorno == _("y") or yorno == _("Y"):
-                            self.ui_log.info("")
-                            break
-                        elif yorno == _("n") or yorno == _("N"):
-                            self._exit(0)
-                    del yorno
-                except KeyboardInterrupt:
-                    self.ui_log.info("")
-                    self._exit(0)
-
     def prework(self):
         try:
             self.policy.preWork()
@@ -884,9 +841,6 @@ class SoSReport(object):
         parser.add_option("--tmp-dir", action="store",
                              dest="tmp_dir",
                              help="specify alternate temporary directory", default=tempfile.gettempdir())
-        parser.add_option("--diagnose", action="store_true",
-                             dest="diagnose",
-                             help="enable diagnostics", default=False)
         parser.add_option("--analyze", action="store_true",
                              dest="analyze",
                              help="enable analyzations", default=False)
@@ -929,10 +883,6 @@ class SoSReport(object):
 
             self.ensure_plugins()
             self.batch()
-
-            if self.opts.diagnose:
-                self.diagnose()
-
             self.prework()
             self.setup()
 
