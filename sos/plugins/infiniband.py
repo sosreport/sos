@@ -1,4 +1,4 @@
-## Copyright (C) 2011, 2012 Red Hat, Inc.
+## Copyright (C) 2011, 2012 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -26,7 +26,14 @@ class infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
          return False
 
     def setup(self):
+        self.addCopySpecs([
+            "/etc/ofed/openib.conf",
+            "/etc/ofed/opensm.conf"])
+
         self.collectExtOutput("/usr/bin/ibv_devices")
         self.collectExtOutput("/usr/bin/ibv_devinfo")
-        return
+        self.collectExtOutput("/usr/sbin/ibstat")
+        self.collectExtOutput("/usr/sbin/ibstatus")
+        self.collectExtOutput("/usr/sbin/ibhosts")
 
+        return
