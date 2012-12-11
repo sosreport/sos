@@ -20,25 +20,6 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
     moduleFile = ""
-    taintList = [
-        {'regex':'mvfs*', 'description':'Clearcase module'},
-        {'regex':'vnode*', 'description':'Clearcase module'},
-        {'regex':'vxfs*', 'description':'Veritas file system module'},
-        {'regex':'vxportal*', 'description':'Veritas module'},
-        {'regex':'vxdmp*', 'description':'Veritas dynamic multipathing module'},
-        {'regex':'vxio*', 'description':'Veritas module'},
-        {'regex':'vxspec*', 'description':'Veritas module'},
-        {'regex':'dcd*', 'description':'Dell OpenManage Server Administrator module'},
-        {'regex':'ocfs', 'description':'Oracle cluster filesystem module'},
-        {'regex':'oracle*', 'description':'Oracle module'},
-        {'regex':'vmnet*', 'description':'VMware module'},
-        {'regex':'vmmon*', 'description':'VMware module'},
-        {'regex':'egenera*', 'description':'Egenera module'},
-        {'regex':'emcp*', 'description':'EMC module'},
-        {'regex':'ocfs*', 'description':'OCFS module'},
-        {'regex':'nvidia', 'description':'NVidia module'},
-        {'regex':'ati-', 'description':'ATI module'}
-        ]
 
     def setup(self):
         self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
@@ -59,6 +40,9 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.addCopySpecs([
             "/proc/sys/kernel/random/boot_id",
             "/sys/module/*/parameters",
+            "/sys/module/*/initstate",
+            "/sys/module/*/refcnt",
+            "/sys/module/*/taint",
             "/proc/filesystems",
             "/proc/ksyms",
             "/proc/slabinfo",
@@ -80,25 +64,3 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/lock*"])
 
         self.collectExtOutput("/usr/sbin/dkms status")
-
-    def analyze(self):
-
-        savedtaint = os.path.join(self.cInfo['dstroot'], "/proc/sys/kernel/tainted")
-        infd = open(savedtaint, "r")
-        line = infd.read()
-        infd.close()
-        line = line.strip()
-        if (line != "0"):
-            self.addAlert("Kernel taint flag is <%s>\n" % line)
-
-        infd = open(self.moduleFile, "r")
-        modules = infd.readlines()
-        infd.close()
-
-        for tainter in self.taintList:
-            p = re.compile(tainter['regex'])
-            for line in modules:
-                if p.match(line) != None:
-                    # found a taint match, create an alert
-                    moduleName = line.split()[0]
-                    self.addAlert("Check for tainted kernel by module %s, which is %s" % (moduleName, tainter['description']))
