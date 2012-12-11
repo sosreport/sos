@@ -13,21 +13,32 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+import os
 
 class anaconda(Plugin, RedHatPlugin):
     """Anaconda / Installation information
     """
 
-    files = ('/var/log/anaconda.log',)
+    files = ('/var/log/anaconda.log',
+             '/var/log/anaconda')
 
     def setup(self):
+
+        paths = [
+            "/root/anaconda-ks.cfg"]
+
+        if os.path.isdir('/var/log/anaconda'):
+            # new anaconda
+            paths.append('/var/log/anaconda')
+        else:
+            paths = paths + \
+                [ "/var/log/anaconda.*"
+                "/root/install.log",
+                "/root/install.log.syslog"]
+
         self.addCopySpecs([
-            "/root/anaconda-ks.cfg",
-            "/root/install.log",
-            "/root/install.log.syslog",
-            "/var/log/anaconda.log",
-            "/var/log/anaconda.syslog",
-            "/var/log/anaconda.xlog"])
+            "/var/log/anaconda",
+            "/root/anaconda-ks.cfg"])
 
     def postproc(self):
         self.doFileSub("/root/anaconda-ks.cfg",
