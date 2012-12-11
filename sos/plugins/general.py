@@ -53,6 +53,8 @@ class general(Plugin):
         self.collectExtOutput("/usr/sbin/alternatives --display java",
                                 root_symlink="java")
         self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
+        self.collectExtOutput("/usr/bin/tree /var/lib")
+        self.collectExtOutput("/bin/ls -lR /var/lib")
 
 
 class RedHatGeneral(general, RedHatPlugin):
