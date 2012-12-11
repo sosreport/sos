@@ -24,15 +24,6 @@ class yum(Plugin, RedHatPlugin):
     optionList = [("yumlist", "list repositories and packages", "slow", False),
                   ("yumdebug", "gather yum debugging data", "slow", False)]
 
-    def analyze(self):
-        # repo sanity checking
-        # TODO: elaborate/validate actual repo files, however this directory should
-        # be empty on RHEL 5+ systems.
-        if self.policy().rhelVersion() == 5:
-            if len(os.listdir("/etc/yum.repos.d/")):
-                self.addAlert("/etc/yum.repos.d/ contains additional repository "+
-                                 "information and can cause rpm conflicts.")
-
     def setup(self):
         rhelver = self.policy().rhelVersion()
 
