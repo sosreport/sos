@@ -81,27 +81,6 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.collectExtOutput("/usr/sbin/dkms status")
 
-    def diagnose(self):
-
-        infd = open("/proc/modules", "r")
-        for modname in infd.readlines():
-            modname=modname.split(" ")[0]
-            ret, modinfo_srcver, rtime = self.callExtProg("/sbin/modinfo -F srcversion %s" % modname)
-            if not os.access("/sys/module/%s/srcversion" % modname, os.R_OK):
-                continue
-            infd = open("/sys/module/%s/srcversion" % modname, "r")
-            sys_srcver = infd.read().strip("\n")
-            infd.close()
-            if modinfo_srcver != sys_srcver:
-                self.addDiagnose("loaded module %s differs from the one present on the file-system" % modname)
-
-            # this would be a good moment to check the module's signature
-            # but at the moment there's no easy way to do that outside of
-            # the kernel. i will probably need to write a C lib (derived from
-            # the kernel sources to do this verification.
-
-        infd.close()
-
     def analyze(self):
 
         savedtaint = os.path.join(self.cInfo['dstroot'], "/proc/sys/kernel/tainted")

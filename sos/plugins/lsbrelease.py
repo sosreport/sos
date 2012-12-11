@@ -19,9 +19,6 @@ import os
 class lsbrelease(Plugin, RedHatPlugin):
     """Linux Standard Base information
     """
-    def diagnose(self):
-        if not os.path.exists("/etc/redhat-release"):
-            self.addDiagnose("/etc/redhat-release missing")
 
     def setup(self):
         self.collectExtOutput("/usr/bin/lsb_release -a")
