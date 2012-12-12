@@ -175,6 +175,9 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
+        if self.cInfo['cmdlineopts'].profiler:
+            start_time = time()
+
         globstr = '*' + cmd + '*'
         self.soslog.debug("substituting '%s' for '%s' in commands matching %s"
                     % (subst, regexp, globstr))
@@ -188,14 +191,18 @@ class Plugin(object):
                             regexp, subst, readable.read())
                     if replacements:
                         self.archive.add_string(result, path)
-                        return replacements
                     else:
-                        return 0
+                        replacements = 0
         except Exception, e:
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
-            return 0
-
+            replacements = 0
+        if self.cInfo['cmdlineopts'].profiler:
+            time_passed = time() - start_time
+            self.proflog.debug("subst: %-75s time: %f"
+                            % (globstr, time_passed))
+        return replacements
+        
     def doFileSub(self, srcpath, regexp, subst):
         '''Apply a regexp substitution to a file archived by sosreport.
         srcpath is the path in the archive where the file can be found.  regexp
@@ -204,6 +211,9 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
+        if self.cInfo['cmdlineopts'].profiler:
+            start_time = time()
+
         try:
             path = self._get_dest_for_srcpath(srcpath)
             self.soslog.debug("substituting '%s' for '%s' in %s"
@@ -214,13 +224,17 @@ class Plugin(object):
             result, replacements = re.subn(regexp, subst, readable.read())
             if replacements:
                 self.archive.add_string(result, srcpath)
-                return replacements
             else:
-                return 0
+                replacements = 0
         except Exception, e:
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
-            return 0
+            replacements = 0
+        if self.cInfo['cmdlineopts'].profiler:
+            time_passed = time() - start_time
+            self.proflog.debug("subst : %-75s time: %f"
+                            % (srcpath, time_passed))
+        return replacements
 
     def doRegexFindAll(self, regex, fname):
         return regex_findall(regex, fname)
