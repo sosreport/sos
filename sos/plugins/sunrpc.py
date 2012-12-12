@@ -16,15 +16,39 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class sunrpc(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class sunrpc(Plugin):
     """Sun RPC related information
     """
+
+    plugin_name = "sunrpc"
+    service = None
+
     def checkenabled(self):
-       if self.policy().runlevelDefault() in self.policy().runlevelByService("rpcbind"):
-          return True
-       return False
+        if self.policy().runlevelDefault() in \
+		self.policy().runlevelByService(self.service):
+            return True
+        return False
 
     def setup(self):
         self.collectExtOutput("/usr/sbin/rpcinfo -p localhost")
         return
+
+class RedHatSunrpc(sunrpc, RedHatPlugin):
+    """Sun RPC related information for Red Hat systems
+    """
+
+    service = 'rpcbind'
+
+# FIXME: depends on addition of runlevelByService (or similar)
+# in Debian/Ubuntu policy classes
+#class DebianSunrpc(sunrpc, DebianPlugin, UbuntuPlugin):
+#    """Sun RPC related information for Red Hat systems
+#    """
+#
+#    service = 'rpcbind-boot'
+#
+#    def setup(self):
+#        self.collectExtOutput("/usr/sbin/rpcinfo -p localhost")
+#        return
+
 
