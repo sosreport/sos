@@ -228,11 +228,14 @@ class TarFileArchive(Archive):
         except:
             return None
 
-    def set_tar_info_from_stat(self, tar_info, fstat):
+    def set_tar_info_from_stat(self, tar_info, fstat, mode=None):
         tar_info.mtime = fstat.st_mtime
         tar_info.pax_headers['atime'] = "%.9f" % fstat.st_atime
         tar_info.pax_headers['ctime'] = "%.9f" % fstat.st_ctime
-        tar_info.mode = fstat.st_mode
+        if mode:
+            tar_info.mode = mode
+        else:
+            tar_info.mode = fstat.st_mode
         tar_info.uid = fstat.st_uid
         tar_info.gid = fstat.st_gid
     
@@ -240,8 +243,6 @@ class TarFileArchive(Archive):
         return "%s.%s" % (self._name, self._suffix)
 
     def add_parent(self, path):
-        if (path == '/'):
-            return
         path = os.path.split(path)[0]
         self.add_file(path)
 
@@ -250,6 +251,9 @@ class TarFileArchive(Archive):
             dest = self.prepend(dest)
         else:
             dest = self.prepend(src)
+
+        if src != '/':
+            self.add_parent(src)
 
         tar_info = tarfile.TarInfo(name=dest)
 
@@ -262,7 +266,7 @@ class TarFileArchive(Archive):
             fp.close()
             tar_info.size = len(content)
             fileobj = StringIO(content)
-        fstat = os.stat(src)
+
         # FIXME: handle this at a higher level?
         if src.startswith("/sys/") or src.startswith ("/proc/"):
             context = None
@@ -270,8 +274,15 @@ class TarFileArchive(Archive):
             context = self.get_selinux_context(src)
             if context:
                 tar_info.pax_headers['RHT.security.selinux'] = context
-        self.set_tar_info_from_stat(tar_info,fstat)
-        self.add_parent(src)
+
+        fstat = os.stat(src)
+        if os.path.isdir(src) and not (fstat.st_mode & 000200):
+            # directories not writable by their owner are a world of pain
+            # in tar archives. Do not allow them (see Issue #85).
+            mode = fstat.st_mode | 000200
+        else:
+            mode = None
+        self.set_tar_info_from_stat(tar_info,fstat, mode)
         self.tarfile.addfile(tar_info, fileobj)
 
     def add_string(self, content, dest):
