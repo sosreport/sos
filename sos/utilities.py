@@ -252,6 +252,8 @@ class TarFileArchive(Archive):
         else:
             dest = self.prepend(src)
 
+        if dest in self.tarfile.getnames():
+            return
         if src != '/':
             self.add_parent(src)
 
