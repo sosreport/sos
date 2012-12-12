@@ -176,10 +176,13 @@ class Plugin(object):
         This function returns the number of replacements made.
         '''
         globstr = '*' + cmd + '*'
+        self.soslog.debug("substituting '%s' for '%s' in commands matching %s"
+                    % (subst, regexp, globstr))
         try:
             for called in self.executedCommands:
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.cInfo['cmddir'], called['file'])
+                    self.soslog.debug("applying substitution to %s" % path)
                     readable = self.archive.open_file(path)
                     result, replacements = re.subn(
                             regexp, subst, readable.read())
@@ -189,6 +192,8 @@ class Plugin(object):
                     else:
                         return 0
         except Exception, e:
+            msg = 'regex substitution failed for %s in plugin %s with: "%s"'
+            self.soslog.error(msg % (path, self.name(), e))
             return 0
 
     def doFileSub(self, srcpath, regexp, subst):
@@ -201,6 +206,8 @@ class Plugin(object):
         '''
         try:
             path = self._get_dest_for_srcpath(srcpath)
+            self.soslog.debug("substituting '%s' for '%s' in %s"
+                    % (subst, regexp, path))
             if not path:
                 return 0
             readable = self.archive.open_file(path)
@@ -211,6 +218,8 @@ class Plugin(object):
             else:
                 return 0
         except Exception, e:
+            msg = 'regex substitution failed for %s in plugin %s with: "%s"'
+            self.soslog.error(msg % (path, self.name(), e))
             return 0
 
     def doRegexFindAll(self, regex, fname):
