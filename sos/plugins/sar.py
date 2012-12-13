@@ -42,7 +42,7 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         try:
             dirList=listdir(self.sapath)
         except:
-            self.soslog.error("sar path %s cannot be read", % self.sapath)
+            self.soslog.error("sar path %s cannot be read" % self.sapath)
             return
 
         # find all the sa file that don't have an existing sar file
