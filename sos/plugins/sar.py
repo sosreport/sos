@@ -40,9 +40,10 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         # catch exceptions here to avoid races
         try:
-            dirList=listdir(self.sapath)
-        except:
-            self.soslog.error("sar path %s cannot be read" % self.sapath)
+            dirList=os.listdir(self.sapath)
+        except Exception, e:
+            self.soslog.error("sar path %s cannot be read: %s"
+                     % (self.sapath, e))
             return
 
         # find all the sa file that don't have an existing sar file
@@ -54,3 +55,4 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                             + "-A -f /var/log/sa/" + fname + "\""
                     self.collectExtOutput(sar_command, sar_filename,
                                 root_symlink=sar_filename)
+        self.addCopySpec("/var/log/sa/sar*")
