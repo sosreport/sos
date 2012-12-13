@@ -17,6 +17,9 @@ from sos.plugins import Plugin, RedHatPlugin
 class ntp(Plugin, RedHatPlugin):
     """NTP related information
     """
+
+    packages = ('ntp',)
+
     def setup(self):
         self.collectExtOutput("/usr/bin/ntpstat")
-        self.collectExtOutput("/usr/sbin/ntptrace -n")
+        self.collectExtOutput("/usr/sbin/ntptime")
