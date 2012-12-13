@@ -263,9 +263,14 @@ class TarFileArchive(Archive):
             tar_info.type = tarfile.DIRTYPE            
             fileobj = None
         else:
-            fp = open(src, 'rb')
-            content = fp.read()
-            fp.close()
+            try:
+                fp = open(src, 'rb')
+                content = fp.read()
+                fp.close()
+            except:
+                # files with read permissions that cannot be read may exist
+                # in /proc, /sys and other virtual file systems.
+                content = ""
             tar_info.size = len(content)
             fileobj = StringIO(content)
 
