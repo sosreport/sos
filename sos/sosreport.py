@@ -679,10 +679,12 @@ class SoSReport(object):
                 section.add(Note(plug.customText))
 
             for f in plug.copiedFiles:
-                section.add(CopiedFile(name=f["srcpath"], href=f["dstpath"]))
+                section.add(CopiedFile(name=f['srcpath'],
+                            href= ".." + f['dstpath']))
 
             for cmd in plug.executedCommands:
-                section.add(Command(name=cmd['exe'], return_code=0, href=cmd['file']))
+                section.add(Command(name=cmd['exe'], return_code=0,
+                            href="../" + cmd['file']))
 
             for content, f in plug.copyStrings:
                 section.add(CreatedFile(name=f))

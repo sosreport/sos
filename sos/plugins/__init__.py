@@ -661,7 +661,8 @@ class Plugin(object):
         if len(self.copiedFiles):
             html = html + "<p>Files copied:<br><ul>\n"
             for afile in self.copiedFiles:
-                html = html + '<li><a href="%s">%s</a>' % (afile['dstpath'], afile['srcpath'])
+                html = html + '<li><a href="%s">%s</a>' % \
+                        (".." + afile['dstpath'], afile['srcpath'])
                 if (afile['symlink'] == "yes"):
                     html = html + " (symlink to %s)" % afile['pointsto']
                 html = html + '</li>\n'
@@ -671,10 +672,13 @@ class Plugin(object):
         if len(self.executedCommands):
             html = html + "<p>Commands Executed:<br><ul>\n"
             # convert file name to relative path from our root
+            # don't use relpath - these are HTML paths not OS paths.
             for cmd in self.executedCommands:
                 if cmd["file"] and len(cmd["file"]):
-                    cmdOutRelPath = sosRelPath(self.cInfo['rptdir'], self.cInfo['cmddir'] + "/" + cmd['file'])
-                    html = html + '<li><a href="%s">%s</a></li>\n' % (cmdOutRelPath, cmd['exe'])
+                    cmdOutRelPath =  "../" + self.cInfo['cmddir'] \
+                            + "/" + cmd['file']
+                    html = html + '<li><a href="%s">%s</a></li>\n' % \
+                            (cmdOutRelPath, cmd['exe'])
                 else:
                     html = html + '<li>%s</li>\n' % (cmd['exe'])
             html = html + "</ul></p>\n"
