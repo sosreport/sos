@@ -36,9 +36,14 @@ class systemd(Plugin, RedHatPlugin):
         self.collectExtOutput("journalctl --verify")
         self.collectExtOutput("journalctl --all --this-boot --no-pager")
         self.collectExtOutput("journalctl --all --this-boot --no-pager -o verbose")
+        self.collectExtOutput("ls -l /lib/systemd")
+        self.collectExtOutput("ls -l /lib/systemd/system-shutdown")
+        self.collectExtOutput("ls -l /lib/systemd/system-generators")
+        self.collectExtOutput("ls -l /lib/systemd/user-generators")
 
         self.addCopySpecs(["/etc/systemd",
-                           "/lib/systemd",
+                           "/lib/systemd/system",
+                           "/lib/systemd/user",
                            "/etc/vconsole.conf",
                            "/etc/yum/protected.d/systemd.conf"])
 
