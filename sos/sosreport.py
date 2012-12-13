@@ -309,7 +309,6 @@ class SoSReport(object):
     def _setup_logging(self):
 
         if not sys.stdin.isatty():
-            self.opts.nocolors = True
             self.opts.batch = True
 
         # main soslog
@@ -571,7 +570,7 @@ class SoSReport(object):
             self.ui_log.info(_("The following plugin options are available:"))
             self.ui_log.info("")
             for (plug, plugname, optname, optparm)  in self.all_options:
-                # format and colorize option value based on its type (int or bool)
+                # format option value based on its type (int or bool)
                 if type(optparm["enabled"]) == bool:
                     if optparm["enabled"] == True:
                         tmpopt = "on"
@@ -819,9 +818,6 @@ class SoSReport(object):
         parser.add_option("--batch", action="store_true",
                              dest="batch", default=False,
                              help="do not ask any question (batch mode)")
-        parser.add_option("--no-colors", action="store_true",
-                             dest="nocolors", default=False,
-                             help="do not use terminal colors for text")
         parser.add_option("-v", "--verbose", action="count",
                              dest="verbosity",
                              help="increase verbosity")
