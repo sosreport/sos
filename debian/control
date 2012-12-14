@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 8), python-support, python (>=2.7), gettext
 
 Package: sos
 Architecture: any
-Depends: ${python:Depends}, ${misc:Depends}
+Depends: ${python:Depends}, ${misc:Depends}, python-selinux
 Description: A set of tools to gather troubleshooting information from a system
  Sos is a set of tools that gathers information about system
  hardware and configuration. The information can then be used for
