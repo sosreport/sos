@@ -19,7 +19,7 @@ class dhcp(sos.plugintools.PluginBase):
     """
     def checkenabled(self):
         self.files = ['/etc/rc.d/init.d/dhcpd']
-        self.packages = ['dhcp']
+        self.packages = ['dhcp', 'dhclient']
         return sos.plugintools.PluginBase.checkenabled(self)
         
     def setup(self):
