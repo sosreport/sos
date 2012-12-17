@@ -15,10 +15,14 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
+import glob
 
 class openshift(sos.plugintools.PluginBase):
     """OpenShift related information
     """
+
+    optionList = [('gear', 'Collect information about a specific gear',
+                        'fast', False)]
 
     broker_pkg = 'openshift-origin-broker'
     node_pkg = 'rubygem-openshift-origin-node'
@@ -33,6 +37,8 @@ class openshift(sos.plugintools.PluginBase):
     def setup(self):
         self.broker = self.isInstalled(self.broker_pkg)
         self.node = self.isInstalled(self.node_pkg)
+        self.gear = self.getOption('gear')
+
         self.addCopySpec("/etc/openshift")
         self.addForbiddenPath("/etc/openshift/rsync_id_rsa")
 
@@ -58,6 +64,10 @@ class openshift(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/sbin/oo-accept-node")
             self.collectExtOutput("/usr/sbin/oo-admin-ctl-gears list")
             self.collectExtOutput("/bin/ls /var/lib/openshift")
+            if self.gear:
+                gear_path = glob.glob("/var/lib/openshift/%s*" % self.gear)[0]
+                self.collectExtOutput("/bin/ls %s" % gear_path)
+                self.addCopySpec(gear_path + "/*/log*")
         try:
             status, output, runtime = self.callExtProg("/bin/hostname")
             if status != 0:
