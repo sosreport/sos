@@ -24,5 +24,5 @@ class systemtap(Plugin, RedHatPlugin):
     packages = ('systemtap', 'systemtap-runtime')
 
     def setup(self):
-        self.collectExtOutput("/usr/bin/stap -V 2")
-        self.collectExtOutput("/bin/uname -r")
+        self.addCmdOutput("/usr/bin/stap -V 2")
+        self.addCmdOutput("/bin/uname -r")

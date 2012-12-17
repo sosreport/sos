@@ -45,31 +45,31 @@ class hardware(Plugin):
             "/sys/state",
             "/sys/firmware/acpi/tables",
             "/var/log/mcelog"])
-        self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
+        self.addCmdOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
-        self.collectExtOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
+        self.addCmdOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
 
 	if os.path.exists("/usr/bin/cpufreq-info"):
-	        self.collectExtOutput("/usr/bin/cpufreq-info")
+	        self.addCmdOutput("/usr/bin/cpufreq-info")
 	if os.path.exists("/usr/bin/cpupower"):
-		self.collectExtOutput("/usr/bin/cpupower info")
-		self.collectExtOutput("/usr/bin/cpupower frequency-info")
+		self.addCmdOutput("/usr/bin/cpupower info")
+		self.addCmdOutput("/usr/bin/cpupower frequency-info")
 
         if self.policy().getArch().endswith("386"):
-            self.collectExtOutput("/usr/sbin/x86info -a")
+            self.addCmdOutput("/usr/sbin/x86info -a")
 
         if os.path.exists("/usr/bin/lsusb"):
             lsusb_path = "/usr/bin/lsusb"
         else:
             lsusb_path = "/usr/bin/lsusb"
 
-        self.collectExtOutput("%s"% lsusb_path)
-        self.collectExtOutput("%s -v"% lsusb_path)
-        self.collectExtOutput("%s -t"% lsusb_path)
+        self.addCmdOutput("%s"% lsusb_path)
+        self.addCmdOutput("%s -v"% lsusb_path)
+        self.addCmdOutput("%s -t"% lsusb_path)
 
-        self.collectExtOutput("/usr/bin/lshal")
-        self.collectExtOutput("/usr/bin/systool -c fc_host -v")
-        self.collectExtOutput("/usr/bin/systool -c scsi_host -v")
+        self.addCmdOutput("/usr/bin/lshal")
+        self.addCmdOutput("/usr/bin/systool -c fc_host -v")
+        self.addCmdOutput("/usr/bin/systool -c scsi_host -v")
 
 class RedHatHardware(hardware, RedHatPlugin):
     """hardware related information for Red Hat distribution
@@ -80,7 +80,7 @@ class RedHatHardware(hardware, RedHatPlugin):
         hwpaths = glob("/usr/share/rhn/up2date*client/hardware.py")
 	if (len(hwpaths) == 0):
             return
-        self.collectExtOutput(hwpaths[0])
+        self.addCmdOutput(hwpaths[0])
 
 
 class DebianHardware(hardware, DebianPlugin, UbuntuPlugin):

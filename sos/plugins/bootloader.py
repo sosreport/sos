@@ -27,5 +27,5 @@ class bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
             "/boot/grub/device.map",
             "/etc/grub.d",
             "/boot/yaboot.conf"])
-        self.collectExtOutput("/sbin/lilo -q")
-        self.collectExtOutput("/bin/ls -lanR /boot")
+        self.addCmdOutput("/sbin/lilo -q")
+        self.addCmdOutput("/bin/ls -lanR /boot")

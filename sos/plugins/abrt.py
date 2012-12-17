@@ -31,13 +31,13 @@ class abrt(Plugin, RedHatPlugin):
         ret, output, rtime = self.callExtProg('/usr/bin/sqlite3 /var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')
         try:
             for uuid in output.split():
-                self.collectExtOutput("/usr/bin/abrt-cli -ib %s" % uuid,
+                self.addCmdOutput("/usr/bin/abrt-cli -ib %s" % uuid,
                     suggest_filename=("backtrace_%s" % uuid))
         except IndexError:
             pass
 
     def setup(self):
-        self.collectExtOutput("/usr/bin/abrt-cli -lf",
+        self.addCmdOutput("/usr/bin/abrt-cli -lf",
                 suggest_filename="abrt-log")
         if self.getOption('backtraces'):
             self.do_backtraces()

@@ -20,4 +20,4 @@ class pam(Plugin, RedHatPlugin):
     def setup(self):
         self.addCopySpec("/etc/pam.d")
         self.addCopySpec("/etc/security")
-        self.collectExtOutput("/bin/ls -lanF /lib*/security")
+        self.addCmdOutput("/bin/ls -lanF /lib*/security")

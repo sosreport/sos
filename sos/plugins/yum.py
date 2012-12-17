@@ -35,7 +35,7 @@ class yum(Plugin, RedHatPlugin):
             "/var/log/yum.log"])
 
         # Get a list of channels the machine is subscribed to.
-        self.collectExtOutput("/usr/bin/yum -C repolist")
+        self.addCmdOutput("/usr/bin/yum -C repolist")
 
         # candlepin info
         self.addForbiddenPath("/etc/pki/entitlements/key.pem")
@@ -47,18 +47,18 @@ class yum(Plugin, RedHatPlugin):
             "/etc/rhsm/",
             "/var/log/rhsm/rhsm.log",
             "/var/log/rhsm/rhsmcertd.log"])
-        self.collectExtOutput("subscription-manager list --installed")
-        self.collectExtOutput("subscription-manager list --consumed")
+        self.addCmdOutput("subscription-manager list --installed")
+        self.addCmdOutput("subscription-manager list --consumed")
 
         if self.getOption("yumlist"):
             # List various information about available packages
-            self.collectExtOutput("/usr/bin/yum list")
+            self.addCmdOutput("/usr/bin/yum list")
 
         if self.getOption("yumdebug") and self.isInstalled('yum-utils'):
             # RHEL6+ alternative for this whole function:
-            # self.collectExtOutput("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.cInfo['dstroot'],"yum-debug-dump"))
+            # self.addCmdOutput("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.cInfo['dstroot'],"yum-debug-dump"))
             ret, output, rtime = self.callExtProg("/usr/bin/yum-debug-dump")
             try:
-                self.collectExtOutput("/bin/zcat %s" % (output.split()[-1],))
+                self.addCmdOutput("/bin/zcat %s" % (output.split()[-1],))
             except IndexError:
                 pass

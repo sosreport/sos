@@ -76,7 +76,7 @@ class gluster(Plugin, RedHatPlugin):
             pass
 
     def setup(self):
-        self.collectExtOutput("/usr/sbin/gluster peer status")
+        self.addCmdOutput("/usr/sbin/gluster peer status")
 
         # check package version handling rename of glusterfs-core -> glusterfs
         pkg = self.policy().pkgByName("glusterfs-core");
@@ -105,7 +105,7 @@ class gluster(Plugin, RedHatPlugin):
         self.addCopySpec("/etc/glusterfs")
 
         self.make_preparations(self.statedump_dir)
-        #self.collectExtOutput("killall -USR1 glusterfs glusterfsd")
+        #self.addCmdOutput("killall -USR1 glusterfs glusterfsd")
         os.system("killall -USR1 glusterfs glusterfsd");
         # let all the processes catch the signal and create statedump file
         # entries.
@@ -114,7 +114,7 @@ class gluster(Plugin, RedHatPlugin):
         self.addCopySpec('/tmp/glusterdump.options')
         self.addCopySpec(self.statedump_dir)
 
-        self.collectExtOutput("gluster volume status")
+        self.addCmdOutput("gluster volume status")
         # collect this last as some of the other actions create log entries
         self.addCopySpec("/var/log/glusterfs")
 

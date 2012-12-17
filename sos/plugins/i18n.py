@@ -19,4 +19,4 @@ class i18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     def setup(self):
         self.addCopySpecs(["/etc/X11/xinit/xinput.d/*", "/etc/locale.conf"])
-        self.collectExtOutput("/usr/bin/locale")
+        self.addCmdOutput("/usr/bin/locale")

@@ -26,4 +26,4 @@ class sysvipc(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 "/proc/sysvipc/msg",
                 "/proc/sysvipc/sem",
                 "/proc/sysvipc/shm"])
-        self.collectExtOutput("/usr/bin/ipcs")
+        self.addCmdOutput("/usr/bin/ipcs")

@@ -30,10 +30,10 @@ class infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/ofed/openib.conf",
             "/etc/ofed/opensm.conf"])
 
-        self.collectExtOutput("/usr/bin/ibv_devices")
-        self.collectExtOutput("/usr/bin/ibv_devinfo")
-        self.collectExtOutput("/usr/sbin/ibstat")
-        self.collectExtOutput("/usr/sbin/ibstatus")
-        self.collectExtOutput("/usr/sbin/ibhosts")
+        self.addCmdOutput("/usr/bin/ibv_devices")
+        self.addCmdOutput("/usr/bin/ibv_devinfo")
+        self.addCmdOutput("/usr/sbin/ibstat")
+        self.addCmdOutput("/usr/sbin/ibstatus")
+        self.addCmdOutput("/usr/sbin/ibhosts")
 
         return

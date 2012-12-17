@@ -20,11 +20,11 @@ class process(Plugin, RedHatPlugin):
     """process information
     """
     def setup(self):
-        self.collectExtOutput("/bin/ps auxwww", root_symlink = "ps")
-        self.collectExtOutput("/bin/ps auxwwwm")
-        self.collectExtOutput("/bin/ps alxwww")
-        self.collectExtOutput("/usr/bin/pstree", root_symlink = "pstree")
-        self.collectExtOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
+        self.addCmdOutput("/bin/ps auxwww", root_symlink = "ps")
+        self.addCmdOutput("/bin/ps auxwwwm")
+        self.addCmdOutput("/bin/ps alxwww")
+        self.addCmdOutput("/usr/bin/pstree", root_symlink = "pstree")
+        self.addCmdOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
 
     def find_mountpoint(s):
         if (os.path.ismount(s) or len(s)==0): return s

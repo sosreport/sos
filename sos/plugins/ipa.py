@@ -63,16 +63,16 @@ class ipa(Plugin, RedHatPlugin):
 
         self.addForbiddenPath("/etc/named.keytab")
 
-        self.collectExtOutput("ls -la /etc/dirsrv/slapd-*/schema/")
+        self.addCmdOutput("ls -la /etc/dirsrv/slapd-*/schema/")
 
-        self.collectExtOutput("ipa-getcert list")
+        self.addCmdOutput("ipa-getcert list")
 
-        self.collectExtOutput("certutil -L -d /etc/httpd/alias/")
-        self.collectExtOutput("certutil -L -d /etc/dirsrv/slapd-*/")
+        self.addCmdOutput("certutil -L -d /etc/httpd/alias/")
+        self.addCmdOutput("certutil -L -d /etc/dirsrv/slapd-*/")
 
-        self.collectExtOutput("klist -ket /etc/dirsrv/ds.keytab")
-        self.collectExtOutput("klist -ket /etc/httpd/conf/ipa.keytab")
-        self.collectExtOutput("klist -ket /etc/krb5.keytab")
+        self.addCmdOutput("klist -ket /etc/dirsrv/ds.keytab")
+        self.addCmdOutput("klist -ket /etc/httpd/conf/ipa.keytab")
+        self.addCmdOutput("klist -ket /etc/krb5.keytab")
 
         return
 

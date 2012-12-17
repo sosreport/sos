@@ -22,15 +22,15 @@ class qpidd(Plugin, RedHatPlugin):
 
     def setup(self):
         """ performs data collection for mrg """
-        self.collectExtOutput("/usr/bin/qpid-stat -e")
-        self.collectExtOutput("/usr/bin/qpid-stat -b")
-        self.collectExtOutput("/usr/bin/qpid-config")
-        self.collectExtOutput("/usr/bin/qpid-config -b exchanges")
-        self.collectExtOutput("/usr/bin/qpid-config -b queues")
-        self.collectExtOutput("/usr/bin/qpid-stat -c")
-        self.collectExtOutput("/usr/bin/qpid-route link list")
-        self.collectExtOutput("/usr/bin/qpid-route route list")
-        self.collectExtOutput("/bin/ls -lanR /var/lib/qpidd")
+        self.addCmdOutput("/usr/bin/qpid-stat -e")
+        self.addCmdOutput("/usr/bin/qpid-stat -b")
+        self.addCmdOutput("/usr/bin/qpid-config")
+        self.addCmdOutput("/usr/bin/qpid-config -b exchanges")
+        self.addCmdOutput("/usr/bin/qpid-config -b queues")
+        self.addCmdOutput("/usr/bin/qpid-stat -c")
+        self.addCmdOutput("/usr/bin/qpid-route link list")
+        self.addCmdOutput("/usr/bin/qpid-route route list")
+        self.addCmdOutput("/bin/ls -lanR /var/lib/qpidd")
 
         self.addCopySpecs([
             "/etc/qpidd.conf",

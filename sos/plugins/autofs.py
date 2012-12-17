@@ -46,10 +46,10 @@ class autofs(Plugin):
 
     def setup(self):
         self.addCopySpec("/etc/auto*")
-        self.collectExtOutput("/etc/init.d/autofs status")
-        self.collectExtOutput("ps auxwww | grep automount")
-        self.collectExtOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
-        self.collectExtOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
+        self.addCmdOutput("/etc/init.d/autofs status")
+        self.addCmdOutput("ps auxwww | grep automount")
+        self.addCmdOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
+        self.addCmdOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
         if self.checkdebug():
             self.addCopySpec(self.getdaemondebug())
 
@@ -58,11 +58,11 @@ class RedHatAutofs(autofs, RedHatPlugin):
 
     def setup(self):
         super(RedHatAutofs, self).setup()
-        self.collectExtOutput("/bin/rpm -qV autofs")
+        self.addCmdOutput("/bin/rpm -qV autofs")
 
 class DebianAutofs(autofs, DebianPlugin, UbuntuPlugin):
     """autofs server-related on Debian based distributions"""
 
     def setup(self):
         super(DebianAutofs, self).setup()
-        self.collectExtOutput("/usr/bin/dpkg-query -s autofs")
+        self.addCmdOutput("/usr/bin/dpkg-query -s autofs")

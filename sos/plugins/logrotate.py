@@ -19,7 +19,7 @@ class logrotate(Plugin, RedHatPlugin):
     """
 
     def setup(self):
-        self.collectExtOutput("/usr/sbin/logrotate --debug /etc/logrotate.conf",
+        self.addCmdOutput("/usr/sbin/logrotate --debug /etc/logrotate.conf",
                               suggest_filename = "logrotate_debug")
         self.addCopySpecs([
             "/etc/logrotate*",

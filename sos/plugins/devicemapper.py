@@ -29,33 +29,33 @@ class devicemapper(Plugin, RedHatPlugin):
         cmd = "lvmdump -d '%s'" % os.path.join(self.cInfo['dstroot'],"lvmdump")
         if self.getOption('lvmdump-a'):
           cmd += " -a"
-        self.collectExtOutput(cmd)
+        self.addCmdOutput(cmd)
 
     def setup(self):
-        self.collectExtOutput("/sbin/dmsetup info -c")
-        self.collectExtOutput("/sbin/dmsetup table")
-        self.collectExtOutput("/sbin/dmsetup status")
-        self.collectExtOutput("/sbin/dmsetup ls --tree")
+        self.addCmdOutput("/sbin/dmsetup info -c")
+        self.addCmdOutput("/sbin/dmsetup table")
+        self.addCmdOutput("/sbin/dmsetup status")
+        self.addCmdOutput("/sbin/dmsetup ls --tree")
 
-        self.collectExtOutput("/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
-        self.collectExtOutput("/sbin/vgscan -vvv")
-        self.collectExtOutput("/sbin/pvscan -v")
-        self.collectExtOutput("/sbin/lvs -a -o +devices")
-        self.collectExtOutput("/sbin/pvs -a -v")
-        self.collectExtOutput("/sbin/vgs -v")
-        self.collectExtOutput("/sbin/mdadm -D /dev/md*")
+        self.addCmdOutput("/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
+        self.addCmdOutput("/sbin/vgscan -vvv")
+        self.addCmdOutput("/sbin/pvscan -v")
+        self.addCmdOutput("/sbin/lvs -a -o +devices")
+        self.addCmdOutput("/sbin/pvs -a -v")
+        self.addCmdOutput("/sbin/vgs -v")
+        self.addCmdOutput("/sbin/mdadm -D /dev/md*")
 
         self.addCopySpecs([
             "/etc/lvm",
             "/etc/multipath/",
             "/etc/multipath.conf",
             "/var/lib/multipath/bindings"])
-        self.collectExtOutput("/sbin/multipath -v4 -ll")
+        self.addCmdOutput("/sbin/multipath -v4 -ll")
 
-        self.collectExtOutput("/usr/bin/systool -v -c -b scsi")
+        self.addCmdOutput("/usr/bin/systool -v -c -b scsi")
 
-        self.collectExtOutput("/bin/ls -lanR /dev")
-        self.collectExtOutput("/bin/ls -lanR /sys/block")
+        self.addCmdOutput("/bin/ls -lanR /dev")
+        self.addCmdOutput("/bin/ls -lanR /sys/block")
 
         if self.getOption('lvmdump'):
             self.do_lvmdump()
@@ -64,6 +64,6 @@ class devicemapper(Plugin, RedHatPlugin):
            for disk in os.listdir("/sys/block"):
               if disk in [ ".",  ".." ] or disk.startswith("ram"):
                  continue
-              self.collectExtOutput("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
+              self.addCmdOutput("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
         for opt in self.dmraidOptions:
-            self.collectExtOutput("/sbin/dmraid -%s" % (opt,))
+            self.addCmdOutput("/sbin/dmraid -%s" % (opt,))

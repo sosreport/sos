@@ -26,6 +26,6 @@ class printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/cups/lpoptions",
             "/etc/cups/ppd/*.ppd"])
         self.addCopySpecLimit("/var/log/cups", sizelimit=self.isOptionEnabled("cupslogsize"))
-        self.collectExtOutput("/usr/bin/lpstat -t")
-        self.collectExtOutput("/usr/bin/lpstat -s")
-        self.collectExtOutput("/usr/bin/lpstat -d")
+        self.addCmdOutput("/usr/bin/lpstat -t")
+        self.addCmdOutput("/usr/bin/lpstat -s")
+        self.addCmdOutput("/usr/bin/lpstat -d")

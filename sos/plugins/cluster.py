@@ -65,45 +65,45 @@ class cluster(Plugin, RedHatPlugin):
         if self.getOption('lockdump'):
           self.do_lockdump()
 
-        self.collectExtOutput("/usr/sbin/rg_test test "
+        self.addCmdOutput("/usr/sbin/rg_test test "
                         + "/etc/cluster/cluster.conf" )
-        self.collectExtOutput("fence_tool ls -n")
-        self.collectExtOutput("gfs_control ls -n")
-        self.collectExtOutput("dlm_tool log_plock")
+        self.addCmdOutput("fence_tool ls -n")
+        self.addCmdOutput("gfs_control ls -n")
+        self.addCmdOutput("dlm_tool log_plock")
 
-        self.collectExtOutput("/sbin/fdisk -l")
-        self.collectOutputNow("clustat")
-        self.collectOutputNow("group_tool dump")
-        self.collectExtOutput("cman_tool services")
-        self.collectExtOutput("cman_tool nodes")
-        self.collectExtOutput("cman_tool status")
-        self.collectExtOutput("ccs_tool lsnode")
-        self.collectExtOutput("/sbin/ipvsadm -L")
+        self.addCmdOutput("/sbin/fdisk -l")
+        self.getCmdOutputNow("clustat")
+        self.getCmdOutputNow("group_tool dump")
+        self.addCmdOutput("cman_tool services")
+        self.addCmdOutput("cman_tool nodes")
+        self.addCmdOutput("cman_tool status")
+        self.addCmdOutput("ccs_tool lsnode")
+        self.addCmdOutput("/sbin/ipvsadm -L")
 
         if rhelver is 4:
             self.addCopySpec("/proc/cluster/*")
-            self.collectExtOutput("cman_tool nodes")
+            self.addCmdOutput("cman_tool nodes")
 
         if rhelver is not 4: # 5+
-            self.collectExtOutput("cman_tool -a nodes")
+            self.addCmdOutput("cman_tool -a nodes")
 
         if rhelver is 5:
-            self.collectExtOutput("group_tool -v")
-            self.collectExtOutput("group_tool dump fence")
-            self.collectExtOutput("group_tool dump gfs")
+            self.addCmdOutput("group_tool -v")
+            self.addCmdOutput("group_tool dump fence")
+            self.addCmdOutput("group_tool dump gfs")
 
         if rhelver not in (4,5): # 6+
-            self.collectExtOutput("corosync-quorumtool -l")
-            self.collectExtOutput("corosync-quorumtool -s")
-            self.collectExtOutput("corosync-cpgtool")
-            self.collectExtOutput("corosync-objctl")
-            self.collectExtOutput("group_tool ls -g1")
-            self.collectExtOutput("gfs_control ls -n")
-            self.collectExtOutput("gfs_control dump")
-            self.collectExtOutput("fence_tool dump")
-            self.collectExtOutput("dlm_tool dump")
-            self.collectExtOutput("dlm_tool ls -n")
-            self.collectExtOutput("mkqdisk -L")
+            self.addCmdOutput("corosync-quorumtool -l")
+            self.addCmdOutput("corosync-quorumtool -s")
+            self.addCmdOutput("corosync-cpgtool")
+            self.addCmdOutput("corosync-objctl")
+            self.addCmdOutput("group_tool ls -g1")
+            self.addCmdOutput("gfs_control ls -n")
+            self.addCmdOutput("gfs_control dump")
+            self.addCmdOutput("fence_tool dump")
+            self.addCmdOutput("dlm_tool dump")
+            self.addCmdOutput("dlm_tool ls -n")
+            self.addCmdOutput("mkqdisk -L")
 
     def do_lockdump(self):
         rhelver = self.policy().rhelVersion()
@@ -114,28 +114,28 @@ class cluster(Plugin, RedHatPlugin):
                     re.MULTILINE).findall(output):
                 self.callExtProg("echo %s > /proc/cluster/dlm_locks" 
                         % lockspace)
-                self.collectOutputNow("cat /proc/cluster/dlm_locks",
+                self.getCmdOutputNow("cat /proc/cluster/dlm_locks",
                         suggest_filename = "dlm_locks_%s" % lockspace)
 
         if rhelver is 5:
             status, output, time = self.callExtProg("group_tool")
             for lockspace in re.compile(r'^dlm\s+[^\s]+\s+([^\s]+)$',
                     re.MULTILINE).findall(output):
-                self.collectExtOutput("dlm_tool lockdebug '%s'" % lockspace,
+                self.addCmdOutput("dlm_tool lockdebug '%s'" % lockspace,
                         suggest_filename = "dlm_locks_%s" % lockspace)
 
         else: # RHEL6 or recent Fedora
             status, output, time = self.callExtProg("dlm_tool ls")
             for lockspace in re.compile(r'^name\s+([^\s]+)$',
                     re.MULTILINE).findall(output):
-                self.collectExtOutput("dlm_tool lockdebug -svw '%s'"
+                self.addCmdOutput("dlm_tool lockdebug -svw '%s'"
                         % lockspace,
                         suggest_filename = "dlm_locks_%s" % lockspace)
 
     def do_gfslockdump(self):
         for mntpoint in self.doRegexFindAll(r'^\S+\s+([^\s]+)\s+gfs\s+.*$',
                     "/proc/mounts"):
-            self.collectExtOutput("/sbin/gfs_tool lockdump %s" % mntpoint,
+            self.addCmdOutput("/sbin/gfs_tool lockdump %s" % mntpoint,
                         suggest_filename = "gfs_lockdump_"
                         + self.mangleCommand(mntpoint))
 
@@ -144,7 +144,7 @@ class cluster(Plugin, RedHatPlugin):
             self.doFileSub(cluster_conf,
                         r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")",
                         r"\1%s" %('"***"'))
-        self.doExtOutputSub("corosync-objctl",
+        self.doCmdOutputSub("corosync-objctl",
                         r"(.*fence.*\.passwd=)(.*)",
                         r"\1******")
         return

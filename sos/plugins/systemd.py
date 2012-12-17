@@ -27,19 +27,19 @@ class systemd(Plugin, RedHatPlugin):
     files = ('/usr/lib/systemd/systemd',)
 
     def setup(self):
-        self.collectExtOutput("systemctl show --all")
-        self.collectExtOutput("systemctl list-units --failed")
-        self.collectExtOutput("systemctl list-unit-files")
-        self.collectExtOutput("systemctl list-units --all")
-        self.collectExtOutput("systemctl dump")
-        self.collectExtOutput("systemd-delta")
-        self.collectExtOutput("journalctl --verify")
-        self.collectExtOutput("journalctl --all --this-boot --no-pager")
-        self.collectExtOutput("journalctl --all --this-boot --no-pager -o verbose")
-        self.collectExtOutput("ls -l /lib/systemd")
-        self.collectExtOutput("ls -l /lib/systemd/system-shutdown")
-        self.collectExtOutput("ls -l /lib/systemd/system-generators")
-        self.collectExtOutput("ls -l /lib/systemd/user-generators")
+        self.addCmdOutput("systemctl show --all")
+        self.addCmdOutput("systemctl list-units --failed")
+        self.addCmdOutput("systemctl list-unit-files")
+        self.addCmdOutput("systemctl list-units --all")
+        self.addCmdOutput("systemctl dump")
+        self.addCmdOutput("systemd-delta")
+        self.addCmdOutput("journalctl --verify")
+        self.addCmdOutput("journalctl --all --this-boot --no-pager")
+        self.addCmdOutput("journalctl --all --this-boot --no-pager -o verbose")
+        self.addCmdOutput("ls -l /lib/systemd")
+        self.addCmdOutput("ls -l /lib/systemd/system-shutdown")
+        self.addCmdOutput("ls -l /lib/systemd/system-generators")
+        self.addCmdOutput("ls -l /lib/systemd/user-generators")
 
         self.addCopySpecs(["/etc/systemd",
                            "/lib/systemd/system",

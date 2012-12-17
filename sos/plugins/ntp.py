@@ -21,5 +21,5 @@ class ntp(Plugin, RedHatPlugin):
     packages = ('ntp',)
 
     def setup(self):
-        self.collectExtOutput("/usr/bin/ntpstat")
-        self.collectExtOutput("/usr/sbin/ntptime")
+        self.addCmdOutput("/usr/bin/ntpstat")
+        self.addCmdOutput("/usr/sbin/ntptime")

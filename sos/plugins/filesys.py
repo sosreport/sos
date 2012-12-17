@@ -32,15 +32,15 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
             "/proc/mdstat",
             "/etc/raidtab",
             "/etc/mdadm.conf"])
-        mounts = self.collectOutputNow("/bin/mount -l", root_symlink = "mount")
+        mounts = self.getCmdOutputNow("/bin/mount -l", root_symlink = "mount")
 
-        self.collectExtOutput("/bin/findmnt")
-        self.collectExtOutput("/bin/df -al", root_symlink = "df")
-        self.collectExtOutput("/bin/df -ali")
+        self.addCmdOutput("/bin/findmnt")
+        self.addCmdOutput("/bin/df -al", root_symlink = "df")
+        self.addCmdOutput("/bin/df -ali")
         if self.getOption('lsof'):
-            self.collectExtOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
-        self.collectExtOutput("/sbin/blkid -c /dev/null")
-        self.collectExtOutput("/usr/bin/lsblk")
+            self.addCmdOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
+        self.addCmdOutput("/sbin/blkid -c /dev/null")
+        self.addCmdOutput("/usr/bin/lsblk")
 
         part_titlep = re.compile("^major")
         blankp = re.compile("^$")
@@ -69,8 +69,8 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
                     devlist.append(dev)
 
         for i in devlist:
-            self.collectExtOutput("/sbin/parted -s %s print" % (i))
+            self.addCmdOutput("/sbin/parted -s %s print" % (i))
 
         if self.getOption('dumpe2fs'):
             for extfs in izip(self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts)):
-                self.collectExtOutput("/sbin/dumpe2fs %s" % (extfs))
+                self.addCmdOutput("/sbin/dumpe2fs %s" % (extfs))

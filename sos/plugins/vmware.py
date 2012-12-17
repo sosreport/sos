@@ -22,7 +22,7 @@ class vmware(Plugin, RedHatPlugin):
     files = ('/usr/bin/vmware','/usr/init.d/vmware-tools')
 
     def setup(self):
-        self.collectExtOutput("/usr/bin/vmware -v")
+        self.addCmdOutput("/usr/bin/vmware -v")
         self.addCopySpecs(["/etc/vmware/locations",
                            "/etc/vmware/config",
                            "/proc/vmmemctl"])

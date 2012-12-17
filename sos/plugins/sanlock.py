@@ -22,9 +22,9 @@ class sanlock(Plugin):
 
     def setup(self):
         self.addCopySpec("/var/log/sanlock.log*")
-        self.collectExtOutput("sanlock client status -D")
-        self.collectExtOutput("sanlock client host_status -D")
-        self.collectExtOutput("sanlock client log_dump")
+        self.addCmdOutput("sanlock client status -D")
+        self.addCmdOutput("sanlock client host_status -D")
+        self.addCmdOutput("sanlock client log_dump")
         return
 
 class RedHatSanlock(sanlock, RedHatPlugin):

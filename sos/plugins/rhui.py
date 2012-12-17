@@ -37,7 +37,7 @@ class rhui(Plugin, RedHatPlugin):
         except:
             return
 
-        self.collectExtOutput("python %s %s --dir %s"
+        self.addCmdOutput("python %s %s --dir %s"
                 % (self.rhui_debug_path, cds, rhui_debug_dst_path),
                 suggest_filename="rhui-debug")
         return

@@ -164,7 +164,7 @@ class Plugin(object):
         '''Is the package $package_name installed?'''
         return (self.policy().pkgByName(package_name) is not None)
 
-    def doExtOutputSub(self, cmd, regexp, subst):
+    def doCmdOutputSub(self, cmd, regexp, subst):
         '''Apply a regexp substitution to command output archived by sosreport.
         cmd is the command name from which output is collected (i.e. excluding
         parameters). The regexp can be a string or a compiled re object. The
@@ -494,7 +494,7 @@ class Plugin(object):
         return (status == 0)
 
 
-    def collectExtOutput(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
+    def addCmdOutput(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
         """Run a program and collect the output"""
         self.collectProgs.append( (exe, suggest_filename, root_symlink, timeout) )
 
@@ -529,7 +529,7 @@ class Plugin(object):
         """Add a string to the archive as a file named `filename`"""
         self.copyStrings.append((content, filename))
 
-    def collectOutputNow(self, exe, suggest_filename=None, root_symlink=False, timeout=300):
+    def getCmdOutputNow(self, exe, suggest_filename=None, root_symlink=False, timeout=300):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
@@ -592,7 +592,7 @@ class Plugin(object):
             prog, suggest_filename, root_symlink, timeout = progs[0]
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
-                self.collectOutputNow(prog, suggest_filename,
+                self.getCmdOutputNow(prog, suggest_filename,
                         root_symlink, timeout)
             except Exception, e:
                 self.soslog.debug("error collecting output of '%s' (%s)"

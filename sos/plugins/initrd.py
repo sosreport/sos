@@ -20,7 +20,7 @@ class initrd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     def setup(self):
         for initrd in glob('/boot/initrd-*.img'):
-            self.collectExtOutput("/bin/zcat "+initrd+" | /bin/cpio "+
+            self.addCmdOutput("/bin/zcat "+initrd+" | /bin/cpio "+
                 "--extract --to-stdout init" )
 
     def defaultenabled(self):

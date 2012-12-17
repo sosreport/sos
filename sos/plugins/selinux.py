@@ -21,9 +21,9 @@ class selinux(Plugin, RedHatPlugin):
     def setup(self):
         # sestatus is always collected in checkenabled()
         self.addCopySpec("/etc/selinux")
-        self.collectExtOutput("/usr/bin/selinuxconfig")
+        self.addCmdOutput("/usr/bin/selinuxconfig")
         if self.getOption('fixfiles'):
-            self.collectExtOutput("/sbin/fixfiles check")
+            self.addCmdOutput("/sbin/fixfiles check")
         self.addForbiddenPath("/etc/selinux/targeted")
 
         if not self.policy().pkgByName('setroubleshoot'):
@@ -35,12 +35,12 @@ class selinux(Plugin, RedHatPlugin):
             sealert=doRegexFindAll(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
             if sealert:
                 for i in sealert:
-                    self.collectExtOutput("%s" % i)
+                    self.addCmdOutput("%s" % i)
                 self.addAlert("There are numerous selinux errors present and "+
                               "possible fixes stated in the sealert output.")
     def checkenabled(self):
         try:
-            if self.collectOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
+            if self.getCmdOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
                 return False
         except:
             pass

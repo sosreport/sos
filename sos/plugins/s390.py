@@ -51,20 +51,20 @@ class s390(Plugin, RedHatPlugin):
             "/etc/src_vipa.conf",
             "/etc/ccwgroup.conf",
             "/etc/chandev.conf"])
-        self.collectExtOutput("/sbin/lscss")
-        self.collectExtOutput("/sbin/lsdasd")
-        self.collectExtOutput("/sbin/lstape")
-        self.collectExtOutput("find /sys -type f")
-        self.collectExtOutput("find /proc/s390dbf -type f")
-        self.collectExtOutput("/sbin/qethconf list_all")
+        self.addCmdOutput("/sbin/lscss")
+        self.addCmdOutput("/sbin/lsdasd")
+        self.addCmdOutput("/sbin/lstape")
+        self.addCmdOutput("find /sys -type f")
+        self.addCmdOutput("find /proc/s390dbf -type f")
+        self.addCmdOutput("/sbin/qethconf list_all")
         ret, dasdDev, rtime = self.callExtProg("/bin/ls /dev/dasd?")
         for x in dasdDev.split('\n'):
-            self.collectExtOutput("/sbin/dasdview -x -i -j -l -f %s" % (x,))
-            self.collectExtOutput("/sbin/fdasd -p %s" % (x,))
+            self.addCmdOutput("/sbin/dasdview -x -i -j -l -f %s" % (x,))
+            self.addCmdOutput("/sbin/fdasd -p %s" % (x,))
         try:
             rhelver = self.policy().rhelVersion()
             if rhelver == 5:
-                self.collectExtOutput("/sbin/lsqeth")
-                self.collectExtOutput("/sbin/lszfcp")
+                self.addCmdOutput("/sbin/lsqeth")
+                self.addCmdOutput("/sbin/lszfcp")
         except:
             rhelver = None

@@ -27,8 +27,8 @@ class soundcard(Plugin, RedHatPlugin):
             "/proc/asound/*",
             "/etc/alsa/*",
             "/etc/asound.*"])
-        self.collectExtOutput("/sbin/lspci | grep -i audio")
-        self.collectExtOutput("/usr/bin/aplay -l")
-        self.collectExtOutput("/usr/bin/aplay -L")
-        self.collectExtOutput("/usr/bin/amixer")
-        self.collectExtOutput("/sbin/lsmod | /bin/grep snd | /bin/awk '{print $1}'", suggest_filename = "sndmodules_loaded")
+        self.addCmdOutput("/sbin/lspci | grep -i audio")
+        self.addCmdOutput("/usr/bin/aplay -l")
+        self.addCmdOutput("/usr/bin/aplay -L")
+        self.addCmdOutput("/usr/bin/amixer")
+        self.addCmdOutput("/sbin/lsmod | /bin/grep snd | /bin/awk '{print $1}'", suggest_filename = "sndmodules_loaded")

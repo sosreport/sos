@@ -28,5 +28,5 @@ class openswan(Plugin, RedHatPlugin):
         self.addCopySpecs([
             "/etc/ipsec.conf",
             "/etc/ipsec.d"])
-        self.collectExtOutput("/usr/sbin/ipsec verify")
-        self.collectExtOutput("/usr/sbin/ipsec barf")
+        self.addCmdOutput("/usr/sbin/ipsec verify")
+        self.addCmdOutput("/usr/sbin/ipsec barf")

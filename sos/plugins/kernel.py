@@ -22,8 +22,8 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     moduleFile = ""
 
     def setup(self):
-        self.collectExtOutput("/bin/uname -a", root_symlink = "uname")
-        self.moduleFile = self.collectOutputNow("/sbin/lsmod", root_symlink = "lsmod")
+        self.addCmdOutput("/bin/uname -a", root_symlink = "uname")
+        self.moduleFile = self.getCmdOutputNow("/sbin/lsmod", root_symlink = "lsmod")
 
         if self.getOption('modinfo'):
             runcmd = ""
@@ -32,11 +32,11 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 if '' != kmod.strip():
                     runcmd = runcmd + " " + kmod
             if len(runcmd):
-                self.collectExtOutput("/sbin/modinfo " + runcmd)
+                self.addCmdOutput("/sbin/modinfo " + runcmd)
 
-        self.collectExtOutput("/sbin/sysctl -a")
+        self.addCmdOutput("/sbin/sysctl -a")
         if os.path.isfile("/sbin/ksyms"):
-            self.collectExtOutput("/sbin/ksyms")
+            self.addCmdOutput("/sbin/ksyms")
         self.addCopySpecs([
             "/proc/sys/kernel/random/boot_id",
             "/sys/module/*/parameters",
@@ -63,4 +63,4 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/timer*",
             "/proc/lock*"])
 
-        self.collectExtOutput("/usr/sbin/dkms status")
+        self.addCmdOutput("/usr/sbin/dkms status")

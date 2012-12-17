@@ -33,7 +33,7 @@ class RedHatIscsi(iscsi, RedHatPlugin):
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"])
-        self.collectExtOutput("iscsiadm -m session -P 3")
-        self.collectExtOutput("iscsiadm -m node -P 3")
-        self.collectExtOutput("iscsiadm -m iface -P 1")
-        self.collectExtOutput("iscsiadm -m node --op=show")
+        self.addCmdOutput("iscsiadm -m session -P 3")
+        self.addCmdOutput("iscsiadm -m node -P 3")
+        self.addCmdOutput("iscsiadm -m iface -P 1")
+        self.addCmdOutput("iscsiadm -m node --op=show")

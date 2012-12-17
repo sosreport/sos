@@ -25,4 +25,4 @@ class tftpserver(Plugin, RedHatPlugin):
     packages = ('tftp-server',)
 
     def setup(self):
-        self.collectExtOutput("/bin/ls -lanR /tftpboot")
+        self.addCmdOutput("/bin/ls -lanR /tftpboot")

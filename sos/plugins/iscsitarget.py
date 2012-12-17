@@ -31,7 +31,7 @@ class RedHatIscsiTarget(Plugin, RedHatPlugin):
 
     def setup(self):
         self.addCopySpec("/etc/tgt/targets.conf")
-        self.collectExtOutput("tgtadm --lld iscsi --op show --mode target")
+        self.addCmdOutput("tgtadm --lld iscsi --op show --mode target")
 
 class DebianIscsiTarget(iscsitarget, DebianPlugin, UbuntuPlugin):
     """iscsi-target related information for Debian based distributions

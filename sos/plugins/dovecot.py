@@ -21,4 +21,4 @@ class dovecot(Plugin, RedHatPlugin):
     def setup(self):
         if os.path.exists("/etc/dovecot.conf"):
             self.addCopySpec("/etc/dovecot*")
-            self.collectExtOutput("/usr/sbin/dovecot -n")
+            self.addCmdOutput("/usr/sbin/dovecot -n")

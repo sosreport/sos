@@ -20,4 +20,4 @@ class dpkg(Plugin, DebianPlugin, UbuntuPlugin):
     """
     def setup(self):
         self.addCopySpec("/var/log/dpkg.log")
-        self.collectExtOutput("/usr/bin/dpkg-query -W -f='${Package}-${Version}-${Architecture}\n' \*", root_symlink = "installed-debs")
+        self.addCmdOutput("/usr/bin/dpkg-query -W -f='${Package}-${Version}-${Architecture}\n' \*", root_symlink = "installed-debs")

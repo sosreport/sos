@@ -58,7 +58,7 @@ class networking(Plugin, RedHatPlugin):
         (status, output, time) = self.callExtProg("/sbin/lsmod | grep -q "+tablename)
         if status == 0:
             cmd = "/sbin/iptables -t "+tablename+" -nvL"
-            self.collectExtOutput(cmd)
+            self.addCmdOutput(cmd)
 
     def setup(self):
         self.addCopySpecs([
@@ -70,40 +70,40 @@ class networking(Plugin, RedHatPlugin):
             "/etc/xinetd.d",
             "/etc/host*",
             "/etc/resolv.conf"])
-        ipaddrFile=self.collectOutputNow("/sbin/ip -o addr", root_symlink = "ip_addr")
+        ipaddrFile=self.getCmdOutputNow("/sbin/ip -o addr", root_symlink = "ip_addr")
         ipaddrOut=self.callExtProg("/sbin/ip -o addr")
-        self.collectExtOutput("/sbin/route -n", root_symlink = "route")
+        self.addCmdOutput("/sbin/route -n", root_symlink = "route")
         self.collectIPTable("filter")
         self.collectIPTable("nat")
         self.collectIPTable("mangle")
-        self.collectExtOutput("/bin/netstat -s")
-        self.collectExtOutput("/bin/netstat -agn")
-        self.collectExtOutput("/bin/netstat -neopa", root_symlink = "netstat")
-        self.collectExtOutput("/sbin/ip route show table all")
-        self.collectExtOutput("/sbin/ip -6 route show table all")
-        self.collectExtOutput("/sbin/ip link")
-        self.collectExtOutput("/sbin/ip address")
-        self.collectExtOutput("/sbin/ifenslave -a")
-        self.collectExtOutput("/sbin/ip mroute show")
-        self.collectExtOutput("/sbin/ip maddr show")
-        self.collectExtOutput("/sbin/ip neigh show")
+        self.addCmdOutput("/bin/netstat -s")
+        self.addCmdOutput("/bin/netstat -agn")
+        self.addCmdOutput("/bin/netstat -neopa", root_symlink = "netstat")
+        self.addCmdOutput("/sbin/ip route show table all")
+        self.addCmdOutput("/sbin/ip -6 route show table all")
+        self.addCmdOutput("/sbin/ip link")
+        self.addCmdOutput("/sbin/ip address")
+        self.addCmdOutput("/sbin/ifenslave -a")
+        self.addCmdOutput("/sbin/ip mroute show")
+        self.addCmdOutput("/sbin/ip maddr show")
+        self.addCmdOutput("/sbin/ip neigh show")
         if ipaddrOut:
             for eth in self.get_interface_name(ipaddrOut):
-                self.collectExtOutput("/sbin/ethtool "+eth)
-                self.collectExtOutput("/sbin/ethtool -i "+eth)
-                self.collectExtOutput("/sbin/ethtool -k "+eth)
-                self.collectExtOutput("/sbin/ethtool -S "+eth)
-                self.collectExtOutput("/sbin/ethtool -a "+eth)
-                self.collectExtOutput("/sbin/ethtool -c "+eth)
-                self.collectExtOutput("/sbin/ethtool -g "+eth)
+                self.addCmdOutput("/sbin/ethtool "+eth)
+                self.addCmdOutput("/sbin/ethtool -i "+eth)
+                self.addCmdOutput("/sbin/ethtool -k "+eth)
+                self.addCmdOutput("/sbin/ethtool -S "+eth)
+                self.addCmdOutput("/sbin/ethtool -a "+eth)
+                self.addCmdOutput("/sbin/ethtool -c "+eth)
+                self.addCmdOutput("/sbin/ethtool -g "+eth)
         if self.getOption("traceroute"):
-            self.collectExtOutput("/bin/traceroute -n rhn.redhat.com")
+            self.addCmdOutput("/bin/traceroute -n rhn.redhat.com")
 
         if os.path.exists("/usr/sbin/brctl"):
-            brctlFile=self.collectExtOutput("/usr/sbin/brctl show")
+            brctlFile=self.addCmdOutput("/usr/sbin/brctl show")
             brctlOut=self.callExtProg("/usr/sbin/brctl show")
             if brctlOut:
                 for brName in self.get_bridge_name(brctlOut):
-                    self.collectExtOutput("/usr/sbin/brctl showstp "+brName)
+                    self.addCmdOutput("/usr/sbin/brctl showstp "+brName)
         return
 

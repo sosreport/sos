@@ -42,19 +42,19 @@ class general(Plugin):
             "/root/anaconda-ks.cfg"])
 
         limit = self.getOption("syslogsize")
-        self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
+        self.addCmdOutput("/bin/dmesg", suggest_filename="dmesg_now")
         self.addCopySpecLimit("/var/log/messages*", sizelimit = limit)
         self.addCopySpecLimit("/var/log/secure*", sizelimit = limit)
-        self.collectExtOutput("/usr/bin/hostid")
-        self.collectExtOutput("/bin/hostname", root_symlink="hostname")
-        self.collectExtOutput("/bin/date", root_symlink="date")
-        self.collectExtOutput("/usr/bin/uptime", root_symlink="uptime")
-        self.collectExtOutput("/bin/dmesg")
-        self.collectExtOutput("/usr/sbin/alternatives --display java",
+        self.addCmdOutput("/usr/bin/hostid")
+        self.addCmdOutput("/bin/hostname", root_symlink="hostname")
+        self.addCmdOutput("/bin/date", root_symlink="date")
+        self.addCmdOutput("/usr/bin/uptime", root_symlink="uptime")
+        self.addCmdOutput("/bin/dmesg")
+        self.addCmdOutput("/usr/sbin/alternatives --display java",
                                 root_symlink="java")
-        self.collectExtOutput("/usr/bin/readlink -f /usr/bin/java")
-        self.collectExtOutput("/usr/bin/tree /var/lib")
-        self.collectExtOutput("/bin/ls -lR /var/lib")
+        self.addCmdOutput("/usr/bin/readlink -f /usr/bin/java")
+        self.addCmdOutput("/usr/bin/tree /var/lib")
+        self.addCmdOutput("/bin/ls -lR /var/lib")
 
 
 class RedHatGeneral(general, RedHatPlugin):

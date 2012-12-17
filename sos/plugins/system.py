@@ -34,5 +34,5 @@ class system(Plugin, RedHatPlugin):
         self.addForbiddenPath(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-        self.collectExtOutput("/usr/bin/crontab -l")
+        self.addCmdOutput("/usr/bin/crontab -l")
         

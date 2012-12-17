@@ -41,7 +41,7 @@ class named(Plugin, RedHatPlugin):
 
         self.addCopySpec("/etc/named/")
         self.addCopySpec("/etc/sysconfig/named")
-        self.collectExtOutput("klist -ket /etc/named.keytab")
+        self.addCmdOutput("klist -ket /etc/named.keytab")
         self.addForbiddenPath("/etc/named.keytab")
         return
 

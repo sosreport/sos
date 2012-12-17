@@ -23,6 +23,6 @@ class samba(Plugin, RedHatPlugin):
             "/var/log/samba/*",
             "/etc/krb5.conf",
             "/etc/krb5.keytab"])
-        self.collectExtOutput("/usr/bin/wbinfo -g")
-        self.collectExtOutput("/usr/bin/wbinfo -u")
-        self.collectExtOutput("/usr/bin/testparm -s -v")
+        self.addCmdOutput("/usr/bin/wbinfo -g")
+        self.addCmdOutput("/usr/bin/wbinfo -u")
+        self.addCmdOutput("/usr/bin/testparm -s -v")
