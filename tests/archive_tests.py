@@ -5,7 +5,7 @@ import os
 import tarfile
 import zipfile
 
-from sos.utilities import TarFileArchive, ZipFileArchive
+from sos.archive import TarFileArchive, ZipFileArchive
 
 class ZipFileArchiveTest(unittest.TestCase):
 
