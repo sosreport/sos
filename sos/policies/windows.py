@@ -41,5 +41,5 @@ class WindowsPolicy(Policy):
             return username.strip() in admins
 
     def preferedArchive(self):
-        from sos.utilities import ZipFileArchive
+        from sos.archive import ZipFileArchive
         return ZipFileArchive
