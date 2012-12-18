@@ -149,13 +149,18 @@ def sosGetCommandOutput(command, timeout=300):
     # XXX: what is this doing this for?
     cmdfile = command.strip("(").split()[0]
 
+    cmd_env = os.environ
+    # ensure consistent locale for collected command output
+    cmd_env['LC_ALL'] = 'C'
     if is_executable(cmdfile):
 
         # use /usr/bin/timeout to implement a timeout
         if timeout and is_executable("/usr/bin/timeout"):
             command = "/usr/bin/timeout %ds %s" % (timeout, command)
 
-        p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
+        p = Popen(command, shell=True,
+                stdout=PIPE, stderr=STDOUT,
+                bufsize=-1, env = cmd_env)
         stdout, stderr = p.communicate()
         return (p.returncode, stdout, 0)
     else:
