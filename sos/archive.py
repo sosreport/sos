@@ -93,6 +93,8 @@ class TarFileArchive(Archive):
 
     def add_parent(self, path):
         path = os.path.split(path)[0]
+        if path == '':
+            return
         self.add_file(path)
 
     def add_file(self, src, dest=None):
@@ -130,16 +132,20 @@ class TarFileArchive(Archive):
             context = self.get_selinux_context(src)
             if context:
                 tar_info.pax_headers['RHT.security.selinux'] = context
-
-        fstat = os.stat(src)
-        if os.path.isdir(src) and not (fstat.st_mode & 000200):
-            # directories not writable by their owner are a world of pain
-            # in tar archives. Do not allow them (see Issue #85).
-            mode = fstat.st_mode | 000200
-        else:
+        try:
+            fstat = os.stat(src)
+            if os.path.isdir(src) and not (fstat.st_mode & 000200):
+                # directories not writable by their owner are a world of pain
+                # in tar archives. Do not allow them (see Issue #85).
+                mode = fstat.st_mode | 000200
+            else:
+                mode = None
+            self.set_tar_info_from_stat(tar_info,fstat, mode)
+            self.tarfile.addfile(tar_info, fileobj)
+        except Exception as e:
+            raise e
+        finally:
             mode = None
-        self.set_tar_info_from_stat(tar_info,fstat, mode)
-        self.tarfile.addfile(tar_info, fileobj)
 
     def add_string(self, content, dest):
         fstat = None
