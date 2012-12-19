@@ -232,11 +232,9 @@ class PluginBase:
                 linkto = os.readlink(src)
                 os.symlink(linkto, new_fname)
             else:
-                fsrc = open(src,'r')
-                fdst = open(new_fname, 'w') 
-                shutil.copyfileobj(fsrc, fdst, -1)
-                fsrc.close()
-                fdst.close()
+                shutil.copy2(src, new_fname)
+                stat = os.stat(src)
+                os.chown(new_fname, stat.st_uid, stat.st_gid)
         else:
             raise PluginException('Error copying file: already exists')
 
