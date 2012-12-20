@@ -69,14 +69,14 @@ class openshift(sos.plugintools.PluginBase):
                 self.collectExtOutput("/bin/ls %s" % gear_path)
                 self.addCopySpec(gear_path + "/*/log*")
         try:
-            status, output, runtime = self.callExtProg("/bin/hostname")
+            status, output, runtime = self.callExtProg("/bin/hostname -d")
             if status != 0:
-                hostname = None
+                domainname = None
             else:
-                hostname = output.strip()
+                domainname = output.strip()
         except:
             hostname = None
-        self.collectExtOutput("/usr/bin/dig %s axfr" % hostname)
+        self.collectExtOutput("/usr/bin/dig %s axfr" % domainname)
         return
 
     def postproc(self):
