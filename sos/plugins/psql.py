@@ -32,10 +32,8 @@ class psql(sos.plugintools.PluginBase):
 
     packages = [ 'postgresql' ]
 
-    tmp_dir = None
-
     optionList = [
-        ("pghome",  'PostgreSQL server home directory (default=/var/lib/pgsql)', '', False),
+        ("pghome",  'PostgreSQL server home directory (default=/var/lib/pgsql)', '', __pghome),
         ("username",  'username for pg_dump (default=postgres)', '', False),
         ("password",  'password for pg_dump (default=None)', '', False),
         ("dbname",  'database name to dump for pg_dump (default=None)', '', False),
@@ -44,7 +42,12 @@ class psql(sos.plugintools.PluginBase):
     ]
 
     def pg_dump(self):
-        dest_file = os.path.join(self.tmp_dir, "sos_pgdump.tar")
+        dest_dir = os.path.join(self.cInfo['cmddir'], "psql")
+        dest_file = os.path.join(dest_dir, "sos_pgdump.tar")
+        try:
+            os.makedirs(dest_dir)
+        except:
+            self.soslog.error("could not create pg_dump output path %s" % dest_dir)
         old_env_pgpassword = os.environ.get("PGPASSWORD")
         os.environ["PGPASSWORD"] = "%s" % (self.getOption("password"))
         if self.getOption("dbhost"):
@@ -62,42 +65,42 @@ class psql(sos.plugintools.PluginBase):
 
         if old_env_pgpassword is not None:
             os.environ["PGPASSWORD"] = str(old_env_pgpassword)
-        if (status == 0):
-            self.addCopySpec(dest_file)
-        else:
-            self.addAlert("ERROR: Unable to execute pg_dump.  Error(%s)" % (output))
+        if status != 0:
+            self.soslog.error("unable to execute pg_dump.  Error(%s)" % (output))
 
     def setup(self):
         if self.getOption("pghome"):
-            self.__pghome = self.getOption("pghome")
+            self.__pghome = str(self.getOption("pghome")).strip()
+
+        if os.path.isdir(self.__pghome):            
+            # Copy PostgreSQL log files.
+            for file in find("*.log", self.__pghome):
+                self.addCopySpec(file)
+            # Copy PostgreSQL config files.
+            for file in find("*.conf", self.__pghome):
+                self.addCopySpec(file)
+            self.addCopySpec(os.path.join(self.__pghome,
+                            "data" , "PG_VERSION"))
+            self.addCopySpec(os.path.join(self.__pghome,
+                            "data" , "postmaster.opts"))
 
         if self.getOption("dbname"):
-            if self.getOption("password"):
+            if self.getOption("dbname") == True:
+                # dbname must have a value
+                self.soslog.warn("pgsql.dbname requires a database name")
+                return
+            if self.getOption("password") != False:
                 if self.getOption("username"):
+                    if self.getOption("username") == True:
+                        self.soslog.warn("pgsql.username requires a user name")
+                        return
                     self.__username = self.getOption("username")
                 if self.getOption("dbport"):
+                    if self.getOption("dbport") == True:
+                        self.soslog.warn("pgsql.dbport requires a port value")
+                        return
                     self.__dbport = self.getOption("dbport")
-                self.tmp_dir = tempfile.mkdtemp()
                 self.pg_dump()
             else:
-                self.addAlert("WARN: password must be supplied to dump a database.")
+                self.soslog.warn("password must be supplied to dump a database.")
 
-        # Copy PostgreSQL log files.
-        for file in find("*.log", self.__pghome):
-            self.addCopySpec(file)
-        # Copy PostgreSQL config files.
-        for file in find("*.conf", self.__pghome):
-            self.addCopySpec(file)
-
-        self.addCopySpec(os.path.join(self.__pghome, "data" , "PG_VERSION"))
-        self.addCopySpec(os.path.join(self.__pghome, "data" , "postmaster.opts"))
-
-
-    def postproc(self):
-        import shutil
-        if self.tmp_dir == None:
-            return
-        try:
-            shutil.rmtree(self.tmp_dir)
-        except:
-            self.addAlert("ERROR: Unable to remove %s." % (self.tmp_dir))
