@@ -24,7 +24,7 @@ def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
             yield os.path.join(path,name)
 
 # Class name must be the same as file name and method names must not change
-class psql(sos.plugintools.PluginBase):
+class pgsql(sos.plugintools.PluginBase):
     """PostgreSQL related information"""
     __pghome = '/var/lib/pgsql'
     __username = 'postgres'
@@ -42,7 +42,7 @@ class psql(sos.plugintools.PluginBase):
     ]
 
     def pg_dump(self):
-        dest_dir = os.path.join(self.cInfo['cmddir'], "psql")
+        dest_dir = os.path.join(self.cInfo['cmddir'], "pgsql")
         dest_file = os.path.join(dest_dir, "sos_pgdump.tar")
         try:
             os.makedirs(dest_dir)
