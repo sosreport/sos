@@ -210,27 +210,32 @@ class SosPolicy:
     def preWork(self):
         # this method will be called before the gathering begins
 
-        localname = self.rhnUsername()
-        if len(localname) == 0: localname = self.hostName()
+        if self.cInfo['cmdlineopts'].customerName:
+            localname = self.cInfo['cmdlineopts'].customerName        
+        else:
+            localname = self.rhnUsername()
+            if len(localname) == 0:
+                localname = self.hostName()
+
+        if self.cInfo['cmdlineopts'].ticketNumber:
+            self.ticketNumber = self.cInfo['cmdlineopts'].ticketNumber
 
         if not self.cInfo['cmdlineopts'].batch:
             try:
-                self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
-                self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
+                self.reportName = raw_input(
+                        _("Please enter your first initial and last name [%s]: ")
+                        % localname)
+                self.ticketNumber = raw_input(
+                        _("Please enter the case number that you are "
+                        + "generating this report for [%s]: ")
+                        % self.ticketNumber)
                 print
             except:
-                print
                 sys.exit(0)
 
         if len(self.reportName) == 0:
             self.reportName = localname
         
-        if self.cInfo['cmdlineopts'].customerName:
-            self.reportName = self.cInfo['cmdlineopts'].customerName        
-
-        if self.cInfo['cmdlineopts'].ticketNumber:
-            self.ticketNumber = self.cInfo['cmdlineopts'].ticketNumber
-
         self.reportName = sanitizeReportName(self.reportName)
         self.ticketNumber = sanitizeTicketNumber(self.ticketNumber)
 
