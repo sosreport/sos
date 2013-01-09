@@ -14,19 +14,18 @@
 
 import sos.plugintools
 import os
-from sos.helpers import sosGetCommandOutput
 
 class devicemapper(sos.plugintools.PluginBase):
     """device-mapper related information (dm, lvm, multipath)
     """
 
-    optionList = [("lvmdump", 'collect raw metadata from PVs', 'slow', False)]
+    optionList = [("lvmdump", 'collect an lvmdump', 'fast', False)]
     dmraidOptions = ['V','b','r','s','tay','rD']
 
     def do_lvmdump(self):
-        """Collects raw metadata directly from the PVs using dd
+        """Calls the LVM2 lvmdump script to collect detailed diagnostic information
         """
-        sosGetCommandOutput("lvmdump -d %s" % os.path.join(self.cInfo['dstroot'],"lvmdump"))
+        self.callExtProg("lvmdump -d %s" % os.path.join(self.cInfo['dstroot'],"lvmdump"))
 
     def setup(self):
         self.collectExtOutput("/sbin/dmsetup info -c")
