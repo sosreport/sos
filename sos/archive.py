@@ -23,6 +23,7 @@ import zipfile
 import shutil
 import logging
 import shlex
+import re
 # required for compression callout (FIXME: move to policy?)
 from subprocess import Popen, PIPE, STDOUT
 
