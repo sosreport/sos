@@ -106,7 +106,8 @@ No changes will be made to system configuration.
     def check(self):
         """This method checks to see if we are running on RHEL. It returns True
         or False."""
-        return (os.path.isfile('/etc/redhat-release'))
+        return (os.path.isfile('/etc/redhat-release')
+                and not os.path.isfile('/etc/fedora-release'))
 
     def rhelVersion(self):
         try:
@@ -135,7 +136,7 @@ No changes will be made to system configuration.
     def getLocalName(self):
         return self.rhnUsername() or self.hostName()
 
-class FedoraPolicy(LinuxPolicy):
+class FedoraPolicy(RedHatPolicy):
 
     distro = "Fedora"
     vendor = "the Fedora Project"
