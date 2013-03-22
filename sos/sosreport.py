@@ -228,6 +228,7 @@ class SoSReport(object):
                 'cmddir': self.cmddir,
                 'logdir': self.logdir,
                 'rptdir': self.rptdir,
+                'tmpdir': self.opts.tmp_dir,
                 'soslog': self.soslog,
                 'proflog' : self.proflog,
                 'policy': self.policy,

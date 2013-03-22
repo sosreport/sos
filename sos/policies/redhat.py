@@ -20,6 +20,7 @@ import sys
 
 from sos.plugins import RedHatPlugin
 from sos.policies import LinuxPolicy, PackageManager
+from sos import _sos as _
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
@@ -30,11 +31,13 @@ except:
     # might fail if non-RHEL
     pass
 
-
-class RHELPolicy(LinuxPolicy):
+class RedHatPolicy(LinuxPolicy):
+    distro = "Red Hat"
+    vendor = "Red Hat"
+    vendor_url = "http://www.redhat.com/"
 
     def __init__(self):
-        super(RHELPolicy, self).__init__()
+        super(RedHatPolicy, self).__init__()
         self.reportName = ""
         self.ticketNumber = ""
         self.package_manager = PackageManager('rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
@@ -42,10 +45,10 @@ class RHELPolicy(LinuxPolicy):
 
     @classmethod
     def check(self):
-        """This method checks to see if we are running on RHEL. It returns True
-        or False."""
-        return (os.path.isfile('/etc/redhat-release')
-             or os.path.isfile('/etc/fedora-release'))
+        """This method checks to see if we are running on Red Hat. It must be overriden
+        by concrete subclasses to return True when running on a Fedora, RHEL or other
+        Red Hat distribution or False otherwise."""
+        return False
 
     def runlevelByService(self, name):
         from subprocess import Popen, PIPE
@@ -67,6 +70,43 @@ class RHELPolicy(LinuxPolicy):
                 if onoff == "on":
                     ret.append(int(runlevel))
         return ret
+
+    def getLocalName(self):
+        return self.hostName()
+
+class RHELPolicy(RedHatPolicy):
+
+    msg = _("""\
+This command will collect system configuration and diagnostic information \
+from this %(distro)s system. An archive containing the collected information \
+will be generated in %(tmpdir)s and may be provided to a %(vendor)s support \
+representative or used for local diagnostic or recording purposes.
+
+Any information provided to %(vendor)s will be treated in strict confidence \
+in accordance with the published support policies at:
+
+  %(vendor_url)s
+
+The generated archive may contain data considered sensitive and its content \
+should be reviewed by the originating organization before being passed to \
+any third party.
+
+No changes will be made to system configuration.
+%(vendor_text)s
+""")
+
+    distro = "Red Hat Enterprise Linux"
+    vendor = "Red Hat"
+    vendor_url = "https://access.redhat.com/support/"
+
+    def __init__(self):
+        super(RHELPolicy, self).__init__()
+
+    @classmethod
+    def check(self):
+        """This method checks to see if we are running on RHEL. It returns True
+        or False."""
+        return (os.path.isfile('/etc/redhat-release'))
 
     def rhelVersion(self):
         try:
@@ -95,10 +135,24 @@ class RHELPolicy(LinuxPolicy):
     def getLocalName(self):
         return self.rhnUsername() or self.hostName()
 
-    def get_msg(self):
-        msg_dict = {"distro": "Red Hat Enterprise Linux"}
-        if os.path.isfile('/etc/fedora-release'):
-           msg_dict['distro'] = 'Fedora'
-        return self.msg % msg_dict
+class FedoraPolicy(LinuxPolicy):
+
+    distro = "Fedora"
+    vendor = "the Fedora Project"
+    vendor_url = "https://fedoraproject.org/"
+
+    def __init__(self):
+        super(FedoraPolicy, self).__init__()
+
+    @classmethod
+    def check(self):
+        """This method checks to see if we are running on Fedora. It returns True
+        or False."""
+        return os.path.isfile('/etc/fedora-release')
+
+    def fedoraVersion(self):
+        pkg = self.pkgByName("fedora-release") or \
+        self.allPkgsByNameRegex("fedora-release-.*")[-1]
+        return int(pkg["version"])
 
 # vim: ts=4 sw=4 et
