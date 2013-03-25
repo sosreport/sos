@@ -90,7 +90,7 @@ class RedHatGeneral(general, RedHatPlugin):
                 r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
 
 
-class GeneralDebian(general, DebianPlugin, UbuntuPlugin):
+class DebianGeneral(general, DebianPlugin, UbuntuPlugin):
     """Basic system information for Debian based distributions"""
 
     def setup(self):
@@ -101,7 +101,7 @@ class GeneralDebian(general, DebianPlugin, UbuntuPlugin):
             "/var/log/up2date",
             "/etc/lsb-release"
         ])
-class GeneralUbuntu(general, UbuntuPlugin):
+class UbuntuGeneral(general, UbuntuPlugin):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
