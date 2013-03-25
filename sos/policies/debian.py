@@ -4,13 +4,16 @@ from sos.policies import PackageManager, LinuxPolicy
 import os
 
 class DebianPolicy(LinuxPolicy):
+    distro = "Debian"
+    vendor = "the Debian project"
+    vendor_url = "http://www.debian.org/"
+    reportName = ""
+    ticketNumber = ""
+    package_manager = PackageManager("dpkg-query -W -f='${Package}|${Version}\\n' \*")
+    valid_subclasses = [DebianPlugin]
+
     def __init__(self):
         super(DebianPolicy, self).__init__()
-        self.reportName = ""
-        self.ticketNumber = ""
-        self.package_manager = PackageManager("dpkg-query -W -f='${Package}|${Version}\\n' \*")
-        self.valid_subclasses = [DebianPlugin]
-        self.distro = "Debian"
 
     @classmethod
     def check(self):

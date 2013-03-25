@@ -6,10 +6,13 @@ from sos.plugins import UbuntuPlugin, IndependentPlugin
 from sos.policies.debian import DebianPolicy
 
 class UbuntuPolicy(DebianPolicy):
+    distro = "Ubuntu"
+    vendor = "Ubuntu"
+    vendor_url = "http://www.ubuntu.com/"
+    valid_subclasses = [UbuntuPlugin]
+
     def __init__(self):
         super(UbuntuPolicy, self).__init__()
-        self.distro = "Ubuntu"
-        self.valid_subclasses = [UbuntuPlugin]
 
     @classmethod
     def check(self):

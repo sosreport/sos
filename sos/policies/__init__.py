@@ -13,6 +13,7 @@ from sos.utilities import ImporterHelper, \
 from sos.plugins import IndependentPlugin
 from sos import _sos as _
 import hashlib
+from textwrap import fill
 
 def import_policy(name):
     policy_fqname = "sos.policies.%s" % name
@@ -111,19 +112,27 @@ class PackageManager(object):
 
 class Policy(object):
 
-    msg = _("""This utility will collect some detailed  information about the
-hardware and setup of your %(distro)s system.
-The information is collected and an archive is  packaged under
-/tmp, which you can send to a support representative.
-%(distro)s will use this information for diagnostic purposes ONLY
-and it will be considered confidential information.
+    msg = _("""\
+This command will collect system configuration and diagnostic information \
+from this %(distro)s system. An archive containing the collected information \
+will be generated in %(tmpdir)s.
 
-This process may take a while to complete.
-No changes will be made to your system.
+For more information on %(vendor)s visit:
 
+  %(vendor_url)s
+
+The generated archive may contain data considered sensitive and its content \
+should be reviewed by the originating organization before being passed to \
+any third party.
+
+No changes will be made to system configuration.
+%(vendor_text)s
 """)
 
-    distro = ""
+    distro = "Unknown"
+    vendor = "Unknown"
+    vendor_url = "http://www.example.com/"
+    vendor_text = ""
 
     def __init__(self):
         """Subclasses that choose to override this initializer should call
@@ -343,7 +352,15 @@ No changes will be made to your system.
         the user in non-batch mode. If your policy sets self.distro that
         text will be substituted accordingly. You can also override this
         method to do something more complicated."""
-        return self.msg % {'distro': self.distro}
+        width = 60
+        _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
+                    'vendor_url': self.vendor_url,
+                    'vendor_text': self.vendor_text,
+                    'tmpdir': self.commons['tmpdir']}
+        _fmt = ""
+        for line in _msg.splitlines():
+            _fmt = _fmt + fill(line, width, replace_whitespace = False) + '\n'
+        return _fmt
 
 
 class GenericPolicy(Policy):
@@ -357,6 +374,9 @@ class GenericPolicy(Policy):
 class LinuxPolicy(Policy):
     """This policy is meant to be an abc class that provides common implementations used
        in Linux distros"""
+
+    distro = "Linux"
+    vendor = "None"
 
     def __init__(self):
         super(LinuxPolicy, self).__init__()
