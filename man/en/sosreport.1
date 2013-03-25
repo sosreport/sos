@@ -1,6 +1,6 @@
 .TH SOSREPORT 1 "Tue Apr 08 2010"
 .SH NAME
-sosreport \- Generate debugging information for this system
+sosreport \- Collect and package diagnostic and support data
 .SH SYNOPSIS
 .B sosreport
           [-l|--list-plugins]\fR
@@ -13,71 +13,112 @@ sosreport \- Generate debugging information for this system
           [--debug] [--upload] [--tmp-dir directory]\fR
           [--profile] [--help]\fR
 .SH DESCRIPTION
-\fBsosreport\fR generates a compressed tarball of debugging information 
-for the system it is run on that can be sent to technical support
-reps that will give them a more complete view of the overall system
-status.
+\fBsosreport\fR generates a compressed tar archive of diagnostic
+information from the running system. The archive may be stored
+locally or centrally for recording or tracking purposes or may
+be sent to technical support representatives, developers or
+system administrators to assist with technical fault-finding and
+debugging.
+.LP
+Sos is modular in design and is able to collect data from a wide
+range of subsystems and packages that may be installed. An
+XML or HTML report summarizing the collected information is
+optionally generated and stored within the archive.
 .SH OPTIONS
 .TP
 .B \-l, \--list-plugins
-This will list all available plugins showing which ones will be enabled by the current configuration. It will also show all plugin options which can be 
-modified using the -k option (see below).
+List all available plugins and their options. Plug-ins that would
+not be enabled by the current configuration are listed separately.
 .TP
 .B \-n, --skip-plugins PLUGNAME[,PLUGNAME]
-Do not load specified plugin(s). To specify multiple plugins, separate them with a comma.
+Disable the specified plugin(s). Multiple plug-ins may be specified
+by repeating the option or as a comma-separated list.
 .TP
 .B \-e, --enable-plugins PLUGNAME[,PLUGNAME]
-Enable the specified plugin(s). To specify multiple plugins, separate them with a comma.
+Enable the specified plugin(s). Multiple plug-ins may be specified
+by repeating the option or as a comma-separated list.
 .TP
 .B \-o, --only-plugins PLUGNAME[,PLUGNAME]
-Enable the specified plugin(s) only (all other plugins should be disabled). To specify multiple plugins, separate them with a comma.
+Enable the specified plugin(s) only (all other plugins should be
+disabled). Multiple plugins may be specified by repeating the option
+or as a comma-separated list.
 .TP
 .B \-k PLUGNAME.PLUGOPT[=VALUE]
-This is used to specify options for plugins. A list of available plugin options can be obtained from the output of --list-plugins.
-If no value is specified and the option is a boolean (on/off), it will be set to "on".
+Specify plug-in options. The option PLUGOPT is enabled, or set to the
+specified value in the plug-in PLUGNAME.
 .TP
 .B \-a, \--alloptions
-Enable all (boolean) options for all loaded plugins.
+Set all boolean options to True for all enabled plug-ins.
 .TP
 .B \--upload FTP_SERVER
-Upload the report to Red Hat (use exclusively if advised from a Red Hat support representative).
+Upload the report to the configured destination.
 .TP
 .B \-v, \--verbose
-Increase the verbosity of the output as sosreport is running. Multiple -v mean more verbosity.
+Increase logging verbosity. May be specified multiple times to enable
+additional debugging messages.
+.TP
+.B \-q, \--quiet
+Only log fatal errors to stderr.
 .TP
 .B \--report
-Enable html/xml report writing
+Enable HTML/XML report writing.
 .TP
 .B \--config-file CONFIG
-Specify alternate configuration file
+Specify alternate configuration file.
 .TP
 .B \--tmp-dir DIRECTORY
-Specify alternate temporary directory to copy data as well as the compressed report.
+Specify alternate temporary directory to copy data as well as the
+compressed report.
 .TP
 .B \--batch
-Perform data gathering unattended
+Generate archive without prompting for interactive input.
 .TP
 .B \--name NAME
-Define a unique name for archive
+Specify a name to be used for the archive.
 .TP
 .B \--ticket-number NUMBER
-Define a unique number for archive
+Specify a ticket number to be used for archive
 .TP
 .B \--build
-Do not archive copied data, leave directory tree untouched for further modification
+Do not archive copied data. Causes sosreport to leave an uncompressed
+archive as a temporary file or directory tree.
 .TP
 .B \--debug
-Give opportunity to debug python exceptions through the python debugger.
+Enable interactive debugging using the python debugger. Exceptions in
+sos or plug-in code will cause a trap to the pdb shell.
 .TP
 .B \--profile
-Turn on profiling for cmds run
+Enable profiler logging.
 .TP
 .B \--help
-Display sosreport help system.
+Display usage message.
 .SH MAINTAINER
 .nf
-Adam Stokes <astokes@fedoraproject.org>
+Bryn M. Reeves <bmr@redhat.com>
 .fi
+.SH AUTHORS & CONTRIBUTORS
+
+Adam Stokes,
+Ben Turner,
+Bryn M. Reeves,
+Eugene Teo,
+Gary Kotton,
+Jesse Jaggars,
+Joey Boggs,
+John Berninger,
+Justin Payne,
+Keith Kearnan,
+Kent Lamb,
+Marc Sauton,
+Navid Sheikhol-Eslami,
+Pierre Amadio ,
+Pierre Carrier,
+Ranjith Rajaram,
+Sadique Puthen,
+Shijoe George,
+Steve Conklin,
+Tomas Smetana
+.nf
 .SH TRANSLATIONS
 .nf
 Translations are handled by transifex (https://fedorahosted.org/transifex/)

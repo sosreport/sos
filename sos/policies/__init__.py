@@ -339,8 +339,8 @@ No changes will be made to system configuration.
 
     def _print(self, msg=None):
         """A wrapper around print that only prints if we are not running in
-        silent mode"""
-        if not self.commons['cmdlineopts'].silent:
+        quiet mode"""
+        if not self.commons['cmdlineopts'].quiet:
             if msg:
                 print msg
             else:
@@ -352,14 +352,14 @@ No changes will be made to system configuration.
         the user in non-batch mode. If your policy sets self.distro that
         text will be substituted accordingly. You can also override this
         method to do something more complicated."""
-        width = 60
+        width = 58
         _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
                     'vendor_url': self.vendor_url,
                     'vendor_text': self.vendor_text,
                     'tmpdir': self.commons['tmpdir']}
         _fmt = ""
         for line in _msg.splitlines():
-            _fmt = _fmt + fill(line, width, replace_whitespace = False) + '\n'
+            _fmt = _fmt + fill("  " + line, width, replace_whitespace = False) + '\n'
         return _fmt
 
 
@@ -430,7 +430,7 @@ class LinuxPolicy(Policy):
 
         localname = self.getLocalName()
 
-        if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].silent:
+        if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].quiet:
             try:
                 self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
 
