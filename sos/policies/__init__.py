@@ -5,7 +5,6 @@ import re
 import platform
 import time
 import fnmatch
-import pprint
 
 from sos.utilities import ImporterHelper, \
                         import_module, \
