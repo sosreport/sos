@@ -39,7 +39,7 @@ class SystemRedHat(system, RedHatPlugin):
 
         self.addCmdOutput("/usr/bin/crontab -l")
 
-class SystemDebian(Plugin, DebianPlugin, UbuntuPlugin):
+class SystemDebian(system, DebianPlugin, UbuntuPlugin):
     """core system related information for Debian and Ubuntu
     """
     def setup(self):
