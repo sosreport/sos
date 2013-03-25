@@ -12,9 +12,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class system(Plugin, RedHatPlugin):
+class system(Plugin):
+    plugin_name = "system"
+
+class SystemRedHat(system, RedHatPlugin):
     """core system related information
     """
     def setup(self):
@@ -29,6 +32,24 @@ class system(Plugin, RedHatPlugin):
             "/etc/ntp.conf",
             "/etc/ntp/step-tickers",
             "/etc/ntp/ntpservers"])
+        self.addForbiddenPath(
+                "/proc/sys/net/ipv8/neigh/*/retrans_time")
+        self.addForbiddenPath(
+                "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
+
+        self.addCmdOutput("/usr/bin/crontab -l")
+
+class SystemDebian(Plugin, DebianPlugin, UbuntuPlugin):
+    """core system related information for Debian and Ubuntu
+    """
+    def setup(self):
+        self.addCopySpecs([
+            "/proc/sys",
+            "/etc/cron*",
+            "/var/spool/cron*",
+            "/etc/syslog.conf",
+            "/etc/rsyslog.conf",
+            "/etc/ntp.conf" ])
         self.addForbiddenPath(
                 "/proc/sys/net/ipv8/neigh/*/retrans_time")
         self.addForbiddenPath(

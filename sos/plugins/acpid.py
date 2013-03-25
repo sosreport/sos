@@ -12,12 +12,22 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class acpid(Plugin, RedHatPlugin):
+class acpid(Plugin):
+    plugin_name = "acpid"
+
+class AcpidRedHat(acpid, RedHatPlugin):
     """acpid related information
     """
     def setup(self):
         self.addCopySpecs([
             "/var/log/acpid*",
             "/etc/acpi/events/power.conf"])
+
+class AcpidDebian(acpid, DebianPlugin, UbuntuPlugin):
+    """acpid related information for Debian and Ubuntu
+    """
+    def setup(self):
+        self.addCopySpecs([
+            "/etc/acpi/events/powerbtn*"])

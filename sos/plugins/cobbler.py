@@ -12,9 +12,12 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class cobbler(Plugin, RedHatPlugin):
+class cobbler(Plugin):
+    plugin_name = "cobbler"
+    
+class CobblerRedHat(cobbler, RedHatPlugin):
     """cobbler related information
     """
 
@@ -24,4 +27,15 @@ class cobbler(Plugin, RedHatPlugin):
         self.addCopySpec("/etc/cobbler")
         self.addCopySpec("/var/log/cobbler")
         self.addCopySpec("/var/lib/rhn/kickstarts")
+        self.addCopySpec("/var/lib/cobbler")
+
+class CobblerDebianPlugin(cobbler, DebianPlugin, UbuntuPlugin):
+    """cobbler related information for Debian and Ubuntu
+    """
+
+    packages = ('cobbler',)
+
+    def setup(self):
+        self.addCopySpec("/etc/cobbler")
+        self.addCopySpec("/var/log/cobbler")
         self.addCopySpec("/var/lib/cobbler")
