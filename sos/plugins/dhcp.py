@@ -20,7 +20,7 @@ class dhcp(Plugin):
 
     plugin_name = "dhcp"
 
-class DhcpRedHat(dhcp, RedHatPlugin):
+class RedHatDhcp(dhcp, RedHatPlugin):
     """DHCP related information for Red Hat based distributions"""
 
     files = ('/etc/rc.d/init.d/dhcpd',)
@@ -32,7 +32,7 @@ class DhcpRedHat(dhcp, RedHatPlugin):
             "/etc/dhcpd.conf",
             "/etc/dhcp"])
 
-class DhcpDebian(dhcp, UbuntuPlugin):
+class UbuntuDhcp(dhcp, UbuntuPlugin):
     """DHCP related information for Debian based distributions"""
 
     files = ('/etc/init.d/udhcpd',)

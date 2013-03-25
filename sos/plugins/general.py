@@ -90,13 +90,36 @@ class RedHatGeneral(general, RedHatPlugin):
                 r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
 
 
-class GeneralDebian(general, DebianPlugin, UbuntuPlugin):
+class DebianGeneral(general, DebianPlugin, UbuntuPlugin):
     """Basic system information for Debian based distributions"""
 
     def setup(self):
         super(GeneralDebian, self).setup()
         self.addCopySpecs([
             "/etc/debian_version",
+            "/etc/default",
             "/var/log/up2date",
             "/etc/lsb-release"
         ])
+class UbuntuGeneral(general, UbuntuPlugin):
+    """Basic system information for Ubuntu based distributions"""
+
+    def setup(self):
+        super(GeneralUbuntu, self).setup()
+        self.addCopySpecs([
+            "/etc/os-release",
+            "/var/log/ufw.log",
+	    "/var/log/apport.log",
+	    "/var/log/syslog",
+	    "/var/log/udev",
+	    "/var/log/boot*",
+	    "/var/log/dmesg*",
+	    "/var/log/kern*",
+	    "/var/log/mail*",
+	    "/var/log/dist-upgrade",
+	    "/var/log/landscape",
+	    "/var/log/installer",
+	    "/var/log/unattended-upgrades",
+	    "/var/log/upstart"
+        ])
+        self.addCmdOutput("/usr/sbin/ufw app list",root_symlink="ufw")
