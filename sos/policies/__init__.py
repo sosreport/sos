@@ -352,14 +352,14 @@ No changes will be made to system configuration.
         the user in non-batch mode. If your policy sets self.distro that
         text will be substituted accordingly. You can also override this
         method to do something more complicated."""
-        width = 60
+        width = 58
         _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
                     'vendor_url': self.vendor_url,
                     'vendor_text': self.vendor_text,
                     'tmpdir': self.commons['tmpdir']}
         _fmt = ""
         for line in _msg.splitlines():
-            _fmt = _fmt + fill(line, width, replace_whitespace = False) + '\n'
+            _fmt = _fmt + fill("  " + line, width, replace_whitespace = False) + '\n'
         return _fmt
 
 
