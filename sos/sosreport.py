@@ -198,7 +198,7 @@ class XmlReport(object):
 
 class SoSReport(object):
 
-    def __init__(self, opts):
+    def __init__(self, args):
         self.loaded_plugins = deque()
         self.skipped_plugins = deque()
         self.all_options = deque()
@@ -212,7 +212,7 @@ class SoSReport(object):
             pass # not available in java, but we don't care
 
 
-        self.opts, self.args = self.parse_options(opts)
+        self.opts = self.parse_options(args)[0]
         self.tempfile_util = TempFileUtil(tmp_dir=self.opts.tmp_dir)
         self._set_debug()
         self._read_config()
@@ -791,7 +791,7 @@ class SoSReport(object):
             self.soslog.error(_("no valid plugins were enabled"))
             self._exit(1)
 
-    def parse_options(self, opts):
+    def parse_options(self, args):
         """ Parse command line options """
 
         self.parser = parser = OptionParserExtended(option_class=SosOption)
@@ -800,14 +800,14 @@ class SoSReport(object):
                              help="list plugins and available plugin options")
         parser.add_option("-n", "--skip-plugins", action="extend",
                              dest="noplugins", type="string",
-                             help="skip these plugins", default = deque())
+                             help="disable these plugins", default = deque())
         parser.add_option("-e", "--enable-plugins", action="extend",
                              dest="enableplugins", type="string",
                              help="enable these plugins", default = deque())
         parser.add_option("-o", "--only-plugins", action="extend",
                              dest="onlyplugins", type="string",
                              help="enable these plugins only", default = deque())
-        parser.add_option("-k", action="append",
+        parser.add_option("-k", "--plugin-option", action="append",
                              dest="plugopts", type="string",
                              help="plugin options in plugname.option=value format (see -l)")
         parser.add_option("-a", "--alloptions", action="store_true",
@@ -818,22 +818,22 @@ class SoSReport(object):
                              help="upload the report to an ftp server")
         parser.add_option("--batch", action="store_true",
                              dest="batch", default=False,
-                             help="do not ask any question (batch mode)")
+                             help="batch mode - do not prompt interactively")
         parser.add_option("-v", "--verbose", action="count",
                              dest="verbosity",
                              help="increase verbosity")
         parser.add_option("", "--quiet", action="store_true",
                              dest="quiet", default=False,
-                             help="Only display FATAL errors on stdout")
+                             help="only print fatal errors")
         parser.add_option("--debug", action="count",
                              dest="debug",
-                             help="enabling debugging through python debugger")
+                             help="enable interactive debugging using the python debugger")
         parser.add_option("--ticket-number", action="store",
                              dest="ticketNumber",
-                             help="set ticket number")
+                             help="specify ticket number")
         parser.add_option("--name", action="store",
                              dest="customerName",
-                             help="define customer name")
+                             help="specify report name")
         parser.add_option("--config-file", action="store",
                              dest="config_file",
                              help="specify alternate configuration file")
@@ -842,7 +842,7 @@ class SoSReport(object):
                              help="specify alternate temporary directory", default=tempfile.gettempdir())
         parser.add_option("--report", action="store_true",
                              dest="report",
-                             help="Enable html/xml reporting", default=False)
+                             help="Enable HTML/XML reporting", default=False)
         parser.add_option("--profile", action="store_true",
                              dest="profiler",
                              help="turn on profiling", default=False)
@@ -850,7 +850,7 @@ class SoSReport(object):
                             help="compression technology to use [auto, zip, gzip, bzip2, xz] (default=auto)",
                             default="auto")
 
-        return parser.parse_args(opts)
+        return parser.parse_args(args)
 
     def set_option(self, name, value=None):
         """Allows setting of 'command line options' without passing in a
