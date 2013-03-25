@@ -339,8 +339,8 @@ No changes will be made to system configuration.
 
     def _print(self, msg=None):
         """A wrapper around print that only prints if we are not running in
-        silent mode"""
-        if not self.commons['cmdlineopts'].silent:
+        quiet mode"""
+        if not self.commons['cmdlineopts'].quiet:
             if msg:
                 print msg
             else:
@@ -430,7 +430,7 @@ class LinuxPolicy(Policy):
 
         localname = self.getLocalName()
 
-        if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].silent:
+        if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].quiet:
             try:
                 self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
 

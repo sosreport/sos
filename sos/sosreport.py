@@ -322,7 +322,7 @@ class SoSReport(object):
         flog.setLevel(logging.INFO)
         self.soslog.addHandler(flog)
 
-        if not self.opts.silent:
+        if not self.opts.quiet:
             console = logging.StreamHandler(sys.stderr)
             console.setFormatter(logging.Formatter('%(message)s'))
             if self.opts.verbosity > 1:
@@ -344,7 +344,7 @@ class SoSReport(object):
 
         self.ui_log.addHandler(ui_fhandler)
 
-        if not self.opts.silent:
+        if not self.opts.quiet:
             ui_console = logging.StreamHandler(sys.stdout)
             ui_console.setFormatter(logging.Formatter('%(message)s'))
             ui_console.setLevel(logging.INFO)
@@ -641,7 +641,7 @@ class SoSReport(object):
         for i in izip(self.loaded_plugins):
             plugruncount += 1
             plugname, plug = i[0]
-            if not self.opts.silent:
+            if not self.opts.quiet:
                 sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, len(self.loaded_plugins), plugname))
                 sys.stdout.flush()
             try:
@@ -822,8 +822,8 @@ class SoSReport(object):
         parser.add_option("-v", "--verbose", action="count",
                              dest="verbosity",
                              help="increase verbosity")
-        parser.add_option("", "--silent", action="store_true",
-                             dest="silent", default=False,
+        parser.add_option("", "--quiet", action="store_true",
+                             dest="quiet", default=False,
                              help="Only display FATAL errors on stdout")
         parser.add_option("--debug", action="count",
                              dest="debug",
