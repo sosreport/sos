@@ -450,7 +450,8 @@ class LinuxPolicy(Policy):
             self.ticketNumber = self.commons['cmdlineopts'].ticketNumber
 
         self.reportName = self.sanitizeReportName(self.reportName)
-        self.ticketNumber = self.sanitizeTicketNumber(self.ticketNumber)
+        if self.ticketNumber:
+            self.ticketNumber = self.sanitizeTicketNumber(self.ticketNumber)
 
         if (self.reportName == ""):
             self.reportName = "default"
