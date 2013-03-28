@@ -15,7 +15,7 @@
 import os
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
-class general(Plugin):
+class General(Plugin):
     """basic system information"""
 
     plugin_name = "general"
@@ -57,7 +57,7 @@ class general(Plugin):
         self.addCmdOutput("/bin/ls -lR /var/lib")
 
 
-class RedHatGeneral(general, RedHatPlugin):
+class RedHatGeneral(General, RedHatPlugin):
     """Basic system information for RedHat based distributions"""
 
     def setup(self):
@@ -90,22 +90,22 @@ class RedHatGeneral(general, RedHatPlugin):
                 r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
 
 
-class DebianGeneral(general, DebianPlugin, UbuntuPlugin):
+class DebianGeneral(General, DebianPlugin):
     """Basic system information for Debian based distributions"""
 
     def setup(self):
-        super(GeneralDebian, self).setup()
+        super(DebianGeneral, self).setup()
         self.addCopySpecs([
             "/etc/debian_version",
             "/etc/default",
             "/var/log/up2date",
             "/etc/lsb-release"
         ])
-class UbuntuGeneral(general, UbuntuPlugin):
+class UbuntuGeneral(General, UbuntuPlugin):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
-        super(GeneralUbuntu, self).setup()
+        super(UbuntuGeneral, self).setup()
         self.addCopySpecs([
             "/etc/os-release",
             "/var/log/ufw.log",
