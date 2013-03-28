@@ -15,8 +15,9 @@
 from sos.plugins import Plugin, UbuntuPlugin
 import os
 
-class landscape_client(Plugin, UbuntuPlugin):
-    """landscape client related information
+class landscape(Plugin, UbuntuPlugin):
+    """
+    landscape client related information
     """
 
     files = ('/etc/landscape/client.conf',
