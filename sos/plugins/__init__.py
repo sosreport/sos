@@ -575,7 +575,7 @@ class Plugin(object):
         """
         self.customText += text
 
-    def copy_stuff(self):
+    def collect(self):
         """Collect the data for a plugin."""
         for path, sub in self.copyPaths:
             self.do_copy_file_or_dir(path, sub=sub)

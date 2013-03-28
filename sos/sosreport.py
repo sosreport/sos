@@ -636,7 +636,7 @@ class SoSReport(object):
         self.archive.add_string(content="\n".join(versions), dest='version.txt')
 
 
-    def copy_stuff(self):
+    def collect(self):
         plugruncount = 0
         for i in izip(self.loaded_plugins):
             plugruncount += 1
@@ -645,7 +645,7 @@ class SoSReport(object):
                 sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, len(self.loaded_plugins), plugname))
                 sys.stdout.flush()
             try:
-                plug.copy_stuff()
+                plug.collect()
             except KeyboardInterrupt:
                 raise
             except:
@@ -885,7 +885,7 @@ class SoSReport(object):
             self.ui_log.info(_(" Running plugins. Please wait ..."))
             self.ui_log.info("")
 
-            self.copy_stuff()
+            self.collect()
 
             self.ui_log.info("")
 

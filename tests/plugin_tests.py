@@ -304,13 +304,13 @@ class RegexSubTests(unittest.TestCase):
 
     def test_no_replacements(self):
         self.mp.add_copy_spec(j("tail_test.txt"))
-        self.mp.copy_stuff()
+        self.mp.collect()
         replacements = self.mp.doFileSub(j("tail_test.txt"), r"wont_match", "foobar")
         self.assertEquals(0, replacements)
 
     def test_replacements(self):
         self.mp.add_copy_spec(j("tail_test.txt"))
-        self.mp.copy_stuff()
+        self.mp.collect()
         replacements = self.mp.doFileSub(j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEquals(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
