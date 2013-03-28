@@ -18,7 +18,7 @@ class startup(Plugin, RedHatPlugin):
     """startup information
     """
 
-    optionList = [("servicestatus", "get a status of all running services", "slow", False)]
+    option_list = [("servicestatus", "get a status of all running services", "slow", False)]
     def setup(self):
         self.add_copy_spec("/etc/rc.d")
 

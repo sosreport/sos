@@ -20,7 +20,7 @@ from stat import *
 class xen(Plugin, RedHatPlugin):
     """Xen related information
     """
-    def determineXenHost(self):
+    def determine_xen_host(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):
             (status, output, rtime) = self.call_ext_prog("grep -qi xen /proc/acpi/dsdt")
             if status == 0:
@@ -35,14 +35,14 @@ class xen(Plugin, RedHatPlugin):
         return "baremetal"
 
     def check_enabled(self):
-        return (self.determineXenHost() == "baremetal")
+        return (self.determine_xen_host() == "baremetal")
 
     def is_running_xenstored(self):
         xs_pid = os.popen("pidof xenstored").read()
         xs_pidnum = re.split('\n$',xs_pid)[0]
         return xs_pidnum.isdigit()
 
-    def domCollectProc(self):
+    def dom_collect_proc(self):
         self.add_copy_specs([
             "/proc/xen/balloon",
             "/proc/xen/capabilities",
@@ -54,10 +54,10 @@ class xen(Plugin, RedHatPlugin):
         self.add_cmd_output("/bin/egrep -e 'vmx|svm' /proc/cpuinfo")
 
     def setup(self):
-        host_type = self.determineXenHost()
+        host_type = self.determine_xen_host()
         if host_type == "domU":
             # we should collect /proc/xen and /sys/hypervisor
-            self.domCollectProc()
+            self.dom_collect_proc()
             # determine if hardware virtualization support is enabled
             # in BIOS: /sys/hypervisor/properties/capabilities
             self.add_copy_spec("/sys/hypervisor")
@@ -78,7 +78,7 @@ class xen(Plugin, RedHatPlugin):
             self.add_cmd_output("/usr/sbin/xm list")
             self.add_cmd_output("/usr/sbin/xm list --long")
             self.add_cmd_output("/usr/sbin/brctl show")
-            self.domCollectProc()
+            self.dom_collect_proc()
             if self.is_running_xenstored():
                 self.add_copy_spec("/sys/hypervisor/uuid")
                 self.add_cmd_output("/usr/bin/xenstore-ls")

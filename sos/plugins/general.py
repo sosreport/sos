@@ -20,7 +20,7 @@ class general(Plugin):
 
     plugin_name = "general"
 
-    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
+    option_list = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
                   ("all_logs", "collect all log files defined in syslog.conf", "", False)]
 
     def setup(self):
@@ -74,7 +74,7 @@ class RedHatGeneral(general, RedHatPlugin):
             logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
                                 "/etc/syslog.conf")
             print logs
-            if self.policy().pkgByName("rsyslog") \
+            if self.policy().pkg_by_name("rsyslog") \
               or os.path.exists("/etc/rsyslog.conf"):
                 logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
                 print logs

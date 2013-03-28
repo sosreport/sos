@@ -18,7 +18,7 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
 
     version = "1.0"
 
-    optionList = [
+    option_list = [
           ("home",  "JBoss's installation dir (i.e. JBOSS_HOME)", '', False),
           ("logsize", 'max size (MiB) to collect per log file', '', 15),
           ("stdjar",  'Collect jar statistics for standard jars.', '', True),

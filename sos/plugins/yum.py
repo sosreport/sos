@@ -21,11 +21,11 @@ class yum(Plugin, RedHatPlugin):
 
     files = ('/etc/yum.conf',)
     packages = ('yum',)
-    optionList = [("yumlist", "list repositories and packages", "slow", False),
+    option_list = [("yumlist", "list repositories and packages", "slow", False),
                   ("yumdebug", "gather yum debugging data", "slow", False)]
 
     def setup(self):
-        rhelver = self.policy().rhelVersion()
+        rhelver = self.policy().rhel_version()
 
         # Pull all yum related information
         self.add_copy_specs([
@@ -56,7 +56,7 @@ class yum(Plugin, RedHatPlugin):
 
         if self.get_option("yumdebug") and self.is_installed('yum-utils'):
             # RHEL6+ alternative for this whole function:
-            # self.add_cmd_output("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.cInfo['dstroot'],"yum-debug-dump"))
+            # self.add_cmd_output("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.commons['dstroot'],"yum-debug-dump"))
             ret, output, rtime = self.call_ext_prog("/usr/bin/yum-debug-dump")
             try:
                 self.add_cmd_output("/bin/zcat %s" % (output.split()[-1],))

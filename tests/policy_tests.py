@@ -54,16 +54,16 @@ class PackageManagerTests(unittest.TestCase):
         self.pm = PackageManager()
 
     def test_default_all_pkgs(self):
-        self.assertEquals(self.pm.allPkgs(), {})
+        self.assertEquals(self.pm.all_pkgs(), {})
 
     def test_default_all_pkgs_by_name(self):
-        self.assertEquals(self.pm.allPkgsByName('doesntmatter'), [])
+        self.assertEquals(self.pm.all_pkgs_by_name('doesntmatter'), [])
 
     def test_default_all_pkgs_by_name_regex(self):
-        self.assertEquals(self.pm.allPkgsByNameRegex('.*doesntmatter$'), [])
+        self.assertEquals(self.pm.all_pkgs_by_name_regex('.*doesntmatter$'), [])
 
     def test_default_pkg_by_name(self):
-        self.assertEquals(self.pm.pkgByName('foo'), None)
+        self.assertEquals(self.pm.pkg_by_name('foo'), None)
 
 if __name__ == "__main__":
     unittest.main()

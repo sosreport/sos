@@ -50,7 +50,7 @@ class MockArchive(Archive):
 
 class MockPlugin(Plugin):
 
-    optionList = [("opt", 'an option', 'fast', None),
+    option_list = [("opt", 'an option', 'fast', None),
                   ("opt2", 'another option', 'fast', False)]
 
     def setup(self):
@@ -237,12 +237,12 @@ class AddCopySpecLimitTests(unittest.TestCase):
 
     def test_single_file_under_limit(self):
         self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
-        self.assertEquals(self.mp.copyPaths, [('tests/tail_test.txt', None)])
+        self.assertEquals(self.mp.copy_paths, [('tests/tail_test.txt', None)])
 
     def test_single_file_over_limit(self):
         fn = create_file(2) # create 2MB file, consider a context manager
         self.mp.add_copy_spec_limit(fn, 1, sub=('tmp', 'awesome'))
-        content, fname = self.mp.copyStrings[0]
+        content, fname = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
         self.assertTrue("awesome" in fname)
         self.assertTrue("/" not in fname)
@@ -258,8 +258,8 @@ class AddCopySpecLimitTests(unittest.TestCase):
         fn = create_file(2)
         fn2 = create_file(2)
         self.mp.add_copy_spec_limit("/tmp/tmp*", 1)
-        self.assertEquals(len(self.mp.copyStrings), 1)
-        content, fname = self.mp.copyStrings[0]
+        self.assertEquals(len(self.mp.copy_strings), 1)
+        content, fname = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
         self.assertEquals(1024 * 1024, len(content))
         os.unlink(fn)

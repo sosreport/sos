@@ -14,7 +14,7 @@ class jboss(Plugin, RedHatPlugin):
     """JBoss related information
     """
 
-    optionList = [("home",  'JBoss\'s installation dir (i.e. JBOSS_HOME)', '', False),
+    option_list = [("home",  'JBoss\'s installation dir (i.e. JBOSS_HOME)', '', False),
                   ("javahome",  'Java\'s installation dir (i.e. JAVA_HOME)', '', False),
                   ("profile", 'Quoted and space separated list of server profiles to limit collection. \
 Default=\'all default minimal production standard web\'.', '', False),

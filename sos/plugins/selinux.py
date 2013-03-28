@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin
 class selinux(Plugin, RedHatPlugin):
     """selinux related information
     """
-    optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
+    option_list = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
     def setup(self):
         # sestatus is always collected in check_enabled()
         self.add_copy_spec("/etc/selinux")
@@ -26,11 +26,11 @@ class selinux(Plugin, RedHatPlugin):
             self.add_cmd_output("/sbin/fixfiles check")
         self.add_forbidden_path("/etc/selinux/targeted")
 
-        if not self.policy().pkgByName('setroubleshoot'):
+        if not self.policy().pkg_by_name('setroubleshoot'):
             return
 
         # Check for SELinux denials and capture raw output from sealert
-        if self.policy().runlevelDefault() in self.policy().runlevelByService("setroubleshoot"):
+        if self.policy().default_runlevel() in self.policy().runlevel_by_service("setroubleshoot"):
             # TODO: fixup regex for more precise matching
             sealert=do_regex_find_all(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
             if sealert:

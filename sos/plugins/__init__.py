@@ -25,7 +25,7 @@
 # pylint: disable-msg = W0613
 from __future__ import with_statement
 
-from sos.utilities import sosGetCommandOutput, import_module, grep, fileobj, tail
+from sos.utilities import sos_get_command_output, import_module, grep, fileobj, tail
 from sos import _sos as _
 import inspect
 import os
@@ -123,30 +123,30 @@ class Plugin(object):
     files = ()
 
     def __init__(self, commons):
-        if not getattr(self, "optionList", False):
-            self.optionList = []
+        if not getattr(self, "option_list", False):
+            self.option_list = []
 
-        self.copiedFiles = []
-        self.executedCommands = []
+        self.copied_files = []
+        self.executed_commands = []
         self.alerts = []
-        self.customText = ""
-        self.optNames = []
-        self.optParms = []
-        self.cInfo = commons
-        self.forbiddenPaths = []
-        self.copyPaths = []
-        self.copyStrings = []
-        self.collectProgs = []
+        self.custom_text = ""
+        self.opt_names = []
+        self.opt_parms = []
+        self.commons = commons
+        self.forbidden_paths = []
+        self.copy_paths = []
+        self.copy_strings = []
+        self.collect_cmds = []
 
         self.must_exit = False
 
-        self.soslog = self.cInfo['soslog']
-        self.proflog = self.cInfo['proflog']
+        self.soslog = self.commons['soslog']
+        self.proflog = self.commons['proflog']
 
         # get the option list into a dictionary
-        for opt in self.optionList:
-            self.optNames.append(opt[0])
-            self.optParms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
+        for opt in self.option_list:
+            self.opt_names.append(opt[0])
+            self.opt_parms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
 
     @classmethod
     def name(class_):
@@ -158,11 +158,11 @@ class Plugin(object):
         return class_.__name__.lower()
 
     def policy(self):
-        return self.cInfo["policy"]
+        return self.commons["policy"]
 
     def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
-        return (self.policy().pkgByName(package_name) is not None)
+        return (self.policy().pkg_by_name(package_name) is not None)
 
     def do_cmd_output_sub(self, cmd, regexp, subst):
         '''Apply a regexp substitution to command output archived by sosreport.
@@ -175,16 +175,16 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
         globstr = '*' + cmd + '*'
         self.soslog.debug("substituting '%s' for '%s' in commands matching %s"
                     % (subst, regexp, globstr))
         try:
-            for called in self.executedCommands:
+            for called in self.executed_commands:
                 if fnmatch.fnmatch(called['exe'], globstr):
-                    path = os.path.join(self.cInfo['cmddir'], called['file'])
+                    path = os.path.join(self.commons['cmddir'], called['file'])
                     self.soslog.debug("applying substitution to %s" % path)
                     readable = self.archive.open_file(path)
                     result, replacements = re.subn(
@@ -197,7 +197,7 @@ class Plugin(object):
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
             replacements = 0
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
             self.proflog.debug("subst: %-75s time: %f"
                             % (globstr, time_passed))
@@ -211,7 +211,7 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
         try:
@@ -230,7 +230,7 @@ class Plugin(object):
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
             replacements = 0
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
             self.proflog.debug("subst : %-75s time: %f"
                             % (srcpath, time_passed))
@@ -282,7 +282,7 @@ class Plugin(object):
 			%(linkdest, absdest))
 	self.do_copy_file_or_dir(absdest)
 
-        self.copiedFiles.append({
+        self.copied_files.append({
             'srcpath':srcpath,
             'dstpath':srcpath,
             'symlink':"yes",
@@ -293,7 +293,7 @@ class Plugin(object):
             self.do_copy_file_or_dir(os.path.join(srcpath, afile), dest=None, sub=sub)
 
     def _get_dest_for_srcpath(self, srcpath):
-        for copied in self.copiedFiles:
+        for copied in self.copied_files:
             if srcpath == copied["srcpath"]:
                 return copied["dstpath"]
         return None
@@ -311,10 +311,10 @@ class Plugin(object):
         /configurations/my_file.conf.
         '''
 
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
-        if self._path_in_path_list(srcpath, self.forbiddenPaths):
+        if self._path_in_path_list(srcpath, self.forbidden_paths):
             self.soslog.debug("%s is in the forbidden path list" % srcpath)
             return ''
 
@@ -349,12 +349,12 @@ class Plugin(object):
             else:
                 self.archive.add_file(srcpath, dest)
 
-            self.copiedFiles.append({
+            self.copied_files.append({
                 'srcpath':srcpath,
                 'dstpath':dest,
                 'symlink':"no"})
 
-            if self.cInfo['cmdlineopts'].profiler:
+            if self.commons['cmdlineopts'].profiler:
                 time_passed = time() - start_time
                 self.proflog.debug("copied: %-75s time: %f" % (srcpath, time_passed))
         except Exception, e:
@@ -363,20 +363,20 @@ class Plugin(object):
 
 
     def add_forbidden_path(self, forbiddenPath):
-        """Specify a path to not copy, even if it's part of a copyPaths[]
+        """Specify a path to not copy, even if it's part of a copy_paths[]
         entry.
         """
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(forbiddenPath):
-            self.forbiddenPaths.append(filespec)
+            self.forbidden_paths.append(filespec)
 
     def get_all_options(self):
         """return a list of all options selected"""
-        return (self.optNames, self.optParms)
+        return (self.opt_names, self.opt_parms)
 
     def set_option(self, optionname, value):
         '''set the named option to value.'''
-        for name, parms in izip(self.optNames, self.optParms):
+        for name, parms in izip(self.opt_names, self.opt_parms):
             if name == optionname:
                 parms['enabled'] = value
                 return True
@@ -402,13 +402,13 @@ class Plugin(object):
             else:
                 return key == optionname
 
-        for name, parms in izip(self.optNames, self.optParms):
+        for name, parms in izip(self.opt_names, self.opt_parms):
             if _check(name):
                 val = parms['enabled']
                 if val != None:
                     return val
 
-        for key, value in self.cInfo.get('global_plugin_options', {}).iteritems():
+        for key, value in self.commons.get('global_plugin_options', {}).iteritems():
             if _check(key):
                 return value
 
@@ -475,17 +475,17 @@ class Plugin(object):
             return False
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(copyspec):
-            if filespec not in self.copyPaths:
-                self.copyPaths.append((filespec, sub))
+            if filespec not in self.copy_paths:
+                self.copy_paths.append((filespec, sub))
 
     def call_ext_prog(self, prog, timeout=300):
         """Execute a command independantly of the output gathering part of
         sosreport.
         """
         # pylint: disable-msg = W0612
-        return sosGetCommandOutput(prog, timeout)
+        return sos_get_command_output(prog, timeout)
 
-    def checkExtprog(self, prog):
+    def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
         sosreport and check the return code. Return True for a return code of 0
         and False otherwise.
@@ -496,7 +496,7 @@ class Plugin(object):
 
     def add_cmd_output(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
         """Run a program and collect the output"""
-        self.collectProgs.append( (exe, suggest_filename, root_symlink, timeout) )
+        self.collect_cmds.append( (exe, suggest_filename, root_symlink, timeout) )
 
     def file_grep(self, regexp, *fnames):
         """Returns lines matched in fnames, where fnames can either be
@@ -511,7 +511,7 @@ class Plugin(object):
     def make_command_filename(self, exe):
         """The internal function to build up a filename based on a command."""
 
-        outfn = os.path.join(self.cInfo['cmddir'], self.name(), self.mangle_command(exe))
+        outfn = os.path.join(self.commons['cmddir'], self.name(), self.mangle_command(exe))
 
         # check for collisions
         if os.path.exists(outfn):
@@ -527,17 +527,17 @@ class Plugin(object):
 
     def add_string_as_file(self, content, filename):
         """Add a string to the archive as a file named `filename`"""
-        self.copyStrings.append((content, filename))
+        self.copy_strings.append((content, filename))
 
     def get_cmd_output_now(self, exe, suggest_filename=None, root_symlink=False, timeout=300):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
         # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(exe, timeout=timeout)
+        status, shout, runtime = sos_get_command_output(exe, timeout=timeout)
         if (status == 127):
             self.soslog.info("could not run '%s': command not found" % exe)
             return None
@@ -547,16 +547,16 @@ class Plugin(object):
         else:
             outfn = self.make_command_filename(exe)
 
-        outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
+        outfn_strip = outfn[len(self.commons['cmddir'])+1:]
         self.archive.add_string(shout, outfn)
         if root_symlink:
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
-        self.executedCommands.append({'exe': exe, 'file':outfn_strip}) # save in our list
-        self.cInfo['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn_strip,runtime=runtime)
+        self.executed_commands.append({'exe': exe, 'file':outfn_strip}) # save in our list
+        self.commons['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn_strip,runtime=runtime)
 
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
             self.proflog.debug("output: %-75s time: %f" % (exe, time_passed))
 
@@ -573,14 +573,14 @@ class Plugin(object):
         """Append text to the custom text that is included in the report. This
         is freeform and can include html.
         """
-        self.customText += text
+        self.custom_text += text
 
     def collect(self):
         """Collect the data for a plugin."""
-        for path, sub in self.copyPaths:
+        for path, sub in self.copy_paths:
             self.do_copy_file_or_dir(path, sub=sub)
 
-        for string, file_name in self.copyStrings:
+        for string, file_name in self.copy_strings:
             try:
                 self.archive.add_string(string,
                         os.path.join('sos_strings', self.name(), file_name))
@@ -588,7 +588,7 @@ class Plugin(object):
                 self.soslog.debug("could not create %s, traceback follows: %s"
                         % (file_name, e))
 
-        for progs in izip(self.collectProgs):
+        for progs in izip(self.collect_cmds):
             prog, suggest_filename, root_symlink, timeout = progs[0]
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
@@ -636,7 +636,7 @@ class Plugin(object):
         return True
 
     def setup(self):
-        """This method must be overridden to add the copyPaths, forbiddenPaths,
+        """This method must be overridden to add the copy_paths, forbidden_paths,
         and external programs to be collected at a minimum.
         """
         pass
@@ -658,9 +658,9 @@ class Plugin(object):
         html = html + "<h2> Plugin <em>" + self.name() + "</em></h2>\n"
 
         # Files
-        if len(self.copiedFiles):
+        if len(self.copied_files):
             html = html + "<p>Files copied:<br><ul>\n"
-            for afile in self.copiedFiles:
+            for afile in self.copied_files:
                 html = html + '<li><a href="%s">%s</a>' % \
                         (".." + afile['dstpath'], afile['srcpath'])
                 if (afile['symlink'] == "yes"):
@@ -669,13 +669,13 @@ class Plugin(object):
             html = html + "</ul></p>\n"
 
         # Command Output
-        if len(self.executedCommands):
+        if len(self.executed_commands):
             html = html + "<p>Commands Executed:<br><ul>\n"
             # convert file name to relative path from our root
             # don't use relpath - these are HTML paths not OS paths.
-            for cmd in self.executedCommands:
+            for cmd in self.executed_commands:
                 if cmd["file"] and len(cmd["file"]):
-                    cmdOutRelPath =  "../" + self.cInfo['cmddir'] \
+                    cmdOutRelPath =  "../" + self.commons['cmddir'] \
                             + "/" + cmd['file']
                     html = html + '<li><a href="%s">%s</a></li>\n' % \
                             (cmdOutRelPath, cmd['exe'])
@@ -691,9 +691,9 @@ class Plugin(object):
             html = html + "</ul></p>\n"
 
         # Custom Text
-        if (self.customText != ""):
+        if (self.custom_text != ""):
             html = html + "<p>Additional Information:<br>\n"
-            html = html + self.customText + "</p>\n"
+            html = html + self.custom_text + "</p>\n"
 
         return html
 

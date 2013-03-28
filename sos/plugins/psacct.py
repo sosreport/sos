@@ -18,7 +18,7 @@ class psacct(Plugin, RedHatPlugin):
     """Process accounting related information
     """
 
-    optionList = [("all", "collect all process accounting files",
+    option_list = [("all", "collect all process accounting files",
                         "slow", False)]
 
     packages = [ "psacct" ]

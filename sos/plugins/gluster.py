@@ -79,9 +79,9 @@ class gluster(Plugin, RedHatPlugin):
         self.add_cmd_output("/usr/sbin/gluster peer status")
 
         # check package version handling rename of glusterfs-core -> glusterfs
-        pkg = self.policy().pkgByName("glusterfs-core");
+        pkg = self.policy().pkg_by_name("glusterfs-core");
         if not pkg:
-            pkg = self.policy().pkgByName("glusterfs");
+            pkg = self.policy().pkg_by_name("glusterfs");
             # need to handle "no package" case for users who enable with -e/-o
             if not pkg:
                 return

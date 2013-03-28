@@ -18,12 +18,12 @@ import os, re
 class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """kernel related information
     """
-    optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
-    moduleFile = ""
+    option_list = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
+    module_file = ""
 
     def setup(self):
         self.add_cmd_output("/bin/uname -a", root_symlink = "uname")
-        self.moduleFile = self.get_cmd_output_now("/sbin/lsmod", root_symlink = "lsmod")
+        self.module_file = self.get_cmd_output_now("/sbin/lsmod", root_symlink = "lsmod")
 
         if self.get_option('modinfo'):
             runcmd = ""
@@ -46,7 +46,7 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/filesystems",
             "/proc/ksyms",
             "/proc/slabinfo",
-            "/lib/modules/%s/modules.dep" % self.policy().kernelVersion(),
+            "/lib/modules/%s/modules.dep" % self.policy().kernel_version(),
             "/etc/conf.modules",
             "/etc/modules.conf",
             "/etc/modprobe.conf",

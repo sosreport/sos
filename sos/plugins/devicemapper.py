@@ -19,14 +19,14 @@ class devicemapper(Plugin, RedHatPlugin):
     """device-mapper related information (dm, lvm, multipath)
     """
 
-    optionList = [("lvmdump", 'collect raw metadata from PVs', 'slow', False)]
-    optionList = [("lvmdump-a", 'use the -a option of lvmdump (requires the "lvmdump" option)', 'slow', False)]
-    dmraidOptions = ['V','b','r','s','tay','rD']
+    option_list = [("lvmdump", 'collect raw metadata from PVs', 'slow', False)]
+    option_list = [("lvmdump-a", 'use the -a option of lvmdump (requires the "lvmdump" option)', 'slow', False)]
+    dmraid_options = ['V','b','r','s','tay','rD']
 
     def do_lvmdump(self):
         """Collects raw metadata directly from the PVs using dd
         """
-        cmd = "lvmdump -d '%s'" % os.path.join(self.cInfo['dstroot'],"lvmdump")
+        cmd = "lvmdump -d '%s'" % os.path.join(self.commons['dstroot'],"lvmdump")
         if self.get_option('lvmdump-a'):
           cmd += " -a"
         self.add_cmd_output(cmd)
@@ -65,5 +65,5 @@ class devicemapper(Plugin, RedHatPlugin):
               if disk in [ ".",  ".." ] or disk.startswith("ram"):
                  continue
               self.add_cmd_output("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
-        for opt in self.dmraidOptions:
+        for opt in self.dmraid_options:
             self.add_cmd_output("/sbin/dmraid -%s" % (opt,))

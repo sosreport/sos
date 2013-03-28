@@ -7,8 +7,8 @@ class DebianPolicy(LinuxPolicy):
     distro = "Debian"
     vendor = "the Debian project"
     vendor_url = "http://www.debian.org/"
-    reportName = ""
-    ticketNumber = ""
+    report_name = ""
+    ticket_number = ""
     package_manager = PackageManager("dpkg-query -W -f='${Package}|${Version}\\n' \*")
     valid_subclasses = [DebianPlugin]
 

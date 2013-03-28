@@ -82,7 +82,7 @@ def get_hash_name():
     import sos.policies
     policy = sos.policies.load()
     try:
-        name = policy.getPreferredHashAlgorithm()
+        name = policy.get_preferred_hash_algorithm()
         hashlib.new(name)
         return name
     except:
@@ -143,7 +143,7 @@ def is_executable(command):
     candidates = [command] + [os.path.join(p, command) for p in paths]
     return any(os.access(path, os.X_OK) for path in candidates)
 
-def sosGetCommandOutput(command, timeout=300):
+def sos_get_command_output(command, timeout=300):
     """Execute a command through the system shell. First checks to see if the
     requested command is executable. Returns (returncode, stdout, 0)"""
     # XXX: what is this doing this for?
@@ -184,7 +184,7 @@ def import_module(module_fqname, superclasses=None):
 def shell_out(cmd):
     """Uses subprocess.Popen to make a system call and returns stdout.
     Does not handle exceptions."""
-    return sosGetCommandOutput(cmd)[1]
+    return sos_get_command_output(cmd)[1]
 
 class DirTree(object):
     """Builds an ascii representation of a directory structure"""

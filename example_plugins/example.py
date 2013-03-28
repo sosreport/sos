@@ -28,7 +28,7 @@ class example(Plugin, RedHatPlugin):
     # each option is a tuple of the following format:
     # (name, description, fast or slow, default value)
     # each option will be addressable like -k name=value
-    optionList = [("init.d",  'Gathers the init.d directory', 'slow', 0),
+    option_list = [("init.d",  'Gathers the init.d directory', 'slow', 0),
                   ('follicles', 'Gathers information about each follicle on every toe', 'slow', 0),
                   ('color', 'Gathers toenail polish color', 'fast', 0)]
 

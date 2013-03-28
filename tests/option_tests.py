@@ -15,8 +15,8 @@ class GlobalOptionTest(unittest.TestCase):
             },
         }
         self.plugin = Plugin(self.commons)
-        self.plugin.optNames = ['baz', 'empty']
-        self.plugin.optParms = [{'enabled': False}, {'enabled': None}]
+        self.plugin.opt_names = ['baz', 'empty']
+        self.plugin.opt_parms = [{'enabled': False}, {'enabled': None}]
 
     def test_simple_lookup(self):
         self.assertEquals(self.plugin.get_option('test_option'), 'foobar')

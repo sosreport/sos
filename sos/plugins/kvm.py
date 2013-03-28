@@ -22,7 +22,7 @@ class kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """KVM related information
     """
 
-    optionList = [("topOutput", '5x iterations of top data', 'slow', False)]
+    option_list = [("topOutput", '5x iterations of top data', 'slow', False)]
 
     def check_enabled(self):
         return os.access("/sys/module/kvm", os.R_OK)

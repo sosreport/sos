@@ -18,7 +18,7 @@ class auditd(Plugin, RedHatPlugin):
     """Auditd related information
     """
 
-    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15)]
+    option_list = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15)]
 
     def setup(self):
         self.add_copy_specs(["/etc/audit/auditd.conf", "/etc/audit/audit.rules"])

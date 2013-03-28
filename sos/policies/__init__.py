@@ -45,7 +45,7 @@ class PackageManager(object):
     format:
         package name|package.version\n
 
-    You may also subclass this class and provide a getPackageList method to
+    You may also subclass this class and provide a get_pkg_list method to
     build the list of packages and versions.
     """
 
@@ -56,30 +56,30 @@ class PackageManager(object):
         if query_command:
             self.query_command = query_command
 
-    def allPkgsByName(self, name):
+    def all_pkgs_by_name(self, name):
         """
         Return a list of packages that match name.
         """
-        return fnmatch.filter(self.allPkgs().keys(), name)
+        return fnmatch.filter(self.all_pkgs().keys(), name)
 
-    def allPkgsByNameRegex(self, regex_name, flags=0):
+    def all_pkgs_by_name_regex(self, regex_name, flags=0):
         """
         Return a list of packages that match regex_name.
         """
         reg = re.compile(regex_name, flags)
-        return [pkg for pkg in self.allPkgs().keys() if reg.match(pkg)]
+        return [pkg for pkg in self.all_pkgs().keys() if reg.match(pkg)]
 
-    def pkgByName(self, name):
+    def pkg_by_name(self, name):
         """
         Return a single package that matches name.
         """
-        pkgmatches = self.allPkgsByName(name)
+        pkgmatches = self.all_pkgs_by_name(name)
         if (len(pkgmatches) != 0):
-            return self.allPkgsByName(name)[-1]
+            return self.all_pkgs_by_name(name)[-1]
         else:
             return None
 
-    def getPackageList(self):
+    def get_pkg_list(self):
         """
         returns a dictionary of packages in the following format:
         {'package_name': {'name': 'package_name', 'version': 'major.minor.version'}}
@@ -95,15 +95,15 @@ class PackageManager(object):
 
         return self.packages
 
-    def allPkgs(self):
+    def all_pkgs(self):
         """
         Return a list of all packages.
         """
         if not self.packages:
-            self.packages = self.getPackageList()
+            self.packages = self.get_pkg_list()
         return self.packages
 
-    def pkgNVRA(self, pkg):
+    def pkg_nvra(self, pkg):
         fields = pkg.split("-")
         version, release, arch = fields[-3:]
         name = "-".join(fields[:-3])
@@ -139,8 +139,8 @@ No changes will be made to system configuration.
         super() to ensure that they get the required platform bits attached.
         super(SubClass, self).__init__()"""
         self._parse_uname()
-        self.reportName = self.hostname
-        self.ticketNumber = None
+        self.report_name = self.hostname
+        self.ticket_number = None
         self.package_manager = PackageManager()
         self._valid_subclasses = []
 
@@ -165,21 +165,21 @@ No changes will be made to system configuration.
         """
         return False
 
-    def preferedArchive(self):
+    def preferred_archive_name(self):
         """
         Return the class object of the prefered archive format for this platform
         """
         from sos.archive import TarFileArchive
         return TarFileArchive
 
-    def getArchiveName(self):
+    def get_archive_name(self):
         """
         This function should return the filename of the archive without the
         extension.
         """
-        if self.ticketNumber:
-            self.reportName += "." + self.ticketNumber
-        return "sosreport-%s-%s" % (self.reportName, time.strftime("%Y%m%d%H%M%S"))
+        if self.ticket_number:
+            self.report_name += "." + self.ticket_number
+        return "sosreport-%s-%s" % (self.report_name, time.strftime("%Y%m%d%H%M%S"))
 
     def validatePlugin(self, plugin_class):
         """
@@ -188,26 +188,26 @@ No changes will be made to system configuration.
         valid_subclasses = [IndependentPlugin] + self.valid_subclasses
         return any(issubclass(plugin_class, class_) for class_ in valid_subclasses)
 
-    def preWork(self):
+    def pre_work(self):
         """
         This function is called prior to collection.
         """
         pass
 
-    def packageResults(self, package_name):
+    def package_results(self, package_name):
         """
         This function is called prior to packaging.
         """
         pass
 
-    def postWork(self):
+    def post_work(self):
         """
         This function is called after the sosreport has been generated.
         """
         pass
 
-    def pkgByName(self, pkg):
-        return self.package_manager.pkgByName(pkg)
+    def pkg_by_name(self, pkg):
+        return self.package_manager.pkg_by_name(pkg)
 
     def _parse_uname(self):
         (system, node, release,
@@ -218,7 +218,7 @@ No changes will be made to system configuration.
         self.smp = version.split()[1] == "SMP"
         self.machine = machine
 
-    def setCommons(self, commons):
+    def set_commons(self, commons):
         self.commons = commons
 
     def is_root(self):
@@ -236,12 +236,12 @@ No changes will be made to system configuration.
         archive_fp.close()
         return digest.hexdigest()
 
-    def getPreferredHashAlgorithm(self):
+    def get_preferred_hash_algorithm(self):
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""
         return "md5"
 
-    def displayResults(self, final_filename=None):
+    def display_results(self, final_filename=None):
 
         # make sure a report exists
         if not final_filename:
@@ -263,7 +263,7 @@ No changes will be made to system configuration.
         self._print(_("Please send this file to your support representative."))
         self._print()
 
-    def uploadResults(self, final_filename):
+    def upload_results(self, final_filename):
 
         # make sure a report exists
         if not final_filename:
@@ -381,7 +381,7 @@ class LinuxPolicy(Policy):
     def __init__(self):
         super(LinuxPolicy, self).__init__()
 
-    def getPreferredHashAlgorithm(self):
+    def get_preferred_hash_algorithm(self):
         checksum = "md5"
         try:
             fp = open("/proc/sys/crypto/fips_enabled", "r")
@@ -394,7 +394,7 @@ class LinuxPolicy(Policy):
         fp.close()
         return checksum
 
-    def runlevelDefault(self):
+    def default_runlevel(self):
         try:
             with open("/etc/inittab") as fp:
                 pattern = r"id:(\d{1}):initdefault:"
@@ -403,60 +403,60 @@ class LinuxPolicy(Policy):
         except:
             return 3
 
-    def kernelVersion(self):
+    def kernel_version(self):
         return self.release
 
-    def hostName(self):
+    def host_name(self):
         return self.hostname
 
-    def isKernelSMP(self):
+    def is_kernel_smp(self):
         return self.smp
 
-    def getArch(self):
+    def get_arch(self):
         return self.machine
 
-    def getLocalName(self):
-        """Returns the name usd in the preWork step"""
-        return self.hostName()
+    def get_local_name(self):
+        """Returns the name usd in the pre_work step"""
+        return self.host_name()
 
-    def sanitizeReportName(self, report_name):
+    def sanitize_report_name(self, report_name):
         return re.sub(r"[^-a-zA-Z.0-9]", "", report_name)
 
-    def sanitizeTicketNumber(self, ticket_number):
+    def sanitize_ticket_number(self, ticket_number):
         return re.sub(r"[^0-9]", "", ticket_number)
 
-    def preWork(self):
+    def pre_work(self):
         # this method will be called before the gathering begins
 
-        localname = self.getLocalName()
+        localname = self.get_local_name()
 
         if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].quiet:
             try:
-                self.reportName = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
+                self.report_name = raw_input(_("Please enter your first initial and last name [%s]: ") % localname)
 
-                self.ticketNumber = raw_input(_("Please enter the case number that you are generating this report for: "))
+                self.ticket_number = raw_input(_("Please enter the case number that you are generating this report for: "))
                 self._print()
             except:
                 self._print()
                 sys.exit(0)
 
-        if len(self.reportName) == 0:
-            self.reportName = localname
+        if len(self.report_name) == 0:
+            self.report_name = localname
 
-        if self.commons['cmdlineopts'].customerName:
-            self.reportName = self.commons['cmdlineopts'].customerName
+        if self.commons['cmdlineopts'].customer_name:
+            self.report_name = self.commons['cmdlineopts'].customer_name
 
-        if self.commons['cmdlineopts'].ticketNumber:
-            self.ticketNumber = self.commons['cmdlineopts'].ticketNumber
+        if self.commons['cmdlineopts'].ticket_number:
+            self.ticket_number = self.commons['cmdlineopts'].ticket_number
 
-        self.reportName = self.sanitizeReportName(self.reportName)
-        if self.ticketNumber:
-            self.ticketNumber = self.sanitizeTicketNumber(self.ticketNumber)
+        self.report_name = self.sanitize_report_name(self.report_name)
+        if self.ticket_number:
+            self.ticket_number = self.sanitize_ticket_number(self.ticket_number)
 
-        if (self.reportName == ""):
-            self.reportName = "default"
+        if (self.report_name == ""):
+            self.report_name = "default"
         
         return
 
-    def packageResults(self, archive_filename):
+    def package_results(self, archive_filename):
         self._print(_("Creating compressed archive..."))

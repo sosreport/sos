@@ -25,7 +25,7 @@ class openstack(Plugin):
     """
     plugin_name = "openstack"
 
-    optionList = [("log", "gathers all openstack logs", "slow", False)]
+    option_list = [("log", "gathers all openstack logs", "slow", False)]
 
 
 class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):

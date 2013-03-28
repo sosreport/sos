@@ -19,35 +19,35 @@ import re
 class networking(Plugin, RedHatPlugin):
     """network related information
     """
-    optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
+    option_list = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
 
-    def get_bridge_name(self,brctlOut):
+    def get_bridge_name(self,brctl_out):
         """Return a list for which items are bridge name according to the
-        output of brctl show stored in brctlFile.
+        output of brctl show stored in brctl_file.
         """
         out=[]
-        for line in brctlOut[1].splitlines():
+        for line in brctl_out[1].splitlines():
             if line.startswith("bridge name") \
 		or line.isspace() \
 		or line[:1].isspace():
                 continue
-            brName, brRest = line.split(None, 1)
-            out.append(brName)
+            br_name, br_rest = line.split(None, 1)
+            out.append(br_name)
         return out
 
-    def get_interface_name(self,ipaddrOut):
+    def get_interface_name(self,ip_addr_out):
         """Return a dictionary for which key are interface name according to the
-        output of ifconifg-a stored in ifconfigFile.
+        output of ifconifg-a stored in ifconfig_file.
         """
         out={}
-        for line in ipaddrOut[1].splitlines():
+        for line in ip_addr_out[1].splitlines():
             match=re.match('.*link/ether', line)
             if match:
                 int=match.string.split(':')[1].lstrip()
                 out[int]=True
         return out
 
-    def collectIPTable(self,tablename):
+    def collect_iptable(self,tablename):
         """ When running the iptables command, it unfortunately auto-loads
         the modules before trying to get output.  Some people explicitly
         don't want this, so check if the modules are loaded before running
@@ -70,12 +70,12 @@ class networking(Plugin, RedHatPlugin):
             "/etc/xinetd.d",
             "/etc/host*",
             "/etc/resolv.conf"])
-        ipaddrFile=self.get_cmd_output_now("/sbin/ip -o addr", root_symlink = "ip_addr")
-        ipaddrOut=self.call_ext_prog("/sbin/ip -o addr")
+        ip_addr_file=self.get_cmd_output_now("/sbin/ip -o addr", root_symlink = "ip_addr")
+        ip_addr_out=self.call_ext_prog("/sbin/ip -o addr")
         self.add_cmd_output("/sbin/route -n", root_symlink = "route")
-        self.collectIPTable("filter")
-        self.collectIPTable("nat")
-        self.collectIPTable("mangle")
+        self.collect_iptable("filter")
+        self.collect_iptable("nat")
+        self.collect_iptable("mangle")
         self.add_cmd_output("/bin/netstat -s")
         self.add_cmd_output("/bin/netstat -agn")
         self.add_cmd_output("/bin/netstat -neopa", root_symlink = "netstat")
@@ -87,8 +87,8 @@ class networking(Plugin, RedHatPlugin):
         self.add_cmd_output("/sbin/ip mroute show")
         self.add_cmd_output("/sbin/ip maddr show")
         self.add_cmd_output("/sbin/ip neigh show")
-        if ipaddrOut:
-            for eth in self.get_interface_name(ipaddrOut):
+        if ip_addr_out:
+            for eth in self.get_interface_name(ip_addr_out):
                 self.add_cmd_output("/sbin/ethtool "+eth)
                 self.add_cmd_output("/sbin/ethtool -i "+eth)
                 self.add_cmd_output("/sbin/ethtool -k "+eth)
@@ -100,10 +100,10 @@ class networking(Plugin, RedHatPlugin):
             self.add_cmd_output("/bin/traceroute -n rhn.redhat.com")
 
         if os.path.exists("/usr/sbin/brctl"):
-            brctlFile=self.add_cmd_output("/usr/sbin/brctl show")
-            brctlOut=self.call_ext_prog("/usr/sbin/brctl show")
-            if brctlOut:
-                for brName in self.get_bridge_name(brctlOut):
-                    self.add_cmd_output("/usr/sbin/brctl showstp "+brName)
+            brctl_file=self.add_cmd_output("/usr/sbin/brctl show")
+            brctl_out=self.call_ext_prog("/usr/sbin/brctl show")
+            if brctl_out:
+                for br_name in self.get_bridge_name(brctl_out):
+                    self.add_cmd_output("/usr/sbin/brctl showstp "+br_name)
         return
 

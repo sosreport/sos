@@ -18,7 +18,7 @@ class libraries(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on shared libraries
     """
 
-    optionList = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.',
+    option_list = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.',
                     "slow", False)]
 
     def setup(self):

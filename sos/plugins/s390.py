@@ -24,7 +24,7 @@ class s390(Plugin, RedHatPlugin):
     ### Check for s390 arch goes here
 
     def check_enabled(self):
-        return (self.policy().getArch() == "s390")
+        return (self.policy().get_arch() == "s390")
 
     ### Gather s390 specific information
 
@@ -57,12 +57,12 @@ class s390(Plugin, RedHatPlugin):
         self.add_cmd_output("find /sys -type f")
         self.add_cmd_output("find /proc/s390dbf -type f")
         self.add_cmd_output("/sbin/qethconf list_all")
-        ret, dasdDev, rtime = self.call_ext_prog("/bin/ls /dev/dasd?")
-        for x in dasdDev.split('\n'):
+        ret, dasd_dev, rtime = self.call_ext_prog("/bin/ls /dev/dasd?")
+        for x in dasd_dev.split('\n'):
             self.add_cmd_output("/sbin/dasdview -x -i -j -l -f %s" % (x,))
             self.add_cmd_output("/sbin/fdasd -p %s" % (x,))
         try:
-            rhelver = self.policy().rhelVersion()
+            rhelver = self.policy().rhel_version()
             if rhelver == 5:
                 self.add_cmd_output("/sbin/lsqeth")
                 self.add_cmd_output("/sbin/lszfcp")

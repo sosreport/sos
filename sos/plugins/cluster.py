@@ -20,12 +20,12 @@ class cluster(Plugin, RedHatPlugin):
     """cluster suite and GFS related information
     """
 
-    optionList = [("gfslockdump",
+    option_list = [("gfslockdump",
                     'gather output of gfs lockdumps', 'slow', False),
                     ('lockdump', 'gather dlm lockdumps', 'slow', False)]
 
     def check_enabled(self):
-        rhelver = self.policy().rhelVersion()
+        rhelver = self.policy().rhel_version()
         if rhelver == 4:
             self.packages = [ "ccs", "cman", "cman-kernel", "magma",
                               "magma-plugins", "rgmanager", "fence", "dlm",
@@ -45,7 +45,7 @@ class cluster(Plugin, RedHatPlugin):
         return Plugin.check_enabled(self)
 
     def setup(self):
-        rhelver = self.policy().rhelVersion()
+        rhelver = self.policy().rhel_version()
 
         self.add_copy_spec("/etc/cluster.conf")
         self.add_copy_spec("/etc/cluster.xml")
@@ -106,7 +106,7 @@ class cluster(Plugin, RedHatPlugin):
             self.add_cmd_output("mkqdisk -L")
 
     def do_lockdump(self):
-        rhelver = self.policy().rhelVersion()
+        rhelver = self.policy().rhel_version()
 
         if rhelver is 4:
             status, output, time = self.call_ext_prog("cman_tool services")

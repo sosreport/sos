@@ -55,7 +55,7 @@ class hardware(Plugin):
 		self.add_cmd_output("/usr/bin/cpupower info")
 		self.add_cmd_output("/usr/bin/cpupower frequency-info")
 
-        if self.policy().getArch().endswith("386"):
+        if self.policy().get_arch().endswith("386"):
             self.add_cmd_output("/usr/sbin/x86info -a")
 
         if os.path.exists("/usr/bin/lsusb"):

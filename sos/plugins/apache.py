@@ -19,7 +19,7 @@ class apache(Plugin):
     """
     plugin_name = "apache"
 
-    optionList = [("log", "gathers all apache logs", "slow", False)]
+    option_list = [("log", "gathers all apache logs", "slow", False)]
 
 class RedHatApache(apache, RedHatPlugin):
     """Apache related information for Red Hat distributions

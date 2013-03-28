@@ -24,8 +24,8 @@ class sunrpc(Plugin):
     service = None
 
     def check_enabled(self):
-        if self.policy().runlevelDefault() in \
-		self.policy().runlevelByService(self.service):
+        if self.policy().default_runlevel() in \
+		self.policy().runlevel_by_service(self.service):
             return True
         return False
 
@@ -39,7 +39,7 @@ class RedHatSunrpc(sunrpc, RedHatPlugin):
 
     service = 'rpcbind'
 
-# FIXME: depends on addition of runlevelByService (or similar)
+# FIXME: depends on addition of runlevel_by_service (or similar)
 # in Debian/Ubuntu policy classes
 #class DebianSunrpc(sunrpc, DebianPlugin, UbuntuPlugin):
 #    """Sun RPC related information for Red Hat systems

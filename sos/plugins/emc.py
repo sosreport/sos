@@ -168,7 +168,7 @@ class emc(Plugin, RedHatPlugin):
             self.get_pp_config()
 
         ## If Solutions Enabler is installed collect Symmetrix/DMX specific information
-        if len(self.policy().package_manager.allPkgsByNameRegex('[Ss][Yy][Mm][Cc][Ll][Ii]-[Ss][Yy][Mm][Cc][Ll][Ii]')) > 0:
+        if len(self.policy().package_manager.all_pkgs_by_name_regex('[Ss][Yy][Mm][Cc][Ll][Ii]-[Ss][Yy][Mm][Cc][Ll][Ii]')) > 0:
             print "EMC Solutions Enabler SYMCLI is installed."
             print " Gathering EMC Solutions Enabler SYMCLI information..."
             self.add_custom_text("EMC Solutions Enabler is installed.<br>")

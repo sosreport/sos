@@ -21,7 +21,7 @@ class abrt(Plugin, RedHatPlugin):
     """ABRT log dump
     """
 
-    optionList = [("backtraces", 'collect backtraces for every report', 'slow', False)]
+    option_list = [("backtraces", 'collect backtraces for every report', 'slow', False)]
 
     def check_enabled(self):
         return self.is_installed("abrt-cli") or \

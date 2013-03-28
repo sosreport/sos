@@ -20,8 +20,8 @@ from itertools import *
 class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on filesystems
     """
-    optionList = [("lsof", 'gathers information on all open files', 'slow', False)]
-    optionList = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
+    option_list = [("lsof", 'gathers information on all open files', 'slow', False)]
+    option_list = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
 
     def setup(self):
         self.add_copy_specs([

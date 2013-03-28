@@ -23,21 +23,21 @@ class named(Plugin, RedHatPlugin):
     files = ('/etc/named.conf', '/etc/sysconfig/named')
     packages = ('bind',)
 
-    def getDnsDir(self, configFile):
+    def get_dns_dir(self, config_file):
         """ grab directory path from named{conf,boot}
         """
-        directoryList = self.do_regex_find_all("directory\s+\"(.*)\"", configFile)
-        return normpath(directoryList[0])
+        directory_list = self.do_regex_find_all("directory\s+\"(.*)\"", config_file)
+        return normpath(directory_list[0])
 
     def setup(self):
-        cfgFiles = ("/etc/named.conf",
+        config_files = ("/etc/named.conf",
                     "/etc/named.boot")
-        for cfg in cfgFiles:
+        for cfg in config_files:
             if exists(cfg):
                 self.add_copy_spec(cfg)
-                self.add_copy_spec(self.getDnsDir(cfg))
-                self.add_forbidden_path(join(self.getDnsDir(cfg),"chroot/dev"))
-                self.add_forbidden_path(join(self.getDnsDir(cfg),"chroot/proc"))
+                self.add_copy_spec(self.get_dns_dir(cfg))
+                self.add_forbidden_path(join(self.get_dns_dir(cfg),"chroot/dev"))
+                self.add_forbidden_path(join(self.get_dns_dir(cfg),"chroot/proc"))
 
         self.add_copy_spec("/etc/named/")
         self.add_copy_spec("/etc/sysconfig/named")

@@ -40,17 +40,17 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         # catch exceptions here to avoid races
         try:
-            dirList=os.listdir(self.sapath)
+            dir_list=os.listdir(self.sapath)
         except Exception, e:
             self.soslog.error("sar path %s cannot be read: %s"
                      % (self.sapath, e))
             return
 
         # find all the sa file that don't have an existing sar file
-        for fname in dirList:
+        for fname in dir_list:
             if fname[0:2] == 'sa' and fname[2] != 'r':
                 sar_filename = 'sar' + fname[2:4]
-                if sar_filename not in dirList:
+                if sar_filename not in dir_list:
                     sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar " \
                             + "-A -f /var/log/sa/" + fname + "\""
                     self.add_cmd_output(sar_command, sar_filename)

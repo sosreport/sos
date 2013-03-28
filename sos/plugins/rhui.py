@@ -30,8 +30,8 @@ class rhui(Plugin, RedHatPlugin):
         else:
             cds = ""
 
-        rhui_debug_dst_path = os.path.join(self.cInfo['dstroot'],
-                self.cInfo['cmddir'], self.name())
+        rhui_debug_dst_path = os.path.join(self.commons['dstroot'],
+                self.commons['cmddir'], self.name())
         try:
             os.mkdir(rhui_debug_dst_path)
         except:

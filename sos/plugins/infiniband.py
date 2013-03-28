@@ -21,7 +21,7 @@ class infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     def check_enabled(self):
-         if self.cInfo["policy"].pkgByName("libibverbs-utils"):
+         if self.commons["policy"].pkg_by_name("libibverbs-utils"):
              return True
          return False
 

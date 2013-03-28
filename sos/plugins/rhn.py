@@ -21,7 +21,7 @@ class rhn(Plugin, RedHatPlugin):
     satellite = False
     proxy = False
 
-    optionList = [("log", 'gathers all apache logs', 'slow', False)]
+    option_list = [("log", 'gathers all apache logs', 'slow', False)]
 
     def default_enabled(self):
         return False
@@ -76,7 +76,7 @@ class rhn(Plugin, RedHatPlugin):
                                 "/etc/tomcat6/", "/var/log/tomcat6/"])
             if os.path.exists("/usr/bin/spacewalk-debug"):
                 self.add_cmd_output("/usr/bin/spacewalk-debug --dir %s"
-                        % os.path.join(self.cInfo['dstroot'],
+                        % os.path.join(self.commons['dstroot'],
                                 "sos_commands/rhn"))
 
         if self.proxy:

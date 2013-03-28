@@ -2,7 +2,7 @@ import os.path
 import unittest
 from StringIO import StringIO
 
-from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sosGetCommandOutput, find, tail, shell_out
+from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sos_get_command_output, find, tail, shell_out
 import sos
 
 TEST_DIR = os.path.dirname(__file__)
@@ -76,13 +76,13 @@ class ExecutableTest(unittest.TestCase):
 
     def test_output(self):
         path = os.path.join(TEST_DIR, 'test_exe.py')
-        ret, out, junk = sosGetCommandOutput(path)
+        ret, out, junk = sos_get_command_output(path)
         self.assertEquals(ret, 0)
         self.assertEquals(out, "executed\n")
 
     def test_output_non_exe(self):
         path = os.path.join(TEST_DIR, 'utility_tests.py')
-        ret, out, junk = sosGetCommandOutput(path)
+        ret, out, junk = sos_get_command_output(path)
         self.assertEquals(ret, 127)
         self.assertEquals(out, "")
 

@@ -14,7 +14,7 @@ class postgresql(Plugin, RedHatPlugin):
 
     tmp_dir = None
 
-    optionList = [
+    option_list = [
         ("pghome",  'PostgreSQL server home directory.', '', '/var/lib/pgsql'),
         ("username",  'username for pg_dump', '', 'postgres'),
         ("password",  'password for pg_dump', '', ''),

@@ -19,7 +19,7 @@ class pxe(Plugin, RedHatPlugin):
     """PXE related information
     """
 
-    optionList = [("tftpboot", 'gathers content in /tftpboot', 'slow', False)]
+    option_list = [("tftpboot", 'gathers content in /tftpboot', 'slow', False)]
     files = ('/usr/sbin/pxeos',)
     packages = ('system-config-netboot-cmd',)
 

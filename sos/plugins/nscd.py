@@ -20,7 +20,7 @@ class nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """NSCD related information
     """
 
-    optionList = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
+    option_list = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
                    "", 50)]
 
     files = ('/etc/nscd.conf',)

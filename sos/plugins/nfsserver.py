@@ -22,7 +22,7 @@ class nfsserver(Plugin, RedHatPlugin):
     """NFS server-related information
     """
     def check_enabled(self):
-       if self.policy().runlevelDefault() in self.policy().runlevelByService("nfs"):
+       if self.policy().default_runlevel() in self.policy().runlevel_by_service("nfs"):
           return True
 
        try:

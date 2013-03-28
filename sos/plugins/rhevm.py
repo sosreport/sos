@@ -4,7 +4,7 @@ from sos.plugins import Plugin, RedHatPlugin
 class rhevm(Plugin, RedHatPlugin):
     """Nogah related information"""
 
-    optionList = [("vdsmlogs",  'Directory containing all of the SOS logs from the RHEV hypervisor(s)', '', False)]
+    option_list = [("vdsmlogs",  'Directory containing all of the SOS logs from the RHEV hypervisor(s)', '', False)]
 
     def setup(self):
         # Copy rhevm config files.
