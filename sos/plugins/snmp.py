@@ -25,4 +25,4 @@ class snmp(Plugin, RedHatPlugin):
     packages = ('net-snmp',)
 
     def setup(self):
-        self.addCopySpec("/etc/snmp")
+        self.add_copy_spec("/etc/snmp")

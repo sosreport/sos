@@ -21,10 +21,10 @@ class sanlock(Plugin):
     packages = [ "sanlock" ]
 
     def setup(self):
-        self.addCopySpec("/var/log/sanlock.log*")
-        self.addCmdOutput("sanlock client status -D")
-        self.addCmdOutput("sanlock client host_status -D")
-        self.addCmdOutput("sanlock client log_dump")
+        self.add_copy_spec("/var/log/sanlock.log*")
+        self.add_cmd_output("sanlock client status -D")
+        self.add_cmd_output("sanlock client host_status -D")
+        self.add_cmd_output("sanlock client log_dump")
         return
 
 class RedHatSanlock(sanlock, RedHatPlugin):
@@ -33,4 +33,4 @@ class RedHatSanlock(sanlock, RedHatPlugin):
 
     def setup(self):
         super(RedHatSanlock, self).setup()
-        self.addCopySpec("/etc/sysconfig/sanlock")
+        self.add_copy_spec("/etc/sysconfig/sanlock")

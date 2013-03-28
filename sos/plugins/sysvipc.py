@@ -22,8 +22,8 @@ class sysvipc(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "sysvipc"
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
                 "/proc/sysvipc/msg",
                 "/proc/sysvipc/sem",
                 "/proc/sysvipc/shm"])
-        self.addCmdOutput("/usr/bin/ipcs")
+        self.add_cmd_output("/usr/bin/ipcs")

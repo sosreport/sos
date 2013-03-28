@@ -55,13 +55,13 @@ class networking(Plugin, RedHatPlugin):
         relevant rules in that table """
 
 
-        (status, output, time) = self.callExtProg("/sbin/lsmod | grep -q "+tablename)
+        (status, output, time) = self.call_ext_prog("/sbin/lsmod | grep -q "+tablename)
         if status == 0:
             cmd = "/sbin/iptables -t "+tablename+" -nvL"
-            self.addCmdOutput(cmd)
+            self.add_cmd_output(cmd)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/net/",
             "/etc/nsswitch.conf",
             "/etc/yp.conf",
@@ -70,40 +70,40 @@ class networking(Plugin, RedHatPlugin):
             "/etc/xinetd.d",
             "/etc/host*",
             "/etc/resolv.conf"])
-        ipaddrFile=self.getCmdOutputNow("/sbin/ip -o addr", root_symlink = "ip_addr")
-        ipaddrOut=self.callExtProg("/sbin/ip -o addr")
-        self.addCmdOutput("/sbin/route -n", root_symlink = "route")
+        ipaddrFile=self.get_cmd_output_now("/sbin/ip -o addr", root_symlink = "ip_addr")
+        ipaddrOut=self.call_ext_prog("/sbin/ip -o addr")
+        self.add_cmd_output("/sbin/route -n", root_symlink = "route")
         self.collectIPTable("filter")
         self.collectIPTable("nat")
         self.collectIPTable("mangle")
-        self.addCmdOutput("/bin/netstat -s")
-        self.addCmdOutput("/bin/netstat -agn")
-        self.addCmdOutput("/bin/netstat -neopa", root_symlink = "netstat")
-        self.addCmdOutput("/sbin/ip route show table all")
-        self.addCmdOutput("/sbin/ip -6 route show table all")
-        self.addCmdOutput("/sbin/ip link")
-        self.addCmdOutput("/sbin/ip address")
-        self.addCmdOutput("/sbin/ifenslave -a")
-        self.addCmdOutput("/sbin/ip mroute show")
-        self.addCmdOutput("/sbin/ip maddr show")
-        self.addCmdOutput("/sbin/ip neigh show")
+        self.add_cmd_output("/bin/netstat -s")
+        self.add_cmd_output("/bin/netstat -agn")
+        self.add_cmd_output("/bin/netstat -neopa", root_symlink = "netstat")
+        self.add_cmd_output("/sbin/ip route show table all")
+        self.add_cmd_output("/sbin/ip -6 route show table all")
+        self.add_cmd_output("/sbin/ip link")
+        self.add_cmd_output("/sbin/ip address")
+        self.add_cmd_output("/sbin/ifenslave -a")
+        self.add_cmd_output("/sbin/ip mroute show")
+        self.add_cmd_output("/sbin/ip maddr show")
+        self.add_cmd_output("/sbin/ip neigh show")
         if ipaddrOut:
             for eth in self.get_interface_name(ipaddrOut):
-                self.addCmdOutput("/sbin/ethtool "+eth)
-                self.addCmdOutput("/sbin/ethtool -i "+eth)
-                self.addCmdOutput("/sbin/ethtool -k "+eth)
-                self.addCmdOutput("/sbin/ethtool -S "+eth)
-                self.addCmdOutput("/sbin/ethtool -a "+eth)
-                self.addCmdOutput("/sbin/ethtool -c "+eth)
-                self.addCmdOutput("/sbin/ethtool -g "+eth)
-        if self.getOption("traceroute"):
-            self.addCmdOutput("/bin/traceroute -n rhn.redhat.com")
+                self.add_cmd_output("/sbin/ethtool "+eth)
+                self.add_cmd_output("/sbin/ethtool -i "+eth)
+                self.add_cmd_output("/sbin/ethtool -k "+eth)
+                self.add_cmd_output("/sbin/ethtool -S "+eth)
+                self.add_cmd_output("/sbin/ethtool -a "+eth)
+                self.add_cmd_output("/sbin/ethtool -c "+eth)
+                self.add_cmd_output("/sbin/ethtool -g "+eth)
+        if self.get_option("traceroute"):
+            self.add_cmd_output("/bin/traceroute -n rhn.redhat.com")
 
         if os.path.exists("/usr/sbin/brctl"):
-            brctlFile=self.addCmdOutput("/usr/sbin/brctl show")
-            brctlOut=self.callExtProg("/usr/sbin/brctl show")
+            brctlFile=self.add_cmd_output("/usr/sbin/brctl show")
+            brctlOut=self.call_ext_prog("/usr/sbin/brctl show")
             if brctlOut:
                 for brName in self.get_bridge_name(brctlOut):
-                    self.addCmdOutput("/usr/sbin/brctl showstp "+brName)
+                    self.add_cmd_output("/usr/sbin/brctl showstp "+brName)
         return
 

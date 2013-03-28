@@ -21,7 +21,7 @@ from stat import ST_SIZE
 class nfsserver(Plugin, RedHatPlugin):
     """NFS server-related information
     """
-    def checkenabled(self):
+    def check_enabled(self):
        if self.policy().runlevelDefault() in self.policy().runlevelByService("nfs"):
           return True
 
@@ -34,10 +34,10 @@ class nfsserver(Plugin, RedHatPlugin):
        return False
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/exports",
             "/var/lib/nfs/etab",
             "/var/lib/nfs/xtab",
             "/var/lib/nfs/rmtab"])
-        self.addCmdOutput("/usr/sbin/rpcinfo -p localhost")
-        self.addCmdOutput("/usr/sbin/nfsstat -a")
+        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
+        self.add_cmd_output("/usr/sbin/nfsstat -a")

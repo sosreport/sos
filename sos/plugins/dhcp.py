@@ -28,7 +28,7 @@ class RedHatDhcp(dhcp, RedHatPlugin):
 
     def setup(self):
         super(DhcpRedHat, self).setup()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/dhcpd.conf",
             "/etc/dhcp"])
 
@@ -40,7 +40,7 @@ class UbuntuDhcp(dhcp, UbuntuPlugin):
 
     def setup(self):
         super(DhcpDebian, self).setup()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/default/udhcpd",
             "/etc/udhcpd.conf"
         ])

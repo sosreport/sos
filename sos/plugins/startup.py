@@ -20,9 +20,9 @@ class startup(Plugin, RedHatPlugin):
 
     optionList = [("servicestatus", "get a status of all running services", "slow", False)]
     def setup(self):
-        self.addCopySpec("/etc/rc.d")
+        self.add_copy_spec("/etc/rc.d")
 
-        self.addCmdOutput("/sbin/chkconfig --list", root_symlink = "chkconfig")
-        if self.getOption('servicestatus'):
-            self.addCmdOutput("/sbin/service --status-all")
-        self.addCmdOutput("/sbin/runlevel")
+        self.add_cmd_output("/sbin/chkconfig --list", root_symlink = "chkconfig")
+        if self.get_option('servicestatus'):
+            self.add_cmd_output("/sbin/service --status-all")
+        self.add_cmd_output("/sbin/runlevel")

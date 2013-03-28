@@ -36,9 +36,9 @@ class anaconda(Plugin, RedHatPlugin):
                 "/root/install.log",
                 "/root/install.log.syslog"]
 
-        self.addCopySpecs(paths)
+        self.add_copy_specs(paths)
 
     def postproc(self):
-        self.doFileSub("/root/anaconda-ks.cfg",
+        self.do_file_sub("/root/anaconda-ks.cfg",
                         r"(\s*rootpw\s*).*",
                         r"\1******")

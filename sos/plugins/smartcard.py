@@ -26,10 +26,10 @@ class smartcard(Plugin, RedHatPlugin):
     packages = ('pam_pkcs11',)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/reader.conf",
             "/etc/reader.conf.d/",
             "/etc/pam_pkcs11/"])
-        self.addCmdOutput("/usr/bin/pkcs11_inspect debug")
-        self.addCmdOutput("/usr/bin/pklogin_finder debug")
-        self.addCmdOutput("/bin/ls -nl /usr/lib*/pam_pkcs11/")
+        self.add_cmd_output("/usr/bin/pkcs11_inspect debug")
+        self.add_cmd_output("/usr/bin/pklogin_finder debug")
+        self.add_cmd_output("/bin/ls -nl /usr/lib*/pam_pkcs11/")

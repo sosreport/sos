@@ -21,10 +21,10 @@ class x11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     files = ('/etc/X11',)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/X11",
             "/var/log/Xorg.*.log",
             "/var/log/XFree86.*.log",
         ])
-        self.addForbiddenPath("/etc/X11/X")
-        self.addForbiddenPath("/etc/X11/fontpath.d")
+        self.add_forbidden_path("/etc/X11/X")
+        self.add_forbidden_path("/etc/X11/fontpath.d")

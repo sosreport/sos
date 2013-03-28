@@ -20,11 +20,11 @@ class process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """process information
     """
     def setup(self):
-        self.addCmdOutput("/bin/ps auxwww", root_symlink = "ps")
-        self.addCmdOutput("/bin/ps auxwwwm")
-        self.addCmdOutput("/bin/ps alxwww")
-        self.addCmdOutput("/usr/bin/pstree", root_symlink = "pstree")
-        self.addCmdOutput("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
+        self.add_cmd_output("/bin/ps auxwww", root_symlink = "ps")
+        self.add_cmd_output("/bin/ps auxwwwm")
+        self.add_cmd_output("/bin/ps alxwww")
+        self.add_cmd_output("/usr/bin/pstree", root_symlink = "pstree")
+        self.add_cmd_output("/usr/sbin/lsof -b +M -n -l", root_symlink = "lsof")
 
     def find_mountpoint(s):
         if (os.path.ismount(s) or len(s)==0): return s

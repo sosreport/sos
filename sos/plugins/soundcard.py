@@ -19,16 +19,16 @@ class soundcard(Plugin, RedHatPlugin):
     """ Sound card information
     """
 
-    def defaultenabled(self):
+    def default_enabled(self):
         return False
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/asound/*",
             "/etc/alsa/*",
             "/etc/asound.*"])
-        self.addCmdOutput("/sbin/lspci | grep -i audio")
-        self.addCmdOutput("/usr/bin/aplay -l")
-        self.addCmdOutput("/usr/bin/aplay -L")
-        self.addCmdOutput("/usr/bin/amixer")
-        self.addCmdOutput("/sbin/lsmod | /bin/grep snd | /bin/awk '{print $1}'", suggest_filename = "sndmodules_loaded")
+        self.add_cmd_output("/sbin/lspci | grep -i audio")
+        self.add_cmd_output("/usr/bin/aplay -l")
+        self.add_cmd_output("/usr/bin/aplay -L")
+        self.add_cmd_output("/usr/bin/amixer")
+        self.add_cmd_output("/sbin/lsmod | /bin/grep snd | /bin/awk '{print $1}'", suggest_filename = "sndmodules_loaded")

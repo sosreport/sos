@@ -29,11 +29,11 @@ class RedHatIscsi(iscsi, RedHatPlugin):
 
     def setup(self):
         super(RedHatIscsi, self).setup()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"])
-        self.addCmdOutput("iscsiadm -m session -P 3")
-        self.addCmdOutput("iscsiadm -m node -P 3")
-        self.addCmdOutput("iscsiadm -m iface -P 1")
-        self.addCmdOutput("iscsiadm -m node --op=show")
+        self.add_cmd_output("iscsiadm -m session -P 3")
+        self.add_cmd_output("iscsiadm -m node -P 3")
+        self.add_cmd_output("iscsiadm -m iface -P 1")
+        self.add_cmd_output("iscsiadm -m node --op=show")

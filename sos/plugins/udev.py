@@ -18,4 +18,4 @@ class udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """udev related information
     """
     def setup(self):
-        self.addCopySpecs(["/etc/udev/udev.conf", "/etc/udev/rules.d/*"])
+        self.add_copy_specs(["/etc/udev/udev.conf", "/etc/udev/rules.d/*"])

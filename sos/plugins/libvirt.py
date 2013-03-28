@@ -19,10 +19,10 @@ class libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
     """
     def setup(self):
-        self.addCopySpecs(["/etc/libvirt/", "/var/log/libvirt*"])
+        self.add_copy_specs(["/etc/libvirt/", "/var/log/libvirt*"])
 
     def postproc(self):
        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
-            self.doFileSub(xmlfile,
+            self.do_file_sub(xmlfile,
                     r"(\s*passwd=\s*')([^']*)('.*$)",
                     r"\1******\3")

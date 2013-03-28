@@ -21,11 +21,11 @@ class printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                    "", 50)]
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/cups/*.conf",
             "/etc/cups/lpoptions",
             "/etc/cups/ppd/*.ppd"])
-        self.addCopySpecLimit("/var/log/cups", sizelimit=self.isOptionEnabled("cupslogsize"))
-        self.addCmdOutput("/usr/bin/lpstat -t")
-        self.addCmdOutput("/usr/bin/lpstat -s")
-        self.addCmdOutput("/usr/bin/lpstat -d")
+        self.add_copy_spec_limit("/var/log/cups", sizelimit=self.option_enabled("cupslogsize"))
+        self.add_cmd_output("/usr/bin/lpstat -t")
+        self.add_cmd_output("/usr/bin/lpstat -s")
+        self.add_cmd_output("/usr/bin/lpstat -d")

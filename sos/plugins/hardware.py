@@ -23,7 +23,7 @@ class hardware(Plugin):
     plugin_name = "hardware"
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/partitions",
             "/proc/cpuinfo",
             "/proc/meminfo",
@@ -45,31 +45,31 @@ class hardware(Plugin):
             "/sys/state",
             "/sys/firmware/acpi/tables",
             "/var/log/mcelog"])
-        self.addCmdOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
+        self.add_cmd_output("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
-        self.addCmdOutput("/usr/sbin/dmidecode", root_symlink = "dmidecode")
+        self.add_cmd_output("/usr/sbin/dmidecode", root_symlink = "dmidecode")
 
 	if os.path.exists("/usr/bin/cpufreq-info"):
-	        self.addCmdOutput("/usr/bin/cpufreq-info")
+	        self.add_cmd_output("/usr/bin/cpufreq-info")
 	if os.path.exists("/usr/bin/cpupower"):
-		self.addCmdOutput("/usr/bin/cpupower info")
-		self.addCmdOutput("/usr/bin/cpupower frequency-info")
+		self.add_cmd_output("/usr/bin/cpupower info")
+		self.add_cmd_output("/usr/bin/cpupower frequency-info")
 
         if self.policy().getArch().endswith("386"):
-            self.addCmdOutput("/usr/sbin/x86info -a")
+            self.add_cmd_output("/usr/sbin/x86info -a")
 
         if os.path.exists("/usr/bin/lsusb"):
             lsusb_path = "/usr/bin/lsusb"
         else:
             lsusb_path = "/usr/bin/lsusb"
 
-        self.addCmdOutput("%s"% lsusb_path)
-        self.addCmdOutput("%s -v"% lsusb_path)
-        self.addCmdOutput("%s -t"% lsusb_path)
+        self.add_cmd_output("%s"% lsusb_path)
+        self.add_cmd_output("%s -v"% lsusb_path)
+        self.add_cmd_output("%s -t"% lsusb_path)
 
-        self.addCmdOutput("/usr/bin/lshal")
-        self.addCmdOutput("/usr/bin/systool -c fc_host -v")
-        self.addCmdOutput("/usr/bin/systool -c scsi_host -v")
+        self.add_cmd_output("/usr/bin/lshal")
+        self.add_cmd_output("/usr/bin/systool -c fc_host -v")
+        self.add_cmd_output("/usr/bin/systool -c scsi_host -v")
 
 class RedHatHardware(hardware, RedHatPlugin):
     """hardware related information for Red Hat distribution
@@ -80,7 +80,7 @@ class RedHatHardware(hardware, RedHatPlugin):
         hwpaths = glob("/usr/share/rhn/up2date*client/hardware.py")
 	if (len(hwpaths) == 0):
             return
-        self.addCmdOutput(hwpaths[0])
+        self.add_cmd_output(hwpaths[0])
 
 
 class DebianHardware(hardware, DebianPlugin, UbuntuPlugin):

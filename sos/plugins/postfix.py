@@ -23,8 +23,8 @@ class postfix(Plugin, RedHatPlugin):
     packages = ('postfix',)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/mail",
             "/etc/postfix/main.cf",
             "/etc/postfix/master.cf"])
-        self.addCmdOutput("/usr/sbin/postconf")
+        self.add_cmd_output("/usr/sbin/postconf")

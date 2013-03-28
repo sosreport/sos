@@ -18,6 +18,6 @@ class pam(Plugin, RedHatPlugin):
     """PAM related information
     """
     def setup(self):
-        self.addCopySpec("/etc/pam.d")
-        self.addCopySpec("/etc/security")
-        self.addCmdOutput("/bin/ls -lanF /lib*/security")
+        self.add_copy_spec("/etc/pam.d")
+        self.add_copy_spec("/etc/security")
+        self.add_cmd_output("/bin/ls -lanF /lib*/security")

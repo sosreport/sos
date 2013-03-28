@@ -23,14 +23,14 @@ class sunrpc(Plugin):
     plugin_name = "sunrpc"
     service = None
 
-    def checkenabled(self):
+    def check_enabled(self):
         if self.policy().runlevelDefault() in \
 		self.policy().runlevelByService(self.service):
             return True
         return False
 
     def setup(self):
-        self.addCmdOutput("/usr/sbin/rpcinfo -p localhost")
+        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
         return
 
 class RedHatSunrpc(sunrpc, RedHatPlugin):
@@ -48,7 +48,7 @@ class RedHatSunrpc(sunrpc, RedHatPlugin):
 #    service = 'rpcbind-boot'
 #
 #    def setup(self):
-#        self.addCmdOutput("/usr/sbin/rpcinfo -p localhost")
+#        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
 #        return
 
 

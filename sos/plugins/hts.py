@@ -18,5 +18,5 @@ class hts(Plugin, RedHatPlugin):
     """Red Hat Hardware Test Suite related information
     """
     def setup(self):
-        self.addCopySpec("/etc/httpd/conf.d/hts.conf")
-        self.addCopySpec("/var/hts")
+        self.add_copy_spec("/etc/httpd/conf.d/hts.conf")
+        self.add_copy_spec("/var/hts")

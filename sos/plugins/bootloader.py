@@ -18,7 +18,7 @@ class bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
     """Bootloader information
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/lilo.conf",
             "/etc/milo.conf",
             "/etc/silo.conf",
@@ -27,5 +27,5 @@ class bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
             "/boot/grub/device.map",
             "/etc/grub.d",
             "/boot/yaboot.conf"])
-        self.addCmdOutput("/sbin/lilo -q")
-        self.addCmdOutput("/bin/ls -lanR /boot")
+        self.add_cmd_output("/sbin/lilo -q")
+        self.add_cmd_output("/bin/ls -lanR /boot")

@@ -3,7 +3,7 @@ import os
 import tempfile
 from StringIO import StringIO
 
-from sos.plugins import Plugin, regex_findall, sosRelPath, mangle_command
+from sos.plugins import Plugin, regex_findall, sos_relative_path, mangle_command
 from sos.utilities import Archive
 
 PATH = os.path.dirname(__file__)
@@ -72,7 +72,7 @@ class ForbiddenMockPlugin(Plugin):
     plugin_name = "forbidden"
 
     def setup(self):
-        self.addForbiddenPath("tests")
+        self.add_forbidden_path("tests")
 
 
 class EnablerPlugin(Plugin):
@@ -114,17 +114,17 @@ class PluginToolTests(unittest.TestCase):
     def test_rel_path(self):
         path1 = "/usr/lib/foo"
         path2 = "/usr/lib/boo"
-        self.assertEquals(sosRelPath(path1, path2), "../boo")
+        self.assertEquals(sos_relative_path(path1, path2), "../boo")
 
     def test_abs_path(self):
         path1 = "usr/lib/foo"
         path2 = "foo/lib/boo"
-        self.assertEquals(sosRelPath(path1, path2), "foo/lib/boo")
+        self.assertEquals(sos_relative_path(path1, path2), "foo/lib/boo")
 
     def test_bad_path(self):
         path1 = None
         path2 = "foo/lib/boo"
-        self.assertEquals(sosRelPath(path1, path2), "foo/lib/boo")
+        self.assertEquals(sos_relative_path(path1, path2), "foo/lib/boo")
 
     def test_mangle_command(self):
         self.assertEquals("foo", mangle_command("/usr/bin/foo"))
@@ -161,27 +161,27 @@ class PluginTests(unittest.TestCase):
 
     def test_set_plugin_option(self):
         p = MockPlugin({})
-        p.setOption("opt", "testing")
-        self.assertEquals(p.getOption("opt"), "testing")
+        p.set_option("opt", "testing")
+        self.assertEquals(p.get_option("opt"), "testing")
 
     def test_set_nonexistant_plugin_option(self):
         p = MockPlugin({})
-        self.assertFalse(p.setOption("badopt", "testing"))
+        self.assertFalse(p.set_option("badopt", "testing"))
 
     def test_get_nonexistant_plugin_option(self):
         p = MockPlugin({})
-        self.assertEquals(p.getOption("badopt"), 0)
+        self.assertEquals(p.get_option("badopt"), 0)
 
     def test_get_unset_plugin_option(self):
         p = MockPlugin({})
-        self.assertEquals(p.getOption("opt"), 0)
+        self.assertEquals(p.get_option("opt"), 0)
 
     def test_get_unset_plugin_option_with_default(self):
         # this shows that even when we pass in a default to get,
         # we'll get the option's default as set in the plugin
         # this might not be what we really want
         p = MockPlugin({})
-        self.assertEquals(p.getOption("opt", True), True)
+        self.assertEquals(p.get_option("opt", True), True)
 
     def test_get_unset_plugin_option_with_default_not_none(self):
         # this shows that even when we pass in a default to get,
@@ -189,21 +189,21 @@ class PluginTests(unittest.TestCase):
         # we'll get the option's default as set in the plugin
         # this might not be what we really want
         p = MockPlugin({})
-        self.assertEquals(p.getOption("opt2", True), False)
+        self.assertEquals(p.get_option("opt2", True), False)
 
     def test_get_option_as_list_plugin_option(self):
         p = MockPlugin({})
-        p.setOption("opt", "one,two,three")
-        self.assertEquals(p.getOptionAsList("opt"), ['one', 'two', 'three'])
+        p.set_option("opt", "one,two,three")
+        self.assertEquals(p.get_option_as_list("opt"), ['one', 'two', 'three'])
 
     def test_get_option_as_list_plugin_option_default(self):
         p = MockPlugin({})
-        self.assertEquals(p.getOptionAsList("opt", default=[]), [])
+        self.assertEquals(p.get_option_as_list("opt", default=[]), [])
 
     def test_get_option_as_list_plugin_option_not_list(self):
         p = MockPlugin({})
-        p.setOption("opt", "testing")
-        self.assertEquals(p.getOptionAsList("opt"), ['testing'])
+        p.set_option("opt", "testing")
+        self.assertEquals(p.get_option_as_list("opt"), ['testing'])
 
     def test_copy_dir(self):
         self.mp.doCopyFileOrDir("tests")
@@ -236,12 +236,12 @@ class AddCopySpecLimitTests(unittest.TestCase):
         self.mp.archive = MockArchive()
 
     def test_single_file_under_limit(self):
-        self.mp.addCopySpecLimit("tests/tail_test.txt", 1)
+        self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
         self.assertEquals(self.mp.copyPaths, [('tests/tail_test.txt', None)])
 
     def test_single_file_over_limit(self):
         fn = create_file(2) # create 2MB file, consider a context manager
-        self.mp.addCopySpecLimit(fn, 1, sub=('tmp', 'awesome'))
+        self.mp.add_copy_spec_limit(fn, 1, sub=('tmp', 'awesome'))
         content, fname = self.mp.copyStrings[0]
         self.assertTrue("tailed" in fname)
         self.assertTrue("awesome" in fname)
@@ -250,14 +250,14 @@ class AddCopySpecLimitTests(unittest.TestCase):
         os.unlink(fn)
 
     def test_bad_filename(self):
-        self.assertFalse(self.mp.addCopySpecLimit('', 1))
-        self.assertFalse(self.mp.addCopySpecLimit(None, 1))
+        self.assertFalse(self.mp.add_copy_spec_limit('', 1))
+        self.assertFalse(self.mp.add_copy_spec_limit(None, 1))
 
     def test_glob_file_over_limit(self):
         # assume these are in /tmp
         fn = create_file(2)
         fn2 = create_file(2)
-        self.mp.addCopySpecLimit("/tmp/tmp*", 1)
+        self.mp.add_copy_spec_limit("/tmp/tmp*", 1)
         self.assertEquals(len(self.mp.copyStrings), 1)
         content, fname = self.mp.copyStrings[0]
         self.assertTrue("tailed" in fname)
@@ -274,21 +274,21 @@ class CheckEnabledTests(unittest.TestCase):
     def test_checks_for_file(self):
         f = j("tail_test.txt")
         self.mp.files = (f,)
-        self.assertTrue(self.mp.checkenabled())
+        self.assertTrue(self.mp.check_enabled())
 
     def test_checks_for_package(self):
         self.mp.packages = ('foo',)
         self.mp.is_installed = True
-        self.assertTrue(self.mp.checkenabled())
+        self.assertTrue(self.mp.check_enabled())
 
     def test_allows_bad_tuple(self):
         f = j("tail_test.txt")
         self.mp.files = (f)
         self.mp.packages = ('foo')
-        self.assertTrue(self.mp.checkenabled())
+        self.assertTrue(self.mp.check_enabled())
 
     def test_enabled_by_default(self):
-        self.assertTrue(self.mp.checkenabled())
+        self.assertTrue(self.mp.check_enabled())
 
 
 class RegexSubTests(unittest.TestCase):
@@ -303,14 +303,14 @@ class RegexSubTests(unittest.TestCase):
         self.assertEquals(0, self.mp.doFileSub("never_copied", r"^(.*)$", "foobar"))
 
     def test_no_replacements(self):
-        self.mp.addCopySpec(j("tail_test.txt"))
-        self.mp.copyStuff()
+        self.mp.add_copy_spec(j("tail_test.txt"))
+        self.mp.copy_stuff()
         replacements = self.mp.doFileSub(j("tail_test.txt"), r"wont_match", "foobar")
         self.assertEquals(0, replacements)
 
     def test_replacements(self):
-        self.mp.addCopySpec(j("tail_test.txt"))
-        self.mp.copyStuff()
+        self.mp.add_copy_spec(j("tail_test.txt"))
+        self.mp.copy_stuff()
         replacements = self.mp.doFileSub(j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEquals(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))

@@ -391,12 +391,12 @@ class SoSReport(object):
                 plugin_name in self._get_disabled_plugins())
 
     def _is_inactive(self, plugin_name, pluginClass):
-        return (not pluginClass(self.get_commons()).checkenabled() and
+        return (not pluginClass(self.get_commons()).check_enabled() and
                 not plugin_name in self.opts.enableplugins  and
                 not plugin_name in self.opts.onlyplugins)
 
     def _is_not_default(self, plugin_name, pluginClass):
-        return (not pluginClass(self.get_commons()).defaultenabled() and
+        return (not pluginClass(self.get_commons()).default_enabled() and
                 not plugin_name in self.opts.enableplugins and
                 not plugin_name in self.opts.onlyplugins)
 
@@ -518,7 +518,7 @@ class SoSReport(object):
             for plugname, plug in self.loaded_plugins:
                 if plugname in opts:
                     for opt, val in opts[plugname]:
-                        if not plug.setOption(opt, val):
+                        if not plug.set_option(opt, val):
                             self.soslog.error('no such option "%s" for plugin '
                                          '(%s)' % (opt,plugname))
                             self._exit(1)
@@ -540,7 +540,7 @@ class SoSReport(object):
 
     def _set_plugin_options(self):
         for plugin_name, plugin in self.loaded_plugins:
-            names, parms = plugin.getAllOptions()
+            names, parms = plugin.get_all_options()
             for optname, optparm in zip(names, parms):
                 self.all_options.append((plugin, plugin_name, optname, optparm))
 
@@ -645,7 +645,7 @@ class SoSReport(object):
                 sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, len(self.loaded_plugins), plugname))
                 sys.stdout.flush()
             try:
-                plug.copyStuff()
+                plug.copy_stuff()
             except KeyboardInterrupt:
                 raise
             except:

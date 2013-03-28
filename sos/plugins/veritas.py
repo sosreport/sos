@@ -22,17 +22,17 @@ class veritas(Plugin, RedHatPlugin):
     # http://seer.entsupport.symantec.com/docs/243150.htm
     optionList = [("script", "Define VRTSexplorer script path", "", "/opt/VRTSspt/VRTSexplorer")]
 
-    def checkenabled(self):
-        return os.path.isfile(self.getOption("script"))
+    def check_enabled(self):
+        return os.path.isfile(self.get_option("script"))
 
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
-        stat, out, runtime = self.callExtProg(self.getOption("script"))
+        stat, out, runtime = self.call_ext_prog(self.get_option("script"))
         try:
             for line in out.readlines():
                 line = line.strip()
-                tarfile = self.doRegexFindAll(r"ftp (.*tar.gz)", line)
+                tarfile = self.do_regex_find_all(r"ftp (.*tar.gz)", line)
             if len(tarfile) == 1:
-                self.addCopySpec(tarfile[0])
+                self.add_copy_spec(tarfile[0])
         except AttributeError, e:
-            self.addAlert(e)
+            self.add_alert(e)

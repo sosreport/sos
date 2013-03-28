@@ -25,7 +25,7 @@ class rhui(Plugin, RedHatPlugin):
     files = [ rhui_debug_path ]
 
     def setup(self):
-        if self.isInstalled("pulp-cds"):
+        if self.is_installed("pulp-cds"):
             cds = "--cds"
         else:
             cds = ""
@@ -37,7 +37,7 @@ class rhui(Plugin, RedHatPlugin):
         except:
             return
 
-        self.addCmdOutput("python %s %s --dir %s"
+        self.add_cmd_output("python %s %s --dir %s"
                 % (self.rhui_debug_path, cds, rhui_debug_dst_path),
                 suggest_filename="rhui-debug")
         return

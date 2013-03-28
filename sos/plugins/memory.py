@@ -18,13 +18,13 @@ class memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """memory usage information
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/pci",
             "/proc/meminfo",
             "/proc/vmstat",
             "/proc/slabinfo",
             "/proc/pagetypeinfo"])
 
-        self.addCmdOutput("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
-        self.addCmdOutput("/usr/bin/free", root_symlink = "free")
-        self.addCmdOutput("/usr/bin/free -m")
+        self.add_cmd_output("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
+        self.add_cmd_output("/usr/bin/free", root_symlink = "free")
+        self.add_cmd_output("/usr/bin/free -m")

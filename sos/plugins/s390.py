@@ -23,13 +23,13 @@ class s390(Plugin, RedHatPlugin):
 
     ### Check for s390 arch goes here
 
-    def checkenabled(self):
+    def check_enabled(self):
         return (self.policy().getArch() == "s390")
 
     ### Gather s390 specific information
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/cio_ignore"
             "/proc/crypto",
             "/proc/dasd/devices",
@@ -51,20 +51,20 @@ class s390(Plugin, RedHatPlugin):
             "/etc/src_vipa.conf",
             "/etc/ccwgroup.conf",
             "/etc/chandev.conf"])
-        self.addCmdOutput("/sbin/lscss")
-        self.addCmdOutput("/sbin/lsdasd")
-        self.addCmdOutput("/sbin/lstape")
-        self.addCmdOutput("find /sys -type f")
-        self.addCmdOutput("find /proc/s390dbf -type f")
-        self.addCmdOutput("/sbin/qethconf list_all")
-        ret, dasdDev, rtime = self.callExtProg("/bin/ls /dev/dasd?")
+        self.add_cmd_output("/sbin/lscss")
+        self.add_cmd_output("/sbin/lsdasd")
+        self.add_cmd_output("/sbin/lstape")
+        self.add_cmd_output("find /sys -type f")
+        self.add_cmd_output("find /proc/s390dbf -type f")
+        self.add_cmd_output("/sbin/qethconf list_all")
+        ret, dasdDev, rtime = self.call_ext_prog("/bin/ls /dev/dasd?")
         for x in dasdDev.split('\n'):
-            self.addCmdOutput("/sbin/dasdview -x -i -j -l -f %s" % (x,))
-            self.addCmdOutput("/sbin/fdasd -p %s" % (x,))
+            self.add_cmd_output("/sbin/dasdview -x -i -j -l -f %s" % (x,))
+            self.add_cmd_output("/sbin/fdasd -p %s" % (x,))
         try:
             rhelver = self.policy().rhelVersion()
             if rhelver == 5:
-                self.addCmdOutput("/sbin/lsqeth")
-                self.addCmdOutput("/sbin/lszfcp")
+                self.add_cmd_output("/sbin/lsqeth")
+                self.add_cmd_output("/sbin/lszfcp")
         except:
             rhelver = None

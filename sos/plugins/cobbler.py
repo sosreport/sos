@@ -24,10 +24,10 @@ class RedHatCobbler(cobbler, RedHatPlugin):
     packages = ('cobbler',)
 
     def setup(self):
-        self.addCopySpec("/etc/cobbler")
-        self.addCopySpec("/var/log/cobbler")
-        self.addCopySpec("/var/lib/rhn/kickstarts")
-        self.addCopySpec("/var/lib/cobbler")
+        self.add_copy_spec("/etc/cobbler")
+        self.add_copy_spec("/var/log/cobbler")
+        self.add_copy_spec("/var/lib/rhn/kickstarts")
+        self.add_copy_spec("/var/lib/cobbler")
 
 class DebianCobbler(cobbler, DebianPlugin, UbuntuPlugin):
     """cobbler related information for Debian and Ubuntu
@@ -36,6 +36,6 @@ class DebianCobbler(cobbler, DebianPlugin, UbuntuPlugin):
     packages = ('cobbler',)
 
     def setup(self):
-        self.addCopySpec("/etc/cobbler")
-        self.addCopySpec("/var/log/cobbler")
-        self.addCopySpec("/var/lib/cobbler")
+        self.add_copy_spec("/etc/cobbler")
+        self.add_copy_spec("/var/log/cobbler")
+        self.add_copy_spec("/var/lib/cobbler")

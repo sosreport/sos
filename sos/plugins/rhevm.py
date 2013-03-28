@@ -8,16 +8,16 @@ class rhevm(Plugin, RedHatPlugin):
 
     def setup(self):
         # Copy rhevm config files.
-        self.addCopySpec("/etc/rhevm")
-        self.addCopySpec("/var/log/rhevm")
-        if self.getOption("vdsmlogs"):
-            self.addCopySpec(self.getOption("vdsmlogs"))
+        self.add_copy_spec("/etc/rhevm")
+        self.add_copy_spec("/var/log/rhevm")
+        if self.get_option("vdsmlogs"):
+            self.add_copy_spec(self.get_option("vdsmlogs"))
 
     def postproc(self):
         """
         Obfuscate passwords.
         """
 
-        self.doFileSub("/etc/rhevm/rhevm-config/rhevm-config.properties",
+        self.do_file_sub("/etc/rhevm/rhevm-config/rhevm-config.properties",
                         r"Password.type=(.*)",
                         r'Password.type=********')

@@ -37,17 +37,17 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
 
     def __alert(self, msg):
         self.soslog.error(msg)
-        self.addAlert(msg)
+        self.add_alert(msg)
 
     def __getJbossHome(self):
 
         self.__jbossHome = self.get_jboss_home()
         if not self.__jbossHome:
-            self.addAlert("ERROR: The JBoss installation directory was not supplied.\
+            self.add_alert("ERROR: The JBoss installation directory was not supplied.\
               The JBoss SOS plug-in cannot continue.")
             return False
 
-        self.addAlert("INFO: The JBoss installation directory supplied to SOS is " +
+        self.add_alert("INFO: The JBoss installation directory supplied to SOS is " +
                   self.__jbossHome)
         return True
 
@@ -94,12 +94,12 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
 
         if jar_info_list:
             jar_info_list.sort()
-            self.addStringAsFile("\n".join([
+            self.add_string_as_file("\n".join([
                 "%s\n%s\n%s\n===\n" % (name, checksum, manifest)
                 for (name, checksum, manifest) in jar_info_list]),
                 'jarinfo.txt')
         else:
-            self.addAlert("WARN: No jars found in JBoss system path (" + self.__jbossHome + ").")
+            self.add_alert("WARN: No jars found in JBoss system path (" + self.__jbossHome + ").")
 
     def get_online_data(self):
         """
@@ -129,26 +129,26 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
         for dir_ in configDirAry:
             path = os.path.join(self.__jbossHome, dir_)
             ## First add forbidden files
-            self.addForbiddenPath(os.path.join(path, "tmp"))
-            self.addForbiddenPath(os.path.join(path, "work"))
-            self.addForbiddenPath(os.path.join(path, "data"))
+            self.add_forbidden_path(os.path.join(path, "tmp"))
+            self.add_forbidden_path(os.path.join(path, "work"))
+            self.add_forbidden_path(os.path.join(path, "data"))
 
             if os.path.exists(path):
                 ## First get everything in the conf dir
                 confDir = os.path.join(path, "configuration")
-                self.addForbiddenPath(os.path.join(confDir, 'mgmt-users.properties'))
-                self.addForbiddenPath(os.path.join(confDir, 'application-users.properties'))
+                self.add_forbidden_path(os.path.join(confDir, 'mgmt-users.properties'))
+                self.add_forbidden_path(os.path.join(confDir, 'application-users.properties'))
 
                 for logFile in find("*.log", path):
-                    self.addCopySpecLimit(logFile,
-                            self.getOption("logsize"),
+                    self.add_copy_spec_limit(logFile,
+                            self.get_option("logsize"),
                             sub=(self.__jbossHome, 'JBOSSHOME'))
 
                 for xml in find("*.xml", path):
-                    self.addCopySpec(xml, sub=(self.__jbossHome, 'JBOSSHOME'))
+                    self.add_copy_spec(xml, sub=(self.__jbossHome, 'JBOSSHOME'))
 
                 for prop in find("*.properties", path):
-                    self.addCopySpec(prop, sub=(self.__jbossHome, 'JBOSSHOME'))
+                    self.add_copy_spec(prop, sub=(self.__jbossHome, 'JBOSSHOME'))
 
                 deployment_info = self.__get_deployment_info(confDir)
                 deployments = self.__get_deployments(path)
@@ -156,7 +156,7 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
                     self.__get_listing_from_deployment(deployment, deployment_info)
 
         for xml in find("*.xml", os.path.join(self.__jbossHome, 'modules')):
-            self.addCopySpec(xml, sub=(self.__jbossHome, 'JBOSSHOME'))
+            self.add_copy_spec(xml, sub=(self.__jbossHome, 'JBOSSHOME'))
 
     def __get_deployment_info(self, dir_):
         """Gets the deployment name to sha1 mapping for all deployments defined
@@ -199,12 +199,12 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
             else:
                 path_to, name = os.path.split(path_to)
 
-            self.addStringAsFile(output, os.path.join(path_to, "%s.txt" % name))
+            self.add_string_as_file(output, os.path.join(path_to, "%s.txt" % name))
         except:
             # this is probably not a zipfile so we don't care
             pass
 
-    def checkenabled(self):
+    def check_enabled(self):
         return self.__getJbossHome()
 
     def setup(self):
@@ -217,11 +217,11 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
         except urllib2.URLError:
             pass
 
-        if self.getOption("stdjar"):
+        if self.get_option("stdjar"):
             self.__getStdJarInfo()
 
         tree = DirTree(self.__jbossHome).as_string()
-        self.addStringAsFile(tree, "jboss_home_tree.txt")
+        self.add_string_as_file(tree, "jboss_home_tree.txt")
 
         self.__getFiles(self.__jbossServerConfigDirs)
 
@@ -235,19 +235,19 @@ class AS7(Plugin, IndependentPlugin, AS7Mixin):
         for dir_ in self.__jbossServerConfigDirs:
             path = os.path.join(self.__jbossHome, dir_)
 
-            self.doFileSub(os.path.join(path,"configuration","*.xml"),
+            self.do_file_sub(os.path.join(path,"configuration","*.xml"),
                             password_xml_regex,
                             r'<password>********</password>')
 
             tmp = os.path.join(path,"configuration")
             for propFile in find("*-users.properties", tmp):
-                self.doFileSub(propFile,
+                self.do_file_sub(propFile,
                                 r"=(.*)",
                                 r'=********')
 
 #           Remove PW from -ds.xml files
             tmp = os.path.join(path, "deployments")
             for dsFile in find("*-ds.xml", tmp):
-                self.doFileSub(dsFile,
+                self.do_file_sub(dsFile,
                                 password_xml_regex,
                                 r"<password>********</password>")

@@ -19,16 +19,16 @@ class GlobalOptionTest(unittest.TestCase):
         self.plugin.optParms = [{'enabled': False}, {'enabled': None}]
 
     def test_simple_lookup(self):
-        self.assertEquals(self.plugin.getOption('test_option'), 'foobar')
+        self.assertEquals(self.plugin.get_option('test_option'), 'foobar')
 
     def test_multi_lookup(self):
-        self.assertEquals(self.plugin.getOption(('not_there', 'test_option')), 'foobar')
+        self.assertEquals(self.plugin.get_option(('not_there', 'test_option')), 'foobar')
 
     def test_cascade(self):
-        self.assertEquals(self.plugin.getOption(('baz')), False)
+        self.assertEquals(self.plugin.get_option(('baz')), False)
 
     def test_none_should_cascade(self):
-        self.assertEquals(self.plugin.getOption(('empty', 'empty_global')), True)
+        self.assertEquals(self.plugin.get_option(('empty', 'empty_global')), True)
 
 if __name__ == "__main__":
     unittest.main()

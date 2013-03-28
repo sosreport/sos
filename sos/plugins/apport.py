@@ -19,4 +19,4 @@ class apport(Plugin, DebianPlugin, UbuntuPlugin):
     """apport information
     """
     def setup(self):
-        self.addCopySpec("/etc/apport/*")
+        self.add_copy_spec("/etc/apport/*")

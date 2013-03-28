@@ -28,37 +28,37 @@ class yum(Plugin, RedHatPlugin):
         rhelver = self.policy().rhelVersion()
 
         # Pull all yum related information
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/yum",
             "/etc/yum.repos.d",
             "/etc/yum.conf",
             "/var/log/yum.log"])
 
         # Get a list of channels the machine is subscribed to.
-        self.addCmdOutput("/usr/bin/yum -C repolist")
+        self.add_cmd_output("/usr/bin/yum -C repolist")
 
         # candlepin info
-        self.addForbiddenPath("/etc/pki/entitlements/key.pem")
-        self.addForbiddenPath("/etc/pki/entitlements/*-key.pem")
-        self.addCopySpecs([
+        self.add_forbidden_path("/etc/pki/entitlements/key.pem")
+        self.add_forbidden_path("/etc/pki/entitlements/*-key.pem")
+        self.add_copy_specs([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",
             "/etc/pki/entitlement/*.pem",
             "/etc/rhsm/",
             "/var/log/rhsm/rhsm.log",
             "/var/log/rhsm/rhsmcertd.log"])
-        self.addCmdOutput("subscription-manager list --installed")
-        self.addCmdOutput("subscription-manager list --consumed")
+        self.add_cmd_output("subscription-manager list --installed")
+        self.add_cmd_output("subscription-manager list --consumed")
 
-        if self.getOption("yumlist"):
+        if self.get_option("yumlist"):
             # List various information about available packages
-            self.addCmdOutput("/usr/bin/yum list")
+            self.add_cmd_output("/usr/bin/yum list")
 
-        if self.getOption("yumdebug") and self.isInstalled('yum-utils'):
+        if self.get_option("yumdebug") and self.is_installed('yum-utils'):
             # RHEL6+ alternative for this whole function:
-            # self.addCmdOutput("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.cInfo['dstroot'],"yum-debug-dump"))
-            ret, output, rtime = self.callExtProg("/usr/bin/yum-debug-dump")
+            # self.add_cmd_output("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.cInfo['dstroot'],"yum-debug-dump"))
+            ret, output, rtime = self.call_ext_prog("/usr/bin/yum-debug-dump")
             try:
-                self.addCmdOutput("/bin/zcat %s" % (output.split()[-1],))
+                self.add_cmd_output("/bin/zcat %s" % (output.split()[-1],))
             except IndexError:
                 pass

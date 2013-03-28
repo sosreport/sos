@@ -26,7 +26,7 @@ class named(Plugin, RedHatPlugin):
     def getDnsDir(self, configFile):
         """ grab directory path from named{conf,boot}
         """
-        directoryList = self.doRegexFindAll("directory\s+\"(.*)\"", configFile)
+        directoryList = self.do_regex_find_all("directory\s+\"(.*)\"", configFile)
         return normpath(directoryList[0])
 
     def setup(self):
@@ -34,18 +34,18 @@ class named(Plugin, RedHatPlugin):
                     "/etc/named.boot")
         for cfg in cfgFiles:
             if exists(cfg):
-                self.addCopySpec(cfg)
-                self.addCopySpec(self.getDnsDir(cfg))
-                self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/dev"))
-                self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/proc"))
+                self.add_copy_spec(cfg)
+                self.add_copy_spec(self.getDnsDir(cfg))
+                self.add_forbidden_path(join(self.getDnsDir(cfg),"chroot/dev"))
+                self.add_forbidden_path(join(self.getDnsDir(cfg),"chroot/proc"))
 
-        self.addCopySpec("/etc/named/")
-        self.addCopySpec("/etc/sysconfig/named")
-        self.addCmdOutput("klist -ket /etc/named.keytab")
-        self.addForbiddenPath("/etc/named.keytab")
+        self.add_copy_spec("/etc/named/")
+        self.add_copy_spec("/etc/sysconfig/named")
+        self.add_cmd_output("klist -ket /etc/named.keytab")
+        self.add_forbidden_path("/etc/named.keytab")
         return
 
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"
         subst = r"\1******"
-        self.doFileSub("/etc/named.conf", match, subst)
+        self.do_file_sub("/etc/named.conf", match, subst)

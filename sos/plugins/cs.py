@@ -25,19 +25,19 @@ class cs(Plugin, RedHatPlugin):
     """
 
     def checkversion(self):
-        if self.isInstalled("redhat-cs") or exists("/opt/redhat-cs"):
+        if self.is_installed("redhat-cs") or exists("/opt/redhat-cs"):
             return 71
-        elif self.isInstalled("rhpki-common") or len(glob("/var/lib/rhpki-*")):
+        elif self.is_installed("rhpki-common") or len(glob("/var/lib/rhpki-*")):
             return 73
         # 8 should cover dogtag
-        elif self.isInstalled("pki-common") or exists("/usr/share/java/pki"):
+        elif self.is_installed("pki-common") or exists("/usr/share/java/pki"):
             return 8
         return False
 
-    def checkenabled(self):
-        if self.isInstalled("redhat-cs") or \
-           self.isInstalled("rhpki-common") or \
-           self.isInstalled("pki-common") or \
+    def check_enabled(self):
+        if self.is_installed("redhat-cs") or \
+           self.is_installed("rhpki-common") or \
+           self.is_installed("pki-common") or \
            exists("/opt/redhat-cs") or \
            exists("/usr/share/java/rhpki") or \
            exists("/usr/share/java/pki"):
@@ -47,10 +47,10 @@ class cs(Plugin, RedHatPlugin):
     def setup(self):
         csversion = self.checkversion()
         if not csversion:
-            self.addAlert("Red Hat Certificate System not found.")
+            self.add_alert("Red Hat Certificate System not found.")
             return
         if csversion == 71:
-            self.addCopySpecs([
+            self.add_copy_specs([
                 "/opt/redhat-cs/slapd-*/logs/access",
                 "/opt/redhat-cs/slapd-*/logs/errors",
                 "/opt/redhat-cs/slapd-*/config/dse.ldif",
@@ -63,7 +63,7 @@ class cs(Plugin, RedHatPlugin):
                 "/opt/redhat-cs/cert-*/debug",
                 "/opt/redhat-cs/cert-*/tps-debug.log"])
         if csversion == 73:
-            self.addCopySpecs([
+            self.add_copy_specs([
                 "/var/lib/rhpki-*/conf/*cfg*",
                 "/var/lib/rhpki-*/conf/*.ldif",
                 "/var/lib/rhpki-*/logs/debug",
@@ -72,12 +72,12 @@ class cs(Plugin, RedHatPlugin):
                 "/var/lib/rhpki-*/logs/transactions",
                 "/var/lib/rhpki-*/logs/system"])
         if csversion in (73, 8):
-            self.addCopySpecs([
+            self.add_copy_specs([
                 "/etc/dirsrv/slapd-*/dse.ldif",
                 "/var/log/dirsrv/slapd-*/access",
                 "/var/log/dirsrv/slapd-*/errors"])
         if csversion == 8:
-            self.addCopySpecs([
+            self.add_copy_specs([
                 "/etc/pki-*/CS.cfg",
                 "/var/lib/pki-*/conf/*cfg*",
                 "/var/log/pki-*/debug",

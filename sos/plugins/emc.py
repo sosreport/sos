@@ -25,19 +25,19 @@ class emc(Plugin, RedHatPlugin):
     def about_emc(self):
         """ EMC Corporation specific information
         """
-        self.addCustomText('<center><h1><font size="+4"color="blue">EMC&sup2;</font><font size="-2" color="blue">&reg;</font>')
-        self.addCustomText('<br><font size="+1">where information lives</font><font size="-2">&reg;</font></h1>')
-        self.addCustomText("EMC Corporation is the world's leading developer and provider of information ")
-        self.addCustomText("infrastructure technology and solutions that enable organizations of all sizes to transform ")
-        self.addCustomText("the way they compete and create value from their information. &nbsp;")
-        self.addCustomText("Information about EMC's products and services can be found at ")
-        self.addCustomText('<a href="http://www.EMC.com/">www.EMC.com</a>.</center>')
+        self.add_custom_text('<center><h1><font size="+4"color="blue">EMC&sup2;</font><font size="-2" color="blue">&reg;</font>')
+        self.add_custom_text('<br><font size="+1">where information lives</font><font size="-2">&reg;</font></h1>')
+        self.add_custom_text("EMC Corporation is the world's leading developer and provider of information ")
+        self.add_custom_text("infrastructure technology and solutions that enable organizations of all sizes to transform ")
+        self.add_custom_text("the way they compete and create value from their information. &nbsp;")
+        self.add_custom_text("Information about EMC's products and services can be found at ")
+        self.add_custom_text('<a href="http://www.EMC.com/">www.EMC.com</a>.</center>')
 
     def get_pp_files(self):
         """ EMC PowerPath specific information - files
         """
-        self.addCmdOutput("/sbin/powermt version")
-        self.addCopySpecs([
+        self.add_cmd_output("/sbin/powermt version")
+        self.add_copy_specs([
             "/etc/init.d/PowerPath",
             "/etc/powermt.custom",
             "/etc/emcp_registration",
@@ -51,18 +51,18 @@ class emc(Plugin, RedHatPlugin):
     def get_pp_config(self):
         """ EMC PowerPath specific information - commands
         """
-        self.addCmdOutput("/sbin/powermt display")
-        self.addCmdOutput("/sbin/powermt display dev=all")
-        self.addCmdOutput("/sbin/powermt check_registration")
-        self.addCmdOutput("/sbin/powermt display options")
-        self.addCmdOutput("/sbin/powermt display ports")
-        self.addCmdOutput("/sbin/powermt display paths")
-        self.addCmdOutput("/sbin/powermt dump")
+        self.add_cmd_output("/sbin/powermt display")
+        self.add_cmd_output("/sbin/powermt display dev=all")
+        self.add_cmd_output("/sbin/powermt check_registration")
+        self.add_cmd_output("/sbin/powermt display options")
+        self.add_cmd_output("/sbin/powermt display ports")
+        self.add_cmd_output("/sbin/powermt display paths")
+        self.add_cmd_output("/sbin/powermt dump")
 
     def get_symcli_files(self):
         """ EMC Solutions Enabler SYMCLI specific information - files
         """
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/var/symapi/db/symapi_db.bin",
             "/var/symapi/config/[a-z]*",
             "/var/symapi/log/[a-z]*"])
@@ -70,56 +70,56 @@ class emc(Plugin, RedHatPlugin):
     def get_symcli_config(self):
         """ EMC Solutions Enabler SYMCLI specific information - Symmetrix/DMX - commands
         """
-        self.addCmdOutput("/usr/symcli/bin/symcli -def")
-        self.addCmdOutput("/usr/symcli/bin/symdg list")
-        self.addCmdOutput("/usr/symcli/bin/symdg -v list")
-        self.addCmdOutput("/usr/symcli/bin/symcg list")
-        self.addCmdOutput("/usr/symcli/bin/symcg -v list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -v list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -db")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -semaphores list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -dir all -v list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -connections list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -app -v list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -fa all -port list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -ra all -port list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg -sa all -port list")
-        self.addCmdOutput("/usr/symcli/bin/symcfg list -lock")
-        self.addCmdOutput("/usr/symcli/bin/symcfg list -lockn all")
-        self.addCmdOutput("/usr/symcli/bin/syminq")
-        self.addCmdOutput("/usr/symcli/bin/syminq -v")
-        self.addCmdOutput("/usr/symcli/bin/syminq -symmids")
-        self.addCmdOutput("/usr/symcli/bin/syminq hba -fibre")
-        self.addCmdOutput("/usr/symcli/bin/syminq hba -scsi")
-        self.addCmdOutput("/usr/symcli/bin/symhost show -config")
-        self.addCmdOutput("/usr/symcli/bin/stordaemon list")
-        self.addCmdOutput("/usr/symcli/bin/stordaemon -v list")
-        self.addCmdOutput("/usr/symcli/bin/sympd list")
-        self.addCmdOutput("/usr/symcli/bin/sympd list -vcm")
-        self.addCmdOutput("/usr/symcli/bin/symdev list")
-        self.addCmdOutput("/usr/symcli/bin/symdev -v list")
-        self.addCmdOutput("/usr/symcli/bin/symdev -rdfa list")
-        self.addCmdOutput("/usr/symcli/bin/symdev -rdfa -v list")
-        self.addCmdOutput("/usr/symcli/bin/symbcv list")
-        self.addCmdOutput("/usr/symcli/bin/symbcv -v list")
-        self.addCmdOutput("/usr/symcli/bin/symrdf list")
-        self.addCmdOutput("/usr/symcli/bin/symrdf -v list")
-        self.addCmdOutput("/usr/symcli/bin/symrdf -rdfa list")
-        self.addCmdOutput("/usr/symcli/bin/symrdf -rdfa -v list")
-        self.addCmdOutput("/usr/symcli/bin/symsnap list")
-        self.addCmdOutput("/usr/symcli/bin/symsnap list -savedevs")
-        self.addCmdOutput("/usr/symcli/bin/symclone list")
-        self.addCmdOutput("/usr/symcli/bin/symevent list")
-        self.addCmdOutput("/usr/symcli/bin/symmask list hba")
-        self.addCmdOutput("/usr/symcli/bin/symmask list logins")
-        self.addCmdOutput("/usr/symcli/bin/symmaskdb list database")
-        self.addCmdOutput("/usr/symcli/bin/symmaskdb -v list database")
+        self.add_cmd_output("/usr/symcli/bin/symcli -def")
+        self.add_cmd_output("/usr/symcli/bin/symdg list")
+        self.add_cmd_output("/usr/symcli/bin/symdg -v list")
+        self.add_cmd_output("/usr/symcli/bin/symcg list")
+        self.add_cmd_output("/usr/symcli/bin/symcg -v list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -v list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -db")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -semaphores list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -dir all -v list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -connections list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -app -v list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -fa all -port list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -ra all -port list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg -sa all -port list")
+        self.add_cmd_output("/usr/symcli/bin/symcfg list -lock")
+        self.add_cmd_output("/usr/symcli/bin/symcfg list -lockn all")
+        self.add_cmd_output("/usr/symcli/bin/syminq")
+        self.add_cmd_output("/usr/symcli/bin/syminq -v")
+        self.add_cmd_output("/usr/symcli/bin/syminq -symmids")
+        self.add_cmd_output("/usr/symcli/bin/syminq hba -fibre")
+        self.add_cmd_output("/usr/symcli/bin/syminq hba -scsi")
+        self.add_cmd_output("/usr/symcli/bin/symhost show -config")
+        self.add_cmd_output("/usr/symcli/bin/stordaemon list")
+        self.add_cmd_output("/usr/symcli/bin/stordaemon -v list")
+        self.add_cmd_output("/usr/symcli/bin/sympd list")
+        self.add_cmd_output("/usr/symcli/bin/sympd list -vcm")
+        self.add_cmd_output("/usr/symcli/bin/symdev list")
+        self.add_cmd_output("/usr/symcli/bin/symdev -v list")
+        self.add_cmd_output("/usr/symcli/bin/symdev -rdfa list")
+        self.add_cmd_output("/usr/symcli/bin/symdev -rdfa -v list")
+        self.add_cmd_output("/usr/symcli/bin/symbcv list")
+        self.add_cmd_output("/usr/symcli/bin/symbcv -v list")
+        self.add_cmd_output("/usr/symcli/bin/symrdf list")
+        self.add_cmd_output("/usr/symcli/bin/symrdf -v list")
+        self.add_cmd_output("/usr/symcli/bin/symrdf -rdfa list")
+        self.add_cmd_output("/usr/symcli/bin/symrdf -rdfa -v list")
+        self.add_cmd_output("/usr/symcli/bin/symsnap list")
+        self.add_cmd_output("/usr/symcli/bin/symsnap list -savedevs")
+        self.add_cmd_output("/usr/symcli/bin/symclone list")
+        self.add_cmd_output("/usr/symcli/bin/symevent list")
+        self.add_cmd_output("/usr/symcli/bin/symmask list hba")
+        self.add_cmd_output("/usr/symcli/bin/symmask list logins")
+        self.add_cmd_output("/usr/symcli/bin/symmaskdb list database")
+        self.add_cmd_output("/usr/symcli/bin/symmaskdb -v list database")
 
     def get_navicli_config(self):
         """ EMC Navisphere Host Agent NAVICLI specific information - files
         """
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/Navisphere/agent.config",
             "/etc/Navisphere/Navimon.cfg",
             "/etc/Navisphere/Quietmode.cfg",
@@ -129,24 +129,24 @@ class emc(Plugin, RedHatPlugin):
     def get_navicli_SP_info(self,SP_address):
         """ EMC Navisphere Host Agent NAVICLI specific information - CLARiiON - commands
         """
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getall" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getsptime -spa" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getsptime -spb" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getlog" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getdisk" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getcache" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getlun" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getlun -rg -type -default -owner -crus -capacity" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s lunmapinfo" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s getcrus" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s port -list -all" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s storagegroup -list" % SP_address)
-        self.addCmdOutput("/opt/Navisphere/bin/navicli -h %s spportspeed -get" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getall" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getsptime -spa" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getsptime -spb" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getlog" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getdisk" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getcache" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getlun" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getlun -rg -type -default -owner -crus -capacity" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s lunmapinfo" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s getcrus" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s port -list -all" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s storagegroup -list" % SP_address)
+        self.add_cmd_output("/opt/Navisphere/bin/navicli -h %s spportspeed -get" % SP_address)
 
-    def checkenabled(self):
+    def check_enabled(self):
         self.packages = [ "EMCpower" ]
         self.files = [ "/opt/Navisphere/bin", "/proc/emcp" ]
-        return Plugin.checkenabled(self)
+        return Plugin.check_enabled(self)
 
     def setup(self):
         from subprocess import Popen, PIPE
@@ -154,10 +154,10 @@ class emc(Plugin, RedHatPlugin):
         add_about_emc="no"
 
         ## If PowerPath is installed collect PowerPath specific information
-        if self.isInstalled("EMCpower"):
+        if self.is_installed("EMCpower"):
             print "EMC PowerPath is installed."
             print " Gathering EMC PowerPath information..."
-            self.addCustomText("EMC PowerPath is installed.<br>")
+            self.add_custom_text("EMC PowerPath is installed.<br>")
             self.get_pp_files()
             add_about_emc = "yes"
 
@@ -171,7 +171,7 @@ class emc(Plugin, RedHatPlugin):
         if len(self.policy().package_manager.allPkgsByNameRegex('[Ss][Yy][Mm][Cc][Ll][Ii]-[Ss][Yy][Mm][Cc][Ll][Ii]')) > 0:
             print "EMC Solutions Enabler SYMCLI is installed."
             print " Gathering EMC Solutions Enabler SYMCLI information..."
-            self.addCustomText("EMC Solutions Enabler is installed.<br>")
+            self.add_custom_text("EMC Solutions Enabler is installed.<br>")
             self.get_symcli_files()
             self.get_symcli_config()
             add_about_emc = "yes"
@@ -180,7 +180,7 @@ class emc(Plugin, RedHatPlugin):
         if os.path.isdir("/opt/Navisphere/bin"):
             print ""
             print "The EMC CLARiiON Navisphere Host Agent is installed."
-            self.addCustomText("EMC CLARiiON Navisphere Host Agent is installed.<br>")
+            self.add_custom_text("EMC CLARiiON Navisphere Host Agent is installed.<br>")
             self.get_navicli_config()
             print " Gathering Navisphere NAVICLI Host Agent information..."
             print " Please enter a CLARiiON SP IP address.  In order to collect"

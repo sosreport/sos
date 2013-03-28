@@ -24,6 +24,6 @@ class psacct(Plugin, RedHatPlugin):
     packages = [ "psacct" ]
 
     def setup(self):
-        self.addCopySpec("/var/account/pacct")
-        if self.getOption("all"):
-            self.addCopySpec("/var/account/pacct*.gz")
+        self.add_copy_spec("/var/account/pacct")
+        if self.get_option("all"):
+            self.add_copy_spec("/var/account/pacct*.gz")

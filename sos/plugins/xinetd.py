@@ -25,5 +25,5 @@ class xinetd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('xinetd',)
 
     def setup(self):
-        self.addCopySpec("/etc/xinetd.conf")
-        self.addCopySpec("/etc/xinetd.d")
+        self.add_copy_spec("/etc/xinetd.conf")
+        self.add_copy_spec("/etc/xinetd.d")

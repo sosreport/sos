@@ -22,7 +22,7 @@ class kdump(Plugin):
     plugin_name = "kdump"
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/cmdline"
             ])
 
@@ -34,7 +34,7 @@ class RedHatKdump(kdump, RedHatPlugin):
     packages = ('kexec-tools',)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules"])
 
@@ -46,6 +46,6 @@ class DebianKdump(kdump, DebianPlugin, UbuntuPlugin):
     packages = ('kdump-tools',)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/default/kdump-tools"
             ])

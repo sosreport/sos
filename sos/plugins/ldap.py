@@ -29,14 +29,14 @@ class ldap(Plugin, RedHatPlugin):
         results={}
         tmplist=[]
         for i in ldapopts:
-            t=self.doRegexFindAll(r"^(%s)\s+(.*)" % i,"/etc/openldap/ldap.conf")
+            t=self.do_regex_find_all(r"^(%s)\s+(.*)" % i,"/etc/openldap/ldap.conf")
             for x in t:
                 results[x[0]]=x[1].rstrip("\n")
         return results
 
     def setup(self):
-        self.addCopySpecs(["/etc/ldap.conf", "/etc/openldap", "/etc/nslcd.conf"])
+        self.add_copy_specs(["/etc/ldap.conf", "/etc/openldap", "/etc/nslcd.conf"])
 
     def postproc(self):
-        self.doFileSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
-        self.doFileSub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.do_file_sub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.do_file_sub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")

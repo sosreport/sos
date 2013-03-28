@@ -21,15 +21,15 @@ class rpm(Plugin, RedHatPlugin):
                   ("rpmva", "runs a verify on all packages", "slow", False)]
 
     def setup(self):
-        self.addCopySpec("/var/log/rpmpkgs")
+        self.add_copy_spec("/var/log/rpmpkgs")
 
-        if self.getOption("rpmq"):
-            self.addCmdOutput("/bin/rpm -qa --qf="
+        if self.get_option("rpmq"):
+            self.add_cmd_output("/bin/rpm -qa --qf="
                 "\"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~"
                 "%{INSTALLTIME:date}\t%{INSTALLTIME}\t%{VENDOR}\n\""
                 " --nosignature --nodigest | /bin/awk -F '~~' "
                 "'{printf \"%-59s %s\\n\",$1,$2}'|sort",
                 root_symlink = "installed-rpms")
 
-        if self.getOption("rpmva"):
-            self.addCmdOutput("/bin/rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
+        if self.get_option("rpmva"):
+            self.add_cmd_output("/bin/rpm -Va", root_symlink = "rpm-Va", timeout = 3600)

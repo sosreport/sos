@@ -27,19 +27,19 @@ class ipa(Plugin, RedHatPlugin):
     files = ('/etc/ipa',)
     packages = ('ipa-server', 'ipa-client')
 
-    def checkenabled(self):
-        self.ipa_server = self.isInstalled("ipa-server")
-        self.ipa_client = self.isInstalled("ipa-client")
-        return Plugin.checkenabled(self)
+    def check_enabled(self):
+        self.ipa_server = self.is_installed("ipa-server")
+        self.ipa_client = self.is_installed("ipa-client")
+        return Plugin.check_enabled(self)
 
     def setup(self):
         if self.ipa_server:
-            self.addCopySpec("/var/log/ipaserver-install.log")
-            self.addCopySpec("/var/log/ipareplica-install.log")
+            self.add_copy_spec("/var/log/ipaserver-install.log")
+            self.add_copy_spec("/var/log/ipareplica-install.log")
         if self.ipa_client:
-            self.addCopySpec("/var/log/ipaclient-install.log")
+            self.add_copy_spec("/var/log/ipaclient-install.log")
 
-        self.addCopySpecs(["/var/log/ipaupgrade.log",
+        self.add_copy_specs(["/var/log/ipaupgrade.log",
                         "/var/log/krb5kdc.log",
                         "/var/log/pki-ca/debug",
                         "/var/log/pki-ca/catalina.out",
@@ -52,32 +52,32 @@ class ipa(Plugin, RedHatPlugin):
                         "/etc/hosts",
                         "/etc/named.*"])
  
-        self.addForbiddenPath("/etc/pki/nssdb/key*")
-        self.addForbiddenPath("/etc/pki-ca/flatfile.txt")
-        self.addForbiddenPath("/etc/pki-ca/password.conf")
-        self.addForbiddenPath("/var/lib/pki-ca/alias/key*")
+        self.add_forbidden_path("/etc/pki/nssdb/key*")
+        self.add_forbidden_path("/etc/pki-ca/flatfile.txt")
+        self.add_forbidden_path("/etc/pki-ca/password.conf")
+        self.add_forbidden_path("/var/lib/pki-ca/alias/key*")
 
-        self.addForbiddenPath("/etc/dirsrv/slapd-*/key*")
-        self.addForbiddenPath("/etc/dirsrv/slapd-*/pin.txt")
-        self.addForbiddenPath("/etc/dirsrv/slapd-*/pwdfile.txt")
+        self.add_forbidden_path("/etc/dirsrv/slapd-*/key*")
+        self.add_forbidden_path("/etc/dirsrv/slapd-*/pin.txt")
+        self.add_forbidden_path("/etc/dirsrv/slapd-*/pwdfile.txt")
 
-        self.addForbiddenPath("/etc/named.keytab")
+        self.add_forbidden_path("/etc/named.keytab")
 
-        self.addCmdOutput("ls -la /etc/dirsrv/slapd-*/schema/")
+        self.add_cmd_output("ls -la /etc/dirsrv/slapd-*/schema/")
 
-        self.addCmdOutput("ipa-getcert list")
+        self.add_cmd_output("ipa-getcert list")
 
-        self.addCmdOutput("certutil -L -d /etc/httpd/alias/")
-        self.addCmdOutput("certutil -L -d /etc/dirsrv/slapd-*/")
+        self.add_cmd_output("certutil -L -d /etc/httpd/alias/")
+        self.add_cmd_output("certutil -L -d /etc/dirsrv/slapd-*/")
 
-        self.addCmdOutput("klist -ket /etc/dirsrv/ds.keytab")
-        self.addCmdOutput("klist -ket /etc/httpd/conf/ipa.keytab")
-        self.addCmdOutput("klist -ket /etc/krb5.keytab")
+        self.add_cmd_output("klist -ket /etc/dirsrv/ds.keytab")
+        self.add_cmd_output("klist -ket /etc/httpd/conf/ipa.keytab")
+        self.add_cmd_output("klist -ket /etc/krb5.keytab")
 
         return
 
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"
         subst = r"\1********"
-        self.doFileSub("/etc/named.conf", match, subst)
+        self.do_file_sub("/etc/named.conf", match, subst)
 

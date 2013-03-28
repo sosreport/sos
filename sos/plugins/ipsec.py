@@ -30,7 +30,7 @@ class RedHatIpsec(ipsec, RedHatPlugin):
     files = ('/etc/racoon/racoon.conf',)
 
     def setup(self):
-        self.addCopySpec("/etc/racoon")
+        self.add_copy_spec("/etc/racoon")
 
 class DebianIpsec(ipsec, DebianPlugin, UbuntuPlugin):
     """ipsec related information for Debian distributions
@@ -39,6 +39,6 @@ class DebianIpsec(ipsec, DebianPlugin, UbuntuPlugin):
     files = ('/etc/ipsec-tools.conf',)
 
     def setup(self):
-        self.addCopySpecs(["/etc/ipsec-tools.conf",
+        self.add_copy_specs(["/etc/ipsec-tools.conf",
                            "/etc/ipsec-tools.d",
                            "/etc/default/setkey"])

@@ -53,5 +53,5 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 if sar_filename not in dirList:
                     sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar " \
                             + "-A -f /var/log/sa/" + fname + "\""
-                    self.addCmdOutput(sar_command, sar_filename)
-        self.addCopySpec("/var/log/sa/sar*")
+                    self.add_cmd_output(sar_command, sar_filename)
+        self.add_copy_spec("/var/log/sa/sar*")

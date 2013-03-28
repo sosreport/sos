@@ -23,4 +23,4 @@ class squid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('squid',)
 
     def setup(self):
-        self.addCopySpec("/etc/squid/squid.conf")
+        self.add_copy_spec("/etc/squid/squid.conf")
