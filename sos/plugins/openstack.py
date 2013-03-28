@@ -32,7 +32,12 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
     """
 
-    packages = ('glance',
+    packages = ('cinder-api',
+                'cinder-backup',
+                'cinder-common',
+                'cinder-scheduler',
+                'cinder-volume',
+                'glance',
                 'glance-api',
                 'glance-client',
                 'glance-common',
@@ -73,6 +78,8 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
                 'swift-object',
                 'swift-proxy',
                 'swauth',
+                'python-cinder',
+                'python-cinderclient',
                 'python-django-horizon',
                 'python-glance',
                 'python-keystone',
@@ -118,6 +125,14 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
                            "/etc/default/nova-volume",
                            "/etc/sudoers.d/nova_sudoers",
                            "/etc/logrotate.d/nova-*"])
+        # Cinder
+        if os.path.exists("/usr/bin/cinder-manage"):
+            self.addCmdOutput(
+                "/usr/bin/cinder-manage db version",
+                suggest_filename="cinder_db_version")
+        self.addCopySpecs(["/etc/cinder/",
+                           "/var/log/cinder/",
+                           "/etc/logrotate.d/cinder-*"])
         # Glance
         if os.path.exists("/usr/bin/glance-manage"):
             self.addCmdOutput(
