@@ -94,7 +94,7 @@ class DebianGeneral(general, DebianPlugin, UbuntuPlugin):
     """Basic system information for Debian based distributions"""
 
     def setup(self):
-        super(GeneralDebian, self).setup()
+        super(DebianGeneral, self).setup()
         self.addCopySpecs([
             "/etc/debian_version",
             "/etc/default",
@@ -105,7 +105,7 @@ class UbuntuGeneral(general, UbuntuPlugin):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
-        super(GeneralUbuntu, self).setup()
+        super(UbuntuGeneral, self).setup()
         self.addCopySpecs([
             "/etc/os-release",
             "/var/log/ufw.log",
