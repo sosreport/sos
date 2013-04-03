@@ -98,10 +98,9 @@ class DebianGeneral(General, DebianPlugin):
         self.add_copy_specs([
             "/etc/debian_version",
             "/etc/default",
-            "/var/log/up2date",
             "/etc/lsb-release"
         ])
-class UbuntuGeneral(General, UbuntuPlugin):
+class UbuntuGeneral(DebianGeneral, UbuntuPlugin):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
