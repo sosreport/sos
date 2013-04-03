@@ -12,15 +12,27 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class ldap(Plugin, RedHatPlugin):
+class ldap(Plugin):
     """LDAP related information
+    """
+
+    plugin_name = "ldap"
+
+    def setup(self):
+        super(ldap, self).setup()
+
+class RedHatLdap(ldap, RedHatPlugin):
+    """LDAP related information for RedHat based distribution
     """
 
     files = ('/etc/openldap/ldap.conf',)
     packages = ('openldap', 'nss-pam-ldapd')
+
+    def setup(self):
+        super(RedHatLdap, self).setup()
 
     def get_ldap_opts(self):
         # capture /etc/openldap/ldap.conf options in dict
@@ -40,3 +52,31 @@ class ldap(Plugin, RedHatPlugin):
     def postproc(self):
         self.doFileSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
         self.doFileSub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+
+class DebianLdap(ldap, DebianPlugin, UbuntuPlugin):
+    """LDAP related information for Debian based distribution
+    """
+
+    def setup(self):
+        super(DebianLdap, self).setup()
+
+    files = ('/etc/ldap/ldap.conf',)
+    packages = ('slapd', 'ldap-utils')
+
+    def get_ldap_opts(self):
+        # capture /etc/ldap/ldap.conf options in dict
+        # FIXME: possibly not hardcode these options in?
+        ldapopts=["URI","BASE","TLS_CACERTDIR"]
+        results={}
+        tmplist=[]
+        for i in ldapopts:
+            t=self.doRegexFindAll(r"^(%s)\s+(.*)" % i,"/etc/ldap/ldap.conf")
+            for x in t:
+                results[x[0]]=x[1].rstrip("\n")
+        return results
+
+    def setup(self):
+        self.addCopySpecs(["/etc/ldap/ldap.conf", "/etc/ldap/slapd.d"])
+
+    def postproc(self):
+        self.doFileSub("/etc/ldap/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
