@@ -12,13 +12,14 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class corosync(Plugin, RedHatPlugin):
+class Corosync(Plugin):
     """ corosync information
     """
 
-    files = ('/usr/bin/corosync',)
+    plugin_name = "corosync"
+
     packages = ('corosync',)
 
     def setup(self):
@@ -34,3 +35,21 @@ class corosync(Plugin, RedHatPlugin):
         self.add_cmd_output("/usr/sbin/corosync-objctl -w runtime.blackbox.dump_state=$(date +\%s)")
         self.add_cmd_output("/usr/sbin/corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)")
         self.call_ext_prog("killall -USR2 corosync")
+
+class RedHatCorosync(Corosync, RedHatPlugin):
+    """ corosync information for RedHat based distribution
+    """
+
+    def setup(self):
+        super(RedHatCorosync, self).setup()
+
+    files = ('/usr/bin/corosync',)
+
+class DebianCorosync(Corosync, DebianPlugin, UbuntuPlugin):
+    """ corosync information for Debian and Ubuntu distributions
+    """
+
+    def setup(self):
+        super(DebianCorosync, self).setup()
+
+    files = ('/usr/sbin/corosync',)
