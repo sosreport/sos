@@ -90,7 +90,7 @@ class RedHatGeneral(general, RedHatPlugin):
                 r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
 
 
-class DebianGeneral(general, DebianPlugin, UbuntuPlugin):
+class DebianGeneral(general, DebianPlugin):
     """Basic system information for Debian based distributions"""
 
     def setup(self):
@@ -98,10 +98,9 @@ class DebianGeneral(general, DebianPlugin, UbuntuPlugin):
         self.addCopySpecs([
             "/etc/debian_version",
             "/etc/default",
-            "/var/log/up2date",
             "/etc/lsb-release"
         ])
-class UbuntuGeneral(general, UbuntuPlugin):
+class UbuntuGeneral(DebianGeneral, UbuntuPlugin):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
