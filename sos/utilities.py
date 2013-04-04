@@ -35,7 +35,10 @@ import tarfile
 import hashlib
 import logging
 import fnmatch
-import selinux
+try:
+    import selinux
+except ImportError:
+    pass
 
 from contextlib import closing
 try:
