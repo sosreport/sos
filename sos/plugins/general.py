@@ -107,7 +107,6 @@ class UbuntuGeneral(DebianGeneral, UbuntuPlugin):
         super(UbuntuGeneral, self).setup()
         self.addCopySpecs([
             "/etc/os-release",
-            "/var/log/ufw.log",
 	    "/var/log/apport.log",
 	    "/var/log/syslog",
 	    "/var/log/udev",
@@ -121,4 +120,3 @@ class UbuntuGeneral(DebianGeneral, UbuntuPlugin):
 	    "/var/log/unattended-upgrades",
 	    "/var/log/upstart"
         ])
-        self.addCmdOutput("/usr/sbin/ufw app list",root_symlink="ufw")
