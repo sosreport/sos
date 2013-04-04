@@ -12,19 +12,43 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from os.path import exists
 
-class mysql(Plugin, RedHatPlugin):
+class mysql(Plugin):
     """MySQL related information
+    """
+
+    plugin_name = "mysql"
+
+    def setup(self):
+        super(mysql, self).setup()
+
+class RedHatMysql(mysql, RedHatPlugin):
+    """MySQL related information for RedHat based distributions
     """
 
     files = ('/etc/my.cnf',)
     packages = ('mysql-server', 'mysql')
 
     def setup(self):
+        super(RedHatMysql, self).setup()
         self.addCopySpecs([
             "/etc/my.cnf",
             "/etc/sysconfig/network",
             "/etc/ld.so.conf.d/mysql*",
+            "/var/log/mysql*"])
+
+class DebianMysql(mysql, DebianPlugin, UbuntuPlugin):
+    """MySQL related information for Debian based distributions
+    """
+
+    files = ('/etc/mysql/my.cnf',)
+    packages = ('mysql-server', 'mysql-common')
+
+    def setup(self):
+        super(DebianMysql, self).setup()
+        self.addCopySpecs([
+            "/etc/mysql/my.cnf",
+            "/etc/mysql/conf.d/mysql*",
             "/var/log/mysql*"])

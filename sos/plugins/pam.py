@@ -12,12 +12,30 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class pam(Plugin, RedHatPlugin):
+class pam(Plugin):
     """PAM related information
     """
+
+    plugin_name = "pam"
+
     def setup(self):
         self.addCopySpec("/etc/pam.d")
         self.addCopySpec("/etc/security")
+
+class RedHatPam(pam, RedHatPlugin):
+    """PAM related information for RedHat based distribution
+    """
+    def setup(self):
+        super(RedHatPam, self).setup()
+
         self.addCmdOutput("/bin/ls -lanF /lib*/security")
+
+class DebianPam(pam, DebianPlugin, UbuntuPlugin):
+    """PAM related information for Debian based distribution
+    """
+    def setup(self):
+        super(DebianPam, self).setup()
+
+        self.addCmdOutput("/bin/ls -lanF /lib/x86_64-linux-gnu/security")

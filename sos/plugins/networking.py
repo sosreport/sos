@@ -12,14 +12,18 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import re
 
-class networking(Plugin, RedHatPlugin):
+class networking(Plugin):
     """network related information
     """
-    optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
+
+    plugin_name = "networking"
+    
+    def setup(self):
+        super(networking, self).setup()
 
     def get_bridge_name(self,brctlOut):
         """Return a list for which items are bridge name according to the
@@ -96,9 +100,6 @@ class networking(Plugin, RedHatPlugin):
                 self.addCmdOutput("/sbin/ethtool -a "+eth)
                 self.addCmdOutput("/sbin/ethtool -c "+eth)
                 self.addCmdOutput("/sbin/ethtool -g "+eth)
-        if self.getOption("traceroute"):
-            self.addCmdOutput("/bin/traceroute -n rhn.redhat.com")
-
         if os.path.exists("/usr/sbin/brctl"):
             brctlFile=self.addCmdOutput("/usr/sbin/brctl show")
             brctlOut=self.callExtProg("/usr/sbin/brctl show")
@@ -106,4 +107,49 @@ class networking(Plugin, RedHatPlugin):
                 for brName in self.get_bridge_name(brctlOut):
                     self.addCmdOutput("/usr/sbin/brctl showstp "+brName)
         return
+
+class RedHatNetworking(networking, RedHatPlugin):
+    """network related information for RedHat based distribution
+    """
+    optionList = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
+
+    def setup(self):
+        super(RedHatNetworking, self).setup()
+
+        if self.getOption("traceroute"):
+            self.addCmdOutput("/bin/traceroute -n rhn.redhat.com")
+
+class UbuntuNetworking(networking, UbuntuPlugin):
+    """network related information for Ubuntu based distribution
+    """
+    optionList = [("traceroute", "collects a traceroute to archive.ubuntu.com", "slow", False)]
+
+    def setup(self):
+        super(UbuntuNetworking, self).setup()
+
+        self.addCopySpecs([
+	    "/etc/network*",
+	    "/etc/NetworkManager/NetworkManager.conf",
+	    "/etc/NetworkManager/system-connections",
+	    "/etc/resolvconf",
+	    "/etc/dnsmasq*",
+	    "/etc/ufw",
+	    "/var/log/ufw.Log",
+            "/etc/resolv.conf"])
+        self.addCmdOutput("/usr/sbin/ufw status")
+        self.addCmdOutput("/usr/sbin/ufw app list")
+        if self.getOption("traceroute"):
+            self.addCmdOutput("/usr/sbin/traceroute -n archive.ubuntu.com")
+
+        if os.path.exists("/usr/sbin/brctl"):
+            brctlFile=self.addCmdOutput("/usr/sbin/brctl show")
+            brctlOut=self.callExtProg("/usr/sbin/brctl show")
+            if brctlOut:
+                for brName in self.get_bridge_name(brctlOut):
+                    self.addCmdOutput("/usr/sbin/brctl showstp "+brName)
+
+    def postproc(self):
+	for root, dirs, files in os.walk("/etc/NetworkManager/system-connections"):
+	    for netConf in files:
+	        self.doFileSub("/etc/NetworkManager/system-connections/"+netConf, r"psk=(.*)",r"psk=***")
 
