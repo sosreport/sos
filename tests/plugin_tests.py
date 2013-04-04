@@ -77,8 +77,6 @@ class ForbiddenMockPlugin(Plugin):
 
 class EnablerPlugin(Plugin):
 
-    is_installed = False
-
     def isInstalled(self, pkg):
         return self.is_installed
 
@@ -278,7 +276,6 @@ class CheckEnabledTests(unittest.TestCase):
 
     def test_checks_for_package(self):
         self.mp.packages = ('foo',)
-        self.mp.is_installed = True
         self.assertTrue(self.mp.check_enabled())
 
     def test_allows_bad_tuple(self):
