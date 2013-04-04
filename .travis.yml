@@ -8,7 +8,7 @@ env:
   - DEPS=false
 before_install:
   - sudo apt-get update -qq && sudo apt-get install -qq python-selinux rng-tools
-  - sudo echo 'HRNGDEVICE=/dev/urandom' >> /etc/default/rng-tools
+  - echo 'HRNGDEVICE=/dev/urandom' | sudo tee -a /etc/default/rng-tools
   - sudo /etc/init.d/rng-tools restart
 install:
   - make gpgkey
