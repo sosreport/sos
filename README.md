@@ -10,15 +10,22 @@ version, to contribute, and for more information, please visit there.
 
 To access to the public source code repository for this project run:
 
-  git clone git://github.com/sosreport/sosreport.git
+```
+git clone git://github.com/sosreport/sosreport.git
+```
 
 to install locally (as root) ==> make install
+
+```
 to build an rpm ==> make rpm
 to build a deb ==> make deb-unsign
 to build a zipfile for use with jython ==> make zip
+```
 
 Debian/Ubuntu users can install via PPA:
 
+```
 sudo add-apt-repository ppa:debugmonkeys/sosreport
 sudo apt-get update
 sudo apt-get install sos
+```
