@@ -5,7 +5,6 @@ env:
   - DEPS=true
   - DEPS=false
 install:
-  - pip install --use-mirrors python-selinux
   - make install
 script:
   - make test
