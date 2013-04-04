@@ -21,7 +21,7 @@ class RedHatAcpid(acpid, RedHatPlugin):
     """acpid related information
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/var/log/acpid*",
             "/etc/acpi/events/power.conf"])
 
@@ -29,5 +29,5 @@ class DebianAcpid(acpid, DebianPlugin, UbuntuPlugin):
     """acpid related information for Debian and Ubuntu
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/acpi/events/powerbtn*"])

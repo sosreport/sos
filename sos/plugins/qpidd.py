@@ -22,17 +22,17 @@ class qpidd(Plugin, RedHatPlugin):
 
     def setup(self):
         """ performs data collection for mrg """
-        self.addCmdOutput("/usr/bin/qpid-stat -e")
-        self.addCmdOutput("/usr/bin/qpid-stat -b")
-        self.addCmdOutput("/usr/bin/qpid-config")
-        self.addCmdOutput("/usr/bin/qpid-config -b exchanges")
-        self.addCmdOutput("/usr/bin/qpid-config -b queues")
-        self.addCmdOutput("/usr/bin/qpid-stat -c")
-        self.addCmdOutput("/usr/bin/qpid-route link list")
-        self.addCmdOutput("/usr/bin/qpid-route route list")
-        self.addCmdOutput("/bin/ls -lanR /var/lib/qpidd")
+        self.add_cmd_output("/usr/bin/qpid-stat -e")
+        self.add_cmd_output("/usr/bin/qpid-stat -b")
+        self.add_cmd_output("/usr/bin/qpid-config")
+        self.add_cmd_output("/usr/bin/qpid-config -b exchanges")
+        self.add_cmd_output("/usr/bin/qpid-config -b queues")
+        self.add_cmd_output("/usr/bin/qpid-stat -c")
+        self.add_cmd_output("/usr/bin/qpid-route link list")
+        self.add_cmd_output("/usr/bin/qpid-route route list")
+        self.add_cmd_output("/bin/ls -lanR /var/lib/qpidd")
 
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/qpidd.conf",
             "/var/lib/qpid/syslog",
             "/etc/ais/openais.conf",

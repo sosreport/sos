@@ -32,10 +32,10 @@ class RedHatRadius(radius, RedHatPlugin):
 
     def setup(self):
         super(RedHatRadius, self).setup()
-        self.addCopySpecs(["/etc/raddb", "/etc/pam.d/radiusd", "/var/log/radius"])
+        self.add_copy_specs(["/etc/raddb", "/etc/pam.d/radiusd", "/var/log/radius"])
 
     def postproc(self):
-        self.doFileSub("/etc/raddb/sql.conf", r"(\s*password\s*=\s*)\S+", r"\1***")
+        self.do_file_sub("/etc/raddb/sql.conf", r"(\s*password\s*=\s*)\S+", r"\1***")
 
 class DebianRadius(radius, DebianPlugin, UbuntuPlugin):
     """radius related information on Debian distributions
@@ -45,7 +45,7 @@ class DebianRadius(radius, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianRadius, self).setup()
-        self.addCopySpecs(["/etc/freeradius",
+        self.add_copy_specs(["/etc/freeradius",
                            "/etc/pam.d/radiusd",
                            "/etc/default/freeradius",
                            "/var/log/freeradius"])

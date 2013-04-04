@@ -40,6 +40,6 @@ class WindowsPolicy(Policy):
             username = shell_out("echo %USERNAME%")
             return username.strip() in admins
 
-    def preferedArchive(self):
+    def preferred_archive_name(self):
         from sos.archive import ZipFileArchive
         return ZipFileArchive

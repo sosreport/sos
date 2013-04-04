@@ -20,18 +20,18 @@ class nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """NSCD related information
     """
 
-    optionList = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
+    option_list = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
                    "", 50)]
 
     files = ('/etc/nscd.conf',)
     packages = ('nscd',)
 
     def setup(self):
-        self.addCopySpec("/etc/nscd.conf")
+        self.add_copy_spec("/etc/nscd.conf")
 
-        opt = self.fileGrep(r"^\s*logfile", "/etc/nscd.conf")
+        opt = self.file_grep(r"^\s*logfile", "/etc/nscd.conf")
         if (len(opt) > 0):
             for o in opt:
                 f = o.split()
-                self.addCopySpecLimit(f[1],
-                    sizelimit = self.isOptionEnabled("nscdlogsize"))
+                self.add_copy_spec_limit(f[1],
+                    sizelimit = self.option_enabled("nscdlogsize"))

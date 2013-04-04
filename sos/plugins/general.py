@@ -20,11 +20,11 @@ class General(Plugin):
 
     plugin_name = "general"
 
-    optionList = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
+    option_list = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
                   ("all_logs", "collect all log files defined in syslog.conf", "", False)]
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/init",    # upstart
             "/etc/event.d", # "
             "/etc/inittab",
@@ -41,20 +41,20 @@ class General(Plugin):
             "/etc/localtime",
             "/root/anaconda-ks.cfg"])
 
-        limit = self.getOption("syslogsize")
-        self.addCmdOutput("/bin/dmesg", suggest_filename="dmesg_now")
-        self.addCopySpecLimit("/var/log/messages*", sizelimit = limit)
-        self.addCopySpecLimit("/var/log/secure*", sizelimit = limit)
-        self.addCmdOutput("/usr/bin/hostid")
-        self.addCmdOutput("/bin/hostname", root_symlink="hostname")
-        self.addCmdOutput("/bin/date", root_symlink="date")
-        self.addCmdOutput("/usr/bin/uptime", root_symlink="uptime")
-        self.addCmdOutput("/bin/dmesg")
-        self.addCmdOutput("/usr/sbin/alternatives --display java",
+        limit = self.get_option("syslogsize")
+        self.add_cmd_output("/bin/dmesg", suggest_filename="dmesg_now")
+        self.add_copy_spec_limit("/var/log/messages*", sizelimit = limit)
+        self.add_copy_spec_limit("/var/log/secure*", sizelimit = limit)
+        self.add_cmd_output("/usr/bin/hostid")
+        self.add_cmd_output("/bin/hostname", root_symlink="hostname")
+        self.add_cmd_output("/bin/date", root_symlink="date")
+        self.add_cmd_output("/usr/bin/uptime", root_symlink="uptime")
+        self.add_cmd_output("/bin/dmesg")
+        self.add_cmd_output("/usr/sbin/alternatives --display java",
                                 root_symlink="java")
-        self.addCmdOutput("/usr/bin/readlink -f /usr/bin/java")
-        self.addCmdOutput("/usr/bin/tree /var/lib")
-        self.addCmdOutput("/bin/ls -lR /var/lib")
+        self.add_cmd_output("/usr/bin/readlink -f /usr/bin/java")
+        self.add_cmd_output("/usr/bin/tree /var/lib")
+        self.add_cmd_output("/bin/ls -lR /var/lib")
 
 
 class RedHatGeneral(General, RedHatPlugin):
@@ -63,30 +63,30 @@ class RedHatGeneral(General, RedHatPlugin):
     def setup(self):
         super(RedHatGeneral, self).setup()
 
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/redhat-release",
             "/etc/fedora-release",
         ])
 
-        if self.getOption('all_logs'):
+        if self.get_option('all_logs'):
             print "doing all_logs..."
-            limit = self.isOptionEnabled("syslogsize")
-            logs = self.doRegexFindAll("^\S+\s+(-?\/.*$)\s+",
+            limit = self.option_enabled("syslogsize")
+            logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
                                 "/etc/syslog.conf")
             print logs
-            if self.policy().pkgByName("rsyslog") \
+            if self.policy().pkg_by_name("rsyslog") \
               or os.path.exists("/etc/rsyslog.conf"):
-                logs += self.doRegexFindAll("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
+                logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
                 print logs
             for i in logs:
                 if i.startswith("-"):
                     i = i[1:]
                 if os.path.isfile(i):
-                    self.addCopySpecLimit(i, sizelimit = limit)
+                    self.add_copy_spec_limit(i, sizelimit = limit)
 
 
     def postproc(self):
-        self.doFileSub("/etc/sysconfig/rhn/up2date",
+        self.do_file_sub("/etc/sysconfig/rhn/up2date",
                 r"(\s*proxyPassword\s*=\s*)\S+", r"\1***")
 
 
@@ -95,7 +95,7 @@ class DebianGeneral(General, DebianPlugin):
 
     def setup(self):
         super(DebianGeneral, self).setup()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/debian_version",
             "/etc/default",
             "/var/log/up2date",
@@ -106,7 +106,7 @@ class UbuntuGeneral(General, UbuntuPlugin):
 
     def setup(self):
         super(UbuntuGeneral, self).setup()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/os-release",
             "/var/log/ufw.log",
 	    "/var/log/apport.log",
@@ -122,4 +122,4 @@ class UbuntuGeneral(General, UbuntuPlugin):
 	    "/var/log/unattended-upgrades",
 	    "/var/log/upstart"
         ])
-        self.addCmdOutput("/usr/sbin/ufw app list",root_symlink="ufw")
+        self.add_cmd_output("/usr/sbin/ufw app list",root_symlink="ufw")

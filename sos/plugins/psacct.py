@@ -18,12 +18,12 @@ class psacct(Plugin, RedHatPlugin):
     """Process accounting related information
     """
 
-    optionList = [("all", "collect all process accounting files",
+    option_list = [("all", "collect all process accounting files",
                         "slow", False)]
 
     packages = [ "psacct" ]
 
     def setup(self):
-        self.addCopySpec("/var/account/pacct")
-        if self.getOption("all"):
-            self.addCopySpec("/var/account/pacct*.gz")
+        self.add_copy_spec("/var/account/pacct")
+        if self.get_option("all"):
+            self.add_copy_spec("/var/account/pacct*.gz")

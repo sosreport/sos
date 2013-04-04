@@ -19,7 +19,7 @@ class apache(Plugin):
     """
     plugin_name = "apache"
 
-    optionList = [("log", "gathers all apache logs", "slow", False)]
+    option_list = [("log", "gathers all apache logs", "slow", False)]
 
 class RedHatApache(apache, RedHatPlugin):
     """Apache related information for Red Hat distributions
@@ -29,14 +29,14 @@ class RedHatApache(apache, RedHatPlugin):
     def setup(self):
         super(RedHatApache, self).setup()
 
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/httpd/conf/httpd.conf",
             "/etc/httpd/conf.d/*.conf"])
 
-        self.addForbiddenPath("/etc/httpd/conf/password.conf")
+        self.add_forbidden_path("/etc/httpd/conf/password.conf")
 
-        if self.getOption("log"):
-            self.addCopySpec("/var/log/httpd/*")
+        if self.get_option("log"):
+            self.add_copy_spec("/var/log/httpd/*")
 
 class DebianApache(apache, DebianPlugin, UbuntuPlugin):
     """Apache related information for Debian distributions
@@ -45,8 +45,8 @@ class DebianApache(apache, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianApache, self).setup()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/apache2/*",
             "/etc/default/apache2"])
-        if self.getOption("log"):
-            self.addCopySpec("/var/log/apache2/*")
+        if self.get_option("log"):
+            self.add_copy_spec("/var/log/apache2/*")

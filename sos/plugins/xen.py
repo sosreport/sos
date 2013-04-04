@@ -20,71 +20,71 @@ from stat import *
 class xen(Plugin, RedHatPlugin):
     """Xen related information
     """
-    def determineXenHost(self):
+    def determine_xen_host(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):
-            (status, output, rtime) = self.callExtProg("grep -qi xen /proc/acpi/dsdt")
+            (status, output, rtime) = self.call_ext_prog("grep -qi xen /proc/acpi/dsdt")
             if status == 0:
                 return "hvm"
 
         if os.access("/proc/xen/capabilities", os.R_OK):
-            (status, output, rtime) = self.callExtProg("grep -q control_d /proc/xen/capabilities")
+            (status, output, rtime) = self.call_ext_prog("grep -q control_d /proc/xen/capabilities")
             if status == 0:
                 return "dom0"
             else:
                 return "domU"
         return "baremetal"
 
-    def checkenabled(self):
-        return (self.determineXenHost() == "baremetal")
+    def check_enabled(self):
+        return (self.determine_xen_host() == "baremetal")
 
     def is_running_xenstored(self):
         xs_pid = os.popen("pidof xenstored").read()
         xs_pidnum = re.split('\n$',xs_pid)[0]
         return xs_pidnum.isdigit()
 
-    def domCollectProc(self):
-        self.addCopySpecs([
+    def dom_collect_proc(self):
+        self.add_copy_specs([
             "/proc/xen/balloon",
             "/proc/xen/capabilities",
             "/proc/xen/xsd_kva",
             "/proc/xen/xsd_port"])
         # determine if CPU has PAE support
-        self.addCmdOutput("/bin/grep pae /proc/cpuinfo")
+        self.add_cmd_output("/bin/grep pae /proc/cpuinfo")
         # determine if CPU has Intel-VT or AMD-V support
-        self.addCmdOutput("/bin/egrep -e 'vmx|svm' /proc/cpuinfo")
+        self.add_cmd_output("/bin/egrep -e 'vmx|svm' /proc/cpuinfo")
 
     def setup(self):
-        host_type = self.determineXenHost()
+        host_type = self.determine_xen_host()
         if host_type == "domU":
             # we should collect /proc/xen and /sys/hypervisor
-            self.domCollectProc()
+            self.dom_collect_proc()
             # determine if hardware virtualization support is enabled
             # in BIOS: /sys/hypervisor/properties/capabilities
-            self.addCopySpec("/sys/hypervisor")
+            self.add_copy_spec("/sys/hypervisor")
         elif host_type == "hvm":
             # what do we collect here???
             pass
         elif host_type == "dom0":
             # default of dom0, collect lots of system information
-            self.addCopySpecs([
+            self.add_copy_specs([
                 "/var/log/xen",
                 "/etc/xen",
                 "/sys/hypervisor/version",
                 "/sys/hypervisor/compilation",
                 "/sys/hypervisor/properties",
                 "/sys/hypervisor/type"])
-            self.addCmdOutput("/usr/sbin/xm dmesg")
-            self.addCmdOutput("/usr/sbin/xm info")
-            self.addCmdOutput("/usr/sbin/xm list")
-            self.addCmdOutput("/usr/sbin/xm list --long")
-            self.addCmdOutput("/usr/sbin/brctl show")
-            self.domCollectProc()
+            self.add_cmd_output("/usr/sbin/xm dmesg")
+            self.add_cmd_output("/usr/sbin/xm info")
+            self.add_cmd_output("/usr/sbin/xm list")
+            self.add_cmd_output("/usr/sbin/xm list --long")
+            self.add_cmd_output("/usr/sbin/brctl show")
+            self.dom_collect_proc()
             if self.is_running_xenstored():
-                self.addCopySpec("/sys/hypervisor/uuid")
-                self.addCmdOutput("/usr/bin/xenstore-ls")
+                self.add_copy_spec("/sys/hypervisor/uuid")
+                self.add_cmd_output("/usr/bin/xenstore-ls")
             else:
                 # we need tdb instead of xenstore-ls if cannot get it.
-                self.addCopySpec("/var/lib/xenstored/tdb")
+                self.add_copy_spec("/var/lib/xenstored/tdb")
 
             # FIXME: we *might* want to collect things in /sys/bus/xen*,
             # /sys/class/xen*, /sys/devices/xen*, /sys/modules/blk*,
@@ -94,4 +94,4 @@ class xen(Plugin, RedHatPlugin):
             # for bare-metal, we don't have to do anything special
             return #USEFUL
 
-        self.addCustomText("Xen hostType: "+host_type)
+        self.add_custom_text("Xen hostType: "+host_type)

@@ -25,11 +25,11 @@ class kernel_rt(Plugin, RedHatPlugin):
     files = ('/sys/kernel/realtime',)
 
     def setup(self):
-        self.addCopySpec('/etc/rtgroups')
-        self.addCopySpec('/proc/sys/kernel/sched_rt_period_us')
-        self.addCopySpec('/proc/sys/kernel/sched_rt_runtime_us')
-        self.addCopySpec('/sys/kernel/realtime')
-        self.addCopySpec('/sys/devices/system/clocksource/clocksource0/available_clocksource')
-        self.addCopySpec('/sys/devices/system/clocksource/clocksource0/current_clocksource')
-        if self.isInstalled('tuna'):
-            self.addCmdOutput('/usr/bin/tuna -CP | /ust/bin/head -20')
+        self.add_copy_spec('/etc/rtgroups')
+        self.add_copy_spec('/proc/sys/kernel/sched_rt_period_us')
+        self.add_copy_spec('/proc/sys/kernel/sched_rt_runtime_us')
+        self.add_copy_spec('/sys/kernel/realtime')
+        self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/available_clocksource')
+        self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/current_clocksource')
+        if self.is_installed('tuna'):
+            self.add_cmd_output('/usr/bin/tuna -CP | /ust/bin/head -20')

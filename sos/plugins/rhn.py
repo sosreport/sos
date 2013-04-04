@@ -21,42 +21,42 @@ class rhn(Plugin, RedHatPlugin):
     satellite = False
     proxy = False
 
-    optionList = [("log", 'gathers all apache logs', 'slow', False)]
+    option_list = [("log", 'gathers all apache logs', 'slow', False)]
 
-    def defaultenabled(self):
+    def default_enabled(self):
         return False
 
     def rhn_package_check(self):
-        self.satellite = self.isInstalled("rhns-satellite-tools") \
-                      or self.isInstalled("spacewalk-java") \
-                      or self.isInstalled("rhn-base")
-        self.proxy = self.isInstalled("rhns-proxy-tools") \
-                      or self.isInstalled("spacewalk-proxy-management") \
-                      or self.isInstalled("rhn-proxy-management")
+        self.satellite = self.is_installed("rhns-satellite-tools") \
+                      or self.is_installed("spacewalk-java") \
+                      or self.is_installed("rhn-base")
+        self.proxy = self.is_installed("rhns-proxy-tools") \
+                      or self.is_installed("spacewalk-proxy-management") \
+                      or self.is_installed("rhn-proxy-management")
         return self.satellite or self.proxy
 
-    def checkenabled(self):
+    def check_enabled(self):
         # enable if any related package is installed
         return self.rhn_package_check()
 
     def setup(self):
         self.rhn_package_check()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/httpd/conf*",
             "/etc/rhn",
             "/var/log/rhn*"])
 
-        if self.getOption("log"):
-            self.addCopySpec("/var/log/httpd")
+        if self.get_option("log"):
+            self.add_copy_spec("/var/log/httpd")
 
         # all these used to go in $DIR/mon-logs/
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/opt/notification/var/*.log*",
             "/var/tmp/ack_handler.log*",
             "/var/tmp/enqueue.log*"])
 
         # monitoring scout logs
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/home/nocpulse/var/*.log*",
             "/home/nocpulse/var/commands/*.log*",
             "/var/tmp/ack_handler.log*",
@@ -65,19 +65,19 @@ class rhn(Plugin, RedHatPlugin):
             "/var/log/notification/*.log*",
             "/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log"])
 
-        self.addCopySpec("/root/ssl-build")
-        self.addCmdOutput("/usr/bin/rhn-schema-version",
+        self.add_copy_spec("/root/ssl-build")
+        self.add_cmd_output("/usr/bin/rhn-schema-version",
                         root_symlink = "database-schema-version")
-        self.addCmdOutput("/usr/bin/rhn-charsets",
+        self.add_cmd_output("/usr/bin/rhn-charsets",
                         root_symlink = "database-character-sets")
 
         if self.satellite:
-            self.addCopySpecs(["/etc/tnsnames.ora", "/etc/jabberd",
+            self.add_copy_specs(["/etc/tnsnames.ora", "/etc/jabberd",
                                 "/etc/tomcat6/", "/var/log/tomcat6/"])
             if os.path.exists("/usr/bin/spacewalk-debug"):
-                self.addCmdOutput("/usr/bin/spacewalk-debug --dir %s"
-                        % os.path.join(self.cInfo['dstroot'],
+                self.add_cmd_output("/usr/bin/spacewalk-debug --dir %s"
+                        % os.path.join(self.commons['dstroot'],
                                 "sos_commands/rhn"))
 
         if self.proxy:
-            self.addCopySpecs(["/etc/squid", "/var/log/squid"])
+            self.add_copy_specs(["/etc/squid", "/var/log/squid"])

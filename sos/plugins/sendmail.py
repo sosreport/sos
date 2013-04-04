@@ -25,4 +25,4 @@ class sendmail(Plugin, RedHatPlugin):
     packages = ('sendmail',)
 
     def setup(self):
-        self.addCopySpecs(["/etc/mail/*", "/var/log/maillog"])
+        self.add_copy_specs(["/etc/mail/*", "/var/log/maillog"])

@@ -30,7 +30,7 @@ class autofs(Plugin):
         """ testing if autofs debug has been enabled anywhere
         """
         # Global debugging
-        opt = self.fileGrep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", *self.files)
+        opt = self.file_grep(r"^(DEFAULT_LOGGING|DAEMONOPTIONS)=(.*)", *self.files)
         for opt1 in opt:
             for opt2 in opt1.split(" "):
                 if opt2 in ("--debug", "debug"):
@@ -40,29 +40,29 @@ class autofs(Plugin):
     def getdaemondebug(self):
         """ capture daemon debug output
         """
-        debugout = self.fileGrep(r"^(daemon.*)\s+(\/var\/log\/.*)", *self.files)
+        debugout = self.file_grep(r"^(daemon.*)\s+(\/var\/log\/.*)", *self.files)
         for i in debugout:
             return i[1]
 
     def setup(self):
-        self.addCopySpec("/etc/auto*")
-        self.addCmdOutput("/etc/init.d/autofs status")
-        self.addCmdOutput("ps auxwww | grep automount")
-        self.addCmdOutput("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
-        self.addCmdOutput("/bin/mount | egrep -e 'automount|pid.*nfs'")
+        self.add_copy_spec("/etc/auto*")
+        self.add_cmd_output("/etc/init.d/autofs status")
+        self.add_cmd_output("ps auxwww | grep automount")
+        self.add_cmd_output("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
+        self.add_cmd_output("/bin/mount | egrep -e 'automount|pid.*nfs'")
         if self.checkdebug():
-            self.addCopySpec(self.getdaemondebug())
+            self.add_copy_spec(self.getdaemondebug())
 
 class RedHatAutofs(autofs, RedHatPlugin):
     """autofs server-related on RedHat based distributions"""
 
     def setup(self):
         super(RedHatAutofs, self).setup()
-        self.addCmdOutput("/bin/rpm -qV autofs")
+        self.add_cmd_output("/bin/rpm -qV autofs")
 
 class DebianAutofs(autofs, DebianPlugin, UbuntuPlugin):
     """autofs server-related on Debian based distributions"""
 
     def setup(self):
         super(DebianAutofs, self).setup()
-        self.addCmdOutput("/usr/bin/dpkg-query -s autofs")
+        self.add_cmd_output("/usr/bin/dpkg-query -s autofs")

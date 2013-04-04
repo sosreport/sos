@@ -245,9 +245,9 @@ class SoSReport(object):
     def _set_archive(self):
         if self.opts.compression_type not in ('auto', 'zip', 'bzip2', 'gzip', 'xz'):
             raise Exception("Invalid compression type specified. Options are: auto, zip, bzip2, gzip and xz")
-        archive_name = os.path.join(self.opts.tmp_dir,self.policy.getArchiveName())
+        archive_name = os.path.join(self.opts.tmp_dir,self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
-            auto_archive = self.policy.preferedArchive()
+            auto_archive = self.policy.preferred_archive_name()
             self.archive = auto_archive(archive_name)
         elif self.opts.compression_type == 'zip':
             self.archive = ZipFileArchive(archive_name)
@@ -391,12 +391,12 @@ class SoSReport(object):
                 plugin_name in self._get_disabled_plugins())
 
     def _is_inactive(self, plugin_name, pluginClass):
-        return (not pluginClass(self.get_commons()).checkenabled() and
+        return (not pluginClass(self.get_commons()).check_enabled() and
                 not plugin_name in self.opts.enableplugins  and
                 not plugin_name in self.opts.onlyplugins)
 
     def _is_not_default(self, plugin_name, pluginClass):
-        return (not pluginClass(self.get_commons()).defaultenabled() and
+        return (not pluginClass(self.get_commons()).default_enabled() and
                 not plugin_name in self.opts.enableplugins and
                 not plugin_name in self.opts.onlyplugins)
 
@@ -472,7 +472,7 @@ class SoSReport(object):
     def _set_all_options(self):
         if self.opts.usealloptions:
             for plugname, plug in self.loaded_plugins:
-                for name, parms in zip(plug.optNames, plug.optParms):
+                for name, parms in zip(plug.opt_names, plug.opt_parms):
                     if type(parms["enabled"])==bool:
                         parms["enabled"] = True
 
@@ -518,7 +518,7 @@ class SoSReport(object):
             for plugname, plug in self.loaded_plugins:
                 if plugname in opts:
                     for opt, val in opts[plugname]:
-                        if not plug.setOption(opt, val):
+                        if not plug.set_option(opt, val):
                             self.soslog.error('no such option "%s" for plugin '
                                          '(%s)' % (opt,plugname))
                             self._exit(1)
@@ -540,7 +540,7 @@ class SoSReport(object):
 
     def _set_plugin_options(self):
         for plugin_name, plugin in self.loaded_plugins:
-            names, parms = plugin.getAllOptions()
+            names, parms = plugin.get_all_options()
             for optname, optparm in zip(names, parms):
                 self.all_options.append((plugin, plugin_name, optname, optparm))
 
@@ -604,7 +604,7 @@ class SoSReport(object):
 
     def prework(self):
         try:
-            self.policy.preWork()
+            self.policy.pre_work()
             self._set_archive()
         except Exception, e:
             import traceback
@@ -636,7 +636,7 @@ class SoSReport(object):
         self.archive.add_string(content="\n".join(versions), dest='version.txt')
 
 
-    def copy_stuff(self):
+    def collect(self):
         plugruncount = 0
         for i in izip(self.loaded_plugins):
             plugruncount += 1
@@ -645,7 +645,7 @@ class SoSReport(object):
                 sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, len(self.loaded_plugins), plugname))
                 sys.stdout.flush()
             try:
-                plug.copyStuff()
+                plug.collect()
             except KeyboardInterrupt:
                 raise
             except:
@@ -656,7 +656,7 @@ class SoSReport(object):
 
     def report(self):
         for plugname, plug in self.loaded_plugins:
-            for oneFile in plug.copiedFiles:
+            for oneFile in plug.copied_files:
                 try:
                     self.xml_report.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
                 except:
@@ -675,18 +675,18 @@ class SoSReport(object):
             for alert in plug.alerts:
                 section.add(Alert(alert))
 
-            if plug.customText:
-                section.add(Note(plug.customText))
+            if plug.custom_text:
+                section.add(Note(plug.custom_text))
 
-            for f in plug.copiedFiles:
+            for f in plug.copied_files:
                 section.add(CopiedFile(name=f['srcpath'],
                             href= ".." + f['dstpath']))
 
-            for cmd in plug.executedCommands:
+            for cmd in plug.executed_commands:
                 section.add(Command(name=cmd['exe'], return_code=0,
                             href="../" + cmd['file']))
 
-            for content, f in plug.copyStrings:
+            for content, f in plug.copy_strings:
                 section.add(CreatedFile(name=f))
 
             report.add(section)
@@ -770,7 +770,7 @@ class SoSReport(object):
     def final_work(self):
 
         # package up the results for the support organization
-        self.policy.packageResults(self.archive.name())
+        self.policy.package_results(self.archive.name())
 
         self._finish_logging()
 
@@ -778,9 +778,9 @@ class SoSReport(object):
 
         # automated submission will go here
         if not self.opts.upload:
-            self.policy.displayResults(final_filename)
+            self.policy.display_results(final_filename)
         else:
-            self.policy.uploadResults(final_filename)
+            self.policy.upload_results(final_filename)
 
         self.tempfile_util.clean()
 
@@ -829,10 +829,10 @@ class SoSReport(object):
                              dest="debug",
                              help="enable interactive debugging using the python debugger")
         parser.add_option("--ticket-number", action="store",
-                             dest="ticketNumber",
+                             dest="ticket_number",
                              help="specify ticket number")
         parser.add_option("--name", action="store",
-                             dest="customerName",
+                             dest="customer_name",
                              help="specify report name")
         parser.add_option("--config-file", action="store",
                              dest="config_file",
@@ -866,7 +866,7 @@ class SoSReport(object):
     def execute(self):
         try:
             self._setup_logging()
-            self.policy.setCommons(self.get_commons())
+            self.policy.set_commons(self.get_commons())
             self.print_header()
             self.load_plugins()
             self._set_tunables()
@@ -885,7 +885,7 @@ class SoSReport(object):
             self.ui_log.info(_(" Running plugins. Please wait ..."))
             self.ui_log.info("")
 
-            self.copy_stuff()
+            self.collect()
 
             self.ui_log.info("")
 

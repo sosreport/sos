@@ -20,10 +20,10 @@ class maas(Plugin, UbuntuPlugin):
     """ MAAS Plugin
     """
     def setup(self):
-        self.addCopySpecs(["/etc/squid-deb-proxy",
+        self.add_copy_specs(["/etc/squid-deb-proxy",
                            "/etc/maas",
                            "/var/lib/maas",
                            "/var/log/maas*"])
-        self.addCmdOutput("maas dumpdata")
-        self.addCmdOutput("/usr/bin/pg_dumpall")
+        self.add_cmd_output("maas dumpdata")
+        self.add_cmd_output("/usr/bin/pg_dumpall")
                            

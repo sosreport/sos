@@ -24,7 +24,7 @@ class sssd(Plugin):
     packages = ('sssd',)
 
     def setup(self):
-        self.addCopySpecs(["/etc/sssd", "/var/log/sssd/*"])
+        self.add_copy_specs(["/etc/sssd", "/var/log/sssd/*"])
 
 class RedHatSssd(sssd, RedHatPlugin):
     """sssd-related Diagnostic Information on Red Hat based distributions
@@ -39,4 +39,4 @@ class DebianSssd(sssd, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianSssd, self).setup()
-        self.addCopySpecs(["/etc/default/sssd"])
+        self.add_copy_specs(["/etc/default/sssd"])

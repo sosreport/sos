@@ -20,4 +20,4 @@ class ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """ssh-related information
     """
     def setup(self):
-        self.addCopySpecs(["/etc/ssh/ssh_config", "/etc/ssh/sshd_config"])
+        self.add_copy_specs(["/etc/ssh/ssh_config", "/etc/ssh/sshd_config"])

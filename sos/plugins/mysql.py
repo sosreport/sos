@@ -23,7 +23,7 @@ class mysql(Plugin, RedHatPlugin):
     packages = ('mysql-server', 'mysql')
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/my.cnf",
             "/etc/sysconfig/network",
             "/etc/ld.so.conf.d/mysql*",

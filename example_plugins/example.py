@@ -20,7 +20,7 @@ from sos.plugins import Plugin, RedHatPlugin
 class example(Plugin, RedHatPlugin):
     '''This is the description for the example plugin'''
     # Plugin developers want to override setup() from which they will call
-    # addCopySpec() to collect files and collectExtOutput() to collect programs
+    # add_copy_spec() to collect files and collectExtOutput() to collect programs
     # output.
 
     # Add your options here, indicate whether they are slow to run, and set
@@ -28,7 +28,7 @@ class example(Plugin, RedHatPlugin):
     # each option is a tuple of the following format:
     # (name, description, fast or slow, default value)
     # each option will be addressable like -k name=value
-    optionList = [("init.d",  'Gathers the init.d directory', 'slow', 0),
+    option_list = [("init.d",  'Gathers the init.d directory', 'slow', 0),
                   ('follicles', 'Gathers information about each follicle on every toe', 'slow', 0),
                   ('color', 'Gathers toenail polish color', 'fast', 0)]
 
@@ -41,16 +41,16 @@ class example(Plugin, RedHatPlugin):
         are provided to the output from each command.
         '''
         # Here's how to copy files and directory trees
-        self.addCopySpec("/etc/hosts")
+        self.add_copy_spec("/etc/hosts")
 
         with open("/proc/cpuinfo") as f:
             for line in f:
                 if "vendor_id" in line:
-                    self.addAlert("Vendor ID string is: %s <br>\n" % line)
+                    self.add_alert("Vendor ID string is: %s <br>\n" % line)
 
         # Here's how to test your options and execute if enabled
-        if self.isOptionEnabled("init.d"):
-            self.addCopySpec("/etc/init.d") # copies a whole directory tree
+        if self.option_enabled("init.d"):
+            self.add_copy_spec("/etc/init.d") # copies a whole directory tree
 
         # Here's how to execute a command
         self.collectExtOutput("/bin/ps -ef")

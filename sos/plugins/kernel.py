@@ -18,26 +18,26 @@ import os, re
 class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """kernel related information
     """
-    optionList = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
-    moduleFile = ""
+    option_list = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
+    module_file = ""
 
     def setup(self):
-        self.addCmdOutput("/bin/uname -a", root_symlink = "uname")
-        self.moduleFile = self.getCmdOutputNow("/sbin/lsmod", root_symlink = "lsmod")
+        self.add_cmd_output("/bin/uname -a", root_symlink = "uname")
+        self.module_file = self.get_cmd_output_now("/sbin/lsmod", root_symlink = "lsmod")
 
-        if self.getOption('modinfo'):
+        if self.get_option('modinfo'):
             runcmd = ""
-            ret, mods, rtime = self.callExtProg('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null')
+            ret, mods, rtime = self.call_ext_prog('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null')
             for kmod in mods.split('\n'):
                 if '' != kmod.strip():
                     runcmd = runcmd + " " + kmod
             if len(runcmd):
-                self.addCmdOutput("/sbin/modinfo " + runcmd)
+                self.add_cmd_output("/sbin/modinfo " + runcmd)
 
-        self.addCmdOutput("/sbin/sysctl -a")
+        self.add_cmd_output("/sbin/sysctl -a")
         if os.path.isfile("/sbin/ksyms"):
-            self.addCmdOutput("/sbin/ksyms")
-        self.addCopySpecs([
+            self.add_cmd_output("/sbin/ksyms")
+        self.add_copy_specs([
             "/proc/sys/kernel/random/boot_id",
             "/sys/module/*/parameters",
             "/sys/module/*/initstate",
@@ -46,7 +46,7 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/filesystems",
             "/proc/ksyms",
             "/proc/slabinfo",
-            "/lib/modules/%s/modules.dep" % self.policy().kernelVersion(),
+            "/lib/modules/%s/modules.dep" % self.policy().kernel_version(),
             "/etc/conf.modules",
             "/etc/modules.conf",
             "/etc/modprobe.conf",
@@ -63,4 +63,4 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/timer*",
             "/proc/lock*"])
 
-        self.addCmdOutput("/usr/sbin/dkms status")
+        self.add_cmd_output("/usr/sbin/dkms status")

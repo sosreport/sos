@@ -38,8 +38,8 @@ class RedHatPolicy(LinuxPolicy):
 
     def __init__(self):
         super(RedHatPolicy, self).__init__()
-        self.reportName = ""
-        self.ticketNumber = ""
+        self.report_name = ""
+        self.ticket_number = ""
         self.package_manager = PackageManager('rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
         self.valid_subclasses = [RedHatPlugin]
 
@@ -50,7 +50,7 @@ class RedHatPolicy(LinuxPolicy):
         Red Hat distribution or False otherwise."""
         return False
 
-    def runlevelByService(self, name):
+    def runlevel_by_service(self, name):
         from subprocess import Popen, PIPE
         ret = []
         p = Popen("LC_ALL=C /sbin/chkconfig --list %s" % name,
@@ -71,8 +71,8 @@ class RedHatPolicy(LinuxPolicy):
                     ret.append(int(runlevel))
         return ret
 
-    def getLocalName(self):
-        return self.hostName()
+    def get_local_name(self):
+        return self.host_name()
 
 class RHELPolicy(RedHatPolicy):
 
@@ -109,10 +109,10 @@ No changes will be made to system configuration.
         return (os.path.isfile('/etc/redhat-release')
                 and not os.path.isfile('/etc/fedora-release'))
 
-    def rhelVersion(self):
+    def rhel_version(self):
         try:
-            pkg = self.pkgByName("redhat-release") or \
-            self.allPkgsByNameRegex("redhat-release-.*")[-1]
+            pkg = self.pkg_by_name("redhat-release") or \
+            self.all_pkgs_by_name_regex("redhat-release-.*")[-1]
             pkgname = pkg["version"]
             if pkgname[0] == "4":
                 return 4
@@ -124,7 +124,7 @@ No changes will be made to system configuration.
             pass
         return False
 
-    def rhnUsername(self):
+    def rhn_username(self):
         try:
             cfg = config.initUp2dateConfig()
 
@@ -133,8 +133,8 @@ No changes will be made to system configuration.
             # ignore any exception and return an empty username
             return ""
 
-    def getLocalName(self):
-        return self.rhnUsername() or self.hostName()
+    def get_local_name(self):
+        return self.rhn_username() or self.host_name()
 
 class FedoraPolicy(RedHatPolicy):
 
@@ -151,9 +151,9 @@ class FedoraPolicy(RedHatPolicy):
         or False."""
         return os.path.isfile('/etc/fedora-release')
 
-    def fedoraVersion(self):
-        pkg = self.pkgByName("fedora-release") or \
-        self.allPkgsByNameRegex("fedora-release-.*")[-1]
+    def fedora_version(self):
+        pkg = self.pkg_by_name("fedora-release") or \
+        self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
         return int(pkg["version"])
 
 # vim: ts=4 sw=4 et

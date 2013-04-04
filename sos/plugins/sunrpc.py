@@ -23,14 +23,14 @@ class sunrpc(Plugin):
     plugin_name = "sunrpc"
     service = None
 
-    def checkenabled(self):
-        if self.policy().runlevelDefault() in \
-		self.policy().runlevelByService(self.service):
+    def check_enabled(self):
+        if self.policy().default_runlevel() in \
+		self.policy().runlevel_by_service(self.service):
             return True
         return False
 
     def setup(self):
-        self.addCmdOutput("/usr/sbin/rpcinfo -p localhost")
+        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
         return
 
 class RedHatSunrpc(sunrpc, RedHatPlugin):
@@ -39,7 +39,7 @@ class RedHatSunrpc(sunrpc, RedHatPlugin):
 
     service = 'rpcbind'
 
-# FIXME: depends on addition of runlevelByService (or similar)
+# FIXME: depends on addition of runlevel_by_service (or similar)
 # in Debian/Ubuntu policy classes
 #class DebianSunrpc(sunrpc, DebianPlugin, UbuntuPlugin):
 #    """Sun RPC related information for Red Hat systems
@@ -48,7 +48,7 @@ class RedHatSunrpc(sunrpc, RedHatPlugin):
 #    service = 'rpcbind-boot'
 #
 #    def setup(self):
-#        self.addCmdOutput("/usr/sbin/rpcinfo -p localhost")
+#        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
 #        return
 
 

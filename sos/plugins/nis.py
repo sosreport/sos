@@ -25,5 +25,5 @@ class nis(Plugin, RedHatPlugin):
     files = ('/var/yp',)
 
     def setup(self):
-        self.addCopySpec("/etc/yp*.conf")
-        self.addCopySpec("/var/yp/*")
+        self.add_copy_spec("/etc/yp*.conf")
+        self.add_copy_spec("/var/yp/*")

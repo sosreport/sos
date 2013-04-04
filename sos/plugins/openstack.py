@@ -25,7 +25,7 @@ class openstack(Plugin):
     """
     plugin_name = "openstack"
 
-    optionList = [("log", "gathers all openstack logs", "slow", False)]
+    option_list = [("log", "gathers all openstack logs", "slow", False)]
 
 
 class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
@@ -89,51 +89,51 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
     def setup(self):
         # Nova
         if os.path.exists("/usr/bin/nova-manage"):
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage config list 2>/dev/null | sort",
                 suggest_filename="nova_config_list")
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage service list 2>/dev/null",
                 suggest_filename="nova_service_list")
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage db version 2>/dev/null",
                 suggest_filename="nova_db_version")
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage fixed list 2>/dev/null",
                 suggest_filename="nova_fixed_ip_list")
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage floating list 2>/dev/null",
                 suggest_filename="nova_floating_ip_list")
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage flavor list 2>/dev/null",
                 suggest_filename="nova_flavor_list")
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage network list 2>/dev/null",
                 suggest_filename="nova_network_list")
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/nova-manage vm list 2>/dev/null",
                 suggest_filename="nova_vm_list")
-        self.addCopySpecs(["/etc/nova/",
+        self.add_copy_specs(["/etc/nova/",
                            "/var/log/nova/",
                            "/etc/default/nova-volume",
                            "/etc/sudoers.d/nova_sudoers",
                            "/etc/logrotate.d/nova-*"])
         # Glance
         if os.path.exists("/usr/bin/glance-manage"):
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "/usr/bin/glance-manage db_version",
                 suggest_filename="glance_db_version")
-        self.addCopySpecs(["/etc/glance/",
+        self.add_copy_specs(["/etc/glance/",
                            "/var/log/glance/",
                            "/etc/logrotate.d/glance-*"])
         # Keystone
-        self.addCopySpecs(["/etc/keystone/",
+        self.add_copy_specs(["/etc/keystone/",
                            "/var/log/keystone/",
                            "/etc/logrotate.d/keystone"])
         # Swift
-        self.addCopySpecs(["/etc/swift/"])
+        self.add_copy_specs(["/etc/swift/"])
         # Quantum
-        self.addCopySpecs(["/etc/quantum/",
+        self.add_copy_specs(["/etc/quantum/",
                            "/var/log/quantum/"])
 
 
@@ -163,10 +163,10 @@ class RedHatOpenStack(openstack, RedHatPlugin):
         # If RHEL or Fedora then invoke script for openstack-status
         if (os.path.isfile('/etc/redhat-release')
             or os.path.isfile('/etc/fedora-release')):
-            self.addCmdOutput("/usr/bin/openstack-status")
+            self.add_cmd_output("/usr/bin/openstack-status")
 
         # Nova
-        self.addCopySpecs(["/etc/nova/",
+        self.add_copy_specs(["/etc/nova/",
                            "/var/log/nova/",
                            "/var/lib/nova/",
                            "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
@@ -174,19 +174,19 @@ class RedHatOpenStack(openstack, RedHatPlugin):
                            "/etc/logrotate.d/openstack-nova"])
 
         # Glance
-        self.addCopySpecs(["/etc/glance/",
+        self.add_copy_specs(["/etc/glance/",
                            "/var/log/glance/",
                            "/etc/logrotate.d/openstack-glance"])
 
         # Keystone
-        self.addCopySpecs(["/etc/keystone/",
+        self.add_copy_specs(["/etc/keystone/",
                            "/var/log/keystone/"])
 
         # Quantum
-        self.addCopySpecs(["/etc/quantum/",
+        self.add_copy_specs(["/etc/quantum/",
                            "/var/log/quantum/"])
 
     def postproc(self):
-        self.doFileSub('/etc/keystone/keystone.conf',
+        self.do_file_sub('/etc/keystone/keystone.conf',
                     r"(admin_password\s*=\s*)(.*)",
                     r"\1******")

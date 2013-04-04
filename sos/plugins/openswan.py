@@ -25,8 +25,8 @@ class openswan(Plugin, RedHatPlugin):
     packages = ('openswan',)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/ipsec.conf",
             "/etc/ipsec.d"])
-        self.addCmdOutput("/usr/sbin/ipsec verify")
-        self.addCmdOutput("/usr/sbin/ipsec barf")
+        self.add_cmd_output("/usr/sbin/ipsec verify")
+        self.add_cmd_output("/usr/sbin/ipsec barf")

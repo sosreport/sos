@@ -23,5 +23,5 @@ class ftp(Plugin, RedHatPlugin):
     packages = ('vsftpd',)
 
     def setup(self):
-        self.addCopySpec("/etc/ftp*")
-        self.addCopySpec("/etc/vsftpd")
+        self.add_copy_spec("/etc/ftp*")
+        self.add_copy_spec("/etc/vsftpd")

@@ -25,22 +25,22 @@ class ds(Plugin, RedHatPlugin):
     packages = ('redhat-ds-base', 'redhat-ds-7')
 
     def check_version(self):
-        if self.isInstalled("redhat-ds-base") or \
+        if self.is_installed("redhat-ds-base") or \
         os.path.exists("/etc/dirsrv"):
             return "ds8"
-        elif self.isInstalled("redhat-ds-7") or \
+        elif self.is_installed("redhat-ds-7") or \
         os.path.exists("/opt/redhat-ds"):
             return "ds7"
         return False
 
     def setup(self):
         if not self.check_version():
-            self.addAlert("Directory Server not found.")
+            self.add_alert("Directory Server not found.")
         elif "ds8" in self.check_version():
-            self.addCopySpecs([
+            self.add_copy_specs([
                 "/etc/dirsrv/slapd*",
                 "/var/log/dirsrv/*"])
         elif "ds7" in self.check_version():
-            self.addCopySpecs([
+            self.add_copy_specs([
                 "/opt/redhat-ds/slapd-*/config",
                 "/opt/redhat-ds/slapd-*/logs"])

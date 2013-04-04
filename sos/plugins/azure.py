@@ -22,7 +22,7 @@ class azure(Plugin, UbuntuPlugin):
     packages = ('walinuxagent',)
 
     def setup(self):
-        self.addCopySpecs(["/var/log/waagent*",
+        self.add_copy_specs(["/var/log/waagent*",
                            "/var/lib/cloud",
                            "/etc/default/kv-kvp-daemon-init",
                            "/sys/module/hv_netvsc/parameters/ring_size",

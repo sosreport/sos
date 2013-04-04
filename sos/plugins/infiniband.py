@@ -20,20 +20,20 @@ class infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Infiniband related information
     """
 
-    def checkenabled(self):
-         if self.cInfo["policy"].pkgByName("libibverbs-utils"):
+    def check_enabled(self):
+         if self.commons["policy"].pkg_by_name("libibverbs-utils"):
              return True
          return False
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/ofed/openib.conf",
             "/etc/ofed/opensm.conf"])
 
-        self.addCmdOutput("/usr/bin/ibv_devices")
-        self.addCmdOutput("/usr/bin/ibv_devinfo")
-        self.addCmdOutput("/usr/sbin/ibstat")
-        self.addCmdOutput("/usr/sbin/ibstatus")
-        self.addCmdOutput("/usr/sbin/ibhosts")
+        self.add_cmd_output("/usr/bin/ibv_devices")
+        self.add_cmd_output("/usr/bin/ibv_devinfo")
+        self.add_cmd_output("/usr/sbin/ibstat")
+        self.add_cmd_output("/usr/sbin/ibstatus")
+        self.add_cmd_output("/usr/sbin/ibhosts")
 
         return

@@ -20,5 +20,5 @@ class juju(Plugin, UbuntuPlugin):
     """ Juju Plugin
     """
     def setup(self):
-        self.addCopySpecs(["/var/log/juju",
+        self.add_copy_specs(["/var/log/juju",
                            "/var/lib/juju"])

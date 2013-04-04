@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 class ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on CEPH
     """
-    optionList = [("log", "gathers all ceph logs", "slow", False)]
+    option_list = [("log", "gathers all ceph logs", "slow", False)]
 
     packages = ('ceph',
                 'ceph-mds',
@@ -26,14 +26,14 @@ class ceph(Plugin, RedHatPlugin, UbuntuPlugin):
                 'ceph-fs-common')
 
     def setup(self):
-        self.addCopySpecs(["/etc/ceph/",
+        self.add_copy_specs(["/etc/ceph/",
                            "/var/log/ceph/"])
 
-        self.addCmdOutput("/usr/bin/ceph status")
-        self.addCmdOutput("/usr/bin/ceph health")
-        self.addCmdOutput("/usr/bin/ceph osd tree")
-        self.addCmdOutput("/usr/bin/ceph osd stat")
-        self.addCmdOutput("/usr/bin/ceph osd dump")
-        self.addCmdOutput("/usr/bin/ceph mon stat")
-        self.addCmdOutput("/usr/bin/ceph mon dump")
+        self.add_cmd_output("/usr/bin/ceph status")
+        self.add_cmd_output("/usr/bin/ceph health")
+        self.add_cmd_output("/usr/bin/ceph osd tree")
+        self.add_cmd_output("/usr/bin/ceph osd stat")
+        self.add_cmd_output("/usr/bin/ceph osd dump")
+        self.add_cmd_output("/usr/bin/ceph mon stat")
+        self.add_cmd_output("/usr/bin/ceph mon dump")
 

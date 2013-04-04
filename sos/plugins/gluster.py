@@ -25,7 +25,7 @@ class gluster(Plugin, RedHatPlugin):
     packages = ["glusterfs", "glusterfs-core"]
     files = ["/etc/glusterd", "/var/lib/glusterd"]
 
-    def defaultenabled(self):
+    def default_enabled(self):
         return True
 
     def get_volume_names(self, volume_file):
@@ -76,12 +76,12 @@ class gluster(Plugin, RedHatPlugin):
             pass
 
     def setup(self):
-        self.addCmdOutput("/usr/sbin/gluster peer status")
+        self.add_cmd_output("/usr/sbin/gluster peer status")
 
         # check package version handling rename of glusterfs-core -> glusterfs
-        pkg = self.policy().pkgByName("glusterfs-core");
+        pkg = self.policy().pkg_by_name("glusterfs-core");
         if not pkg:
-            pkg = self.policy().pkgByName("glusterfs");
+            pkg = self.policy().pkg_by_name("glusterfs");
             # need to handle "no package" case for users who enable with -e/-o
             if not pkg:
                 return
@@ -89,32 +89,32 @@ class gluster(Plugin, RedHatPlugin):
         gluster_major = int((pkg["version"])[:1])
         gluster_minor = int((pkg["version"])[2:3])
         if (gluster_major == 3) and (gluster_minor <= 2):
-            self.addCopySpec("/etc/glusterd/")
-            self.addForbiddenPath("/etc/glusterd/geo-replication/secret.pem")
+            self.add_copy_spec("/etc/glusterd/")
+            self.add_forbidden_path("/etc/glusterd/geo-replication/secret.pem")
         else:
-            self.addCopySpec("/var/lib/glusterd/")
-            self.addForbiddenPath("/var/lib/glusterd/geo-replication/secret.pem")
+            self.add_copy_spec("/var/lib/glusterd/")
+            self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
 
         # collect unified file and object storage configuration
-        self.addCopySpec("/etc/swift/")
+        self.add_copy_spec("/etc/swift/")
 
         # glusterfs-server rpm scripts stash this on migration to 3.3.x
-        self.addCopySpec("/etc/glusterd.rpmsave")
+        self.add_copy_spec("/etc/glusterd.rpmsave")
 
         # common to all versions
-        self.addCopySpec("/etc/glusterfs")
+        self.add_copy_spec("/etc/glusterfs")
 
         self.make_preparations(self.statedump_dir)
-        #self.addCmdOutput("killall -USR1 glusterfs glusterfsd")
+        #self.add_cmd_output("killall -USR1 glusterfs glusterfsd")
         os.system("killall -USR1 glusterfs glusterfsd");
         # let all the processes catch the signal and create statedump file
         # entries.
         time.sleep(1)
         self.wait_for_statedump(self.statedump_dir)
-        self.addCopySpec('/tmp/glusterdump.options')
-        self.addCopySpec(self.statedump_dir)
+        self.add_copy_spec('/tmp/glusterdump.options')
+        self.add_copy_spec(self.statedump_dir)
 
-        self.addCmdOutput("gluster volume status")
+        self.add_cmd_output("gluster volume status")
         # collect this last as some of the other actions create log entries
-        self.addCopySpec("/var/log/glusterfs")
+        self.add_copy_spec("/var/log/glusterfs")
 

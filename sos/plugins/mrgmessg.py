@@ -18,7 +18,7 @@ class mrgmessg(Plugin, RedHatPlugin):
     """MRG Messaging related information
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/qpidd.conf",
             "/etc/sasl2/qpidd.conf",
             "/var/rhm"])

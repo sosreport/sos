@@ -25,8 +25,8 @@ class ppp(Plugin, RedHatPlugin):
     packages = ('ppp',)
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/wvdial.conf",
             "/etc/ppp",
             "/var/log/ppp"])
-        self.addCmdOutput("/usr/sbin/adsl-status")
+        self.add_cmd_output("/usr/sbin/adsl-status")

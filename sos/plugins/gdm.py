@@ -18,4 +18,4 @@ class gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """gdm related information
     """
     def setup(self):
-        self.addCopySpec("/etc/gdm/*")
+        self.add_copy_spec("/etc/gdm/*")

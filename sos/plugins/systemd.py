@@ -27,21 +27,21 @@ class systemd(Plugin, RedHatPlugin):
     files = ('/usr/lib/systemd/systemd',)
 
     def setup(self):
-        self.addCmdOutput("systemctl show --all")
-        self.addCmdOutput("systemctl list-units --failed")
-        self.addCmdOutput("systemctl list-unit-files")
-        self.addCmdOutput("systemctl list-units --all")
-        self.addCmdOutput("systemctl dump")
-        self.addCmdOutput("systemd-delta")
-        self.addCmdOutput("journalctl --verify")
-        self.addCmdOutput("journalctl --all --this-boot --no-pager")
-        self.addCmdOutput("journalctl --all --this-boot --no-pager -o verbose")
-        self.addCmdOutput("ls -l /lib/systemd")
-        self.addCmdOutput("ls -l /lib/systemd/system-shutdown")
-        self.addCmdOutput("ls -l /lib/systemd/system-generators")
-        self.addCmdOutput("ls -l /lib/systemd/user-generators")
+        self.add_cmd_output("systemctl show --all")
+        self.add_cmd_output("systemctl list-units --failed")
+        self.add_cmd_output("systemctl list-unit-files")
+        self.add_cmd_output("systemctl list-units --all")
+        self.add_cmd_output("systemctl dump")
+        self.add_cmd_output("systemd-delta")
+        self.add_cmd_output("journalctl --verify")
+        self.add_cmd_output("journalctl --all --this-boot --no-pager")
+        self.add_cmd_output("journalctl --all --this-boot --no-pager -o verbose")
+        self.add_cmd_output("ls -l /lib/systemd")
+        self.add_cmd_output("ls -l /lib/systemd/system-shutdown")
+        self.add_cmd_output("ls -l /lib/systemd/system-generators")
+        self.add_cmd_output("ls -l /lib/systemd/user-generators")
 
-        self.addCopySpecs(["/etc/systemd",
+        self.add_copy_specs(["/etc/systemd",
                            "/lib/systemd/system",
                            "/lib/systemd/user",
                            "/etc/vconsole.conf",

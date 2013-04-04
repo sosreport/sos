@@ -22,9 +22,9 @@ class kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """KVM related information
     """
 
-    optionList = [("topOutput", '5x iterations of top data', 'slow', False)]
+    option_list = [("topOutput", '5x iterations of top data', 'slow', False)]
 
-    def checkenabled(self):
+    def check_enabled(self):
         return os.access("/sys/module/kvm", os.R_OK)
 
     def setup(self):
@@ -33,13 +33,13 @@ class kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             os.popen("mount -t debugfs debugfs /sys/kernel/debug")
         else:
             self._debugfs_cleanup = False
-        self.addCopySpec("/sys/module/kvm/srcversion")
-        self.addCopySpec("/sys/module/kvm_intel/srcversion")
-        self.addCopySpec("/sys/module/kvm_amd/srcversion")
-        self.addCopySpec("/sys/module/ksm/srcversion")
-        if self.getOption('topOutput'):
-            self.addCmdOutput("/usr/bin/top -b -d 1 -n 5")
-        self.addCmdOutput("/usr/bin/kvm_stat --once")
+        self.add_copy_spec("/sys/module/kvm/srcversion")
+        self.add_copy_spec("/sys/module/kvm_intel/srcversion")
+        self.add_copy_spec("/sys/module/kvm_amd/srcversion")
+        self.add_copy_spec("/sys/module/ksm/srcversion")
+        if self.get_option('topOutput'):
+            self.add_cmd_output("/usr/bin/top -b -d 1 -n 5")
+        self.add_cmd_output("/usr/bin/kvm_stat --once")
 
     def postproc(self):
         if self._debugfs_cleanup and os.path.ismount("/sys/kernel/debug"):

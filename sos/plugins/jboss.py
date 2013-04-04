@@ -14,7 +14,7 @@ class jboss(Plugin, RedHatPlugin):
     """JBoss related information
     """
 
-    optionList = [("home",  'JBoss\'s installation dir (i.e. JBOSS_HOME)', '', False),
+    option_list = [("home",  'JBoss\'s installation dir (i.e. JBOSS_HOME)', '', False),
                   ("javahome",  'Java\'s installation dir (i.e. JAVA_HOME)', '', False),
                   ("profile", 'Quoted and space separated list of server profiles to limit collection. \
 Default=\'all default minimal production standard web\'.', '', False),
@@ -41,17 +41,17 @@ Default=\'all default minimal production standard web\'.', '', False),
         Returns:
             True JBOSS_HOME is set and the path exists.  False otherwise.
         """
-        if self.getOption("home"):
+        if self.get_option("home"):
             ## Prefer this value first over the ENV
-            self.__jbossHome=self.getOption("home")
-            self.addAlert("INFO: The JBoss installation directory supplied to SOS is " +
+            self.__jbossHome=self.get_option("home")
+            self.add_alert("INFO: The JBoss installation directory supplied to SOS is " +
                           self.__jbossHome)
         elif os.environ.get("JBOSS_HOME"):
             self.__jbossHome=os.environ.get("JBOSS_HOME")
-            self.addAlert("INFO: The JBoss installation directory (i.e. JBOSS_HOME) from the environment is " +
+            self.add_alert("INFO: The JBoss installation directory (i.e. JBOSS_HOME) from the environment is " +
                           self.__jbossHome)
         else:
-            self.addAlert("ERROR: The JBoss installation directory was not supplied.\
+            self.add_alert("ERROR: The JBoss installation directory was not supplied.\
               The JBoss SOS plug-in cannot continue.")
             return False
 
@@ -62,13 +62,13 @@ Default=\'all default minimal production standard web\'.', '', False),
             if os.path.exists(tmp):
                 jbossClasspath=tmp + os.sep + "*" + os.pathsep
             else:
-                self.addAlert("WARN: The JBoss lib directory does not exist.  Dir(%s) " %  tmp)
+                self.add_alert("WARN: The JBoss lib directory does not exist.  Dir(%s) " %  tmp)
 
             tmp=os.path.join(self.__jbossHome, "common" , "lib")
             if os.path.exists(tmp):
                 jbossClasspath+=tmp + os.sep + "*"
             else:
-                self.addAlert("WARN: The JBoss lib directory does not exist.  Dir(%s) " %  tmp)
+                self.add_alert("WARN: The JBoss lib directory does not exist.  Dir(%s) " %  tmp)
 
             os.environ['JBOSS_CLASSPATH']=jbossClasspath
 
@@ -76,7 +76,7 @@ Default=\'all default minimal production standard web\'.', '', False),
         else:
             msg = "ERROR: The path to the JBoss installation directory does not exist.  Path is: " + self.__jbossHome
             print msg
-            self.addAlert(msg)
+            self.add_alert(msg)
             return False
 
     def __getJavaHome(self):
@@ -89,23 +89,23 @@ Default=\'all default minimal production standard web\'.', '', False),
         javaHome=None
         java="bin/java"
 
-        if self.getOption("javahome"):
+        if self.get_option("javahome"):
             ## Prefer this value first over the ENV
-            javaHome=self.getOption("javahome")
-            self.addAlert("INFO: The Java installation directory supplied to SOS is " +
+            javaHome=self.get_option("javahome")
+            self.add_alert("INFO: The Java installation directory supplied to SOS is " +
                           javaHome)
         elif os.environ.get("JAVA_HOME"):
             javaHome=os.environ.get("JAVA_HOME")
-            self.addAlert("INFO: The Java installation directory (i.e. JAVA_HOME) from the environment is " +
+            self.add_alert("INFO: The Java installation directory (i.e. JAVA_HOME) from the environment is " +
                           javaHome)
         else:
             ## Test to see if Java is already in the PATH
-            (status, output, rtime) = self.callExtProg("java -version")
+            (status, output, rtime) = self.call_ext_prog("java -version")
             if (status == 0):
-                self.addAlert("INFO: The Java installation directory is in the system path.")
+                self.add_alert("INFO: The Java installation directory is in the system path.")
                 return True
             else:
-                self.addAlert("ERROR: The Java installation directory was not supplied.\
+                self.add_alert("ERROR: The Java installation directory was not supplied.\
                 The JBoss SOS plug-in will not collect twiddle data.")
                 return False
 
@@ -119,7 +119,7 @@ Default=\'all default minimal production standard web\'.', '', False),
         else:
             msg = "ERROR: The path to the Java installation directory does not exist.  Path is: %s" % (javaHome)
             print msg
-            self.addAlert(msg)
+            self.add_alert(msg)
             return False
 
 
@@ -133,10 +133,10 @@ Default=\'all default minimal production standard web\'.', '', False),
         credential = None
         ## Let's make a best effort not to pass expansions or escapes to the shell
         ## by strong quoting the user's input
-        if self.getOption("user"):
-            credential=" -u '" + self.getOption("user") + "' "
-            if self.getOption("pass"):
-                credential+=" -p '" + self.getOption("pass") + "' "
+        if self.get_option("user"):
+            credential=" -u '" + self.get_option("user") + "' "
+            if self.get_option("pass"):
+                credential+=" -p '" + self.get_option("pass") + "' "
             else:
                 credential=None
         return credential
@@ -151,9 +151,9 @@ Default=\'all default minimal production standard web\'.', '', False),
             Nothing.  Will update __jbossServerConfigDirs if the user
             supplied a limited list.
         """
-        if self.getOption("profile"):
-            profiles=self.getOption("profile")
-            ## I'd rather use comma as the delimiter but getOption doesn't seem to be passing it through.
+        if self.get_option("profile"):
+            profiles=self.get_option("profile")
+            ## I'd rather use comma as the delimiter but get_option doesn't seem to be passing it through.
             ## Since we are using spaces as the delimiter, we need to filter out empty list elements
             ## if the user did something like ' all   default  web '.
             profiles=profiles.split(' ')
@@ -179,14 +179,14 @@ Default=\'all default minimal production standard web\'.', '', False),
                 self.__twiddleCmd += credential
         else:
             ## Reset twiddlecmd to None
-            self.addAlert("ERROR: The twiddle program could not be found. Program=%s" % (self.__twiddleCmd))
+            self.add_alert("ERROR: The twiddle program could not be found. Program=%s" % (self.__twiddleCmd))
             self.__twiddleCmd = None
 
         return
 
     def __createHTMLBodyStart(self):
         """
-        The free-form HTML that can be inserted into the SOS report with addCustomText is within
+        The free-form HTML that can be inserted into the SOS report with add_custom_text is within
         a <p> block.  We need to add a few pieces of HTML so that all of our subsequent data will
         be rendered properly.
         """
@@ -253,7 +253,7 @@ Default=\'all default minimal production standard web\'.', '', False),
             except IOError, ioe:
                 msg = "ERROR: Unable to open %s for reading.  Error: " % (file,ioe)
                 print msg
-                self.addAlert(msg)
+                self.add_alert(msg)
 
             md5 = hashlib.md5()
             data = fd.read(self.__MD5_CHUNK_SIZE)
@@ -272,7 +272,7 @@ Default=\'all default minimal production standard web\'.', '', False),
             else:
                 msg = "ERROR: Unable to compute md5sum of %s.  Msg (%s)" % (file, result[1])
                 print msg
-                self.addAlert(msg)
+                self.add_alert(msg)
 
         return retVal
 
@@ -290,12 +290,12 @@ Default=\'all default minimal production standard web\'.', '', False),
             except Exception, e:
                 msg="ERROR: reading manifest from %s.  Error: %s" % (jarFile, e)
                 print msg
-                self.addAlert(msg)
+                self.add_alert(msg)
             zf.close()
         except Exception, e:
                 msg="ERROR: reading contents of %s.  Error: %s" % (jarFile, e)
                 print msg
-                self.addAlert(msg)
+                self.add_alert(msg)
         return manifest
 
     def __getStdJarInfo(self):
@@ -343,13 +343,13 @@ Default=\'all default minimal production standard web\'.', '', False),
                                    self.__getManifest(jarFile))
 
                 if not found:
-                    self.addAlert("WARN: No jars found in JBoss system path (" + path + ").")
+                    self.add_alert("WARN: No jars found in JBoss system path (" + path + ").")
                 self.__jbossHTMLBody += """
              </ul>
         </div>
                     """
             else:
-                self.addAlert("ERROR: JBoss system path (" + path + ") does not exist.")
+                self.add_alert("ERROR: JBoss system path (" + path + ") does not exist.")
         return
 
     def __getServerConfigJarInfo(self, configDirAry):
@@ -398,14 +398,14 @@ Default=\'all default minimal production standard web\'.', '', False),
                            self.__getManifest(jarFile))
 
                 if not found:
-                    self.addAlert("WARN: No jars found in the JBoss server configuration (%s)." % (path))
+                    self.add_alert("WARN: No jars found in the JBoss server configuration (%s)." % (path))
 
                 self.__jbossHTMLBody += """
      </ul>
 </div>
             """
             else:
-                self.addAlert("ERROR: JBoss server configuration path (" + path + ") does not exist.")
+                self.add_alert("ERROR: JBoss server configuration path (" + path + ") does not exist.")
 
         return
 
@@ -607,29 +607,29 @@ Default=\'all default minimal production standard web\'.', '', False),
         for dir in configDirAry:
             path=os.path.join(self.__jbossHome, "server", dir)
             ## First add forbidden files
-            self.addForbiddenPath(os.path.join(path, "tmp"))
-            self.addForbiddenPath(os.path.join(path, "work"))
-            self.addForbiddenPath(os.path.join(path, "data"))
+            self.add_forbidden_path(os.path.join(path, "tmp"))
+            self.add_forbidden_path(os.path.join(path, "work"))
+            self.add_forbidden_path(os.path.join(path, "data"))
 
             if os.path.exists(path):
                 ## First get everything in the conf dir
                 confDir=os.path.join(path, "conf")
-                self.doCopyFileOrDir(confDir)
+                self.do_copy_file_or_dir(confDir)
                 ## Log dir next
                 logDir=os.path.join(path, "log")
 
                 for logFile in find("*", logDir):
-                    self.addCopySpecLimit(logFile, self.getOption("logsize"))
+                    self.add_copy_spec_limit(logFile, self.get_option("logsize"))
                 ## Deploy dir
                 deployDir=os.path.join(path, "deploy")
 
                 for deployFile in find("*", deployDir, max_depth=1):
-                    self.addCopySpec(deployFile)
+                    self.add_copy_spec(deployFile)
 
                 ## Get application deployment descriptors if designated.
-                if self.isOptionEnabled("appxml"):
-                    appxml=self.getOption("appxml")
-                    ## I'd rather use comma as the delimiter but getOption doesn't seem to be passing it through.
+                if self.option_enabled("appxml"):
+                    appxml=self.get_option("appxml")
+                    ## I'd rather use comma as the delimiter but get_option doesn't seem to be passing it through.
                     ## Since we are using spaces as the delimiter, we need to filter out empty list elements
                     ## if the user did something like ' all   default  web '.
                     appxml=appxml.split(' ')
@@ -638,10 +638,10 @@ Default=\'all default minimal production standard web\'.', '', False),
                     for app in appxml:
                         pat = os.path.join("*%s*" % (app,), "WEB-INF")
                         for file in find("*.xml", deployDir, path_pattern=pat):
-                            self.addCopySpec(file)
+                            self.add_copy_spec(file)
         return
 
-    def checkenabled(self):
+    def check_enabled(self):
         if not self.__getJbossHome():
             return False
         return True
@@ -661,17 +661,17 @@ Default=\'all default minimal production standard web\'.', '', False),
         self.__createHTMLBodyStart()
 
         ## Generate hashes of the stock Jar files for the report.
-        if self.getOption("stdjar"):
+        if self.get_option("stdjar"):
             self.__getStdJarInfo()
 
         ## Generate hashes for the Jars in the various profiles
-        if self.getOption("servjar"):
+        if self.get_option("servjar"):
             self.__getServerConfigJarInfo(self.__jbossServerConfigDirs)
 
         ## Generate a Tree for JBOSS_HOME
         self.__getJBossHomeTree()
 
-        if self.getOption("twiddle"):
+        if self.get_option("twiddle"):
             ## We need to know where Java is installed or at least ensure that it
             ## is available to the plug-in so that we can run twiddle.
             self.__haveJava = self.__getJavaHome()
@@ -679,7 +679,7 @@ Default=\'all default minimal production standard web\'.', '', False),
             self.__getTwiddleData()
 
 
-        self.addCustomText(self.__jbossHTMLBody)
+        self.add_custom_text(self.__jbossHTMLBody)
 
         self.__getFiles(self.__jbossServerConfigDirs)
 
@@ -694,20 +694,20 @@ Default=\'all default minimal production standard web\'.', '', False),
             path=os.path.join(self.__jbossHome, "server", dir)
             ## Really annoying that there appears to be no vehicle to
             ## say I want ignore case...argh!
-            self.doFileSub(os.path.join(path,"conf","login-config.xml"),
+            self.do_file_sub(os.path.join(path,"conf","login-config.xml"),
                             r"\"[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]\".*>.*</[Mm][Oo][Dd][Uu][Ll][Ee]-[Oo][Pp][Tt][Ii][Oo][Nn].*>",
                             r'"password">********</module-option>')
 
             tmp = os.path.join(path,"conf", "props")
             for propFile in find("*-users.properties", tmp):
-                self.doFileSub(propFile,
+                self.do_file_sub(propFile,
                                 r"=(.*)",
                                 r'=********')
 
             ## Remove PW from -ds.xml files
             tmp=os.path.join(path, "deploy")
             for dsFile in find("*-ds.xml", tmp):
-                self.doFileSub(dsFile,
+                self.do_file_sub(dsFile,
                                 r"<[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd].*>.*</[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd].*>",
                                 r"<password>********</password>")
         return

@@ -21,7 +21,7 @@ class RedHatSystem(system, RedHatPlugin):
     """core system related information
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/sys",
             "/etc/cron*",
             "/etc/anacrontab",
@@ -32,28 +32,28 @@ class RedHatSystem(system, RedHatPlugin):
             "/etc/ntp.conf",
             "/etc/ntp/step-tickers",
             "/etc/ntp/ntpservers"])
-        self.addForbiddenPath(
+        self.add_forbidden_path(
                 "/proc/sys/net/ipv8/neigh/*/retrans_time")
-        self.addForbiddenPath(
+        self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-        self.addCmdOutput("/usr/bin/crontab -l")
+        self.add_cmd_output("/usr/bin/crontab -l")
 
 class DebianSystem(system, DebianPlugin, UbuntuPlugin):
     """core system related information for Debian and Ubuntu
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/sys",
             "/etc/cron*",
             "/var/spool/cron*",
             "/etc/syslog.conf",
             "/etc/rsyslog.conf",
             "/etc/ntp.conf" ])
-        self.addForbiddenPath(
+        self.add_forbidden_path(
                 "/proc/sys/net/ipv8/neigh/*/retrans_time")
-        self.addForbiddenPath(
+        self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-        self.addCmdOutput("/usr/bin/crontab -l")
+        self.add_cmd_output("/usr/bin/crontab -l")
         

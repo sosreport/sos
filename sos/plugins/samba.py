@@ -18,11 +18,11 @@ class samba(Plugin, RedHatPlugin):
     """Samba related information
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/samba",
             "/var/log/samba/*",
             "/etc/krb5.conf",
             "/etc/krb5.keytab"])
-        self.addCmdOutput("/usr/bin/wbinfo -g")
-        self.addCmdOutput("/usr/bin/wbinfo -u")
-        self.addCmdOutput("/usr/bin/testparm -s -v")
+        self.add_cmd_output("/usr/bin/wbinfo -g")
+        self.add_cmd_output("/usr/bin/wbinfo -u")
+        self.add_cmd_output("/usr/bin/testparm -s -v")

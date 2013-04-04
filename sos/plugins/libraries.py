@@ -18,11 +18,11 @@ class libraries(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on shared libraries
     """
 
-    optionList = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.',
+    option_list = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.',
                     "slow", False)]
 
     def setup(self):
-        self.addCopySpecs(["/etc/ld.so.conf", "/etc/ld.so.conf.d"])
-        if self.getOption("ldconfigv"):
-            self.addCmdOutput("/sbin/ldconfig -v -N -X")
-        self.addCmdOutput("/sbin/ldconfig -p -N -X")
+        self.add_copy_specs(["/etc/ld.so.conf", "/etc/ld.so.conf.d"])
+        if self.get_option("ldconfigv"):
+            self.add_cmd_output("/sbin/ldconfig -v -N -X")
+        self.add_cmd_output("/sbin/ldconfig -p -N -X")

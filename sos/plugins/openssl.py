@@ -31,7 +31,7 @@ class RedHatOpenssl(openssl, RedHatPlugin):
 
     def setup(self):
         super(RedHatOpenssl, self).setup()
-        self.addCopySpec("/etc/pki/tls/openssl.cnf")
+        self.add_copy_spec("/etc/pki/tls/openssl.cnf")
 
 class DebianOpenssl(openssl, DebianPlugin, UbuntuPlugin):
     """openssl related information for Debian distributions
@@ -41,4 +41,4 @@ class DebianOpenssl(openssl, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianOpenssl, self).setup()
-        self.addCopySpec("/etc/ssl/openssl.cnf")
+        self.add_copy_spec("/etc/ssl/openssl.cnf")

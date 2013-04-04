@@ -17,30 +17,30 @@ from sos.plugins import Plugin, RedHatPlugin
 class selinux(Plugin, RedHatPlugin):
     """selinux related information
     """
-    optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
+    option_list = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
     def setup(self):
-        # sestatus is always collected in checkenabled()
-        self.addCopySpec("/etc/selinux")
-        self.addCmdOutput("/usr/bin/selinuxconfig")
-        if self.getOption('fixfiles'):
-            self.addCmdOutput("/sbin/fixfiles check")
-        self.addForbiddenPath("/etc/selinux/targeted")
+        # sestatus is always collected in check_enabled()
+        self.add_copy_spec("/etc/selinux")
+        self.add_cmd_output("/usr/bin/selinuxconfig")
+        if self.get_option('fixfiles'):
+            self.add_cmd_output("/sbin/fixfiles check")
+        self.add_forbidden_path("/etc/selinux/targeted")
 
-        if not self.policy().pkgByName('setroubleshoot'):
+        if not self.policy().pkg_by_name('setroubleshoot'):
             return
 
         # Check for SELinux denials and capture raw output from sealert
-        if self.policy().runlevelDefault() in self.policy().runlevelByService("setroubleshoot"):
+        if self.policy().default_runlevel() in self.policy().runlevel_by_service("setroubleshoot"):
             # TODO: fixup regex for more precise matching
-            sealert=doRegexFindAll(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
+            sealert=do_regex_find_all(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
             if sealert:
                 for i in sealert:
-                    self.addCmdOutput("%s" % i)
-                self.addAlert("There are numerous selinux errors present and "+
+                    self.add_cmd_output("%s" % i)
+                self.add_alert("There are numerous selinux errors present and "+
                               "possible fixes stated in the sealert output.")
-    def checkenabled(self):
+    def check_enabled(self):
         try:
-            if self.getCmdOutputNow("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
+            if self.get_cmd_output_now("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
                 return False
         except:
             pass

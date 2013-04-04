@@ -19,6 +19,6 @@ class apparmor(Plugin, UbuntuPlugin):
     """Apparmor related information
     """
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/apparmor"
         ])

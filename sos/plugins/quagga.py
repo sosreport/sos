@@ -25,4 +25,4 @@ class quagga(Plugin, RedHatPlugin):
     packages = ('quagga',)
 
     def setup(self):
-        self.addCopySpec("/etc/quagga/")
+        self.add_copy_spec("/etc/quagga/")

@@ -20,11 +20,11 @@ from itertools import *
 class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on filesystems
     """
-    optionList = [("lsof", 'gathers information on all open files', 'slow', False)]
-    optionList = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
+    option_list = [("lsof", 'gathers information on all open files', 'slow', False)]
+    option_list = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
 
     def setup(self):
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/proc/filesystems",
             "/etc/fstab",
             "/proc/self/mounts",
@@ -32,15 +32,15 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
             "/proc/mdstat",
             "/etc/raidtab",
             "/etc/mdadm.conf"])
-        mounts = self.getCmdOutputNow("/bin/mount -l", root_symlink = "mount")
+        mounts = self.get_cmd_output_now("/bin/mount -l", root_symlink = "mount")
 
-        self.addCmdOutput("/bin/findmnt")
-        self.addCmdOutput("/bin/df -al", root_symlink = "df")
-        self.addCmdOutput("/bin/df -ali")
-        if self.getOption('lsof'):
-            self.addCmdOutput("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
-        self.addCmdOutput("/sbin/blkid -c /dev/null")
-        self.addCmdOutput("/usr/bin/lsblk")
+        self.add_cmd_output("/bin/findmnt")
+        self.add_cmd_output("/bin/df -al", root_symlink = "df")
+        self.add_cmd_output("/bin/df -ali")
+        if self.get_option('lsof'):
+            self.add_cmd_output("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
+        self.add_cmd_output("/sbin/blkid -c /dev/null")
+        self.add_cmd_output("/usr/bin/lsblk")
 
         part_titlep = re.compile("^major")
         blankp = re.compile("^$")
@@ -55,7 +55,7 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
             exit(1)
         if os.path.exists("/sbin/hdparm"):
             for dev in partlist:
-                ret, hdparm, time = self.callExtProg('/sbin/hdparm -g %s' %(dev))
+                ret, hdparm, time = self.call_ext_prog('/sbin/hdparm -g %s' %(dev))
                 if(ret == 0):
                     start_geo = hdparm.strip().split("\n")[-1].strip().split()[-1]
                     if(start_geo == "0"):
@@ -69,8 +69,8 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
                     devlist.append(dev)
 
         for i in devlist:
-            self.addCmdOutput("/sbin/parted -s %s print" % (i))
+            self.add_cmd_output("/sbin/parted -s %s print" % (i))
 
-        if self.getOption('dumpe2fs'):
-            for extfs in izip(self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts)):
-                self.addCmdOutput("/sbin/dumpe2fs %s" % (extfs))
+        if self.get_option('dumpe2fs'):
+            for extfs in izip(self.do_regex_find_all(r"^(/dev/.+) on .+ type ext.\s+", mounts)):
+                self.add_cmd_output("/sbin/dumpe2fs %s" % (extfs))

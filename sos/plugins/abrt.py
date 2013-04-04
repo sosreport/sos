@@ -21,23 +21,23 @@ class abrt(Plugin, RedHatPlugin):
     """ABRT log dump
     """
 
-    optionList = [("backtraces", 'collect backtraces for every report', 'slow', False)]
+    option_list = [("backtraces", 'collect backtraces for every report', 'slow', False)]
 
-    def checkenabled(self):
-        return self.isInstalled("abrt-cli") or \
+    def check_enabled(self):
+        return self.is_installed("abrt-cli") or \
                exists("/var/spool/abrt")
 
     def do_backtraces(self):
-        ret, output, rtime = self.callExtProg('/usr/bin/sqlite3 /var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')
+        ret, output, rtime = self.call_ext_prog('/usr/bin/sqlite3 /var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')
         try:
             for uuid in output.split():
-                self.addCmdOutput("/usr/bin/abrt-cli -ib %s" % uuid,
+                self.add_cmd_output("/usr/bin/abrt-cli -ib %s" % uuid,
                     suggest_filename=("backtrace_%s" % uuid))
         except IndexError:
             pass
 
     def setup(self):
-        self.addCmdOutput("/usr/bin/abrt-cli -lf",
+        self.add_cmd_output("/usr/bin/abrt-cli -lf",
                 suggest_filename="abrt-log")
-        if self.getOption('backtraces'):
+        if self.get_option('backtraces'):
             self.do_backtraces()

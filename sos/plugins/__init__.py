@@ -25,7 +25,7 @@
 # pylint: disable-msg = W0613
 from __future__ import with_statement
 
-from sos.utilities import sosGetCommandOutput, import_module, grep, fileobj, tail
+from sos.utilities import sos_get_command_output, import_module, grep, fileobj, tail
 from sos import _sos as _
 import inspect
 import os
@@ -47,26 +47,26 @@ try:
 except ImportError:
     import simplejson as json
 
-def commonPrefix(l1, l2, common = None):
+def common_prefix(l1, l2, common = None):
     """Returns a tuple like the following:
         ([common, elements, from l1, and l2], [[tails, from, l1], [tails, from, l2]])
 
-    >>> commonPrefix(['usr','share','foo'], ['usr','share','bar'])
+    >>> common_prefix(['usr','share','foo'], ['usr','share','bar'])
     (['usr','share'], [['foo'], ['bar']])
     """
     if common is None:
         common = []
     if len(l1) < 1 or len(l2) < 1 or  l1[0] != l2[0]:
         return (common, [l1, l2])
-    return commonPrefix(l1[1:], l2[1:], common+[l1[0]])
+    return common_prefix(l1[1:], l2[1:], common+[l1[0]])
 
-def sosRelPath(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
+def sos_relative_path(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
     '''Return a relative path from path1 equivalent to path path2.  In
     particular: the empty string, if path1 == path2; path2, if path1 and path2
     have no common prefix.
     '''
     try:
-        common, (u1, u2) = commonPrefix(path1.split(sep), path2.split(sep))
+        common, (u1, u2) = common_prefix(path1.split(sep), path2.split(sep))
     except AttributeError:
         return path2
 
@@ -112,7 +112,7 @@ class Plugin(object):
 
     packages (files) is an iterable of the names of packages (the paths
     of files) to check for before running this plugin. If any of these packages
-    or files is found on the system, the default implementation of checkenabled
+    or files is found on the system, the default implementation of check_enabled
     will return True.
     """
 
@@ -123,30 +123,30 @@ class Plugin(object):
     files = ()
 
     def __init__(self, commons):
-        if not getattr(self, "optionList", False):
-            self.optionList = []
+        if not getattr(self, "option_list", False):
+            self.option_list = []
 
-        self.copiedFiles = []
-        self.executedCommands = []
+        self.copied_files = []
+        self.executed_commands = []
         self.alerts = []
-        self.customText = ""
-        self.optNames = []
-        self.optParms = []
-        self.cInfo = commons
-        self.forbiddenPaths = []
-        self.copyPaths = []
-        self.copyStrings = []
-        self.collectProgs = []
+        self.custom_text = ""
+        self.opt_names = []
+        self.opt_parms = []
+        self.commons = commons
+        self.forbidden_paths = []
+        self.copy_paths = []
+        self.copy_strings = []
+        self.collect_cmds = []
 
         self.must_exit = False
 
-        self.soslog = self.cInfo['soslog']
-        self.proflog = self.cInfo['proflog']
+        self.soslog = self.commons['soslog']
+        self.proflog = self.commons['proflog']
 
         # get the option list into a dictionary
-        for opt in self.optionList:
-            self.optNames.append(opt[0])
-            self.optParms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
+        for opt in self.option_list:
+            self.opt_names.append(opt[0])
+            self.opt_parms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
 
     @classmethod
     def name(class_):
@@ -158,13 +158,13 @@ class Plugin(object):
         return class_.__name__.lower()
 
     def policy(self):
-        return self.cInfo["policy"]
+        return self.commons["policy"]
 
-    def isInstalled(self, package_name):
+    def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
-        return (self.policy().pkgByName(package_name) is not None)
+        return (self.policy().pkg_by_name(package_name) is not None)
 
-    def doCmdOutputSub(self, cmd, regexp, subst):
+    def do_cmd_output_sub(self, cmd, regexp, subst):
         '''Apply a regexp substitution to command output archived by sosreport.
         cmd is the command name from which output is collected (i.e. excluding
         parameters). The regexp can be a string or a compiled re object. The
@@ -175,16 +175,16 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
         globstr = '*' + cmd + '*'
         self.soslog.debug("substituting '%s' for '%s' in commands matching %s"
                     % (subst, regexp, globstr))
         try:
-            for called in self.executedCommands:
+            for called in self.executed_commands:
                 if fnmatch.fnmatch(called['exe'], globstr):
-                    path = os.path.join(self.cInfo['cmddir'], called['file'])
+                    path = os.path.join(self.commons['cmddir'], called['file'])
                     self.soslog.debug("applying substitution to %s" % path)
                     readable = self.archive.open_file(path)
                     result, replacements = re.subn(
@@ -197,13 +197,13 @@ class Plugin(object):
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
             replacements = 0
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
             self.proflog.debug("subst: %-75s time: %f"
                             % (globstr, time_passed))
         return replacements
         
-    def doFileSub(self, srcpath, regexp, subst):
+    def do_file_sub(self, srcpath, regexp, subst):
         '''Apply a regexp substitution to a file archived by sosreport.
         srcpath is the path in the archive where the file can be found.  regexp
         can be a regexp string or a compiled re object.  subst is a string to
@@ -211,7 +211,7 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
         try:
@@ -230,13 +230,13 @@ class Plugin(object):
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
             replacements = 0
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
             self.proflog.debug("subst : %-75s time: %f"
                             % (srcpath, time_passed))
         return replacements
 
-    def doRegexFindAll(self, regex, fname):
+    def do_regex_find_all(self, regex, fname):
         return regex_findall(regex, fname)
 
     def _path_in_path_list(self, path, path_list):
@@ -277,12 +277,12 @@ class Plugin(object):
         self.archive.add_link(reldest,srcpath)
 
 	# copy the symlink target translating relative targets
-	# to absolute paths to pass to doCopyFileOrDir.
+	# to absolute paths to pass to do_copy_file_or_dir.
 	self.soslog.debug("normalized link target %s as %s"
 			%(linkdest, absdest))
-	self.doCopyFileOrDir(absdest)
+	self.do_copy_file_or_dir(absdest)
 
-        self.copiedFiles.append({
+        self.copied_files.append({
             'srcpath':srcpath,
             'dstpath':srcpath,
             'symlink':"yes",
@@ -290,16 +290,16 @@ class Plugin(object):
 
     def copy_dir(self, srcpath, sub=None):
         for afile in os.listdir(srcpath):
-            self.doCopyFileOrDir(os.path.join(srcpath, afile), dest=None, sub=sub)
+            self.do_copy_file_or_dir(os.path.join(srcpath, afile), dest=None, sub=sub)
 
     def _get_dest_for_srcpath(self, srcpath):
-        for copied in self.copiedFiles:
+        for copied in self.copied_files:
             if srcpath == copied["srcpath"]:
                 return copied["dstpath"]
         return None
 
     # Methods for copying files and shelling out
-    def doCopyFileOrDir(self, srcpath, dest=None, sub=None):
+    def do_copy_file_or_dir(self, srcpath, dest=None, sub=None):
         # pylint: disable-msg = R0912
         # pylint: disable-msg = R0915
         '''Copy file or directory to the destination tree. If a directory, then
@@ -311,10 +311,10 @@ class Plugin(object):
         /configurations/my_file.conf.
         '''
 
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
-        if self._path_in_path_list(srcpath, self.forbiddenPaths):
+        if self._path_in_path_list(srcpath, self.forbidden_paths):
             self.soslog.debug("%s is in the forbidden path list" % srcpath)
             return ''
 
@@ -349,12 +349,12 @@ class Plugin(object):
             else:
                 self.archive.add_file(srcpath, dest)
 
-            self.copiedFiles.append({
+            self.copied_files.append({
                 'srcpath':srcpath,
                 'dstpath':dest,
                 'symlink':"no"})
 
-            if self.cInfo['cmdlineopts'].profiler:
+            if self.commons['cmdlineopts'].profiler:
                 time_passed = time() - start_time
                 self.proflog.debug("copied: %-75s time: %f" % (srcpath, time_passed))
         except Exception, e:
@@ -362,32 +362,32 @@ class Plugin(object):
             self.soslog.error(traceback.format_exc())
 
 
-    def addForbiddenPath(self, forbiddenPath):
-        """Specify a path to not copy, even if it's part of a copyPaths[]
+    def add_forbidden_path(self, forbiddenPath):
+        """Specify a path to not copy, even if it's part of a copy_paths[]
         entry.
         """
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(forbiddenPath):
-            self.forbiddenPaths.append(filespec)
+            self.forbidden_paths.append(filespec)
 
-    def getAllOptions(self):
+    def get_all_options(self):
         """return a list of all options selected"""
-        return (self.optNames, self.optParms)
+        return (self.opt_names, self.opt_parms)
 
-    def setOption(self, optionname, value):
+    def set_option(self, optionname, value):
         '''set the named option to value.'''
-        for name, parms in izip(self.optNames, self.optParms):
+        for name, parms in izip(self.opt_names, self.opt_parms):
             if name == optionname:
                 parms['enabled'] = value
                 return True
         else:
             return False
 
-    def isOptionEnabled(self, optionname):
-        '''Deprecated, use getOption() instead'''
-        return self.getOption(optionname)
+    def option_enabled(self, optionname):
+        '''Deprecated, use get_option() instead'''
+        return self.get_option(optionname)
 
-    def getOption(self, optionname, default=0):
+    def get_option(self, optionname, default=0):
         """Returns the first value that matches 'optionname' in parameters
         passed in via the command line or set via set_option or via the
         global_plugin_options dictionary, in that order.
@@ -402,30 +402,30 @@ class Plugin(object):
             else:
                 return key == optionname
 
-        for name, parms in izip(self.optNames, self.optParms):
+        for name, parms in izip(self.opt_names, self.opt_parms):
             if _check(name):
                 val = parms['enabled']
                 if val != None:
                     return val
 
-        for key, value in self.cInfo.get('global_plugin_options', {}).iteritems():
+        for key, value in self.commons.get('global_plugin_options', {}).iteritems():
             if _check(key):
                 return value
 
         return default
 
-    def getOptionAsList(self, optionname, delimiter=",", default=None):
+    def get_option_as_list(self, optionname, delimiter=",", default=None):
         '''Will try to return the option as a list separated by the
         delimiter.
         '''
-        option = self.getOption(optionname)
+        option = self.get_option(optionname)
         try:
             opt_list = [opt.strip() for opt in option.split(delimiter)]
             return filter(None, opt_list)
         except Exception:
             return default
 
-    def addCopySpecLimit(self, fname, sizelimit=None, sub=None):
+    def add_copy_spec_limit(self, fname, sizelimit=None, sub=None):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
@@ -447,7 +447,7 @@ class Plugin(object):
             if sizelimit and cursize > sizelimit:
                 limit_reached = True
                 break
-            self.addCopySpec(flog, sub)
+            self.add_copy_spec(flog, sub)
 
         if flog == files[0] and limit_reached:
             flog_name = flog
@@ -456,17 +456,17 @@ class Plugin(object):
                 old, new = sub
                 flog_name = flog.replace(old, new)
             strfile = flog_name.replace(os.path.sep, ".") + ".tailed"
-            self.addStringAsFile(tail(flog, sizelimit), strfile)
+            self.add_string_as_file(tail(flog, sizelimit), strfile)
             self.archive.add_link(os.path.join(
                 os.path.relpath('/', os.path.dirname(flog)), 'sos_strings',
                 self.name(), strfile), flog)
                 
 
-    def addCopySpecs(self, copyspecs, sub=None):
+    def add_copy_specs(self, copyspecs, sub=None):
         for copyspec in copyspecs:
-            self.addCopySpec(copyspec, sub)
+            self.add_copy_spec(copyspec, sub)
 
-    def addCopySpec(self, copyspec, sub=None):
+    def add_copy_spec(self, copyspec, sub=None):
         """Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module.
         """
@@ -475,43 +475,43 @@ class Plugin(object):
             return False
         # Glob case handling is such that a valid non-glob is a reduced glob
         for filespec in glob.glob(copyspec):
-            if filespec not in self.copyPaths:
-                self.copyPaths.append((filespec, sub))
+            if filespec not in self.copy_paths:
+                self.copy_paths.append((filespec, sub))
 
-    def callExtProg(self, prog, timeout=300):
+    def call_ext_prog(self, prog, timeout=300):
         """Execute a command independantly of the output gathering part of
         sosreport.
         """
         # pylint: disable-msg = W0612
-        return sosGetCommandOutput(prog, timeout)
+        return sos_get_command_output(prog, timeout)
 
-    def checkExtprog(self, prog):
+    def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
         sosreport and check the return code. Return True for a return code of 0
         and False otherwise.
         """
-        (status, output, runtime) = self.callExtProg(prog)
+        (status, output, runtime) = self.call_ext_prog(prog)
         return (status == 0)
 
 
-    def addCmdOutput(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
+    def add_cmd_output(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
         """Run a program and collect the output"""
-        self.collectProgs.append( (exe, suggest_filename, root_symlink, timeout) )
+        self.collect_cmds.append( (exe, suggest_filename, root_symlink, timeout) )
 
-    def fileGrep(self, regexp, *fnames):
+    def file_grep(self, regexp, *fnames):
         """Returns lines matched in fnames, where fnames can either be
         pathnames to files to grep through or open file objects to grep through
         line by line.
         """
         return grep(regexp, *fnames)
 
-    def mangleCommand(self, exe):
+    def mangle_command(self, exe):
         return mangle_command(exe)
 
-    def makeCommandFilename(self, exe):
+    def make_command_filename(self, exe):
         """The internal function to build up a filename based on a command."""
 
-        outfn = os.path.join(self.cInfo['cmddir'], self.name(), self.mangleCommand(exe))
+        outfn = os.path.join(self.commons['cmddir'], self.name(), self.mangle_command(exe))
 
         # check for collisions
         if os.path.exists(outfn):
@@ -525,62 +525,62 @@ class Plugin(object):
 
         return outfn
 
-    def addStringAsFile(self, content, filename):
+    def add_string_as_file(self, content, filename):
         """Add a string to the archive as a file named `filename`"""
-        self.copyStrings.append((content, filename))
+        self.copy_strings.append((content, filename))
 
-    def getCmdOutputNow(self, exe, suggest_filename=None, root_symlink=False, timeout=300):
+    def get_cmd_output_now(self, exe, suggest_filename=None, root_symlink=False, timeout=300):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             start_time = time()
 
         # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(exe, timeout=timeout)
+        status, shout, runtime = sos_get_command_output(exe, timeout=timeout)
         if (status == 127):
             self.soslog.info("could not run '%s': command not found" % exe)
             return None
 
         if suggest_filename:
-            outfn = self.makeCommandFilename(suggest_filename)
+            outfn = self.make_command_filename(suggest_filename)
         else:
-            outfn = self.makeCommandFilename(exe)
+            outfn = self.make_command_filename(exe)
 
-        outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
+        outfn_strip = outfn[len(self.commons['cmddir'])+1:]
         self.archive.add_string(shout, outfn)
         if root_symlink:
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
-        self.executedCommands.append({'exe': exe, 'file':outfn_strip}) # save in our list
-        self.cInfo['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn_strip,runtime=runtime)
+        self.executed_commands.append({'exe': exe, 'file':outfn_strip}) # save in our list
+        self.commons['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn_strip,runtime=runtime)
 
-        if self.cInfo['cmdlineopts'].profiler:
+        if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
             self.proflog.debug("output: %-75s time: %f" % (exe, time_passed))
 
         return outfn
 
     # For adding output
-    def addAlert(self, alertstring):
+    def add_alert(self, alertstring):
         """Add an alert to the collection of alerts for this plugin. These
         will be displayed in the report
         """
         self.alerts.append(alertstring)
 
-    def addCustomText(self, text):
+    def add_custom_text(self, text):
         """Append text to the custom text that is included in the report. This
         is freeform and can include html.
         """
-        self.customText += text
+        self.custom_text += text
 
-    def copyStuff(self):
+    def collect(self):
         """Collect the data for a plugin."""
-        for path, sub in self.copyPaths:
-            self.doCopyFileOrDir(path, sub=sub)
+        for path, sub in self.copy_paths:
+            self.do_copy_file_or_dir(path, sub=sub)
 
-        for string, file_name in self.copyStrings:
+        for string, file_name in self.copy_strings:
             try:
                 self.archive.add_string(string,
                         os.path.join('sos_strings', self.name(), file_name))
@@ -588,11 +588,11 @@ class Plugin(object):
                 self.soslog.debug("could not create %s, traceback follows: %s"
                         % (file_name, e))
 
-        for progs in izip(self.collectProgs):
+        for progs in izip(self.collect_cmds):
             prog, suggest_filename, root_symlink, timeout = progs[0]
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
-                self.getCmdOutputNow(prog, suggest_filename,
+                self.get_cmd_output_now(prog, suggest_filename,
                         root_symlink, timeout)
             except Exception, e:
                 self.soslog.debug("error collecting output of '%s' (%s)"
@@ -609,7 +609,7 @@ class Plugin(object):
         except:
             return "<no description available>"
 
-    def checkenabled(self):
+    def check_enabled(self):
         """This method will be used to verify that a plugin should execute
         given the condition of the underlying environment. The default
         implementation will return True if neither class.files or
@@ -627,16 +627,16 @@ class Plugin(object):
                 self.packages = [self.packages]
 
             return (any(os.path.exists(fname) for fname in self.files) or
-                    any(self.isInstalled(pkg) for pkg in self.packages))
+                    any(self.is_installed(pkg) for pkg in self.packages))
         return True
 
-    def defaultenabled(self):
+    def default_enabled(self):
         """This devices whether a plugin should be automatically loaded or
         only if manually specified in the command line."""
         return True
 
     def setup(self):
-        """This method must be overridden to add the copyPaths, forbiddenPaths,
+        """This method must be overridden to add the copy_paths, forbidden_paths,
         and external programs to be collected at a minimum.
         """
         pass
@@ -658,9 +658,9 @@ class Plugin(object):
         html = html + "<h2> Plugin <em>" + self.name() + "</em></h2>\n"
 
         # Files
-        if len(self.copiedFiles):
+        if len(self.copied_files):
             html = html + "<p>Files copied:<br><ul>\n"
-            for afile in self.copiedFiles:
+            for afile in self.copied_files:
                 html = html + '<li><a href="%s">%s</a>' % \
                         (".." + afile['dstpath'], afile['srcpath'])
                 if (afile['symlink'] == "yes"):
@@ -669,13 +669,13 @@ class Plugin(object):
             html = html + "</ul></p>\n"
 
         # Command Output
-        if len(self.executedCommands):
+        if len(self.executed_commands):
             html = html + "<p>Commands Executed:<br><ul>\n"
             # convert file name to relative path from our root
             # don't use relpath - these are HTML paths not OS paths.
-            for cmd in self.executedCommands:
+            for cmd in self.executed_commands:
                 if cmd["file"] and len(cmd["file"]):
-                    cmdOutRelPath =  "../" + self.cInfo['cmddir'] \
+                    cmdOutRelPath =  "../" + self.commons['cmddir'] \
                             + "/" + cmd['file']
                     html = html + '<li><a href="%s">%s</a></li>\n' % \
                             (cmdOutRelPath, cmd['exe'])
@@ -691,9 +691,9 @@ class Plugin(object):
             html = html + "</ul></p>\n"
 
         # Custom Text
-        if (self.customText != ""):
+        if (self.custom_text != ""):
             html = html + "<p>Additional Information:<br>\n"
-            html = html + self.customText + "</p>\n"
+            html = html + self.custom_text + "</p>\n"
 
         return html
 
@@ -747,21 +747,21 @@ class AS7Mixin(object):
         try:
             return self.query_java(request_obj)
         except Exception, e:
-            self.addAlert("JBOSS API call failed, falling back to HTTP: %s" % e)
+            self.add_alert("JBOSS API call failed, falling back to HTTP: %s" % e)
             return self.query_http(request_obj)
 
     def _get_opt(self, first, second, default=None):
-        val = self.getOption(first)
+        val = self.get_option(first)
         if val:
             return val
-        val = self.getOption(second)
+        val = self.get_option(second)
         if val:
             return val
         return default
 
     def query_java(self, request_obj):
         from org.jboss.dmr import ModelNode
-        controller_client = self.getOption('controller_client_proxy')
+        controller_client = self.get_option('controller_client_proxy')
         if not controller_client:
             raise AttributeError("Controller Client is not available")
 
@@ -820,7 +820,7 @@ class AS7Mixin(object):
             return resp.read()
         except Exception, e:
             err_msg = "Could not query url: %s; error: %s" % (uri, e)
-            self.addAlert(err_msg)
+            self.add_alert(err_msg)
             return err_msg
 
     def set_domain_info(self, parameters=None):
@@ -828,8 +828,8 @@ class AS7Mixin(object):
         if it is present to the desired resource. This is to support
             domain-mode operation in AS7.
         """
-        host_controller_name = self.getOption("as7_host_controller_name")
-        server_name = self.getOption("as7_server_name")
+        host_controller_name = self.get_option("as7_host_controller_name")
+        server_name = self.get_option("as7_server_name")
 
         if host_controller_name and server_name:
             if not parameters:
@@ -847,7 +847,7 @@ class AS7Mixin(object):
         r = self.Request(resource=resource,
                     parameters=parameters,
                     operation=operation)
-        self.addStringAsFile(self.query(r), filename=outfile)
+        self.add_string_as_file(self.query(r), filename=outfile)
 
 
 def import_plugin(name, superclasses=None):
