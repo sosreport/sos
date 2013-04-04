@@ -12,14 +12,16 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import re
 
-class networking(Plugin, RedHatPlugin):
+class Networking(Plugin):
     """network related information
     """
-    option_list = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
+    plugin_name = "networking"
+    
+    def setup(self):
 
     def get_bridge_name(self,brctl_out):
         """Return a list for which items are bridge name according to the
@@ -96,8 +98,7 @@ class networking(Plugin, RedHatPlugin):
                 self.add_cmd_output("/sbin/ethtool -a "+eth)
                 self.add_cmd_output("/sbin/ethtool -c "+eth)
                 self.add_cmd_output("/sbin/ethtool -g "+eth)
-        if self.get_option("traceroute"):
-            self.add_cmd_output("/bin/traceroute -n rhn.redhat.com")
+                self.addCmdOutput("/sbin/ethtool -g "+eth)
 
         if os.path.exists("/usr/sbin/brctl"):
             brctl_file=self.add_cmd_output("/usr/sbin/brctl show")
@@ -107,3 +108,40 @@ class networking(Plugin, RedHatPlugin):
                     self.add_cmd_output("/usr/sbin/brctl showstp "+br_name)
         return
 
+class RedHatNetworking(Networking, RedHatPlugin):
+    """network related information for RedHat based distribution
+    """
+    option_list = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
+
+    def setup(self):
+        super(RedHatNetworking, self).setup()
+
+        if self.get_option("traceroute"):
+            self.add_cmd_output("/bin/traceroute -n rhn.redhat.com")
+
+class UbuntuNetworking(Networking, UbuntuPlugin):
+    """network related information for Ubuntu based distribution
+    """
+    option_list = [("traceroute", "collects a traceroute to archive.ubuntu.com", "slow", False)]
+
+    def setup(self):
+        super(UbuntuNetworking, self).setup()
+
+        self.add_copy_specs([
+	    "/etc/network*",
+	    "/etc/NetworkManager/NetworkManager.conf",
+	    "/etc/NetworkManager/system-connections",
+	    "/etc/resolvconf",
+	    "/etc/dnsmasq*",
+	    "/etc/ufw",
+	    "/var/log/ufw.Log",
+            "/etc/resolv.conf"])
+        self.add_cmd_output("/usr/sbin/ufw status")
+        self.add_cmd_output("/usr/sbin/ufw app list")
+        if self.get_option("traceroute"):
+            self.add_cmd_output("/usr/sbin/traceroute -n archive.ubuntu.com")
+
+    def postproc(self):
+	for root, dirs, files in os.walk("/etc/NetworkManager/system-connections"):
+	    for net_conf in files:
+	        self.do_file_sub("/etc/NetworkManager/system-connections/"+net_conf, r"psk=(.*)",r"psk=***")
