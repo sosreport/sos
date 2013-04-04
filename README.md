@@ -14,12 +14,21 @@ To access to the public source code repository for this project run:
 git clone git://github.com/sosreport/sosreport.git
 ```
 
-to install locally (as root) ==> make install
+### Manual Installation  ###
 
 ```
+to install locally (as root) ==> make install
 to build an rpm ==> make rpm
 to build a deb ==> make deb-unsign
 to build a zipfile for use with jython ==> make zip
+```
+
+### Pre-built Packaging ###
+
+Fedora/RHEL users install via yum:
+
+```
+yum install sos
 ```
 
 Debian/Ubuntu users can install via PPA:
