@@ -2,9 +2,9 @@ language: python
 python:
   - 2.7
 env:
-  - DEPS=true
   - DEPS=false
 install:
+  - make gpgkey
   - sudo make install
 script:
   - make test
