@@ -5,6 +5,6 @@ env:
   - DEPS=true
   - DEPS=false
 install:
-  - make install
+  - sudo make install
 script:
   - make test
