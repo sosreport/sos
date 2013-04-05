@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
+import logging
 
 from sos.plugins import Plugin
 
@@ -12,7 +13,7 @@ class GlobalOptionTest(unittest.TestCase):
                 'test_option': 'foobar',
                 'baz': None,
                 'empty_global': True,
-            },
+            }
         }
         self.plugin = Plugin(self.commons)
         self.plugin.opt_names = ['baz', 'empty']
