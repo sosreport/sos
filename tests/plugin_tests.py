@@ -5,6 +5,7 @@ from StringIO import StringIO
 
 from sos.plugins import Plugin, regex_findall, sos_relative_path, mangle_command
 from sos.archive import TarFileArchive, ZipFileArchive
+import sos.policies
 
 PATH = os.path.dirname(__file__)
 
@@ -77,15 +78,12 @@ class ForbiddenMockPlugin(Plugin):
 
 class EnablerPlugin(Plugin):
 
-    def isInstalled(self, pkg):
+    def is_installed(self, pkg):
         return self.is_installed
-
 
 class MockOptions(object):
 
     profiler = False
-
-
 
 class PluginToolTests(unittest.TestCase):
 
@@ -267,7 +265,7 @@ class AddCopySpecLimitTests(unittest.TestCase):
 class CheckEnabledTests(unittest.TestCase):
 
     def setUp(self):
-        self.mp = EnablerPlugin({})
+        self.mp = EnablerPlugin({'policy': sos.policies.load()})
 
     def test_checks_for_file(self):
         f = j("tail_test.txt")
