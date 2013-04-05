@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 import os, re
 from glob import glob
 
-class cluster(Plugin, RedHatPlugin):
+class Cluster(Plugin, RedHatPlugin):
     """cluster suite and GFS related information
     """
 

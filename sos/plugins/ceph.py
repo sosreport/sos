@@ -14,7 +14,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
-class ceph(Plugin, RedHatPlugin, UbuntuPlugin):
+class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on CEPH
     """
     option_list = [("log", "gathers all ceph logs", "slow", False)]

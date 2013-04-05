@@ -14,10 +14,10 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class acpid(Plugin):
+class Acpid(Plugin):
     plugin_name = "acpid"
 
-class RedHatAcpid(acpid, RedHatPlugin):
+class RedHatAcpid(Acpid, RedHatPlugin):
     """acpid related information
     """
     def setup(self):
@@ -25,7 +25,7 @@ class RedHatAcpid(acpid, RedHatPlugin):
             "/var/log/acpid*",
             "/etc/acpi/events/power.conf"])
 
-class DebianAcpid(acpid, DebianPlugin, UbuntuPlugin):
+class DebianAcpid(Acpid, DebianPlugin, UbuntuPlugin):
     """acpid related information for Debian and Ubuntu
     """
     def setup(self):

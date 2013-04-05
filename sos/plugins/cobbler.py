@@ -14,10 +14,10 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class cobbler(Plugin):
+class Cobbler(Plugin):
     plugin_name = "cobbler"
     
-class RedHatCobbler(cobbler, RedHatPlugin):
+class RedHatCobbler(Cobbler, RedHatPlugin):
     """cobbler related information
     """
 
@@ -29,7 +29,7 @@ class RedHatCobbler(cobbler, RedHatPlugin):
         self.add_copy_spec("/var/lib/rhn/kickstarts")
         self.add_copy_spec("/var/lib/cobbler")
 
-class DebianCobbler(cobbler, DebianPlugin, UbuntuPlugin):
+class DebianCobbler(Cobbler, DebianPlugin, UbuntuPlugin):
     """cobbler related information for Debian and Ubuntu
     """
 

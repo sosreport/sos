@@ -17,7 +17,7 @@
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import os, re
 
-class autofs(Plugin):
+class Autofs(Plugin):
     """autofs server-related information
     """
 
@@ -53,14 +53,14 @@ class autofs(Plugin):
         if self.checkdebug():
             self.add_copy_spec(self.getdaemondebug())
 
-class RedHatAutofs(autofs, RedHatPlugin):
+class RedHatAutofs(Autofs, RedHatPlugin):
     """autofs server-related on RedHat based distributions"""
 
     def setup(self):
         super(RedHatAutofs, self).setup()
         self.add_cmd_output("/bin/rpm -qV autofs")
 
-class DebianAutofs(autofs, DebianPlugin, UbuntuPlugin):
+class DebianAutofs(Autofs, DebianPlugin, UbuntuPlugin):
     """autofs server-related on Debian based distributions"""
 
     def setup(self):
