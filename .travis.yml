@@ -10,9 +10,6 @@ matrix:
     - python: 3.3
 notifications:
   email: false
-env:
-  - DEPS=false
-  - DEPS=true
 install:
   - "pip install nose nose-cov --use-mirrors"
   - "make gpgkey"
