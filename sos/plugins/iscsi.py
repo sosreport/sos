@@ -15,13 +15,13 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class iscsi(Plugin):
+class Iscsi(Plugin):
     """iscsi-initiator related information
     """
 
     plugin_name = "iscsi"
 
-class RedHatIscsi(iscsi, RedHatPlugin):
+class RedHatIscsi(Iscsi, RedHatPlugin):
     """iscsi-initiator related information Red Hat based distributions
     """
 
