@@ -5,6 +5,7 @@ import re
 import platform
 import time
 import fnmatch
+from os import environ
 
 from sos.utilities import ImporterHelper, \
                         import_module, \
@@ -133,16 +134,20 @@ No changes will be made to system configuration.
     vendor = "Unknown"
     vendor_url = "http://www.example.com/"
     vendor_text = ""
+    PATH = ""
 
     def __init__(self):
         """Subclasses that choose to override this initializer should call
         super() to ensure that they get the required platform bits attached.
-        super(SubClass, self).__init__()"""
+        super(SubClass, self).__init__(). Policies that require runtime
+        tests to construct PATH must call self.set_exec_path() after
+        modifying PATH in their own initializer."""
         self._parse_uname()
         self.report_name = self.hostname
         self.ticket_number = None
         self.package_manager = PackageManager()
         self._valid_subclasses = []
+        self.set_exec_path()
 
     def get_valid_subclasses(self):
         return [IndependentPlugin] + self._valid_subclasses
@@ -221,6 +226,12 @@ No changes will be made to system configuration.
     def set_commons(self, commons):
         self.commons = commons
 
+    def _set_PATH(self, path):
+        environ['PATH'] = path
+
+    def set_exec_path(self):
+        self._set_PATH(self.PATH)
+        
     def is_root(self):
         """This method should return true if the user calling the script is
         considered to be a superuser"""
@@ -377,6 +388,7 @@ class LinuxPolicy(Policy):
 
     distro = "Linux"
     vendor = "None"
+    PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
 
     def __init__(self):
         super(LinuxPolicy, self).__init__()

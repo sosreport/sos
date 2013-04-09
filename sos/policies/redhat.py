@@ -40,14 +40,24 @@ class RedHatPolicy(LinuxPolicy):
         super(RedHatPolicy, self).__init__()
         self.report_name = ""
         self.ticket_number = ""
-        self.package_manager = PackageManager('rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
+        self.package_manager = PackageManager(
+                        'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
         self.valid_subclasses = [RedHatPlugin]
+
+        # handle PATH for UsrMove
+        if self.package_manager.all_pkgs()['filesystem']['version'][0] == '3':
+            self.PATH = "/usr/sbin:/usr/bin:/root/bin"
+        else:
+            self.PATH = "/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
+        self.PATH += os.pathsep + "/usr/local/bin"
+        self.PATH += os.pathsep + "/usr/local/sbin"
+        self.set_exec_path()
 
     @classmethod
     def check(self):
-        """This method checks to see if we are running on Red Hat. It must be overriden
-        by concrete subclasses to return True when running on a Fedora, RHEL or other
-        Red Hat distribution or False otherwise."""
+        """This method checks to see if we are running on Red Hat. It must be
+        overriden by concrete subclasses to return True when running on a
+        Fedora, RHEL or other Red Hat distribution or False otherwise."""
         return False
 
     def runlevel_by_service(self, name):

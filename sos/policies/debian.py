@@ -11,6 +11,8 @@ class DebianPolicy(LinuxPolicy):
     ticket_number = ""
     package_manager = PackageManager("dpkg-query -W -f='${Package}|${Version}\\n' \*")
     valid_subclasses = [DebianPlugin]
+    PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
+            + ":/usr/loca/sbin:/usr/local/bin"
 
     def __init__(self):
         super(DebianPolicy, self).__init__()
