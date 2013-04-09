@@ -21,7 +21,6 @@ class selinux(Plugin, RedHatPlugin):
     def setup(self):
         # sestatus is always collected in check_enabled()
         self.add_copy_spec("/etc/selinux")
-        self.add_cmd_output("/usr/bin/selinuxconfig")
         if self.get_option('fixfiles'):
             self.add_cmd_output("/sbin/fixfiles check")
         self.add_forbidden_path("/etc/selinux/targeted")
