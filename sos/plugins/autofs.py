@@ -48,8 +48,8 @@ class autofs(Plugin):
         self.add_copy_spec("/etc/auto*")
         self.add_cmd_output("/etc/init.d/autofs status")
         self.add_cmd_output("ps auxwww | grep automount")
-        self.add_cmd_output("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
-        self.add_cmd_output("/bin/mount | egrep -e 'automount|pid.*nfs'")
+        self.add_cmd_output("egrep -e 'automount|pid.*nfs' /proc/mounts")
+        self.add_cmd_output("mount | egrep -e 'automount|pid.*nfs'")
         if self.checkdebug():
             self.add_copy_spec(self.getdaemondebug())
 
@@ -58,11 +58,11 @@ class RedHatAutofs(autofs, RedHatPlugin):
 
     def setup(self):
         super(RedHatAutofs, self).setup()
-        self.add_cmd_output("/bin/rpm -qV autofs")
+        self.add_cmd_output("rpm -qV autofs")
 
 class DebianAutofs(autofs, DebianPlugin, UbuntuPlugin):
     """autofs server-related on Debian based distributions"""
 
     def setup(self):
         super(DebianAutofs, self).setup()
-        self.add_cmd_output("/usr/bin/dpkg-query -s autofs")
+        self.add_cmd_output("dpkg-query -s autofs")

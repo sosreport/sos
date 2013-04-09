@@ -30,7 +30,7 @@ class sunrpc(Plugin):
         return False
 
     def setup(self):
-        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
+        self.add_cmd_output("rpcinfo -p localhost")
         return
 
 class RedHatSunrpc(sunrpc, RedHatPlugin):
@@ -48,7 +48,7 @@ class RedHatSunrpc(sunrpc, RedHatPlugin):
 #    service = 'rpcbind-boot'
 #
 #    def setup(self):
-#        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
+#        self.add_cmd_output("rpcinfo -p localhost")
 #        return
 
 

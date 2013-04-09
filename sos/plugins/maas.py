@@ -25,5 +25,5 @@ class maas(Plugin, UbuntuPlugin):
                            "/var/lib/maas",
                            "/var/log/maas*"])
         self.add_cmd_output("maas dumpdata")
-        self.add_cmd_output("/usr/bin/pg_dumpall")
+        self.add_cmd_output("pg_dumpall")
                            

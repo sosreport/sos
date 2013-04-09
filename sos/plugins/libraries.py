@@ -24,5 +24,5 @@ class libraries(Plugin, RedHatPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs(["/etc/ld.so.conf", "/etc/ld.so.conf.d"])
         if self.get_option("ldconfigv"):
-            self.add_cmd_output("/sbin/ldconfig -v -N -X")
-        self.add_cmd_output("/sbin/ldconfig -p -N -X")
+            self.add_cmd_output("ldconfig -v -N -X")
+        self.add_cmd_output("ldconfig -p -N -X")

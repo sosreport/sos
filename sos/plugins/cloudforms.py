@@ -23,11 +23,11 @@ class cloudforms(Plugin, RedHatPlugin):
     packages = ["katello", "katello-common",
                     "katello-headpin", "aeoleus-conductor"]
     files = ["/usr/share/katello/script/katello-debug",
-                "/usr/bin/aeolus-debug"]
+                "aeolus-debug"]
 
     def setup(self):
         katello_debug = "/usr/share/katello/script/katello-debug"
-        aeolus_debug = "/usr/bin/aeolus-debug"
+        aeolus_debug = "aeolus-debug"
         if os.path.isfile(katello_debug):
             katello_debug_path = os.path.join(self.commons['dstroot'],"katello-debug")
             self.add_cmd_output("%s --notar -d %s" % (katello_debug, katello_debug_path))

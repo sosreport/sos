@@ -38,8 +38,8 @@ class kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/sys/module/kvm_amd/srcversion")
         self.add_copy_spec("/sys/module/ksm/srcversion")
         if self.get_option('topOutput'):
-            self.add_cmd_output("/usr/bin/top -b -d 1 -n 5")
-        self.add_cmd_output("/usr/bin/kvm_stat --once")
+            self.add_cmd_output("top -b -d 1 -n 5")
+        self.add_cmd_output("kvm_stat --once")
 
     def postproc(self):
         if self._debugfs_cleanup and os.path.ismount("/sys/kernel/debug"):

@@ -29,11 +29,11 @@ class ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_copy_specs(["/etc/ceph/",
                            "/var/log/ceph/"])
 
-        self.add_cmd_output("/usr/bin/ceph status")
-        self.add_cmd_output("/usr/bin/ceph health")
-        self.add_cmd_output("/usr/bin/ceph osd tree")
-        self.add_cmd_output("/usr/bin/ceph osd stat")
-        self.add_cmd_output("/usr/bin/ceph osd dump")
-        self.add_cmd_output("/usr/bin/ceph mon stat")
-        self.add_cmd_output("/usr/bin/ceph mon dump")
+        self.add_cmd_output("ceph status")
+        self.add_cmd_output("ceph health")
+        self.add_cmd_output("ceph osd tree")
+        self.add_cmd_output("ceph osd stat")
+        self.add_cmd_output("ceph osd dump")
+        self.add_cmd_output("ceph mon stat")
+        self.add_cmd_output("ceph mon dump")
 

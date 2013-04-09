@@ -29,4 +29,4 @@ class ppp(Plugin, RedHatPlugin):
             "/etc/wvdial.conf",
             "/etc/ppp",
             "/var/log/ppp"])
-        self.add_cmd_output("/usr/sbin/adsl-status")
+        self.add_cmd_output("adsl-status")

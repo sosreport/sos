@@ -24,5 +24,5 @@ class amd(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_specs("/etc/amd.*")
-        self.add_cmd_output("/bin/egrep -e 'automount|pid.*nfs' /proc/mounts")
-        self.add_cmd_output("/bin/mount | egrep -e 'automount|pid.*nfs'")
+        self.add_cmd_output("egrep -e 'automount|pid.*nfs' /proc/mounts")
+        self.add_cmd_output("mount | egrep -e 'automount|pid.*nfs'")

@@ -22,7 +22,7 @@ class crontab(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/cron*")
-        self.add_cmd_output("/usr/bin/crontab -l -u root", suggest_filename = "root_crontab")
+        self.add_cmd_output("crontab -l -u root", suggest_filename = "root_crontab")
         self.add_cmd_output("""for i in `ls /home/`;\
-        do echo "User :" $i;/usr/bin/crontab -l -u $i;\
+        do echo "User :" $i;crontab -l -u $i;\
         echo "---------------";done""", suggest_filename = "users_crontabs")

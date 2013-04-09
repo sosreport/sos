@@ -22,7 +22,7 @@ class startup(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec("/etc/rc.d")
 
-        self.add_cmd_output("/sbin/chkconfig --list", root_symlink = "chkconfig")
+        self.add_cmd_output("chkconfig --list", root_symlink = "chkconfig")
         if self.get_option('servicestatus'):
-            self.add_cmd_output("/sbin/service --status-all")
-        self.add_cmd_output("/sbin/runlevel")
+            self.add_cmd_output("service --status-all")
+        self.add_cmd_output("runlevel")

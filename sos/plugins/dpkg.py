@@ -20,4 +20,4 @@ class dpkg(Plugin, DebianPlugin, UbuntuPlugin):
     """
     def setup(self):
         self.add_copy_spec("/var/log/dpkg.log")
-        self.add_cmd_output("/usr/bin/dpkg -l", root_symlink = "installed-debs")
+        self.add_cmd_output("dpkg -l", root_symlink = "installed-debs")

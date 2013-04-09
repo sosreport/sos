@@ -49,9 +49,9 @@ class xen(Plugin, RedHatPlugin):
             "/proc/xen/xsd_kva",
             "/proc/xen/xsd_port"])
         # determine if CPU has PAE support
-        self.add_cmd_output("/bin/grep pae /proc/cpuinfo")
+        self.add_cmd_output("grep pae /proc/cpuinfo")
         # determine if CPU has Intel-VT or AMD-V support
-        self.add_cmd_output("/bin/egrep -e 'vmx|svm' /proc/cpuinfo")
+        self.add_cmd_output("egrep -e 'vmx|svm' /proc/cpuinfo")
 
     def setup(self):
         host_type = self.determine_xen_host()
@@ -73,15 +73,15 @@ class xen(Plugin, RedHatPlugin):
                 "/sys/hypervisor/compilation",
                 "/sys/hypervisor/properties",
                 "/sys/hypervisor/type"])
-            self.add_cmd_output("/usr/sbin/xm dmesg")
-            self.add_cmd_output("/usr/sbin/xm info")
-            self.add_cmd_output("/usr/sbin/xm list")
-            self.add_cmd_output("/usr/sbin/xm list --long")
-            self.add_cmd_output("/usr/sbin/brctl show")
+            self.add_cmd_output("xm dmesg")
+            self.add_cmd_output("xm info")
+            self.add_cmd_output("xm list")
+            self.add_cmd_output("xm list --long")
+            self.add_cmd_output("brctl show")
             self.dom_collect_proc()
             if self.is_running_xenstored():
                 self.add_copy_spec("/sys/hypervisor/uuid")
-                self.add_cmd_output("/usr/bin/xenstore-ls")
+                self.add_cmd_output("xenstore-ls")
             else:
                 # we need tdb instead of xenstore-ls if cannot get it.
                 self.add_copy_spec("/var/lib/xenstored/tdb")

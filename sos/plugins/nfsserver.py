@@ -39,5 +39,5 @@ class nfsserver(Plugin, RedHatPlugin):
             "/var/lib/nfs/etab",
             "/var/lib/nfs/xtab",
             "/var/lib/nfs/rmtab"])
-        self.add_cmd_output("/usr/sbin/rpcinfo -p localhost")
-        self.add_cmd_output("/usr/sbin/nfsstat -a")
+        self.add_cmd_output("rpcinfo -p localhost")
+        self.add_cmd_output("nfsstat -a")

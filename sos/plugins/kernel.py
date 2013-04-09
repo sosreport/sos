@@ -22,21 +22,21 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     module_file = ""
 
     def setup(self):
-        self.add_cmd_output("/bin/uname -a", root_symlink = "uname")
-        self.module_file = self.get_cmd_output_now("/sbin/lsmod", root_symlink = "lsmod")
+        self.add_cmd_output("uname -a", root_symlink = "uname")
+        self.module_file = self.get_cmd_output_now("lsmod", root_symlink = "lsmod")
 
         if self.get_option('modinfo'):
             runcmd = ""
-            ret, mods, rtime = self.call_ext_prog('/sbin/lsmod | /bin/cut -f1 -d" " 2>/dev/null | /bin/grep -v Module 2>/dev/null')
+            ret, mods, rtime = self.call_ext_prog('lsmod | cut -f1 -d" " 2>/dev/null | grep -v Module 2>/dev/null')
             for kmod in mods.split('\n'):
                 if '' != kmod.strip():
                     runcmd = runcmd + " " + kmod
             if len(runcmd):
-                self.add_cmd_output("/sbin/modinfo " + runcmd)
+                self.add_cmd_output("modinfo " + runcmd)
 
-        self.add_cmd_output("/sbin/sysctl -a")
-        if os.path.isfile("/sbin/ksyms"):
-            self.add_cmd_output("/sbin/ksyms")
+        self.add_cmd_output("sysctl -a")
+        if os.path.isfile("ksyms"):
+            self.add_cmd_output("ksyms")
         self.add_copy_specs([
             "/proc/sys/kernel/random/boot_id",
             "/sys/module/*/parameters",
@@ -63,4 +63,4 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/timer*",
             "/proc/lock*"])
 
-        self.add_cmd_output("/usr/sbin/dkms status")
+        self.add_cmd_output("dkms status")

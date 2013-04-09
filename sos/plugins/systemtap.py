@@ -20,9 +20,9 @@ class systemtap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """SystemTap information
     """
 
-    files = ('/usr/bin/stap',)
+    files = ('stap',)
     packages = ('systemtap', 'systemtap-runtime')
 
     def setup(self):
-        self.add_cmd_output("/usr/bin/stap -V 2")
-        self.add_cmd_output("/bin/uname -r")
+        self.add_cmd_output("stap -V 2")
+        self.add_cmd_output("uname -r")

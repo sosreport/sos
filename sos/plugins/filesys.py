@@ -32,15 +32,15 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
             "/proc/mdstat",
             "/etc/raidtab",
             "/etc/mdadm.conf"])
-        mounts = self.get_cmd_output_now("/bin/mount -l", root_symlink = "mount")
+        mounts = self.get_cmd_output_now("mount -l", root_symlink = "mount")
 
-        self.add_cmd_output("/bin/findmnt")
-        self.add_cmd_output("/bin/df -al", root_symlink = "df")
-        self.add_cmd_output("/bin/df -ali")
+        self.add_cmd_output("findmnt")
+        self.add_cmd_output("df -al", root_symlink = "df")
+        self.add_cmd_output("df -ali")
         if self.get_option('lsof'):
-            self.add_cmd_output("/usr/sbin/lsof -b +M -n -l -P", root_symlink = "lsof")
-        self.add_cmd_output("/sbin/blkid -c /dev/null")
-        self.add_cmd_output("/usr/bin/lsblk")
+            self.add_cmd_output("lsof -b +M -n -l -P", root_symlink = "lsof")
+        self.add_cmd_output("blkid -c /dev/null")
+        self.add_cmd_output("lsblk")
 
         part_titlep = re.compile("^major")
         blankp = re.compile("^$")
@@ -53,9 +53,9 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
                 partlist.append('/dev/' + line.split()[-1])
         except IOError:
             exit(1)
-        if os.path.exists("/sbin/hdparm"):
+        if os.path.exists("hdparm"):
             for dev in partlist:
-                ret, hdparm, time = self.call_ext_prog('/sbin/hdparm -g %s' %(dev))
+                ret, hdparm, time = self.call_ext_prog('hdparm -g %s' %(dev))
                 if(ret == 0):
                     start_geo = hdparm.strip().split("\n")[-1].strip().split()[-1]
                     if(start_geo == "0"):
@@ -69,8 +69,8 @@ class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
                     devlist.append(dev)
 
         for i in devlist:
-            self.add_cmd_output("/sbin/parted -s %s print" % (i))
+            self.add_cmd_output("parted -s %s print" % (i))
 
         if self.get_option('dumpe2fs'):
             for extfs in izip(self.do_regex_find_all(r"^(/dev/.+) on .+ type ext.\s+", mounts)):
-                self.add_cmd_output("/sbin/dumpe2fs %s" % (extfs))
+                self.add_cmd_output("dumpe2fs %s" % (extfs))

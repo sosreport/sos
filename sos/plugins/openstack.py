@@ -88,30 +88,30 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         # Nova
-        if os.path.exists("/usr/bin/nova-manage"):
+        if os.path.exists("nova-manage"):
             self.add_cmd_output(
-                "/usr/bin/nova-manage config list 2>/dev/null | sort",
+                "nova-manage config list 2>/dev/null | sort",
                 suggest_filename="nova_config_list")
             self.add_cmd_output(
-                "/usr/bin/nova-manage service list 2>/dev/null",
+                "nova-manage service list 2>/dev/null",
                 suggest_filename="nova_service_list")
             self.add_cmd_output(
-                "/usr/bin/nova-manage db version 2>/dev/null",
+                "nova-manage db version 2>/dev/null",
                 suggest_filename="nova_db_version")
             self.add_cmd_output(
-                "/usr/bin/nova-manage fixed list 2>/dev/null",
+                "nova-manage fixed list 2>/dev/null",
                 suggest_filename="nova_fixed_ip_list")
             self.add_cmd_output(
-                "/usr/bin/nova-manage floating list 2>/dev/null",
+                "nova-manage floating list 2>/dev/null",
                 suggest_filename="nova_floating_ip_list")
             self.add_cmd_output(
-                "/usr/bin/nova-manage flavor list 2>/dev/null",
+                "nova-manage flavor list 2>/dev/null",
                 suggest_filename="nova_flavor_list")
             self.add_cmd_output(
-                "/usr/bin/nova-manage network list 2>/dev/null",
+                "nova-manage network list 2>/dev/null",
                 suggest_filename="nova_network_list")
             self.add_cmd_output(
-                "/usr/bin/nova-manage vm list 2>/dev/null",
+                "nova-manage vm list 2>/dev/null",
                 suggest_filename="nova_vm_list")
         self.add_copy_specs(["/etc/nova/",
                            "/var/log/nova/",
@@ -119,9 +119,9 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
                            "/etc/sudoers.d/nova_sudoers",
                            "/etc/logrotate.d/nova-*"])
         # Glance
-        if os.path.exists("/usr/bin/glance-manage"):
+        if os.path.exists("glance-manage"):
             self.add_cmd_output(
-                "/usr/bin/glance-manage db_version",
+                "glance-manage db_version",
                 suggest_filename="glance_db_version")
         self.add_copy_specs(["/etc/glance/",
                            "/var/log/glance/",
@@ -163,7 +163,7 @@ class RedHatOpenStack(openstack, RedHatPlugin):
         # If RHEL or Fedora then invoke script for openstack-status
         if (os.path.isfile('/etc/redhat-release')
             or os.path.isfile('/etc/fedora-release')):
-            self.add_cmd_output("/usr/bin/openstack-status")
+            self.add_cmd_output("openstack-status")
 
         # Nova
         self.add_copy_specs(["/etc/nova/",

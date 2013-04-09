@@ -65,20 +65,20 @@ class cluster(Plugin, RedHatPlugin):
         if self.get_option('lockdump'):
           self.do_lockdump()
 
-        self.add_cmd_output("/usr/sbin/rg_test test "
+        self.add_cmd_output("rg_test test "
                         + "/etc/cluster/cluster.conf" )
         self.add_cmd_output("fence_tool ls -n")
         self.add_cmd_output("gfs_control ls -n")
         self.add_cmd_output("dlm_tool log_plock")
 
-        self.add_cmd_output("/sbin/fdisk -l")
+        self.add_cmd_output("fdisk -l")
         self.get_cmd_output_now("clustat")
         self.get_cmd_output_now("group_tool dump")
         self.add_cmd_output("cman_tool services")
         self.add_cmd_output("cman_tool nodes")
         self.add_cmd_output("cman_tool status")
         self.add_cmd_output("ccs_tool lsnode")
-        self.add_cmd_output("/sbin/ipvsadm -L")
+        self.add_cmd_output("ipvsadm -L")
 
         if rhelver is 4:
             self.add_copy_spec("/proc/cluster/*")
@@ -135,7 +135,7 @@ class cluster(Plugin, RedHatPlugin):
     def do_gfslockdump(self):
         for mntpoint in self.do_regex_find_all(r'^\S+\s+([^\s]+)\s+gfs\s+.*$',
                     "/proc/mounts"):
-            self.add_cmd_output("/sbin/gfs_tool lockdump %s" % mntpoint,
+            self.add_cmd_output("gfs_tool lockdump %s" % mntpoint,
                         suggest_filename = "gfs_lockdump_"
                         + self.mangle_command(mntpoint))
 

@@ -45,31 +45,31 @@ class hardware(Plugin):
             "/sys/state",
             "/sys/firmware/acpi/tables",
             "/var/log/mcelog"])
-        self.add_cmd_output("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
+        self.add_cmd_output("""echo -e "lspci:\n" ; lspci ; echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
-        self.add_cmd_output("/usr/sbin/dmidecode", root_symlink = "dmidecode")
+        self.add_cmd_output("dmidecode", root_symlink = "dmidecode")
 
-	if os.path.exists("/usr/bin/cpufreq-info"):
-	        self.add_cmd_output("/usr/bin/cpufreq-info")
-	if os.path.exists("/usr/bin/cpupower"):
-		self.add_cmd_output("/usr/bin/cpupower info")
-		self.add_cmd_output("/usr/bin/cpupower frequency-info")
+	if os.path.exists("cpufreq-info"):
+	        self.add_cmd_output("cpufreq-info")
+	if os.path.exists("cpupower"):
+		self.add_cmd_output("cpupower info")
+		self.add_cmd_output("cpupower frequency-info")
 
         if self.policy().get_arch().endswith("386"):
-            self.add_cmd_output("/usr/sbin/x86info -a")
+            self.add_cmd_output("x86info -a")
 
-        if os.path.exists("/usr/bin/lsusb"):
-            lsusb_path = "/usr/bin/lsusb"
+        if os.path.exists("lsusb"):
+            lsusb_path = "lsusb"
         else:
-            lsusb_path = "/usr/bin/lsusb"
+            lsusb_path = "lsusb"
 
         self.add_cmd_output("%s"% lsusb_path)
         self.add_cmd_output("%s -v"% lsusb_path)
         self.add_cmd_output("%s -t"% lsusb_path)
 
-        self.add_cmd_output("/usr/bin/lshal")
-        self.add_cmd_output("/usr/bin/systool -c fc_host -v")
-        self.add_cmd_output("/usr/bin/systool -c scsi_host -v")
+        self.add_cmd_output("lshal")
+        self.add_cmd_output("systool -c fc_host -v")
+        self.add_cmd_output("systool -c scsi_host -v")
 
 class RedHatHardware(hardware, RedHatPlugin):
     """hardware related information for Red Hat distribution

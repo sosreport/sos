@@ -76,7 +76,7 @@ class gluster(Plugin, RedHatPlugin):
             pass
 
     def setup(self):
-        self.add_cmd_output("/usr/sbin/gluster peer status")
+        self.add_cmd_output("gluster peer status")
 
         # check package version handling rename of glusterfs-core -> glusterfs
         pkg = self.policy().pkg_by_name("glusterfs-core");

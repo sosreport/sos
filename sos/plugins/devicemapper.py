@@ -32,30 +32,30 @@ class devicemapper(Plugin, RedHatPlugin):
         self.add_cmd_output(cmd)
 
     def setup(self):
-        self.add_cmd_output("/sbin/dmsetup info -c")
-        self.add_cmd_output("/sbin/dmsetup table")
-        self.add_cmd_output("/sbin/dmsetup status")
-        self.add_cmd_output("/sbin/dmsetup ls --tree")
+        self.add_cmd_output("dmsetup info -c")
+        self.add_cmd_output("dmsetup table")
+        self.add_cmd_output("dmsetup status")
+        self.add_cmd_output("dmsetup ls --tree")
 
-        self.add_cmd_output("/sbin/vgdisplay -vv", root_symlink = "vgdisplay")
-        self.add_cmd_output("/sbin/vgscan -vvv")
-        self.add_cmd_output("/sbin/pvscan -v")
-        self.add_cmd_output("/sbin/lvs -a -o +devices")
-        self.add_cmd_output("/sbin/pvs -a -v")
-        self.add_cmd_output("/sbin/vgs -v")
-        self.add_cmd_output("/sbin/mdadm -D /dev/md*")
+        self.add_cmd_output("vgdisplay -vv", root_symlink = "vgdisplay")
+        self.add_cmd_output("vgscan -vvv")
+        self.add_cmd_output("pvscan -v")
+        self.add_cmd_output("lvs -a -o +devices")
+        self.add_cmd_output("pvs -a -v")
+        self.add_cmd_output("vgs -v")
+        self.add_cmd_output("mdadm -D /dev/md*")
 
         self.add_copy_specs([
             "/etc/lvm",
             "/etc/multipath/",
             "/etc/multipath.conf",
             "/var/lib/multipath/bindings"])
-        self.add_cmd_output("/sbin/multipath -v4 -ll")
+        self.add_cmd_output("multipath -v4 -ll")
 
-        self.add_cmd_output("/usr/bin/systool -v -c -b scsi")
+        self.add_cmd_output("systool -v -c -b scsi")
 
-        self.add_cmd_output("/bin/ls -lanR /dev")
-        self.add_cmd_output("/bin/ls -lanR /sys/block")
+        self.add_cmd_output("ls -lanR /dev")
+        self.add_cmd_output("ls -lanR /sys/block")
 
         if self.get_option('lvmdump'):
             self.do_lvmdump()
@@ -64,6 +64,6 @@ class devicemapper(Plugin, RedHatPlugin):
            for disk in os.listdir("/sys/block"):
               if disk in [ ".",  ".." ] or disk.startswith("ram"):
                  continue
-              self.add_cmd_output("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
+              self.add_cmd_output("udevinfo -ap /sys/block/%s" % (disk))
         for opt in self.dmraid_options:
-            self.add_cmd_output("/sbin/dmraid -%s" % (opt,))
+            self.add_cmd_output("dmraid -%s" % (opt,))

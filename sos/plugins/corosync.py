@@ -18,7 +18,7 @@ class corosync(Plugin, RedHatPlugin):
     """ corosync information
     """
 
-    files = ('/usr/bin/corosync',)
+    files = ('corosync',)
     packages = ('corosync',)
 
     def setup(self):
@@ -31,6 +31,6 @@ class corosync(Plugin, RedHatPlugin):
         self.add_cmd_output("corosync-cpgtool")
         self.add_cmd_output("corosync-objctl -a")
         self.add_cmd_output("corosync-fplay")
-        self.add_cmd_output("/usr/sbin/corosync-objctl -w runtime.blackbox.dump_state=$(date +\%s)")
-        self.add_cmd_output("/usr/sbin/corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)")
+        self.add_cmd_output("corosync-objctl -w runtime.blackbox.dump_state=$(date +\%s)")
+        self.add_cmd_output("corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)")
         self.call_ext_prog("killall -USR2 corosync")

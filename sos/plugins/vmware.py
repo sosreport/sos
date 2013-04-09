@@ -19,10 +19,10 @@ class vmware(Plugin, RedHatPlugin):
     """VMWare related information
     """
 
-    files = ('/usr/bin/vmware','/usr/init.d/vmware-tools')
+    files = ('vmware','/usr/init.d/vmware-tools')
 
     def setup(self):
-        self.add_cmd_output("/usr/bin/vmware -v")
+        self.add_cmd_output("vmware -v")
         self.add_copy_specs(["/etc/vmware/locations",
                            "/etc/vmware/config",
                            "/proc/vmmemctl"])

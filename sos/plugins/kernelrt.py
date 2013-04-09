@@ -32,4 +32,4 @@ class kernel_rt(Plugin, RedHatPlugin):
         self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/available_clocksource')
         self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/current_clocksource')
         if self.is_installed('tuna'):
-            self.add_cmd_output('/usr/bin/tuna -CP | /ust/bin/head -20')
+            self.add_cmd_output('tuna -CP | /usthead -20')

@@ -66,16 +66,16 @@ class rhn(Plugin, RedHatPlugin):
             "/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log"])
 
         self.add_copy_spec("/root/ssl-build")
-        self.add_cmd_output("/usr/bin/rhn-schema-version",
+        self.add_cmd_output("rhn-schema-version",
                         root_symlink = "database-schema-version")
-        self.add_cmd_output("/usr/bin/rhn-charsets",
+        self.add_cmd_output("rhn-charsets",
                         root_symlink = "database-character-sets")
 
         if self.satellite:
             self.add_copy_specs(["/etc/tnsnames.ora", "/etc/jabberd",
                                 "/etc/tomcat6/", "/var/log/tomcat6/"])
-            if os.path.exists("/usr/bin/spacewalk-debug"):
-                self.add_cmd_output("/usr/bin/spacewalk-debug --dir %s"
+            if os.path.exists("spacewalk-debug"):
+                self.add_cmd_output("spacewalk-debug --dir %s"
                         % os.path.join(self.commons['dstroot'],
                                 "sos_commands/rhn"))
 

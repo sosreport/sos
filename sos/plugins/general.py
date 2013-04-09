@@ -42,19 +42,19 @@ class General(Plugin):
             "/root/anaconda-ks.cfg"])
 
         limit = self.get_option("syslogsize")
-        self.add_cmd_output("/bin/dmesg", suggest_filename="dmesg_now")
+        self.add_cmd_output("dmesg", suggest_filename="dmesg_now")
         self.add_copy_spec_limit("/var/log/messages*", sizelimit = limit)
         self.add_copy_spec_limit("/var/log/secure*", sizelimit = limit)
-        self.add_cmd_output("/usr/bin/hostid")
-        self.add_cmd_output("/bin/hostname", root_symlink="hostname")
-        self.add_cmd_output("/bin/date", root_symlink="date")
-        self.add_cmd_output("/usr/bin/uptime", root_symlink="uptime")
-        self.add_cmd_output("/bin/dmesg")
-        self.add_cmd_output("/usr/sbin/alternatives --display java",
+        self.add_cmd_output("hostid")
+        self.add_cmd_output("hostname", root_symlink="hostname")
+        self.add_cmd_output("date", root_symlink="date")
+        self.add_cmd_output("uptime", root_symlink="uptime")
+        self.add_cmd_output("dmesg")
+        self.add_cmd_output("alternatives --display java",
                                 root_symlink="java")
-        self.add_cmd_output("/usr/bin/readlink -f /usr/bin/java")
-        self.add_cmd_output("/usr/bin/tree /var/lib")
-        self.add_cmd_output("/bin/ls -lR /var/lib")
+        self.add_cmd_output("readlink -f /usrjava")
+        self.add_cmd_output("tree /var/lib")
+        self.add_cmd_output("ls -lR /var/lib")
 
 
 class RedHatGeneral(General, RedHatPlugin):
@@ -122,4 +122,4 @@ class UbuntuGeneral(General, UbuntuPlugin):
 	    "/var/log/unattended-upgrades",
 	    "/var/log/upstart"
         ])
-        self.add_cmd_output("/usr/sbin/ufw app list",root_symlink="ufw")
+        self.add_cmd_output("ufw app list",root_symlink="ufw")

@@ -55,9 +55,9 @@ class networking(Plugin, RedHatPlugin):
         relevant rules in that table """
 
 
-        (status, output, time) = self.call_ext_prog("/sbin/lsmod | grep -q "+tablename)
+        (status, output, time) = self.call_ext_prog("lsmod | grep -q "+tablename)
         if status == 0:
-            cmd = "/sbin/iptables -t "+tablename+" -nvL"
+            cmd = "iptables -t "+tablename+" -nvL"
             self.add_cmd_output(cmd)
 
     def setup(self):
@@ -70,40 +70,40 @@ class networking(Plugin, RedHatPlugin):
             "/etc/xinetd.d",
             "/etc/host*",
             "/etc/resolv.conf"])
-        ip_addr_file=self.get_cmd_output_now("/sbin/ip -o addr", root_symlink = "ip_addr")
-        ip_addr_out=self.call_ext_prog("/sbin/ip -o addr")
-        self.add_cmd_output("/sbin/route -n", root_symlink = "route")
+        ip_addr_file=self.get_cmd_output_now("ip -o addr", root_symlink = "ip_addr")
+        ip_addr_out=self.call_ext_prog("ip -o addr")
+        self.add_cmd_output("route -n", root_symlink = "route")
         self.collect_iptable("filter")
         self.collect_iptable("nat")
         self.collect_iptable("mangle")
-        self.add_cmd_output("/bin/netstat -s")
-        self.add_cmd_output("/bin/netstat -agn")
-        self.add_cmd_output("/bin/netstat -neopa", root_symlink = "netstat")
-        self.add_cmd_output("/sbin/ip route show table all")
-        self.add_cmd_output("/sbin/ip -6 route show table all")
-        self.add_cmd_output("/sbin/ip link")
-        self.add_cmd_output("/sbin/ip address")
-        self.add_cmd_output("/sbin/ifenslave -a")
-        self.add_cmd_output("/sbin/ip mroute show")
-        self.add_cmd_output("/sbin/ip maddr show")
-        self.add_cmd_output("/sbin/ip neigh show")
+        self.add_cmd_output("netstat -s")
+        self.add_cmd_output("netstat -agn")
+        self.add_cmd_output("netstat -neopa", root_symlink = "netstat")
+        self.add_cmd_output("ip route show table all")
+        self.add_cmd_output("ip -6 route show table all")
+        self.add_cmd_output("ip link")
+        self.add_cmd_output("ip address")
+        self.add_cmd_output("ifenslave -a")
+        self.add_cmd_output("ip mroute show")
+        self.add_cmd_output("ip maddr show")
+        self.add_cmd_output("ip neigh show")
         if ip_addr_out:
             for eth in self.get_interface_name(ip_addr_out):
-                self.add_cmd_output("/sbin/ethtool "+eth)
-                self.add_cmd_output("/sbin/ethtool -i "+eth)
-                self.add_cmd_output("/sbin/ethtool -k "+eth)
-                self.add_cmd_output("/sbin/ethtool -S "+eth)
-                self.add_cmd_output("/sbin/ethtool -a "+eth)
-                self.add_cmd_output("/sbin/ethtool -c "+eth)
-                self.add_cmd_output("/sbin/ethtool -g "+eth)
+                self.add_cmd_output("ethtool "+eth)
+                self.add_cmd_output("ethtool -i "+eth)
+                self.add_cmd_output("ethtool -k "+eth)
+                self.add_cmd_output("ethtool -S "+eth)
+                self.add_cmd_output("ethtool -a "+eth)
+                self.add_cmd_output("ethtool -c "+eth)
+                self.add_cmd_output("ethtool -g "+eth)
         if self.get_option("traceroute"):
-            self.add_cmd_output("/bin/traceroute -n rhn.redhat.com")
+            self.add_cmd_output("traceroute -n rhn.redhat.com")
 
-        if os.path.exists("/usr/sbin/brctl"):
-            brctl_file=self.add_cmd_output("/usr/sbin/brctl show")
-            brctl_out=self.call_ext_prog("/usr/sbin/brctl show")
+        if os.path.exists("brctl"):
+            brctl_file=self.add_cmd_output("brctl show")
+            brctl_out=self.call_ext_prog("brctl show")
             if brctl_out:
                 for br_name in self.get_bridge_name(brctl_out):
-                    self.add_cmd_output("/usr/sbin/brctl showstp "+br_name)
+                    self.add_cmd_output("brctl showstp "+br_name)
         return
 

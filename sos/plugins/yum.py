@@ -35,7 +35,7 @@ class yum(Plugin, RedHatPlugin):
             "/var/log/yum.log"])
 
         # Get a list of channels the machine is subscribed to.
-        self.add_cmd_output("/usr/bin/yum -C repolist")
+        self.add_cmd_output("yum -C repolist")
 
         # candlepin info
         self.add_forbidden_path("/etc/pki/entitlements/key.pem")
@@ -52,13 +52,13 @@ class yum(Plugin, RedHatPlugin):
 
         if self.get_option("yumlist"):
             # List various information about available packages
-            self.add_cmd_output("/usr/bin/yum list")
+            self.add_cmd_output("yum list")
 
         if self.get_option("yumdebug") and self.is_installed('yum-utils'):
             # RHEL6+ alternative for this whole function:
-            # self.add_cmd_output("/usr/bin/yum-debug-dump '%s'" % os.path.join(self.commons['dstroot'],"yum-debug-dump"))
-            ret, output, rtime = self.call_ext_prog("/usr/bin/yum-debug-dump")
+            # self.add_cmd_output("yum-debug-dump '%s'" % os.path.join(self.commons['dstroot'],"yum-debug-dump"))
+            ret, output, rtime = self.call_ext_prog("yum-debug-dump")
             try:
-                self.add_cmd_output("/bin/zcat %s" % (output.split()[-1],))
+                self.add_cmd_output("zcat %s" % (output.split()[-1],))
             except IndexError:
                 pass

@@ -27,4 +27,4 @@ class postfix(Plugin, RedHatPlugin):
             "/etc/mail",
             "/etc/postfix/main.cf",
             "/etc/postfix/master.cf"])
-        self.add_cmd_output("/usr/sbin/postconf")
+        self.add_cmd_output("postconf")

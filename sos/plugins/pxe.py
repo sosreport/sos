@@ -20,11 +20,11 @@ class pxe(Plugin, RedHatPlugin):
     """
 
     option_list = [("tftpboot", 'gathers content in /tftpboot', 'slow', False)]
-    files = ('/usr/sbin/pxeos',)
+    files = ('pxeos',)
     packages = ('system-config-netboot-cmd',)
 
     def setup(self):
-        self.add_cmd_output("/usr/sbin/pxeos -l")
+        self.add_cmd_output("pxeos -l")
         self.add_copy_spec("/etc/dhcpd.conf")
         if self.get_option("tftpboot"):
             self.add_copy_spec("/tftpboot")

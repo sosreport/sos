@@ -20,7 +20,7 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     sapath='/var/log/sa'
-    sarcmd='/usr/bin/sar'
+    sarcmd='sar'
     files = (sapath, sarcmd)
 
     def setup(self):
@@ -51,7 +51,7 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             if fname[0:2] == 'sa' and fname[2] != 'r':
                 sar_filename = 'sar' + fname[2:4]
                 if sar_filename not in dir_list:
-                    sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar " \
+                    sar_command = "sh -c \"LANG=C sar " \
                             + "-A -f /var/log/sa/" + fname + "\""
                     self.add_cmd_output(sar_command, sar_filename)
         self.add_copy_spec("/var/log/sa/sar*")

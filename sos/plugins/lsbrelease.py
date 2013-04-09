@@ -21,6 +21,6 @@ class lsbrelease(Plugin, RedHatPlugin):
     """
 
     def setup(self):
-        self.add_cmd_output("/usr/bin/lsb_release -a")
-        self.add_cmd_output("/usr/bin/lsb_release -d", suggest_filename = "lsb_release", root_symlink = "lsb-release")
+        self.add_cmd_output("lsb_release -a")
+        self.add_cmd_output("lsb_release -d", suggest_filename = "lsb_release", root_symlink = "lsb-release")
         self.add_copy_spec("/etc/lsb-release*")

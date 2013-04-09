@@ -37,7 +37,7 @@ class RedHatSystem(system, RedHatPlugin):
         self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-        self.add_cmd_output("/usr/bin/crontab -l")
+        self.add_cmd_output("crontab -l")
 
 class DebianSystem(system, DebianPlugin, UbuntuPlugin):
     """core system related information for Debian and Ubuntu
@@ -55,5 +55,5 @@ class DebianSystem(system, DebianPlugin, UbuntuPlugin):
         self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-        self.add_cmd_output("/usr/bin/crontab -l")
+        self.add_cmd_output("crontab -l")
         

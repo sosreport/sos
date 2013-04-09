@@ -19,4 +19,4 @@ class mrggrid(Plugin, RedHatPlugin):
     """
     def setup(self):
         self.add_copy_spec("/etc/condor/condor_config")
-        self.add_copy_spec("/usr/bin/condor_status")
+        self.add_copy_spec("condor_status")

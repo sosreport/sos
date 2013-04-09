@@ -22,7 +22,7 @@ class selinux(Plugin, RedHatPlugin):
         # sestatus is always collected in check_enabled()
         self.add_copy_spec("/etc/selinux")
         if self.get_option('fixfiles'):
-            self.add_cmd_output("/sbin/fixfiles check")
+            self.add_cmd_output("fixfiles check")
         self.add_forbidden_path("/etc/selinux/targeted")
 
         if not self.policy().pkg_by_name('setroubleshoot'):
@@ -39,7 +39,7 @@ class selinux(Plugin, RedHatPlugin):
                               "possible fixes stated in the sealert output.")
     def check_enabled(self):
         try:
-            if self.get_cmd_output_now("/usr/sbin/sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
+            if self.get_cmd_output_now("sestatus", root_symlink = "sestatus").split(":")[1].strip() == "disabled":
                 return False
         except:
             pass

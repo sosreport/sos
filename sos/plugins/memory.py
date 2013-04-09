@@ -25,6 +25,6 @@ class memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/slabinfo",
             "/proc/pagetypeinfo"])
 
-        self.add_cmd_output("/bin/dmesg | grep -e 'e820.' -e 'aperature.'")
-        self.add_cmd_output("/usr/bin/free", root_symlink = "free")
-        self.add_cmd_output("/usr/bin/free -m")
+        self.add_cmd_output("dmesg | grep -e 'e820.' -e 'aperature.'")
+        self.add_cmd_output("free", root_symlink = "free")
+        self.add_cmd_output("free -m")
