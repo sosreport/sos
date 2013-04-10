@@ -16,7 +16,7 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class cloudforms(Plugin, RedHatPlugin):
+class Cloudforms(Plugin, RedHatPlugin):
     """CloudForms related information
     """
 

@@ -4,7 +4,8 @@ import tempfile
 from StringIO import StringIO
 
 from sos.plugins import Plugin, regex_findall, sos_relative_path, mangle_command
-from sos.utilities import Archive
+from sos.archive import TarFileArchive, ZipFileArchive
+import sos.policies
 
 PATH = os.path.dirname(__file__)
 
@@ -18,7 +19,7 @@ def create_file(size):
    f.close()
    return f.name
 
-class MockArchive(Archive):
+class MockArchive(TarFileArchive):
 
     def __init__(self):
         self.m = {}
@@ -77,9 +78,7 @@ class ForbiddenMockPlugin(Plugin):
 
 class EnablerPlugin(Plugin):
 
-    is_installed = False
-
-    def isInstalled(self, pkg):
+    def is_installed(self, pkg):
         return self.is_installed
 
 
@@ -206,15 +205,15 @@ class PluginTests(unittest.TestCase):
         self.assertEquals(p.get_option_as_list("opt"), ['testing'])
 
     def test_copy_dir(self):
-        self.mp.doCopyFileOrDir("tests")
+        self.mp.do_copy_file_or_dir("tests")
         self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'tests/plugin_tests.py')
 
     def test_copy_dir_sub(self):
-        self.mp.doCopyFileOrDir("tests", sub=("tests/", "foobar/"))
+        self.mp.do_copy_file_or_dir("tests", sub=("tests/", "foobar/"))
         self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'foobar/plugin_tests.py')
 
     def test_copy_dir_bad_path(self):
-        self.mp.doCopyFileOrDir("not_here_tests")
+        self.mp.do_copy_file_or_dir("not_here_tests")
         self.assertEquals(self.mp.archive.m, {})
 
     def test_copy_dir_forbidden_path(self):
@@ -223,7 +222,7 @@ class PluginTests(unittest.TestCase):
         })
         p.archive = MockArchive()
         p.setup()
-        p.doCopyFileOrDir("tests")
+        p.do_copy_file_or_dir("tests")
         self.assertEquals(p.archive.m, {})
 
 
@@ -269,7 +268,7 @@ class AddCopySpecLimitTests(unittest.TestCase):
 class CheckEnabledTests(unittest.TestCase):
 
     def setUp(self):
-        self.mp = EnablerPlugin({})
+        self.mp = EnablerPlugin({'policy': sos.policies.load()})
 
     def test_checks_for_file(self):
         f = j("tail_test.txt")
@@ -278,7 +277,6 @@ class CheckEnabledTests(unittest.TestCase):
 
     def test_checks_for_package(self):
         self.mp.packages = ('foo',)
-        self.mp.is_installed = True
         self.assertTrue(self.mp.check_enabled())
 
     def test_allows_bad_tuple(self):
@@ -300,18 +298,18 @@ class RegexSubTests(unittest.TestCase):
         self.mp.archive = MockArchive()
 
     def test_file_never_copied(self):
-        self.assertEquals(0, self.mp.doFileSub("never_copied", r"^(.*)$", "foobar"))
+        self.assertEquals(0, self.mp.do_file_sub("never_copied", r"^(.*)$", "foobar"))
 
     def test_no_replacements(self):
         self.mp.add_copy_spec(j("tail_test.txt"))
         self.mp.collect()
-        replacements = self.mp.doFileSub(j("tail_test.txt"), r"wont_match", "foobar")
+        replacements = self.mp.do_file_sub(j("tail_test.txt"), r"wont_match", "foobar")
         self.assertEquals(0, replacements)
 
     def test_replacements(self):
         self.mp.add_copy_spec(j("tail_test.txt"))
         self.mp.collect()
-        replacements = self.mp.doFileSub(j("tail_test.txt"), r"(tail)", "foobar")
+        replacements = self.mp.do_file_sub(j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEquals(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
 

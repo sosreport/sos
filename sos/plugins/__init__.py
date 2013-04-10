@@ -140,8 +140,8 @@ class Plugin(object):
 
         self.must_exit = False
 
-        self.soslog = self.commons['soslog']
-        self.proflog = self.commons['proflog']
+        self.soslog = self.commons['soslog'] if self.commons.has_key('soslog') else logging.getLogger('sos')
+        self.proflog = self.commons['proflog'] if self.commons.has_key('proflog') else logging.getLogger('sosprofile')
 
         # get the option list into a dictionary
         for opt in self.option_list:

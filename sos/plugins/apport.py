@@ -15,7 +15,7 @@
 
 from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
-class apport(Plugin, DebianPlugin, UbuntuPlugin):
+class Apport(Plugin, DebianPlugin, UbuntuPlugin):
     """apport information
     """
     def setup(self):

@@ -14,13 +14,13 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class cgroups(Plugin):
+class Cgroups(Plugin):
     """cgroup subsystem information
     """
 
     plugin_name = "cgroups"
 
-class DebianCgroups(cgroups, DebianPlugin, UbuntuPlugin):
+class DebianCgroups(Cgroups, DebianPlugin, UbuntuPlugin):
 
     files = ('/proc/cgroups',)
 
@@ -29,7 +29,7 @@ class DebianCgroups(cgroups, DebianPlugin, UbuntuPlugin):
                            "/sys/fs/cgroup"])
         return
 
-class RedHatCgroups(cgroups, RedHatPlugin):
+class RedHatCgroups(Cgroups, RedHatPlugin):
     """Red Hat specific cgroup subsystem information
     """
 
