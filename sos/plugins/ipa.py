@@ -17,7 +17,7 @@
 from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 
-class ipa(Plugin, RedHatPlugin):
+class Ipa(Plugin, RedHatPlugin):
     """IPA diagnostic information
     """
 

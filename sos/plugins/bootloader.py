@@ -14,7 +14,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
-class bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
+class Bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
     """Bootloader information
     """
     def setup(self):

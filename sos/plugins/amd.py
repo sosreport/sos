@@ -16,7 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class amd(Plugin, RedHatPlugin):
+class Amd(Plugin, RedHatPlugin):
     """Amd automounter information
     """
     files = ('/etc/rc.d/init.d/amd',)

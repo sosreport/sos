@@ -15,7 +15,7 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
-class apparmor(Plugin, UbuntuPlugin):
+class Apparmor(Plugin, UbuntuPlugin):
     """Apparmor related information
     """
     def setup(self):

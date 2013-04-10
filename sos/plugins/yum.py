@@ -15,7 +15,7 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class yum(Plugin, RedHatPlugin):
+class Yum(Plugin, RedHatPlugin):
     """yum information
     """
 

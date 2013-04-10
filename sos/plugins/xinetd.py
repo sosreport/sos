@@ -17,7 +17,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class xinetd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Xinetd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """xinetd information
     """
 

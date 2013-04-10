@@ -1,0 +1,18 @@
+language: python
+python:
+  - 2.7
+  - 3.2
+  - 3.3
+  - "pypy"
+matrix:
+  allow_failures:
+    - python: 3.2
+    - python: 3.3
+notifications:
+  email: false
+install:
+  - "pip install nose nose-cov --use-mirrors"
+  - "make gpgkey"
+  - "DESTDIR=. make install"
+script:
+  - "make test"

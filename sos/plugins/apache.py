@@ -14,14 +14,14 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class apache(Plugin):
+class Apache(Plugin):
     """Apache related information
     """
     plugin_name = "apache"
 
     option_list = [("log", "gathers all apache logs", "slow", False)]
 
-class RedHatApache(apache, RedHatPlugin):
+class RedHatApache(Apache, RedHatPlugin):
     """Apache related information for Red Hat distributions
     """
     files = ('/etc/httpd/conf/httpd.conf',)
@@ -38,7 +38,7 @@ class RedHatApache(apache, RedHatPlugin):
         if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd/*")
 
-class DebianApache(apache, DebianPlugin, UbuntuPlugin):
+class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
     """Apache related information for Debian distributions
     """
     files = ('/etc/apache2/apache2.conf',)
