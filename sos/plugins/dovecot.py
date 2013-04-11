@@ -22,8 +22,8 @@ class Dovecot(Plugin):
     plugin_name = "dovecot"
 
     def setup(self):
-        self.addCopySpec("/etc/dovecot*")
-        self.addCmdOutput("/usr/sbin/dovecot -n")
+        self.add_copy_spec("/etc/dovecot*")
+        self.add_cmd_output("/usr/sbin/dovecot -n")
 
 class RedHatDovecot(Dovecot, RedHatPlugin):
     """dovecot server related information for RedHat based distribution

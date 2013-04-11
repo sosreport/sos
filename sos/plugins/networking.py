@@ -98,7 +98,7 @@ class Networking(Plugin):
                 self.add_cmd_output("/sbin/ethtool -a "+eth)
                 self.add_cmd_output("/sbin/ethtool -c "+eth)
                 self.add_cmd_output("/sbin/ethtool -g "+eth)
-                self.addCmdOutput("/sbin/ethtool -g "+eth)
+                self.add_cmd_output("/sbin/ethtool -g "+eth)
 
         if os.path.exists("/usr/sbin/brctl"):
             brctl_file=self.add_cmd_output("/usr/sbin/brctl show")
