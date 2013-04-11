@@ -32,8 +32,8 @@ class RedHatMysql(Mysql, RedHatPlugin):
     packages = ('mysql-server', 'mysql')
 
     def setup(self):
-        self.add_copy_specs([
         super(RedHatMysql, self).setup()
+        self.add_copy_specs([
             "/etc/my.cnf",
             "/etc/sysconfig/network",
             "/etc/ld.so.conf.d/mysql*",
@@ -48,7 +48,7 @@ class DebianMysql(mysql, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianMysql, self).setup()
-        self.addCopySpecs([
+        self.add_copy_specs([
             "/etc/mysql/my.cnf",
             "/etc/mysql/conf.d/mysql*",
             "/var/log/mysql*"])
