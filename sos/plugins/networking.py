@@ -22,6 +22,7 @@ class Networking(Plugin):
     plugin_name = "networking"
     
     def setup(self):
+        super(Networking, self).setup()
 
     def get_bridge_name(self,brctl_out):
         """Return a list for which items are bridge name according to the
