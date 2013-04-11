@@ -1,12 +1,6 @@
-sosreport (2.3-2) unstable; urgency=low
+sosreport (2.3+git20130411-1) unstable; urgency=low
 
   * Package updated from git rev 1baf743
     Closes: #698329
 
- -- Adam Stokes <adam.stokes@ubuntu.com>  Thu, 11 Apr 2013 11:16:37 -0400
-
-sos (2.3) unstable; urgency=low
-
-  * Initial release.
-
- -- Adam Stokes <adam.stokes@canonical.com>  Mon, 20 Feb 2012 16:41:39 +0000
+ -- Adam Stokes <adam.stokes@ubuntu.com>  Thu, 11 Apr 2013 20:55:56 -0400
