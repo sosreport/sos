@@ -1,14 +1,15 @@
-Source: sos
-Maintainer: Adam Stokes <adam.stokes@canonical.com>
+Source: sosreport
+Maintainer: Adam Stokes <adam.stokes@ubuntu.com>
 Section: python
 Priority: optional
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 8), python-support, python (>=2.7), gettext
+Homepage: https://github.com/sosreport/sosreport
 
-Package: sos
+Package: sosreport
 Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}, python-selinux
-Description: A set of tools to gather troubleshooting information from a system
+Description: Set of tools to gather troubleshooting data from a system
  Sos is a set of tools that gathers information about system
  hardware and configuration. The information can then be used for
  diagnostic purposes and debugging. Sos is commonly used to help
