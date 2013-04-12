@@ -24,7 +24,7 @@ class Pam(Plugin):
         self.add_copy_spec("/etc/pam.d")
         self.add_copy_spec("/etc/security")
 
-class RedHatPam(pam, RedHatPlugin):
+class RedHatPam(Pam, RedHatPlugin):
     """PAM related information for RedHat based distribution
     """
     def setup(self):
@@ -32,7 +32,7 @@ class RedHatPam(pam, RedHatPlugin):
 
         self.add_cmd_output("/bin/ls -lanF /lib*/security")
 
-class DebianPam(pam, DebianPlugin, UbuntuPlugin):
+class DebianPam(Pam, DebianPlugin, UbuntuPlugin):
     """PAM related information for Debian based distribution
     """
     def setup(self):

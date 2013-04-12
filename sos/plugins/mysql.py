@@ -22,7 +22,7 @@ class Mysql(Plugin):
     plugin_name = "mysql"
 
     def setup(self):
-        super(mysql, self).setup()
+        super(Mysql, self).setup()
 
 class RedHatMysql(Mysql, RedHatPlugin):
     """MySQL related information for RedHat based distributions
@@ -39,7 +39,7 @@ class RedHatMysql(Mysql, RedHatPlugin):
             "/etc/ld.so.conf.d/mysql*",
             "/var/log/mysql*"])
 
-class DebianMysql(mysql, DebianPlugin, UbuntuPlugin):
+class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
     """MySQL related information for Debian based distributions
     """
 
