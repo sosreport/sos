@@ -14,15 +14,33 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from os.path import exists
 
-class snmp(Plugin, RedHatPlugin):
+class Snmp(Plugin):
     """snmp related information
     """
+    plugin_name = "snmp"
 
     files = ('/etc/snmp/snmpd.conf',)
-    packages = ('net-snmp',)
 
     def setup(self):
         self.add_copy_spec("/etc/snmp")
+
+class RedHatSnmp(Snmp, RedHatPlugin):
+    """snmp related information for RedHat based distributions
+    """
+
+    packages = ('net-snmp',)
+
+    def setup(self):
+        super(RedHatSnmp, self).setup()
+
+class DebianSnmp(Snmp, DebianPlugin, UbuntuPlugin):
+    """snmp related information for Debian based distributions
+    """
+
+    packages = ('snmp',)
+
+    def setup(self):
+        super(DebianSnmp, self).setup()

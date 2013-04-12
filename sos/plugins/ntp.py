@@ -23,7 +23,6 @@ class Ntp(Plugin):
     packages = ('ntp',)
 
     def setup(self):
-        super(Ntp, self).setup()
         self.add_cmd_output("/usr/sbin/ntptime")
 
 class RedHatNtp(Ntp, RedHatPlugin):
