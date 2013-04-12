@@ -12,14 +12,34 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class ntp(Plugin, RedHatPlugin):
+class Ntp(Plugin):
     """NTP related information
     """
+
+    plugin_name = "ntp"
 
     packages = ('ntp',)
 
     def setup(self):
-        self.add_cmd_output("/usr/bin/ntpstat")
+        super(Ntp, self).setup()
         self.add_cmd_output("/usr/sbin/ntptime")
+
+class RedHatNtp(Ntp, RedHatPlugin):
+    """NTP related information for RedHat based distributions
+    """
+
+    def setup(self):
+        super(RedHatNtp, self).setup()
+        self.add_cmd_output("/usr/bin/ntpstat")
+
+class DebianNtp(Ntp, DebianPlugin, UbuntuPlugin):
+    """NTP related information for Debian based distributions
+    """
+
+    def setup(self):
+        super(DebianNtp, self).setup()
+        self.add_copy_spec('/etc/default/ntp')
+
+
