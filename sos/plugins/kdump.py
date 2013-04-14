@@ -13,7 +13,6 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-from os.path import exists
 
 class kdump(Plugin):
     """Kdump related information

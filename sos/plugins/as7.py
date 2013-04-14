@@ -1,9 +1,7 @@
 import os
-import sys
 import re
 import zipfile
 import urllib2
-import tempfile
 from xml.etree import ElementTree
 from itertools import chain
 
