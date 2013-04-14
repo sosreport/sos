@@ -1,11 +1,8 @@
 import os
 import zipfile
 import platform
-import fnmatch
 import shlex
 import subprocess
-import string
-import grp, pwd
 
 from sos.plugins import Plugin, RedHatPlugin
 from sos.utilities import DirTree, find
