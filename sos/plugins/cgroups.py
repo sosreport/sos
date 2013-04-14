@@ -39,5 +39,4 @@ class RedHatCgroups(Cgroups, RedHatPlugin):
                            "/etc/cgsnapshot_blacklist.conf",
                            "/etc/cgconfig.conf",
                            "/etc/cgrules.conf"])
-        cgroups.setup(self)
 

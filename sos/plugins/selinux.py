@@ -31,7 +31,7 @@ class selinux(Plugin, RedHatPlugin):
         # Check for SELinux denials and capture raw output from sealert
         if self.policy().default_runlevel() in self.policy().runlevel_by_service("setroubleshoot"):
             # TODO: fixup regex for more precise matching
-            sealert=do_regex_find_all(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
+            sealert=do_regex_findall(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
             if sealert:
                 for i in sealert:
                     self.add_cmd_output("%s" % i)

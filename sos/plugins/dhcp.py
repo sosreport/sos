@@ -14,20 +14,20 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
-class dhcp(Plugin):
+class Dhcp(Plugin):
     """DHCP related information
     """
 
     plugin_name = "dhcp"
 
-class RedHatDhcp(dhcp, RedHatPlugin):
+class RedHatDhcp(Dhcp, RedHatPlugin):
     """DHCP related information for Red Hat based distributions"""
 
     files = ('/etc/rc.d/init.d/dhcpd',)
     packages = ('dhcp',)
 
     def setup(self):
-        super(DhcpRedHat, self).setup()
+        super(RedHatDhcp, self).setup()
         self.add_copy_specs([
             "/etc/dhcpd.conf",
             "/etc/dhcp"])
@@ -39,7 +39,7 @@ class UbuntuDhcp(dhcp, UbuntuPlugin):
     packages = ('udhcpd',)
 
     def setup(self):
-        super(DhcpDebian, self).setup()
+        super(DebianDhcp, self).setup()
         self.add_copy_specs([
             "/etc/default/udhcpd",
             "/etc/udhcpd.conf"
