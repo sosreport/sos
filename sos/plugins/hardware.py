@@ -49,11 +49,11 @@ class hardware(Plugin):
 
         self.add_cmd_output("dmidecode", root_symlink = "dmidecode")
 
-	if os.path.exists("cpufreq-info"):
-	        self.add_cmd_output("cpufreq-info")
-	if os.path.exists("cpupower"):
-		self.add_cmd_output("cpupower info")
-		self.add_cmd_output("cpupower frequency-info")
+        if os.path.exists("cpufreq-info"):
+                self.add_cmd_output("cpufreq-info")
+        if os.path.exists("cpupower"):
+                self.add_cmd_output("cpupower info")
+                self.add_cmd_output("cpupower frequency-info")
 
         if self.policy().get_arch().endswith("386"):
             self.add_cmd_output("x86info -a")
@@ -78,7 +78,7 @@ class RedHatHardware(hardware, RedHatPlugin):
     def setup(self):
         super(RedHatHardware, self).setup()
         hwpaths = glob("/usr/share/rhn/up2date*client/hardware.py")
-	if (len(hwpaths) == 0):
+        if (len(hwpaths) == 0):
             return
         self.add_cmd_output(hwpaths[0])
 

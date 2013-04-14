@@ -3,11 +3,8 @@
 DH_ALWAYS_EXCLUDE=.git
 
 %:
-	dh $@
-	
-override_dh_pysupport:
-	dh_python2 -p sos
-override_dh_fixperms:
-	dh_fixperms -Xsos
-override_dh_auto_test:
-	
+	dh $@ --with python2
+
+override_dh_auto_install:
+	dh_auto_install
+	rm -f $(CURDIR)/debian/sosreport/usr/share/sos/LICENSE
