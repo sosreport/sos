@@ -7,13 +7,13 @@ class DebianPolicy(LinuxPolicy):
     distro = "Debian"
     vendor = "the Debian project"
     vendor_url = "http://www.debian.org/"
-    report_name = ""
-    ticket_number = ""
-    package_manager = PackageManager("dpkg-query -W -f='${Package}|${Version}\\n' \*")
-    valid_subclasses = [DebianPlugin]
 
     def __init__(self):
         super(DebianPolicy, self).__init__()
+        self.report_name = ""
+        self.ticket_number = ""
+        self.package_manager = PackageManager("dpkg-query -W -f='${Package}|${Version}\\n' \*")
+        self.valid_subclasses = [DebianPlugin]
 
     @classmethod
     def check(self):
