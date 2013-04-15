@@ -27,7 +27,10 @@ class named(Plugin, RedHatPlugin):
         """ grab directory path from named{conf,boot}
         """
         directory_list = self.do_regex_find_all("directory\s+\"(.*)\"", config_file)
-        return normpath(directory_list[0])
+        if directory_list:
+            return normpath(directory_list[0])
+        else:
+            return ""
 
     def setup(self):
         config_files = ("/etc/named.conf",
