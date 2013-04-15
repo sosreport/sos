@@ -12,9 +12,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class psacct(Plugin, RedHatPlugin):
+class Psacct(Plugin):
     """Process accounting related information
     """
 
@@ -23,7 +23,29 @@ class psacct(Plugin, RedHatPlugin):
 
     packages = [ "psacct" ]
 
+
+class RedHatPsacct(Psacct, RedHatPlugin):
+    """Process accounting related information for RedHat based distributions
+    """
+    plugin_name = "psacct"
+
+    packages = [ "psacct" ]
+
     def setup(self):
+        super(RedHatPsacct, slef).setup()
         self.add_copy_spec("/var/account/pacct")
         if self.get_option("all"):
             self.add_copy_spec("/var/account/pacct*.gz")
+
+class DebianPsacct(Psacct, DebianPlugin, UbuntuPlugin):
+    """Process accounting related information for Debian based distributions
+    """
+
+    plugin_name = "acct"
+    packages = [ "acct" ]
+
+    def setup(self):
+        super(DebianPsacct, slef).setup()
+        self.add_copy_specs(["/var/log/account/pacct", "/etc/default/acct"])
+        if self.get_option("all"):
+            self.add_copy_spec("/var/log/account/pacct*.gz")
