@@ -35,8 +35,6 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 self.add_cmd_output("modinfo " + runcmd)
 
         self.add_cmd_output("sysctl -a")
-        if os.path.isfile("ksyms"):
-            self.add_cmd_output("ksyms")
         self.add_copy_specs([
             "/proc/sys/kernel/random/boot_id",
             "/sys/module/*/parameters",
