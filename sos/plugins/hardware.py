@@ -49,23 +49,16 @@ class hardware(Plugin):
 
         self.add_cmd_output("dmidecode", root_symlink = "dmidecode")
 
-	if os.path.exists("cpufreq-info"):
-	        self.add_cmd_output("cpufreq-info")
-	if os.path.exists("cpupower"):
-		self.add_cmd_output("cpupower info")
-		self.add_cmd_output("cpupower frequency-info")
+	self.add_cmd_output("cpufreq-info")
+    	self.add_cmd_output("cpupower info")
+	self.add_cmd_output("cpupower frequency-info")
 
         if self.policy().get_arch().endswith("386"):
             self.add_cmd_output("x86info -a")
 
-        if os.path.exists("lsusb"):
-            lsusb_path = "lsusb"
-        else:
-            lsusb_path = "lsusb"
-
-        self.add_cmd_output("%s"% lsusb_path)
-        self.add_cmd_output("%s -v"% lsusb_path)
-        self.add_cmd_output("%s -t"% lsusb_path)
+        self.add_cmd_output("lsusb")
+        self.add_cmd_output("lsusb -v")
+        self.add_cmd_output("lsusb -t")
 
         self.add_cmd_output("lshal")
         self.add_cmd_output("systool -c fc_host -v")
