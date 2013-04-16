@@ -52,7 +52,7 @@ class General(Plugin):
         self.add_cmd_output("dmesg")
         self.add_cmd_output("alternatives --display java",
                                 root_symlink="java")
-        self.add_cmd_output("readlink -f /usrjava")
+        self.add_cmd_output("readlink -f /usr/bin/java")
         self.add_cmd_output("tree /var/lib")
         self.add_cmd_output("ls -lR /var/lib")
 
