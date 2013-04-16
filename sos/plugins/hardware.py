@@ -71,7 +71,7 @@ class RedHatHardware(hardware, RedHatPlugin):
     def setup(self):
         super(RedHatHardware, self).setup()
         hwpaths = glob("/usr/share/rhn/up2date*client/hardware.py")
-	if (len(hwpaths) == 0):
+        if (len(hwpaths) == 0):
             return
         self.add_cmd_output(hwpaths[0])
 
