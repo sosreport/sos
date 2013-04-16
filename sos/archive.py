@@ -28,6 +28,11 @@ import re
 from subprocess import Popen, PIPE, STDOUT
 
 try:
+    import selinux
+except ImportError:
+    pass
+
+try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO

@@ -5,6 +5,7 @@ import re
 import platform
 import time
 import fnmatch
+import sys
 from os import environ
 
 from sos.utilities import ImporterHelper, \

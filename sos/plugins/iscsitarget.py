@@ -17,30 +17,31 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class iscsitarget(Plugin):
+class Iscsitarget(Plugin):
     """iscsi-target related information
     """
 
     plugin_name = "iscsitarget"
 
-class RedHatIscsiTarget(Plugin, RedHatPlugin):
+class RedHatIscsiTarget(Iscsitarget, RedHatPlugin):
     """iscsi-target related information for Red Hat distributions
     """
 
     packages = ('scsi-target-utils',)
 
     def setup(self):
+        super(RedHatIscsiTarget, self).setup()
         self.add_copy_spec("/etc/tgt/targets.conf")
         self.add_cmd_output("tgtadm --lld iscsi --op show --mode target")
 
-class DebianIscsiTarget(iscsitarget, DebianPlugin, UbuntuPlugin):
+class DebianIscsiTarget(Iscsitarget, DebianPlugin, UbuntuPlugin):
     """iscsi-target related information for Debian based distributions
     """
 
     packages = ('iscsitarget',)
 
     def setup(self):
-        super(DebianIscsi, self).setup()
+        super(DebianIscsiTarget, self).setup()
         self.add_copy_specs([
             "/etc/iet",
             "/etc/sysctl.d/30-iscsitarget.conf",
