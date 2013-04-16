@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import time
 import os
 
-class process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """process information
     """
     def setup(self):
@@ -25,7 +25,3 @@ class process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("ps alxwww")
         self.add_cmd_output("pstree", root_symlink = "pstree")
         self.add_cmd_output("lsof -b +M -n -l", root_symlink = "lsof")
-
-    def find_mountpoint(s):
-        if (os.path.ismount(s) or len(s)==0): return s
-        else: return mountpoint(os.path.split(s)[0])
