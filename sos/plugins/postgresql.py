@@ -4,11 +4,13 @@ import shlex
 import subprocess
 import tempfile
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 from sos.utilities import find
 
-class postgresql(Plugin, RedHatPlugin):
+class PostgreSQL(Plugin):
     """PostgreSQL related information"""
+
+    plugin_name = "postgresql"
 
     packages = ('postgresql',)
 
@@ -44,6 +46,17 @@ class postgresql(Plugin, RedHatPlugin):
             else:
                 self.add_alert("WARN: password must be supplied to dump a database.")
 
+    def postproc(self):
+        import shutil
+        if self.tmp_dir:
+            shutil.rmtree(self.tmp_dir)
+
+class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
+    """PostgreSQL related information for Red Hat distributions"""
+
+    def setup(self):
+        super(RedHatPostgreSQL, self).setup()
+
         # Copy PostgreSQL log files.
         for file in find("*.log", self.get_option("pghome")):
             self.add_copy_spec(file)
@@ -54,8 +67,22 @@ class postgresql(Plugin, RedHatPlugin):
         self.add_copy_spec(os.path.join(self.get_option("pghome"), "data" , "PG_VERSION"))
         self.add_copy_spec(os.path.join(self.get_option("pghome"), "data" , "postmaster.opts"))
 
+class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
+    """PostgreSQL related information for Debian/Ubuntu distributions"""
 
-    def postproc(self):
-        import shutil
-        if self.tmp_dir:
-            shutil.rmtree(self.tmp_dir)
+    def setup(self):
+        super(DebianPostgreSQL, self).setup()
+
+        # Copy PostgreSQL log files.
+        self.add_copy_spec("/var/log/postgresql/*.log")
+        # Copy PostgreSQL config files.
+        self.add_copy_spec("/etc/postgresql/*/main/*.conf")
+
+        self.add_copy_spec("/var/lib/postgresql/*/main/PG_VERSION")
+        self.add_copy_spec("/var/lib/postgresql/*/main/postmaster.opts")
+
+
+
+
+
+
