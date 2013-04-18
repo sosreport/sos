@@ -12,14 +12,20 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import re
 
-class networking(Plugin, RedHatPlugin):
+class Networking(Plugin):
     """network related information
     """
-    option_list = [("traceroute", "collects a traceroute to rhn.redhat.com", "slow", False)]
+    plugin_name = "networking"
+    trace_host = "www.example.com"
+    option_list = [("traceroute", "collects a traceroute to %s" % trace_host,
+                        "slow", False)]
+    
+    def setup(self):
+        super(Networking, self).setup()
 
     def get_bridge_name(self,brctl_out):
         """Return a list for which items are bridge name according to the
@@ -69,7 +75,12 @@ class networking(Plugin, RedHatPlugin):
             "/etc/xinetd.conf",
             "/etc/xinetd.d",
             "/etc/host*",
-            "/etc/resolv.conf"])
+            "/etc/resolv.conf"
+	    "/etc/network*",
+	    "/etc/NetworkManager/NetworkManager.conf",
+	    "/etc/NetworkManager/system-connections",
+	    "/etc/dnsmasq*"])
+
         ip_addr_file=self.get_cmd_output_now("ip -o addr", root_symlink = "ip_addr")
         ip_addr_out=self.call_ext_prog("ip -o addr")
         self.add_cmd_output("route -n", root_symlink = "route")
@@ -96,8 +107,6 @@ class networking(Plugin, RedHatPlugin):
                 self.add_cmd_output("ethtool -a "+eth)
                 self.add_cmd_output("ethtool -c "+eth)
                 self.add_cmd_output("ethtool -g "+eth)
-        if self.get_option("traceroute"):
-            self.add_cmd_output("traceroute -n rhn.redhat.com")
 
         if os.path.exists("brctl"):
             brctl_file=self.add_cmd_output("brctl show")
@@ -105,5 +114,39 @@ class networking(Plugin, RedHatPlugin):
             if brctl_out:
                 for br_name in self.get_bridge_name(brctl_out):
                     self.add_cmd_output("brctl showstp "+br_name)
+
+        if self.get_option("traceroute"):
+            self.add_cmd_output("/bin/traceroute -n %s" % trace_host)
+
         return
+
+    def postproc(self):
+	for root, dirs, files in os.walk("/etc/NetworkManager/system-connections"):
+	    for net_conf in files:
+	        self.do_file_sub("/etc/NetworkManager/system-connections/"+net_conf, r"psk=(.*)",r"psk=***")
+
+class RedHatNetworking(Networking, RedHatPlugin):
+    """network related information for RedHat based distribution
+    """
+    trace_host = "rhn.redhat.com"
+    def setup(self):
+        super(RedHatNetworking, self).setup()
+
+class UbuntuNetworking(Networking, UbuntuPlugin):
+    """network related information for Ubuntu based distribution
+    """
+    trace_host = "archive.ubuntu.com"
+
+    def setup(self):
+        super(UbuntuNetworking, self).setup()
+
+        self.add_copy_specs([
+            "/etc/resolvconf",
+	    "/etc/ufw",
+	    "/var/log/ufw.Log",
+            "/etc/resolv.conf"])
+        self.add_cmd_output("/usr/sbin/ufw status")
+        self.add_cmd_output("/usr/sbin/ufw app list")
+        if self.get_option("traceroute"):
+            self.add_cmd_output("/usr/sbin/traceroute -n %s" % trace_host)
 

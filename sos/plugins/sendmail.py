@@ -14,14 +14,36 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from os.path import exists
 
-class sendmail(Plugin, RedHatPlugin):
+class Sendmail(Plugin):
     """sendmail information
+    """
+
+    plugin_name = "sendmail" 
+
+    packages = ('sendmail',)
+
+
+class RedHatSendmail(Sendmail, RedHatPlugin):
+    """sendmail information for RedHat based distributions
     """
 
     files = ('/etc/rc.d/init.d/sendmail',)
     packages = ('sendmail',)
 
     def setup(self):
+        super(RedHatSendmail, self).setup()
         self.add_copy_specs(["/etc/mail/*", "/var/log/maillog"])
+
+class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
+    """sendmail information for Debian based distributions
+    """
+
+    files = ('/etc/init.d/sendmail',)
+    packages = ('sendmail',)
+
+    def setup(self):
+        super(DebianSendmail, self).setup()
+        self.add_copy_specs(["/etc/mail/*", "/var/log/mail.*"])

@@ -16,6 +16,10 @@ class DebianPolicy(LinuxPolicy):
 
     def __init__(self):
         super(DebianPolicy, self).__init__()
+        self.report_name = ""
+        self.ticket_number = ""
+        self.package_manager = PackageManager("dpkg-query -W -f='${Package}|${Version}\\n' \*")
+        self.valid_subclasses = [DebianPlugin]
 
     @classmethod
     def check(self):

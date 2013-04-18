@@ -98,17 +98,15 @@ class DebianGeneral(General, DebianPlugin):
         self.add_copy_specs([
             "/etc/debian_version",
             "/etc/default",
-            "/var/log/up2date",
             "/etc/lsb-release"
         ])
-class UbuntuGeneral(General, UbuntuPlugin):
+class UbuntuGeneral(DebianGeneral, UbuntuPlugin):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
         super(UbuntuGeneral, self).setup()
         self.add_copy_specs([
             "/etc/os-release",
-            "/var/log/ufw.log",
 	    "/var/log/apport.log",
 	    "/var/log/syslog",
 	    "/var/log/udev",
@@ -122,4 +120,4 @@ class UbuntuGeneral(General, UbuntuPlugin):
 	    "/var/log/unattended-upgrades",
 	    "/var/log/upstart"
         ])
-        self.add_cmd_output("ufw app list",root_symlink="ufw")
+

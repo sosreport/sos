@@ -12,18 +12,42 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from os.path import exists
 
-class pxe(Plugin, RedHatPlugin):
+class Pxe(Plugin):
     """PXE related information
     """
 
-    option_list = [("tftpboot", 'gathers content in /tftpboot', 'slow', False)]
-    files = ('pxeos',)
+    option_list = [("tftpboot", 'gathers content from the tftpboot path',
+                        'slow', False)]
+    plugin_name = "pxe"
+
+
+class RedHatPxe(Pxe, RedHatPlugin):
+    """PXE related information for RedHat based distributions
+    """
+
+    files = ('/usr/sbin/pxeos',)
     packages = ('system-config-netboot-cmd',)
 
     def setup(self):
-        self.add_cmd_output("pxeos -l")
+        super(RedHatPxe, self).setup()
+        self.add_cmd_output("/usr/sbin/pxeos -l")
         self.add_copy_spec("/etc/dhcpd.conf")
         if self.get_option("tftpboot"):
             self.add_copy_spec("/tftpboot")
+
+
+class DebianPxe(Pxe, DebianPlugin, UbuntuPlugin):
+    """PXE related information for Ubuntu based distributions
+    """
+
+    packages = ('tftpd-hpa',)
+
+    def setup(self):
+        super(DebianPxe, self).setup()
+        self.add_copy_spec("/etc/dhcp/dhcpd.conf")
+        self.add_copy_spec("/etc/default/tftpd-hpa")
+        if self.get_option("tftpboot"):
+            self.add_copy_spec("/var/lib/tftpboot")

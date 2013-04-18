@@ -12,17 +12,34 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class samba(Plugin, RedHatPlugin):
+class Samba(Plugin):
     """Samba related information
     """
+    plugin_name = "samba"
+
     def setup(self):
         self.add_copy_specs([
             "/etc/samba",
-            "/var/log/samba/*",
-            "/etc/krb5.conf",
-            "/etc/krb5.keytab"])
+            "/var/log/samba/*",])
         self.add_cmd_output("wbinfo -g")
         self.add_cmd_output("wbinfo -u")
         self.add_cmd_output("testparm -s -v")
+
+
+class RedHatSamba(Samba, RedHatPlugin):
+    """Samba related information for RedHat based distributions
+    """
+    def setup(self):
+        super(RedHatSamba, self).setup()
+        # FIXME: krb5 specific
+        self.add_copy_specs([
+            "/etc/krb5.conf",
+            "/etc/krb5.keytab"])
+
+class DebianSamba(Samba, DebianPlugin, UbuntuPlugin):
+    """Samba related information for Debian based distributions
+    """
+    def setup(self):
+        super(DebianSamba, self).setup()

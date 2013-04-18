@@ -12,13 +12,32 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class dovecot(Plugin, RedHatPlugin):
+class Dovecot(Plugin):
     """dovecot server related information
     """
+
+    plugin_name = "dovecot"
+
     def setup(self):
-        if os.path.exists("/etc/dovecot.conf"):
-            self.add_copy_spec("/etc/dovecot*")
-            self.add_cmd_output("dovecot -n")
+        self.add_copy_spec("/etc/dovecot*")
+        self.add_cmd_output("dovecot -n")
+
+class RedHatDovecot(Dovecot, RedHatPlugin):
+    """dovecot server related information for RedHat based distribution
+    """
+    def setup(self):
+        super(RedHatDovecot, self).setup()
+
+    packages = ('dovecot', )
+    files = ('/etc/dovecot.conf',)
+
+class DebianDovecot(Dovecot, DebianPlugin, UbuntuPlugin):
+    """dovecot server related information for Debian based distribution
+    """
+    def setup(self):
+        super(DebianDovecot, self).setup()
+
+    files = ('/etc/dovecot/README',)

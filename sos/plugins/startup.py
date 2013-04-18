@@ -12,17 +12,37 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class startup(Plugin, RedHatPlugin):
+class Startup(Plugin):
     """startup information
     """
 
+    plugin_name = "startup"
+
     option_list = [("servicestatus", "get a status of all running services", "slow", False)]
     def setup(self):
-        self.add_copy_spec("/etc/rc.d")
-
-        self.add_cmd_output("chkconfig --list", root_symlink = "chkconfig")
         if self.get_option('servicestatus'):
-            self.add_cmd_output("service --status-all")
-        self.add_cmd_output("runlevel")
+            self.add_cmd_output("/sbin/service --status-all")
+        self.add_cmd_output("/sbin/runlevel")
+
+class RedHatStartup(Startup, RedHatPlugin):
+    """startup information for RedHat based distributions
+    """
+
+    def setup(self):
+        super(RedHatStartup, self).setup()
+        self.add_copy_spec("/etc/rc.d")
+        self.add_cmd_output("/sbin/chkconfig --list", root_symlink = "chkconfig")
+
+class DebianStartup(Startup, DebianPlugin, UbuntuPlugin):
+    """startup information
+    """
+
+    def setup(self):
+        super(DebianStartup, self).setup()
+        self.add_copy_spec("/etc/rc*.d")
+
+        self.add_cmd_output("/sbin/initctl show-config", root_symlink = "initctl")
+        if self.get_option('servicestatus'):
+            self.add_cmd_output("/sbin/initctl list")

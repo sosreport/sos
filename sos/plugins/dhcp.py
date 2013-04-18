@@ -32,7 +32,7 @@ class RedHatDhcp(Dhcp, RedHatPlugin):
             "/etc/dhcpd.conf",
             "/etc/dhcp"])
 
-class UbuntuDhcp(dhcp, UbuntuPlugin):
+class UbuntuDhcp(Dhcp, UbuntuPlugin):
     """DHCP related information for Debian based distributions"""
 
     files = ('/etc/init.d/udhcpd',)

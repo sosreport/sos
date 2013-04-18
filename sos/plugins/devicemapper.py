@@ -19,8 +19,8 @@ class devicemapper(Plugin, RedHatPlugin):
     """device-mapper related information (dm, lvm, multipath)
     """
 
-    option_list = [("lvmdump", 'collect raw metadata from PVs', 'slow', False)]
-    option_list = [("lvmdump-a", 'use the -a option of lvmdump (requires the "lvmdump" option)', 'slow', False)]
+    option_list = [("lvmdump", 'collect raw metadata from PVs', 'slow', False),
+                  ("lvmdump-a", 'use the -a option of lvmdump (requires the "lvmdump" option)', 'slow', False)]
     dmraid_options = ['V','b','r','s','tay','rD']
 
     def do_lvmdump(self):
