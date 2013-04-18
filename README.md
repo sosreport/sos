@@ -36,5 +36,5 @@ Debian/Ubuntu users can install via PPA:
 ```
 sudo add-apt-repository ppa:debugmonkeys/sosreport
 sudo apt-get update
-sudo apt-get install sos
+sudo apt-get install sosreport
 ```
