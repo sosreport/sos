@@ -23,21 +23,16 @@ class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     sarcmd='sar'
     files = (sapath, sarcmd)
 
-    def setup(self):
+    def check_enabled(self):
         # check to see if we are force-enabled with no sar installation
         if not os.path.exists(self.sapath) or not os.path.isdir(self.sapath):
             self.soslog.error(
                     "sar directory %s does not exist or is not a directory"
                     % self.sapath)
-            return
+            return False
+        return True
 
-        if not os.path.exists(self.sarcmd) \
-                or not os.access(self.sarcmd, os.X_OK):
-            self.soslog.error(
-                    "sar command %s does not exist or is not runnable"
-                    % self.sarcmd)
-            return
-
+    def setup(self):
         # catch exceptions here to avoid races
         try:
             dir_list=os.listdir(self.sapath)
