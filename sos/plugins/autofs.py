@@ -15,7 +15,6 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
-import os, re
 
 class Autofs(Plugin):
     """autofs server-related information

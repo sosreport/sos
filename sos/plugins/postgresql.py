@@ -1,7 +1,4 @@
 import os
-import fnmatch
-import shlex
-import subprocess
 import tempfile
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin

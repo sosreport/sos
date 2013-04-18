@@ -15,7 +15,6 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-
 class Soundcard(Plugin):
     """ Sound card information
     """

@@ -14,7 +14,6 @@
 
 
 from sos.plugins import Plugin, RedHatPlugin
-import os
 
 class lsbrelease(Plugin, RedHatPlugin):
     """Linux Standard Base information

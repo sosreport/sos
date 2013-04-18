@@ -26,15 +26,10 @@
 from __future__ import with_statement
 
 from sos.utilities import sos_get_command_output, import_module, grep, fileobj, tail
-from sos import _sos as _
-import inspect
 import os
-import sys
-import string
 import glob
 import re
 import traceback
-import shutil
 from stat import *
 from time import time
 from itertools import *
