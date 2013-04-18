@@ -25,4 +25,4 @@ class auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_specs(["/etc/audit/auditd.conf",
                             "/etc/audit/audit.rules"])
         self.add_copy_spec_limit("/var/log/audit*",
-                sizelimit = self.get_option("syslogsize"))
+                sizelimit = self.get_option("logsize"))
