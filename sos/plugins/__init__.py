@@ -133,8 +133,6 @@ class Plugin(object):
         self.copy_strings = []
         self.collect_cmds = []
 
-        self.must_exit = False
-
         self.soslog = self.commons['soslog'] if self.commons.has_key('soslog') else logging.getLogger('sos')
         self.proflog = self.commons['proflog'] if self.commons.has_key('proflog') else logging.getLogger('sosprofile')
 
@@ -592,10 +590,6 @@ class Plugin(object):
             except Exception, e:
                 self.soslog.debug("error collecting output of '%s' (%s)"
                         % (prog, e))
-
-    def exit_please(self):
-        """ This function tells the plugin that it should exit ASAP"""
-        self.must_exit = True
 
     def get_description(self):
         """ This function will return the description for the plugin"""

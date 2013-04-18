@@ -285,15 +285,12 @@ class SoSReport(object):
         raise SystemExit()
 #        sys.exit(error)
 
-    def _exit_nice(self):
-        for plugname, plugin in self.loaded_plugins:
-            plugin.exit_please()
-        self.ui_log.info("All processes ended, cleaning up.")
+    def _exit(self):
         self._exit(1)
 
     def get_exit_handler(self):
         def exit_handler(signum, frame):
-            self._exit_nice()
+            self._exit()
         return exit_handler
 
     def _read_config(self):
