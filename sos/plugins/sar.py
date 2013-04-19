@@ -15,38 +15,27 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class sar(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Generate the sar file from /var/log/sa/saXX files
+class Sar(Plugin, RedHatPlugin):
+    """ Collect system activity reporter data
     """
 
-    sapath='/var/log/sa'
-    sarcmd='sar'
-    files = (sapath, sarcmd)
-
-    def check_enabled(self):
-        # check to see if we are force-enabled with no sar installation
-        if not os.path.exists(self.sapath) or not os.path.isdir(self.sapath):
-            self.soslog.error(
-                    "sar directory %s does not exist or is not a directory"
-                    % self.sapath)
-            return False
-        return True
+    packages = ('sysstat',)
+    sa_path = '/var/log/sa'
 
     def setup(self):
-        # catch exceptions here to avoid races
-        try:
-            dir_list=os.listdir(self.sapath)
-        except Exception, e:
-            self.soslog.error("sar path %s cannot be read: %s"
-                     % (self.sapath, e))
-            return
-
+        dirList = os.listdir(self.sa_path)
         # find all the sa file that don't have an existing sar file
-        for fname in dir_list:
+        for fname in dirList:
             if fname[0:2] == 'sa' and fname[2] != 'r':
                 sar_filename = 'sar' + fname[2:4]
-                if sar_filename not in dir_list:
-                    sar_command = "sh -c \"LANG=C sar " \
-                            + "-A -f /var/log/sa/" + fname + "\""
-                    self.add_cmd_output(sar_command, sar_filename)
-        self.add_copy_spec("/var/log/sa/sar*")
+                if sar_filename not in dirList:
+                    sar_path = os.path.join(self.sa_path, fname)
+                    sar_command = 'sh -c "LANG=C sar -A -f %s"' % sar_path
+                    self.collectOutputNow(sar_command, sar_filename,
+                                            root_symlink=sar_filename)
+
+class DebianSar(Sar, DebianPlugin, UbuntuPlugin):
+    """ Collect system activity reporter data
+    """
+    
+    sa_path = '/var/log/sysstat'
