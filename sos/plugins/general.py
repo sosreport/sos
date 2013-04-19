@@ -100,24 +100,26 @@ class DebianGeneral(General, DebianPlugin):
             "/etc/default",
             "/etc/lsb-release"
         ])
-class UbuntuGeneral(DebianGeneral, UbuntuPlugin):
+class UbuntuGeneral(General, UbuntuPlugin):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
         super(UbuntuGeneral, self).setup()
         self.add_copy_specs([
+            "/etc/default",
+            "/etc/lsb-release",
             "/etc/os-release",
-	    "/var/log/apport.log",
-	    "/var/log/syslog",
-	    "/var/log/udev",
-	    "/var/log/boot*",
-	    "/var/log/dmesg*",
-	    "/var/log/kern*",
-	    "/var/log/mail*",
-	    "/var/log/dist-upgrade",
-	    "/var/log/landscape",
-	    "/var/log/installer",
-	    "/var/log/unattended-upgrades",
-	    "/var/log/upstart"
+            "/var/log/apport.log",
+            "/var/log/syslog",
+            "/var/log/udev",
+            "/var/log/boot*",
+            "/var/log/dmesg*",
+            "/var/log/kern*",
+            "/var/log/mail*",
+            "/var/log/dist-upgrade",
+            "/var/log/landscape",
+            "/var/log/installer",
+            "/var/log/unattended-upgrades",
+            "/var/log/upstart"
         ])
 
