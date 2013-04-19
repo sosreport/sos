@@ -34,8 +34,8 @@ class Networking(Plugin):
         out=[]
         for line in brctl_out[1].splitlines():
             if line.startswith("bridge name") \
-		or line.isspace() \
-		or line[:1].isspace():
+               or line.isspace() \
+               or line[:1].isspace():
                 continue
             br_name, br_rest = line.split(None, 1)
             out.append(br_name)
@@ -76,10 +76,10 @@ class Networking(Plugin):
             "/etc/xinetd.d",
             "/etc/host*",
             "/etc/resolv.conf"
-	    "/etc/network*",
-	    "/etc/NetworkManager/NetworkManager.conf",
-	    "/etc/NetworkManager/system-connections",
-	    "/etc/dnsmasq*"])
+            "/etc/network*",
+            "/etc/NetworkManager/NetworkManager.conf",
+            "/etc/NetworkManager/system-connections",
+            "/etc/dnsmasq*"])
 
         ip_addr_file=self.get_cmd_output_now("ip -o addr", root_symlink = "ip_addr")
         ip_addr_out=self.call_ext_prog("ip -o addr")
@@ -121,9 +121,9 @@ class Networking(Plugin):
         return
 
     def postproc(self):
-	for root, dirs, files in os.walk("/etc/NetworkManager/system-connections"):
-	    for net_conf in files:
-	        self.do_file_sub("/etc/NetworkManager/system-connections/"+net_conf, r"psk=(.*)",r"psk=***")
+        for root, dirs, files in os.walk("/etc/NetworkManager/system-connections"):
+            for net_conf in files:
+                self.do_file_sub("/etc/NetworkManager/system-connections/"+net_conf, r"psk=(.*)",r"psk=***")
 
 class RedHatNetworking(Networking, RedHatPlugin):
     """network related information for RedHat based distribution
@@ -142,8 +142,8 @@ class UbuntuNetworking(Networking, UbuntuPlugin):
 
         self.add_copy_specs([
             "/etc/resolvconf",
-	    "/etc/ufw",
-	    "/var/log/ufw.Log",
+            "/etc/ufw",
+            "/var/log/ufw.Log",
             "/etc/resolv.conf"])
         self.add_cmd_output("/usr/sbin/ufw status")
         self.add_cmd_output("/usr/sbin/ufw app list")
