@@ -18,22 +18,20 @@ import os
 class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """kernel related information
     """
-    option_list = [("modinfo", 'gathers information on all kernel modules', 'fast', True)]
-    module_file = ""
+
+    sys_module = '/sys/module'
 
     def setup(self):
+        # compat
         self.add_cmd_output("uname -a", root_symlink = "uname")
-        self.module_file = self.get_cmd_output_now("lsmod", root_symlink = "lsmod")
+        self.add_cmd_output("lsmod", root_symlink = "lsmod")
 
-        if self.get_option('modinfo'):
-            runcmd = ""
-            ret, mods, rtime = self.call_ext_prog('lsmod | cut -f1 -d" " 2>/dev/null | grep -v Module 2>/dev/null')
-            for kmod in mods.split('\n'):
-                if '' != kmod.strip():
-                    runcmd = runcmd + " " + kmod
-            if len(runcmd):
-                self.add_cmd_output("modinfo " + runcmd)
-
+        try:
+            modules = os.listdir(sys_module)
+            self.add_cmd_output("modinfo " + " ".join(modules))
+        except OSError:
+            self.soslog.error("could not list %s" % sys_module)
+            
         self.add_cmd_output("sysctl -a")
         self.add_copy_specs([
             "/proc/sys/kernel/random/boot_id",
