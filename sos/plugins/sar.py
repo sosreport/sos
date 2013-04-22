@@ -18,10 +18,12 @@ import os
 class sar(sos.plugintools.PluginBase):
     """Generate the sar file from /var/log/sa/saXX files
     """
+
+    sa_path = "/var/log/sa"
+
     def setup(self):
-        path="/var/log/sa"
         try:
-            dirList=os.listdir(path)
+            dirList=os.listdir(self.sa_path)
         except:
             self.soslog.error("sar: could not list /var/log/sa")
             return
@@ -29,9 +31,12 @@ class sar(sos.plugintools.PluginBase):
         for fname in dirList:
             if fname[0:2] == 'sa' and fname[2] != 'r':
                 sar_filename = 'sar' + fname[2:4]
+                sa_data_path = os.path.join(self.sa_path, fname)
                 if sar_filename not in dirList:
                     sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar -A -f /var/log/sa/" + fname + "\""
                     self.collectOutputNow(sar_command, sar_filename, symlink=sar_filename)
+                sadf_cmd = "/usr/bin/sadf -x %s" % sa_data_path
+                self.collectExtOutput(sadf_cmd, "%s.xml" % fname)
         return
 
     def checkenabled(self):
