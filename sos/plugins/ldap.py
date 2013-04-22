@@ -61,6 +61,5 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianLdap, self).setup()
 
-    def setup(self):
         self.add_copy_specs(["/etc/ldap/ldap.conf", "/etc/ldap/slapd.d"])
 
