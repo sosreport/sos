@@ -27,10 +27,11 @@ class WindowsPolicy(Policy):
         is_windows = False
         try:
             from java.lang import System
-            is_windows = "win" in System.getProperty('os.name').lower()
+            os_name =  System.getProperty('os.name').lower()
         except:
-            is_windows = "win" in platform.system().lower()
-        return is_windows
+            os_name = platform.system().lower()
+
+        return "win" in os_name and "darwin" not in os_name
 
     def is_root(self):
         if "S-1-16-12288" in shell_out("whoami /groups"):
