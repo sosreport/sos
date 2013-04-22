@@ -15,12 +15,20 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class Sar(Plugin, RedHatPlugin):
+class Sar(Plugin,):
     """ Collect system activity reporter data
     """
 
     packages = ('sysstat',)
     sa_path = '/var/log/sa'
+
+    def check_enabled(self):
+        # check to see if we are force-enabled with no sar installation
+        if not os.path.exists(self.sa_path) or not os.path.isdir(self.sa_path):
+            self.soslog.info("sar directory %s does not exist" % self.sa_path
+                            + " or is not a directory")
+            return False
+        return True
 
     def setup(self):
         dirList = os.listdir(self.sa_path)
@@ -28,11 +36,21 @@ class Sar(Plugin, RedHatPlugin):
         for fname in dirList:
             if fname[0:2] == 'sa' and fname[2] != 'r':
                 sar_filename = 'sar' + fname[2:4]
+                sa_data_path = os.path.join(self.sa_path, fname)
                 if sar_filename not in dirList:
-                    sar_path = os.path.join(self.sa_path, fname)
-                    sar_command = 'sh -c "LANG=C sar -A -f %s"' % sar_path
-                    self.collectOutputNow(sar_command, sar_filename,
-                                            root_symlink=sar_filename)
+                    sar_cmd = 'sh -c "LANG=C sar -A -f %s"' % sa_data_path
+                    self.add_cmd_output(sar_cmd, sar_filename)
+                sadf_cmd = "sadf -x %s" % sa_data_path
+                self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
+        self.add_copy_spec(os.path.join(self.sa_path, "sar*"))
+
+
+class RedHatSar(Sar, RedHatPlugin):
+    """ Collect system activity reporter data
+    """
+
+    sa_path = '/var/log/sa'
+
 
 class DebianSar(Sar, DebianPlugin, UbuntuPlugin):
     """ Collect system activity reporter data
