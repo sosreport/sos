@@ -631,6 +631,9 @@ class SoSReport(object):
 
 
     def collect(self):
+        self.ui_log.info(_(" Running plugins. Please wait ..."))
+        self.ui_log.info("")
+
         plugruncount = 0
         for i in izip(self.loaded_plugins):
             plugruncount += 1
@@ -647,6 +650,8 @@ class SoSReport(object):
                     raise
                 else:
                     self._log_plugin_exception(plugname)
+        self.ui_log.info("")
+
 
     def report(self):
         for plugname, plug in self.loaded_plugins:
@@ -768,7 +773,11 @@ class SoSReport(object):
 
         self._finish_logging()
 
-        final_filename = self.archive.compress(self.opts.compression_type)
+        # compression could fail for a number of reasons
+        try:
+            final_filename = self.archive.compress(self.opts.compression_type)
+        except:
+            return False
 
         # automated submission will go here
         if not self.opts.upload:
@@ -778,12 +787,13 @@ class SoSReport(object):
 
         self.tempfile_util.clean()
 
-        return final_filename
+        return True
 
-    def ensure_plugins(self):
+    def verify_plugins(self):
         if not self.loaded_plugins:
             self.soslog.error(_("no valid plugins were enabled"))
-            self._exit(1)
+            return False
+        return True
 
     def parse_options(self, args):
         """ Parse command line options """
@@ -854,8 +864,10 @@ class SoSReport(object):
             option = self.parser.get_option(name)
             option.process(name, value, self.opts, self.parser)
 
+
     def set_global_plugin_option(self, key, value):
         self.global_plugin_options[key] = value;
+
 
     def execute(self):
         try:
@@ -869,31 +881,26 @@ class SoSReport(object):
 
             if self.opts.listPlugins:
                 self.list_plugins()
-                return
+                return True
 
-            self.ensure_plugins()
+            # verify that at least one plug-in is enabled
+            if not self.verify_plugins():
+                return False
+
             self.batch()
             self.prework()
             self.setup()
-
-            self.ui_log.info(_(" Running plugins. Please wait ..."))
-            self.ui_log.info("")
-
             self.collect()
-
-            self.ui_log.info("")
-
             if self.opts.report:
                 self.report()
                 self.html_report()
                 self.plain_report()
-
             self.postproc()
             self.version()
 
             return self.final_work()
         except SystemExit:
-            return None
+            return False
 
 def main(args):
     """The main entry point"""
