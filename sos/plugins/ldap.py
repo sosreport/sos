@@ -36,6 +36,10 @@ class Ldap(Plugin):
 
     def setup(self):
         super(Ldap, self).setup()
+        self.add_copy_spec("/etc/ldap.conf")
+
+    def postproc(self):
+        self.do_file_sub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
 
 class RedHatLdap(Ldap, RedHatPlugin):
     """LDAP related information for RedHat based distribution
@@ -45,10 +49,9 @@ class RedHatLdap(Ldap, RedHatPlugin):
 
     def setup(self):
         super(RedHatLdap, self).setup()
-        self.add_copy_specs(["/etc/ldap.conf", "/etc/openldap", "/etc/nslcd.conf"])
+        self.add_copy_specs(["/etc/openldap", "/etc/nslcd.conf"])
 
     def postproc(self):
-        self.do_file_sub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
         self.do_file_sub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
 
 class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
@@ -61,6 +64,19 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianLdap, self).setup()
 
-    def setup(self):
-        self.add_copy_specs(["/etc/ldap/ldap.conf", "/etc/ldap/slapd.d"])
+        ldap_search = "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// "
 
+        self.add_copy_specs(["/etc/ldap/ldap.conf", "/etc/slapd.conf", "/etc/ldap/slapd.d"])
+
+        self.add_cmd_output("ldapsearch -x -b '' -s base 'objectclass=*'")
+        self.add_cmd_output(ldap_search + "-b cn=config '(!(objectClass=olcSchemaConfig))'",
+            suggest_filename="configuration_minus_schemas")
+        self.add_cmd_output(ldap_search + "-b cn=schema,cn=config dn",
+            suggest_filename="loaded_schemas")
+        self.add_cmd_output(ldap_search + "-b cn=config '(olcAccess=*)' olcAccess olcSuffix",
+            suggest_filename="access_control_lists")
+
+    def postproc(self):
+        self.do_cmd_output_sub(
+        "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=config '(!(objectClass=olcSchemaConfig))'",
+            r"(olcRootPW\: \s*)\S+", r"\1***")
