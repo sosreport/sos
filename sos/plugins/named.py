@@ -47,7 +47,7 @@ class Named(Plugin):
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"
         subst = r"\1******"
-        self.do_file_sub(named_conf, match, subst)
+        self.do_file_sub(self.named_conf, match, subst)
 
 
 class RedHatNamed(Named, RedHatPlugin):
