@@ -60,10 +60,10 @@ class Landscape(Plugin, UbuntuPlugin):
     packages = ('landscape-client',)
 
     def setup(self):
-        self.addCopySpec("/etc/landscape/client.conf")
+        self.add_copy_spec("/etc/landscape/client.conf")
         
     def postproc(self):
-        self.doFileSub("/etc/landscape/client.conf", 
+        self.do_file_sub("/etc/landscape/client.conf", 
         r"registration_password(.*)", 
         r"registration_password[***]"
         )

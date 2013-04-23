@@ -116,7 +116,7 @@ class Networking(Plugin):
                     self.add_cmd_output("brctl showstp "+br_name)
 
         if self.get_option("traceroute"):
-            self.add_cmd_output("/bin/traceroute -n %s" % trace_host)
+            self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
 
         return
 
@@ -148,5 +148,5 @@ class UbuntuNetworking(Networking, UbuntuPlugin):
         self.add_cmd_output("/usr/sbin/ufw status")
         self.add_cmd_output("/usr/sbin/ufw app list")
         if self.get_option("traceroute"):
-            self.add_cmd_output("/usr/sbin/traceroute -n %s" % trace_host)
+            self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host)
 
