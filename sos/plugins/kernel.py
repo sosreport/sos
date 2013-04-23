@@ -27,10 +27,10 @@ class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("lsmod", root_symlink = "lsmod")
 
         try:
-            modules = os.listdir(sys_module)
+            modules = os.listdir(self.sys_module)
             self.add_cmd_output("modinfo " + " ".join(modules))
         except OSError:
-            self.soslog.error("could not list %s" % sys_module)
+            self.soslog.error("could not list %s" % self.sys_module)
             
         self.add_cmd_output("sysctl -a")
         self.add_copy_specs([
