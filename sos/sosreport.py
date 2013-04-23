@@ -800,7 +800,7 @@ class SoSReport(object):
 
         self.parser = parser = OptionParserExtended(option_class=SosOption)
         parser.add_option("-l", "--list-plugins", action="store_true",
-                             dest="listPlugins", default=False,
+                             dest="list_plugins", default=False,
                              help="list plugins and available plugin options")
         parser.add_option("-n", "--skip-plugins", action="extend",
                              dest="noplugins", type="string",
@@ -879,7 +879,7 @@ class SoSReport(object):
             self._check_for_unknown_plugins()
             self._set_plugin_options()
 
-            if self.opts.listPlugins:
+            if self.opts.list_plugins:
                 self.list_plugins()
                 return True
 
