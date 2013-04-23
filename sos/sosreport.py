@@ -195,6 +195,319 @@ class XmlReport(object):
         self.archive.add_file(outf.name, dest=fname)
         outf.close()
 
+class SoSOptions(object):
+    _list_plugins = False
+    _noplugins = []
+    _enableplugins = []
+    _onlyplugins = []
+    _plugopts = []
+    _usealloptions = False
+    _upload = False
+    _batch = False
+    _verbosity = 0
+    _quiet = False
+    _debug = False
+    _ticket_number = ""
+    _customer_name = ""
+    _config_file = ""
+    _tmp_dir = ""
+    _report = False
+    _profiler = False
+    _compression_type = 'auto'
+
+    _options = None
+
+    def __init__(self, args=None):
+        if args:
+            self._options = self._parse_args(args)
+        else:
+            self._options = None
+        
+    def _check_options_initialized(self):
+        if self._options != None:
+            raise ValueError("SoSOptions object already initialized "
+                             + "from command line")
+        
+    @property
+    def list_plugins(self):
+        if self._options != None:
+            return self._options.list_plugins
+        return self._list_plugins
+
+    @list_plugins.setter
+    def list_plugins(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.list_plugins expects a boolean")
+        self._list_plugins = value
+
+    @property
+    def noplugins(self):
+        if self._options != None:
+            return self._options.noplugins
+        return self._noplugins
+
+    @noplugins.setter
+    def noplugins(self, value):
+        self._check_options_initialized()
+        self._noplugins = value
+
+    @property
+    def enableplugins(self):
+        if self._options != None:
+            return self._options.enableplugins
+        return self._enableplugins
+
+    @enableplugins.setter
+    def enableplugins(self):
+        self._check_options_initialized()
+        self._enableplugins = value
+
+    @property
+    def onlyplugins(self):
+        if self._options != None:
+            return self._options.onlyplugins
+        return self._onlyplugins
+
+    @onlyplugins.setter
+    def onlyplugins(self, value):
+        self._check_options_initialized()
+        self._onlyplugins = value
+
+    @property
+    def plugopts(self):
+        if self._options != None:
+            return self._options.plugopts
+        return self._plugopts
+
+    @plugopts.setter
+    def plugopts(self, value):
+        # If we check for anything it should be itterability.
+        #if not isinstance(value, list):
+        #    raise TypeError("SoSOptions.plugopts expects a list")
+        self._plugopts = value
+
+    @property
+    def usealloptions(self):
+        if self._options != None:
+            return _options.usealloptions
+        return self._usealloptions
+
+    @usealloptions.setter
+    def usealloptions(self, value):
+        self._check_options_initialized()
+        if not isinsance(value, bool):
+            raise TypeError("SoSOptions.usealloptions expects a boolean")
+        self._usealloptions = value
+
+    @property
+    def upload(self):
+        if self._options != None:
+            return self._options.upload
+        return self._upload
+
+    @upload.setter
+    def upload(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.upload expects a boolean")
+        self._upload = value
+
+    @property
+    def batch(self):
+        if self._options != None:
+            return self._options.batch
+        return self._batch
+
+    @batch.setter
+    def batch(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.batch expects a boolean")
+        self._batch = value
+
+    @property
+    def verbosity(self):
+        if self._options != None:
+            return self._options.verbosity
+        return self._verbosity
+
+    @verbosity.setter
+    def verbosity(self, value):
+        self._check_options_initialized()
+        if value < 0 or value > 3:
+            raise ValueError("SoSOptions.verbosity expects a value [0..3]")
+        self._verbosity = value
+
+    @property
+    def quiet(self):
+        if self._options != None:
+            return self._options.quiet
+        return self._quiet
+
+    @quiet.setter
+    def quiet(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.quiet expects a boolean")
+        self._quiet = value
+        
+    @property
+    def debug(self):
+        if self._options != None:
+            return self._options.debug
+        return self._debug
+
+    @debug.setter
+    def debug(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.debug expects a boolean")
+        self._debug = value
+
+    @property
+    def ticket_number(self):
+        if self._options != None:
+            return self._options.ticket_number
+        return self._ticket_number
+
+    @ticket_number.setter
+    def ticket_number(self, value):
+        self._check_options_initialized()
+        self._ticket_number = value
+
+    @property
+    def customer_name(self):
+        if self._options != None:
+            return self._options.customer_name
+        return self._customer_name
+
+    @customer_name.setter
+    def customer_name(self, value):
+        self._check_options_initialized()
+        self._customer_name = value
+
+    @property
+    def config_file(self):
+        if self._options != None:
+            return self._options.config_file
+        return self._config_file
+
+    @config_file.setter
+    def config_file(self, value):
+        self._check_options_initialized()
+        self._config_file = value
+
+    @property
+    def tmp_dir(self):
+        if self._options != None:
+            return self._options.tmp_dir
+        return self._tmp_dir
+
+    @tmp_dir.setter
+    def tmp_dir(self, value):
+        self._check_options_initialized()
+        self._tmp_dir = value
+
+    @property
+    def report(self):
+        if self._options != None:
+            return self._options.report
+        return self._report
+
+    @report.setter
+    def report(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.report expects a boolean")
+        self._report = value
+
+    @property
+    def profiler(self):
+        if self._options != None:
+            return self._options.profiler
+        return self._profiler
+
+    @profiler.setter
+    def profiler(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.profiler expects a boolean")
+        self._profiler = value
+
+    @property
+    def compression_type(self):
+        if self._options != None:
+            return self._options.compression_type
+        return self._compression_type
+
+    @compression_type.setter
+    def compression_type(self, value):
+        self._check_options_initialized()
+        self._compression_type = value
+
+
+    def _parse_args(self, args):
+        """ Parse command line options and arguments"""
+
+        self.parser = parser = OptionParserExtended(option_class=SosOption)
+        parser.add_option("-l", "--list-plugins", action="store_true",
+                             dest="list_plugins", default=False,
+                             help="list plugins and available plugin options")
+        parser.add_option("-n", "--skip-plugins", action="extend",
+                             dest="noplugins", type="string",
+                             help="disable these plugins", default = deque())
+        parser.add_option("-e", "--enable-plugins", action="extend",
+                             dest="enableplugins", type="string",
+                             help="enable these plugins", default = deque())
+        parser.add_option("-o", "--only-plugins", action="extend",
+                             dest="onlyplugins", type="string",
+                             help="enable these plugins only", default = deque())
+        parser.add_option("-k", "--plugin-option", action="append",
+                             dest="plugopts", type="string",
+                             help="plugin options in plugname.option=value format (see -l)")
+        parser.add_option("-a", "--alloptions", action="store_true",
+                             dest="usealloptions", default=False,
+                             help="enable all options for loaded plugins")
+        parser.add_option("-u", "--upload", action="store",
+                             dest="upload", default=False,
+                             help="upload the report to an ftp server")
+        parser.add_option("--batch", action="store_true",
+                             dest="batch", default=False,
+                             help="batch mode - do not prompt interactively")
+        parser.add_option("-v", "--verbose", action="count",
+                             dest="verbosity",
+                             help="increase verbosity")
+        parser.add_option("", "--quiet", action="store_true",
+                             dest="quiet", default=False,
+                             help="only print fatal errors")
+        parser.add_option("--debug", action="count",
+                             dest="debug",
+                             help="enable interactive debugging using the python debugger")
+        parser.add_option("--ticket-number", action="store",
+                             dest="ticket_number",
+                             help="specify ticket number")
+        parser.add_option("--name", action="store",
+                             dest="customer_name",
+                             help="specify report name")
+        parser.add_option("--config-file", action="store",
+                             dest="config_file",
+                             help="specify alternate configuration file")
+        parser.add_option("--tmp-dir", action="store",
+                             dest="tmp_dir",
+                             help="specify alternate temporary directory", default=tempfile.gettempdir())
+        parser.add_option("--report", action="store_true",
+                             dest="report",
+                             help="Enable HTML/XML reporting", default=False)
+        parser.add_option("--profile", action="store_true",
+                             dest="profiler",
+                             help="turn on profiling", default=False)
+        parser.add_option("-z", "--compression-type", dest="compression_type",
+                            help="compression technology to use [auto, zip, gzip, bzip2, xz] (default=auto)",
+                            default="auto")
+
+        return parser.parse_args(args)[0]
+
 
 class SoSReport(object):
 
@@ -212,7 +525,8 @@ class SoSReport(object):
             pass # not available in java, but we don't care
 
 
-        self.opts = self.parse_options(args)[0]
+        #self.opts = self.parse_options(args)[0]
+        self.opts = SoSOptions(args)
         self.tempfile_util = TempFileUtil(tmp_dir=self.opts.tmp_dir)
         self._set_debug()
         self._read_config()
@@ -789,80 +1103,12 @@ class SoSReport(object):
 
         return True
 
+
     def verify_plugins(self):
         if not self.loaded_plugins:
             self.soslog.error(_("no valid plugins were enabled"))
             return False
         return True
-
-    def parse_options(self, args):
-        """ Parse command line options """
-
-        self.parser = parser = OptionParserExtended(option_class=SosOption)
-        parser.add_option("-l", "--list-plugins", action="store_true",
-                             dest="list_plugins", default=False,
-                             help="list plugins and available plugin options")
-        parser.add_option("-n", "--skip-plugins", action="extend",
-                             dest="noplugins", type="string",
-                             help="disable these plugins", default = deque())
-        parser.add_option("-e", "--enable-plugins", action="extend",
-                             dest="enableplugins", type="string",
-                             help="enable these plugins", default = deque())
-        parser.add_option("-o", "--only-plugins", action="extend",
-                             dest="onlyplugins", type="string",
-                             help="enable these plugins only", default = deque())
-        parser.add_option("-k", "--plugin-option", action="append",
-                             dest="plugopts", type="string",
-                             help="plugin options in plugname.option=value format (see -l)")
-        parser.add_option("-a", "--alloptions", action="store_true",
-                             dest="usealloptions", default=False,
-                             help="enable all options for loaded plugins")
-        parser.add_option("-u", "--upload", action="store",
-                             dest="upload", default=False,
-                             help="upload the report to an ftp server")
-        parser.add_option("--batch", action="store_true",
-                             dest="batch", default=False,
-                             help="batch mode - do not prompt interactively")
-        parser.add_option("-v", "--verbose", action="count",
-                             dest="verbosity",
-                             help="increase verbosity")
-        parser.add_option("", "--quiet", action="store_true",
-                             dest="quiet", default=False,
-                             help="only print fatal errors")
-        parser.add_option("--debug", action="count",
-                             dest="debug",
-                             help="enable interactive debugging using the python debugger")
-        parser.add_option("--ticket-number", action="store",
-                             dest="ticket_number",
-                             help="specify ticket number")
-        parser.add_option("--name", action="store",
-                             dest="customer_name",
-                             help="specify report name")
-        parser.add_option("--config-file", action="store",
-                             dest="config_file",
-                             help="specify alternate configuration file")
-        parser.add_option("--tmp-dir", action="store",
-                             dest="tmp_dir",
-                             help="specify alternate temporary directory", default=tempfile.gettempdir())
-        parser.add_option("--report", action="store_true",
-                             dest="report",
-                             help="Enable HTML/XML reporting", default=False)
-        parser.add_option("--profile", action="store_true",
-                             dest="profiler",
-                             help="turn on profiling", default=False)
-        parser.add_option("-z", "--compression-type", dest="compression_type",
-                            help="compression technology to use [auto, zip, gzip, bzip2, xz] (default=auto)",
-                            default="auto")
-
-        return parser.parse_args(args)
-
-    def set_option(self, name, value=None):
-        """Allows setting of 'command line options' without passing in a
-        command line. Name should be the command line option name of the
-        option to set."""
-        if self.parser.has_option(name):
-            option = self.parser.get_option(name)
-            option.process(name, value, self.opts, self.parser)
 
 
     def set_global_plugin_option(self, key, value):
