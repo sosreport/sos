@@ -48,7 +48,7 @@ install: updateversion
 	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
 	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
-	install -m644 LICENSE README.md $(DESTDIR)/usr/share/$(NAME)/.
+	install -m644 AUTHORS LICENSE README.md $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	install -m644 gpgkeys/$(GPG_TPL)support.pub $(DESTDIR)/usr/share/$(NAME)/.
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
@@ -58,7 +58,7 @@ updateversion:
   
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
 	@mkdir -p $(ARCHIVE_DIR)
-	@tar -cv sosreport sos doc man po sos.conf LICENSE README.md sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
+	@tar -cv sosreport sos doc man po sos.conf AUTHORS LICENSE README.md sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
 	@mkdir -p $(ARCHIVE_DIR)/gpgkeys
 	@cp gpgkeys/$(GPG_TPL)support.pub $(ARCHIVE_DIR)/gpgkeys/.
 	@tar Ccvzf $(DIST_BUILD_DIR) $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
