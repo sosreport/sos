@@ -13,7 +13,9 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from os.path import exists, join, normpath
 import commands
+import pdb
 
 class Named(Plugin):
     """named related information
@@ -24,7 +26,7 @@ class Named(Plugin):
     config_files = named_conf
 
     def setup(self):
-        for cfg in config_files:
+        for cfg in self.config_files:
             if exists(cfg):
                 self.add_copy_spec(cfg)
                 self.add_copy_spec(self.get_dns_dir(cfg))
