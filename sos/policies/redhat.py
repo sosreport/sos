@@ -130,6 +130,8 @@ No changes will be made to system configuration.
                 return 5
             elif pkgname[0] == "6":
                 return 6
+            elif pkgname[0] == "7":
+                return 7
         except:
             pass
         return False
