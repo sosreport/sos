@@ -15,13 +15,20 @@
 import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """device-mapper related information
+class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Block device related information
     """
 
     def setup(self):
-        self.add_cmd_output("dmsetup info -c")
-        self.add_cmd_output("dmsetup table")
-        self.add_cmd_output("dmsetup status")
-        self.add_cmd_output("dmsetup ls --tree")
+        # legacy location for non-/run distributions
+        self.add_copy_spec("/etc/blkid.tab")
+        self.add_copy_spec("/run/blkid/blkid.tab")
+        self.add_cmd_output("ls -lanR /dev")
+        self.add_cmd_output("ls -lanR /sys/block")
+
+        if os.path.isdir("/sys/block"):
+           for disk in os.listdir("/sys/block"):
+              if disk in [ ".",  ".." ] or disk.startswith("ram"):
+                 continue
+              self.add_cmd_output("udevadm info -ap /sys/block/%s" % (disk))
 

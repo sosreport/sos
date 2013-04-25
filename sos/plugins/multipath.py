@@ -15,13 +15,16 @@
 import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """device-mapper related information
+class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """device-mapper multipath information
     """
 
     def setup(self):
-        self.add_cmd_output("dmsetup info -c")
-        self.add_cmd_output("dmsetup table")
-        self.add_cmd_output("dmsetup status")
-        self.add_cmd_output("dmsetup ls --tree")
+        self.add_copy_specs([
+            "/etc/multipath/",
+            "/etc/multipath.conf"
+        ])
+        self.add_cmd_output("multipath -l")
+        self.add_cmd_output("multipath -v4 -ll")
+
 

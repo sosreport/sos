@@ -15,13 +15,12 @@
 import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """device-mapper related information
+class DmRaid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """dmraid related information
     """
 
-    def setup(self):
-        self.add_cmd_output("dmsetup info -c")
-        self.add_cmd_output("dmsetup table")
-        self.add_cmd_output("dmsetup status")
-        self.add_cmd_output("dmsetup ls --tree")
+    dmraid_options = ['V','b','r','s','tay','rD']
 
+    def setup(self):
+        for opt in self.dmraid_options:
+            self.add_cmd_output("dmraid -%s" % (opt,))

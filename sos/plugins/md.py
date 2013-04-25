@@ -15,13 +15,15 @@
 import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """device-mapper related information
+class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """MD subsystem information
     """
 
     def setup(self):
-        self.add_cmd_output("dmsetup info -c")
-        self.add_cmd_output("dmsetup table")
-        self.add_cmd_output("dmsetup status")
-        self.add_cmd_output("dmsetup ls --tree")
-
+        self.add_cmd_output("mdadm -D /dev/md*")
+        self.add_copy_specs([
+            "/proc/mdstat",
+            "/etc/mdadm.conf",
+            "/dev/md/md-device-map"
+        ])
+        
