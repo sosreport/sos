@@ -48,10 +48,16 @@ class hardware(Plugin):
         self.add_cmd_output("""echo -e "lspci:\n" ; lspci ; echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
 
         self.add_cmd_output("dmidecode", root_symlink = "dmidecode")
+        
+        if self.policy().pkg_by_name("cpufreq-utils"):
+            self.add_cmd_output("cpufreq-info")
+            self.add_cmd_output("cpupower info")
+            self.add_cmd_output("cpupower frequency-info")
 
-	self.add_cmd_output("cpufreq-info")
-    	self.add_cmd_output("cpupower info")
-	self.add_cmd_output("cpupower frequency-info")
+        if self.policy().pkg_by_name("kernel-tools"):
+            self.add_cmd_output("cpupower info")
+            self.add_cmd_output("cpupower frequency-info")
+            self.add_cmd_output("cpupower idle-info")
 
         if self.policy().get_arch().endswith("386"):
             self.add_cmd_output("x86info -a")
