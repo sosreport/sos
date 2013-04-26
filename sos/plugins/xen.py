@@ -20,6 +20,9 @@ from stat import *
 class Xen(Plugin, RedHatPlugin):
     """Xen related information
     """
+
+    plugin_name = 'xen'
+
     def determine_xen_host(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):
             (status, output, rtime) = self.call_ext_prog("grep -qi xen /proc/acpi/dsdt")

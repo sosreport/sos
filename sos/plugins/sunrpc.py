@@ -16,7 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class sunrpc(Plugin):
+class SunRPC(Plugin):
     """Sun RPC related information
     """
 
@@ -33,7 +33,7 @@ class sunrpc(Plugin):
         self.add_cmd_output("rpcinfo -p localhost")
         return
 
-class RedHatSunrpc(sunrpc, RedHatPlugin):
+class RedHatSunRPC(SunRPC, RedHatPlugin):
     """Sun RPC related information for Red Hat systems
     """
 
@@ -41,7 +41,7 @@ class RedHatSunrpc(sunrpc, RedHatPlugin):
 
 # FIXME: depends on addition of runlevel_by_service (or similar)
 # in Debian/Ubuntu policy classes
-#class DebianSunrpc(sunrpc, DebianPlugin, UbuntuPlugin):
+#class DebianSunRPC(SunRPC, DebianPlugin, UbuntuPlugin):
 #    """Sun RPC related information for Red Hat systems
 #    """
 #

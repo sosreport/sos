@@ -15,9 +15,12 @@
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import glob
 
-class libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
     """
+
+    plugin_name = 'libvirt'
+
     def setup(self):
         self.add_copy_specs(["/etc/libvirt/", "/var/log/libvirt*"])
 

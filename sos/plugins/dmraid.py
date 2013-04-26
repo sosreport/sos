@@ -15,10 +15,11 @@
 import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class DmRaid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """dmraid related information
     """
 
+    plugin_name = 'dmraid'
     dmraid_options = ['V','b','r','s','tay','rD']
 
     def setup(self):

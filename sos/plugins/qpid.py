@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class qpidd(Plugin, RedHatPlugin):
+class Qpid(Plugin, RedHatPlugin):
     """Messaging related information
     """
+
+    plugin_name = 'qpid'
 
     packages = ('qpidd', 'qpid-cpp-server', 'qpid-tools')
 

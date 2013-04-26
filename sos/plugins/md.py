@@ -19,6 +19,8 @@ class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """MD subsystem information
     """
 
+    plugin_name = 'md'
+
     def setup(self):
         self.add_cmd_output("mdadm -D /dev/md*")
         self.add_copy_specs([

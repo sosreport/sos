@@ -18,6 +18,9 @@ from sos.plugins import Plugin, UbuntuPlugin
 class Apparmor(Plugin, UbuntuPlugin):
     """Apparmor related information
     """
+
+    plugin_name = 'apparmor'
+
     def setup(self):
         self.add_copy_specs([
             "/etc/apparmor"

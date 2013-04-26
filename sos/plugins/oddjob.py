@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class oddjob(Plugin, RedHatPlugin):
+class Oddjob(Plugin, RedHatPlugin):
     """oddjob related information
     """
+
+    plugin_name = 'oddjob'
 
     files = ('/etc/oddjobd.conf',)
     packages = ('oddjob',)

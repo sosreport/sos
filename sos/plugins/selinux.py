@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class selinux(Plugin, RedHatPlugin):
+class SELinux(Plugin, RedHatPlugin):
     """selinux related information
     """
+
+    plugin_name = 'selinux'
 
     option_list = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
     packages = ('libselinux',)

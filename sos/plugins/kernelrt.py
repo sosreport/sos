@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class kernel_rt(Plugin, RedHatPlugin):
+class KernelRT(Plugin, RedHatPlugin):
     '''Information specific to the realtime kernel
     '''
+
+    plugin_name = 'kernelrt'
 
     # this file exists only when the realtime kernel is booted
     # this plugin will not be called is this file does not exist

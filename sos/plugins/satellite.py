@@ -15,9 +15,11 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class rhn(Plugin, RedHatPlugin):
-    """RHN Satellite related information
+class Satellite(Plugin, RedHatPlugin):
+    """RHN Satellite and Spacewalk related information
     """
+
+    plugin_name = 'satellite'
     satellite = False
     proxy = False
 

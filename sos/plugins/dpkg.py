@@ -15,9 +15,12 @@
 
 from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
-class dpkg(Plugin, DebianPlugin, UbuntuPlugin):
+class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):
     """dpkg information
     """
+
+    plugin_name = 'dpkg'
+
     def setup(self):
         self.add_copy_spec("/var/log/dpkg.log")
         self.add_cmd_output("dpkg -l", root_symlink = "installed-debs")

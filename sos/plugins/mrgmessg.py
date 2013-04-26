@@ -14,9 +14,12 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class mrgmessg(Plugin, RedHatPlugin):
+class MrgMessg(Plugin, RedHatPlugin):
     """MRG Messaging related information
     """
+
+    plugin_name = 'mrgmessg'
+
     def setup(self):
         self.add_copy_specs([
             "/etc/qpidd.conf",

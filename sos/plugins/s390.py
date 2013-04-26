@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class s390(Plugin, RedHatPlugin):
+class S390(Plugin, RedHatPlugin):
     """s390 related information
     """
+
+    plugin_name = 's390'
 
     ### Check for s390 arch goes here
 

@@ -17,9 +17,12 @@ import os
 import re
 from itertools import *
 
-class filesys(Plugin, RedHatPlugin, UbuntuPlugin):
+class Filesys(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on filesystems
     """
+
+    plugin_name = 'filesys'
+
     option_list = [("lsof", 'gathers information on all open files', 'slow', False)]
     option_list = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
 

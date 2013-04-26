@@ -16,29 +16,29 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class openssl(Plugin):
+class OpenSSL(Plugin):
     """openssl related information
     """
 
     plugin_name = "openssl"
     packages = ('openssl',)
 
-class RedHatOpenssl(openssl, RedHatPlugin):
+class RedHatOpenSSL(OpenSSL, RedHatPlugin):
     """openssl related information for Red Hat distributions
     """
 
     files = ('/etc/pki/tls/openssl.cnf',)
 
     def setup(self):
-        super(RedHatOpenssl, self).setup()
+        super(RedHatOpenSSL, self).setup()
         self.add_copy_spec("/etc/pki/tls/openssl.cnf")
 
-class DebianOpenssl(openssl, DebianPlugin, UbuntuPlugin):
+class DebianOpenSSL(OpenSSL, DebianPlugin, UbuntuPlugin):
     """openssl related information for Debian distributions
     """
 
     files = ('/etc/ssl/openssl.cnf',)
 
     def setup(self):
-        super(DebianOpenssl, self).setup()
+        super(DebianOpenSSL, self).setup()
         self.add_copy_spec("/etc/ssl/openssl.cnf")

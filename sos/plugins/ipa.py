@@ -20,6 +20,8 @@ class Ipa(Plugin, RedHatPlugin):
     """IPA diagnostic information
     """
 
+    plugin_name = 'ipa'
+
     ipa_server = False
     ipa_client = False
 

@@ -14,7 +14,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class sanlock(Plugin):
+class SANLock(Plugin):
     """sanlock-related information
     """
     plugin_name = "sanlock"
@@ -27,7 +27,7 @@ class sanlock(Plugin):
         self.add_cmd_output("sanlock client log_dump")
         return
 
-class RedHatSanlock(sanlock, RedHatPlugin):
+class RedHatSANLock(SANLock, RedHatPlugin):
 
     files = [ "/etc/sysconfig/sanlock" ]
 

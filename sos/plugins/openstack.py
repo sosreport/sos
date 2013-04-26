@@ -20,7 +20,7 @@ import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class openstack(Plugin):
+class OpenStack(Plugin):
     """openstack related information
     """
     plugin_name = "openstack"
@@ -28,7 +28,7 @@ class openstack(Plugin):
     option_list = [("log", "gathers all openstack logs", "slow", False)]
 
 
-class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
+class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
     """
 
@@ -152,7 +152,7 @@ class DebianOpenStack(openstack, DebianPlugin, UbuntuPlugin):
                            "/var/log/quantum/"])
 
 
-class RedHatOpenStack(openstack, RedHatPlugin):
+class RedHatOpenStack(OpenStack, RedHatPlugin):
     """OpenStack related information for Red Hat distributions
     """
 

@@ -15,9 +15,11 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """kernel related information
     """
+
+    plugin_name = 'kernel'
 
     sys_module = '/sys/module'
 

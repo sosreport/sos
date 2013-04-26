@@ -20,9 +20,11 @@ from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 from glob import glob
 
-class cs(Plugin, RedHatPlugin):
+class CertificateSystem(Plugin, RedHatPlugin):
     """Red Hat Certificate System 7.1, 7.3, 8.0 and dogtag related information
     """
+
+    plugin_name = 'certificatesystem'
 
     def checkversion(self):
         if self.is_installed("redhat-cs") or exists("/opt/redhat-cs"):

@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class vmware(Plugin, RedHatPlugin):
+class VMWare(Plugin, RedHatPlugin):
     """VMWare related information
     """
+
+    plugin_name = 'vmware'
 
     files = ('vmware','/usr/init.d/vmware-tools')
 

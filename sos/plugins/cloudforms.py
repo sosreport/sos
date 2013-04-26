@@ -20,6 +20,7 @@ class Cloudforms(Plugin, RedHatPlugin):
     """CloudForms related information
     """
 
+    plugin_name = 'cloudforms'
     packages = ["katello", "katello-common",
                     "katello-headpin", "aeoleus-conductor"]
     files = ["/usr/share/katello/script/katello-debug",

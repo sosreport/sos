@@ -18,5 +18,8 @@ from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
 class Apport(Plugin, DebianPlugin, UbuntuPlugin):
     """apport information
     """
+
+    plugin_name = 'apport'
+
     def setup(self):
         self.add_copy_spec("/etc/apport/*")

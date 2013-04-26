@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class tomcat(Plugin, RedHatPlugin):
+class Tomcat(Plugin, RedHatPlugin):
     """Tomcat related information
     """
+
+    plugin_name = 'tomcat'
 
     packages = ('tomcat5',)
 

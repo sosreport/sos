@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class ppp(Plugin, RedHatPlugin):
+class Ppp(Plugin, RedHatPlugin):
     """ppp, wvdial and rp-pppoe related information
     """
+
+    plugin_name = 'ppp'
 
     files = ('/etc/wvdial.conf',)
     packages = ('ppp',)

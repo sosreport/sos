@@ -18,9 +18,11 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """KVM related information
     """
+
+    plugin_name = 'kvm'
 
     option_list = [("topOutput", '5x iterations of top data', 'slow', False)]
 

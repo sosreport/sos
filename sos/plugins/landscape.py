@@ -19,6 +19,8 @@ class Landscape(Plugin, UbuntuPlugin):
     landscape client related information
     """
 
+    plugin_name = 'landscape'
+
     files = ('/etc/landscape/client.conf',
             'broker.log',
             'broker.log.gz',

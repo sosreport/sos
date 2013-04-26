@@ -14,8 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """udev related information
+class Udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Udev related information
     """
+
+    plugin_name = 'udev'
+
     def setup(self):
         self.add_copy_specs(["/etc/udev/udev.conf", "/etc/udev/rules.d/*"])

@@ -14,9 +14,12 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """printing related information (cups)
     """
+
+    plugin_name = 'printing'
+
     option_list = [("cups", "max size (MiB) to collect per cups log file",
                    "", 50)]
 

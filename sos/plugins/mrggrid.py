@@ -14,9 +14,12 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class mrggrid(Plugin, RedHatPlugin):
+class MrgGrid(Plugin, RedHatPlugin):
     """MRG GRID related information
     """
+
+    plugin_name = 'mrggrid'
+
     def setup(self):
         self.add_copy_spec("/etc/condor/condor_config")
         self.add_copy_spec("condor_status")

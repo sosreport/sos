@@ -16,14 +16,14 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class ipsec(Plugin):
+class IPSec(Plugin):
     """ipsec related information
     """
 
     plugin_name = "ipsec"
     packages = ('ipsec-tools',)
 
-class RedHatIpsec(ipsec, RedHatPlugin):
+class RedHatIpsec(IPSec, RedHatPlugin):
     """ipsec related information for Red Hat distributions
     """
 
@@ -32,7 +32,7 @@ class RedHatIpsec(ipsec, RedHatPlugin):
     def setup(self):
         self.add_copy_spec("/etc/racoon")
 
-class DebianIpsec(ipsec, DebianPlugin, UbuntuPlugin):
+class DebianIPSec(IPSec, DebianPlugin, UbuntuPlugin):
     """ipsec related information for Debian distributions
     """
 

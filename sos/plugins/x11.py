@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class x11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """X related information
     """
+
+    plugin_name = 'x11'
 
     files = ('/etc/X11',)
 

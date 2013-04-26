@@ -16,7 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class sssd(Plugin):
+class Sssd(Plugin):
     """sssd-related Diagnostic Information
     """
 
@@ -26,14 +26,14 @@ class sssd(Plugin):
     def setup(self):
         self.add_copy_specs(["/etc/sssd", "/var/log/sssd/*"])
 
-class RedHatSssd(sssd, RedHatPlugin):
+class RedHatSssd(Sssd, RedHatPlugin):
     """sssd-related Diagnostic Information on Red Hat based distributions
     """
 
     def setup(self):
         super(RedHatSssd, self).setup()
 
-class DebianSssd(sssd, DebianPlugin, UbuntuPlugin):
+class DebianSssd(Sssd, DebianPlugin, UbuntuPlugin):
     """sssd-related Diagnostic Information on Debian based distributions
     """
 

@@ -13,17 +13,13 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-import os
 
-class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """process information
+class Internationalization(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """i18n related information
     """
 
-    plugin_name = 'process'
+    plugin_name = 'internationalization'
 
     def setup(self):
-        self.add_cmd_output("ps auxwww", root_symlink = "ps")
-        self.add_cmd_output("ps auxwwwm")
-        self.add_cmd_output("ps alxwww")
-        self.add_cmd_output("pstree", root_symlink = "pstree")
-        self.add_cmd_output("lsof -b +M -n -l", root_symlink = "lsof")
+        self.add_copy_specs(["/etc/X11/xinit/xinput.d/*", "/etc/locale.conf"])
+        self.add_cmd_output("locale")

@@ -15,9 +15,11 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class rhui(Plugin, RedHatPlugin):
+class Rhui(Plugin, RedHatPlugin):
     """Red Hat Update Infrastructure for Cloud Providers data
     """
+
+    plugin_name = 'rhui'
 
     rhui_debug_path = "/usr/share/rh-rhua/rhui-debug.py"
 

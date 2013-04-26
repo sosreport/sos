@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class openswan(Plugin, RedHatPlugin):
+class Openswan(Plugin, RedHatPlugin):
     """ipsec related information
     """
+
+    plugin_name = 'openswan'
 
     files = ('/etc/ipsec.conf',)
     packages = ('openswan',)

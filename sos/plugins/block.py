@@ -19,6 +19,8 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Block device related information
     """
 
+    plugin_name = 'block'
+
     def setup(self):
         # legacy location for non-/run distributions
         self.add_copy_spec("/etc/blkid.tab")

@@ -14,7 +14,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class crontab(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Crontab(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Crontab information
     """
 

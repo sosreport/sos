@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class tftpserver(Plugin, RedHatPlugin):
+class TftpServer(Plugin, RedHatPlugin):
     """tftpserver related information
     """
+
+    plugin_name = 'tftpserver'
 
     files = ('/etc/xinetd.d/tftp',)
     packages = ('tftp-server',)

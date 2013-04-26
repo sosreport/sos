@@ -19,6 +19,8 @@ class Sar(Plugin,):
     """ Collect system activity reporter data
     """
 
+    plugin_name = 'sar'
+
     packages = ('sysstat',)
     sa_path = '/var/log/sa'
 

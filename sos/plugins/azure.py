@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
-class azure(Plugin, UbuntuPlugin):
+class Azure(Plugin, UbuntuPlugin):
     """ Microsoft Azure Client Plugin
     """
+
+    plugin_name = 'azure'
     packages = ('walinuxagent',)
 
     def setup(self):

@@ -1,8 +1,10 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 # Class name must be the same as file name and method names must not change
-class rhevm(Plugin, RedHatPlugin):
-    """Nogah related information"""
+class RhevM(Plugin, RedHatPlugin):
+    """RHEV-Manager related information"""
+
+    plugin_name = 'rhevm'
 
     option_list = [("vdsmlogs",  'Directory containing all of the SOS logs from the RHEV hypervisor(s)', '', False)]
 

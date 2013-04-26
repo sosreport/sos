@@ -18,9 +18,11 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """NIS related information
     """
+
+    plugin_name = 'nis'
 
     files = ('/var/yp',)
 

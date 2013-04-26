@@ -16,7 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class systemd(Plugin, RedHatPlugin):
+class Systemd(Plugin, RedHatPlugin):
     """ Information on systemd and related subsystems
     """
 

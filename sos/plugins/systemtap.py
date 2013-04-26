@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class systemtap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class SystemTap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """SystemTap information
     """
+
+    plugin_name = 'systemtap'
 
     files = ('stap',)
     packages = ('systemtap', 'systemtap-runtime')

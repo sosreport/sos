@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 from glob import glob
 import os
 
-class hardware(Plugin):
+class Hardware(Plugin):
     """hardware related information
     """
 
@@ -70,7 +70,7 @@ class hardware(Plugin):
         self.add_cmd_output("systool -c fc_host -v")
         self.add_cmd_output("systool -c scsi_host -v")
 
-class RedHatHardware(hardware, RedHatPlugin):
+class RedHatHardware(Hardware, RedHatPlugin):
     """hardware related information for Red Hat distribution
     """
 
@@ -82,7 +82,7 @@ class RedHatHardware(hardware, RedHatPlugin):
         self.add_cmd_output("python " + hwpaths[0])
 
 
-class DebianHardware(hardware, DebianPlugin, UbuntuPlugin):
+class DebianHardware(Hardware, DebianPlugin, UbuntuPlugin):
     """hardware related information for Debian distribution
     """
 

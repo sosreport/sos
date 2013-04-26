@@ -16,9 +16,12 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
-class juju(Plugin, UbuntuPlugin):
+class Juju(Plugin, UbuntuPlugin):
     """ Juju Plugin
     """
+
+    plugin_name = 'juju'
+
     def setup(self):
         self.add_copy_specs(["/var/log/juju",
                            "/var/lib/juju"])

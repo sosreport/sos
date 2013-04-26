@@ -14,10 +14,10 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class system(Plugin):
+class System(Plugin):
     plugin_name = "system"
 
-class RedHatSystem(system, RedHatPlugin):
+class RedHatSystem(System, RedHatPlugin):
     """core system related information
     """
     def setup(self):
@@ -39,7 +39,7 @@ class RedHatSystem(system, RedHatPlugin):
 
         self.add_cmd_output("crontab -l")
 
-class DebianSystem(system, DebianPlugin, UbuntuPlugin):
+class DebianSystem(System, DebianPlugin, UbuntuPlugin):
     """core system related information for Debian and Ubuntu
     """
     def setup(self):

@@ -16,9 +16,12 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
-class maas(Plugin, UbuntuPlugin):
+class Maas(Plugin, UbuntuPlugin):
     """ MAAS Plugin
     """
+
+    plugin_name = 'maas'
+
     def setup(self):
         self.add_copy_specs(["/etc/squid-deb-proxy",
                            "/etc/maas",

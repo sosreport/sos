@@ -14,9 +14,12 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """memory usage information
     """
+
+    plugin_name = 'memory'
+
     def setup(self):
         self.add_copy_specs([
             "/proc/pci",

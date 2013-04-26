@@ -12,11 +12,17 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin
 
-class i18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """i18n related information
+class Vsftpd(Plugin, RedHatPlugin):
+    """FTP server related information
     """
+
+    plugin_name = 'vsftpd'
+
+    files = ('/etc/vsftpd',)
+    packages = ('vsftpd',)
+
     def setup(self):
-        self.add_copy_specs(["/etc/X11/xinit/xinput.d/*", "/etc/locale.conf"])
-        self.add_cmd_output("locale")
+        self.add_copy_spec("/etc/ftp*")
+        self.add_copy_spec("/etc/vsftpd")

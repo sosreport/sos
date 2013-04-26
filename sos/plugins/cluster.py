@@ -20,6 +20,7 @@ class Cluster(Plugin, RedHatPlugin):
     """cluster suite and GFS related information
     """
 
+    plugin_name = 'cluster'
     option_list = [("gfslockdump",
                     'gather output of gfs lockdumps', 'slow', False),
                     ('lockdump', 'gather dlm lockdumps', 'slow', False)]

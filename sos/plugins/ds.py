@@ -17,9 +17,11 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class ds(Plugin, RedHatPlugin):
+class DirectoryServer(Plugin, RedHatPlugin):
     """Directory Server information
     """
+
+    plugin_name = 'directoryserver'
 
     files = ('/etc/dirsrv', '/opt/redhat-ds')
     packages = ('redhat-ds-base', 'redhat-ds-7')

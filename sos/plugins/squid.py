@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class squid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Squid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """squid related information
     """
+
+    plugin_name = 'squid'
 
     files = ('/etc/squid/squid.conf',)
     packages = ('squid',)

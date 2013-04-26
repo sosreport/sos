@@ -21,6 +21,8 @@ class Abrt(Plugin, RedHatPlugin):
     """ABRT log dump
     """
 
+    plugin_name = "abrt"
+
     option_list = [("backtraces", 'collect backtraces for every report', 'slow', False)]
 
     def check_enabled(self):

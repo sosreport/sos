@@ -19,6 +19,8 @@ class Anaconda(Plugin, RedHatPlugin):
     """Anaconda / Installation information
     """
 
+    plugin_name = 'anaconda'
+
     files = ('/var/log/anaconda.log',
              '/var/log/anaconda')
 

@@ -17,6 +17,9 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 class Bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
     """Bootloader information
     """
+
+    plugin_name = 'bootloader'
+
     def setup(self):
         self.add_copy_specs([
             "/etc/lilo.conf",

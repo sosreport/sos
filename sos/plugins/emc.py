@@ -18,9 +18,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, os
 
-class emc(Plugin, RedHatPlugin):
+class Emc(Plugin, RedHatPlugin):
     """EMC related information (PowerPath, Solutions Enabler CLI and Navisphere CLI)
     """
+
+    plugin_name = 'emc'
 
     def about_emc(self):
         """ EMC Corporation specific information

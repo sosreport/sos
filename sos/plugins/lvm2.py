@@ -19,6 +19,8 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """lvm2 related information 
     """
 
+    plugin_name = 'lvm2'
+
     option_list = [("lvmdump", 'collect an lvmdump tarball', 'fast', False),
                   ("lvmdump-a", 'use the -a option of lvmdump (implies the ' \
                     + '"lvmdump" option)', 'slow', False)]

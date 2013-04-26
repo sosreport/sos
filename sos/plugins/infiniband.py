@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Infiniband related information
     """
+
+    plugin_name = 'infiniband'
 
     def check_enabled(self):
          if self.commons["policy"].pkg_by_name("libibverbs-utils"):

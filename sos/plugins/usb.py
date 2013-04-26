@@ -12,15 +12,20 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from glob import glob
+import os
 
-class ftp(Plugin, RedHatPlugin):
-    """FTP server related information
+class Usb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """USB subsystem information
     """
 
-    files = ('/etc/vsftpd',)
-    packages = ('vsftpd',)
+    plugin_name = "usb"
 
     def setup(self):
-        self.add_copy_spec("/etc/ftp*")
-        self.add_copy_spec("/etc/vsftpd")
+        self.add_copy_spec("/sys/bus/usb")
+        
+        self.add_cmd_output("lsusb")
+        self.add_cmd_output("lsusb -v")
+        self.add_cmd_output("lsusb -t")
+

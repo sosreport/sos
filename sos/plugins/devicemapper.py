@@ -19,6 +19,8 @@ class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """device-mapper related information
     """
 
+    plugin_name = 'devicemapper'
+
     def setup(self):
         self.add_cmd_output("dmsetup info -c")
         self.add_cmd_output("dmsetup table")

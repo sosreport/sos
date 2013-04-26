@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class smartcard(Plugin, RedHatPlugin):
+class Smartcard(Plugin, RedHatPlugin):
     """Smart Card related information
     """
+
+    plugin_name = 'smartcard'
 
     files = ('/etc/pam_pkcs11/pam_pkcs11.conf',)
     packages = ('pam_pkcs11',)

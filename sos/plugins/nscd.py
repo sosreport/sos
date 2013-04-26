@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """NSCD related information
     """
+
+    plugin_name = 'nscd'
 
     option_list = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
                    "", 50)]

@@ -15,9 +15,12 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 
-class veritas(Plugin, RedHatPlugin):
+class Veritas(Plugin, RedHatPlugin):
     """Veritas related information
     """
+
+    plugin_name = 'veritas'
+
     # Information about VRTSexplorer obtained from
     # http://seer.entsupport.symantec.com/docs/243150.htm
     option_list = [("script", "Define VRTSexplorer script path", "", "/opt/VRTSspt/VRTSexplorer")]

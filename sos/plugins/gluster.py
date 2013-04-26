@@ -18,8 +18,10 @@ import os
 import string
 from sos.plugins import Plugin, RedHatPlugin
 
-class gluster(Plugin, RedHatPlugin):
+class Gluster(Plugin, RedHatPlugin):
     '''gluster related information'''
+
+    plugin_name = 'gluster'
 
     statedump_dir = '/tmp/glusterfs-statedumps'
     packages = ["glusterfs", "glusterfs-core"]

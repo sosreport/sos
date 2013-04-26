@@ -18,6 +18,8 @@ class Yum(Plugin, RedHatPlugin):
     """yum information
     """
 
+    plugin_name = 'yum'
+
     files = ('/etc/yum.conf',)
     packages = ('yum',)
     option_list = [("yumlist", "list repositories and packages", "slow", False),

@@ -14,7 +14,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class kdump(Plugin):
+class KDump(Plugin):
     """Kdump related information
     """
 
@@ -25,7 +25,7 @@ class kdump(Plugin):
             "/proc/cmdline"
             ])
 
-class RedHatKdump(kdump, RedHatPlugin):
+class RedHatKDump(KDump, RedHatPlugin):
     """Kdump related information for Red Hat distributions
     """
 
@@ -37,7 +37,7 @@ class RedHatKdump(kdump, RedHatPlugin):
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules"])
 
-class DebianKdump(kdump, DebianPlugin, UbuntuPlugin):
+class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     """Kdump related information for Debian distributions
     """
 

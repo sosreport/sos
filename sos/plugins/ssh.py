@@ -16,8 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """ssh-related information
     """
+
+    plugin_name = 'ssh'
+
     def setup(self):
         self.add_copy_specs(["/etc/ssh/ssh_config", "/etc/ssh/sshd_config"])

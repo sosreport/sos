@@ -18,9 +18,12 @@ from sos.plugins import Plugin, RedHatPlugin
 import os
 from stat import ST_SIZE
 
-class nfsserver(Plugin, RedHatPlugin):
+class NfsServer(Plugin, RedHatPlugin):
     """NFS server-related information
     """
+
+    plugin_name = 'nfsserver'
+
     def check_enabled(self):
        if self.policy().default_runlevel() in self.policy().runlevel_by_service("nfs"):
           return True

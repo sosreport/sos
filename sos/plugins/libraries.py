@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
-class libraries(Plugin, RedHatPlugin, UbuntuPlugin):
+class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
     """information on shared libraries
     """
+
+    plugin_name = 'libraries'
 
     option_list = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.',
                     "slow", False)]

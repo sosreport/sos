@@ -14,8 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """gdm related information
     """
+
+    plugin_name = 'gdm'
+
     def setup(self):
         self.add_copy_spec("/etc/gdm/*")

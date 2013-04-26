@@ -15,9 +15,12 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from glob import glob
 
-class initrd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Initrd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """initrd related information
     """
+
+    plugin_name = 'initrd'
+
     def setup(self):
         for initrd in glob('/boot/initrd-*.img'):
             self.add_cmd_output("zcat "+initrd+" | cpio "+

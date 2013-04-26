@@ -19,6 +19,8 @@ class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """device-mapper multipath information
     """
 
+    plugin_name = 'multipath'
+
     def setup(self):
         self.add_copy_specs([
             "/etc/multipath/",

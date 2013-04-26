@@ -14,12 +14,14 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Auditd related information
     """
 
     option_list = [("logsize", "maximum size (MiB) of logs to collect",
                     "", 15)]
+
+    plugin_name = 'auditd'
 
     def setup(self):
         self.add_copy_specs(["/etc/audit/auditd.conf",

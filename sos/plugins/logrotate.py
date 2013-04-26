@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class logrotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """logrotate configuration files and debug info
     """
+
+    plugin_name = 'logrotate'
 
     def setup(self):
         self.add_cmd_output("logrotate --debug /etc/logrotate.conf",

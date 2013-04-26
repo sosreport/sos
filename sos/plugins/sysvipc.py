@@ -15,7 +15,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class sysvipc(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """SysV IPC related information
     """
 

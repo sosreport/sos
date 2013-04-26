@@ -16,9 +16,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class quagga(Plugin, RedHatPlugin):
+class Quagga(Plugin, RedHatPlugin):
     """quagga related information
     """
+
+    plugin_name = 'quagga'
 
     files = ('/etc/quagga/zebra.conf',)
     packages = ('quagga',)

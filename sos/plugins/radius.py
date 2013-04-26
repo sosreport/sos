@@ -16,14 +16,14 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class radius(Plugin):
+class Radius(Plugin):
     """radius related information
     """
 
     plugin_name = "radius"
     packages = ('freeradius',)
 
-class RedHatRadius(radius, RedHatPlugin):
+class RedHatRadius(Radius, RedHatPlugin):
     """radius related information on Red Hat distributions
     """
 
@@ -36,7 +36,7 @@ class RedHatRadius(radius, RedHatPlugin):
     def postproc(self):
         self.do_file_sub("/etc/raddb/sql.conf", r"(\s*password\s*=\s*)\S+", r"\1***")
 
-class DebianRadius(radius, DebianPlugin, UbuntuPlugin):
+class DebianRadius(Radius, DebianPlugin, UbuntuPlugin):
     """radius related information on Debian distributions
     """
 

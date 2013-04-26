@@ -20,6 +20,8 @@ class Xinetd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """xinetd information
     """
 
+    plugin_name = 'xinetd'
+
     files = ('/etc/xinetd.conf',)
     packages = ('xinetd',)
 

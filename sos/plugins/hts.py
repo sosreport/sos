@@ -14,9 +14,12 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class hts(Plugin, RedHatPlugin):
+class HardwareTestSuite(Plugin, RedHatPlugin):
     """Red Hat Hardware Test Suite related information
     """
+
+    plugin_name = 'hardwaretestsuite'
+
     def setup(self):
         self.add_copy_spec("/etc/httpd/conf.d/hts.conf")
         self.add_copy_spec("/var/hts")

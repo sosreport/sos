@@ -16,9 +16,11 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
-class lsbrelease(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class LsbRelease(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Linux Standard Base information
     """
+
+    plugin_name = 'lsbrelease'
 
     def setup(self):
         self.add_cmd_output("lsb_release -a")

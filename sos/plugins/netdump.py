@@ -14,9 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-class netdump(Plugin, RedHatPlugin):
+class Netdump(Plugin, RedHatPlugin):
     """Netdump Configuration Information
     """
+
+    plugin_name = 'netdump'
 
     files = ('/etc/sysconfig/netdump',)
     packages = ('netdump',)
