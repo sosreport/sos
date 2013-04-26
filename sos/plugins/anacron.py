@@ -18,7 +18,7 @@ import os
 
 class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
-    plugin_name = 'anaconda'
+    plugin_name = 'anacron'
 
     packages = ('anacron',)
 
