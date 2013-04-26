@@ -19,9 +19,11 @@ class Squid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'squid'
-
+    option_list = [("logsize", "maximum size (MiB) of logs to collect",
+                    "", 15)]
     files = ('/etc/squid/squid.conf',)
     packages = ('squid',)
 
     def setup(self):
-        self.add_copy_spec("/etc/squid/squid.conf")
+        self.add_copy_spec_limit("/etc/squid/squid.conf",
+                        sizelimit=self.get_option('logsize'))
