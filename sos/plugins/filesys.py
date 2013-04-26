@@ -35,7 +35,7 @@ class Filesys(Plugin, RedHatPlugin, UbuntuPlugin):
             "/proc/mdstat",
             "/etc/raidtab",
             "/etc/mdadm.conf"])
-        mounts = self.get_cmd_output_now("mount -l", root_symlink = "mount")
+        self.get_cmd_output_now("mount -l", root_symlink = "mount")
 
         self.add_cmd_output("findmnt")
         self.add_cmd_output("df -al", root_symlink = "df")
@@ -75,5 +75,7 @@ class Filesys(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_cmd_output("parted -s %s print" % (i))
 
         if self.get_option('dumpe2fs'):
-            for extfs in izip(self.do_regex_find_all(r"^(/dev/.+) on .+ type ext.\s+", mounts)):
-                self.add_cmd_output("dumpe2fs %s" % (extfs))
+            mounts = '/proc/mounts'
+            ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
+            for dev in izip(self.do_regex_find_all(ext_fs_regex, mounts)):
+                self.add_cmd_output("dumpe2fs -h %s" % (dev))
