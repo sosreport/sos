@@ -174,6 +174,10 @@ class Plugin(object):
         globstr = '*' + cmd + '*'
         self.soslog.debug("substituting '%s' for '%s' in commands matching %s"
                     % (subst, regexp, globstr))
+
+        if not self.executed_commands:
+            return 0
+
         try:
             for called in self.executed_commands:
                 if fnmatch.fnmatch(called['exe'], globstr):
