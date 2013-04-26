@@ -23,7 +23,11 @@ class Ntp(Plugin):
     packages = ('ntp',)
 
     def setup(self):
-        self.add_copy_spec("/etc/ntp.conf")
+        self.add_copy_specs([
+            "/etc/ntp.conf",
+            "/etc/ntp/step-tickers",
+            "/etc/ntp/ntpservers"
+        ])
         self.add_cmd_output("ntptime")
 
 

@@ -25,9 +25,7 @@ class RedHatSystem(System, RedHatPlugin):
             "/proc/sys",
             "/etc/syslog.conf",
             "/etc/rsyslog.conf",
-            "/etc/ntp.conf",
-            "/etc/ntp/step-tickers",
-            "/etc/ntp/ntpservers"])
+        ])
         self.add_forbidden_path(
                 "/proc/sys/net/ipv8/neigh/*/retrans_time")
         self.add_forbidden_path(
@@ -42,7 +40,6 @@ class DebianSystem(System, DebianPlugin, UbuntuPlugin):
             "/proc/sys",
             "/etc/syslog.conf",
             "/etc/rsyslog.conf",
-            "/etc/ntp.conf" ])
         self.add_forbidden_path(
                 "/proc/sys/net/ipv8/neigh/*/retrans_time")
         self.add_forbidden_path(
