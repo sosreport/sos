@@ -19,8 +19,7 @@ git clone git://github.com/sosreport/sosreport.git
 ```
 to install locally (as root) ==> make install
 to build an rpm ==> make rpm
-to build a deb ==> make deb-unsign
-to build a zipfile for use with jython ==> make zip
+to build a deb ==> make deb
 ```
 
 ### Pre-built Packaging ###

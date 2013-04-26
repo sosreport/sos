@@ -7,16 +7,13 @@ VERSION = $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
 MAJOR   = $(shell echo $(VERSION) | cut -f 1 -d '.')
 MINOR   = $(shell echo $(VERSION) | cut -f 2 -d '.')
 RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
-REPO = http://github.com/sosreport
+REPO = https://github.com/sosreport/sosreport
 
 SUBDIRS = po sos sos/plugins sos/policies
 PYFILES = $(wildcard *.py)
 # OS X via brew
 # MSGCAT = /usr/local/Cellar/gettext/0.18.1.1/bin/msgcat
 MSGCAT = msgcat
-
-# Default to Red Hat GPG template
-GPG_TPL=rh
 
 DIST_BUILD_DIR = dist-build
 RPM_DEFINES = --define "_topdir %(pwd)/$(DIST_BUILD_DIR)" \
@@ -29,10 +26,8 @@ RPM = rpmbuild
 RPM_WITH_DIRS = $(RPM) $(RPM_DEFINES)
 ARCHIVE_DIR = $(DIST_BUILD_DIR)/$(NAME)-$(VERSION)
 
-ARCHIVE_NAME = sosreport.zip
 SRC_BUILD = $(DIST_BUILD_DIR)/sdist
 PO_DIR = $(SRC_BUILD)/sos/po
-ZIP_DEST = $(SRC_BUILD)/$(ARCHIVE_NAME)
 
 build:
 	for d in $(SUBDIRS); do make -C $$d; [ $$? = 0 ] || exit 1 ; done
@@ -50,18 +45,15 @@ install: updateversion
 	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
 	install -m644 AUTHORS LICENSE README.md $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
-	install -m644 gpgkeys/$(GPG_TPL)support.pub $(DESTDIR)/usr/share/$(NAME)/.
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 updateversion:
 	sed 's/@SOSVERSION@/$(VERSION)/g' sos/__init__.py.in > sos/__init__.py
-  
-$(NAME)-$(VERSION).tar.gz: clean gpgkey
+
+$(NAME)-$(VERSION).tar.gz: clean
 	@mkdir -p $(ARCHIVE_DIR)
 	@tar -cv sosreport sos doc man po sos.conf AUTHORS LICENSE README.md sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
-	@mkdir -p $(ARCHIVE_DIR)/gpgkeys
-	@cp gpgkeys/$(GPG_TPL)support.pub $(ARCHIVE_DIR)/gpgkeys/.
-	@tar Ccvzf $(DIST_BUILD_DIR) $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
+	@tar Ccvzf $(DIST_BUILD_DIR) $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) --exclude-vcs
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz sos.conf.5.gz
@@ -77,14 +69,9 @@ srpm: clean $(NAME)-$(VERSION).tar.gz
 rpm: clean $(NAME)-$(VERSION).tar.gz
 	$(RPM_WITH_DIRS) -tb $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
 
-deb-unsign: clean $(NAME)-$(VERSION).tar.gz
+deb: clean $(NAME)-$(VERSION).tar.gz
 	@mv $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz ../$(NAME)-$(MAJOR)_$(MINOR).orig.tar.gz
 	@debuild -us -uc -i
-
-gpgkey:
-	@echo "Building gpg key"
-	@test -f gpgkeys/$(GPG_TPL)support.pub && echo "GPG key already exists." || \
-	gpg --batch --gen-key gpgkeys/$(GPG_TPL).template
 
 po: clean
 	mkdir -p $(PO_DIR)
@@ -94,16 +81,6 @@ po: clean
 
 	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos_en_US.properties
 	cp $(PO_DIR)/sos_en.properties $(PO_DIR)/sos.properties
-
-as7: po updateversion
-	cp -r sos/* $(SRC_BUILD)/sos/
-	find $(SRC_BUILD)/sos/plugins/ -not -name "*as7.py" -not -name "*__init__.py" -type f -delete
-
-zip: po
-	zip -r $(ZIP_DEST) sos
-	zip -r $(ZIP_DEST) __run__.py
-	cd $(SRC_BUILD) && zip -r $(ARCHIVE_NAME) sos
-	cd $(SRC_BUILD) && rm -rf sos
 
 test:
 	nosetests -v --with-cover --cover-package=sos --cover-html
