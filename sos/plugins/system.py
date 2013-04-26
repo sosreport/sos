@@ -24,7 +24,6 @@ class RedHatSystem(System, RedHatPlugin):
         self.add_copy_specs([
             "/proc/sys",
             "/etc/cron*",
-            "/etc/anacrontab",
             "/var/spool/cron*",
             "/var/log/cron*",
             "/etc/syslog.conf",
