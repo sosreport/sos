@@ -21,7 +21,7 @@ class Printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'printing'
 
     option_list = [("cups", "max size (MiB) to collect per cups log file",
-                   "", 50)]
+                   "", 15)]
 
     def setup(self):
         self.add_copy_specs([
