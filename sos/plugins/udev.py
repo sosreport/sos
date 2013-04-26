@@ -21,4 +21,8 @@ class Udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'udev'
 
     def setup(self):
-        self.add_copy_specs(["/etc/udev/udev.conf", "/etc/udev/rules.d/*"])
+        self.add_copy_specs([
+            "/etc/udev/udev.conf",
+            "/lib/udev/rules.d",
+            "/etc/udev/rules.d/*"
+        ])
