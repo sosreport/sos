@@ -14,9 +14,9 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Openswan(Plugin, RedHatPlugin):
+class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """ipsec related information
     """
 
