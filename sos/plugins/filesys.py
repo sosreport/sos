@@ -23,8 +23,8 @@ class Filesys(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'filesys'
 
-    option_list = [("lsof", 'gathers information on all open files', 'slow', False)]
-    option_list = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
+    option_list = [("lsof", 'gathers information on all open files', 'slow', False),
+                   ("dumpe2fs", 'dump filesystem information', 'slow', False)]
 
     def setup(self):
         self.add_copy_specs([
