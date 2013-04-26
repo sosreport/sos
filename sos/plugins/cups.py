@@ -20,6 +20,7 @@ class Printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'printing'
 
+    packages = ('cups',)
     option_list = [("cups", "max size (MiB) to collect per cups log file",
                    "", 15)]
 
@@ -28,7 +29,8 @@ class Printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/cups/*.conf",
             "/etc/cups/lpoptions",
             "/etc/cups/ppd/*.ppd"])
-        self.add_copy_spec_limit("/var/log/cups", sizelimit=self.option_enabled("cupslogsize"))
+        self.add_copy_spec_limit("/var/log/cups",
+            sizelimit=self.option_enabled("cupslogsize"))
         self.add_cmd_output("lpstat -t")
         self.add_cmd_output("lpstat -s")
         self.add_cmd_output("lpstat -d")
