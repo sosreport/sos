@@ -14,12 +14,19 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Crontab(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Cron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Crontab information
     """
 
-    plugin_name = "crontab"
+    plugin_name = "cron"
+
+    files = ('/etc/crontab')
 
     def setup(self):
-        self.add_copy_spec("/etc/cron*")
-        self.add_cmd_output("crontab -l -u root", suggest_filename = "root_crontab")
+        self.add_copy_specs([
+                "/etc/cron*",
+                "/var/log/cron*",
+                "/var/spool/cron"
+        ])
+        self.add_cmd_output("crontab -l -u root",
+                suggest_filename = "root_crontab")

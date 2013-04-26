@@ -23,9 +23,6 @@ class RedHatSystem(System, RedHatPlugin):
     def setup(self):
         self.add_copy_specs([
             "/proc/sys",
-            "/etc/cron*",
-            "/var/spool/cron*",
-            "/var/log/cron*",
             "/etc/syslog.conf",
             "/etc/rsyslog.conf",
             "/etc/ntp.conf",
@@ -36,7 +33,6 @@ class RedHatSystem(System, RedHatPlugin):
         self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-        self.add_cmd_output("crontab -l")
 
 class DebianSystem(System, DebianPlugin, UbuntuPlugin):
     """core system related information for Debian and Ubuntu
@@ -44,8 +40,6 @@ class DebianSystem(System, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs([
             "/proc/sys",
-            "/etc/cron*",
-            "/var/spool/cron*",
             "/etc/syslog.conf",
             "/etc/rsyslog.conf",
             "/etc/ntp.conf" ])
@@ -54,5 +48,4 @@ class DebianSystem(System, DebianPlugin, UbuntuPlugin):
         self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-        self.add_cmd_output("crontab -l")
         
