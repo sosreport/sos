@@ -47,4 +47,5 @@ class NfsServer(Plugin, RedHatPlugin):
             "/var/lib/nfs/xtab",
             "/var/lib/nfs/rmtab"])
         self.add_cmd_output("rpcinfo -p localhost")
-        self.add_cmd_output("nfsstat -a")
+        self.add_cmd_output("nfsstat -o all")
+
