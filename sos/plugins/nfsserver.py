@@ -25,12 +25,16 @@ class NfsServer(Plugin, RedHatPlugin):
     plugin_name = 'nfsserver'
 
     def check_enabled(self):
-        if self.policy().default_runlevel() in self.policy().runlevel_by_service("nfs"):
+        default_runlevel = self.policy().default_runlevel()
+        nfs_runlevels = self.policy().runlevel_by_service("nfs")
+        if default_runlevel in nfs_runlevels:
             return True
 
         try:
-            if os.stat("/etc/exports")[ST_SIZE] > 0 or os.stat("/var/lib/nfs/xtab")[ST_SIZE] > 0:
-            return True
+            exports = os.stat("/etc/exports")[ST_SIZE]
+            xtab = os.stat("/var/lib/nfs/xtab")[ST_SIZE]
+            if exports or xtab:
+                return True
         except:
             pass
 
