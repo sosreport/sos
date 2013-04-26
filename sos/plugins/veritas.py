@@ -23,7 +23,8 @@ class Veritas(Plugin, RedHatPlugin):
 
     # Information about VRTSexplorer obtained from
     # http://seer.entsupport.symantec.com/docs/243150.htm
-    option_list = [("script", "Define VRTSexplorer script path", "", "/opt/VRTSspt/VRTSexplorer")]
+    option_list = [("script", "Define VRTSexplorer script path", "", 
+                                    "/opt/VRTSspt/VRTSexplorer")]
 
     def check_enabled(self):
         return os.path.isfile(self.get_option("script"))
