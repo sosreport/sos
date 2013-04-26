@@ -14,12 +14,12 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class System(Plugin):
-    plugin_name = "system"
-
-class RedHatSystem(System, RedHatPlugin):
+class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """core system related information
     """
+
+    plugin_name = "system"
+
     def setup(self):
         self.add_copy_specs([
             "/proc/sys",
@@ -31,18 +31,3 @@ class RedHatSystem(System, RedHatPlugin):
         self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
-
-class DebianSystem(System, DebianPlugin, UbuntuPlugin):
-    """core system related information for Debian and Ubuntu
-    """
-    def setup(self):
-        self.add_copy_specs([
-            "/proc/sys",
-            "/etc/syslog.conf",
-            "/etc/rsyslog.conf",
-        self.add_forbidden_path(
-                "/proc/sys/net/ipv8/neigh/*/retrans_time")
-        self.add_forbidden_path(
-                "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
-
-        
