@@ -24,8 +24,6 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'kvm'
 
-    option_list = [("topOutput", '5x iterations of top data', 'slow', False)]
-
     def check_enabled(self):
         return os.access("/sys/module/kvm", os.R_OK)
 
@@ -39,8 +37,6 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/sys/module/kvm_intel/srcversion")
         self.add_copy_spec("/sys/module/kvm_amd/srcversion")
         self.add_copy_spec("/sys/module/ksm/srcversion")
-        if self.get_option('topOutput'):
-            self.add_cmd_output("top -b -d 1 -n 5")
         self.add_cmd_output("kvm_stat --once")
 
     def postproc(self):
