@@ -14,11 +14,11 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Internationalization(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """i18n related information
+class I18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Internationalization related information
     """
 
-    plugin_name = 'internationalization'
+    plugin_name = 'i18n'
 
     def setup(self):
         self.add_copy_specs(["/etc/X11/xinit/xinput.d/*", "/etc/locale.conf"])
