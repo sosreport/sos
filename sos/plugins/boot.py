@@ -12,13 +12,18 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from glob import glob
 
-class Bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
+class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Bootloader information
     """
 
-    plugin_name = 'bootloader'
+    plugin_name = 'boot'
+
+    option_list = [("all-images",
+                    "collect a file listing for all initramfs images", "slow",
+                    False)]
 
     def setup(self):
         self.add_copy_specs([
@@ -29,3 +34,10 @@ class Bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
             "/boot/yaboot.conf"
         ])
         self.add_cmd_output("ls -lanR /boot")
+        self.add_cmd_output("lsinitrd")
+        if self.get_option("all-images"):
+            for image in glob('/boot/initr*.img'):
+                if image[-9:] == "kdump.img":
+                    continue
+                self.add_cmd_output("lsinitrd %s" % image)
+
