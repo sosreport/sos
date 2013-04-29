@@ -22,15 +22,15 @@ class Abrt(Plugin, RedHatPlugin):
     """
 
     plugin_name = "abrt"
+    packages = ('abrt-cli',)
+    files = ('/var/spool/abrt',)
 
-    option_list = [("backtraces", 'collect backtraces for every report', 'slow', False)]
-
-    def check_enabled(self):
-        return self.is_installed("abrt-cli") or \
-               exists("/var/spool/abrt")
+    option_list = [("backtraces", 'collect backtraces for every report',
+                                                            'slow', False)]
 
     def do_backtraces(self):
-        ret, output, rtime = self.call_ext_prog('sqlite3 /var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')
+        ret, output, rtime = self.call_ext_prog('sqlite3 '
+                    + '/var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')
         try:
             for uuid in output.split():
                 self.add_cmd_output("abrt-cli -ib %s" % uuid,
@@ -39,7 +39,8 @@ class Abrt(Plugin, RedHatPlugin):
             pass
 
     def setup(self):
-        self.add_cmd_output("abrt-cli -lf",
-                suggest_filename="abrt-log")
+        self.add_cmd_output("abrt-cli -lf", suggest_filename="abrt-log")
         if self.get_option('backtraces'):
             self.do_backtraces()
+
+
