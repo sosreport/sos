@@ -14,18 +14,13 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
-class Bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Bootloader information
+class Lilo(Plugin, RedHatPlugin, UbuntuPlugin):
+    """Lilo information
     """
 
-    plugin_name = 'bootloader'
+    plugin_name = 'lilo'
+    packages = ('lilo',)
 
     def setup(self):
-        self.add_copy_specs([
-            # legacy / special purpose bootloader configs
-            "/etc/milo.conf",
-            "/etc/silo.conf",
-            "/boot/efi/efi/redhat/elilo.conf",
-            "/boot/yaboot.conf"
-        ])
-        self.add_cmd_output("ls -lanR /boot")
+        self.add_copy_spec("/etc/lilo.conf")
+        self.add_cmd_output("lilo -q")

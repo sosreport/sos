@@ -12,20 +12,20 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Bootloader(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Bootloader information
+class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Grub information
     """
 
-    plugin_name = 'bootloader'
+    plugin_name = 'grub'
+    packages = ('grub',)
 
     def setup(self):
         self.add_copy_specs([
-            # legacy / special purpose bootloader configs
-            "/etc/milo.conf",
-            "/etc/silo.conf",
-            "/boot/efi/efi/redhat/elilo.conf",
-            "/boot/yaboot.conf"
+            "/boot/grub/grub.conf",
+            "/boot/grub/device.map",
+            "/etc/grub.conf",
+            "/etc/grub.d"
         ])
-        self.add_cmd_output("ls -lanR /boot")
+
