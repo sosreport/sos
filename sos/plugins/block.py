@@ -25,12 +25,16 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # legacy location for non-/run distributions
         self.add_copy_spec("/etc/blkid.tab")
         self.add_copy_spec("/run/blkid/blkid.tab")
+        self.add_cmd_output("lsblk")
+        self.add_cmd_output("blkid -c /dev/null")
         self.add_cmd_output("ls -lanR /dev")
         self.add_cmd_output("ls -lanR /sys/block")
 
         if os.path.isdir("/sys/block"):
-           for disk in os.listdir("/sys/block"):
-              if disk in [ ".",  ".." ] or disk.startswith("ram"):
-                 continue
-              self.add_cmd_output("udevadm info -ap /sys/block/%s" % (disk))
-
+            for disk in os.listdir("/sys/block"):
+                if disk in [ ".",  ".." ] or disk.startswith("ram"):
+                    continue
+                disk_path = os.path.join('/dev/', disk)
+                self.add_cmd_output("udevadm info -ap /sys/block/%s" % (disk))
+                self.add_cmd_output("parted -s %s print" % (disk_path))
+                self.add_cmd_output("fdisk -l %s" % disk_path)

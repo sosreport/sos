@@ -31,48 +31,15 @@ class Filesys(Plugin, RedHatPlugin, UbuntuPlugin):
             "/proc/filesystems",
             "/etc/fstab",
             "/proc/self/mounts",
-            "/proc/mounts",
-            "/proc/mdstat",
-            "/etc/raidtab",
-            "/etc/mdadm.conf"])
-        self.get_cmd_output_now("mount -l", root_symlink = "mount")
-
-        self.add_cmd_output("findmnt")
+            "/proc/mounts"
+        ])
+        self.add_cmd_output("mount -l", root_symlink = "mount")
         self.add_cmd_output("df -al", root_symlink = "df")
         self.add_cmd_output("df -ali")
+        self.add_cmd_output("findmnt")
+
         if self.get_option('lsof'):
             self.add_cmd_output("lsof -b +M -n -l -P", root_symlink = "lsof")
-        self.add_cmd_output("blkid -c /dev/null")
-        self.add_cmd_output("lsblk")
-
-        part_titlep = re.compile("^major")
-        blankp = re.compile("^$")
-        partlist = []
-        devlist = []
-        try:
-            for line in open('/proc/partitions'):
-                if((bool(part_titlep.match(line))) | (bool(blankp.match(line)))):
-                    continue
-                partlist.append('/dev/' + line.split()[-1])
-        except IOError:
-            exit(1)
-        if os.path.exists("hdparm"):
-            for dev in partlist:
-                ret, hdparm, time = self.call_ext_prog('hdparm -g %s' %(dev))
-                if(ret == 0):
-                    start_geo = hdparm.strip().split("\n")[-1].strip().split()[-1]
-                    if(start_geo == "0"):
-      	                devlist.append(dev)
-        else:
-            # Cheaper heuristic as RHEL* does not ship hdparm for S390(x)
-            # Skips least dm-.* correctly
-            part_in_disk = re.compile("^/dev/[a-z]+$")
-            for dev in partlist:
-                if bool(part_in_disk.match(dev)):
-                    devlist.append(dev)
-
-        for i in devlist:
-            self.add_cmd_output("parted -s %s print" % (i))
 
         if self.get_option('dumpe2fs'):
             mounts = '/proc/mounts'
