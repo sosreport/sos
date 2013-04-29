@@ -72,7 +72,6 @@ class Cluster(Plugin, RedHatPlugin):
         self.add_cmd_output("gfs_control ls -n")
         self.add_cmd_output("dlm_tool log_plock")
 
-        self.add_cmd_output("fdisk -l")
         self.get_cmd_output_now("clustat")
         self.get_cmd_output_now("group_tool dump")
         self.add_cmd_output("cman_tool services")
