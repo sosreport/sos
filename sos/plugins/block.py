@@ -22,13 +22,16 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'block'
 
     def setup(self):
-        # legacy location for non-/run distributions
-        self.add_copy_spec("/etc/blkid.tab")
-        self.add_copy_spec("/run/blkid/blkid.tab")
+        self.add_copy_spec("/proc/partitions")
+        
         self.add_cmd_output("lsblk")
         self.add_cmd_output("blkid -c /dev/null")
         self.add_cmd_output("ls -lanR /dev")
         self.add_cmd_output("ls -lanR /sys/block")
+
+        # legacy location for non-/run distributions
+        self.add_copy_spec("/etc/blkid.tab")
+        self.add_copy_spec("/run/blkid/blkid.tab")
 
         if os.path.isdir("/sys/block"):
             for disk in os.listdir("/sys/block"):
