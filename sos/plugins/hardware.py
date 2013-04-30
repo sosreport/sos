@@ -24,51 +24,16 @@ class Hardware(Plugin):
 
     def setup(self):
         self.add_copy_specs([
-            "/proc/partitions",
-            "/proc/cpuinfo",
-            "/proc/meminfo",
-            "/proc/ioports",
-            "/proc/iomem",
             "/proc/interrupts",
             "/proc/irq",
-            "/proc/scsi",
             "/proc/dma",
             "/proc/devices",
             "/proc/rtc",
-            "/proc/ide",
-            "/proc/bus",
-            "/etc/stinit.def",
-            "/proc/chandev",
-            "/proc/dasd",
-            "/proc/s390dbf/tape",
-            "/sys/bus/scsi",
-            "/sys/state",
-            "/sys/firmware/acpi/tables",
-            "/var/log/mcelog"])
-        self.add_cmd_output("""echo -e "lspci:\n" ; lspci ; echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", root_symlink = "lspci")
+            "/var/log/mcelog"
+        ])
 
         self.add_cmd_output("dmidecode", root_symlink = "dmidecode")
         
-        if self.policy().pkg_by_name("cpufreq-utils"):
-            self.add_cmd_output("cpufreq-info")
-            self.add_cmd_output("cpupower info")
-            self.add_cmd_output("cpupower frequency-info")
-
-        if self.policy().pkg_by_name("kernel-tools"):
-            self.add_cmd_output("cpupower info")
-            self.add_cmd_output("cpupower frequency-info")
-            self.add_cmd_output("cpupower idle-info")
-
-        if self.policy().get_arch().endswith("386"):
-            self.add_cmd_output("x86info -a")
-
-        self.add_cmd_output("lsusb")
-        self.add_cmd_output("lsusb -v")
-        self.add_cmd_output("lsusb -t")
-
-        self.add_cmd_output("lshal")
-        self.add_cmd_output("systool -c fc_host -v")
-        self.add_cmd_output("systool -c scsi_host -v")
 
 class RedHatHardware(Hardware, RedHatPlugin):
     """hardware related information for Red Hat distribution
