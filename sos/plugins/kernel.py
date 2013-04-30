@@ -33,8 +33,10 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.add_cmd_output("modinfo " + " ".join(modules))
         except OSError:
             self.soslog.error("could not list %s" % self.sys_module)
-            
+
+        self.add_cmd_output("dmesg")
         self.add_cmd_output("sysctl -a")
+
         self.add_copy_specs([
             "/proc/modules",
             "/proc/sys/kernel/random/boot_id",
@@ -59,6 +61,8 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/sys/kernel/tainted",
             "/proc/softirqs",
             "/proc/timer*",
-            "/proc/lock*"])
+            "/proc/lock*",
+            "/var/log/dmesg"
+        ])
 
         self.add_cmd_output("dkms status")

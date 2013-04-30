@@ -31,7 +31,6 @@ class General(Plugin):
             "/etc/sos.conf",
             "/etc/sysconfig",
             "/proc/stat",
-            "/var/log/dmesg",
             "/var/log/sa",
             "/var/log/pm/suspend.log",
             "/var/log/up2date",
@@ -42,14 +41,12 @@ class General(Plugin):
             "/root/anaconda-ks.cfg"])
 
         limit = self.get_option("syslogsize")
-        self.add_cmd_output("dmesg", suggest_filename="dmesg_now")
         self.add_copy_spec_limit("/var/log/messages*", sizelimit = limit)
         self.add_copy_spec_limit("/var/log/secure*", sizelimit = limit)
         self.add_cmd_output("hostid")
         self.add_cmd_output("hostname", root_symlink="hostname")
         self.add_cmd_output("date", root_symlink="date")
         self.add_cmd_output("uptime", root_symlink="uptime")
-        self.add_cmd_output("dmesg")
         self.add_cmd_output("alternatives --display java",
                                 root_symlink="java")
         self.add_cmd_output("readlink -f /usr/bin/java")
@@ -113,7 +110,6 @@ class UbuntuGeneral(General, UbuntuPlugin):
             "/var/log/syslog",
             "/var/log/udev",
             "/var/log/boot*",
-            "/var/log/dmesg*",
             "/var/log/kern*",
             "/var/log/mail*",
             "/var/log/dist-upgrade",
