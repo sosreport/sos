@@ -17,15 +17,16 @@ from glob import glob
 import os
 
 class Usb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """USB subsystem information
+    """USB device related information
     """
 
     plugin_name = "usb"
 
     def setup(self):
         self.add_copy_spec("/sys/bus/usb")
-        
+
         self.add_cmd_output("lsusb")
         self.add_cmd_output("lsusb -v")
         self.add_cmd_output("lsusb -t")
+
 
