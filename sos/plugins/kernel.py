@@ -36,6 +36,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             
         self.add_cmd_output("sysctl -a")
         self.add_copy_specs([
+            "/proc/modules",
             "/proc/sys/kernel/random/boot_id",
             "/sys/module/*/parameters",
             "/sys/module/*/initstate",
