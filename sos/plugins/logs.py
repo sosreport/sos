@@ -29,6 +29,11 @@ class Logs(Plugin):
     ]
 
     def setup(self):
+        self.add_copy_specs([
+            "/etc/syslog.conf",
+            "/etc/rsyslog.conf"
+        )]
+
         self.limit = self.get_option("syslogsize")
         self.add_copy_spec_limit("/var/log/boot*", sizelimit = self.limit)
 

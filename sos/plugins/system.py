@@ -21,11 +21,7 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "system"
 
     def setup(self):
-        self.add_copy_specs([
-            "/proc/sys",
-            "/etc/syslog.conf",
-            "/etc/rsyslog.conf",
-        ])
+        self.add_copy_specs("/proc/sys")
         self.add_forbidden_path(
                 "/proc/sys/net/ipv8/neigh/*/retrans_time")
         self.add_forbidden_path(
