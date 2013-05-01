@@ -40,9 +40,6 @@ class General(Plugin):
         self.add_cmd_output("hostname", root_symlink="hostname")
         self.add_cmd_output("date", root_symlink="date")
         self.add_cmd_output("uptime", root_symlink="uptime")
-        self.add_cmd_output("alternatives --display java",
-                                root_symlink="java")
-        self.add_cmd_output("readlink -f /usr/bin/java")
         self.add_cmd_output("tree /var/lib")
         self.add_cmd_output("ls -lR /var/lib")
 
@@ -81,4 +78,4 @@ class UbuntuGeneral(DebianGeneral):
 
     def setup(self):
         super(UbuntuGeneral, self).setup()
-            self.add_copy_spec("/etc/os-release")
+        self.add_copy_spec("/etc/os-release")
