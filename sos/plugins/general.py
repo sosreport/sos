@@ -20,9 +20,6 @@ class General(Plugin):
 
     plugin_name = "general"
 
-    option_list = [("syslogsize", "max size (MiB) to collect per syslog file", "", 15),
-                  ("all_logs", "collect all log files defined in syslog.conf", "", False)]
-
     def setup(self):
         self.add_copy_specs([
             "/etc/init",    # upstart
@@ -40,10 +37,6 @@ class General(Plugin):
             "/etc/localtime",
             "/root/anaconda-ks.cfg"])
 
-        limit = self.get_option("syslogsize")
-        self.add_copy_spec_limit("/var/log/messages*", sizelimit = limit)
-        self.add_copy_spec_limit("/var/log/secure*", sizelimit = limit)
-        self.add_cmd_output("hostid")
         self.add_cmd_output("hostname", root_symlink="hostname")
         self.add_cmd_output("date", root_symlink="date")
         self.add_cmd_output("uptime", root_symlink="uptime")
@@ -65,22 +58,6 @@ class RedHatGeneral(General, RedHatPlugin):
             "/etc/fedora-release",
         ])
 
-        if self.get_option('all_logs'):
-            print "doing all_logs..."
-            limit = self.option_enabled("syslogsize")
-            logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
-                                "/etc/syslog.conf")
-            print logs
-            if self.policy().pkg_by_name("rsyslog") \
-              or os.path.exists("/etc/rsyslog.conf"):
-                logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
-                print logs
-            for i in logs:
-                if i.startswith("-"):
-                    i = i[1:]
-                if os.path.isfile(i):
-                    self.add_copy_spec_limit(i, sizelimit = limit)
-
 
     def postproc(self):
         self.do_file_sub("/etc/sysconfig/rhn/up2date",
@@ -93,29 +70,15 @@ class DebianGeneral(General, DebianPlugin):
     def setup(self):
         super(DebianGeneral, self).setup()
         self.add_copy_specs([
-            "/etc/debian_version",
             "/etc/default",
             "/etc/lsb-release"
+            "/etc/debian_version",
         ])
-class UbuntuGeneral(General, UbuntuPlugin):
+
+
+class UbuntuGeneral(DebianGeneral):
     """Basic system information for Ubuntu based distributions"""
 
     def setup(self):
         super(UbuntuGeneral, self).setup()
-        self.add_copy_specs([
-            "/etc/default",
-            "/etc/lsb-release",
-            "/etc/os-release",
-            "/var/log/apport.log",
-            "/var/log/syslog",
-            "/var/log/udev",
-            "/var/log/boot*",
-            "/var/log/kern*",
-            "/var/log/mail*",
-            "/var/log/dist-upgrade",
-            "/var/log/landscape",
-            "/var/log/installer",
-            "/var/log/unattended-upgrades",
-            "/var/log/upstart"
-        ])
-
+            self.add_copy_spec("/etc/os-release")
