@@ -1,8 +1,8 @@
 Source: sosreport
 Maintainer: Adam Stokes <adam.stokes@ubuntu.com>
-Section: python
+Section: admin
 Priority: optional
-Standards-Version: 3.9.4
+Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 9), python (>=2.7), gettext, python-nose
 Homepage: https://github.com/sosreport/sosreport
 

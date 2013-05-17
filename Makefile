@@ -43,7 +43,7 @@ install: updateversion
 	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
 	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
-	install -m644 AUTHORS LICENSE README.md $(DESTDIR)/usr/share/$(NAME)/.
+	install -m644 AUTHORS README.md $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
