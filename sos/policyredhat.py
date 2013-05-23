@@ -268,7 +268,7 @@ class SosPolicy:
         if os.path.isfile("/usr/bin/xz"):
             self.report_file_ext = "tar.xz"
             self.renameResults("sosreport-%s-%s.%s" % (self.reportName, time.strftime("%Y%m%d%H%M%S"), self.report_file_ext))
-            cmd = "/bin/tar -c %s | /usr/bin/xz -1 > %s" % (os.path.basename(self.cInfo['dstroot']),self.report_file)
+            cmd = "/bin/tar -cf- %s | /usr/bin/xz -1 > %s" % (os.path.basename(self.cInfo['dstroot']),self.report_file)
             p = Popen(cmd, shell=True, bufsize=-1)
             sts = os.waitpid(p.pid, 0)[1]
         else:
