@@ -30,7 +30,7 @@ class Openshift(Plugin, RedHatPlugin):
 				    "/var/log/mongodb",
 				    "/var/log/openshift",
 				    "/var/www/openshift/broker/log",
-				    "/etc/openshift/")
+				    "/etc/openshift")
 
 		    self.collectExtOuput("bin/oo-accpet-broker -v")
 
