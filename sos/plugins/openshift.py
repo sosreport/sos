@@ -19,8 +19,8 @@ class Openshift(Plugin, RedHatPlugin):
 
     plugin_name = 'openshift'
 
-    option_list = [("broker", 'Gathers broker specific files', 'fast', 0),
-		   ("node", 'Gathers node specific files', 'fast', 0)]
+    option_list = [("broker", 'Gathers broker specific files', 'fast', off),
+		   ("node", 'Gathers node specific files', 'fast', off)]
 
     def setup(self):
 	    self.add_copy_spec("/etc/openshift-enterprise-version")
@@ -31,10 +31,10 @@ class Openshift(Plugin, RedHatPlugin):
 		    self.add_copy_spec("/var/log/openshift")
 		    self.add_copy_spec("/var/www/openshift/broker/log")
 		    self.add_copy_spec("/etc/openshift/")
-		    
+
 		    self.collectExtOuput("bin/oo-accpet-broker -v")
 
 	    if self.option_enabled("node"):
 		    self.add_copy_spec("/var/log/openshift/node")
-		    
+
 		    self.collectExtOuput("bin/oo-accept-node -v")
