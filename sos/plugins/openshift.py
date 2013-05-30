@@ -17,20 +17,20 @@ from sos.plugins import Plugin, RedHatPlugin
 class Openshift(Plugin, RedHatPlugin):
     '''Openshift related information'''
 
-    plugin_name = 'openshift'
+    plugin_name = "Openshift"
 
-    option_list = [("broker", 'Gathers broker specific files', 'fast', off),
-		   ("node", 'Gathers node specific files', 'fast', off)]
+    option_list = [("broker", "Gathers broker specific files", "slow", False),
+		   ("node", "Gathers node specific files", "slow", False)]
 
     def setup(self):
 	    self.add_copy_spec("/etc/openshift-enterprise-version")
 
 	    if self.option_enabled("broker"):
-		    self.add_copy_spec("/var/log/activemq")
-		    self.add_copy_spec("/var/log/mongodb")
-		    self.add_copy_spec("/var/log/openshift")
-		    self.add_copy_spec("/var/www/openshift/broker/log")
-		    self.add_copy_spec("/etc/openshift/")
+		    self.add_copy_spec("/var/log/activemq",
+				    "/var/log/mongodb",
+				    "/var/log/openshift",
+				    "/var/www/openshift/broker/log",
+				    "/etc/openshift/")
 
 		    self.collectExtOuput("bin/oo-accpet-broker -v")
 
