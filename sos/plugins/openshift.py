@@ -29,7 +29,7 @@ class Openshift(Plugin, RedHatPlugin):
 		    self.add_copy_spec("/var/log/activemq")
 		    self.add_copy_spec("/var/log/mongodb")
 		    self.add_copy_spec("/var/log/openshift")
-		    self.add_copy_spec("/var/www/openshift")
+		    self.add_copy_spec("/var/www/openshift/broker/log")
 		    self.add_copy_spec("/etc/openshift/")
 		    
 		    self.collectExtOuput("bin/oo-accpet-broker -v")
