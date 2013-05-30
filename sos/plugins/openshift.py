@@ -23,14 +23,17 @@ class Openshift(Plugin, RedHatPlugin):
 		   ("node", "Gathers node specific files", "slow", False)]
 
     def setup(self):
-	    self.add_copy_spec("/etc/openshift-enterprise-version")
+	    self.add_copy_spec(["/etc/openshift-enterprise-version",
+		              "/etc/openshift",
+			      "/etc/dhcp/dhclient-*.conf"])
 
 	    if self.option_enabled("broker"):
-		    self.add_copy_spec("/var/log/activemq",
+		    self.add_copy_spec(["/var/log/activemq",
 				    "/var/log/mongodb",
 				    "/var/log/openshift",
 				    "/var/www/openshift/broker/log",
-				    "/etc/openshift")
+				    "/var/www/openshift/broker/httpd/logs/",
+				    "/var/log/openshift/user_action.log"])
 
 		    self.collectExtOuput("bin/oo-accpet-broker -v")
 
