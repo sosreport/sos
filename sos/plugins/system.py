@@ -23,7 +23,7 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs("/proc/sys")
         self.add_forbidden_path(
-                "/proc/sys/net/ipv8/neigh/*/retrans_time")
+                "/proc/sys/net/ipv6/neigh/*/retrans_time")
         self.add_forbidden_path(
                 "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
