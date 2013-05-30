@@ -24,8 +24,7 @@ class Openshift(Plugin, RedHatPlugin):
 
     def setup(self):
 	    self.add_copy_spec(["/etc/openshift-enterprise-version",
-		              "/etc/openshift",
-			      "/etc/dhcp/dhclient-*"])
+		              "/etc/openshift/"])
 
 	    if self.option_enabled("broker"):
 		    self.add_copy_spec(["/var/log/activemq",
