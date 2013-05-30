@@ -23,11 +23,11 @@ class Openshift(Plugin, RedHatPlugin):
 		   ("node", "Gathers node specific files", "slow", False)]
 
     def setup(self):
-	    self.add_copy_spec(["/etc/openshift-enterprise-version",
+	    self.add_copy_specs(["/etc/openshift-enterprise-version",
 		              "/etc/openshift/"])
 
 	    if self.option_enabled("broker"):
-		    self.add_copy_spec(["/var/log/activemq",
+		    self.add_copy_specs(["/var/log/activemq",
 				    "/var/log/mongodb",
 				    "/var/log/openshift",
 				    "/var/www/openshift/broker/log",
