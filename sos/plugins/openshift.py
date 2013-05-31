@@ -24,7 +24,8 @@ class Openshift(Plugin, RedHatPlugin):
 
     def setup(self):
 	    self.add_copy_specs(["/etc/openshift-enterprise-version",
-		              "/etc/openshift/"])
+		    "/etc/openshift/",
+		    "/etc/dhcp/dhclient-*"])
 
 	    if self.option_enabled("broker"):
 		    self.add_copy_specs(["/var/log/activemq",
@@ -34,9 +35,19 @@ class Openshift(Plugin, RedHatPlugin):
 				    "/var/www/openshift/broker/httpd/logs/",
 				    "/var/log/openshift/user_action.log"])
 
-		    self.collectExtOuput("bin/oo-accpet-broker -v")
+		    self.add_cmd_output("oo-accpet-broker -v")
+		    self.add_cmd_output("oo-admin-chk -v")
+		    self.add_cmd_output("mco ping")
+		    self.add_cmd_output("gem list --local")
+		    self.add_cmd_output("cd /var/www/openshift/broker/ && bundle --local")
 
 	    if self.option_enabled("node"):
-		    self.add_copy_spec("/var/log/openshift/node")
+		    self.add_copy_specs(["/var/log/openshift/node",
+			    "/cgroup/all/openshift",
+			    "/var/log/mcollective.log",
+			    "/var/log/openshift-gears-async-start.log",
+			    "/var/log/httpd/error_log"])
 
-		    self.collectExtOuput("bin/oo-accept-node -v")
+		    self.add_cmd_output("oo-accept-node -v")
+		    self.add_cmd_output("oo-admin-ctl-gears list")
+		    self.add_cmd_output("ls -l /var/lib/openshift")
