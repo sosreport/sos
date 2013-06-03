@@ -349,6 +349,66 @@ No changes will be made to system configuration.
 
         fp.close()
 
+    def s3_results(self, final_filename):
+
+        # make sure a report exists
+        if not final_filename:
+            return False
+
+        bucket_name = self.ticket_number
+        
+        self._print()
+        # make sure report is readable
+        try:
+            fp = open(final_filename, "r")
+        except:
+            return False
+
+        # Extract configuration
+        s3url = os.environ.get('S3_URL')
+        if s3url == "none":
+            return False
+
+        from urlparse import urlparse
+        parsedurl = urlparse(s3url)
+        
+        hostname = parsedurl.hostname
+        port = parsedurl.port
+        
+        key = os.environ.get('EC2_ACCESS_KEY')
+        if key == "none":
+            return False
+        secret = os.environ.get('EC2_SECRET_KEY')
+        if secret == "none":
+            return False
+        # import boto
+        from boto.s3.connection import OrdinaryCallingFormat
+        from boto.s3.connection import S3Connection
+        # create object
+        calling_format = OrdinaryCallingFormat()
+        connection = S3Connection(aws_access_key_id = key,
+                                aws_secret_access_key = secret,
+                                is_secure = False,
+                                host = hostname,
+                                port = port,
+                                calling_format = calling_format)
+        # attempt to upload
+        self._print(_("Contacting the S3 service."))
+        self._print()
+        bucket = connection.lookup(bucket_name)
+        if bucket == None:
+            bucket = connection.create_bucket(bucket_name)
+        from boto.s3.key import Key
+        k = Key(bucket)
+        k.key = os.path.basename(final_filename)
+        k.set_contents_from_filename(final_filename)
+        self._print()
+        self._print(_("Your sosreport has been generated and saved in:\n  %s") % final_filename)
+        self._print()
+        self._print(_("Your sosreport has been uploaded to the bucket:\n  %s") % bucket_name)
+        self._print()
+        # collect big money
+
     def _print(self, msg=None):
         """A wrapper around print that only prints if we are not running in
         quiet mode"""

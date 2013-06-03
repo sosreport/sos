@@ -12,6 +12,7 @@ BuildArch: noarch
 Url: http://fedorahosted.org/sos
 BuildRequires: python-devel
 BuildRequires: gettext
+Requires: python-boto
 Requires: libxml2-python
 Requires: tar
 Requires: bzip2
