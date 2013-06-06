@@ -32,5 +32,5 @@ class RedHatSANLock(SANLock, RedHatPlugin):
     files = [ "/etc/sysconfig/sanlock" ]
 
     def setup(self):
-        super(RedHatSanlock, self).setup()
+        super(RedHatSANLock, self).setup()
         self.add_copy_spec("/etc/sysconfig/sanlock")
