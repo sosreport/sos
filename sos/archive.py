@@ -48,6 +48,8 @@ class Archive(object):
         os.makedirs(self._archive_path, 0700)
 
     def make_path(self, name):
+        if os.path.isabs(name):
+            name = name.lstrip(os.sep)
         return (os.path.join(self._archive_path, name))
 
     def prepend(self, src):
