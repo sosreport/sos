@@ -558,15 +558,16 @@ class SoSReport(object):
 
     def _set_archive(self):
         if self.opts.compression_type not in ('auto', 'zip', 'bzip2', 'gzip', 'xz'):
-            raise Exception("Invalid compression type specified. Options are: auto, zip, bzip2, gzip and xz")
+            raise Exception("Invalid compression type specified. Options are:" +
+                            "auto, zip, bzip2, gzip and xz")
         archive_name = os.path.join(self.opts.tmp_dir,self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
             auto_archive = self.policy.preferred_archive_name()
-            self.archive = auto_archive(archive_name)
+            self.archive = auto_archive(archive_name, self.opts.tmp_dir)
         elif self.opts.compression_type == 'zip':
-            self.archive = ZipFileArchive(archive_name)
+            self.archive = ZipFileArchive(archive_name, self.opts.tmp_dir)
         else:
-            self.archive = TarFileArchive(archive_name)
+            self.archive = TarFileArchive(archive_name, self.opts.tmp_dir)
 
     def _set_directories(self):
         self.cmddir = 'sos_commands'
