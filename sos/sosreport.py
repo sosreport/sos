@@ -569,6 +569,11 @@ class SoSReport(object):
         else:
             self.archive = TarFileArchive(archive_name, self.opts.tmp_dir)
 
+    def _make_archive_paths(self):
+        self.archive.makedirs(self.cmddir, 0755)
+        self.archive.makedirs(self.logdir, 0755)
+        self.archive.makedirs(self.rptdir, 0755)
+
     def _set_directories(self):
         self.cmddir = 'sos_commands'
         self.logdir = 'sos_logs'
@@ -915,6 +920,7 @@ class SoSReport(object):
         try:
             self.policy.pre_work()
             self._set_archive()
+            self._make_archive_paths()
         except Exception, e:
             import traceback
             traceback.print_exc(e)

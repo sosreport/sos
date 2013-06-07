@@ -41,6 +41,15 @@ class Archive(object):
 
     _name = "unset"
 
+    def __init__(self, name, tmpdir):
+        self._name = name
+        self._tmp_dir = tmpdir
+        self._archive_path = os.path.join(tmpdir, name)
+        os.makedirs(self._archive_path, 0700)
+
+    def make_path(self, name):
+        return (os.path.join(self._archive_path, name))
+
     def prepend(self, src):
         if src:
             name = os.path.split(self._name)[-1]
@@ -49,6 +58,10 @@ class Archive(object):
 
     def add_link(self, dest, link_name):
         pass
+
+    def makedirs(self, name, mode=0700):
+        print "Archive.mkdir('%s')" % name
+        os.makedirs(self.make_path(name), mode)
 
     def compress(self, method):
         """Compress an archive object via method. ZIP archives are ignored. If
@@ -59,8 +72,8 @@ class Archive(object):
 
 class TarFileArchive(Archive):
 
-    def __init__(self, name):
-        self._name = name
+    def __init__(self, name, tmpdir):
+        super(TarFileArchive, self).__init__(name, tmpdir)
         self._suffix = "tar"
         self.tarfile = tarfile.open(self.name(),
                     mode="w", format=tarfile.PAX_FORMAT)
