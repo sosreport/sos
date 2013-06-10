@@ -2,10 +2,10 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 2.3
+Version: 3.0
 Release: 1%{?dist}
 Group: Applications/System
-Source0: https://fedorahosted.org/releases/s/o/sos/%{name}-%{version}.tar.gz
+Source0: https://github.com/sosreport/sosreport
 License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
@@ -13,6 +13,7 @@ Url: http://fedorahosted.org/sos
 BuildRequires: python-devel
 BuildRequires: gettext
 Requires: libxml2-python
+Requires: rpm-python
 Requires: tar
 Requires: bzip2
 Requires: xz
@@ -44,32 +45,313 @@ rm -rf ${RPM_BUILD_ROOT}
 %{python_sitelib}/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
-%doc README.md LICENSE
+%doc AUTHORS README.md LICENSE 
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
-* Wed Jul 21 2010 Adam Stokes <ajs at redhat dot com> = 2.3-1
-- Auto update version during build
-- Capture plugin tracebacks properly into a separate file
+* Mon Jun 10 2013 Bryn M. Reeves <bmr@redhat.com> = 3.0-1
+- New upstream release
 
-* Thu May 20 2010 Adam Stokes <ajs at redhat dot com> = 2.2-0
-- Corosync plugin added
-- Cluster plugin updated
+* Thu May 23 2013 Bryn M. Reeves <bmr@redhat.com> = 2.2-39
+- Always invoke tar with '-f-' option
+  Resolves: bz966602
 
-* Thu Apr 22 2010 Adam Stokes <ajs at redhat dot com> = 2.1-0
-- Include --help in manpage
-- If tmp-dir is defined then put compressed archive there
+* Mon Jan 21 2013 Bryn M. Reeves <bmr@redhat.com> = 2.2-38
+- Fix interactive mode regression when --ticket unspecified
+  Resolves: bz822113
 
-* Sun Apr 11 2010 Adam Stokes <ajs at redhat dot com> = 2.0-0
-- Bump release to 2
-- Fix problem where sos generates error on newline in hostname
-- Remove references to sysreport*
+* Fri Jan 18 2013 Bryn M. Reeves <bmr@redhat.com> = 2.2-37
+- Fix propagation of --ticket parameter in interactive mode
+  Resolves: bz822113
 
-* Tue Mar 30 2010 Adam Stokes <ajs at redhat dot com> = 1.9-5
-- Remove references to rh-upload
+* Thu Jan 17 2013 Bryn M. Reeves <bmr@redhat.com> = 2.2-36
+- Revert OpenStack patch
+  Resolves: bz840057
 
-* Fri Mar 26 2010 Adam Stokes <ajs at redhat dot com> = 1.9-4
+* Wed Jan  9 2013 Bryn M. Reeves <bmr@redhat.com> = 2.2-35
+- Report --name and --ticket values as defaults
+  Resolves: bz822113
+- Fix device-mapper command execution logging
+  Resolves: bz824378
+- Fix data collection and rename PostreSQL module to pgsql
+  Resolves: bz852049
+
+* Fri Oct 19 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-34
+- Add support for content delivery hosts to RHUI module
+  Resolves: bz821323
+
+* Thu Oct 18 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-33
+- Add Red Hat Update Infrastructure module
+  Resolves: bz821323
+- Collect /proc/iomem in hardware module
+  Resolves: bz840975
+- Collect subscription-manager output in general module
+  Resolves: bz825968
+- Collect rhsm log files in general module
+  Resolves: bz826312
+- Fix exception in gluster module on non-gluster systems
+  Resolves: bz849546
+- Fix exception in psql module when dbname is not given
+  Resolves: bz852049
+
+* Wed Oct 17 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-32
+- Collect /proc/pagetypeinfo in memory module
+  Resolves: bz809727
+- Strip trailing newline from command output
+  Resolves: bz850433
+- Add sanlock module
+  Resolves: bz850779
+- Do not collect archived accounting files in psacct module
+  Resolves: bz850542
+- Call spacewalk-debug from rhn module to collect satellite data
+  Resolves: bz859142
+
+* Mon Oct 15 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-31
+- Avoid calling volume status when collecting gluster statedumps
+  Resolves: bz849546
+- Use a default report name if --name is empty
+  Resolves: bz822113
+- Quote tilde characters passed to shell in RPM module
+  Resolves: bz821005
+- Collect KDC and named configuration in ipa module
+  Resolves: bz825149
+- Sanitize hostname characters before using as report path
+  Resolves: bz822174
+- Collect /etc/multipath in device-mapper module
+  Resolves: bz817093
+- New plug-in for PostgreSQL
+  Resolves: bz852049
+- Add OpenStack module
+  Resolves: bz840057
+- Avoid deprecated sysctls in /proc/sys/net
+  Resolves: bz834594
+- Fix error logging when calling external programs
+  Resolves: bz824378
+- Use ip instead of ifconfig to generate network interface lists
+  Resolves: bz833170
+
+* Wed May 23 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-29
+- Collect the swift configuration directory in gluster module
+  Resolves: bz822442
+- Update IPA module and related plug-ins
+  Resolves: bz812395
+
+* Fri May 18 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-28
+- Collect mcelog files in the hardware module
+  Resolves: bz810702
+
+* Wed May 02 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-27
+- Add nfs statedump collection to gluster module
+  Resolves: bz752549
+
+* Tue May 01 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-26
+- Use wildcard to match possible libvirt log paths
+  Resolves: bz814474
+
+* Mon Apr 23 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-25
+- Add forbidden paths for new location of gluster private keys
+  Resolves: bz752549
+
+* Fri Mar  9 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-24
+- Fix katello and aeolus command string syntax
+  Resolves: bz752666
+- Remove stray hunk from gluster module patch
+  Resolves: bz784061
+
+* Thu Mar  8 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-22
+- Correct aeolus debug invocation in CloudForms module
+  Resolves: bz752666
+- Update gluster module for gluster-3.3
+  Resolves: bz784061
+- Add additional command output to gluster module
+  Resolves: bz768641
+- Add support for collecting gluster configuration and logs
+  Resolves: bz752549
+
+* Wed Mar  7 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-19
+- Collect additional diagnostic information for realtime systems
+  Resolves: bz789096
+- Improve sanitization of RHN user and case number in report name
+  Resolves: bz771393
+- Fix verbose output and debug logging
+  Resolves: bz782339 
+- Add basic support for CloudForms data collection
+  Resolves: bz752666
+- Add support for Subscription Asset Manager diagnostics
+  Resolves: bz752670
+
+* Tue Mar  6 2012 Bryn M. Reeves <bmr@redhat.com> = 2.2-18
+- Collect fence_virt.conf in cluster module
+  Resolves: bz760995
+- Fix collection of /proc/net directory tree
+  Resolves: bz730641
+- Gather output of cpufreq-info when present
+  Resolves: bz760424
+- Fix brctl showstp output when bridges contain multiple interfaces
+  Resolves: bz751273
+- Add /etc/modprobe.d to kernel module
+  Resolves: bz749919
+- Ensure relative symlink targets are correctly handled when copying
+  Resolves: bz782589
+- Fix satellite and proxy package detection in rhn plugin
+  Resolves: bz749262
+- Collect stderr output from external commands
+  Resolves: bz739080
+- Collect /proc/cgroups in the cgroups module
+  Resolve: bz784874
+- Collect /proc/irq in the kernel module
+  Resolves: bz784862
+- Fix installed-rpms formatting for long package names
+  Resolves: bz767827
+- Add symbolic links for truncated log files
+  Resolves: bz766583
+- Collect non-standard syslog and rsyslog log files
+  Resolves: bz771501
+- Use correct paths for tomcat6 in RHN module
+  Resolves: bz749279
+- Obscure root password if present in anacond-ks.cfg
+  Resolves: bz790402
+- Do not accept embedded forward slashes in RHN usernames
+  Resolves: bz771393
+- Add new sunrpc module to collect rpcinfo for gluster systems
+  Resolves: bz784061
+
+* Tue Nov  1 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-17
+- Do not collect subscription manager keys in general plugin
+  Resolves: bz750607
+ 
+* Fri Sep 23 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-16
+- Fix execution of RHN hardware.py from hardware plugin
+  Resolves: bz736718
+- Fix hardware plugin to support new lsusb path
+  Resolves: bz691477
+
+* Fri Sep 09 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-15
+- Fix brctl collection when a bridge contains no interfaces
+  Resolves: bz697899
+- Fix up2dateclient path in hardware plugin
+  Resolves: bz736718
+
+* Mon Aug 15 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-14
+- Collect brctl show and showstp output
+  Resolves: bz697899
+- Collect nslcd.conf in ldap plugin
+  Resolves: bz682124
+
+* Sun Aug 14 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-11
+- Truncate files that exceed specified size limit
+  Resolves: bz683219
+- Add support for collecting Red Hat Subscrition Manager configuration
+  Resolves: bz714293
+- Collect /etc/init on systems using upstart
+  Resolves: bz694813
+- Don't strip whitespace from output of external programs
+  Resolves: bz713449
+- Collect ipv6 neighbour table in network module
+  Resolves: bz721163
+- Collect basic cgroups configuration data
+  Resolves: bz729455
+
+* Sat Aug 13 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-10
+- Fix collection of data from LVM2 reporting tools in devicemapper plugin
+  Resolves: bz704383
+- Add /proc/vmmemctl collection to vmware plugin
+  Resolves: bz709491
+
+* Fri Aug 12 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-9
+- Collect yum repository list by default
+  Resolves: bz600813
+- Add basic Infiniband plugin
+  Resolves: bz673244
+- Add plugin for scsi-target-utils iSCSI target
+  Resolves: bz677124
+- Fix autofs plugin LC_ALL usage
+  Resolves: bz683404
+- Fix collection of lsusb and add collection of -t and -v outputs
+  Resolves: bz691477
+- Extend data collection by qpidd plugin
+  Resolves: bz726360
+- Add ethtool pause, coalesce and ring (-a, -c, -g) options to network plugin
+  Resolves: bz726427
+
+* Thu Apr 07 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-8
+- Use sha256 for report digest when operating in FIPS mode
+  Resolves: bz689387
+ 
+* Tue Apr 05 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-7
+- Fix parted and dumpe2fs output on s390
+  Resolves: bz622784
+
+* Fri Feb 25 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-6
+- Fix collection of chkconfig output in startup.py
+  Resolves: bz659467
+- Collect /etc/dhcp in dhcp.py plugin
+  Resolves: bz676522
+- Collect dmsetup ls --tree output in devicemapper.py
+  Resolves: bz675559
+- Collect lsblk output in filesys.py
+  Resolves: bz679433
+
+* Thu Feb 24 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-4
+- Fix collection of logs and config files in sssd.py
+  Resolves: bz624162
+- Add support for collecting entitlement certificates in rhn.py
+  Resolves: bz678665
+
+* Thu Feb 03 2011 Bryn M. Reeves <bmr@redhat.com> = 2.2-3
+- Fix cluster plugin dlm lockdump for el6
+  Resolves: bz622407
+- Add sssd plugin to collect configuration and logs
+  Resolves: bz624162
+- Collect /etc/anacrontab in system plugin
+  Resolves: bz622527
+- Correct handling of redhat-release for el6
+  Resolves: bz622528
+
+* Thu Jul 29 2010 Adam Stokes <ajs at redhat dot com> = 2.2-2
+- Resolves: bz582259
+- Resolves: bz585942
+- Resolves: bz584253
+- Resolves: bz581817
+
+* Thu Jun 10 2010 Adam Stokes <ajs at redhat dot com> = 2.2-0
+- Resolves: bz581921
+- Resolves: bz584253
+- Resolves: bz562651
+- Resolves: bz566170
+- Resolves: bz586450
+- Resolves: bz588223
+- Resolves: bz559737
+- Resolves: bz586405
+- Resolves: bz598978
+- Resolves: bz584763
+
+* Wed Apr 28 2010 Adam Stokes <ajs at redhat dot com> = 2.1-0
+- Resolves: bz585923
+- Resolves: bz585942
+- Resolves: bz586409
+- Resolves: bz586389
+- Resolves: bz548096
+- Resolves: bz557828
+- Resolves: bz563637
+- Resolves: bz584253
+- Resolves: bz462823
+- Resolves: bz528881
+- Resolves: bz566170
+- Resolves: bz578787
+- Resolves: bz581817
+- Resolves: bz581826
+- Resolves: bz584695
+- Resolves: bz568637
+- Resolves: bz584767
+- Resolves: bz586370
+
+* Mon Apr 12 2010 Adam Stokes <ajs at redhat dot com> = 2.0-0
+- Resolves: bz580015
+
+* Tue Mar 30 2010 Adam Stokes <ajs at redhat dot com> = 1.9-3
 - fix setup.py to autocompile translations and man pages
+- rebase 1.9
 
 * Fri Mar 19 2010 Adam Stokes <ajs at redhat dot com> = 1.9-2
 - updated translations
@@ -125,10 +407,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 * Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
-
-* Wed Jan 21 2009 Adam Stokes <ajs at redhat dot com> - 1.8-9
-- Resolves: bz436053 /usr/share/sos is not owned by any package
-- Resolves: bz434626 Wrong directory structure for translations
 
 * Mon Dec 29 2008 Adam Stokes <ajs at redhat dot com> - 1.8-5
 - removed source defines as python manifest handles this

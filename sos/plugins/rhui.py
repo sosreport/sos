@@ -32,7 +32,7 @@ class Rhui(Plugin, RedHatPlugin):
         else:
             cds = ""
 
-        rhui_debug_dst_path = os.path.join(self.commons['dstroot'],
+        rhui_debug_dst_path = os.path.join(self.get_cmd_dir(),
                 self.commons['cmddir'], self.name())
         try:
             os.mkdir(rhui_debug_dst_path)

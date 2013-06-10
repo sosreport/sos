@@ -35,6 +35,7 @@ class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
     vendor = "Red Hat"
     vendor_url = "http://www.redhat.com/"
+    _tmp_dir = "/var/tmp"
 
     def __init__(self):
         super(RedHatPolicy, self).__init__()
@@ -80,6 +81,10 @@ class RedHatPolicy(LinuxPolicy):
                 if onoff == "on":
                     ret.append(int(runlevel))
         return ret
+
+    def get_tmp_dir(self, opt_tmp_dir):
+        if not opt_tmp_dir:
+            return self._tmp_dir
 
     def get_local_name(self):
         return self.host_name()

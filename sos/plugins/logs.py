@@ -32,9 +32,9 @@ class Logs(Plugin):
         self.add_copy_specs([
             "/etc/syslog.conf",
             "/etc/rsyslog.conf"
-        )]
+        ])
 
-        self.limit = self.get_option("syslogsize")
+        self.limit = self.get_option("logsize")
         self.add_copy_spec_limit("/var/log/boot*", sizelimit = self.limit)
 
         if self.get_option('all_logs'):
