@@ -495,7 +495,7 @@ class SoSOptions(object):
                              help="specify alternate configuration file")
         parser.add_option("--tmp-dir", action="store",
                              dest="tmp_dir",
-                             help="specify alternate temporary directory", default=tempfile.gettempdir())
+                             help="specify alternate temporary directory", default=None)
         parser.add_option("--report", action="store_true",
                              dest="report",
                              help="Enable HTML/XML reporting", default=False)
@@ -517,6 +517,8 @@ class SoSReport(object):
         self.all_options = deque()
         self.xml_report = XmlReport()
         self.global_plugin_options = {}
+        self.archive = None
+        self.tempfile_util = None
 
         try:
             import signal
@@ -531,7 +533,8 @@ class SoSReport(object):
         self._read_config()
         self.policy = sos.policies.load()
         self._is_root = self.policy.is_root()
-        self.tempfile_util = TempFileUtil(tmp_dir=self.opts.tmp_dir)
+        self.tmpdir = self.policy.get_tmp_dir(self.opts.tmp_dir)
+        self.tempfile_util = TempFileUtil(self.tmpdir)
         self._set_directories()
 
     def print_header(self):
@@ -542,7 +545,7 @@ class SoSReport(object):
                 'cmddir': self.cmddir,
                 'logdir': self.logdir,
                 'rptdir': self.rptdir,
-                'tmpdir': self.opts.tmp_dir,
+                'tmpdir': self.tmpdir,
                 'soslog': self.soslog,
                 'proflog' : self.proflog,
                 'policy': self.policy,
@@ -560,14 +563,14 @@ class SoSReport(object):
         if self.opts.compression_type not in ('auto', 'zip', 'bzip2', 'gzip', 'xz'):
             raise Exception("Invalid compression type specified. Options are:" +
                             "auto, zip, bzip2, gzip and xz")
-        archive_name = os.path.join(self.opts.tmp_dir,self.policy.get_archive_name())
+        archive_name = os.path.join(self.tmpdir,self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
             auto_archive = self.policy.preferred_archive_name()
-            self.archive = auto_archive(archive_name, self.opts.tmp_dir)
+            self.archive = auto_archive(archive_name, self.tmpdir)
         elif self.opts.compression_type == 'zip':
-            self.archive = ZipFileArchive(archive_name, self.opts.tmp_dir)
+            self.archive = ZipFileArchive(archive_name, self.tmpdir)
         else:
-            self.archive = TarFileArchive(archive_name, self.opts.tmp_dir)
+            self.archive = TarFileArchive(archive_name, self.tmpdir)
 
     def _make_archive_paths(self):
         self.archive.makedirs(self.cmddir, 0755)
@@ -1156,8 +1159,10 @@ class SoSReport(object):
 
             return self.final_work()
         except (SystemExit, KeyboardInterrupt):
-            self.archive.cleanup()
-            self.tempfile_util.clean()
+            if self.archive:
+                self.archive.cleanup()
+            if self.tempfile_util:
+                self.tempfile_util.clean()
             return False
 
 def main(args):

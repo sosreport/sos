@@ -187,6 +187,10 @@ No changes will be made to system configuration.
             self.report_name += "." + self.ticket_number
         return "sosreport-%s-%s" % (self.report_name, time.strftime("%Y%m%d%H%M%S"))
 
+    def get_tmp_dir(self, opt_tmp_dir):
+        if not opt_tmp_dir:
+            return tempfile.gettempdir()
+
     def validatePlugin(self, plugin_class):
         """
         Verifies that the plugin_class should execute under this policy
