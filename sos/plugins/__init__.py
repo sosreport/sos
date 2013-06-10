@@ -422,42 +422,43 @@ class Plugin(object):
         except Exception:
             return default
 
-    def add_copy_spec_limit(self, fname, sizelimit=None, sub=None):
+    def add_copy_spec_limit(self, copyspec, sizelimit=None, sub=None):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
-        if not (fname and len(fname)):
+        if not (copyspec and len(copyspec)):
             return False
 
-        files = glob.glob(fname)
+        files = glob.glob(copyspec)
         files.sort()
         if len(files) == 0:
             return
-        cursize = 0
+        current_size = 0
         limit_reached = False
         sizelimit *= 1024 * 1024 # in MB
-        flog = None
+        _file = None
 
-        for flog in files:
-            cursize += os.stat(flog)[ST_SIZE]
-            if sizelimit and cursize > sizelimit:
+        for _file in files:
+            current_size += os.stat(_file)[ST_SIZE]
+            if sizelimit and current_size > sizelimit:
                 limit_reached = True
                 break
-            self.add_copy_spec(flog, sub)
+            self.add_copy_spec(_file, sub)
 
-        if flog == files[0] and limit_reached:
-            flog_name = flog
+        if limit_reached:
+            file_name = _file
 
             if sub:
                 old, new = sub
-                flog_name = flog.replace(old, new)
-            strfile = flog_name.replace(os.path.sep, ".") + ".tailed"
-            self.add_string_as_file(tail(flog, sizelimit), strfile)
+                file_name = _file.replace(old, new)
+            if file_name[0] == os.sep:
+                file_name = file_name.lstrip(os.sep)
+            strfile = file_name.replace(os.path.sep, ".") + ".tailed"
+            self.add_string_as_file(tail(_file, sizelimit), strfile)
             self.archive.add_link(os.path.join(
-                os.path.relpath('/', os.path.dirname(flog)), 'sos_strings',
-                self.name(), strfile), flog)
-                
+                os.path.relpath('/', os.path.dirname(_file)), 'sos_strings',
+                self.name(), strfile), _file)
 
     def add_copy_specs(self, copyspecs, sub=None):
         for copyspec in copyspecs:
