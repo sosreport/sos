@@ -190,6 +190,7 @@ No changes will be made to system configuration.
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
             return tempfile.gettempdir()
+        return opt_tmp_dir
 
     def validatePlugin(self, plugin_class):
         """

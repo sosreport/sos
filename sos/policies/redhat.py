@@ -85,6 +85,7 @@ class RedHatPolicy(LinuxPolicy):
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
             return self._tmp_dir
+        return opt_tmp_dir
 
     def get_local_name(self):
         return self.host_name()
