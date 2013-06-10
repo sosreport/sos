@@ -496,6 +496,12 @@ class Plugin(object):
         """Run a program and collect the output"""
         self.collect_cmds.append( (exe, suggest_filename, root_symlink, timeout) )
 
+    def get_cmd_dir(self):
+        """Return a directory into which this module should store
+        collected command output"""
+        return os.path.join(self.archive.get_tmp_dir(),
+                            'sos_commands', self.name())
+
     def file_grep(self, regexp, *fnames):
         """Returns lines matched in fnames, where fnames can either be
         pathnames to files to grep through or open file objects to grep through

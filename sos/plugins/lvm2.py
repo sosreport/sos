@@ -29,8 +29,8 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         """Collects an lvmdump in standard format with optional metadata
            archives for each physical volume present.
         """
-        cmd = "lvmdump -d '%s'" % os.path.join(self.commons['dstroot'],
-                                                "lvmdump")
+        lvmdump_cmd = "lvmdump -d '%s'"
+        cmd = lvmdump_cmd % os.path.join(self.get_cmd_dir(), "lvmdump")
         if self.get_option('lvmdump-a'):
           cmd += " -a"
         self.add_cmd_output(cmd)

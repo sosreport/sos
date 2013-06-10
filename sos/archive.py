@@ -59,6 +59,12 @@ class Archive(object):
     def add_dir(self, path):
         raise NotImplementedError
 
+    def get_tmp_dir(self):
+        """Return a temporary directory that clients of the archive may
+        use to write content to. The content of the path is guaranteed
+        to be included in the generated archive."""
+        raise NotImplementedError
+
     def cleanup(self):
         """Clean up any temporary resources used by an Archive class."""
         pass
@@ -136,6 +142,9 @@ class FileCacheArchive(Archive):
     def _makedirs(self, path, mode=0700):
         os.makedirs(path, mode)
         
+    def get_tmp_dir(self):
+        return self._archive_root
+
     def makedirs(self, path, mode=0700):
         self._makedirs(self.dest_path(path))
         self.log.debug("created directory at %s in FileCacheArchive %s"
