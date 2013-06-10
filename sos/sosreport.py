@@ -527,11 +527,11 @@ class SoSReport(object):
 
         #self.opts = self.parse_options(args)[0]
         self.opts = SoSOptions(args)
-        self.tempfile_util = TempFileUtil(tmp_dir=self.opts.tmp_dir)
         self._set_debug()
         self._read_config()
         self.policy = sos.policies.load()
         self._is_root = self.policy.is_root()
+        self.tempfile_util = TempFileUtil(tmp_dir=self.opts.tmp_dir)
         self._set_directories()
 
     def print_header(self):
