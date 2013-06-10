@@ -543,7 +543,7 @@ class Plugin(object):
         # pylint: disable-msg = W0612
         status, shout, runtime = sos_get_command_output(exe, timeout=timeout)
         if (status == 127):
-            self.soslog.info("could not run '%s': command not found" % exe)
+            self.soslog.debug("could not run '%s': command not found" % exe)
             return None
 
         if suggest_filename:
