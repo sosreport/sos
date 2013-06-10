@@ -1096,9 +1096,12 @@ class SoSReport(object):
 
         # compression could fail for a number of reasons
         try:
-            final_filename = self.archive.compress(self.opts.compression_type)
+            final_filename = self.archive.finalize(self.opts.compression_type)
         except:
-            return False
+            if self.opts.debug:
+                raise
+            else:
+                return False
 
         # automated submission will go here
         if not self.opts.upload:

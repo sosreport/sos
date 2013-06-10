@@ -22,6 +22,7 @@ import tarfile
 import zipfile
 import shutil
 import logging
+import shutil
 import shlex
 import re
 # required for compression callout (FIXME: move to policy?)
@@ -39,66 +40,126 @@ except ImportError:
 
 class Archive(object):
 
+    log = logging.getLogger("sos")
+
     _name = "unset"
 
-    def __init__(self, name, tmpdir):
-        self._name = name
-        self._tmp_dir = tmpdir
-        self._archive_path = os.path.join(tmpdir, name)
-        os.makedirs(self._archive_path, 0700)
+    # this is our contract to clients of the Archive class hierarchy.
+    # All sub-classes need to implement these methods (or inherit concrete
+    # implementations from a parent class.
+    def add_file(self, src, dest=None):
+        raise NotImplementedError
 
-    def make_path(self, name):
-        if os.path.isabs(name):
-            name = name.lstrip(os.sep)
-        return (os.path.join(self._archive_path, name))
+    def add_string(self, content, dest):
+        raise NotImplementedError
 
-    def prepend(self, src):
-        if src:
-            name = os.path.split(self._name)[-1]
-            renamed = os.path.join(name, src.lstrip(os.sep))
-            return renamed
+    def add_link(self, source, link_name):
+        raise NotImplementedError
 
-    def add_link(self, dest, link_name):
-        pass
+    def add_dir(self, path):
+        raise NotImplementedError
 
-    def makedirs(self, name, mode=0700):
-        print "Archive.mkdir('%s')" % name
-        os.makedirs(self.make_path(name), mode)
-
-    def compress(self, method):
-        """Compress an archive object via method. ZIP archives are ignored. If
-        method is automatic then the following technologies are tried in order: xz,
-        bz2 and gzip"""
+    def finalize(self, method):
+        """Finalize an archive object via method. This may involve creating
+        An archive that is subsequently compressed or simply closing an 
+        archive that supports in-line handling. If method is automatic then
+        the following technologies are tried in order: xz, bz2 and gzip"""
 
         self.close()
 
-class TarFileArchive(Archive):
+class FileCacheArchive(Archive):
+
+    _tmp_dir = ""
+    _archive_root = ""
+    _archive_path = ""
+    
+    def __init__(self, name, tmpdir):
+        self._name = name
+        self._tmp_dir = tmpdir
+        self._archive_root = os.path.join(tmpdir, name)
+        os.makedirs(self._archive_root, 0700)
+        self.log.debug("initialised empty FileCacheArchive at %s"
+                        % self._archive_root)
+
+    def dest_path(self, name):
+        if os.path.isabs(name):
+            name = name.lstrip(os.sep)
+        return (os.path.join(self._archive_root, name))
+
+    def _check_path(self, dest):
+        dest_dir = os.path.split(dest)[0]
+        if not dest_dir:
+            return
+        if not os.path.isdir(dest_dir):
+            self._makedirs(dest_dir)
+
+    def add_file(self, src, dest=None):
+        if not dest:
+            dest = src
+        dest = self.dest_path(dest)
+        self._check_path(dest)
+        try:
+            shutil.copy(src, dest)
+            shutil.copystat(src, dest)
+            stat = os.stat(src)
+            os.chown(dest, stat.st_uid, stat.st_gid)
+        except IOError as e:
+            self.log.info("caught IO error copying %s" % src)
+        self.log.debug("added %s to FileCacheArchive %s"
+                        % (src, self._archive_root))
+
+    def add_string(self, content, dest):
+        src = dest
+        dest = self.dest_path(dest)
+        self._check_path(dest)
+        f = open(dest, 'w')
+        f.write(content)
+        if os.path.exists(src):
+                shutil.copystat(src, dest)
+        self.log.debug("added string at %s to FileCacheArchive %s"
+                        % (src, self._archive_root))
+
+    def add_link(self, source, link_name):
+        dest = self.dest_path(link_name)
+        self._check_path(dest)
+        os.symlink(source, dest)
+        self.log.debug("added symlink at %s to %s in FileCacheArchive %s"
+                        % (dest, source, self._archive_root))
+
+    def add_dir(self, path):
+        self.makedirs(path)
+
+    def _makedirs(self, path, mode=0700):
+        os.makedirs(path, mode)
+        
+    def makedirs(self, path, mode=0700):
+        self._makedirs(self.dest_path(path))
+        self.log.debug("created directory at %s in FileCacheArchive %s"
+                        % (path, self._archive_root))
+
+    def open_file(self, path):
+        path = self.dest_path(path)
+        return open(path, "r")
+
+    def finalize(self, method):
+        self.log.debug("finalizing archive %s" % self._archive_root)
+        #print "finalizing archive %s" % self._archive_root
+        self._build_archive()
+        self.log.debug("built archive at %s (size=%d)" % (self._archive_path,
+        os.stat(self._archive_path).st_size))
+        return self._compress()
+
+class TarFileArchive(FileCacheArchive):
+
+    method = None
+    _with_selinux_context = False
 
     def __init__(self, name, tmpdir):
         super(TarFileArchive, self).__init__(name, tmpdir)
         self._suffix = "tar"
-        self.tarfile = tarfile.open(self.name(),
-                    mode="w", format=tarfile.PAX_FORMAT)
+        self._archive_path = os.path.join(tmpdir, self.name())
 
-    # this can be used to set permissions if using the
-    # tarfile.add() interface to add directory trees.
-    def copy_permissions_filter(self, tar_info):
-        orig_path = tar_info.name[len(os.path.split(self._name)[-1]):]
-        fstat = os.stat(orig_path)
-        context = self.get_selinux_context(orig_path)
-        if(context):
-            tar_info.pax_headers['RHT.security.selinux'] = context
-        self.set_tar_info_from_stat(tar_info,fstat)
-        return tar_info
-
-    def get_selinux_context(self, path):
-        try:
-            (rc, c) = selinux.getfilecon(path)
-            return c
-        except:
-            return None
-
-    def set_tar_info_from_stat(self, tar_info, fstat, mode=None):
+    def set_tarinfo_from_stat(self, tar_info, fstat, mode=None):
         tar_info.mtime = fstat.st_mtime
         tar_info.pax_headers['atime'] = "%.9f" % fstat.st_atime
         tar_info.pax_headers['ctime'] = "%.9f" % fstat.st_ctime
@@ -109,115 +170,56 @@ class TarFileArchive(Archive):
         tar_info.uid = fstat.st_uid
         tar_info.gid = fstat.st_gid
     
+    # this can be used to set permissions if using the
+    # tarfile.add() interface to add directory trees.
+    def copy_permissions_filter(self, tarinfo):
+        orig_path = tarinfo.name[len(os.path.split(self._name)[-1]):]
+        if not orig_path:
+            orig_path = self._archive_root
+        try:
+            fstat = os.stat(orig_path)
+        except OSError:
+            return tarinfo
+        if self._with_selinux_context:
+            context = self.get_selinux_context(orig_path)
+            if(context):
+                tarinfo.pax_headers['RHT.security.selinux'] = context
+        self.set_tarinfo_from_stat(tarinfo,fstat)
+        return tarinfo
+
+    def get_selinux_context(self, path):
+        try:
+            (rc, c) = selinux.getfilecon(path)
+            return c
+        except:
+            return None
+
     def name(self):
         return "%s.%s" % (self._name, self._suffix)
 
-    def add_parent(self, path):
-        path = os.path.split(path)[0]
-        if path == '':
-            return
-        self.add_file(path)
-
-    def add_file(self, src, dest=None):
-        if dest:
-            dest = self.prepend(dest)
-        else:
-            dest = self.prepend(src)
-
-        if dest in self.tarfile.getnames():
-            return
-        if src != '/':
-            self.add_parent(src)
-
-        tar_info = tarfile.TarInfo(name=dest)
-
-        if os.path.isdir(src):
-            tar_info.type = tarfile.DIRTYPE            
-            fileobj = None
-        else:
-            try:
-                fp = open(src, 'rb')
-                content = fp.read()
-                fp.close()
-            except:
-                # files with read permissions that cannot be read may exist
-                # in /proc, /sys and other virtual file systems.
-                content = ""
-            tar_info.size = len(content)
-            fileobj = StringIO(content)
-
-        # FIXME: handle this at a higher level?
-        if src.startswith("/sys/") or src.startswith ("/proc/"):
-            context = None
-        else:
-            context = self.get_selinux_context(src)
-            if context:
-                tar_info.pax_headers['RHT.security.selinux'] = context
-        try:
-            fstat = os.stat(src)
-            if os.path.isdir(src) and not (fstat.st_mode & 000200):
-                # directories not writable by their owner are a world of pain
-                # in tar archives. Do not allow them (see Issue #85).
-                mode = fstat.st_mode | 000200
-            else:
-                mode = None
-            self.set_tar_info_from_stat(tar_info,fstat, mode)
-            self.tarfile.addfile(tar_info, fileobj)
-        except Exception as e:
-            raise e
-        finally:
-            mode = None
-
-    def add_string(self, content, dest):
-        fstat = None
-        if os.path.exists(dest):
-            fstat = os.stat(dest)
-        dest = self.prepend(dest)
-        tar_info = tarfile.TarInfo(name=dest)
-        tar_info.size = len(content)
-        if fstat:
-            context = self.get_selinux_context(dest)
-            if context:
-                tar_info.pax_headers['RHT.security.selinux'] = context
-            self.set_tar_info_from_stat(tar_info, fstat)
-        else:
-            tar_info.mtime = time.time()
-        self.tarfile.addfile(tar_info, StringIO(content))
-
-    def add_link(self, dest, link_name):
-        tar_info = tarfile.TarInfo(name=self.prepend(link_name))
-        tar_info.type = tarfile.SYMTYPE
-        tar_info.linkname = dest
-        tar_info.mtime = time.time()
-        self.tarfile.addfile(tar_info, None)
-
-    def open_file(self, name):
-        try:
-            self.tarfile.close()
-            self.tarfile = tarfile.open(self.name(), mode="r")
-            name = self.prepend(name)
-            file_obj = self.tarfile.extractfile(name)
-            file_obj = StringIO(file_obj.read())
-            return file_obj
-        finally:
-            self.tarfile.close()
-            self.tarfile = tarfile.open(self.name(), mode="a")
-
-    def close(self):
-        self.tarfile.close()
-
-    def compress(self, method):
-        super(TarFileArchive, self).compress(method)
-
+    def _build_archive(self):
+        old_pwd = os.getcwd()
+        os.chdir(self._tmp_dir)
+        tar = tarfile.open(self._archive_path,
+                    mode="w", format=tarfile.PAX_FORMAT)
+        tar.add(os.path.split(self._name)[1], filter=self.copy_permissions_filter)
+        tar.close()
+        os.chdir(old_pwd)
+        shutil.rmtree(self._archive_root)
+        
+    def _compress(self):
         methods = ['xz', 'bzip2', 'gzip']
-
-        if method in methods:
-            methods = [method]
+        if self.method in methods:
+            methods = [self.method]
 
         last_error = Exception("compression failed for an unknown reason")
         log = logging.getLogger('sos')
 
         for cmd in methods:
+            suffix = "." + cmd.replace('ip', '')
+            # use fast compression if using xz or bz2
+            if cmd != "gzip":
+                cmd = "%s -1" % cmd
             try:
                 command = shlex.split("%s %s" % (cmd,self.name()))
                 p = Popen(command, stdout=PIPE, stderr=PIPE, bufsize=-1)
@@ -226,13 +228,12 @@ class TarFileArchive(Archive):
                     log.info(stdout)
                 if stderr:
                     log.error(stderr)
-                self._suffix += "." + cmd.replace('ip', '')
+                self._suffix += suffix
                 return self.name()
             except Exception, e:
                 last_error = e
         else:
             raise last_error
-
 
 class ZipFileArchive(Archive):
 
@@ -249,8 +250,8 @@ class ZipFileArchive(Archive):
     def name(self):
         return "%s.zip" % self._name
 
-    def compress(self, method):
-        super(ZipFileArchive, self).compress(method)
+    def finalize(self, method):
+        super(ZipFileArchive, self).finalize(method)
         return self.name()
 
     def add_file(self, src, dest=None):
