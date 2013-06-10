@@ -2,7 +2,7 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 2.3
+Version: 3.0
 Release: 1%{?dist}
 Group: Applications/System
 Source0: https://github.com/sosreport/sosreport
