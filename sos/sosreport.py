@@ -1155,7 +1155,9 @@ class SoSReport(object):
             self.version()
 
             return self.final_work()
-        except SystemExit:
+        except (SystemExit, KeyboardInterrupt):
+            self.archive.cleanup()
+            self.tempfile_util.clean()
             return False
 
 def main(args):

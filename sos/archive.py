@@ -59,6 +59,10 @@ class Archive(object):
     def add_dir(self, path):
         raise NotImplementedError
 
+    def cleanup(self):
+        """Clean up any temporary resources used by an Archive class."""
+        pass
+
     def finalize(self, method):
         """Finalize an archive object via method. This may involve creating
         An archive that is subsequently compressed or simply closing an 
@@ -141,10 +145,13 @@ class FileCacheArchive(Archive):
         path = self.dest_path(path)
         return open(path, "r")
 
+    def cleanup(self):
+        shutil.rmtree(self._archive_root)
+        
     def finalize(self, method):
         self.log.debug("finalizing archive %s" % self._archive_root)
-        #print "finalizing archive %s" % self._archive_root
         self._build_archive()
+        self.cleanup()
         self.log.debug("built archive at %s (size=%d)" % (self._archive_path,
         os.stat(self._archive_path).st_size))
         return self._compress()
@@ -205,7 +212,6 @@ class TarFileArchive(FileCacheArchive):
         tar.add(os.path.split(self._name)[1], filter=self.copy_permissions_filter)
         tar.close()
         os.chdir(old_pwd)
-        shutil.rmtree(self._archive_root)
         
     def _compress(self):
         methods = ['xz', 'bzip2', 'gzip']
