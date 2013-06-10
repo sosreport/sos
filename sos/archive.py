@@ -132,7 +132,8 @@ class FileCacheArchive(Archive):
     def add_link(self, source, link_name):
         dest = self.dest_path(link_name)
         self._check_path(dest)
-        os.symlink(source, dest)
+        if not os.path.exists(dest):
+            os.symlink(source, dest)
         self.log.debug("added symlink at %s to %s in FileCacheArchive %s"
                         % (dest, source, self._archive_root))
 
