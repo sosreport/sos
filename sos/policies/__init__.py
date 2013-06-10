@@ -6,6 +6,7 @@ import platform
 import time
 import fnmatch
 import sys
+import tempfile
 from os import environ
 
 from sos.utilities import ImporterHelper, \
