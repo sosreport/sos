@@ -33,6 +33,8 @@ class Openshift(Plugin, RedHatPlugin):
 				    "/var/log/openshift",
 				    "/var/www/openshift/broker/log",
 				    "/var/www/openshift/broker/httpd/logs/",
+				    "/var/www/openshift/console/log",
+				    "/var/www/openshift/console/httpd/logs",
 				    "/var/log/openshift/user_action.log"])
 
 		    self.add_cmd_output("oo-accpet-broker -v")
@@ -51,3 +53,20 @@ class Openshift(Plugin, RedHatPlugin):
 		    self.add_cmd_output("oo-accept-node -v")
 		    self.add_cmd_output("oo-admin-ctl-gears list")
 		    self.add_cmd_output("ls -l /var/lib/openshift")
+
+    def postproc(self):
+	    self.do_file_sub('/etc/openshift/broker.conf',
+			    r"(MONGO_PASSWORD=(.*)",
+			    r"\1*******")
+
+	    self.do_file_sub('/etc/openshift/broker.conf',
+			    r"(SESSION_SECRET=(.*)",
+			    r"\1*******")
+
+	    self.do_file_sub('/etc/openshift/console.conf',
+			    r"(SESSION_SECRET=(.*)",
+			    r"\1*******")
+
+	    self.do_file_sub('/etc/openshift/htpasswd',
+			    r"(\:(.*))",
+			    r"\1********")
