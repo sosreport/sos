@@ -68,5 +68,5 @@ class Openshift(Plugin, RedHatPlugin):
 			    r"\1*******")
 
 	    self.do_file_sub('/etc/openshift/htpasswd',
-			    r"(\:(.*))",
+			    r"(:(.*))",
 			    r"\1********")
