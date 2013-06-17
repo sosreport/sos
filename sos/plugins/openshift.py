@@ -30,6 +30,8 @@ class Openshift(Plugin, RedHatPlugin):
 				    "/var/log/mongodb",
 				    "/var/log/openshift",
 				    "/var/www/openshift/broker/log",
+				    "/var/www/openshift/console/httd/logs",
+				    "/var/www/openshift/console/log",
 				    "/etc/openshift")
 
 		    self.collectExtOuput("bin/oo-accpet-broker -v")
@@ -38,3 +40,18 @@ class Openshift(Plugin, RedHatPlugin):
 		    self.add_copy_spec("/var/log/openshift/node")
 
 		    self.collectExtOuput("bin/oo-accept-node -v")
+
+    def postproc(self):
+	    self.do_file_sub('/etc/openshift/broker.conf',
+			    r"(MONGO_PASSWORD=(.*)",
+			    r"\1******")
+
+	    self.do_file_sub('/etc/openshift/broker.conf',
+			    r"(SESSION_SECRET=(.*)",
+			    r"\1******")
+
+	    self.do_file_sub('/etc/openshift/console.conf',
+			    r"(SESSION_SECRET=(.*)",
+			    r"\1******")
+
+
