@@ -17,33 +17,22 @@ import sos.plugintools
 class selinux(sos.plugintools.PluginBase):
     """selinux related information
     """
-    optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
+    optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False),
+                   ("list", 'List objects and their context', 'slow', False)]
+    packages = ('libselinux', 'policycoreutils-python')
+
     def setup(self):
-        # sestatus is always collected in checkenabled()
+        # sestatus is always collected in check_enabled()
         self.addCopySpec("/etc/selinux")
-        self.collectExtOutput("/usr/bin/selinuxconfig")
+        self.collectExtOutput("sestatus -b")
+        self.collectExtOutput("semodule -l")
+        self.collectExtOutput("selinuxdefcon root")
+        self.collectExtOutput("selinuxconlist root")
         if self.getOption('fixfiles'):
-            self.collectExtOutput("/sbin/fixfiles check")
-        self.addForbiddenPath("/etc/selinux/targeted")
+            self.collectExtOutput("fixfiles check")
+        if self.getOption('list'):
+            self.collectExtOutput("semanage fcontext -l")
+            self.collectExtOutput("semanage user -l")
+            self.collectExtOutput("semanage login -l")
+            self.collectExtOutput("semanage port -l")
 
-        return
-
-    def checkenabled(self):
-        # is selinux enabled ?
-        try:
-            if self.collectOutputNow("/usr/sbin/sestatus", symlink = "sestatus").split(":")[1].strip() == "disabled":
-                return False
-        except:
-            pass
-        return True
-
-    def analyze(self):
-        # Check for SELinux denials and capture raw output from sealert
-        if self.policy().runlevelDefault() in self.policy().runlevelByService("setroubleshoot"):
-            # TODO: fixup regex for more precise matching
-            sealert=doRegexFindAll(r"^.*setroubleshoot:.*(sealert\s-l\s.*)","/var/log/messages")
-            if sealert:
-                for i in sealert:
-                    self.collectExtOutput("%s" % i)
-                self.addAlert("There are numerous selinux errors present and "+
-                              "possible fixes stated in the sealert output.")
