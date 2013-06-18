@@ -20,16 +20,23 @@ class SELinux(Plugin, RedHatPlugin):
 
     plugin_name = 'selinux'
 
-    option_list = [("fixfiles", 'Print incorrect file context labels', 'slow', False)]
+    option_list = [("fixfiles", 'Print incorrect file context labels', 'slow', False),
+                   ("list", 'List objects and their context', 'slow', False)]
     packages = ('libselinux',)
 
     def setup(self):
         # sestatus is always collected in check_enabled()
         self.add_copy_spec("/etc/selinux")
-        if self.get_option('fixfiles'):
-            self.add_cmd_output("fixfiles -v check")
         self.add_cmd_output("sestatus -b")
+        self.add_cmd_output("semodule -l")
         self.add_cmd_output("selinuxdefcon root")
         self.add_cmd_output("selinuxconlist root")
         self.add_cmd_output("selinuxexeccon /bin/passwd")
+        if self.get_option('fixfiles'):
+            self.add_cmd_output("fixfiles -v check")
+        if self.get_option('list'):
+            self.add_cmd_output("semanage fcontext -l")
+            self.add_cmd_output("semanage user -l")
+            self.add_cmd_output("semanage login -l")
+            self.add_cmd_output("semanage port -l")
 
