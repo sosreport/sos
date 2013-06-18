@@ -56,17 +56,17 @@ class Openshift(Plugin, RedHatPlugin):
 
     def postproc(self):
 	    self.do_file_sub('/etc/openshift/broker.conf',
-			    r"(MONGO_PASSWORD=(.*)",
+			    r"MONGO_PASSWORD=(.*)",
 			    r"\1*******")
 
 	    self.do_file_sub('/etc/openshift/broker.conf',
-			    r"(SESSION_SECRET=(.*)",
+			    r"(SESSION_SECRET=)(.*)",
 			    r"\1*******")
 
 	    self.do_file_sub('/etc/openshift/console.conf',
-			    r"(SESSION_SECRET=(.*)",
+			    r"(SESSION_SECRET=)(.*)",
 			    r"\1*******")
 
 	    self.do_file_sub('/etc/openshift/htpasswd',
-			    r"(:(.*))",
+			    r"(:)(.*)",
 			    r"\1********")
