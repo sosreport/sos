@@ -25,3 +25,6 @@ class Juju(Plugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs(["/var/log/juju",
                            "/var/lib/juju"])
+
+        self.add_cmd_output("juju -v status")
+        self.add_cmd_output("juju -v get-constraints")
