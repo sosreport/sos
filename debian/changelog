@@ -1,6 +1,6 @@
-sosreport (2.3-0~git20130509) unstable; urgency=low
+sosreport (2.3~git20130509-1) unstable; urgency=low
 
   * Package updated from git rev 395ad13da8
     Closes: #698329
 
- -- Adam Stokes <adam.stokes@ubuntu.com>  Thu, 09 May 2013 20:06:50 -0400
+ -- Adam Stokes <adam.stokes@ubuntu.com>  Fri, 31 May 2013 12:12:46 -0400
