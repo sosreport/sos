@@ -52,6 +52,6 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             mounts = '/proc/mounts'
             ext_fs_regex = r"^(/dev/.+).+xfs\s+"
             for dev in izip(self.do_regex_find_all(ext_fs_regex, mounts)):
-				for e in dev:
-						parts = e.split(' ')
-						self.add_cmd_output("xfs_info %s" % (parts[1]))
+                for e in dev:
+                    parts = e.split(' ')
+                    self.add_cmd_output("xfs_info %s" % (parts[1]))
