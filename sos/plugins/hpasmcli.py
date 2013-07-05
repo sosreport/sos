@@ -27,8 +27,15 @@ class hpasmcli(sos.plugintools.PluginBase):
         return False
 
     def setup(self):
-        cmdargs = [ 'ASR', 'BOOT', 'DIMM', 'DIMM SPD', 'F1', 'FANS', 'HT', 'IML', 'IPL', 'NAME', 'PORTMAP', 'POWERSUPPLY', 'PXE', 'SERIAL BIOS', 'SERIAL EMBEDDED', 'SERIAL VIRTUAL', 'SERVER', 'TEMP', 'UID', 'WOL' ]
+        hpcmd = '/sbin/hpasmcli -s'
+        cmdargs = [ '"SHOW ASR"', '"SHOW BOOT"', '"SHOW DIMM"',
+                  '"SHOW DIMM SPD"', '"SHOW F1"', '"SHOW FANS"',
+                  '"SHOW HT"', '"SHOW IML"', '"SHOW IPL"', '"SHOW NAME"',
+                  '"SHOW PORTMAP"', '"SHOW POWERSUPPLY"', '"SHOW PXE"',
+                  '"SHOW SERIAL BIOS"', '"SHOW SERIAL EMBEDDED" ',
+                  '"SHOW SERIAL VIRTUAL"', '"SHOW SERVER"', '"SHOW TEMP"',
+                  '"SHOW UID"', '"SHOW WOL"' ]
         for arg in cmdargs:
-            cmd = '/sbin/hpasmcli -s "SHOW ' + arg + '"'
+            cmd = hpcmd + ' ' + arg
             self.collectExtOutput(cmd, suggest_filename=arg)
         return
