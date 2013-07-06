@@ -24,8 +24,7 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'filesys'
 
     option_list = [("lsof", 'gathers information on all open files', 'slow', False),
-                   ("dumpe2fs", 'dump filesystem information', 'slow', False),
-                   ("xfs_info", 'dump XFS filesystem information', 'slow', False)]
+                   ("dumpe2fs", 'dump filesystem information', 'slow', False)]
 
     def setup(self):
         self.add_copy_specs([
@@ -47,11 +46,3 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
             for dev in izip(self.do_regex_find_all(ext_fs_regex, mounts)):
                 self.add_cmd_output("dumpe2fs -h %s" % (dev))
-
-        if self.get_option('xfs_info'):
-            mounts = '/proc/mounts'
-            ext_fs_regex = r"^(/dev/.+).+xfs\s+"
-            for dev in izip(self.do_regex_find_all(ext_fs_regex, mounts)):
-                for e in dev:
-                    parts = e.split(' ')
-                    self.add_cmd_output("xfs_info %s" % (parts[1]))
