@@ -1,5 +1,4 @@
-## hpasmcli.py
-## Captures HP Server specific information during a sos run.
+# Copyright (C) 2013 Red Hat Inc., Harald Jensås <hjensas@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,11 +14,14 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+# hpasmcli.py
+# Captures HP Server specific information during a sos run.
+
 import sos.plugintools
 import os
 
 class hpasmcli(sos.plugintools.PluginBase):
-    """HP Server related information
+    """HP Server hardware information
     """
     def checkenabled(self):
         if os.path.exists("/sbin/hpasmcli"):
