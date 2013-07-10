@@ -23,6 +23,11 @@ class nfs(sos.plugintools.PluginBase):
     packages = ['nfs-utils']
 
     def setup(self):
-	self.addCopySpec("/etc/idmapd.conf")
+	self.addCopySpecs([
+                "/etc/nfsmount.conf",
+                "/etc/idmapd.conf",
+                "/proc/fs/nfsfs/servers",
+                "/proc/fs/nfsfs/volumes"
+        ])
         return
 
