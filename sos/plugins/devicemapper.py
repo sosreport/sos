@@ -60,7 +60,7 @@ class devicemapper(sos.plugintools.PluginBase):
            for disk in os.listdir("/sys/block"):
               if disk in [ ".",  ".." ] or disk.startswith("ram"):
                  continue
-              self.collectExtOutput("/usr/bin/udevinfo -ap /sys/block/%s" % (disk))
+              self.collectExtOutput("/sbin/udevadm info -ap /sys/block/%s" % (disk))
         for opt in self.dmraidOptions:
             self.collectExtOutput("/sbin/dmraid -%s" % (opt,))
 
