@@ -55,9 +55,10 @@ class Cluster(Plugin, RedHatPlugin):
         self.add_copy_spec("/etc/sysconfig/cman")
         self.add_copy_spec("/etc/fence_virt.conf")
         self.add_copy_spec("/var/lib/ricci")
-        self.add_copy_spec("/var/lib/luci")
+        self.add_copy_spec("/var/lib/luci/data/luci.db")
+        self.add_copy_spec("/var/lib/luci/etc")
         self.add_copy_spec("/var/log/cluster")
-        self.add_copy_spec("/var/log/luci/luci.log")
+        self.add_copy_spec("/var/log/luci")
         self.add_copy_spec("/etc/fence_virt.conf")
 
         if self.get_option('gfslockdump'):
