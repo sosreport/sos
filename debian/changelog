@@ -1,3 +1,9 @@
+sosreport (3.0-1) unstable; urgency=low
+
+  * New upstream release 3.0 
+
+ -- Adam Stokes <adam.stokes@ubuntu.com>  Sun, 21 Jul 2013 22:29:21 -0400
+
 sosreport (2.3~git20130509-1) unstable; urgency=low
 
   * Package updated from git rev 395ad13da8

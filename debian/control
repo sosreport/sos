@@ -5,6 +5,7 @@ Priority: optional
 Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 9), python (>=2.7), gettext, python-nose
 Homepage: https://github.com/sosreport/sosreport
+X-Python-Version: >= 2.7, << 2.8
 
 Package: sosreport
 Architecture: any
