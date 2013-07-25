@@ -186,11 +186,6 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
                 'python-quantumclient')
 
     def setup(self):
-        # If RHEL or Fedora then invoke script for openstack-status
-        if (os.path.isfile('/etc/redhat-release')
-            or os.path.isfile('/etc/fedora-release')):
-            self.add_cmd_output("openstack-status")
-
         # Nova
         self.add_copy_specs(["/var/lib/nova/",
                            "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
