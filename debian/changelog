@@ -1,3 +1,15 @@
+sosreport (3.0-1) unstable; urgency=low
+
+  * New upstream release v3.0
+    Features include:
+    - Openstack, MAAS, Juju, and other cloud technologies
+    - Extended policies to allow for easier cross distribution support.
+    - Cross distribution support for Debian, Ubuntu, Fedora, and
+      Red Hat Enterprise Linux
+    - Increase execution speed of plugins
+
+ -- Adam Stokes <adam.stokes@ubuntu.com>  Sun, 21 Jul 2013 20:35:04 -0400
+
 sosreport (2.3~git20130509-1) unstable; urgency=low
 
   * Package updated from git rev 395ad13da8
