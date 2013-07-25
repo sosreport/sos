@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Red Hat, Inc., 
+## Copyright (C) 2012 Red Hat, Inc.,
 ##   Jesse Jaggars <jjaggars@redhat.com>
 ##   Bryn M. Reeves <bmr@redhat.com>
 ##
@@ -17,26 +17,20 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 import os
 import time
-import tempfile
 import tarfile
 import zipfile
 import shutil
 import logging
-import shutil
 import shlex
 import re
 # required for compression callout (FIXME: move to policy?)
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
 
 try:
     import selinux
 except ImportError:
     pass
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 class Archive(object):
 
@@ -71,25 +65,26 @@ class Archive(object):
 
     def finalize(self, method):
         """Finalize an archive object via method. This may involve creating
-        An archive that is subsequently compressed or simply closing an 
+        An archive that is subsequently compressed or simply closing an
         archive that supports in-line handling. If method is automatic then
         the following technologies are tried in order: xz, bz2 and gzip"""
 
         self.close()
+
 
 class FileCacheArchive(Archive):
 
     _tmp_dir = ""
     _archive_root = ""
     _archive_path = ""
-    
+
     def __init__(self, name, tmpdir):
         self._name = name
         self._tmp_dir = tmpdir
         self._archive_root = os.path.join(tmpdir, name)
         os.makedirs(self._archive_root, 0700)
-        self.log.debug("initialised empty FileCacheArchive at %s"
-                        % self._archive_root)
+        self.log.debug("initialised empty FileCacheArchive at %s" %
+                       (self._archive_root,))
 
     def dest_path(self, name):
         if os.path.isabs(name):
@@ -113,10 +108,10 @@ class FileCacheArchive(Archive):
             shutil.copystat(src, dest)
             stat = os.stat(src)
             os.chown(dest, stat.st_uid, stat.st_gid)
-        except IOError as e:
+        except IOError:
             self.log.info("caught IO error copying %s" % src)
-        self.log.debug("added %s to FileCacheArchive %s"
-                        % (src, self._archive_root))
+        self.log.debug("added %s to FileCacheArchive %s" %
+                       (src, self._archive_root))
 
     def add_string(self, content, dest):
         src = dest
@@ -127,7 +122,7 @@ class FileCacheArchive(Archive):
         if os.path.exists(src):
                 shutil.copystat(src, dest)
         self.log.debug("added string at %s to FileCacheArchive %s"
-                        % (src, self._archive_root))
+                       % (src, self._archive_root))
 
     def add_link(self, source, link_name):
         dest = self.dest_path(link_name)
@@ -135,21 +130,21 @@ class FileCacheArchive(Archive):
         if not os.path.exists(dest):
             os.symlink(source, dest)
         self.log.debug("added symlink at %s to %s in FileCacheArchive %s"
-                        % (dest, source, self._archive_root))
+                       % (dest, source, self._archive_root))
 
     def add_dir(self, path):
         self.makedirs(path)
 
     def _makedirs(self, path, mode=0700):
         os.makedirs(path, mode)
-        
+
     def get_tmp_dir(self):
         return self._archive_root
 
     def makedirs(self, path, mode=0700):
         self._makedirs(self.dest_path(path))
         self.log.debug("created directory at %s in FileCacheArchive %s"
-                        % (path, self._archive_root))
+                       % (path, self._archive_root))
 
     def open_file(self, path):
         path = self.dest_path(path)
@@ -157,14 +152,15 @@ class FileCacheArchive(Archive):
 
     def cleanup(self):
         shutil.rmtree(self._archive_root)
-        
+
     def finalize(self, method):
         self.log.debug("finalizing archive %s" % self._archive_root)
         self._build_archive()
         self.cleanup()
         self.log.debug("built archive at %s (size=%d)" % (self._archive_path,
-        os.stat(self._archive_path).st_size))
+                       os.stat(self._archive_path).st_size))
         return self._compress()
+
 
 class TarFileArchive(FileCacheArchive):
 
@@ -186,7 +182,7 @@ class TarFileArchive(FileCacheArchive):
             tar_info.mode = fstat.st_mode
         tar_info.uid = fstat.st_uid
         tar_info.gid = fstat.st_gid
-    
+
     # this can be used to set permissions if using the
     # tarfile.add() interface to add directory trees.
     def copy_permissions_filter(self, tarinfo):
@@ -201,7 +197,7 @@ class TarFileArchive(FileCacheArchive):
             context = self.get_selinux_context(orig_path)
             if(context):
                 tarinfo.pax_headers['RHT.security.selinux'] = context
-        self.set_tarinfo_from_stat(tarinfo,fstat)
+        self.set_tarinfo_from_stat(tarinfo, fstat)
         return tarinfo
 
     def get_selinux_context(self, path):
@@ -219,11 +215,12 @@ class TarFileArchive(FileCacheArchive):
         old_umask = os.umask(0077)
         os.chdir(self._tmp_dir)
         tar = tarfile.open(self._archive_path, mode="w")
-        tar.add(os.path.split(self._name)[1], filter=self.copy_permissions_filter)
+        tar.add(os.path.split(self._name)[1],
+                filter=self.copy_permissions_filter)
         tar.close()
         os.umask(old_umask)
         os.chdir(old_pwd)
-        
+
     def _compress(self):
         methods = ['xz', 'bzip2', 'gzip']
         if self.method in methods:
@@ -238,7 +235,7 @@ class TarFileArchive(FileCacheArchive):
             if cmd != "gzip":
                 cmd = "%s -1" % cmd
             try:
-                command = shlex.split("%s %s" % (cmd,self.name()))
+                command = shlex.split("%s %s" % (cmd, self.name()))
                 p = Popen(command, stdout=PIPE, stderr=PIPE, bufsize=-1)
                 stdout, stderr = p.communicate()
                 if stdout:
@@ -252,6 +249,7 @@ class TarFileArchive(FileCacheArchive):
         else:
             raise last_error
 
+
 class ZipFileArchive(Archive):
 
     def __init__(self, name):
@@ -262,7 +260,8 @@ class ZipFileArchive(Archive):
         except:
             self.compression = zipfile.ZIP_STORED
 
-        self.zipfile = zipfile.ZipFile(self.name(), mode="w", compression=self.compression)
+        self.zipfile = zipfile.ZipFile(self.name(), mode="w",
+                                       compression=self.compression)
 
     def name(self):
         return "%s.zip" % self._name
@@ -284,19 +283,19 @@ class ZipFileArchive(Archive):
                 for filename in filenames:
                     filename = "/".join((path, filename))
                     if dest:
-                        self.zipfile.write(filename,
-                                self.prepend(re.sub(regex, dest, filename)))
+                        self.zipfile.write(filename, re.sub(regex, dest,
+                                                            filename))
                     else:
-                        self.zipfile.write(filename, self.prepend(filename))
+                        self.zipfile.write(filename)
         else:
             if dest:
-                self.zipfile.write(src, self.prepend(dest))
+                self.zipfile.write(src, dest)
             else:
-                self.zipfile.write(src, self.prepend(src))
+                self.zipfile.write(src)
 
     def add_string(self, content, dest):
-        info = zipfile.ZipInfo(self.prepend(dest),
-                date_time=time.localtime(time.time()))
+        info = zipfile.ZipInfo(dest,
+                               date_time=time.localtime(time.time()))
         info.compress_type = self.compression
         info.external_attr = 0400 << 16L
         self.zipfile.writestr(info, content)
@@ -305,7 +304,6 @@ class ZipFileArchive(Archive):
         try:
             self.zipfile.close()
             self.zipfile = zipfile.ZipFile(self.name(), mode="r")
-            name = self.prepend(name)
             file_obj = self.zipfile.open(name)
             return file_obj
         finally:
@@ -314,5 +312,3 @@ class ZipFileArchive(Archive):
 
     def close(self):
         self.zipfile.close()
-
-
