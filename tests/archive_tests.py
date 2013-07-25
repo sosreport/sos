@@ -4,8 +4,11 @@ import unittest
 import os
 import tarfile
 import zipfile
+import tempfile
+import shutil
 
 from sos.archive import TarFileArchive, ZipFileArchive
+
 
 class ZipFileArchiveTest(unittest.TestCase):
 
@@ -27,37 +30,37 @@ class ZipFileArchiveTest(unittest.TestCase):
         self.zf.add_file('tests/ziptest')
         self.zf.close()
 
-        self.check_for_file('test/tests/ziptest')
+        self.check_for_file('tests/ziptest')
 
     def test_add_unicode_file(self):
         self.zf.add_file(u'tests/')
         self.zf.close()
 
-        self.check_for_file('test/tests/ziptest')
+        self.check_for_file('tests/ziptest')
 
     def test_add_dir(self):
         self.zf.add_file('tests/')
         self.zf.close()
 
-        self.check_for_file('test/tests/ziptest')
+        self.check_for_file('tests/ziptest')
 
     def test_add_renamed(self):
         self.zf.add_file('tests/ziptest', dest='tests/ziptest_renamed')
         self.zf.close()
 
-        self.check_for_file('test/tests/ziptest_renamed')
+        self.check_for_file('tests/ziptest_renamed')
 
     def test_add_renamed_dir(self):
         self.zf.add_file('tests/', 'tests_renamed/')
         self.zf.close()
 
-        self.check_for_file('test/tests_renamed/ziptest')
+        self.check_for_file('tests_renamed/ziptest')
 
     def test_add_string(self):
         self.zf.add_string('this is content', 'tests/string_test.txt')
         self.zf.close()
 
-        self.check_for_file('test/tests/string_test.txt')
+        self.check_for_file('tests/string_test.txt')
 
     def test_get_file(self):
         self.zf.add_string('this is my content', 'tests/string_test.txt')
@@ -72,40 +75,45 @@ class ZipFileArchiveTest(unittest.TestCase):
         afp = self.zf.open_file('tests/string_test.txt')
         self.assertEquals('this is my new content', afp.read())
 
-    def test_make_link(self):
-        self.zf.add_file('tests/ziptest')
-        self.zf.add_link('tests/ziptest', 'link_name')
+# Disabled as new api doesnt provide a add_link routine
+#    def test_make_link(self):
+#        self.zf.add_file('tests/ziptest')
+#        self.zf.add_link('tests/ziptest', 'link_name')
+#
+#        self.zf.close()
+#        try:
+#            self.check_for_file('test/link_name')
+#            self.fail("link should not exist")
+#        except KeyError:
+#            pass
 
-        self.zf.close()
-        try:
-            self.check_for_file('test/link_name')
-            self.fail("link should not exist")
-        except KeyError:
-            pass
+# Disabled as new api doesnt provide a compress routine
+#    def test_compress(self):
+#        self.assertEquals(self.zf.compress("zip"), self.zf.name())
 
-    def test_compress(self):
-        self.assertEquals(self.zf.compress("zip"), self.zf.name())
 
 class TarFileArchiveTest(unittest.TestCase):
 
     def setUp(self):
-        self.tf = TarFileArchive('test')
+        self.tmpdir = tempfile.mkdtemp()
+        self.tf = TarFileArchive('test', self.tmpdir)
 
     def tearDown(self):
-        os.unlink(self.tf.name())
+        shutil.rmtree(self.tmpdir)
 
     def check_for_file(self, filename):
-        rtf = tarfile.open('test.tar')
+        rtf = tarfile.open(os.path.join(self.tmpdir, 'test.tar'))
         rtf.getmember(filename)
         rtf.close()
 
     def test_create(self):
-        self.tf.close()
-        self.assertTrue(os.path.exists('test.tar'))
+        self.tf.finalize('auto')
+        self.assertTrue(os.path.exists(os.path.join(self.tmpdir,
+                                                    'test.tar')))
 
     def test_add_file(self):
         self.tf.add_file('tests/ziptest')
-        self.tf.close()
+        self.tf.finalize('auto')
 
         self.check_for_file('test/tests/ziptest')
 
@@ -119,7 +127,7 @@ class TarFileArchiveTest(unittest.TestCase):
 
     def test_add_renamed(self):
         self.tf.add_file('tests/ziptest', dest='tests/ziptest_renamed')
-        self.tf.close()
+        self.tf.finalize('auto')
 
         self.check_for_file('test/tests/ziptest_renamed')
 
@@ -133,7 +141,7 @@ class TarFileArchiveTest(unittest.TestCase):
 
     def test_add_string(self):
         self.tf.add_string('this is content', 'tests/string_test.txt')
-        self.tf.close()
+        self.tf.finalize('auto')
 
         self.check_for_file('test/tests/string_test.txt')
 
@@ -154,11 +162,11 @@ class TarFileArchiveTest(unittest.TestCase):
         self.tf.add_file('tests/ziptest')
         self.tf.add_link('tests/ziptest', 'link_name')
 
-        self.tf.close()
+        self.tf.finalize('auto')
         self.check_for_file('test/link_name')
 
     def test_compress(self):
-        name = self.tf.compress("gzip")
+        self.tf.finalize("auto")
 
 if __name__ == "__main__":
     unittest.main()
