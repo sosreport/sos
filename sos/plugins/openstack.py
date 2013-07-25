@@ -130,7 +130,7 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
             self.addCmdOutput(
                 "/usr/bin/cinder-manage db version",
                 suggest_filename="cinder_db_version")
-        self.addCopySpecs(["/etc/cinder/",
+        self.add_copy_specs(["/etc/cinder/",
                            "/var/log/cinder/",
                            "/etc/logrotate.d/cinder-*"])
         # Glance
