@@ -79,7 +79,7 @@ class OpenStack(Plugin):
                            "/var/log/quantum/"])
 
         # Swift
-        self.add_copy_specs("/etc/swift/")
+        self.add_copy_spec("/etc/swift/")
 
     def postproc(self):
         self.do_file_sub('/etc/keystone/keystone.conf',
@@ -154,13 +154,13 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         # Nova
-        self.add_copy_specs("/etc/sudoers.d/nova_sudoers")
+        self.add_copy_spec("/etc/sudoers.d/nova_sudoers")
 
         # Cinder
-        self.add_copy_specs("/etc/sudoers.d/cinder_sudoers")
+        self.add_copy_spec("/etc/sudoers.d/cinder_sudoers")
 
         # Quantum
-        self.add_copy_specs("/etc/sudoers.d/quantum_sudoers")
+        self.add_copy_spec("/etc/sudoers.d/quantum_sudoers")
 
 
 class RedHatOpenStack(OpenStack, RedHatPlugin):
@@ -187,6 +187,8 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
 
     def setup(self):
         # Nova
-        self.add_copy_specs(["/var/lib/nova/",
-                           "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
-                           "/etc/sudoers.d/nova"])
+        self.add_copy_specs([
+                "/var/lib/nova/",
+                "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
+                "/etc/sudoers.d/nova"
+        ])
