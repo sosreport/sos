@@ -67,7 +67,7 @@ class OpenStack(Plugin):
 
         # Cinder
         if os.path.exists("cinder-manage"):
-            self.addCmdOutput(
+            self.add_cmd_output(
                 "cinder-manage db version",
                 suggest_filename="cinder_db_version")
         self.add_copy_specs(["/etc/cinder/",
