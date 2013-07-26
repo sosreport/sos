@@ -46,7 +46,7 @@ class DirTreeTest(unittest.TestCase):
         # I'll admit, this a pretty lame test, but it will at least sniff out
         # some syntax issues
         t = DirTree(os.path.dirname(sos.__file__)).as_string()
-        self.assertTrue('Makefile' in t)
+        self.assertTrue('sos' in t)
 
 
 class ChecksumTest(unittest.TestCase):
