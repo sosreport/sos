@@ -1,2 +1,2 @@
 version=3
-https://github.com/sosreport/sosreport/archive/r3.0.tar.gz
+https://github.com/sosreport/sosreport/releases/tag/r3.0 /sosreport/sosreport/archive/r(.+).tar.gz
