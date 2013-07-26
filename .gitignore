@@ -7,10 +7,12 @@ tags
 buildjar/
 gpgkeys/rhsupport.*
 dist-build/*
-sos/__init__.py
 cover/
 .coverage
 *.mo
 sos.conf.5.gz
 sosreport.1.gz
 venv
+MANIFEST
+build/
+dist/
