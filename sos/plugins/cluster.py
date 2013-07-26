@@ -55,9 +55,10 @@ class Cluster(Plugin, RedHatPlugin):
         self.add_copy_spec("/etc/sysconfig/cman")
         self.add_copy_spec("/etc/fence_virt.conf")
         self.add_copy_spec("/var/lib/ricci")
-        self.add_copy_spec("/var/lib/luci")
+        self.add_copy_spec("/var/lib/luci/data/luci.db")
+        self.add_copy_spec("/var/lib/luci/etc")
         self.add_copy_spec("/var/log/cluster")
-        self.add_copy_spec("/var/log/luci/luci.log")
+        self.add_copy_spec("/var/log/luci")
         self.add_copy_spec("/etc/fence_virt.conf")
 
         if self.get_option('gfslockdump'):
@@ -144,6 +145,8 @@ class Cluster(Plugin, RedHatPlugin):
             self.do_file_sub(cluster_conf,
                         r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")",
                         r"\1%s" %('"***"'))
+        for luci_cfg in glob("/var/lib/luci/etc/*.ini*"):
+            self.do_file_sub(luci_cfg, r"(.*secret\s*=\s*)\S+", r"\1******")
         self.do_cmd_output_sub("corosync-objctl",
                         r"(.*fence.*\.passwd=)(.*)",
                         r"\1******")
