@@ -30,10 +30,15 @@ Fedora/RHEL users install via yum:
 yum install sos
 ```
 
-Debian/Ubuntu users can install via PPA:
+Debian(Sid) users install via apt:
 
 ```
-sudo add-apt-repository ppa:debugmonkeys/sosreport
-sudo apt-get update
+apt-get install sosreport
+```
+
+
+Ubuntu(Saucy 13.10) users install via apt:
+
+```
 sudo apt-get install sosreport
 ```
