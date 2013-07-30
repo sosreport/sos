@@ -23,8 +23,8 @@ class Samba(Plugin):
         self.add_copy_specs([
             "/etc/samba",
             "/var/log/samba/*",])
-        self.add_cmd_output("wbinfo -g")
-        self.add_cmd_output("wbinfo -u")
+        self.add_cmd_output("wbinfo --domain='.' -g")
+        self.add_cmd_output("wbinfo --domain='.' -u")
         self.add_cmd_output("testparm -s -v")
 
 
