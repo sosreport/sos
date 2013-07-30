@@ -64,6 +64,8 @@ class networking(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/proc/net/")
+        self.addForbiddenPath("/proc/net//rpc/*/channel")
+        self.addForbiddenPath("/proc/net//rpc/*/flush")
         self.addCopySpec("/etc/nsswitch.conf")
         self.addCopySpec("/etc/yp.conf")
         self.addCopySpec("/etc/inetd.conf")
