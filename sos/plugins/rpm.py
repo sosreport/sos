@@ -23,6 +23,8 @@ class Rpm(Plugin, RedHatPlugin):
     option_list = [("rpmq", "queries for package information via rpm -q", "fast", True),
                   ("rpmva", "runs a verify on all packages", "slow", False)]
 
+    verify_list = [ 'kernel', 'glibc', 'pam_.*' ]
+
     def setup(self):
         self.add_copy_spec("/var/log/rpmpkgs")
 
@@ -36,3 +38,9 @@ class Rpm(Plugin, RedHatPlugin):
 
         if self.get_option("rpmva"):
             self.add_cmd_output("rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
+        else:
+            pkgs_by_regex = self.policy().package_manager.all_pkgs_by_name_regex
+            verify_list = map(pkgs_by_regex, self.verify_list)
+            for pkg_list in verify_list:
+                for pkg in pkg_list:
+                    self.add_cmd_output("rpm -V %s" % pkg)
