@@ -7,6 +7,17 @@ sosreport (3.0-1) unstable; urgency=low
     - Cross distribution support for Debian, Ubuntu, Fedora, and
       Red Hat Enterprise Linux
     - Increase execution speed of plugins
+  * Fixes traceback error in the utilities log (Closes: #717401)
+  * debian/copyright:
+    - Add Company contributions notices in AUTHORS file.
+  * setup.py:
+    - Added to support packaging python modules via distutils.
+  * debian/rules:
+    - Fix build instructions to package sosreport as a private module.
+  * debian/control:
+    - Use XS-Python-Version and remove debian/pyversions.
+  * tests/archive_tests.py:
+    - Update unittests to work with latest api changes in the new release.
 
  -- Adam Stokes <adam.stokes@ubuntu.com>  Sun, 21 Jul 2013 20:35:04 -0400
 
