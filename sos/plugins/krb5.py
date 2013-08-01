@@ -23,8 +23,6 @@ class krb5(sos.plugintools.PluginBase):
     packages = [ 'krb5-libs' ]
 
     def setup(self):
-        self.addCopySpecs([
-            "/etc/krb5.conf",
-            "/etc/krb5.keytab"])
-        return
+        self.addCopySpec("/etc/krb5.conf")
+        self.collectExtOutput("/usr/bin/klist -ket /etc/krb5.keytab")
 

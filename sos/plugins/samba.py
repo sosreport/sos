@@ -21,7 +21,7 @@ class samba(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/samba")
         self.addCopySpec("/var/log/samba/*")
         self.addCopySpec("/etc/krb5.conf")
-        self.addCopySpec("/etc/krb5.keytab")
+        self.collectExtOutput("/usr/bin/klist -ket /etc/krb5.keytab")
         self.collectExtOutput("/usr/bin/wbinfo --domain='.' -g")
         self.collectExtOutput("/usr/bin/wbinfo --domain='.' -u")
         self.collectExtOutput("/usr/bin/testparm -s -v")
