@@ -1,3 +1,5 @@
+## Copyright (C) 2013 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
+
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -12,18 +14,17 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class samba(sos.plugintools.PluginBase):
+class krb5(sos.plugintools.PluginBase):
     """Samba related information
     """
+
+    packages = [ 'krb5-libs' ]
+
     def setup(self):
-        self.addCopySpec("/etc/samba")
-        self.addCopySpec("/var/log/samba/*")
-        self.addCopySpec("/etc/krb5.conf")
-        self.addCopySpec("/etc/krb5.keytab")
-        self.collectExtOutput("/usr/bin/wbinfo --domain='.' -g")
-        self.collectExtOutput("/usr/bin/wbinfo --domain='.' -u")
-        self.collectExtOutput("/usr/bin/testparm -s -v")
+        self.addCopySpecs([
+            "/etc/krb5.conf",
+            "/etc/krb5.keytab"])
         return
 
