@@ -1,3 +1,5 @@
+## Copyright (C) 2013 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
+
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -14,17 +16,14 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Samba related information
+class Krb5(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Kerberos related information
     """
-    packages = ('samba-common',)
-    plugin_name = "samba"
+    packages = ('krb5-libs', 'krb5-user')
+    plugin_name = 'krb5'
 
     def setup(self):
         self.add_copy_specs([
-            "/etc/samba",
-            "/var/log/samba/*",])
-        self.add_cmd_output("wbinfo --domain='.' -g")
-        self.add_cmd_output("wbinfo --domain='.' -u")
-        self.add_cmd_output("testparm -s -v")
+            "/etc/krb5.conf",
+            "/etc/krb5.keytab"])
 
