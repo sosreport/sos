@@ -73,7 +73,6 @@ class Ipa(Plugin, RedHatPlugin):
 
         self.add_cmd_output("klist -ket /etc/dirsrv/ds.keytab")
         self.add_cmd_output("klist -ket /etc/httpd/conf/ipa.keytab")
-        self.add_cmd_output("klist -ket /etc/krb5.keytab")
 
         return
 

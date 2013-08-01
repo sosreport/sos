@@ -23,7 +23,6 @@ class Krb5(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'krb5'
 
     def setup(self):
-        self.add_copy_specs([
-            "/etc/krb5.conf",
-            "/etc/krb5.keytab"])
+        self.add_copy_spec("/etc/krb5.conf")
+        self.add_cmd_output("klist -ket /etc/krb5.keytab")
 
