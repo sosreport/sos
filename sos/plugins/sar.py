@@ -20,7 +20,11 @@ class sar(sos.plugintools.PluginBase):
     """
     def setup(self):
         path="/var/log/sa"
-        dirList=os.listdir(path)
+        try:
+            dirList=os.listdir(path)
+        except:
+            self.soslog.error("sar: could not list /var/log/sa")
+            return
         # find all the sa file that don't have an existing sar file
         for fname in dirList:
             if fname[0:2] == 'sa' and fname[2] != 'r':
