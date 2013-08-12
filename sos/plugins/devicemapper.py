@@ -48,7 +48,13 @@ class devicemapper(sos.plugintools.PluginBase):
         self.addCopySpec("/var/lib/multipath/bindings")
         self.collectExtOutput("/sbin/multipath -v4 -ll")
 
-        self.collectExtOutput("/usr/bin/systool -v -c -b scsi")
+        self.collectExtOutput("/usr/bin/systool -v -b scsi")
+        self.collectExtOutput("/usr/bin/systool -v -c scsi_device")
+        self.collectExtOutput("/usr/bin/systool -v -c scsi_host")
+        self.collectExtOutput("/usr/bin/systool -v -c scsi_disk")
+        self.collectExtOutput("/usr/bin/systool -v -c scsi_generic")
+        self.collectExtOutput("/usr/bin/systool -v -m scsi_mod")
+        self.collectExtOutput("/usr/bin/systool -v -m scsi_transport_fc")
 
         self.collectExtOutput("/bin/ls -laR /dev")
         self.collectExtOutput("/bin/ls -laR /sys/block")
