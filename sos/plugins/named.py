@@ -41,6 +41,7 @@ class named(sos.plugintools.PluginBase):
                 self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/dev"))
                 self.addForbiddenPath(join(self.getDnsDir(cfg),"chroot/proc"))
 
+        self.collectExtOutput("ls -l /var/named")
         self.addCopySpec("/etc/named/")
         self.addCopySpec("/etc/sysconfig/named")
         self.collectExtOutput("klist -ket /etc/named.keytab")
