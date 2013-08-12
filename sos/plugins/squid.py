@@ -25,5 +25,6 @@ class Squid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('squid',)
 
     def setup(self):
-        self.add_copy_spec_limit("/etc/squid/squid.conf",
+        self.add_copy_spec("/etc/squid/squid.conf")
+        self.add_copy_spec_limit("/var/log/squid",
                         sizelimit=self.get_option('logsize'))
