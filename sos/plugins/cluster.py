@@ -97,6 +97,8 @@ class cluster(sos.plugintools.PluginBase):
             self.collectExtOutput("fence_tool dump")
             self.collectExtOutput("dlm_tool dump")
             self.collectExtOutput("dlm_tool ls -n")
+            crm_dest = os.path.join(self.cInfo['cmddir'], 'cluster', 'crm_report')
+            self.collectExtOutput("crm_report -S --dest %s" % crm_dest)
 
     def do_lockdump(self):
         rhelver = self.policy().rhelVersion()
