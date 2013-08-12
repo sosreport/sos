@@ -31,4 +31,7 @@ class OpenHPI(Plugin, RedHatPlugin):
         self.do_file_sub("/etc/openhpi/openhpi.conf"
                         r'([Pp]assw(or)?d|[Pp]assphrase)[[:space:]]+\=[[:space:]]"(.*)"',
                         r"\1******")
+        self.do_file_sub("/etc/openhpi/openhpiclient.conf"
+                        r'([Pp]assw(or)?d|[Pp]assphrase)[[:space:]]+\=[[:space:]]"(.*)"',
+                        r"\1******")
 
