@@ -18,6 +18,9 @@ import os
 class squid(sos.plugintools.PluginBase):
     """squid related information
     """
+
+    optionList = [("logsize", "max size (MiB) to collect per syslog file", "", 15)]
+
     def checkenabled(self):
         self.files = [ "/etc/squid/squid.conf" ]
         self.packages = [ "squid" ]
@@ -25,5 +28,7 @@ class squid(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")
+        self.addCopySpecLimit("/var/log/sqid",
+                            sizelimit = self.getOption("logsize"))
         return
 
