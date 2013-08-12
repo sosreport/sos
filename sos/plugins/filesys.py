@@ -27,6 +27,8 @@ class filesys(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/filesystems")
         self.addCopySpec("/etc/fstab")
         self.addCopySpec("/proc/self/mounts")
+        self.addCopySpec("/proc/self/mountstats")
+        self.addCopySpec("/proc/self/mountinfo")
         self.addCopySpec("/proc/mounts")
         self.addCopySpec("/proc/mdstat")
         self.addCopySpec("/etc/raidtab")
