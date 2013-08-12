@@ -44,14 +44,20 @@ from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from itertools import *
 from collections import deque
+from textwrap import fill
 
 from sos import _sos as _
 from sos import __version__
 
 if os.path.isfile('/etc/fedora-release'):
     __distro__ = 'Fedora'
+    __vendor__ = 'The Fedora Project'
+    __vendor_url = 'https://fedoraproject.org/'
+
 else:
     __distro__ = 'Red Hat Enterprise Linux'
+    __vendor__ = 'Red Hat'
+    __vendor_url = 'https://access.redhat.com/support/'
 
 class GlobalVars:
     """ Generic container for shared vars """
@@ -625,17 +631,36 @@ def sosreport(opts):
         soslog.error(_("no valid plugins were enabled"))
         doExit(1)
 
-    msg = _("""This utility will collect some detailed  information about the
-hardware and setup of your %(distroa)s system.
-The information is collected and an archive is  packaged under
-/tmp, which you can send to a support representative.
-%(distrob)s will use this information for diagnostic purposes ONLY
-and it will be considered confidential information.
+    msg = _("""
+This command will collect diagnostic and configuration \
+information from this %(distro)s system and installed \
+applications.
 
-This process may take a while to complete.
-No changes will be made to your system.
+An archive containing the collected information will be \
+generated in %(tmpdir)s and may be provided to a %(vendor)s \
+support representative.
 
-""" % {'distroa':__distro__, 'distrob':__distro__})
+Any information provided to %(vendor)s will be treated in \
+accordance with the published support policies at:\n
+
+%(vendor_url)s
+
+The generated archive may contain data considered sensitive \
+and its content should be reviewed by the originating \
+organization before being passed to any third party.
+
+No changes will be made to system configuration.
+%(vendor_text)s
+""" % {'distro':__distro__, 'vendor':__vendor__,
+       'vendor_url': __vendor_url,
+       'tmpdir': GlobalVars.__cmdLineOpts__.tmp_dir,
+       'vendor_text': ""})
+    _msg = ""
+    for line in msg.splitlines():
+        _msg = (_msg
+            + fill("  " + line + "\n", 58, replace_whitespace = False)
+            + "\n")
+    msg = _msg
 
     if GlobalVars.__cmdLineOpts__.batch:
         print msg
