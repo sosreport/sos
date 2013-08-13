@@ -22,17 +22,19 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'lvm2'
 
     option_list = [("lvmdump", 'collect an lvmdump tarball', 'fast', False),
-                  ("lvmdump-am", 'use the -a -m options of lvmdump ' \
-                    '(implies the "lvmdump" option)', 'slow', False)]
+                  ("lvmdump-am", 'attempt to collect an lvmdump with advanced ' \
+                    + 'options and raw metadata collection', 'slow', False)]
 
-    def do_lvmdump(self):
+    def do_lvmdump(self, metadata=False):
         """Collects an lvmdump in standard format with optional metadata
            archives for each physical volume present.
         """
-        lvmdump_cmd = "lvmdump -d '%s'"
-        cmd = lvmdump_cmd % os.path.join(self.get_cmd_dir(), "lvmdump")
-        if self.get_option('lvmdump-a'):
-          cmd += " -a"
+        lvmdump_cmd = "lvmdump %s -d '%s'" 
+        lvmdump_opts = ""
+        if metadata:
+            lvmdump_opts = "-a -m"
+        cmd = lvmdump_cmd % (lvmdump_opts,
+                             os.path.join(self.get_cmd_dir(), "lvmdump"))
         self.add_cmd_output(cmd)
 
     def setup(self):
@@ -47,5 +49,7 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         if self.get_option('lvmdump'):
             self.do_lvmdump()
+        elif self.get_option('lvmdump-am'):
+            self.do_lvmdump(metadata=True)
 
 
