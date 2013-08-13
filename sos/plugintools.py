@@ -36,6 +36,7 @@ from stat import *
 from time import time
 from itertools import *
 from collections import deque
+import fnmatch
 
 class PluginException(Exception): pass
 
@@ -108,6 +109,43 @@ class PluginBase:
                         self.soslog.info("could not apply regex substitution at path %s (%s)" % (abspath,e))
                         break
         return False
+
+    def doRegexExtOutputSub(self, cmd, regexp, subst):
+        '''Apply a regexp substitution to command output archived by sosreport.
+        cmd is the command name from which output is collected (i.e. excluding
+        parameters). The regexp can be a string or a compiled re object. The
+        substitution string, subst, is a string that replaces each occurrence
+        of regexp in each file collected from cmd. Internally 'cmd' is treated
+        as a glob with a trailing '*' and each matching file from the current
+        module's command list is subjected to the replacement.
+
+        This function returns the number of replacements made.
+        '''
+        globstr = '*' + cmd + '*'
+        self.soslog.debug("substituting '%s' for '%s' in commands matching %s"
+                    % (subst, regexp, globstr))
+
+        if not self.executedCommands:
+            return 0
+        replacements = 0
+        try:
+            for called in self.executedCommands:
+                if fnmatch.fnmatch(called['exe'], globstr):
+                    path = os.path.join(self.cInfo['cmddir'], called['file'])
+                    self.soslog.debug("applying substitution to %s" % path)
+                    readable = open(path, 'r')
+                    result, replaced = re.subn(
+                            regexp, subst, readable.read())
+                    readable.close()
+                    if replaced:
+                        fp = open(path, 'w')
+                        fp.write(result)
+                        fp.close()
+                        replacements = replacements + replaced
+        except Exception, e:
+            msg = 'regex substitution failed for %s in plugin %s with: "%s"'
+            self.soslog.error(msg % (path, self.piName, e))
+        return replacements
 
     def doRegexFindAll(self, regex, fname):
         ''' Return a list of all non overlapping matches in the string(s)
