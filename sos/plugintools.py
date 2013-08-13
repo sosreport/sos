@@ -314,6 +314,10 @@ class PluginBase:
             if filespec not in self.copyPaths:
                 self.copyPaths.append(filespec)
 
+    def addCopySpecs(self, copyspecs):
+        for copyspec in copyspecs:
+            self.addCopySpec(copyspec)
+
     def callExtProg(self, prog):
         """ Execute a command independantly of the output gathering part of
         sosreport
