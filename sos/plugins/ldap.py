@@ -18,10 +18,9 @@ import os
 class ldap(sos.plugintools.PluginBase):
     """LDAP related information
     """
-    def checkenabled(self):
-        self.packages = [ "openldap", "nss-pam-ldapd" ]
-        self.files = [ "/etc/openldap/ldap.conf" ]
-        return sos.plugintools.PluginBase.checkenabled(self)
+
+    packages = [ "openldap", "nss-pam-ldapd" ]
+    files = [ "/etc/openldap/ldap.conf", "/etc/pam_ldap.conf" ]
 
     def get_ldap_opts(self):
         # capture /etc/openldap/ldap.conf options in dict
@@ -45,8 +44,10 @@ class ldap(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/ldap.conf")
         self.addCopySpec("/etc/nslcd.conf")
         self.addCopySpec("/etc/openldap")
+        self.addCopySpec("/etc/pam_ldap.conf")
 
     def postproc(self):
-        self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
-        self.doRegexSub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1********")
+        self.doRegexSub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1********")
+        self.doRegexSub("/etc/pam_ldap.conf", r"(\s*bindpw\s*)\S+", r"\1********")
         return
