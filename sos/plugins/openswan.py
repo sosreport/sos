@@ -20,6 +20,11 @@ import os
 class openswan(sos.plugintools.PluginBase):
     """ipsec related information
     """
+
+    optionList = [("ipsec-barf",
+                   "collect the output of the ipsec barf command",
+                   "slow", False)]
+
     def checkenabled(self):
         if self.isInstalled("openswan") or os.path.exists("/etc/ipsec.conf"):
             return True
@@ -29,4 +34,5 @@ class openswan(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/ipsec.conf")
         self.addCopySpec("/etc/ipsec.d")
         self.collectExtOutput("/usr/sbin/ipsec verify")
-        self.collectExtOutput("/usr/sbin/ipsec barf")
+        if self.getOption("ipsec-barf"):
+            self.collectExtOutput("/usr/sbin/ipsec barf")
