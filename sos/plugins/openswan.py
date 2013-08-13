@@ -21,6 +21,9 @@ class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'openswan'
+    option_list = [("ipsec-barf",
+                   "collect the output of the ipsec barf command",
+                   "slow", False)]
 
     files = ('/etc/ipsec.conf',)
     packages = ('openswan',)
@@ -30,4 +33,5 @@ class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/ipsec.conf",
             "/etc/ipsec.d"])
         self.add_cmd_output("ipsec verify")
-        self.add_cmd_output("ipsec barf")
+        if self.get_option("ipsec-barf"):
+            self.add_cmd_output("ipsec barf")
