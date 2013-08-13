@@ -23,7 +23,13 @@ class Rpm(Plugin, RedHatPlugin):
     option_list = [("rpmq", "queries for package information via rpm -q", "fast", True),
                   ("rpmva", "runs a verify on all packages", "slow", False)]
 
-    verify_list = [ 'kernel', 'glibc', 'pam_.*' ]
+    verify_list = [
+        'kernel', 'glibc', 'initscripts',
+        'pam_.*',
+        'java.*', 'perl.*',
+        'rpm', 'yum',
+        'spacewalk.*',
+    ]
 
     def setup(self):
         self.add_copy_spec("/var/log/rpmpkgs")
