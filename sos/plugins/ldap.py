@@ -1,4 +1,4 @@
-### This program is free software; you can redistribute it and/or modify
+## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
@@ -49,7 +49,10 @@ class RedHatLdap(Ldap, RedHatPlugin):
 
     def setup(self):
         super(RedHatLdap, self).setup()
-        self.add_copy_specs(["/etc/openldap", "/etc/nslcd.conf"])
+        self.add_copy_specs([
+                "/etc/openldap",
+                "/etc/nslcd.conf"
+        ])
 
     def postproc(self):
         self.do_file_sub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
@@ -66,7 +69,11 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
 
         ldap_search = "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// "
 
-        self.add_copy_specs(["/etc/ldap/ldap.conf", "/etc/slapd.conf", "/etc/ldap/slapd.d"])
+        self.add_copy_specs([
+            "/etc/ldap/ldap.conf",
+            "/etc/slapd.conf",
+            "/etc/ldap/slapd.d"
+        ])
 
         self.add_cmd_output("ldapsearch -x -b '' -s base 'objectclass=*'")
         self.add_cmd_output(ldap_search + "-b cn=config '(!(objectClass=olcSchemaConfig))'",
