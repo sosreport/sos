@@ -23,7 +23,7 @@ class KDump(Plugin):
     def setup(self):
         self.add_copy_specs([
             "/proc/cmdline"
-            ])
+        ])
 
 class RedHatKDump(KDump, RedHatPlugin):
     """Kdump related information for Red Hat distributions
@@ -35,7 +35,9 @@ class RedHatKDump(KDump, RedHatPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/kdump.conf",
-            "/etc/udev/rules.d/*kexec.rules"])
+            "/etc/udev/rules.d/*kexec.rules",
+            "/var/crash/*/vmcore-dmesg.txt"
+        ])
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     """Kdump related information for Debian distributions
@@ -47,4 +49,4 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/default/kdump-tools"
-            ])
+        ])
