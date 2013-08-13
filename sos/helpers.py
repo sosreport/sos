@@ -52,7 +52,11 @@ def sosGetCommandOutput(command, timeout = 300):
     if not exists:
         return (127, "", 0)
 
-    p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, bufsize=-1)
+    cmd_env = os.environ
+    cmd_env['LC_ALL'] = 'C'
+    p = Popen(command, shell = True,
+              stdout = PIPE, stderr = STDOUT,
+              bufsize = -1, env = cmd_env)
     stdout, stderr = p.communicate()
     # hack to delete trailing '\n' added by p.communicate()
     if stdout[-1:] == '\n': stdout = stdout[:-1]

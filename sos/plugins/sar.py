@@ -33,7 +33,7 @@ class sar(sos.plugintools.PluginBase):
                 sar_filename = 'sar' + fname[2:4]
                 sa_data_path = os.path.join(self.sa_path, fname)
                 if sar_filename not in dirList:
-                    sar_command = "/bin/sh -c \"LANG=C /usr/bin/sar -A -f /var/log/sa/" + fname + "\""
+                    sar_command = "/usr/bin/sar -A -f /var/log/sa/" + fname
                     self.collectOutputNow(sar_command, sar_filename, symlink=sar_filename)
                 sadf_cmd = "/usr/bin/sadf -x %s" % sa_data_path
                 self.collectExtOutput(sadf_cmd, "%s.xml" % fname)
