@@ -50,9 +50,10 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/sysconfig/cman")
 	self.addCopySpec("/etc/fence_virt.conf")
         self.addCopySpec("/var/lib/ricci")
-        self.addCopySpec("/var/lib/luci")
+        self.addCopySpec("/var/lib/luci/data/luci.db")
+        self.addCopySpec("/var/lib/luci/etc")
         self.addCopySpec("/var/log/cluster")
-        self.addCopySpec("/var/log/luci/luci.log")
+        self.addCopySpec("/var/log/luci")
 
         if self.getOption('gfslockdump'):
             self.do_gfslockdump()
@@ -130,6 +131,8 @@ class cluster(sos.plugintools.PluginBase):
     def postproc(self):
         for cluster_conf in glob("/etc/cluster/cluster.conf*"):
             self.doRegexSub(cluster_conf, r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")", r"\1%s" %('"***"'))
+        for luci_conf in glob("/var/lib/luci/etc/*.ini*"):
+            self.doRegexSub(luci_cfg, r"(.*secret\s*=\s*)\S+", r"\1******")
         self.doRegexExtOutputSub("corosync-objctl", r"(.*fence.*\.passwd=)(.*)", r"\1******")
         return
 
