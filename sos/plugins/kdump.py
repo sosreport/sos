@@ -28,4 +28,5 @@ class kdump(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/sysconfig/kdump")
         self.addCopySpec("/proc/cmdline")
         self.addCopySpec("/etc/udev/rules.d/*kexec.rules")
+        self.addCopySpec("/var/crash/*/vmcore-dmesg.txt")
         return
