@@ -22,8 +22,8 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'lvm2'
 
     option_list = [("lvmdump", 'collect an lvmdump tarball', 'fast', False),
-                  ("lvmdump-a", 'use the -a option of lvmdump (implies the ' \
-                    + '"lvmdump" option)', 'slow', False)]
+                  ("lvmdump-am", 'use the -a -m options of lvmdump ' \
+                    '(implies the "lvmdump" option)', 'slow', False)]
 
     def do_lvmdump(self):
         """Collects an lvmdump in standard format with optional metadata
