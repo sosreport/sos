@@ -65,7 +65,6 @@ class rhn(sos.plugintools.PluginBase):
         self.addCopySpec("/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log")
 
         self.addCopySpec("/root/ssl-build")
-        self.collectExtOutput("rpm -qa --last", symlink = "rpm-manifest")
         self.collectExtOutput("/usr/bin/rhn-schema-version", symlink = "database-schema-version")
         self.collectExtOutput("/usr/bin/rhn-charsets", symlink = "database-character-sets")
 
