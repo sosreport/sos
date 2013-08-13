@@ -39,23 +39,28 @@ class Ldap(Plugin):
         self.add_copy_spec("/etc/ldap.conf")
 
     def postproc(self):
-        self.do_file_sub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.do_file_sub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1******")
 
 class RedHatLdap(Ldap, RedHatPlugin):
     """LDAP related information for RedHat based distribution
     """
 
     packages = ('openldap', 'nss-pam-ldapd')
+    files = ('/etc/ldap.conf', '/etc/pam_ldap.conf')
 
     def setup(self):
         super(RedHatLdap, self).setup()
         self.add_copy_specs([
                 "/etc/openldap",
-                "/etc/nslcd.conf"
+                "/etc/nslcd.conf",
+                "/etc/pam_ldap.conf"
         ])
 
     def postproc(self):
-        self.do_file_sub("/etc/nslcd.conf", r"(\s*bindpw\s*)\S+", r"\1***")
+        self.do_file_sub("/etc/nslcd.conf",
+                        r"(\s*bindpw\s*)\S+", r"\1********")
+        self.do_file_sub("/etc/pam_ldap.conf",
+                        r"(\s*bindpw\s*)\S+", r"\1********")
 
 class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
     """LDAP related information for Debian based distribution
@@ -86,4 +91,4 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         self.do_cmd_output_sub(
         "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=config '(!(objectClass=olcSchemaConfig))'",
-            r"(olcRootPW\: \s*)\S+", r"\1***")
+            r"(olcRootPW\: \s*)\S+", r"\1********")
