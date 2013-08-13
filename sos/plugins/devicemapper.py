@@ -19,13 +19,23 @@ class devicemapper(sos.plugintools.PluginBase):
     """device-mapper related information (dm, lvm, multipath)
     """
 
-    optionList = [("lvmdump", 'collect an lvmdump', 'fast', False)]
+    optionList = [("lvmdump", 'collect an lvmdump', 'fast', False),
+                  ("lvmdump-am", 'attempt to collect an lvmdump with advanced ' \
+                    + 'options and raw metadata collection', 'slow', False),]
+
     dmraidOptions = ['V','b','r','s','tay','rD']
 
-    def do_lvmdump(self):
+    def do_lvmdump(self, metadata=False):
         """Calls the LVM2 lvmdump script to collect detailed diagnostic information
         """
-        self.callExtProg("lvmdump -d %s" % os.path.join(self.cInfo['dstroot'],"lvmdump"))
+        lvmdump_cmd = "lvmdump %s -d '%s'" 
+        lvmdump_opts = ""
+        if metadata:
+            lvmdump_opts = "-a -m"
+        cmd = lvmdump_cmd % (lvmdump_opts,
+                             os.path.join(self.cInfo['cmddir'],
+                             "devicemapper","lvmdump"))
+        self.callExtProg(cmd)
 
     def setup(self):
         self.collectExtOutput("/sbin/dmsetup info -c")
@@ -61,6 +71,8 @@ class devicemapper(sos.plugintools.PluginBase):
 
         if self.getOption('lvmdump'):
             self.do_lvmdump()
+        elif self.getOption('lvmdump-am'):
+            self.do_lvmdump(metadata=True)
 
         if os.path.isdir("/sys/block"):
            for disk in os.listdir("/sys/block"):
