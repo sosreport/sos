@@ -19,6 +19,14 @@ class rpm(sos.plugintools.PluginBase):
     """
     optionList = [("rpmq", "queries for package information via rpm -q", "fast", True),
                   ("rpmva", "runs a verify on all packages", "slow", False)]
+
+    verify_list = [
+        'kernel', 'glibc', 'initscripts',
+        'pam_.*',
+        'java.*', 'perl.*',
+        'rpm', 'yum',
+        'spacewalk.*'
+    ]
                   
     def setup(self):
         self.addCopySpec("/var/log/rpmpkgs")
@@ -28,5 +36,14 @@ class rpm(sos.plugintools.PluginBase):
 
         if self.getOption("rpmva"):
             self.collectExtOutput("/bin/rpm -Va", symlink = "rpm-Va", timeout = 3600)
+        else:
+            pkgs_by_regex = self.policy().allPkgsByNameRegex
+            verify_list = map(pkgs_by_regex, self.verify_list)
+            for pkg_list in verify_list:
+                for pkg in pkg_list:
+                    if pkg['name'].endswith('-debuginfo') or \
+                       pkg['name'].endswith('-debuginfo-common'):
+                        continue
+                    self.collectExtOutput("rpm -V %s" % pkg['name'])
         return
 
