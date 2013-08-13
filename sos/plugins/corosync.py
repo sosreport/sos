@@ -37,3 +37,6 @@ class corosync(sos.plugintools.PluginBase):
         self.collectExtOutput("/usr/sbin/corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)")
         self.callExtProg("killall -USR2 corosync")
         self.addCopySpec("/var/log/cluster/corosync.log")
+
+    def postproc(self):
+        self.doRegexExtOutputSub("corosync-objctl", r"(.*fence.*\.passwd=)(.*)", r"\1******")
