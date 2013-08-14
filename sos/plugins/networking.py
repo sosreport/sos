@@ -80,6 +80,7 @@ class Networking(Plugin):
             "/etc/NetworkManager/NetworkManager.conf",
             "/etc/NetworkManager/system-connections",
             "/etc/dnsmasq*"])
+        self.add_forbidden_path("/proc/net/rpc/use-gss-proxy")
 
         ip_addr_file=self.get_cmd_output_now("ip -o addr", root_symlink = "ip_addr")
         ip_addr_out=self.call_ext_prog("ip -o addr")
