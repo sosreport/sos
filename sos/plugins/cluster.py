@@ -83,6 +83,9 @@ class Cluster(Plugin, RedHatPlugin):
         self.add_cmd_output("dlm_tool dump")
         self.add_cmd_output("dlm_tool ls -n")
         self.add_cmd_output("mkqdisk -L")
+        crm_dest = os.path.join(self.cInfo['cmddir'],
+                                self.name(), 'crm_report')
+        self.collectExtOutput("crm_report -S --dest %s" % crm_dest)
 
     def do_lockdump(self):
         status, output, time = self.call_ext_prog("dlm_tool ls")
