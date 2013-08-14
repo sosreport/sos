@@ -58,14 +58,10 @@ class S390(Plugin, RedHatPlugin):
         self.add_cmd_output("find /sys -type f")
         self.add_cmd_output("find /proc/s390dbf -type f")
         self.add_cmd_output("qethconf list_all")
+        self.add_cmd_output("lsqeth")
+        self.add_cmd_output("lszfcp")
         ret, dasd_dev, rtime = self.call_ext_prog("ls /dev/dasd?")
         for x in dasd_dev.split('\n'):
             self.add_cmd_output("dasdview -x -i -j -l -f %s" % (x,))
             self.add_cmd_output("fdasd -p %s" % (x,))
-        try:
-            rhelver = self.policy().rhel_version()
-            if rhelver == 5:
-                self.add_cmd_output("lsqeth")
-                self.add_cmd_output("lszfcp")
-        except:
-            rhelver = None
+
