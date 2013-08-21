@@ -13,6 +13,7 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+from os.path import join
 
 class SELinux(Plugin, RedHatPlugin):
     """selinux related information
@@ -32,6 +33,10 @@ class SELinux(Plugin, RedHatPlugin):
         self.add_cmd_output("selinuxdefcon root")
         self.add_cmd_output("selinuxconlist root")
         self.add_cmd_output("selinuxexeccon /bin/passwd")
+        self.add_cmd_output("ausearch -m avc,user_avc -ts today")
+        semanage_custom_dest = join(self.get_cmd_dir(),
+                                    "selinux.custom")
+        self.add_cmd_output("semanage -o %s" % semanage_custom_dest)
         if self.get_option('fixfiles'):
             self.add_cmd_output("fixfiles -v check")
         if self.get_option('list'):
