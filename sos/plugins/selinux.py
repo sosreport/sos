@@ -34,9 +34,8 @@ class SELinux(Plugin, RedHatPlugin):
         self.add_cmd_output("selinuxconlist root")
         self.add_cmd_output("selinuxexeccon /bin/passwd")
         self.add_cmd_output("ausearch -m avc,user_avc -ts today")
-        semanage_custom_dest = join(self.get_cmd_path(),
-                                    "selinux.custom")
-        self.add_cmd_output("semanage -o %s" % semanage_custom_dest)
+        self.add_cmd_output("semanage -o %s"
+                            % self.make_cmd_path("selinux.custom"))
         if self.get_option('fixfiles'):
             self.add_cmd_output("fixfiles -v check")
         if self.get_option('list'):

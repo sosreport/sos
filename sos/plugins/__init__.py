@@ -498,14 +498,24 @@ class Plugin(object):
 
     def get_cmd_path(self):
         """Return a path into which this module should store collected
-        command output"""
+        command output
+        """
         return os.path.join(self.archive.get_tmp_dir(),
                             'sos_commands', self.name())
 
+    def make_cmd_path(self, path):
+        """Return a string representing an absolute path within this
+        plug-in's command output directory by apending the relative path
+        name 'path'.
+        """
+        return os.path.join(self.get_cmd_path(), path)
+        
+
     def make_cmd_dirs(self, path):
         """Recursively create new subdirectories under this plug-in's
-        command output path."""
-        os.makedirs(self.get_cmd_path(), path)
+        command output path.
+        """
+        os.makedirs(self.make_cmd_path(path))
 
     def file_grep(self, regexp, *fnames):
         """Returns lines matched in fnames, where fnames can either be
