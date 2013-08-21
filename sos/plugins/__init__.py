@@ -496,9 +496,9 @@ class Plugin(object):
         """Run a program and collect the output"""
         self.collect_cmds.append( (exe, suggest_filename, root_symlink, timeout) )
 
-    def get_cmd_dir(self):
-        """Return a directory into which this module should store
-        collected command output"""
+    def get_cmd_path(self):
+        """Return a path into which this module should store collected
+        command output"""
         return os.path.join(self.archive.get_tmp_dir(),
                             'sos_commands', self.name())
 

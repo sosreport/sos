@@ -78,7 +78,7 @@ class Satellite(Plugin, RedHatPlugin):
                                 "/etc/tomcat6/", "/var/log/tomcat6/"])
             if os.path.exists("spacewalk-debug"):
                 self.add_cmd_output("spacewalk-debug --dir %s"
-                        % os.path.join(self.get_cmd_dir()))
+                        % os.path.join(self.get_cmd_path()))
 
         if self.proxy:
             self.add_copy_specs(["/etc/squid", "/var/log/squid"])
