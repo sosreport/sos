@@ -28,6 +28,8 @@ class selinux(sos.plugintools.PluginBase):
         self.collectExtOutput("semodule -l")
         self.collectExtOutput("selinuxdefcon root")
         self.collectExtOutput("selinuxconlist root")
+        self.collectExtOutput("ausearch -m avc,user_avc -ts today")
+        self.collectExtOutput("semanage -o -")
         if self.getOption('fixfiles'):
             self.collectExtOutput("fixfiles check")
         if self.getOption('list'):
