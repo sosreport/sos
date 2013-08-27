@@ -34,8 +34,8 @@ class OpenStackCinder(plugins.Plugin):
 
 
 class DebianOpenStackCinder(OpenStackCinder,
-                      plugins.DebianPlugin,
-                      plugins.UbuntuPlugin):
+                            plugins.DebianPlugin,
+                            plugins.UbuntuPlugin):
     """OpenStackCinder related information for Debian based distributions."""
 
     packages = ('cinder-api',
