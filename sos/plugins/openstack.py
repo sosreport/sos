@@ -56,13 +56,6 @@ class OpenStack(Plugin):
         self.add_copy_specs(["/etc/nova/",
                            "/var/log/nova/"])
 
-        # Cinder
-        self.add_cmd_output(
-            "cinder-manage db version",
-            suggest_filename="cinder_db_version")
-        self.add_copy_specs(["/etc/cinder/",
-                           "/var/log/cinder/"])
-
         # Keystone
         self.add_copy_specs(["/etc/keystone/",
                            "/var/log/keystone/"])
@@ -81,12 +74,7 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
     """
 
-    packages = ('cinder-api',
-                'cinder-backup',
-                'cinder-common',
-                'cinder-scheduler',
-                'cinder-volume',
-                'keystone',
+    packages = ('keystone',
                 'melange',
                 'nova-api-ec2',
                 'nova-api-metadata',
@@ -116,8 +104,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'quantum-plugin-ryu',
                 'quantum-plugin-ryu-agent',
                 'quantum-server',
-                'python-cinder',
-                'python-cinderclient',
                 'python-django-horizon',
                 'python-keystone',
                 'python-keystoneclient',
@@ -131,9 +117,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
     def setup(self):
         # Nova
         self.add_copy_spec("/etc/sudoers.d/nova_sudoers")
-
-        # Cinder
-        self.add_copy_spec("/etc/sudoers.d/cinder_sudoers")
 
         # Quantum
         self.add_copy_spec("/etc/sudoers.d/quantum_sudoers")
