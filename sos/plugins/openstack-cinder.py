@@ -33,7 +33,7 @@ class OpenStackCinder(plugins.Plugin):
                              "/var/log/cinder/"])
 
 
-class DebianOpenStack(OpenStackCinder,
+class DebianOpenStackCinder(OpenStackCinder,
                       plugins.DebianPlugin,
                       plugins.UbuntuPlugin):
     """OpenStackCinder related information for Debian based distributions."""
@@ -51,7 +51,7 @@ class DebianOpenStack(OpenStackCinder,
         self.add_copy_spec("/etc/sudoers.d/cinder_sudoers")
 
 
-class RedHatOpenStack(OpenStackCinder, plugins.RedHatPlugin):
+class RedHatOpenStackCinder(OpenStackCinder, plugins.RedHatPlugin):
     """OpenStackCinder related information for Red Hat distributions."""
 
     packages = ('openstack-cinder',
