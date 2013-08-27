@@ -18,8 +18,7 @@ from sos import plugins
 
 
 class OpenStackGlance(plugins.Plugin):
-    """openstack related information
-    """
+    """OpenstackGlance related information."""
     plugin_name = "openstack-glance"
 
     option_list = [("log", "gathers openstack-glance logs", "slow", False)]
@@ -33,9 +32,9 @@ class OpenStackGlance(plugins.Plugin):
                              "/var/log/glance/"])
 
 
-class DebianOpenStack(OpenStackGlance,
-                      plugins.DebianPlugin,
-                      plugins.UbuntuPlugin):
+class DebianOpenStackGlance(OpenStackGlance,
+                            plugins.DebianPlugin,
+                            plugins.UbuntuPlugin):
     """OpenStackGlance related information for Debian based distributions."""
 
     packages = ('glance',
@@ -46,7 +45,7 @@ class DebianOpenStack(OpenStackGlance,
                 'python-glance')
 
 
-class RedHatOpenStack(OpenStackGlance, plugins.RedHatPlugin):
+class RedHatOpenStackGlance(OpenStackGlance, plugins.RedHatPlugin):
     """OpenStackGlance related information for Red Hat distributions."""
 
     packages = ('openstack-glance',
