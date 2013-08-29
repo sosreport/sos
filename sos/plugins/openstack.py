@@ -84,21 +84,10 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'nova-scheduler',
                 'nova-volume',
                 'novnc',
-                'quantum-common',
-                'quantum-plugin-cisco',
-                'quantum-plugin-linuxbridge-agent',
-                'quantum-plugin-nicira',
-                'quantum-plugin-openvswitch',
-                'quantum-plugin-openvswitch-agent',
-                'quantum-plugin-ryu',
-                'quantum-plugin-ryu-agent',
-                'quantum-server',
                 'python-melange',
                 'python-nova',
                 'python-novaclient',
                 'python-novnc',
-                'python-quantum',
-                'python-quantumclient')
 
     def setup(self):
         # Nova
@@ -113,11 +102,9 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
     """
 
     packages = ('openstack-nova',
-                'openstack-quantum',
                 'python-nova',
                 'python-novaclient',
-                'python-openstackclient',
-                'python-quantumclient')
+                'python-openstackclient')
 
     def setup(self):
         # Nova
