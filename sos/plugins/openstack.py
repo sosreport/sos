@@ -107,15 +107,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'nova-volume',
                 'novnc',
                 'openstack-dashboard',
-                'quantum-common',
-                'quantum-plugin-cisco',
-                'quantum-plugin-linuxbridge-agent',
-                'quantum-plugin-nicira',
-                'quantum-plugin-openvswitch',
-                'quantum-plugin-openvswitch-agent',
-                'quantum-plugin-ryu',
-                'quantum-plugin-ryu-agent',
-                'quantum-server',
                 'swift',
                 'swift-account',
                 'swift-container',
@@ -129,8 +120,8 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'python-nova',
                 'python-novaclient',
                 'python-novnc',
-                'python-quantum',
-                'python-quantumclient')
+                'python-swift',
+                'python-swauth')
 
     def setup(self):
         # Nova
@@ -147,12 +138,16 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
     packages = ('openstack-nova',
                 'openstack-dashboard',
                 'openstack-keystone',
-                'openstack-quantum',
+                'openstack-swift',
+                'openstack-swift-account',
+                'openstack-swift-container',
+                'openstack-swift-object',
+                'openstack-swift-proxy',
+                'swift',
                 'python-nova',
                 'python-keystoneclient',
                 'python-novaclient',
-                'python-openstackclient',
-                'python-quantumclient')
+                'python-openstackclient')
 
     def setup(self):
         # Nova
