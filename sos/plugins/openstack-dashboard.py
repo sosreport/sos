@@ -32,7 +32,7 @@ class OpenStackDashboard(Plugin):
         self.add_copy_specs(["/etc/openstack-dashboard/"])
 
 
-class DebianOpenStackDashboard(OpenStackDashboard, DebianPlugin, UbuntuPlugin):
+class DebianOpenStackDashboard(OpenStackDashboard, DebianPlugin):
     """OpenStack related information for Debian based distributions
     """
 
@@ -47,6 +47,22 @@ class DebianOpenStackDashboard(OpenStackDashboard, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianOpenStackDashboard, self).setup()
         self.add_copy_specs(["/etc/apache2/sites-available/"])
+
+class UbuntuOpenStackDashboard(OpenStackDashboard, UbuntuPlugin):
+    """OpenStack related information for Ubuntu based distributions
+    """
+
+    packages = ('openstack-dashboard',
+                'openstack-dashboard-ubuntu-theme')
+    dashboard = False
+
+    def check_enabled(self):
+        self.dashboard = self.is_installed("openstack-dashboard")
+        return self.dashboard
+
+    def setup(self):
+        super(UbuntuOpenStackDashboard, self).setup()
+        self.add_copy_specs(["/etc/apache2/conf.d/openstack-dashboard.conf"])
 
 class RedHatOpenStackDashboard(OpenStackDashboard, RedHatPlugin):
     """OpenStack related information for Red Hat distributions
