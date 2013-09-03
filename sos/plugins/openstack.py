@@ -56,12 +56,12 @@ class OpenStack(Plugin):
         self.add_copy_specs(["/etc/nova/",
                            "/var/log/nova/"])
 
-        # Cinder
+        # Glance
         self.add_cmd_output(
-            "cinder-manage db version",
-            suggest_filename="cinder_db_version")
-        self.add_copy_specs(["/etc/cinder/",
-                           "/var/log/cinder/"])
+            "glance-manage db_version",
+            suggest_filename="glance_db_version")
+        self.add_copy_specs(["/etc/glance/",
+                           "/var/log/glance/"])
 
         # Keystone
         self.add_copy_specs(["/etc/keystone/",
@@ -81,11 +81,11 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
     """
 
-    packages = ('cinder-api',
-                'cinder-backup',
-                'cinder-common',
-                'cinder-scheduler',
-                'cinder-volume',
+    packages = ('glance',
+                'glance-api',
+                'glance-client',
+                'glance-common',
+                'glance-registry',
                 'keystone',
                 'melange',
                 'nova-api-ec2',
@@ -116,8 +116,12 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'quantum-plugin-ryu',
                 'quantum-plugin-ryu-agent',
                 'quantum-server',
-                'python-cinder',
-                'python-cinderclient',
+                'swift',
+                'swift-account',
+                'swift-container',
+                'swift-object',
+                'swift-proxy',
+                'swauth',
                 'python-django-horizon',
                 'python-keystone',
                 'python-keystoneclient',
@@ -131,9 +135,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
     def setup(self):
         # Nova
         self.add_copy_spec("/etc/sudoers.d/nova_sudoers")
-
-        # Cinder
-        self.add_copy_spec("/etc/sudoers.d/cinder_sudoers")
 
         # Quantum
         self.add_copy_spec("/etc/sudoers.d/quantum_sudoers")
