@@ -9,6 +9,7 @@ from distutils.log import warn, info, error
 import glob
 import os
 import subprocess
+import sys
 
 from sos import __version__ as VERSION
 
