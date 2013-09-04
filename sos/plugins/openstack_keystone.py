@@ -1,5 +1,3 @@
-## Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
-## Copyright (C) 2012 Rackspace US, Inc., Justin Shepherd <jshepher@rackspace.com>
 ## Copyright (C) 2013 Red Hat, Inc., Jeremy Agee <jagee@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
@@ -26,27 +24,35 @@ class OpenStackKeystone(Plugin):
     """
     plugin_name = "openstack-keystone"
 
-    option_list = [("log", "gathers openstack keystone logs", "slow", True)]
+    option_list = [("log", "gathers openstack keystone logs", "slow", True),
+                   ("nopw", "dont gathers keystone passwords", "slow", True)]
 
     def setup(self):
-        self.add_copy_specs(["/etc/keystone/"])
+        self.add_copy_specs(["/etc/keystone/default_catalog.templates",
+                            "/etc/keystone/keystone.conf",
+                            "/etc/keystone/logging.conf",
+                            "/etc/keystone/policy.json"])
 
         if self.option_enabled("log"):
             self.add_copy_specs(["/var/log/keystone/"])
 
     def postproc(self):
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                    r"(admin_password\s*=\s*)(.*)",
-                    r"\1******")
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                    r"(admin_token\s*=\s*)(.*)",
-                    r"\1******")
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                    r"(connection\s*=\s*mysql://)(.*)(:)(.*)(@)(.*)",
-                    r"\1\2:******@\6")
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                    r"(password\s*=\s*)(.*)",
-                    r"\1******")
+        if self.option_enabled("nopw"):
+            self.do_file_sub('/etc/keystone/keystone.conf',
+                        r"(?m)^(admin_password.*=)(.*)",
+                        r"\1 ******")
+            self.do_file_sub('/etc/keystone/keystone.conf',
+                        r"(?m)^(admin_token.*=)(.*)",
+                        r"\1 ******")
+            self.do_file_sub('/etc/keystone/keystone.conf',
+                        r"(?m)^(connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
+                        r"\1\2:******@\6")
+            self.do_file_sub('/etc/keystone/keystone.conf',
+                        r"(?m)^(password.*=)(.*)",
+                        r"\1 ******")
+            self.do_file_sub('/etc/keystone/keystone.conf',
+                        r"(?m)^(ca_password.*=)(.*)",
+                        r"\1 ******")
 
 class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
     """OpenStack Keystone related information for Debian based distributions
