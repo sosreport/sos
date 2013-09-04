@@ -1,6 +1,4 @@
-## Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
-## Copyright (C) 2012 Rackspace US, Inc., Justin Shepherd <jshepher@rackspace.com>
-## Copyright (C) 2013 Red Hat, Inc., Jeremy Agee <jagee@redhat.com>
+## Copyright (C) 2013 Red Hat, Inc., Flavio Percoco <fpercoco@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -22,12 +20,13 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackGlance(Plugin):
-    """openstack related information
+    """OpenStackGlance related information
     """
     plugin_name = "openstack-glance"
 
     option_list = [("log", "gathers openstack glance logs", "slow", True),
-                   ("db", "gathers openstack glance db", "slow", False)]
+                   ("db", "gathers openstack glance db", "slow", True),
+                   ("nopw", "dont gathers glance passwords", "slow", True)]
 
     def setup(self):
         if self.option_enabled("db"):
@@ -40,9 +39,24 @@ class OpenStackGlance(Plugin):
         if self.option_enabled("log"):
             self.add_copy_specs(["/var/log/glance/"])
 
+    def postproc(self):
+        if self.option_enabled("nopw"):
+            self.do_file_sub('/etc/glance/glance-api.conf',
+                            r"(?m)^(admin_password.*=)(.*)",
+                            r"\1 ******")
+            self.do_file_sub('/etc/glance/glance-api.conf',
+                            r"(?m)^(sql_connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
+                            r"\1\2:******@\6")
+            self.do_file_sub('/etc/glance/glance-registry.conf',
+                            r"(?m)^(admin_password.*=)(.*)",
+                            r"\1 ******")
+            self.do_file_sub('/etc/glance/glance-registry.conf',
+                            r"(?m)^(sql_connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
+                            r"\1\2:******@\6")
+
 
 class DebianOpenStackGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
-    """OpenStack Glance related information for Debian based distributions
+    """OpenStackGlance related information for Debian based distributions
     """
 
     glance = False
@@ -51,7 +65,8 @@ class DebianOpenStackGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
                 'glance-client',
                 'glance-common',
                 'glance-registry',
-                'python-glance')
+                'python-glance',
+                'python-glanceclient')
 
     def check_enabled(self):
         self.glance = self.is_installed("glance")
@@ -62,7 +77,7 @@ class DebianOpenStackGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatOpenStackGlance(OpenStackGlance, RedHatPlugin):
-    """OpenStack Glance related information for Red Hat distributions
+    """OpenStackGlance related information for Red Hat distributions
     """
 
     glance = False

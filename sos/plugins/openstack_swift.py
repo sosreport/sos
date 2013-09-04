@@ -1,6 +1,4 @@
-## Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
-## Copyright (C) 2012 Rackspace US, Inc., Justin Shepherd <jshepher@rackspace.com>
-## Copyright (C) 2013 Red Hat, Inc., Jeremy Agee <jagee@redhat.com>
+## Copyright (C) 2013 Red Hat, Inc., Flavio Percoco <fpercoco@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -26,12 +24,17 @@ class OpenStackSwift(Plugin):
     """
     plugin_name = "openstack-swift"
 
-    option_list = [("log", "gathers openstack swift logs", "slow", True)]
+    option_list = [("log", "gathers openstack swift logs", "slow", True),
+                   ("nopw", "dont gathers sqift passwords", "slow", True)]
 
     def setup(self):
-        if self.option_enabled("log"):
-            self.add_copy_specs(["/etc/swift/"])
+        self.add_copy_specs(["/etc/swift/"])
 
+    def postproc(self):
+        if self.option_enabled("nopw"):
+            self.do_file_sub('/etc/swift/proxy-server.conf',
+                            r"(?m)^(admin_password.*=)(.*)",
+                            r"\1 ******")
 
 class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
@@ -45,7 +48,8 @@ class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
                 'swift-proxy',
                 'swauth',
                 'python-swift',
-                'python-swauth')
+                'python-swauth',
+                'python-swiftclient')
 
     def check_enabled(self):
         self.swift = self.is_installed("swift")

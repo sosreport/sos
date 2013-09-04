@@ -1,6 +1,4 @@
-## Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
-## Copyright (C) 2012 Rackspace US, Inc., Justin Shepherd <jshepher@rackspace.com>
-## Copyright (C) 2013 Red Hat, Inc., Jeremy Agee <jagee@redhat.com>
+## Copyright (C) 2013 Red Hat, Inc., Flavio Percoco <fpercoco@redhat.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -22,12 +20,13 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackCinder(Plugin):
-    """openstack cinder related information
+    """OpenStackCinder related information
     """
     plugin_name = "openstack-cinder"
 
     option_list = [("log", "gathers openstack cinder logs", "slow", True),
-                   ("db", "gathers openstack cinder db version", "slow", False)]
+                   ("db", "gathers openstack cinder db version", "slow", True),
+                   ("nopw", "dont gathers cinder passwords", "slow", True)]
 
     def setup(self):
         if self.option_enabled("db"):
@@ -40,9 +39,24 @@ class OpenStackCinder(Plugin):
         if self.option_enabled("log"):
             self.add_copy_specs(["/var/log/cinder/"])
 
+    def postproc(self):
+        if self.option_enabled("nopw"):
+            self.do_file_sub('/etc/cinder/api-paste.ini',
+                            r"(?m)^(admin_password.*=)(.*)",
+                            r"\1 ******")
+            self.do_file_sub('/etc/cinder/cinder.conf',
+                            r"(?m)^(admin_password.*=)(.*)",
+                            r"\1 ******")
+            self.do_file_sub('/etc/cinder/cinder.conf',
+                            r"(?m)^(sql_connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
+                            r"\1\2:******@\6")
+            self.do_file_sub('/etc/cinder/cinder.conf',
+                            r"(?m)^(rabbit_password.*=)(.*)",
+                            r"\1 ******")
+
 
 class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
-    """OpenStack Cinder related information for Debian based distributions
+    """OpenStackCinder related information for Debian based distributions
     """
 
     cinder = False
@@ -60,9 +74,10 @@ class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianOpenStackCinder, self).setup()
+        self.add_copy_spec("/etc/sudoers.d/cinder_sudoers")
 
 class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
-    """OpenStack related information for Red Hat distributions
+    """OpenStackCinder related information for Red Hat distributions
     """
 
     cinder = False

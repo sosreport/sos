@@ -1,6 +1,4 @@
-## Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
-## Copyright (C) 2012 Rackspace US, Inc., Justin Shepherd <jshepher@rackspace.com>
-## Copyright (C) 2013 Red Hat, Inc., Jeremy Agee <jagee@redhat.com>
+## Copyright (C) 2013 Red Hat, Inc.
 
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -27,7 +25,8 @@ class OpenStackNova(Plugin):
     plugin_name = "openstack-nova"
 
     option_list = [("log", "gathers openstack nova logs", "slow", True),
-                    ("cmds", "gathers openstack nova commands", "slow", False)]
+                    ("cmds", "gathers openstack nova commands", "slow", True),
+                    ("nopw", "dont gathers nova passwords", "slow", True)]
 
     def setup(self):
         # Nova
@@ -61,6 +60,21 @@ class OpenStackNova(Plugin):
             self.add_copy_specs(["/var/log/nova/"])
 
         self.add_copy_specs(["/etc/nova/"])
+
+    def postproc(self):
+        if self.option_enabled("nopw"):
+            self.do_file_sub('/etc/nova/api-paste.ini',
+                            r"(?m)^(admin_password.*=)(.*)",
+                            r"\1 ******")
+            self.do_file_sub('/etc/nova/nova.conf',
+                            r"(?m)^(admin_password.*=)(.*)",
+                            r"\1 ******")
+            self.do_file_sub('/etc/nova/nova.conf',
+                            r"(?m)^(ldap_dns_password.*=)(.*)",
+                            r"\1 ******")
+            self.do_file_sub('/etc/nova/nova.conf',
+                          r"(?m)^(sql_connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
+                            r"\1\2:******@\6")
 
 
 class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):

@@ -29,34 +29,64 @@ class OpenStackHorizon(Plugin):
     option_list = [("log", "gathers openstack horizon logs", "slow", True)]
 
     def setup(self):
+        self.add_copy_specs(["/etc/openstack-dashboard/"])
         if self.option_enabled("log"):
             self.add_copy_specs(["/var/log/horizon/"])
 
 
-class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin, UbuntuPlugin):
+class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
     """OpenStack Horizon related information for Debian based distributions
     """
 
-    packages = ('python-django-horizon')
+    packages = ('python-django-horizon',
+                'openstack-dashboard',
+                'openstack-dashboard-apache')
     horizon = False
 
     def check_enabled(self):
-        self.horizon = self.is_installed("python-django-horizon")
+        self.horizon = self.is_installed("python-django-horizon") \
+                    or self.is_installed("openstack-dashboard")
         return self.horizon
 
     def setup(self):
         super(DebianOpenStackHorizon, self).setup()
+        self.add_copy_specs(["/etc/apache2/sites-available/"])
+
+
+class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
+    """OpenStack Horizon related information for Ubuntu based distributions
+    """
+
+    packages = ('python-django-horizon',
+                'openstack-dashboard',
+                'openstack-dashboard-ubuntu-theme')
+    horizon = False
+
+    def check_enabled(self):
+        self.horizon = self.is_installed("python-django-horizon") \
+                    or self.is_installed("openstack-dashboard")
+        return self.horizon
+
+    def setup(self):
+        super(UbuntuOpenStackHorizon, self).setup()
+        self.add_copy_specs(["/etc/apache2/conf.d/openstack-dashboard.conf"])
+
 
 class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
     """OpenStack Horizon related information for Red Hat distributions
     """
 
-    packages = ('python-django-horizon')
+    packages = ('python-django-horizon',
+                'openstack-dashboard')
     horizon = False
 
     def check_enabled(self):
-        self.horizon = self.is_installed("python-django-horizon")
+        self.horizon = self.is_installed("python-django-horizon") \
+                    or self.is_installed("openstack-dashboard")
         return self.horizon
 
     def setup(self):
         super(RedHatOpenStackHorizon, self).setup()
+        self.add_copy_specs(["/etc/httpd/conf.d/openstack-dashboard.conf"])
+        if self.option_enabled("log"):
+            self.add_copy_specs(["/var/log/httpd/"])
