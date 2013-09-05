@@ -16,8 +16,6 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os
-
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -27,10 +25,9 @@ class OpenStackNova(Plugin):
     plugin_name = "openstack-nova"
 
     option_list = [("log", "gathers openstack nova logs", "slow", True),
-                    ("cmds", "gathers openstack nova commands", "slow", False)]
+                   ("cmds", "gathers openstack nova commands", "slow", False)]
 
     def setup(self):
-        # Nova
         if self.option_enabled("cmds"):
             self.add_cmd_output(
                 "nova-manage config list 2>/dev/null | sort",
@@ -58,9 +55,25 @@ class OpenStackNova(Plugin):
                 suggest_filename="nova_vm_list")
 
         if self.option_enabled("log"):
-            self.add_copy_specs(["/var/log/nova/"])
+            self.add_copy_spec("/var/log/nova/")
 
-        self.add_copy_specs(["/etc/nova/"])
+        self.add_copy_spec("/etc/nova/")
+
+    def postproc(self):
+        protect_passwords = {
+            "/etc/nova/nova.conf": [
+                "ldap_dns_password", "neutron_admin_password",
+                "rabbit_password", "qpid_password", "powervm_mgr_passwd",
+                "xenapi_connection_password", "virtual_power_host_pass",
+                "password", "host_password", "vnc_password", "connection",
+                "sql_connection"],
+            "/etc/nova/api-paste.ini": ["admin_password"]
+        }
+
+        for conf_file, keys in protect_passwords.items():
+            for password_key in keys:
+                regexp = r"(?m)^(%s\s*=\s*)(.*)" % password_key
+                self.do_file_sub(conf_file, regexp, r"\1*********")
 
 
 class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
@@ -114,17 +127,22 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
                 'openstack-nova-novncproxy',
                 'openstack-nova-compute',
                 'openstack-nova-api',
+                'openstack-nova-cert',
+                'openstack-nova-cells',
+                'openstack-nova-objectstore',
                 'python-nova',
-                'python-novaclient')
+                'python-novaclient',
+                'novnc')
 
     def check_enabled(self):
         self.nova = self.is_installed("openstack-nova-common")
         return self.nova
 
     def setup(self):
-        # Nova
         super(RedHatOpenStackNova, self).setup()
         self.add_copy_specs([
-                "/var/lib/nova/",
+                "/etc/logrotate.d/openstack-nova",
                 "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
-                "/etc/sudoers.d/nova"])
+                "/etc/sudoers.d/nova",
+                "/etc/sysconfig/openstack-nova-novncproxy.sysconfig",
+                "/var/security/limits.d/91-nova.conf"])
