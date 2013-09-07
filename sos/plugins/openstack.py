@@ -71,9 +71,6 @@ class OpenStack(Plugin):
         self.add_copy_specs(["/etc/quantum/",
                            "/var/log/quantum/"])
 
-        # Swift
-        self.add_copy_spec("/etc/swift/")
-
     def postproc(self):
         self.do_file_sub('/etc/keystone/keystone.conf',
                     r"(admin_password\s*=\s*)(.*)",
@@ -119,12 +116,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'quantum-plugin-ryu',
                 'quantum-plugin-ryu-agent',
                 'quantum-server',
-                'swift',
-                'swift-account',
-                'swift-container',
-                'swift-object',
-                'swift-proxy',
-                'swauth',
                 'python-cinder',
                 'python-cinderclient',
                 'python-django-horizon',
@@ -135,9 +126,7 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'python-novaclient',
                 'python-novnc',
                 'python-quantum',
-                'python-quantumclient',
-                'python-swift',
-                'python-swauth')
+                'python-quantumclient')
 
     def setup(self):
         # Nova
@@ -158,12 +147,6 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
                 'openstack-dashboard',
                 'openstack-keystone',
                 'openstack-quantum',
-                'openstack-swift',
-                'openstack-swift-account',
-                'openstack-swift-container',
-                'openstack-swift-object',
-                'openstack-swift-proxy',
-                'swift',
                 'python-nova',
                 'python-keystoneclient',
                 'python-novaclient',
