@@ -56,13 +56,6 @@ class OpenStack(Plugin):
         self.add_copy_specs(["/etc/nova/",
                            "/var/log/nova/"])
 
-        # Glance
-        self.add_cmd_output(
-            "glance-manage db_version",
-            suggest_filename="glance_db_version")
-        self.add_copy_specs(["/etc/glance/",
-                           "/var/log/glance/"])
-
         # Cinder
         self.add_cmd_output(
             "cinder-manage db version",
@@ -96,11 +89,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'cinder-common',
                 'cinder-scheduler',
                 'cinder-volume',
-                'glance',
-                'glance-api',
-                'glance-client',
-                'glance-common',
-                'glance-registry',
                 'keystone',
                 'melange',
                 'nova-api-ec2',
@@ -140,7 +128,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'python-cinder',
                 'python-cinderclient',
                 'python-django-horizon',
-                'python-glance',
                 'python-keystone',
                 'python-keystoneclient',
                 'python-melange',
@@ -168,7 +155,6 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
     """
 
     packages = ('openstack-nova',
-                'openstack-glance',
                 'openstack-dashboard',
                 'openstack-keystone',
                 'openstack-quantum',
@@ -179,7 +165,6 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
                 'openstack-swift-proxy',
                 'swift',
                 'python-nova',
-                'python-glanceclient',
                 'python-keystoneclient',
                 'python-novaclient',
                 'python-openstackclient',
