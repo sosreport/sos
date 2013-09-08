@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/battlemidget/sosreport.png?branch=master)](https://travis-ci.org/battlemidget/sosreport)
+[![Build Status](https://travis-ci.org/sosreport/sosreport.png)](https://travis-ci.org/sosreport/sosreport)
 
 This set of tools is designed to provide information to support organizations
 in an extensible manner, allowing third parties, package maintainers, and
