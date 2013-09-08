@@ -7,6 +7,10 @@ matrix:
     - python: 3.3
 notifications:
   email: false
+  irc:
+    channels:
+      - "us.freenode.net#sosreport"
+    on_success: change
 install:
   - "pip install nose nose-cov --use-mirrors"
   - "python setup.py install"
