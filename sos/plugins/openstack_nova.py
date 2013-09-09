@@ -60,20 +60,17 @@ class OpenStackNova(Plugin):
         self.add_copy_spec("/etc/nova/")
 
     def postproc(self):
-        protect_passwords = {
-            "/etc/nova/nova.conf": [
-                "ldap_dns_password", "neutron_admin_password",
-                "rabbit_password", "qpid_password", "powervm_mgr_passwd",
-                "xenapi_connection_password", "virtual_power_host_pass",
-                "password", "host_password", "vnc_password", "connection",
-                "sql_connection"],
-            "/etc/nova/api-paste.ini": ["admin_password"]
-        }
+        protect_keys = [
+            "ldap_dns_password", "neutron_admin_password", "rabbit_password",
+            "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
+            "xenapi_connection_password", "password", "host_password",
+            "vnc_password", "connection", "sql_connection", "admin_password"
+        ]
 
-        for conf_file, keys in protect_passwords.items():
-            for password_key in keys:
-                regexp = r"(?m)^(%s\s*=\s*)(.*)" % password_key
-                self.do_file_sub(conf_file, regexp, r"\1*********")
+        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+
+        for conf_file in ["/etc/nova/nova.conf", "/etc/nova/api-paste.ini"]:
+            self.do_file_sub(conf_file, regexp, r"\1*********")
 
 
 class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
@@ -108,7 +105,6 @@ class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         return self.nova
 
     def setup(self):
-        # Nova
         super(DebianOpenStackNova, self).setup()
         self.add_copy_spec(["/etc/sudoers.d/nova_sudoers"])
 
@@ -144,5 +140,5 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
                 "/etc/logrotate.d/openstack-nova",
                 "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
                 "/etc/sudoers.d/nova",
-                "/etc/sysconfig/openstack-nova-novncproxy.sysconfig",
-                "/var/security/limits.d/91-nova.conf"])
+                "/etc/security/limits.d/91-nova.conf",
+                "/etc/sysconfig/openstack-nova-novncproxy"])
