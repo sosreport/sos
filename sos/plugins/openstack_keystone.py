@@ -54,6 +54,7 @@ class OpenStackKeystone(Plugin):
                         r"(?m)^(ca_password.*=)(.*)",
                         r"\1 ******")
 
+
 class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
     """OpenStack Keystone related information for Debian based distributions
     """
@@ -69,6 +70,7 @@ class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianOpenStackKeystone, self).setup()
+
 
 class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
     """OpenStack Keystone related information for Red Hat distributions
