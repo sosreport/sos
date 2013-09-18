@@ -59,32 +59,16 @@ class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
     """OpenStack Keystone related information for Debian based distributions
     """
 
-    keystone = False
     packages = ('keystone',
                 'python-keystone',
                 'python-keystoneclient')
-
-    def check_enabled(self):
-        self.keystone = self.is_installed("keystone")
-        return self.keystone
-
-    def setup(self):
-        super(DebianOpenStackKeystone, self).setup()
 
 
 class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
     """OpenStack Keystone related information for Red Hat distributions
     """
 
-    keystone = False
     packages = ('openstack-keystone',
                 'python-keystone',
                 'python-django-openstack-auth',
                 'python-keystoneclient')
-
-    def check_enabled(self):
-        self.keystone = self.is_installed("openstack-keystone")
-        return self.keystone
-
-    def setup(self):
-        super(RedHatOpenStackKeystone, self).setup()

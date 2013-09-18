@@ -41,12 +41,6 @@ class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
     packages = ('python-django-horizon',
                 'openstack-dashboard',
                 'openstack-dashboard-apache')
-    horizon = False
-
-    def check_enabled(self):
-        self.horizon = self.is_installed("python-django-horizon") \
-                    or self.is_installed("openstack-dashboard")
-        return self.horizon
 
     def setup(self):
         super(DebianOpenStackHorizon, self).setup()
@@ -60,12 +54,6 @@ class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
     packages = ('python-django-horizon',
                 'openstack-dashboard',
                 'openstack-dashboard-ubuntu-theme')
-    horizon = False
-
-    def check_enabled(self):
-        self.horizon = self.is_installed("python-django-horizon") \
-                    or self.is_installed("openstack-dashboard")
-        return self.horizon
 
     def setup(self):
         super(UbuntuOpenStackHorizon, self).setup()
@@ -78,12 +66,6 @@ class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
 
     packages = ('python-django-horizon',
                 'openstack-dashboard')
-    horizon = False
-
-    def check_enabled(self):
-        self.horizon = self.is_installed("python-django-horizon") \
-                    or self.is_installed("openstack-dashboard")
-        return self.horizon
 
     def setup(self):
         super(RedHatOpenStackHorizon, self).setup()
