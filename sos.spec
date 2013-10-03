@@ -5,7 +5,7 @@ Name: sos
 Version: 3.0
 Release: 1%{?dist}
 Group: Applications/System
-Source0: https://github.com/sosreport/sosreport
+Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
