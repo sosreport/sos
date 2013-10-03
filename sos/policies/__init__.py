@@ -457,7 +457,7 @@ class LinuxPolicy(Policy):
                 self._print()
             except:
                 self._print()
-                sys.exit(0)
+                self.report_name = localname
 
         if len(self.report_name) == 0:
             self.report_name = localname
