@@ -625,10 +625,6 @@ class SoSReport(object):
             pass
 
     def _setup_logging(self):
-
-        if not sys.stdin.isatty():
-            self.opts.batch = True
-
         # main soslog
         self.soslog = logging.getLogger('sos')
         self.soslog.setLevel(logging.DEBUG)
