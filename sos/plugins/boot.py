@@ -31,6 +31,7 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/milo.conf",
             "/etc/silo.conf",
             "/boot/efi/efi/redhat/elilo.conf",
+            "/etc/yaboot.conf",
             "/boot/yaboot.conf"
         ])
         self.add_cmd_output("ls -lanR /boot")
