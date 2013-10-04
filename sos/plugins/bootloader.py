@@ -26,6 +26,7 @@ class bootloader(sos.plugintools.PluginBase):
         self.addCopySpec("/boot/grub/grub.conf")
         self.addCopySpec("/boot/grub/device.map")
         self.addCopySpec("/boot/yaboot.conf")
+        self.addCopySpec("/etc/yaboot.conf")
         
         self.collectExtOutput("/sbin/lilo -q")
         self.collectExtOutput("/bin/ls -laR /boot")
