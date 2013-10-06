@@ -28,7 +28,13 @@ class squid(sos.plugintools.PluginBase):
 
     def setup(self):
         self.addCopySpec("/etc/squid/squid.conf")
-        self.addCopySpecLimit("/var/log/sqid",
-                            sizelimit = self.getOption("logsize"))
+        logsize = self.getOption("logsize")
+                              sizelimit = logsize)  
+        self.addCopySpecLimit("/var/log/sqid/access.log",
+                              sizelimit = logsize)  
+        self.addCopySpecLimit("/var/log/sqid/cache.log",
+                              sizelimit = logsize)  
+        self.addCopySpecLimit("/var/log/sqid/squid.out",
+                              sizelimit = logsize)  
         return
 
