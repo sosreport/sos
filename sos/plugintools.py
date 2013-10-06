@@ -130,6 +130,9 @@ class PluginBase:
         replacements = 0
         try:
             for called in self.executedCommands:
+                # was anything collected?
+                if called['file'] == None:
+                    continue
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.cInfo['cmddir'], called['file'])
                     self.soslog.debug("applying substitution to %s" % path)
@@ -144,7 +147,7 @@ class PluginBase:
                         replacements = replacements + replaced
         except Exception, e:
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
-            self.soslog.error(msg % (path, self.piName, e))
+            self.soslog.error(msg % (called['exe'], self.piName, e))
         return replacements
 
     def doRegexFindAll(self, regex, fname):
