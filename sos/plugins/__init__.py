@@ -180,6 +180,9 @@ class Plugin(object):
 
         try:
             for called in self.executed_commands:
+                # was anything collected?
+                if called['file'] == None:
+                    continue
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
                     self.soslog.debug("applying substitution to %s" % path)
@@ -192,7 +195,7 @@ class Plugin(object):
                         replacements = 0
         except Exception, e:
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
-            self.soslog.error(msg % (path, self.name(), e))
+            self.soslog.error(msg % (called['exe'], self.name(), e))
             replacements = 0
         if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
