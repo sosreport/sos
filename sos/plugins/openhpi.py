@@ -25,10 +25,10 @@ class openhpi(sos.plugintools.PluginBase):
         ])
 
     def postproc(self):
-        self.doRegexSub("/etc/openhpi/openhpi.conf"
+        self.doRegexSub("/etc/openhpi/openhpi.conf",
                         r'([Pp]assw(or)?d|[Pp]assphrase)[[:space:]]+\=[[:space:]]"(.*)"',
                         r"\1******")
-        self.doRegexSub("/etc/openhpi/openhpiclient.conf"
+        self.doRegexSub("/etc/openhpi/openhpiclient.conf",
                         r'([Pp]assw(or)?d|[Pp]assphrase)[[:space:]]+\=[[:space:]]"(.*)"',
                         r"\1******")
 
