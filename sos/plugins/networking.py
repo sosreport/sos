@@ -111,12 +111,11 @@ class Networking(Plugin):
                 self.add_cmd_output("ethtool -c "+eth)
                 self.add_cmd_output("ethtool -g "+eth)
 
-        if os.path.exists("brctl"):
-            brctl_file=self.add_cmd_output("brctl show")
-            brctl_out=self.call_ext_prog("brctl show")
-            if brctl_out:
-                for br_name in self.get_bridge_name(brctl_out):
-                    self.add_cmd_output("brctl showstp "+br_name)
+        brctl_file=self.add_cmd_output("brctl show")
+        brctl_out=self.call_ext_prog("brctl show")
+        if brctl_out:
+            for br_name in self.get_bridge_name(brctl_out):
+                self.add_cmd_output("brctl showstp "+br_name)
 
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
