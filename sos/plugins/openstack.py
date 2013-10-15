@@ -56,26 +56,16 @@ class OpenStack(Plugin):
         self.add_copy_specs(["/etc/nova/",
                            "/var/log/nova/"])
 
-        # Keystone
-        self.add_copy_specs(["/etc/keystone/",
-                           "/var/log/keystone/"])
-
         # Quantum
         self.add_copy_specs(["/etc/quantum/",
                            "/var/log/quantum/"])
-
-    def postproc(self):
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                    r"(admin_password\s*=\s*)(.*)",
-                    r"\1******")
 
 
 class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
     """OpenStack related information for Debian based distributions
     """
 
-    packages = ('keystone',
-                'melange',
+    packages = ('melange',
                 'nova-api-ec2',
                 'nova-api-metadata',
                 'nova-api-os-compute',
@@ -94,7 +84,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'nova-scheduler',
                 'nova-volume',
                 'novnc',
-                'openstack-dashboard',
                 'quantum-common',
                 'quantum-plugin-cisco',
                 'quantum-plugin-linuxbridge-agent',
@@ -104,9 +93,6 @@ class DebianOpenStack(OpenStack, DebianPlugin, UbuntuPlugin):
                 'quantum-plugin-ryu',
                 'quantum-plugin-ryu-agent',
                 'quantum-server',
-                'python-django-horizon',
-                'python-keystone',
-                'python-keystoneclient',
                 'python-melange',
                 'python-nova',
                 'python-novaclient',
@@ -127,11 +113,8 @@ class RedHatOpenStack(OpenStack, RedHatPlugin):
     """
 
     packages = ('openstack-nova',
-                'openstack-dashboard',
-                'openstack-keystone',
                 'openstack-quantum',
                 'python-nova',
-                'python-keystoneclient',
                 'python-novaclient',
                 'python-openstackclient',
                 'python-quantumclient')
