@@ -161,8 +161,6 @@ def sos_get_command_output(command, timeout=300):
                 stdout=PIPE, stderr=STDOUT,
                 bufsize=-1, env = cmd_env)
         stdout, stderr = p.communicate()
-        # hack to delete trailing '\n' added by p.communicate()
-        if stdout[-1:] == '\n': stdout = stdout[:-1]
         return (p.returncode, stdout, 0)
     else:
         return (127, "", 0)
