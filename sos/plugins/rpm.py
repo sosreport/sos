@@ -24,7 +24,7 @@ class Rpm(Plugin, RedHatPlugin):
                   ("rpmva", "runs a verify on all packages", "slow", False)]
 
     verify_list = [
-        'kernel', 'glibc', 'initscripts',
+        'kernel$', 'glibc', 'initscripts',
         'pam_.*',
         'java.*', 'perl.*',
         'rpm', 'yum',
@@ -49,4 +49,7 @@ class Rpm(Plugin, RedHatPlugin):
             verify_list = map(pkgs_by_regex, self.verify_list)
             for pkg_list in verify_list:
                 for pkg in pkg_list:
+                    if 'debuginfo' in pkg \
+                    or pkg.endswith('-debuginfo-common'):
+                        continue
                     self.add_cmd_output("rpm -V %s" % pkg)
