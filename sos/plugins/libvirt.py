@@ -19,11 +19,11 @@ class libvirt(sos.plugintools.PluginBase):
     """libvirt-related information
     """
     def setup(self):
-        self.addCopySpec("/etc/libvirt/")
+        self.addCopySpec("/etc/libvirt")
         self.addCopySpec("/var/log/libvirt*")
 
     def postproc(self):
         for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
             self.doRegexSub(xmlfile,
-                    r"(\s*passwd=\s*')([^']*)('.*$)",
+                    r"(.*passwd=\s*')([^']*)('.*$)",
                     r"\1******\3")
