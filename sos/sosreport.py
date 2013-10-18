@@ -203,6 +203,7 @@ class SoSOptions(object):
     _plugopts = []
     _usealloptions = False
     _upload = False
+    _s3 = False
     _batch = False
     _verbosity = 0
     _quiet = False
@@ -305,6 +306,13 @@ class SoSOptions(object):
         if self._options != None:
             return self._options.upload
         return self._upload
+
+    @property
+    def s3(self):
+        if self._options != None:
+            return self._options.s3
+        return self._s3
+    
 
     @upload.setter
     def upload(self, value):
@@ -472,6 +480,9 @@ class SoSOptions(object):
         parser.add_option("-u", "--upload", action="store",
                              dest="upload", default=False,
                              help="upload the report to an ftp server")
+        parser.add_option("--s3", action="store_true",
+                             dest="s3", default=False,
+                             help="upload the report to a s3 bucket")
         parser.add_option("--batch", action="store_true",
                              dest="batch", default=False,
                              help="batch mode - do not prompt interactively")
@@ -1103,10 +1114,12 @@ class SoSReport(object):
                 return False
 
         # automated submission will go here
-        if not self.opts.upload:
-            self.policy.display_results(final_filename)
-        else:
+        if self.opts.s3:
+            self.policy.s3_results(final_filename)
+        elif self.opts.upload:
             self.policy.upload_results(final_filename)
+        else:
+            self.policy.display_results(final_filename)
 
         self.tempfile_util.clean()
 
