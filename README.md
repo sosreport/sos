@@ -14,7 +14,13 @@ To access to the public source code repository for this project run:
 git clone git://github.com/sosreport/sosreport.git
 ```
 
-### Manual Installation  ###
+### Contributors please read
+
+Because of our vibrant community and everyone does things a little differently we've setup a wiki page dedicated to [sosreport's contribution guidelines][0].
+
+In order to get your requests merged in a timely manner these guidelines are mandatory.
+
+### Manual Installation
 
 ```
 to install locally (as root) ==> make install
@@ -22,7 +28,7 @@ to build an rpm ==> make rpm
 to build a deb ==> make deb
 ```
 
-### Pre-built Packaging ###
+### Pre-built Packaging
 
 Fedora/RHEL users install via yum:
 
@@ -37,8 +43,10 @@ apt-get install sosreport
 ```
 
 
-Ubuntu(Saucy 13.10) users install via apt:
+Ubuntu(Saucy 13.10 and above) users install via apt:
 
 ```
 sudo apt-get install sosreport
 ```
+
+ [0]: https://github.com/sosreport/sosreport/wiki/Contribution-Guidelines
