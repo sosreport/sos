@@ -25,5 +25,5 @@ class libvirt(sos.plugintools.PluginBase):
     def postproc(self):
         for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
             self.doRegexSub(xmlfile,
-                    r"(.*passwd=\s*')([^']*)('.*$)",
+                    r"(.*passwd=\s*['\"])([^'\"]*)(['\"].*)",
                     r"\1******\3")
