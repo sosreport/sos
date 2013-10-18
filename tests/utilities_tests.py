@@ -78,7 +78,7 @@ class ExecutableTest(unittest.TestCase):
         path = os.path.join(TEST_DIR, 'test_exe.py')
         ret, out, junk = sos_get_command_output(path)
         self.assertEquals(ret, 0)
-        self.assertEquals(out, "executed")
+        self.assertEquals(out, "executed\n")
 
     def test_output_non_exe(self):
         path = os.path.join(TEST_DIR, 'utility_tests.py')
@@ -88,7 +88,7 @@ class ExecutableTest(unittest.TestCase):
 
     def test_shell_out(self):
         path = os.path.join(TEST_DIR, 'test_exe.py')
-        self.assertEquals("executed", shell_out(path))
+        self.assertEquals("executed\n", shell_out(path))
 
 
 class FindTest(unittest.TestCase):
