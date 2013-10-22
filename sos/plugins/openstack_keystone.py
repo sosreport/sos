@@ -37,22 +37,21 @@ class OpenStackKeystone(Plugin):
             self.add_copy_specs(["/var/log/keystone/"])
 
     def postproc(self):
-        if self.option_enabled("nopw"):
-            self.do_file_sub('/etc/keystone/keystone.conf',
-                        r"(?m)^(admin_password.*=)(.*)",
-                        r"\1 ******")
-            self.do_file_sub('/etc/keystone/keystone.conf',
-                        r"(?m)^(admin_token.*=)(.*)",
-                        r"\1 ******")
-            self.do_file_sub('/etc/keystone/keystone.conf',
-                        r"(?m)^(connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
-                        r"\1\2:******@\6")
-            self.do_file_sub('/etc/keystone/keystone.conf',
-                        r"(?m)^(password.*=)(.*)",
-                        r"\1 ******")
-            self.do_file_sub('/etc/keystone/keystone.conf',
-                        r"(?m)^(ca_password.*=)(.*)",
-                        r"\1 ******")
+        self.do_file_sub('/etc/keystone/keystone.conf',
+                    r"(?m)^(admin_password.*=)(.*)",
+                    r"\1 ******")
+        self.do_file_sub('/etc/keystone/keystone.conf',
+                    r"(?m)^(admin_token.*=)(.*)",
+                    r"\1 ******")
+        self.do_file_sub('/etc/keystone/keystone.conf',
+                    r"(?m)^(connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
+                    r"\1\2:******@\6")
+        self.do_file_sub('/etc/keystone/keystone.conf',
+                    r"(?m)^(password.*=)(.*)",
+                    r"\1 ******")
+        self.do_file_sub('/etc/keystone/keystone.conf',
+                    r"(?m)^(ca_password.*=)(.*)",
+                    r"\1 ******")
 
 
 class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
