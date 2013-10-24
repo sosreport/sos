@@ -18,7 +18,7 @@
 
 import sos.plugintools
 
-class OpenStackSwift(sos.plugintools.PluginBase):
+class openstack_swift(sos.plugintools.PluginBase):
     """OpenstackSwift related information."""
 
     packages = ('openstack-swift',

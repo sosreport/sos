@@ -22,7 +22,7 @@ import os
 import sos.plugintools
 
 
-class OpenStackCinder(sos.Plugintools.PluginBase):
+class openstack_cinder(sos.plugintools.PluginBase):
     """openstack cinder related information
     """
 
@@ -38,12 +38,10 @@ class OpenStackCinder(sos.Plugintools.PluginBase):
             self.collectExtOutput("cinder-manage db version",
                          suggest_filename="cinder_db_version")
 
-        self.addCopySpecs([
-            "/etc/sudoers.d/cinder",
-            "/etc/cinder/"
-        ])
+        self.addCopySpec("/etc/sudoers.d/cinder")
+        self.addCopySpec("/etc/cinder/")
 
-        if self.option_enabled("log"):
-            self.addCopySpecs(["/var/log/cinder/"])
+        if self.getOption("log"):
+            self.addCopySpec("/var/log/cinder/")
 
 

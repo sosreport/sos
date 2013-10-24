@@ -19,7 +19,7 @@
 import sos.plugintools
 
 
-class OpenStackCeilometer(sos.plugintools.PluginBase):
+class openstack_ceilometer(sos.plugintools.PluginBase):
     """Openstack Ceilometer related information."""
 
     optionList = [("log", "gathers openstack-ceilometer logs", "slow", False)]
@@ -34,7 +34,5 @@ class OpenStackCeilometer(sos.plugintools.PluginBase):
 
     def setup(self):
         # Ceilometer
-        self.addCopySpecs([
-            "/etc/ceilometer/", "/var/log/ceilometer"
-        ])
-
+        self.addCopySpec("/etc/ceilometer/")
+        self.addCopySpec("/var/log/ceilometer")
