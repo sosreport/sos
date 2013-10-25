@@ -21,7 +21,7 @@ import os
 import sos.plugintools
 
 
-class OpenStackQuantum(sos.plugintools.PluginBase):
+class openstack_quantum(sos.plugintools.PluginBase):
     """openstack quantum related information
     """
     plugin_name = "openstack-quantum"

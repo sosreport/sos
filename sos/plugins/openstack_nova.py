@@ -18,7 +18,7 @@
 
 import sos.plugintools
 
-class OpenStackNova(sos.plugintools.PluginBase):
+class openstack_nova(sos.plugintools.PluginBase):
     """openstack nova related information
     """
 
@@ -71,14 +71,12 @@ class OpenStackNova(sos.plugintools.PluginBase):
         if self.getOption("log"):
             self.addCopySpec("/var/log/nova/")
 
-        self.addCopySpecs([
-                "/etc/logrotate.d/openstack-nova",
-                "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
-                "/etc/sudoers.d/nova",
-                "/etc/security/limits.d/91-nova.conf",
-                "/etc/sysconfig/openstack-nova-novncproxy",
-                "/etc/nova/"
-        ])
+        self.addCopySpec("/etc/logrotate.d/openstack-nova")
+        self.addCopySpec("/etc/polkit-1/localauthority/50-local.d/50-nova.pkla")
+        self.addCopySpec("/etc/sudoers.d/nova")
+        self.addCopySpec("/etc/security/limits.d/91-nova.conf")
+        self.addCopySpec("/etc/sysconfig/openstack-nova-novncproxy")
+        self.addCopySpec("/etc/nova/")
 
     def postproc(self):
         protect_keys = [

@@ -14,10 +14,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos import plugins
+import sos.plugintools
 
 
-class OpenStackHeat(plugins.Plugin):
+class openstack_heat(sos.plugintools.PluginBase):
     """openstack related information
     """
 
@@ -36,9 +36,7 @@ class OpenStackHeat(plugins.Plugin):
         self.collectExtOutput(
             "heat-manage db_version",
             suggest_filename="heat_db_version")
-        self.addCopySpecs([
-            "/etc/heat/",
-            "/var/log/heat/"
-        ])
+        self.addCopySpec("/etc/heat/")
+        self.addCopySpec("/var/log/heat/")
 
 

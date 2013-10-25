@@ -19,7 +19,7 @@
 import sos.plugintools
 
 
-class OpenStackGlance(plugins.Plugin.PluginBase):
+class openstack_glance(sos.plugintools.PluginBase):
     """OpenstackGlance related information."""
 
     optionList = [("log", "gathers openstack-glance logs", "slow", False)]
@@ -32,9 +32,7 @@ class OpenStackGlance(plugins.Plugin.PluginBase):
         self.collectExtOutput(
             "glance-manage db_version",
             suggest_filename="glance_db_version")
-        self.addCopySpecs([
-            "/etc/glance/",
-            "/var/log/glance/"
-        ])
+        self.addCopySpec("/etc/glance/")
+        self.addCopySpec("/var/log/glance/")
 
 

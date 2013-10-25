@@ -21,7 +21,7 @@ import os
 import sos.plugintools
 
 
-class OpenStackHorizon(sos.plugintools.PluginBase):
+class openstack_horizon(sos.plugintools.PluginBase):
     """openstack horizon related information
     """
 
@@ -31,13 +31,9 @@ class OpenStackHorizon(sos.plugintools.PluginBase):
                 'openstack-dashboard')
 
     def setup(self):
-        self.addCopySpecs([
-            "/etc/openstack-dashboard/"
-            "/etc/httpd/conf.d/openstack-dashboard.conf"
-        ])
+        self.addCopySpec("/etc/openstack-dashboard/")
+        self.addCopySpec("/etc/httpd/conf.d/openstack-dashboard.conf")
 
-        if self.option_enabled("log"):
-            self.addCopySpecs([
-                "/var/log/horizon/",
-                "/var/log/httpd/"
-            ])
+        if self.getOption("log"):
+            self.addCopySpec("/var/log/horizon/")
+            self.addCopySpec("/var/log/httpd/")

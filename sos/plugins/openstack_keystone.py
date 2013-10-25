@@ -19,7 +19,7 @@ import os
 import sos.plugintools
 
 
-class OpenStackKeystone(sos.plugintools.PluginBase):
+class openstack_keystone(sos.plugintools.PluginBase):
     """openstack keystone related information
     """
 
@@ -32,12 +32,10 @@ class OpenStackKeystone(sos.plugintools.PluginBase):
                 'python-keystoneclient')
 
     def setup(self):
-        self.addCopySpecs([
-            "/etc/keystone/default_catalog.templates",
-            "/etc/keystone/keystone.conf",
-            "/etc/keystone/logging.conf",
-            "/etc/keystone/policy.json"
-        ])
+        self.addCopySpec("/etc/keystone/default_catalog.templates")
+        self.addCopySpec("/etc/keystone/keystone.conf")
+        self.addCopySpec("/etc/keystone/logging.conf")
+        self.addCopySpec("/etc/keystone/policy.json")
 
         if self.getOption("log"):
             self.addCopySpec("/var/log/keystone/")
