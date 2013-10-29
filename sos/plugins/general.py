@@ -28,7 +28,6 @@ class General(Plugin):
             "/etc/sos.conf",
             "/etc/sysconfig",
             "/proc/stat",
-            "/var/log/sa",
             "/var/log/pm/suspend.log",
             "/var/log/up2date",
             "/etc/hostid",
