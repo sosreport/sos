@@ -33,6 +33,7 @@ class Sar(Plugin,):
         return True
 
     def setup(self):
+        self.add_copy_spec("/var/log/sa")
         dirList = os.listdir(self.sa_path)
         # find all the sa file that don't have an existing sar file
         for fname in dirList:
