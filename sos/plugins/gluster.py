@@ -80,22 +80,8 @@ class Gluster(Plugin, RedHatPlugin):
     def setup(self):
         self.add_cmd_output("gluster peer status")
 
-        # check package version handling rename of glusterfs-core -> glusterfs
-        pkg = self.policy().pkg_by_name("glusterfs-core");
-        if not pkg:
-            pkg = self.policy().pkg_by_name("glusterfs");
-            # need to handle "no package" case for users who enable with -e/-o
-            if not pkg:
-                return
-
-        gluster_major = int((pkg["version"])[:1])
-        gluster_minor = int((pkg["version"])[2:3])
-        if (gluster_major == 3) and (gluster_minor <= 2):
-            self.add_copy_spec("/etc/glusterd/")
-            self.add_forbidden_path("/etc/glusterd/geo-replication/secret.pem")
-        else:
-            self.add_copy_spec("/var/lib/glusterd/")
-            self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
+        self.add_copy_spec("/var/lib/glusterd/")
+        self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
 
         # collect unified file and object storage configuration
         self.add_copy_spec("/etc/swift/")
