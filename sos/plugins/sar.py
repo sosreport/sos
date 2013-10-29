@@ -23,6 +23,10 @@ class Sar(Plugin,):
 
     packages = ('sysstat',)
     sa_path = '/var/log/sa'
+    option_list = [("all_sar", "gather all system activity records", "", False)]
+
+    # size-limit SAR data collected by default (MB)
+    sa_size = 20
 
     def check_enabled(self):
         # check to see if we are force-enabled with no sar installation
@@ -33,7 +37,13 @@ class Sar(Plugin,):
         return True
 
     def setup(self):
-        self.add_copy_spec("/var/log/sa")
+        if self.get_option("all_sar"):
+            self.sa_size = 0
+
+        self.add_copy_spec_limit("/var/log/sa/sar[0-9]*",
+                                 sizelimit = self.sa_size)
+        self.add_copy_spec_limit("/var/log/sa/sa[0-9]*",
+                                 sizelimit = self.sa_size)
         dirList = os.listdir(self.sa_path)
         # find all the sa file that don't have an existing sar file
         for fname in dirList:
