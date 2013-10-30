@@ -58,7 +58,7 @@ class DebianOpenStackQuantum(OpenStackQuantum, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianOpenStackQuantum, self).setup()
-        self.add_copy_spec(["/etc/sudoers.d/quantum_sudoers"])
+        self.add_copy_specs(["/etc/sudoers.d/quantum_sudoers"])
 
 
 class RedHatOpenStackQuantum(OpenStackQuantum, RedHatPlugin):

@@ -106,7 +106,7 @@ class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianOpenStackNova, self).setup()
-        self.add_copy_spec(["/etc/sudoers.d/nova_sudoers"])
+        self.add_copy_specs(["/etc/sudoers.d/nova_sudoers"])
 
 
 class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
