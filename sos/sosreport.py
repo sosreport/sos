@@ -290,7 +290,7 @@ class SoSOptions(object):
     @property
     def usealloptions(self):
         if self._options != None:
-            return _options.usealloptions
+            return self._options.usealloptions
         return self._usealloptions
 
     @usealloptions.setter
@@ -1136,6 +1136,7 @@ class SoSReport(object):
             self.policy.set_commons(self.get_commons())
             self.print_header()
             self.load_plugins()
+            self._set_all_options()
             self._set_tunables()
             self._check_for_unknown_plugins()
             self._set_plugin_options()
