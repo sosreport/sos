@@ -465,7 +465,8 @@ class SoSOptions(object):
                              help="enable these plugins only", default = deque())
         parser.add_option("-k", "--plugin-option", action="append",
                              dest="plugopts", type="string",
-                             help="plugin options in plugname.option=value format (see -l)")
+                             help="plugin options in plugname.option=value format (see -l)",
+                             default = deque())
         parser.add_option("-a", "--alloptions", action="store_true",
                              dest="usealloptions", default=False,
                              help="enable all options for loaded plugins")
@@ -801,7 +802,7 @@ class SoSReport(object):
                 self.opts.plugopts = deque()
 
             for opt, val in self.config.items("tunables"):
-                if not opt.split('.')[0] in self.disabled:
+                if not opt.split('.')[0] in self._get_disabled_plugins():
                     self.opts.plugopts.append(opt + "=" + val)
         if self.opts.plugopts:
             opts = {}
