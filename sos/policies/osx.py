@@ -9,5 +9,5 @@ class OSXPolicy(Policy):
     def check(class_):
         try:
             return "Mac OS X" in shell_out("sw_vers")
-        except Exception, e:
+        except Exception as e:
             return False

@@ -9,6 +9,8 @@ import shutil
 
 from sos.archive import TarFileArchive, ZipFileArchive
 
+# PYCOMPAT
+import six
 
 class ZipFileArchiveTest(unittest.TestCase):
 
@@ -66,14 +68,14 @@ class ZipFileArchiveTest(unittest.TestCase):
         self.zf.add_string('this is my content', 'tests/string_test.txt')
 
         afp = self.zf.open_file('tests/string_test.txt')
-        self.assertEquals('this is my content', afp.read())
+        self.assertEquals(six.b('this is my content'), afp.read())
 
     def test_overwrite_file(self):
         self.zf.add_string('this is my content', 'tests/string_test.txt')
         self.zf.add_string('this is my new content', 'tests/string_test.txt')
 
         afp = self.zf.open_file('tests/string_test.txt')
-        self.assertEquals('this is my new content', afp.read())
+        self.assertEquals(six.b('this is my new content'), afp.read())
 
 # Disabled as new api doesnt provide a add_link routine
 #    def test_make_link(self):

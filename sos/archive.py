@@ -31,6 +31,10 @@ try:
 except ImportError:
     pass
 
+# PYCOMPAT
+import six
+if six.PY3:
+    long = int
 
 class Archive(object):
 
@@ -82,7 +86,7 @@ class FileCacheArchive(Archive):
         self._name = name
         self._tmp_dir = tmpdir
         self._archive_root = os.path.join(tmpdir, name)
-        os.makedirs(self._archive_root, 0700)
+        os.makedirs(self._archive_root, 0o700)
         self.log.debug("initialised empty FileCacheArchive at %s" %
                        (self._archive_root,))
 
@@ -135,13 +139,13 @@ class FileCacheArchive(Archive):
     def add_dir(self, path):
         self.makedirs(path)
 
-    def _makedirs(self, path, mode=0700):
+    def _makedirs(self, path, mode=0o700):
         os.makedirs(path, mode)
 
     def get_tmp_dir(self):
         return self._archive_root
 
-    def makedirs(self, path, mode=0700):
+    def makedirs(self, path, mode=0o700):
         self._makedirs(self.dest_path(path))
         self.log.debug("created directory at %s in FileCacheArchive %s"
                        % (path, self._archive_root))
@@ -212,7 +216,7 @@ class TarFileArchive(FileCacheArchive):
 
     def _build_archive(self):
         old_pwd = os.getcwd()
-        old_umask = os.umask(0077)
+        old_umask = os.umask(0o077)
         os.chdir(self._tmp_dir)
         tar = tarfile.open(self._archive_path, mode="w")
         tar.add(os.path.split(self._name)[1],
@@ -244,7 +248,7 @@ class TarFileArchive(FileCacheArchive):
                     log.error(stderr)
                 self._suffix += suffix
                 return self.name()
-            except Exception, e:
+            except Exception as e:
                 last_error = e
         else:
             raise last_error
@@ -297,7 +301,7 @@ class ZipFileArchive(Archive):
         info = zipfile.ZipInfo(dest,
                                date_time=time.localtime(time.time()))
         info.compress_type = self.compression
-        info.external_attr = 0400 << 16L
+        info.external_attr = 0o400 << long(16)
         self.zipfile.writestr(info, content)
 
     def open_file(self, name):

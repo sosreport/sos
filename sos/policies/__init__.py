@@ -344,7 +344,7 @@ No changes will be made to system configuration.
             ftp.set_pasv(True)
             ftp.storbinary('STOR %s' % upload_name, fp)
             ftp.quit()
-        except Exception, e:
+        except Exception as e:
             self._print(_("There was a problem uploading your report to Red Hat support. " + str(e)))
         else:
             self._print(_("Your report was successfully uploaded to %s with name:" % (upload_url,)))
@@ -360,9 +360,9 @@ No changes will be made to system configuration.
         quiet mode"""
         if not self.commons['cmdlineopts'].quiet:
             if msg:
-                print msg
+                print(msg)
             else:
-                print
+                print()
 
 
     def get_msg(self):

@@ -34,8 +34,11 @@ from stat import *
 from time import time
 from itertools import *
 import logging
-import urllib2
 import fnmatch
+
+# PYCOMPAT
+import six
+from six.moves import urllib, zip, filter
 
 try:
     import json
@@ -133,8 +136,8 @@ class Plugin(object):
         self.copy_strings = []
         self.collect_cmds = []
 
-        self.soslog = self.commons['soslog'] if self.commons.has_key('soslog') else logging.getLogger('sos')
-        self.proflog = self.commons['proflog'] if self.commons.has_key('proflog') else logging.getLogger('sosprofile')
+        self.soslog = self.commons['soslog'] if 'soslog' in self.commons else logging.getLogger('sos')
+        self.proflog = self.commons['proflog'] if 'proflog' in self.commons else logging.getLogger('sosprofile')
 
         # get the option list into a dictionary
         for opt in self.option_list:
@@ -193,7 +196,7 @@ class Plugin(object):
                         self.archive.add_string(result, path)
                     else:
                         replacements = 0
-        except Exception, e:
+        except Exception as e:
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (called['exe'], self.name(), e))
             replacements = 0
@@ -226,7 +229,7 @@ class Plugin(object):
                 self.archive.add_string(result, srcpath)
             else:
                 replacements = 0
-        except Exception, e:
+        except Exception as e:
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
             replacements = 0
@@ -343,7 +346,7 @@ class Plugin(object):
         try:
             stat = os.stat(srcpath)
             # if not readable(srcpath)
-            if not (stat.st_mode & 0444):
+            if not (stat.st_mode & 0o444):
                 # FIXME: reflect permissions in archive
                 self.archive.add_string("", dest)
             else:
@@ -357,7 +360,7 @@ class Plugin(object):
             if self.commons['cmdlineopts'].profiler:
                 time_passed = time() - start_time
                 self.proflog.debug("copied: %-75s time: %f" % (srcpath, time_passed))
-        except Exception, e:
+        except Exception as e:
             self.soslog.error("Unable to copy %s to %s" % (srcpath, dest))
             self.soslog.error(traceback.format_exc())
 
@@ -376,7 +379,7 @@ class Plugin(object):
 
     def set_option(self, optionname, value):
         '''set the named option to value.'''
-        for name, parms in izip(self.opt_names, self.opt_parms):
+        for name, parms in zip(self.opt_names, self.opt_parms):
             if name == optionname:
                 parms['enabled'] = value
                 return True
@@ -402,13 +405,13 @@ class Plugin(object):
             else:
                 return key == optionname
 
-        for name, parms in izip(self.opt_names, self.opt_parms):
+        for name, parms in zip(self.opt_names, self.opt_parms):
             if _check(name):
                 val = parms['enabled']
                 if val != None:
                     return val
 
-        for key, value in self.commons.get('global_plugin_options', {}).iteritems():
+        for key, value in six.iteritems(self.commons.get('global_plugin_options', {})):
             if _check(key):
                 return value
 
@@ -421,7 +424,7 @@ class Plugin(object):
         option = self.get_option(optionname)
         try:
             opt_list = [opt.strip() for opt in option.split(delimiter)]
-            return filter(None, opt_list)
+            return list(filter(None, opt_list))
         except Exception:
             return default
 
@@ -606,17 +609,17 @@ class Plugin(object):
             try:
                 self.archive.add_string(string,
                         os.path.join('sos_strings', self.name(), file_name))
-            except Exception, e:
+            except Exception as e:
                 self.soslog.debug("could not create %s, traceback follows: %s"
                         % (file_name, e))
 
-        for progs in izip(self.collect_cmds):
+        for progs in zip(self.collect_cmds):
             prog, suggest_filename, root_symlink, timeout = progs[0]
             self.soslog.debug("collecting output of '%s'" % prog)
             try:
                 self.get_cmd_output_now(prog, suggest_filename,
                         root_symlink, timeout)
-            except Exception, e:
+            except Exception as e:
                 self.soslog.debug("error collecting output of '%s' (%s)"
                         % (prog, e))
 
@@ -638,10 +641,10 @@ class Plugin(object):
         """
         # some files or packages have been specified for this package
         if self.files or self.packages:
-            if isinstance(self.files, basestring):
+            if isinstance(self.files, six.string_types):
                 self.files = [self.files]
 
-            if isinstance(self.packages, basestring):
+            if isinstance(self.packages, six.string_types):
                 self.packages = [self.packages]
 
             return (any(os.path.exists(fname) for fname in self.files) or
