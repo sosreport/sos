@@ -211,7 +211,7 @@ class SoSOptions(object):
     _customer_name = ""
     _config_file = ""
     _tmp_dir = ""
-    _report = False
+    _report = True
     _profiler = False
     _compression_type = 'auto'
 
@@ -497,9 +497,9 @@ class SoSOptions(object):
         parser.add_option("--tmp-dir", action="store",
                              dest="tmp_dir",
                              help="specify alternate temporary directory", default=None)
-        parser.add_option("--report", action="store_true",
+        parser.add_option("--no-report", action="store_true",
                              dest="report",
-                             help="Enable HTML/XML reporting", default=False)
+                             help="Disable HTML/XML reporting", default=False)
         parser.add_option("--profile", action="store_true",
                              dest="profiler",
                              help="turn on profiling", default=False)
@@ -1154,7 +1154,7 @@ class SoSReport(object):
             self.prework()
             self.setup()
             self.collect()
-            if self.opts.report:
+            if not self.opts.report:
                 self.report()
                 self.html_report()
                 self.plain_report()
