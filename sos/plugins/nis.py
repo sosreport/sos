@@ -29,3 +29,4 @@ class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec("/etc/yp*.conf")
         self.add_copy_spec("/var/yp/*")
+        self.add_cmd_output("domainname")
