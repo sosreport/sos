@@ -25,7 +25,7 @@ class Maas(Plugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs(["/etc/squid-deb-proxy",
                            "/etc/maas",
-                           "/var/lib/maas",
+                           "/var/lib/maas/dhcp*",
                            "/var/log/maas*"])
         self.add_cmd_output("maas dumpdata")
                            
