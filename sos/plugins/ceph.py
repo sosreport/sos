@@ -39,3 +39,6 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_cmd_output("ceph mon stat")
         self.add_cmd_output("ceph mon dump")
 
+        self.add_forbidden_path("/etc/ceph/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/*/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/*keyring")

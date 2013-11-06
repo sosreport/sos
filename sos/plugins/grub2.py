@@ -26,6 +26,7 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/grub.d",
             "/etc/grub2.cfg",
             "/etc/default/grub",
+            "/boot/grub/grub.cfg",
             "/boot/grub2/grub.cfg",
             "/boot/grub2/grubenv"
         ])

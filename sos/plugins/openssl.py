@@ -23,6 +23,17 @@ class OpenSSL(Plugin):
     plugin_name = "openssl"
     packages = ('openssl',)
 
+    def postproc(self):
+        protect_keys = ["input_password",
+                        "output_password",
+                        "challengePassword"]
+
+        regexp = r"(?m)^(\s*#?\s*(%s).*=)(.*)" % "|".join(protect_keys)
+
+        self.do_file_sub('/etc/ssl/openssl.cnf',
+                         regexp,
+                         r"\1 ******")
+
 class RedHatOpenSSL(OpenSSL, RedHatPlugin):
     """openssl related information for Red Hat distributions
     """

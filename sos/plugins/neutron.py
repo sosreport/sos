@@ -139,6 +139,9 @@ class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
                             'python-%(comp)s',
                             'python-%(comp)sclient']
 
+    def check_enabled(self):
+        return self.is_installed("%s-common" % self.component_name)
+
     def setup(self):
         super(DebianNeutron, self).setup()
         self.packages = self.gen_pkg_tuple(self.package_list_template)
@@ -165,6 +168,9 @@ class RedHatNeutron(Neutron, RedHatPlugin):
                              'openstack-%(comp)s-ryu',
                              'python-%(comp)s',
                              'python-%(comp)sclient']
+
+    def check_enabled(self):
+        return self.is_installed("openstack-%s" % self.component_name)
 
     def setup(self):
         super(RedHatNeutron, self).setup()
