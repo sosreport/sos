@@ -157,22 +157,22 @@ class Emc(Plugin, RedHatPlugin):
 
         ## If PowerPath is installed collect PowerPath specific information
         if self.is_installed("EMCpower"):
-            print "EMC PowerPath is installed."
-            print " Gathering EMC PowerPath information..."
+            print("EMC PowerPath is installed.")
+            print(" Gathering EMC PowerPath information...")
             self.add_custom_text("EMC PowerPath is installed.<br>")
             self.get_pp_files()
             add_about_emc = "yes"
 
         ## If PowerPath is running collect additional PowerPath specific information
         if os.path.isdir("/proc/emcp"):
-            print "EMC PowerPath is running."
-            print " Gathering additional EMC PowerPath information..."
+            print("EMC PowerPath is running.")
+            print(" Gathering additional EMC PowerPath information...")
             self.get_pp_config()
 
         ## If Solutions Enabler is installed collect Symmetrix/DMX specific information
         if len(self.policy().package_manager.all_pkgs_by_name_regex('[Ss][Yy][Mm][Cc][Ll][Ii]-[Ss][Yy][Mm][Cc][Ll][Ii]')) > 0:
-            print "EMC Solutions Enabler SYMCLI is installed."
-            print " Gathering EMC Solutions Enabler SYMCLI information..."
+            print("EMC Solutions Enabler SYMCLI is installed.")
+            print(" Gathering EMC Solutions Enabler SYMCLI information...")
             self.add_custom_text("EMC Solutions Enabler is installed.<br>")
             self.get_symcli_files()
             self.get_symcli_config()
@@ -180,16 +180,16 @@ class Emc(Plugin, RedHatPlugin):
 
         ## If Navisphere Host Agent is installed collect CLARiiON specific information
         if os.path.isdir("/opt/Navisphere/bin"):
-            print ""
-            print "The EMC CLARiiON Navisphere Host Agent is installed."
+            print("")
+            print("The EMC CLARiiON Navisphere Host Agent is installed.")
             self.add_custom_text("EMC CLARiiON Navisphere Host Agent is installed.<br>")
             self.get_navicli_config()
-            print " Gathering Navisphere NAVICLI Host Agent information..."
-            print " Please enter a CLARiiON SP IP address.  In order to collect"
-            print " information for both SPA and SPB as well as multiple"
-            print " CLARiiON arrays (if desired) you will be prompted multiple times."
-            print " To exit simply press [Enter]"
-            print ""
+            print(" Gathering Navisphere NAVICLI Host Agent information...")
+            print(" Please enter a CLARiiON SP IP address.  In order to collect")
+            print( " information for both SPA and SPB as well as multiple")
+            print(" CLARiiON arrays (if desired) you will be prompted multiple times.")
+            print(" To exit simply press [Enter]")
+            print("")
             add_about_emc = "yes"
             CLARiiON_IP_address_list = []
             CLARiiON_IP_loop = "stay_in"
@@ -202,7 +202,7 @@ class Emc(Plugin, RedHatPlugin):
                     CLARiiON_IP_address_list.append(ans)
                 else:
                     if ans != "":
-                        print "The IP address you entered, %s, is not to an active CLARiiON SP." % ans
+                        print("The IP address you entered, %s, is not to an active CLARiiON SP." % ans)
                     if ans == "":
                         CLARiiON_IP_loop = "get_out"
             ## Sort and dedup the list of CLARiiON IP Addresses
@@ -212,7 +212,7 @@ class Emc(Plugin, RedHatPlugin):
                     CLARiiON_IP_address_list.remove(SP_address)
             for SP_address in CLARiiON_IP_address_list:
                 if SP_address != "":
-                    print " Gathering NAVICLI information for %s..." % SP_address
+                    print(" Gathering NAVICLI information for %s..." % SP_address)
                     self.get_navicli_SP_info(SP_address)
 
         ## Only provide About EMC if EMC products are installed

@@ -70,11 +70,11 @@ class TempFileUtil(object):
             try:
                 f.flush()
                 f.close()
-            except Exception, e:
+            except Exception as e:
                 pass
             try:
                 os.unlink(fname)
-            except Exception, e:
+            except Exception as e:
                 pass
         self.files = []
 
@@ -84,15 +84,15 @@ class OptionParserExtended(OptionParser):
     def print_help(self, out=sys.stdout):
         """ Prints help content including examples """
         OptionParser.print_help(self, out)
-        print
-        print "Some examples:"
-        print
-        print " enable cluster plugin only and collect dlm lockdumps:"
-        print "   # sosreport -o cluster -k cluster.lockdump"
-        print
-        print " disable memory and samba plugins, turn off rpm -Va collection:"
-        print "   # sosreport -n memory,samba -k rpm.rpmva=off"
-        print
+        print()
+        print( "Some examples:")
+        print()
+        print( " enable cluster plugin only and collect dlm lockdumps:")
+        print( "   # sosreport -o cluster -k cluster.lockdump")
+        print()
+        print( " disable memory and samba plugins, turn off rpm -Va collection:")
+        print( "   # sosreport -n memory,samba -k rpm.rpmva=off")
+        print()
 
 class SosOption(Option):
     """Allow to specify comma delimited list of plugins"""
@@ -580,9 +580,9 @@ class SoSReport(object):
             self.archive = TarFileArchive(archive_name, self.tmpdir)
 
     def _make_archive_paths(self):
-        self.archive.makedirs(self.cmddir, 0755)
-        self.archive.makedirs(self.logdir, 0755)
-        self.archive.makedirs(self.rptdir, 0755)
+        self.archive.makedirs(self.cmddir, 0o755)
+        self.archive.makedirs(self.logdir, 0o755)
+        self.archive.makedirs(self.rptdir, 0o755)
 
     def _set_directories(self):
         self.cmddir = 'sos_commands'
@@ -784,7 +784,7 @@ class SoSReport(object):
                         continue
 
                     self._load(plugin_class)
-            except Exception, e:
+            except Exception as e:
                 self.soslog.warning(_("plugin %s does not install, skipping: %s") % (plug, e))
                 if self.raise_plugins:
                     raise
@@ -927,7 +927,7 @@ class SoSReport(object):
             self.policy.pre_work()
             self._set_archive()
             self._make_archive_paths()
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc(e)
             self.ui_log.info(e)

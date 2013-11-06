@@ -38,5 +38,5 @@ class Veritas(Plugin, RedHatPlugin):
                 tarfile = self.do_regex_find_all(r"ftp (.*tar.gz)", line)
             if len(tarfile) == 1:
                 self.add_copy_spec(tarfile[0])
-        except AttributeError, e:
+        except AttributeError as e:
             self.add_alert(e)
