@@ -14,23 +14,18 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
 import os
+from sos.plugins import Plugin, RedHatPlugin
 
-class katello(sos.plugintools.PluginBase):
+class Katello(Plugin, RedHatPlugin):
     """Katello project related information
     """
 
-    def defaultenabled(self):
-        return True
-
-    def checkenabled(self):
-        self.packages = ["katello", "katello-common", "katello-headpin"]
-        self.files = ["/usr/bin/katello-debug"]
-        return sos.plugintools.PluginBase.checkenabled(self)
+    plugin_name = 'katello'
+    packages = ('katello', 'katello-common', 'katello-headpin')
 
     def setup(self):
-        katello_debug = "/usr/bin/katello-debug"
-        if os.path.isfile(katello_debug):
-            katello_debug_path = os.path.join(self.cInfo['dstroot'],"katello-debug")
-            self.collectExtOutput("%s --notar -d %s" % (katello_debug, katello_debug_path))
+        katello_debug_path = os.path.join(
+            self.get_cmd_path(),"katello-debug")
+        self.add_cmd_output("%s --notar -d %s"
+            % ("katello-debug", katello_debug_path))
