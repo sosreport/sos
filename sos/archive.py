@@ -59,6 +59,15 @@ class Archive(object):
         to be included in the generated archive."""
         raise NotImplementedError
 
+    def get_archive_path(self):
+        """Return a string representing the path to the temporary
+        archive. For archive classes that implement in-line handling
+        this will be the archive file itself. Archives that use a
+        directory based cache prior to packaging should return the
+        path to the temporary directory where the report content is
+        located"""
+        pass
+
     def cleanup(self):
         """Clean up any temporary resources used by an Archive class."""
         pass
@@ -76,7 +85,7 @@ class FileCacheArchive(Archive):
 
     _tmp_dir = ""
     _archive_root = ""
-    _archive_path = ""
+    _archive_name = ""
 
     def __init__(self, name, tmpdir):
         self._name = name
@@ -141,6 +150,9 @@ class FileCacheArchive(Archive):
     def get_tmp_dir(self):
         return self._archive_root
 
+    def get_archive_path(self):
+        return self._archive_root
+
     def makedirs(self, path, mode=0700):
         self._makedirs(self.dest_path(path))
         self.log.debug("created directory at %s in FileCacheArchive %s"
@@ -157,8 +169,8 @@ class FileCacheArchive(Archive):
         self.log.debug("finalizing archive %s" % self._archive_root)
         self._build_archive()
         self.cleanup()
-        self.log.debug("built archive at %s (size=%d)" % (self._archive_path,
-                       os.stat(self._archive_path).st_size))
+        self.log.debug("built archive at %s (size=%d)" % (self._archive_name,
+                       os.stat(self._archive_name).st_size))
         return self._compress()
 
 
@@ -170,7 +182,7 @@ class TarFileArchive(FileCacheArchive):
     def __init__(self, name, tmpdir):
         super(TarFileArchive, self).__init__(name, tmpdir)
         self._suffix = "tar"
-        self._archive_path = os.path.join(tmpdir, self.name())
+        self._archive_name = os.path.join(tmpdir, self.name())
 
     def set_tarinfo_from_stat(self, tar_info, fstat, mode=None):
         tar_info.mtime = fstat.st_mtime
@@ -214,7 +226,7 @@ class TarFileArchive(FileCacheArchive):
         old_pwd = os.getcwd()
         old_umask = os.umask(0077)
         os.chdir(self._tmp_dir)
-        tar = tarfile.open(self._archive_path, mode="w")
+        tar = tarfile.open(self._archive_name, mode="w")
         tar.add(os.path.split(self._name)[1],
                 filter=self.copy_permissions_filter)
         tar.close()
