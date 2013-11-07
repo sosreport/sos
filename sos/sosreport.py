@@ -534,7 +534,8 @@ class SoSReport(object):
         self._read_config()
         self.policy = sos.policies.load()
         self._is_root = self.policy.is_root()
-        self.tmpdir = self.policy.get_tmp_dir(self.opts.tmp_dir)
+        self.tmpdir = os.path.abspath(
+            self.policy.get_tmp_dir(self.opts.tmp_dir))
         if not os.path.isdir(self.tmpdir) \
         or not os.access(self.tmpdir, os.W_OK):
             # write directly to stderr as logging is not initialised yet
