@@ -15,7 +15,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import re
-from itertools import *
+from six.moves import zip
 
 class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """information on the XFS filesystem
@@ -28,13 +28,13 @@ class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         mounts = '/proc/mounts'
         ext_fs_regex = r"^(/dev/.+).+xfs\s+"
-        for dev in izip(self.do_regex_find_all(ext_fs_regex, mounts)):
+        for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
             for e in dev:
                 parts = e.split(' ')
                 self.add_cmd_output("xfs_info %s" % (parts[1]))
 
         if self.get_option('logprint'):
-            for dev in izip(self.do_regex_find_all(ext_fs_regex, mounts)):
+            for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
                 for e in dev:
                     parts = e.split(' ')
                     self.add_cmd_output("xfs_logprint -c %s" % (parts[0]))

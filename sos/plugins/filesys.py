@@ -15,7 +15,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import re
-from itertools import *
+from six.moves import zip
 
 class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """information on filesystems
@@ -46,5 +46,5 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if self.get_option('dumpe2fs'):
             mounts = '/proc/mounts'
             ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
-            for dev in izip(self.do_regex_find_all(ext_fs_regex, mounts)):
+            for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
                 self.add_cmd_output("dumpe2fs -h %s" % (dev))
