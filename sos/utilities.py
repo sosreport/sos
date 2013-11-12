@@ -24,7 +24,6 @@ from __future__ import with_statement
 
 import os
 import re
-import string
 import inspect
 from stat import *
 #from itertools import *
@@ -37,10 +36,11 @@ import logging
 import fnmatch
 
 from contextlib import closing
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+
+# PYCOMPAT
+import six
+from six import StringIO
+
 import time
 
 def tail(filename, number_of_bytes):
@@ -53,7 +53,7 @@ def tail(filename, number_of_bytes):
 
 def fileobj(path_or_file, mode='r'):
     """Returns a file-like object that can be used as a context manager"""
-    if isinstance(path_or_file, basestring):
+    if isinstance(path_or_file, six.string_types):
         try:
             return open(path_or_file, mode)
         except:
@@ -72,7 +72,7 @@ def checksum(file_, chunk_size=128, algorithm=None):
     with fileobj(file_, 'rb') as fd:
         data = fd.read(chunk_size)
         while data:
-            digest.update(data)
+            digest.update(six.b(data))
             data = fd.read(chunk_size)
         return digest.hexdigest()
 
@@ -199,10 +199,10 @@ class DirTree(object):
         self.buffer.append(s)
 
     def printtree(self):
-        print str(self)
+        print (six.u(self))
 
     def as_string(self):
-        return str(self)
+        return self.__str__()
 
     def __str__(self):
         return "\n".join(self.buffer)
@@ -216,14 +216,14 @@ class DirTree(object):
             import pwd
             return pwd.getpwuid(stats.st_uid)[0]
         except:
-            return str(stats.st_uid)
+            return six.u(stats.st_uid)
 
     def _get_group(self, stats):
         try:
             import grp
             return grp.getgrgid(stats.st_gid)[0]
         except:
-            return str(stats.st_uid)
+            return six.u(stats.st_uid)
 
     def _format(self, path):
         """Conditionally adds detail to paths"""
@@ -245,7 +245,7 @@ class DirTree(object):
 
         count = 0
         files = os.listdir(dir_)
-        files.sort(key=string.lower)
+        files.sort(key=str.lower)
         for f in files:
             count += 1
             path = os.path.join(dir_, f)

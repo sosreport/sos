@@ -32,7 +32,7 @@ class BuildData(build):
           rc = subprocess.call(['msgfmt', '-o', mo, po])
           if rc != 0:
             raise Warning("msgfmt returned %d" % (rc,))
-        except Exception, e:
+        except Exception as e:
           error("Failed gettext.")
           sys.exit(1)
 

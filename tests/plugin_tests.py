@@ -1,7 +1,13 @@
 import unittest
 import os
 import tempfile
-from StringIO import StringIO
+
+# PYCOMPAT
+import six
+if six.PY2:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 from sos.plugins import Plugin, regex_findall, sos_relative_path, mangle_command
 from sos.archive import TarFileArchive, ZipFileArchive
@@ -14,7 +20,7 @@ def j(filename):
 
 def create_file(size):
    f = tempfile.NamedTemporaryFile(delete=False)
-   f.write("*" * size * 1024 * 1024)
+   f.write(six.b("*" * size * 1024 * 1024))
    f.flush()
    f.close()
    return f.name

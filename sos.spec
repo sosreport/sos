@@ -12,11 +12,13 @@ BuildArch: noarch
 Url: http://fedorahosted.org/sos
 BuildRequires: python-devel
 BuildRequires: gettext
+BuildRequires: python-six
 Requires: libxml2-python
 Requires: rpm-python
 Requires: tar
 Requires: bzip2
 Requires: xz
+Requires: python-six
 
 %description
 Sos is a set of tools that gathers information about system

@@ -5,6 +5,8 @@ try:
 except ImportError:
     import simplejson as json
 
+# PYCOMPAT
+from six import iteritems
 
 class Node(object):
 
@@ -117,7 +119,7 @@ class PlainTextReport(object):
 
     def __str__(self):
         self.buf = buf = []
-        for section_name, section_contents in sorted(self.report_node.data.iteritems()):
+        for section_name, section_contents in sorted(iteritems(self.report_node.data)):
             buf.append(section_name + "\n" + self.DIVIDER)
             for type_, format_, header in self.subsections:
                 self.process_subsection(section_contents, type_.ADDS_TO, header, format_)
