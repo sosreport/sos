@@ -37,13 +37,11 @@ import traceback
 import os
 import logging
 from optparse import OptionParser, Option
-import ConfigParser
 from sos.plugins import import_plugin
 from sos.utilities import ImporterHelper
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
-from itertools import izip
 import textwrap
 import tempfile
 
@@ -52,6 +50,15 @@ from sos import __version__
 import sos.policies
 from sos.archive import TarFileArchive, ZipFileArchive
 from sos.reporting import Report, Section, Command, CopiedFile, CreatedFile, Alert, Note, PlainTextReport
+
+# PYCOMPAT
+import six
+from six.moves import zip
+if six.PY3:
+    from configparser import ConfigParser
+else:
+    from ConfigParser import ConfigParser
+
 
 class TempFileUtil(object):
 
@@ -638,7 +645,7 @@ class SoSReport(object):
         return exit_handler
 
     def _read_config(self):
-        self.config = ConfigParser.ConfigParser()
+        self.config = ConfigParser()
         if self.opts.config_file:
             config_file = self.opts.config_file
         else:
@@ -662,10 +669,10 @@ class SoSReport(object):
         if not self.opts.quiet:
             console = logging.StreamHandler(sys.stderr)
             console.setFormatter(logging.Formatter('%(message)s'))
-            if self.opts.verbosity > 1:
+            if self.opts.verbosity and self.opts.verbosity > 1:
                 console.setLevel(logging.DEBUG)
                 flog.setLevel(logging.DEBUG)
-            elif self.opts.verbosity > 0:
+            elif self.opts.verbosity and self.opts.verbosity > 0:
                 console.setLevel(logging.INFO)
             else:
                 console.setLevel(logging.ERROR)
@@ -979,7 +986,7 @@ class SoSReport(object):
         self.ui_log.info("")
 
         plugruncount = 0
-        for i in izip(self.loaded_plugins):
+        for i in zip(self.loaded_plugins):
             plugruncount += 1
             plugname, plug = i[0]
             if not self.opts.quiet:
