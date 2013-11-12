@@ -897,7 +897,7 @@ class SoSReport(object):
             self.ui_log.info(_("The following plugins are currently enabled:"))
             self.ui_log.info("")
             for (plugname, plug) in self.loaded_plugins:
-                self.ui_log.info(" %-15s %s" % (plugname, plug.get_description()))
+                self.ui_log.info(" %-20s %s" % (plugname, plug.get_description()))
         else:
             self.ui_log.info(_("No plugin enabled."))
         self.ui_log.info("")
@@ -906,7 +906,7 @@ class SoSReport(object):
             self.ui_log.info(_("The following plugins are currently disabled:"))
             self.ui_log.info("")
             for (plugname, plugclass, reason) in self.skipped_plugins:
-                self.ui_log.info(" %-15s %-14s %s" % (plugname,
+                self.ui_log.info(" %-20s %-14s %s" % (plugname,
                                      reason,
                                      plugclass.get_description()))
         self.ui_log.info("")
