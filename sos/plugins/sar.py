@@ -43,8 +43,12 @@ class Sar(Plugin,):
         self.add_copy_spec_limit("/var/log/sa/sar[0-9]*",
                                  sizelimit = self.sa_size)
         self.add_copy_spec_limit("/var/log/sa/sa[0-9]*",
-                                 sizelimit = self.sa_size)
-        dirList = os.listdir(self.sa_path)
+                              sizelimit = self.sa_size)
+        try:
+            dirList = os.listdir(self.sa_path)
+        except:
+            self.soslog.error("sar: could not list /var/log/sa")
+            return
         # find all the sa file that don't have an existing sar file
         for fname in dirList:
             if fname[0:2] == 'sa' and fname[2] != 'r':

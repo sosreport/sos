@@ -1,6 +1,4 @@
-## Copyright (C) 2013 Red Hat, Inc., Lukas Zapletal <lzap@redhat.com>
-
-## This program is free software; you can redistribute it and/or modify
+### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
@@ -14,18 +12,20 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Katello(Plugin, RedHatPlugin):
-    """Katello project related information
+class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """NFS related information
     """
-
-    plugin_name = 'katello'
-    packages = ('katello', 'katello-common', 'katello-headpin')
+    plugin_name = 'nfs'
+    packages = ['nfs-utils']
 
     def setup(self):
-        katello_debug_path = os.path.join(
-            self.get_cmd_path(),"katello-debug")
-        self.add_cmd_output("%s --notar -d %s"
-            % ("katello-debug", katello_debug_path))
+	self.add_copy_specs([
+                "/etc/nfsmount.conf",
+                "/etc/idmapd.conf",
+                "/proc/fs/nfsfs/servers",
+                "/proc/fs/nfsfs/volumes"
+        ])
+        return
+

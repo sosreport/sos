@@ -206,12 +206,6 @@ No changes will be made to system configuration.
         """
         pass
 
-    def package_results(self, package_name):
-        """
-        This function is called prior to packaging.
-        """
-        pass
-
     def post_work(self):
         """
         This function is called after the sosreport has been generated.
@@ -477,5 +471,3 @@ class LinuxPolicy(Policy):
         
         return
 
-    def package_results(self, archive_filename):
-        self._print(_("Creating compressed archive..."))
