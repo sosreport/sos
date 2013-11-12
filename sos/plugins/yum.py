@@ -39,8 +39,8 @@ class Yum(Plugin, RedHatPlugin):
         self.add_cmd_output("yum -C repolist")
 
         # candlepin info
-        self.add_forbidden_path("/etc/pki/entitlements/key.pem")
-        self.add_forbidden_path("/etc/pki/entitlements/*-key.pem")
+        self.add_forbidden_path("/etc/pki/entitlement/key.pem")
+        self.add_forbidden_path("/etc/pki/entitlement/*-key.pem")
         self.add_copy_specs([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",

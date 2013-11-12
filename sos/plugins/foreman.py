@@ -14,23 +14,18 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import sos.plugintools
 import os
+from sos.plugins import Plugin, RedHatPlugin
 
-class foreman(sos.plugintools.PluginBase):
+class Foreman(Plugin, RedHatPlugin):
     """Foreman project related information
     """
 
-    def defaultenabled(self):
-        return True
-
-    def checkenabled(self):
-        self.packages = ["foreman"]
-        self.files = ["/usr/sbin/foreman-debug"]
-        return sos.plugintools.PluginBase.checkenabled(self)
+    plugin_name = 'foreman'
+    packages = ('foreman')
 
     def setup(self):
-        foreman_debug = "/usr/sbin/foreman-debug"
-        if os.path.isfile(foreman_debug):
-            foreman_debug_path = os.path.join(self.cInfo['dstroot'],"foreman-debug")
-            self.collectExtOutput("%s -a -d %s" % (foreman_debug, foreman_debug_path))
+        foreman_debug_path = os.path.join(
+            self.get_cmd_path(),"foreman-debug")
+        self.add_cmd_output("%s -a -d %s"
+            % ("foreman-debug", foreman_debug_path))

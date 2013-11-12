@@ -327,6 +327,19 @@ class SoSOptions(object):
         self._batch = value
 
     @property
+    def build(self):
+        if self._options != None:
+            return self._options.build
+        return self._build
+
+    @build.setter
+    def build(self):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.build expects a boolean")
+        self._build = value
+
+    @property
     def verbosity(self):
         if self._options != None:
             return self._options.verbosity
@@ -476,6 +489,9 @@ class SoSOptions(object):
         parser.add_option("--batch", action="store_true",
                              dest="batch", default=False,
                              help="batch mode - do not prompt interactively")
+        parser.add_option("--build", action="store_true", \
+                             dest="build", default=False, \
+                             help="keep sos tree available and dont package results")
         parser.add_option("-v", "--verbose", action="count",
                              dest="verbosity",
                              help="increase verbosity")
@@ -534,7 +550,8 @@ class SoSReport(object):
         self._read_config()
         self.policy = sos.policies.load()
         self._is_root = self.policy.is_root()
-        self.tmpdir = self.policy.get_tmp_dir(self.opts.tmp_dir)
+        self.tmpdir = os.path.abspath(
+            self.policy.get_tmp_dir(self.opts.tmp_dir))
         if not os.path.isdir(self.tmpdir) \
         or not os.access(self.tmpdir, os.W_OK):
             # write directly to stderr as logging is not initialised yet
@@ -1096,24 +1113,29 @@ class SoSReport(object):
     def final_work(self):
 
         # package up the results for the support organization
-        self.policy.package_results(self.archive.name())
+        if not self.opts.build:
+            self.ui_log.info(_("Creating compressed archive..."))
+
+            # compression could fail for a number of reasons
+            try:
+                final_filename = self.archive.finalize(self.opts.compression_type)
+            except:
+                if self.opts.debug:
+                    raise
+                else:
+                    return False
+
+            # automated submission will go here
+            if not self.opts.upload:
+                self.policy.display_results(final_filename)
+            else:
+                self.policy.upload_results(final_filename)
+
+        else:
+            self.ui_log.info(_("\n  sosreport build tree is located at : %s\n"
+                            % self.archive.get_archive_path()))
 
         self._finish_logging()
-
-        # compression could fail for a number of reasons
-        try:
-            final_filename = self.archive.finalize(self.opts.compression_type)
-        except:
-            if self.opts.debug:
-                raise
-            else:
-                return False
-
-        # automated submission will go here
-        if not self.opts.upload:
-            self.policy.display_results(final_filename)
-        else:
-            self.policy.upload_results(final_filename)
 
         self.tempfile_util.clean()
 
