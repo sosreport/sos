@@ -38,14 +38,11 @@ class Logs(Plugin):
         self.add_copy_spec_limit("/var/log/boot*", sizelimit = self.limit)
 
         if self.get_option('all_logs'):
-            print( "doing all_logs...")
             logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
                                 "/etc/syslog.conf")
-            print(logs)
             if self.policy().pkg_by_name("rsyslog") \
               or os.path.exists("/etc/rsyslog.conf"):
                 logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
-                print(logs)
             for i in logs:
                 if i.startswith("-"):
                     i = i[1:]
