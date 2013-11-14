@@ -21,7 +21,7 @@ class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ['nfs-utils']
 
     def setup(self):
-	self.add_copy_specs([
+        self.add_copy_specs([
                 "/etc/nfsmount.conf",
                 "/etc/idmapd.conf",
                 "/proc/fs/nfsfs/servers",
