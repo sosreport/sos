@@ -38,7 +38,7 @@ import fnmatch
 
 # PYCOMPAT
 import six
-from six.moves import urllib, zip, filter
+from six.moves import zip, filter
 
 try:
     import json
