@@ -212,6 +212,7 @@ class SoSOptions(object):
     _usealloptions = False
     _upload = False
     _batch = False
+    _build = False
     _verbosity = 0
     _quiet = False
     _debug = False
@@ -1119,11 +1120,12 @@ class SoSReport(object):
                     raise
 
     def final_work(self):
-
+        # this must come before archive creation to ensure that log
+        # files are closed and cleaned up at exit.
+        self._finish_logging()
         # package up the results for the support organization
         if not self.opts.build:
-            self.ui_log.info(_("Creating compressed archive..."))
-
+            print _("Creating compressed archive...")
             # compression could fail for a number of reasons
             try:
                 final_filename = self.archive.finalize(self.opts.compression_type)
@@ -1133,17 +1135,14 @@ class SoSReport(object):
                 else:
                     return False
 
-            # automated submission will go here
-            if not self.opts.upload:
-                self.policy.display_results(final_filename)
-            else:
-                self.policy.upload_results(final_filename)
-
         else:
-            self.ui_log.info(_("\n  sosreport build tree is located at : %s\n"
-                            % self.archive.get_archive_path()))
+            final_filename = self.archive.get_archive_path()
 
-        self._finish_logging()
+        # automated submission will go here
+        if not self.opts.upload:
+            self.policy.display_results(final_filename, build = self.opts.build)
+        else:
+            self.policy.upload_results(final_filename)
 
         self.tempfile_util.clean()
 

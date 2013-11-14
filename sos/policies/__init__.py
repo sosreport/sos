@@ -254,26 +254,32 @@ No changes will be made to system configuration.
         to use"""
         return "md5"
 
-    def display_results(self, final_filename=None):
+    def display_results(self, final_filename=None, build=False):
 
         # make sure a report exists
         if not final_filename:
            return False
 
-        # store checksum into file
-        fp = open(final_filename + "." + get_hash_name(), "w")
-        checksum = self._create_checksum(final_filename)
-        if checksum:
-            fp.write(checksum + "\n")
-        fp.close()
-
         self._print()
-        self._print(_("Your sosreport has been generated and saved in:\n  %s") % final_filename)
+
+        if not build:
+            # store checksum into file
+            fp = open(final_filename + "." + get_hash_name(), "w")
+            checksum = self._create_checksum(final_filename)
+            if checksum:
+                fp.write(checksum + "\n")
+            fp.close()
+
+            self._print(_("Your sosreport has been generated and saved in:\n  %s") % final_filename)
+        else:
+            checksum = None
+            self._print(_("sosreport build tree is located at : %s" % final_filename))
+
         self._print()
         if checksum:
             self._print(_("The checksum is: ") + checksum)
             self._print()
-        self._print(_("Please send this file to your support representative."))
+            self._print(_("Please send this file to your support representative."))
         self._print()
 
     def upload_results(self, final_filename):
