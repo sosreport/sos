@@ -58,6 +58,7 @@ if six.PY3:
     from configparser import ConfigParser
 else:
     from ConfigParser import ConfigParser
+from six import print_
 
 
 class TempFileUtil(object):
@@ -91,15 +92,15 @@ class OptionParserExtended(OptionParser):
     def print_help(self, out=sys.stdout):
         """ Prints help content including examples """
         OptionParser.print_help(self, out)
-        print()
-        print( "Some examples:")
-        print()
-        print( " enable cluster plugin only and collect dlm lockdumps:")
-        print( "   # sosreport -o cluster -k cluster.lockdump")
-        print()
-        print( " disable memory and samba plugins, turn off rpm -Va collection:")
-        print( "   # sosreport -n memory,samba -k rpm.rpmva=off")
-        print()
+        print_()
+        print_( "Some examples:")
+        print_()
+        print_( " enable cluster plugin only and collect dlm lockdumps:")
+        print_( "   # sosreport -o cluster -k cluster.lockdump")
+        print_()
+        print_( " disable memory and samba plugins, turn off rpm -Va collection:")
+        print_( "   # sosreport -n memory,samba -k rpm.rpmva=off")
+        print_()
 
 class SosOption(Option):
     """Allow to specify comma delimited list of plugins"""
@@ -631,7 +632,7 @@ class SoSReport(object):
             import traceback, pdb
             # we are NOT in interactive mode, print the exception...
             traceback.print_exception(etype, eval_, etrace, limit=2, file=sys.stdout)
-            print
+            print_()
             # ...then start the debugger in post-mortem mode.
             pdb.pm()
 

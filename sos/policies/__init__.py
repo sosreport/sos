@@ -17,6 +17,7 @@ from sos.plugins import IndependentPlugin
 from sos import _sos as _
 import hashlib
 from textwrap import fill
+from six import print_
 
 def import_policy(name):
     policy_fqname = "sos.policies.%s" % name
@@ -354,9 +355,9 @@ No changes will be made to system configuration.
         quiet mode"""
         if not self.commons['cmdlineopts'].quiet:
             if msg:
-                print(msg)
+                print_(msg)
             else:
-                print()
+                print_()
 
 
     def get_msg(self):
