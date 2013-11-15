@@ -41,16 +41,16 @@ class Networking(Plugin):
             out.append(br_name)
         return out
 
-    def get_interface_name(self,ip_addr_out):
-        """Return a dictionary for which key are interface name according to the
-        output of ifconifg-a stored in ifconfig_file.
+    def get_eth_interfaces(self,ip_link_out):
+        """Return a dictionary for which keys are ethernet interface
+        names taken from the output of "ip -o link".
         """
         out={}
-        for line in ip_addr_out[1].splitlines():
+        for line in ip_link_out[1].splitlines():
             match=re.match('.*link/ether', line)
             if match:
-                int=match.string.split(':')[1].lstrip()
-                out[int]=True
+                iface=match.string.split(':')[1].lstrip()
+                out[iface]=True
         return out
 
     def collect_iptable(self,tablename):
@@ -85,7 +85,6 @@ class Networking(Plugin):
         self.add_forbidden_path("/proc/net/rpc/*/flush")
 
         ip_addr_file=self.get_cmd_output_now("ip -o addr", root_symlink = "ip_addr")
-        ip_addr_out=self.call_ext_prog("ip -o addr")
         self.add_cmd_output("route -n", root_symlink = "route")
         self.collect_iptable("filter")
         self.collect_iptable("nat")
@@ -101,8 +100,9 @@ class Networking(Plugin):
         self.add_cmd_output("ip mroute show")
         self.add_cmd_output("ip maddr show")
         self.add_cmd_output("ip neigh show")
-        if ip_addr_out:
-            for eth in self.get_interface_name(ip_addr_out):
+        ip_link_out=self.call_ext_prog("ip -o link")
+        if ip_link_out:
+            for eth in self.get_eth_interfaces(ip_link_out):
                 self.add_cmd_output("ethtool "+eth)
                 self.add_cmd_output("ethtool -i "+eth)
                 self.add_cmd_output("ethtool -k "+eth)
