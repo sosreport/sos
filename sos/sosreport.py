@@ -485,7 +485,7 @@ class SoSOptions(object):
         parser.add_option("-o", "--only-plugins", action="extend",
                              dest="onlyplugins", type="string",
                              help="enable these plugins only", default = deque())
-        parser.add_option("-k", "--plugin-option", action="append",
+        parser.add_option("-k", "--plugin-option", action="extend",
                              dest="plugopts", type="string",
                              help="plugin options in plugname.option=value format (see -l)",
                              default = deque())
