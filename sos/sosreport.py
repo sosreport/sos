@@ -669,7 +669,7 @@ class SoSReport(object):
             elif self.opts.verbosity > 0:
                 console.setLevel(logging.INFO)
             else:
-                console.setLevel(logging.ERROR)
+                console.setLevel(logging.WARNING)
             self.soslog.addHandler(console)
 
         # ui log
