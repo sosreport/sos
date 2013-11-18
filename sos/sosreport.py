@@ -780,13 +780,13 @@ class SoSReport(object):
 
                 for plugin_class in plugin_classes:
                     if not self.policy.validatePlugin(plugin_class):
-                        self.soslog.debug(_("plugin %s does not validate, skipping") % plug)
+                        self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
                         if self.opts.verbosity > 0:
                             self._skip(plugin_class, _("does not validate"))
                         continue
 
                     if plugin_class.requires_root and not self._is_root:
-                        self.soslog.debug(_("plugin %s requires root permissions to execute, skipping") % plug)
+                        self.soslog.info(_("plugin %s requires root permissions to execute, skipping") % plug)
                         self._skip(plugin_class, _("requires root"))
                         continue
 
