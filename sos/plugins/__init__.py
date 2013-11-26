@@ -482,12 +482,21 @@ class Plugin(object):
             if filespec not in self.copy_paths:
                 self.copy_paths.append((filespec, sub))
 
+    def get_command_output(self, prog, timeout=300):
+        (status, output, runtime) = sos_get_command_output(prog, timeout)
+        if status == 124:
+            self.soslog.warning("command %s timed out after %ds"
+                    % (prog, timeout))
+        if status == 127:
+            self.soslog.warning("could not run '%s': command not found" % prog)
+        return (status, output, runtime)
+
     def call_ext_prog(self, prog, timeout=300):
         """Execute a command independantly of the output gathering part of
         sosreport.
         """
         # pylint: disable-msg = W0612
-        return sos_get_command_output(prog, timeout)
+        return self.get_command_output(prog, timeout)
 
     def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
@@ -562,9 +571,8 @@ class Plugin(object):
             start_time = time()
 
         # pylint: disable-msg = W0612
-        status, shout, runtime = sos_get_command_output(exe, timeout=timeout)
+        status, shout, runtime = self.get_command_output(exe, timeout=timeout)
         if (status == 127):
-            self.soslog.debug("could not run '%s': command not found" % exe)
             return None
 
         if suggest_filename:
