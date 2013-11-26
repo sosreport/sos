@@ -485,7 +485,7 @@ class Plugin(object):
     def get_command_output(self, prog, timeout=300):
         (status, output, runtime) = sos_get_command_output(prog, timeout)
         if status == 124:
-            self.soslog.warning("command %s timed out after %ds"
+            self.soslog.warning("command '%s' timed out after %ds"
                     % (prog, timeout))
         if status == 127:
             self.soslog.warning("could not run '%s': command not found" % prog)
