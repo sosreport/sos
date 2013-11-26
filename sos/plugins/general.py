@@ -33,8 +33,8 @@ class General(Plugin):
             "/etc/hostid",
             "/var/lib/dbus/machine-id",
             "/etc/exports",
-            "/etc/localtime",
-            "/root/anaconda-ks.cfg"])
+            "/etc/localtime"
+        ])
 
         self.add_cmd_output("hostname", root_symlink="hostname")
         self.add_cmd_output("date", root_symlink="date")
