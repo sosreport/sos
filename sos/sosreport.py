@@ -49,7 +49,7 @@ from sos import _sos as _
 from sos import __version__
 import sos.policies
 from sos.archive import TarFileArchive, ZipFileArchive
-from sos.reporting import Report, Section, Command, CopiedFile, CreatedFile, Alert, Note, PlainTextReport
+from sos.reporting import Report, Section, Command, CopiedFile, CreatedFile, Alert, Note, PlainTextReport, HtmlReport
 
 # PYCOMPAT
 import six
@@ -1050,66 +1050,34 @@ class SoSReport(object):
 
 
     def html_report(self):
-        # Generate the header for the html output file
-        rfd = self.get_temp_file()
-        rfd.write("""
-        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-            <head>
-        <link rel="stylesheet" type="text/css" media="screen" href="donot.css" />
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Sos System Report</title>
-            </head>
+        report = Report()
 
-            <body>
-        """)
-
-
-        # Make a pass to gather Alerts and a list of module names
-        allAlerts = deque()
-        plugNames = deque()
         for plugname, plug in self.loaded_plugins:
+            section = Section(name=plugname)
+
             for alert in plug.alerts:
-                allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname,
-                                                               alert))
-            plugNames.append(plugname)
+                section.add(Alert(alert))
 
-        # Create a table of links to the module info
-        rfd.write("<hr/><h3>Loaded Plugins:</h3>")
-        rfd.write("<table><tr>\n")
-        rr = 0
-        for i in range(len(plugNames)):
-            rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i],
-                                                           plugNames[i]))
-            rr = divmod(i, 4)[1]
-            if (rr == 3):
-                rfd.write('</tr>')
-        if not (rr == 3):
-            rfd.write('</tr>')
-        rfd.write('</table>\n')
+            if plug.custom_text:
+                section.add(Note(plug.custom_text))
 
-        rfd.write('<hr/><h3>Alerts:</h3>')
-        rfd.write('<ul>')
-        for alert in allAlerts:
-            rfd.write('<li>%s</li>' % alert)
-        rfd.write('</ul>')
+            for f in plug.copied_files:
+                section.add(CopiedFile(name=f['srcpath'],
+                            href= ".." + f['dstpath']))
 
+            for cmd in plug.executed_commands:
+                section.add(Command(name=cmd['exe'], return_code=0,
+                            href="../" + cmd['file']))
 
-        # Call the report method for each plugin
-        for plugname, plug in self.loaded_plugins:
-            try:
-                html = plug.report()
-            except:
-                if self.raise_plugins:
-                    raise
-            else:
-                rfd.write(html)
+            for content, f in plug.copy_strings:
+                section.add(CreatedFile(name=f))
 
-        rfd.write("</body></html>")
+            report.add(section)
 
-        rfd.flush()
-
-        self.archive.add_file(rfd.name, dest=os.path.join('sos_reports', 'sos.html'))
+        fd = self.get_temp_file()
+        fd.write(str(HtmlReport(report)))
+        fd.flush()
+        self.archive.add_file(fd.name, dest=os.path.join('sos_reports', 'sos.html'))
 
     def postproc(self):
         for plugname, plug in self.loaded_plugins:
