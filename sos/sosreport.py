@@ -1125,7 +1125,7 @@ class SoSReport(object):
         self._finish_logging()
         # package up the results for the support organization
         if not self.opts.build:
-            print _("Creating compressed archive...")
+            print (_("Creating compressed archive..."))
             # compression could fail for a number of reasons
             try:
                 final_filename = self.archive.finalize(self.opts.compression_type)
