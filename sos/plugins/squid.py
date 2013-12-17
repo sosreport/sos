@@ -14,17 +14,34 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Squid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Squid(Plugin):
     """squid related information
     """
 
     plugin_name = 'squid'
+
     option_list = [("logsize", "maximum size (MiB) of logs to collect",
                     "", 15)]
+
+class RedHatSquid(Squid, RedHatPlugin):
+    """squid Red Hat related information
+    """
+
     files = ('/etc/squid/squid.conf',)
     packages = ('squid',)
 
     def setup(self):
-        self.add_copy_spec("/etc/squid/squid.conf")
-        self.add_copy_spec_limit("/var/log/squid",
+        self.add_copy_spec_limit("/etc/squid/squid.conf",
+                        sizelimit=self.get_option('logsize'))
+
+class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
+    """squid related information for Debian and Ubuntu
+    """
+
+    plugin_name = 'squid'
+    files = ('/etc/squid3/squid.conf',)
+    packages = ('squid3',)
+
+    def setup(self):
+        self.add_copy_spec_limit("/etc/squid3/squid.conf",
                         sizelimit=self.get_option('logsize'))
