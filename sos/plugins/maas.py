@@ -17,15 +17,19 @@
 from sos.plugins import Plugin, UbuntuPlugin
 
 class Maas(Plugin, UbuntuPlugin):
-    """ MAAS Plugin
+    """MAAS Plugin
     """
 
     plugin_name = 'maas'
 
     def setup(self):
-        self.add_copy_specs(["/etc/squid-deb-proxy",
-                           "/etc/maas",
-                           "/var/lib/maas/dhcp*",
-                           "/var/log/maas*"])
+        self.add_copy_specs([
+            "/etc/squid-deb-proxy",
+            "/etc/maas",
+            "/var/lib/maas/dhcp*",
+            "/var/log/apache2*",
+            "/var/log/maas*",
+        ])
+        self.add_cmd_output("apt-cache policy maas-*")
+        self.add_cmd_output("apt-cache policy python-django-*")
         self.add_cmd_output("maas dumpdata")
-                           
