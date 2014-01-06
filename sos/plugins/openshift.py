@@ -26,26 +26,27 @@ class Openshift(Plugin, RedHatPlugin):
         self.add_copy_specs([
             "/etc/openshift-enterprise-version",
             "/etc/openshift/",
+            "/var/log/openshift/",
             "/etc/dhcp/dhclient-*"
         ])
+
+        self.add_cmd_output("oo-diagnostics")
 
         if self.option_enabled("broker"):
             self.add_copy_specs([
                 "/var/log/activemq",
                 "/var/log/mongodb",
-                "/var/log/openshift",
-                "/var/www/openshift/broker/log",
-                "/var/www/openshift/broker/httpd/logs/",
-                "/var/www/openshift/console/log",
-                "/var/www/openshift/console/httpd/logs",
-                "/var/log/openshift/user_action.log"
+                "/var/log/mcollective-client.log",
+                "/var/log/ruby193-mcollective-client.log",
+                "/var/log/openshift/broker/",
+                "/var/log/openshift/console/"
             ])
 
             self.add_cmd_outputs([
-                "oo-accpet-broker -v",
+                "oo-accept-broker -v",
                 "oo-admin-chk -v",
                 "mco ping",
-                "gem list --local"
+                "oo-mco ping",
             ])
             runat = '/var/www/openshift/broker/'
             self.add_cmd_output("bundle --local", runat)
@@ -54,11 +55,13 @@ class Openshift(Plugin, RedHatPlugin):
         if self.option_enabled("node"):
             self.add_copy_specs([
                 "/var/log/openshift/node",
-                "/cgroup/all/openshift",
+                "/cgroup/*/openshift/",
                 "/var/log/mcollective.log",
+                "/opt/rh/ruby193/root/etc/mcollective/",
                 "/var/log/openshift-gears-async-start.log",
-                "/var/log/httpd/error_log"
+                "/var/log/httpd/"
             ])
+
 
             self.add_cmd_outputs([
                 "oo-accept-node -v",
