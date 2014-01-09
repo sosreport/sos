@@ -15,12 +15,14 @@
 import sos.plugintools
 import os, re
 from glob import glob
+from datetime import datetime, timedelta
 
 class cluster(sos.plugintools.PluginBase):
     """cluster suite and GFS related information
     """
 
     optionList = [("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
+                  ("crm_from", 'specify the --from parameter passed to crm_report', 'fast', False),
                   ('lockdump', 'gather dlm lockdumps', 'slow', False)]
 
     def checkenabled(self):
@@ -98,8 +100,20 @@ class cluster(sos.plugintools.PluginBase):
             self.collectExtOutput("fence_tool dump")
             self.collectExtOutput("dlm_tool dump")
             self.collectExtOutput("dlm_tool ls -n")
+            # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
+            # time in order to collect data.
+            crm_from = (datetime.today()
+                        - timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
+            if self.getOption('crm_from') != False:
+                if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',
+                            str(self.getOption('crm_from'))):
+                    crm_from = self.getOption('crm_from')
+                else:
+                    self.soslog.error("crm_from parameter '%s' is not a valid date"
+                                % self.getOption('crm_from'))
             crm_dest = os.path.join(self.cInfo['cmddir'], 'cluster', 'crm_report')
-            self.collectExtOutput("crm_report -S --dest %s" % crm_dest)
+            self.collectExtOutput('crm_report -S -d --dest %s --from "%s"'
+                            % (crm_dest, crm_from))
 
     def do_lockdump(self):
         rhelver = self.policy().rhelVersion()
