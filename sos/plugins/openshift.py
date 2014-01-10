@@ -34,7 +34,6 @@ class Openshift(Plugin, RedHatPlugin):
 		    self.add_copy_specs(["/var/log/activemq/",
 				    "/var/log/mongodb/",
         			    "/var/log/mcollective-client.log",
-        			    "/var/log/ruby193-mcollective-client.log",
 				    "/var/log/openshift/broker/",
 				    "/var/log/openshift/console/"])
 
