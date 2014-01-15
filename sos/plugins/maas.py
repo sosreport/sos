@@ -29,6 +29,7 @@ class Maas(Plugin, UbuntuPlugin):
             "/var/lib/maas/dhcp*",
             "/var/log/apache2*",
             "/var/log/maas*",
+            "/var/log/upstart/maas-*",
         ])
         self.add_cmd_output("apt-cache policy maas-*")
         self.add_cmd_output("apt-cache policy python-django-*")
