@@ -1,3 +1,17 @@
+sosreport (3.1-1) unstable; urgency=low
+
+  * New upstream release v3.1
+    Features include:
+    - Full Python 3 support
+    - Further modularized openstack plugins
+  * debian/rules:
+    - Use pybuild
+  * debian/control:
+    - Use X-Python-Version: >= 3.3
+  - This drops support for Python 2 as we move forward.
+
+ -- Adam Stokes <adam.stokes@ubuntu.com>  Wed, 15 Jan 2014 16:58:54 -0500
+
 sosreport (3.0-1) unstable; urgency=low
 
   * New upstream release v3.0

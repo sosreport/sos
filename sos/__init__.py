@@ -20,7 +20,7 @@ This module houses the i18n setup and message function. The default is to use
 gettext to internationalize messages.
 """
 
-__version__ = "3.0"
+__version__ = "3.1"
 
 import gettext
 gettext_dir = "/usr/share/locale"

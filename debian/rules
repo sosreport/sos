@@ -1,21 +1,13 @@
 #!/usr/bin/make -f
 
 DH_ALWAYS_EXCLUDE=.git
-
-%:
-	dh $@ --with python3
-
-override_dh_auto_install:
-	python setup.py \
-	install \
-	--install-lib=usr/share/sosreport/ \
+export PYBUILD_NAME=sosreport
+export PYBUILD_DISABLE_python2=1
+export PYBUILD_INSTALL_ARGS_python3=--install-lib=usr/share/sosreport/ \
 	--install-data=usr/ \
 	--install-scripts=usr/share/sosreport/ \
 	--root=$(CURDIR)/debian/sosreport/ \
 	--no-compile -O0
 
-override_dh_clean:
-	rm -rf build/
-	rm -rf dist/
-	find . -name '*.pyc' -delete
-
+%:
+	dh $@ --with python3 --buildsystem=pybuild
