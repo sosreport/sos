@@ -26,8 +26,6 @@ class Yum(Plugin, RedHatPlugin):
                   ("yumdebug", "gather yum debugging data", "slow", False)]
 
     def setup(self):
-        rhelver = self.policy().rhel_version()
-
         # Pull all yum related information
         self.add_copy_specs([
             "/etc/yum",
