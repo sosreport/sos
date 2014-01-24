@@ -10,7 +10,7 @@ sosreport \- Collect and package diagnostic and support data
           [-a|--alloptions] [-v|--verbose]\fR
           [--report] [--config-file conf] [--batch]\fR
           [--build] [--name name] [--ticket-number number]
-          [--debug] [--upload] [--tmp-dir directory]\fR
+          [--debug] [--tmp-dir directory]\fR
           [--profile] [--help]\fR
 .SH DESCRIPTION
 \fBsosreport\fR generates a compressed tar archive of diagnostic
@@ -49,9 +49,6 @@ specified value in the plug-in PLUGNAME.
 .TP
 .B \-a, \--alloptions
 Set all boolean options to True for all enabled plug-ins.
-.TP
-.B \--upload FTP_SERVER
-Upload the report to the configured destination.
 .TP
 .B \-v, \--verbose
 Increase logging verbosity. May be specified multiple times to enable

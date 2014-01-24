@@ -210,7 +210,6 @@ class SoSOptions(object):
     _onlyplugins = []
     _plugopts = []
     _usealloptions = False
-    _upload = False
     _batch = False
     _build = False
     _verbosity = 0
@@ -308,19 +307,6 @@ class SoSOptions(object):
         if not isinsance(value, bool):
             raise TypeError("SoSOptions.usealloptions expects a boolean")
         self._usealloptions = value
-
-    @property
-    def upload(self):
-        if self._options != None:
-            return self._options.upload
-        return self._upload
-
-    @upload.setter
-    def upload(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.upload expects a boolean")
-        self._upload = value
 
     @property
     def batch(self):
@@ -492,9 +478,6 @@ class SoSOptions(object):
         parser.add_option("-a", "--alloptions", action="store_true",
                              dest="usealloptions", default=False,
                              help="enable all options for loaded plugins")
-        parser.add_option("-u", "--upload", action="store",
-                             dest="upload", default=False,
-                             help="upload the report to an ftp server")
         parser.add_option("--batch", action="store_true",
                              dest="batch", default=False,
                              help="batch mode - do not prompt interactively")
@@ -1138,12 +1121,7 @@ class SoSReport(object):
         else:
             final_filename = self.archive.get_archive_path()
 
-        # automated submission will go here
-        if not self.opts.upload:
-            self.policy.display_results(final_filename, build = self.opts.build)
-        else:
-            self.policy.upload_results(final_filename)
-
+        self.policy.display_results(final_filename, build = self.opts.build)
         self.tempfile_util.clean()
 
         return True

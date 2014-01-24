@@ -6,26 +6,31 @@ sos.conf \- sosreport configuration
 sosreport uses a configuration file at /etc/sos.conf.
 .SH PARAMETERS
 .sp
-There are 3 sections of configuration in the sosreport configuration file: general,
-plugins, and tunables.
-.SH [general] OPTIONS
-.sp
-.in
-ftp_upload_url Default ftp server to send reports.
-.in
-gpg_keyring Default gpgkey.
-.in
-gpg_recipient GPG recipient
-.in
-smtp_server Mail server
-.SH [plugins] OPTIONS
-.sp
-.in
+There are two sections in the sosreport configuration file:
+plugins, and tunables. Options are set using 'ini'-style
+\fBname = value\fP pairs.
+
+Some options accept a comma separated list of values.
+
+.TP
+\fB[plugins]\fP
 disable Comma separated list of plugins to disable.
-.SH [tunables] OPTIONS
+.TP
+\fB[tunables]\fP
+plugin.option Alter available options for defined plugin.
+.SH EXAMPLES
+To disable the 'general' and 'filesys' plugins:
+.LP
+[plugins]
+.br
+disable = general, filesys
 .sp
-.in
-(plugin, option) Alter available options for defined plugin.
+To disable rpm package verification in the RPM plugin:
+.LP
+[tunables]
+.br
+rpm.rpmva = off
+.br
 .SH FILES
 .sp
 /etc/sos.conf
