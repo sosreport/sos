@@ -17,7 +17,8 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
 class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-
+    """ capture scheduled jobs information """
+    
     plugin_name = 'anacron'
 
     packages = ('anacron',)

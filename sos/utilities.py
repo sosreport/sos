@@ -161,7 +161,7 @@ def sos_get_command_output(command, timeout=300):
                 stdout=PIPE, stderr=STDOUT,
                 bufsize=-1, env = cmd_env)
         stdout, stderr = p.communicate()
-        return (p.returncode, stdout, 0)
+        return (p.returncode, stdout.decode('utf-8'), 0)
     else:
         return (127, "", 0)
 

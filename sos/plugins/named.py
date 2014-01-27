@@ -14,7 +14,6 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from os.path import exists, join, normpath
-import commands
 import pdb
 
 class Named(Plugin):

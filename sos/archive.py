@@ -255,9 +255,9 @@ class TarFileArchive(FileCacheArchive):
                 p = Popen(command, stdout=PIPE, stderr=PIPE, bufsize=-1)
                 stdout, stderr = p.communicate()
                 if stdout:
-                    log.info(stdout)
+                    log.info(stdout.decode('utf-8'))
                 if stderr:
-                    log.error(stderr)
+                    log.error(stderr.decode('utf-8'))
                 self._suffix += suffix
                 return self.name()
             except Exception as e:
