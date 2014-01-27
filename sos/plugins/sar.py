@@ -23,7 +23,8 @@ class Sar(Plugin,):
 
     packages = ('sysstat',)
     sa_path = '/var/log/sa'
-    option_list = [("all_sar", "gather all system activity records", "", False)]
+    option_list = [("all_sar", "gather all system activity records", "", False),
+                   ("skip_sar_reports", "don't gather sar?? generated reports", "", False)]
 
     # size-limit SAR data collected by default (MB)
     sa_size = 20
@@ -40,9 +41,13 @@ class Sar(Plugin,):
         if self.get_option("all_sar"):
             self.sa_size = 0
 
-        self.add_copy_spec_limit(os.path.join(self.sa_path, "sar[0-9]*"),
-                                              sizelimit = self.sa_size)
         self.add_copy_spec_limit(os.path.join(self.sa_path, "sa[0-9]*"),
+                                              sizelimit = self.sa_size)
+
+        if self.get_option("skip_sar_reports"):
+            return
+
+        self.add_copy_spec_limit(os.path.join(self.sa_path, "sar[0-9]*"),
                                               sizelimit = self.sa_size)
         try:
             dirList = os.listdir(self.sa_path)
