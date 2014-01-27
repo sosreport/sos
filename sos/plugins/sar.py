@@ -32,10 +32,10 @@ class Sar(Plugin,):
         if self.get_option("all_sar"):
             self.sa_size = 0
 
-        self.add_copy_spec_limit("%s/sar[0-9]*" % self.sa_path,
-                                 sizelimit = self.sa_size)
-        self.add_copy_spec_limit("%s/sa[0-9]*" % self.sa_path,
-                              sizelimit = self.sa_size)
+        self.add_copy_spec_limit(os.path.join(self.sa_path, "sar[0-9]*"),
+                                              sizelimit = self.sa_size)
+        self.add_copy_spec_limit(os.path.join(self.sa_path, "sa[0-9]*"),
+                                              sizelimit = self.sa_size)
         try:
             dirList = os.listdir(self.sa_path)
         except:
@@ -64,7 +64,7 @@ class RedHatSar(Sar, RedHatPlugin):
 class DebianSar(Sar, DebianPlugin, UbuntuPlugin):
     """ Collect system activity reporter data
     """
-    
+
     sa_path = '/var/log/sysstat'
 
 # vim: et ts=4 sw=4
