@@ -45,6 +45,7 @@ class RedHatLdap(Ldap, RedHatPlugin):
         ])
 
     def postproc(self):
+        super(RedHatLdap, self).postproc()
         self.do_file_sub("/etc/nslcd.conf",
                         r"(\s*bindpw\s*)\S+", r"\1********")
         self.do_file_sub("/etc/pam_ldap.conf",
@@ -77,6 +78,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
             suggest_filename="access_control_lists")
 
     def postproc(self):
+        super(RedHatLdap, self).postproc()
         self.do_cmd_output_sub(
         "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=config '(!(objectClass=olcSchemaConfig))'",
             r"(olcRootPW\: \s*)\S+", r"\1********")
