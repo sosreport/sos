@@ -119,6 +119,8 @@ class Cluster(Plugin, RedHatPlugin):
             self.do_file_sub(cluster_conf,
                         r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")",
                         r"\1%s" %('"***"'))
+        for luci_cfg in glob("/var/lib/luci/etc/*.ini*"):
+            self.do_file_sub(luci_cfg, r"(.*secret\s*=\s*)\S+", r"\1******")
         self.do_cmd_output_sub("corosync-objctl",
                         r"(.*fence.*\.passwd=)(.*)",
                         r"\1******")
