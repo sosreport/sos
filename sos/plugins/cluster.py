@@ -13,16 +13,17 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
-import re
+import re, os
 from glob import glob
+from datetime import datetime, timedelta
 
 class Cluster(Plugin, RedHatPlugin):
     """cluster suite and GFS related information
     """
 
     plugin_name = 'cluster'
-    option_list = [("gfslockdump",
-                    'gather output of gfs lockdumps', 'slow', False),
+    option_list = [("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
+                    ("crm_from", 'specify the --from parameter passed to crm_report', 'fast', False),
                     ('lockdump', 'gather dlm lockdumps', 'slow', False)]
 
     packages = [
@@ -83,9 +84,21 @@ class Cluster(Plugin, RedHatPlugin):
         self.add_cmd_output("dlm_tool dump")
         self.add_cmd_output("dlm_tool ls -n")
         self.add_cmd_output("mkqdisk -L")
-        crm_dest = os.path.join(self.cInfo['cmddir'],
-                                self.name(), 'crm_report')
-        self.collectExtOutput("crm_report -S --dest %s" % crm_dest)
+        # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
+        # time in order to collect data.
+        crm_from = (datetime.today()
+                    - timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
+        if self.get_option('crm_from') != False:
+            if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',
+                        str(self.getOption('crm_from'))):
+                crm_from = self.getOption('crm_from')
+            else:
+                self.soslog.error("crm_from parameter '%s' is not a valid date"
+                            % self.getOption('crm_from'))
+
+        crm_dest = os.path.join(self.get_cmd_dir(), 'crm_report')
+        self.add_cmd_output('crm_report -S -d --dest %s --from "%s"'
+                    % (crm_dest, crm_from))
 
     def do_lockdump(self):
         status, output, time = self.call_ext_prog("dlm_tool ls")
@@ -106,8 +119,6 @@ class Cluster(Plugin, RedHatPlugin):
             self.do_file_sub(cluster_conf,
                         r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")",
                         r"\1%s" %('"***"'))
-        for luci_cfg in glob("/var/lib/luci/etc/*.ini*"):
-            self.do_file_sub(luci_cfg, r"(.*secret\s*=\s*)\S+", r"\1******")
         self.do_cmd_output_sub("corosync-objctl",
                         r"(.*fence.*\.passwd=)(.*)",
                         r"\1******")
