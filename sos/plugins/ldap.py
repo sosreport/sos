@@ -22,18 +22,6 @@ class Ldap(Plugin):
     plugin_name = "ldap"
     ldap_conf = "/etc/openldap/ldap.conf"
 
-    def get_ldap_opts(self):
-        # capture /etc/openldap/ldap.conf options in dict
-        # FIXME: possibly not hardcode these options in?
-        ldapopts=["URI","BASE","TLS_CACERTDIR"]
-        results={}
-        tmplist=[]
-        for i in ldapopts:
-            t=self.do_regex_find_all(r"^(%s)\s+(.*)" % i,self.ldap_conf)
-            for x in t:
-                results[x[0]]=x[1].rstrip("\n")
-        return results
-
     def setup(self):
         super(Ldap, self).setup()
         self.add_copy_spec("/etc/ldap.conf")
