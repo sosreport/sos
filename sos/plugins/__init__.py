@@ -488,7 +488,7 @@ class Plugin(object):
             self.soslog.warning("command '%s' timed out after %ds"
                     % (prog, timeout))
         if status == 127:
-            self.soslog.warning("could not run '%s': command not found" % prog)
+            self.soslog.info("could not run '%s': command not found" % prog)
         return (status, output, runtime)
 
     def call_ext_prog(self, prog, timeout=300):
