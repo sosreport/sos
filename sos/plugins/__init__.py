@@ -593,7 +593,7 @@ class Plugin(object):
             time_passed = time() - start_time
             self.proflog.debug("output: %-75s time: %f" % (exe, time_passed))
 
-        return outfn
+        return os.path.join(self.archive.get_archive_path(), outfn)
 
     # For adding output
     def add_alert(self, alertstring):
