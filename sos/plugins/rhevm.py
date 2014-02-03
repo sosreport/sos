@@ -13,7 +13,7 @@ class RhevM(Plugin, RedHatPlugin):
         self.add_copy_spec("/etc/rhevm")
         self.add_copy_spec("/var/log/rhevm")
         if self.get_option("vdsmlogs"):
-            self.add_copy_spec(self.get_option("vdsmlogs"))
+            self.add_copy_spec(str(self.get_option("vdsmlogs")))
 
     def postproc(self):
         """
