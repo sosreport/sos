@@ -651,6 +651,7 @@ class SoSReport(object):
                 flog.setLevel(logging.DEBUG)
             elif self.opts.verbosity > 0:
                 console.setLevel(logging.INFO)
+                flog.setLevel(logging.DEBUG)
             else:
                 console.setLevel(logging.WARNING)
             self.soslog.addHandler(console)
