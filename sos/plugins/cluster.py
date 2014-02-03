@@ -90,11 +90,11 @@ class Cluster(Plugin, RedHatPlugin):
                     - timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
         if self.get_option('crm_from') != False:
             if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',
-                        str(self.getOption('crm_from'))):
-                crm_from = self.getOption('crm_from')
+                        str(self.get_option('crm_from'))):
+                crm_from = self.get_option('crm_from')
             else:
                 self.soslog.error("crm_from parameter '%s' is not a valid date"
-                            % self.getOption('crm_from'))
+                            % self.get_option('crm_from'))
 
         crm_dest = os.path.join(self.get_cmd_dir(), 'crm_report')
         self.add_cmd_output('crm_report -S -d --dest %s --from "%s"'
