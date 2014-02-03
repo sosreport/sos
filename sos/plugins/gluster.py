@@ -102,6 +102,13 @@ class Gluster(Plugin, RedHatPlugin):
         self.add_copy_spec('/tmp/glusterdump.options')
         self.add_copy_spec(self.statedump_dir)
 
+        volume_file = self.get_cmd_output_now("gluster volume info",
+                        "gluster_volume_info")
+        if volume_file:
+            for volname in self.get_volume_names(volume_file):
+                self.add_cmd_output("gluster volume geo-replication %s status"
+                                    % volname)
+
         self.add_cmd_output("gluster volume status")
         # collect this last as some of the other actions create log entries
         self.add_copy_spec("/var/log/glusterfs")
