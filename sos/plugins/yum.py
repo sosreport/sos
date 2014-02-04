@@ -48,7 +48,7 @@ class Yum(Plugin, RedHatPlugin):
             "/var/log/rhsm/rhsmcertd.log"])
         self.add_cmd_output("subscription-manager list --installed")
         self.add_cmd_output("subscription-manager list --consumed")
-        self.add_cmd_output("rhsm-debug system --destination %s"
+        self.add_cmd_output("rhsm-debug system --no-archive --destination %s"
                 % self.get_cmd_dir())
 
         if self.get_option("yumlist"):
