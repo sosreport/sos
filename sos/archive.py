@@ -250,8 +250,12 @@ class TarFileArchive(FileCacheArchive):
             if cmd != "gzip":
                 cmd = "%s -1" % cmd
             try:
-                command = shlex.split("%s %s" % (cmd,self.name()))
-                p = Popen(command, stdout=PIPE, stderr=PIPE, bufsize=-1)
+                command = shlex.split("%s %s" % (cmd, self.name()))
+                p = Popen(command,
+                          stdout=PIPE,
+                          stderr=PIPE,
+                          bufsize=-1,
+                          close_fds=True)
                 stdout, stderr = p.communicate()
                 if stdout:
                     log.info(stdout)

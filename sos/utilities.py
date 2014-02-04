@@ -159,7 +159,7 @@ def sos_get_command_output(command, timeout=300):
 
         p = Popen(command, shell=True,
                 stdout=PIPE, stderr=STDOUT,
-                bufsize=-1, env = cmd_env)
+                bufsize=-1, env = cmd_env, close_fds = True)
         stdout, stderr = p.communicate()
         return (p.returncode, stdout, 0)
     else:

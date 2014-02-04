@@ -196,7 +196,8 @@ class Emc(Plugin, RedHatPlugin):
             while CLARiiON_IP_loop == "stay_in":
                 ans = raw_input("CLARiiON SP IP Address or [Enter] to exit: ")
                 ## Check to make sure the CLARiiON SP IP address provided is valid
-                p = Popen("navicli -h %s getsptime" % (ans,), shell=True, stdout=PIPE, stderr=PIPE)
+                p = Popen("navicli -h %s getsptime" % (ans,),
+                            shell=True, stdout=PIPE, stderr=PIPE, close_fds=True)
                 out, err = p.communicate()
                 if p.returncode == 0:
                     CLARiiON_IP_address_list.append(ans)

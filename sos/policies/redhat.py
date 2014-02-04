@@ -68,7 +68,8 @@ class RedHatPolicy(LinuxPolicy):
                   shell=True,
                   stdout=PIPE,
                   stderr=PIPE,
-                  bufsize=-1)
+                  bufsize=-1,
+                  close_fds=True)
         out, err = p.communicate()
         if err:
             return ret
