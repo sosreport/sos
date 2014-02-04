@@ -38,19 +38,29 @@ class PostgreSQL(Plugin):
         ('username', 'username for pg_dump', '', 'postgres'),
         ('password', 'password for pg_dump', '', ''),
         ('dbname', 'database name to dump for pg_dump', '', ''),
+        ('dbhost', 'database hostname/IP (do not use unix socket)', '', ''),
+        ('dbport', 'database server port number', '', '5432')
     ]
 
     def pg_dump(self):
         dest_file = os.path.join(self.tmp_dir, "sos_pgdump.tar")
         old_env_pgpassword = os.environ.get("PGPASSWORD")
         os.environ["PGPASSWORD"] = self.get_option("password")
-        (status, output, rtime) = self.call_ext_prog(
-            "pg_dump %s -U %s -w -f %s -F t" % (
-                self.get_option("dbname"),
+        if self.get_option("dbhost"):
+            cmd = "pg_dump -U %s -h %s -p %s -w -f %s -F t %s" % (
                 self.get_option("username"),
-                dest_file
+                self.get_option("dbhost"),
+                self.get_option("dbport"),
+                dest_file,
+                self.get_option("dbname")
             )
-        )
+        else:
+            cmd = "pg_dump -C -U %s -w -f %s -F t %s " % (
+                self.get_option("username"),
+                dest_file,
+                self.get_option("dbname")
+            )
+        (status, output, rtime) = self.call_ext_prog(cmd)
         if old_env_pgpassword is not None:
             os.environ["PGPASSWORD"] = str(old_env_pgpassword)
         if (status == 0):
