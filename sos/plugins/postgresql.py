@@ -33,10 +33,13 @@ class PostgreSQL(Plugin):
             )
         )
         if old_env_pgpassword is not None:
-            os.environ["PGPASSWORD"] = old_env_pgpassword
+            os.environ["PGPASSWORD"] = str(old_env_pgpassword)
         if (status == 0):
             self.add_copy_spec(dest_file)
         else:
+            self.soslog.error(
+                "Unable to execute pg_dump. Error(%s)" % (output)
+            )
             self.add_alert(
                 "ERROR: Unable to execute pg_dump.  Error(%s)" % (output)
             )
@@ -47,14 +50,30 @@ class PostgreSQL(Plugin):
                 self.tmp_dir = tempfile.mkdtemp()
                 self.pg_dump()
             else:
+                self.soslog.warning(
+                    "password must be supplied to dump a database."
+                )
                 self.add_alert(
                     "WARN: password must be supplied to dump a database."
                 )
+        else:
+            self.soslog.warning(
+                "dbname must be supplied to dump a database."
+            )
+            self.add_alert(
+                "WARN: dbname must be supplied to dump a database."
+            )
 
     def postproc(self):
         import shutil
         if self.tmp_dir:
-            shutil.rmtree(self.tmp_dir)
+            try:
+                shutil.rmtree(self.tmp_dir)
+            except shutil.Error:
+                self.soslog.exception(
+                    "Unable to remove %s." % (self.tmp_dir)
+                )
+                self.add_alert("ERROR: Unable to remove %s." % (self.tmp_dir))
 
 
 class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
