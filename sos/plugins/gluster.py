@@ -39,7 +39,7 @@ class Gluster(Plugin, RedHatPlugin):
         for line in fp.readlines():
             if not line.startswith("Volume Name:"):
                 continue
-            volname = line[14:-1]
+            volname = line[12:-1]
             out.append(volname)
         fp.close()
         return out
