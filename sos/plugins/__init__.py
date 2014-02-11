@@ -181,6 +181,7 @@ class Plugin(object):
         if not self.executed_commands:
             return 0
 
+        replacements = None
         try:
             for called in self.executed_commands:
                 # was anything collected?
@@ -194,12 +195,12 @@ class Plugin(object):
                             regexp, subst, readable.read())
                     if replacements:
                         self.archive.add_string(result, path)
-                    else:
-                        replacements = 0
+
         except Exception as e:
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (called['exe'], self.name(), e))
-            replacements = 0
+            replacements = None
+
         if self.commons['cmdlineopts'].profiler:
             time_passed = time() - start_time
             self.proflog.debug("subst: %-75s time: %f"
