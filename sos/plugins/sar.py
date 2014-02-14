@@ -28,14 +28,6 @@ class Sar(Plugin,):
     # size-limit SAR data collected by default (MB)
     sa_size = 20
 
-    def check_enabled(self):
-        # check to see if we are force-enabled with no sar installation
-        if not os.path.exists(self.sa_path) or not os.path.isdir(self.sa_path):
-            self.soslog.info("sar directory %s does not exist" % self.sa_path
-                            + " or is not a directory")
-            return False
-        return True
-
     def setup(self):
         if self.get_option("all_sar"):
             self.sa_size = 0
