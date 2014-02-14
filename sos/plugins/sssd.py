@@ -24,7 +24,15 @@ class Sssd(Plugin):
     packages = ('sssd',)
 
     def setup(self):
-        self.add_copy_specs(["/etc/sssd", "/var/log/sssd/*"])
+        self.add_copy_specs([
+            "/etc/sssd/sssd.conf",
+            "/var/log/sssd/*"
+        ])
+
+    def postproc(self):
+        self.do_file_sub("/etc/sssd/sssd.conf",
+                    r"(\s*ldap_default_authtok\s*=\s*)\S+",
+                    r"\1********")
 
 class RedHatSssd(Sssd, RedHatPlugin):
     """sssd-related Diagnostic Information on Red Hat based distributions
