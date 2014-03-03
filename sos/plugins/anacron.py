@@ -21,7 +21,9 @@ class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     
     plugin_name = 'anacron'
 
-    packages = ('anacron',)
+    # anacron may be provided by anacron, cronie-anacron etc.
+    # just look for the configuration file which is common
+    files = ('/etc/anacrontab',)
 
     def setup(self):
-        self.add_copy_spec("/etc/anacrontab")
+        self.add_copy_specs(list(self.files))
