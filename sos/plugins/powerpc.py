@@ -52,14 +52,15 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("ppc64_cpu --run-mode")
             self.add_cmd_output("ppc64_cpu --frequency")
             self.add_cmd_output("ppc64_cpu --dscr")
+            self.add_cmd_output("lscfg -vp")
+            self.add_cmd_output("lsmcode -A")
+            self.add_cmd_output("lsvpd --debug")
+            self.add_copy_spec("/var/lib/lsvpd/")
 
         if ispSeries:
             self.add_copy_spec("/proc/ppc64/lparcfg")
             self.add_copy_spec("/proc/ppc64/eeh")
             self.add_copy_spec("/proc/ppc64/systemcfg")
-            self.add_cmd_output("lscfg -vp")
-            self.add_cmd_output("lsmcode -A")
-            self.add_cmd_output("lsvpd --debug")
             self.add_cmd_output("lsvio -des")
             self.add_cmd_output("servicelog --dump")
             self.add_cmd_output("servicelog_notify --list")
