@@ -72,4 +72,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         if isPowerNV:
             self.add_copy_spec("/proc/ppc64/")
-            
+            self.add_copy_spec("/sys/kernel/debug/powerpc/")
+            if os.path.isdir("/var/log/dump"):
+                self.add_cmd_output("ls -l /var/log/dump")
+
