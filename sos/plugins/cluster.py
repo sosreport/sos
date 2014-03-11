@@ -97,7 +97,7 @@ class Cluster(Plugin, RedHatPlugin):
                     "crm_from parameter '%s' is not a valid date: using default"
                             % self.get_option('crm_from'))
 
-        crm_dest = os.path.join(self.get_cmd_dir(), 'crm_report')
+        crm_dest = os.path.join(self.get_cmd_path(), 'crm_report')
         self.add_cmd_output('crm_report -S -d --dest %s --from "%s"'
                     % (crm_dest, crm_from))
 
