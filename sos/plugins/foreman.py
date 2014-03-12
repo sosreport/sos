@@ -25,7 +25,5 @@ class Foreman(Plugin, RedHatPlugin):
     packages = ('foreman')
 
     def setup(self):
-        foreman_debug_path = os.path.join(
-            self.get_cmd_path(),"foreman-debug")
-        self.add_cmd_output("%s -q -a -d %s"
-            % ("foreman-debug", foreman_debug_path))
+        self.add_cmd_output("%s -q -a -d %s" % ("foreman-debug",
+                           self.get_cmd_output_path(name="foreman-debug")))

@@ -25,7 +25,5 @@ class Katello(Plugin, RedHatPlugin):
     packages = ('katello', 'katello-common', 'katello-headpin')
 
     def setup(self):
-        katello_debug_path = os.path.join(
-            self.get_cmd_path(),"katello-debug")
-        self.add_cmd_output("%s --notar -d %s"
-            % ("katello-debug", katello_debug_path))
+        self.add_cmd_output("katello-debug --notar -d %s"
+                            % self.get_cmd_output_path(name="katello-debug"))

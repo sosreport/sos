@@ -512,26 +512,18 @@ class Plugin(object):
         """Run a program and collect the output"""
         self.collect_cmds.append( (exe, suggest_filename, root_symlink, timeout) )
 
-    def get_cmd_path(self):
+    def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
         command output
         """
-        return os.path.join(self.archive.get_tmp_dir(),
-                            'sos_commands', self.name())
+        cmd_output_path = os.path.join(self.archive.get_tmp_dir(),
+                                        'sos_commands', self.name())
+        if name:
+            cmd_output_path = os.path.join(cmd_output_path, name)
+        if make:
+            os.makedirs(cmd_output_path)
 
-    def make_cmd_path(self, path):
-        """Return a string representing an absolute path within this
-        plug-in's command output directory by apending the relative path
-        name 'path'.
-        """
-        return os.path.join(self.get_cmd_path(), path)
-        
-
-    def make_cmd_dirs(self, path):
-        """Recursively create new subdirectories under this plug-in's
-        command output path.
-        """
-        os.makedirs(self.make_cmd_path(path))
+        return cmd_output_path
 
     def file_grep(self, regexp, *fnames):
         """Returns lines matched in fnames, where fnames can either be

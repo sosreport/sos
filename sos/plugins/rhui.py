@@ -32,13 +32,7 @@ class Rhui(Plugin, RedHatPlugin):
         else:
             cds = ""
 
-        rhui_debug_dst_path = os.path.join(self.get_cmd_path(),
-                self.commons['cmddir'], self.name())
-        try:
-            os.mkdir(rhui_debug_dst_path)
-        except:
-            return
-
+        rhui_debug_dst_path = self.get_cmd_output_path()
         self.add_cmd_output("python %s %s --dir %s"
                 % (self.rhui_debug_path, cds, rhui_debug_dst_path),
                 suggest_filename="rhui-debug")
