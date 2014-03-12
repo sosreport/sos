@@ -763,7 +763,7 @@ class SoSReport(object):
                         tuple(self.policy.valid_subclasses))
 
                 for plugin_class in plugin_classes:
-                    if not self.policy.validatePlugin(plugin_class):
+                    if not self.policy.validate_plugin(plugin_class):
                         self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
                         if self.opts.verbosity > 0:
                             self._skip(plugin_class, _("does not validate"))

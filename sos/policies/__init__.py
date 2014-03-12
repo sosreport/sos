@@ -198,7 +198,7 @@ No changes will be made to system configuration.
             return tempfile.gettempdir()
         return opt_tmp_dir
 
-    def validatePlugin(self, plugin_class):
+    def validate_plugin(self, plugin_class):
         """
         Verifies that the plugin_class should execute under this policy
         """
