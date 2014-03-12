@@ -27,10 +27,11 @@ class Systemd(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output("systemctl show --all")
+        self.add_cmd_output("systemctl list-units")
         self.add_cmd_output("systemctl list-units --failed")
-        self.add_cmd_output("systemctl list-unit-files")
         self.add_cmd_output("systemctl list-units --all")
-        self.add_cmd_output("systemctl dump")
+        self.add_cmd_output("systemctl list-unit-files")
+        self.add_cmd_output("systemctl show-environment")
         self.add_cmd_output("systemd-delta")
         self.add_cmd_output("journalctl --verify")
         self.add_cmd_output("journalctl --all --this-boot --no-pager")
