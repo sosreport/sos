@@ -761,39 +761,42 @@ class SoSReport(object):
             try:
                 plugin_classes = import_plugin(plugbase,
                         tuple(self.policy.valid_subclasses))
+                if not len(plugin_classes):
+                    # no valid plugin classes for this policy
+                    continue
 
-                for plugin_class in plugin_classes:
-                    if not self.policy.validate_plugin(plugin_class):
-                        self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
-                        if self.opts.verbosity > 0:
-                            self._skip(plugin_class, _("does not validate"))
+                plugin_class = self.policy.match_plugin(plugin_classes)
+                if not self.policy.validate_plugin(plugin_class):
+                    self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
+                    if self.opts.verbosity > 0:
+                        self._skip(plugin_class, _("does not validate"))
                         continue
 
-                    if plugin_class.requires_root and not self._is_root:
-                        self.soslog.info(_("plugin %s requires root permissions to execute, skipping") % plug)
-                        self._skip(plugin_class, _("requires root"))
-                        continue
+                if plugin_class.requires_root and not self._is_root:
+                    self.soslog.info(_("plugin %s requires root permissions to execute, skipping") % plug)
+                    self._skip(plugin_class, _("requires root"))
+                    continue
 
-                    # plug-in is valid, let's decide whether run it or not
-                    self.plugin_names.append(plugbase)
+                # plug-in is valid, let's decide whether run it or not
+                self.plugin_names.append(plugbase)
 
-                    if  self._is_skipped(plugbase):
-                        self._skip(plugin_class, _("skipped"))
-                        continue
+                if  self._is_skipped(plugbase):
+                    self._skip(plugin_class, _("skipped"))
+                    continue
 
-                    if  self._is_inactive(plugbase, plugin_class):
-                        self._skip(plugin_class, _("inactive"))
-                        continue
+                if  self._is_inactive(plugbase, plugin_class):
+                    self._skip(plugin_class, _("inactive"))
+                    continue
 
-                    if  self._is_not_default(plugbase, plugin_class):
-                        self._skip(plugin_class, _("not default"))
-                        continue
+                if  self._is_not_default(plugbase, plugin_class):
+                    self._skip(plugin_class, _("not default"))
+                    continue
 
-                    if  self._is_not_specified(plugbase):
-                        self._skip(plugin_class, _("not specified"))
-                        continue
+                if  self._is_not_specified(plugbase):
+                    self._skip(plugin_class, _("not specified"))
+                    continue
 
-                    self._load(plugin_class)
+                self._load(plugin_class)
             except Exception as e:
                 self.soslog.warning(_("plugin %s does not install, skipping: %s") % (plug, e))
                 if self.raise_plugins:

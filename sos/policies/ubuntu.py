@@ -12,7 +12,7 @@ class UbuntuPolicy(DebianPolicy):
 
     def __init__(self):
         super(UbuntuPolicy, self).__init__()
-        self.valid_subclasses = [DebianPlugin, UbuntuPlugin]
+        self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
 
     @classmethod
     def check(self):

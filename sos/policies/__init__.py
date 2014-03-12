@@ -198,6 +198,16 @@ No changes will be made to system configuration.
             return tempfile.gettempdir()
         return opt_tmp_dir
 
+    def match_plugin(self, plugin_classes):
+        if len(plugin_classes) > 1:
+            for p in plugin_classes:
+                # Give preference to the first listed tagging class
+                # so that e.g. UbuntuPlugin is chosen over DebianPlugin
+                # on an Ubuntu installation.
+                if issubclass(p, self.valid_subclasses[0]):
+                    return p
+        return plugin_classes[0]
+
     def validate_plugin(self, plugin_class):
         """
         Verifies that the plugin_class should execute under this policy
