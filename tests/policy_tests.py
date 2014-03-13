@@ -21,25 +21,25 @@ class PolicyTests(unittest.TestCase):
         p = FauxPolicy()
         p.valid_subclasses = []
 
-        self.assertTrue(p.validatePlugin(FauxPlugin))
+        self.assertTrue(p.validate_plugin(FauxPlugin))
 
     def test_redhat(self):
         p = FauxPolicy()
         p.valid_subclasses = [RedHatPlugin]
 
-        self.assertTrue(p.validatePlugin(FauxRedHatPlugin))
+        self.assertTrue(p.validate_plugin(FauxRedHatPlugin))
 
     def test_debian(self):
         p = FauxPolicy()
         p.valid_subclasses = [DebianPlugin]
 
-        self.assertTrue(p.validatePlugin(FauxDebianPlugin))
+        self.assertTrue(p.validate_plugin(FauxDebianPlugin))
 
     def test_fails(self):
         p = FauxPolicy()
         p.valid_subclasses = []
 
-        self.assertFalse(p.validatePlugin(FauxDebianPlugin))
+        self.assertFalse(p.validate_plugin(FauxDebianPlugin))
 
     def test_can_import(self):
         self.assertTrue(import_policy('redhat') is not None)
