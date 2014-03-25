@@ -89,9 +89,7 @@ class EnablerPlugin(Plugin):
 
 
 class MockOptions(object):
-
-    profiler = False
-
+    pass
 
 
 class PluginToolTests(unittest.TestCase):

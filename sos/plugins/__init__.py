@@ -137,7 +137,6 @@ class Plugin(object):
         self.collect_cmds = []
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons else logging.getLogger('sos')
-        self.proflog = self.commons['proflog'] if 'proflog' in self.commons else logging.getLogger('sosprofile')
 
         # get the option list into a dictionary
         for opt in self.option_list:
@@ -171,9 +170,6 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
-        if self.commons['cmdlineopts'].profiler:
-            start_time = time()
-
         globstr = '*' + cmd + '*'
         self.soslog.debug("substituting '%s' for '%s' in commands matching %s"
                     % (subst, regexp, globstr))
@@ -200,11 +196,6 @@ class Plugin(object):
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (called['exe'], self.name(), e))
             replacements = None
-
-        if self.commons['cmdlineopts'].profiler:
-            time_passed = time() - start_time
-            self.proflog.debug("subst: %-75s time: %f"
-                            % (globstr, time_passed))
         return replacements
         
     def do_file_sub(self, srcpath, regexp, subst):
@@ -215,9 +206,6 @@ class Plugin(object):
 
         This function returns the number of replacements made.
         '''
-        if self.commons['cmdlineopts'].profiler:
-            start_time = time()
-
         try:
             path = self._get_dest_for_srcpath(srcpath)
             self.soslog.debug("substituting '%s' for '%s' in %s"
@@ -234,10 +222,6 @@ class Plugin(object):
             msg = 'regex substitution failed for %s in plugin %s with: "%s"'
             self.soslog.error(msg % (path, self.name(), e))
             replacements = 0
-        if self.commons['cmdlineopts'].profiler:
-            time_passed = time() - start_time
-            self.proflog.debug("subst : %-75s time: %f"
-                            % (srcpath, time_passed))
         return replacements
 
     def do_regex_find_all(self, regex, fname):
@@ -314,10 +298,6 @@ class Plugin(object):
         /etc/my_file.conf the file would end up at
         /configurations/my_file.conf.
         '''
-
-        if self.commons['cmdlineopts'].profiler:
-            start_time = time()
-
         if self._path_in_path_list(srcpath, self.forbidden_paths):
             self.soslog.debug("%s is in the forbidden path list" % srcpath)
             return ''
@@ -358,9 +338,6 @@ class Plugin(object):
                 'dstpath':dest,
                 'symlink':"no"})
 
-            if self.commons['cmdlineopts'].profiler:
-                time_passed = time() - start_time
-                self.proflog.debug("copied: %-75s time: %f" % (srcpath, time_passed))
         except Exception as e:
             self.soslog.error("Unable to copy %s to %s" % (srcpath, dest))
             self.soslog.error(traceback.format_exc())
@@ -560,9 +537,6 @@ class Plugin(object):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
-        if self.commons['cmdlineopts'].profiler:
-            start_time = time()
-
         # pylint: disable-msg = W0612
         status, shout, runtime = self.get_command_output(exe, timeout=timeout)
         if (status == 127):
@@ -581,10 +555,6 @@ class Plugin(object):
         # save info for later
         self.executed_commands.append({'exe': exe, 'file':outfn_strip}) # save in our list
         self.commons['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn_strip,runtime=runtime)
-
-        if self.commons['cmdlineopts'].profiler:
-            time_passed = time() - start_time
-            self.proflog.debug("output: %-75s time: %f" % (exe, time_passed))
 
         return os.path.join(self.archive.get_archive_path(), outfn)
 

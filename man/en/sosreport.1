@@ -11,7 +11,7 @@ sosreport \- Collect and package diagnostic and support data
           [--report] [--config-file conf] [--batch]\fR
           [--build] [--name name] [--ticket-number number]
           [--debug] [--tmp-dir directory]\fR
-          [--profile] [--help]\fR
+          [--help]\fR
 .SH DESCRIPTION
 \fBsosreport\fR generates a compressed tar archive of diagnostic
 information from the running system. The archive may be stored
@@ -83,9 +83,6 @@ archive as a temporary file or directory tree.
 .B \--debug
 Enable interactive debugging using the python debugger. Exceptions in
 sos or plug-in code will cause a trap to the pdb shell.
-.TP
-.B \--profile
-Enable profiler logging.
 .TP
 .B \--help
 Display usage message.

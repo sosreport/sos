@@ -220,7 +220,6 @@ class SoSOptions(object):
     _config_file = ""
     _tmp_dir = ""
     _report = True
-    _profiler = False
     _compression_type = 'auto'
 
     _options = None
@@ -431,19 +430,6 @@ class SoSOptions(object):
         self._report = value
 
     @property
-    def profiler(self):
-        if self._options != None:
-            return self._options.profiler
-        return self._profiler
-
-    @profiler.setter
-    def profiler(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.profiler expects a boolean")
-        self._profiler = value
-
-    @property
     def compression_type(self):
         if self._options != None:
             return self._options.compression_type
@@ -508,9 +494,6 @@ class SoSOptions(object):
         parser.add_option("--no-report", action="store_true",
                              dest="report",
                              help="Disable HTML/XML reporting", default=False)
-        parser.add_option("--profile", action="store_true",
-                             dest="profiler",
-                             help="turn on profiling", default=False)
         parser.add_option("-z", "--compression-type", dest="compression_type",
                             help="compression technology to use [auto, zip, gzip, bzip2, xz] (default=auto)",
                             default="auto")
@@ -563,7 +546,6 @@ class SoSReport(object):
                 'rptdir': self.rptdir,
                 'tmpdir': self.tmpdir,
                 'soslog': self.soslog,
-                'proflog' : self.proflog,
                 'policy': self.policy,
                 'verbosity': self.opts.verbosity,
                 'xmlreport': self.xml_report,
@@ -680,32 +662,17 @@ class SoSReport(object):
             ui_console.setLevel(logging.INFO)
             self.ui_log.addHandler(ui_console)
 
-        # profile logging
-        if self.opts.profiler:
-            self.proflog = logging.getLogger('sosprofile')
-            self.proflog.setLevel(logging.DEBUG)
-            self.sos_profile_log_file = self.get_temp_file()
-            plog = logging.FileHandler(self.sos_profile_log_file.name)
-            plog.setFormatter(logging.Formatter('%(message)s'))
-            plog.setLevel(logging.DEBUG)
-            self.proflog.addHandler(plog)
-        else:
-             self.proflog = logging.getLogger('sosprofile')
-             self.proflog.setLevel(logging.FATAL)
-
     def _finish_logging(self):
         logging.shutdown()
 
         # the logging module seems to persist in the jython/jboss/eap world
         # so the handlers need to be removed
-        for logger in [logging.getLogger(x) for x in ('sos', 'sosprofile', 'sos_ui')]:
+        for logger in [logging.getLogger(x) for x in ('sos', 'sos_ui')]:
             for h in logger.handlers:
                 logger.removeHandler(h)
 
         if getattr(self, "sos_log_file", None):
             self.archive.add_file(self.sos_log_file.name, dest=os.path.join('sos_logs', 'sos.log'))
-        if getattr(self, "sos_profile_log_file", None):
-            self.archive.add_file(self.sos_profile_log_file.name, dest=os.path.join('sos_logs', 'profile.log'))
         if getattr(self, "sos_ui_log_file", None):
             self.archive.add_file(self.sos_ui_log_file.name, dest=os.path.join('sos_logs', 'ui.log'))
 
