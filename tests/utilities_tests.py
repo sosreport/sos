@@ -5,7 +5,7 @@ import unittest
 import six
 from six import StringIO
 
-from sos.utilities import grep, DirTree, checksum, get_hash_name, is_executable, sos_get_command_output, find, tail, shell_out
+from sos.utilities import grep, checksum, get_hash_name, is_executable, sos_get_command_output, find, tail, shell_out
 import sos
 
 TEST_DIR = os.path.dirname(__file__)
@@ -41,15 +41,6 @@ class TailTest(unittest.TestCase):
         t = tail("tests/tail_test.txt", 200)
         expected = open("tests/tail_test.txt", "r").read()
         self.assertEquals(t, six.b(expected))
-
-
-class DirTreeTest(unittest.TestCase):
-
-    def test_makes_tree(self):
-        # I'll admit, this a pretty lame test, but it will at least sniff out
-        # some syntax issues
-        t = DirTree(os.path.dirname(sos.__file__)).as_string()
-        self.assertTrue('sos' in t)
 
 
 class ChecksumTest(unittest.TestCase):
