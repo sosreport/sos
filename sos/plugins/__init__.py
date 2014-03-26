@@ -45,19 +45,6 @@ try:
 except ImportError:
     import simplejson as json
 
-def common_prefix(l1, l2, common = None):
-    """Returns a tuple like the following:
-        ([common, elements, from l1, and l2], [[tails, from, l1], [tails, from, l2]])
-
-    >>> common_prefix(['usr','share','foo'], ['usr','share','bar'])
-    (['usr','share'], [['foo'], ['bar']])
-    """
-    if common is None:
-        common = []
-    if len(l1) < 1 or len(l2) < 1 or  l1[0] != l2[0]:
-        return (common, [l1, l2])
-    return common_prefix(l1[1:], l2[1:], common+[l1[0]])
-
 def regex_findall(regex, fname):
     '''Return a list of all non overlapping matches in the string(s)'''
     try:
