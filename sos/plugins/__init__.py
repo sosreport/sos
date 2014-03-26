@@ -58,21 +58,6 @@ def common_prefix(l1, l2, common = None):
         return (common, [l1, l2])
     return common_prefix(l1[1:], l2[1:], common+[l1[0]])
 
-def sos_relative_path(path1, path2, sep=os.path.sep, pardir=os.path.pardir):
-    '''Return a relative path from path1 equivalent to path path2.  In
-    particular: the empty string, if path1 == path2; path2, if path1 and path2
-    have no common prefix.
-    '''
-    try:
-        common, (u1, u2) = common_prefix(path1.split(sep), path2.split(sep))
-    except AttributeError:
-        return path2
-
-    if not common:
-        return path2      # leave path absolute if nothing at all in common
-    return sep.join( [pardir]*len(u1) + u2 )
-
-
 def regex_findall(regex, fname):
     '''Return a list of all non overlapping matches in the string(s)'''
     try:

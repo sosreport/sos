@@ -9,7 +9,7 @@ try:
 except:
     from io import StringIO
 
-from sos.plugins import Plugin, regex_findall, sos_relative_path, mangle_command
+from sos.plugins import Plugin, regex_findall, mangle_command
 from sos.archive import TarFileArchive, ZipFileArchive
 import sos.policies
 
@@ -113,21 +113,6 @@ class PluginToolTests(unittest.TestCase):
         self.assertEquals(matches, [])
         matches = regex_findall(r".*", 1)
         self.assertEquals(matches, [])
-
-    def test_rel_path(self):
-        path1 = "/usr/lib/foo"
-        path2 = "/usr/lib/boo"
-        self.assertEquals(sos_relative_path(path1, path2), "../boo")
-
-    def test_abs_path(self):
-        path1 = "usr/lib/foo"
-        path2 = "foo/lib/boo"
-        self.assertEquals(sos_relative_path(path1, path2), "foo/lib/boo")
-
-    def test_bad_path(self):
-        path1 = None
-        path2 = "foo/lib/boo"
-        self.assertEquals(sos_relative_path(path1, path2), "foo/lib/boo")
 
     def test_mangle_command(self):
         self.assertEquals("foo", mangle_command("/usr/bin/foo"))
