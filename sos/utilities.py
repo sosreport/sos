@@ -63,19 +63,6 @@ def fileobj(path_or_file, mode='r'):
     else:
         return closing(path_or_file)
 
-def checksum(file_, chunk_size=128, algorithm=None):
-    """Returns the checksum of the supplied filename. The file is read in
-    chunk_size blocks"""
-    if not algorithm:
-        algorithm = get_hash_name()
-    digest = hashlib.new(algorithm)
-    with fileobj(file_, 'rb') as fd:
-        data = fd.read(chunk_size)
-        while data:
-            digest.update(six.b(data))
-            data = fd.read(chunk_size)
-        return digest.hexdigest()
-
 def get_hash_name():
     """Returns the algorithm used when computing a hash"""
     import sos.policies
@@ -100,8 +87,6 @@ def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
         return '%.1fK' % (fn / K)
     else:
         return '%d' % bytes_
-
-
 
 def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
     """generator function to find files recursively. Usage:

@@ -43,18 +43,6 @@ class TailTest(unittest.TestCase):
         self.assertEquals(t, six.b(expected))
 
 
-class ChecksumTest(unittest.TestCase):
-
-    def test_simple_hash(self):
-        self.assertEquals(checksum(StringIO('this is a test'), algorithm="sha256"),
-                '2e99758548972a8e8822ad47fa1017ff72f06f3ff6a016851f45c398732bc50c')
-
-    def test_hash_loading(self):
-       # not the greatest test, since we are asking the policy to pick for us
-       name = get_hash_name()
-       self.assertTrue(name in ('md5', 'sha256'))
-
-
 class ExecutableTest(unittest.TestCase):
 
     def test_nonexe_file(self):
