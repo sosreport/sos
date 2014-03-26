@@ -40,3 +40,5 @@ class Veritas(Plugin, RedHatPlugin):
                 self.add_copy_spec(tarfile[0])
         except AttributeError as e:
             self.add_alert(e)
+
+# vim: et ts=4 sw=4

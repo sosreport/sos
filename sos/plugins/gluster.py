@@ -113,3 +113,5 @@ class Gluster(Plugin, RedHatPlugin):
         # collect this last as some of the other actions create log entries
         self.add_copy_spec("/var/log/glusterfs")
 
+
+# vim: et ts=4 sw=4

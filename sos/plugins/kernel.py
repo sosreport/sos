@@ -66,3 +66,5 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         self.add_cmd_output("dkms status")
+
+# vim: et ts=4 sw=4

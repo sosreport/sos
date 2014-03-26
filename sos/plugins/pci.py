@@ -34,3 +34,5 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_cmd_output("lspci -tv")
 
 
+
+# vim: et ts=4 sw=4

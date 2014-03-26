@@ -76,3 +76,5 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             if os.path.isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
 
+
+# vim: et ts=4 sw=4

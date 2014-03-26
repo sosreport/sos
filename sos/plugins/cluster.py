@@ -126,3 +126,5 @@ class Cluster(Plugin, RedHatPlugin):
                         r"(.*fence.*\.passwd=)(.*)",
                         r"\1******")
         return
+
+# vim: et ts=4 sw=4

@@ -32,3 +32,5 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                             suggest_filename="dmesg.e820-map")
         self.add_cmd_output("free", root_symlink = "free")
         self.add_cmd_output("free -m")
+
+# vim: et ts=4 sw=4

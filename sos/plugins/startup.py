@@ -46,3 +46,5 @@ class DebianStartup(Startup, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("/sbin/initctl show-config", root_symlink = "initctl")
         if self.get_option('servicestatus'):
             self.add_cmd_output("/sbin/initctl list")
+
+# vim: et ts=4 sw=4

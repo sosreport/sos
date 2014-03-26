@@ -30,3 +30,5 @@ class Cron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_cmd_output("crontab -l -u root",
                 suggest_filename = "root_crontab")
+
+# vim: et ts=4 sw=4

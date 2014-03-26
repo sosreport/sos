@@ -27,3 +27,5 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("ps alxwww")
         self.add_cmd_output("pstree", root_symlink = "pstree")
         self.add_cmd_output("lsof -b +M -n -l", root_symlink = "lsof")
+
+# vim: et ts=4 sw=4

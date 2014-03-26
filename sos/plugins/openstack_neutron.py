@@ -88,3 +88,5 @@ class RedHatOpenStackNeutron(OpenStackNeutron, RedHatPlugin):
 
     def setup(self):
         super(RedHatOpenStackNeutron, self).setup()
+
+# vim: et ts=4 sw=4

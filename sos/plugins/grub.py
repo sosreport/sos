@@ -29,3 +29,5 @@ class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/grub.d"
         ])
 
+
+# vim: et ts=4 sw=4

@@ -26,3 +26,5 @@ class Krb5(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/etc/krb5.conf")
         self.add_cmd_output("klist -ket /etc/krb5.keytab")
 
+
+# vim: et ts=4 sw=4

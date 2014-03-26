@@ -28,3 +28,5 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("wbinfo --domain='.' -u")
         self.add_cmd_output("testparm -s -v")
 
+
+# vim: et ts=4 sw=4

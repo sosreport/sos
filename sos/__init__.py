@@ -32,3 +32,5 @@ def _default(msg):
     return gettext.dgettext(gettext_app, msg)
 
 _sos = _default
+
+# vim: et ts=4 sw=4

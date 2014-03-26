@@ -27,3 +27,5 @@ class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("dmsetup status")
         self.add_cmd_output("dmsetup ls --tree")
 
+
+# vim: et ts=4 sw=4

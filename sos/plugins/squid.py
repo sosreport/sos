@@ -45,3 +45,5 @@ class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec_limit("/etc/squid3/squid.conf",
                         sizelimit=self.get_option('logsize'))
+
+# vim: et ts=4 sw=4

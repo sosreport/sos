@@ -87,3 +87,5 @@ class CertificateSystem(Plugin, RedHatPlugin):
                 "/var/log/pki-*/ra-debug.log",
                 "/var/log/pki-*/transactions",
                 "/var/log/pki-*/system"])
+
+# vim: et ts=4 sw=4

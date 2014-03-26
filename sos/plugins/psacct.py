@@ -49,3 +49,5 @@ class DebianPsacct(Psacct, DebianPlugin, UbuntuPlugin):
         self.add_copy_specs(["/var/log/account/pacct", "/etc/default/acct"])
         if self.get_option("all"):
             self.add_copy_spec("/var/log/account/pacct*.gz")
+
+# vim: et ts=4 sw=4

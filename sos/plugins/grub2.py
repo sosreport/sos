@@ -32,3 +32,5 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_cmd_output("ls -lanR /boot")
         self.add_cmd_output("grub2-mkconfig")
+
+# vim: et ts=4 sw=4

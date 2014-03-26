@@ -27,3 +27,5 @@ class Katello(Plugin, RedHatPlugin):
     def setup(self):
         self.add_cmd_output("katello-debug --notar -d %s"
                             % self.get_cmd_output_path(name="katello-debug"))
+
+# vim: et ts=4 sw=4

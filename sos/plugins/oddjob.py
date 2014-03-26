@@ -29,3 +29,5 @@ class Oddjob(Plugin, RedHatPlugin):
         self.add_copy_spec("/etc/oddjobd.conf")
         self.add_copy_spec("/etc/oddjobd.conf.d")
         self.add_copy_spec("/etc/dbus-1/system.d/oddjob.conf")
+
+# vim: et ts=4 sw=4

@@ -247,3 +247,5 @@ class ImporterHelper(object):
                 plugins.extend(self._find_plugins_in_zipfile(path))
 
         return plugins
+
+# vim: et ts=4 sw=4

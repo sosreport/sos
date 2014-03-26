@@ -1151,3 +1151,5 @@ def main(args):
     """The main entry point"""
     sos = SoSReport(args)
     sos.execute()
+
+# vim: et ts=4 sw=4

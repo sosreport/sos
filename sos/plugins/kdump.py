@@ -50,3 +50,5 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
         self.add_copy_specs([
             "/etc/default/kdump-tools"
         ])
+
+# vim: et ts=4 sw=4

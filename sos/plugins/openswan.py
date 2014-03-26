@@ -35,3 +35,5 @@ class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("ipsec verify")
         if self.get_option("ipsec-barf"):
             self.add_cmd_output("ipsec barf")
+
+# vim: et ts=4 sw=4

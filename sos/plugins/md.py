@@ -29,3 +29,5 @@ class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/dev/md/md-device-map"
         ])
         
+
+# vim: et ts=4 sw=4

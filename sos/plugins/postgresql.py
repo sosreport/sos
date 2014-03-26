@@ -148,4 +148,5 @@ class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/var/lib/postgresql/*/main/PG_VERSION")
         self.add_copy_spec("/var/lib/postgresql/*/main/postmaster.opts")
 
-# vim: expandtab tabstop=4 shiftwidth=4
+
+# vim: et ts=4 sw=4

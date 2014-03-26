@@ -11,3 +11,5 @@ class OSXPolicy(Policy):
             return "Mac OS X" in shell_out("sw_vers")
         except Exception as e:
             return False
+
+# vim: et ts=4 sw=4

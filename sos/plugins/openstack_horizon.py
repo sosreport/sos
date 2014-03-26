@@ -72,3 +72,5 @@ class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
         self.add_copy_specs(["/etc/httpd/conf.d/openstack-dashboard.conf"])
         if self.option_enabled("log"):
             self.add_copy_specs(["/var/log/httpd/"])
+
+# vim: et ts=4 sw=4

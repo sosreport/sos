@@ -23,3 +23,5 @@ class Procenv(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_cmd_output('procenv')
+
+# vim: et ts=4 sw=4

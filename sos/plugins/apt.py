@@ -29,3 +29,5 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("apt-config dump")
         self.add_cmd_output("apt-cache stats")
         self.add_cmd_output("apt-cache policy")
+
+# vim: et ts=4 sw=4

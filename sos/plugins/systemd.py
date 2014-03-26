@@ -47,3 +47,5 @@ class Systemd(Plugin, RedHatPlugin):
                            "/etc/vconsole.conf",
                            "/etc/yum/protected.d/systemd.conf"])
 
+
+# vim: et ts=4 sw=4

@@ -46,3 +46,5 @@ class DirectoryServer(Plugin, RedHatPlugin):
             self.add_copy_specs([
                 "/opt/redhat-ds/slapd-*/config",
                 "/opt/redhat-ds/slapd-*/logs"])
+
+# vim: et ts=4 sw=4

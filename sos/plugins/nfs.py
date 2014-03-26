@@ -29,3 +29,5 @@ class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         return
 
+
+# vim: et ts=4 sw=4

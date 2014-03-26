@@ -155,4 +155,5 @@ class FedoraPolicy(RedHatPolicy):
         self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
         return int(pkg["version"])
 
-# vim: ts=4 sw=4 et
+
+# vim: et ts=4 sw=4

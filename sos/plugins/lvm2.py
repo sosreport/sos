@@ -53,3 +53,5 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.do_lvmdump(metadata=True)
 
 
+
+# vim: et ts=4 sw=4

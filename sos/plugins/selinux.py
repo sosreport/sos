@@ -43,3 +43,5 @@ class SELinux(Plugin, RedHatPlugin):
             self.add_cmd_output("semanage login -l")
             self.add_cmd_output("semanage port -l")
 
+
+# vim: et ts=4 sw=4

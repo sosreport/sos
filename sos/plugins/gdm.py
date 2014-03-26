@@ -22,3 +22,5 @@ class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/gdm/*")
+
+# vim: et ts=4 sw=4

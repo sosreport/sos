@@ -51,3 +51,5 @@ class RedHatOpenStackCeilometer(OpenStackCeilometer, plugins.RedHatPlugin):
                 'openstack-ceilometer-common',
                 'openstack-ceilometer-compute',
                 'python-ceilometerclient')
+
+# vim: et ts=4 sw=4

@@ -51,3 +51,5 @@ class DebianPxe(Pxe, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/etc/default/tftpd-hpa")
         if self.get_option("tftpboot"):
             self.add_copy_spec("/var/lib/tftpboot")
+
+# vim: et ts=4 sw=4

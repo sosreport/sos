@@ -48,3 +48,5 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
             for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
                 self.add_cmd_output("dumpe2fs -h %s" % (dev))
+
+# vim: et ts=4 sw=4

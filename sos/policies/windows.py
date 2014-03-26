@@ -44,3 +44,5 @@ class WindowsPolicy(Policy):
     def preferred_archive_name(self):
         from sos.archive import ZipFileArchive
         return ZipFileArchive
+
+# vim: et ts=4 sw=4

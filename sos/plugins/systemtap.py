@@ -28,3 +28,5 @@ class SystemTap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_cmd_output("stap -V 2")
         self.add_cmd_output("uname -r")
+
+# vim: et ts=4 sw=4

@@ -39,3 +39,5 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("ibhosts")
 
         return
+
+# vim: et ts=4 sw=4

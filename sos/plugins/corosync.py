@@ -51,3 +51,5 @@ class DebianCorosync(Corosync, DebianPlugin, UbuntuPlugin):
         super(DebianCorosync, self).setup()
 
     files = ('/usr/sbin/corosync',)
+
+# vim: et ts=4 sw=4

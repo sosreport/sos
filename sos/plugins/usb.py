@@ -30,3 +30,5 @@ class Usb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("lsusb -t")
 
 
+
+# vim: et ts=4 sw=4

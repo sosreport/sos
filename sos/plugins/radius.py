@@ -48,3 +48,5 @@ class DebianRadius(Radius, DebianPlugin, UbuntuPlugin):
                            "/etc/pam.d/radiusd",
                            "/etc/default/freeradius",
                            "/var/log/freeradius"])
+
+# vim: et ts=4 sw=4

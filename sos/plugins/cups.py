@@ -34,3 +34,5 @@ class Printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("lpstat -t")
         self.add_cmd_output("lpstat -s")
         self.add_cmd_output("lpstat -d")
+
+# vim: et ts=4 sw=4

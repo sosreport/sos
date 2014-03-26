@@ -332,3 +332,5 @@ class ZipFileArchive(Archive):
 
     def close(self):
         self.zipfile.close()
+
+# vim: et ts=4 sw=4

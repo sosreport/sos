@@ -36,3 +36,5 @@ class DebianPolicy(LinuxPolicy):
         except:
             pass
         return False
+
+# vim: et ts=4 sw=4

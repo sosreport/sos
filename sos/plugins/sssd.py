@@ -48,3 +48,5 @@ class DebianSssd(Sssd, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianSssd, self).setup()
         self.add_copy_specs(["/etc/default/sssd"])
+
+# vim: et ts=4 sw=4

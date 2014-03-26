@@ -45,3 +45,5 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_cmd_output("lscpu")
 
 
+
+# vim: et ts=4 sw=4

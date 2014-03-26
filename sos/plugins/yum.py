@@ -63,3 +63,5 @@ class Yum(Plugin, RedHatPlugin):
                 self.add_cmd_output("zcat %s" % (output.split()[-1],))
             except IndexError:
                 pass
+
+# vim: et ts=4 sw=4

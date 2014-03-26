@@ -700,3 +700,5 @@ def import_plugin(name, superclasses=None):
     if not superclasses:
         superclasses = (Plugin,)
     return import_module(plugin_fqname, superclasses)
+
+# vim: et ts=4 sw=4

@@ -30,3 +30,5 @@ class Ppp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/ppp",
             "/var/log/ppp"])
         self.add_cmd_output("adsl-status")
+
+# vim: et ts=4 sw=4

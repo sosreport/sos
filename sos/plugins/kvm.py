@@ -42,3 +42,5 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         if self._debugfs_cleanup and os.path.ismount("/sys/kernel/debug"):
             os.popen("umount /sys/kernel/debug")
+
+# vim: et ts=4 sw=4

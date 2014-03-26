@@ -24,3 +24,5 @@ class Ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_specs(["/etc/ssh/ssh_config", "/etc/ssh/sshd_config"])
+
+# vim: et ts=4 sw=4

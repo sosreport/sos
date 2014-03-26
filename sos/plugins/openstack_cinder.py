@@ -79,3 +79,5 @@ class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
         super(RedHatOpenStackCinder, self).setup()
         self.add_copy_specs(["/etc/sudoers.d/cinder"])
 
+
+# vim: et ts=4 sw=4

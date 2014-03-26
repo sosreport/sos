@@ -28,3 +28,5 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                             "/etc/audit/audit.rules"])
         self.add_copy_spec_limit("/var/log/audit*",
                 sizelimit = self.get_option("logsize"))
+
+# vim: et ts=4 sw=4

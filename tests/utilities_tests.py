@@ -86,3 +86,5 @@ class FindTest(unittest.TestCase):
     def test_not_in_pattern(self):
         leaves = find("leaf", TEST_DIR, path_pattern="tests/path")
         self.assertFalse(any(name.endswith("leaf") for name in leaves))
+
+# vim: et ts=4 sw=4

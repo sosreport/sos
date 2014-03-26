@@ -55,3 +55,5 @@ class example(Plugin, RedHatPlugin):
         # Here's how to execute a command
         self.collectExtOutput("/bin/ps -ef")
 
+
+# vim: et ts=4 sw=4

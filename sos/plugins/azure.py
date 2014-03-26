@@ -29,3 +29,5 @@ class Azure(Plugin, UbuntuPlugin):
                            "/etc/default/kv-kvp-daemon-init",
                            "/sys/module/hv_netvsc/parameters/ring_size",
                            "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"])
+
+# vim: et ts=4 sw=4

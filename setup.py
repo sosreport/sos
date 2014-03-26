@@ -70,3 +70,5 @@ setup(name='sosreport',
       requires=['six'],
      )
 
+
+# vim: et ts=4 sw=4

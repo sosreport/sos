@@ -26,3 +26,5 @@ class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_specs([
             "/etc/logrotate*",
             "/var/lib/logrotate.status"])
+
+# vim: et ts=4 sw=4

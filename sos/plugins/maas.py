@@ -34,3 +34,5 @@ class Maas(Plugin, UbuntuPlugin):
         self.add_cmd_output("apt-cache policy maas-*")
         self.add_cmd_output("apt-cache policy python-django-*")
         self.add_cmd_output("maas dumpdata")
+
+# vim: et ts=4 sw=4

@@ -28,3 +28,5 @@ class Juju(Plugin, UbuntuPlugin):
 
         self.add_cmd_output("juju -v status")
         self.add_cmd_output("juju -v get-constraints")
+
+# vim: et ts=4 sw=4

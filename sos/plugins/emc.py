@@ -219,3 +219,5 @@ class Emc(Plugin, RedHatPlugin):
         ## Only provide About EMC if EMC products are installed
         if add_about_emc != "no":
             self.about_emc()
+
+# vim: et ts=4 sw=4

@@ -26,3 +26,5 @@ class LsbRelease(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("lsb_release -a")
         self.add_cmd_output("lsb_release -d", suggest_filename = "lsb_release", root_symlink = "lsb-release")
         self.add_copy_spec("/etc/lsb-release*")
+
+# vim: et ts=4 sw=4

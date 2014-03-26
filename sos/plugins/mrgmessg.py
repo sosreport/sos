@@ -25,3 +25,5 @@ class MrgMessg(Plugin, RedHatPlugin):
             "/etc/qpidd.conf",
             "/etc/sasl2/qpidd.conf",
             "/var/rhm"])
+
+# vim: et ts=4 sw=4

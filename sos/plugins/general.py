@@ -78,3 +78,5 @@ class UbuntuGeneral(DebianGeneral):
     def setup(self):
         super(UbuntuGeneral, self).setup()
         self.add_copy_spec("/etc/os-release")
+
+# vim: et ts=4 sw=4

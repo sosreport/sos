@@ -37,3 +37,5 @@ class Rhui(Plugin, RedHatPlugin):
                 % (self.rhui_debug_path, cds, rhui_debug_dst_path),
                 suggest_filename="rhui-debug")
         return
+
+# vim: et ts=4 sw=4

@@ -71,3 +71,5 @@ class Landscape(Plugin, UbuntuPlugin):
         )
         
                                                     
+
+# vim: et ts=4 sw=4

@@ -52,3 +52,5 @@ class RedHatOpenStackSwift(OpenStackSwift, plugins.RedHatPlugin):
                 'openstack-swift-proxy',
                 'swift',
                 'python-swiftclient')
+
+# vim: et ts=4 sw=4

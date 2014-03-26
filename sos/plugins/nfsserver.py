@@ -49,3 +49,5 @@ class NfsServer(Plugin, RedHatPlugin):
         self.add_cmd_output("rpcinfo -p localhost")
         self.add_cmd_output("nfsstat -o all")
 
+
+# vim: et ts=4 sw=4

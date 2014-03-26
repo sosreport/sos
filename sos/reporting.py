@@ -131,3 +131,5 @@ class PlainTextReport(object):
             self.buf.append(header)
             for item in section.get(key):
                 self.buf.append(format_ % item)
+
+# vim: et ts=4 sw=4

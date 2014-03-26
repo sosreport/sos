@@ -65,3 +65,5 @@ class S390(Plugin, RedHatPlugin):
             self.add_cmd_output("dasdview -x -i -j -l -f %s" % (x,))
             self.add_cmd_output("fdasd -p %s" % (x,))
 
+
+# vim: et ts=4 sw=4

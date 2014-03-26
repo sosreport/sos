@@ -153,3 +153,5 @@ class UbuntuNetworking(Networking, UbuntuPlugin):
         if self.get_option("traceroute"):
             self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host)
 
+
+# vim: et ts=4 sw=4

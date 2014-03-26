@@ -25,3 +25,5 @@ class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         for opt in self.dmraid_options:
             self.add_cmd_output("dmraid -%s" % (opt,))
+
+# vim: et ts=4 sw=4

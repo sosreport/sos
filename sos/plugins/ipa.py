@@ -81,3 +81,5 @@ class Ipa(Plugin, RedHatPlugin):
         subst = r"\1********"
         self.do_file_sub("/etc/named.conf", match, subst)
 
+
+# vim: et ts=4 sw=4

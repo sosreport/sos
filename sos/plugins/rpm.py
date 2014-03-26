@@ -53,3 +53,5 @@ class Rpm(Plugin, RedHatPlugin):
                     or pkg.endswith('-debuginfo-common'):
                         continue
                     self.add_cmd_output("rpm -V %s" % pkg)
+
+# vim: et ts=4 sw=4

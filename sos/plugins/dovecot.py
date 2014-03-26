@@ -41,3 +41,5 @@ class DebianDovecot(Dovecot, DebianPlugin, UbuntuPlugin):
         super(DebianDovecot, self).setup()
 
     files = ('/etc/dovecot/README',)
+
+# vim: et ts=4 sw=4

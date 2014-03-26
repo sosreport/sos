@@ -85,3 +85,5 @@ class UbuntuLogs(Logs, UbuntuPlugin):
             "/var/log/landscape",
         ])
 
+
+# vim: et ts=4 sw=4

@@ -24,3 +24,5 @@ class Lilo(Plugin, RedHatPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec("/etc/lilo.conf")
         self.add_cmd_output("lilo -q")
+
+# vim: et ts=4 sw=4

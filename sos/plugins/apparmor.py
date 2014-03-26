@@ -25,3 +25,5 @@ class Apparmor(Plugin, UbuntuPlugin):
         self.add_copy_specs([
             "/etc/apparmor"
         ])
+
+# vim: et ts=4 sw=4

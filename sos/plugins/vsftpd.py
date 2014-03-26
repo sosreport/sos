@@ -26,3 +26,5 @@ class Vsftpd(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec("/etc/ftp*")
         self.add_copy_spec("/etc/vsftpd")
+
+# vim: et ts=4 sw=4

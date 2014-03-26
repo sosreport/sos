@@ -57,3 +57,5 @@ class RedHatOpenStack(OpenStackHeat, plugins.RedHatPlugin):
                 'openstack-heat-common',
                 'openstack-heat-engine',
                 'python-heatclient')
+
+# vim: et ts=4 sw=4

@@ -52,3 +52,5 @@ class RedHatOpenStackGlance(OpenStackGlance, plugins.RedHatPlugin):
 
     packages = ('openstack-glance',
                 'python-glanceclient')
+
+# vim: et ts=4 sw=4

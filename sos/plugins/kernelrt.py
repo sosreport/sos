@@ -35,3 +35,5 @@ class KernelRT(Plugin, RedHatPlugin):
         self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/current_clocksource')
         if self.is_installed('tuna'):
             self.add_cmd_output('tuna -CP | /usthead -20')
+
+# vim: et ts=4 sw=4

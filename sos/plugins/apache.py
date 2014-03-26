@@ -50,3 +50,5 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
             "/etc/default/apache2"])
         if self.get_option("log"):
             self.add_copy_spec("/var/log/apache2/*")
+
+# vim: et ts=4 sw=4

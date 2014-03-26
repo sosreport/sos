@@ -37,3 +37,5 @@ class RedHatIscsi(Iscsi, RedHatPlugin):
         self.add_cmd_output("iscsiadm -m node -P 3")
         self.add_cmd_output("iscsiadm -m iface -P 1")
         self.add_cmd_output("iscsiadm -m node --op=show")
+
+# vim: et ts=4 sw=4

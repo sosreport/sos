@@ -52,3 +52,5 @@ class RedHatSunRPC(SunRPC, RedHatPlugin):
 #        return
 
 
+
+# vim: et ts=4 sw=4

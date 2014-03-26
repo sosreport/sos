@@ -419,3 +419,5 @@ class LinuxPolicy(Policy):
         
         return
 
+
+# vim: et ts=4 sw=4

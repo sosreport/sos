@@ -30,3 +30,5 @@ class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("multipath -v4 -ll")
 
 
+
+# vim: et ts=4 sw=4

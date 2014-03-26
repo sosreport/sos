@@ -44,3 +44,5 @@ class Anaconda(Plugin, RedHatPlugin):
         self.do_file_sub("/root/anaconda-ks.cfg",
                         r"(\s*rootpw\s*).*",
                         r"\1******")
+
+# vim: et ts=4 sw=4

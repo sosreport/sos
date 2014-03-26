@@ -176,3 +176,5 @@ class RedHatNeutron(Neutron, RedHatPlugin):
         super(RedHatNeutron, self).setup()
         self.packages = self.gen_pkg_tuple(self.package_list_template)
         self.add_copy_specs(["/etc/sudoers.d/%s-rootwrap" % self.component_name])
+
+# vim: et ts=4 sw=4

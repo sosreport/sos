@@ -30,3 +30,5 @@ class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_forbidden_path("/etc/X11/X")
         self.add_forbidden_path("/etc/X11/fontpath.d")
+
+# vim: et ts=4 sw=4

@@ -28,3 +28,5 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
         if self.get_option("ldconfigv"):
             self.add_cmd_output("ldconfig -v -N -X")
         self.add_cmd_output("ldconfig -p -N -X")
+
+# vim: et ts=4 sw=4

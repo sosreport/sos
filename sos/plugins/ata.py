@@ -34,3 +34,5 @@ class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                     self.add_cmd_output("hdparm %s" % disk_path)
                     self.add_cmd_output("smartctl -a %s" % disk_path)
 
+
+# vim: et ts=4 sw=4

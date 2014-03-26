@@ -44,3 +44,5 @@ class Abrt(Plugin, RedHatPlugin):
             self.do_backtraces()
 
 
+
+# vim: et ts=4 sw=4

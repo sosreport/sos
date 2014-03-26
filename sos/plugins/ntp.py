@@ -49,3 +49,5 @@ class DebianNtp(Ntp, DebianPlugin, UbuntuPlugin):
         super(DebianNtp, self).setup()
         self.add_copy_spec('/etc/default/ntp')
 
+
+# vim: et ts=4 sw=4

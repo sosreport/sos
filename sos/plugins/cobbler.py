@@ -40,3 +40,5 @@ class DebianCobbler(Cobbler, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/var/log/cobbler")
         self.add_copy_spec("/var/lib/cobbler")
         self.add_forbidden_path("/var/lib/cobbler/isos")
+
+# vim: et ts=4 sw=4

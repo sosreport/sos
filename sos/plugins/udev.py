@@ -26,3 +26,5 @@ class Udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/lib/udev/rules.d",
             "/etc/udev/rules.d/*"
         ])
+
+# vim: et ts=4 sw=4

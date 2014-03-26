@@ -33,3 +33,5 @@ class Smartcard(Plugin, RedHatPlugin):
         self.add_cmd_output("pkcs11_inspect debug")
         self.add_cmd_output("pklogin_finder debug")
         self.add_cmd_output("ls -nl /usr/lib*/pam_pkcs11/")
+
+# vim: et ts=4 sw=4

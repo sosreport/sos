@@ -23,3 +23,5 @@ class UbuntuPolicy(DebianPolicy):
                 return "Ubuntu" in fp.read()
         except:
             return False
+
+# vim: et ts=4 sw=4

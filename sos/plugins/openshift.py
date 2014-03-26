@@ -70,3 +70,5 @@ class Openshift(Plugin, RedHatPlugin):
 	    self.do_file_sub('/etc/openshift/htpasswd',
 			    r"(.*:)(.*)",
 			    r"\1********")
+
+# vim: et ts=4 sw=4

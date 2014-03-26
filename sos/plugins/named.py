@@ -84,3 +84,5 @@ class DebianNamed(Named, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/etc/bind/")
         return
 
+
+# vim: et ts=4 sw=4

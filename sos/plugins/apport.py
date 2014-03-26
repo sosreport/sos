@@ -23,3 +23,5 @@ class Apport(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/apport/*")
+
+# vim: et ts=4 sw=4

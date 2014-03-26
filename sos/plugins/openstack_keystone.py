@@ -71,3 +71,5 @@ class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
                 'python-keystone',
                 'python-django-openstack-auth',
                 'python-keystoneclient')
+
+# vim: et ts=4 sw=4

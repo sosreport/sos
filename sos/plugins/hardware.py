@@ -53,3 +53,5 @@ class DebianHardware(Hardware, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianHardware, self).setup()
+
+# vim: et ts=4 sw=4

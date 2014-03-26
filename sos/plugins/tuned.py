@@ -28,3 +28,5 @@ class Tuned(Plugin, RedHatPlugin):
         self.add_cmd_output("tuned-adm recommend")
         self.add_copy_spec("/var/log/tuned/tuned.log")
 
+
+# vim: et ts=4 sw=4

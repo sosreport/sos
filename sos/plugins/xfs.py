@@ -38,3 +38,5 @@ class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 for e in dev:
                     parts = e.split(' ')
                     self.add_cmd_output("xfs_logprint -c %s" % (parts[0]))
+
+# vim: et ts=4 sw=4

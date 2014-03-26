@@ -39,3 +39,5 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # Session Jobs (running Upstart as a Session Init)
         self.add_copy_spec('/usr/share/upstart/')
 
+
+# vim: et ts=4 sw=4

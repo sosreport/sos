@@ -50,3 +50,5 @@ class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
         self.mysql_cnf = "/etc/mysql/my.cnf"
         super(DebianMysql, self).setup()
         self.add_copy_spec("/etc/mysql/conf.d/mysql*")
+
+# vim: et ts=4 sw=4

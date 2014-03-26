@@ -27,3 +27,5 @@ class Quagga(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/quagga/")
+
+# vim: et ts=4 sw=4

@@ -47,3 +47,5 @@ class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianSendmail, self).setup()
         self.add_copy_specs(["/etc/mail/*", "/var/log/mail.*"])
+
+# vim: et ts=4 sw=4

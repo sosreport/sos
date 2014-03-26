@@ -41,3 +41,5 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 self.add_cmd_output("udevadm info -ap /sys/block/%s" % (disk))
                 self.add_cmd_output("parted -s %s print" % (disk_path))
                 self.add_cmd_output("fdisk -l %s" % disk_path)
+
+# vim: et ts=4 sw=4

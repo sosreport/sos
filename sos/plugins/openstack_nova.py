@@ -142,3 +142,5 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
                 "/etc/sudoers.d/nova",
                 "/etc/security/limits.d/91-nova.conf",
                 "/etc/sysconfig/openstack-nova-novncproxy"])
+
+# vim: et ts=4 sw=4

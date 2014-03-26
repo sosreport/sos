@@ -29,3 +29,5 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.do_file_sub(xmlfile,
                     r"(\s*passwd=\s*')([^']*)('.*$)",
                     r"\1******\3")
+
+# vim: et ts=4 sw=4

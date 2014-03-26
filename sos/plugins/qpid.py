@@ -50,3 +50,5 @@ class Qpid(Plugin, RedHatPlugin):
             "/var/log/sesame",
             "/var/log/cumin",
             "/var/log/cluster"])
+
+# vim: et ts=4 sw=4
