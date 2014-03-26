@@ -60,11 +60,6 @@ def mangle_command(command):
     mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")[0:64]
     return mangledname
 
-
-class PluginException(Exception):
-    pass
-
-
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
