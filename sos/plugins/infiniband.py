@@ -21,11 +21,7 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'infiniband'
-
-    def check_enabled(self):
-         if self.commons["policy"].pkg_by_name("libibverbs-utils"):
-             return True
-         return False
+    packages = ('libibverbs-utils',)
 
     def setup(self):
         self.add_copy_specs([
