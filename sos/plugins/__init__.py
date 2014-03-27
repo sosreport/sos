@@ -195,10 +195,7 @@ class Plugin(object):
         return regex_findall(regex, fname)
 
     def _path_in_path_list(self, path, path_list):
-        for p in path_list:
-            if p in path:
-                return True
-        return False
+        return any(p in path for p in path_list)
 
     def copy_symlink(self, srcpath, sub=None):
         # the target stored in the original symlink
