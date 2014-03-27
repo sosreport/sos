@@ -197,10 +197,6 @@ class PluginTests(unittest.TestCase):
         self.mp.do_copy_path("tests")
         self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'tests/plugin_tests.py')
 
-    def test_copy_dir_sub(self):
-        self.mp.do_copy_path("tests", sub=("tests/", "foobar/"))
-        self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'foobar/plugin_tests.py')
-
     def test_copy_dir_bad_path(self):
         self.mp.do_copy_path("not_here_tests")
         self.assertEquals(self.mp.archive.m, {})
@@ -225,14 +221,14 @@ class AddCopySpecLimitTests(unittest.TestCase):
 
     def test_single_file_under_limit(self):
         self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
-        self.assertEquals(self.mp.copy_specs, [('tests/tail_test.txt', None)])
+        self.assertEquals(self.mp.copy_specs, ['tests/tail_test.txt'])
 
     def test_single_file_over_limit(self):
         fn = create_file(2) # create 2MB file, consider a context manager
-        self.mp.add_copy_spec_limit(fn, 1, sub=('tmp', 'awesome'))
+        self.mp.add_copy_spec_limit(fn, 1)
         content, fname = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
-        self.assertTrue("awesome" in fname)
+        self.assertTrue("tmp" in fname)
         self.assertTrue("/" not in fname)
         self.assertEquals(1024 * 1024, len(content))
         os.unlink(fn)
