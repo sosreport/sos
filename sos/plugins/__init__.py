@@ -99,7 +99,7 @@ class Plugin(object):
         self.opt_parms = []
         self.commons = commons
         self.forbidden_paths = []
-        self.copy_paths = []
+        self.copy_specs = []
         self.copy_strings = []
         self.collect_cmds = []
 
@@ -229,10 +229,10 @@ class Plugin(object):
         self.archive.add_link(reldest,srcpath)
 
         # copy the symlink target translating relative targets
-        # to absolute paths to pass to do_copy_file_or_dir.
+        # to absolute paths to pass to do_copy_path.
         self.soslog.debug("normalized link target %s as %s"
                         %(linkdest, absdest))
-        self.do_copy_file_or_dir(absdest)
+        self.do_copy_path(absdest)
 
         self.copied_files.append({
             'srcpath':srcpath,
@@ -242,7 +242,7 @@ class Plugin(object):
 
     def copy_dir(self, srcpath, sub=None):
         for afile in os.listdir(srcpath):
-            self.do_copy_file_or_dir(os.path.join(srcpath, afile), dest=None, sub=sub)
+            self.do_copy_path(os.path.join(srcpath, afile), dest=None, sub=sub)
 
     def _get_dest_for_srcpath(self, srcpath):
         for copied in self.copied_files:
@@ -251,7 +251,7 @@ class Plugin(object):
         return None
 
     # Methods for copying files and shelling out
-    def do_copy_file_or_dir(self, srcpath, dest=None, sub=None):
+    def do_copy_path(self, srcpath, dest=None, sub=None):
         # pylint: disable-msg = R0912
         # pylint: disable-msg = R0915
         '''Copy file or directory to the destination tree. If a directory, then
@@ -308,7 +308,7 @@ class Plugin(object):
 
 
     def add_forbidden_path(self, forbiddenPath):
-        """Specify a path to not copy, even if it's part of a copy_paths[]
+        """Specify a path to not copy, even if it's part of a copy_specs[]
         entry.
         """
         # Glob case handling is such that a valid non-glob is a reduced glob
@@ -417,12 +417,11 @@ class Plugin(object):
         copied into the sosreport by this module.
         """
         if not (copyspec and len(copyspec)):
-            # self.soslog.warning("invalid file path")
+            self.soslog.warning("%s added null or empty file path"
+                                 % self.name())
             return False
-        # Glob case handling is such that a valid non-glob is a reduced glob
-        for filespec in glob.glob(copyspec):
-            if filespec not in self.copy_paths:
-                self.copy_paths.append((filespec, sub))
+        if copyspec not in self.copy_specs:
+            self.copy_specs.append((copyspec, sub))
 
     def get_command_output(self, prog, timeout=300):
         (status, output, runtime) = sos_get_command_output(prog, timeout)
@@ -535,19 +534,16 @@ class Plugin(object):
         """
         self.custom_text += text
 
-    def collect(self):
-        """Collect the data for a plugin."""
-        for path, sub in self.copy_paths:
-            self.do_copy_file_or_dir(path, sub=sub)
+    def expand_copy_spec(self, copyspec):
+        return glob.glob(copyspec)
 
-        for string, file_name in self.copy_strings:
-            try:
-                self.archive.add_string(string,
-                        os.path.join('sos_strings', self.name(), file_name))
-            except Exception as e:
-                self.soslog.debug("could not create %s, traceback follows: %s"
-                        % (file_name, e))
+    def collect_copy_specs(self):
+        # Glob case handling is such that a valid non-glob is a reduced glob
+        for spec, sub in self.copy_specs:
+            for path in self.expand_copy_spec(spec):
+                self.do_copy_path(path, sub=sub)
 
+    def collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
             prog, suggest_filename, root_symlink, timeout = progs[0]
             self.soslog.debug("collecting output of '%s'" % prog)
@@ -557,6 +553,21 @@ class Plugin(object):
             except Exception as e:
                 self.soslog.debug("error collecting output of '%s' (%s)"
                         % (prog, e))
+
+    def collect_strings(self):
+        for string, file_name in self.copy_strings:
+            try:
+                self.archive.add_string(string,
+                        os.path.join('sos_strings', self.name(), file_name))
+            except Exception as e:
+                self.soslog.debug("could not create %s, traceback follows: %s"
+                        % (file_name, e))
+
+    def collect(self):
+        """Collect the data for a plugin."""
+        self.collect_copy_specs()
+        self.collect_cmd_output()
+        self.collect_strings()
 
     def get_description(self):
         """ This function will return the description for the plugin"""
@@ -592,7 +603,7 @@ class Plugin(object):
         return True
 
     def setup(self):
-        """This method must be overridden to add the copy_paths, forbidden_paths,
+        """This method must be overridden to add the copy_specs, forbidden_paths,
         and external programs to be collected at a minimum.
         """
         pass
