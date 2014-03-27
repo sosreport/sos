@@ -99,7 +99,7 @@ class Plugin(object):
         self.opt_parms = []
         self.commons = commons
         self.forbidden_paths = []
-        self.copy_specs = []
+        self.copy_paths = set()
         self.copy_strings = []
         self.collect_cmds = []
 
@@ -402,11 +402,11 @@ class Plugin(object):
         copied into the sosreport by this module.
         """
         if not (copyspec and len(copyspec)):
-            self.soslog.warning("%s added null or empty file path"
-                                 % self.name())
+            self.soslog.warning("plugin %s %s"
+                % ("added null or empty copy spec", self.name()))
             return False
-        if copyspec not in self.copy_specs:
-            self.copy_specs.append(copyspec)
+        copy_paths = self.expand_copy_spec(copyspec)
+        self.copy_paths.update(copy_paths)
 
     def get_command_output(self, prog, timeout=300):
         (status, output, runtime) = sos_get_command_output(prog, timeout)
@@ -523,9 +523,7 @@ class Plugin(object):
         return glob.glob(copyspec)
 
     def collect_copy_specs(self):
-        # Glob case handling is such that a valid non-glob is a reduced glob
-        for spec in self.copy_specs:
-            for path in self.expand_copy_spec(spec):
+        for path in self.copy_paths:
                 self.do_copy_path(path)
 
     def collect_cmd_output(self):
