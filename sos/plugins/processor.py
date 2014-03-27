@@ -36,7 +36,7 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_cmd_output("cpupower idle-info")
         self.add_cmd_output("cpupower frequency-info")
 
-        if self.policy().get_arch().endswith("386"):
+        if '86' in self.policy().get_arch():
             self.add_cmd_output("x86info -a")
 
 
