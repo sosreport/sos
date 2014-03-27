@@ -394,6 +394,8 @@ class Plugin(object):
                 self.name(), strfile), _file)
 
     def add_copy_specs(self, copyspecs):
+        if isinstance(copyspecs, six.string_types):
+            raise TypeError("Plugin.add_copy_specs called with string argument")
         for copyspec in copyspecs:
             self.add_copy_spec(copyspec)
 
