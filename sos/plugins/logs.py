@@ -40,7 +40,7 @@ class Logs(Plugin):
         if self.get_option('all_logs'):
             logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
                                 "/etc/syslog.conf")
-            if self.policy().pkg_by_name("rsyslog") \
+            if self.is_installed("rsyslog") \
               or os.path.exists("/etc/rsyslog.conf"):
                 logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", "/etc/rsyslog.conf")
             for i in logs:
