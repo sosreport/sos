@@ -221,7 +221,7 @@ class AddCopySpecLimitTests(unittest.TestCase):
 
     def test_single_file_under_limit(self):
         self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
-        self.assertEquals(self.mp.copy_specs, ['tests/tail_test.txt'])
+        self.assertEquals(self.mp.copy_paths, set(['tests/tail_test.txt']))
 
     def test_single_file_over_limit(self):
         fn = create_file(2) # create 2MB file, consider a context manager
