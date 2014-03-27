@@ -197,7 +197,7 @@ class Plugin(object):
     def _path_in_path_list(self, path, path_list):
         return any(p in path for p in path_list)
 
-    def copy_symlink(self, srcpath, sub=None):
+    def copy_symlink(self, srcpath):
         # the target stored in the original symlink
         linkdest = os.readlink(srcpath)
         # absolute path to the link target
@@ -213,17 +213,13 @@ class Plugin(object):
                 reldest = linkdest
 
         self.soslog.debug(
-                "copying link %s pointing to %s with sub=%s, isdir=%s"
-                % (srcpath, linkdest, sub, os.path.isdir(absdest)))
+                "copying link %s pointing to %s with isdir=%s"
+                % (srcpath, linkdest, os.path.isdir(absdest)))
 
         if os.path.isdir(absdest):
             self.soslog.debug("link %s is a directory, skipping..."
                             % linkdest)
             return
-
-        if sub:
-            old, new = sub
-            reldest = srcpath.replace(old, new)
 
         # use the relative target path in the tarball
         self.archive.add_link(reldest,srcpath)
@@ -240,9 +236,9 @@ class Plugin(object):
             'symlink':"yes",
             'pointsto':linkdest})
 
-    def copy_dir(self, srcpath, sub=None):
+    def copy_dir(self, srcpath):
         for afile in os.listdir(srcpath):
-            self.do_copy_path(os.path.join(srcpath, afile), dest=None, sub=sub)
+            self.do_copy_path(os.path.join(srcpath, afile), dest=None)
 
     def _get_dest_for_srcpath(self, srcpath):
         for copied in self.copied_files:
@@ -251,16 +247,12 @@ class Plugin(object):
         return None
 
     # Methods for copying files and shelling out
-    def do_copy_path(self, srcpath, dest=None, sub=None):
+    def do_copy_path(self, srcpath, dest=None):
         # pylint: disable-msg = R0912
         # pylint: disable-msg = R0915
         '''Copy file or directory to the destination tree. If a directory, then
         everything below it is recursively copied. A list of copied files are
-        saved for use later in preparing a report.  sub can be used to rename
-        the destination of the file, sub should be a two-tuple of (old,new).
-        For example if you passed in ("etc","configurations") for use against
-        /etc/my_file.conf the file would end up at
-        /configurations/my_file.conf.
+        saved for use later in preparing a report.
         '''
         if self._path_in_path_list(srcpath, self.forbidden_paths):
             self.soslog.debug("%s is in the forbidden path list" % srcpath)
@@ -273,16 +265,12 @@ class Plugin(object):
         if not dest:
             dest = srcpath
 
-        if sub:
-            old, new = sub
-            dest = srcpath.replace(old, new)
-
         if os.path.islink(srcpath):
-            self.copy_symlink(srcpath, sub=sub)
+            self.copy_symlink(srcpath)
             return
         else:
             if os.path.isdir(srcpath):
-                self.copy_dir(srcpath, sub=sub)
+                self.copy_dir(srcpath)
                 return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
@@ -370,7 +358,7 @@ class Plugin(object):
         except Exception:
             return default
 
-    def add_copy_spec_limit(self, copyspec, sizelimit=None, sub=None):
+    def add_copy_spec_limit(self, copyspec, sizelimit=None):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
@@ -392,14 +380,11 @@ class Plugin(object):
             if sizelimit and current_size > sizelimit:
                 limit_reached = True
                 break
-            self.add_copy_spec(_file, sub)
+            self.add_copy_spec(_file)
 
         if limit_reached:
             file_name = _file
 
-            if sub:
-                old, new = sub
-                file_name = _file.replace(old, new)
             if file_name[0] == os.sep:
                 file_name = file_name.lstrip(os.sep)
             strfile = file_name.replace(os.path.sep, ".") + ".tailed"
@@ -408,11 +393,11 @@ class Plugin(object):
                 os.path.relpath('/', os.path.dirname(_file)), 'sos_strings',
                 self.name(), strfile), _file)
 
-    def add_copy_specs(self, copyspecs, sub=None):
+    def add_copy_specs(self, copyspecs):
         for copyspec in copyspecs:
-            self.add_copy_spec(copyspec, sub)
+            self.add_copy_spec(copyspec)
 
-    def add_copy_spec(self, copyspec, sub=None):
+    def add_copy_spec(self, copyspec):
         """Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module.
         """
@@ -421,7 +406,7 @@ class Plugin(object):
                                  % self.name())
             return False
         if copyspec not in self.copy_specs:
-            self.copy_specs.append((copyspec, sub))
+            self.copy_specs.append(copyspec)
 
     def get_command_output(self, prog, timeout=300):
         (status, output, runtime) = sos_get_command_output(prog, timeout)
@@ -539,9 +524,9 @@ class Plugin(object):
 
     def collect_copy_specs(self):
         # Glob case handling is such that a valid non-glob is a reduced glob
-        for spec, sub in self.copy_specs:
+        for spec in self.copy_specs:
             for path in self.expand_copy_spec(spec):
-                self.do_copy_path(path, sub=sub)
+                self.do_copy_path(path)
 
     def collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
