@@ -21,6 +21,8 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
 
     plugin_name = 'processor'
+    files = ('/proc/cpuinfo',)
+    packages = ('cpufreq-utils')
 
     def setup(self):
         self.add_copy_specs([
@@ -29,21 +31,13 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/sys/devices/system/cpu"
         ])
         
-        if self.policy().pkg_by_name("cpufreq-utils"):
-            self.add_cmd_output("cpufreq-info")
-            self.add_cmd_output("cpupower info")
-            self.add_cmd_output("cpupower frequency-info")
-
-        if self.policy().pkg_by_name("kernel-tools"):
-            self.add_cmd_output("cpupower info")
-            self.add_cmd_output("cpupower frequency-info")
-            self.add_cmd_output("cpupower idle-info")
+        self.add_cmd_output("lscpu")
+        self.add_cmd_output("cpupower info")
+        self.add_cmd_output("cpupower idle-info")
+        self.add_cmd_output("cpupower frequency-info")
 
         if self.policy().get_arch().endswith("386"):
             self.add_cmd_output("x86info -a")
-
-        self.add_cmd_output("lscpu")
-
 
 
 # vim: et ts=4 sw=4
