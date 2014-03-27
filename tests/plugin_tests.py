@@ -194,15 +194,15 @@ class PluginTests(unittest.TestCase):
         self.assertEquals(p.get_option_as_list("opt"), ['testing'])
 
     def test_copy_dir(self):
-        self.mp.do_copy_file_or_dir("tests")
+        self.mp.do_copy_path("tests")
         self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'tests/plugin_tests.py')
 
     def test_copy_dir_sub(self):
-        self.mp.do_copy_file_or_dir("tests", sub=("tests/", "foobar/"))
+        self.mp.do_copy_path("tests", sub=("tests/", "foobar/"))
         self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'foobar/plugin_tests.py')
 
     def test_copy_dir_bad_path(self):
-        self.mp.do_copy_file_or_dir("not_here_tests")
+        self.mp.do_copy_path("not_here_tests")
         self.assertEquals(self.mp.archive.m, {})
 
     def test_copy_dir_forbidden_path(self):
@@ -211,7 +211,7 @@ class PluginTests(unittest.TestCase):
         })
         p.archive = MockArchive()
         p.setup()
-        p.do_copy_file_or_dir("tests")
+        p.do_copy_path("tests")
         self.assertEquals(p.archive.m, {})
 
 
@@ -225,7 +225,7 @@ class AddCopySpecLimitTests(unittest.TestCase):
 
     def test_single_file_under_limit(self):
         self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
-        self.assertEquals(self.mp.copy_paths, [('tests/tail_test.txt', None)])
+        self.assertEquals(self.mp.copy_specs, [('tests/tail_test.txt', None)])
 
     def test_single_file_over_limit(self):
         fn = create_file(2) # create 2MB file, consider a context manager
