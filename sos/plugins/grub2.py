@@ -23,12 +23,13 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_specs([
-            "/etc/grub.d",
-            "/etc/grub2.cfg",
-            "/etc/default/grub",
-            "/boot/grub/grub.cfg",
+            "/boot/efi/EFI/*/grub.cfg",
             "/boot/grub2/grub.cfg",
-            "/boot/grub2/grubenv"
+            "/boot/grub2/grubenv",
+            "/boot/grub/grub.cfg",
+            "/etc/default/grub",
+            "/etc/grub2.cfg",
+            "/etc/grub.d"
         ])
         self.add_cmd_output("ls -lanR /boot")
         self.add_cmd_output("grub2-mkconfig")

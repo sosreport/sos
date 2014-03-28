@@ -23,11 +23,11 @@ class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_specs([
+            "/boot/efi/EFI/*/grub.conf",
             "/boot/grub/grub.conf",
             "/boot/grub/device.map",
             "/etc/grub.conf",
             "/etc/grub.d"
         ])
-
 
 # vim: et ts=4 sw=4
