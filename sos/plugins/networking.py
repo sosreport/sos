@@ -79,7 +79,8 @@ class Networking(Plugin):
             "/etc/network*",
             "/etc/NetworkManager/NetworkManager.conf",
             "/etc/NetworkManager/system-connections",
-            "/etc/dnsmasq*"])
+            "/etc/dnsmasq*",
+            "/sys/class/net/*/flags"])
         self.add_forbidden_path("/proc/net/rpc/use-gss-proxy")
         self.add_forbidden_path("/proc/net/rpc/*/channel")
         self.add_forbidden_path("/proc/net/rpc/*/flush")
