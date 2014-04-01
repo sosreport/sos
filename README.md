@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/sosreport/sosreport.png)](https://travis-ci.org/sosreport/sosreport)
+[![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos)
 
 This set of tools is designed to provide information to support organizations
 in an extensible manner, allowing third parties, package maintainers, and
