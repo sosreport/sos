@@ -3,11 +3,11 @@
 #
 
 NAME	= sos
-VERSION = $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
-MAJOR   = $(shell echo $(VERSION) | cut -f 1 -d '.')
-MINOR   = $(shell echo $(VERSION) | cut -f 2 -d '.')
-RELEASE = $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
-REPO = https://github.com/sosreport/sosreport
+VERSION := $(shell echo `awk '/^Version:/ {print $$2}' sos.spec`)
+MAJOR   := $(shell echo $(VERSION) | cut -f 1 -d '.')
+MINOR   := $(shell echo $(VERSION) | cut -f 2 -d '.')
+RELEASE := $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
+REPO = https://github.com/sosreport/sos
 
 SUBDIRS = po sos sos/plugins sos/policies
 PYFILES = $(wildcard *.py)
