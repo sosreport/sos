@@ -36,6 +36,7 @@ class Logs(Plugin):
 
         self.limit = self.get_option("logsize")
         self.add_copy_spec_limit("/var/log/boot*", sizelimit = self.limit)
+        self.add_copy_spec_limit("/var/log/cloud-init*", sizelimit = self.limit)
 
         if self.get_option('all_logs'):
             logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
