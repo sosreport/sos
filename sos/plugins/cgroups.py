@@ -14,19 +14,19 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Cgroups(Plugin):
+class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
     """cgroup subsystem information
     """
 
-    plugin_name = "cgroups"
-
-class DebianCgroups(Cgroups, DebianPlugin, UbuntuPlugin):
-
     files = ('/proc/cgroups',)
 
+    plugin_name = "cgroups"
+
     def setup(self):
-        self.add_copy_specs(["/proc/cgroups",
-                           "/sys/fs/cgroup"])
+        self.add_copy_specs([
+            "/proc/cgroups",
+            "/sys/fs/cgroup"
+        ])
         return
 
 class RedHatCgroups(Cgroups, RedHatPlugin):
@@ -34,11 +34,13 @@ class RedHatCgroups(Cgroups, RedHatPlugin):
     """
 
     def setup(self):
-        self.add_copy_specs(["/etc/sysconfig/cgconfig",
-                           "/etc/sysconfig/cgred.conf",
-                           "/etc/cgsnapshot_blacklist.conf",
-                           "/etc/cgconfig.conf",
-                           "/etc/cgrules.conf"])
-
-
+        super(RedHatCgroups, self).setup()
+        self.add_copy_specs([
+            "/etc/sysconfig/cgconfig",
+            "/etc/sysconfig/cgred.conf",
+            "/etc/cgsnapshot_blacklist.conf",
+            "/etc/cgconfig.conf",
+            "/etc/cgrules.conf"
+        ])
+        
 # vim: et ts=4 sw=4
