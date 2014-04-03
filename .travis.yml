@@ -3,7 +3,8 @@ python:
   - 2.7
   - 3.3
 notifications:
-  email: false
+  email:
+    sos-devel@redhat.com
   irc:
     channels:
       - "us.freenode.net#sosreport"
