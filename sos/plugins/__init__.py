@@ -60,6 +60,9 @@ def mangle_command(command):
     mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")[0:64]
     return mangledname
 
+def _path_in_path_list(path, path_list):
+    return any(p in path for p in path_list)
+
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
@@ -206,9 +209,6 @@ class Plugin(object):
     def do_regex_find_all(self, regex, fname):
         return regex_findall(regex, fname)
 
-    def _path_in_path_list(self, path, path_list):
-        return any(p in path for p in path_list)
-
     def copy_symlink(self, srcpath):
         # the target stored in the original symlink
         linkdest = os.readlink(srcpath)
@@ -258,6 +258,9 @@ class Plugin(object):
                 return copied["dstpath"]
         return None
 
+    def is_forbidden_path(self, path):
+        return _path_in_path_list(path, self.forbidden_paths)
+
     # Methods for copying files and shelling out
     def do_copy_path(self, srcpath, dest=None):
         # pylint: disable-msg = R0912
@@ -266,7 +269,7 @@ class Plugin(object):
         everything below it is recursively copied. A list of copied files are
         saved for use later in preparing a report.
         '''
-        if self._path_in_path_list(srcpath, self.forbidden_paths):
+        if self.is_forbidden_path(srcpath):
             self.soslog.debug("%s is in the forbidden path list" % srcpath)
             return ''
 
