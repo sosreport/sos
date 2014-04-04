@@ -58,15 +58,15 @@ class ExecutableTest(unittest.TestCase):
 
     def test_output(self):
         path = os.path.join(TEST_DIR, 'test_exe.py')
-        ret, out, junk = sos_get_command_output(path)
-        self.assertEquals(ret, 0)
-        self.assertEquals(out, "executed\n")
+        result = sos_get_command_output(path)
+        self.assertEquals(result['status'], 0)
+        self.assertEquals(result['output'], "executed\n")
 
     def test_output_non_exe(self):
         path = os.path.join(TEST_DIR, 'utility_tests.py')
-        ret, out, junk = sos_get_command_output(path)
-        self.assertEquals(ret, 127)
-        self.assertEquals(out, "")
+        result = sos_get_command_output(path)
+        self.assertEquals(result['status'], 127)
+        self.assertEquals(result['output'], "")
 
     def test_shell_out(self):
         path = os.path.join(TEST_DIR, 'test_exe.py')

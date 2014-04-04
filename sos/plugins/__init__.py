@@ -426,13 +426,13 @@ class Plugin(object):
         self.copy_paths.update(copy_paths)
 
     def get_command_output(self, prog, timeout=300):
-        (status, output, runtime) = sos_get_command_output(prog, timeout)
-        if status == 124:
+        result = sos_get_command_output(prog, timeout)
+        if result['status'] == 124:
             self.soslog.warning("command '%s' timed out after %ds"
                     % (prog, timeout))
-        if status == 127:
+        if result['status'] == 127:
             self.soslog.info("could not run '%s': command not found" % prog)
-        return (status, output, runtime)
+        return result
 
     def call_ext_prog(self, prog, timeout=300):
         """Execute a command independantly of the output gathering part of
@@ -446,8 +446,7 @@ class Plugin(object):
         sosreport and check the return code. Return True for a return code of 0
         and False otherwise.
         """
-        (status, output, runtime) = self.call_ext_prog(prog)
-        return (status == 0)
+        return (self.call_ext_prog(prog)['status'] == 0)
 
 
     def add_cmd_output(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
@@ -503,8 +502,8 @@ class Plugin(object):
         report.
         """
         # pylint: disable-msg = W0612
-        status, shout, runtime = self.get_command_output(exe, timeout=timeout)
-        if (status == 127):
+        result = self.get_command_output(exe, timeout=timeout)
+        if (result['status'] == 127):
             return None
 
         if suggest_filename:
@@ -513,13 +512,17 @@ class Plugin(object):
             outfn = self.make_command_filename(exe)
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
-        self.archive.add_string(shout, outfn)
+        self.archive.add_string(result['output'], outfn)
         if root_symlink:
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
         self.executed_commands.append({'exe': exe, 'file':outfn_strip}) # save in our list
-        self.commons['xmlreport'].add_command(cmdline=exe,exitcode=status,f_stdout=outfn_strip,runtime=runtime)
+        self.commons['xmlreport'].add_command(
+            cmdline=exe,
+            exitcode=result['status'],
+            f_stdout=outfn_strip
+        )
 
         return os.path.join(self.archive.get_archive_path(), outfn)
 

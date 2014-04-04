@@ -53,10 +53,11 @@ class Neutron(Plugin):
     def get_ovs_dumps(self):
         # Check to see if we are using the Open vSwitch plugin. If not we 
         # should be able to skip the rest of the dump.
-        ovs_conf_check_out = self.call_ext_prog('grep "^core_plugin.*openvswitch" ' +
+        ovs_conf_check = self.call_ext_prog('grep "^core_plugin.*openvswitch" ' +
             ("/etc/%s/*.conf" + self.component_name))
-
-        if not ovs_conf_check_out or len(ovs_conf_check_out[1].splitlines()) == 0:
+        if not (ovs_conf_check['status'] == 0):
+            return
+        if len(ovs_conf_check['output'].splitlines()) == 0:
             return
 
         # The '-s' option enables dumping of packet counters on the
@@ -73,10 +74,13 @@ class Neutron(Plugin):
         # in the short term: create a local instance and "borrow" some of the
         # functionality, or simply copy some of the functionality.
         prefixes = ["qdhcp", "qrouter"]
-        nslist = self.call_ext_prog("ip netns")
+        ip_netns_result = self.call_ext_prog("ip netns")
+        if not (ip_netns_result['status'] == 0):
+            return
+        nslist = ip_netns_result['output']
         lease_directories = []
         if nslist:
-            for nsname in nslist[1].splitlines():
+            for nsname in nslist.splitlines():
                 prefix, netid = nsname.split('-', 1)
                 if len(netid) > 0 and prefix in prefixes:
                     self.ns_gather_data(nsname)
@@ -90,7 +94,7 @@ class Neutron(Plugin):
         output of ifconifg-a stored in ifconfig_file.
         """
         out={}
-        for line in ip_addr_out[1].splitlines():
+        for line in ip_addr_out.splitlines():
             match=re.match('.*link/ether', line)
             if match:
                 int=match.string.split(':')[1].lstrip()
@@ -103,9 +107,9 @@ class Neutron(Plugin):
         self.add_cmd_output(cmd_prefix + "ifconfig -a")
         self.add_cmd_output(cmd_prefix + "route -n")
         # borrowed from networking plugin
-        ip_addr_out=self.call_ext_prog(cmd_prefix + "ip -o addr")
-        if ip_addr_out:
-            for eth in self.get_interface_name(ip_addr_out):
+        ip_addr_result=self.call_ext_prog(cmd_prefix + "ip -o addr")
+        if ip_addr_result['status'] == 0:
+            for eth in self.get_interface_name(ip_addr_result['output']):
                 self.add_cmd_output(cmd_prefix + "ethtool "+eth)
                 self.add_cmd_output(cmd_prefix + "ethtool -i "+eth)
                 self.add_cmd_output(cmd_prefix + "ethtool -k "+eth)

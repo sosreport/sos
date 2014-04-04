@@ -102,9 +102,12 @@ class Cluster(Plugin, RedHatPlugin):
                     % (crm_dest, crm_from))
 
     def do_lockdump(self):
-        status, output, time = self.call_ext_prog("dlm_tool ls")
+        dlm_tool = "dlm_tool ls"
+        result = self.call_ext_prog(dlm_tool)
+        if result['status'] != 0:
+            return
         for lockspace in re.compile(r'^name\s+([^\s]+)$',
-                re.MULTILINE).findall(output):
+                re.MULTILINE).findall(result['output']):
             self.add_cmd_output("dlm_tool lockdebug -svw '%s'" % lockspace,
                         suggest_filename = "dlm_locks_%s" % lockspace)
 

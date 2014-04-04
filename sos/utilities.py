@@ -147,7 +147,7 @@ def sos_get_command_output(command, timeout=300):
     if p.returncode == 127:
         stdout = ""
     
-    return (p.returncode, stdout.decode('utf-8'), 0)
+    return {'status': p.returncode, 'output': stdout.decode('utf-8')}
 
 def import_module(module_fqname, superclasses=None):
     """Imports the module module_fqname and returns a list of defined classes
@@ -165,9 +165,10 @@ def import_module(module_fqname, superclasses=None):
     return modules
 
 def shell_out(cmd):
-    """Uses subprocess.Popen to make a system call and returns stdout.
-    Does not handle exceptions."""
-    return sos_get_command_output(cmd)[1]
+    """Shell out to an external command and return the output or the empty
+    string in case of error.
+    """
+    return sos_get_command_output(cmd)['output']
 
 class ImporterHelper(object):
     """Provides a list of modules that can be imported in a package.

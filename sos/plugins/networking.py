@@ -27,12 +27,16 @@ class Networking(Plugin):
     def setup(self):
         super(Networking, self).setup()
 
-    def get_bridge_name(self,brctl_out):
+    def get_bridge_name(self,brctl_file):
         """Return a list for which items are bridge name according to the
         output of brctl show stored in brctl_file.
         """
         out=[]
-        for line in brctl_out[1].splitlines():
+        try:
+            brctl_out = open(brctl_file).read()
+        except:
+            return out
+        for line in brctl_out.splitlines():
             if line.startswith("bridge name") \
                or line.isspace() \
                or line[:1].isspace():
@@ -46,7 +50,7 @@ class Networking(Plugin):
         names taken from the output of "ip -o link".
         """
         out={}
-        for line in ip_link_out[1].splitlines():
+        for line in ip_link_out.splitlines():
             match=re.match('.*link/ether', line)
             if match:
                 iface=match.string.split(':')[1].lstrip()
@@ -61,8 +65,7 @@ class Networking(Plugin):
         relevant rules in that table """
 
 
-        (status, output, time) = self.call_ext_prog("lsmod | grep -q "+tablename)
-        if status == 0:
+        if self.check_ext_prog("grep -q %s /proc/modules" % tablename):
             cmd = "iptables -t "+tablename+" -nvL"
             self.add_cmd_output(cmd)
 
@@ -101,9 +104,9 @@ class Networking(Plugin):
         self.add_cmd_output("ip mroute show")
         self.add_cmd_output("ip maddr show")
         self.add_cmd_output("ip neigh show")
-        ip_link_out=self.call_ext_prog("ip -o link")
-        if ip_link_out:
-            for eth in self.get_eth_interfaces(ip_link_out):
+        ip_link_result=self.call_ext_prog("ip -o link")
+        if ip_link_result['status'] == 0:
+            for eth in self.get_eth_interfaces(ip_link_result['output']):
                 self.add_cmd_output("ethtool "+eth)
                 self.add_cmd_output("ethtool -i "+eth)
                 self.add_cmd_output("ethtool -k "+eth)
@@ -112,10 +115,9 @@ class Networking(Plugin):
                 self.add_cmd_output("ethtool -c "+eth)
                 self.add_cmd_output("ethtool -g "+eth)
 
-        brctl_file=self.add_cmd_output("brctl show")
-        brctl_out=self.call_ext_prog("brctl show")
-        if brctl_out:
-            for br_name in self.get_bridge_name(brctl_out):
+        brctl_file=self.get_cmd_output_now("brctl show")
+        if brctl_file:
+            for br_name in self.get_bridge_name(brctl_file):
                 self.add_cmd_output("brctl showstp "+br_name)
 
         if self.get_option("traceroute"):

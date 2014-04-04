@@ -60,17 +60,17 @@ class PostgreSQL(Plugin):
                 dest_file,
                 self.get_option("dbname")
             )
-        (status, output, rtime) = self.call_ext_prog(cmd)
+        result = self.call_ext_prog(cmd)
         if old_env_pgpassword is not None:
             os.environ["PGPASSWORD"] = str(old_env_pgpassword)
-        if (status == 0):
+        if (result['status'] == 0):
             self.add_copy_spec(dest_file)
         else:
             self.soslog.error(
-                "Unable to execute pg_dump. Error(%s)" % (output)
+                "Unable to execute pg_dump. Error(%s)" % (result['output'])
             )
             self.add_alert(
-                "ERROR: Unable to execute pg_dump.  Error(%s)" % (output)
+                "ERROR: Unable to execute pg_dump. Error(%s)" % (result['output'])
             )
 
     def setup(self):
