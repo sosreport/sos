@@ -35,7 +35,7 @@ class ZipFileArchiveTest(unittest.TestCase):
         self.check_for_file('tests/ziptest')
 
     def test_add_unicode_file(self):
-        self.zf.add_file(u'tests/')
+        self.zf.add_file(six.u('tests/')
         self.zf.close()
 
         self.check_for_file('tests/ziptest')
