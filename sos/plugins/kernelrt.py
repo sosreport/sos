@@ -33,7 +33,8 @@ class KernelRT(Plugin, RedHatPlugin):
         self.add_copy_spec('/sys/kernel/realtime')
         self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/available_clocksource')
         self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/current_clocksource')
-        if self.is_installed('tuna'):
-            self.add_cmd_output('tuna -CP | /usthead -20')
+        # note: rhbz#1059685 'tuna - NameError: global name 'cgroups' is not defined'
+        # this command throws an exception on versions prior to 0.10.4-5.
+        self.add_cmd_output('tuna -CP')
 
 # vim: et ts=4 sw=4
