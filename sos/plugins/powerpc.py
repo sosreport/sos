@@ -38,14 +38,17 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             isPowerNV = False
 
         if ispSeries or isPowerNV:
-            self.add_copy_spec("/proc/device-tree/")
-            self.add_copy_spec("/proc/loadavg")
-            self.add_copy_spec("/proc/locks")
-            self.add_copy_spec("/proc/misc")
-            self.add_copy_spec("/proc/swaps")
-            self.add_copy_spec("/proc/version")
-            self.add_copy_spec("/dev/nvram")
-            self.add_copy_spec("/var/log/platform")
+            self.add_copy_specs([
+                "/proc/device-tree/")
+                "/proc/loadavg",
+                "/proc/locks",
+                "/proc/misc",
+                "/proc/swaps",
+                "/proc/version",
+                "/dev/nvram",
+                "/var/log/platform",
+                "/var/lib/lsvpd/"
+            ])
             self.add_cmd_output("ppc64_cpu --smt")
             self.add_cmd_output("ppc64_cpu --cores-present")
             self.add_cmd_output("ppc64_cpu --cores-on")
@@ -55,12 +58,13 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("lscfg -vp")
             self.add_cmd_output("lsmcode -A")
             self.add_cmd_output("lsvpd --debug")
-            self.add_copy_spec("/var/lib/lsvpd/")
 
         if ispSeries:
-            self.add_copy_spec("/proc/ppc64/lparcfg")
-            self.add_copy_spec("/proc/ppc64/eeh")
-            self.add_copy_spec("/proc/ppc64/systemcfg")
+            self.add_copy_specs([
+                "/proc/ppc64/lparcfg")
+                "/proc/ppc64/eeh",
+                "/proc/ppc64/systemcfg"
+            ])
             self.add_cmd_output("lsvio -des")
             self.add_cmd_output("servicelog --dump")
             self.add_cmd_output("servicelog_notify --list")
@@ -71,8 +75,10 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("lparstat -i")
 
         if isPowerNV:
-            self.add_copy_spec("/proc/ppc64/")
-            self.add_copy_spec("/sys/kernel/debug/powerpc/")
+            self.add_copy_specs([
+                "/proc/ppc64/",
+                "/sys/kernel/debug/powerpc/"
+            ])
             if os.path.isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
 
