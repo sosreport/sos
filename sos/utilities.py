@@ -145,7 +145,7 @@ def sos_get_command_output(command, timeout=300):
     # Required hack while we still pass shell=True to Popen; a Popen
     # call with shell=False for a non-existant binary will raise OSError.
     if p.returncode == 127:
-        stdout = ""
+        stdout = six.binary_type("")
     
     return {'status': p.returncode, 'output': stdout.decode('utf-8')}
 
