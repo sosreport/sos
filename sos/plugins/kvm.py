@@ -23,24 +23,31 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'kvm'
+    debugfs_path = "/sys/kernel/debug"
+
+    _debugfs_cleanup = False
 
     def check_enabled(self):
         return os.access("/sys/module/kvm", os.R_OK)
 
     def setup(self):
-        if not os.path.ismount("/sys/kernel/debug"):
-            self._debugfs_cleanup = True
-            os.popen("mount -t debugfs debugfs /sys/kernel/debug")
-        else:
-            self._debugfs_cleanup = False
         self.add_copy_spec("/sys/module/kvm/srcversion")
         self.add_copy_spec("/sys/module/kvm_intel/srcversion")
         self.add_copy_spec("/sys/module/kvm_amd/srcversion")
         self.add_copy_spec("/sys/module/ksm/srcversion")
+        if not os.path.ismount(debugfs_path):
+            self._debugfs_cleanup = True
+            r = self.call_ext_prog("mount -t debugfs debugfs %s"
+                                    % self.debugfs_path)
+            if r['status'] != 0:
+                self.soslog.error("debugfs not mounted and mount attempt failed")
+                self._debugfs_cleanup = False
+                return
         self.add_cmd_output("kvm_stat --once")
 
     def postproc(self):
-        if self._debugfs_cleanup and os.path.ismount("/sys/kernel/debug"):
-            os.popen("umount /sys/kernel/debug")
+        if self._debugfs_cleanup and os.path.ismount(debugfs_path):
+            r = self.call_ext_prog("umount %s" % self.debugfs_path)
+            self.soslog.error("could not unmount %s" % self.debugfs_path)
 
 # vim: et ts=4 sw=4
