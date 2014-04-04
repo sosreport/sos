@@ -130,25 +130,24 @@ def is_executable(command):
 def sos_get_command_output(command, timeout=300):
     """Execute a command through the system shell. First checks to see if the
     requested command is executable. Returns (returncode, stdout, 0)"""
-    # XXX: what is this doing this for?
-    cmdfile = command.strip("(").split()[0]
-
     cmd_env = os.environ
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C'
-    if is_executable(cmdfile):
+    # use /usr/bin/timeout to implement a timeout
+    if timeout and is_executable("timeout"):
+        command = "timeout %ds %s" % (timeout, command)
 
-        # use /usr/bin/timeout to implement a timeout
-        if timeout and is_executable("/usr/bin/timeout"):
-            command = "/usr/bin/timeout %ds %s" % (timeout, command)
+    p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT,
+              bufsize=-1, env = cmd_env, close_fds = True)
 
-        p = Popen(command, shell=True,
-                stdout=PIPE, stderr=STDOUT,
-                bufsize=-1, env = cmd_env, close_fds = True)
-        stdout, stderr = p.communicate()
-        return (p.returncode, stdout.decode('utf-8'), 0)
-    else:
-        return (127, "", 0)
+    stdout, stderr = p.communicate()
+
+    # Required hack while we still pass shell=True to Popen; a Popen
+    # call with shell=False for a non-existant binary will raise OSError.
+    if p.returncode == 127:
+        stdout = ""
+    
+    return (p.returncode, stdout.decode('utf-8'), 0)
 
 def import_module(module_fqname, superclasses=None):
     """Imports the module module_fqname and returns a list of defined classes
