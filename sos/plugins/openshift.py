@@ -41,7 +41,8 @@ class Openshift(Plugin, RedHatPlugin):
 		    self.add_cmd_output("oo-admin-chk -v")
 		    self.add_cmd_output("mco ping")
 		    self.add_cmd_output("gem list --local")
-		    self.add_cmd_output("cd /var/www/openshift/broker/ && bundle --local")
+		    self.add_cmd_output("bundle --local",
+                                        runat='/var/www/openshift/broker/')
 
 	    if self.option_enabled("node"):
 		    self.add_copy_specs(["/var/log/openshift/node",
