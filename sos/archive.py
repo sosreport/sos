@@ -140,7 +140,10 @@ class FileCacheArchive(Archive):
         f = open(dest, 'w')
         f.write(content)
         if os.path.exists(src):
+            try:
                 shutil.copystat(src, dest)
+            except PermissionError:
+                pass
         self.log.debug("added string at %s to FileCacheArchive %s"
                        % (src, self._archive_root))
 
