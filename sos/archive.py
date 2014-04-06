@@ -118,8 +118,8 @@ class FileCacheArchive(Archive):
         self._check_path(dest)
         try:
             shutil.copy(src, dest)
-        except IOError:
-            self.log.info("caught IO error copying %s" % src)
+        except IOError as e:
+            self.log.debug("caught %s copying %s" % (e, src))
         try:
             shutil.copystat(src, dest)
         except PermissionError:
@@ -129,7 +129,7 @@ class FileCacheArchive(Archive):
             stat = os.stat(src)
             os.chown(dest, stat.st_uid, stat.st_gid)
         except Exception as e:
-            self.log.debug("caught %s setting ownership of %s" % (e,dest))
+            self.log.debug("caught %s setting ownership of %s" % (e, dest))
         self.log.debug("added %s to FileCacheArchive %s" %
                        (src, self._archive_root))
 
