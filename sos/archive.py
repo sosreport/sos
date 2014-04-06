@@ -118,11 +118,18 @@ class FileCacheArchive(Archive):
         self._check_path(dest)
         try:
             shutil.copy(src, dest)
-            shutil.copystat(src, dest)
-            stat = os.stat(src)
-            os.chown(dest, stat.st_uid, stat.st_gid)
         except IOError:
             self.log.info("caught IO error copying %s" % src)
+        try:
+            shutil.copystat(src, dest)
+        except PermissionError:
+            # SELinux xattrs in /proc and /sys throw this
+            pass
+        try:
+            stat = os.stat(src)
+            os.chown(dest, stat.st_uid, stat.st_gid)
+        except Exception as e:
+            self.log.debug("caught %s setting ownership of %s" % (e,dest))
         self.log.debug("added %s to FileCacheArchive %s" %
                        (src, self._archive_root))
 
