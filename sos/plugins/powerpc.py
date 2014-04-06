@@ -39,7 +39,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         if ispSeries or isPowerNV:
             self.add_copy_specs([
-                "/proc/device-tree/")
+                "/proc/device-tree/",
                 "/proc/loadavg",
                 "/proc/locks",
                 "/proc/misc",
@@ -61,7 +61,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         if ispSeries:
             self.add_copy_specs([
-                "/proc/ppc64/lparcfg")
+                "/proc/ppc64/lparcfg",
                 "/proc/ppc64/eeh",
                 "/proc/ppc64/systemcfg"
             ])
