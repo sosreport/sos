@@ -11,7 +11,7 @@ version, to contribute, and for more information, please visit there.
 To access to the public source code repository for this project run:
 
 ```
-git clone git://github.com/sosreport/sosreport.git
+git clone git://github.com/sosreport/sos.git
 ```
 
 ### Contributors please read
@@ -49,4 +49,4 @@ Ubuntu(Saucy 13.10 and above) users install via apt:
 sudo apt-get install sosreport
 ```
 
- [0]: https://github.com/sosreport/sosreport/wiki/Contribution-Guidelines
+ [0]: https://github.com/sosreport/sos/wiki/Contribution-Guidelines

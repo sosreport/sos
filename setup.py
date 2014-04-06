@@ -58,7 +58,7 @@ setup(name='sosreport',
       support technicians and developers.""",
       author='Bryn M. Reeves',
       author_email='bmr@redhat.com',
-      url='https://github.com/sosreport/sosreport',
+      url='https://github.com/sosreport/sos',
       license="GPLv2+",
       scripts=['sosreport'],
       data_files=[

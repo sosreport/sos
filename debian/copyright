@@ -1,7 +1,7 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: sosreport
 Upstream-Contact: Bryn M. Reeves <bmr@redhat.com>
-Source: https://github.com/sosreport/sosreport
+Source: https://github.com/sosreport/sos
 
 Files: *
 Copyright: 2012-2013 Bryn M. Reeves
