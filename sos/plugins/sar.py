@@ -39,7 +39,7 @@ class Sar(Plugin,):
         try:
             dirList = os.listdir(self.sa_path)
         except:
-            self.soslog.warning("sar: could not list %s" % self.sa_path)
+            self.log_warn("sar: could not list %s" % self.sa_path)
             return
         # find all the sa file that don't have an existing sar file
         for fname in dirList:

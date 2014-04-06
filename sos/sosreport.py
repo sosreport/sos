@@ -905,6 +905,7 @@ class SoSReport(object):
     def prework(self):
         try:
             self.policy.pre_work()
+            self.ui_log.info(_(" Setting up archive ..."))
             self._set_archive()
             self._make_archive_paths()
         except Exception as e:
@@ -914,6 +915,7 @@ class SoSReport(object):
             self._exit(0)
 
     def setup(self):
+        self.ui_log.info(_(" Setting up plugins ..."))
         for plugname, plug in self.loaded_plugins:
             try:
                 plug.archive = self.archive
@@ -945,8 +947,14 @@ class SoSReport(object):
         for i in zip(self.loaded_plugins):
             plugruncount += 1
             plugname, plug = i[0]
+            status_line = ("  Running %d/%d: %s...        "
+                           % (plugruncount, len(self.loaded_plugins), plugname))
+            if self.opts.verbosity == 0:
+                status_line = "\r%s" % status_line
+            else:
+                status_line = "%s\n" % status_line
             if not self.opts.quiet:
-                sys.stdout.write("\r  Running %d/%d: %s...        " % (plugruncount, len(self.loaded_plugins), plugname))
+                sys.stdout.write(status_line)
                 sys.stdout.flush()
             try:
                 plug.collect()

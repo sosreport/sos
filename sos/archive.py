@@ -38,9 +38,30 @@ if six.PY3:
 
 class Archive(object):
 
+    @classmethod
+    def archive_type(class_):
+        """Returns the archive class's name as a string.
+        """
+        return class_.__name__
+
     log = logging.getLogger("sos")
 
     _name = "unset"
+
+    def _format_msg(self,msg):
+        return "[archive:%s] %s" % (self.archive_type(), msg)
+
+    def log_error(self, msg):
+        self.log.error(self._format_msg(msg))
+
+    def log_warn(self,msg):
+        self.log.warning(self._format_msg(msg))
+
+    def log_info(self, msg):
+        self.log.info(self._format_msg(msg))
+
+    def log_debug(self, msg):
+        self.log.debug(self._format_msg(msg))
 
     # this is our contract to clients of the Archive class hierarchy.
     # All sub-classes need to implement these methods (or inherit concrete
@@ -96,7 +117,7 @@ class FileCacheArchive(Archive):
         self._tmp_dir = tmpdir
         self._archive_root = os.path.join(tmpdir, name)
         os.makedirs(self._archive_root, 0o700)
-        self.log.debug("initialised empty FileCacheArchive at %s" %
+        self.log_info("initialised empty FileCacheArchive at '%s'" %
                        (self._archive_root,))
 
     def dest_path(self, name):
@@ -119,7 +140,7 @@ class FileCacheArchive(Archive):
         try:
             shutil.copy(src, dest)
         except IOError as e:
-            self.log.debug("caught %s copying %s" % (e, src))
+            self.log_debug("caught '%s' copying '%s'" % (e, src))
         try:
             shutil.copystat(src, dest)
         except PermissionError:
@@ -129,8 +150,8 @@ class FileCacheArchive(Archive):
             stat = os.stat(src)
             os.chown(dest, stat.st_uid, stat.st_gid)
         except Exception as e:
-            self.log.debug("caught %s setting ownership of %s" % (e, dest))
-        self.log.debug("added %s to FileCacheArchive %s" %
+            self.log_debug("caught '%s' setting ownership of '%s'" % (e, dest))
+        self.log_debug("added '%s' to FileCacheArchive '%s'" %
                        (src, self._archive_root))
 
     def add_string(self, content, dest):
@@ -144,7 +165,7 @@ class FileCacheArchive(Archive):
                 shutil.copystat(src, dest)
             except PermissionError:
                 pass
-        self.log.debug("added string at %s to FileCacheArchive %s"
+        self.log_debug("added string at '%s' to FileCacheArchive '%s'"
                        % (src, self._archive_root))
 
     def add_link(self, source, link_name):
@@ -152,7 +173,7 @@ class FileCacheArchive(Archive):
         self._check_path(dest)
         if not os.path.exists(dest):
             os.symlink(source, dest)
-        self.log.debug("added symlink at %s to %s in FileCacheArchive %s"
+        self.log_debug("added symlink at '%s' to '%s' in FileCacheArchive '%s'"
                        % (dest, source, self._archive_root))
 
     def add_dir(self, path):
@@ -169,7 +190,7 @@ class FileCacheArchive(Archive):
 
     def makedirs(self, path, mode=0o700):
         self._makedirs(self.dest_path(path))
-        self.log.debug("created directory at %s in FileCacheArchive %s"
+        self.log_debug("created directory at '%s' in FileCacheArchive '%s'"
                        % (path, self._archive_root))
 
     def open_file(self, path):
@@ -180,10 +201,10 @@ class FileCacheArchive(Archive):
         shutil.rmtree(self._archive_root)
 
     def finalize(self, method):
-        self.log.debug("finalizing archive %s" % self._archive_root)
+        self.log_info("finalizing archive '%s'" % self._archive_root)
         self._build_archive()
         self.cleanup()
-        self.log.debug("built archive at %s (size=%d)" % (self._archive_name,
+        self.log_info("built archive at '%s' (size=%d)" % (self._archive_name,
                        os.stat(self._archive_name).st_size))
         return self._compress()
 
@@ -253,7 +274,6 @@ class TarFileArchive(FileCacheArchive):
             methods = [self.method]
 
         last_error = Exception("compression failed for an unknown reason")
-        log = logging.getLogger('sos')
 
         for cmd in methods:
             suffix = "." + cmd.replace('ip', '')
@@ -269,9 +289,9 @@ class TarFileArchive(FileCacheArchive):
                           close_fds=True)
                 stdout, stderr = p.communicate()
                 if stdout:
-                    log.info(stdout.decode('utf-8'))
+                    self.log_info(stdout.decode('utf-8'))
                 if stderr:
-                    log.error(stderr.decode('utf-8'))
+                    self.log_error(stderr.decode('utf-8'))
                 self._suffix += suffix
                 return self.name()
             except Exception as e:

@@ -93,7 +93,7 @@ class Cluster(Plugin, RedHatPlugin):
                         str(self.get_option('crm_from'))):
                 crm_from = self.get_option('crm_from')
             else:
-                self.soslog.error(
+                self.log_error(
                     "crm_from parameter '%s' is not a valid date: using default"
                             % self.get_option('crm_from'))
 

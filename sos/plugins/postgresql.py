@@ -66,7 +66,7 @@ class PostgreSQL(Plugin):
         if (result['status'] == 0):
             self.add_copy_spec(dest_file)
         else:
-            self.soslog.error(
+            self.log_error(
                 "Unable to execute pg_dump. Error(%s)" % (result['output'])
             )
             self.add_alert(

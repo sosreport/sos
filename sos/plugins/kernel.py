@@ -32,7 +32,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             modules = os.listdir(self.sys_module)
             self.add_cmd_output("modinfo " + " ".join(modules))
         except OSError:
-            self.soslog.warning("could not list %s" % self.sys_module)
+            self.log_warn("could not list %s" % self.sys_module)
 
         self.add_cmd_output("dmesg")
         self.add_cmd_output("sysctl -a")
