@@ -24,22 +24,28 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec("/proc/partitions")
         
-        self.add_cmd_output("lsblk")
-        self.add_cmd_output("blkid -c /dev/null")
-        self.add_cmd_output("ls -lanR /dev")
-        self.add_cmd_output("ls -lanR /sys/block")
+        self.add_cmd_outputs([
+            "lsblk",
+            "blkid -c /dev/null",
+            "ls -lanR /dev",
+            "ls -lanR /sys/block"
+        ])
 
         # legacy location for non-/run distributions
-        self.add_copy_spec("/etc/blkid.tab")
-        self.add_copy_spec("/run/blkid/blkid.tab")
+        self.add_copy_specs([
+            "/etc/blkid.tab",
+            "/run/blkid/blkid.tab"
+        ])
 
         if os.path.isdir("/sys/block"):
             for disk in os.listdir("/sys/block"):
                 if disk in [ ".",  ".." ] or disk.startswith("ram"):
                     continue
                 disk_path = os.path.join('/dev/', disk)
-                self.add_cmd_output("udevadm info -ap /sys/block/%s" % (disk))
-                self.add_cmd_output("parted -s %s print" % (disk_path))
-                self.add_cmd_output("fdisk -l %s" % disk_path)
+                self.add_cmd_outputs([
+                    "udevadm info -ap /sys/block/%s" % (disk),
+                    "parted -s %s print" % (disk_path),
+                    "fdisk -l %s" % disk_path
+                ])
 
 # vim: et ts=4 sw=4

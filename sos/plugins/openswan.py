@@ -31,7 +31,8 @@ class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/ipsec.conf",
-            "/etc/ipsec.d"])
+            "/etc/ipsec.d"
+        ])
         self.add_cmd_output("ipsec verify")
         if self.get_option("ipsec-barf"):
             self.add_cmd_output("ipsec barf")

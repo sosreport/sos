@@ -26,9 +26,11 @@ class Soundcard(Plugin):
 
     def setup(self):
         self.add_copy_spec("/proc/asound/*")
-        self.add_cmd_output("aplay -l")
-        self.add_cmd_output("aplay -L")
-        self.add_cmd_output("amixer")
+        self.add_cmd_outputs([
+            "aplay -l",
+            "aplay -L",
+            "amixer"
+        ])
 
 class RedHatSoundcard(Soundcard, RedHatPlugin):
     """ Sound card information for RedHat distros
@@ -39,7 +41,8 @@ class RedHatSoundcard(Soundcard, RedHatPlugin):
 
         self.add_copy_specs([
             "/etc/alsa/*",
-            "/etc/asound.*"])
+            "/etc/asound.*"
+        ])
 
 class DebianSoundcard(Soundcard, DebianPlugin, UbuntuPlugin):
     """ Sound card information for Debian/Ubuntu distros

@@ -28,13 +28,15 @@ class OpenStackKeystone(Plugin):
                    ("nopw", "dont gathers keystone passwords", "slow", True)]
 
     def setup(self):
-        self.add_copy_specs(["/etc/keystone/default_catalog.templates",
-                            "/etc/keystone/keystone.conf",
-                            "/etc/keystone/logging.conf",
-                            "/etc/keystone/policy.json"])
+        self.add_copy_specs([
+            "/etc/keystone/default_catalog.templates",
+            "/etc/keystone/keystone.conf",
+            "/etc/keystone/logging.conf",
+            "/etc/keystone/policy.json"
+        ])
 
         if self.option_enabled("log"):
-            self.add_copy_specs(["/var/log/keystone/"])
+            self.add_copy_spec("/var/log/keystone/")
 
     def postproc(self):
         self.do_file_sub('/etc/keystone/keystone.conf',
@@ -58,18 +60,22 @@ class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
     """OpenStack Keystone related information for Debian based distributions
     """
 
-    packages = ('keystone',
-                'python-keystone',
-                'python-keystoneclient')
+    packages = (
+        'keystone',
+        'python-keystone',
+        'python-keystoneclient'
+    )
 
 
 class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
     """OpenStack Keystone related information for Red Hat distributions
     """
 
-    packages = ('openstack-keystone',
-                'python-keystone',
-                'python-django-openstack-auth',
-                'python-keystoneclient')
+    packages = (
+        'openstack-keystone',
+        'python-keystone',
+        'python-django-openstack-auth',
+        'python-keystoneclient'
+    )
 
 # vim: et ts=4 sw=4

@@ -22,7 +22,10 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = 'libvirt'
 
     def setup(self):
-        self.add_copy_specs(["/etc/libvirt/", "/var/log/libvirt*"])
+        self.add_copy_specs([
+            "/etc/libvirt/",
+            "/var/log/libvirt*"
+        ])
 
     def postproc(self):
        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):

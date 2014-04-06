@@ -24,9 +24,11 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_specs([
             "/etc/samba",
             "/var/log/samba/*",])
-        self.add_cmd_output("wbinfo --domain='.' -g")
-        self.add_cmd_output("wbinfo --domain='.' -u")
-        self.add_cmd_output("testparm -s -v")
+        self.add_cmd_outputs([
+            "wbinfo --domain='.' -g",
+            "wbinfo --domain='.' -u",
+            "testparm -s -v"
+        ])
 
 
 # vim: et ts=4 sw=4

@@ -21,7 +21,9 @@ class HardwareTestSuite(Plugin, RedHatPlugin):
     plugin_name = 'hardwaretestsuite'
 
     def setup(self):
-        self.add_copy_spec("/etc/httpd/conf.d/hts.conf")
-        self.add_copy_spec("/var/hts")
+        self.add_copy_specs([
+            "/etc/httpd/conf.d/hts.conf",
+            "/var/hts"
+        ])
 
 # vim: et ts=4 sw=4

@@ -23,10 +23,11 @@ class Tuned(Plugin, RedHatPlugin):
     plugin_name = 'tuned'
 
     def setup(self):
-        self.add_cmd_output("tuned-adm list")
-        self.add_cmd_output("tuned-adm active")
-        self.add_cmd_output("tuned-adm recommend")
+        self.add_cmd_outputs([
+            "tuned-adm list",
+            "tuned-adm active",
+            "tuned-adm recommend"
+        ])
         self.add_copy_spec("/var/log/tuned/tuned.log")
-
 
 # vim: et ts=4 sw=4

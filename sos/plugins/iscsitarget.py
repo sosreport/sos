@@ -46,6 +46,6 @@ class DebianIscsiTarget(IscsiTarget, DebianPlugin, UbuntuPlugin):
             "/etc/iet",
             "/etc/sysctl.d/30-iscsitarget.conf",
             "/etc/default/iscsitarget"
-            ])
+        ])
 
 # vim: et ts=4 sw=4

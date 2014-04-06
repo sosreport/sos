@@ -40,18 +40,20 @@ class Cluster(Plugin, RedHatPlugin):
 
     def setup(self):
 
-        self.add_copy_spec("/etc/cluster.conf")
-        self.add_copy_spec("/etc/cluster.xml")
-        self.add_copy_spec("/etc/cluster")
-        self.add_copy_spec("/etc/sysconfig/cluster")
-        self.add_copy_spec("/etc/sysconfig/cman")
-        self.add_copy_spec("/etc/fence_virt.conf")
-        self.add_copy_spec("/var/lib/ricci")
-        self.add_copy_spec("/var/lib/luci/data/luci.db")
-        self.add_copy_spec("/var/lib/luci/etc")
-        self.add_copy_spec("/var/log/cluster")
-        self.add_copy_spec("/var/log/luci")
-        self.add_copy_spec("/etc/fence_virt.conf")
+        self.add_copy_specs([
+            "/etc/cluster.conf",
+            "/etc/cluster.xml",
+            "/etc/cluster",
+            "/etc/sysconfig/cluster",
+            "/etc/sysconfig/cman",
+            "/etc/fence_virt.conf",
+            "/var/lib/ricci",
+            "/var/lib/luci/data/luci.db",
+            "/var/lib/luci/etc",
+            "/var/log/cluster",
+            "/var/log/luci",
+            "/etc/fence_virt.conf"
+        ])
 
         if self.get_option('gfslockdump'):
             self.do_gfslockdump()
@@ -59,31 +61,31 @@ class Cluster(Plugin, RedHatPlugin):
         if self.get_option('lockdump'):
             self.do_lockdump()
 
-        self.add_cmd_output("rg_test test "
-                            + "/etc/cluster/cluster.conf" )
-        self.add_cmd_output("fence_tool ls -n")
-        self.add_cmd_output("gfs_control ls -n")
-        self.add_cmd_output("dlm_tool log_plock")
+        self.add_cmd_outputs([
+            "rg_test test /etc/cluster/cluster.conf",
+            "fence_tool ls -n",
+            "gfs_control ls -n",
+            "dlm_tool log_plock",
+            "clustat",
+            "group_tool dump",
+            "cman_tool services",
+            "cman_tool nodes",
+            "cman_tool status",
+            "ccs_tool lsnode",
+            "ipvsadm -L",
+            "corosync-quorumtool -l",
+            "corosync-quorumtool -s",
+            "corosync-cpgtool",
+            "corosync-objctl",
+            "group_tool ls -g1",
+            "gfs_control ls -n",
+            "gfs_control dump",
+            "fence_tool dump",
+            "dlm_tool dump",
+            "dlm_tool ls -n",
+            "mkqdisk -L"
+        ])
 
-        self.get_cmd_output_now("clustat")
-        self.get_cmd_output_now("group_tool dump")
-        self.add_cmd_output("cman_tool services")
-        self.add_cmd_output("cman_tool nodes")
-        self.add_cmd_output("cman_tool status")
-        self.add_cmd_output("ccs_tool lsnode")
-        self.add_cmd_output("ipvsadm -L")
-
-        self.add_cmd_output("corosync-quorumtool -l")
-        self.add_cmd_output("corosync-quorumtool -s")
-        self.add_cmd_output("corosync-cpgtool")
-        self.add_cmd_output("corosync-objctl")
-        self.add_cmd_output("group_tool ls -g1")
-        self.add_cmd_output("gfs_control ls -n")
-        self.add_cmd_output("gfs_control dump")
-        self.add_cmd_output("fence_tool dump")
-        self.add_cmd_output("dlm_tool dump")
-        self.add_cmd_output("dlm_tool ls -n")
-        self.add_cmd_output("mkqdisk -L")
         # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
         # time in order to collect data.
         crm_from = (datetime.today()

@@ -33,7 +33,9 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/sys/class/scsi_generic"
         ])
         
-        self.add_cmd_output("lsscsi")
-        self.add_cmd_output("sg_map")
+        self.add_cmd_outputs([
+            "lsscsi",
+            "sg_map"
+        ])
 
 # vim: et ts=4 sw=4

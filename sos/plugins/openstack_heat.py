@@ -28,9 +28,12 @@ class OpenStackHeat(plugins.Plugin):
         # Heat
         self.add_cmd_output(
             "heat-manage db_version",
-            suggest_filename="heat_db_version")
-        self.add_copy_specs(["/etc/heat/",
-                             "/var/log/heat/"])
+            suggest_filename="heat_db_version"
+        )
+        self.add_copy_specs([
+            "/etc/heat/",
+            "/var/log/heat/"
+        ])
 
 
 class DebianOpenStack(OpenStackHeat,
@@ -38,24 +41,28 @@ class DebianOpenStack(OpenStackHeat,
                       plugins.UbuntuPlugin):
     """OpenStackHeat related information for Debian based distributions."""
 
-    packages = ('heat-api',
-                'heat-api-cfn',
-                'heat-api-cloudwatch',
-                'heat-common',
-                'heat-engine',
-                'python-heat',
-                'python-heatclient')
+    packages = (
+        'heat-api',
+        'heat-api-cfn',
+        'heat-api-cloudwatch',
+        'heat-common',
+        'heat-engine',
+        'python-heat',
+        'python-heatclient'
+    )
 
 
 class RedHatOpenStack(OpenStackHeat, plugins.RedHatPlugin):
     """OpenStackHeat related information for Red Hat distributions."""
 
-    packages = ('openstack-heat-api',
-                'openstack-heat-api-cfn',
-                'openstack-heat-api-cloudwatch',
-                'openstack-heat-cli',
-                'openstack-heat-common',
-                'openstack-heat-engine',
-                'python-heatclient')
+    packages = (
+        'openstack-heat-api',
+        'openstack-heat-api-cfn',
+        'openstack-heat-api-cloudwatch',
+        'openstack-heat-cli',
+        'openstack-heat-common',
+        'openstack-heat-engine',
+        'python-heatclient'
+    )
 
 # vim: et ts=4 sw=4

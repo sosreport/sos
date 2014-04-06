@@ -46,8 +46,10 @@ class NfsServer(Plugin, RedHatPlugin):
             "/var/lib/nfs/etab",
             "/var/lib/nfs/xtab",
             "/var/lib/nfs/rmtab"])
-        self.add_cmd_output("rpcinfo -p localhost")
-        self.add_cmd_output("nfsstat -o all")
+        self.add_cmd_outputs([
+            "rpcinfo -p localhost",
+            "nfsstat -o all"
+        ])
 
 
 # vim: et ts=4 sw=4

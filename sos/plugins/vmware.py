@@ -24,8 +24,10 @@ class VMWare(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output("vmware -v")
-        self.add_copy_specs(["/etc/vmware/locations",
-                           "/etc/vmware/config",
-                           "/proc/vmmemctl"])
+        self.add_copy_specs([
+            "/etc/vmware/locations",
+            "/etc/vmware/config",
+            "/proc/vmmemctl"
+        ])
 
 # vim: et ts=4 sw=4

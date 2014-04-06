@@ -27,8 +27,10 @@ class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     files = ('/var/yp',)
 
     def setup(self):
-        self.add_copy_spec("/etc/yp*.conf")
-        self.add_copy_spec("/var/yp/*")
+        self.add_copy_specs([
+            "/etc/yp*.conf",
+            "/var/yp/*"
+        ])
         self.add_cmd_output("domainname")
 
 # vim: et ts=4 sw=4

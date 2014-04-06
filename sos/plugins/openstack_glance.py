@@ -29,9 +29,12 @@ class OpenStackGlance(plugins.Plugin):
         # Glance
         self.add_cmd_output(
             "glance-manage db_version",
-            suggest_filename="glance_db_version")
-        self.add_copy_specs(["/etc/glance/",
-                             "/var/log/glance/"])
+            suggest_filename="glance_db_version"
+        )
+        self.add_copy_specs([
+            "/etc/glance/",
+            "/var/log/glance/"
+        ])
 
 
 class DebianOpenStackGlance(OpenStackGlance,
@@ -39,18 +42,22 @@ class DebianOpenStackGlance(OpenStackGlance,
                             plugins.UbuntuPlugin):
     """OpenStackGlance related information for Debian based distributions."""
 
-    packages = ('glance',
-                'glance-api',
-                'glance-client',
-                'glance-common',
-                'glance-registry',
-                'python-glance')
+    packages = (
+        'glance',
+        'glance-api',
+        'glance-client',
+        'glance-common',
+        'glance-registry',
+        'python-glance'
+    )
 
 
 class RedHatOpenStackGlance(OpenStackGlance, plugins.RedHatPlugin):
     """OpenStackGlance related information for Red Hat distributions."""
 
-    packages = ('openstack-glance',
-                'python-glanceclient')
+    packages = (
+        'openstack-glance',
+        'python-glanceclient'
+    )
 
 # vim: et ts=4 sw=4

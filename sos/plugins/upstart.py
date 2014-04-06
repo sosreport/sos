@@ -24,14 +24,18 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('upstart',)
 
     def setup(self):
-        self.add_cmd_output('initctl --system list')
-        self.add_cmd_output('initctl --system version')
-        self.add_cmd_output('init --version')
-        self.add_cmd_output("ls -l /etc/init/")
+        self.add_cmd_outputs([
+            'initctl --system list',
+            'initctl --system version',
+            'init --version',
+            "ls -l /etc/init/"
+        ])
 
         # Job Configuration Files
-        self.add_copy_spec('/etc/init.conf')
-        self.add_copy_spec('/etc/init/')
+        self.add_copy_specs([
+            '/etc/init.conf',
+            '/etc/init/'
+        ])
 
         # State file
         self.add_copy_spec('/var/log/upstart/upstart.state')

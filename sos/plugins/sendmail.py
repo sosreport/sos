@@ -35,7 +35,10 @@ class RedHatSendmail(Sendmail, RedHatPlugin):
 
     def setup(self):
         super(RedHatSendmail, self).setup()
-        self.add_copy_specs(["/etc/mail/*", "/var/log/maillog"])
+        self.add_copy_specs([
+            "/etc/mail/*",
+            "/var/log/maillog"
+        ])
 
 class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
     """sendmail information for Debian based distributions
@@ -46,6 +49,9 @@ class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianSendmail, self).setup()
-        self.add_copy_specs(["/etc/mail/*", "/var/log/mail.*"])
+        self.add_copy_specs([
+            "/etc/mail/*",
+            "/var/log/mail.*"
+        ])
 
 # vim: et ts=4 sw=4

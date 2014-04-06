@@ -23,6 +23,9 @@ class Tomcat(Plugin, RedHatPlugin):
     packages = ('tomcat5',)
 
     def setup(self):
-        self.add_copy_specs(["/etc/tomcat5", "/var/log/tomcat5"])
+        self.add_copy_specs([
+            "/etc/tomcat5",
+            "/var/log/tomcat5"
+        ])
 
 # vim: et ts=4 sw=4

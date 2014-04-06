@@ -29,48 +29,54 @@ class OpenStackHorizon(Plugin):
     option_list = [("log", "gathers openstack horizon logs", "slow", True)]
 
     def setup(self):
-        self.add_copy_specs(["/etc/openstack-dashboard/"])
+        self.add_copy_spec("/etc/openstack-dashboard/")
         if self.option_enabled("log"):
-            self.add_copy_specs(["/var/log/horizon/"])
+            self.add_copy_spec("/var/log/horizon/")
 
 
 class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
     """OpenStack Horizon related information for Debian based distributions
     """
 
-    packages = ('python-django-horizon',
-                'openstack-dashboard',
-                'openstack-dashboard-apache')
+    packages = (
+        'python-django-horizon',
+        'openstack-dashboard',
+        'openstack-dashboard-apache'
+    )
 
     def setup(self):
         super(DebianOpenStackHorizon, self).setup()
-        self.add_copy_specs(["/etc/apache2/sites-available/"])
+        self.add_copy_spec("/etc/apache2/sites-available/")
 
 
 class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
     """OpenStack Horizon related information for Ubuntu based distributions
     """
 
-    packages = ('python-django-horizon',
-                'openstack-dashboard',
-                'openstack-dashboard-ubuntu-theme')
+    packages = (
+        'python-django-horizon',
+        'openstack-dashboard',
+        'openstack-dashboard-ubuntu-theme'
+    )
 
     def setup(self):
         super(UbuntuOpenStackHorizon, self).setup()
-        self.add_copy_specs(["/etc/apache2/conf.d/openstack-dashboard.conf"])
+        self.add_copy_spec("/etc/apache2/conf.d/openstack-dashboard.conf")
 
 
 class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
     """OpenStack Horizon related information for Red Hat distributions
     """
 
-    packages = ('python-django-horizon',
-                'openstack-dashboard')
+    packages = (
+        'python-django-horizon',
+        'openstack-dashboard'
+    )
 
     def setup(self):
         super(RedHatOpenStackHorizon, self).setup()
-        self.add_copy_specs(["/etc/httpd/conf.d/openstack-dashboard.conf"])
+        self.add_copy_spec("/etc/httpd/conf.d/openstack-dashboard.conf")
         if self.option_enabled("log"):
-            self.add_copy_specs(["/var/log/httpd/"])
+            self.add_copy_spec("/var/log/httpd/")
 
 # vim: et ts=4 sw=4

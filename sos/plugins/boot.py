@@ -34,8 +34,10 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/yaboot.conf",
             "/boot/yaboot.conf"
         ])
-        self.add_cmd_output("ls -lanR /boot")
-        self.add_cmd_output("lsinitrd")
+        self.add_cmd_outputs([
+            "ls -lanR /boot",
+            "lsinitrd"
+        ])
         if self.get_option("all-images"):
             for image in glob('/boot/initr*.img'):
                 if image[-9:] == "kdump.img":

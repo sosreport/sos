@@ -27,8 +27,10 @@ class Named(Plugin):
     def setup(self):
         for cfg in self.config_files:
             if exists(cfg):
-                self.add_copy_spec(cfg)
-                self.add_copy_spec(self.get_dns_dir(cfg))
+                self.add_copy_specs([
+                    cfg,
+                    self.get_dns_dir(cfg)
+                ])
                 self.add_forbidden_path(join(self.get_dns_dir(cfg),
                                         "chroot/dev"))
                 self.add_forbidden_path(join(self.get_dns_dir(cfg),

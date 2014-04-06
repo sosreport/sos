@@ -24,6 +24,7 @@ class MrgMessg(Plugin, RedHatPlugin):
         self.add_copy_specs([
             "/etc/qpidd.conf",
             "/etc/sasl2/qpidd.conf",
-            "/var/rhm"])
+            "/var/rhm"
+        ])
 
 # vim: et ts=4 sw=4

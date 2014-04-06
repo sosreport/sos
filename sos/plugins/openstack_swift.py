@@ -32,25 +32,29 @@ class OpenStackSwift(plugins.Plugin):
 class DebianOpenStackSwift(OpenStackSwift, plugins.DebianPlugin, plugins.UbuntuPlugin):
     """OpenStackSwift related information for Debian based distributions."""
 
-    packages = ('swift',
-                'swift-account',
-                'swift-container',
-                'swift-object',
-                'swift-proxy',
-                'swauth',
-                'python-swift',
-                'python-swauth')
+    packages = (
+        'swift',
+        'swift-account',
+        'swift-container',
+        'swift-object',
+        'swift-proxy',
+        'swauth',
+        'python-swift',
+        'python-swauth'
+    )
 
 
 class RedHatOpenStackSwift(OpenStackSwift, plugins.RedHatPlugin):
     """OpenStackSwift related information for Red Hat distributions."""
 
-    packages = ('openstack-swift',
-                'openstack-swift-account',
-                'openstack-swift-container',
-                'openstack-swift-object',
-                'openstack-swift-proxy',
-                'swift',
-                'python-swiftclient')
+    packages = (
+        'openstack-swift',
+        'openstack-swift-account',
+        'openstack-swift-container',
+        'openstack-swift-object',
+        'openstack-swift-proxy',
+        'swift',
+        'python-swiftclient'
+    )
 
 # vim: et ts=4 sw=4

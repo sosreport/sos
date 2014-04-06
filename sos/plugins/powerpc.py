@@ -49,15 +49,17 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/var/log/platform",
                 "/var/lib/lsvpd/"
             ])
-            self.add_cmd_output("ppc64_cpu --smt")
-            self.add_cmd_output("ppc64_cpu --cores-present")
-            self.add_cmd_output("ppc64_cpu --cores-on")
-            self.add_cmd_output("ppc64_cpu --run-mode")
-            self.add_cmd_output("ppc64_cpu --frequency")
-            self.add_cmd_output("ppc64_cpu --dscr")
-            self.add_cmd_output("lscfg -vp")
-            self.add_cmd_output("lsmcode -A")
-            self.add_cmd_output("lsvpd --debug")
+            self.add_cmd_outputs([
+                "ppc64_cpu --smt",
+                "ppc64_cpu --cores-present",
+                "ppc64_cpu --cores-on",
+                "ppc64_cpu --run-mode",
+                "ppc64_cpu --frequency",
+                "ppc64_cpu --dscr",
+                "lscfg -vp",
+                "lsmcode -A",
+                "lsvpd --debug"
+            ])
 
         if ispSeries:
             self.add_copy_specs([
@@ -65,14 +67,16 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/proc/ppc64/eeh",
                 "/proc/ppc64/systemcfg"
             ])
-            self.add_cmd_output("lsvio -des")
-            self.add_cmd_output("servicelog --dump")
-            self.add_cmd_output("servicelog_notify --list")
-            self.add_cmd_output("usysattn")
-            self.add_cmd_output("usysident")
-            self.add_cmd_output("serv_config -l")
-            self.add_cmd_output("bootlist -m both -r")
-            self.add_cmd_output("lparstat -i")
+            self.add_cmd_outputs([
+                "lsvio -des",
+                "servicelog --dump",
+                "servicelog_notify --list",
+                "usysattn",
+                "usysident",
+                "serv_config -l",
+                "bootlist -m both -r",
+                "lparstat -i"
+            ])
 
         if isPowerNV:
             self.add_copy_specs([

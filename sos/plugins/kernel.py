@@ -34,8 +34,11 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         except OSError:
             self.log_warn("could not list %s" % self.sys_module)
 
-        self.add_cmd_output("dmesg")
-        self.add_cmd_output("sysctl -a")
+        self.add_cmd_outputs([
+            "dmesg",
+            "sysctl -a",
+            "dkms status"
+        ])
 
         self.add_copy_specs([
             "/proc/modules",
@@ -64,7 +67,5 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/lock*",
             "/var/log/dmesg"
         ])
-
-        self.add_cmd_output("dkms status")
 
 # vim: et ts=4 sw=4

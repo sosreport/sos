@@ -140,13 +140,12 @@ class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianPostgreSQL, self).setup()
 
-        # Copy PostgreSQL log files.
-        self.add_copy_spec("/var/log/postgresql/*.log")
-        # Copy PostgreSQL config files.
-        self.add_copy_spec("/etc/postgresql/*/main/*.conf")
-
-        self.add_copy_spec("/var/lib/postgresql/*/main/PG_VERSION")
-        self.add_copy_spec("/var/lib/postgresql/*/main/postmaster.opts")
+        self.add_copy_specs([
+            "/var/log/postgresql/*.log",
+            "/etc/postgresql/*/main/*.conf",
+            "/var/lib/postgresql/*/main/PG_VERSION",
+            "/var/lib/postgresql/*/main/postmaster.opts"
+        ])
 
 
 # vim: et ts=4 sw=4

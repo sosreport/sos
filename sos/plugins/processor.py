@@ -31,10 +31,12 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/sys/devices/system/cpu"
         ])
         
-        self.add_cmd_output("lscpu")
-        self.add_cmd_output("cpupower info")
-        self.add_cmd_output("cpupower idle-info")
-        self.add_cmd_output("cpupower frequency-info")
+        self.add_cmd_outputs([
+            "lscpu",
+            "cpupower info",
+            "cpupower idle-info",
+            "cpupower frequency-info"
+        ])
 
         if '86' in self.policy().get_arch():
             self.add_cmd_output("x86info -a")

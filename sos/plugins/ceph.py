@@ -28,16 +28,20 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
                 'ceph-fs-common')
 
     def setup(self):
-        self.add_copy_specs(["/etc/ceph/",
-                           "/var/log/ceph/"])
+        self.add_copy_specs([
+            "/etc/ceph/",
+            "/var/log/ceph/"
+        ])
 
-        self.add_cmd_output("ceph status")
-        self.add_cmd_output("ceph health")
-        self.add_cmd_output("ceph osd tree")
-        self.add_cmd_output("ceph osd stat")
-        self.add_cmd_output("ceph osd dump")
-        self.add_cmd_output("ceph mon stat")
-        self.add_cmd_output("ceph mon dump")
+        self.add_cmd_outputs([
+            "ceph status",
+            "ceph health",
+            "ceph osd tree",
+            "ceph osd stat",
+            "ceph osd dump",
+            "ceph mon stat",
+            "ceph mon dump"
+        ])
 
         self.add_forbidden_path("/etc/ceph/*keyring")
         self.add_forbidden_path("/var/lib/ceph/*/*keyring")

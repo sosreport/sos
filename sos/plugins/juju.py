@@ -26,7 +26,9 @@ class Juju(Plugin, UbuntuPlugin):
         self.add_copy_specs(["/var/log/juju",
                            "/var/lib/juju"])
 
-        self.add_cmd_output("juju -v status")
-        self.add_cmd_output("juju -v get-constraints")
+        self.add_cmd_outputs([
+            "juju -v status",
+            "juju -v get-constraints"
+        ])
 
 # vim: et ts=4 sw=4

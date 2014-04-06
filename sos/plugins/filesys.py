@@ -37,8 +37,10 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_cmd_output("mount -l", root_symlink = "mount")
         self.add_cmd_output("df -al", root_symlink = "df")
-        self.add_cmd_output("df -ali")
-        self.add_cmd_output("findmnt")
+        self.add_cmd_outputs([
+            "df -ali",
+            "findmnt"
+        ])
 
         if self.get_option('lsof'):
             self.add_cmd_output("lsof -b +M -n -l -P", root_symlink = "lsof")

@@ -464,6 +464,12 @@ class Plugin(object):
         """
         return (self.call_ext_prog(prog)['status'] == 0)
 
+    def add_cmd_outputs(self, cmds, timeout=300, runat=None):
+        """Run a list of programs and collect the output"""
+        if isinstance(cmds, six.string_types):
+            raise TypeError("Plugin.add_cmd_outputs called with string argument")
+        for cmd in cmds:
+            self.add_cmd_output(cmd, timeout, runat)
 
     def add_cmd_output(
             self, exe,

@@ -22,8 +22,10 @@ class Pam(Plugin):
     security_libs = ""
 
     def setup(self):
-        self.add_copy_spec("/etc/pam.d")
-        self.add_copy_spec("/etc/security")
+        self.add_copy_specs([
+            "/etc/pam.d",
+            "/etc/security"
+        ])
         self.add_cmd_output("ls -lanF %s" % self.security_libs)
 
 class RedHatPam(Pam, RedHatPlugin):

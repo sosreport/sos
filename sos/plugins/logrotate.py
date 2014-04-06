@@ -25,6 +25,7 @@ class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                               suggest_filename = "logrotate_debug")
         self.add_copy_specs([
             "/etc/logrotate*",
-            "/var/lib/logrotate.status"])
+            "/var/lib/logrotate.status"
+        ])
 
 # vim: et ts=4 sw=4

@@ -27,12 +27,14 @@ class KernelRT(Plugin, RedHatPlugin):
     files = ('/sys/kernel/realtime',)
 
     def setup(self):
-        self.add_copy_spec('/etc/rtgroups')
-        self.add_copy_spec('/proc/sys/kernel/sched_rt_period_us')
-        self.add_copy_spec('/proc/sys/kernel/sched_rt_runtime_us')
-        self.add_copy_spec('/sys/kernel/realtime')
-        self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/available_clocksource')
-        self.add_copy_spec('/sys/devices/system/clocksource/clocksource0/current_clocksource')
+        self.add_copy_specs([
+            '/etc/rtgroups',
+            '/proc/sys/kernel/sched_rt_period_us',
+            '/proc/sys/kernel/sched_rt_runtime_us',
+            '/sys/kernel/realtime',
+            '/sys/devices/system/clocksource/clocksource0/available_clocksource',
+            '/sys/devices/system/clocksource/clocksource0/current_clocksource'
+        ])
         # note: rhbz#1059685 'tuna - NameError: global name 'cgroups' is not defined'
         # this command throws an exception on versions prior to 0.10.4-5.
         self.add_cmd_output('tuna -CP')

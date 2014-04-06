@@ -25,14 +25,17 @@ class Corosync(Plugin):
         self.add_copy_specs([
             "/etc/corosync",
             "/var/lib/corosync/fdata",
-            "/var/log/cluster/corosync.log"])
-        self.add_cmd_output("corosync-quorumtool -l")
-        self.add_cmd_output("corosync-quorumtool -s")
-        self.add_cmd_output("corosync-cpgtool")
-        self.add_cmd_output("corosync-objctl -a")
-        self.add_cmd_output("corosync-fplay")
-        self.add_cmd_output("corosync-objctl -w runtime.blackbox.dump_state=$(date +\%s)")
-        self.add_cmd_output("corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)")
+            "/var/log/cluster/corosync.log"
+        ])
+        self.add_cmd_outputs([
+            "corosync-quorumtool -l",
+            "corosync-quorumtool -s",
+            "corosync-cpgtool",
+            "corosync-objctl -a",
+            "corosync-fplay",
+            "corosync-objctl -w runtime.blackbox.dump_state=$(date +\%s)",
+            "corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)"
+        ])
         self.call_ext_prog("killall -USR2 corosync")
 
 class RedHatCorosync(Corosync, RedHatPlugin):

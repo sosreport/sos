@@ -21,7 +21,9 @@ class MrgGrid(Plugin, RedHatPlugin):
     plugin_name = 'mrggrid'
 
     def setup(self):
-        self.add_copy_spec("/etc/condor/condor_config")
-        self.add_copy_spec("condor_status")
+        self.add_copy_specs([
+            "/etc/condor/condor_config",
+            "condor_status"
+        ])
 
 # vim: et ts=4 sw=4

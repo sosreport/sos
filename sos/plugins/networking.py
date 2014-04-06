@@ -83,7 +83,8 @@ class Networking(Plugin):
             "/etc/NetworkManager/NetworkManager.conf",
             "/etc/NetworkManager/system-connections",
             "/etc/dnsmasq*",
-            "/sys/class/net/*/flags"])
+            "/sys/class/net/*/flags"
+        ])
         self.add_forbidden_path("/proc/net/rpc/use-gss-proxy")
         self.add_forbidden_path("/proc/net/rpc/*/channel")
         self.add_forbidden_path("/proc/net/rpc/*/flush")
@@ -93,27 +94,31 @@ class Networking(Plugin):
         self.collect_iptable("filter")
         self.collect_iptable("nat")
         self.collect_iptable("mangle")
-        self.add_cmd_output("netstat -s")
-        self.add_cmd_output("netstat -agn")
         self.add_cmd_output("netstat -neopa", root_symlink = "netstat")
-        self.add_cmd_output("ip route show table all")
-        self.add_cmd_output("ip -6 route show table all")
-        self.add_cmd_output("ip link")
-        self.add_cmd_output("ip address")
-        self.add_cmd_output("ifenslave -a")
-        self.add_cmd_output("ip mroute show")
-        self.add_cmd_output("ip maddr show")
-        self.add_cmd_output("ip neigh show")
+        self.add_cmd_outputs([
+            "netstat -s",
+            "netstat -agn",
+            "ip route show table all",
+            "ip -6 route show table all",
+            "ip link",
+            "ip address",
+            "ifenslave -a",
+            "ip mroute show",
+            "ip maddr show",
+            "ip neigh show"
+        ])
         ip_link_result=self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
             for eth in self.get_eth_interfaces(ip_link_result['output']):
-                self.add_cmd_output("ethtool "+eth)
-                self.add_cmd_output("ethtool -i "+eth)
-                self.add_cmd_output("ethtool -k "+eth)
-                self.add_cmd_output("ethtool -S "+eth)
-                self.add_cmd_output("ethtool -a "+eth)
-                self.add_cmd_output("ethtool -c "+eth)
-                self.add_cmd_output("ethtool -g "+eth)
+                self.add_cmd_outputs([
+                    "ethtool "+eth,
+                    "ethtool -i "+eth,
+                    "ethtool -k "+eth,
+                    "ethtool -S "+eth,
+                    "ethtool -a "+eth,
+                    "ethtool -c "+eth,
+                    "ethtool -g "+eth
+                ])
 
         brctl_file=self.get_cmd_output_now("brctl show")
         if brctl_file:
@@ -150,9 +155,12 @@ class UbuntuNetworking(Networking, UbuntuPlugin):
             "/etc/network/interfaces",
             "/etc/ufw",
             "/var/log/ufw.Log",
-            "/etc/resolv.conf"])
-        self.add_cmd_output("/usr/sbin/ufw status")
-        self.add_cmd_output("/usr/sbin/ufw app list")
+            "/etc/resolv.conf"
+        ])
+        self.add_cmd_outputs([
+            "/usr/sbin/ufw status",
+            "/usr/sbin/ufw app list"
+        ])
         if self.get_option("traceroute"):
             self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host)
 

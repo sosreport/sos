@@ -28,20 +28,24 @@ class SELinux(Plugin, RedHatPlugin):
     def setup(self):
         # sestatus is always collected in check_enabled()
         self.add_copy_spec("/etc/selinux")
-        self.add_cmd_output("sestatus -b")
-        self.add_cmd_output("semodule -l")
-        self.add_cmd_output("selinuxdefcon root")
-        self.add_cmd_output("selinuxconlist root")
-        self.add_cmd_output("selinuxexeccon /bin/passwd")
-        self.add_cmd_output("ausearch -m avc,user_avc -ts today")
-        self.add_cmd_output("semanage -o -")
+        self.add_cmd_outputs([
+            "sestatus -b",
+            "semodule -l",
+            "selinuxdefcon root",
+            "selinuxconlist root",
+            "selinuxexeccon /bin/passwd",
+            "ausearch -m avc,user_avc -ts today",
+            "semanage -o -"
+        ])
         if self.get_option('fixfiles'):
             self.add_cmd_output("fixfiles -v check")
         if self.get_option('list'):
-            self.add_cmd_output("semanage fcontext -l")
-            self.add_cmd_output("semanage user -l")
-            self.add_cmd_output("semanage login -l")
-            self.add_cmd_output("semanage port -l")
+            self.add_cmd_outputs([
+                "semanage fcontext -l",
+                "semanage user -l",
+                "semanage login -l",
+                "semanage port -l"
+            ])
 
 
 # vim: et ts=4 sw=4

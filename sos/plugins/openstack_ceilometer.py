@@ -27,29 +27,36 @@ class OpenStackCeilometer(plugins.Plugin):
 
     def setup(self):
         # Ceilometer
-        self.add_copy_spec("/etc/ceilometer/", "/var/log/ceilometer")
+        self.add_copy_specs([
+            "/etc/ceilometer/",
+            "/var/log/ceilometer"
+        ])
 
 class DebianOpenStackCeilometer(OpenStackCeilometer, plugins.DebianPlugin, plugins.UbuntuPlugin):
     """OpenStackCeilometer related information for Debian based distributions."""
 
-    packages = ('ceilometer-api',
-                'ceilometer-agent-central',
-                'ceilometer-agent-compute',
-                'ceilometer-collector',
-                'ceilometer-common',
-                'python-ceilometer',
-                'python-ceilometerclient')
+    packages = (
+        'ceilometer-api',
+        'ceilometer-agent-central',
+        'ceilometer-agent-compute',
+        'ceilometer-collector',
+        'ceilometer-common',
+        'python-ceilometer',
+        'python-ceilometerclient'
+    )
 
 
 class RedHatOpenStackCeilometer(OpenStackCeilometer, plugins.RedHatPlugin):
     """OpenStackCeilometer related information for Red Hat distributions."""
 
-    packages = ('openstack-ceilometer',
-                'openstack-ceilometer-api',
-                'openstack-ceilometer-central',
-                'openstack-ceilometer-collector',
-                'openstack-ceilometer-common',
-                'openstack-ceilometer-compute',
-                'python-ceilometerclient')
+    packages = (
+        'openstack-ceilometer',
+        'openstack-ceilometer-api',
+        'openstack-ceilometer-central',
+        'openstack-ceilometer-collector',
+        'openstack-ceilometer-common',
+        'openstack-ceilometer-compute',
+        'python-ceilometerclient'
+    )
 
 # vim: et ts=4 sw=4

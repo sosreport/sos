@@ -56,13 +56,15 @@ class Emc(Plugin, RedHatPlugin):
     def get_pp_config(self):
         """ EMC PowerPath specific information - commands
         """
-        self.add_cmd_output("powermt display")
-        self.add_cmd_output("powermt display dev=all")
-        self.add_cmd_output("powermt check_registration")
-        self.add_cmd_output("powermt display options")
-        self.add_cmd_output("powermt display ports")
-        self.add_cmd_output("powermt display paths")
-        self.add_cmd_output("powermt dump")
+        self.add_cmd_outputs([
+            "powermt display",
+            "powermt display dev=all",
+            "powermt check_registration",
+            "powermt display options",
+            "powermt display ports",
+            "powermt display paths",
+            "powermt dump"
+        ])
 
     def get_symcli_files(self):
         """ EMC Solutions Enabler SYMCLI specific information - files
@@ -75,51 +77,53 @@ class Emc(Plugin, RedHatPlugin):
     def get_symcli_config(self):
         """ EMC Solutions Enabler SYMCLI specific information - Symmetrix/DMX - commands
         """
-        self.add_cmd_output("symclisymcli -def")
-        self.add_cmd_output("symclisymdg list")
-        self.add_cmd_output("symclisymdg -v list")
-        self.add_cmd_output("symclisymcg list")
-        self.add_cmd_output("symclisymcg -v list")
-        self.add_cmd_output("symclisymcfg list")
-        self.add_cmd_output("symclisymcfg -v list")
-        self.add_cmd_output("symclisymcfg -db")
-        self.add_cmd_output("symclisymcfg -semaphores list")
-        self.add_cmd_output("symclisymcfg -dir all -v list")
-        self.add_cmd_output("symclisymcfg -connections list")
-        self.add_cmd_output("symclisymcfg -app -v list")
-        self.add_cmd_output("symclisymcfg -fa all -port list")
-        self.add_cmd_output("symclisymcfg -ra all -port list")
-        self.add_cmd_output("symclisymcfg -sa all -port list")
-        self.add_cmd_output("symclisymcfg list -lock")
-        self.add_cmd_output("symclisymcfg list -lockn all")
-        self.add_cmd_output("symclisyminq")
-        self.add_cmd_output("symclisyminq -v")
-        self.add_cmd_output("symclisyminq -symmids")
-        self.add_cmd_output("symclisyminq hba -fibre")
-        self.add_cmd_output("symclisyminq hba -scsi")
-        self.add_cmd_output("symclisymhost show -config")
-        self.add_cmd_output("symclistordaemon list")
-        self.add_cmd_output("symclistordaemon -v list")
-        self.add_cmd_output("symclisympd list")
-        self.add_cmd_output("symclisympd list -vcm")
-        self.add_cmd_output("symclisymdev list")
-        self.add_cmd_output("symclisymdev -v list")
-        self.add_cmd_output("symclisymdev -rdfa list")
-        self.add_cmd_output("symclisymdev -rdfa -v list")
-        self.add_cmd_output("symclisymbcv list")
-        self.add_cmd_output("symclisymbcv -v list")
-        self.add_cmd_output("symclisymrdf list")
-        self.add_cmd_output("symclisymrdf -v list")
-        self.add_cmd_output("symclisymrdf -rdfa list")
-        self.add_cmd_output("symclisymrdf -rdfa -v list")
-        self.add_cmd_output("symclisymsnap list")
-        self.add_cmd_output("symclisymsnap list -savedevs")
-        self.add_cmd_output("symclisymclone list")
-        self.add_cmd_output("symclisymevent list")
-        self.add_cmd_output("symclisymmask list hba")
-        self.add_cmd_output("symclisymmask list logins")
-        self.add_cmd_output("symclisymmaskdb list database")
-        self.add_cmd_output("symclisymmaskdb -v list database")
+        self.add_cmd_outputs([
+            "symclisymcli -def",
+            "symclisymdg list",
+            "symclisymdg -v list",
+            "symclisymcg list",
+            "symclisymcg -v list",
+            "symclisymcfg list",
+            "symclisymcfg -v list",
+            "symclisymcfg -db",
+            "symclisymcfg -semaphores list",
+            "symclisymcfg -dir all -v list",
+            "symclisymcfg -connections list",
+            "symclisymcfg -app -v list",
+            "symclisymcfg -fa all -port list",
+            "symclisymcfg -ra all -port list",
+            "symclisymcfg -sa all -port list",
+            "symclisymcfg list -lock",
+            "symclisymcfg list -lockn all",
+            "symclisyminq",
+            "symclisyminq -v",
+            "symclisyminq -symmids",
+            "symclisyminq hba -fibre",
+            "symclisyminq hba -scsi",
+            "symclisymhost show -config",
+            "symclistordaemon list",
+            "symclistordaemon -v list",
+            "symclisympd list",
+            "symclisympd list -vcm",
+            "symclisymdev list",
+            "symclisymdev -v list",
+            "symclisymdev -rdfa list",
+            "symclisymdev -rdfa -v list",
+            "symclisymbcv list",
+            "symclisymbcv -v list",
+            "symclisymrdf list",
+            "symclisymrdf -v list",
+            "symclisymrdf -rdfa list",
+            "symclisymrdf -rdfa -v list",
+            "symclisymsnap list",
+            "symclisymsnap list -savedevs",
+            "symclisymclone list",
+            "symclisymevent list",
+            "symclisymmask list hba",
+            "symclisymmask list logins",
+            "symclisymmaskdb list database",
+            "symclisymmaskdb -v list database"
+        ])
 
     def get_navicli_config(self):
         """ EMC Navisphere Host Agent NAVICLI specific information - files
@@ -134,19 +138,21 @@ class Emc(Plugin, RedHatPlugin):
     def get_navicli_SP_info(self,SP_address):
         """ EMC Navisphere Host Agent NAVICLI specific information - CLARiiON - commands
         """
-        self.add_cmd_output("navicli -h %s getall" % SP_address)
-        self.add_cmd_output("navicli -h %s getsptime -spa" % SP_address)
-        self.add_cmd_output("navicli -h %s getsptime -spb" % SP_address)
-        self.add_cmd_output("navicli -h %s getlog" % SP_address)
-        self.add_cmd_output("navicli -h %s getdisk" % SP_address)
-        self.add_cmd_output("navicli -h %s getcache" % SP_address)
-        self.add_cmd_output("navicli -h %s getlun" % SP_address)
-        self.add_cmd_output("navicli -h %s getlun -rg -type -default -owner -crus -capacity" % SP_address)
-        self.add_cmd_output("navicli -h %s lunmapinfo" % SP_address)
-        self.add_cmd_output("navicli -h %s getcrus" % SP_address)
-        self.add_cmd_output("navicli -h %s port -list -all" % SP_address)
-        self.add_cmd_output("navicli -h %s storagegroup -list" % SP_address)
-        self.add_cmd_output("navicli -h %s spportspeed -get" % SP_address)
+        self.add_cmd_outputs([
+            "navicli -h %s getall" % SP_address,
+            "navicli -h %s getsptime -spa" % SP_address,
+            "navicli -h %s getsptime -spb" % SP_address,
+            "navicli -h %s getlog" % SP_address,
+            "navicli -h %s getdisk" % SP_address,
+            "navicli -h %s getcache" % SP_address,
+            "navicli -h %s getlun" % SP_address,
+            "navicli -h %s getlun -rg -type -default -owner -crus -capacity" % SP_address,
+            "navicli -h %s lunmapinfo" % SP_address,
+            "navicli -h %s getcrus" % SP_address,
+            "navicli -h %s port -list -all" % SP_address,
+            "navicli -h %s storagegroup -list" % SP_address,
+            "navicli -h %s spportspeed -get" % SP_address
+        ])
 
     def check_enabled(self):
         self.packages = [ "EMCpower" ]

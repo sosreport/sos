@@ -28,7 +28,8 @@ class Ppp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_specs([
             "/etc/wvdial.conf",
             "/etc/ppp",
-            "/var/log/ppp"])
+            "/var/log/ppp"
+        ])
         self.add_cmd_output("adsl-status")
 
 # vim: et ts=4 sw=4

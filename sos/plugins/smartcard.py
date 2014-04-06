@@ -30,8 +30,10 @@ class Smartcard(Plugin, RedHatPlugin):
             "/etc/reader.conf",
             "/etc/reader.conf.d/",
             "/etc/pam_pkcs11/"])
-        self.add_cmd_output("pkcs11_inspect debug")
-        self.add_cmd_output("pklogin_finder debug")
-        self.add_cmd_output("ls -nl /usr/lib*/pam_pkcs11/")
+        self.add_cmd_outputs([
+            "pkcs11_inspect debug",
+            "pklogin_finder debug",
+            "ls -nl /usr/lib*/pam_pkcs11/"
+        ])
 
 # vim: et ts=4 sw=4

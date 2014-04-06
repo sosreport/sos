@@ -39,11 +39,13 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_cmd_output("vgdisplay -vv", root_symlink = "vgdisplay")
-        self.add_cmd_output("vgscan -vvv")
-        self.add_cmd_output("pvscan -v")
-        self.add_cmd_output("pvs -a -v")
-        self.add_cmd_output("vgs -v")
-        self.add_cmd_output("lvs -a -o +devices")
+        self.add_cmd_outputs([
+            "vgscan -vvv",
+            "pvscan -v",
+            "pvs -a -v",
+            "vgs -v",
+            "lvs -a -o +devices"
+        ])
 
         self.add_copy_spec("/etc/lvm")
 

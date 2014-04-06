@@ -39,8 +39,10 @@ class General(Plugin):
         self.add_cmd_output("hostname", root_symlink="hostname")
         self.add_cmd_output("date", root_symlink="date")
         self.add_cmd_output("uptime", root_symlink="uptime")
-        self.add_cmd_output("tree /var/lib")
-        self.add_cmd_output("ls -lR /var/lib")
+        self.add_cmd_outputs([
+            "tree /var/lib",
+            "ls -lR /var/lib"
+        ])
 
 
 class RedHatGeneral(General, RedHatPlugin):

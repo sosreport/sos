@@ -47,13 +47,15 @@ class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
     """
 
     cinder = False
-    packages = ('cinder-api',
-                'cinder-backup',
-                'cinder-common',
-                'cinder-scheduler',
-                'cinder-volume',
-                'python-cinder',
-                'python-cinderclient')
+    packages = (
+        'cinder-api',
+        'cinder-backup',
+        'cinder-common',
+        'cinder-scheduler',
+        'cinder-volume',
+        'python-cinder',
+        'python-cinderclient'
+    )
 
     def check_enabled(self):
         self.cinder = self.is_installed("cinder-common")

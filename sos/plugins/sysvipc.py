@@ -23,9 +23,10 @@ class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_specs([
-                "/proc/sysvipc/msg",
-                "/proc/sysvipc/sem",
-                "/proc/sysvipc/shm"])
+            "/proc/sysvipc/msg",
+            "/proc/sysvipc/sem",
+            "/proc/sysvipc/shm"
+        ])
         self.add_cmd_output("ipcs")
 
 # vim: et ts=4 sw=4

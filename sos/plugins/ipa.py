@@ -35,24 +35,28 @@ class Ipa(Plugin, RedHatPlugin):
 
     def setup(self):
         if self.ipa_server:
-            self.add_copy_spec("/var/log/ipaserver-install.log")
-            self.add_copy_spec("/var/log/ipareplica-install.log")
+            self.add_copy_specs([
+                "/var/log/ipaserver-install.log",
+                "/var/log/ipareplica-install.log"
+            ])
         if self.ipa_client:
             self.add_copy_spec("/var/log/ipaclient-install.log")
 
-        self.add_copy_specs(["/var/log/ipaupgrade.log",
-                        "/var/log/krb5kdc.log",
-                        "/var/log/pki-ca/debug",
-                        "/var/log/pki-ca/catalina.out",
-                        "/var/log/pki-ca/system",
-                        "/var/log/pki-ca/transactions",
-                        "/var/log/dirsrv/slapd-*/logs/access",
-                        "/var/log/dirsrv/slapd-*/logs/errors",
-                        "/etc/dirsrv/slapd-*/dse.ldif",
-                        "/etc/dirsrv/slapd-*/schema/99user.ldif",
-                        "/etc/hosts",
-                        "/etc/named.*"])
- 
+        self.add_copy_specs([
+            "/var/log/ipaupgrade.log",
+            "/var/log/krb5kdc.log",
+            "/var/log/pki-ca/debug",
+            "/var/log/pki-ca/catalina.out",
+            "/var/log/pki-ca/system",
+            "/var/log/pki-ca/transactions",
+            "/var/log/dirsrv/slapd-*/logs/access",
+            "/var/log/dirsrv/slapd-*/logs/errors",
+            "/etc/dirsrv/slapd-*/dse.ldif",
+            "/etc/dirsrv/slapd-*/schema/99user.ldif",
+            "/etc/hosts",
+            "/etc/named.*"
+        ])
+
         self.add_forbidden_path("/etc/pki/nssdb/key*")
         self.add_forbidden_path("/etc/pki-ca/flatfile.txt")
         self.add_forbidden_path("/etc/pki-ca/password.conf")
@@ -64,15 +68,14 @@ class Ipa(Plugin, RedHatPlugin):
 
         self.add_forbidden_path("/etc/named.keytab")
 
-        self.add_cmd_output("ls -la /etc/dirsrv/slapd-*/schema/")
-
-        self.add_cmd_output("ipa-getcert list")
-
-        self.add_cmd_output("certutil -L -d /etc/httpd/alias/")
-        self.add_cmd_output("certutil -L -d /etc/dirsrv/slapd-*/")
-
-        self.add_cmd_output("klist -ket /etc/dirsrv/ds.keytab")
-        self.add_cmd_output("klist -ket /etc/httpd/conf/ipa.keytab")
+        self.add_cmd_outputs([
+            "ls -la /etc/dirsrv/slapd-*/schema/",
+            "ipa-getcert list",
+            "certutil -L -d /etc/httpd/alias/",
+            "certutil -L -d /etc/dirsrv/slapd-*/",
+            "klist -ket /etc/dirsrv/ds.keytab",
+            "klist -ket /etc/httpd/conf/ipa.keytab"
+        ])
 
         return
 

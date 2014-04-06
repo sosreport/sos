@@ -76,11 +76,13 @@ class Xen(Plugin, RedHatPlugin):
                 "/sys/hypervisor/compilation",
                 "/sys/hypervisor/properties",
                 "/sys/hypervisor/type"])
-            self.add_cmd_output("xm dmesg")
-            self.add_cmd_output("xm info")
-            self.add_cmd_output("xm list")
-            self.add_cmd_output("xm list --long")
-            self.add_cmd_output("brctl show")
+            self.add_cmd_outputs([
+                "xm dmesg",
+                "xm info",
+                "xm list",
+                "xm list --long",
+                "brctl show"
+            ])
             self.dom_collect_proc()
             if self.is_running_xenstored():
                 self.add_copy_spec("/sys/hypervisor/uuid")

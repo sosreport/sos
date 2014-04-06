@@ -78,27 +78,29 @@ class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
     """
 
     nova = False
-    packages = ('nova-api-ec2',
-                'nova-api-metadata',
-                'nova-api-os-compute',
-                'nova-api-os-volume',
-                'nova-common',
-                'nova-compute',
-                'nova-compute-kvm',
-                'nova-compute-lxc',
-                'nova-compute-qemu',
-                'nova-compute-uml',
-                'nova-compute-xcp',
-                'nova-compute-xen',
-                'nova-xcp-plugins',
-                'nova-consoleauth',
-                'nova-network',
-                'nova-scheduler',
-                'nova-volume',
-                'novnc',
-                'python-nova',
-                'python-novaclient',
-                'python-novnc')
+    packages = (
+        'nova-api-ec2',
+        'nova-api-metadata',
+        'nova-api-os-compute',
+        'nova-api-os-volume',
+        'nova-common',
+        'nova-compute',
+        'nova-compute-kvm',
+        'nova-compute-lxc',
+        'nova-compute-qemu',
+        'nova-compute-uml',
+        'nova-compute-xcp',
+        'nova-compute-xen',
+        'nova-xcp-plugins',
+        'nova-consoleauth',
+        'nova-network',
+        'nova-scheduler',
+        'nova-volume',
+        'novnc',
+        'python-nova',
+        'python-novaclient',
+        'python-novnc'
+    )
 
     def check_enabled(self):
         self.nova = self.is_installed("nova-common")
@@ -114,21 +116,23 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
     """
 
     nova = False
-    packages = ('openstack-nova-common',
-                'openstack-nova-network',
-                'openstack-nova-conductor',
-                'openstack-nova-conductor',
-                'openstack-nova-scheduler',
-                'openstack-nova-console',
-                'openstack-nova-novncproxy',
-                'openstack-nova-compute',
-                'openstack-nova-api',
-                'openstack-nova-cert',
-                'openstack-nova-cells',
-                'openstack-nova-objectstore',
-                'python-nova',
-                'python-novaclient',
-                'novnc')
+    packages = (
+        'openstack-nova-common',
+        'openstack-nova-network',
+        'openstack-nova-conductor',
+        'openstack-nova-conductor',
+        'openstack-nova-scheduler',
+        'openstack-nova-console',
+        'openstack-nova-novncproxy',
+        'openstack-nova-compute',
+        'openstack-nova-api',
+        'openstack-nova-cert',
+        'openstack-nova-cells',
+        'openstack-nova-objectstore',
+        'python-nova',
+        'python-novaclient',
+        'novnc'
+    )
 
     def check_enabled(self):
         self.nova = self.is_installed("openstack-nova-common")
@@ -137,10 +141,11 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
     def setup(self):
         super(RedHatOpenStackNova, self).setup()
         self.add_copy_specs([
-                "/etc/logrotate.d/openstack-nova",
-                "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
-                "/etc/sudoers.d/nova",
-                "/etc/security/limits.d/91-nova.conf",
-                "/etc/sysconfig/openstack-nova-novncproxy"])
+            "/etc/logrotate.d/openstack-nova",
+            "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
+            "/etc/sudoers.d/nova",
+            "/etc/security/limits.d/91-nova.conf",
+            "/etc/sysconfig/openstack-nova-novncproxy"
+        ])
 
 # vim: et ts=4 sw=4

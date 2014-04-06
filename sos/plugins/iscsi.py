@@ -32,10 +32,13 @@ class RedHatIscsi(Iscsi, RedHatPlugin):
         self.add_copy_specs([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
-            "/var/lib/iscsi"])
-        self.add_cmd_output("iscsiadm -m session -P 3")
-        self.add_cmd_output("iscsiadm -m node -P 3")
-        self.add_cmd_output("iscsiadm -m iface -P 1")
-        self.add_cmd_output("iscsiadm -m node --op=show")
+            "/var/lib/iscsi"
+        ])
+        self.add_cmd_outputs([
+            "iscsiadm -m session -P 3",
+            "iscsiadm -m node -P 3",
+            "iscsiadm -m iface -P 1",
+            "iscsiadm -m node --op=show"
+        ])
 
 # vim: et ts=4 sw=4

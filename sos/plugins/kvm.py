@@ -31,10 +31,12 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         return os.access("/sys/module/kvm", os.R_OK)
 
     def setup(self):
-        self.add_copy_spec("/sys/module/kvm/srcversion")
-        self.add_copy_spec("/sys/module/kvm_intel/srcversion")
-        self.add_copy_spec("/sys/module/kvm_amd/srcversion")
-        self.add_copy_spec("/sys/module/ksm/srcversion")
+        self.add_copy_specs([
+            "/sys/module/kvm/srcversion",
+            "/sys/module/kvm_intel/srcversion",
+            "/sys/module/kvm_amd/srcversion",
+            "/sys/module/ksm/srcversion"
+        ])
         if not os.path.ismount(debugfs_path):
             self._debugfs_cleanup = True
             r = self.call_ext_prog("mount -t debugfs debugfs %s"

@@ -46,7 +46,8 @@ class Satellite(Plugin, RedHatPlugin):
         self.add_copy_specs([
             "/etc/httpd/conf*",
             "/etc/rhn",
-            "/var/log/rhn*"])
+            "/var/log/rhn*"
+        ])
 
         if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd")
@@ -55,7 +56,8 @@ class Satellite(Plugin, RedHatPlugin):
         self.add_copy_specs([
             "/opt/notification/var/*.log*",
             "/var/tmp/ack_handler.log*",
-            "/var/tmp/enqueue.log*"])
+            "/var/tmp/enqueue.log*"
+        ])
 
         # monitoring scout logs
         self.add_copy_specs([
@@ -65,7 +67,8 @@ class Satellite(Plugin, RedHatPlugin):
             "/var/tmp/enqueue.log*",
             "/var/log/nocpulse/*.log*",
             "/var/log/notification/*.log*",
-            "/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log"])
+            "/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log"
+        ])
 
         self.add_copy_spec("/root/ssl-build")
         self.add_cmd_output("rhn-schema-version",
@@ -74,8 +77,12 @@ class Satellite(Plugin, RedHatPlugin):
                         root_symlink = "database-character-sets")
 
         if self.satellite:
-            self.add_copy_specs(["/etc/tnsnames.ora", "/etc/jabberd",
-                                "/etc/tomcat6/", "/var/log/tomcat6/"])
+            self.add_copy_specs([
+                "/etc/tnsnames.ora",
+                "/etc/jabberd",
+                "/etc/tomcat6/",
+                "/var/log/tomcat6/"
+            ])
             self.add_cmd_output("spacewalk-debug --dir %s"
                     % self.get_cmd_output_path(name="spacewalk-debug"))
 

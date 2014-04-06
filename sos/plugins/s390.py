@@ -52,18 +52,22 @@ class S390(Plugin, RedHatPlugin):
             "/etc/src_vipa.conf",
             "/etc/ccwgroup.conf",
             "/etc/chandev.conf"])
-        self.add_cmd_output("lscss")
-        self.add_cmd_output("lsdasd")
-        self.add_cmd_output("lstape")
-        self.add_cmd_output("find /sys -type f")
-        self.add_cmd_output("find /proc/s390dbf -type f")
-        self.add_cmd_output("qethconf list_all")
-        self.add_cmd_output("lsqeth")
-        self.add_cmd_output("lszfcp")
+        self.add_cmd_outputs([
+            "lscss",
+            "lsdasd",
+            "lstape",
+            "find /sys -type f",
+            "find /proc/s390dbf -type f",
+            "qethconf list_all",
+            "lsqeth",
+            "lszfcp"
+        ])
         ret, dasd_dev, rtime = self.call_ext_prog("ls /dev/dasd?")
         for x in dasd_dev.split('\n'):
-            self.add_cmd_output("dasdview -x -i -j -l -f %s" % (x,))
-            self.add_cmd_output("fdasd -p %s" % (x,))
+            self.add_cmd_outputs([
+                "dasdview -x -i -j -l -f %s" % (x,),
+                "fdasd -p %s" % (x,)
+            ])
 
 
 # vim: et ts=4 sw=4

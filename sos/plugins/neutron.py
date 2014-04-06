@@ -43,8 +43,10 @@ class Neutron(Plugin):
         else:
             self.component_name = "quantum"
 
-        self.add_copy_specs(["/etc/%s/" % self.component_name,
-                             "/var/log/%s/" % self.component_name])
+        self.add_copy_specs([
+            "/etc/%s/" % self.component_name,
+            "/var/log/%s/" % self.component_name
+        ])
 
         self.netns_dumps()
         self.get_ovs_dumps()
@@ -103,21 +105,25 @@ class Neutron(Plugin):
         
     def ns_gather_data(self, nsname):
         cmd_prefix = "ip netns exec %s " % nsname
-        self.add_cmd_output(cmd_prefix + "iptables-save")
-        self.add_cmd_output(cmd_prefix + "ifconfig -a")
-        self.add_cmd_output(cmd_prefix + "route -n")
+        self.add_cmd_outputs([
+            cmd_prefix + "iptables-save",
+            cmd_prefix + "ifconfig -a",
+            cmd_prefix + "route -n"
+        ])
         # borrowed from networking plugin
         ip_addr_result=self.call_ext_prog(cmd_prefix + "ip -o addr")
         if ip_addr_result['status'] == 0:
             for eth in self.get_interface_name(ip_addr_result['output']):
-                self.add_cmd_output(cmd_prefix + "ethtool "+eth)
-                self.add_cmd_output(cmd_prefix + "ethtool -i "+eth)
-                self.add_cmd_output(cmd_prefix + "ethtool -k "+eth)
-                self.add_cmd_output(cmd_prefix + "ethtool -S "+eth)
                 # Most, if not all, IFs in the namespaces are going to be 
                 # virtual. The '-a', '-c' and '-g' options are not likely to be
                 # supported so these ops are not copied from the network
                 # plugin.
+                self.add_cmd_outputs([
+                    cmd_prefix + "ethtool "+eth,
+                    cmd_prefix + "ethtool -i "+eth,
+                    cmd_prefix + "ethtool -k "+eth,
+                    cmd_prefix + "ethtool -S "+eth
+                ])
 
         # As all of the bridges are in the "global namespace", we do not need
         # to gather info on them.
@@ -131,17 +137,19 @@ class Neutron(Plugin):
 class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
     """OpenStack Neutron related information for Debian based distributions
     """
-    package_list_template = ['%(comp)s-common',
-                            '%(comp)s-plugin-cisco',
-                            '%(comp)s-plugin-linuxbridge-agent',
-                            '%(comp)s-plugin-nicira',
-                            '%(comp)s-plugin-openvswitch',
-                            '%(comp)s-plugin-openvswitch-agent',
-                            '%(comp)s-plugin-ryu',
-                            '%(comp)s-plugin-ryu-agent',
-                            '%(comp)s-server',
-                            'python-%(comp)s',
-                            'python-%(comp)sclient']
+    package_list_template = [
+        '%(comp)s-common',
+        '%(comp)s-plugin-cisco',
+        '%(comp)s-plugin-linuxbridge-agent',
+        '%(comp)s-plugin-nicira',
+        '%(comp)s-plugin-openvswitch',
+        '%(comp)s-plugin-openvswitch-agent',
+        '%(comp)s-plugin-ryu',
+        '%(comp)s-plugin-ryu-agent',
+        '%(comp)s-server',
+        'python-%(comp)s',
+        'python-%(comp)sclient'
+    ]
 
     def check_enabled(self):
         return self.is_installed("%s-common" % self.component_name)
@@ -157,21 +165,23 @@ class RedHatNeutron(Neutron, RedHatPlugin):
     """OpenStack Neutron related information for Red Hat distributions
     """
 
-    package_list_template = ['openstack-%(comp)s', 
-                             'openstack-%(comp)s-linuxbridge'
-                             'openstack-%(comp)s-metaplugin',
-                             'openstack-%(comp)s-openvswitch',
-                             'openstack-%(comp)s-bigswitch',
-                             'openstack-%(comp)s-brocade',
-                             'openstack-%(comp)s-cisco',
-                             'openstack-%(comp)s-hyperv',
-                             'openstack-%(comp)s-midonet',
-                             'openstack-%(comp)s-nec'
-                             'openstack-%(comp)s-nicira',
-                             'openstack-%(comp)s-plumgrid',
-                             'openstack-%(comp)s-ryu',
-                             'python-%(comp)s',
-                             'python-%(comp)sclient']
+    package_list_template = [
+        'openstack-%(comp)s', 
+        'openstack-%(comp)s-linuxbridge'
+        'openstack-%(comp)s-metaplugin',
+        'openstack-%(comp)s-openvswitch',
+        'openstack-%(comp)s-bigswitch',
+        'openstack-%(comp)s-brocade',
+        'openstack-%(comp)s-cisco',
+        'openstack-%(comp)s-hyperv',
+        'openstack-%(comp)s-midonet',
+        'openstack-%(comp)s-nec'
+        'openstack-%(comp)s-nicira',
+        'openstack-%(comp)s-plumgrid',
+        'openstack-%(comp)s-ryu',
+        'python-%(comp)s',
+        'python-%(comp)sclient'
+    ]
 
     def check_enabled(self):
         return self.is_installed("openstack-%s" % self.component_name)
@@ -179,6 +189,6 @@ class RedHatNeutron(Neutron, RedHatPlugin):
     def setup(self):
         super(RedHatNeutron, self).setup()
         self.packages = self.gen_pkg_tuple(self.package_list_template)
-        self.add_copy_specs(["/etc/sudoers.d/%s-rootwrap" % self.component_name])
+        self.add_copy_spec("/etc/sudoers.d/%s-rootwrap" % self.component_name)
 
 # vim: et ts=4 sw=4

@@ -22,10 +22,11 @@ class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'devicemapper'
 
     def setup(self):
-        self.add_cmd_output("dmsetup info -c")
-        self.add_cmd_output("dmsetup table")
-        self.add_cmd_output("dmsetup status")
-        self.add_cmd_output("dmsetup ls --tree")
-
+        self.add_cmd_outputs([
+            "dmsetup info -c",
+            "dmsetup table",
+            "dmsetup status",
+            "dmsetup ls --tree"
+        ])
 
 # vim: et ts=4 sw=4

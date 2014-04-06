@@ -26,26 +26,29 @@ class Systemd(Plugin, RedHatPlugin):
     files = ('/usr/lib/systemd/systemd',)
 
     def setup(self):
-        self.add_cmd_output("systemctl show --all")
-        self.add_cmd_output("systemctl list-units")
-        self.add_cmd_output("systemctl list-units --failed")
-        self.add_cmd_output("systemctl list-units --all")
-        self.add_cmd_output("systemctl list-unit-files")
-        self.add_cmd_output("systemctl show-environment")
-        self.add_cmd_output("systemd-delta")
-        self.add_cmd_output("journalctl --verify")
-        self.add_cmd_output("journalctl --all --this-boot --no-pager")
-        self.add_cmd_output("journalctl --all --this-boot --no-pager -o verbose")
-        self.add_cmd_output("ls -l /lib/systemd")
-        self.add_cmd_output("ls -l /lib/systemd/system-shutdown")
-        self.add_cmd_output("ls -l /lib/systemd/system-generators")
-        self.add_cmd_output("ls -l /lib/systemd/user-generators")
+        self.add_cmd_outputs([
+            "systemctl show --all",
+            "systemctl list-units",
+            "systemctl list-units --failed",
+            "systemctl list-units --all",
+            "systemctl list-unit-files",
+            "systemctl show-environment",
+            "systemd-delta",
+            "journalctl --verify",
+            "journalctl --all --this-boot --no-pager",
+            "journalctl --all --this-boot --no-pager -o verbose",
+            "ls -l /lib/systemd",
+            "ls -l /lib/systemd/system-shutdown",
+            "ls -l /lib/systemd/system-generators",
+            "ls -l /lib/systemd/user-generators"
+        ])
 
-        self.add_copy_specs(["/etc/systemd",
-                           "/lib/systemd/system",
-                           "/lib/systemd/user",
-                           "/etc/vconsole.conf",
-                           "/etc/yum/protected.d/systemd.conf"])
-
+        self.add_copy_specs([
+            "/etc/systemd",
+            "/lib/systemd/system",
+            "/lib/systemd/user",
+            "/etc/vconsole.conf",
+            "/etc/yum/protected.d/systemd.conf"
+        ])
 
 # vim: et ts=4 sw=4
