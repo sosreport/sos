@@ -46,9 +46,6 @@ class Autofs(Plugin):
     def setup(self):
         self.add_copy_spec("/etc/auto*")
         self.add_cmd_output("/etc/init.d/autofs status")
-        self.add_cmd_output("ps auxwww | grep automount")
-        self.add_cmd_output("egrep -e 'automount|pid.*nfs' /proc/mounts")
-        self.add_cmd_output("mount | egrep -e 'automount|pid.*nfs'")
         if self.checkdebug():
             self.add_copy_spec(self.getdaemondebug())
 
