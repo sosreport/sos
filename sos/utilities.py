@@ -127,9 +127,16 @@ def is_executable(command):
     candidates = [command] + [os.path.join(p, command) for p in paths]
     return any(os.access(path, os.X_OK) for path in candidates)
 
-def sos_get_command_output(command, timeout=300):
+def sos_get_command_output(command, timeout=300, runat=None):
     """Execute a command through the system shell. First checks to see if the
     requested command is executable. Returns (returncode, stdout, 0)"""
+    def _child_chdir():
+        if(runat):
+            try:
+                os.chdir(runat)
+            except:
+                self.log_error("failed to chdir to '%s'" % runat)
+            
     cmd_env = os.environ
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C'
@@ -138,7 +145,8 @@ def sos_get_command_output(command, timeout=300):
         command = "timeout %ds %s" % (timeout, command)
 
     p = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT,
-              bufsize=-1, env = cmd_env, close_fds = True)
+              bufsize=-1, env = cmd_env, close_fds = True,
+              preexec_fn=_child_chdir)
 
     stdout, stderr = p.communicate()
 
@@ -164,11 +172,11 @@ def import_module(module_fqname, superclasses=None):
 
     return modules
 
-def shell_out(cmd):
+def shell_out(cmd, runat=None):
     """Shell out to an external command and return the output or the empty
     string in case of error.
     """
-    return sos_get_command_output(cmd)['output']
+    return sos_get_command_output(cmd, runat=runat)['output']
 
 class ImporterHelper(object):
     """Provides a list of modules that can be imported in a package.

@@ -441,8 +441,8 @@ class Plugin(object):
         self.copy_paths.update(copy_paths)
         self.log_debug("added copyspec '%s'" % copyspec)
 
-    def get_command_output(self, prog, timeout=300):
-        result = sos_get_command_output(prog, timeout)
+    def get_command_output(self, prog, timeout=300, runat=None):
+        result = sos_get_command_output(prog, timeout, runat)
         if result['status'] == 124:
             self.log_warn("command '%s' timed out after %ds"
                     % (prog, timeout))
@@ -450,12 +450,12 @@ class Plugin(object):
             self.log_debug("could not run '%s': command not found" % prog)
         return result
 
-    def call_ext_prog(self, prog, timeout=300):
+    def call_ext_prog(self, prog, timeout=300, runat=None):
         """Execute a command independantly of the output gathering part of
         sosreport.
         """
         # pylint: disable-msg = W0612
-        return self.get_command_output(prog, timeout)
+        return self.get_command_output(prog, timeout, runat)
 
     def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
@@ -465,9 +465,17 @@ class Plugin(object):
         return (self.call_ext_prog(prog)['status'] == 0)
 
 
-    def add_cmd_output(self, exe, suggest_filename=None, root_symlink=None, timeout=300):
+    def add_cmd_output(
+            self, exe,
+            suggest_filename=None,
+            root_symlink=None,
+            timeout=300,
+            runat=None
+        ):
         """Run a program and collect the output"""
-        self.collect_cmds.append( (exe, suggest_filename, root_symlink, timeout) )
+        self.collect_cmds.append((
+            exe, suggest_filename, root_symlink, timeout, runat
+        ))
         self.log_debug("added cmd output '%s'" % exe)
 
     def get_cmd_output_path(self, name=None, make=True):
@@ -515,12 +523,18 @@ class Plugin(object):
         self.copy_strings.append((content, filename))
         self.log_debug("added string '%s' as '%s'" % (content,filename))
 
-    def get_cmd_output_now(self, exe, suggest_filename=None, root_symlink=False, timeout=300):
+    def get_cmd_output_now(
+            self, exe,
+            suggest_filename=None,
+            root_symlink=False,
+            timeout=300,
+            runat=None
+    ):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         # pylint: disable-msg = W0612
-        result = self.get_command_output(exe, timeout=timeout)
+        result = self.get_command_output(exe, timeout, runat)
         if (result['status'] == 127):
             return None
 
@@ -567,11 +581,11 @@ class Plugin(object):
 
     def collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
-            prog, suggest_filename, root_symlink, timeout = progs[0]
+            prog, suggest_filename, root_symlink, timeout, runat = progs[0]
             self.log_info("collecting output of '%s'" % prog)
             try:
                 self.get_cmd_output_now(prog, suggest_filename,
-                        root_symlink, timeout)
+                                        root_symlink, timeout, runat)
             except Exception as e:
                 self.log_debug("could not collect output of '%s': %s"
                         % (prog, e))
