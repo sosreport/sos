@@ -34,6 +34,7 @@ import tarfile
 import hashlib
 import logging
 import fnmatch
+import errno
 import shlex
 
 from contextlib import closing
@@ -146,9 +147,15 @@ def sos_get_command_output(command, timeout=300, runat=None):
         command = "timeout %ds %s" % (timeout, command)
 
     args = shlex.split(command)
-    p = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT,
+    try:
+        p = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT,
               bufsize=-1, env = cmd_env, close_fds = True,
               preexec_fn=_child_chdir)
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            return {'status': 127, 'output': ""}
+        else:
+            raise e
 
     stdout, stderr = p.communicate()
 
