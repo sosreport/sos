@@ -26,12 +26,9 @@ class Soundcard(Plugin):
 
     def setup(self):
         self.add_copy_spec("/proc/asound/*")
-        self.add_cmd_output("lspci | grep -i audio")
         self.add_cmd_output("aplay -l")
         self.add_cmd_output("aplay -L")
         self.add_cmd_output("amixer")
-        self.add_cmd_output("lsmod | grep snd | awk '{print $1}'",\
-                suggest_filename = "sndmodules_loaded")
 
 class RedHatSoundcard(Soundcard, RedHatPlugin):
     """ Sound card information for RedHat distros
