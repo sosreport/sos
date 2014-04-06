@@ -27,9 +27,6 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/vmstat",
             "/proc/slabinfo",
             "/proc/pagetypeinfo"])
-
-        self.add_cmd_output("dmesg | grep -e 'e820.' -e 'aperature.'",
-                            suggest_filename="dmesg.e820-map")
         self.add_cmd_output("free", root_symlink = "free")
         self.add_cmd_output("free -m")
 
