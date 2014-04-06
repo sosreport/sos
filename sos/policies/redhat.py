@@ -95,6 +95,26 @@ class RHELPolicy(RedHatPolicy):
     distro = "Red Hat Enterprise Linux"
     vendor = "Red Hat"
     vendor_url = "https://access.redhat.com/support/"
+    msg = _("""\
+This command will collect diagnostic and configuration \
+information from this %(distro)s system and installed \
+applications.
+
+An archive containing the collected information will be \
+generated in %(tmpdir)s and may be provided to a %(vendor)s \
+support representative.
+
+Any information provided to %(vendor)s will be treated in \
+accordance with the published support policies at:\n
+  %(vendor_url)s
+
+The generated archive may contain data considered sensitive \
+and its content should be reviewed by the originating \
+organization before being passed to any third party.
+
+No changes will be made to system configuration.
+%(vendor_text)s
+""")
 
     def __init__(self):
         super(RHELPolicy, self).__init__()

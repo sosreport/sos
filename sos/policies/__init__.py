@@ -118,21 +118,17 @@ class PackageManager(object):
 class Policy(object):
 
     msg = _("""\
-This command will collect diagnostic and configuration \
-information from this %(distro)s system and installed \
-applications.
+This command will collect system configuration and diagnostic information \
+from this %(distro)s system. An archive containing the collected information \
+will be generated in %(tmpdir)s.
 
-An archive containing the collected information will be \
-generated in %(tmpdir)s and may be provided to a %(vendor)s \
-support representative.
+For more information on %(vendor)s visit:
 
-Any information provided to %(vendor)s will be treated in \
-accordance with the published support policies at:\n
   %(vendor_url)s
 
-The generated archive may contain data considered sensitive \
-and its content should be reviewed by the originating \
-organization before being passed to any third party.
+The generated archive may contain data considered sensitive and its content \
+should be reviewed by the originating organization before being passed to \
+any third party.
 
 No changes will be made to system configuration.
 %(vendor_text)s
