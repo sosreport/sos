@@ -45,6 +45,7 @@ from time import strftime, localtime
 from itertools import *
 from collections import deque
 from textwrap import fill
+import errno
 
 from sos import _sos as _
 from sos import __version__
@@ -733,6 +734,13 @@ No changes will be made to system configuration.
     for plugname, plug in GlobalVars.loadedplugins:
         try:
             plug.setup()
+        except IOError as e:
+            if e.errno in (errno.ENOSPC, errno.EROFS):
+                print _("Fatal error writing archive:")
+                print e
+                print _("Aborting.")
+                doExit(1)
+
         except KeyboardInterrupt:
             raise
         except:
@@ -756,6 +764,13 @@ No changes will be made to system configuration.
         plugname, plug = i[0]
         try:
             plug.copyStuff()
+        except IOError as e:
+            if e.errno in (errno.ENOSPC, errno.EROFS):
+                print
+                print _("Fatal error writing archive:")
+                print e
+                print _("Aborting.")
+                doExit(1)
         except KeyboardInterrupt:
             raise
         except:
