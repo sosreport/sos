@@ -353,15 +353,21 @@ def sosreport(opts):
 
     GlobalVars.dstroot = GlobalVars.policy.getDstroot(GlobalVars.__cmdLineOpts__.tmp_dir)
     if not GlobalVars.dstroot:
-        print _("Could not create temporary directory.")
-        doExit()
+        print _("Aborting.")
+        doExit(1)
 
     cmddir = os.path.join(GlobalVars.dstroot, "sos_commands")
     logdir = os.path.join(GlobalVars.dstroot, "sos_logs")
     rptdir = os.path.join(GlobalVars.dstroot, "sos_reports")
-    os.mkdir(cmddir, 0755)
-    os.mkdir(logdir, 0755)
-    os.mkdir(rptdir, 0755)
+    try:
+        os.mkdir(cmddir, 0755)
+        os.mkdir(logdir, 0755)
+        os.mkdir(rptdir, 0755)
+    except Exception as e:
+        print _("Failed to create temporary directory:")
+        print e
+        print _("Aborting.")
+        doExit(1)
 
     # initialize logging
     soslog = logging.getLogger('sos')

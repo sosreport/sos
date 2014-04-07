@@ -203,7 +203,9 @@ class SosPolicy:
         dstroot = os.path.join(os.path.abspath(tmpdir),uniqname)
         try:
             os.makedirs(dstroot, 0700)
-        except:
+        except Exception as e:
+            print "Failed to create temporary directory:"
+            print e
             return False
         return dstroot
 
