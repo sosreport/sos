@@ -858,7 +858,12 @@ No changes will be made to system configuration.
         return GlobalVars.dstroot
 
     # package up the results for the support organization
-    GlobalVars.policy.packageResults()
+    if GlobalVars.policy.packageResults():
+        print
+        print _("Failed to create compressed archive.")
+        print
+        print _("  sosreport build tree is located at : %s" % (GlobalVars.dstroot,))
+        return GlobalVars.dstroot
 
     # delete gathered files
     GlobalVars.policy.cleanDstroot()

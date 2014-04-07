@@ -265,22 +265,29 @@ class SosPolicy:
 
         print _("Creating compressed archive...")
 
+        status = 0
+        cmd = ""
         if os.path.isfile("/usr/bin/xz"):
             self.report_file_ext = "tar.xz"
             self.renameResults("sosreport-%s-%s.%s" % (self.reportName, time.strftime("%Y%m%d%H%M%S"), self.report_file_ext))
             cmd = "/bin/tar -cf- %s | /usr/bin/xz -1 > %s" % (os.path.basename(self.cInfo['dstroot']),self.report_file)
-            p = Popen(cmd, shell=True, bufsize=-1)
-            sts = os.waitpid(p.pid, 0)[1]
         else:
             self.report_file_ext = "tar.bz2"
             self.renameResults("sosreport-%s-%s.%s" % (self.reportName, time.strftime("%Y%m%d%H%M%S"), self.report_file_ext))
-            tarcmd = "/bin/tar -jcf %s %s" % (self.report_file, os.path.basename(self.cInfo['dstroot']))
-            p = Popen(tarcmd, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
-            output = p.communicate()[0]
+            cmd = "/bin/tar -jcf %s %s" % (self.report_file, os.path.basename(self.cInfo['dstroot']))
+
+        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, bufsize=-1)
+        result = p.communicate()
+
+        if p.returncode:
+            try:
+                os.unlink(self.report_file)
+            except:
+                pass
 
         os.umask(oldmask)
         os.chdir(curwd)
-        return
+        return p.returncode
 
     def cleanDstroot(self):
         if not os.path.isdir(os.path.join(self.cInfo['dstroot'],"sos_commands")):
