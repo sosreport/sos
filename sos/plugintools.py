@@ -37,6 +37,7 @@ from time import time
 from itertools import *
 from collections import deque
 import fnmatch
+import errno
 
 class PluginException(Exception): pass
 
@@ -242,12 +243,14 @@ class PluginBase:
         except PluginException:
             self.soslog.debug("error copying file %s (already exists)" % (srcpath))
             return
-        except IOError:
+        except IOError as e:
+            if e.errno in (errno.ENOSPC, errno.EROFS):
+                raise
             self.soslog.info("error copying file %s (IOError)" % (srcpath))
             return 
         except:
             self.soslog.exception("error copying file %s" % (srcpath))
-            return 
+            raise 
 
         self.copiedFiles.append({'srcpath':srcpath, 'dstpath':tdstpath, 'symlink':"no"}) # save in our list
 
