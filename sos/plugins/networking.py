@@ -153,6 +153,7 @@ class UbuntuNetworking(Networking, UbuntuPlugin):
         self.add_copy_specs([
             "/etc/resolvconf",
             "/etc/network/interfaces",
+            "/etc/network/interfaces.d",
             "/etc/ufw",
             "/var/log/ufw.Log",
             "/etc/resolv.conf"
