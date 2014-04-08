@@ -93,14 +93,15 @@ class Gluster(Plugin, RedHatPlugin):
         self.add_copy_spec("/etc/glusterfs")
 
         self.make_preparations(self.statedump_dir)
-        #self.add_cmd_output("killall -USR1 glusterfs glusterfsd")
-        os.system("killall -USR1 glusterfs glusterfsd");
-        # let all the processes catch the signal and create statedump file
-        # entries.
-        time.sleep(1)
-        self.wait_for_statedump(self.statedump_dir)
-        self.add_copy_spec('/tmp/glusterdump.options')
-        self.add_copy_spec(self.statedump_dir)
+        if self.check_ext_prog("killall -USR1 glusterfs glusterfsd"):
+            # let all the processes catch the signal and create statedump file
+            # entries.
+            time.sleep(1)
+            self.wait_for_statedump(self.statedump_dir)
+            self.add_copy_spec('/tmp/glusterdump.options')
+            self.add_copy_spec(self.statedump_dir)
+        else:
+            self.soslog.warning("could not send SIGUSR1 to glusterfs processes")
 
         volume_file = self.get_cmd_output_now("gluster volume info",
                         "gluster_volume_info")
