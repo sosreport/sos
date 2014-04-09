@@ -26,7 +26,7 @@ class Usb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/sys/bus/usb")
 
         self.add_cmd_outputs([
-            "lsusb"
+            "lsusb",
             "lsusb -v",
             "lsusb -t"
         ])
