@@ -60,8 +60,8 @@ class RedHatLogs(Logs, RedHatPlugin):
         self.add_copy_spec_limit("/var/log/messages*", sizelimit = self.limit)
 
 
-class DebianLogs(Logs, DebianPlugin):
-    """Basic system information for Debian based distributions"""
+class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
+    """Basic system information for Debian and Ubuntu based distributions"""
 
     def setup(self):
         super(DebianLogs, self).setup()
@@ -73,15 +73,6 @@ class DebianLogs(Logs, DebianPlugin):
             "/var/log/dist-upgrade",
             "/var/log/installer",
             "/var/log/unattended-upgrades"
-        ])
- 
-
-class UbuntuLogs(Logs, UbuntuPlugin):
-    """Basic system information for Ubuntu based distributions"""
-
-    def setup(self):
-        super(UbuntuLogs, self).setup()
-        self.add_copy_specs([
             "/var/log/apport.log",
             "/var/log/landscape",
         ])
