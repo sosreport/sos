@@ -41,7 +41,7 @@ class Qpid(Plugin, RedHatPlugin):
             "/var/lib/qpid/syslog",
             "/etc/ais/openais.conf",
             "/var/log/cumin.log",
-            "/var/log/mint.log"
+            "/var/log/mint.log",
             "/etc/sasl2/qpidd.conf",
             "/etc/qpid/qpidc.conf",
             "/etc/sesame/sesame.conf",

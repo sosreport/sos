@@ -53,7 +53,7 @@ class RedHatGeneral(General, RedHatPlugin):
 
         self.add_copy_specs([
             "/etc/redhat-release",
-            "/etc/fedora-release",
+            "/etc/fedora-release"
         ])
 
 
@@ -69,8 +69,8 @@ class DebianGeneral(General, DebianPlugin):
         super(DebianGeneral, self).setup()
         self.add_copy_specs([
             "/etc/default",
-            "/etc/lsb-release"
-            "/etc/debian_version",
+            "/etc/lsb-release",
+            "/etc/debian_version"
         ])
 
 

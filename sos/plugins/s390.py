@@ -31,7 +31,7 @@ class S390(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_specs([
-            "/proc/cio_ignore"
+            "/proc/cio_ignore",
             "/proc/crypto",
             "/proc/dasd/devices",
             "/proc/dasd/statistics",

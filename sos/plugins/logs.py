@@ -72,9 +72,9 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
             "/var/log/mail*",
             "/var/log/dist-upgrade",
             "/var/log/installer",
-            "/var/log/unattended-upgrades"
+            "/var/log/unattended-upgrades",
             "/var/log/apport.log",
-            "/var/log/landscape",
+            "/var/log/landscape"
         ])
 
 

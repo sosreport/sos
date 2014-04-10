@@ -78,7 +78,7 @@ class Networking(Plugin):
             "/etc/xinetd.conf",
             "/etc/xinetd.d",
             "/etc/host*",
-            "/etc/resolv.conf"
+            "/etc/resolv.conf",
             "/etc/network*",
             "/etc/NetworkManager/NetworkManager.conf",
             "/etc/NetworkManager/system-connections",
