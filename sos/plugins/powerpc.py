@@ -46,7 +46,6 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/proc/swaps",
                 "/proc/version",
                 "/dev/nvram",
-                "/var/log/platform",
                 "/var/lib/lsvpd/"
             ])
             self.add_cmd_outputs([
@@ -65,7 +64,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_copy_specs([
                 "/proc/ppc64/lparcfg",
                 "/proc/ppc64/eeh",
-                "/proc/ppc64/systemcfg"
+                "/proc/ppc64/systemcfg",
+                "/var/log/platform"
             ])
             self.add_cmd_outputs([
                 "lsvio -des",
@@ -82,7 +82,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_copy_specs([
                 "/proc/ppc64/",
                 "/sys/kernel/debug/powerpc/",
-                "/sys/firmware/opal/msglog"
+                "/sys/firmware/opal/msglog",
+                "/var/log/opal-elog/"
             ])
             if os.path.isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
