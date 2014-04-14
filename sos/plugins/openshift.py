@@ -13,17 +13,27 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+import os.path
 
 class Openshift(Plugin, RedHatPlugin):
     '''Openshift related information'''
 
     plugin_name = "openshift"
 
+    # The 'broker' and 'node' options are obsolete but are maintained
+    # here for compatibility with external programs that call sosreport
+    # with these names.
     option_list = [("broker", "Gathers broker specific files", "slow", False),
            ("node", "Gathers node specific files", "slow", False)]
 
     ruby = "ruby193"
     vendor ="rh"
+
+    def is_broker(self):
+        return os.path.exists("/etc/openshift/broker.conf")
+
+    def is_node(self):
+        return os.path.exists("/etc/openshift/node.conf")
 
     def setup(self):
         self.add_copy_specs([
@@ -34,7 +44,7 @@ class Openshift(Plugin, RedHatPlugin):
 
         self.add_cmd_output("oo-diagnostics")
 
-        if self.option_enabled("broker"):
+        if self.is_broker()
             self.add_copy_specs([
                 "/var/log/mcollective-client.log",
                 "/var/log/openshift/broker/",
@@ -50,8 +60,7 @@ class Openshift(Plugin, RedHatPlugin):
             runat = '/var/www/openshift/broker/'
             self.add_cmd_output("bundle --local", runat)
                                         
-
-        if self.option_enabled("node"):
+        if self.is_node()
             self.add_copy_specs([
                 "/var/log/openshift/node",
                 "/cgroup/*/openshift/",
