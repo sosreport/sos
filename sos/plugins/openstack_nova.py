@@ -30,7 +30,7 @@ class OpenStackNova(Plugin):
     def setup(self):
         if self.option_enabled("cmds"):
             self.add_cmd_output(
-                "nova-manage config list | sort",
+                "nova-manage config list",
                 suggest_filename="nova_config_list")
             self.add_cmd_output(
                 "nova-manage service list",
