@@ -36,7 +36,6 @@ class Openshift(Plugin, RedHatPlugin):
 
         if self.option_enabled("broker"):
             self.add_copy_specs([
-                "/var/log/activemq",
                 "/var/log/mongodb",
                 "/var/log/mcollective-client.log",
                 "/var/log/openshift/broker/",
