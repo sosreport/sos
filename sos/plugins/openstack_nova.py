@@ -30,28 +30,28 @@ class OpenStackNova(Plugin):
     def setup(self):
         if self.option_enabled("cmds"):
             self.add_cmd_output(
-                "nova-manage config list 2>/dev/null | sort",
+                "nova-manage config list | sort",
                 suggest_filename="nova_config_list")
             self.add_cmd_output(
-                "nova-manage service list 2>/dev/null",
+                "nova-manage service list",
                 suggest_filename="nova_service_list")
             self.add_cmd_output(
-                "nova-manage db version 2>/dev/null",
+                "nova-manage db version",
                 suggest_filename="nova_db_version")
             self.add_cmd_output(
-                "nova-manage fixed list 2>/dev/null",
+                "nova-manage fixed list",
                 suggest_filename="nova_fixed_ip_list")
             self.add_cmd_output(
-                "nova-manage floating list 2>/dev/null",
+                "nova-manage floating list",
                 suggest_filename="nova_floating_ip_list")
             self.add_cmd_output(
-                "nova-manage flavor list 2>/dev/null",
+                "nova-manage flavor list",
                 suggest_filename="nova_flavor_list")
             self.add_cmd_output(
-                "nova-manage network list 2>/dev/null",
+                "nova-manage network list",
                 suggest_filename="nova_network_list")
             self.add_cmd_output(
-                "nova-manage vm list 2>/dev/null",
+                "nova-manage vm list",
                 suggest_filename="nova_vm_list")
 
         if self.option_enabled("log"):
