@@ -19,6 +19,10 @@ class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """dmraid related information
     """
 
+    option_list = [(
+        "metadata", "capture metadata from dmraid devices", "slow", False
+    )]
+
     plugin_name = 'dmraid'
     # V - {-V/--version}
     # b - {-b|--block_devices}
@@ -27,10 +31,13 @@ class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     # t - [-t|--test]
     # a - {-a|--activate} {y|n|yes|no}
     # D - [-D|--dump_metadata]
-    dmraid_options = ['V','b','r','s','tay','rD']
+    dmraid_options = ['V','b','r','s','tay']
 
     def setup(self):
         for opt in self.dmraid_options:
             self.add_cmd_output("dmraid -%s" % (opt,))
+        if self.get_option("metadata"):
+            metadata_path = self.get_cmd_output_path("metadata")
+            self.add_cmd_output("dmraid -rD", runat=metadata_path)
 
 # vim: et ts=4 sw=4
