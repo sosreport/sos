@@ -25,7 +25,4 @@ class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     # just look for the configuration file which is common
     files = ('/etc/anacrontab',)
 
-    def setup(self):
-        self.add_copy_specs(list(self.files))
-
 # vim: et ts=4 sw=4

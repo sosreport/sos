@@ -24,8 +24,6 @@ class DistUpgrade(Plugin):
 
     files = None
 
-    def setup(self):
-        self.add_copy_specs(list(self.files))
 
 class RedHatDistUpgrade(DistUpgrade, RedHatPlugin):
 

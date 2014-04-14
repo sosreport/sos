@@ -647,10 +647,11 @@ class Plugin(object):
         return True
 
     def setup(self):
-        """This method must be overridden to add the copy_specs, forbidden_paths,
-        and external programs to be collected at a minimum.
+        """Collect the list of files declared by the plugin. This method
+        may be overridden to add further copy_specs, forbidden_paths, and
+        external programs if required.
         """
-        pass
+        self.add_copy_specs(list(self.files))
 
     def postproc(self):
         """
