@@ -37,7 +37,7 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/sys/module/kvm_amd/srcversion",
             "/sys/module/ksm/srcversion"
         ])
-        if not os.path.ismount(debugfs_path):
+        if not os.path.ismount(self.debugfs_path):
             self._debugfs_cleanup = True
             r = self.call_ext_prog("mount -t debugfs debugfs %s"
                                     % self.debugfs_path)
@@ -48,7 +48,7 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("kvm_stat --once")
 
     def postproc(self):
-        if self._debugfs_cleanup and os.path.ismount(debugfs_path):
+        if self._debugfs_cleanup and os.path.ismount(self.debugfs_path):
             r = self.call_ext_prog("umount %s" % self.debugfs_path)
             self.log_error("could not unmount %s" % self.debugfs_path)
 
