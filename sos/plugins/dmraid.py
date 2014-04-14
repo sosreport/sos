@@ -20,6 +20,13 @@ class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'dmraid'
+    # V - {-V/--version}
+    # b - {-b|--block_devices}
+    # r - {-r|--raid_devices}
+    # s - {-s|--sets}
+    # t - [-t|--test]
+    # a - {-a|--activate} {y|n|yes|no}
+    # D - [-D|--dump_metadata]
     dmraid_options = ['V','b','r','s','tay','rD']
 
     def setup(self):
