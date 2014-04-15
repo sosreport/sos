@@ -227,9 +227,9 @@ class Plugin(object):
     def copy_symlink(self, srcpath):
         # the target stored in the original symlink
         linkdest = os.readlink(srcpath)
+        dest = os.path.join(os.path.dirname(srcpath), linkdest)
         # absolute path to the link target
-        absdest = os.path.normpath(os.path.join(
-                        os.path.dirname(srcpath), linkdest))
+        absdest = os.path.normpath(dest)
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
                 reldest = os.path.relpath(linkdest,
@@ -239,13 +239,11 @@ class Plugin(object):
         else:
                 reldest = linkdest
 
-        self.log_debug(
-                "copying link '%s' pointing to '%s' with isdir=%s"
-                % (srcpath, linkdest, os.path.isdir(absdest)))
+        self.log_debug("copying link '%s' pointing to '%s' with isdir=%s"
+                       % (srcpath, linkdest, os.path.isdir(absdest)))
 
         if os.path.isdir(absdest):
-            self.log_debug("link '%s' is a directory, skipping..."
-                            % linkdest)
+            self.log_debug("link '%s' is a directory, skipping..." % linkdest)
             return
 
         # use the relative target path in the tarball
@@ -254,14 +252,13 @@ class Plugin(object):
         # copy the symlink target translating relative targets
         # to absolute paths to pass to do_copy_path.
         self.log_debug("normalized link target '%s' as '%s'"
-                        %(linkdest, absdest))
+                       % (linkdest, absdest))
         self.do_copy_path(absdest)
 
-        self.copied_files.append({
-            'srcpath':srcpath,
-            'dstpath':srcpath,
-            'symlink':"yes",
-            'pointsto':linkdest})
+        self.copied_files.append({'srcpath':srcpath,
+                                  'dstpath':srcpath,
+                                  'symlink':"yes",
+                                  'pointsto':linkdest})
 
     def copy_dir(self, srcpath):
         for afile in os.listdir(srcpath):
@@ -315,10 +312,9 @@ class Plugin(object):
             else:
                 self.archive.add_file(srcpath, dest)
 
-            self.copied_files.append({
-                'srcpath':srcpath,
-                'dstpath':dest,
-                'symlink':"no"})
+            self.copied_files.append({'srcpath':srcpath,
+                                      'dstpath':dest,
+                                      'symlink':"no"})
 
         except Exception as e:
             self.log_error("unable to add file '%s' to archive:'%s'"
@@ -372,7 +368,8 @@ class Plugin(object):
                 if val != None:
                     return val
 
-        for key, value in six.iteritems(self.commons.get('global_plugin_options', {})):
+        items = six.iteritems(self.commons.get('global_plugin_options', {}))
+        for key, value in items:
             if _check(key):
                 return value
 
@@ -420,13 +417,14 @@ class Plugin(object):
                 file_name = file_name.lstrip(os.sep)
             strfile = file_name.replace(os.path.sep, ".") + ".tailed"
             self.add_string_as_file(tail(_file, sizelimit), strfile)
-            self.archive.add_link(os.path.join(
-                os.path.relpath('/', os.path.dirname(_file)), 'sos_strings',
-                self.name(), strfile), _file)
+            rel_path = os.path.relpath('/', os.path.dirname(_file))
+            link_path = os.path.join(rel_path, 'sos_strings',
+                                     self.name(), strfile)
+            self.archive.add_link(link_path, _file)
 
     def add_copy_specs(self, copyspecs):
         if isinstance(copyspecs, six.string_types):
-            raise TypeError("Plugin.add_copy_specs called with string argument")
+            raise TypeError("add_copy_specs called with string argument")
         for copyspec in copyspecs:
             self.add_copy_spec(copyspec)
 
@@ -467,21 +465,16 @@ class Plugin(object):
     def add_cmd_outputs(self, cmds, timeout=300, runat=None):
         """Run a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
-            raise TypeError("Plugin.add_cmd_outputs called with string argument")
+            raise TypeError("add_cmd_outputs called with string argument")
         for cmd in cmds:
             self.add_cmd_output(cmd, timeout, runat)
 
-    def add_cmd_output(
-            self, exe,
-            suggest_filename=None,
-            root_symlink=None,
-            timeout=300,
-            runat=None
-        ):
+    def add_cmd_output(self, exe, suggest_filename=None,
+                       root_symlink=None, timeout=300,
+                       runat=None):
         """Run a program and collect the output"""
-        self.collect_cmds.append((
-            exe, suggest_filename, root_symlink, timeout, runat
-        ))
+        cmd = (exe, suggest_filename, root_symlink, timeout, runat)
+        self.collect_cmds.append(cmd)
         self.log_debug("added cmd output '%s'" % exe)
 
     def get_cmd_output_path(self, name=None, make=True):
@@ -529,13 +522,9 @@ class Plugin(object):
         self.copy_strings.append((content, filename))
         self.log_debug("added string '%s' as '%s'" % (content,filename))
 
-    def get_cmd_output_now(
-            self, exe,
-            suggest_filename=None,
-            root_symlink=False,
-            timeout=300,
-            runat=None
-    ):
+    def get_cmd_output_now(self, exe, suggest_filename=None,
+                           root_symlink=False, timeout=300,
+                           runat=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
@@ -556,11 +545,9 @@ class Plugin(object):
 
         # save info for later
         self.executed_commands.append({'exe': exe, 'file':outfn_strip}) # save in our list
-        self.commons['xmlreport'].add_command(
-            cmdline=exe,
-            exitcode=result['status'],
-            f_stdout=outfn_strip
-        )
+        self.commons['xmlreport'].add_command(cmdline=exe,
+                                              exitcode=result['status'],
+                                              f_stdout=outfn_strip)
 
         return os.path.join(self.archive.get_archive_path(), outfn)
 
@@ -642,7 +629,7 @@ class Plugin(object):
         return True
 
     def default_enabled(self):
-        """This devices whether a plugin should be automatically loaded or
+        """This decides whether a plugin should be automatically loaded or
         only if manually specified in the command line."""
         return True
 
@@ -654,8 +641,7 @@ class Plugin(object):
         self.add_copy_specs(list(self.files))
 
     def postproc(self):
-        """
-        perform any postprocessing. To be replaced by a plugin if desired
+        """Perform any postprocessing. To be replaced by a plugin if required.
         """
         pass
 
@@ -687,10 +673,10 @@ class Plugin(object):
             # don't use relpath - these are HTML paths not OS paths.
             for cmd in self.executed_commands:
                 if cmd["file"] and len(cmd["file"]):
-                    cmdOutRelPath =  "../" + self.commons['cmddir'] \
+                    cmd_rel_path =  "../" + self.commons['cmddir'] \
                             + "/" + cmd['file']
                     html = html + '<li><a href="%s">%s</a></li>\n' % \
-                            (cmdOutRelPath, cmd['exe'])
+                            (cmd_rel_path, cmd['exe'])
                 else:
                     html = html + '<li>%s</li>\n' % (cmd['exe'])
             html = html + "</ul></p>\n"
