@@ -36,8 +36,10 @@ class RedHatApache(Apache, RedHatPlugin):
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
 
         # collect only the current log set by default
-        self.add_copy_spec_limit("/var/log/httpd/access_log", 15)
-        self.add_copy_spec_limit("/var/log/httpd/error_log", 15)
+        self.add_copy_spec_limit("/var/log/httpd/access_log", 5)
+        self.add_copy_spec_limit("/var/log/httpd/error_log", 5)
+        self.add_copy_spec_limit("/var/log/httpd/ssl_access_log", 5)
+        self.add_copy_spec_limit("/var/log/httpd/ssl_error_log", 5)
         if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd/*")
 
