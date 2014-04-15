@@ -69,10 +69,6 @@ srpm: clean $(NAME)-$(VERSION).tar.gz
 rpm: clean $(NAME)-$(VERSION).tar.gz
 	$(RPM_WITH_DIRS) -tb $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz
 
-deb: clean $(NAME)-$(VERSION).tar.gz
-	@mv $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz ../$(NAME)-$(MAJOR)_$(MINOR).orig.tar.gz
-	@debuild -us -uc -i
-
 po: clean
 	mkdir -p $(PO_DIR)
 	for po in `ls po/*.po`; do \
