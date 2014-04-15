@@ -38,8 +38,8 @@ class Openshift(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/openshift-enterprise-*",
-            "/etc/openshift/",
             "/var/log/openshift/",
+            "/etc/openshift/"
         ])
 
         self.add_cmd_output("oo-diagnostics")
@@ -60,10 +60,11 @@ class Openshift(Plugin, RedHatPlugin):
 
         if self.is_node()
             self.add_copy_specs([
-                "/var/log/openshift/node",
-                "/cgroup/*/openshift/",
-                "/var/log/mcollective.log",
+                "/cgroup/*/openshift",
                 "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
+                "/var/log/httpd/openshift_log",
+                "/var/log/openshift/node/",
+                "/var/log/mcollective.log",
                 "/var/log/openshift-gears-async-start.log",
             ])
 
