@@ -28,7 +28,6 @@ import inspect
 from stat import *
 #from itertools import *
 from subprocess import Popen, PIPE, STDOUT
-import logging
 import zipfile
 import tarfile
 import hashlib
