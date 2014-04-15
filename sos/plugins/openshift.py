@@ -57,9 +57,7 @@ class Openshift(Plugin, RedHatPlugin):
                 "mco ping",
                 "oo-mco ping",
             ])
-            runat = '/var/www/openshift/broker/'
-            self.add_cmd_output("bundle --local", runat)
-                                        
+
         if self.is_node()
             self.add_copy_specs([
                 "/var/log/openshift/node",
