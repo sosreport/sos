@@ -16,11 +16,32 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
+
 class Maas(Plugin, UbuntuPlugin):
     """MAAS Plugin
     """
 
     plugin_name = 'maas'
+
+    option_list = [
+        ('profile-name',
+         'The name with which you will later refer to this remote', '', False),
+        ('url', 'The URL of the remote API', '', False),
+        ('credentials',
+         'The credentials, also known as the API key', '', False)
+    ]
+
+    def _has_login_options(self):
+        return self.get_option("url") and self.get_option("credentials") \
+            and self.get_option("profile-name")
+
+    def _remote_api_login(self):
+        ret = self.call_ext_prog("maas login %s %s %s" % (
+            self.get_option("profile-name"),
+            self.get_option("url"),
+            self.get_option("credentials")))
+
+        return ret['status'] == 0
 
     def setup(self):
         self.add_copy_specs([
@@ -36,5 +57,13 @@ class Maas(Plugin, UbuntuPlugin):
             "apt-cache policy python-django-*",
             "maas dumpdata"
         ])
+
+        if self._has_login_options():
+            if self._remote_api_login():
+                self.add_cmd_output("maas %s commissioning-results list" %
+                                    self.get_option("profile-name"))
+            else:
+                self.log_error(
+                    "Cannot login into Maas remote API with provided creds.")
 
 # vim: et ts=4 sw=4
