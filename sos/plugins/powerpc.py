@@ -81,7 +81,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         if isPowerNV:
             self.add_copy_specs([
                 "/proc/ppc64/",
-                "/sys/kernel/debug/powerpc/"
+                "/sys/kernel/debug/powerpc/",
+                "/sys/firmware/opal/msglog"
             ])
             if os.path.isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
