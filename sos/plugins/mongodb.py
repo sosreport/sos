@@ -23,7 +23,7 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'mongodb'
 
     packages = ('mongodb-server',)
-    files = ('/etc/mongodb.conf/',)
+    files = ('/etc/mongodb.conf',)
 
     def setup(self):
         self.add_copy_specs([
