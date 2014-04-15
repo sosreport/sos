@@ -16,7 +16,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 class ActiveMq(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """MongoDB related information
+    """ActiveMQ related information
     """
 
     plugin_name = 'activemq'
