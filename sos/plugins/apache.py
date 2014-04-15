@@ -35,6 +35,9 @@ class RedHatApache(Apache, RedHatPlugin):
 
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
 
+        # collect only the current log set by default
+        self.add_copy_spec_limit("/var/log/httpd/access_log", 15)
+        self.add_copy_spec_limit("/var/log/httpd/error_log", 15)
         if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd/*")
 
@@ -48,6 +51,10 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
         self.add_copy_specs([
             "/etc/apache2/*",
             "/etc/default/apache2"])
+
+        # collect only the current log set by default
+        self.add_copy_spec_limit("/var/log/apache2/access_log", 15)
+        self.add_copy_spec_limit("/var/log/apache2/error_log", 15)
         if self.get_option("log"):
             self.add_copy_spec("/var/log/apache2/*")
 
