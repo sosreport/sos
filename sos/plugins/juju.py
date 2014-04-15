@@ -23,8 +23,10 @@ class Juju(Plugin, UbuntuPlugin):
     plugin_name = 'juju'
 
     def setup(self):
-        self.add_copy_specs(["/var/log/juju",
-                           "/var/lib/juju"])
+        self.add_copy_specs([
+            "/var/log/juju",
+            "/var/lib/juju"
+        ])
 
         self.add_cmd_outputs([
             "juju -v status",
