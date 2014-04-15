@@ -37,7 +37,7 @@ class Openshift(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_specs([
-            "/etc/openshift-enterprise-version",
+            "/etc/openshift-enterprise-*",
             "/etc/openshift/",
             "/var/log/openshift/",
         ])
