@@ -23,6 +23,7 @@ import shutil
 import logging
 import shlex
 import re
+import codecs
 # required for compression callout (FIXME: move to policy?)
 from subprocess import Popen, PIPE
 
@@ -158,7 +159,7 @@ class FileCacheArchive(Archive):
         src = dest
         dest = self.dest_path(dest)
         self._check_path(dest)
-        f = open(dest, 'w')
+        f = codecs.open(dest, 'w', encoding='utf-8')
         f.write(content)
         if os.path.exists(src):
             try:
@@ -195,7 +196,7 @@ class FileCacheArchive(Archive):
 
     def open_file(self, path):
         path = self.dest_path(path)
-        return open(path, "r")
+        return codecs.open(path, "r", encoding='utf-8')
 
     def cleanup(self):
         shutil.rmtree(self._archive_root)
