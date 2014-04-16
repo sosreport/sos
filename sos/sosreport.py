@@ -35,6 +35,7 @@ supplied for application-specific information
 import sys
 import traceback
 import os
+import errno
 import logging
 from optparse import OptionParser, Option
 from sos.plugins import import_plugin
@@ -903,17 +904,24 @@ class SoSReport(object):
         self.soslog.error("%s\n%s" % (plugin_name, traceback.format_exc()))
 
     def prework(self):
+        self.policy.pre_work()
         try:
-            self.policy.pre_work()
             self.ui_log.info(_(" Setting up archive ..."))
             self._set_archive()
             self._make_archive_paths()
+            return
+        except OSError as e:
+            if e.errno in (errno.ENOSPC, errno.EROFS):
+                self.ui_log.error("")
+                self.ui_log.error(" %s while setting up archive" % e.strerror)
+                self.ui_log.error(" %s" % e.filename)
         except Exception as e:
             import traceback
+            self.ui_log.error("")
             self.ui_log.error(" Unexpected exception setting up archive:")
             traceback.print_exc(e)
             self.ui_log.error(e)
-            self._exit(1)
+        self._exit(1)
 
     def setup(self):
         self.ui_log.info(_(" Setting up plugins ..."))
