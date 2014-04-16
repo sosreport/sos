@@ -910,9 +910,10 @@ class SoSReport(object):
             self._make_archive_paths()
         except Exception as e:
             import traceback
+            self.ui_log.error(" Unexpected exception setting up archive:")
             traceback.print_exc(e)
-            self.ui_log.info(e)
-            self._exit(0)
+            self.ui_log.error(e)
+            self._exit(1)
 
     def setup(self):
         self.ui_log.info(_(" Setting up plugins ..."))
