@@ -1001,8 +1001,15 @@ class SoSReport(object):
                 except:
                     pass
 
-        self.xml_report.serialize_to_file(
-            os.path.join(self.rptdir, "sosreport.xml"))
+        try:
+            self.xml_report.serialize_to_file(os.path.join(self.rptdir, "sosreport.xml"))
+        except OSError as e:
+            if e.errno in fatal_fs_errors:
+                self.ui_log.error("")
+                self.ui_log.error(" %s while writing report data"
+                                  % e.strerror)
+                self.ui_log.error(" %s" % e.filename)
+                self._exit(1)
 
 
     def plain_report(self):
@@ -1029,14 +1036,31 @@ class SoSReport(object):
                 section.add(CreatedFile(name=f))
 
             report.add(section)
-
-        fd = self.get_temp_file()
-        fd.write(str(PlainTextReport(report)))
-        fd.flush()
-        self.archive.add_file(fd.name, dest=os.path.join('sos_reports', 'sos.txt'))
-
+        try:
+            fd = self.get_temp_file()
+            fd.write(str(PlainTextReport(report)))
+            fd.flush()
+            self.archive.add_file(fd.name, dest=os.path.join('sos_reports', 'sos.txt'))
+        except OSError as e:
+            if e.errno in fatal_fs_errors:
+                self.ui_log.error("")
+                self.ui_log.error(" %s while writing text report"
+                                  % e.strerror)
+                self.ui_log.error(" %s" % e.filename)
+                self._exit(1)
 
     def html_report(self):
+        try:
+            self._html_report()
+        except OSError as e:
+            if e.errno in fatal_fs_errors:
+                self.ui_log.error("")
+                self.ui_log.error(" %s while writing HTML report"
+                                  % e.strerror)
+                self.ui_log.error(" %s" % e.filename)
+                self._exit(1)
+
+    def _html_report(self):
         # Generate the header for the html output file
         rfd = self.get_temp_file()
         rfd.write("""
