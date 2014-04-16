@@ -978,6 +978,13 @@ class SoSReport(object):
                 plug.collect()
             except KeyboardInterrupt:
                 raise
+            except OSError as e:
+                if e.errno in fatal_fs_errors:
+                    self.ui_log.error("")
+                    self.ui_log.error(" %s while collecting plugin data"
+                                      % e.strerror)
+                    self.ui_log.error(" %s" % e.filename)
+                    self._exit(1)
             except:
                 if self.raise_plugins:
                     raise
