@@ -303,24 +303,17 @@ class Plugin(object):
         # if we get here, it's definitely a regular file (not a symlink or dir)
         self.log_debug("copying file '%s' to archive:'%s'" % (srcpath,dest))
 
-        try:
-            stat = os.stat(srcpath)
-            # if not readable(srcpath)
-            if not (stat.st_mode & 0o444):
-                # FIXME: reflect permissions in archive
-                self.archive.add_string("", dest)
-            else:
-                self.archive.add_file(srcpath, dest)
+        stat = os.stat(srcpath)
+        # if not readable(srcpath)
+        if not (stat.st_mode & 0o444):
+            # FIXME: reflect permissions in archive
+            self.archive.add_string("", dest)
+        else:
+            self.archive.add_file(srcpath, dest)
 
-            self.copied_files.append({'srcpath':srcpath,
+        self.copied_files.append({'srcpath':srcpath,
                                       'dstpath':dest,
                                       'symlink':"no"})
-
-        except Exception as e:
-            self.log_error("unable to add file '%s' to archive:'%s'"
-                           % (srcpath, dest))
-            self.log_error(traceback.format_exc())
-
 
     def add_forbidden_path(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copy_specs[]
