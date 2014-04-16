@@ -1126,6 +1126,13 @@ class SoSReport(object):
         for plugname, plug in self.loaded_plugins:
             try:
                 plug.postproc()
+            except OSError as e:
+             if e.errno in fatal_fs_errors:
+                    self.ui_log.error("")
+                    self.ui_log.error(" %s while post-processing plugin data"
+                                      % e.strerror)
+                    self.ui_log.error(" %s" % e.filename)
+                    self._exit(1)
             except:
                 if self.raise_plugins:
                     raise
