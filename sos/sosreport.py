@@ -526,7 +526,10 @@ class SoSReport(object):
         self.opts = SoSOptions(args)
         self._set_debug()
         self._read_config()
-        self.policy = sos.policies.load()
+        try:
+            self.policy = sos.policies.load()
+        except KeyboardInterrupt:
+           self._exit(0)
         self._is_root = self.policy.is_root()
         self.tmpdir = os.path.abspath(
             self.policy.get_tmp_dir(self.opts.tmp_dir))
