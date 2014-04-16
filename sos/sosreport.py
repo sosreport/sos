@@ -1147,6 +1147,13 @@ class SoSReport(object):
             # compression could fail for a number of reasons
             try:
                 final_filename = self.archive.finalize(self.opts.compression_type)
+            except OSError as e:
+                if e.errno in fatal_fs_errors:
+                   self.ui_log.error("")
+                   self.ui_log.error(" %s while finalizing archive"
+                                     % e.strerror)
+                   self.ui_log.error(" %s" % e.filename)
+                   self._exit(1)
             except:
                 if self.opts.debug:
                     raise
