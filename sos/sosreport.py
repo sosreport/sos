@@ -501,6 +501,8 @@ class SoSOptions(object):
 
         return parser.parse_args(args)[0]
 
+# file system errors that should terminate a run
+fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
 class SoSReport(object):
 
@@ -911,7 +913,7 @@ class SoSReport(object):
             self._make_archive_paths()
             return
         except OSError as e:
-            if e.errno in (errno.ENOSPC, errno.EROFS):
+            if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
                 self.ui_log.error(" %s while setting up archive" % e.strerror)
                 self.ui_log.error(" %s" % e.filename)
@@ -931,6 +933,13 @@ class SoSReport(object):
                 plug.setup()
             except KeyboardInterrupt:
                 raise
+            except OSError as e:
+                if e.errno in fatal_fs_errors:
+                    self.ui_log.error("")
+                    self.ui_log.error(" %s while setting up plugins"
+                                      % e.strerror)
+                    self.ui_log.error(" %s" % e.filename)
+                    self._exit(1)
             except:
                 if self.raise_plugins:
                     raise
