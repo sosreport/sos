@@ -440,7 +440,7 @@ class Plugin(object):
         self.log_debug("added copyspec '%s'" % copyspec)
 
     def get_command_output(self, prog, timeout=300, runat=None):
-        result = sos_get_command_output(prog, timeout, runat)
+        result = sos_get_command_output(prog, timeout=timeout, runat=runat)
         if result['status'] == 124:
             self.log_warn("command '%s' timed out after %ds"
                     % (prog, timeout))
@@ -453,7 +453,7 @@ class Plugin(object):
         sosreport.
         """
         # pylint: disable-msg = W0612
-        return self.get_command_output(prog, timeout, runat)
+        return self.get_command_output(prog, timeout=timeout, runat=runat)
 
     def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
@@ -467,15 +467,17 @@ class Plugin(object):
         if isinstance(cmds, six.string_types):
             raise TypeError("add_cmd_outputs called with string argument")
         for cmd in cmds:
-            self.add_cmd_output(cmd, timeout, runat)
+            self.add_cmd_output(cmd, timeout=timeout, runat=runat)
 
     def add_cmd_output(self, exe, suggest_filename=None,
                        root_symlink=None, timeout=300,
                        runat=None):
         """Run a program and collect the output"""
         cmd = (exe, suggest_filename, root_symlink, timeout, runat)
+        self.log_debug("packed command tuple: ('%s', '%s', '%s', %s, '%s')"
+                       % cmd)
         self.collect_cmds.append(cmd)
-        self.log_debug("added cmd output '%s'" % exe)
+        self.log_info("added cmd output '%s'" % exe)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -529,7 +531,7 @@ class Plugin(object):
         report.
         """
         # pylint: disable-msg = W0612
-        result = self.get_command_output(exe, timeout, runat)
+        result = self.get_command_output(exe, timeout=timeout, runat=runat)
         if (result['status'] == 127):
             return None
 
@@ -575,13 +577,12 @@ class Plugin(object):
     def collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
             prog, suggest_filename, root_symlink, timeout, runat = progs[0]
+            self.log_debug("unpacked command tuple: "
+                           + "('%s', '%s', '%s', %s, '%s')" % progs[0])
             self.log_info("collecting output of '%s'" % prog)
-            try:
-                self.get_cmd_output_now(prog, suggest_filename,
-                                        root_symlink, timeout, runat)
-            except Exception as e:
-                self.log_debug("could not collect output of '%s': %s"
-                        % (prog, e))
+            self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
+                                    root_symlink=root_symlink,
+                                    timeout=timeout, runat=runat)
 
     def collect_strings(self):
         for string, file_name in self.copy_strings:
