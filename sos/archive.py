@@ -297,8 +297,7 @@ class TarFileArchive(FileCacheArchive):
                 return self.name()
             except Exception as e:
                 last_error = e
-        else:
-            raise last_error
+        raise last_error
 
 
 class ZipFileArchive(Archive):
