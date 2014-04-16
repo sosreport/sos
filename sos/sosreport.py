@@ -912,11 +912,13 @@ class SoSReport(object):
             self._set_archive()
             self._make_archive_paths()
             return
-        except OSError as e:
+        except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
                 self.ui_log.error(" %s while setting up archive" % e.strerror)
-                self.ui_log.error(" %s" % e.filename)
+                self.ui_log.error("")
+            else:
+                raise e
         except Exception as e:
             import traceback
             self.ui_log.error("")
@@ -933,12 +935,12 @@ class SoSReport(object):
                 plug.setup()
             except KeyboardInterrupt:
                 raise
-            except OSError as e:
+            except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
                     self.ui_log.error(" %s while setting up plugins"
                                       % e.strerror)
-                    self.ui_log.error(" %s" % e.filename)
+                    self.ui_log.error("")
                     self._exit(1)
             except:
                 if self.raise_plugins:
@@ -978,12 +980,12 @@ class SoSReport(object):
                 plug.collect()
             except KeyboardInterrupt:
                 raise
-            except OSError as e:
+            except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
                     self.ui_log.error(" %s while collecting plugin data"
                                       % e.strerror)
-                    self.ui_log.error(" %s" % e.filename)
+                    self.ui_log.error("")
                     self._exit(1)
             except:
                 if self.raise_plugins:
@@ -1003,12 +1005,12 @@ class SoSReport(object):
 
         try:
             self.xml_report.serialize_to_file(os.path.join(self.rptdir, "sosreport.xml"))
-        except OSError as e:
+        except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
                 self.ui_log.error(" %s while writing report data"
                                   % e.strerror)
-                self.ui_log.error(" %s" % e.filename)
+                self.ui_log.error("")
                 self._exit(1)
 
 
@@ -1041,23 +1043,23 @@ class SoSReport(object):
             fd.write(str(PlainTextReport(report)))
             fd.flush()
             self.archive.add_file(fd.name, dest=os.path.join('sos_reports', 'sos.txt'))
-        except OSError as e:
+        except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
                 self.ui_log.error(" %s while writing text report"
                                   % e.strerror)
-                self.ui_log.error(" %s" % e.filename)
+                self.ui_log.error("")
                 self._exit(1)
 
     def html_report(self):
         try:
             self._html_report()
-        except OSError as e:
+        except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
                 self.ui_log.error(" %s while writing HTML report"
                                   % e.strerror)
-                self.ui_log.error(" %s" % e.filename)
+                self.ui_log.error("")
                 self._exit(1)
 
     def _html_report(self):
@@ -1126,12 +1128,12 @@ class SoSReport(object):
         for plugname, plug in self.loaded_plugins:
             try:
                 plug.postproc()
-            except OSError as e:
+            except (OSError, IOError) as e:
              if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
                     self.ui_log.error(" %s while post-processing plugin data"
                                       % e.strerror)
-                    self.ui_log.error(" %s" % e.filename)
+                    self.ui_log.error("")
                     self._exit(1)
             except:
                 if self.raise_plugins:
@@ -1147,12 +1149,12 @@ class SoSReport(object):
             # compression could fail for a number of reasons
             try:
                 final_filename = self.archive.finalize(self.opts.compression_type)
-            except OSError as e:
+            except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                    self.ui_log.error("")
                    self.ui_log.error(" %s while finalizing archive"
                                      % e.strerror)
-                   self.ui_log.error(" %s" % e.filename)
+                   self.ui_log.error("")
                    self._exit(1)
             except:
                 if self.opts.debug:
