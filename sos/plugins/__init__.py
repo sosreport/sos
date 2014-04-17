@@ -30,7 +30,7 @@ import os
 import glob
 import re
 import traceback
-from stat import *
+import stat
 from time import time
 from itertools import *
 import logging
@@ -244,12 +244,12 @@ class Plugin(object):
         self.log_debug("copying link '%s' pointing to '%s' with isdir=%s"
                        % (srcpath, linkdest, os.path.isdir(absdest)))
 
+        # use the relative target path in the tarball
+        self.archive.add_link(reldest,srcpath)
+
         if os.path.isdir(absdest):
             self.log_debug("link '%s' is a directory, skipping..." % linkdest)
             return
-
-        # use the relative target path in the tarball
-        self.archive.add_link(reldest,srcpath)
 
         # copy the symlink target translating relative targets
         # to absolute paths to pass to do_copy_path.
@@ -287,35 +287,36 @@ class Plugin(object):
             self.log_debug("skipping forbidden path '%s'" % srcpath)
             return ''
 
-        if not os.path.exists(srcpath):
-            self.log_debug("path '%s' does not exist" % srcpath)
-            return
-
         if not dest:
             dest = srcpath
 
-        if os.path.islink(srcpath):
+        st = os.lstat(srcpath)
+
+        if stat.S_ISLNK(st.st_mode):
             self.copy_symlink(srcpath)
             return
         else:
-            if os.path.isdir(srcpath):
+            if stat.S_ISDIR(st.st_mode):
                 self.copy_dir(srcpath)
                 return
+
+        if stat.S_ISBLK(st.st_mode) or stat.S_ISCHR(st.st_mode):
+            devtype = "block" if stat.S_ISBLK(stat.st_mode) else "character"
+            self.log_debug("skipping %s device node %s" % (devtype, srcpath))
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
         self.log_debug("copying file '%s' to archive:'%s'" % (srcpath,dest))
 
-        stat = os.stat(srcpath)
         # if not readable(srcpath)
-        if not (stat.st_mode & 0o444):
+        if not (st.st_mode & 0o444):
             # FIXME: reflect permissions in archive
             self.archive.add_string("", dest)
         else:
             self.archive.add_file(srcpath, dest)
 
         self.copied_files.append({'srcpath':srcpath,
-                                      'dstpath':dest,
-                                      'symlink':"no"})
+                                  'dstpath':dest,
+                                  'symlink':"no"})
 
     def add_forbidden_path(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copy_specs[]
@@ -399,7 +400,7 @@ class Plugin(object):
         _file = None
 
         for _file in files:
-            current_size += os.stat(_file)[ST_SIZE]
+            current_size += os.stat(_file)[stat.ST_SIZE]
             if sizelimit and current_size > sizelimit:
                 limit_reached = True
                 break
