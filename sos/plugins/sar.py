@@ -32,26 +32,40 @@ class Sar(Plugin,):
         if self.get_option("all_sar"):
             self.sa_size = 0
 
-        self.add_copy_spec_limit(os.path.join(self.sa_path, "sar[0-9]*"),
-                                              sizelimit = self.sa_size)
-        self.add_copy_spec_limit(os.path.join(self.sa_path, "sa[0-9]*"),
-                                              sizelimit = self.sa_size)
+        # Copy all sa??, sar??, sa??.* and sar??.* files, which will net
+        # compressed and uncompressed versions, typically.
+        for suffix in ('', '.*'):
+            self.add_copy_spec_limit(
+                os.path.join(self.sa_path, "sa[0-3][0-9]" + suffix),
+                sizelimit = self.sa_size, tailit=False)
+            self.add_copy_spec_limit(
+                os.path.join(self.sa_path, "sar[0-3][0-9]" + suffix),
+                sizelimit = self.sa_size, tailit=False)
         try:
             dirList = os.listdir(self.sa_path)
         except:
             self.log_warn("sar: could not list %s" % self.sa_path)
             return
-        # find all the sa file that don't have an existing sar file
+        # find all the sa files that don't have an existing sar file
         for fname in dirList:
-            if fname[0:2] == 'sa' and fname[2] != 'r':
-                sar_filename = 'sar' + fname[2:4]
-                sa_data_path = os.path.join(self.sa_path, fname)
-                if sar_filename not in dirList:
-                    sar_cmd = 'sh -c "LANG=C sar -A -f %s"' % sa_data_path
-                    self.add_cmd_output(sar_cmd, sar_filename)
-                sadf_cmd = "sadf -x %s" % sa_data_path
-                self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
-        self.add_copy_spec(os.path.join(self.sa_path, "sar*"))
+            if fname.startswith('sar'):
+                continue
+            if not fname.startswith('sa'):
+                continue
+            if len(fname) != 4:
+                # We either have an "sa" or "sa?" file, or more likely, a
+                # compressed data file like, "sa??.xz".
+                #
+                # FIXME: We don't have a detector for the kind of compression
+                # use for this file right now, so skip these kinds of files.
+                continue
+            sa_data_path = os.path.join(self.sa_path, fname)
+            sar_filename = 'sar' + fname[2:]
+            if sar_filename not in dirList:
+                sar_cmd = 'sh -c "LANG=C sar -A -f %s"' % sa_data_path
+                self.add_cmd_output(sar_cmd, sar_filename)
+            sadf_cmd = "sadf -x %s" % sa_data_path
+            self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
 
 
 class RedHatSar(Sar, RedHatPlugin):

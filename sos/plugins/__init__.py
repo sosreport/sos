@@ -182,7 +182,7 @@ class Plugin(object):
             self.log_error(msg % (called['exe'], e))
             replacements = None
         return replacements
-        
+
     def do_file_sub(self, srcpath, regexp, subst):
         '''Apply a regexp substitution to a file archived by sosreport.
         srcpath is the path in the archive where the file can be found.  regexp
@@ -379,7 +379,7 @@ class Plugin(object):
         except Exception:
             return default
 
-    def add_copy_spec_limit(self, copyspec, sizelimit=None):
+    def add_copy_spec_limit(self, copyspec, sizelimit=None, tailit=True):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
@@ -403,7 +403,7 @@ class Plugin(object):
                 break
             self.add_copy_spec(_file)
 
-        if limit_reached:
+        if limit_reached and tailit:
             file_name = _file
 
             if file_name[0] == os.sep:
