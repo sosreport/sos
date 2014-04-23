@@ -16,12 +16,16 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
+
 class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """ Information on Upstart, the event-based init system.
     """
 
     plugin_name = 'upstart'
     packages = ('upstart',)
+
+    option_list = [("logsize", "maximum size (MiB) of logs to collect",
+                   "", 15)]
 
     def setup(self):
         self.add_cmd_outputs([
@@ -40,6 +44,9 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # State file
         self.add_copy_spec('/var/log/upstart/upstart.state')
 
+        # Log files
+        self.add_copy_spec_limit('/var/log/upstart/*',
+                                 sizelimit=self.get_option('logsize'))
         # Session Jobs (running Upstart as a Session Init)
         self.add_copy_spec('/usr/share/upstart/')
 
