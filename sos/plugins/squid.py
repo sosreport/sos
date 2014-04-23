@@ -48,6 +48,8 @@ class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec_limit("/etc/squid3/squid.conf",
                                  sizelimit=self.get_option('logsize'))
+        self.add_copy_spec_limit("/var/log/squid3/*",
+                                 sizelimit=self.get_option('logsize'))
         self.add_copy_specs(['/etc/squid-deb-proxy'])
         self.add_copy_spec_limit("/var/log/squid-deb-proxy/*",
                                  sizelimit=self.get_option('logsize'))
