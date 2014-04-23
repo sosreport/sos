@@ -24,6 +24,9 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'upstart'
     packages = ('upstart',)
 
+    option_list = [("logsize", "maximum size (MiB) of logs to collect",
+                   "", 15)]
+
     def setup(self):
         self.add_cmd_outputs([
             'initctl --system list',
@@ -41,6 +44,9 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # State file
         self.add_copy_spec('/var/log/upstart/upstart.state')
 
+        # Log files
+        self.add_copy_spec_limit('/var/log/upstart/*',
+                                 sizelimit=self.get_option('logsize'))
         # Session Jobs (running Upstart as a Session Init)
         self.add_copy_spec('/usr/share/upstart/')
 
