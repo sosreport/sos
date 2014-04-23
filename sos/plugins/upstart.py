@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
+
 class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """ Information on Upstart, the event-based init system.
     """
