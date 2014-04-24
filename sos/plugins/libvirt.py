@@ -30,7 +30,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     def postproc(self):
        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
             self.do_file_sub(xmlfile,
-                    r"(\s*passwd=\s*')([^']*)('.*$)",
+                    r"(\s*passwd=\s*')([^']*)('.*)",
                     r"\1******\3")
 
 # vim: et ts=4 sw=4
