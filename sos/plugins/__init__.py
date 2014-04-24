@@ -580,7 +580,7 @@ class Plugin(object):
     def collect_strings(self):
         for string, file_name in self.copy_strings:
             self.log_info("collecting string '%s' as '%s'"
-                          % (self.name(), string, file_name))
+                          % (string, file_name))
             try:
                 self.archive.add_string(string,
                         os.path.join('sos_strings', self.name(), file_name))
