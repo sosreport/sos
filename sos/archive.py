@@ -259,9 +259,10 @@ class TarFileArchive(FileCacheArchive):
         return "%s.%s" % (self._name, self._suffix)
 
     def _build_archive(self):
-        os.chdir(self._tmp_dir)
         tar = tarfile.open(self._archive_name, mode="w")
-        tar.add(os.path.split(self._name)[1],
+        # We need to pass the absolute path to the archive root but we
+        # want the names used in the archive to be relative.
+        tar.add(self._archive_root, arcname=os.path.split(self._name)[1],
                 filter=self.copy_permissions_filter)
         tar.close()
 
