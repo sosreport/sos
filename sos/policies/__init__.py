@@ -92,6 +92,8 @@ class PackageManager(object):
         if self.query_command:
             pkg_list = shell_out(self.query_command).splitlines()
             for pkg in pkg_list:
+                if '|' not in pkg:
+                    continue
                 name, version = pkg.split("|")
                 self.packages[name] = {
                     'name': name,
