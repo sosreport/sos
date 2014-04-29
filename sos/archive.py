@@ -259,15 +259,11 @@ class TarFileArchive(FileCacheArchive):
         return "%s.%s" % (self._name, self._suffix)
 
     def _build_archive(self):
-        old_pwd = os.getcwd()
-        old_umask = os.umask(0o077)
         os.chdir(self._tmp_dir)
         tar = tarfile.open(self._archive_name, mode="w")
         tar.add(os.path.split(self._name)[1],
                 filter=self.copy_permissions_filter)
         tar.close()
-        os.umask(old_umask)
-        os.chdir(old_pwd)
 
     def _compress(self):
         methods = ['xz', 'bzip2', 'gzip']
