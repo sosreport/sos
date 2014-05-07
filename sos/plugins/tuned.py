@@ -28,6 +28,10 @@ class Tuned(Plugin, RedHatPlugin):
             "tuned-adm active",
             "tuned-adm recommend"
         ])
-        self.add_copy_spec("/var/log/tuned/tuned.log")
+        self.add_copy_specs([
+            "/etc/tuned",
+            "/usr/lib/tuned",
+            "/var/log/tuned/tuned.log"
+        ])
 
 # vim: et ts=4 sw=4
