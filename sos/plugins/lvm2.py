@@ -38,13 +38,24 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output(cmd)
 
     def setup(self):
-        self.add_cmd_output("vgdisplay -vv", root_symlink = "vgdisplay")
+        # use locking_type 0 (no locks) when running LVM2 commands, from lvm.conf:
+        # Turn locking off by setting to 0 (dangerous: risks metadata corruption
+        # if LVM2 commands get run concurrently).
+        # None of the commands issued by sos ever modify metadata and this avoids
+        # the possibility of hanging lvm commands when another process or node
+        # holds a conflicting lock.
+        lvm_opts = '--config="global{locking_type=0}"'
+
+        self.add_cmd_output(
+            "vgdisplay -vv %s" % lvm_opts,
+            root_symlink="vgdisplay"
+        )
         self.add_cmd_outputs([
-            "vgscan -vvv",
-            "pvscan -v",
-            "pvs -a -v",
-            "vgs -v",
-            "lvs -a -o +devices"
+            "vgscan -vvv %s" % lvm_opts,
+            "pvscan -v %s" % lvm_opts,
+            "pvs -a -v %s" % lvm_opts,
+            "vgs -v %s" % lvm_opts,
+            "lvs -a -o +devices %s" % lvm_opts
         ])
 
         self.add_copy_spec("/etc/lvm")
