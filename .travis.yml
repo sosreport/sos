@@ -4,9 +4,6 @@ python:
   - 3.2
   - 3.3
   - 3.4
-matrix:
-  allow_failures:
-    - python: 3.4
 notifications:
   email:
     sos-devel@redhat.com
