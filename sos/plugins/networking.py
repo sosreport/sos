@@ -105,7 +105,10 @@ class Networking(Plugin):
             "ifenslave -a",
             "ip mroute show",
             "ip maddr show",
-            "ip neigh show"
+            "ip neigh show",
+            "nmcli general status",
+            "nmcli connection show",
+            "nmcli device status"
         ])
         ip_link_result=self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
@@ -124,6 +127,16 @@ class Networking(Plugin):
         if brctl_file:
             for br_name in self.get_bridge_name(brctl_file):
                 self.add_cmd_output("brctl showstp "+br_name)
+        
+        nmcli_con_show_result=self.call_ext_prog("nmcli --terse --fields NAME con show")
+        if nmcli_con_show_result:
+            for con in nmcli_con_show_result['output'].splitlines():
+                self.add_cmd_output("nmcli connection show "+con)
+
+        nmcli_dev_status_result=self.call_ext_prog("nmcli --terse --fields DEVICE dev status")
+        if nmcli_dev_status_result:
+            for dev in nmcli_dev_status_result['output'].splitlines():
+                self.add_cmd_output("nmcli device show "+dev)
 
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
