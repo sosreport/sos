@@ -51,4 +51,11 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
                 self.add_cmd_output("dumpe2fs -h %s" % (dev))
 
+    def postproc(self):
+        self.do_file_sub(
+            "/etc/fstab",
+            r"(password=)[^\s]*",
+            r"\1********"
+        )
+
 # vim: et ts=4 sw=4
