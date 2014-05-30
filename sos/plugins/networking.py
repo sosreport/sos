@@ -105,7 +105,9 @@ class Networking(Plugin):
             "ifenslave -a",
             "ip mroute show",
             "ip maddr show",
-            "ip neigh show"
+            "ip neigh show",
+            "firewall-cmd --list-all-zones",
+            "firewall-cmd --permanent --list-all-zones"
         ])
         ip_link_result=self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
