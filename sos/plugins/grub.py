@@ -33,8 +33,8 @@ class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         self.do_path_regex_sub(
             r".*\/grub.conf",
-            r"(password)\s(--md5)\s(.*)",
-            r"\1 \2 ********"
+            r"(password\s*)(--md5\s*|\s*)(.*)",
+            r"\1\2********"
         )
 
 # vim: et ts=4 sw=4
