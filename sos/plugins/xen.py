@@ -25,13 +25,13 @@ class Xen(Plugin, RedHatPlugin):
 
     def determine_xen_host(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):
-            (status, output, rtime) = self.call_ext_prog("grep -qi xen /proc/acpi/dsdt")
-            if status == 0:
+            result = self.call_ext_prog("grep -qi xen /proc/acpi/dsdt")
+            if result['status'] == 0:
                 return "hvm"
 
         if os.access("/proc/xen/capabilities", os.R_OK):
-            (status, output, rtime) = self.call_ext_prog("grep -q control_d /proc/xen/capabilities")
-            if status == 0:
+            result = self.call_ext_prog("grep -q control_d /proc/xen/capabilities")
+            if result['status'] == 0:
                 return "dom0"
             else:
                 return "domU"

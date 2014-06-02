@@ -62,7 +62,8 @@ class S390(Plugin, RedHatPlugin):
             "lsqeth",
             "lszfcp"
         ])
-        ret, dasd_dev, rtime = self.call_ext_prog("ls /dev/dasd?")
+        r = self.call_ext_prog("ls /dev/dasd?")
+        dasd_dev = r['output']
         for x in dasd_dev.split('\n'):
             self.add_cmd_outputs([
                 "dasdview -x -i -j -l -f %s" % (x,),

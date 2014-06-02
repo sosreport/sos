@@ -29,10 +29,10 @@ class Abrt(Plugin, RedHatPlugin):
                                                             'slow', False)]
 
     def do_backtraces(self):
-        ret, output, rtime = self.call_ext_prog('sqlite3 '
+        result = self.call_ext_prog('sqlite3 '
                     + '/var/spool/abrt/abrt-db \'select UUID from abrt_v4\'')
         try:
-            for uuid in output.split():
+            for uuid in result['output'].split():
                 self.add_cmd_output("abrt-cli -ib %s" % uuid,
                     suggest_filename=("backtrace_%s" % uuid))
         except IndexError:

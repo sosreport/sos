@@ -60,9 +60,9 @@ class Yum(Plugin, RedHatPlugin):
         if self.get_option("yumdebug") and self.is_installed('yum-utils'):
             # RHEL6+ alternative for this whole function:
             # self.add_cmd_output("yum-debug-dump '%s'" % os.path.join(self.commons['dstroot'],"yum-debug-dump"))
-            ret, output, rtime = self.call_ext_prog("yum-debug-dump")
+            r = self.call_ext_prog("yum-debug-dump")
             try:
-                self.add_cmd_output("zcat %s" % (output.split()[-1],))
+                self.add_cmd_output("zcat %s" % (r['output'].split()[-1],))
             except IndexError:
                 pass
 
