@@ -36,4 +36,35 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "grub2-mkconfig"
         ])
 
+    def postproc(self):
+        # the trailing space is required; python treats '_' as whitespace
+        # causing the passwd_exp to match pbkdf2 passwords and mangle them.
+        passwd_exp        = r"(password )\s*(\S*)\s*(\S*)"
+        passwd_pbkdf2_exp = r"(password_pbkdf2)\s*(\S*)\s*(\S*)"
+        passwd_sub        = r"\1 \2 ********"
+        passwd_pbkdf2_sub = r"\1 \2 grub.pbkdf2.********"
+
+        self.do_cmd_output_sub(
+            "grub2-mkconfig",
+            passwd_pbkdf2_exp,
+            passwd_pbkdf2_sub
+        )
+        self.do_cmd_output_sub(
+            "grub2-mkconfig",
+            passwd_exp,
+            passwd_sub
+        )
+
+        self.do_path_regex_sub(
+            r".*\/grub\.",
+            passwd_exp,
+            passwd_sub
+        )
+
+        self.do_path_regex_sub(
+            r".*\/grub\.",
+            passwd_pbkdf2_exp,
+            passwd_pbkdf2_sub
+        )
+
 # vim: et ts=4 sw=4
