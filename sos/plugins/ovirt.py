@@ -28,7 +28,11 @@ from sos.plugins import Plugin, RedHatPlugin
 class Ovirt(Plugin, RedHatPlugin):
     """oVirt Engine related information"""
 
-    packages = ('ovirt-engine',)
+    packages = (
+        'ovirt-engine',
+        'ovirt-engine-dwh',
+        'ovirt-engine-reports'
+    )
 
     DB_PASS_FILES = re.compile(
         flags=re.VERBOSE,
