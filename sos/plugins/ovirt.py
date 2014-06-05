@@ -120,6 +120,18 @@ class Ovirt(Plugin, RedHatPlugin):
             r"proxyPassword=********"
         )
 
+        passwd_files = [
+            "imageuploader.conf",
+            "isouploader.conf"
+        ]
+        for conf_file in passwd_files:
+            conf_path = os.path.join("/etc/ovirt-engine", conf_file)
+            self.do_file_sub(
+                conf_path,
+                r"passwd=(.*)",
+                r"passwd=********"
+            )
+
         sensitive_keys = self.DEFAULT_SENSITIVE_KEYS
         #Handle --alloptions case which set this to True.
         keys_opt = self.get_option('sensitive_keys')
