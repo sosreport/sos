@@ -176,7 +176,7 @@ No changes will be made to system configuration.
         """
         return False
 
-    def preferred_archive_name(self):
+    def get_preferred_archive(self):
         """
         Return the class object of the prefered archive format for this platform
         """

@@ -569,7 +569,7 @@ class SoSReport(object):
                             "auto, zip, bzip2, gzip and xz")
         archive_name = os.path.join(self.tmpdir,self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
-            auto_archive = self.policy.preferred_archive_name()
+            auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir)
         elif self.opts.compression_type == 'zip':
             self.archive = ZipFileArchive(archive_name, self.tmpdir)
