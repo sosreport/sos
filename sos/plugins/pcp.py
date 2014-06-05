@@ -28,8 +28,9 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('pcp',)
 
     pcp_conffile = '/etc/pcp.conf'
-    option_list = [("all_pcplogs", "gather all logged archive files", "",
-                    False)]
+    option_list = [(
+        "all_pcplogs", "gather all logged archive files", "", False
+    )]
 
     # size-limit total PCP log data collected by default (MB)
     pcplog_totalsize = 100
@@ -87,9 +88,11 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # unconditionally. Obviously if someone messes up their /etc/pcp.conf
         # in a ridiculous way (i.e. setting PCP_SYSCONF_DIR to '/') this will
         # break badly.
-        self.add_copy_spec(self.pcp_sysconf_dir)
         var_conf_dir = os.path.join(self.pcp_var_dir, 'config')
-        self.add_copy_spec(var_conf_dir)
+        self.add_copy_specs([
+            self.pcp_sysconf_dir,
+            var_conf_dir
+        ])
 
         # We explicitely avoid /var/lib/pcp/config/{pmchart,pmlogconf,pmieconf,
         # pmlogrewrite} as in 99% of the cases they are just copies from the
@@ -143,17 +146,17 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         else:
             self.log_warn("pcp_hostname was not set. Skipping.")
 
-        # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
-        self.add_copy_spec(os.path.join(self.pcp_log_dir, 'pmcd'))
-        self.add_copy_spec(os.path.join(self.pcp_log_dir, 'NOTICES*'))
-
-        # Collect PCP_VAR_DIR/pmns
-        self.add_copy_spec(os.path.join(self.pcp_var_dir, 'pmns'))
-
-        # Also collect any other log and config files (as suggested by fche)
-        self.add_copy_spec(os.path.join(self.pcp_log_dir, '*/*.log*'))
-        self.add_copy_spec(os.path.join(self.pcp_log_dir, '*/*/*.log*'))
-        self.add_copy_spec(os.path.join(self.pcp_log_dir, '*/*/config*'))
+        self.add_copy_specs([
+            # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
+            os.path.join(self.pcp_log_dir, 'pmcd'),
+            os.path.join(self.pcp_log_dir, 'NOTICES*'),
+            # Collect PCP_VAR_DIR/pmns
+            os.path.join(self.pcp_var_dir, 'pmns'),
+            # Also collect any other log and config files (as suggested by fche)
+            os.path.join(self.pcp_log_dir, '*/*.log*'),
+            os.path.join(self.pcp_log_dir, '*/*/*.log*'),
+            os.path.join(self.pcp_log_dir, '*/*/config*')
+        ])
 
         # Need to get the current status of the PCP infrastructure
         self.add_cmd_output("pcp")
