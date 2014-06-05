@@ -121,6 +121,7 @@ class Ovirt(Plugin, RedHatPlugin):
         )
 
         passwd_files = [
+            "logcollector.conf",
             "imageuploader.conf",
             "isouploader.conf"
         ]
@@ -130,6 +131,11 @@ class Ovirt(Plugin, RedHatPlugin):
                 conf_path,
                 r"passwd=(.*)",
                 r"passwd=********"
+            )
+            self.do_file_sub(
+                conf_path,
+                r"pg-pass=(.*)",
+                r"pg-pass=********"
             )
 
         sensitive_keys = self.DEFAULT_SENSITIVE_KEYS
