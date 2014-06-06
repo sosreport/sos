@@ -260,7 +260,7 @@ class TarFileArchive(FileCacheArchive):
 
     def _build_archive(self):
         tar = tarfile.open(self._archive_name, mode="w")
-	# we need to pass the absolute path to the archive root but we
+        # we need to pass the absolute path to the archive root but we
         # want the names used in the archive to be relative.
         tar.add(self._archive_root, arcname=os.path.split(self._name)[1],
                 filter=self.copy_permissions_filter)
