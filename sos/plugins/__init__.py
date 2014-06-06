@@ -525,10 +525,12 @@ class Plugin(object):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
+        start = time()
         # pylint: disable-msg = W0612
         result = self.get_command_output(exe, timeout=timeout, runat=runat)
         if (result['status'] == 127):
             return None
+        self.log_debug("collected output of '%s' in %s" % (exe.split()[0], time() - start))
 
         if suggest_filename:
             outfn = self.make_command_filename(suggest_filename)
