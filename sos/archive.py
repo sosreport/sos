@@ -144,7 +144,7 @@ class FileCacheArchive(Archive):
             self.log_debug("caught '%s' copying '%s'" % (e, src))
         try:
             shutil.copystat(src, dest)
-        except PermissionError:
+        except OSError:
             # SELinux xattrs in /proc and /sys throw this
             pass
         try:
@@ -164,7 +164,7 @@ class FileCacheArchive(Archive):
         if os.path.exists(src):
             try:
                 shutil.copystat(src, dest)
-            except PermissionError:
+            except OSError:
                 pass
         self.log_debug("added string at '%s' to FileCacheArchive '%s'"
                        % (src, self._archive_root))
@@ -260,7 +260,7 @@ class TarFileArchive(FileCacheArchive):
 
     def _build_archive(self):
         tar = tarfile.open(self._archive_name, mode="w")
-        # We need to pass the absolute path to the archive root but we
+	# we need to pass the absolute path to the archive root but we
         # want the names used in the archive to be relative.
         tar.add(self._archive_root, arcname=os.path.split(self._name)[1],
                 filter=self.copy_permissions_filter)
