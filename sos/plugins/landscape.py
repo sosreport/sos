@@ -23,42 +23,6 @@ class Landscape(Plugin, UbuntuPlugin):
 
     files = (
         '/etc/landscape/client.conf',
-        'broker.log',
-        'broker.log.gz',
-        'broker.log.1',
-        'broker.log.1.gz',
-        'broker.log.2',
-        'broker.log.2.gz',
-        'manager.log',
-        'manager.log.gz',
-        'manager.log.1',
-        'manager.log.1.gz',
-        'manager.log.2',
-        'manager.log.2.gz',
-        'monitor.log',
-        'monitor.log.gz',
-        'monitor.log.1',
-        'monitor.log.1.gz',
-        'monitor.log.2',
-        'monitor.log.2.gz',
-        'package-reporter.log',
-        'package-reporter.log.gz',
-        'package-reporter.log.1',
-        'package-reporter.log.1.gz',
-        'package-reporter.log.2',
-        'package-reporter.log.2.gz',
-        'sysinfo.log',
-        'sysinfo.log.gz',
-        'sysinfo.log.1',
-        'sysinfo.log.1.gz',
-        'sysinfo.log.2',
-        'sysinfo.log.2.gz',
-        'watchdog.log',
-        'watchdog.log.gz',
-        'watchdog.log.1',
-        'watchdog.log.1.gz',
-        'watchdog.log.2',
-        'watchdog.log.2.gz'
     )
     packages = ('landscape-client',)
 
@@ -66,11 +30,11 @@ class Landscape(Plugin, UbuntuPlugin):
         self.add_copy_spec("/etc/landscape/client.conf")
         
     def postproc(self):
-        self.do_file_sub("/etc/landscape/client.conf", 
-        r"registration_password(.*)", 
-        r"registration_password[***]"
+        self.do_file_sub(
+            "/etc/landscape/client.conf", 
+            r"registration_password(.*)", 
+            r"registration_password[********]"
         )
-        
-                                                    
+
 
 # vim: et ts=4 sw=4
