@@ -80,7 +80,9 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         super(RedHatLdap, self).postproc()
         self.do_cmd_output_sub(
-        "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=config '(!(objectClass=olcSchemaConfig))'",
-            r"(olcRootPW\: \s*)\S+", r"\1********")
+            "ldapsearch"
+            r"(olcRootPW\: \s*)\S+",
+            r"\1********"
+        )
 
 # vim: et ts=4 sw=4
