@@ -45,3 +45,9 @@ class distupgrade(sos.plugintools.PluginBase):
             r"\1********"
         )
 
+        self.doRegexSub(
+            "/var/cache/preupgrade/common/allmyfiles.log",
+            r"\/home\/.*",
+            r"/home/******** path redacted ********"
+        )
+
