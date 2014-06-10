@@ -15,14 +15,14 @@
 
 import sos.plugintools
 
-class keepalived(sos.plugintools.PluginBase):
-    """Keepalived information
+class Ipvs(sos.plugintools.PluginBase):
+    """Ipvs information
     """
 
-    packages = ('keepalived',)
+    packages = ('ipvsadm',)
 
     def setup(self):
-        self.addCopySpec("/etc/keepalived/keepalived.conf")
-        self.addCopySpec("/etc/sysconfig/keepalived")
+        self.collectExtProg("ipvsadm -Ln")
+        self.collectExtProg("ipvsadm -Lc")
 
 # vim: et ts=4 sw=4
