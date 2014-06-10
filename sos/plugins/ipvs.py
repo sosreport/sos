@@ -1,4 +1,3 @@
-## Copyright (C) 2014 Red Hat, Inc. Jamie Bainbridge <jbainbri@redhat.com>
 ## Copyright (C) 2014 Red Hat, Inc. Bryn M. Reeves <bmr@redhat.com>
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
