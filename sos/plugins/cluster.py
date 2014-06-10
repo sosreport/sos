@@ -72,7 +72,6 @@ class Cluster(Plugin, RedHatPlugin):
             "cman_tool nodes",
             "cman_tool status",
             "ccs_tool lsnode",
-            "ipvsadm -L",
             "corosync-quorumtool -l",
             "corosync-quorumtool -s",
             "corosync-cpgtool",
