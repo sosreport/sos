@@ -46,7 +46,7 @@ class distupgrade(sos.plugintools.PluginBase):
         )
 
         self.doRegexSub(
-            "/root/preupgrade/kickstart/untrackeduser"
+            "/root/preupgrade/kickstart/untrackeduser",
             r"\/home\/.*",
             r"/home/******** path redacted ********"
         )
