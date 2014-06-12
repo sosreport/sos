@@ -2,8 +2,8 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 3.1
-Release: 1%{?dist}
+Version: 3.2
+Release: 0.1.a%{?dist}
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
