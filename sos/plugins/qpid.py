@@ -23,21 +23,31 @@ class Qpid(Plugin, RedHatPlugin):
     packages = ('qpidd', 'qpid-cpp-server', 'qpid-tools')
 
     def setup(self):
-        """ performs data collection for mrg """
+        """ performs data collection for qpid broker """
         self.add_cmd_outputs([
-            "qpid-stat -e",
-            "qpid-stat -b",
-            "qpid-config",
-            "qpid-config -b exchanges",
-            "qpid-config -b queues",
+            "qpid-stat -g", # applies since 0.18 version
+            "qpid-stat -b", # applies to pre-0.18 versions
             "qpid-stat -c",
+            "qpid-stat -e",
+            "qpid-stat -q",
+            "qpid-stat -u",
+            "qpid-stat -m", # applies since 0.18 version
+            "qpid-config exchanges"
+            "qpid-config queues"
+            "qpid-config exchanges -b", # applies to pre-0.18 versions
+            "qpid-config queues -b", # applies to pre-0.18 versions
+            "qpid-config exchanges -r", # applies since 0.18 version
+            "qpid-config queues -r", # applies since 0.18 version
             "qpid-route link list",
             "qpid-route route list",
+            "qpid-cluster", # applies to pre-0.22 versions
+            "qpid-ha query", # applies since 0.22 version
             "ls -lanR /var/lib/qpidd"
         ])
 
         self.add_copy_specs([
-            "/etc/qpidd.conf",
+            "/etc/qpidd.conf", # applies to pre-0.22 versions
+            "/etc/qpid/qpidd.conf", # applies since 0.22 version
             "/var/lib/qpid/syslog",
             "/etc/ais/openais.conf",
             "/var/log/cumin.log",
@@ -50,8 +60,7 @@ class Qpid(Plugin, RedHatPlugin):
             "/var/lib/sesame",
             "/var/log/qpidd.log",
             "/var/log/sesame",
-            "/var/log/cumin",
-            "/var/log/cluster"
+            "/var/log/cumin"
         ])
 
 # vim: et ts=4 sw=4
