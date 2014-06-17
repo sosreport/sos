@@ -46,13 +46,13 @@ class Openshift(Plugin, RedHatPlugin):
 
         if self.is_broker():
             self.add_copy_specs([
-                "/var/log/mcollective-client.log",
+                "/var/www/openshift/broker/httpd/conf.d/*.conf",
+                "/var/www/openshift/console/httpd/conf.d/*.conf",
             ])
 
             self.add_cmd_outputs([
                 "oo-accept-broker -v",
                 "oo-admin-chk -v",
-                "mco ping",
                 "oo-mco ping",
             ])
 
@@ -62,7 +62,10 @@ class Openshift(Plugin, RedHatPlugin):
                 "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
                 "/var/log/httpd/openshift_log",
                 "/var/log/mcollective.log",
-                "/var/log/openshift-gears-async-start.log",
+                "/var/log/node-web-proxy/access.log",
+                "/var/log/node-web-proxy/error.log",
+                "/var/log/node-web-proxy/websockets.log",
+                "/var/log/node-web-proxy/supervisor.log",
             ])
 
 
