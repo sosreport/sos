@@ -62,7 +62,7 @@ class Sar(Plugin,):
             sa_data_path = os.path.join(self.sa_path, fname)
             sar_filename = 'sar' + fname[2:]
             if sar_filename not in dirList:
-                sar_cmd = 'sh -c "LANG=C sar -A -f %s"' % sa_data_path
+                sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path
                 self.add_cmd_output(sar_cmd, sar_filename)
             sadf_cmd = "sadf -x %s" % sa_data_path
             self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
