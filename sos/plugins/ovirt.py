@@ -84,6 +84,7 @@ class Ovirt(Plugin, RedHatPlugin):
             "/var/log/ovirt-engine",
             "/var/log/ovirt-engine-dwh",
             "/var/log/ovirt-engine-reports",
+            "/var/log/ovirt-scheduler-proxy",
             "/var/log/rhevm",
             "/etc/sysconfig/ovirt-engine",
             "/usr/share/ovirt-engine/conf",
