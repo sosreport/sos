@@ -22,13 +22,22 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_specs([
-            "/etc/samba",
-            "/var/log/samba/*",])
+            "/etc/samba/smb.conf",
+            "/etc/samba/lmhosts",
+            "/var/log/samba/log.smbd",
+            "/var/log/samba/log.nmbd"
+        ])
         self.add_cmd_outputs([
             "wbinfo --domain='.' -g",
             "wbinfo --domain='.' -u",
             "testparm -s -v"
         ])
 
+
+class RedHatSamba(Samba, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatSamba, self).setup()
+        self.add_copy_spec("/etc/sysconfig/samba")
 
 # vim: et ts=4 sw=4
