@@ -44,7 +44,7 @@ class Openshift(Plugin, RedHatPlugin):
 
         self.add_cmd_output("oo-diagnostics")
 
-        if self.is_broker()
+        if self.is_broker():
             self.add_copy_specs([
                 "/var/log/mcollective-client.log",
                 "/var/log/openshift/broker/",
@@ -58,7 +58,7 @@ class Openshift(Plugin, RedHatPlugin):
                 "oo-mco ping",
             ])
 
-        if self.is_node()
+        if self.is_node():
             self.add_copy_specs([
                 "/cgroup/*/openshift",
                 "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
