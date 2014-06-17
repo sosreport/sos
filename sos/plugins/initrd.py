@@ -26,3 +26,4 @@ class initrd(sos.plugintools.PluginBase):
 
     def defaultenabled(self):
         return False
+
