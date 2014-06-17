@@ -42,7 +42,7 @@ class Openshift(Plugin, RedHatPlugin):
             "/etc/openshift/"
         ])
 
-        self.add_cmd_output("oo-diagnostics")
+        self.add_cmd_output("oo-diagnostics -v")
 
         if self.is_broker():
             self.add_copy_specs([
@@ -72,7 +72,7 @@ class Openshift(Plugin, RedHatPlugin):
             self.add_cmd_outputs([
                 "oo-accept-node -v",
                 "oo-admin-ctl-gears list",
-                "ls -l /var/lib/openshift"
+                "ls -laZ /var/lib/openshift"
             ])
 
     def postproc(self):
