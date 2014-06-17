@@ -41,8 +41,8 @@ install:
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
 
 $(NAME)-$(VERSION).tar.gz: clean gpgkey
-	@mkdir -p $(RPM_BUILD_DIR)
-	@svn export --force $(PWD) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
+	@mkdir -p $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
+	@tar -cv sosreport sos doc man po sos.conf AUTHORS LICENSE README TODO sos.spec Makefile ChangeLog | tar -x -C $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)
 	@mkdir -p $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys
 	@cp gpgkeys/rhsupport.pub $(RPM_BUILD_DIR)/$(NAME)-$(VERSION)/gpgkeys/.
 	@tar Ccvzf $(RPM_BUILD_DIR) $(RPM_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
