@@ -15,7 +15,7 @@
 
 import sos.plugintools
 
-class Ctdb(sos.plugintools.Pluginbase):
+class Ctdb(sos.plugintools.PluginBase):
     """Samba CTDB related information
     """
     packages = ('ctdb',)
