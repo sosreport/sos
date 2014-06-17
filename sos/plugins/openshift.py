@@ -47,8 +47,6 @@ class Openshift(Plugin, RedHatPlugin):
         if self.is_broker():
             self.add_copy_specs([
                 "/var/log/mcollective-client.log",
-                "/var/log/openshift/broker/",
-                "/var/log/openshift/console/"
             ])
 
             self.add_cmd_outputs([
@@ -63,7 +61,6 @@ class Openshift(Plugin, RedHatPlugin):
                 "/cgroup/*/openshift",
                 "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
                 "/var/log/httpd/openshift_log",
-                "/var/log/openshift/node/",
                 "/var/log/mcollective.log",
                 "/var/log/openshift-gears-async-start.log",
             ])
