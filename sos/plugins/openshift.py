@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin
 class Openshift(Plugin, RedHatPlugin):
     '''Openshift related information'''
 
-    plugin_name = "Openshift"
+    plugin_name = "openshift"
 
     option_list = [("broker", "Gathers broker specific files", "slow", False),
            ("node", "Gathers node specific files", "slow", False)]
