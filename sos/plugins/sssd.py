@@ -27,3 +27,11 @@ class sssd(sos.plugintools.PluginBase):
     def setup(self):
         self.addCopySpec("/etc/sssd")
         self.addCopySpec("/var/log/sssd/*")
+
+    def postproc(self):
+        self.doRegexSub(
+            "/etc/sssd/sssd.conf",
+            r"(\s*ldap_default_authtok\s*=\s*)\S+",
+            r"\1********"
+        )
+
