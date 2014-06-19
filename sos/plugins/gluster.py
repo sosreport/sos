@@ -21,7 +21,8 @@ import string
 class gluster(sos.plugintools.PluginBase):
     '''gluster related information'''
 
-    statedump_dir = '/tmp/glusterfs-statedumps'
+    statedump_dir = '/sos_commands/gluster/glusterfs-statedumps'
+    master_statedump_dir = '/sos_commands'
 
     def defaultenabled(self):
         return True
@@ -48,7 +49,7 @@ class gluster(sos.plugintools.PluginBase):
 
     def make_preparations(self, name_dir):
         try:
-            os.mkdir(name_dir);
+            os.makedirs(name_dir);
         except:
             pass
         fp = open ('/tmp/glusterdump.options', 'w');
@@ -69,13 +70,11 @@ class gluster(sos.plugintools.PluginBase):
                 ret = string.count (last_line, 'DUMP_END_TIME');
 
     def postproc(self):
-        if not os.path.exists(self.statedump_dir):
+        if not os.path.exists(self.master_statedump_dir):
             return
         try:
-            for dirs in os.listdir(self.statedump_dir):
-                os.remove(os.path.join(self.statedump_dir,dirs));
-            os.rmdir(self.statedump_dir);
-            os.unlink('/tmp/glusterdump.options');
+            os.system('rm -rf %s' % self.master_statedump_dir)
+            os.unlink('/tmp/glusterdump.options')
         except:
             pass
 
@@ -99,9 +98,6 @@ class gluster(sos.plugintools.PluginBase):
             self.addCopySpec("/var/lib/glusterd/")
             self.addForbiddenPath("/var/lib/glusterd/geo-replication/secret.pem")
 
-        # collect unified file and object storage configuration
-        self.addCopySpec("/etc/swift/")
-
         # glusterfs-server rpm scripts stash this on migration to 3.3.x
         self.addCopySpec("/etc/glusterd.rpmsave")
 
@@ -115,8 +111,14 @@ class gluster(sos.plugintools.PluginBase):
         # entries.
         time.sleep(1)
         self.wait_for_statedump(self.statedump_dir)
-        self.addCopySpec('/tmp/glusterdump.options')
         self.addCopySpec(self.statedump_dir)
+
+        #This will fail on <3.3.x but has no harmful side-effects
+        volume_file = self.collectOutputNow("/usr/sbin/gluster volume info",
+                        "gluster_volume_info")
+        if volume_file:
+            for volname in self.get_volume_names(volume_file):
+                self.collectExtOutput("gluster volume geo-replication %s status" % volname)
 
         self.collectExtOutput("gluster volume status")
         # collect this last as some of the other actions create log entries
