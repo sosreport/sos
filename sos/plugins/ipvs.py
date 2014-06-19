@@ -15,14 +15,14 @@
 
 import sos.plugintools
 
-class Ipvs(sos.plugintools.PluginBase):
+class ipvs(sos.plugintools.PluginBase):
     """Ipvs information
     """
 
     packages = ('ipvsadm',)
 
     def setup(self):
-        self.collectExtProg("ipvsadm -Ln")
-        self.collectExtProg("ipvsadm -Lc")
+        self.collectExtOutput("ipvsadm -Ln")
+        self.collectExtOutput("ipvsadm -Lc")
 
 # vim: et ts=4 sw=4
