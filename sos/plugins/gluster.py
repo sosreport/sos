@@ -21,11 +21,14 @@ import string
 class gluster(sos.plugintools.PluginBase):
     '''gluster related information'''
 
-    statedump_dir = '/sos_commands/gluster/glusterfs-statedumps'
-    master_statedump_dir = '/sos_commands'
+    optionList = [("logsize", "max log size (MiB) to collect", "", 5),
+                  ("all_logs", "collect all log files present", "", False)]
 
-    def defaultenabled(self):
-        return True
+    packages = ('glusterfs', 'glusterfs-core')
+    files = ('/etc/glusterd', '/var/lib/glusterd')
+
+    statedump_dir = '/tmp/glusterfs-statedumps'
+    master_statedump_dir = '/sos_commands'
 
     def get_volume_names(self, volume_file):
         """Return a dictionary for which key are volume names according to the
@@ -40,12 +43,6 @@ class gluster(sos.plugintools.PluginBase):
             out.append(volname)
         fp.close()
         return out
-
-    def checkenabled(self):
-        packages = ["glusterfs", "glusterfs-core"]
-        return os.path.exists("/etc/glusterd")               \
-            or os.path.exists("/var/lib/glusterd")           \
-            or sos.plugintools.PluginBase.checkenabled(self)
 
     def make_preparations(self, name_dir):
         try:
@@ -121,6 +118,25 @@ class gluster(sos.plugintools.PluginBase):
                 self.collectExtOutput("gluster volume geo-replication %s status" % volname)
 
         self.collectExtOutput("gluster volume status")
-        # collect this last as some of the other actions create log entries
-        self.addCopySpec("/var/log/glusterfs")
+
+        # all_logs takes precedence over logsize
+        if not self.getOption("all_logs"):
+            limit = self.getOption("logsize")
+        else:
+            limit = 0
+
+        if limit:
+            # collect logs last as some of the other actions create log entries
+            self.addCopySpecLimit("/var/log/glusterfs/cli.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/*.vol.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/gluster-lock.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/glustershd.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/nfs.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/quota-crawl.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/quotad.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/quotad-mount-*.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/status.log", limit)
+            self.addCopySpecLimit("/var/log/glusterfs/bricks/*.log", limit)
+        else:
+            self.addCopySpec("/var/log/glusterfs")
 
