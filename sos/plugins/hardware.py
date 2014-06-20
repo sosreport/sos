@@ -14,6 +14,7 @@
 
 import sos.plugintools
 import os
+import sys
 
 class hardware(sos.plugintools.PluginBase):
     """hardware related information
@@ -39,7 +40,17 @@ class hardware(sos.plugintools.PluginBase):
         self.addCopySpec("/sys/bus/scsi")
         self.addCopySpec("/sys/state")
         self.addCopySpec("/var/log/mcelog")
-        self.collectExtOutput("python /usr/share/rhn/up2date_client/hardware.py", suggest_filename="hardware.py")
+        sys.path.append("/usr/share/rhn/")
+        try:
+            from up2date_client import hardware
+            buf = ""
+            for hw in hardware.Hardware():
+                for k in hw.keys():
+                    buf = buf + "'%s' : '%s'\n" % (k, hw[k])
+                buf = buf + '\n'
+            self.writeTextToCommand("hardware.py", buf)
+        except:
+            pass
         self.collectExtOutput("""/bin/echo -e "lspci:\n" ; /sbin/lspci ; /bin/echo -e "\nlspci -nvv:\n" ; /sbin/lspci -nvv ; /bin/echo -e "\nlspci -tv:\n" ; /sbin/lspci -tv""", suggest_filename = "lspci", symlink = "lspci")
 
         self.collectExtOutput("/usr/sbin/dmidecode", symlink = "dmidecode")
