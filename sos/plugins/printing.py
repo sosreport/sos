@@ -17,12 +17,19 @@ import sos.plugintools
 class printing(sos.plugintools.PluginBase):
     """printing related information (cups)
     """
-    optionList = [("cups", "max size (MiB) to collect per cups log file",
-                   "", 50)]
+    optionList = [("logsize", "max size (MiB) to collect per log file", "", 5),
+                  ("all_logs", "collect all cups log files", "", False)]
 
     def setup(self):
+        # all_logs takes precedence over logsize
+        if not self.getOption("all_logs"):
+            limit = self.getOption("logsize")
+            self.addCopySpecLimit("/var/log/cups/access_log", sizelimit=limit)
+            self.addCopySpecLimit("/var/log/cups/error_log", sizelimit=limit)
+            self.addCopySpecLimit("/var/log/cups/page_log", sizelimit=limit)
+        else:
+            self.addCopySpec("/var/log/cups")
         self.addCopySpec("/etc/cups/*.conf")
-        self.addCopySpecLimit("/var/log/cups", sizelimit=self.isOptionEnabled("cupslogsize"))
         self.addCopySpec("/etc/cups/lpoptions")
         self.addCopySpec("/etc/cups/ppd/*.ppd")
         self.collectExtOutput("/usr/bin/lpstat -t")
