@@ -18,17 +18,16 @@ class selinux(sos.plugintools.PluginBase):
     """selinux related information
     """
     optionList = [("fixfiles", 'Print incorrect file context labels', 'slow', False),
-                   ("list", 'List objects and their context', 'slow', False)]
+                  ("list", 'List objects and their context', 'slow', False)]
     packages = ('libselinux', 'policycoreutils-python')
 
     def setup(self):
-        # sestatus is always collected in check_enabled()
         self.addCopySpec("/etc/selinux")
         self.collectExtOutput("sestatus -b")
         self.collectExtOutput("semodule -l")
         self.collectExtOutput("selinuxdefcon root")
         self.collectExtOutput("selinuxconlist root")
-        self.collectExtOutput("ausearch -m avc,user_avc -ts today")
+        self.collectExtOutput("ausearch --input-logs -m avc,user_avc -ts today")
         self.collectExtOutput("semanage -o -")
         if self.getOption('fixfiles'):
             self.collectExtOutput("fixfiles check")
@@ -37,4 +36,4 @@ class selinux(sos.plugintools.PluginBase):
             self.collectExtOutput("semanage user -l")
             self.collectExtOutput("semanage login -l")
             self.collectExtOutput("semanage port -l")
-
+            
