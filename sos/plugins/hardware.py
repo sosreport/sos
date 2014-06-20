@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 from glob import glob
 import os
 
-class Hardware(Plugin):
+class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """hardware related information
     """
 
@@ -34,24 +34,5 @@ class Hardware(Plugin):
 
         self.add_cmd_output("dmidecode", root_symlink = "dmidecode")
         
-
-class RedHatHardware(Hardware, RedHatPlugin):
-    """hardware related information for Red Hat distribution
-    """
-
-    def setup(self):
-        super(RedHatHardware, self).setup()
-        hwpaths = glob("/usr/share/rhn/up2date*client/hardware.py")
-        if (len(hwpaths) == 0):
-            return
-        self.add_cmd_output("python " + hwpaths[0])
-
-
-class DebianHardware(Hardware, DebianPlugin, UbuntuPlugin):
-    """hardware related information for Debian distribution
-    """
-
-    def setup(self):
-        super(DebianHardware, self).setup()
 
 # vim: et ts=4 sw=4
