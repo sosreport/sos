@@ -14,27 +14,36 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-class Printing(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """printing related information (cups)
     """
 
-    plugin_name = 'printing'
+    plugin_name = 'cups'
 
     packages = ('cups',)
-    option_list = [("cups", "max size (MiB) to collect per cups log file",
-                   "", 15)]
+
+    option_list = [("logsize", "max size (MiB) to collect per log file", "", 5),
+                   ("all_logs", "collect all cups log files", "", False)]
 
     def setup(self):
+        if not self.get_option("all_logs"):
+            limit = self.get_option("logsize")
+            self.add_copy_spec_limit("/var/log/cups/access_log", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/cups/error_log", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/cups/page_log", sizelimit=limit)
+        else:
+            self.add_copy_spec("/var/log/cups")
+
         self.add_copy_specs([
             "/etc/cups/*.conf",
             "/etc/cups/lpoptions",
-            "/etc/cups/ppd/*.ppd"])
+            "/etc/cups/ppd/*.ppd"
+        ])
+
         self.add_cmd_outputs([
             "lpstat -t",
             "lpstat -s",
             "lpstat -d"
         ])
-        self.add_copy_spec_limit("/var/log/cups",
-            sizelimit=self.option_enabled("cupslogsize"))
 
 # vim: et ts=4 sw=4
