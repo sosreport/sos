@@ -39,7 +39,6 @@ class general(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/dmesg", suggest_filename="dmesg_now")
         self.addCopySpecLimit("/var/log/messages*", sizelimit = self.getOption("syslogsize"))
         self.addCopySpecLimit("/var/log/secure*", sizelimit = self.getOption("syslogsize"))
-        self.addCopySpec("/var/log/sa")
         self.addCopySpec("/var/log/pm/suspend.log")
         self.addCopySpec("/var/log/up2date")
         self.addCopySpec("/etc/exports")        
