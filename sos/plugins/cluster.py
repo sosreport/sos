@@ -52,7 +52,8 @@ class Cluster(Plugin, RedHatPlugin):
             "/var/lib/luci/etc",
             "/var/log/cluster",
             "/var/log/luci",
-            "/etc/fence_virt.conf"
+            "/etc/fence_virt.conf",
+            "/sys/fs/gfs2/*/withdraw"
         ])
 
         if self.get_option('gfslockdump'):
