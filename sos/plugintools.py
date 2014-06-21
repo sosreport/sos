@@ -323,7 +323,7 @@ class PluginBase:
         # nonexistent options aren't enabled.
         return 0
 
-    def addCopySpecLimit(self, fname, sizelimit = None):
+    def addCopySpecLimit(self, fname, sizelimit=None, tailit=True):
         """Add a file specification (with limits)
         """
         if not ( fname and len(fname) ):
@@ -340,9 +340,7 @@ class PluginBase:
                 limit_reached = True
             else:
                 self.addCopySpec(flog)
-            # Truncate the first file (others would likely be compressed),
-            # ensuring we get at least some logs
-            if flog == files[0] and limit_reached:
+            if limit_reached and tailit:
                 self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
                     "tail_" + os.path.basename(flog), flog[1:])
 
