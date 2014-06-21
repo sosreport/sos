@@ -74,6 +74,9 @@ class ipa(sos.plugintools.PluginBase):
         self.collectExtOutput("klist -ket /etc/httpd/conf/ipa.keytab")
         self.collectExtOutput("klist -ket /etc/krb5.keytab")
 
+        hostname = self.callExtProg('hostname')[1]
+        self.collectExtOutput("ipa-replica-manage -v list")
+        self.collectExtOutput("ipa-replica-manage -v list %s" % hostname)
         return
 
 
