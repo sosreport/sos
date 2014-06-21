@@ -63,9 +63,16 @@ class networking(sos.plugintools.PluginBase):
             self.writeTextToCommand(cmd,"IPTables module "+tablename+" not loaded\n")
 
     def setup(self):
+        # Work around the fact that /proc/net is now a symbolic link. We need
+        # to pass the trailing '/' here to force addCopySpec() to treat the path
+        # as a directory but this then causes the path comparison used by the
+        # addForbiddenPath() logic to fail due to the repeated '/'. Avoid this by
+        # duplicating the '/' in the addForbiddenPath calls.
         self.addCopySpec("/proc/net/")
         self.addForbiddenPath("/proc/net//rpc/*/channel")
         self.addForbiddenPath("/proc/net//rpc/*/flush")
+        self.addForbiddenPath("/proc/net//cdp")
+        self.addForbiddenPath("/sys/net/cdp")
         self.addCopySpec("/etc/nsswitch.conf")
         self.addCopySpec("/etc/yp.conf")
         self.addCopySpec("/var/yp/bindings")
