@@ -34,6 +34,23 @@ class RedHatDistUpgrade(DistUpgrade, RedHatPlugin):
         "/root/preupgrade/kickstart"
     )
 
+    def postproc(self):
+        self.doRegexSub(
+            "/root/preupgrade/kickstart/anaconda-ks.cfg",
+            r"(useradd --password) (.*)",
+            r"\1 ********"
+        )
 
+        self.doRegexSub(
+            "/root/preupgrade/kickstart/anaconda-ks.cfg",
+            r"(\s*rootpw\s*).*",
+            r"\1********"
+        )
+
+        self.doRegexSub(
+            "/root/preupgrade/kickstart/untrackeduser",
+            r"\/home\/.*",
+            r"/home/******** path redacted ********"
+        )
 
 # vim: et ts=4 sw=4
