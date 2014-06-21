@@ -41,6 +41,12 @@ class distupgrade(sos.plugintools.PluginBase):
     def postproc(self):
         self.doRegexSub(
             "/root/preupgrade/kickstart/anaconda-ks.cfg",
+            r"(useradd --password) (.*)",
+            r"\1 ********"
+        )
+
+        self.doRegexSub(
+            "/root/preupgrade/kickstart/anaconda-ks.cfg",
             r"(\s*rootpw\s*).*",
             r"\1********"
         )
