@@ -37,17 +37,20 @@ class Sar(Plugin,):
         for suffix in ('', '.*'):
             self.add_copy_spec_limit(
                 os.path.join(self.sa_path, "sa[0-3][0-9]" + suffix),
-                sizelimit = self.sa_size, tailit=False)
+                sizelimit = self.sa_size, tailit=False
+            )
             self.add_copy_spec_limit(
                 os.path.join(self.sa_path, "sar[0-3][0-9]" + suffix),
-                sizelimit = self.sa_size, tailit=False)
+                sizelimit = self.sa_size, tailit=False
+            )
+
         try:
-            dirList = os.listdir(self.sa_path)
+            dir_list = os.listdir(self.sa_path)
         except:
             self.log_warn("sar: could not list %s" % self.sa_path)
             return
         # find all the sa files that don't have an existing sar file
-        for fname in dirList:
+        for fname in dir_list:
             if fname.startswith('sar'):
                 continue
             if not fname.startswith('sa'):
