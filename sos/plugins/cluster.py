@@ -56,6 +56,7 @@ class cluster(sos.plugintools.PluginBase):
         self.addCopySpec("/var/lib/luci/etc")
         self.addCopySpec("/var/log/cluster")
         self.addCopySpec("/var/log/luci")
+        self.addCopySpec("/sys/fs/gfs2/*/withdraw")
 
         if self.getOption('gfslockdump'):
             self.do_gfslockdump()
