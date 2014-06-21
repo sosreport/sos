@@ -19,25 +19,55 @@ class sar(sos.plugintools.PluginBase):
     """Generate the sar file from /var/log/sa/saXX files
     """
 
+    packages = ('sysstat',)
     sa_path = "/var/log/sa"
+    optionList = [("all_sar", "gather all system activity records", "", False)]
+
+    # size-limit SAR data collected by default (MB)
+    sa_size = 20
 
     def setup(self):
+        if self.getOption("all_sar"):
+            self.sa_size = 0
+
+        # Copy all sa??, sar??, sa??.* and sar??.* files, which will net
+        # compressed and uncompressed versions, typically.
+        for suffix in ('', '.*'):
+            self.addCopySpecLimit(
+                os.path.join(self.sa_path, "sa[0-3][0-9]" + suffix),
+                sizelimit=self.sa_size, tailit=False
+            )
+            self.addCopySpecLimit(
+                os.path.join(self.sa_path, "sar[0-3][0-9]" + suffix),
+                sizelimit=self.sa_size, tailit=False
+            )
+            
         try:
             dirList=os.listdir(self.sa_path)
         except:
-            self.soslog.error("sar: could not list /var/log/sa")
+            self.soslog.error("sar: could not list %s" % self.sa_path)
             return
         # find all the sa file that don't have an existing sar file
         for fname in dirList:
-            if fname[0:2] == 'sa' and fname[2] != 'r':
-                sar_filename = 'sar' + fname[2:4]
-                sa_data_path = os.path.join(self.sa_path, fname)
-                if sar_filename not in dirList:
-                    sar_command = "/usr/bin/sar -A -f /var/log/sa/" + fname
-                    self.collectOutputNow(sar_command, sar_filename, symlink=sar_filename)
-                sadf_cmd = "/usr/bin/sadf -x %s" % sa_data_path
-                self.collectExtOutput(sadf_cmd, "%s.xml" % fname)
-        return
+            if fname.startswith('sar'):
+                continue
+            if not fname.startswith('sa'):
+                continue
+            if len(fname) != 4:
+                # We either have an "sa" or "sa?" file, or more likely, a
+                # compressed data file like, "sa??.xz".
+                #
+                # FIXME: We don't have a detector for the kind of compression
+                # use for this file right now, so skip these kinds of files.
+                continue
+            sa_data_path = os.path.join(self.sa_path, fname)
+            sar_filename = 'sar' + fname[2:]
+            if sar_filename not in dirList:
+                sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path
+                self.collectExtOutput(sar_cmd, sar_filename)
+            sadf_cmd = "sadf -x %s" % sa_data_path
+            self.collectExtOutput(sadf_cmd, "%s.xml" % fname)
+
 
     def checkenabled(self):
         if os.path.exists("/var/log/sa") and os.path.exists("/usr/bin/sar"):
