@@ -21,7 +21,7 @@ class rpm(sos.plugintools.PluginBase):
                   ("rpmva", "runs a verify on all packages", "slow", False)]
 
     verify_list = [
-        'kernel', 'glibc', 'initscripts',
+        'kernel$', 'glibc', 'initscripts',
         'pam_.*',
         'java.*', 'perl.*',
         'rpm', 'yum',
@@ -41,8 +41,7 @@ class rpm(sos.plugintools.PluginBase):
             verify_list = map(pkgs_by_regex, self.verify_list)
             for pkg_list in verify_list:
                 for pkg in pkg_list:
-                    if pkg['name'].endswith('-debuginfo') or \
-                       pkg['name'].endswith('-debuginfo-common'):
+                    if 'debuginfo' in pkg['name'] or 'devel' in pkg['name']:
                         continue
                     self.collectExtOutput("rpm -V %s" % pkg['name'])
         return
