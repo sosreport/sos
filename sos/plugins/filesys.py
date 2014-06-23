@@ -45,11 +45,13 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if self.get_option('lsof'):
             self.add_cmd_output("lsof -b +M -n -l -P", root_symlink = "lsof")
 
+        dumpe2fs_opts = '-h'
         if self.get_option('dumpe2fs'):
-            mounts = '/proc/mounts'
-            ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
-            for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
-                self.add_cmd_output("dumpe2fs -h %s" % (dev))
+            dumpe2fs_opts = ''
+        mounts = '/proc/mounts'
+        ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
+        for dev in self.do_regex_find_all(ext_fs_regex, mounts):
+                self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev))
 
     def postproc(self):
         self.do_file_sub(
