@@ -17,12 +17,18 @@ import sos.plugintools
 class tomcat(sos.plugintools.PluginBase):
     """Tomcat related information
     """
-    def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("tomcat5"):
-            return True
-        return False
-        
+
+    packages = ('tomcat6',)
+
     def setup(self):
-        self.addCopySpec("/etc/tomcat5")
-        self.addCopySpec("/var/log/tomcat5")
+        self.addCopySpec("/etc/tomcat6")
+        self.addCopySpec("/var/log/tomcat6/catalina.out")
         return
+
+    def postproc(self):
+        self.doRegexSub(
+            "/etc/tomcat6/tomcat-users.xml",
+            r"password=(\S*)",
+            r'password="********"'
+        )
+
