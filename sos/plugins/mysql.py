@@ -25,7 +25,8 @@ class Mysql(Plugin):
     option_list = [
         ("dbuser", "username for database dumps", "", "mysql"),
         ("dbpass", "password for database dumps", "", ""),
-        ("dbdump", "collect a database dump", "", False)
+        ("dbdump", "collect a database dump", "", False),
+        ("all_logs", "collect all MySQL logs", "", False)
     ]
 
     def setup(self):
@@ -35,6 +36,11 @@ class Mysql(Plugin):
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
+        if self.get_option("all_logs"):
+            self.add_copy_specs([
+                "/var/log/mysql*",
+                "/var/log/mariadb*"
+            ])
         if self.get_option("dbdump"):
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
