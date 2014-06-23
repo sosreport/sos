@@ -22,6 +22,12 @@ class Mysql(Plugin):
     plugin_name = "mysql"
     mysql_cnf = "/etc/my.cnf"
 
+    option_list = [
+        ("dbuser", "username for database dumps", "", "mysql"),
+        ("dbpass", "password for database dumps", "", ""),
+        ("dbdump", "collect a database dump", "", False)
+    ]
+
     def setup(self):
         super(Mysql, self).setup()
         self.add_copy_specs([
@@ -29,6 +35,11 @@ class Mysql(Plugin):
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
+        if self.get_option("dbdump"):
+            dbuser = self.get_option("dbuser")
+            dbpass = self.get_option("dbpass")
+            opts = "--user=%s --password=%s --all-databases" % (dbuser, dbpass)
+            self.add_cmd_output("mysqldump %s" % opts)
 
 
 class RedHatMysql(Mysql, RedHatPlugin):
