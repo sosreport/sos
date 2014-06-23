@@ -39,10 +39,12 @@ class rpm(sos.plugintools.PluginBase):
         else:
             pkgs_by_regex = self.policy().allPkgsByNameRegex
             verify_list = map(pkgs_by_regex, self.verify_list)
+            verify_pkgs = ""
             for pkg_list in verify_list:
                 for pkg in pkg_list:
                     if 'debuginfo' in pkg['name'] or 'devel' in pkg['name']:
                         continue
-                    self.collectExtOutput("rpm -V %s" % pkg['name'])
+                    verify_pkgs = "%s %s" % (verify_pkgs, pkg['name'])
+            self.collectExtOutput("rpm -V %s" % verify_pkgs)
         return
 
