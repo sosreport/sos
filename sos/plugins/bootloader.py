@@ -32,3 +32,10 @@ class bootloader(sos.plugintools.PluginBase):
         self.collectExtOutput("/bin/ls -laR /boot")
         return
 
+    def postproc(self):
+        self.doPathRegexSub(
+            r".*\/grub.conf",
+            r"(password\s*)(--md5\s*|\s*)(.*)",
+            r"\1\2********"
+        )
+
