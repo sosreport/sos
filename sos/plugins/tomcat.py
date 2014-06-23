@@ -20,12 +20,19 @@ class Tomcat(Plugin, RedHatPlugin):
 
     plugin_name = 'tomcat'
 
-    packages = ('tomcat5',)
+    packages = ('tomcat6',)
 
     def setup(self):
         self.add_copy_specs([
-            "/etc/tomcat5",
-            "/var/log/tomcat5"
+            "/etc/tomcat6",
+            "/var/log/tomcat6/catalina.out"
         ])
+
+    def postproc(self):
+        self.do_file_sub(
+            "/etc/tomcat6/tomcat-users.xml",
+            r"password=(\S*)",
+            r'password="********"'
+        )
 
 # vim: et ts=4 sw=4
