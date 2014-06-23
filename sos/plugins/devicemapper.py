@@ -43,12 +43,23 @@ class devicemapper(sos.plugintools.PluginBase):
         self.collectExtOutput("/sbin/dmsetup status")
         self.collectExtOutput("/sbin/dmsetup ls --tree")
 
-        self.collectExtOutput("/sbin/vgdisplay -vv", symlink = "vgdisplay")
-        self.collectExtOutput("/sbin/vgscan -vvv")
-        self.collectExtOutput("/sbin/pvscan -v")
-        self.collectExtOutput("/sbin/lvs -a -o +devices")
-        self.collectExtOutput("/sbin/pvs -a -v")
-        self.collectExtOutput("/sbin/vgs -v")
+        # use locking_type 0 (no locks) when running LVM2 commands, from lvm.conf:
+        # Turn locking off by setting to 0 (dangerous: risks metadata corruption
+        # if LVM2 commands get run concurrently).
+        # None of the commands issued by sos ever modify metadata and this avoids
+        # the possibility of hanging lvm commands when another process or node
+        # holds a conflicting lock.
+        lvm_opts = '--config="global{locking_type=0}"'
+        
+        self.collectExtOutput(
+            "/sbin/vgdisplay -vv %s" % lvm_opts, suggest_filename='vgdisplay_-vv',
+            symlink = "vgdisplay"
+        )
+        self.collectExtOutput("/sbin/vgscan -vvv %s" % lvm_opts, suggest_filename='vgscan_-vvv')
+        self.collectExtOutput("/sbin/pvscan -v %s" % lvm_opts, suggest_filename='pvscan_-v')
+        self.collectExtOutput("/sbin/lvs -a -o +devices %s" % lvm_opts, suggest_filename='lvs_-a_-o_+devices')
+        self.collectExtOutput("/sbin/pvs -a -v %s" % lvm_opts, suggest_filename='pvs_-a_-v')
+        self.collectExtOutput("/sbin/vgs -v %s" % lvm_opts, suggest_filename='vgs_-v')
         self.collectExtOutput("/sbin/mdadm -D /dev/md*")
 
         self.addCopySpec("/etc/lvm")
