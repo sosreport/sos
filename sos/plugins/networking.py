@@ -71,6 +71,7 @@ class networking(sos.plugintools.PluginBase):
         self.addCopySpec("/proc/net/")
         self.addForbiddenPath("/proc/net//rpc/*/channel")
         self.addForbiddenPath("/proc/net//rpc/*/flush")
+        self.addForbiddenPath("/proc/net//rpc/use-gss-proxy")
         self.addForbiddenPath("/proc/net//cdp")
         self.addForbiddenPath("/sys/net/cdp")
         self.addCopySpec("/etc/nsswitch.conf")
