@@ -47,11 +47,12 @@ class Rpm(Plugin, RedHatPlugin):
         else:
             pkgs_by_regex = self.policy().package_manager.all_pkgs_by_name_regex
             verify_list = map(pkgs_by_regex, self.verify_list)
+            verify_pkgs = ""
             for pkg_list in verify_list:
                 for pkg in pkg_list:
-                    if 'debuginfo' in pkg \
-                    or pkg.endswith('-debuginfo-common'):
+                    if 'debuginfo' in pkg or 'devel' in pkg:
                         continue
-                    self.add_cmd_output("rpm -V %s" % pkg)
+                    verify_pkgs = "%s %s" % (verify_pkgs, pkg)
+            self.add_cmd_output("rpm -V %s" % verify_pkgs)
 
 # vim: et ts=4 sw=4
