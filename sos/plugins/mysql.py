@@ -24,13 +24,19 @@ class mysql(sos.plugintools.PluginBase):
     optionList = [
         ("dbuser", "username for database dumps", "", "mysql"),
         ("dbpass", "password for database dumps", "", ""),
-        ("dbdump", "collect a database dump", "", False)
+        ("dbdump", "collect a database dump", "", False),
+        ("all_logs", "collect all MySQL logs", "", False)
     ]
         
     def setup(self):
         self.addCopySpec("/etc/my.cnf")
         self.addCopySpec("/etc/ld.so.conf.d/mysql*")
-        self.addCopySpec("/var/log/mysql*")
+
+        if not self.getOption("all_logs"):
+            self.addCopySpecLimit("/var/log/mysqld.log", 15)
+        else:
+            self.addCopySpec("/var/log/mysql*")
+
         if self.getOption("dbdump"):
             dbuser = self.getOption("dbuser")
             dbpass = self.getOption("dbpass")
