@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from os.path import exists
 
 class Mysql(Plugin):
-    """MySQL related information
+    """MySQL and MariaDB related information
     """
 
     plugin_name = "mysql"
@@ -26,31 +26,40 @@ class Mysql(Plugin):
         super(Mysql, self).setup()
         self.add_copy_specs([
             self.mysql_cnf,
-            "/var/log/mysql*"
+            "/var/log/mysql/mysqld.log",
+            "/var/log/mariadb/mariadb.log",
         ])
 
 
 class RedHatMysql(Mysql, RedHatPlugin):
-    """MySQL related information for RedHat based distributions
+    """MySQL and MariaDB information for Red Hat based distributions
     """
 
     packages = (
         'mysql-server',
-        'mysql'
+        'mysql',
+        'mariadb-server',
+        'mariadb'
     )
 
     def setup(self):
         super(RedHatMysql, self).setup()
-        self.add_copy_spec("/etc/ld.so.conf.d/mysql*")
+        self.add_copy_specs([
+            "/etc/ld.so.conf.d/mysql-*.conf",
+            "/etc/ld.so.conf.d/mariadb-*.conf"
+        ])
+        self.add_copy_spec("/etc/my.cnf.d/*")
 
 
 class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
-    """MySQL related information for Debian based distributions
+    """MySQL and MariaDB information for Debian based distributions
     """
 
     packages = (
         'mysql-server',
-        'mysql-common'
+        'mysql-common',
+        'mariadb-server',
+        'mariadb-common'
     )
 
     def setup(self):
