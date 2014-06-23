@@ -21,7 +21,7 @@ class filesys(sos.plugintools.PluginBase):
     """information on filesystems
     """
     optionList = [("lsof", 'gathers information on all open files', 'slow', False)]
-    optionList = [("dumpe2fs", 'dump filesystem information', 'slow', False)]
+    optionList = [("dumpe2fs", 'dump full filesystem information', 'slow', False)]
 
     def setup(self):
         self.addCopySpec("/proc/filesystems")
@@ -71,8 +71,11 @@ class filesys(sos.plugintools.PluginBase):
         for i in devlist: 
             self.collectExtOutput("/sbin/parted -s %s print" % (i))
 
+        # by default only collect superblock information
+        dumpe2fs_opts = '-h'
         if self.getOption('dumpe2fs'):
-            for extfs in izip(self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts)):
-                self.collectExtOutput("/sbin/dumpe2fs %s" % (extfs))
+            dumpe2fs_opts = ''
+        for extfs in self.doRegexFindAll(r"^(/dev/.+) on .+ type ext.\s+", mounts):
+            self.collectExtOutput("/sbin/dumpe2fs %s %s" % (dumpe2fs_opts, extfs))
         return
 
