@@ -18,15 +18,24 @@ import os
 class mysql(sos.plugintools.PluginBase):
     """MySQL related information
     """
-    def checkenabled(self):
-        if self.cInfo["policy"].pkgByName("mysql-server") or os.path.exists("/etc/my.cnf") or \
-           self.cInfo["policy"].pkgByName("mysql"):
-            return True
-        return False
+    files = ('/etc/my.cnf',)
+    packages = ('mysql-server',)
+
+    optionList = [
+        ("dbuser", "username for database dumps", "", "mysql"),
+        ("dbpass", "password for database dumps", "", ""),
+        ("dbdump", "collect a database dump", "", False)
+    ]
         
     def setup(self):
         self.addCopySpec("/etc/my.cnf")
-        self.addCopySpec("/etc/sysconfig/network")
         self.addCopySpec("/etc/ld.so.conf.d/mysql*")
         self.addCopySpec("/var/log/mysql*")
+        if self.getOption("dbdump"):
+            dbuser = self.getOption("dbuser")
+            dbpass = self.getOption("dbpass")
+            opts = "--user=%s --password=%s --all-databases" % (dbuser, dbpass)
+            name = "mysqldump_--all-databases"
+            self.collectExtOutput("mysqldump %s" % opts, suggest_filename=name)
         return
+
