@@ -39,7 +39,8 @@ class Mysql(Plugin):
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
             opts = "--user=%s --password=%s --all-databases" % (dbuser, dbpass)
-            self.add_cmd_output("mysqldump %s" % opts)
+            name = "mysqldump_--all-databases"
+            self.add_cmd_output("mysqldump %s" % opts, suggest_filename=name)
 
 
 class RedHatMysql(Mysql, RedHatPlugin):
