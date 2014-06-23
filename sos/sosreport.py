@@ -871,6 +871,12 @@ No changes will be made to system configuration.
         except:
             if GlobalVars.__raisePlugins__:
                 raise
+            else:
+                error_log = open(logdir + "/sosreport-plugin-errors.txt", "a")
+                etype, eval, etrace = sys.exc_info()
+                traceback.print_exception(etype, eval, etrace, limit=2, file=sys.stdout)
+                error_log.write(traceback.format_exc())
+                error_log.close()
 
     if GlobalVars.__cmdLineOpts__.build:
         print
