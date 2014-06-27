@@ -64,7 +64,7 @@ class Sar(Plugin,):
                 continue
             sa_data_path = os.path.join(self.sa_path, fname)
             sar_filename = 'sar' + fname[2:]
-            if sar_filename not in dirList:
+            if sar_filename not in dir_list:
                 sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path
                 self.add_cmd_output(sar_cmd, sar_filename)
             sadf_cmd = "sadf -x %s" % sa_data_path
