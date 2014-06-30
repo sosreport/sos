@@ -55,7 +55,6 @@ class S390(Plugin, RedHatPlugin):
             "lscss",
             "lsdasd",
             "lstape",
-            "find /sys -type f",
             "find /proc/s390dbf -type f",
             "qethconf list_all",
             "lsqeth",
