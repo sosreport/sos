@@ -80,8 +80,9 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         if isPowerNV:
             self.add_copy_specs([
-                "/proc/ppc64/",
-                "/sys/kernel/debug/powerpc/",
+                "/proc/ppc64/eeh",
+                "/proc/ppc64/systemcfg"
+                "/proc/ppc64/topology_updates"
                 "/sys/firmware/opal/msglog",
                 "/var/log/opal-elog/"
             ])
