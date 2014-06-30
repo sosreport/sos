@@ -274,6 +274,19 @@ class PluginBase:
 
         return abspath
 
+    # Permission-copying version of makedirs(). For each component in a path
+    # ensure that the corresponding directory in dstroot exists and copy the
+    # permissions over from the host file system.
+    def __copydirs(self, src_dir, dst_root):
+        pathcomps = src_dir.split(os.path.sep)
+        path = ""
+        for comp in pathcomps:
+            path = os.path.join(path, comp)
+            dst_path = os.path.join(dst_root, path)
+            if not os.path.exists(dst_path):
+                os.makedirs(dst_path)
+                shutil.copystat(os.path.join('/', path), dst_path)
+
     def __copyFile(self, src):
         """ call cp to copy a file, collect return status and output. Returns the
         destination file name.
@@ -284,7 +297,7 @@ class PluginBase:
 
         if not os.path.exists(new_fname):
             if not os.path.isdir(new_dir):
-                os.makedirs(new_dir)
+                self.__copydirs(os.path.dirname(src), self.cInfo['dstroot'])
 
             if os.path.islink(src):
                 linkto = os.readlink(src)
