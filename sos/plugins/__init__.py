@@ -517,7 +517,7 @@ class Plugin(object):
     def add_string_as_file(self, content, filename):
         """Add a string to the archive as a file named `filename`"""
         self.copy_strings.append((content, filename))
-        content = "..." + content.splitlines()[0]
+        content = "..." + (content.splitlines()[0]).decode('utf8')
         self.log_debug("added string '%s' as '%s'" % (content,filename))
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
@@ -584,8 +584,8 @@ class Plugin(object):
 
     def collect_strings(self):
         for string, file_name in self.copy_strings:
-            self.log_info("collecting string '%s' as '%s'"
-                          % ("..." + string.splitlines()[0], file_name))
+            content = "..." + (string.splitlines()[0]).decode('utf8')
+            self.log_info("collecting string '%s' as '%s'" % (content, file_name))
             try:
                 self.archive.add_string(string,
                         os.path.join('sos_strings', self.name(), file_name))
