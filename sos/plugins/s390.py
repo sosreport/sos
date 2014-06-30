@@ -35,7 +35,6 @@ class S390(Plugin, RedHatPlugin):
             "/proc/crypto",
             "/proc/dasd/devices",
             "/proc/dasd/statistics",
-            "/proc/misc",
             "/proc/qeth",
             "/proc/qeth_perf",
             "/proc/qeth_ipa_takeover",

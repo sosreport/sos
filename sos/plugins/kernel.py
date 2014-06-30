@@ -65,6 +65,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/softirqs",
             "/proc/timer*",
             "/proc/lock*",
+            "/proc/misc",
             "/var/log/dmesg"
         ])
 
