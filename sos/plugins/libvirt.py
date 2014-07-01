@@ -19,13 +19,42 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
     """
 
+    option_list = [(
+        "all_logs", "collect all logs regardless of size", "", False
+    )]
     plugin_name = 'libvirt'
 
     def setup(self):
+        libvirt_keytab = "/etc/libvirt/krb5.tab"
+
+        # authentication databases used for libvirt SASL authentication
+        self.add_forbidden_path("/etc/libvirt/passwd.db")
+        self.add_forbidden_path("/etc/libvirt/krb5.tab")
+
         self.add_copy_specs([
-            "/etc/libvirt/",
-            "/var/log/libvirt*"
+            "/etc/libvirt/libvirt.conf",
+            "/etc/libvirt/libvirtd.conf",
+            "/etc/libvirt/lxc.conf",
+            "/etc/libvirt/nwfilter/*.xml",
+            "/etc/libvirt/qemu/*.xml",
+            "/etc/libvirt/qemu/networks/*.xml",
+            "/etc/libvirt/qemu/networks/autostart/*.xml",
+            "/etc/libvirt/storage/*.xml",
+            "/etc/libvirt/storage/autostart/*.xml",
+            "/etc/libvirt/qemu-lockd.conf",
+            "/etc/libvirt/virtlockd.conf"
         ])
+
+        if not self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/libvirt/libvirtd.log", sizelimit=5)
+            self.add_copy_spec_limit("/var/log/libvirt/qemu/*.log", sizelimit=5)
+            self.add_copy_spec_limit("/var/log/libvirt/lxc/*.log", sizelimit=5)
+            self.add_copy_spec_limit("/var/log/libvirt/uml/*.log", sizelimit=5)
+        else:
+            self.add_copy_spec("/var/log/libvirt")
+
+        if os.path.exists(libvirt_keytab):
+            self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
     def postproc(self):
        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
