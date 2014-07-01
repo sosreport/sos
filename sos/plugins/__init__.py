@@ -290,7 +290,11 @@ class Plugin(object):
         if not dest:
             dest = srcpath
 
-        st = os.lstat(srcpath)
+        try:
+            st = os.lstat(srcpath)
+        except OSError, IOError:
+            self.log_info("failed to stat '%s'" % srcpath)
+            return
 
         if stat.S_ISLNK(st.st_mode):
             self.copy_symlink(srcpath)
