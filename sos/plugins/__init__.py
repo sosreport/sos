@@ -264,6 +264,7 @@ class Plugin(object):
 
     def copy_dir(self, srcpath):
         for afile in os.listdir(srcpath):
+            self.log_debug("recursively adding '%s' from '%s'" % (afile, srcpath))
             self.do_copy_path(os.path.join(srcpath, afile), dest=None)
 
     def _get_dest_for_srcpath(self, srcpath):
@@ -304,12 +305,13 @@ class Plugin(object):
                 self.copy_dir(srcpath)
                 return
 
+        # filter out device nodes
         if stat.S_ISBLK(st.st_mode) or stat.S_ISCHR(st.st_mode):
             devtype = "block" if stat.S_ISBLK(stat.st_mode) else "character"
             self.log_debug("skipping %s device node %s" % (devtype, srcpath))
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
-        self.log_debug("copying file '%s' to archive:'%s'" % (srcpath,dest))
+        self.log_debug("copying path '%s' to archive:'%s'" % (srcpath,dest))
 
         # if not readable(srcpath)
         if not (st.st_mode & 0o444):
@@ -437,7 +439,7 @@ class Plugin(object):
             return False
         copy_paths = self.expand_copy_spec(copyspec)
         self.copy_paths.update(copy_paths)
-        self.log_debug("added copyspec '%s'" % copyspec)
+        self.log_info("added copyspec '%s'" % copyspec)
 
     def get_command_output(self, prog, timeout=300, runat=None):
         result = sos_get_command_output(prog, timeout=timeout, runat=runat)
