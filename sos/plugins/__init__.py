@@ -292,7 +292,7 @@ class Plugin(object):
 
         try:
             st = os.lstat(srcpath)
-        except OSError, IOError:
+        except (OSError, IOError):
             self.log_info("failed to stat '%s'" % srcpath)
             return
 
