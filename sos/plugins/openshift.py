@@ -1,5 +1,3 @@
-## Copyright (C) 2012 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
-
 ### This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -15,69 +13,90 @@
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sos.plugintools
-import glob
+import os.path
 
 class openshift(sos.plugintools.PluginBase):
-    """OpenShift related information
-    """
+    '''Openshift related information'''
 
-    optionList = [('gear', 'Collect information about a specific gear',
-                        'fast', False)]
+    # The 'broker' and 'node' options are obsolete but are maintained
+    # here for compatibility with external programs that call sosreport
+    # with these names.
+    optionList = [
+        ("broker", "Gathers broker specific files", "slow", False),
+        ("node", "Gathers node specific files", "slow", False),
+        ("gear", "Collect information about a specific gear", "fast", False)
+    ]
 
-    broker_pkg = 'openshift-origin-broker'
-    node_pkg = 'rubygem-openshift-origin-node'
+    ruby = "ruby193"
+    vendor ="rh"
 
-    broker = False
-    node = False
+    def is_broker(self):
+        return os.path.exists("/etc/openshift/broker.conf")
 
-    packages = [
-            broker_pkg,
-            node_pkg ]
+    def is_node(self):
+        return os.path.exists("/etc/openshift/node.conf")
 
     def setup(self):
-        self.broker = self.isInstalled(self.broker_pkg)
-        self.node = self.isInstalled(self.node_pkg)
         self.gear = self.getOption('gear')
+        self.addCopySpecs([
+            "/etc/openshift-enterprise-*",
+            "/var/log/openshift/",
+            "/etc/openshift/"
+        ])
 
-        self.addCopySpec("/etc/openshift")
-        self.addForbiddenPath("/etc/openshift/rsync_id_rsa")
+        self.collectExtOutput("oo-diagnostics -v")
 
-        if self.broker:
-            self.addCopySpec("/var/www/openshift/broker/httpd/logs/*")
-            self.addCopySpec("/var/www/openshift/broker/log/*.log")
-            self.addCopySpec("/var/log/openshift/user_action.log")
-            self.collectExtOutput("/usr/sbin/oo-accept-broker -v")
-            self.collectExtOutput("/usr/sbin/oo-admin-chk")
-            self.collectExtOutput("/usr/sbin/mco ping")
-            self.collectExtOutput("/usr/bin/gem list --local")
-            self.collectExtOutput("sh -c 'cd /var/www/openshift/broker/ "
-                                + "&& /usr/bin/bundle --local'",
-                                suggest_filename =
-                                "cd_var_www_openshift_broker-bundle_--local")
-        if self.node:
-            self.addCopySpec("/cgroup/all/openshift")
-            self.addCopySpec("/var/log/mcollective.log")
-            self.addCopySpec("/var/log/openshift-gears-async-start.log")
-            # this file is not considered sensitive on openshift
-            # node installations.
-            self.addCopySpec("/etc/passwd")
-            self.collectExtOutput("/usr/sbin/oo-accept-node")
-            self.collectExtOutput("/usr/sbin/oo-admin-ctl-gears list")
-            self.collectExtOutput("/bin/ls /var/lib/openshift")
+        if self.is_broker():
+            self.addCopySpecs([
+                "/var/www/openshift/broker/httpd/conf.d/*.conf",
+                "/var/www/openshift/console/httpd/conf.d/*.conf",
+            ])
+
+            self.collectExtOutputs([
+                "oo-accept-broker -v",
+                "oo-admin-chk -v",
+                "oo-mco ping",
+            ])
+
+        if self.is_node():
+            self.addCopySpecs([
+                "/cgroup/*/openshift",
+                "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
+                "/var/log/httpd/openshift_log",
+                "/var/log/mcollective.log",
+                "/var/log/node-web-proxy/access.log",
+                "/var/log/node-web-proxy/error.log",
+                "/var/log/node-web-proxy/websockets.log",
+                "/var/log/node-web-proxy/supervisor.log",
+            ])
+
+
+            self.collectExtOutputs([
+                "oo-accept-node -v",
+                "oo-admin-ctl-gears list",
+                "ls -laZ /var/lib/openshift"
+            ])
+
             if self.gear:
                 gear_path = glob.glob("/var/lib/openshift/%s*" % self.gear)[0]
                 self.collectExtOutput("/bin/ls %s" % gear_path)
                 self.addCopySpec(gear_path + "/*/log*")
-        try:
-            status, output, runtime = self.callExtProg("/bin/hostname -d")
-            if status != 0:
-                domainname = None
-            else:
-                domainname = output.strip()
-        except:
-            hostname = None
-        self.collectExtOutput("/usr/bin/dig %s axfr" % domainname)
-        return
 
     def postproc(self):
-        self.doRegexSub("/etc/openshift/htpasswd", r"(\s*:).*", r"\1******")
+        self.doRegexSub('/etc/openshift/broker.conf',
+                r"(MONGO_PASSWORD=)(.*)",
+                r"\1*******")
+
+        self.doRegexSub('/etc/openshift/broker.conf',
+                r"(SESSION_SECRET=)(.*)",
+                r"\1*******")
+
+        self.doRegexSub('/etc/openshift/console.conf',
+                r"(SESSION_SECRET=)(.*)",
+                r"\1*******")
+
+        self.doRegexSub('/etc/openshift/htpasswd',
+                r"(.*:)(.*)",
+                r"\1********")
+
+# vim: et ts=4 sw=4
