@@ -371,6 +371,12 @@ class PluginBase:
                 self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
                     "tail_" + os.path.basename(flog), flog[1:])
 
+    def addCopySpecs(self, copyspecs):
+        if isinstance(copyspecs, basestring):
+            raise TypeError("addCopySpecs called with string argument")
+        for copyspec in copyspecs:
+            self.addCopySpec(copyspec)
+
     def addCopySpec(self, copyspec):
         """ Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module
@@ -383,10 +389,6 @@ class PluginBase:
             if filespec not in self.copyPaths:
                 self.copyPaths.append(filespec)
 
-    def addCopySpecs(self, copyspecs):
-        for copyspec in copyspecs:
-            self.addCopySpec(copyspec)
-
     def callExtProg(self, prog):
         """ Execute a command independantly of the output gathering part of
         sosreport
@@ -396,6 +398,13 @@ class PluginBase:
         if (status == 127):
            self.soslog.info("could not run '%s'" % prog) 
         return (status, shout, runtime)
+
+    def collectExtOutputs(self, cmds):
+        """Run a list of programs and collect the output"""
+        if isinstance(cmds, basestring):
+            raise TypeError("collectExtOutputs called with string argument")
+        for cmd in cmds:
+            self.collectExtOutput(cmd)
 
     def collectExtOutput(self, exe, suggest_filename = None, symlink = None, timeout = 300):
         """
