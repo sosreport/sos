@@ -63,6 +63,20 @@ def mangle_command(command):
 def _path_in_path_list(path, path_list):
     return any(p in path for p in path_list)
 
+def _node_type(st):
+    """ return a string indicating the type of special node represented by
+    the stat buffer st (block, character, fifo, socket).
+    """
+    _types = [
+        ( stat.S_ISBLK, "block device" ),
+        ( stat.S_ISCHR, "character device" ),
+        ( stat.S_ISFIFO, "named pipe" ),
+        ( stat.S_ISSOCK, "socket" )
+    ]
+    for t in _types:
+        if t[0](st.st_mode):
+            return t[1]
+    
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
@@ -276,6 +290,12 @@ class Plugin(object):
     def is_forbidden_path(self, path):
         return _path_in_path_list(path, self.forbidden_paths)
 
+    def copy_node(self, path, st):
+        dev_maj = os.major(st.st_rdev)
+        dev_min = os.minor(st.st_rdev)
+        mode = st.st_mode
+        self.archive.add_node(path, mode, os.makedev(dev_maj, dev_min))
+
     # Methods for copying files and shelling out
     def do_copy_path(self, srcpath, dest=None):
         # pylint: disable-msg = R0912
@@ -305,10 +325,12 @@ class Plugin(object):
                 self.copy_dir(srcpath)
                 return
 
-        # filter out device nodes
-        if stat.S_ISBLK(st.st_mode) or stat.S_ISCHR(st.st_mode):
-            devtype = "block" if stat.S_ISBLK(stat.st_mode) else "character"
-            self.log_debug("skipping %s device node %s" % (devtype, srcpath))
+        # handle special nodes (block, char, fifo, socket)
+        if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
+            ntype = _node_type(st)
+            self.log_debug("creating %s node at archive:'%s'" % (ntype, srcpath))
+            self.copy_node(srcpath, st)
+            return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
         self.log_debug("copying path '%s' to archive:'%s'" % (srcpath,dest))

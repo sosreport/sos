@@ -79,6 +79,9 @@ class Archive(object):
     def add_dir(self, path):
         raise NotImplementedError
 
+    def add_node(self, path, mode, device):
+        raise NotImplementedError
+
     def get_tmp_dir(self):
         """Return a temporary directory that clients of the archive may
         use to write content to. The content of the path is guaranteed
@@ -179,6 +182,13 @@ class FileCacheArchive(Archive):
 
     def add_dir(self, path):
         self.makedirs(path)
+
+    def add_node(self, path, mode, device):
+        dest = self.dest_path(path)
+        self._check_path(dest)
+        if not os.path.exists(dest):
+            os.mknod(dest, mode, device)
+            shutil.copystat(path, dest)
 
     def _makedirs(self, path, mode=0o700):
         os.makedirs(path, mode)
