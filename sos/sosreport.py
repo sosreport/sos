@@ -208,6 +208,7 @@ class SoSOptions(object):
     _batch = False
     _build = False
     _verbosity = 0
+    _verify = False
     _quiet = False
     _debug = False
     _ticket_number = ""
@@ -342,6 +343,19 @@ class SoSOptions(object):
         self._verbosity = value
 
     @property
+    def verify(self):
+        if self._options != None:
+            return self._options.verify
+        return self._verify
+
+    @verify.setter
+    def verify(self, value):
+        self._check_options_initialized()
+        if value < 0 or value > 3:
+            raise ValueError("SoSOptions.verify expects a value [0..3]")
+        self._verify = value
+
+    @property
     def quiet(self):
         if self._options != None:
             return self._options.quiet
@@ -467,6 +481,9 @@ class SoSOptions(object):
         parser.add_option("-v", "--verbose", action="count",
                              dest="verbosity",
                              help="increase verbosity")
+        parser.add_option("", "--verify", action="store_true",
+                             dest="verify", default=False,
+                             help="perform data verification during collection")
         parser.add_option("", "--quiet", action="store_true",
                              dest="quiet", default=False,
                              help="only print fatal errors")
