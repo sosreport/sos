@@ -33,6 +33,9 @@ class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/ipsec.conf",
             "/etc/ipsec.d"
         ])
+
+        # although this is 'verification' it's normally a very quick
+        # operation so is not conditional on --verify
         self.add_cmd_output("ipsec verify")
         if self.get_option("ipsec-barf"):
             self.add_cmd_output("ipsec barf")
