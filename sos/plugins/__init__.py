@@ -622,9 +622,8 @@ class Plugin(object):
             if hasattr(self, '__doc__') and self.__doc__:
                 return self.__doc__.strip()
             return super(self.__class__, self).__doc__.strip()
-        except Exception as e:
-            raise e
-            #return "<no description available>"
+        except:
+            return "<no description available>"
 
     def check_enabled(self):
         """This method will be used to verify that a plugin should execute
