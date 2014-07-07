@@ -619,9 +619,12 @@ class Plugin(object):
     def get_description(self):
         """ This function will return the description for the plugin"""
         try:
-            return self.__doc__.strip()
-        except:
-            return "<no description available>"
+            if hasattr(self, '__doc__') and self.__doc__:
+                return self.__doc__.strip()
+            return super(self.__class__, self).__doc__.strip()
+        except Exception as e:
+            raise e
+            #return "<no description available>"
 
     def check_enabled(self):
         """This method will be used to verify that a plugin should execute
