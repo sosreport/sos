@@ -30,7 +30,7 @@ class OpenStackHorizon(Plugin):
 
     def setup(self):
         self.add_copy_spec("/etc/openstack-dashboard/")
-        if self.option_enabled("log"):
+        if self.get_option("log"):
             self.add_copy_spec("/var/log/horizon/")
 
 
@@ -76,7 +76,7 @@ class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
     def setup(self):
         super(RedHatOpenStackHorizon, self).setup()
         self.add_copy_spec("/etc/httpd/conf.d/openstack-dashboard.conf")
-        if self.option_enabled("log"):
+        if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd/")
 
 # vim: et ts=4 sw=4

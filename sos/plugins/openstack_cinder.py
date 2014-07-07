@@ -31,14 +31,14 @@ class OpenStackCinder(Plugin):
                    ("db", "gathers openstack cinder db version", "slow", False)]
 
     def setup(self):
-        if self.option_enabled("db"):
+        if self.get_option("db"):
             self.add_cmd_output(
                 "cinder-manage db version",
                 suggest_filename="cinder_db_version")
 
         self.add_copy_specs(["/etc/cinder/"])
 
-        if self.option_enabled("log"):
+        if self.get_option("log"):
             self.add_copy_specs(["/var/log/cinder/"])
 
 

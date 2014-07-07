@@ -367,10 +367,6 @@ class Plugin(object):
         else:
             return False
 
-    def option_enabled(self, optionname):
-        '''Deprecated, use get_option() instead'''
-        return self.get_option(optionname)
-
     def get_option(self, optionname, default=0):
         """Returns the first value that matches 'optionname' in parameters
         passed in via the command line or set via set_option or via the

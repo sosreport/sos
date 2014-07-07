@@ -28,7 +28,7 @@ class OpenStackNova(Plugin):
                    ("cmds", "gathers openstack nova commands", "slow", False)]
 
     def setup(self):
-        if self.option_enabled("cmds"):
+        if self.get_option("cmds"):
             self.add_cmd_output(
                 "nova-manage config list",
                 suggest_filename="nova_config_list")
@@ -54,7 +54,7 @@ class OpenStackNova(Plugin):
                 "nova-manage vm list",
                 suggest_filename="nova_vm_list")
 
-        if self.option_enabled("log"):
+        if self.get_option("log"):
             self.add_copy_spec("/var/log/nova/")
 
         self.add_copy_spec("/etc/nova/")

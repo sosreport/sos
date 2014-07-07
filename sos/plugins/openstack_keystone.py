@@ -35,7 +35,7 @@ class OpenStackKeystone(Plugin):
             "/etc/keystone/policy.json"
         ])
 
-        if self.option_enabled("log"):
+        if self.get_option("log"):
             self.add_copy_spec("/var/log/keystone/")
 
     def postproc(self):
