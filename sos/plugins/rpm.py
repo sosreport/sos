@@ -42,17 +42,19 @@ class Rpm(Plugin, RedHatPlugin):
             shell_cmd = "sh -c '%s'" % (rpmq_cmd + "|" + filter_cmd)
             self.add_cmd_output(shell_cmd, root_symlink = "installed-rpms")
 
-        if self.get_option("rpmva"):
-            self.add_cmd_output("rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
-        else:
-            pkgs_by_regex = self.policy().package_manager.all_pkgs_by_name_regex
-            verify_list = map(pkgs_by_regex, self.verify_list)
-            verify_pkgs = ""
-            for pkg_list in verify_list:
-                for pkg in pkg_list:
-                    if 'debuginfo' in pkg or 'devel' in pkg:
-                        continue
-                    verify_pkgs = "%s %s" % (verify_pkgs, pkg)
-            self.add_cmd_output("rpm -V %s" % verify_pkgs)
+        if self.get_option("verify"):
+            if self.get_option("rpmva"):
+                self.add_cmd_output("rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
+            else:
+                pkgs_by_regex = self.policy().package_manager.all_pkgs_by_name_regex
+                verify_list = map(pkgs_by_regex, self.verify_list)
+                verify_pkgs = ""
+                for pkg_list in verify_list:
+                    for pkg in pkg_list:
+                        if 'debuginfo' in pkg or 'devel' in pkg:
+                            continue
+                        verify_pkgs = "%s %s" % (verify_pkgs, pkg)
+                self.add_cmd_output("rpm -V %s" % verify_pkgs)
+
 
 # vim: et ts=4 sw=4
