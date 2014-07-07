@@ -58,7 +58,6 @@ class Openshift(Plugin, RedHatPlugin):
 
         if self.is_node():
             self.add_copy_specs([
-                "/cgroup/*/openshift",
                 "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
                 "/var/log/httpd/openshift_log",
                 "/var/log/mcollective.log",
