@@ -624,9 +624,12 @@ class Plugin(object):
 
     def collect(self):
         """Collect the data for a plugin."""
+        start = time()
         self.collect_copy_specs()
         self.collect_cmd_output()
         self.collect_strings()
+        fields = (self.name(), time() - start)
+        self.log_debug("collected plugin '%s' in %s" % fields)
 
     def get_description(self):
         """ This function will return the description for the plugin"""
