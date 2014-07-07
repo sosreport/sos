@@ -16,13 +16,6 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# pylint: disable-msg = R0902
-# pylint: disable-msg = R0904
-# pylint: disable-msg = W0702
-# pylint: disable-msg = W0703
-# pylint: disable-msg = R0201
-# pylint: disable-msg = W0611
-# pylint: disable-msg = W0613
 from __future__ import with_statement
 
 from sos.utilities import sos_get_command_output, import_module, grep, fileobj, tail
@@ -298,8 +291,6 @@ class Plugin(object):
 
     # Methods for copying files and shelling out
     def do_copy_path(self, srcpath, dest=None):
-        # pylint: disable-msg = R0912
-        # pylint: disable-msg = R0915
         '''Copy file or directory to the destination tree. If a directory, then
         everything below it is recursively copied. A list of copied files are
         saved for use later in preparing a report.
@@ -472,7 +463,6 @@ class Plugin(object):
         """Execute a command independantly of the output gathering part of
         sosreport.
         """
-        # pylint: disable-msg = W0612
         return self.get_command_output(prog, timeout=timeout, runat=runat)
 
     def check_ext_prog(self, prog):
@@ -552,7 +542,6 @@ class Plugin(object):
         report.
         """
         start = time()
-        # pylint: disable-msg = W0612
         result = self.get_command_output(exe, timeout=timeout, runat=runat)
         if (result['status'] == 127):
             return None

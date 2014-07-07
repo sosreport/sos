@@ -37,7 +37,9 @@ import six
 if six.PY3:
     long = int
 
+
 class Archive(object):
+    """Abstract base class for archives."""
 
     @classmethod
     def archive_type(class_):
@@ -111,6 +113,8 @@ class Archive(object):
 
 
 class FileCacheArchive(Archive):
+    """ Abstract superclass for archive types that use a temporary cache
+    directory in the file system. """
 
     _tmp_dir = ""
     _archive_root = ""
@@ -221,6 +225,7 @@ class FileCacheArchive(Archive):
 
 
 class TarFileArchive(FileCacheArchive):
+    """ archive class using python TarFile to create tar archives"""
 
     method = None
     _with_selinux_context = False
@@ -308,6 +313,7 @@ class TarFileArchive(FileCacheArchive):
 
 
 class ZipFileArchive(Archive):
+    """ archive class using python ZipFile to create zip archives """
 
     def __init__(self, name):
         self._name = name

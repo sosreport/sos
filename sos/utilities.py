@@ -12,14 +12,6 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# pylint: disable-msg = R0902
-# pylint: disable-msg = R0904
-# pylint: disable-msg = W0702
-# pylint: disable-msg = W0703
-# pylint: disable-msg = R0201
-# pylint: disable-msg = W0611
-# pylint: disable-msg = W0613
-
 from __future__ import with_statement
 
 import os
@@ -50,7 +42,6 @@ def tail(filename, number_of_bytes):
         if os.stat(filename).st_size > number_of_bytes:
             f.seek(-number_of_bytes, 2)
         return f.read()
-
 
 def fileobj(path_or_file, mode='r'):
     """Returns a file-like object that can be used as a context manager"""
@@ -109,7 +100,6 @@ def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
         for name in fnmatch.filter(filelist, file_pattern):
             yield os.path.join(path, name)
 
-
 def grep(pattern, *files_or_paths):
     """Returns lines matched in fnames, where fnames can either be pathnames to files
     to grep through or open file objects to grep through line by line"""
@@ -137,7 +127,7 @@ def sos_get_command_output(command, timeout=300, runat=None):
                 os.chdir(runat)
             except:
                 self.log_error("failed to chdir to '%s'" % runat)
-            
+
     cmd_env = os.environ
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C'
@@ -162,7 +152,7 @@ def sos_get_command_output(command, timeout=300, runat=None):
     # call with shell=False for a non-existant binary will raise OSError.
     if p.returncode == 127:
         stdout = six.binary_type(b"")
-    
+
     return {'status': p.returncode, 'output': stdout.decode('utf-8')}
 
 def import_module(module_fqname, superclasses=None):
@@ -185,6 +175,7 @@ def shell_out(cmd, runat=None):
     string in case of error.
     """
     return sos_get_command_output(cmd, runat=runat)['output']
+
 
 class ImporterHelper(object):
     """Provides a list of modules that can be imported in a package.

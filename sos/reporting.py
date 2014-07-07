@@ -16,6 +16,7 @@ class Node(object):
     def can_add(self, node):
         return False
 
+
 class Leaf(Node):
     """Marker class that can be added to a Section node"""
     pass

@@ -21,17 +21,6 @@ supplied for application-specific information
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# pylint: disable-msg = W0611
-# pylint: disable-msg = W0702
-# pylint: disable-msg = R0912
-# pylint: disable-msg = R0914
-# pylint: disable-msg = R0915
-# pylint: disable-msg = R0913
-# pylint: disable-msg = E0611
-# pylint: disable-msg = E1101
-# pylint: disable-msg = R0904
-# pylint: disable-msg = R0903
-
 import sys
 import traceback
 import os
@@ -60,6 +49,9 @@ if six.PY3:
 else:
     from ConfigParser import ConfigParser
 from six import print_
+
+# file system errors that should terminate a run
+fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
 
 class TempFileUtil(object):
@@ -103,6 +95,7 @@ class OptionParserExtended(OptionParser):
         print_( "   # sosreport -n memory,samba -k rpm.rpmva=off")
         print_()
 
+
 class SosOption(Option):
     """Allow to specify comma delimited list of plugins"""
     ACTIONS = Option.ACTIONS + ("extend",)
@@ -122,9 +115,9 @@ class SosOption(Option):
             Option.take_action(self, action, dest, opt, value, values, parser)
 
 
-
 class XmlReport(object):
     """ Report build class """
+
     def __init__(self):
         try:
             import libxml2
@@ -204,6 +197,7 @@ class XmlReport(object):
         self.archive.add_file(outf.name, dest=fname)
         outf.close()
 
+
 class SoSOptions(object):
     _list_plugins = False
     _noplugins = []
@@ -230,12 +224,12 @@ class SoSOptions(object):
             self._options = self._parse_args(args)
         else:
             self._options = None
-        
+
     def _check_options_initialized(self):
         if self._options != None:
             raise ValueError("SoSOptions object already initialized "
                              + "from command line")
-        
+
     @property
     def list_plugins(self):
         if self._options != None:
@@ -359,7 +353,7 @@ class SoSOptions(object):
         if not isinstance(value, bool):
             raise TypeError("SoSOptions.quiet expects a boolean")
         self._quiet = value
-        
+
     @property
     def debug(self):
         if self._options != None:
@@ -441,7 +435,6 @@ class SoSOptions(object):
         self._check_options_initialized()
         self._compression_type = value
 
-
     def _parse_args(self, args):
         """ Parse command line options and arguments"""
 
@@ -501,10 +494,9 @@ class SoSOptions(object):
 
         return parser.parse_args(args)[0]
 
-# file system errors that should terminate a run
-fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
 class SoSReport(object):
+    """The main sosreport class"""
 
     def __init__(self, args):
         self.loaded_plugins = deque()
@@ -521,16 +513,17 @@ class SoSReport(object):
         except Exception:
             pass # not available in java, but we don't care
 
-
-        #self.opts = self.parse_options(args)[0]
         self.opts = SoSOptions(args)
         self._set_debug()
         self._read_config()
+
         try:
             self.policy = sos.policies.load()
         except KeyboardInterrupt:
            self._exit(0)
+
         self._is_root = self.policy.is_root()
+
         self.tmpdir = os.path.abspath(
             self.policy.get_tmp_dir(self.opts.tmp_dir))
         if not os.path.isdir(self.tmpdir) \
@@ -719,7 +712,6 @@ class SoSReport(object):
             plugin_class.name(),
             plugin_class(self.get_commons())
         ))
-
 
     def load_plugins(self):
 
@@ -961,7 +953,6 @@ class SoSReport(object):
             versions.append("%s: %s" % (plugname, plug.version))
         self.archive.add_string(content="\n".join(versions), dest='version.txt')
 
-
     def collect(self):
         self.ui_log.info(_(" Running plugins. Please wait ..."))
         self.ui_log.info("")
@@ -997,7 +988,6 @@ class SoSReport(object):
                     self._log_plugin_exception(plugname)
         self.ui_log.info("")
 
-
     def report(self):
         for plugname, plug in self.loaded_plugins:
             for oneFile in plug.copied_files:
@@ -1005,7 +995,6 @@ class SoSReport(object):
                     self.xml_report.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
                 except:
                     pass
-
         try:
             self.xml_report.serialize_to_file(os.path.join(self.rptdir, "sosreport.xml"))
         except (OSError, IOError) as e:
@@ -1015,7 +1004,6 @@ class SoSReport(object):
                                   % e.strerror)
                 self.ui_log.error("")
                 self._exit(1)
-
 
     def plain_report(self):
         report = Report()
@@ -1080,7 +1068,6 @@ class SoSReport(object):
             <body>
         """)
 
-
         # Make a pass to gather Alerts and a list of module names
         allAlerts = deque()
         plugNames = deque()
@@ -1110,7 +1097,6 @@ class SoSReport(object):
             rfd.write('<li>%s</li>' % alert)
         rfd.write('</ul>')
 
-
         # Call the report method for each plugin
         for plugname, plug in self.loaded_plugins:
             try:
@@ -1120,11 +1106,8 @@ class SoSReport(object):
                     raise
             else:
                 rfd.write(html)
-
         rfd.write("</body></html>")
-
         rfd.flush()
-
         self.archive.add_file(rfd.name, dest=os.path.join('sos_reports', 'sos.html'))
 
     def postproc(self):
@@ -1164,15 +1147,11 @@ class SoSReport(object):
                     raise
                 else:
                     return False
-
         else:
             final_filename = self.archive.get_archive_path()
-
         self.policy.display_results(final_filename, build = self.opts.build)
         self.tempfile_util.clean()
-
         return True
-
 
     def verify_plugins(self):
         if not self.loaded_plugins:
@@ -1180,10 +1159,8 @@ class SoSReport(object):
             return False
         return True
 
-
     def set_global_plugin_option(self, key, value):
         self.global_plugin_options[key] = value;
-
 
     def execute(self):
         try:
