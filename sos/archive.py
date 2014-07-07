@@ -50,9 +50,13 @@ class Archive(object):
     log = logging.getLogger("sos")
 
     _name = "unset"
+    _debug = False
 
     def _format_msg(self,msg):
         return "[archive:%s] %s" % (self.archive_type(), msg)
+
+    def set_debug(self, debug):
+        self._debug = debug
 
     def log_error(self, msg):
         self.log.error(self._format_msg(msg))
@@ -64,6 +68,8 @@ class Archive(object):
         self.log.info(self._format_msg(msg))
 
     def log_debug(self, msg):
+        if not self._debug:
+            return
         self.log.debug(self._format_msg(msg))
 
     # this is our contract to clients of the Archive class hierarchy.
@@ -148,7 +154,7 @@ class FileCacheArchive(Archive):
         try:
             shutil.copy(src, dest)
         except IOError as e:
-            self.log_debug("caught '%s' copying '%s'" % (e, src))
+            self.log_info("caught '%s' copying '%s'" % (e, src))
         try:
             shutil.copystat(src, dest)
         except OSError:

@@ -568,6 +568,7 @@ class SoSReport(object):
             self.archive = ZipFileArchive(archive_name, self.tmpdir)
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir)
+        self.archive.set_debug(True if self.opts.debug else False)
 
     def _make_archive_paths(self):
         self.archive.makedirs(self.cmddir, 0o755)
