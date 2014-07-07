@@ -34,7 +34,6 @@ class Systemd(Plugin, RedHatPlugin):
             "systemctl list-unit-files",
             "systemctl show-environment",
             "systemd-delta",
-            "journalctl --verify",
             "journalctl --all --this-boot --no-pager",
             "journalctl --all --this-boot --no-pager -o verbose",
             "ls -l /lib/systemd",
@@ -42,6 +41,9 @@ class Systemd(Plugin, RedHatPlugin):
             "ls -l /lib/systemd/system-generators",
             "ls -l /lib/systemd/user-generators"
         ])
+
+        if self.get_option("verify"):
+            self.add_cmd_output("journalctl --verify")
 
         self.add_copy_specs([
             "/etc/systemd",
