@@ -101,7 +101,7 @@ class Gluster(Plugin, RedHatPlugin):
             self.add_copy_spec('/tmp/glusterdump.options')
             self.add_copy_spec(self.statedump_dir)
         else:
-            self.soslog.warning("could not send SIGUSR1 to glusterfs processes")
+            self.soslog.info("could not send SIGUSR1 to glusterfs processes")
 
         volume_file = self.get_cmd_output_now("gluster volume info",
                         "gluster_volume_info")
