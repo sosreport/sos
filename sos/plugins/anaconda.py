@@ -21,22 +21,26 @@ class Anaconda(Plugin, RedHatPlugin):
 
     plugin_name = 'anaconda'
 
-    files = ('/var/log/anaconda.log',
-             '/var/log/anaconda')
+    files = (
+        '/var/log/anaconda.log',
+        '/var/log/anaconda'
+    )
 
     def setup(self):
 
         paths = [
-            "/root/anaconda-ks.cfg"]
+            "/root/anaconda-ks.cfg"
+        ]
 
         if os.path.isdir('/var/log/anaconda'):
             # new anaconda
             paths.append('/var/log/anaconda')
         else:
-            paths = paths + \
-                [ "/var/log/anaconda.*"
+            paths = paths + [
+                "/var/log/anaconda.*"
                 "/root/install.log",
-                "/root/install.log.syslog"]
+                "/root/install.log.syslog"
+            ]
 
         self.add_copy_specs(paths)
 
