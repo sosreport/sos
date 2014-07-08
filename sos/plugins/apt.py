@@ -23,7 +23,9 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'apt'
 
     def setup(self):
-        self.add_copy_specs(["/etc/apt", "/var/log/apt"])
+        self.add_copy_specs([
+            "/etc/apt", "/var/log/apt"
+        ])
 
         self.add_cmd_outputs([
             "apt-get check",
