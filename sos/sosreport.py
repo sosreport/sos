@@ -511,7 +511,7 @@ class SoSOptions(object):
                              help="batch mode - do not prompt interactively")
         parser.add_option("--build", action="store_true", \
                              dest="build", default=False, \
-                             help="keep sos tree available and dont package results")
+                             help="preserve the temporary directory and do not package results")
         parser.add_option("-v", "--verbose", action="count",
                              dest="verbosity",
                              help="increase verbosity")
