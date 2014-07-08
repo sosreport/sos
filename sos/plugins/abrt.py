@@ -25,8 +25,9 @@ class Abrt(Plugin, RedHatPlugin):
     packages = ('abrt-cli',)
     files = ('/var/spool/abrt',)
 
-    option_list = [("backtraces", 'collect backtraces for every report',
-                                                            'slow', False)]
+    option_list = [
+        ("backtraces", 'collect backtraces for every report', 'slow', False)
+    ]
 
     def do_backtraces(self):
         result = self.call_ext_prog('sqlite3 '
