@@ -26,7 +26,8 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/ofed/openib.conf",
-            "/etc/ofed/opensm.conf"])
+            "/etc/ofed/opensm.conf"
+        ])
 
         self.add_cmd_outputs([
             "ibv_devices",
