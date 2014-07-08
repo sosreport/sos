@@ -41,10 +41,12 @@ class DirectoryServer(Plugin, RedHatPlugin):
         elif "ds8" in self.check_version():
             self.add_copy_specs([
                 "/etc/dirsrv/slapd*",
-                "/var/log/dirsrv/*"])
+                "/var/log/dirsrv/*"
+            ])
         elif "ds7" in self.check_version():
             self.add_copy_specs([
                 "/opt/redhat-ds/slapd-*/config",
-                "/opt/redhat-ds/slapd-*/logs"])
+                "/opt/redhat-ds/slapd-*/logs"
+            ])
 
 # vim: et ts=4 sw=4
