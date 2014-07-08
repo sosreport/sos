@@ -22,13 +22,9 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     packages = ('cups',)
 
-    option_list = [
-        ("logsize", "max size (MiB) to collect per log file", "", 5)
-    ]
-
     def setup(self):
         if not self.get_option("all_logs"):
-            limit = self.get_option("logsize")
+            limit = self.get_option("log_size")
             self.add_copy_spec_limit("/var/log/cups/access_log", sizelimit=limit)
             self.add_copy_spec_limit("/var/log/cups/error_log", sizelimit=limit)
             self.add_copy_spec_limit("/var/log/cups/page_log", sizelimit=limit)

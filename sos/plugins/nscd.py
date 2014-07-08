@@ -22,9 +22,6 @@ class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'nscd'
 
-    option_list = [("nscdlogsize", "max size (MiB) to collect per nscd log file",
-                   "", 50)]
-
     files = ('/etc/nscd.conf',)
     packages = ('nscd',)
 
@@ -36,6 +33,6 @@ class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             for o in opt:
                 f = o.split()
                 self.add_copy_spec_limit(f[1],
-                    sizelimit = self.get_option("nscdlogsize"))
+                    sizelimit = self.get_option("log_size"))
 
 # vim: et ts=4 sw=4

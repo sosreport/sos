@@ -206,6 +206,7 @@ class SoSOptions(object):
     _plugopts = []
     _usealloptions = False
     _all_logs = False
+    _log_size = 10
     _batch = False
     _build = False
     _verbosity = 0
@@ -316,6 +317,19 @@ class SoSOptions(object):
         if not isinstance(value, bool):
             raise TypeError("SoSOptions.all_logs expects a boolean")
         self._all_logs = value
+
+    @property
+    def log_size(self):
+        if self._options != None:
+            return self._options.log_size
+        return self._log_size
+
+    @log_size.setter
+    def log_size(self, value):
+        self._check_options_initialized()
+        if value < 0:
+            raise ValueError("SoSOptions.log_size expects a value greater than zero")
+        self._log_size = value
 
     @property
     def batch(self):
@@ -483,6 +497,9 @@ class SoSOptions(object):
                              dest="plugopts", type="string",
                              help="plugin options in plugname.option=value format (see -l)",
                              default = deque())
+        parser.add_option("--log-size", action="store",
+                             dest="log_size", default=10, type="int",
+                             help="set a limit on the size of collected logs")
         parser.add_option("-a", "--alloptions", action="store_true",
                              dest="usealloptions", default=False,
                              help="enable all options for loaded plugins")

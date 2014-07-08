@@ -20,17 +20,13 @@ class Logs(Plugin):
 
     plugin_name = "logs"
 
-    option_list = [
-        ("logsize", "max size (MiB) to collect per log file", "", 15)
-    ]
-
     def setup(self):
         self.add_copy_specs([
             "/etc/syslog.conf",
             "/etc/rsyslog.conf"
         ])
 
-        self.limit = self.get_option("logsize")
+        self.limit = self.get_option("log_size")
         self.add_copy_spec_limit("/var/log/boot.log", sizelimit = self.limit)
         self.add_copy_spec_limit("/var/log/cloud-init*", sizelimit = self.limit)
 

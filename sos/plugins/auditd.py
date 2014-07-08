@@ -18,10 +18,6 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Auditd related information
     """
 
-    option_list = [
-        ("logsize", "maximum size (MiB) of logs to collect", "", 15)
-    ]
-
     plugin_name = 'auditd'
 
     packages = ('audit',)
@@ -32,7 +28,7 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/audit/audit.rules"
         ])
         if not self.get_option("all_logs"):
-            limit = self.get_option("logsize")
+            limit = self.get_option("log_size")
             self.add_copy_spec_limit("/var/log/audit/audit.log", sizelimit=limit)
         else:
             self.add_copy_spec("/var/log/audit")

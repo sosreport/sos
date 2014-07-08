@@ -22,12 +22,9 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     files = ('/etc/rabbitmq/rabbitmq.conf',)
     packages = ('rabbitmq-server',)
 
-    option_list = [("logsize", "maximum size (MiB) of logs to collect",
-                    "", 15)]
-
     def setup(self):
         self.add_cmd_output("rabbitmqctl report")
         self.add_copy_spec("/etc/rabbitmq/*")
         self.add_copy_spec_limit("/var/log/rabbitmq/*",
-                                 sizelimit=self.get_option('logsize'))
+                                 sizelimit=self.get_option('log_size'))
 # vim: et ts=4 sw=4

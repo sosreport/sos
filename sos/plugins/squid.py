@@ -21,9 +21,6 @@ class Squid(Plugin):
 
     plugin_name = 'squid'
 
-    option_list = [("logsize", "maximum size (MiB) of logs to collect",
-                    "", 15)]
-
 
 class RedHatSquid(Squid, RedHatPlugin):
     """squid Red Hat related information
@@ -34,7 +31,7 @@ class RedHatSquid(Squid, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec_limit("/etc/squid/squid.conf",
-                                 sizelimit=self.get_option('logsize'))
+                                 sizelimit=self.get_option('log_size'))
 
 
 class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
@@ -47,10 +44,10 @@ class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec_limit("/etc/squid3/squid.conf",
-                                 sizelimit=self.get_option('logsize'))
+                                 sizelimit=self.get_option('log_size'))
         self.add_copy_spec_limit("/var/log/squid3/*",
-                                 sizelimit=self.get_option('logsize'))
+                                 sizelimit=self.get_option('log_size'))
         self.add_copy_specs(['/etc/squid-deb-proxy'])
         self.add_copy_spec_limit("/var/log/squid-deb-proxy/*",
-                                 sizelimit=self.get_option('logsize'))
+                                 sizelimit=self.get_option('log_size'))
 # vim: et ts=4 sw=4
