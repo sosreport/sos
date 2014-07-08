@@ -22,9 +22,11 @@ class Cluster(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'cluster'
-    option_list = [("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
-                    ("crm_from", 'specify the --from parameter passed to crm_report', 'fast', False),
-                    ('lockdump', 'gather dlm lockdumps', 'slow', False)]
+    option_list = [
+        ("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
+        ("crm_from", 'specify the start time for crm_report', 'fast', False),
+        ('lockdump', 'gather dlm lockdumps', 'slow', False) 
+    ]
 
     packages = [
         "ricci",
@@ -108,28 +110,42 @@ class Cluster(Plugin, RedHatPlugin):
         result = self.call_ext_prog(dlm_tool)
         if result['status'] != 0:
             return
-        for lockspace in re.compile(r'^name\s+([^\s]+)$',
-                re.MULTILINE).findall(result['output']):
-            self.add_cmd_output("dlm_tool lockdebug -svw '%s'" % lockspace,
-                        suggest_filename = "dlm_locks_%s" % lockspace)
+
+        lock_exp = r'^name\s+([^\s]+)$'
+        lock_re = re.compile(lock_exp, re.MULTILINE)
+        for lockspace in lock_re.findall(result['output']):
+            self.add_cmd_output(
+                "dlm_tool lockdebug -svw '%s'" % lockspace,
+                suggest_filename="dlm_locks_%s" % lockspace
+            )
 
     def do_gfslockdump(self):
-        for mntpoint in self.do_regex_find_all(r'^\S+\s+([^\s]+)\s+gfs\s+.*$',
-                    "/proc/mounts"):
-            self.add_cmd_output("gfs_tool lockdump %s" % mntpoint,
-                        suggest_filename = "gfs_lockdump_"
-                        + self.mangle_command(mntpoint))
+        mnt_exp = r'^\S+\s+([^\s]+)\s+gfs\s+.*$'
+        for mnt in self.do_regex_find_all(mnt_exp, "/proc/mounts"):
+            self.add_cmd_output(
+                "gfs_tool lockdump %s" % mnt,
+                 suggest_filename="gfs_lockdump_" + self.mangle_command(mnt)
+            )
 
     def postproc(self):
         for cluster_conf in glob("/etc/cluster/cluster.conf*"):
-            self.do_file_sub(cluster_conf,
-                        r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")",
-                        r"\1%s" %('"***"'))
-        for luci_cfg in glob("/var/lib/luci/etc/*.ini*"):
-            self.do_file_sub(luci_cfg, r"(.*secret\s*=\s*)\S+", r"\1******")
-        self.do_cmd_output_sub("corosync-objctl",
-                        r"(.*fence.*\.passwd=)(.*)",
-                        r"\1******")
+            self.do_file_sub(
+                cluster_conf,
+                r"(\s*\<fencedevice\s*.*\s*passwd\s*=\s*)\S+(\")",
+                r"\1%s" %('"***"')
+            )
+
+        self.do_path_regex_sub(
+            "/var/lib/luci/etc/.*\.ini",
+            r"(.*secret\s*=\s*)\S+",
+            r"\1******"
+        )
+
+        self.do_cmd_output_sub(
+            "corosync-objctl",
+            r"(.*fence.*\.passwd=)(.*)",
+            r"\1******"
+        )
         return
 
 # vim: et ts=4 sw=4
