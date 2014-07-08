@@ -22,8 +22,9 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     packages = ('cups',)
 
-    option_list = [("logsize", "max size (MiB) to collect per log file", "", 5),
-                   ("all_logs", "collect all cups log files", "", False)]
+    option_list = [
+        ("logsize", "max size (MiB) to collect per log file", "", 5)
+    ]
 
     def setup(self):
         if not self.get_option("all_logs"):

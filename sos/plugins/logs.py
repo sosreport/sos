@@ -21,11 +21,7 @@ class Logs(Plugin):
     plugin_name = "logs"
 
     option_list = [
-        ("logsize",
-            "max size (MiB) to collect per syslog file", "", 15),
-        ("all_logs",
-            "collect all log files defined in syslog.conf",
-            "", False)
+        ("logsize", "max size (MiB) to collect per log file", "", 15)
     ]
 
     def setup(self):

@@ -25,9 +25,13 @@ class Cron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_specs([
                 "/etc/cron*",
-                "/var/log/cron*",
+                "/var/log/cron",
                 "/var/spool/cron"
         ])
+
+        if self.get_option("all_logs"):
+            self.add_copy_spec("/var/log/cron*")
+
         self.add_cmd_output("crontab -l -u root",
                 suggest_filename = "root_crontab")
 

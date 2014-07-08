@@ -28,9 +28,6 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('pcp',)
 
     pcp_conffile = '/etc/pcp.conf'
-    option_list = [(
-        "all_pcplogs", "gather all logged archive files", "", False
-    )]
 
     # size-limit total PCP log data collected by default (MB)
     pcplog_totalsize = 100
@@ -77,7 +74,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         return True
 
     def setup(self):
-        if self.get_option("all_pcplogs"):
+        if self.get_option("all_logs"):
             self.pcplog_totalsize = 0
 
         if not self.pcp_parse_conffile():

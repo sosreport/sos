@@ -25,8 +25,7 @@ class Mysql(Plugin):
     option_list = [
         ("dbuser", "username for database dumps", "", "mysql"),
         ("dbpass", "password for database dumps", "", ""),
-        ("dbdump", "collect a database dump", "", False),
-        ("all_logs", "collect all MySQL logs", "", False)
+        ("dbdump", "collect a database dump", "", False)
     ]
 
     def setup(self):

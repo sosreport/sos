@@ -18,8 +18,9 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Auditd related information
     """
 
-    option_list = [("logsize", "maximum size (MiB) of logs to collect", "", 15),
-                   ("all_logs", "collect all logs regardless of size", "", False)]
+    option_list = [
+        ("logsize", "maximum size (MiB) of logs to collect", "", 15)
+    ]
 
     plugin_name = 'auditd'
 

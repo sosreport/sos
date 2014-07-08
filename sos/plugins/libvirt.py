@@ -20,9 +20,6 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
     """
 
-    option_list = [(
-        "all_logs", "collect all logs regardless of size", "", False
-    )]
     plugin_name = 'libvirt'
 
     def setup(self):

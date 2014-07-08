@@ -205,6 +205,7 @@ class SoSOptions(object):
     _onlyplugins = []
     _plugopts = []
     _usealloptions = False
+    _all_logs = False
     _batch = False
     _build = False
     _verbosity = 0
@@ -302,6 +303,19 @@ class SoSOptions(object):
         if not isinsance(value, bool):
             raise TypeError("SoSOptions.usealloptions expects a boolean")
         self._usealloptions = value
+
+    @property
+    def all_logs(self):
+        if self._options != None:
+            return self._options.all_logs
+        return self._all_logs
+
+    @all_logs.setter
+    def all_logs(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.all_logs expects a boolean")
+        self._all_logs = value
 
     @property
     def batch(self):
@@ -472,6 +486,9 @@ class SoSOptions(object):
         parser.add_option("-a", "--alloptions", action="store_true",
                              dest="usealloptions", default=False,
                              help="enable all options for loaded plugins")
+        parser.add_option("--all-logs", action="store_true",
+                             dest="all_logs", default=False,
+                             help="collect all available logs regardless of size")
         parser.add_option("--batch", action="store_true",
                              dest="batch", default=False,
                              help="batch mode - do not prompt interactively")
