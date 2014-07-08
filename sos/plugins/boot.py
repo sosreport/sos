@@ -21,9 +21,9 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'boot'
 
-    option_list = [("all-images",
-                    "collect a file listing for all initramfs images", "slow",
-                    False)]
+    option_list = [
+        ("all-images", "collect lsinitrd for all images", "slow", False)
+    ]
 
     def setup(self):
         self.add_copy_specs([
