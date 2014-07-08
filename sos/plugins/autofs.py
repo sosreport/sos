@@ -54,7 +54,8 @@ class RedHatAutofs(Autofs, RedHatPlugin):
 
     def setup(self):
         super(RedHatAutofs, self).setup()
-        self.add_cmd_output("rpm -qV autofs")
+        if self.get_option("verify"):
+            self.add_cmd_output("rpm -qV autofs")
 
 class DebianAutofs(Autofs, DebianPlugin, UbuntuPlugin):
     """autofs server-related on Debian based distributions"""
