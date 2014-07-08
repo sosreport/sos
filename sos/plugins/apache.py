@@ -19,7 +19,9 @@ class Apache(Plugin):
     """
     plugin_name = "apache"
 
-    option_list = [("log", "gathers all apache logs", "slow", False)]
+    option_list = [
+        ("log", "gathers all apache logs", "slow", False)
+    ]
 
 class RedHatApache(Apache, RedHatPlugin):
     """Apache related information for Red Hat distributions
@@ -31,7 +33,8 @@ class RedHatApache(Apache, RedHatPlugin):
 
         self.add_copy_specs([
             "/etc/httpd/conf/httpd.conf",
-            "/etc/httpd/conf.d/*.conf"])
+            "/etc/httpd/conf.d/*.conf"
+        ])
 
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
 
@@ -52,7 +55,8 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
         super(DebianApache, self).setup()
         self.add_copy_specs([
             "/etc/apache2/*",
-            "/etc/default/apache2"])
+            "/etc/default/apache2"
+        ])
 
         # collect only the current log set by default
         self.add_copy_spec_limit("/var/log/apache2/access_log", 15)
