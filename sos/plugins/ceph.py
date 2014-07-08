@@ -19,13 +19,17 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'ceph'
-    option_list = [("log", "gathers all ceph logs", "slow", False)]
+    option_list = [
+        ("log", "gathers all ceph logs", "slow", False)
+    ]
 
-    packages = ('ceph',
-                'ceph-mds',
-                'ceph-common',
-                'libcephfs1',
-                'ceph-fs-common')
+    packages = (
+        'ceph',
+        'ceph-mds',
+        'ceph-common',
+        'libcephfs1',
+        'ceph-fs-common'
+    )
 
     def setup(self):
         self.add_copy_specs([
