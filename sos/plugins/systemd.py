@@ -36,6 +36,7 @@ class Systemd(Plugin, RedHatPlugin):
             "systemd-delta",
             "journalctl --all --this-boot --no-pager",
             "journalctl --all --this-boot --no-pager -o verbose",
+            "journalctl --list-boots",
             "ls -l /lib/systemd",
             "ls -l /lib/systemd/system-shutdown",
             "ls -l /lib/systemd/system-generators",
