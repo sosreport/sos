@@ -25,7 +25,8 @@ class Foreman(Plugin, RedHatPlugin):
     packages = ('foreman')
 
     def setup(self):
-        self.add_cmd_output("%s -q -a -d %s" % ("foreman-debug",
-                           self.get_cmd_output_path(name="foreman-debug")))
+        cmd = "foreman-debug"
+        path = self.get_cmd_output_path(name="foreman-debug")
+        self.add_cmd_output("%s -q -a -d %s" % (cmd, path))
 
 # vim: et ts=4 sw=4
