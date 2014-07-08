@@ -30,7 +30,8 @@ class RedHatDhcp(Dhcp, RedHatPlugin):
         super(RedHatDhcp, self).setup()
         self.add_copy_specs([
             "/etc/dhcpd.conf",
-            "/etc/dhcp"])
+            "/etc/dhcp"
+        ])
 
 class UbuntuDhcp(Dhcp, UbuntuPlugin):
     """DHCP related information for Debian based distributions"""
