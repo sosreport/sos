@@ -51,7 +51,8 @@ class Emc(Plugin, RedHatPlugin):
             "/etc/emcp_devicesDB.dat",
             "/etc/emcp_devicesDB.idx",
             "/etc/emc/powerkmd.custom",
-            "/etc/modprobe.conf.pp"])
+            "/etc/modprobe.conf.pp"
+        ])
 
     def get_pp_config(self):
         """ EMC PowerPath specific information - commands
@@ -72,7 +73,8 @@ class Emc(Plugin, RedHatPlugin):
         self.add_copy_specs([
             "/var/symapi/db/symapi_db.bin",
             "/var/symapi/config/[a-z]*",
-            "/var/symapi/log/[a-z]*"])
+            "/var/symapi/log/[a-z]*"
+        ])
 
     def get_symcli_config(self):
         """ EMC Solutions Enabler SYMCLI specific information - Symmetrix/DMX - commands
@@ -133,7 +135,8 @@ class Emc(Plugin, RedHatPlugin):
             "/etc/Navisphere/Navimon.cfg",
             "/etc/Navisphere/Quietmode.cfg",
             "/etc/Navisphere/messages/[a-z]*",
-            "/etc/Navisphere/log/[a-z]*"])
+            "/etc/Navisphere/log/[a-z]*"
+        ])
 
     def get_navicli_SP_info(self,SP_address):
         """ EMC Navisphere Host Agent NAVICLI specific information - CLARiiON - commands
