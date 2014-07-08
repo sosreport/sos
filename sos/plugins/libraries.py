@@ -20,8 +20,9 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'libraries'
 
-    option_list = [('ldconfigv', 'the name of each directory as it is scanned, and any links that are created.',
-                    "slow", False)]
+    option_list = [
+        ('ldconfigv', 'collect verbose ldconfig output', "slow", False)
+    ]
 
     def setup(self):
         self.add_copy_specs(["/etc/ld.so.conf", "/etc/ld.so.conf.d"])
