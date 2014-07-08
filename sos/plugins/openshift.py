@@ -37,15 +37,18 @@ class Openshift(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_specs([
-            "/etc/openshift-enterprise-*",
+            "/etc/openshift-enterprise-release",
             "/var/log/openshift/",
-            "/etc/openshift/"
+            "/etc/openshift/*.conf",
+            "/etc/openshift/upgrade",
         ])
 
         self.add_cmd_output("oo-diagnostics -v")
 
         if self.is_broker():
             self.add_copy_specs([
+                "/etc/openshift/quickstarts.json",
+                "/etc/openshift/plugins.d/*.conf",
                 "/var/www/openshift/broker/httpd/conf.d/*.conf",
                 "/var/www/openshift/console/httpd/conf.d/*.conf",
             ])
@@ -58,6 +61,11 @@ class Openshift(Plugin, RedHatPlugin):
 
         if self.is_node():
             self.add_copy_specs([
+                "/etc/openshift/node-plugins.d/*.conf",
+                "/etc/openshift/iptables.*.rules",
+                "/etc/openshift/web-proxy-config.json",
+                "/etc/openshift/env",
+                "/etc/openshift/cart.conf.d",
                 "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
                 "/var/log/httpd/openshift_log",
                 "/var/log/mcollective.log",
@@ -86,9 +94,5 @@ class Openshift(Plugin, RedHatPlugin):
         self.do_file_sub('/etc/openshift/console.conf',
                 r"(SESSION_SECRET=)(.*)",
                 r"\1*******")
-
-        self.do_file_sub('/etc/openshift/htpasswd',
-                r"(.*:)(.*)",
-                r"\1********")
 
 # vim: et ts=4 sw=4
