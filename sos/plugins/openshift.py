@@ -38,7 +38,7 @@ class Openshift(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/openshift-enterprise-release",
-            "/var/log/openshift/",
+            "/var/log/openshift",
             "/etc/openshift/*.conf",
             "/etc/openshift/upgrade",
         ])
@@ -62,11 +62,10 @@ class Openshift(Plugin, RedHatPlugin):
         if self.is_node():
             self.add_copy_specs([
                 "/etc/openshift/node-plugins.d/*.conf",
-                "/etc/openshift/iptables.*.rules",
-                "/etc/openshift/web-proxy-config.json",
-                "/etc/openshift/env",
                 "/etc/openshift/cart.conf.d",
-                "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
+                "/etc/openshift/iptables.*.rules",
+                "/etc/openshift/env",
+                "/opt/%s/%s/root/etc/mcollective" % (self.vendor, self.ruby),
                 "/var/log/httpd/openshift_log",
                 "/var/log/mcollective.log",
                 "/var/log/node-web-proxy/access.log",
@@ -83,16 +82,28 @@ class Openshift(Plugin, RedHatPlugin):
             ])
 
     def postproc(self):
+        # Redact broker's MongoDB credentials:
+        # MONGO_PASSWORD="PasswordForOpenshiftUser"
         self.do_file_sub('/etc/openshift/broker.conf',
-                r"(MONGO_PASSWORD=)(.*)",
+                r"(MONGO_PASSWORD\s*=\s*)(.*)",
                 r"\1*******")
 
+        # Redact session SHA keys:
+        # SESSION_SECRET=0c31...a7c8
         self.do_file_sub('/etc/openshift/broker.conf',
-                r"(SESSION_SECRET=)(.*)",
+                r"(SESSION_SECRET\s*=\s*)(.*)",
                 r"\1*******")
-
         self.do_file_sub('/etc/openshift/console.conf',
-                r"(SESSION_SECRET=)(.*)",
+                r"(SESSION_SECRET\s*=\s*)(.*)",
                 r"\1*******")
+
+        # Redact passwords of the form:
+        # plugin.activemq.pool.1.password = Pa$sW0Rd
+        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/server.cfg" % (self.vendor, self.ruby),
+                r"(.*password\s*=\s*)\S+",
+                r"\1********")
+        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/client.cfg" % (self.vendor, self.ruby),
+                r"(.*password\s*=\s*)\S+",
+                r"\1********")
 
 # vim: et ts=4 sw=4
