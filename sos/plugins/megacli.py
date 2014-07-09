@@ -34,6 +34,12 @@ class MegaCLI(Plugin, RedHatPlugin):
     def get_megacli_files(self):
         """ MegaCLI specific output
         """
-        self.add_cmd_output("/opt/MegaRAID/MegaCli/MegaCli64 LDPDInfo -aALL")
-        self.add_cmd_output("/opt/MegaRAID/MegaCli/MegaCli64 -AdpAllInfo -aALL")
-        self.add_cmd_output("/opt/MegaRAID/MegaCli/MegaCli64 -AdpBbuCmd -GetBbuStatus -aALL")
+        self.add_cmd_outputs([
+            megacli_cmd + " LDPDInfo -aALL",
+            megacli_cmd + " -AdpAllInfo -aALL",
+            megacli_cmd + " -AdpBbuCmd -GetBbuStatus -aALL",
+            megacli_cmd + " -ShowSummary -a0"
+        ])
+
+# vim: et ts=4 sw=4
+
