@@ -113,7 +113,7 @@ class Archive(object):
         """Finalize an archive object via method. This may involve creating
         An archive that is subsequently compressed or simply closing an
         archive that supports in-line handling. If method is automatic then
-        the following technologies are tried in order: xz, bz2 and gzip"""
+        the following methods are tried in order: xz, bz2 and gzip"""
 
         self.close()
 
@@ -222,11 +222,13 @@ class FileCacheArchive(Archive):
         shutil.rmtree(self._archive_root)
 
     def finalize(self, method):
-        self.log_info("finalizing archive '%s'" % self._archive_root)
+        self.log_info("finalizing archive '%s' using method '%s'"
+                       % (self._archive_root, method))
         self._build_archive()
         self.cleanup()
         self.log_info("built archive at '%s' (size=%d)" % (self._archive_name,
                        os.stat(self._archive_name).st_size))
+        self.method = method
         return self._compress()
 
 
@@ -301,6 +303,7 @@ class TarFileArchive(FileCacheArchive):
                 cmd = "%s -1" % cmd
             try:
                 command = shlex.split("%s %s" % (cmd, self.name()))
+                print "%s %s" % (cmd, self.name())
                 p = Popen(command,
                           stdout=PIPE,
                           stderr=PIPE,

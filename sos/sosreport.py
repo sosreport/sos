@@ -608,9 +608,6 @@ class SoSReport(object):
         return self.tempfile_util.new()
 
     def _set_archive(self):
-        if self.opts.compression_type not in ('auto', 'zip', 'bzip2', 'gzip', 'xz'):
-            raise Exception("Invalid compression type specified. Options are:" +
-                            "auto, zip, bzip2, gzip and xz")
         archive_name = os.path.join(self.tmpdir,self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
             auto_archive = self.policy.get_preferred_archive()
@@ -956,6 +953,15 @@ class SoSReport(object):
         self.policy.pre_work()
         try:
             self.ui_log.info(_(" Setting up archive ..."))
+            compression_methods = ('auto', 'zip', 'bzip2', 'gzip', 'xz')
+            method = self.opts.compression_type
+            if method not in compression_methods:
+                compression_list = ', '.join (compression_methods)
+                self.ui_log.error("")
+                self.ui_log.error("Invalid compression specified: " + method)
+                self.ui_log.error("Valid types are: " + compression_list)
+                self.ui_log.error("")
+                self._exit(1)
             self._set_archive()
             self._make_archive_paths()
             return
