@@ -11,6 +11,7 @@ sosreport \- Collect and package diagnostic and support data
           [--report] [--config-file conf] [--batch]\fR
           [--build] [--name name] [--ticket-number number]
           [--debug] [--tmp-dir directory]\fR
+          [-z|--compression-type method]\fR
           [--help]\fR
 .SH DESCRIPTION
 \fBsosreport\fR generates a compressed tar archive of diagnostic
@@ -66,6 +67,10 @@ Specify alternate configuration file.
 .B \--tmp-dir DIRECTORY
 Specify alternate temporary directory to copy data as well as the
 compressed report.
+.TP
+.B \-z, \--compression-type METHOD
+Override the default compression type specified by the active policy.
+.TP
 .TP
 .B \--batch
 Generate archive without prompting for interactive input.
