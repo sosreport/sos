@@ -39,15 +39,18 @@ class openshift(sos.plugintools.PluginBase):
     def setup(self):
         self.gear = self.getOption('gear')
         self.addCopySpecs([
-            "/etc/openshift-enterprise-*",
+            "/etc/openshift-enterprise-release",
             "/var/log/openshift/",
-            "/etc/openshift/"
+            "/etc/openshift/*.conf",
+            "/etc/openshift/upgrade/",
         ])
 
         self.collectExtOutput("oo-diagnostics -v")
 
         if self.is_broker():
             self.addCopySpecs([
+                "/etc/openshift/quickstarts.json",
+                "/etc/openshift/plugins.d/*.conf",
                 "/var/www/openshift/broker/httpd/conf.d/*.conf",
                 "/var/www/openshift/console/httpd/conf.d/*.conf",
             ])
@@ -60,6 +63,9 @@ class openshift(sos.plugintools.PluginBase):
 
         if self.is_node():
             self.addCopySpecs([
+                "/etc/openshift/node-plugins.d/*.conf",
+                "/etc/openshift/cart.conf.d/",
+                "/etc/openshift/env/",
                 "/cgroup/*/openshift",
                 "/opt/%s/%s/root/etc/mcollective/" % (self.vendor, self.ruby),
                 "/var/log/httpd/openshift_log",
@@ -95,8 +101,8 @@ class openshift(sos.plugintools.PluginBase):
                 r"(SESSION_SECRET=)(.*)",
                 r"\1*******")
 
-        self.doRegexSub('/etc/openshift/htpasswd',
-                r"(.*:)(.*)",
+        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/server.cfg" % (self.vendor, self.ruby),
+                r"(.*\.password.?=)(.*)",
                 r"\1********")
 
 # vim: et ts=4 sw=4
