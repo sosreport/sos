@@ -33,12 +33,14 @@ class General(Plugin):
             "/etc/hostid",
             "/var/lib/dbus/machine-id",
             "/etc/exports",
-            "/etc/localtime"
+            "/etc/localtime",
+            "/etc/os-release"
         ])
 
         self.add_cmd_output("hostname", root_symlink="hostname")
         self.add_cmd_output("date", root_symlink="date")
         self.add_cmd_output("uptime", root_symlink="uptime")
+
         self.add_cmd_outputs([
             "tree /var/lib",
             "ls -lR /var/lib"
@@ -72,13 +74,5 @@ class DebianGeneral(General, DebianPlugin):
             "/etc/lsb-release",
             "/etc/debian_version"
         ])
-
-
-class UbuntuGeneral(DebianGeneral):
-    """Basic system information for Ubuntu based distributions"""
-
-    def setup(self):
-        super(UbuntuGeneral, self).setup()
-        self.add_copy_spec("/etc/os-release")
 
 # vim: et ts=4 sw=4
