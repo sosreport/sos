@@ -1,24 +1,46 @@
 [![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos)
 
-This set of tools is designed to provide information to support organizations
-in an extensible manner, allowing third parties, package maintainers, and
-anyone else to provide plugins that will collect and report information that
-is useful for supporting software packages.
+Sos is an extensible, portable, support data collection tool primarily
+aimed at Linux distributions and other UNIX-like operating systems.
 
-This project is hosted at http://github.com/sosreport/sosreport For the latest
-version, to contribute, and for more information, please visit there.
+This project is hosted at:
 
-To access to the public source code repository for this project run:
+  * http://github.com/sosreport/sos
+
+For the latest version, to contribute, and for more information, please visit
+the project pages or join the mailing list.
+
+To clone the current master (development) branch run:
 
 ```
 git clone git://github.com/sosreport/sos.git
 ```
+### Reporting bugs
 
-### Contributors please read
+Please report bugs via the mailing list or by opening an issue in the [GitHub
+Issue Tracker][5]
 
-Because of our vibrant community and everyone does things a little differently we've setup a wiki page dedicated to [sosreport's contribution guidelines][0].
+### Mailing list
 
-In order to get your requests merged in a timely manner these guidelines are mandatory.
+The [sos-devel][4] mailing list is used to discussi sos development and reviewing patches. User questions and general discussion are welcome too.
+
+### Contributing
+
+Patches can be submitted via the mailing list or as GitHub pull requests. If
+using GitHub please make sure your branch applies to the current master as a
+'fast forward' merge (i.e. without creating a merge commit). Use the `git
+rebase` command to update your branch to the current master if necessary.
+
+Wiki documentation
+
+* [How to write a plugin][1]
+* [How to write a policy][2]
+* [Plugin options][3]
+
+To help get your changes merged quickly with as few revisions as possible
+please refer to the [Contributor Guidelines][0] when submitting patches or
+pull requests.
+
 
 ### Manual Installation
 
@@ -50,3 +72,8 @@ sudo apt-get install sosreport
 ```
 
  [0]: https://github.com/sosreport/sos/wiki/Contribution-Guidelines
+ [1]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Plugin
+ [2]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Policy
+ [3]: https://github.com/sosreport/sos/wiki/Plugin-options
+ [4]: https://www.redhat.com/mailman/listinfo/sos-devel
+ [5]: https://github.com/sosreport/sos/issues?state=open
