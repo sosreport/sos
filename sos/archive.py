@@ -303,7 +303,6 @@ class TarFileArchive(FileCacheArchive):
                 cmd = "%s -1" % cmd
             try:
                 command = shlex.split("%s %s" % (cmd, self.name()))
-                print "%s %s" % (cmd, self.name())
                 p = Popen(command,
                           stdout=PIPE,
                           stderr=PIPE,
