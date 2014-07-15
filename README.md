@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos)
 
+# SoS
+
 Sos is an extensible, portable, support data collection tool primarily
 aimed at Linux distributions and other UNIX-like operating systems.
 
@@ -15,23 +17,23 @@ To clone the current master (development) branch run:
 ```
 git clone git://github.com/sosreport/sos.git
 ```
-### Reporting bugs
+## Reporting bugs
 
 Please report bugs via the mailing list or by opening an issue in the [GitHub
 Issue Tracker][5]
 
-### Mailing list
+## Mailing list
 
 The [sos-devel][4] mailing list is used to discussi sos development and reviewing patches. User questions and general discussion are welcome too.
 
-### Contributing
+## Developers
 
 Patches can be submitted via the mailing list or as GitHub pull requests. If
 using GitHub please make sure your branch applies to the current master as a
 'fast forward' merge (i.e. without creating a merge commit). Use the `git
 rebase` command to update your branch to the current master if necessary.
 
-Wiki documentation
+### Wiki documentation
 
 * [How to write a plugin][1]
 * [How to write a policy][2]
