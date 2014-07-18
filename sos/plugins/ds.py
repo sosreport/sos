@@ -1,4 +1,5 @@
 ## Copyright (C) 2007 Red Hat, Inc., Kent Lamb <klamb@redhat.com>
+## Copyright (C) 2014 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -36,11 +37,23 @@ class DirectoryServer(Plugin, RedHatPlugin):
         return False
 
     def setup(self):
+        self.add_forbidden_path("/etc/dirsrv/slapd*/pin.txt")
+        self.add_forbidden_path("/etc/dirsrv/slapd*/key3.db")
+        self.add_forbidden_path("/etc/dirsrv/slapd*/pwfile.txt")
+        self.add_forbidden_path("/etc/dirsrv/slapd*/*passw*")
+        self.add_forbidden_path("/etc/dirsrv/admin-serv/key3.db")
+        self.add_forbidden_path("/etc/dirsrv/admin-serv/admpw")
+        self.add_forbidden_path("/etc/dirsrv/admin-serv/password.conf")
         if not self.check_version():
             self.add_alert("Directory Server not found.")
         elif "ds8" in self.check_version():
             self.add_copy_specs([
-                "/etc/dirsrv/slapd*",
+                "/etc/dirsrv/slapd*/cert8.db",
+                "/etc/dirsrv/slapd*/certmap.conf",
+                "/etc/dirsrv/slapd*/dse.ldif",
+                "/etc/dirsrv/slapd*/dse.ldif.startOK",
+                "/etc/dirsrv/slapd*/secmod.db",
+                "/etc/dirsrv/slapd*/schema/*.ldif",
                 "/var/log/dirsrv/*"
             ])
         elif "ds7" in self.check_version():
