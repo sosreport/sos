@@ -50,6 +50,7 @@ class RedHatLdap(Ldap, RedHatPlugin):
                 "/etc/nslcd.conf",
                 "/etc/pam_ldap.conf"
         ])
+        self.add_cmd_output("certutil -L -d /etc/openldap")
 
     def postproc(self):
         super(RedHatLdap, self).postproc()
