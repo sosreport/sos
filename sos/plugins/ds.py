@@ -44,6 +44,15 @@ class DirectoryServer(Plugin, RedHatPlugin):
         self.add_forbidden_path("/etc/dirsrv/admin-serv/key3.db")
         self.add_forbidden_path("/etc/dirsrv/admin-serv/admpw")
         self.add_forbidden_path("/etc/dirsrv/admin-serv/password.conf")
+        try:
+            for d in os.listdir("/etc/dirsrv"):
+                if d[0:5] == 'slapd':
+                    certpath = os.path.join("/etc/dirsrv", d)
+                    self.add_cmd_output("certutil -L -d %s" % certpath)
+        except:
+            self.log_warn("could not list /etc/dirsrv")
+        
+
         if not self.check_version():
             self.add_alert("Directory Server not found.")
         elif "ds8" in self.check_version():
