@@ -38,8 +38,15 @@ class RedHatLdap(Ldap, RedHatPlugin):
 
     def setup(self):
         super(RedHatLdap, self).setup()
+        self.add_forbidden_path("/etc/openldap/certs/password")
+        self.add_forbidden_path("/etc/openldap/certs/pwfile.txt")
+        self.add_forbidden_path("/etc/openldap/certs/pin.txt")
+        self.add_forbidden_path("/etc/openldap/certs/*passw*")
+        self.add_forbidden_path("/etc/openldap/certs/key3.db")
         self.add_copy_specs([
-                "/etc/openldap",
+                ldap_conf,
+                "/etc/openldap/certs/cert8.db",
+                "/etc/openldap/certs/secmod.db",
                 "/etc/nslcd.conf",
                 "/etc/pam_ldap.conf"
         ])
@@ -70,7 +77,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
         ldap_search = "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// "
 
         self.add_copy_specs([
-            "/etc/ldap/ldap.conf",
+            ldap_conf,
             "/etc/slapd.conf",
             "/etc/ldap/slapd.d"
         ])
