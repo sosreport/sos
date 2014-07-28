@@ -52,6 +52,7 @@ class ldap(sos.plugintools.PluginBase):
         self.addCopySpec("/etc/openldap/secmod.db")
         self.addCopySpec("/etc/nslcd.conf")
         self.addCopySpec("/etc/pam_ldap.conf")
+        self.collectExtOutput("certutil -L -d /etc/openldap")
 
     def postproc(self):
         self.doRegexSub("/etc/ldap.conf", r"(\s*bindpw\s*)\S+", r"\1********")
