@@ -27,6 +27,9 @@ class FirewallD(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/firewalld/firewalld.conf",
+            "/etc/firewalld/icmptypes/*.xml",
+            "/etc/firewalld/services/*.xml",
+            "/etc/firewalld/zones/*.xml",
             "/etc/sysconfig/firewalld"
         ])
 
