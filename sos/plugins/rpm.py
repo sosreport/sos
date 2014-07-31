@@ -44,7 +44,7 @@ class Rpm(Plugin, RedHatPlugin):
 
         if self.get_option("verify"):
             if self.get_option("rpmva"):
-                self.add_cmd_output("rpm -Va", root_symlink = "rpm-Va", timeout = 3600)
+                self.add_cmd_output("rpm -Va", root_symlink="rpm-Va", timeout=180)
             else:
                 pkgs_by_regex = self.policy().package_manager.all_pkgs_by_name_regex
                 verify_list = map(pkgs_by_regex, self.verify_list)
