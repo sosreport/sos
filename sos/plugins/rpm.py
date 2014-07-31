@@ -35,7 +35,7 @@ class rpm(sos.plugintools.PluginBase):
             self.collectExtOutput("/bin/rpm -qa --qf=\"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~%{INSTALLTIME:date}\n\" --nosignature --nodigest|/bin/awk -F '~~' '{printf \"%-59s %s\\n\",$1,$2}'|sort", symlink = "installed-rpms")
 
         if self.getOption("rpmva"):
-            self.collectExtOutput("/bin/rpm -Va", symlink = "rpm-Va", timeout = 3600)
+            self.collectExtOutput("/bin/rpm -Va", symlink = "rpm-Va", timeout=600)
         else:
             pkgs_by_regex = self.policy().allPkgsByNameRegex
             verify_list = map(pkgs_by_regex, self.verify_list)
@@ -45,6 +45,6 @@ class rpm(sos.plugintools.PluginBase):
                     if 'debuginfo' in pkg['name'] or 'devel' in pkg['name']:
                         continue
                     verify_pkgs = "%s %s" % (verify_pkgs, pkg['name'])
-            self.collectExtOutput("rpm -V %s" % verify_pkgs)
+            self.collectExtOutput("rpm -V %s" % verify_pkgs, timeout=180)
         return
 
