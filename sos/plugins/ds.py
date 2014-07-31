@@ -41,13 +41,13 @@ class ds(sos.plugintools.PluginBase):
         return False
 
     def setup(self):
-        self.add_forbidden_path("/etc/dirsrv/slapd*/pin.txt")
-        self.add_forbidden_path("/etc/dirsrv/slapd*/key3.db")
-        self.add_forbidden_path("/etc/dirsrv/slapd*/pwfile.txt")
-        self.add_forbidden_path("/etc/dirsrv/slapd*/*passw*")
-        self.add_forbidden_path("/etc/dirsrv/admin-serv/key3.db")
-        self.add_forbidden_path("/etc/dirsrv/admin-serv/admpw")
-        self.add_forbidden_path("/etc/dirsrv/admin-serv/password.conf")
+        self.addForbiddenPath("/etc/dirsrv/slapd*/pin.txt")
+        self.addForbiddenPath("/etc/dirsrv/slapd*/key3.db")
+        self.addForbiddenPath("/etc/dirsrv/slapd*/pwfile.txt")
+        self.addForbiddenPath("/etc/dirsrv/slapd*/*passw*")
+        self.addForbiddenPath("/etc/dirsrv/admin-serv/key3.db")
+        self.addForbiddenPath("/etc/dirsrv/admin-serv/admpw")
+        self.addForbiddenPath("/etc/dirsrv/admin-serv/password.conf")
         try:
             for d in os.listdir("/etc/dirsrv"):
                 if d[0:5] == 'slapd':
