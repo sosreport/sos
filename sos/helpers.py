@@ -44,11 +44,14 @@ def isExecutable(command):
     candidates = [command] + [os.path.join(p, command) for p in paths]
     return any(os.access(path, os.X_OK) for path in candidates)
 
-def sosGetCommandOutput(command, timeout = 300):
+def sosGetCommandOutput(command, timeout=30):
     """ Execute a command and gather stdin, stdout, and return status.
     """
     if not isExecutable(command.split()[0]):
         return (127, "", 0)
+
+    if timeout and isExecutable("timeout"):
+        command = "timeout %ds %s" % (timeout, command)
 
     cmd_env = os.environ
     cmd_env['LC_ALL'] = 'C'
@@ -56,6 +59,7 @@ def sosGetCommandOutput(command, timeout = 300):
               stdout = PIPE, stderr = STDOUT,
               bufsize = -1, env = cmd_env)
     stdout, stderr = p.communicate()
+
     # hack to delete trailing '\n' added by p.communicate()
     if stdout[-1:] == '\n': stdout = stdout[:-1]
     return (p.returncode, stdout, 0)

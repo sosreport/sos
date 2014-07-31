@@ -389,14 +389,17 @@ class PluginBase:
             if filespec not in self.copyPaths:
                 self.copyPaths.append(filespec)
 
-    def callExtProg(self, prog):
+    def callExtProg(self, prog, timeout=30):
         """ Execute a command independantly of the output gathering part of
         sosreport
         """
         # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(prog)
+        status, shout, runtime = sosGetCommandOutput(prog, timeout=timeout)
         if (status == 127):
            self.soslog.info("could not run '%s'" % prog) 
+        if timeout and status == 124:
+           self.soslog.info("timeout waiting for '%s' (%ds)" % (prog, timeout)) 
+
         return (status, shout, runtime)
 
     def collectExtOutputs(self, cmds):
@@ -406,7 +409,7 @@ class PluginBase:
         for cmd in cmds:
             self.collectExtOutput(cmd)
 
-    def collectExtOutput(self, exe, suggest_filename = None, symlink = None, timeout = 300):
+    def collectExtOutput(self, exe, suggest_filename=None, symlink=None, timeout=30):
         """
         Run a program and collect the output
         """
@@ -442,7 +445,7 @@ class PluginBase:
 
         return outfn
 
-    def collectOutputNow(self, exe, suggest_filename = None, symlink = False, timeout = 300):
+    def collectOutputNow(self, exe, suggest_filename=None, symlink=False, timeout=30):
         """ Execute a command and save the output to a file for inclusion in
         the report
         """
@@ -451,7 +454,7 @@ class PluginBase:
             start_time = time()
 
         # pylint: disable-msg = W0612
-        status, shout, runtime = sosGetCommandOutput(exe, timeout = timeout)
+        status, shout, runtime = sosGetCommandOutput(exe, timeout=timeout)
 
         if suggest_filename:
             outfn = self.makeCommandFilename(suggest_filename)
@@ -481,9 +484,13 @@ class PluginBase:
             outfn_strip = outfn[len(self.cInfo['cmddir'])+1:]
 
         else:
-            self.soslog.info("could not run command: %s" % exe)
             outfn = None
             outfn_strip = None
+
+        if timeout and status == 124:
+            self.soslog.info("timeout waiting for '%s' (%ds)" % (exe, timeout))
+        if status == 127:
+            self.soslog.info("could not run command: %s" % exe)
 
         # save info for later
         self.executedCommands.append({'exe': exe, 'file':outfn_strip}) # save in our list
