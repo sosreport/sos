@@ -43,9 +43,11 @@ class NfsServer(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_specs([
             "/etc/exports",
+            "/etc/exports.d",
             "/var/lib/nfs/etab",
             "/var/lib/nfs/xtab",
-            "/var/lib/nfs/rmtab"])
+            "/var/lib/nfs/rmtab"
+        ])
 
         self.add_cmd_outputs([
             "rpcinfo -p localhost",
