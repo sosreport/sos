@@ -38,18 +38,16 @@ def importPlugin(pluginname, name):
         return None
     return getattr(plugin, name)
 
+def isExecutable(command):
+    """Returns True if a command matches an executable on the PATH"""
+    paths = os.environ.get("PATH", "").split(os.path.pathsep)
+    candidates = [command] + [os.path.join(p, command) for p in paths]
+    return any(os.access(path, os.X_OK) for path in candidates)
+
 def sosGetCommandOutput(command, timeout = 300):
     """ Execute a command and gather stdin, stdout, and return status.
     """
-    for path in os.environ["PATH"].split(":"):
-        exists = False
-        cmdfile = command.strip("(").split()[0]
-        # handle both absolute or relative paths
-        if ( ( not os.path.isabs(cmdfile) and os.access(os.path.join(path,cmdfile), os.X_OK) ) or \
-           ( os.path.isabs(cmdfile) and os.access(cmdfile, os.X_OK) ) ):
-            exists = True
-            break
-    if not exists:
+    if not isExecutable(command.split()[0]):
         return (127, "", 0)
 
     cmd_env = os.environ
