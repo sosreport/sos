@@ -83,6 +83,7 @@ class Gluster(Plugin, RedHatPlugin):
         self.add_cmd_output("gluster peer status")
 
         self.add_copy_specs([
+            "/etc/redhat-storage-release",
             # collect unified file and object storage configuration
             "/etc/swift/",
             # glusterfs-server rpm scripts stash this on migration to 3.3.x
