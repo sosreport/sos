@@ -15,9 +15,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
-from sos.utilities import sos_get_command_output
 import os
 import os.path
+from socket import gethostname
 
 
 class Pcp(Plugin, RedHatPlugin, DebianPlugin):
@@ -115,13 +115,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # won't work for directory trees. I.e. we can't say fetch /foo/bar/
         # only if it is < 100MB. To be killed once the Plugin base class will
         # add a method for this use case via issue #281
-        ret = sos_get_command_output('hostname')
-        if ret['status'] == 0:
-            # Make sure that if output is not a string we do not barf
-            try:
-                self.pcp_hostname = ret['output'].strip()
-            except:
-                pass
+        self.pcp_hostname = gethostname()
 
         # Make sure we only add PCP_LOG_DIR/pmlogger/`hostname` if hostname
         # is set, otherwise we'd collect everything
