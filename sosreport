@@ -15,7 +15,6 @@
 
 """ sos entry point. """
 
-#from sos.sosreport import sosreport, doExitCode
 from sos.sosreport import main
 import sys
 
