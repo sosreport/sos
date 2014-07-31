@@ -78,19 +78,20 @@ class Gluster(Plugin, RedHatPlugin):
             pass
 
     def setup(self):
-        self.add_cmd_output("gluster peer status")
-
-        self.add_copy_spec("/var/lib/glusterd/")
         self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
 
-        # collect unified file and object storage configuration
-        self.add_copy_spec("/etc/swift/")
+        self.add_cmd_output("gluster peer status")
 
-        # glusterfs-server rpm scripts stash this on migration to 3.3.x
-        self.add_copy_spec("/etc/glusterd.rpmsave")
-
-        # common to all versions
-        self.add_copy_spec("/etc/glusterfs")
+        self.add_copy_specs([
+            # collect unified file and object storage configuration
+            "/etc/swift/",
+            # glusterfs-server rpm scripts stash this on migration to 3.3.x
+            "/etc/glusterd.rpmsave",
+            # common to all versions
+            "/etc/glusterfs",
+            "/var/lib/glusterd/",
+            "/var/log/glusterfs"
+        ])
 
         self.make_preparations(self.statedump_dir)
         if self.check_ext_prog("killall -USR1 glusterfs glusterfsd"):
@@ -103,16 +104,12 @@ class Gluster(Plugin, RedHatPlugin):
         else:
             self.soslog.info("could not send SIGUSR1 to glusterfs processes")
 
-        volume_file = self.get_cmd_output_now("gluster volume info",
-                        "gluster_volume_info")
+        volume_file = self.get_cmd_output_now("gluster volume info")
         if volume_file:
             for volname in self.get_volume_names(volume_file):
                 self.add_cmd_output("gluster volume geo-replication %s status"
                                     % volname)
 
         self.add_cmd_output("gluster volume status")
-        # collect this last as some of the other actions create log entries
-        self.add_copy_spec("/var/log/glusterfs")
-
 
 # vim: et ts=4 sw=4
