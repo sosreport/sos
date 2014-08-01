@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, UbuntuPlugin, DebianPlugin
 
+
 class Apt(Plugin, DebianPlugin, UbuntuPlugin):
     """ Apt Plugin
     """

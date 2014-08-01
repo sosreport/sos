@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
+
 class Azure(Plugin, UbuntuPlugin):
     """ Microsoft Azure Client Plugin
     """
