@@ -27,10 +27,9 @@ class MegaCLI(Plugin, RedHatPlugin):
 
     def setup(self):
         if os.path.isfile("/opt/MegaRAID/MegaCli/MegaCli64"):
-            print ""
             self.add_custom_text("LSI MegaCLI is installed.<br>")
             self.get_megacli_files()
-                
+
     def get_megacli_files(self):
         """ MegaCLI specific output
         """
@@ -42,4 +41,3 @@ class MegaCLI(Plugin, RedHatPlugin):
         ])
 
 # vim: et ts=4 sw=4
-
