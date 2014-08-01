@@ -1,20 +1,20 @@
-## Copyright (C) 2012 Red Hat, Inc.,
-##   Jesse Jaggars <jjaggars@redhat.com>
-##   Bryn M. Reeves <bmr@redhat.com>
-##
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# Copyright (C) 2012 Red Hat, Inc.,
+#   Jesse Jaggars <jjaggars@redhat.com>
+#   Bryn M. Reeves <bmr@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 import os
 import time
 import tarfile
@@ -52,7 +52,7 @@ class Archive(object):
     _name = "unset"
     _debug = False
 
-    def _format_msg(self,msg):
+    def _format_msg(self, msg):
         return "[archive:%s] %s" % (self.archive_type(), msg)
 
     def set_debug(self, debug):
@@ -61,7 +61,7 @@ class Archive(object):
     def log_error(self, msg):
         self.log.error(self._format_msg(msg))
 
-    def log_warn(self,msg):
+    def log_warn(self, msg):
         self.log.warning(self._format_msg(msg))
 
     def log_info(self, msg):
@@ -132,7 +132,7 @@ class FileCacheArchive(Archive):
         self._archive_root = os.path.join(tmpdir, name)
         os.makedirs(self._archive_root, 0o700)
         self.log_info("initialised empty FileCacheArchive at '%s'" %
-                       (self._archive_root,))
+                      (self._archive_root,))
 
     def dest_path(self, name):
         if os.path.isabs(name):
@@ -223,11 +223,11 @@ class FileCacheArchive(Archive):
 
     def finalize(self, method):
         self.log_info("finalizing archive '%s' using method '%s'"
-                       % (self._archive_root, method))
+                      % (self._archive_root, method))
         self._build_archive()
         self.cleanup()
         self.log_info("built archive at '%s' (size=%d)" % (self._archive_name,
-                       os.stat(self._archive_name).st_size))
+                      os.stat(self._archive_name).st_size))
         self.method = method
         return self._compress()
 
@@ -327,6 +327,7 @@ class ZipFileArchive(Archive):
         self._name = name
         try:
             import zlib
+            assert zlib
             self.compression = zipfile.ZIP_DEFLATED
         except:
             self.compression = zipfile.ZIP_STORED
