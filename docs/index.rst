@@ -22,7 +22,7 @@ Please report bugs via the mailing list or by opening an issue in the GitHub Iss
 Mailing list
 ^^^^^^^^^^^^^
 
-The sos-devel mailing list is used to discussi sos development and reviewing patches. User questions and general discussion are welcome too.
+The [sos-devel][4] is the mailing list for any sos-related questions and discussion. Patch submissions and reviews are welcome too.
 
 Developers
 ^^^^^^^^^^

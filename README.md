@@ -24,7 +24,8 @@ Issue Tracker][5]
 
 ## Mailing list
 
-The [sos-devel][4] mailing list is used to discussi sos development and reviewing patches. User questions and general discussion are welcome too.
+The [sos-devel][4] is the mailing list for any sos-related questions and
+discussion. Patch submissions and reviews are welcome too.
 
 ## Developers
 
@@ -42,7 +43,6 @@ rebase` command to update your branch to the current master if necessary.
 To help get your changes merged quickly with as few revisions as possible
 please refer to the [Contributor Guidelines][0] when submitting patches or
 pull requests.
-
 
 ### Manual Installation
 
