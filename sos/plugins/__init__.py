@@ -1,30 +1,31 @@
-## This exports methods available for use by plugins for sos
+# Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
 
-## Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+""" This exports methods available for use by plugins for sos """
 
 from __future__ import with_statement
 
-from sos.utilities import sos_get_command_output, import_module, grep, fileobj, tail
+from sos.utilities import (sos_get_command_output, import_module, grep,
+                           fileobj, tail)
 import os
 import glob
 import re
-import traceback
 import stat
 from time import time
+# FIXME: Is itertools still used here?
 from itertools import *
 import logging
 import fnmatch
@@ -33,10 +34,6 @@ import fnmatch
 import six
 from six.moves import zip, filter
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 def regex_findall(regex, fname):
     '''Return a list of all non overlapping matches in the string(s)'''
@@ -46,6 +43,7 @@ def regex_findall(regex, fname):
     except AttributeError:
         return []
 
+
 def mangle_command(command):
     # FIXME: this can be improved
     mangledname = re.sub(r"^/(usr/|)(bin|sbin)/", "", command)
@@ -53,23 +51,26 @@ def mangle_command(command):
     mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")[0:64]
     return mangledname
 
+
 def _path_in_path_list(path, path_list):
     return any(p in path for p in path_list)
+
 
 def _node_type(st):
     """ return a string indicating the type of special node represented by
     the stat buffer st (block, character, fifo, socket).
     """
     _types = [
-        ( stat.S_ISBLK, "block device" ),
-        ( stat.S_ISCHR, "character device" ),
-        ( stat.S_ISFIFO, "named pipe" ),
-        ( stat.S_ISSOCK, "socket" )
+        (stat.S_ISBLK, "block device"),
+        (stat.S_ISCHR, "character device"),
+        (stat.S_ISFIFO, "named pipe"),
+        (stat.S_ISSOCK, "socket")
     ]
     for t in _types:
         if t[0](st.st_mode):
             return t[1]
-    
+
+
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
@@ -87,8 +88,8 @@ class Plugin(object):
 
     packages (files) is an iterable of the names of packages (the paths
     of files) to check for before running this plugin. If any of these packages
-    or files is found on the system, the default implementation of check_enabled
-    will return True.
+    or files is found on the system, the default implementation of
+    check_enabled will return True.
     """
 
     plugin_name = None
@@ -113,12 +114,14 @@ class Plugin(object):
         self.copy_strings = []
         self.collect_cmds = []
 
-        self.soslog = self.commons['soslog'] if 'soslog' in self.commons else logging.getLogger('sos')
+        self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
+            else logging.getLogger('sos')
 
         # get the option list into a dictionary
         for opt in self.option_list:
             self.opt_names.append(opt[0])
-            self.opt_parms.append({'desc':opt[1], 'speed':opt[2], 'enabled':opt[3]})
+            self.opt_parms.append({'desc': opt[1], 'speed': opt[2],
+                                   'enabled': opt[3]})
 
     @classmethod
     def name(class_):
@@ -129,13 +132,13 @@ class Plugin(object):
             return class_.plugin_name
         return class_.__name__.lower()
 
-    def _format_msg(self,msg):
+    def _format_msg(self, msg):
         return "[plugin:%s] %s" % (self.name(), msg)
 
     def log_error(self, msg):
         self.soslog.error(self._format_msg(msg))
 
-    def log_warn(self,msg):
+    def log_warn(self, msg):
         self.soslog.warning(self._format_msg(msg))
 
     def log_info(self, msg):
@@ -164,7 +167,7 @@ class Plugin(object):
         '''
         globstr = '*' + cmd + '*'
         self.log_debug("substituting '%s' for '%s' in commands matching '%s'"
-                    % (subst, regexp, globstr))
+                       % (subst, regexp, globstr))
 
         if not self.executed_commands:
             return 0
@@ -173,14 +176,14 @@ class Plugin(object):
         try:
             for called in self.executed_commands:
                 # was anything collected?
-                if called['file'] == None:
+                if called['file'] is None:
                     continue
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
                     self.log_debug("applying substitution to '%s'" % path)
                     readable = self.archive.open_file(path)
                     result, replacements = re.subn(
-                            regexp, subst, readable.read())
+                        regexp, subst, readable.read())
                     if replacements:
                         self.archive.add_string(result, path)
 
@@ -201,7 +204,7 @@ class Plugin(object):
         try:
             path = self._get_dest_for_srcpath(srcpath)
             self.log_debug("substituting '%s' for '%s' in '%s'"
-                    % (subst, regexp, path))
+                           % (subst, regexp, path))
             if not path:
                 return 0
             readable = self.archive.open_file(path)
@@ -242,9 +245,9 @@ class Plugin(object):
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
                 reldest = os.path.relpath(linkdest,
-                                os.path.dirname(srcpath))
+                                          os.path.dirname(srcpath))
                 self.log_debug("made link target '%s' relative as '%s'"
-                                % (linkdest, reldest))
+                               % (linkdest, reldest))
         else:
                 reldest = linkdest
 
@@ -252,7 +255,7 @@ class Plugin(object):
                        % (srcpath, linkdest, os.path.isdir(absdest)))
 
         # use the relative target path in the tarball
-        self.archive.add_link(reldest,srcpath)
+        self.archive.add_link(reldest, srcpath)
 
         if os.path.isdir(absdest):
             self.log_debug("link '%s' is a directory, skipping..." % linkdest)
@@ -264,14 +267,15 @@ class Plugin(object):
                        % (linkdest, absdest))
         self.do_copy_path(absdest)
 
-        self.copied_files.append({'srcpath':srcpath,
-                                  'dstpath':srcpath,
-                                  'symlink':"yes",
-                                  'pointsto':linkdest})
+        self.copied_files.append({'srcpath': srcpath,
+                                  'dstpath': srcpath,
+                                  'symlink': "yes",
+                                  'pointsto': linkdest})
 
     def copy_dir(self, srcpath):
         for afile in os.listdir(srcpath):
-            self.log_debug("recursively adding '%s' from '%s'" % (afile, srcpath))
+            self.log_debug("recursively adding '%s' from '%s'" % (afile,
+                                                                  srcpath))
             self.do_copy_path(os.path.join(srcpath, afile), dest=None)
 
     def _get_dest_for_srcpath(self, srcpath):
@@ -319,12 +323,13 @@ class Plugin(object):
         # handle special nodes (block, char, fifo, socket)
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
             ntype = _node_type(st)
-            self.log_debug("creating %s node at archive:'%s'" % (ntype, srcpath))
+            self.log_debug("creating %s node at archive:'%s'" % (ntype,
+                                                                 srcpath))
             self.copy_node(srcpath, st)
             return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
-        self.log_debug("copying path '%s' to archive:'%s'" % (srcpath,dest))
+        self.log_debug("copying path '%s' to archive:'%s'" % (srcpath, dest))
 
         # if not readable(srcpath)
         if not (st.st_mode & 0o444):
@@ -333,9 +338,9 @@ class Plugin(object):
         else:
             self.archive.add_file(srcpath, dest)
 
-        self.copied_files.append({'srcpath':srcpath,
-                                  'dstpath':dest,
-                                  'symlink':"no"})
+        self.copied_files.append({'srcpath': srcpath,
+                                  'dstpath': dest,
+                                  'symlink': "no"})
 
     def add_forbidden_path(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copy_specs[]
@@ -381,7 +386,7 @@ class Plugin(object):
         for name, parms in zip(self.opt_names, self.opt_parms):
             if _check(name):
                 val = parms['enabled']
-                if val != None:
+                if val is not None:
                     return val
 
         items = six.iteritems(self.commons.get('global_plugin_options', {}))
@@ -416,7 +421,7 @@ class Plugin(object):
             return
         current_size = 0
         limit_reached = False
-        sizelimit *= 1024 * 1024 # in MB
+        sizelimit *= 1024 * 1024  # in MB
         _file = None
 
         for _file in files:
@@ -459,7 +464,7 @@ class Plugin(object):
         result = sos_get_command_output(prog, timeout=timeout, runat=runat)
         if result['status'] == 124:
             self.log_warn("command '%s' timed out after %ds"
-                    % (prog, timeout))
+                          % (prog, timeout))
         if result['status'] == 127:
             self.log_debug("could not run '%s': command not found" % prog)
         return result
@@ -499,7 +504,7 @@ class Plugin(object):
         command output
         """
         cmd_output_path = os.path.join(self.archive.get_tmp_dir(),
-                                        'sos_commands', self.name())
+                                       'sos_commands', self.name())
         if name:
             cmd_output_path = os.path.join(cmd_output_path, name)
         if make:
@@ -520,17 +525,18 @@ class Plugin(object):
     def make_command_filename(self, exe):
         """The internal function to build up a filename based on a command."""
 
-        outfn = os.path.join(self.commons['cmddir'], self.name(), self.mangle_command(exe))
+        outfn = os.path.join(self.commons['cmddir'], self.name(),
+                             self.mangle_command(exe))
 
         # check for collisions
         if os.path.exists(outfn):
             inc = 2
             while True:
-               newfn = "%s_%d" % (outfn, inc)
-               if not os.path.exists(newfn):
-                  outfn = newfn
-                  break
-               inc +=1
+                newfn = "%s_%d" % (outfn, inc)
+                if not os.path.exists(newfn):
+                    outfn = newfn
+                    break
+                inc += 1
 
         return outfn
 
@@ -538,7 +544,7 @@ class Plugin(object):
         """Add a string to the archive as a file named `filename`"""
         self.copy_strings.append((content, filename))
         content = "..." + (content.splitlines()[0]).decode('utf8')
-        self.log_debug("added string '%s' as '%s'" % (content,filename))
+        self.log_debug("added string '%s' as '%s'" % (content, filename))
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300,
@@ -550,7 +556,8 @@ class Plugin(object):
         result = self.get_command_output(exe, timeout=timeout, runat=runat)
         if (result['status'] == 127):
             return None
-        self.log_debug("collected output of '%s' in %s" % (exe.split()[0], time() - start))
+        self.log_debug("collected output of '%s' in %s" % (exe.split()[0],
+                                                           time() - start))
 
         if suggest_filename:
             outfn = self.make_command_filename(suggest_filename)
@@ -563,7 +570,8 @@ class Plugin(object):
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
-        self.executed_commands.append({'exe': exe, 'file':outfn_strip}) # save in our list
+        # save in our list
+        self.executed_commands.append({'exe': exe, 'file': outfn_strip})
         self.commons['xmlreport'].add_command(cmdline=exe,
                                               exitcode=result['status'],
                                               f_stdout=outfn_strip)
@@ -604,10 +612,13 @@ class Plugin(object):
     def collect_strings(self):
         for string, file_name in self.copy_strings:
             content = "..." + (string.splitlines()[0]).decode('utf8')
-            self.log_info("collecting string '%s' as '%s'" % (content, file_name))
+            self.log_info("collecting string '%s' as '%s'" % (content,
+                                                              file_name))
             try:
                 self.archive.add_string(string,
-                        os.path.join('sos_strings', self.name(), file_name))
+                                        os.path.join('sos_strings',
+                                                     self.name(),
+                                                     file_name))
             except Exception as e:
                 self.log_debug("could not add string '%s': %s"
                                % (file_name, e))
@@ -669,8 +680,8 @@ class Plugin(object):
         pass
 
     def report(self):
-        """ Present all information that was gathered in an html file that allows browsing
-        the results.
+        """ Present all information that was gathered in an html file that
+        allows browsing the results.
         """
         # make this prettier
         html = '<hr/><a name="%s"></a>\n' % self.name()
@@ -683,7 +694,7 @@ class Plugin(object):
             html = html + "<p>Files copied:<br><ul>\n"
             for afile in self.copied_files:
                 html = html + '<li><a href="%s">%s</a>' % \
-                        (".." + afile['dstpath'], afile['srcpath'])
+                    (".." + afile['dstpath'], afile['srcpath'])
                 if (afile['symlink'] == "yes"):
                     html = html + " (symlink to %s)" % afile['pointsto']
                 html = html + '</li>\n'
@@ -696,10 +707,10 @@ class Plugin(object):
             # don't use relpath - these are HTML paths not OS paths.
             for cmd in self.executed_commands:
                 if cmd["file"] and len(cmd["file"]):
-                    cmd_rel_path =  "../" + self.commons['cmddir'] \
-                            + "/" + cmd['file']
+                    cmd_rel_path = "../" + self.commons['cmddir'] \
+                        + "/" + cmd['file']
                     html = html + '<li><a href="%s">%s</a></li>\n' % \
-                            (cmd_rel_path, cmd['exe'])
+                        (cmd_rel_path, cmd['exe'])
                 else:
                     html = html + '<li>%s</li>\n' % (cmd['exe'])
             html = html + "</ul></p>\n"
@@ -723,17 +734,21 @@ class RedHatPlugin(object):
     """Tagging class to indicate that this plugin works with Red Hat Linux"""
     pass
 
+
 class UbuntuPlugin(object):
     """Tagging class to indicate that this plugin works with Ubuntu Linux"""
     pass
+
 
 class DebianPlugin(object):
     """Tagging class to indicate that this plugin works with Debian Linux"""
     pass
 
+
 class IndependentPlugin(object):
     """Tagging class that indicates this plugin can run on any platform"""
     pass
+
 
 def import_plugin(name, superclasses=None):
     """Import name as a module and return a list of all classes defined in that
