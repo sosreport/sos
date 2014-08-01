@@ -78,7 +78,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
         ldap_search = "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// "
 
         self.add_copy_specs([
-            ldap_conf,
+            self.ldap_conf,
             "/etc/slapd.conf",
             "/etc/ldap/slapd.d"
         ])
