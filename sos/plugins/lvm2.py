@@ -52,12 +52,17 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "vgdisplay -vv %s" % lvm_opts,
             root_symlink="vgdisplay"
         )
+
+        pvs_cols = 'pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count'
+        vgs_cols = 'vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count'
+        vgs_cols = vgs_cols + ',' + 'vg_tags'
+        lvs_cols = 'lv_tags,devices'
         self.add_cmd_outputs([
             "vgscan -vvv %s" % lvm_opts,
             "pvscan -v %s" % lvm_opts,
-            "pvs -a -v %s" % lvm_opts,
-            "vgs -v %s" % lvm_opts,
-            "lvs -a -o +devices %s" % lvm_opts
+            "pvs -a -v -o +%s %s" % (pvs_cols, lvm_opts),
+            "vgs -v -o +%s %s" % (vgs_cols, lvm_opts),
+            "lvs -a -o +%s %s" % (lvs_cols, lvm_opts)
         ])
 
         self.add_copy_spec("/etc/lvm")
