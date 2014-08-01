@@ -32,11 +32,11 @@ Patches can be submitted via the mailing list or as GitHub pull requests. If usi
 Wiki documentation
 ^^^^^^^^^^^^^^^^^^
 
- How to write a plugin
+ `How to write a plugin <https://github.com/sosreport/sos/wiki/How-to-Write-a-Plugin>`_
 
- How to write a policy
+ `How to write a policy <https://github.com/sosreport/sos/wiki/How-to-Write-a-Policy>`_
 
- Plugin options
+ `Plugin options <https://github.com/sosreport/sos/wiki/Plugin-options>`_
 
 To help get your changes merged quickly with as few revisions as possible please refer to the `Contributor Guidelines <https://github.com/sosreport/sos/wiki/Contribution-Guidelines>`_ when submitting patches or pull requests.
 
