@@ -1,18 +1,18 @@
-## Copyright (C) Steve Conklin <sconklin@redhat.com>
+# Copyright (C) Steve Conklin <sconklin@redhat.com>
 
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 # This enables the use of with syntax in python 2.5 (e.g. jython)
 import os
@@ -31,6 +31,7 @@ except:
     # might fail if non-RHEL
     pass
 
+
 class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
     vendor = "Red Hat"
@@ -42,7 +43,7 @@ class RedHatPolicy(LinuxPolicy):
         self.report_name = ""
         self.ticket_number = ""
         self.package_manager = PackageManager(
-                        'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
+            'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
         self.valid_subclasses = [RedHatPlugin]
 
         # handle PATH for UsrMove
@@ -91,6 +92,7 @@ class RedHatPolicy(LinuxPolicy):
     def get_local_name(self):
         return self.host_name()
 
+
 class RHELPolicy(RedHatPolicy):
     distro = "Red Hat Enterprise Linux"
     vendor = "Red Hat"
@@ -129,11 +131,11 @@ No changes will be made to system configuration.
     def rhel_version(self):
         try:
             pkg = self.pkg_by_name("redhat-release") or \
-            self.all_pkgs_by_name_regex("redhat-release-.*")[-1]
+                self.all_pkgs_by_name_regex("redhat-release-.*")[-1]
             pkgname = pkg["version"]
             if pkgname[0] == "4":
                 return 4
-            elif pkgname[0] in [ "5Server", "5Client" ]:
+            elif pkgname[0] in ["5Server", "5Client"]:
                 return 5
             elif pkgname[0] == "6":
                 return 6
@@ -145,15 +147,17 @@ No changes will be made to system configuration.
 
     def rhn_username(self):
         try:
-            cfg = config.initUp2dateConfig()
+            # cfg = config.initUp2dateConfig()
 
-            return rpclib.xmlrpclib.loads(up2dateAuth.getSystemId())[0][0]['username']
+            return rpclib.xmlrpclib.loads(
+                up2dateAuth.getSystemId())[0][0]['username']
         except:
             # ignore any exception and return an empty username
             return ""
 
     def get_local_name(self):
         return self.rhn_username() or self.host_name()
+
 
 class FedoraPolicy(RedHatPolicy):
 
@@ -166,13 +170,13 @@ class FedoraPolicy(RedHatPolicy):
 
     @classmethod
     def check(self):
-        """This method checks to see if we are running on Fedora. It returns True
-        or False."""
+        """This method checks to see if we are running on Fedora. It returns
+        True or False."""
         return os.path.isfile('/etc/fedora-release')
 
     def fedora_version(self):
         pkg = self.pkg_by_name("fedora-release") or \
-        self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
+            self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
         return int(pkg["version"])
 
 

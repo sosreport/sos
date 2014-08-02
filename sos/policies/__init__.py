@@ -5,14 +5,13 @@ import re
 import platform
 import time
 import fnmatch
-import sys
 import tempfile
 from os import environ
 
-from sos.utilities import ImporterHelper, \
-                        import_module, \
-                        get_hash_name, \
-                        shell_out
+from sos.utilities import (ImporterHelper,
+                           import_module,
+                           get_hash_name,
+                           shell_out)
 from sos.plugins import IndependentPlugin
 from sos import _sos as _
 import hashlib
@@ -20,12 +19,14 @@ from textwrap import fill
 from six import print_
 from six.moves import input
 
+
 def import_policy(name):
     policy_fqname = "sos.policies.%s" % name
     try:
         return import_module(policy_fqname, Policy)
     except ImportError:
         return None
+
 
 def load(cache={}):
     if 'policy' in cache:
@@ -87,7 +88,8 @@ class PackageManager(object):
     def get_pkg_list(self):
         """
         returns a dictionary of packages in the following format:
-        {'package_name': {'name': 'package_name', 'version': 'major.minor.version'}}
+        {'package_name': {'name': 'package_name', '
+                          version': 'major.minor.version'}}
         """
         if self.query_command:
             pkg_list = shell_out(self.query_command).splitlines()
@@ -165,9 +167,10 @@ No changes will be made to system configuration.
         del self._valid_subclasses
 
     valid_subclasses = property(get_valid_subclasses,
-            set_valid_subclasses,
-            del_valid_subclasses,
-            "list of subclasses that this policy can process")
+                                set_valid_subclasses,
+                                del_valid_subclasses,
+                                "list of subclasses that this policy can "
+                                "process")
 
     def check(self):
         """
@@ -178,7 +181,8 @@ No changes will be made to system configuration.
 
     def get_preferred_archive(self):
         """
-        Return the class object of the prefered archive format for this platform
+        Return the class object of the prefered archive format for this
+        platform
         """
         from sos.archive import TarFileArchive
         return TarFileArchive
@@ -190,7 +194,8 @@ No changes will be made to system configuration.
         """
         if self.ticket_number:
             self.report_name += "." + self.ticket_number
-        return "sosreport-%s-%s" % (self.report_name, time.strftime("%Y%m%d%H%M%S"))
+        return "sosreport-%s-%s" % (self.report_name,
+                                    time.strftime("%Y%m%d%H%M%S"))
 
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
@@ -212,7 +217,8 @@ No changes will be made to system configuration.
         Verifies that the plugin_class should execute under this policy
         """
         valid_subclasses = [IndependentPlugin] + self.valid_subclasses
-        return any(issubclass(plugin_class, class_) for class_ in valid_subclasses)
+        return any(issubclass(plugin_class, class_) for
+                   class_ in valid_subclasses)
 
     def pre_work(self):
         """
@@ -246,7 +252,7 @@ No changes will be made to system configuration.
 
     def set_exec_path(self):
         self._set_PATH(self.PATH)
-        
+
     def is_root(self):
         """This method should return true if the user calling the script is
         considered to be a superuser"""
@@ -271,7 +277,7 @@ No changes will be made to system configuration.
 
         # make sure a report exists
         if not final_filename:
-           return False
+            return False
 
         self._print()
 
@@ -283,18 +289,20 @@ No changes will be made to system configuration.
                 fp.write(checksum + "\n")
             fp.close()
 
-            self._print(_("Your sosreport has been generated and saved in:\n  %s") % final_filename)
+            self._print(_("Your sosreport has been generated and saved "
+                        "in:\n  %s") % final_filename)
         else:
             checksum = None
-            self._print(_("sosreport build tree is located at : %s" % final_filename))
+            self._print(_("sosreport build tree is located at : %s" %
+                        final_filename))
 
         self._print()
         if checksum:
             self._print(_("The checksum is: ") + checksum)
             self._print()
-            self._print(_("Please send this file to your support representative."))
+            self._print(_("Please send this file to your support "
+                        "representative."))
         self._print()
-
 
     def _print(self, msg=None):
         """A wrapper around print that only prints if we are not running in
@@ -305,7 +313,6 @@ No changes will be made to system configuration.
             else:
                 print_()
 
-
     def get_msg(self):
         """This method is used to prepare the preamble text to display to
         the user in non-batch mode. If your policy sets self.distro that
@@ -313,12 +320,12 @@ No changes will be made to system configuration.
         method to do something more complicated."""
         width = 72
         _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
-                    'vendor_url': self.vendor_url,
-                    'vendor_text': self.vendor_text,
-                    'tmpdir': self.commons['tmpdir']}
+                           'vendor_url': self.vendor_url,
+                           'vendor_text': self.vendor_text,
+                           'tmpdir': self.commons['tmpdir']}
         _fmt = ""
         for line in _msg.splitlines():
-            _fmt = _fmt + fill(line, width, replace_whitespace = False) + '\n'
+            _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
         return _fmt
 
 
@@ -331,8 +338,8 @@ class GenericPolicy(Policy):
 
 
 class LinuxPolicy(Policy):
-    """This policy is meant to be an abc class that provides common implementations used
-       in Linux distros"""
+    """This policy is meant to be an abc class that provides common
+    implementations used in Linux distros"""
 
     distro = "Linux"
     vendor = "None"
@@ -390,11 +397,15 @@ class LinuxPolicy(Policy):
 
         localname = self.get_local_name()
 
-        if not self.commons['cmdlineopts'].batch and not self.commons['cmdlineopts'].quiet:
+        if not self.commons['cmdlineopts'].batch and not \
+                self.commons['cmdlineopts'].quiet:
             try:
-                self.report_name = input(_("Please enter your first initial and last name [%s]: ") % localname)
+                self.report_name = input(_("Please enter your first initial "
+                                         "and last name [%s]: ") % localname)
 
-                self.ticket_number = input(_("Please enter the case number that you are generating this report for: "))
+                self.ticket_number = input(_("Please enter the case number "
+                                             "that you are generating this "
+                                             "report for: "))
                 self._print()
             except:
                 self._print()
@@ -411,7 +422,8 @@ class LinuxPolicy(Policy):
 
         self.report_name = self.sanitize_report_name(self.report_name)
         if self.ticket_number:
-            self.ticket_number = self.sanitize_ticket_number(self.ticket_number)
+            self.ticket_number = self.sanitize_ticket_number(
+                self.ticket_number)
 
         if (self.report_name == ""):
             self.report_name = "default"
