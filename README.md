@@ -88,4 +88,4 @@ sudo apt-get install sosreport
  [5]: https://github.com/sosreport/sos/issues?state=open
  [6]: http://sos.readthedocs.org/en/latest/index.html#
  [7]: http://sphinx-doc.org/
- [8]: https://readthedocs.org/
+ [8]: https://www.readthedocs.org/
