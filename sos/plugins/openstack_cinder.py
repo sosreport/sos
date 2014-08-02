@@ -1,5 +1,6 @@
 # Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
-# Copyright (C) 2012 Rackspace US, Inc., Justin Shepherd <jshepher@rackspace.com>
+# Copyright (C) 2012 Rackspace US, Inc.,
+#                    Justin Shepherd <jshepher@rackspace.com>
 # Copyright (C) 2013 Red Hat, Inc., Flavio Percoco <fpercoco@redhat.com>
 # Copyright (C) 2013 Red Hat, Inc., Jeremy Agee <jagee@redhat.com>
 

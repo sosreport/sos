@@ -1,21 +1,22 @@
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
 import os
 import re
 from stat import *
+
 
 class Xen(Plugin, RedHatPlugin):
     """Xen related information
@@ -30,7 +31,8 @@ class Xen(Plugin, RedHatPlugin):
                 return "hvm"
 
         if os.access("/proc/xen/capabilities", os.R_OK):
-            result = self.call_ext_prog("grep -q control_d /proc/xen/capabilities")
+            result = self.call_ext_prog(
+                "grep -q control_d /proc/xen/capabilities")
             if result['status'] == 0:
                 return "dom0"
             else:
@@ -42,7 +44,7 @@ class Xen(Plugin, RedHatPlugin):
 
     def is_running_xenstored(self):
         xs_pid = self.call_ext_prof("pidof xenstored")['ouput']
-        xs_pidnum = re.split('\n$',xs_pid)[0]
+        xs_pidnum = re.split('\n$', xs_pid)[0]
         return xs_pidnum.isdigit()
 
     def dom_collect_proc(self):
@@ -97,7 +99,7 @@ class Xen(Plugin, RedHatPlugin):
             # useful, so I'll leave it out for now
         else:
             # for bare-metal, we don't have to do anything special
-            return #USEFUL
+            return  # USEFUL
 
         self.add_custom_text("Xen hostType: "+host_type)
 

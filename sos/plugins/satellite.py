@@ -1,19 +1,19 @@
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
-import os
+
 
 class Satellite(Plugin, RedHatPlugin):
     """RHN Satellite and Spacewalk related information
@@ -30,11 +30,11 @@ class Satellite(Plugin, RedHatPlugin):
 
     def rhn_package_check(self):
         self.satellite = self.is_installed("rhns-satellite-tools") \
-                      or self.is_installed("spacewalk-java") \
-                      or self.is_installed("rhn-base")
+            or self.is_installed("spacewalk-java") \
+            or self.is_installed("rhn-base")
         self.proxy = self.is_installed("rhns-proxy-tools") \
-                      or self.is_installed("spacewalk-proxy-management") \
-                      or self.is_installed("rhn-proxy-management")
+            or self.is_installed("spacewalk-proxy-management") \
+            or self.is_installed("rhn-proxy-management")
         return self.satellite or self.proxy
 
     def check_enabled(self):
@@ -72,9 +72,9 @@ class Satellite(Plugin, RedHatPlugin):
 
         self.add_copy_spec("/root/ssl-build")
         self.add_cmd_output("rhn-schema-version",
-                        root_symlink = "database-schema-version")
+                            root_symlink="database-schema-version")
         self.add_cmd_output("rhn-charsets",
-                        root_symlink = "database-character-sets")
+                            root_symlink="database-character-sets")
 
         if self.satellite:
             self.add_copy_specs([
@@ -83,8 +83,9 @@ class Satellite(Plugin, RedHatPlugin):
                 "/etc/tomcat6/",
                 "/var/log/tomcat6/"
             ])
-            self.add_cmd_output("spacewalk-debug --dir %s"
-                    % self.get_cmd_output_path(name="spacewalk-debug"))
+            self.add_cmd_output(
+                "spacewalk-debug --dir %s"
+                % self.get_cmd_output_path(name="spacewalk-debug"))
 
         if self.proxy:
             self.add_copy_specs(["/etc/squid", "/var/log/squid"])
