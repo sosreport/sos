@@ -1,18 +1,18 @@
-## Copyright (C) 2013 Red Hat, Inc., Brent Eagles <beagles@redhat.com>
+# Copyright (C) 2013 Red Hat, Inc., Brent Eagles <beagles@redhat.com>
 
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
 import re
@@ -26,6 +26,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 # has the interface names for an instance. So what remains is relevant database
 # info...
 
+
 class Neutron(Plugin):
     """OpenStack Networking (quantum/neutron) related information
     """
@@ -38,7 +39,8 @@ class Neutron(Plugin):
     component_name = "neutron"
 
     def setup(self):
-        if os.path.exists("/etc/neutron/") and self.get_option("quantum", False):
+        if os.path.exists("/etc/neutron/") and \
+                self.get_option("quantum", False):
             self.component_name = self.plugin_name
         else:
             self.component_name = "quantum"
@@ -51,11 +53,11 @@ class Neutron(Plugin):
         self.netns_dumps()
         self.get_ovs_dumps()
 
-
     def get_ovs_dumps(self):
-        # Check to see if we are using the Open vSwitch plugin. If not we 
+        # Check to see if we are using the Open vSwitch plugin. If not we
         # should be able to skip the rest of the dump.
-        ovs_conf_check = self.call_ext_prog('grep "^core_plugin.*openvswitch" ' +
+        ovs_conf_check = self.call_ext_prog(
+            'grep "^core_plugin.*openvswitch" ' +
             ("/etc/%s/*.conf" + self.component_name))
         if not (ovs_conf_check['status'] == 0):
             return
@@ -86,23 +88,24 @@ class Neutron(Plugin):
                 prefix, netid = nsname.split('-', 1)
                 if len(netid) > 0 and prefix in prefixes:
                     self.ns_gather_data(nsname)
-                    lease_directories.append("/var/lib/%s/dhcp/%s/" %
+                    lease_directories.append(
+                        "/var/lib/%s/dhcp/%s/" %
                         (self.component_name, netid))
             self.add_copy_specs(lease_directories)
 
     # TODO: Refactor! Copied from Networking plugin.
-    def get_interface_name(self,ip_addr_out):
-        """Return a dictionary for which key are interface name according to the
-        output of ifconifg-a stored in ifconfig_file.
+    def get_interface_name(self, ip_addr_out):
+        """Return a dictionary for which key are interface name according to
+        the output of ifconifg-a stored in ifconfig_file.
         """
-        out={}
+        out = {}
         for line in ip_addr_out.splitlines():
-            match=re.match('.*link/ether', line)
+            match = re.match('.*link/ether', line)
             if match:
-                int=match.string.split(':')[1].lstrip()
-                out[int]=True
+                int = match.string.split(':')[1].lstrip()
+                out[int] = True
         return out
-        
+
     def ns_gather_data(self, nsname):
         cmd_prefix = "ip netns exec %s " % nsname
         self.add_cmd_outputs([
@@ -111,10 +114,10 @@ class Neutron(Plugin):
             cmd_prefix + "route -n"
         ])
         # borrowed from networking plugin
-        ip_addr_result=self.call_ext_prog(cmd_prefix + "ip -o addr")
+        ip_addr_result = self.call_ext_prog(cmd_prefix + "ip -o addr")
         if ip_addr_result['status'] == 0:
             for eth in self.get_interface_name(ip_addr_result['output']):
-                # Most, if not all, IFs in the namespaces are going to be 
+                # Most, if not all, IFs in the namespaces are going to be
                 # virtual. The '-a', '-c' and '-g' options are not likely to be
                 # supported so these ops are not copied from the network
                 # plugin.
@@ -131,8 +134,9 @@ class Neutron(Plugin):
     def gen_pkg_tuple(self, packages):
         names = []
         for p in packages:
-            names.append(p % { "comp" : self.component_name })
+            names.append(p % {"comp": self.component_name})
         return tuple(names)
+
 
 class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
     """OpenStack Neutron related information for Debian based distributions
@@ -160,13 +164,12 @@ class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/etc/sudoers.d/%s_sudoers" % self.component_name)
 
 
-
 class RedHatNeutron(Neutron, RedHatPlugin):
     """OpenStack Neutron related information for Red Hat distributions
     """
 
     package_list_template = [
-        'openstack-%(comp)s', 
+        'openstack-%(comp)s',
         'openstack-%(comp)s-linuxbridge'
         'openstack-%(comp)s-metaplugin',
         'openstack-%(comp)s-openvswitch',

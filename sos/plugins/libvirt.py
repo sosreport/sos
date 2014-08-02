@@ -1,20 +1,21 @@
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import glob
 import os
+
 
 class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
@@ -44,8 +45,10 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         ])
 
         if not self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/libvirt/libvirtd.log", sizelimit=5)
-            self.add_copy_spec_limit("/var/log/libvirt/qemu/*.log", sizelimit=5)
+            self.add_copy_spec_limit("/var/log/libvirt/libvirtd.log",
+                                     sizelimit=5)
+            self.add_copy_spec_limit("/var/log/libvirt/qemu/*.log",
+                                     sizelimit=5)
             self.add_copy_spec_limit("/var/log/libvirt/lxc/*.log", sizelimit=5)
             self.add_copy_spec_limit("/var/log/libvirt/uml/*.log", sizelimit=5)
         else:
@@ -55,7 +58,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
     def postproc(self):
-       for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
+        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
             self.do_file_sub(
                 xmlfile,
                 r"(\s*passwd=\s*')([^']*)('.*)",

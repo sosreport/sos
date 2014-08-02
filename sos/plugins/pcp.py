@@ -143,7 +143,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             os.path.join(self.pcp_log_dir, 'NOTICES*'),
             # Collect PCP_VAR_DIR/pmns
             os.path.join(self.pcp_var_dir, 'pmns'),
-            # Also collect any other log and config files (as suggested by fche)
+            # Also collect any other log and config files
+            # (as suggested by fche)
             os.path.join(self.pcp_log_dir, '*/*.log*'),
             os.path.join(self.pcp_log_dir, '*/*/*.log*'),
             os.path.join(self.pcp_log_dir, '*/*/config*')

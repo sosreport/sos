@@ -1,27 +1,28 @@
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+
 
 class Psacct(Plugin):
     """Process accounting related information
     """
 
     option_list = [("all", "collect all process accounting files",
-                        "slow", False)]
+                    "slow", False)]
 
-    packages = [ "psacct" ]
+    packages = ["psacct"]
 
 
 class RedHatPsacct(Psacct, RedHatPlugin):
@@ -29,7 +30,7 @@ class RedHatPsacct(Psacct, RedHatPlugin):
     """
     plugin_name = "psacct"
 
-    packages = [ "psacct" ]
+    packages = ["psacct"]
 
     def setup(self):
         super(RedHatPsacct, self).setup()
@@ -37,12 +38,13 @@ class RedHatPsacct(Psacct, RedHatPlugin):
         if self.get_option("all"):
             self.add_copy_spec("/var/account/pacct*.gz")
 
+
 class DebianPsacct(Psacct, DebianPlugin, UbuntuPlugin):
     """Process accounting related information for Debian based distributions
     """
 
     plugin_name = "acct"
-    packages = [ "acct" ]
+    packages = ["acct"]
 
     def setup(self):
         super(DebianPsacct, self).setup()
