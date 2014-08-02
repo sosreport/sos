@@ -1,9 +1,8 @@
 from __future__ import with_statement
 
-import os
-
-from sos.plugins import UbuntuPlugin, DebianPlugin, IndependentPlugin
+from sos.plugins import UbuntuPlugin, DebianPlugin
 from sos.policies.debian import DebianPolicy
+
 
 class UbuntuPolicy(DebianPolicy):
     distro = "Ubuntu"
