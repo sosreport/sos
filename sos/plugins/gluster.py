@@ -1,22 +1,23 @@
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import time
 import os.path
 import os
 import string
 from sos.plugins import Plugin, RedHatPlugin
+
 
 class Gluster(Plugin, RedHatPlugin):
     '''gluster related information'''
@@ -34,7 +35,7 @@ class Gluster(Plugin, RedHatPlugin):
         """Return a dictionary for which key are volume names according to the
         output of gluster volume info stored in volume_file.
         """
-        out=[]
+        out = []
         fp = open(volume_file, 'r')
         for line in fp.readlines():
             if not line.startswith("Volume Name:"):
@@ -46,34 +47,35 @@ class Gluster(Plugin, RedHatPlugin):
 
     def make_preparations(self, name_dir):
         try:
-            os.mkdir(name_dir);
+            os.mkdir(name_dir)
         except:
             pass
-        fp = open ('/tmp/glusterdump.options', 'w');
-        data = 'path=' + name_dir + '\n';
-        fp.write(data);
-        fp.write('all=yes');
-        fp.close();
+        fp = open('/tmp/glusterdump.options', 'w')
+        data = 'path=' + name_dir + '\n'
+        fp.write(data)
+        fp.write('all=yes')
+        fp.close()
 
     def wait_for_statedump(self, name_dir):
-        statedumps_present = 0;
-        statedump_entries = os.listdir(name_dir);
+        statedumps_present = 0
+        statedump_entries = os.listdir(name_dir)
         for statedump_file in statedump_entries:
-            statedumps_present = statedumps_present+1;
-            last_line = 'tmp';
-            ret = -1;
-            while  ret == -1:
-                last_line = file(name_dir + '/' + statedump_file, "r").readlines()[-1];
-                ret = string.count (last_line, 'DUMP_END_TIME');
+            statedumps_present = statedumps_present+1
+            last_line = 'tmp'
+            ret = -1
+            while ret == -1:
+                last_line = file(
+                    name_dir + '/' + statedump_file, "r").readlines()[-1]
+                ret = string.count(last_line, 'DUMP_END_TIME')
 
     def postproc(self):
         if not os.path.exists(self.statedump_dir):
             return
         try:
             for dirs in os.listdir(self.statedump_dir):
-                os.remove(os.path.join(self.statedump_dir,dirs));
-            os.rmdir(self.statedump_dir);
-            os.unlink('/tmp/glusterdump.options');
+                os.remove(os.path.join(self.statedump_dir, dirs))
+            os.rmdir(self.statedump_dir)
+            os.unlink('/tmp/glusterdump.options')
         except:
             pass
 

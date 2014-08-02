@@ -1,19 +1,20 @@
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
 import os.path
+
 
 class Openshift(Plugin, RedHatPlugin):
     '''Openshift related information'''
@@ -24,10 +25,10 @@ class Openshift(Plugin, RedHatPlugin):
     # here for compatibility with external programs that call sosreport
     # with these names.
     option_list = [("broker", "Gathers broker specific files", "slow", False),
-           ("node", "Gathers node specific files", "slow", False)]
+                   ("node", "Gathers node specific files", "slow", False)]
 
     ruby = "ruby193"
-    vendor ="rh"
+    vendor = "rh"
 
     def is_broker(self):
         return os.path.exists("/etc/openshift/broker.conf")
@@ -74,7 +75,6 @@ class Openshift(Plugin, RedHatPlugin):
                 "/var/log/node-web-proxy/supervisor.log",
             ])
 
-
             self.add_cmd_outputs([
                 "oo-accept-node -v",
                 "oo-admin-ctl-gears list",
@@ -85,25 +85,27 @@ class Openshift(Plugin, RedHatPlugin):
         # Redact broker's MongoDB credentials:
         # MONGO_PASSWORD="PasswordForOpenshiftUser"
         self.do_file_sub('/etc/openshift/broker.conf',
-                r"(MONGO_PASSWORD\s*=\s*)(.*)",
-                r"\1*******")
+                         r"(MONGO_PASSWORD\s*=\s*)(.*)",
+                         r"\1*******")
 
         # Redact session SHA keys:
         # SESSION_SECRET=0c31...a7c8
         self.do_file_sub('/etc/openshift/broker.conf',
-                r"(SESSION_SECRET\s*=\s*)(.*)",
-                r"\1*******")
+                         r"(SESSION_SECRET\s*=\s*)(.*)",
+                         r"\1*******")
         self.do_file_sub('/etc/openshift/console.conf',
-                r"(SESSION_SECRET\s*=\s*)(.*)",
-                r"\1*******")
+                         r"(SESSION_SECRET\s*=\s*)(.*)",
+                         r"\1*******")
 
         # Redact passwords of the form:
         # plugin.activemq.pool.1.password = Pa$sW0Rd
-        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/server.cfg" % (self.vendor, self.ruby),
-                r"(.*password\s*=\s*)\S+",
-                r"\1********")
-        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/client.cfg" % (self.vendor, self.ruby),
-                r"(.*password\s*=\s*)\S+",
-                r"\1********")
+        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/server.cfg" %
+                        (self.vendor, self.ruby),
+                        r"(.*password\s*=\s*)\S+",
+                        r"\1********")
+        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/client.cfg" %
+                        (self.vendor, self.ruby),
+                        r"(.*password\s*=\s*)\S+",
+                        r"\1********")
 
 # vim: et ts=4 sw=4

@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
+
 class Juju(Plugin, UbuntuPlugin):
     """ Juju Plugin
     """

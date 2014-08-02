@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
+
 class KernelRT(Plugin, RedHatPlugin):
     '''Information specific to the realtime kernel
     '''
@@ -32,11 +33,13 @@ class KernelRT(Plugin, RedHatPlugin):
             '/proc/sys/kernel/sched_rt_period_us',
             '/proc/sys/kernel/sched_rt_runtime_us',
             '/sys/kernel/realtime',
-            '/sys/devices/system/clocksource/clocksource0/available_clocksource',
+            '/sys/devices/system/clocksource/clocksource0/'
+            'available_clocksource',
             '/sys/devices/system/clocksource/clocksource0/current_clocksource'
         ])
-        # note: rhbz#1059685 'tuna - NameError: global name 'cgroups' is not defined'
-        # this command throws an exception on versions prior to 0.10.4-5.
+        # note: rhbz#1059685 'tuna - NameError: global name 'cgroups' is not
+        # defined this command throws an exception on versions prior to
+        # 0.10.4-5.
         self.add_cmd_output('tuna -CP')
 
 # vim: et ts=4 sw=4
