@@ -34,7 +34,12 @@ using GitHub please make sure your branch applies to the current master as a
 'fast forward' merge (i.e. without creating a merge commit). Use the `git
 rebase` command to update your branch to the current master if necessary.
 
-### Wiki documentation
+## Documentation
+
+User and API [documentation][6] is automatically generated using [Sphinx][7]
+and [Read the Docs][8].
+
+### Wiki
 
 * [How to write a plugin][1]
 * [How to write a policy][2]
@@ -43,6 +48,8 @@ rebase` command to update your branch to the current master if necessary.
 To help get your changes merged quickly with as few revisions as possible
 please refer to the [Contributor Guidelines][0] when submitting patches or
 pull requests.
+
+## Installation
 
 ### Manual Installation
 
@@ -79,3 +86,6 @@ sudo apt-get install sosreport
  [3]: https://github.com/sosreport/sos/wiki/Plugin-options
  [4]: https://www.redhat.com/mailman/listinfo/sos-devel
  [5]: https://github.com/sosreport/sos/issues?state=open
+ [6]: http://sos.readthedocs.org/en/latest/index.html#
+ [7]: http://sphinx-doc.org/
+ [8]: https://readthedocs.org/
