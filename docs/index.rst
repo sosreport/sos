@@ -25,13 +25,18 @@ Mailing list
 
 `sos-devel <https://www.redhat.com/mailman/listinfo/sos-devel>`_ is the mailing list for any sos-related questions and discussion. Patch submissions and reviews are welcome too.
 
-Developers
-^^^^^^^^^^
+Patches and pull requests
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Patches can be submitted via the mailing list or as GitHub pull requests. If using GitHub please make sure your branch applies to the current master as a 'fast forward' merge (i.e. without creating a merge commit). Use the git rebase command to update your branch to the current master if necessary.
 
-Wiki documentation
-^^^^^^^^^^^^^^^^^^
+Documentation
+=============
+
+User and API `documentation <http://sos.readthedocs.org/en/latest/index.html#>`_ is automatically generated using `Sphinx <http://sphinx-doc.org/>`_ and `Read the Docs <https://www.readthedocs.org/>`_.
+
+Wiki
+^^^^
 
  `How to write a plugin <https://github.com/sosreport/sos/wiki/How-to-Write-a-Plugin>`_
 
@@ -40,6 +45,9 @@ Wiki documentation
  `Plugin options <https://github.com/sosreport/sos/wiki/Plugin-options>`_
 
 To help get your changes merged quickly with as few revisions as possible please refer to the `Contributor Guidelines <https://github.com/sosreport/sos/wiki/Contribution-Guidelines>`_ when submitting patches or pull requests.
+
+Installation
+============
 
 Manual Installation
 ^^^^^^^^^^^^^^^^^^^

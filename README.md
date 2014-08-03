@@ -27,7 +27,7 @@ Issue Tracker][5]
 The [sos-devel][4] is the mailing list for any sos-related questions and
 discussion. Patch submissions and reviews are welcome too.
 
-## Developers
+## Patches and pull requests
 
 Patches can be submitted via the mailing list or as GitHub pull requests. If
 using GitHub please make sure your branch applies to the current master as a
