@@ -6,6 +6,7 @@ Sos is an extensible, portable, support data collection tool primarily aimed at 
 This project is hosted at:
 
 http://github.com/sosreport/sos
+
 For the latest version, to contribute, and for more information, please visit the project pages or join the mailing list.
 
 To clone the current master (development) branch run:
@@ -22,7 +23,7 @@ Please report bugs via the mailing list or by opening an issue in the GitHub Iss
 Mailing list
 ^^^^^^^^^^^^^
 
-The `sos-devel <https://www.redhat.com/mailman/listinfo/sos-devel>`_ is the mailing list for any sos-related questions and discussion. Patch submissions and reviews are welcome too.
+`sos-devel <https://www.redhat.com/mailman/listinfo/sos-devel>`_ is the mailing list for any sos-related questions and discussion. Patch submissions and reviews are welcome too.
 
 Developers
 ^^^^^^^^^^
