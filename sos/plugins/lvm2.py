@@ -55,9 +55,9 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_outputs([
             "vgscan -vvv %s" % lvm_opts,
             "pvscan -v %s" % lvm_opts,
-            "pvs -a -v %s" % lvm_opts,
-            "vgs -v %s" % lvm_opts,
-            "lvs -a -o +devices %s" % lvm_opts
+            "pvs -a -v -o +pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count %s" % lvm_opts,
+            "vgs -v -o +vg_tags,vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count %s" % lvm_opts,
+            "lvs -a -o +lv_tags,devices %s" % lvm_opts
         ])
 
         self.add_copy_spec("/etc/lvm")
