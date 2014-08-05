@@ -22,7 +22,6 @@ class General(Plugin):
 
     def setup(self):
         self.add_copy_specs([
-            "/etc/init",    # upstart
             "/etc/event.d",
             "/etc/inittab",
             "/etc/sos.conf",
