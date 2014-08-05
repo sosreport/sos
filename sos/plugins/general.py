@@ -29,7 +29,6 @@ class General(Plugin):
             "/var/log/up2date",
             "/etc/hostid",
             "/var/lib/dbus/machine-id",
-            "/etc/exports",
             "/etc/localtime",
             "/etc/os-release"
         ])
