@@ -25,6 +25,10 @@ class Startup(Plugin):
                     "slow", False)]
 
     def setup(self):
+        self.add_copy_specs([
+            "/etc/inittab",
+            "/etc/rc.d"
+        ])
         if self.get_option('servicestatus'):
             self.add_cmd_output("/sbin/service --status-all")
         self.add_cmd_output("/sbin/runlevel")
@@ -36,7 +40,6 @@ class RedHatStartup(Startup, RedHatPlugin):
 
     def setup(self):
         super(RedHatStartup, self).setup()
-        self.add_copy_spec("/etc/rc.d")
         self.add_cmd_output("/sbin/chkconfig --list", root_symlink="chkconfig")
 
 
