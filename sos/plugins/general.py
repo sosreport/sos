@@ -26,7 +26,6 @@ class General(Plugin):
             "/etc/sysconfig",
             "/proc/stat",
             "/var/log/pm/suspend.log",
-            "/var/log/up2date",
             "/etc/hostid",
             "/var/lib/dbus/machine-id",
             "/etc/localtime",
@@ -51,7 +50,8 @@ class RedHatGeneral(General, RedHatPlugin):
 
         self.add_copy_specs([
             "/etc/redhat-release",
-            "/etc/fedora-release"
+            "/etc/fedora-release",
+            "/var/log/up2date"
         ])
 
     def postproc(self):
