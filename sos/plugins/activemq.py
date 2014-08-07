@@ -16,7 +16,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class ActiveMq(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class ActiveMq(Plugin, RedHatPlugin, DebianPlugin):
     """ActiveMQ related information
     """
 
@@ -27,3 +27,15 @@ class ActiveMq(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_specs(list(self.files))
+
+
+class UbuntuActiveMq(UbuntuPlugin):
+    """ Ubuntu ActiveMQ information
+    """
+
+    def setup(self):
+        super(UbuntuActiveMq, self).setup()
+        self.add_copy_specs([
+            '/etc/activemq',
+            '/etc/default/activemq'
+        ])
