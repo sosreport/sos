@@ -177,8 +177,9 @@ class FileCacheArchive(Archive):
         if os.path.exists(src):
             try:
                 shutil.copystat(src, dest)
-            except OSError:
-                pass
+            except OSError as e:
+                self.log_error(
+                    "Unable to add '%s' to FileCacheArchive: %s" % (dest, e))
         self.log_debug("added string at '%s' to FileCacheArchive '%s'"
                        % (src, self._archive_root))
 
