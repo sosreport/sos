@@ -1,7 +1,7 @@
-``sos.plugins`` --- Policy Interface
-====================================
+``sos.policies`` --- Policy Interface
+===================================
 
-.. automodule:: sos.policy
+.. automodule:: sos.policies
     :noindex:
     :members:
     :undoc-members:
