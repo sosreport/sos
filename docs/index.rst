@@ -92,5 +92,6 @@ Core Reference
    :maxdepth: 2
 
    archive
+   policies
    reporting
    utilities
