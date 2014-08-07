@@ -90,6 +90,9 @@ class Plugin(object):
     of files) to check for before running this plugin. If any of these packages
     or files is found on the system, the default implementation of
     check_enabled will return True.
+
+    files_blacklist is a list of global files to be ignored with the added
+    benefit of ignoring those incorrectly defined in inherited plugins
     """
 
     plugin_name = None
@@ -97,6 +100,7 @@ class Plugin(object):
     version = 'unversioned'
     packages = ()
     files = ()
+    files_blacklist = []
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
@@ -109,7 +113,8 @@ class Plugin(object):
         self.opt_names = []
         self.opt_parms = []
         self.commons = commons
-        self.forbidden_paths = []
+        # Pre-populate forbidden_paths with global blacklist
+        self.forbidden_paths = self.files_blacklist
         self.copy_paths = set()
         self.copy_strings = []
         self.collect_cmds = []
