@@ -35,7 +35,6 @@ class SELinux(Plugin, RedHatPlugin):
             "selinuxdefcon root",
             "selinuxconlist root",
             "selinuxexeccon /bin/passwd",
-            "ausearch --input-logs -m avc,user_avc -ts today",
             "semanage -o -"
         ])
         if self.get_option('fixfiles'):

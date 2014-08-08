@@ -28,6 +28,7 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/audit/auditd.conf",
             "/etc/audit/audit.rules"
         ])
+        self.add_cmd_output("ausearch --input-logs -m avc,user_avc -ts today")
 
         if not self.get_option("all_logs"):
             limit = self.get_option("log_size")
