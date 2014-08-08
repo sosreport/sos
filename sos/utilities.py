@@ -17,8 +17,6 @@ from __future__ import with_statement
 import os
 import re
 import inspect
-from stat import *
-# from itertools import *
 from subprocess import Popen, PIPE, STDOUT
 import zipfile
 import hashlib
