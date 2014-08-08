@@ -35,19 +35,19 @@ class RedHatDistUpgrade(DistUpgrade, RedHatPlugin):
     )
 
     def postproc(self):
-        self.doRegexSub(
+        self.do_file_sub(
             "/root/preupgrade/kickstart/anaconda-ks.cfg",
             r"(useradd --password) (.*)",
             r"\1 ********"
         )
 
-        self.doRegexSub(
+        self.do_file_sub(
             "/root/preupgrade/kickstart/anaconda-ks.cfg",
             r"(\s*rootpw\s*).*",
             r"\1********"
         )
 
-        self.doRegexSub(
+        self.do_file_sub(
             "/root/preupgrade/kickstart/untrackeduser",
             r"\/home\/.*",
             r"/home/******** path redacted ********"

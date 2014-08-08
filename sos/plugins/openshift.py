@@ -99,13 +99,13 @@ class Openshift(Plugin, RedHatPlugin):
 
         # Redact passwords of the form:
         # plugin.activemq.pool.1.password = Pa$sW0Rd
-        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/server.cfg" %
-                        (self.vendor, self.ruby),
-                        r"(.*password\s*=\s*)\S+",
-                        r"\1********")
-        self.doRegexSub("/opt/%s/%s/root/etc/mcollective/client.cfg" %
-                        (self.vendor, self.ruby),
-                        r"(.*password\s*=\s*)\S+",
-                        r"\1********")
+        self.do_file_sub("/opt/%s/%s/root/etc/mcollective/server.cfg" %
+                         (self.vendor, self.ruby),
+                         r"(.*password\s*=\s*)\S+",
+                         r"\1********")
+        self.do_file_sub("/opt/%s/%s/root/etc/mcollective/client.cfg" %
+                         (self.vendor, self.ruby),
+                         r"(.*password\s*=\s*)\S+",
+                         r"\1********")
 
 # vim: et ts=4 sw=4
