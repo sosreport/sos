@@ -655,7 +655,6 @@ class SoSReport(object):
             # device, so we call the default hook
             sys.__excepthook__(etype, eval_, etrace)
         else:
-            import traceback
             import pdb
             # we are NOT in interactive mode, print the exception...
             traceback.print_exception(etype, eval_, etrace, limit=2,
