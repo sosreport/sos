@@ -43,7 +43,7 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             r = self.call_ext_prog("mount -t debugfs debugfs %s"
                                    % self.debugfs_path)
             if r['status'] != 0:
-                self.log_error("debugfs not mounted and mount attempt failed")
+                self._log_error("debugfs not mounted and mount attempt failed")
                 self._debugfs_cleanup = False
                 return
         self.add_cmd_output("kvm_stat --once")
@@ -51,6 +51,6 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         if self._debugfs_cleanup and os.path.ismount(self.debugfs_path):
             self.call_ext_prog("umount %s" % self.debugfs_path)
-            self.log_error("could not unmount %s" % self.debugfs_path)
+            self._log_error("could not unmount %s" % self.debugfs_path)
 
 # vim: et ts=4 sw=4

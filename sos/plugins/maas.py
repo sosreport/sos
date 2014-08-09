@@ -63,7 +63,7 @@ class Maas(Plugin, UbuntuPlugin):
                 self.add_cmd_output("maas %s commissioning-results list" %
                                     self.get_option("profile-name"))
             else:
-                self.log_error(
+                self._log_error(
                     "Cannot login into Maas remote API with provided creds.")
 
 # vim: et ts=4 sw=4

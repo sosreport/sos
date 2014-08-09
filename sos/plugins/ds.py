@@ -51,7 +51,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
                     certpath = os.path.join("/etc/dirsrv", d)
                     self.add_cmd_output("certutil -L -d %s" % certpath)
         except:
-            self.log_warn("could not list /etc/dirsrv")
+            self._log_warn("could not list /etc/dirsrv")
 
         if not self.check_version():
             self.add_alert("Directory Server not found.")

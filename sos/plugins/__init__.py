@@ -135,16 +135,16 @@ class Plugin(object):
     def _format_msg(self, msg):
         return "[plugin:%s] %s" % (self.name(), msg)
 
-    def log_error(self, msg):
+    def _log_error(self, msg):
         self.soslog.error(self._format_msg(msg))
 
-    def log_warn(self, msg):
+    def _log_warn(self, msg):
         self.soslog.warning(self._format_msg(msg))
 
-    def log_info(self, msg):
+    def _log_info(self, msg):
         self.soslog.info(self._format_msg(msg))
 
-    def log_debug(self, msg):
+    def _log_debug(self, msg):
         self.soslog.debug(self._format_msg(msg))
 
     def policy(self):
@@ -166,8 +166,8 @@ class Plugin(object):
         This function returns the number of replacements made.
         '''
         globstr = '*' + cmd + '*'
-        self.log_debug("substituting '%s' for '%s' in commands matching '%s'"
-                       % (subst, regexp, globstr))
+        self._log_debug("substituting '%s' for '%s' in commands matching '%s'"
+                        % (subst, regexp, globstr))
 
         if not self.executed_commands:
             return 0
@@ -180,7 +180,7 @@ class Plugin(object):
                     continue
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
-                    self.log_debug("applying substitution to '%s'" % path)
+                    self._log_debug("applying substitution to '%s'" % path)
                     readable = self.archive.open_file(path)
                     result, replacements = re.subn(
                         regexp, subst, readable.read())
@@ -189,7 +189,7 @@ class Plugin(object):
 
         except Exception as e:
             msg = "regex substitution failed for '%s' with: '%s'"
-            self.log_error(msg % (called['exe'], e))
+            self._log_error(msg % (called['exe'], e))
             replacements = None
         return replacements
 
@@ -203,8 +203,8 @@ class Plugin(object):
         '''
         try:
             path = self._get_dest_for_srcpath(srcpath)
-            self.log_debug("substituting '%s' for '%s' in '%s'"
-                           % (subst, regexp, path))
+            self._log_debug("substituting '%s' for '%s' in '%s'"
+                            % (subst, regexp, path))
             if not path:
                 return 0
             readable = self.archive.open_file(path)
@@ -215,7 +215,7 @@ class Plugin(object):
                 replacements = 0
         except Exception as e:
             msg = "regex substitution failed for '%s' with: '%s'"
-            self.log_error(msg % (path, e))
+            self._log_error(msg % (path, e))
             replacements = 0
         return replacements
 
@@ -246,25 +246,25 @@ class Plugin(object):
         if os.path.isabs(linkdest):
                 reldest = os.path.relpath(linkdest,
                                           os.path.dirname(srcpath))
-                self.log_debug("made link target '%s' relative as '%s'"
-                               % (linkdest, reldest))
+                self._log_debug("made link target '%s' relative as '%s'"
+                                % (linkdest, reldest))
         else:
                 reldest = linkdest
 
-        self.log_debug("copying link '%s' pointing to '%s' with isdir=%s"
-                       % (srcpath, linkdest, os.path.isdir(absdest)))
+        self._log_debug("copying link '%s' pointing to '%s' with isdir=%s"
+                        % (srcpath, linkdest, os.path.isdir(absdest)))
 
         # use the relative target path in the tarball
         self.archive.add_link(reldest, srcpath)
 
         if os.path.isdir(absdest):
-            self.log_debug("link '%s' is a directory, skipping..." % linkdest)
+            self._log_debug("link '%s' is a directory, skipping..." % linkdest)
             return
 
         # copy the symlink target translating relative targets
         # to absolute paths to pass to do_copy_path.
-        self.log_debug("normalized link target '%s' as '%s'"
-                       % (linkdest, absdest))
+        self._log_debug("normalized link target '%s' as '%s'"
+                        % (linkdest, absdest))
         self.do_copy_path(absdest)
 
         self.copied_files.append({'srcpath': srcpath,
@@ -274,8 +274,8 @@ class Plugin(object):
 
     def copy_dir(self, srcpath):
         for afile in os.listdir(srcpath):
-            self.log_debug("recursively adding '%s' from '%s'" % (afile,
-                                                                  srcpath))
+            self._log_debug("recursively adding '%s' from '%s'"
+                            % (afile, srcpath))
             self.do_copy_path(os.path.join(srcpath, afile), dest=None)
 
     def _get_dest_for_srcpath(self, srcpath):
@@ -300,7 +300,7 @@ class Plugin(object):
         saved for use later in preparing a report.
         '''
         if self.is_forbidden_path(srcpath):
-            self.log_debug("skipping forbidden path '%s'" % srcpath)
+            self._log_debug("skipping forbidden path '%s'" % srcpath)
             return ''
 
         if not dest:
@@ -309,7 +309,7 @@ class Plugin(object):
         try:
             st = os.lstat(srcpath)
         except (OSError, IOError):
-            self.log_info("failed to stat '%s'" % srcpath)
+            self._log_info("failed to stat '%s'" % srcpath)
             return
 
         if stat.S_ISLNK(st.st_mode):
@@ -323,13 +323,13 @@ class Plugin(object):
         # handle special nodes (block, char, fifo, socket)
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
             ntype = _node_type(st)
-            self.log_debug("creating %s node at archive:'%s'" % (ntype,
-                                                                 srcpath))
+            self._log_debug("creating %s node at archive:'%s'"
+                            % (ntype, srcpath))
             self.copy_node(srcpath, st)
             return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
-        self.log_debug("copying path '%s' to archive:'%s'" % (srcpath, dest))
+        self._log_debug("copying path '%s' to archive:'%s'" % (srcpath, dest))
 
         # if not readable(srcpath)
         if not (st.st_mode & 0o444):
@@ -454,19 +454,19 @@ class Plugin(object):
         copied into the sosreport by this module.
         """
         if not (copyspec and len(copyspec)):
-            self.log_warn("added null or empty copy spec")
+            self._log_warn("added null or empty copy spec")
             return False
         copy_paths = self.expand_copy_spec(copyspec)
         self.copy_paths.update(copy_paths)
-        self.log_info("added copyspec '%s'" % copyspec)
+        self._log_info("added copyspec '%s'" % copyspec)
 
     def get_command_output(self, prog, timeout=300, runat=None):
         result = sos_get_command_output(prog, timeout=timeout, runat=runat)
         if result['status'] == 124:
-            self.log_warn("command '%s' timed out after %ds"
-                          % (prog, timeout))
+            self._log_warn("command '%s' timed out after %ds"
+                           % (prog, timeout))
         if result['status'] == 127:
-            self.log_debug("could not run '%s': command not found" % prog)
+            self._log_debug("could not run '%s': command not found" % prog)
         return result
 
     def call_ext_prog(self, prog, timeout=300, runat=None):
@@ -494,10 +494,10 @@ class Plugin(object):
                        runat=None):
         """Run a program and collect the output"""
         cmd = (exe, suggest_filename, root_symlink, timeout, runat)
-        self.log_debug("packed command tuple: ('%s', '%s', '%s', %s, '%s')"
-                       % cmd)
+        self._log_debug("packed command tuple: ('%s', '%s', '%s', %s, '%s')"
+                        % cmd)
         self.collect_cmds.append(cmd)
-        self.log_info("added cmd output '%s'" % exe)
+        self._log_info("added cmd output '%s'" % exe)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -544,7 +544,7 @@ class Plugin(object):
         """Add a string to the archive as a file named `filename`"""
         self.copy_strings.append((content, filename))
         content = "..." + (content.splitlines()[0]).decode('utf8')
-        self.log_debug("added string '%s' as '%s'" % (content, filename))
+        self._log_debug("added string '%s' as '%s'" % (content, filename))
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300,
@@ -556,8 +556,8 @@ class Plugin(object):
         result = self.get_command_output(exe, timeout=timeout, runat=runat)
         if (result['status'] == 127):
             return None
-        self.log_debug("collected output of '%s' in %s" % (exe.split()[0],
-                                                           time() - start))
+        self._log_debug("collected output of '%s' in %s"
+                        % (exe.split()[0], time() - start))
 
         if suggest_filename:
             outfn = self.make_command_filename(suggest_filename)
@@ -596,15 +596,15 @@ class Plugin(object):
 
     def collect_copy_specs(self):
         for path in self.copy_paths:
-                self.log_info("collecting path '%s'" % path)
+                self._log_info("collecting path '%s'" % path)
                 self.do_copy_path(path)
 
     def collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
             prog, suggest_filename, root_symlink, timeout, runat = progs[0]
-            self.log_debug("unpacked command tuple: "
-                           + "('%s', '%s', '%s', %s, '%s')" % progs[0])
-            self.log_info("collecting output of '%s'" % prog)
+            self._log_debug("unpacked command tuple: "
+                            + "('%s', '%s', '%s', %s, '%s')" % progs[0])
+            self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
                                     root_symlink=root_symlink,
                                     timeout=timeout, runat=runat)
@@ -612,16 +612,16 @@ class Plugin(object):
     def collect_strings(self):
         for string, file_name in self.copy_strings:
             content = "..." + (string.splitlines()[0]).decode('utf8')
-            self.log_info("collecting string '%s' as '%s'" % (content,
-                                                              file_name))
+            self._log_info("collecting string '%s' as '%s'"
+                           % (content, file_name))
             try:
                 self.archive.add_string(string,
                                         os.path.join('sos_strings',
                                                      self.name(),
                                                      file_name))
             except Exception as e:
-                self.log_debug("could not add string '%s': %s"
-                               % (file_name, e))
+                self._log_debug("could not add string '%s': %s"
+                                % (file_name, e))
 
     def collect(self):
         """Collect the data for a plugin."""
@@ -630,7 +630,7 @@ class Plugin(object):
         self.collect_cmd_output()
         self.collect_strings()
         fields = (self.name(), time() - start)
-        self.log_debug("collected plugin '%s' in %s" % fields)
+        self._log_debug("collected plugin '%s' in %s" % fields)
 
     def get_description(self):
         """ This function will return the description for the plugin"""

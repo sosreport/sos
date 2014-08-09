@@ -78,7 +78,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             self.pcplog_totalsize = 0
 
         if not self.pcp_parse_conffile():
-            self.log_warn("could not parse %s" % self.pcp_conffile)
+            self._log_warn("could not parse %s" % self.pcp_conffile)
             return
 
         # Add PCP_SYSCONF_DIR (/etc/pcp) and PCP_VAR_DIR (/var/lib/pcp/config)
@@ -130,12 +130,12 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
                 if os.path.isdir(path):
                     self.add_copy_spec(path)
                 else:
-                    self.log_warn("%s not found" % path)
+                    self._log_warn("%s not found" % path)
             else:
-                self.log_warn("skipped %s. Size %d bigger than %d" % (path,
-                              dirsize, max_mb_size))
+                self._log_warn("skipped %s. Size %d bigger than %d"
+                               % (path, dirsize, max_mb_size))
         else:
-            self.log_warn("pcp_hostname was not set. Skipping.")
+            self._log_warn("pcp_hostname was not set. Skipping.")
 
         self.add_copy_specs([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
