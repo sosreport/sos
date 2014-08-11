@@ -29,7 +29,7 @@ class ActiveMq(Plugin, RedHatPlugin, DebianPlugin):
         self.add_copy_specs(list(self.files))
 
 
-class UbuntuActiveMq(UbuntuPlugin):
+class UbuntuActiveMq(ActiveMq, UbuntuPlugin):
     """ Ubuntu ActiveMQ information
     """
 
