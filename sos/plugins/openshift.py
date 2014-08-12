@@ -49,6 +49,8 @@ class openshift(sos.plugintools.PluginBase):
             self.collectExtOutput("/usr/sbin/oo-accept-broker -v")
             self.collectExtOutput("/usr/sbin/oo-admin-chk")
             self.collectExtOutput("/usr/sbin/mco ping")
+            self.collectExtOutput("/usr/sbin/oo-mco ping")
+            self.collectExtOutput("for node in $(oo-mco ping | head -n -2 | awk '{print $1}'); do oo-mco inventory $node; done")
             self.collectExtOutput("/usr/bin/gem list --local")
             self.collectExtOutput("sh -c 'cd /var/www/openshift/broker/ "
                                 + "&& /usr/bin/bundle --local'",
