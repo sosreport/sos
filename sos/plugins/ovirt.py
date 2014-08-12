@@ -31,7 +31,11 @@ class Ovirt(Plugin, RedHatPlugin):
     packages = (
         'ovirt-engine',
         'ovirt-engine-dwh',
-        'ovirt-engine-reports'
+        'ovirt-engine-reports',
+        'ovirt-scheduler-proxy',
+        'rhevm',
+        'rhevm-dwh',
+        'rhevm-reports'
     )
 
     DB_PASS_FILES = re.compile(
