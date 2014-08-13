@@ -2,35 +2,24 @@
 Gather information about a system and report it using plugins
 supplied for application-specific information
 """
-## sosreport.py
-## gather information about a system and report it
+# sosreport.py
+# gather information about a system and report it
 
-## Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
+# Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
 
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-# pylint: disable-msg = W0611
-# pylint: disable-msg = W0702
-# pylint: disable-msg = R0912
-# pylint: disable-msg = R0914
-# pylint: disable-msg = R0915
-# pylint: disable-msg = R0913
-# pylint: disable-msg = E0611
-# pylint: disable-msg = E1101
-# pylint: disable-msg = R0904
-# pylint: disable-msg = R0903
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import sys
 import traceback
@@ -43,14 +32,14 @@ from sos.utilities import ImporterHelper
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
-import textwrap
 import tempfile
 
 from sos import _sos as _
 from sos import __version__
 import sos.policies
 from sos.archive import TarFileArchive, ZipFileArchive
-from sos.reporting import Report, Section, Command, CopiedFile, CreatedFile, Alert, Note, PlainTextReport
+from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
+                           Alert, Note, PlainTextReport)
 
 # PYCOMPAT
 import six
@@ -61,6 +50,9 @@ else:
     from ConfigParser import ConfigParser
 from six import print_
 
+# file system errors that should terminate a run
+fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
+
 
 class TempFileUtil(object):
 
@@ -69,21 +61,21 @@ class TempFileUtil(object):
         self.files = []
 
     def new(self):
-       fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
-       fobj = open(fname, 'w')
-       self.files.append((fname, fobj))
-       return fobj
+        fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
+        fobj = open(fname, 'w')
+        self.files.append((fname, fobj))
+        return fobj
 
     def clean(self):
         for fname, f in self.files:
             try:
                 f.flush()
                 f.close()
-            except Exception as e:
+            except Exception:
                 pass
             try:
                 os.unlink(fname)
-            except Exception as e:
+            except Exception:
                 pass
         self.files = []
 
@@ -94,14 +86,16 @@ class OptionParserExtended(OptionParser):
         """ Prints help content including examples """
         OptionParser.print_help(self, out)
         print_()
-        print_( "Some examples:")
+        print_("Some examples:")
         print_()
-        print_( " enable cluster plugin only and collect dlm lockdumps:")
-        print_( "   # sosreport -o cluster -k cluster.lockdump")
+        print_(" enable cluster plugin only and collect dlm lockdumps:")
+        print_("   # sosreport -o cluster -k cluster.lockdump")
         print_()
-        print_( " disable memory and samba plugins, turn off rpm -Va collection:")
-        print_( "   # sosreport -n memory,samba -k rpm.rpmva=off")
+        print_(" disable memory and samba plugins, turn off rpm -Va "
+               "collection:")
+        print_("   # sosreport -n memory,samba -k rpm.rpmva=off")
         print_()
+
 
 class SosOption(Option):
     """Allow to specify comma delimited list of plugins"""
@@ -122,9 +116,9 @@ class SosOption(Option):
             Option.take_action(self, action, dest, opt, value, values, parser)
 
 
-
 class XmlReport(object):
     """ Report build class """
+
     def __init__(self):
         try:
             import libxml2
@@ -139,7 +133,7 @@ class XmlReport(object):
         self.commands = self.root.newChild(None, "commands", None)
         self.files = self.root.newChild(None, "files", None)
 
-    def add_command(self, cmdline, exitcode, stdout = None, stderr = None,
+    def add_command(self, cmdline, exitcode, stdout=None, stderr=None,
                     f_stdout=None, f_stderr=None, runtime=None):
         """ Appends command run into report """
         if not self.enabled:
@@ -176,14 +170,17 @@ class XmlReport(object):
         cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
         cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
         cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
-        cchild = cfile.newChild(None, "ctime", strftime('%a %b %d %H:%M:%S %Y',
-                                                        localtime(stats[ST_CTIME])))
+        cchild = cfile.newChild(None, "ctime",
+                                strftime('%a %b %d %H:%M:%S %Y',
+                                         localtime(stats[ST_CTIME])))
         cchild.setNsProp(None, "tstamp", str(stats[ST_CTIME]))
-        cchild = cfile.newChild(None, "atime", strftime('%a %b %d %H:%M:%S %Y',
-                                                        localtime(stats[ST_ATIME])))
+        cchild = cfile.newChild(None, "atime",
+                                strftime('%a %b %d %H:%M:%S %Y',
+                                         localtime(stats[ST_ATIME])))
         cchild.setNsProp(None, "tstamp", str(stats[ST_ATIME]))
-        cchild = cfile.newChild(None, "mtime", strftime('%a %b %d %H:%M:%S %Y',
-                                                        localtime(stats[ST_MTIME])))
+        cchild = cfile.newChild(None, "mtime",
+                                strftime('%a %b %d %H:%M:%S %Y',
+                                         localtime(stats[ST_MTIME])))
         cchild.setNsProp(None, "tstamp", str(stats[ST_MTIME]))
 
     def serialize(self):
@@ -204,6 +201,7 @@ class XmlReport(object):
         self.archive.add_file(outf.name, dest=fname)
         outf.close()
 
+
 class SoSOptions(object):
     _list_plugins = False
     _noplugins = []
@@ -211,9 +209,12 @@ class SoSOptions(object):
     _onlyplugins = []
     _plugopts = []
     _usealloptions = False
+    _all_logs = False
+    _log_size = 10
     _batch = False
     _build = False
     _verbosity = 0
+    _verify = False
     _quiet = False
     _debug = False
     _ticket_number = ""
@@ -230,15 +231,15 @@ class SoSOptions(object):
             self._options = self._parse_args(args)
         else:
             self._options = None
-        
+
     def _check_options_initialized(self):
-        if self._options != None:
+        if self._options is not None:
             raise ValueError("SoSOptions object already initialized "
                              + "from command line")
-        
+
     @property
     def list_plugins(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.list_plugins
         return self._list_plugins
 
@@ -251,7 +252,7 @@ class SoSOptions(object):
 
     @property
     def noplugins(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.noplugins
         return self._noplugins
 
@@ -262,18 +263,18 @@ class SoSOptions(object):
 
     @property
     def enableplugins(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.enableplugins
         return self._enableplugins
 
     @enableplugins.setter
-    def enableplugins(self):
+    def enableplugins(self, value):
         self._check_options_initialized()
         self._enableplugins = value
 
     @property
     def onlyplugins(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.onlyplugins
         return self._onlyplugins
 
@@ -284,33 +285,60 @@ class SoSOptions(object):
 
     @property
     def plugopts(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.plugopts
         return self._plugopts
 
     @plugopts.setter
     def plugopts(self, value):
         # If we check for anything it should be itterability.
-        #if not isinstance(value, list):
+        # if not isinstance(value, list):
         #    raise TypeError("SoSOptions.plugopts expects a list")
         self._plugopts = value
 
     @property
     def usealloptions(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.usealloptions
         return self._usealloptions
 
     @usealloptions.setter
     def usealloptions(self, value):
         self._check_options_initialized()
-        if not isinsance(value, bool):
+        if not isinstance(value, bool):
             raise TypeError("SoSOptions.usealloptions expects a boolean")
         self._usealloptions = value
 
     @property
+    def all_logs(self):
+        if self._options is not None:
+            return self._options.all_logs
+        return self._all_logs
+
+    @all_logs.setter
+    def all_logs(self, value):
+        self._check_options_initialized()
+        if not isinstance(value, bool):
+            raise TypeError("SoSOptions.all_logs expects a boolean")
+        self._all_logs = value
+
+    @property
+    def log_size(self):
+        if self._options is not None:
+            return self._options.log_size
+        return self._log_size
+
+    @log_size.setter
+    def log_size(self, value):
+        self._check_options_initialized()
+        if value < 0:
+            raise ValueError("SoSOptions.log_size expects a value greater "
+                             "than zero")
+        self._log_size = value
+
+    @property
     def batch(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.batch
         return self._batch
 
@@ -323,12 +351,12 @@ class SoSOptions(object):
 
     @property
     def build(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.build
         return self._build
 
     @build.setter
-    def build(self):
+    def build(self, value):
         self._check_options_initialized()
         if not isinstance(value, bool):
             raise TypeError("SoSOptions.build expects a boolean")
@@ -336,7 +364,7 @@ class SoSOptions(object):
 
     @property
     def verbosity(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.verbosity
         return self._verbosity
 
@@ -348,8 +376,21 @@ class SoSOptions(object):
         self._verbosity = value
 
     @property
+    def verify(self):
+        if self._options is not None:
+            return self._options.verify
+        return self._verify
+
+    @verify.setter
+    def verify(self, value):
+        self._check_options_initialized()
+        if value < 0 or value > 3:
+            raise ValueError("SoSOptions.verify expects a value [0..3]")
+        self._verify = value
+
+    @property
     def quiet(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.quiet
         return self._quiet
 
@@ -359,10 +400,10 @@ class SoSOptions(object):
         if not isinstance(value, bool):
             raise TypeError("SoSOptions.quiet expects a boolean")
         self._quiet = value
-        
+
     @property
     def debug(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.debug
         return self._debug
 
@@ -375,7 +416,7 @@ class SoSOptions(object):
 
     @property
     def ticket_number(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.ticket_number
         return self._ticket_number
 
@@ -386,7 +427,7 @@ class SoSOptions(object):
 
     @property
     def customer_name(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.customer_name
         return self._customer_name
 
@@ -397,7 +438,7 @@ class SoSOptions(object):
 
     @property
     def config_file(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.config_file
         return self._config_file
 
@@ -408,7 +449,7 @@ class SoSOptions(object):
 
     @property
     def tmp_dir(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.tmp_dir
         return self._tmp_dir
 
@@ -419,7 +460,7 @@ class SoSOptions(object):
 
     @property
     def report(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.report
         return self._report
 
@@ -432,7 +473,7 @@ class SoSOptions(object):
 
     @property
     def compression_type(self):
-        if self._options != None:
+        if self._options is not None:
             return self._options.compression_type
         return self._compression_type
 
@@ -441,70 +482,82 @@ class SoSOptions(object):
         self._check_options_initialized()
         self._compression_type = value
 
-
     def _parse_args(self, args):
         """ Parse command line options and arguments"""
 
         self.parser = parser = OptionParserExtended(option_class=SosOption)
         parser.add_option("-l", "--list-plugins", action="store_true",
-                             dest="list_plugins", default=False,
-                             help="list plugins and available plugin options")
+                          dest="list_plugins", default=False,
+                          help="list plugins and available plugin options")
         parser.add_option("-n", "--skip-plugins", action="extend",
-                             dest="noplugins", type="string",
-                             help="disable these plugins", default = deque())
+                          dest="noplugins", type="string",
+                          help="disable these plugins", default=deque())
         parser.add_option("-e", "--enable-plugins", action="extend",
-                             dest="enableplugins", type="string",
-                             help="enable these plugins", default = deque())
+                          dest="enableplugins", type="string",
+                          help="enable these plugins", default=deque())
         parser.add_option("-o", "--only-plugins", action="extend",
-                             dest="onlyplugins", type="string",
-                             help="enable these plugins only", default = deque())
+                          dest="onlyplugins", type="string",
+                          help="enable these plugins only", default=deque())
         parser.add_option("-k", "--plugin-option", action="extend",
-                             dest="plugopts", type="string",
-                             help="plugin options in plugname.option=value format (see -l)",
-                             default = deque())
+                          dest="plugopts", type="string",
+                          help="plugin options in plugname.option=value "
+                               "format (see -l)",
+                          default=deque())
+        parser.add_option("--log-size", action="store",
+                          dest="log_size", default=10, type="int",
+                          help="set a limit on the size of collected logs")
         parser.add_option("-a", "--alloptions", action="store_true",
-                             dest="usealloptions", default=False,
-                             help="enable all options for loaded plugins")
+                          dest="usealloptions", default=False,
+                          help="enable all options for loaded plugins")
+        parser.add_option("--all-logs", action="store_true",
+                          dest="all_logs", default=False,
+                          help="collect all available logs regardless of size")
         parser.add_option("--batch", action="store_true",
-                             dest="batch", default=False,
-                             help="batch mode - do not prompt interactively")
-        parser.add_option("--build", action="store_true", \
-                             dest="build", default=False, \
-                             help="keep sos tree available and dont package results")
+                          dest="batch", default=False,
+                          help="batch mode - do not prompt interactively")
+        parser.add_option("--build", action="store_true",
+                          dest="build", default=False,
+                          help="preserve the temporary directory and do not "
+                               "package results")
         parser.add_option("-v", "--verbose", action="count",
-                             dest="verbosity",
-                             help="increase verbosity")
+                          dest="verbosity",
+                          help="increase verbosity")
+        parser.add_option("", "--verify", action="store_true",
+                          dest="verify", default=False,
+                          help="perform data verification during collection")
         parser.add_option("", "--quiet", action="store_true",
-                             dest="quiet", default=False,
-                             help="only print fatal errors")
+                          dest="quiet", default=False,
+                          help="only print fatal errors")
         parser.add_option("--debug", action="count",
-                             dest="debug",
-                             help="enable interactive debugging using the python debugger")
+                          dest="debug",
+                          help="enable interactive debugging using the python "
+                               "debugger")
         parser.add_option("--ticket-number", action="store",
-                             dest="ticket_number",
-                             help="specify ticket number")
+                          dest="ticket_number",
+                          help="specify ticket number")
         parser.add_option("--name", action="store",
-                             dest="customer_name",
-                             help="specify report name")
+                          dest="customer_name",
+                          help="specify report name")
         parser.add_option("--config-file", action="store",
-                             dest="config_file",
-                             help="specify alternate configuration file")
+                          dest="config_file",
+                          help="specify alternate configuration file")
         parser.add_option("--tmp-dir", action="store",
-                             dest="tmp_dir",
-                             help="specify alternate temporary directory", default=None)
+                          dest="tmp_dir",
+                          help="specify alternate temporary directory",
+                          default=None)
         parser.add_option("--no-report", action="store_true",
-                             dest="report",
-                             help="Disable HTML/XML reporting", default=False)
+                          dest="report",
+                          help="Disable HTML/XML reporting", default=False)
         parser.add_option("-z", "--compression-type", dest="compression_type",
-                            help="compression technology to use [auto, zip, gzip, bzip2, xz] (default=auto)",
-                            default="auto")
+                          help="compression technology to use [auto, zip, "
+                               "gzip, bzip2, xz] (default=auto)",
+                          default="auto")
 
         return parser.parse_args(args)[0]
 
-# file system errors that should terminate a run
-fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
 class SoSReport(object):
+    """The main sosreport class"""
 
     def __init__(self, args):
         self.loaded_plugins = deque()
@@ -519,55 +572,55 @@ class SoSReport(object):
             import signal
             signal.signal(signal.SIGTERM, self.get_exit_handler())
         except Exception:
-            pass # not available in java, but we don't care
+            pass  # not available in java, but we don't care
 
-
-        #self.opts = self.parse_options(args)[0]
         self.opts = SoSOptions(args)
         self._set_debug()
         self._read_config()
+
         try:
             self.policy = sos.policies.load()
         except KeyboardInterrupt:
-           self._exit(0)
+            self._exit(0)
+
         self._is_root = self.policy.is_root()
+
         self.tmpdir = os.path.abspath(
             self.policy.get_tmp_dir(self.opts.tmp_dir))
         if not os.path.isdir(self.tmpdir) \
-        or not os.access(self.tmpdir, os.W_OK):
+                or not os.access(self.tmpdir, os.W_OK):
             # write directly to stderr as logging is not initialised yet
-            sys.stderr.write("temporary directory %s " % self.tmpdir \
-                        + "does not exist or is not writable\n")
+            sys.stderr.write("temporary directory %s " % self.tmpdir
+                             + "does not exist or is not writable\n")
             self._exit(1)
         self.tempfile_util = TempFileUtil(self.tmpdir)
         self._set_directories()
 
     def print_header(self):
-        self.ui_log.info("\n%s\n" % _("sosreport (version %s)" % (__version__,)))
+        self.ui_log.info("\n%s\n" % _("sosreport (version %s)" %
+                         (__version__,)))
 
     def get_commons(self):
         return {
-                'cmddir': self.cmddir,
-                'logdir': self.logdir,
-                'rptdir': self.rptdir,
-                'tmpdir': self.tmpdir,
-                'soslog': self.soslog,
-                'policy': self.policy,
-                'verbosity': self.opts.verbosity,
-                'xmlreport': self.xml_report,
-                'cmdlineopts': self.opts,
-                'config': self.config,
-                'global_plugin_options': self.global_plugin_options,
-                }
+            'cmddir': self.cmddir,
+            'logdir': self.logdir,
+            'rptdir': self.rptdir,
+            'tmpdir': self.tmpdir,
+            'soslog': self.soslog,
+            'policy': self.policy,
+            'verbosity': self.opts.verbosity,
+            'xmlreport': self.xml_report,
+            'cmdlineopts': self.opts,
+            'config': self.config,
+            'global_plugin_options': self.global_plugin_options,
+            }
 
     def get_temp_file(self):
         return self.tempfile_util.new()
 
     def _set_archive(self):
-        if self.opts.compression_type not in ('auto', 'zip', 'bzip2', 'gzip', 'xz'):
-            raise Exception("Invalid compression type specified. Options are:" +
-                            "auto, zip, bzip2, gzip and xz")
-        archive_name = os.path.join(self.tmpdir,self.policy.get_archive_name())
+        archive_name = os.path.join(self.tmpdir,
+                                    self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
             auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir)
@@ -575,6 +628,7 @@ class SoSReport(object):
             self.archive = ZipFileArchive(archive_name, self.tmpdir)
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir)
+        self.archive.set_debug(True if self.opts.debug else False)
 
     def _make_archive_paths(self):
         self.archive.makedirs(self.cmddir, 0o755)
@@ -601,9 +655,10 @@ class SoSReport(object):
             # device, so we call the default hook
             sys.__excepthook__(etype, eval_, etrace)
         else:
-            import traceback, pdb
+            import pdb
             # we are NOT in interactive mode, print the exception...
-            traceback.print_exception(etype, eval_, etrace, limit=2, file=sys.stdout)
+            traceback.print_exception(etype, eval_, etrace, limit=2,
+                                      file=sys.stdout)
             print_()
             # ...then start the debugger in post-mortem mode.
             pdb.pm()
@@ -635,7 +690,8 @@ class SoSReport(object):
         self.sos_log_file = self.get_temp_file()
         self.sos_log_file.close()
         flog = logging.FileHandler(self.sos_log_file.name)
-        flog.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
+        flog.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s'))
         flog.setLevel(logging.INFO)
         self.soslog.addHandler(flog)
 
@@ -658,7 +714,8 @@ class SoSReport(object):
         self.sos_ui_log_file = self.get_temp_file()
         self.sos_ui_log_file.close()
         ui_fhandler = logging.FileHandler(self.sos_ui_log_file.name)
-        ui_fhandler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
+        ui_fhandler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s'))
 
         self.ui_log.addHandler(ui_fhandler)
 
@@ -678,9 +735,11 @@ class SoSReport(object):
                 logger.removeHandler(h)
 
         if getattr(self, "sos_log_file", None):
-            self.archive.add_file(self.sos_log_file.name, dest=os.path.join('sos_logs', 'sos.log'))
+            self.archive.add_file(self.sos_log_file.name,
+                                  dest=os.path.join('sos_logs', 'sos.log'))
         if getattr(self, "sos_ui_log_file", None):
-            self.archive.add_file(self.sos_ui_log_file.name, dest=os.path.join('sos_logs', 'ui.log'))
+            self.archive.add_file(self.sos_ui_log_file.name,
+                                  dest=os.path.join('sos_logs', 'ui.log'))
 
     def _get_disabled_plugins(self):
         disabled = []
@@ -695,17 +754,17 @@ class SoSReport(object):
 
     def _is_inactive(self, plugin_name, pluginClass):
         return (not pluginClass(self.get_commons()).check_enabled() and
-                not plugin_name in self.opts.enableplugins  and
-                not plugin_name in self.opts.onlyplugins)
+                plugin_name not in self.opts.enableplugins and
+                plugin_name not in self.opts.onlyplugins)
 
     def _is_not_default(self, plugin_name, pluginClass):
         return (not pluginClass(self.get_commons()).default_enabled() and
-                not plugin_name in self.opts.enableplugins and
-                not plugin_name in self.opts.onlyplugins)
+                plugin_name not in self.opts.enableplugins and
+                plugin_name not in self.opts.onlyplugins)
 
     def _is_not_specified(self, plugin_name):
         return (self.opts.onlyplugins and
-                not plugin_name in self.opts.onlyplugins)
+                plugin_name not in self.opts.onlyplugins)
 
     def _skip(self, plugin_class, reason="unknown"):
         self.skipped_plugins.append((
@@ -720,7 +779,6 @@ class SoSReport(object):
             plugin_class(self.get_commons())
         ))
 
-
     def load_plugins(self):
 
         import sos.plugins
@@ -732,46 +790,49 @@ class SoSReport(object):
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
             try:
-                plugin_classes = import_plugin(plugbase,
-                        tuple(self.policy.valid_subclasses))
+                plugin_classes = import_plugin(
+                    plugbase, tuple(self.policy.valid_subclasses))
                 if not len(plugin_classes):
                     # no valid plugin classes for this policy
                     continue
 
                 plugin_class = self.policy.match_plugin(plugin_classes)
                 if not self.policy.validate_plugin(plugin_class):
-                    self.soslog.warning(_("plugin %s does not validate, skipping") % plug)
+                    self.soslog.warning(
+                        _("plugin %s does not validate, skipping") % plug)
                     if self.opts.verbosity > 0:
                         self._skip(plugin_class, _("does not validate"))
                         continue
 
                 if plugin_class.requires_root and not self._is_root:
-                    self.soslog.info(_("plugin %s requires root permissions to execute, skipping") % plug)
+                    self.soslog.info(_("plugin %s requires root permissions"
+                                       "to execute, skipping") % plug)
                     self._skip(plugin_class, _("requires root"))
                     continue
 
                 # plug-in is valid, let's decide whether run it or not
                 self.plugin_names.append(plugbase)
 
-                if  self._is_skipped(plugbase):
+                if self._is_skipped(plugbase):
                     self._skip(plugin_class, _("skipped"))
                     continue
 
-                if  self._is_inactive(plugbase, plugin_class):
+                if self._is_inactive(plugbase, plugin_class):
                     self._skip(plugin_class, _("inactive"))
                     continue
 
-                if  self._is_not_default(plugbase, plugin_class):
+                if self._is_not_default(plugbase, plugin_class):
                     self._skip(plugin_class, _("not default"))
                     continue
 
-                if  self._is_not_specified(plugbase):
+                if self._is_not_specified(plugbase):
                     self._skip(plugin_class, _("not specified"))
                     continue
 
                 self._load(plugin_class)
             except Exception as e:
-                self.soslog.warning(_("plugin %s does not install, skipping: %s") % (plug, e))
+                self.soslog.warning(_("plugin %s does not install, "
+                                    "skipping: %s") % (plug, e))
                 if self.raise_plugins:
                     raise
 
@@ -779,7 +840,7 @@ class SoSReport(object):
         if self.opts.usealloptions:
             for plugname, plug in self.loaded_plugins:
                 for name, parms in zip(plug.opt_names, plug.opt_parms):
-                    if type(parms["enabled"])==bool:
+                    if type(parms["enabled"]) == bool:
                         parms["enabled"] = True
 
     def _set_tunables(self):
@@ -819,19 +880,19 @@ class SoSReport(object):
                     opts[plug]
                 except KeyError:
                     opts[plug] = deque()
-                opts[plug].append( (opt, val) )
+                opts[plug].append((opt, val))
 
             for plugname, plug in self.loaded_plugins:
                 if plugname in opts:
                     for opt, val in opts[plugname]:
                         if not plug.set_option(opt, val):
                             self.soslog.error('no such option "%s" for plugin '
-                                         '(%s)' % (opt,plugname))
+                                              '(%s)' % (opt, plugname))
                             self._exit(1)
                     del opts[plugname]
             for plugname in opts.keys():
-                self.soslog.error('unable to set option for disabled or non-existing '
-                             'plugin (%s)' % (plugname))
+                self.soslog.error('unable to set option for disabled or '
+                                  'non-existing plugin (%s)' % (plugname))
 
     def _check_for_unknown_plugins(self):
         import itertools
@@ -839,16 +900,17 @@ class SoSReport(object):
                                       self.opts.noplugins,
                                       self.opts.enableplugins):
             plugin_name = plugin.split(".")[0]
-            if not plugin_name in self.plugin_names:
-                self.soslog.fatal('a non-existing plugin (%s) was specified in the '
-                             'command line' % (plugin_name))
+            if plugin_name not in self.plugin_names:
+                self.soslog.fatal('a non-existing plugin (%s) was specified'
+                                  'in the command line' % (plugin_name))
                 self._exit(1)
 
     def _set_plugin_options(self):
         for plugin_name, plugin in self.loaded_plugins:
             names, parms = plugin.get_all_options()
             for optname, optparm in zip(names, parms):
-                self.all_options.append((plugin, plugin_name, optname, optparm))
+                self.all_options.append((plugin, plugin_name, optname,
+                                         optparm))
 
     def list_plugins(self):
         if not self.loaded_plugins and not self.skipped_plugins:
@@ -859,27 +921,30 @@ class SoSReport(object):
             self.ui_log.info(_("The following plugins are currently enabled:"))
             self.ui_log.info("")
             for (plugname, plug) in self.loaded_plugins:
-                self.ui_log.info(" %-20s %s" % (plugname, plug.get_description()))
+                self.ui_log.info(" %-20s %s" % (plugname,
+                                                plug.get_description()))
         else:
             self.ui_log.info(_("No plugin enabled."))
         self.ui_log.info("")
 
         if self.skipped_plugins:
-            self.ui_log.info(_("The following plugins are currently disabled:"))
+            self.ui_log.info(_("The following plugins are currently "
+                             "disabled:"))
             self.ui_log.info("")
             for (plugname, plugclass, reason) in self.skipped_plugins:
-                self.ui_log.info(" %-20s %-14s %s" % (plugname,
-                                     reason,
-                                     plugclass.get_description()))
+                self.ui_log.info(" %-20s %-14s %s" % (
+                    plugname,
+                    reason,
+                    plugclass.get_description()))
         self.ui_log.info("")
 
         if self.all_options:
             self.ui_log.info(_("The following plugin options are available:"))
             self.ui_log.info("")
-            for (plug, plugname, optname, optparm)  in self.all_options:
+            for (plug, plugname, optname, optparm) in self.all_options:
                 # format option value based on its type (int or bool)
                 if type(optparm["enabled"]) == bool:
-                    if optparm["enabled"] == True:
+                    if optparm["enabled"] is True:
                         tmpopt = "on"
                     else:
                         tmpopt = "off"
@@ -912,6 +977,15 @@ class SoSReport(object):
         self.policy.pre_work()
         try:
             self.ui_log.info(_(" Setting up archive ..."))
+            compression_methods = ('auto', 'zip', 'bzip2', 'gzip', 'xz')
+            method = self.opts.compression_type
+            if method not in compression_methods:
+                compression_list = ', '.join(compression_methods)
+                self.ui_log.error("")
+                self.ui_log.error("Invalid compression specified: " + method)
+                self.ui_log.error("Valid types are: " + compression_list)
+                self.ui_log.error("")
+                self._exit(1)
             self._set_archive()
             self._make_archive_paths()
             return
@@ -959,8 +1033,8 @@ class SoSReport(object):
         versions.append("sosreport: %s" % __version__)
         for plugname, plug in self.loaded_plugins:
             versions.append("%s: %s" % (plugname, plug.version))
-        self.archive.add_string(content="\n".join(versions), dest='version.txt')
-
+        self.archive.add_string(content="\n".join(versions),
+                                dest='version.txt')
 
     def collect(self):
         self.ui_log.info(_(" Running plugins. Please wait ..."))
@@ -971,7 +1045,8 @@ class SoSReport(object):
             plugruncount += 1
             plugname, plug = i[0]
             status_line = ("  Running %d/%d: %s...        "
-                           % (plugruncount, len(self.loaded_plugins), plugname))
+                           % (plugruncount, len(self.loaded_plugins),
+                              plugname))
             if self.opts.verbosity == 0:
                 status_line = "\r%s" % status_line
             else:
@@ -997,17 +1072,17 @@ class SoSReport(object):
                     self._log_plugin_exception(plugname)
         self.ui_log.info("")
 
-
     def report(self):
         for plugname, plug in self.loaded_plugins:
             for oneFile in plug.copied_files:
                 try:
-                    self.xml_report.add_file(oneFile["srcpath"], os.stat(oneFile["srcpath"]))
+                    self.xml_report.add_file(oneFile["srcpath"],
+                                             os.stat(oneFile["srcpath"]))
                 except:
                     pass
-
         try:
-            self.xml_report.serialize_to_file(os.path.join(self.rptdir, "sosreport.xml"))
+            self.xml_report.serialize_to_file(os.path.join(self.rptdir,
+                                                           "sosreport.xml"))
         except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
@@ -1015,7 +1090,6 @@ class SoSReport(object):
                                   % e.strerror)
                 self.ui_log.error("")
                 self._exit(1)
-
 
     def plain_report(self):
         report = Report()
@@ -1031,7 +1105,7 @@ class SoSReport(object):
 
             for f in plug.copied_files:
                 section.add(CopiedFile(name=f['srcpath'],
-                            href= ".." + f['dstpath']))
+                            href=".." + f['dstpath']))
 
             for cmd in plug.executed_commands:
                 section.add(Command(name=cmd['exe'], return_code=0,
@@ -1045,7 +1119,8 @@ class SoSReport(object):
             fd = self.get_temp_file()
             fd.write(str(PlainTextReport(report)))
             fd.flush()
-            self.archive.add_file(fd.name, dest=os.path.join('sos_reports', 'sos.txt'))
+            self.archive.add_file(fd.name, dest=os.path.join('sos_reports',
+                                                             'sos.txt'))
         except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
@@ -1069,24 +1144,26 @@ class SoSReport(object):
         # Generate the header for the html output file
         rfd = self.get_temp_file()
         rfd.write("""
-        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-            <head>
-        <link rel="stylesheet" type="text/css" media="screen" href="donot.css" />
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Sos System Report</title>
-            </head>
-
-            <body>
+        <head>
+            <link rel="stylesheet" type="text/css" media="screen"
+                  href="donot.css" />
+            <meta http-equiv="Content-Type" content="text/html;
+                  charset=utf-8" />
+            <title>Sos System Report</title>
+        </head>
+        <body>
         """)
-
 
         # Make a pass to gather Alerts and a list of module names
         allAlerts = deque()
         plugNames = deque()
         for plugname, plug in self.loaded_plugins:
             for alert in plug.alerts:
-                allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname, plugname,
+                allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname,
+                                                               plugname,
                                                                alert))
             plugNames.append(plugname)
 
@@ -1110,7 +1187,6 @@ class SoSReport(object):
             rfd.write('<li>%s</li>' % alert)
         rfd.write('</ul>')
 
-
         # Call the report method for each plugin
         for plugname, plug in self.loaded_plugins:
             try:
@@ -1120,19 +1196,17 @@ class SoSReport(object):
                     raise
             else:
                 rfd.write(html)
-
         rfd.write("</body></html>")
-
         rfd.flush()
-
-        self.archive.add_file(rfd.name, dest=os.path.join('sos_reports', 'sos.html'))
+        self.archive.add_file(rfd.name, dest=os.path.join('sos_reports',
+                                                          'sos.html'))
 
     def postproc(self):
         for plugname, plug in self.loaded_plugins:
             try:
                 plug.postproc()
             except (OSError, IOError) as e:
-             if e.errno in fatal_fs_errors:
+                if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
                     self.ui_log.error(" %s while post-processing plugin data"
                                       % e.strerror)
@@ -1148,31 +1222,28 @@ class SoSReport(object):
         self._finish_logging()
         # package up the results for the support organization
         if not self.opts.build:
-            print (_("Creating compressed archive..."))
+            print(_("Creating compressed archive..."))
             # compression could fail for a number of reasons
             try:
-                final_filename = self.archive.finalize(self.opts.compression_type)
+                final_filename = self.archive.finalize(
+                    self.opts.compression_type)
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
-                   self.ui_log.error("")
-                   self.ui_log.error(" %s while finalizing archive"
-                                     % e.strerror)
-                   self.ui_log.error("")
-                   self._exit(1)
+                    self.ui_log.error("")
+                    self.ui_log.error(" %s while finalizing archive"
+                                      % e.strerror)
+                    self.ui_log.error("")
+                    self._exit(1)
             except:
                 if self.opts.debug:
                     raise
                 else:
                     return False
-
         else:
             final_filename = self.archive.get_archive_path()
-
-        self.policy.display_results(final_filename, build = self.opts.build)
+        self.policy.display_results(final_filename, build=self.opts.build)
         self.tempfile_util.clean()
-
         return True
-
 
     def verify_plugins(self):
         if not self.loaded_plugins:
@@ -1180,10 +1251,8 @@ class SoSReport(object):
             return False
         return True
 
-
     def set_global_plugin_option(self, key, value):
-        self.global_plugin_options[key] = value;
-
+        self.global_plugin_options[key] = value
 
     def execute(self):
         try:
@@ -1222,6 +1291,7 @@ class SoSReport(object):
             if self.tempfile_util:
                 self.tempfile_util.clean()
             return False
+
 
 def main(args):
     """The main entry point"""

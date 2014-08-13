@@ -1,20 +1,20 @@
-## Copyright (C) 2012 Red Hat, Inc.,
-##   Jesse Jaggars <jjaggars@redhat.com>
-##   Bryn M. Reeves <bmr@redhat.com>
-##
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# Copyright (C) 2012 Red Hat, Inc.,
+#   Jesse Jaggars <jjaggars@redhat.com>
+#   Bryn M. Reeves <bmr@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 import os
 import time
 import tarfile
@@ -37,7 +37,9 @@ import six
 if six.PY3:
     long = int
 
+
 class Archive(object):
+    """Abstract base class for archives."""
 
     @classmethod
     def archive_type(class_):
@@ -48,20 +50,26 @@ class Archive(object):
     log = logging.getLogger("sos")
 
     _name = "unset"
+    _debug = False
 
-    def _format_msg(self,msg):
+    def _format_msg(self, msg):
         return "[archive:%s] %s" % (self.archive_type(), msg)
+
+    def set_debug(self, debug):
+        self._debug = debug
 
     def log_error(self, msg):
         self.log.error(self._format_msg(msg))
 
-    def log_warn(self,msg):
+    def log_warn(self, msg):
         self.log.warning(self._format_msg(msg))
 
     def log_info(self, msg):
         self.log.info(self._format_msg(msg))
 
     def log_debug(self, msg):
+        if not self._debug:
+            return
         self.log.debug(self._format_msg(msg))
 
     # this is our contract to clients of the Archive class hierarchy.
@@ -77,6 +85,9 @@ class Archive(object):
         raise NotImplementedError
 
     def add_dir(self, path):
+        raise NotImplementedError
+
+    def add_node(self, path, mode, device):
         raise NotImplementedError
 
     def get_tmp_dir(self):
@@ -102,12 +113,14 @@ class Archive(object):
         """Finalize an archive object via method. This may involve creating
         An archive that is subsequently compressed or simply closing an
         archive that supports in-line handling. If method is automatic then
-        the following technologies are tried in order: xz, bz2 and gzip"""
+        the following methods are tried in order: xz, bz2 and gzip"""
 
         self.close()
 
 
 class FileCacheArchive(Archive):
+    """ Abstract superclass for archive types that use a temporary cache
+    directory in the file system. """
 
     _tmp_dir = ""
     _archive_root = ""
@@ -119,7 +132,7 @@ class FileCacheArchive(Archive):
         self._archive_root = os.path.join(tmpdir, name)
         os.makedirs(self._archive_root, 0o700)
         self.log_info("initialised empty FileCacheArchive at '%s'" %
-                       (self._archive_root,))
+                      (self._archive_root,))
 
     def dest_path(self, name):
         if os.path.isabs(name):
@@ -141,7 +154,7 @@ class FileCacheArchive(Archive):
         try:
             shutil.copy(src, dest)
         except IOError as e:
-            self.log_debug("caught '%s' copying '%s'" % (e, src))
+            self.log_info("caught '%s' copying '%s'" % (e, src))
         try:
             shutil.copystat(src, dest)
         except OSError:
@@ -164,8 +177,9 @@ class FileCacheArchive(Archive):
         if os.path.exists(src):
             try:
                 shutil.copystat(src, dest)
-            except OSError:
-                pass
+            except OSError as e:
+                self.log_error(
+                    "Unable to add '%s' to FileCacheArchive: %s" % (dest, e))
         self.log_debug("added string at '%s' to FileCacheArchive '%s'"
                        % (src, self._archive_root))
 
@@ -179,6 +193,13 @@ class FileCacheArchive(Archive):
 
     def add_dir(self, path):
         self.makedirs(path)
+
+    def add_node(self, path, mode, device):
+        dest = self.dest_path(path)
+        self._check_path(dest)
+        if not os.path.exists(dest):
+            os.mknod(dest, mode, device)
+            shutil.copystat(path, dest)
 
     def _makedirs(self, path, mode=0o700):
         os.makedirs(path, mode)
@@ -202,15 +223,18 @@ class FileCacheArchive(Archive):
         shutil.rmtree(self._archive_root)
 
     def finalize(self, method):
-        self.log_info("finalizing archive '%s'" % self._archive_root)
+        self.log_info("finalizing archive '%s' using method '%s'"
+                      % (self._archive_root, method))
         self._build_archive()
         self.cleanup()
         self.log_info("built archive at '%s' (size=%d)" % (self._archive_name,
-                       os.stat(self._archive_name).st_size))
+                      os.stat(self._archive_name).st_size))
+        self.method = method
         return self._compress()
 
 
 class TarFileArchive(FileCacheArchive):
+    """ archive class using python TarFile to create tar archives"""
 
     method = None
     _with_selinux_context = False
@@ -298,11 +322,13 @@ class TarFileArchive(FileCacheArchive):
 
 
 class ZipFileArchive(Archive):
+    """ archive class using python ZipFile to create zip archives """
 
     def __init__(self, name):
         self._name = name
         try:
             import zlib
+            assert zlib
             self.compression = zipfile.ZIP_DEFLATED
         except:
             self.compression = zipfile.ZIP_STORED

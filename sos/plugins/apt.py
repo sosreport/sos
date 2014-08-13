@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, UbuntuPlugin, DebianPlugin
 
+
 class Apt(Plugin, DebianPlugin, UbuntuPlugin):
     """ Apt Plugin
     """
@@ -23,7 +24,9 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'apt'
 
     def setup(self):
-        self.add_copy_specs(["/etc/apt", "/var/log/apt"])
+        self.add_copy_specs([
+            "/etc/apt", "/var/log/apt"
+        ])
 
         self.add_cmd_outputs([
             "apt-get check",

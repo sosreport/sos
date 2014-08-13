@@ -1,5 +1,6 @@
-from sos.policies import PackageManager, Policy
+from sos.policies import Policy
 from sos.utilities import shell_out
+
 
 class OSXPolicy(Policy):
 
@@ -9,7 +10,7 @@ class OSXPolicy(Policy):
     def check(class_):
         try:
             return "Mac OS X" in shell_out("sw_vers")
-        except Exception as e:
+        except Exception:
             return False
 
 # vim: et ts=4 sw=4

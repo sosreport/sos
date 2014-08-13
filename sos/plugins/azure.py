@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, UbuntuPlugin
 
+
 class Azure(Plugin, UbuntuPlugin):
     """ Microsoft Azure Client Plugin
     """
@@ -24,10 +25,12 @@ class Azure(Plugin, UbuntuPlugin):
     packages = ('walinuxagent',)
 
     def setup(self):
-        self.add_copy_specs(["/var/log/waagent*",
-                           "/var/lib/cloud",
-                           "/etc/default/kv-kvp-daemon-init",
-                           "/sys/module/hv_netvsc/parameters/ring_size",
-                           "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"])
+        self.add_copy_specs([
+            "/var/log/waagent*",
+            "/var/lib/cloud",
+            "/etc/default/kv-kvp-daemon-init",
+            "/sys/module/hv_netvsc/parameters/ring_size",
+            "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"
+        ])
 
 # vim: et ts=4 sw=4

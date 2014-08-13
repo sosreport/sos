@@ -12,7 +12,8 @@ notifications:
       - "us.freenode.net#sosreport"
     on_success: change
 install:
-  - "pip install six nose nose-cov --use-mirrors"
+  - "pip install six nose nose-cov pep8 --use-mirrors"
   - "python setup.py install"
 script:
+  - "pep8 sos"
   - "nosetests -v --with-cover --cover-package=sos --cover-html"

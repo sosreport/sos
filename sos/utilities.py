@@ -1,35 +1,24 @@
-### This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2 of the License, or
-## (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-# pylint: disable-msg = R0902
-# pylint: disable-msg = R0904
-# pylint: disable-msg = W0702
-# pylint: disable-msg = W0703
-# pylint: disable-msg = R0201
-# pylint: disable-msg = W0611
-# pylint: disable-msg = W0613
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from __future__ import with_statement
 
 import os
 import re
 import inspect
-from stat import *
-#from itertools import *
 from subprocess import Popen, PIPE, STDOUT
 import zipfile
-import tarfile
 import hashlib
 import logging
 import fnmatch
@@ -42,7 +31,6 @@ from contextlib import closing
 import six
 from six import StringIO
 
-import time
 
 def tail(filename, number_of_bytes):
     """Returns the last number_of_bytes of filename"""
@@ -64,6 +52,7 @@ def fileobj(path_or_file, mode='r'):
     else:
         return closing(path_or_file)
 
+
 def get_hash_name():
     """Returns the algorithm used when computing a hash"""
     import sos.policies
@@ -74,6 +63,7 @@ def get_hash_name():
         return name
     except:
         return 'sha256'
+
 
 def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
     """Converts a number of bytes to a shorter, more human friendly format"""
@@ -88,6 +78,7 @@ def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
         return '%.1fK' % (fn / K)
     else:
         return '%d' % bytes_
+
 
 def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
     """generator function to find files recursively. Usage:
@@ -111,8 +102,8 @@ def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
 
 
 def grep(pattern, *files_or_paths):
-    """Returns lines matched in fnames, where fnames can either be pathnames to files
-    to grep through or open file objects to grep through line by line"""
+    """Returns lines matched in fnames, where fnames can either be pathnames to
+    files to grep through or open file objects to grep through line by line"""
     matches = []
 
     for fop in files_or_paths:
@@ -121,12 +112,14 @@ def grep(pattern, *files_or_paths):
 
     return matches
 
+
 def is_executable(command):
     """Returns if a command matches an executable on the PATH"""
 
     paths = os.environ.get("PATH", "").split(os.path.pathsep)
     candidates = [command] + [os.path.join(p, command) for p in paths]
     return any(os.access(path, os.X_OK) for path in candidates)
+
 
 def sos_get_command_output(command, timeout=300, runat=None):
     """Execute a command through the system shell. First checks to see if the
@@ -137,7 +130,7 @@ def sos_get_command_output(command, timeout=300, runat=None):
                 os.chdir(runat)
             except:
                 self.log_error("failed to chdir to '%s'" % runat)
-            
+
     cmd_env = os.environ
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C'
@@ -148,8 +141,8 @@ def sos_get_command_output(command, timeout=300, runat=None):
     args = shlex.split(command)
     try:
         p = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT,
-              bufsize=-1, env = cmd_env, close_fds = True,
-              preexec_fn=_child_chdir)
+                  bufsize=-1, env=cmd_env, close_fds=True,
+                  preexec_fn=_child_chdir)
     except OSError as e:
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': ""}
@@ -162,8 +155,9 @@ def sos_get_command_output(command, timeout=300, runat=None):
     # call with shell=False for a non-existant binary will raise OSError.
     if p.returncode == 127:
         stdout = six.binary_type(b"")
-    
+
     return {'status': p.returncode, 'output': stdout.decode('utf-8')}
+
 
 def import_module(module_fqname, superclasses=None):
     """Imports the module module_fqname and returns a list of defined classes
@@ -180,11 +174,13 @@ def import_module(module_fqname, superclasses=None):
 
     return modules
 
+
 def shell_out(cmd, runat=None):
     """Shell out to an external command and return the output or the empty
     string in case of error.
     """
     return sos_get_command_output(cmd, runat=runat)['output']
+
 
 class ImporterHelper(object):
     """Provides a list of modules that can be imported in a package.
@@ -206,9 +202,9 @@ class ImporterHelper(object):
 
     def _get_plugins_from_list(self, list_):
         plugins = [self._plugin_name(plugin)
-                for plugin in list_
-                if "__init__" not in plugin
-                and plugin.endswith(".py")]
+                   for plugin in list_
+                   if "__init__" not in plugin
+                   and plugin.endswith(".py")]
         plugins.sort()
         return plugins
 
@@ -236,12 +232,12 @@ class ImporterHelper(object):
         else:
             return self._get_path_to_zip(head, tail_list)
 
-
     def _find_plugins_in_zipfile(self, path):
         try:
             path_to_zip, tail = self._get_path_to_zip(path)
             zf = zipfile.ZipFile(path_to_zip)
-            # the path will have os separators, but the zipfile will always have '/'
+            # the path will have os separators, but the zipfile will
+            # always have '/'
             tail = tail.replace(os.path.sep, "/")
             root_names = [name for name in zf.namelist() if tail in name]
             candidates = self._get_plugins_from_list(root_names)
@@ -254,7 +250,8 @@ class ImporterHelper(object):
             return []
 
     def get_modules(self):
-        "Returns the list of importable modules in the configured python package."
+        """Returns the list of importable modules in the configured python
+        package. """
         plugins = []
         for path in self.package.__path__:
             if os.path.isdir(path) or path == '':

@@ -15,9 +15,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
-from sos.utilities import sos_get_command_output
 import os
 import os.path
+from socket import gethostname
 
 
 class Pcp(Plugin, RedHatPlugin, DebianPlugin):
@@ -28,9 +28,6 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('pcp',)
 
     pcp_conffile = '/etc/pcp.conf'
-    option_list = [(
-        "all_pcplogs", "gather all logged archive files", "", False
-    )]
 
     # size-limit total PCP log data collected by default (MB)
     pcplog_totalsize = 100
@@ -77,11 +74,11 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         return True
 
     def setup(self):
-        if self.get_option("all_pcplogs"):
+        if self.get_option("all_logs"):
             self.pcplog_totalsize = 0
 
         if not self.pcp_parse_conffile():
-            self.log_warn("could not parse %s" % self.pcp_conffile)
+            self._log_warn("could not parse %s" % self.pcp_conffile)
             return
 
         # Add PCP_SYSCONF_DIR (/etc/pcp) and PCP_VAR_DIR (/var/lib/pcp/config)
@@ -118,13 +115,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # won't work for directory trees. I.e. we can't say fetch /foo/bar/
         # only if it is < 100MB. To be killed once the Plugin base class will
         # add a method for this use case via issue #281
-        ret = sos_get_command_output('hostname')
-        if ret['status'] == 0:
-            # Make sure that if output is not a string we do not barf
-            try:
-                self.pcp_hostname = ret['output'].strip()
-            except:
-                pass
+        self.pcp_hostname = gethostname()
 
         # Make sure we only add PCP_LOG_DIR/pmlogger/`hostname` if hostname
         # is set, otherwise we'd collect everything
@@ -139,12 +130,12 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
                 if os.path.isdir(path):
                     self.add_copy_spec(path)
                 else:
-                    self.log_warn("%s not found" % path)
+                    self._log_warn("%s not found" % path)
             else:
-                self.log_warn("skipped %s. Size %d bigger than %d" % (path,
-                              dirsize, max_mb_size))
+                self._log_warn("skipped %s. Size %d bigger than %d"
+                               % (path, dirsize, max_mb_size))
         else:
-            self.log_warn("pcp_hostname was not set. Skipping.")
+            self._log_warn("pcp_hostname was not set. Skipping.")
 
         self.add_copy_specs([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
@@ -152,7 +143,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             os.path.join(self.pcp_log_dir, 'NOTICES*'),
             # Collect PCP_VAR_DIR/pmns
             os.path.join(self.pcp_var_dir, 'pmns'),
-            # Also collect any other log and config files (as suggested by fche)
+            # Also collect any other log and config files
+            # (as suggested by fche)
             os.path.join(self.pcp_log_dir, '*/*.log*'),
             os.path.join(self.pcp_log_dir, '*/*/*.log*'),
             os.path.join(self.pcp_log_dir, '*/*/config*')
