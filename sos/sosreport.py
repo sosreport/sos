@@ -901,7 +901,7 @@ class SoSReport(object):
                                       self.opts.enableplugins):
             plugin_name = plugin.split(".")[0]
             if plugin_name not in self.plugin_names:
-                self.soslog.fatal('a non-existing plugin (%s) was specified'
+                self.soslog.fatal('a non-existing plugin (%s) was specified '
                                   'in the command line' % (plugin_name))
                 self._exit(1)
 
