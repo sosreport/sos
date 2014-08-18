@@ -38,12 +38,11 @@ class Rpm(Plugin, RedHatPlugin):
 
         if self.get_option("rpmq"):
             query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}'
-<<<<<<< HEAD
-            query_fmt = query_fmt + '~~%{INSTALLTIME:date}\t%{INSTALLTIME}\t%{VENDOR}\t%{BUILDHOST}\n"'
-=======
+
             query_fmt = query_fmt + \
-                '~~%{INSTALLTIME:date}\t%{INSTALLTIME}\t%{VENDOR}\n"'
->>>>>>> upstream/master
+                '~~%{INSTALLTIME:date}\t%{INSTALLTIME}\t%{VENDOR}'
+
+            query_fmt = query_fmt + '\t%{BUILDHOST}\n"'
             rpmq_cmd = "rpm --nosignature --nodigest -qa --qf=%s" % query_fmt
             filter_cmd = 'awk -F "~~" ' \
                 '"{printf \\"%-59s %s\\n\\",\$1,\$2}"|sort'
