@@ -54,6 +54,7 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         )
 
         pvs_cols = 'pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count'
+        pvs_cols = pvs_cols + ',' + 'pe_start'
         vgs_cols = 'vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count'
         vgs_cols = vgs_cols + ',' + 'vg_tags'
         lvs_cols = 'lv_tags,devices'
