@@ -30,14 +30,16 @@ class DebianPolicy(LinuxPolicy):
            It returns True or False."""
         return os.path.isfile('/etc/debian_version')
 
-    def debianVersion(self):
+    def dist_version(self):
         try:
-            fp = open("/etc/debian_version").read()
-            if "wheezy/sid" in fp:
-                return 6
-            fp.close()
+            with open('/etc/lsb-release', 'r') as fp:
+                rel_string = fp.read()
+                if "wheezy/sid" in rel_string:
+                    return 6
+                elif "jessie/sid" in rel_string:
+                    return 7
+            return False
         except:
-            pass
-        return False
+            return False
 
 # vim: et ts=4 sw=4

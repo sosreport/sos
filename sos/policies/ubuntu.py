@@ -23,4 +23,17 @@ class UbuntuPolicy(DebianPolicy):
         except:
             return False
 
+    def dist_version(self):
+        """ Returns the version stated in DISTRIB_RELEASE
+        """
+        try:
+            with open('/etc/lsb-release', 'r') as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    if "DISTRIB_RELEASE" in line:
+                        return line.split("=")[1].strip()
+            return False
+        except:
+            return False
+
 # vim: et ts=4 sw=4

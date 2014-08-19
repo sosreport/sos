@@ -128,7 +128,7 @@ No changes will be made to system configuration.
         return (os.path.isfile('/etc/redhat-release')
                 and not os.path.isfile('/etc/fedora-release'))
 
-    def rhel_version(self):
+    def dist_version(self):
         try:
             pkg = self.pkg_by_name("redhat-release") or \
                 self.all_pkgs_by_name_regex("redhat-release-.*")[-1]
