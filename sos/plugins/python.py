@@ -14,14 +14,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Python(Plugin, RedHatPlugin):
+class Python(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Python_Version information.
     """
 
     plugin_name = 'python'
 
+    packages = ('python',)
+
     def setup(self):
         self.add_cmd_output("python -V", suggest_filename="python-version")
+
+# vim: et ts=4 sw=4
