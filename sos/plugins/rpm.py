@@ -37,9 +37,9 @@ class Rpm(Plugin, RedHatPlugin):
         self.add_copy_spec("/var/log/rpmpkgs")
 
         if self.get_option("rpmq"):
-            query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}'
-            query_fmt = query_fmt + \
-                '~~%{INSTALLTIME:date}\t%{INSTALLTIME}\t%{VENDOR}\n"'
+            query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~'
+            query_fmt = query_fmt + '%{INSTALLTIME:date}\t%{INSTALLTIME}\t'
+            query_fmt = query_fmt + '%{VENDOR}\t%{BUILDHOST}\n"'
             rpmq_cmd = "rpm --nosignature --nodigest -qa --qf=%s" % query_fmt
             filter_cmd = 'awk -F "~~" ' \
                 '"{printf \\"%-59s %s\\n\\",\$1,\$2}"|sort'
