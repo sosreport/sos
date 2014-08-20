@@ -14,8 +14,6 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import glob
-import os
-
 
 class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """libvirt-related information
