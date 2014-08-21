@@ -33,10 +33,12 @@ class PostgreSQL(Plugin):
 
     tmp_dir = None
 
+    password_warn_text = " (password visible in process listings)"
+
     option_list = [
         ('pghome', 'PostgreSQL server home directory.', '', '/var/lib/pgsql'),
         ('username', 'username for pg_dump', '', 'postgres'),
-        ('password', 'password for pg_dump', '', ''),
+        ('password', 'password for pg_dump' + password_warn_text, '', ''),
         ('dbname', 'database name to dump for pg_dump', '', ''),
         ('dbhost', 'database hostname/IP (do not use unix socket)', '', ''),
         ('dbport', 'database server port number', '', '5432')
@@ -44,8 +46,12 @@ class PostgreSQL(Plugin):
 
     def pg_dump(self):
         dest_file = os.path.join(self.tmp_dir, "sos_pgdump.tar")
-        old_env_pgpassword = os.environ.get("PGPASSWORD")
-        os.environ["PGPASSWORD"] = self.get_option("password")
+        # We're only modifying this for ourself and our children so there
+        # is no need to save and restore environment variables if the user
+        # decided to pass the password on the command line.
+        if self.get_option("password") is not None:
+            os.environ["PGPASSWORD"] = self.get_option("password")
+
         if self.get_option("dbhost"):
             cmd = "pg_dump -U %s -h %s -p %s -w -f %s -F t %s" % (
                 self.get_option("username"),
@@ -60,9 +66,8 @@ class PostgreSQL(Plugin):
                 dest_file,
                 self.get_option("dbname")
             )
+
         result = self.call_ext_prog(cmd)
-        if old_env_pgpassword is not None:
-            os.environ["PGPASSWORD"] = str(old_env_pgpassword)
         if (result['status'] == 0):
             self.add_copy_spec(dest_file)
         else:
@@ -76,7 +81,7 @@ class PostgreSQL(Plugin):
 
     def setup(self):
         if self.get_option("dbname"):
-            if self.get_option("password"):
+            if self.get_option("password") or "PGPASSWORD" in os.environ:
                 self.tmp_dir = tempfile.mkdtemp()
                 self.pg_dump()
             else:
