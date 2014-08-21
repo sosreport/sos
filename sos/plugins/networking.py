@@ -105,7 +105,9 @@ class Networking(Plugin):
             "ip neigh show",
             "nmcli general status",
             "nmcli connection show",
+            "nmcli connection show active",
             "nmcli device status",
+            "nmcli device show",
             "biosdevname -d"
         ])
         ip_link_result = self.call_ext_prog("ip -o link")
