@@ -15,12 +15,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+
 """
 This module houses the i18n setup and message function. The default is to use
 gettext to internationalize messages.
 """
 
-__version__ = "3.1"
+__version__ = "3.2.0a1"
 
 import gettext
 gettext_dir = "/usr/share/locale"
@@ -33,5 +34,3 @@ def _default(msg):
     return gettext.dgettext(gettext_app, msg)
 
 _sos = _default
-
-# vim: et ts=4 sw=4
