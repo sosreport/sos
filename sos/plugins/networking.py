@@ -133,7 +133,7 @@ class Networking(Plugin):
             "nmcli --terse --fields NAME con show")
         if nmcli_con_show_result:
             for con in nmcli_con_show_result['output'].splitlines():
-                self.add_cmd_output("nmcli connection show "+con)
+                self.add_cmd_output("nmcli con show conf '%s'" % con)
 
         nmcli_dev_status_result = self.call_ext_prog(
             "nmcli --terse --fields DEVICE dev status")
