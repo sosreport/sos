@@ -15,8 +15,11 @@
 
 """ sos entry point. """
 
-from sos.sosreport import main
 import sys
+try:
+    from sos.sosreport import main
+except KeyboardInterrupt:
+    raise SystemExit()
 
 if __name__ == '__main__':
     main(sys.argv[1:])
