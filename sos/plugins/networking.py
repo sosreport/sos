@@ -124,7 +124,10 @@ class Networking(Plugin):
         brctl_file = self.get_cmd_output_now("brctl show")
         if brctl_file:
             for br_name in self.get_bridge_name(brctl_file):
-                self.add_cmd_output("brctl showstp "+br_name)
+                self.add_cmd_outputs([
+                    "brctl showstp "+br_name,
+                    "brctl showmacs "+br_name
+                ])
 
         nmcli_con_show_result = self.call_ext_prog(
             "nmcli --terse --fields NAME con show")
