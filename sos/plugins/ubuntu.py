@@ -15,22 +15,22 @@
 from sos.plugins import Plugin, UbuntuPlugin
 
 
-class UbuntuSupportStatus(Plugin, UbuntuPlugin):
-    """ Ubuntu-support-status Show packages support status
+class Ubuntu(Plugin, UbuntuPlugin):
+    """ Ubuntu specific information
     """
 
-    plugin_name = 'ubuntu_support_status'
+    plugin_name = 'ubuntu'
 
     option_list = [
-        ('show-all',
+        ('support-show-all',
          'Show all packages with their status', '', False),
     ]
 
     def setup(self):
         cmd = ["ubuntu-support-status"]
 
-        if self.get_option('show-all'):
+        if self.get_option('support-show-all'):
             cmd.append("--show-all")
 
         self.add_cmd_output(" ".join(cmd),
-                            suggest_filename=self.plugin_name)
+                            suggest_filename='ubuntu-support-status.txt')
