@@ -32,10 +32,12 @@ class pgsql(sos.plugintools.PluginBase):
 
     packages = [ 'postgresql' ]
 
+    password_warn_text = " (password visible in process listings)"
+
     optionList = [
         ("pghome",  'PostgreSQL server home directory (default=/var/lib/pgsql)', '', __pghome),
         ("username",  'username for pg_dump (default=postgres)', '', False),
-        ("password",  'password for pg_dump (default=None)', '', False),
+        ('password', 'password for pg_dump' + password_warn_text, '', False),
         ("dbname",  'database name to dump for pg_dump (default=None)', '', False),
         ("dbhost",  'hostname/IP of the server upon which the DB is running (default=localhost)', '', False),
         ("dbport",  'database server port number (default=5432)', '', False)
@@ -48,8 +50,13 @@ class pgsql(sos.plugintools.PluginBase):
             os.makedirs(dest_dir)
         except:
             self.soslog.error("could not create pg_dump output path %s" % dest_dir)
-        old_env_pgpassword = os.environ.get("PGPASSWORD")
-        os.environ["PGPASSWORD"] = "%s" % (self.getOption("password"))
+
+        # We're only modifying this for ourself and our children so there
+        # is no need to save and restore environment variables if the user
+        # decided to pass the password on the command line.
+        if self.getOption("password") is not False:
+            os.environ["PGPASSWORD"] = self.getOption("password")
+
         if self.getOption("dbhost"):
             (status, output, rtime) = self.callExtProg("pg_dump -U %s -h %s -p %s -w -f %s -F t %s" %
                                            (self.__username,
@@ -63,8 +70,6 @@ class pgsql(sos.plugintools.PluginBase):
                                                         dest_file,
                                                         self.getOption("dbname")))
 
-        if old_env_pgpassword is not None:
-            os.environ["PGPASSWORD"] = str(old_env_pgpassword)
         if status != 0:
             self.soslog.error("unable to execute pg_dump.  Error(%s)" % (output))
 
@@ -89,7 +94,7 @@ class pgsql(sos.plugintools.PluginBase):
                 # dbname must have a value
                 self.soslog.warn("pgsql.dbname requires a database name")
                 return
-            if self.getOption("password") != False:
+            if self.getOption("password") or "PGPASSWORD" in os.environ:
                 if self.getOption("username"):
                     if self.getOption("username") == True:
                         self.soslog.warn("pgsql.username requires a user name")
