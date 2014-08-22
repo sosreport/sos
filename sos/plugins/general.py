@@ -27,7 +27,6 @@ class General(Plugin):
             "/proc/stat",
             "/var/log/pm/suspend.log",
             "/etc/hostid",
-            "/var/lib/dbus/machine-id",
             "/etc/localtime",
             "/etc/os-release"
         ])
