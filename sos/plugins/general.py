@@ -36,11 +36,6 @@ class General(Plugin):
         self.add_cmd_output("date", root_symlink="date")
         self.add_cmd_output("uptime", root_symlink="uptime")
 
-        self.add_cmd_outputs([
-            "tree /var/lib",
-            "ls -lR /var/lib"
-        ])
-
 
 class RedHatGeneral(General, RedHatPlugin):
     """Basic system information for RedHat based distributions"""
