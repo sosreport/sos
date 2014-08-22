@@ -20,7 +20,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackKeystone(Plugin):
     """openstack keystone related information
     """
-    plugin_name = "openstack-keystone"
+    plugin_name = "openstack_keystone"
 
     option_list = [("log", "gathers openstack keystone logs", "slow", True),
                    ("nopw", "dont gathers keystone passwords", "slow", True)]

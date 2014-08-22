@@ -19,7 +19,7 @@ class UbuntuSupportStatus(Plugin, UbuntuPlugin):
     """ Ubuntu-support-status Show packages support status
     """
 
-    plugin_name = 'ubuntu-support-status'
+    plugin_name = 'ubuntu_support_status'
 
     option_list = [
         ('show-all',

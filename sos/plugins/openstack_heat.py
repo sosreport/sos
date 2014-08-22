@@ -20,7 +20,7 @@ from sos import plugins
 class OpenStackHeat(plugins.Plugin):
     """openstack related information
     """
-    plugin_name = "openstack-heat"
+    plugin_name = "openstack_heat"
 
     option_list = [("log", "gathers openstack-heat logs", "slow", False)]
 
