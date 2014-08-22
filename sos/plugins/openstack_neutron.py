@@ -51,26 +51,6 @@ class Neutron(Plugin):
         ])
 
         self.netns_dumps()
-        self.get_ovs_dumps()
-
-    def get_ovs_dumps(self):
-        # Check to see if we are using the Open vSwitch plugin. If not we
-        # should be able to skip the rest of the dump.
-        ovs_conf_check = self.call_ext_prog(
-            'grep "^core_plugin.*openvswitch" ' +
-            ("/etc/%s/*.conf" + self.component_name))
-        if not (ovs_conf_check['status'] == 0):
-            return
-        if len(ovs_conf_check['output'].splitlines()) == 0:
-            return
-
-        # The '-s' option enables dumping of packet counters on the
-        # ports.
-        self.add_cmd_output("ovs-dpctl -s show")
-
-        # The '-t 5' adds an upper bound on how long to wait to connect
-        # to the Open vSwitch server, avoiding hangs when running sosreport.
-        self.add_cmd_output("ovs-vsctl -t 5 show")
 
     def netns_dumps(self):
         # It would've been beautiful if we could get parts of the networking
