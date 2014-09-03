@@ -38,7 +38,7 @@ class PostgreSQL(Plugin):
     option_list = [
         ('pghome', 'PostgreSQL server home directory.', '', '/var/lib/pgsql'),
         ('username', 'username for pg_dump', '', 'postgres'),
-        ('password', 'password for pg_dump' + password_warn_text, '', ''),
+        ('password', 'password for pg_dump' + password_warn_text, '', False),
         ('dbname', 'database name to dump for pg_dump', '', ''),
         ('dbhost', 'database hostname/IP (do not use unix socket)', '', ''),
         ('dbport', 'database server port number', '', '5432')
@@ -49,7 +49,7 @@ class PostgreSQL(Plugin):
         # We're only modifying this for ourself and our children so there
         # is no need to save and restore environment variables if the user
         # decided to pass the password on the command line.
-        if self.get_option("password") is not None:
+        if self.get_option("password") is not False:
             os.environ["PGPASSWORD"] = self.get_option("password")
 
         if self.get_option("dbhost"):
