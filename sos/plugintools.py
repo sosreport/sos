@@ -365,11 +365,13 @@ class PluginBase:
             cursize += os.stat(flog)[ST_SIZE]
             if sizelimit and cursize > sizelimit:
                 limit_reached = True
+                break
             else:
                 self.addCopySpec(flog)
-            if limit_reached and tailit:
-                self.collectExtOutput("tail -c%d %s" % (sizelimit, flog),
-                    "tail_" + os.path.basename(flog), flog[1:])
+        if limit_reached and tailit:
+            tail_cmd = "tail -c%d %s" % (sizelimit, flog)
+            tail_out = "tail_" + os.path.basename(flog)
+            self.collectExtOutput(tail_cmd, tail_out, flog[1:])
 
     def addCopySpecs(self, copyspecs):
         if isinstance(copyspecs, basestring):
