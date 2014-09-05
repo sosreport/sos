@@ -103,6 +103,7 @@ class Networking(Plugin):
             "ip mroute show",
             "ip maddr show",
             "ip neigh show",
+            "ip netns",
             "nmcli general status",
             "nmcli connection show",
             "nmcli connection show active",
