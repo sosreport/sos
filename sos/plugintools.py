@@ -223,7 +223,7 @@ class PluginBase:
 
             # make sure the dst dir exists
             if not (os.path.exists(os.path.dirname(dstslname)) and os.path.isdir(os.path.dirname(dstslname))):
-                os.makedirs(os.path.dirname(dstslname))
+                self.__copydirs(os.path.dirname(srcpath), self.cInfo['dstroot'])
 
             self.soslog.debug("creating symlink %s -> %s" % (dstslname, rpth))
 
