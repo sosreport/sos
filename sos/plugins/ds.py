@@ -54,7 +54,7 @@ class ds(sos.plugintools.PluginBase):
                     certpath = os.path.join("/etc/dirsrv", d)
                     self.collectExtOutput("certutil -L -d %s" % certpath)
         except:
-            self.log_warn("could not list /etc/dirsrv")
+            self.soslog.warn("could not list /etc/dirsrv")
 
         if not self.check_version():
             self.addAlert("Directory Server not found.")
