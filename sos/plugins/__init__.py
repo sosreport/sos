@@ -244,12 +244,11 @@ class Plugin(object):
         absdest = os.path.normpath(dest)
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
-                reldest = os.path.relpath(linkdest,
-                                          os.path.dirname(srcpath))
-                self._log_debug("made link target '%s' relative as '%s'"
-                                % (linkdest, reldest))
+            reldest = os.path.relpath(linkdest, os.path.dirname(srcpath))
+            self._log_debug("made link target '%s' relative as '%s'"
+                            % (linkdest, reldest))
         else:
-                reldest = linkdest
+            reldest = linkdest
 
         self._log_debug("copying link '%s' pointing to '%s' with isdir=%s"
                         % (srcpath, linkdest, os.path.isdir(absdest)))
