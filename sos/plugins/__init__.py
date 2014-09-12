@@ -595,8 +595,8 @@ class Plugin(object):
 
     def _collect_copy_specs(self):
         for path in self.copy_paths:
-                self._log_info("collecting path '%s'" % path)
-                self._do_copy_path(path)
+            self._log_info("collecting path '%s'" % path)
+            self._do_copy_path(path)
 
     def _collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
