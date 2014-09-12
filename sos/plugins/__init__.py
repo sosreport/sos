@@ -25,8 +25,6 @@ import glob
 import re
 import stat
 from time import time
-# FIXME: Is itertools still used here?
-from itertools import *
 import logging
 import fnmatch
 
