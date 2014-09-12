@@ -28,11 +28,17 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             "/etc/apt", "/var/log/apt"
         ])
 
+        shell_cmd = "sh -c '%s'" % (
+            "dpkg -l | grep ^ii |"
+            "cut -d \" \" -f3 |"
+            "xargs apt-cache policy"
+            )
         self.add_cmd_outputs([
             "apt-get check",
             "apt-config dump",
             "apt-cache stats",
-            "apt-cache policy"
+            "apt-cache policy",
+            shell_cmd
         ])
 
 # vim: et ts=4 sw=4
