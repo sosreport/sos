@@ -479,7 +479,7 @@ class Plugin(object):
         sosreport and check the return code. Return True for a return code of 0
         and False otherwise.
         """
-        return (self.call_ext_prog(prog)['status'] == 0)
+        return self.call_ext_prog(prog)['status'] == 0
 
     def add_cmd_outputs(self, cmds, timeout=300, runat=None):
         """Run a list of programs and collect the output"""
