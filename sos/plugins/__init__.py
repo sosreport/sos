@@ -553,7 +553,7 @@ class Plugin(object):
         """
         start = time()
         result = self.get_command_output(exe, timeout=timeout, runat=runat)
-        if (result['status'] == 127):
+        if result['status'] == 127:
             return None
         self._log_debug("collected output of '%s' in %s"
                         % (exe.split()[0], time() - start))
