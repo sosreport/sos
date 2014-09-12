@@ -95,6 +95,7 @@ class Plugin(object):
     version = 'unversioned'
     packages = ()
     files = ()
+    archive = None
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
