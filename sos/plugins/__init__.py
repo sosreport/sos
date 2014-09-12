@@ -152,7 +152,7 @@ class Plugin(object):
 
     def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
-        return (self.policy().pkg_by_name(package_name) is not None)
+        return self.policy().pkg_by_name(package_name) is not None
 
     def do_cmd_output_sub(self, cmd, regexp, subst):
         '''Apply a regexp substitution to command output archived by sosreport.
