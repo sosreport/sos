@@ -85,7 +85,7 @@ class Ovirt(Plugin, RedHatPlugin):
         # Copy engine config files.
         self.add_copy_specs([
             "/etc/ovirt-engine",
-            "/etc/rhevm",
+            "/etc/rhevm/",
             "/etc/ovirt-engine-dwh",
             "/var/log/ovirt-engine",
             "/var/log/ovirt-engine-dwh",
