@@ -164,10 +164,10 @@ class Ovirt(Plugin, RedHatPlugin):
             sensitive_keys = keys_opt
         key_list = [x for x in sensitive_keys.split(':') if x]
         for key in key_list:
-                self.do_path_regex_sub(
-                    self.DB_PASS_FILES,
-                    r'{key}=(.*)'.format(key=key),
-                    r'{key}=********'.format(key=key)
-                )
+            self.do_path_regex_sub(
+                self.DB_PASS_FILES,
+                r'{key}=(.*)'.format(key=key),
+                r'{key}=********'.format(key=key)
+            )
 
 # vim: expandtab tabstop=4 shiftwidth=4
