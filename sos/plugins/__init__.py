@@ -694,7 +694,7 @@ class Plugin(object):
             for afile in self.copied_files:
                 html = html + '<li><a href="%s">%s</a>' % \
                     (".." + afile['dstpath'], afile['srcpath'])
-                if (afile['symlink'] == "yes"):
+                if afile['symlink'] == "yes":
                     html = html + " (symlink to %s)" % afile['pointsto']
                 html = html + '</li>\n'
             html = html + "</ul></p>\n"
@@ -722,7 +722,7 @@ class Plugin(object):
             html = html + "</ul></p>\n"
 
         # Custom Text
-        if (self.custom_text != ""):
+        if self.custom_text != "":
             html = html + "<p>Additional Information:<br>\n"
             html = html + self.custom_text + "</p>\n"
 
