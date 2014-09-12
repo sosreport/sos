@@ -28,7 +28,7 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             "/etc/apt", "/var/log/apt"
         ])
 
-        shell_cmd = "sh -c '%s'" % (
+        apt_cache_policy_ext = "sh -c '%s'" % (
             "dpkg -l | grep ^ii |"
             "cut -d \" \" -f3 |"
             "xargs apt-cache policy"
@@ -38,7 +38,7 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             "apt-config dump",
             "apt-cache stats",
             "apt-cache policy",
-            shell_cmd
+            apt_cache_policy_ext
         ])
 
 # vim: et ts=4 sw=4
