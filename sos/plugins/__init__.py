@@ -331,7 +331,7 @@ class Plugin(object):
         self._log_debug("copying path '%s' to archive:'%s'" % (srcpath, dest))
 
         # if not readable(srcpath)
-        if not (st.st_mode & 0o444):
+        if not st.st_mode & 0o444:
             # FIXME: reflect permissions in archive
             self.archive.add_string("", dest)
         else:
