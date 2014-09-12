@@ -87,6 +87,7 @@ class Ovirt(Plugin, RedHatPlugin):
             "/etc/ovirt-engine",
             "/etc/rhevm/",
             "/etc/ovirt-engine-dwh",
+            "/etc/ovirt-engine-reports",
             "/var/log/ovirt-engine",
             "/var/log/ovirt-engine-dwh",
             "/var/log/ovirt-engine-reports",
