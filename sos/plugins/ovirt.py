@@ -99,7 +99,9 @@ class Ovirt(Plugin, RedHatPlugin):
             "/var/lib/ovirt-engine/setup-history.txt",
             "/var/lib/ovirt-engine/setup/answers",
             "/var/lib/ovirt-engine/external_truststore",
-            "/var/tmp/ovirt-engine/config"
+            "/var/tmp/ovirt-engine/config",
+            "/var/lib/ovirt-engine/jboss_runtime/config",
+            "/var/lib/ovirt-engine-reports/jboss_runtime/config"
         ])
 
     def postproc(self):
