@@ -44,7 +44,7 @@ def regex_findall(regex, fname):
         return []
 
 
-def mangle_command(command):
+def _mangle_command(command):
     # FIXME: this can be improved
     mangledname = re.sub(r"^/(usr/|)(bin|sbin)/", "", command)
     mangledname = re.sub(r"[^\w\-\.\/]+", "_", mangledname)
@@ -236,7 +236,7 @@ class Plugin(object):
     def do_regex_find_all(self, regex, fname):
         return regex_findall(regex, fname)
 
-    def copy_symlink(self, srcpath):
+    def _copy_symlink(self, srcpath):
         # the target stored in the original symlink
         linkdest = os.readlink(srcpath)
         dest = os.path.join(os.path.dirname(srcpath), linkdest)
@@ -262,21 +262,21 @@ class Plugin(object):
             return
 
         # copy the symlink target translating relative targets
-        # to absolute paths to pass to do_copy_path.
+        # to absolute paths to pass to _do_copy_path.
         self._log_debug("normalized link target '%s' as '%s'"
                         % (linkdest, absdest))
-        self.do_copy_path(absdest)
+        self._do_copy_path(absdest)
 
         self.copied_files.append({'srcpath': srcpath,
                                   'dstpath': srcpath,
                                   'symlink': "yes",
                                   'pointsto': linkdest})
 
-    def copy_dir(self, srcpath):
+    def _copy_dir(self, srcpath):
         for afile in os.listdir(srcpath):
             self._log_debug("recursively adding '%s' from '%s'"
                             % (afile, srcpath))
-            self.do_copy_path(os.path.join(srcpath, afile), dest=None)
+            self._do_copy_path(os.path.join(srcpath, afile), dest=None)
 
     def _get_dest_for_srcpath(self, srcpath):
         for copied in self.copied_files:
@@ -284,22 +284,22 @@ class Plugin(object):
                 return copied["dstpath"]
         return None
 
-    def is_forbidden_path(self, path):
+    def _is_forbidden_path(self, path):
         return _path_in_path_list(path, self.forbidden_paths)
 
-    def copy_node(self, path, st):
+    def _copy_node(self, path, st):
         dev_maj = os.major(st.st_rdev)
         dev_min = os.minor(st.st_rdev)
         mode = st.st_mode
         self.archive.add_node(path, mode, os.makedev(dev_maj, dev_min))
 
     # Methods for copying files and shelling out
-    def do_copy_path(self, srcpath, dest=None):
+    def _do_copy_path(self, srcpath, dest=None):
         '''Copy file or directory to the destination tree. If a directory, then
         everything below it is recursively copied. A list of copied files are
         saved for use later in preparing a report.
         '''
-        if self.is_forbidden_path(srcpath):
+        if self._is_forbidden_path(srcpath):
             self._log_debug("skipping forbidden path '%s'" % srcpath)
             return ''
 
@@ -313,11 +313,11 @@ class Plugin(object):
             return
 
         if stat.S_ISLNK(st.st_mode):
-            self.copy_symlink(srcpath)
+            self._copy_symlink(srcpath)
             return
         else:
             if stat.S_ISDIR(st.st_mode):
-                self.copy_dir(srcpath)
+                self._copy_dir(srcpath)
                 return
 
         # handle special nodes (block, char, fifo, socket)
@@ -325,7 +325,7 @@ class Plugin(object):
             ntype = _node_type(st)
             self._log_debug("creating %s node at archive:'%s'"
                             % (ntype, srcpath))
-            self.copy_node(srcpath, st)
+            self._copy_node(srcpath, st)
             return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
@@ -456,7 +456,7 @@ class Plugin(object):
         if not (copyspec and len(copyspec)):
             self._log_warn("added null or empty copy spec")
             return False
-        copy_paths = self.expand_copy_spec(copyspec)
+        copy_paths = self._expand_copy_spec(copyspec)
         self.copy_paths.update(copy_paths)
         self._log_info("added copyspec '%s'" % copyspec)
 
@@ -519,14 +519,14 @@ class Plugin(object):
         """
         return grep(regexp, *fnames)
 
-    def mangle_command(self, exe):
-        return mangle_command(exe)
+    def _mangle_command(self, exe):
+        return _mangle_command(exe)
 
-    def make_command_filename(self, exe):
+    def _make_command_filename(self, exe):
         """The internal function to build up a filename based on a command."""
 
         outfn = os.path.join(self.commons['cmddir'], self.name(),
-                             self.mangle_command(exe))
+                             self._mangle_command(exe))
 
         # check for collisions
         if os.path.exists(outfn):
@@ -560,9 +560,9 @@ class Plugin(object):
                         % (exe.split()[0], time() - start))
 
         if suggest_filename:
-            outfn = self.make_command_filename(suggest_filename)
+            outfn = self._make_command_filename(suggest_filename)
         else:
-            outfn = self.make_command_filename(exe)
+            outfn = self._make_command_filename(exe)
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
         self.archive.add_string(result['output'], outfn)
@@ -591,15 +591,15 @@ class Plugin(object):
         """
         self.custom_text += text
 
-    def expand_copy_spec(self, copyspec):
+    def _expand_copy_spec(self, copyspec):
         return glob.glob(copyspec)
 
-    def collect_copy_specs(self):
+    def _collect_copy_specs(self):
         for path in self.copy_paths:
                 self._log_info("collecting path '%s'" % path)
-                self.do_copy_path(path)
+                self._do_copy_path(path)
 
-    def collect_cmd_output(self):
+    def _collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
             prog, suggest_filename, root_symlink, timeout, runat = progs[0]
             self._log_debug("unpacked command tuple: "
@@ -609,7 +609,7 @@ class Plugin(object):
                                     root_symlink=root_symlink,
                                     timeout=timeout, runat=runat)
 
-    def collect_strings(self):
+    def _collect_strings(self):
         for string, file_name in self.copy_strings:
             content = "..." + (string.splitlines()[0]).decode('utf8')
             self._log_info("collecting string '%s' as '%s'"
@@ -626,9 +626,9 @@ class Plugin(object):
     def collect(self):
         """Collect the data for a plugin."""
         start = time()
-        self.collect_copy_specs()
-        self.collect_cmd_output()
-        self.collect_strings()
+        self._collect_copy_specs()
+        self._collect_cmd_output()
+        self._collect_strings()
         fields = (self.name(), time() - start)
         self._log_debug("collected plugin '%s' in %s" % fields)
 

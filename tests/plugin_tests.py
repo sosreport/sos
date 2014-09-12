@@ -9,7 +9,7 @@ try:
 except:
     from io import StringIO
 
-from sos.plugins import Plugin, regex_findall, mangle_command
+from sos.plugins import Plugin, regex_findall, _mangle_command
 from sos.archive import TarFileArchive, ZipFileArchive
 import sos.policies
 
@@ -115,12 +115,12 @@ class PluginToolTests(unittest.TestCase):
         self.assertEquals(matches, [])
 
     def test_mangle_command(self):
-        self.assertEquals("foo", mangle_command("/usr/bin/foo"))
-        self.assertEquals("foo_-x", mangle_command("/usr/bin/foo -x"))
-        self.assertEquals("foo_--verbose", mangle_command("/usr/bin/foo --verbose"))
-        self.assertEquals("foo_.path.to.stuff", mangle_command("/usr/bin/foo /path/to/stuff"))
+        self.assertEquals("foo", _mangle_command("/usr/bin/foo"))
+        self.assertEquals("foo_-x", _mangle_command("/usr/bin/foo -x"))
+        self.assertEquals("foo_--verbose", _mangle_command("/usr/bin/foo --verbose"))
+        self.assertEquals("foo_.path.to.stuff", _mangle_command("/usr/bin/foo /path/to/stuff"))
         expected = "foo_.path.to.stuff.this.is.very.long.and.i.only.expect.part.of.it.maybe.this.is.enough.i.hope.so"[0:64]
-        self.assertEquals(expected, mangle_command("/usr/bin/foo /path/to/stuff/this/is/very/long/and/i/only/expect/part/of/it/maybe/this/is/enough/i/hope/so"))
+        self.assertEquals(expected, _mangle_command("/usr/bin/foo /path/to/stuff/this/is/very/long/and/i/only/expect/part/of/it/maybe/this/is/enough/i/hope/so"))
 
 
 class PluginTests(unittest.TestCase):
@@ -194,11 +194,11 @@ class PluginTests(unittest.TestCase):
         self.assertEquals(p.get_option_as_list("opt"), ['testing'])
 
     def test_copy_dir(self):
-        self.mp.do_copy_path("tests")
+        self.mp._do_copy_path("tests")
         self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'tests/plugin_tests.py')
 
     def test_copy_dir_bad_path(self):
-        self.mp.do_copy_path("not_here_tests")
+        self.mp._do_copy_path("not_here_tests")
         self.assertEquals(self.mp.archive.m, {})
 
     def test_copy_dir_forbidden_path(self):
@@ -207,7 +207,7 @@ class PluginTests(unittest.TestCase):
         })
         p.archive = MockArchive()
         p.setup()
-        p.do_copy_path("tests")
+        p._do_copy_path("tests")
         self.assertEquals(p.archive.m, {})
 
 
