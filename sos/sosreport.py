@@ -567,6 +567,7 @@ class SoSReport(object):
         self.global_plugin_options = {}
         self.archive = None
         self.tempfile_util = None
+        self._args = args
 
         try:
             import signal
@@ -1005,6 +1006,8 @@ class SoSReport(object):
         self._exit(1)
 
     def setup(self):
+        msg = "[%s:%s] executing 'sosreport %s'"
+        self.soslog.info(msg % (__name__, "setup", " ".join(self._args)))
         self.ui_log.info(_(" Setting up plugins ..."))
         for plugname, plug in self.loaded_plugins:
             try:
