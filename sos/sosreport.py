@@ -729,18 +729,22 @@ class SoSReport(object):
     def _finish_logging(self):
         logging.shutdown()
 
-        # the logging module seems to persist in the jython/jboss/eap world
-        # so the handlers need to be removed
-        for logger in [logging.getLogger(x) for x in ('sos', 'sos_ui')]:
-            for h in logger.handlers:
-                logger.removeHandler(h)
-
+        # Make sure the log files are added before we remove the log
+        # handlers. This prevents "No handlers could be found.." messages
+        # from leaking to the console when running in --quiet mode when
+        # Archive classes attempt to acess the log API.
         if getattr(self, "sos_log_file", None):
             self.archive.add_file(self.sos_log_file.name,
                                   dest=os.path.join('sos_logs', 'sos.log'))
         if getattr(self, "sos_ui_log_file", None):
             self.archive.add_file(self.sos_ui_log_file.name,
                                   dest=os.path.join('sos_logs', 'ui.log'))
+
+        # the logging module seems to persist in the jython/jboss/eap world
+        # so the handlers need to be removed
+        for logger in [logging.getLogger(x) for x in ('sos', 'sos_ui')]:
+            for h in logger.handlers:
+                logger.removeHandler(h)
 
     def _get_disabled_plugins(self):
         disabled = []
