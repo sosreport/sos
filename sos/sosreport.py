@@ -740,12 +740,6 @@ class SoSReport(object):
             self.archive.add_file(self.sos_ui_log_file.name,
                                   dest=os.path.join('sos_logs', 'ui.log'))
 
-        # the logging module seems to persist in the jython/jboss/eap world
-        # so the handlers need to be removed
-        for logger in [logging.getLogger(x) for x in ('sos', 'sos_ui')]:
-            for h in logger.handlers:
-                logger.removeHandler(h)
-
     def _get_disabled_plugins(self):
         disabled = []
         if self.config.has_option("plugins", "disable"):
@@ -1229,7 +1223,8 @@ class SoSReport(object):
         self._finish_logging()
         # package up the results for the support organization
         if not self.opts.build:
-            print(_("Creating compressed archive..."))
+            if not self.opts.quiet:
+                print(_("Creating compressed archive..."))
             # compression could fail for a number of reasons
             try:
                 final_filename = self.archive.finalize(
