@@ -25,7 +25,7 @@ class Hpasm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('hp-health',)
 
     def setup(self):
-        self.add_copy_specs("/var/log/hp-health/hpasmd.log")
+        self.add_copy_spec("/var/log/hp-health/hpasmd.log")
         self.add_cmd_outputs([
             "hpasmcli -s 'show asr'",
             "hpasmcli -s 'show server'"
