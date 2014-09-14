@@ -22,6 +22,7 @@ class SunRPC(Plugin):
     """
 
     plugin_name = "sunrpc"
+    profiles = ('system', 'storage', 'network')
     service = None
 
     def check_enabled(self):

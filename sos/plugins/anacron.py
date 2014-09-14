@@ -19,6 +19,7 @@ class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """ capture scheduled jobs information """
 
     plugin_name = 'anacron'
+    profiles = ('system',)
 
     # anacron may be provided by anacron, cronie-anacron etc.
     # just look for the configuration file which is common

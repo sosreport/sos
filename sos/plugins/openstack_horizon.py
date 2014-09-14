@@ -25,6 +25,7 @@ class OpenStackHorizon(Plugin):
     """
 
     plugin_name = "openstack_horizon"
+    profiles = ('openstack',)
     option_list = [("log", "gathers openstack horizon logs", "slow", True)]
 
     def setup(self):

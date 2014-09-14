@@ -22,6 +22,7 @@ class Autofs(Plugin):
     """
 
     plugin_name = "autofs"
+    profiles = ('storage',)
 
     files = ('/etc/sysconfig/autofs', '/etc/default/autofs')
     packages = ('autofs',)

@@ -21,6 +21,7 @@ class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = "sysvipc"
+    profiles = ('system', 'services')
 
     def setup(self):
         self.add_copy_specs([

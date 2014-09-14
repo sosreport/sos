@@ -22,6 +22,7 @@ class S390(Plugin, RedHatPlugin):
     """
 
     plugin_name = 's390'
+    profiles = ('system', 'hardware')
 
     # Check for s390 arch goes here
 

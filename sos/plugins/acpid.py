@@ -17,6 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 class Acpid(Plugin):
     plugin_name = "acpid"
+    profiles = ('hardware',)
 
 
 class RedHatAcpid(Acpid, RedHatPlugin):

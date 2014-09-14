@@ -20,6 +20,7 @@ class Yum(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'yum'
+    profiles = ('system', 'packagemanager', 'sysmgmt')
 
     files = ('/etc/yum.conf',)
     packages = ('yum',)

@@ -20,6 +20,7 @@ class Mysql(Plugin):
     """
 
     plugin_name = "mysql"
+    profiles = ('services',)
     mysql_cnf = "/etc/my.cnf"
 
     option_list = [

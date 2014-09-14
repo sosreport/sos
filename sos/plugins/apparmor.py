@@ -21,6 +21,7 @@ class Apparmor(Plugin, UbuntuPlugin):
     """
 
     plugin_name = 'apparmor'
+    profiles = ('security',)
 
     def setup(self):
         self.add_copy_specs([

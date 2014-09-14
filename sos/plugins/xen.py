@@ -23,6 +23,7 @@ class Xen(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'xen'
+    profiles = ('virt',)
 
     def determine_xen_host(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):

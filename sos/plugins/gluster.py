@@ -23,6 +23,7 @@ class Gluster(Plugin, RedHatPlugin):
     '''gluster related information'''
 
     plugin_name = 'gluster'
+    profiles = ('storage', 'virt')
 
     statedump_dir = '/tmp/glusterfs-statedumps'
     packages = ["glusterfs", "glusterfs-core"]

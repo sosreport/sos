@@ -28,6 +28,7 @@ class PostgreSQL(Plugin):
     """PostgreSQL related information"""
 
     plugin_name = "postgresql"
+    profiles = ('services',)
 
     packages = ('postgresql',)
 

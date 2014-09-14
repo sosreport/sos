@@ -25,6 +25,7 @@ class MegaCLI(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'megacli'
+    profiles = ('system', 'storage', 'hardware')
 
     def setup(self):
         if os.path.isfile("/opt/MegaRAID/MegaCli/MegaCli64"):

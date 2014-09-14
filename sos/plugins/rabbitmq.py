@@ -19,6 +19,7 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """rabbitmq related information
     """
     plugin_name = 'rabbitmq'
+    profiles = ('services',)
     files = ('/etc/rabbitmq/rabbitmq.conf',)
     packages = ('rabbitmq-server',)
 

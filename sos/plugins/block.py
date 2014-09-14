@@ -21,6 +21,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'block'
+    profiles = ('storage', 'hardware')
 
     def setup(self):
         self.add_copy_spec("/proc/partitions")

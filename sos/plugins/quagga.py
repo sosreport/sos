@@ -22,6 +22,7 @@ class Quagga(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'quagga'
+    profiles = ('network',)
 
     files = ('/etc/quagga/zebra.conf',)
     packages = ('quagga',)

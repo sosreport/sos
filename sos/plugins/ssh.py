@@ -22,6 +22,7 @@ class Ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'ssh'
+    profiles = ('services', 'security', 'identity')
 
     def setup(self):
         self.add_copy_specs([

@@ -20,6 +20,7 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
 
     plugin_name = 'scsi'
+    profiles = ('storage', 'hardware')
 
     def setup(self):
         self.add_copy_specs([

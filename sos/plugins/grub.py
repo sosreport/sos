@@ -20,6 +20,7 @@ class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'grub'
+    profiles = ('boot',)
     packages = ('grub',)
 
     def setup(self):

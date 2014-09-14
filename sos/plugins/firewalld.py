@@ -22,6 +22,7 @@ class FirewallD(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'firewalld'
+    profiles = ('network',)
 
     packages = ('firewalld',)
 

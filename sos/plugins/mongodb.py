@@ -22,6 +22,7 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'mongodb'
+    profiles = ()
 
     packages = ('mongodb-server',)
     files = ('/etc/mongodb.conf',)

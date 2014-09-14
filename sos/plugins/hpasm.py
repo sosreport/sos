@@ -21,6 +21,7 @@ class Hpasm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'hpasm'
+    profiles = ('system', 'hardware')
 
     packages = ('hp-health',)
 

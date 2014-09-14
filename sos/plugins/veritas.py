@@ -21,6 +21,7 @@ class Veritas(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'veritas'
+    profiles = ('cluster', 'storage')
 
     # Information about VRTSexplorer obtained from
     # http://seer.entsupport.symantec.com/docs/243150.htm

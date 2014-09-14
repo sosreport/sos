@@ -20,6 +20,7 @@ class Satellite(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'satellite'
+    profiles = ('sysmgmt',)
     satellite = False
     proxy = False
 

@@ -21,6 +21,7 @@ class Sar(Plugin,):
     """
 
     plugin_name = 'sar'
+    profiles = ('system', 'performance')
 
     packages = ('sysstat',)
     sa_path = '/var/log/sa'

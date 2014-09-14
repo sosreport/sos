@@ -22,6 +22,7 @@ class Katello(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'katello'
+    profiles = ('sysmgmt',)
     packages = ('katello', 'katello-common', 'katello-headpin')
 
     def setup(self):

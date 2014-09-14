@@ -21,6 +21,7 @@ class Iscsi(Plugin):
     """
 
     plugin_name = "iscsi"
+    profiles = ('storage',)
 
 
 class RedHatIscsi(Iscsi, RedHatPlugin):

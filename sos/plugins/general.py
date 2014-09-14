@@ -19,6 +19,7 @@ class General(Plugin):
     """basic system information"""
 
     plugin_name = "general"
+    profiles = ('system', 'sysmgmt')
 
     def setup(self):
         self.add_copy_specs([

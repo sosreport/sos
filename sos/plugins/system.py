@@ -20,6 +20,7 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = "system"
+    profiles = ('system', 'kernel')
 
     def setup(self):
         self.add_copy_spec("/proc/sys")

@@ -20,6 +20,7 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'auditd'
+    profiles = ('system', 'security')
 
     packages = ('audit',)
 

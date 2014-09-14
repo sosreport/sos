@@ -21,6 +21,7 @@ class DistUpgrade(Plugin):
     """ Distribution upgrade data """
 
     plugin_name = "distupgrade"
+    profiles = ('system', 'sysmgmt')
 
     files = None
 

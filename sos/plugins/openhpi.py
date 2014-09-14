@@ -20,6 +20,7 @@ class OpenHPI(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'openhpi'
+    profiles = ('system', 'hardware')
 
     def setup(self):
         self.add_copy_specs([

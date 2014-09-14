@@ -20,6 +20,7 @@ class Qpid(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'qpid'
+    profiles = ('services',)
 
     packages = ('qpidd', 'qpid-cpp-server', 'qpid-tools')
 

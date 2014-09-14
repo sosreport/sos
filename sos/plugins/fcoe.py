@@ -20,6 +20,7 @@ class fcoe(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'fcoe'
+    profiles = ('storage', 'hardware')
     packages = ('fcoe-utils',)
 
     def setup(self):

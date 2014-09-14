@@ -20,6 +20,7 @@ class Vsftpd(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'vsftpd'
+    profiles = ('services',)
 
     files = ('/etc/vsftpd',)
     packages = ('vsftpd',)

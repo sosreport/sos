@@ -22,6 +22,7 @@ class KernelRT(Plugin, RedHatPlugin):
     '''
 
     plugin_name = 'kernelrt'
+    profiles = ('system', 'hardware', 'kernel')
 
     # this file exists only when the realtime kernel is booted
     # this plugin will not be called is this file does not exist

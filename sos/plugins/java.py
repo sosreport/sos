@@ -19,6 +19,7 @@ class Java(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """basic java information"""
 
     plugin_name = "java"
+    profiles = ('webserver', 'java')
 
     def setup(self):
         self.add_copy_spec("/etc/java")

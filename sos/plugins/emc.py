@@ -27,6 +27,7 @@ class Emc(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'emc'
+    profiles = ('storage', 'hardware')
 
     def about_emc(self):
         """ EMC Corporation specific information

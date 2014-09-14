@@ -21,7 +21,7 @@ class ActiveMq(Plugin, RedHatPlugin, DebianPlugin):
     """
 
     plugin_name = 'activemq'
-
+    profiles = ()
     packages = ('activemq', 'activemq-core')
     files = ('/var/log/activemq',)
 

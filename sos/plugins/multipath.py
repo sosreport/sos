@@ -20,6 +20,7 @@ class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'multipath'
+    profiles = ('system', 'storage', 'hardware')
 
     def setup(self):
         self.add_copy_specs([

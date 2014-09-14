@@ -20,6 +20,7 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'memory'
+    profiles = ('system', 'hardware')
 
     def setup(self):
         self.add_copy_specs([

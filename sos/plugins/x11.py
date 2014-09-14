@@ -20,6 +20,7 @@ class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'x11'
+    profiles = ('hardware', 'desktop')
 
     files = ('/etc/X11',)
 

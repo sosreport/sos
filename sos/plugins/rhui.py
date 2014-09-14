@@ -20,6 +20,7 @@ class Rhui(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'rhui'
+    profiles = ('sysmgmt',)
 
     rhui_debug_path = "/usr/share/rh-rhua/rhui-debug.py"
 

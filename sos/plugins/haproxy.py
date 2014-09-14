@@ -21,6 +21,7 @@ class HAProxy(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'haproxy'
+    profiles = ('webserver',)
 
     packages = ('haproxy',)
 

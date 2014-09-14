@@ -22,6 +22,7 @@ class Sssd(Plugin):
     """
 
     plugin_name = "sssd"
+    profiles = ('services', 'security', 'identity')
     packages = ('sssd',)
 
     def setup(self):

@@ -25,6 +25,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
     """
 
     plugin_name = 'pcp'
+    profiles = ('system', 'performance')
     packages = ('pcp',)
 
     pcp_conffile = '/etc/pcp.conf'

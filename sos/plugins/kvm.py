@@ -24,6 +24,7 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'kvm'
+    profiles = ('system', 'virt')
     debugfs_path = "/sys/kernel/debug"
 
     _debugfs_cleanup = False

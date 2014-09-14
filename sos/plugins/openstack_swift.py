@@ -23,6 +23,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackSwift(Plugin):
     """OpenstackSwift related information."""
     plugin_name = "openstack_swift"
+    profiles = ('openstack',)
 
     option_list = [("log", "gathers openstack-swift logs", "slow", False)]
 

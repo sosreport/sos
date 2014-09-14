@@ -20,6 +20,7 @@ class KDump(Plugin):
     """
 
     plugin_name = "kdump"
+    profiles = ('system', 'debug')
 
     def setup(self):
         self.add_copy_specs([

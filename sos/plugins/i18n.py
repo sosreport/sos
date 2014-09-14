@@ -20,6 +20,7 @@ class I18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'i18n'
+    profiles = ('system',)
 
     def setup(self):
         self.add_copy_specs([

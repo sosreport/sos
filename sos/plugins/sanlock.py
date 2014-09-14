@@ -19,6 +19,7 @@ class SANLock(Plugin):
     """sanlock-related information
     """
     plugin_name = "sanlock"
+    profiles = ('cluster', 'virt')
     packages = ["sanlock"]
 
     def setup(self):

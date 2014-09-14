@@ -20,6 +20,7 @@ class Lilo(Plugin, RedHatPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'lilo'
+    profiles = ('system', 'boot')
     packages = ('lilo',)
 
     def setup(self):

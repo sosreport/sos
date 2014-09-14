@@ -21,6 +21,7 @@ class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'dpkg'
+    profiles = ('sysmgmt', 'packagemanager')
 
     def setup(self):
         self.add_copy_spec("/var/log/dpkg.log")

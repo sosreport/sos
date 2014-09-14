@@ -19,6 +19,7 @@ class Apache(Plugin):
     """Apache related information
     """
     plugin_name = "apache"
+    profiles = ('webserver',)
 
     option_list = [
         ("log", "gathers all apache logs", "slow", False)

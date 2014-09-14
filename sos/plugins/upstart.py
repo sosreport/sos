@@ -22,6 +22,7 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'upstart'
+    profiles = ('system', 'services', 'boot')
     packages = ('upstart',)
 
     def setup(self):

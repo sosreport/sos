@@ -22,6 +22,7 @@ class Abrt(Plugin, RedHatPlugin):
     """
 
     plugin_name = "abrt"
+    profiles = ('system', 'debug')
     packages = ('abrt-cli', 'abrt-gui', 'abrt')
     files = ('/var/spool/abrt',)
 

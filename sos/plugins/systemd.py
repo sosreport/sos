@@ -22,6 +22,7 @@ class Systemd(Plugin, RedHatPlugin):
     """
 
     plugin_name = "systemd"
+    profiles = ('system', 'services', 'boot')
 
     packages = ('systemd',)
     files = ('/usr/lib/systemd/systemd',)

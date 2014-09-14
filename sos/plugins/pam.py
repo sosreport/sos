@@ -20,6 +20,7 @@ class Pam(Plugin):
     """
 
     plugin_name = "pam"
+    profiles = ('security', 'identity', 'system')
     security_libs = ""
 
     def setup(self):

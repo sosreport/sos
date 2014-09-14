@@ -23,6 +23,7 @@ class Cluster(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'cluster'
+    profiles = ('cluster',)
     option_list = [
         ("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
         ("crm_from", 'specify the start time for crm_report', 'fast', False),

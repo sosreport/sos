@@ -18,6 +18,8 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class Psacct(Plugin):
     """Process accounting related information
     """
+    plugin_name = "psacct"
+    profiles = ('system',)
 
     option_list = [("all", "collect all process accounting files",
                     "slow", False)]
@@ -28,7 +30,6 @@ class Psacct(Plugin):
 class RedHatPsacct(Psacct, RedHatPlugin):
     """Process accounting related information for RedHat based distributions
     """
-    plugin_name = "psacct"
 
     packages = ["psacct"]
 

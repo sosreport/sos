@@ -20,6 +20,7 @@ class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'md'
+    profiles = ('storage',)
 
     def setup(self):
         self.add_cmd_output("mdadm -D /dev/md*")

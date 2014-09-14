@@ -22,6 +22,7 @@ class Azure(Plugin, UbuntuPlugin):
     """
 
     plugin_name = 'azure'
+    profiles = ('virt',)
     packages = ('walinuxagent',)
 
     def setup(self):

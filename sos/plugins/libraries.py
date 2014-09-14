@@ -20,6 +20,7 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'libraries'
+    profiles = ('system',)
 
     option_list = [
         ('ldconfigv', 'collect verbose ldconfig output', "slow", False)

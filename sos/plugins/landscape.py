@@ -21,10 +21,8 @@ class Landscape(Plugin, UbuntuPlugin):
     """
 
     plugin_name = 'landscape'
-
-    files = (
-        '/etc/landscape/client.conf',
-    )
+    profiles = ('sysmgmt',)
+    files = ('/etc/landscape/client.conf',)
     packages = ('landscape-client',)
 
     def setup(self):

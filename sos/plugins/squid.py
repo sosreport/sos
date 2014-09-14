@@ -20,6 +20,7 @@ class Squid(Plugin):
     """
 
     plugin_name = 'squid'
+    profiles = ('webserver', 'services', 'sysmgmt')
 
 
 class RedHatSquid(Squid, RedHatPlugin):

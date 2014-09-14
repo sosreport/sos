@@ -20,6 +20,7 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
 
     plugin_name = "pci"
+    profiles = ('hardware', 'system')
 
     def setup(self):
         self.add_copy_specs([

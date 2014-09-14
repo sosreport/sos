@@ -20,6 +20,7 @@ class VMWare(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'vmware'
+    profiles = ('virt',)
 
     files = ('vmware', '/usr/init.d/vmware-tools')
 

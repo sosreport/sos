@@ -22,6 +22,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
 
     plugin_name = 'libvirt'
+    profiles = ('system', 'virt')
 
     def setup(self):
         libvirt_keytab = "/etc/libvirt/krb5.tab"

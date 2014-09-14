@@ -21,6 +21,7 @@ class LsbRelease(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'lsbrelease'
+    profiles = ('system',)
 
     def setup(self):
         self.add_cmd_output("lsb_release -a")

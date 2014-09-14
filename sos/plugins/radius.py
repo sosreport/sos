@@ -22,6 +22,7 @@ class Radius(Plugin):
     """
 
     plugin_name = "radius"
+    profiles = ('network', 'identity')
     packages = ('freeradius',)
 
 

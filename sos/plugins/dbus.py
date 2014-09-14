@@ -19,6 +19,7 @@ class Dbus(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """dbus information"""
 
     plugin_name = "dbus"
+    profiles = ('system',)
 
     def setup(self):
         self.add_copy_specs([

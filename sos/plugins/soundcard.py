@@ -20,6 +20,7 @@ class Soundcard(Plugin):
     """
 
     plugin_name = "soundcard"
+    profiles = ('desktop', 'hardware')
 
     def default_enabled(self):
         return False

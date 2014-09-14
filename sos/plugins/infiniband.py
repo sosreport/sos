@@ -22,6 +22,7 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'infiniband'
+    profiles = ('hardware',)
     packages = ('libibverbs-utils',)
 
     def setup(self):

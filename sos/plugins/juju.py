@@ -41,6 +41,7 @@ class Juju(Plugin, UbuntuPlugin):
     """
 
     plugin_name = 'juju'
+    profiles = ('virt', 'sysmgmt')
 
     option_list = [
         ('export-mongodb',

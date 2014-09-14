@@ -31,6 +31,7 @@ class Neutron(Plugin):
     """OpenStack Networking (quantum/neutron) related information
     """
     plugin_name = "neutron"
+    profiles = ('openstack',)
 
     option_list = [("log", "Gathers all Neutron logs", "slow", False),
                    ("quantum", "Overrides checks for newer Neutron components",

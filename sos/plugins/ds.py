@@ -24,6 +24,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'directoryserver'
+    profiles = ('identity',)
 
     files = ('/etc/dirsrv', '/opt/redhat-ds')
     packages = ('redhat-ds-base', 'redhat-ds-7')

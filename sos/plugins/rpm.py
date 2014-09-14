@@ -20,6 +20,7 @@ class Rpm(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'rpm'
+    profiles = ('system', 'packagemanager')
 
     option_list = [("rpmq", "queries for package information via rpm -q",
                     "fast", True),

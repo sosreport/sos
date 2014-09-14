@@ -20,6 +20,7 @@ class Usb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = "usb"
+    profiles = ('hardware',)
 
     def setup(self):
         self.add_copy_spec("/sys/bus/usb")

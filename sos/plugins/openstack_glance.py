@@ -23,6 +23,7 @@ from sos import plugins
 class OpenStackGlance(plugins.Plugin):
     """OpenstackGlance related information."""
     plugin_name = "openstack_glance"
+    profiles = ('openstack',)
 
     option_list = [("log", "gathers openstack-glance logs", "slow", False)]
 

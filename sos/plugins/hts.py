@@ -20,6 +20,7 @@ class HardwareTestSuite(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'hardwaretestsuite'
+    profiles = ('debug',)
 
     def setup(self):
         self.add_copy_specs([

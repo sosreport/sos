@@ -20,6 +20,7 @@ class Ctdb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Samba CTDB related information
     """
     packages = ('ctdb',)
+    profiles = ('cluster', 'storage')
     plugin_name = "ctdb"
 
     def setup(self):

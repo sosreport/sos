@@ -30,6 +30,7 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
     )
 
     plugin_name = 'ovirt_hosted_engine'
+    profiles = ('virt',)
 
     SETUP_LOG_GLOB = '/var/log/ovirt-hosted-engine-setup/*.log'
     HA_LOG_GLOB = '/var/log/ovirt-hosted-engine-ha/*.log'

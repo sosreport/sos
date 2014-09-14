@@ -20,6 +20,7 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'filesys'
+    profiles = ('storage',)
 
     option_list = [("lsof", 'gathers information on all open files', 'slow',
                     False),

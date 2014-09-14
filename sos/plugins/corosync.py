@@ -20,6 +20,7 @@ class Corosync(Plugin):
     """
 
     plugin_name = "corosync"
+    profiles = ('cluster',)
     packages = ('corosync',)
 
     def setup(self):

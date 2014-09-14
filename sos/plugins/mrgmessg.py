@@ -20,6 +20,7 @@ class MrgMessg(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'mrgmessg'
+    profiles = ()
 
     def setup(self):
         self.add_copy_specs([

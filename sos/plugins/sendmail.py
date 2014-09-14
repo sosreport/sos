@@ -22,6 +22,7 @@ class Sendmail(Plugin):
     """
 
     plugin_name = "sendmail"
+    profiles = ('services', 'mail')
 
     packages = ('sendmail',)
 

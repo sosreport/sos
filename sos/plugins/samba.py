@@ -20,6 +20,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     packages = ('samba-common',)
     plugin_name = "samba"
+    profiles = ('services',)
 
     def setup(self):
         self.add_copy_specs([

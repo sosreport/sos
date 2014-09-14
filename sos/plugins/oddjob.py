@@ -22,6 +22,7 @@ class Oddjob(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'oddjob'
+    profiles = ('services', 'sysmgmt')
 
     files = ('/etc/oddjobd.conf',)
     packages = ('oddjob',)

@@ -24,6 +24,7 @@ class OpenStackNova(Plugin):
     """openstack nova related information
     """
     plugin_name = "openstack_nova"
+    profiles = ('openstack',)
 
     option_list = [("log", "gathers openstack nova logs", "slow", True),
                    ("cmds", "gathers openstack nova commands", "slow", False)]

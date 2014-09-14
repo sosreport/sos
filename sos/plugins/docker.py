@@ -21,6 +21,7 @@ class Docker(Plugin):
     """
 
     plugin_name = 'docker'
+    profiles = ('virt',)
     docker_bin = "docker"
 
     def setup(self):

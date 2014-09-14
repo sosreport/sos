@@ -20,6 +20,7 @@ class Udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'udev'
+    profiles = ('system', 'hardware', 'boot')
 
     def setup(self):
         self.add_copy_specs([

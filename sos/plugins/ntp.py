@@ -20,6 +20,7 @@ class Ntp(Plugin):
     """
 
     plugin_name = "ntp"
+    profiles = ('system', 'services')
 
     packages = ('ntp',)
 

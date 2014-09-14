@@ -20,6 +20,7 @@ class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'nis'
+    profiles = ('identity', 'services')
 
     files = ('/var/yp',)
 

@@ -22,6 +22,7 @@ class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'nscd'
+    profiles = ('services', 'identity', 'system')
 
     files = ('/etc/nscd.conf',)
     packages = ('nscd',)

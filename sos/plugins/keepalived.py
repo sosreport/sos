@@ -21,6 +21,7 @@ class Keepalived(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'keepalived'
+    profiles = ('webserver', 'network', 'cluster')
 
     packages = ('keepalived',)
 

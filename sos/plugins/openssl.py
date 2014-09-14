@@ -22,6 +22,7 @@ class OpenSSL(Plugin):
     """
 
     plugin_name = "openssl"
+    profiles = ('network', 'security')
     packages = ('openssl',)
 
     def postproc(self):

@@ -20,6 +20,7 @@ class Logs(Plugin):
     """log data """
 
     plugin_name = "logs"
+    profiles = ('system', 'hardware')
 
     def setup(self):
         self.add_copy_specs([

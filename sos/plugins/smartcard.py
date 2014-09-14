@@ -22,6 +22,7 @@ class Smartcard(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'smartcard'
+    profiles = ('security', 'identity', 'hardware')
 
     files = ('/etc/pam_pkcs11/pam_pkcs11.conf',)
     packages = ('pam_pkcs11',)

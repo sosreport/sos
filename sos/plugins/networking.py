@@ -21,6 +21,7 @@ class Networking(Plugin):
     """network related information
     """
     plugin_name = "networking"
+    profiles = ('network', 'hardware', 'system')
     trace_host = "www.example.com"
     option_list = [("traceroute", "collects a traceroute to %s" % trace_host,
                     "slow", False)]

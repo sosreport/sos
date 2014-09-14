@@ -20,6 +20,7 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
 
     plugin_name = 'processor'
+    profiles = ('system', 'hardware')
     files = ('/proc/cpuinfo',)
     packages = ('cpufreq-utils')
 

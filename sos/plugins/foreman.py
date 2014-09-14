@@ -22,6 +22,7 @@ class Foreman(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'foreman'
+    profiles = ('sysmgmt',)
     packages = ('foreman')
 
     def setup(self):

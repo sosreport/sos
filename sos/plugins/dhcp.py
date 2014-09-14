@@ -20,6 +20,7 @@ class Dhcp(Plugin):
     """
 
     plugin_name = "dhcp"
+    profiles = ('network',)
 
 
 class RedHatDhcp(Dhcp, RedHatPlugin):

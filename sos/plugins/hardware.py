@@ -20,6 +20,7 @@ class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = "hardware"
+    profiles = ('system', 'hardware')
 
     def setup(self):
         self.add_copy_specs([

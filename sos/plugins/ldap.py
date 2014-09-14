@@ -20,6 +20,7 @@ class Ldap(Plugin):
     """
 
     plugin_name = "ldap"
+    profiles = ('identity', 'sysmgmt', 'system')
     ldap_conf = "/etc/openldap/ldap.conf"
 
     def setup(self):

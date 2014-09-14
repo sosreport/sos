@@ -20,6 +20,7 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'cups'
+    profiles = ('hardware',)
 
     packages = ('cups',)
 

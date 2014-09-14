@@ -20,6 +20,7 @@ class SELinux(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'selinux'
+    profiles = ('system', 'security')
 
     option_list = [("fixfiles", 'Print incorrect file context labels',
                     'slow', False),

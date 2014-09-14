@@ -28,6 +28,9 @@ from sos.plugins import Plugin, RedHatPlugin
 class Ovirt(Plugin, RedHatPlugin):
     """oVirt Engine related information"""
 
+    plugin_name = "ovirt"
+    profiles = ('virt',)
+
     packages = (
         'ovirt-engine',
         'ovirt-engine-dwh',
@@ -54,8 +57,6 @@ class Ovirt(Plugin, RedHatPlugin):
         'ENGINE_DB_PASSWORD:ENGINE_PKI_TRUST_STORE_PASSWORD:'
         'ENGINE_PKI_ENGINE_STORE_PASSWORD:DWH_DB_PASSWORD'
     )
-
-    plugin_name = "ovirt"
 
     option_list = [
         ('jbosstrace', 'Enable oVirt Engine JBoss stack trace collection',

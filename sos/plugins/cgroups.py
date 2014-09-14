@@ -19,9 +19,9 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
     """cgroup subsystem information
     """
 
-    files = ('/proc/cgroups',)
-
     plugin_name = "cgroups"
+    profiles = ('system',)
+    files = ('/proc/cgroups',)
 
     def setup(self):
         self.add_copy_specs([

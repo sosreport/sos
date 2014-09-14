@@ -21,6 +21,7 @@ class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
     """
 
     plugin_name = 'ipvs'
+    profiles = ('cluster', 'network')
 
     packages = ('ipvsadm',)
 

@@ -21,6 +21,7 @@ class Procenv(Plugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'procenv'
+    profiles = ('system',)
 
     def setup(self):
         self.add_cmd_output('procenv')

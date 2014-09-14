@@ -22,6 +22,7 @@ class TftpServer(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'tftpserver'
+    profiles = ('sysmgmt', 'network')
 
     files = ('/etc/xinetd.d/tftp',)
     packages = ('tftp-server',)

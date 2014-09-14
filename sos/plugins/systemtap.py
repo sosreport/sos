@@ -22,6 +22,7 @@ class SystemTap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'systemtap'
+    profiles = ('debug', 'performance')
 
     files = ('stap',)
     packages = ('systemtap', 'systemtap-runtime')

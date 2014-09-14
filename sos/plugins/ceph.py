@@ -20,6 +20,8 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'ceph'
+    profiles = ('storage', 'virt')
+
     option_list = [
         ("log", "gathers all ceph logs", "slow", False)
     ]

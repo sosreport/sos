@@ -22,6 +22,7 @@ class IPSec(Plugin):
     """
 
     plugin_name = "ipsec"
+    profiles = ('network',)
     packages = ('ipsec-tools',)
 
 

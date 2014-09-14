@@ -20,6 +20,7 @@ class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'devicemapper'
+    profiles = ('storage',)
 
     def setup(self):
         self.add_cmd_outputs([

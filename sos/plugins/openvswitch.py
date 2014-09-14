@@ -21,6 +21,7 @@ class OpenVSwitch(Plugin):
     """ OpenVSwitch related information
     """
     plugin_name = "openvswitch"
+    profiles = ('network', 'virt')
 
     def setup(self):
         # The '-s' option enables dumping of packet counters on the

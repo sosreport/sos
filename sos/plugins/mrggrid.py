@@ -20,6 +20,7 @@ class MrgGrid(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'mrggrid'
+    profiles = ()
 
     def setup(self):
         self.add_copy_specs([

@@ -21,6 +21,7 @@ class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'xfs'
+    profiles = ('storage',)
 
     option_list = [("logprint", 'gathers the log information', 'slow', False)]
 

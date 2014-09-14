@@ -18,10 +18,10 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class Pxe(Plugin):
     """PXE related information
     """
-
+    plugin_name = "pxe"
+    profiles = ('sysmgmt', 'network')
     option_list = [("tftpboot", 'gathers content from the tftpboot path',
                     'slow', False)]
-    plugin_name = "pxe"
 
 
 class RedHatPxe(Pxe, RedHatPlugin):

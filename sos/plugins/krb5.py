@@ -20,8 +20,9 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class Krb5(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Kerberos related information
     """
-    packages = ('krb5-libs', 'krb5-user')
     plugin_name = 'krb5'
+    profiles = ('identity', 'system')
+    packages = ('krb5-libs', 'krb5-user')
 
     def setup(self):
         self.add_copy_spec("/etc/krb5.conf")

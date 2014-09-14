@@ -24,6 +24,7 @@ class RedHatCobbler(Cobbler, RedHatPlugin):
     """
 
     packages = ('cobbler',)
+    profiles = ('cluster', 'sysmgmt')
 
     def setup(self):
         self.add_copy_specs([

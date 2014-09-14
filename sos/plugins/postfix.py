@@ -19,6 +19,7 @@ class Postfix(Plugin):
     """mail server related information
     """
     plugin_name = "postfix"
+    profiles = ('mail', 'services')
 
     packages = ('postfix',)
 

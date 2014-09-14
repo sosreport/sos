@@ -20,6 +20,7 @@ class Ubuntu(Plugin, UbuntuPlugin):
     """
 
     plugin_name = 'ubuntu'
+    profiles = ('system',)
 
     option_list = [
         ('support-show-all',

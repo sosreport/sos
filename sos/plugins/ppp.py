@@ -22,6 +22,7 @@ class Ppp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'ppp'
+    profiles = ('system', 'network')
 
     packages = ('ppp',)
 

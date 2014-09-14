@@ -22,6 +22,7 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'apt'
+    profiles = ('system', 'packagemanager')
 
     def setup(self):
         self.add_copy_specs([

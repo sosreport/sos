@@ -20,6 +20,7 @@ class Dovecot(Plugin):
     """
 
     plugin_name = "dovecot"
+    profiles = ('mail',)
 
     def setup(self):
         self.add_copy_spec("/etc/dovecot*")

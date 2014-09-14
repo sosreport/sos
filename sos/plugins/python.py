@@ -22,6 +22,7 @@ class Python(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'python'
+    profiles = ('system',)
 
     packages = ('python',)
 

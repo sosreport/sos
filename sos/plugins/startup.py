@@ -20,6 +20,7 @@ class Startup(Plugin):
     """
 
     plugin_name = "startup"
+    profiles = ('system', 'boot')
 
     option_list = [("servicestatus", "get a status of all running services",
                     "slow", False)]

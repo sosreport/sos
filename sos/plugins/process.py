@@ -20,6 +20,7 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'process'
+    profiles = ('system',)
 
     def setup(self):
         self.add_cmd_output("ps auxwww", root_symlink="ps")

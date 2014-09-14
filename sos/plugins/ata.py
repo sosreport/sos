@@ -21,6 +21,7 @@ class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
 
     plugin_name = "ata"
+    profiles = ('storage', 'hardware')
 
     packages = ('hdparm', 'smartmontools')
 

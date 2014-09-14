@@ -20,6 +20,7 @@ class Tomcat(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'tomcat'
+    profiles = ('webserver', 'java', 'services')
 
     packages = ('tomcat6',)
 

@@ -21,6 +21,7 @@ class Named(Plugin):
     """
 
     plugin_name = "named"
+    profiles = ('system', 'services', 'network')
     named_conf = "/etc/named.conf"
     config_files = named_conf
 

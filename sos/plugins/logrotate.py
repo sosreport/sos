@@ -20,6 +20,7 @@ class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'logrotate'
+    profiles = ('system',)
 
     def setup(self):
         self.add_cmd_output("logrotate --debug /etc/logrotate.conf",

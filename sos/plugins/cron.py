@@ -20,6 +20,7 @@ class Cron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = "cron"
+    profiles = ('system',)
 
     files = ('/etc/crontab')
 

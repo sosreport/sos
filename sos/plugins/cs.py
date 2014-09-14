@@ -26,6 +26,7 @@ class CertificateSystem(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'certificatesystem'
+    profiles = ('identity', 'security')
 
     packages = (
         "redhat-cs",

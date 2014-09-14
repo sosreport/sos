@@ -20,6 +20,7 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'lvm2'
+    profiles = ('storage',)
 
     option_list = [("lvmdump", 'collect an lvmdump tarball', 'fast', False),
                    ("lvmdump-am", 'attempt to collect an lvmdump with '

@@ -19,11 +19,12 @@ class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """dmraid related information
     """
 
+    plugin_name = 'dmraid'
+    profiles = ('hardware', 'storage')
     option_list = [
         ("metadata", "capture dmraid device metadata", "slow", False)
     ]
 
-    plugin_name = 'dmraid'
     # V - {-V/--version}
     # b - {-b|--block_devices}
     # r - {-r|--raid_devices}

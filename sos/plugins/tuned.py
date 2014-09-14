@@ -21,6 +21,7 @@ class Tuned(Plugin, RedHatPlugin):
     """Tuned related information
     """
     packages = ('tuned',)
+    profiles = ('system', 'performance')
     plugin_name = 'tuned'
 
     def setup(self):

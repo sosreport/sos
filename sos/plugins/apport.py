@@ -21,6 +21,7 @@ class Apport(Plugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'apport'
+    profiles = ()
 
     def setup(self):
         self.add_copy_spec("/etc/apport/*")

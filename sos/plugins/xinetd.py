@@ -22,6 +22,7 @@ class Xinetd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'xinetd'
+    profiles = ('services', 'network', 'boot')
 
     files = ('/etc/xinetd.conf',)
     packages = ('xinetd',)

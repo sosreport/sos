@@ -21,6 +21,7 @@ class Snmp(Plugin):
     """snmp related information
     """
     plugin_name = "snmp"
+    profiles = ('system', 'sysmgmt')
 
     files = ('/etc/snmp/snmpd.conf',)
 

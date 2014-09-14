@@ -22,6 +22,7 @@ class Maas(Plugin, UbuntuPlugin):
     """
 
     plugin_name = 'maas'
+    profiles = ('sysmgmt',)
 
     option_list = [
         ('profile-name',
