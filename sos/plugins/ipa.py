@@ -78,7 +78,7 @@ class Ipa(Plugin, RedHatPlugin):
             "klist -ket /etc/httpd/conf/ipa.keytab"
         ])
 
-        hostname = self.get_cmd_output_now('hostname')['output']
+        hostname = self.call_ext_prog('hostname')['output']
         self.add_cmd_outputs([
             "ipa-replica-manage -v list",
             "ipa-replica-manage -v list %s" % hostname
