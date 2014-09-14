@@ -19,7 +19,7 @@ class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """NFS related information
     """
     plugin_name = 'nfs'
-    profiles = ('storage', 'network')
+    profiles = ('storage', 'network', 'nfs')
     packages = ['nfs-utils']
 
     def setup(self):

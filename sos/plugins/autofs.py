@@ -22,7 +22,7 @@ class Autofs(Plugin):
     """
 
     plugin_name = "autofs"
-    profiles = ('storage',)
+    profiles = ('storage', 'nfs')
 
     files = ('/etc/sysconfig/autofs', '/etc/default/autofs')
     packages = ('autofs',)
