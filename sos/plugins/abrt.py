@@ -22,7 +22,7 @@ class Abrt(Plugin, RedHatPlugin):
     """
 
     plugin_name = "abrt"
-    packages = ('abrt-cli',)
+    packages = ('abrt-cli', 'abrt-gui', 'abrt')
     files = ('/var/spool/abrt',)
 
     option_list = [
