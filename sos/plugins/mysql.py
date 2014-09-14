@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Mysql(Plugin):
-    """MySQL and MariaDB related information
+    """MySQL and MariaDB RDBMS
     """
 
     plugin_name = "mysql"
@@ -50,8 +50,6 @@ class Mysql(Plugin):
 
 
 class RedHatMysql(Mysql, RedHatPlugin):
-    """MySQL and MariaDB information for Red Hat based distributions
-    """
 
     packages = (
         'mysql-server',
@@ -70,8 +68,6 @@ class RedHatMysql(Mysql, RedHatPlugin):
 
 
 class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
-    """MySQL and MariaDB information for Debian based distributions
-    """
 
     packages = (
         'mysql-server',

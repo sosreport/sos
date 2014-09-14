@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Systemd(Plugin, RedHatPlugin):
-    """ Information on systemd and related subsystems
+    """ System management daemon
     """
 
     plugin_name = "systemd"

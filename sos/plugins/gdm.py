@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """gdm related information
+    """GNOME display manager
     """
 
     plugin_name = 'gdm'

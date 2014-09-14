@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Dovecot(Plugin):
-    """dovecot server related information
+    """Dovecot IMAP and POP3
     """
 
     plugin_name = "dovecot"
@@ -28,7 +28,7 @@ class Dovecot(Plugin):
 
 
 class RedHatDovecot(Dovecot, RedHatPlugin):
-    """dovecot server related information for RedHat based distribution
+    """dovecot server related information
     """
     def setup(self):
         super(RedHatDovecot, self).setup()

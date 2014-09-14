@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Ipa(Plugin, RedHatPlugin):
-    """IPA diagnostic information
+    """ Identity, policy, audit
     """
 
     plugin_name = 'ipa'

@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Docker(Plugin):
-    """Docker information
+    """Docker containers
     """
 
     plugin_name = 'docker'
@@ -59,8 +59,6 @@ class RedHatDocker(Docker, RedHatPlugin):
 
 
 class UbuntuDocker(Docker, UbuntuPlugin):
-    """ Docker information on Ubuntu
-    """
 
     packages = ('docker.io',)
 

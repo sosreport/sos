@@ -20,7 +20,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Gluster(Plugin, RedHatPlugin):
-    '''gluster related information'''
+    """GlusterFS storage"""
 
     plugin_name = 'gluster'
     profiles = ('storage', 'virt')

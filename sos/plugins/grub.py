@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Grub information
+    """GRUB bootloader
     """
 
     plugin_name = 'grub'

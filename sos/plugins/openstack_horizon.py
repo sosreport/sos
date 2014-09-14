@@ -21,7 +21,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackHorizon(Plugin):
-    """openstack horizon related information
+    """OpenStack Horizon
     """
 
     plugin_name = "openstack_horizon"
@@ -35,8 +35,6 @@ class OpenStackHorizon(Plugin):
 
 
 class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
-    """OpenStack Horizon related information for Debian based distributions
-    """
 
     packages = (
         'python-django-horizon',
@@ -50,8 +48,6 @@ class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
 
 
 class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
-    """OpenStack Horizon related information for Ubuntu based distributions
-    """
 
     packages = (
         'python-django-horizon',
@@ -65,8 +61,6 @@ class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
 
 
 class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
-    """OpenStack Horizon related information for Red Hat distributions
-    """
 
     packages = (
         'python-django-horizon',

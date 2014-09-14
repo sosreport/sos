@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
-    """Ipvs information
+    """Linux IP virtual server
     """
 
     plugin_name = 'ipvs'

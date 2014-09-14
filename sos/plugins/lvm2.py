@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """lvm2 related information
+    """LVM2 volume manager
     """
 
     plugin_name = 'lvm2'

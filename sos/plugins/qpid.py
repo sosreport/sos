@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Qpid(Plugin, RedHatPlugin):
-    """Messaging related information
+    """Qpid messaging
     """
 
     plugin_name = 'qpid'

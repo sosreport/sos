@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """MD subsystem information
+    """MD RAID subsystem
     """
 
     plugin_name = 'md'

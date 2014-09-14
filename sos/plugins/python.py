@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Python(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Python_Version information.
+    """Python runtime
     """
 
     plugin_name = 'python'

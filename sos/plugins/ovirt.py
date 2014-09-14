@@ -26,7 +26,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 # Class name must be the same as file name and method names must not change
 class Ovirt(Plugin, RedHatPlugin):
-    """oVirt Engine related information"""
+    """oVirt Engine"""
 
     plugin_name = "ovirt"
     profiles = ('virt',)

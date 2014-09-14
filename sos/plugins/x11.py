@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """X related information
+    """X windowing system
     """
 
     plugin_name = 'x11'

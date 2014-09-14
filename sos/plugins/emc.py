@@ -22,8 +22,7 @@ from six.moves import input
 
 
 class Emc(Plugin, RedHatPlugin):
-    """ EMC related information (PowerPath, Solutions Enabler
-    CLI and Navisphere CLI)
+    """ EMC related information
     """
 
     plugin_name = 'emc'

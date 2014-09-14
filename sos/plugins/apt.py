@@ -18,11 +18,11 @@ from sos.plugins import Plugin, UbuntuPlugin, DebianPlugin
 
 
 class Apt(Plugin, DebianPlugin, UbuntuPlugin):
-    """ Apt Plugin
+    """ APT - advanced packaging tool
     """
 
     plugin_name = 'apt'
-    profiles = ('system', 'packagemanager')
+    profiles = ('system', 'sysmgmt', 'packagemanager')
 
     def setup(self):
         self.add_copy_specs([

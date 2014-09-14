@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 
 
 class Cluster(Plugin, RedHatPlugin):
-    """cluster suite and GFS related information
+    """Red Hat Cluster Suite and GFS
     """
 
     plugin_name = 'cluster'

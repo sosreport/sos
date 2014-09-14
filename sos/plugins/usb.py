@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Usb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """USB device related information
+    """USB devices
     """
 
     plugin_name = "usb"

@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
-    """cgroup subsystem information
+    """Control groups subsystem
     """
 
     plugin_name = "cgroups"
@@ -32,8 +32,6 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatCgroups(Cgroups, RedHatPlugin):
-    """Red Hat specific cgroup subsystem information
-    """
 
     def setup(self):
         super(RedHatCgroups, self).setup()

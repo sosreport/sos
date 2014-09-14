@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class KDump(Plugin):
-    """Kdump related information
+    """Kdump crash dumps
     """
 
     plugin_name = "kdump"
@@ -29,8 +29,6 @@ class KDump(Plugin):
 
 
 class RedHatKDump(KDump, RedHatPlugin):
-    """Kdump related information for Red Hat distributions
-    """
 
     files = ('/etc/kdump.conf',)
     packages = ('kexec-tools',)
@@ -44,8 +42,6 @@ class RedHatKDump(KDump, RedHatPlugin):
 
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
-    """Kdump related information for Debian distributions
-    """
 
     files = ('/etc/default/kdump-tools',)
     packages = ('kdump-tools',)

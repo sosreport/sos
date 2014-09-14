@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class fcoe(Plugin, RedHatPlugin):
-    """fcoe related information
+    """Fibre Channel over Ethernet
     """
 
     plugin_name = 'fcoe'

@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Quagga(Plugin, RedHatPlugin):
-    """quagga related information
+    """Quagga routing service
     """
 
     plugin_name = 'quagga'

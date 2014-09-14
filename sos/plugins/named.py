@@ -17,7 +17,7 @@ from os.path import exists, join, normpath
 
 
 class Named(Plugin):
-    """named related information
+    """BIND named server
     """
 
     plugin_name = "named"
@@ -54,8 +54,6 @@ class Named(Plugin):
 
 
 class RedHatNamed(Named, RedHatPlugin):
-    """named related information for RedHat based distribution
-    """
 
     named_conf = "/etc/named.conf"
     config_files = ("/etc/named.conf",
@@ -73,8 +71,6 @@ class RedHatNamed(Named, RedHatPlugin):
 
 
 class DebianNamed(Named, DebianPlugin, UbuntuPlugin):
-    """named related information for Debian based distribution
-    """
 
     files = ('/etc/bind/named.conf')
     packages = ('bind9',)

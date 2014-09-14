@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Lilo(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Lilo information
+    """Lilo bootloader
     """
 
     plugin_name = 'lilo'

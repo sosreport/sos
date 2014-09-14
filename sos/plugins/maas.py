@@ -18,7 +18,7 @@ from sos.plugins import Plugin, UbuntuPlugin
 
 
 class Maas(Plugin, UbuntuPlugin):
-    """MAAS Plugin
+    """Ubuntu Metal-as-a-Service
     """
 
     plugin_name = 'maas'

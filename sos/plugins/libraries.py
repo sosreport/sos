@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
-    """information on shared libraries
+    """Dynamic shared libraries
     """
 
     plugin_name = 'libraries'

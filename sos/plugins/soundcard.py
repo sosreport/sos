@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Soundcard(Plugin):
-    """ Sound card information
+    """ Sound devices
     """
 
     plugin_name = "soundcard"
@@ -35,8 +35,6 @@ class Soundcard(Plugin):
 
 
 class RedHatSoundcard(Soundcard, RedHatPlugin):
-    """ Sound card information for RedHat distros
-    """
 
     def setup(self):
         super(RedHatSoundcard, self).setup()
@@ -48,8 +46,6 @@ class RedHatSoundcard(Soundcard, RedHatPlugin):
 
 
 class DebianSoundcard(Soundcard, DebianPlugin, UbuntuPlugin):
-    """ Sound card information for Debian/Ubuntu distros
-    """
 
     def setup(self):
         super(DebianSoundcard, self).setup()

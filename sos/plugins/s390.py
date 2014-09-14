@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class S390(Plugin, RedHatPlugin):
-    """s390 related information
+    """IBM S/390
     """
 
     plugin_name = 's390'

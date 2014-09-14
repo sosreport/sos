@@ -21,7 +21,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class MegaCLI(Plugin, RedHatPlugin):
-    """Information for devices which use the MegaRAID Unified device driver
+    """LSI MegaRAID devices
     """
 
     plugin_name = 'megacli'

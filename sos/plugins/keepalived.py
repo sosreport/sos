@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Keepalived(Plugin, RedHatPlugin):
-    """Keepalived information
+    """Keepalived routing server
     """
 
     plugin_name = 'keepalived'

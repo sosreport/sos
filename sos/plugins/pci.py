@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """PCI device related information
+    """PCI devices
     """
 
     plugin_name = "pci"

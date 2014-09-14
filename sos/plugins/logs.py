@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Logs(Plugin):
-    """log data """
+    """System logs"""
 
     plugin_name = "logs"
     profiles = ('system', 'hardware')
@@ -47,7 +47,6 @@ class Logs(Plugin):
 
 
 class RedHatLogs(Logs, RedHatPlugin):
-    """Basic system information for RedHat based distributions"""
 
     def setup(self):
         super(RedHatLogs, self).setup()
@@ -56,7 +55,6 @@ class RedHatLogs(Logs, RedHatPlugin):
 
 
 class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
-    """Basic system information for Debian and Ubuntu based distributions"""
 
     def setup(self):
         super(DebianLogs, self).setup()

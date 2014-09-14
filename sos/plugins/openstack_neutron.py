@@ -28,7 +28,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Neutron(Plugin):
-    """OpenStack Networking (quantum/neutron) related information
+    """OpenStack Networking
     """
     plugin_name = "neutron"
     profiles = ('openstack',)
@@ -120,8 +120,6 @@ class Neutron(Plugin):
 
 
 class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
-    """OpenStack Neutron related information for Debian based distributions
-    """
     package_list_template = [
         '%(comp)s-common',
         '%(comp)s-plugin-cisco',
@@ -146,8 +144,6 @@ class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatNeutron(Neutron, RedHatPlugin):
-    """OpenStack Neutron related information for Red Hat distributions
-    """
 
     package_list_template = [
         'openstack-%(comp)s',

@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """NIS related information
+    """Network information service
     """
 
     plugin_name = 'nis'

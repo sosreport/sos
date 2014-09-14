@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Abrt(Plugin, RedHatPlugin):
-    """ABRT log dump
+    """Automatic Bug Reporting Tool
     """
 
     plugin_name = "abrt"

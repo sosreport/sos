@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class OpenHPI(Plugin, RedHatPlugin):
-    """OpenHPI related information
+    """Open Hardware Platform Interface
     """
 
     plugin_name = 'openhpi'

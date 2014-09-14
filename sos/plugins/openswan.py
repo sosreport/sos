@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ipsec related information
+    """Openswan IPsec
     """
 
     plugin_name = 'openswan'

@@ -17,7 +17,7 @@ import os
 
 
 class Veritas(Plugin, RedHatPlugin):
-    """Veritas related information
+    """Veritas software
     """
 
     plugin_name = 'veritas'

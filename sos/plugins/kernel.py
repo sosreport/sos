@@ -17,7 +17,7 @@ import os
 
 
 class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """kernel related information
+    """Linux kernel
     """
 
     plugin_name = 'kernel'

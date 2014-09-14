@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ntp(Plugin):
-    """NTP related information
+    """Network time protocol
     """
 
     plugin_name = "ntp"
@@ -34,8 +34,6 @@ class Ntp(Plugin):
 
 
 class RedHatNtp(Ntp, RedHatPlugin):
-    """NTP related information for RedHat based distributions
-    """
 
     def setup(self):
         super(RedHatNtp, self).setup()
@@ -44,8 +42,6 @@ class RedHatNtp(Ntp, RedHatPlugin):
 
 
 class DebianNtp(Ntp, DebianPlugin, UbuntuPlugin):
-    """NTP related information for Debian based distributions
-    """
 
     def setup(self):
         super(DebianNtp, self).setup()

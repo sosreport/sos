@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Samba related information
+    """Samba Windows interoperability
     """
     packages = ('samba-common',)
     plugin_name = "samba"

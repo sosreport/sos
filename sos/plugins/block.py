@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Block device related information
+    """Block device information
     """
 
     plugin_name = 'block'

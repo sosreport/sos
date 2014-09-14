@@ -20,7 +20,7 @@ from stat import ST_SIZE
 
 
 class NfsServer(Plugin, RedHatPlugin):
-    """NFS server-related information
+    """NFS server information
     """
 
     plugin_name = 'nfsserver'

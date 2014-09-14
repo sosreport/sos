@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ppp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ppp, wvdial and rp-pppoe related information
+    """Point-to-point protocol
     """
 
     plugin_name = 'ppp'

@@ -19,7 +19,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class IscsiTarget(Plugin):
-    """iscsi-target related information
+    """iSCSI target
     """
 
     plugin_name = "iscsitarget"
@@ -27,8 +27,6 @@ class IscsiTarget(Plugin):
 
 
 class RedHatIscsiTarget(IscsiTarget, RedHatPlugin):
-    """iscsi-target related information for Red Hat distributions
-    """
 
     packages = ('scsi-target-utils',)
 
@@ -39,8 +37,6 @@ class RedHatIscsiTarget(IscsiTarget, RedHatPlugin):
 
 
 class DebianIscsiTarget(IscsiTarget, DebianPlugin, UbuntuPlugin):
-    """iscsi-target related information for Debian based distributions
-    """
 
     packages = ('iscsitarget',)
 

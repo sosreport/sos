@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class TftpServer(Plugin, RedHatPlugin):
-    """tftpserver related information
+    """TFTP server
     """
 
     plugin_name = 'tftpserver'

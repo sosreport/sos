@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Sendmail(Plugin):
-    """sendmail information
+    """sendmail service
     """
 
     plugin_name = "sendmail"
@@ -28,8 +28,6 @@ class Sendmail(Plugin):
 
 
 class RedHatSendmail(Sendmail, RedHatPlugin):
-    """sendmail information for RedHat based distributions
-    """
 
     files = ('/etc/rc.d/init.d/sendmail',)
     packages = ('sendmail',)
@@ -43,8 +41,6 @@ class RedHatSendmail(Sendmail, RedHatPlugin):
 
 
 class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
-    """sendmail information for Debian based distributions
-    """
 
     files = ('/etc/init.d/sendmail',)
     packages = ('sendmail',)

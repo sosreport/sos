@@ -25,7 +25,7 @@ from sos.utilities import find
 
 
 class PostgreSQL(Plugin):
-    """PostgreSQL related information"""
+    """PostgreSQL RDBMS"""
 
     plugin_name = "postgresql"
     profiles = ('services',)
@@ -113,7 +113,6 @@ class PostgreSQL(Plugin):
 
 
 class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
-    """PostgreSQL related information for Red Hat distributions"""
 
     def setup(self):
         super(RedHatPostgreSQL, self).setup()
@@ -142,7 +141,6 @@ class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
 
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
-    """PostgreSQL related information for Debian/Ubuntu distributions"""
 
     def setup(self):
         super(DebianPostgreSQL, self).setup()

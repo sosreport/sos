@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Rhui(Plugin, RedHatPlugin):
-    """Red Hat Update Infrastructure for Cloud Providers data
+    """Red Hat Update Infrastructure
     """
 
     plugin_name = 'rhui'

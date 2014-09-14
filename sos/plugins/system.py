@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """core system related information
+    """core system information
     """
 
     plugin_name = "system"

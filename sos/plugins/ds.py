@@ -20,7 +20,7 @@ import os
 
 
 class DirectoryServer(Plugin, RedHatPlugin):
-    """Directory Server information
+    """Directory Server
     """
 
     plugin_name = 'directoryserver'

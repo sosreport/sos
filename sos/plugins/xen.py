@@ -19,7 +19,7 @@ from stat import *
 
 
 class Xen(Plugin, RedHatPlugin):
-    """Xen related information
+    """Xen virtualization
     """
 
     plugin_name = 'xen'

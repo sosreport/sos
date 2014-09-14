@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Crontab information
+    """Cron job scheduler
     """
 
     plugin_name = "cron"

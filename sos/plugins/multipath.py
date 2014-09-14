@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """device-mapper multipath information
+    """Device-mapper multipath tools
     """
 
     plugin_name = 'multipath'

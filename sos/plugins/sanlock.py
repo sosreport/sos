@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class SANLock(Plugin):
-    """sanlock-related information
+    """SANlock daemon
     """
     plugin_name = "sanlock"
     profiles = ('cluster', 'virt')

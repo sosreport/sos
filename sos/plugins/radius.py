@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Radius(Plugin):
-    """radius related information
+    """RADIUS service information
     """
 
     plugin_name = "radius"
@@ -27,8 +27,6 @@ class Radius(Plugin):
 
 
 class RedHatRadius(Radius, RedHatPlugin):
-    """radius related information on Red Hat distributions
-    """
 
     files = ('/etc/raddb',)
 
@@ -46,8 +44,6 @@ class RedHatRadius(Radius, RedHatPlugin):
 
 
 class DebianRadius(Radius, DebianPlugin, UbuntuPlugin):
-    """radius related information on Debian distributions
-    """
 
     files = ('/etc/freeradius',)
 

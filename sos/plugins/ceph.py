@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
-    """information on CEPH
+    """CEPH distributed storage
     """
 
     plugin_name = 'ceph'

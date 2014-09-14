@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Snmp(Plugin):
-    """snmp related information
+    """Simple network management protocol
     """
     plugin_name = "snmp"
     profiles = ('system', 'sysmgmt')
@@ -30,8 +30,6 @@ class Snmp(Plugin):
 
 
 class RedHatSnmp(Snmp, RedHatPlugin):
-    """snmp related information for RedHat based distributions
-    """
 
     packages = ('net-snmp',)
 
@@ -40,8 +38,6 @@ class RedHatSnmp(Snmp, RedHatPlugin):
 
 
 class DebianSnmp(Snmp, DebianPlugin, UbuntuPlugin):
-    """snmp related information for Debian based distributions
-    """
 
     packages = ('snmp',)
 

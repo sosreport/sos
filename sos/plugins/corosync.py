@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Corosync(Plugin):
-    """ corosync information
+    """ Corosync cluster engine
     """
 
     plugin_name = "corosync"
@@ -42,16 +42,12 @@ class Corosync(Plugin):
 
 
 class RedHatCorosync(Corosync, RedHatPlugin):
-    """ corosync information for RedHat based distribution
-    """
 
     def setup(self):
         super(RedHatCorosync, self).setup()
 
 
 class DebianCorosync(Corosync, DebianPlugin, UbuntuPlugin):
-    """ corosync information for Debian and Ubuntu distributions
-    """
 
     def setup(self):
         super(DebianCorosync, self).setup()

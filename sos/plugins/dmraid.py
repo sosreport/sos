@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """dmraid related information
+    """dmraid software RAID
     """
 
     plugin_name = 'dmraid'

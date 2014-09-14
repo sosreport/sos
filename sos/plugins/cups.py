@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """printing related information (cups)
+    """CUPS IPP print service
     """
 
     plugin_name = 'cups'

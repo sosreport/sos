@@ -16,13 +16,12 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Acpid(Plugin):
+    """ACPI daemon information"""
     plugin_name = "acpid"
     profiles = ('hardware',)
 
 
 class RedHatAcpid(Acpid, RedHatPlugin):
-    """acpid related information
-    """
     def setup(self):
         self.add_copy_specs([
             "/var/log/acpid*",
@@ -30,8 +29,6 @@ class RedHatAcpid(Acpid, RedHatPlugin):
 
 
 class DebianAcpid(Acpid, DebianPlugin, UbuntuPlugin):
-    """acpid related information for Debian and Ubuntu
-    """
     def setup(self):
         self.add_copy_specs([
             "/etc/acpi/events/powerbtn*"])

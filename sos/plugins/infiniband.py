@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Infiniband related information
+    """Infiniband data
     """
 
     plugin_name = 'infiniband'

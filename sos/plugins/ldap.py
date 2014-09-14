@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ldap(Plugin):
-    """LDAP related information
+    """LDAP configuration
     """
 
     plugin_name = "ldap"
@@ -32,8 +32,6 @@ class Ldap(Plugin):
 
 
 class RedHatLdap(Ldap, RedHatPlugin):
-    """LDAP related information for RedHat based distribution
-    """
 
     packages = ('openldap', 'nss-pam-ldapd')
     files = ('/etc/ldap.conf', '/etc/pam_ldap.conf')
@@ -69,8 +67,6 @@ class RedHatLdap(Ldap, RedHatPlugin):
 
 
 class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
-    """LDAP related information for Debian based distribution
-    """
 
     ldap_conf = "/etc/ldap/ldap.conf"
     packages = ('slapd', 'ldap-utils')

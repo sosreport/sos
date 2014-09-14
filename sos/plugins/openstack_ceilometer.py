@@ -22,7 +22,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackCeilometer(Plugin):
-    """Openstack Ceilometer related information."""
+    """Openstack Ceilometer"""
     plugin_name = "openstack_ceilometer"
     profiles = ('openstack',)
 
@@ -38,8 +38,6 @@ class OpenStackCeilometer(Plugin):
 
 class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
                                 UbuntuPlugin):
-    """OpenStackCeilometer related information for Debian based distributions.
-    """
 
     packages = (
         'ceilometer-api',
@@ -53,7 +51,6 @@ class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
 
 
 class RedHatOpenStackCeilometer(OpenStackCeilometer, RedHatPlugin):
-    """OpenStackCeilometer related information for Red Hat distributions."""
 
     packages = (
         'openstack-ceilometer',

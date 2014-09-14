@@ -18,7 +18,7 @@ import os
 
 
 class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """libvirt-related information
+    """libvirt virtualization API
     """
 
     plugin_name = 'libvirt'

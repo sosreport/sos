@@ -17,11 +17,11 @@ from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class Apport(Plugin, DebianPlugin, UbuntuPlugin):
-    """apport information
+    """Apport crash reporting tool
     """
 
     plugin_name = 'apport'
-    profiles = ()
+    profiles = ('debug',)
 
     def setup(self):
         self.add_copy_spec("/etc/apport/*")

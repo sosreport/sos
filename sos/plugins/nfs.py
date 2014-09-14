@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """NFS related information
+    """Network file system information
     """
     plugin_name = 'nfs'
     profiles = ('storage', 'network', 'nfs')

@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class KernelRT(Plugin, RedHatPlugin):
-    '''Information specific to the realtime kernel
+    '''Realtime kernel variant
     '''
 
     plugin_name = 'kernelrt'

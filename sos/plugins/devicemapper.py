@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """device-mapper related information
+    """device-mapper framework
     """
 
     plugin_name = 'devicemapper'

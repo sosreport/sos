@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """information on filesystems
+    """Local file systems
     """
 
     plugin_name = 'filesys'

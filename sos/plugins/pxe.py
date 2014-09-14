@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Pxe(Plugin):
-    """PXE related information
+    """PXE service
     """
     plugin_name = "pxe"
     profiles = ('sysmgmt', 'network')
@@ -25,8 +25,6 @@ class Pxe(Plugin):
 
 
 class RedHatPxe(Pxe, RedHatPlugin):
-    """PXE related information for RedHat based distributions
-    """
 
     files = ('/usr/sbin/pxeos',)
     packages = ('system-config-netboot-cmd',)
@@ -40,8 +38,6 @@ class RedHatPxe(Pxe, RedHatPlugin):
 
 
 class DebianPxe(Pxe, DebianPlugin, UbuntuPlugin):
-    """PXE related information for Ubuntu based distributions
-    """
 
     packages = ('tftpd-hpa',)
 

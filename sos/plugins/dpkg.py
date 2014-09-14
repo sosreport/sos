@@ -17,7 +17,7 @@ from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):
-    """dpkg information
+    """Debian Package Management
     """
 
     plugin_name = 'dpkg'

@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class SunRPC(Plugin):
-    """Sun RPC related information
+    """Sun RPC service
     """
 
     plugin_name = "sunrpc"
@@ -37,15 +37,13 @@ class SunRPC(Plugin):
 
 
 class RedHatSunRPC(SunRPC, RedHatPlugin):
-    """Sun RPC related information for Red Hat systems
-    """
 
     service = 'rpcbind'
 
 # FIXME: depends on addition of runlevel_by_service (or similar)
 # in Debian/Ubuntu policy classes
 # class DebianSunRPC(SunRPC, DebianPlugin, UbuntuPlugin):
-#    """Sun RPC related information for Red Hat systems
+#    """Sun RPC related information
 #    """
 #
 #    service = 'rpcbind-boot'

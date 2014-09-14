@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenVSwitch(Plugin):
-    """ OpenVSwitch related information
+    """ OpenVSwitch networking
     """
     plugin_name = "openvswitch"
     profiles = ('network', 'virt')
@@ -34,14 +34,12 @@ class OpenVSwitch(Plugin):
 
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
-    """ OpenVSwitch on Ubuntu/Debian related information
-    """
+
     packages = ('openvswitch',)
 
 
 class DebianOpenVSwitch(OpenVSwitch, DebianPlugin, UbuntuPlugin):
-    """ OpenVSwitch on Ubuntu/Debian related information
-    """
+
     packages = ('openvswitch-switch',)
 
 

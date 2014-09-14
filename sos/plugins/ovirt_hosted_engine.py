@@ -22,7 +22,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class OvirtHostedEngine(Plugin, RedHatPlugin):
-    """oVirt Hosted Engine related information"""
+    """oVirt Hosted Engine"""
 
     packages = (
         'ovirt-hosted-engine-setup',

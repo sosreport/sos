@@ -22,7 +22,7 @@ from glob import glob
 
 
 class CertificateSystem(Plugin, RedHatPlugin):
-    """Red Hat Certificate System 7.1, 7.3, 8.0 and dogtag related information
+    """Certificate System and Dogtag
     """
 
     plugin_name = 'certificatesystem'

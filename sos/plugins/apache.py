@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Apache(Plugin):
-    """Apache related information
+    """Apache http daemon
     """
     plugin_name = "apache"
     profiles = ('webserver', 'openshift')
@@ -27,8 +27,6 @@ class Apache(Plugin):
 
 
 class RedHatApache(Apache, RedHatPlugin):
-    """Apache related information for Red Hat distributions
-    """
     files = ('/etc/httpd/conf/httpd.conf',)
 
     def setup(self):
@@ -51,8 +49,6 @@ class RedHatApache(Apache, RedHatPlugin):
 
 
 class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
-    """Apache related information for Debian distributions
-    """
     files = ('/etc/apache2/apache2.conf',)
 
     def setup(self):

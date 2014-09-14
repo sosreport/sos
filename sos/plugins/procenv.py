@@ -17,7 +17,7 @@ from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class Procenv(Plugin, DebianPlugin, UbuntuPlugin):
-    """Process environment.
+    """Process environment
     """
 
     plugin_name = 'procenv'

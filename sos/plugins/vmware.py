@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class VMWare(Plugin, RedHatPlugin):
-    """VMWare related information
+    """VMWare client information
     """
 
     plugin_name = 'vmware'

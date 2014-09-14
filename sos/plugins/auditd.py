@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Auditd related information
+    """Audit daemon information
     """
 
     plugin_name = 'auditd'

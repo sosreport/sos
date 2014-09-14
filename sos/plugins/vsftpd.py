@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Vsftpd(Plugin, RedHatPlugin):
-    """FTP server related information
+    """Vsftpd server
     """
 
     plugin_name = 'vsftpd'

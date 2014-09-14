@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Dhcp(Plugin):
-    """DHCP related information
+    """DHCP daemon
     """
 
     plugin_name = "dhcp"
@@ -24,7 +24,6 @@ class Dhcp(Plugin):
 
 
 class RedHatDhcp(Dhcp, RedHatPlugin):
-    """DHCP related information for Red Hat based distributions"""
 
     files = ('/etc/rc.d/init.d/dhcpd',)
     packages = ('dhcp',)
@@ -38,7 +37,6 @@ class RedHatDhcp(Dhcp, RedHatPlugin):
 
 
 class UbuntuDhcp(Dhcp, UbuntuPlugin):
-    """DHCP related information for Debian based distributions"""
 
     files = ('/etc/init.d/udhcpd',)
     packages = ('udhcpd',)

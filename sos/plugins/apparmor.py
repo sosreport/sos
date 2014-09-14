@@ -17,7 +17,7 @@ from sos.plugins import Plugin, UbuntuPlugin
 
 
 class Apparmor(Plugin, UbuntuPlugin):
-    """Apparmor related information
+    """Apparmor mandatory access control
     """
 
     plugin_name = 'apparmor'

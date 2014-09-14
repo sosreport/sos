@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Udev related information
+    """udev dynamic device management
     """
 
     plugin_name = 'udev'

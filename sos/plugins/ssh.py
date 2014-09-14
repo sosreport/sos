@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ssh-related information
+    """Secure shell service
     """
 
     plugin_name = 'ssh'

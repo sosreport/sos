@@ -17,7 +17,7 @@ from six.moves import zip
 
 
 class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """information on the XFS filesystem
+    """XFS filesystem
     """
 
     plugin_name = 'xfs'

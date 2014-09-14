@@ -18,11 +18,11 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
-    """MongoDB related information
+    """MongoDB document database
     """
 
     plugin_name = 'mongodb'
-    profiles = ()
+    profiles = ('services',)
 
     packages = ('mongodb-server',)
     files = ('/etc/mongodb.conf',)
@@ -42,8 +42,7 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatMongoDb(MongoDb, RedHatPlugin):
-    """ MongoDB related information for Red Hat distributions
-    """
+
     def setup(self):
         super(RedHatMongoDb, self).setup()
         self.add_copy_spec("/etc/sysconfig/mongodb")

@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Hpasm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """HP ASM (hp Server Management Drivers and Agent) information
+    """HP Advanced Server Management
     """
 
     plugin_name = 'hpasm'

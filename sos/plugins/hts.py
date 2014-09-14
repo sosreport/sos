@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class HardwareTestSuite(Plugin, RedHatPlugin):
-    """Red Hat Hardware Test Suite related information
+    """Red Hat Hardware Test Suite
     """
 
     plugin_name = 'hardwaretestsuite'

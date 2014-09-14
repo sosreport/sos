@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Krb5(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Kerberos related information
+    """Kerberos authentication
     """
     plugin_name = 'krb5'
     profiles = ('identity', 'system')

@@ -17,7 +17,7 @@ import os
 
 
 class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """ ATA and IDE related information (including PATA and SATA)
+    """ ATA and IDE information
     """
 
     plugin_name = "ata"

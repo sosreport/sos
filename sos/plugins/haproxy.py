@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class HAProxy(Plugin, RedHatPlugin):
-    """HAProxy information
+    """HAProxy load balancer
     """
 
     plugin_name = 'haproxy'

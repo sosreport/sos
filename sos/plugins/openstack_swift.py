@@ -21,7 +21,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackSwift(Plugin):
-    """OpenstackSwift related information."""
+    """OpenStack Swift"""
     plugin_name = "openstack_swift"
     profiles = ('openstack',)
 
@@ -33,7 +33,6 @@ class OpenStackSwift(Plugin):
 
 
 class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
-    """OpenStackSwift related information for Debian based distributions."""
 
     packages = (
         'swift',
@@ -48,7 +47,6 @@ class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatOpenStackSwift(OpenStackSwift, RedHatPlugin):
-    """OpenStackSwift related information for Red Hat distributions."""
 
     packages = (
         'openstack-swift',

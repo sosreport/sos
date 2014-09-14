@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Tomcat(Plugin, RedHatPlugin):
-    """Tomcat related information
+    """Apache Tomcat server
     """
 
     plugin_name = 'tomcat'

@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class FirewallD(Plugin, RedHatPlugin):
-    """FirewallD information
+    """Firewall daemon
     """
 
     plugin_name = 'firewalld'

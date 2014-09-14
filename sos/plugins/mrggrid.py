@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class MrgGrid(Plugin, RedHatPlugin):
-    """MRG GRID related information
+    """MRG GRID engine
     """
 
     plugin_name = 'mrggrid'

@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class I18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Internationalization related information
+    """Internationalization
     """
 
     plugin_name = 'i18n'

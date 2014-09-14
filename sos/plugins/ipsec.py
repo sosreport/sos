@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class IPSec(Plugin):
-    """ipsec related information
+    """Internet protocol security
     """
 
     plugin_name = "ipsec"
@@ -27,8 +27,6 @@ class IPSec(Plugin):
 
 
 class RedHatIpsec(IPSec, RedHatPlugin):
-    """ipsec related information for Red Hat distributions
-    """
 
     files = ('/etc/racoon/racoon.conf',)
 
@@ -37,8 +35,6 @@ class RedHatIpsec(IPSec, RedHatPlugin):
 
 
 class DebianIPSec(IPSec, DebianPlugin, UbuntuPlugin):
-    """ipsec related information for Debian distributions
-    """
 
     files = ('/etc/ipsec-tools.conf',)
 

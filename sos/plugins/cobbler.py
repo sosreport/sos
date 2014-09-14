@@ -20,7 +20,7 @@ class Cobbler(Plugin):
 
 
 class RedHatCobbler(Cobbler, RedHatPlugin):
-    """cobbler related information
+    """Cobbler installation server
     """
 
     packages = ('cobbler',)
@@ -36,8 +36,6 @@ class RedHatCobbler(Cobbler, RedHatPlugin):
 
 
 class DebianCobbler(Cobbler, DebianPlugin, UbuntuPlugin):
-    """cobbler related information for Debian and Ubuntu
-    """
 
     packages = ('cobbler',)
 

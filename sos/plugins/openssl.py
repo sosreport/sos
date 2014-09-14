@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenSSL(Plugin):
-    """openssl related information
+    """OpenSSL configuration
     """
 
     plugin_name = "openssl"
@@ -42,7 +42,7 @@ class OpenSSL(Plugin):
 
 
 class RedHatOpenSSL(OpenSSL, RedHatPlugin):
-    """openssl related information for Red Hat distributions
+    """openssl related information
     """
 
     files = ('/etc/pki/tls/openssl.cnf',)

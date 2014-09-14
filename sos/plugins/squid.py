@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Squid(Plugin):
-    """squid related information
+    """Squid caching proxy
     """
 
     plugin_name = 'squid'
@@ -24,8 +24,6 @@ class Squid(Plugin):
 
 
 class RedHatSquid(Squid, RedHatPlugin):
-    """squid Red Hat related information
-    """
 
     files = ('/etc/squid/squid.conf',)
     packages = ('squid',)
@@ -36,8 +34,6 @@ class RedHatSquid(Squid, RedHatPlugin):
 
 
 class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
-    """squid related information for Debian and Ubuntu
-    """
 
     plugin_name = 'squid'
     files = ('/etc/squid3/squid.conf',)

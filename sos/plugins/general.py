@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class General(Plugin):
-    """basic system information"""
+    """general system information"""
 
     plugin_name = "general"
     profiles = ('system', 'sysmgmt')
@@ -38,7 +38,6 @@ class General(Plugin):
 
 
 class RedHatGeneral(General, RedHatPlugin):
-    """Basic system information for RedHat based distributions"""
 
     def setup(self):
         super(RedHatGeneral, self).setup()
@@ -55,7 +54,6 @@ class RedHatGeneral(General, RedHatPlugin):
 
 
 class DebianGeneral(General, DebianPlugin):
-    """Basic system information for Debian based distributions"""
 
     def setup(self):
         super(DebianGeneral, self).setup()

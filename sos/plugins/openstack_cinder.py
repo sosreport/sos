@@ -22,7 +22,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackCinder(Plugin):
-    """openstack cinder related information
+    """OpenStack cinder
     """
     plugin_name = "openstack_cinder"
     profiles = ('openstack',)
@@ -44,8 +44,6 @@ class OpenStackCinder(Plugin):
 
 
 class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
-    """OpenStack Cinder related information for Debian based distributions
-    """
 
     cinder = False
     packages = (
@@ -67,8 +65,6 @@ class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
-    """OpenStack related information for Red Hat distributions
-    """
 
     cinder = False
     packages = ('openstack-cinder',

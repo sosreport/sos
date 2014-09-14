@@ -17,7 +17,7 @@ import os.path
 
 
 class Openshift(Plugin, RedHatPlugin):
-    '''Openshift related information'''
+    '''Openshift node and broker'''
 
     plugin_name = "openshift"
     profiles = ('virt', 'openshift')

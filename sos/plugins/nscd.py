@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """NSCD related information
+    """Name service caching daemon
     """
 
     plugin_name = 'nscd'

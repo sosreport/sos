@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Autofs(Plugin):
-    """autofs server-related information
+    """Autofs on-demand automounter
     """
 
     plugin_name = "autofs"
@@ -55,7 +55,6 @@ class Autofs(Plugin):
 
 
 class RedHatAutofs(Autofs, RedHatPlugin):
-    """autofs server-related on RedHat based distributions"""
 
     def setup(self):
         super(RedHatAutofs, self).setup()
@@ -64,7 +63,6 @@ class RedHatAutofs(Autofs, RedHatPlugin):
 
 
 class DebianAutofs(Autofs, DebianPlugin, UbuntuPlugin):
-    """autofs server-related on Debian based distributions"""
 
     def setup(self):
         super(DebianAutofs, self).setup()

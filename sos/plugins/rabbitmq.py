@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """rabbitmq related information
+    """RabbitMQ messaging service
     """
     plugin_name = 'rabbitmq'
     profiles = ('services',)

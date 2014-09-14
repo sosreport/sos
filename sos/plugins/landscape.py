@@ -16,8 +16,7 @@ from sos.plugins import Plugin, UbuntuPlugin
 
 
 class Landscape(Plugin, UbuntuPlugin):
-    """
-    landscape client related information
+    """Ubuntu Landscape client
     """
 
     plugin_name = 'landscape'

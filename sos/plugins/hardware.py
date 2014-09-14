@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """hardware related information
+    """General hardware information
     """
 
     plugin_name = "hardware"

@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Iscsi(Plugin):
-    """iscsi-initiator related information
+    """iSCSI initiator
     """
 
     plugin_name = "iscsi"
@@ -25,8 +25,6 @@ class Iscsi(Plugin):
 
 
 class RedHatIscsi(Iscsi, RedHatPlugin):
-    """iscsi-initiator related information Red Hat based distributions
-    """
 
     packages = ('iscsi-initiator-utils',)
 

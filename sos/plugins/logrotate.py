@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """logrotate configuration files and debug info
+    """LogRotate service
     """
 
     plugin_name = 'logrotate'

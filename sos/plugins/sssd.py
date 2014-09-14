@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Sssd(Plugin):
-    """sssd-related Diagnostic Information
+    """System security service daemon
     """
 
     plugin_name = "sssd"
@@ -38,16 +38,12 @@ class Sssd(Plugin):
 
 
 class RedHatSssd(Sssd, RedHatPlugin):
-    """sssd-related Diagnostic Information on Red Hat based distributions
-    """
 
     def setup(self):
         super(RedHatSssd, self).setup()
 
 
 class DebianSssd(Sssd, DebianPlugin, UbuntuPlugin):
-    """sssd-related Diagnostic Information on Debian based distributions
-    """
 
     def setup(self):
         super(DebianSssd, self).setup()

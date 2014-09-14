@@ -20,7 +20,7 @@ import os
 
 
 class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """KVM related information
+    """Kernel virtual machine
     """
 
     plugin_name = 'kvm'

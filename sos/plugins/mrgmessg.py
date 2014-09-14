@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class MrgMessg(Plugin, RedHatPlugin):
-    """MRG Messaging related information
+    """MRG Messaging subsystem
     """
 
     plugin_name = 'mrgmessg'

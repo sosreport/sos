@@ -17,7 +17,7 @@ import os
 
 
 class Sar(Plugin,):
-    """ Collect system activity reporter data
+    """System Activity Reporter
     """
 
     plugin_name = 'sar'
@@ -75,15 +75,11 @@ class Sar(Plugin,):
 
 
 class RedHatSar(Sar, RedHatPlugin):
-    """ Collect system activity reporter data
-    """
 
     sa_path = '/var/log/sa'
 
 
 class DebianSar(Sar, DebianPlugin, UbuntuPlugin):
-    """ Collect system activity reporter data
-    """
 
     sa_path = '/var/log/sysstat'
 

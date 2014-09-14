@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Postfix(Plugin):
-    """mail server related information
+    """Postfix smtp server
     """
     plugin_name = "postfix"
     profiles = ('mail', 'services')
@@ -32,8 +32,6 @@ class Postfix(Plugin):
 
 
 class RedHatPostfix(Postfix, RedHatPlugin):
-    """mail server related information for RedHat based distributions
-    """
 
     files = ('/etc/rc.d/init.d/postfix',)
     packages = ('postfix',)
@@ -44,8 +42,6 @@ class RedHatPostfix(Postfix, RedHatPlugin):
 
 
 class DebianPostfix(Postfix, DebianPlugin, UbuntuPlugin):
-    """mail server related information for Debian based Distribution
-    """
 
     packages = ('postfix',)
 

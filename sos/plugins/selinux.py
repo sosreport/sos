@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class SELinux(Plugin, RedHatPlugin):
-    """selinux related information
+    """SELinux access control
     """
 
     plugin_name = 'selinux'

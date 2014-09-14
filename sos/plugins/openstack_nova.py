@@ -21,7 +21,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackNova(Plugin):
-    """openstack nova related information
+    """OpenStack Nova
     """
     plugin_name = "openstack_nova"
     profiles = ('openstack',)
@@ -76,8 +76,6 @@ class OpenStackNova(Plugin):
 
 
 class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
-    """OpenStack nova related information for Debian based distributions
-    """
 
     nova = False
     packages = (
@@ -114,8 +112,6 @@ class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
-    """OpenStack nova related information for Red Hat distributions
-    """
 
     nova = False
     packages = (

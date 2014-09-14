@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Katello(Plugin, RedHatPlugin):
-    """Katello project related information
+    """Katello systems management
     """
 
     plugin_name = 'katello'

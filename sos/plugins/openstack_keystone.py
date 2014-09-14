@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackKeystone(Plugin):
-    """openstack keystone related information
+    """OpenStack Keystone
     """
     plugin_name = "openstack_keystone"
     profiles = ('openstack',)
@@ -56,8 +56,6 @@ class OpenStackKeystone(Plugin):
 
 
 class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
-    """OpenStack Keystone related information for Debian based distributions
-    """
 
     packages = (
         'keystone',
@@ -67,8 +65,6 @@ class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
-    """OpenStack Keystone related information for Red Hat distributions
-    """
 
     packages = (
         'openstack-keystone',

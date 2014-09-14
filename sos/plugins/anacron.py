@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ capture scheduled jobs information """
+    """Anacron job scheduling service"""
 
     plugin_name = 'anacron'
     profiles = ('system',)

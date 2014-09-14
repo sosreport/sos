@@ -17,7 +17,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class LsbRelease(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Linux Standard Base information
+    """Linux standard base
     """
 
     plugin_name = 'lsbrelease'

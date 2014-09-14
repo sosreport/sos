@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Java(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """basic java information"""
+    """Java runtime"""
 
     plugin_name = "java"
     profiles = ('webserver', 'java')

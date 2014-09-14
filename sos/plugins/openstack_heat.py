@@ -18,7 +18,7 @@ from sos import plugins
 
 
 class OpenStackHeat(plugins.Plugin):
-    """openstack related information
+    """OpenStack Heat
     """
     plugin_name = "openstack_heat"
     profiles = ('openstack',)
@@ -40,7 +40,6 @@ class OpenStackHeat(plugins.Plugin):
 class DebianOpenStack(OpenStackHeat,
                       plugins.DebianPlugin,
                       plugins.UbuntuPlugin):
-    """OpenStackHeat related information for Debian based distributions."""
 
     packages = (
         'heat-api',
@@ -54,7 +53,6 @@ class DebianOpenStack(OpenStackHeat,
 
 
 class RedHatOpenStack(OpenStackHeat, plugins.RedHatPlugin):
-    """OpenStackHeat related information for Red Hat distributions."""
 
     packages = (
         'openstack-heat-api',

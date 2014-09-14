@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Pam(Plugin):
-    """PAM related information
+    """Pluggable Authentication Modules
     """
 
     plugin_name = "pam"
@@ -36,8 +36,6 @@ class Pam(Plugin):
 
 
 class RedHatPam(Pam, RedHatPlugin):
-    """PAM related information for RedHat based distribution
-    """
     security_libs = "/lib*/security"
 
     def setup(self):
@@ -45,8 +43,6 @@ class RedHatPam(Pam, RedHatPlugin):
 
 
 class DebianPam(Pam, DebianPlugin, UbuntuPlugin):
-    """PAM related information for Debian based distribution
-    """
     security_libs = "/lib/x86_64-linux-gnu/security"
 
     def setup(self):

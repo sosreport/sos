@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Rpm(Plugin, RedHatPlugin):
-    """RPM information
+    """RPM Package Manager
     """
 
     plugin_name = 'rpm'

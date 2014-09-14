@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Foreman(Plugin, RedHatPlugin):
-    """Foreman project related information
+    """Foreman systems management
     """
 
     plugin_name = 'foreman'

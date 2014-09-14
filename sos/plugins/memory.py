@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """memory usage information
+    """Memory configuration and use
     """
 
     plugin_name = 'memory'

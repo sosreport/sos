@@ -37,7 +37,7 @@ def ensure_service_is_running(service):
 
 
 class Juju(Plugin, UbuntuPlugin):
-    """ Juju Plugin
+    """ Juju orchestration tool
     """
 
     plugin_name = 'juju'

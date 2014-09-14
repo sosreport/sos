@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Smartcard(Plugin, RedHatPlugin):
-    """Smart Card related information
+    """PKCS#11 smart cards
     """
 
     plugin_name = 'smartcard'

@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class SystemTap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """SystemTap information
+    """SystemTap dynamic instrumentation
     """
 
     plugin_name = 'systemtap'

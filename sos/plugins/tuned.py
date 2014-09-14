@@ -18,7 +18,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Tuned(Plugin, RedHatPlugin):
-    """Tuned related information
+    """Tuned system tuning daemon
     """
     packages = ('tuned',)
     profiles = ('system', 'performance')

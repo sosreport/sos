@@ -20,7 +20,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """IBM Power System related information
+    """IBM Power systems
     """
 
     plugin_name = 'powerpc'

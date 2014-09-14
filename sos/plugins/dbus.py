@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Dbus(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """dbus information"""
+    """D-Bus message bus"""
 
     plugin_name = "dbus"
     profiles = ('system',)

@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Psacct(Plugin):
-    """Process accounting related information
+    """Process accounting information
     """
     plugin_name = "psacct"
     profiles = ('system',)
@@ -28,8 +28,6 @@ class Psacct(Plugin):
 
 
 class RedHatPsacct(Psacct, RedHatPlugin):
-    """Process accounting related information for RedHat based distributions
-    """
 
     packages = ["psacct"]
 
@@ -41,8 +39,6 @@ class RedHatPsacct(Psacct, RedHatPlugin):
 
 
 class DebianPsacct(Psacct, DebianPlugin, UbuntuPlugin):
-    """Process accounting related information for Debian based distributions
-    """
 
     plugin_name = "acct"
     packages = ["acct"]

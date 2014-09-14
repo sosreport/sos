@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """hardware related information
+    """SCSI devices
     """
 
     plugin_name = 'scsi'

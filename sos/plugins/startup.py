@@ -16,7 +16,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Startup(Plugin):
-    """startup information
+    """System startup
     """
 
     plugin_name = "startup"
@@ -36,8 +36,6 @@ class Startup(Plugin):
 
 
 class RedHatStartup(Startup, RedHatPlugin):
-    """startup information for RedHat based distributions
-    """
 
     def setup(self):
         super(RedHatStartup, self).setup()
@@ -45,8 +43,6 @@ class RedHatStartup(Startup, RedHatPlugin):
 
 
 class DebianStartup(Startup, DebianPlugin, UbuntuPlugin):
-    """startup information
-    """
 
     def setup(self):
         super(DebianStartup, self).setup()

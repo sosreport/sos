@@ -18,7 +18,7 @@ import re
 
 
 class Networking(Plugin):
-    """network related information
+    """network and device configuration
     """
     plugin_name = "networking"
     profiles = ('network', 'hardware', 'system')
@@ -160,8 +160,6 @@ class Networking(Plugin):
 
 
 class RedHatNetworking(Networking, RedHatPlugin):
-    """network related information for RedHat based distribution
-    """
     trace_host = "rhn.redhat.com"
 
     def setup(self):
@@ -169,8 +167,6 @@ class RedHatNetworking(Networking, RedHatPlugin):
 
 
 class UbuntuNetworking(Networking, UbuntuPlugin):
-    """network related information for Ubuntu based distribution
-    """
     trace_host = "archive.ubuntu.com"
 
     def setup(self):

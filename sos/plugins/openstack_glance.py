@@ -21,7 +21,7 @@ from sos import plugins
 
 
 class OpenStackGlance(plugins.Plugin):
-    """OpenstackGlance related information."""
+    """OpenStack Glance"""
     plugin_name = "openstack_glance"
     profiles = ('openstack',)
 
@@ -42,7 +42,6 @@ class OpenStackGlance(plugins.Plugin):
 class DebianOpenStackGlance(OpenStackGlance,
                             plugins.DebianPlugin,
                             plugins.UbuntuPlugin):
-    """OpenStackGlance related information for Debian based distributions."""
 
     packages = (
         'glance',
@@ -55,7 +54,6 @@ class DebianOpenStackGlance(OpenStackGlance,
 
 
 class RedHatOpenStackGlance(OpenStackGlance, plugins.RedHatPlugin):
-    """OpenStackGlance related information for Red Hat distributions."""
 
     packages = (
         'openstack-glance',
