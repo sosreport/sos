@@ -20,7 +20,7 @@ class SELinux(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'selinux'
-    profiles = ('system', 'security')
+    profiles = ('system', 'security', 'openshift')
 
     option_list = [("fixfiles", 'Print incorrect file context labels',
                     'slow', False),

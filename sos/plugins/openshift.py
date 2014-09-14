@@ -20,7 +20,7 @@ class Openshift(Plugin, RedHatPlugin):
     '''Openshift related information'''
 
     plugin_name = "openshift"
-    profiles = ('virt',)
+    profiles = ('virt', 'openshift')
 
     # The 'broker' and 'node' options are obsolete but are maintained
     # here for compatibility with external programs that call sosreport
