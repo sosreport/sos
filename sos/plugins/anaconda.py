@@ -53,8 +53,8 @@ class Anaconda(Plugin, RedHatPlugin):
         )
         self.do_file_sub(
             "/root/anaconda-ks.cfg",
-            r"(useradd --password) (.*)",
-            r"\1 ********"
+            r"(user.*--password=*)(\S*)",
+            r"\1********"
         )
 
 # vim: et ts=4 sw=4
