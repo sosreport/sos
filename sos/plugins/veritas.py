@@ -33,13 +33,12 @@ class Veritas(Plugin, RedHatPlugin):
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
         r = self.call_ext_prog(self.get_option("script"))
-        try:
+        if r['status'] == 0:
+            tarfile = ""
             for line in r['output']:
                 line = line.strip()
                 tarfile = self.do_regex_find_all(r"ftp (.*tar.gz)", line)
             if len(tarfile) == 1:
                 self.add_copy_spec(tarfile[0])
-        except AttributeError as e:
-            self.add_alert(e)
 
 # vim: et ts=4 sw=4
