@@ -779,12 +779,15 @@ class SoSReport(object):
                         self.config.get("plugins", "disable").split(',')]
         return disabled
 
-    def _is_in_profile(self, plugin_class, profiles):
-        if not len(profiles):
+    def _is_in_profile(self, plugin_class):
+        onlyplugins = self.opts.onlyplugins
+        if not len(self.profiles):
             return True
         if not hasattr(plugin_class, "profiles"):
             return False
-        return any([p in profiles for p in plugin_class.profiles])
+        if onlyplugins and not self._is_not_specified(plugin_class.name()):
+            return True
+        return any([p in self.opts.profiles for p in plugin_class.profiles])
 
     def _is_skipped(self, plugin_name):
         return (plugin_name in self.opts.noplugins or
@@ -853,7 +856,8 @@ class SoSReport(object):
                 if hasattr(plugin_class, "profiles"):
                     self.profiles.update(plugin_class.profiles)
 
-                if not self._is_in_profile(plugin_class, self.opts.profiles):
+                in_profile = self._is_in_profile(plugin_class)
+                if not in_profile:
                     self._skip(plugin_class, _("excluded"))
                     continue
 
@@ -869,7 +873,7 @@ class SoSReport(object):
                     self._skip(plugin_class, _("not default"))
                     continue
 
-                if self._is_not_specified(plugbase):
+                if self._is_not_specified(plugbase) and not in_profile:
                     self._skip(plugin_class, _("not specified"))
                     continue
 
