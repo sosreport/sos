@@ -9,7 +9,7 @@ sosreport \- Collect and package diagnostic and support data
           [-o|--only-plugins plugin-names]\fR
           [-a|--alloptions] [-v|--verbose]\fR
           [--report] [--config-file conf] [--batch]\fR
-          [--build] [--name name] [--ticket-number number]
+          [--build] [--name name] [--case-id id]
           [--debug] [--tmp-dir directory]\fR
           [-z|--compression-type method]\fR
           [--help]\fR
@@ -78,8 +78,8 @@ Generate archive without prompting for interactive input.
 .B \--name NAME
 Specify a name to be used for the archive.
 .TP
-.B \--ticket-number NUMBER
-Specify a ticket number to be used for archive
+.B \--case-id NUMBER
+Specify a case id to be used for archive
 .TP
 .B \--build
 Do not archive copied data. Causes sosreport to leave an uncompressed

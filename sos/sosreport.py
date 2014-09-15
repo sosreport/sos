@@ -217,7 +217,7 @@ class SoSOptions(object):
     _verify = False
     _quiet = False
     _debug = False
-    _ticket_number = ""
+    _case_id = ""
     _customer_name = ""
     _config_file = ""
     _tmp_dir = ""
@@ -415,15 +415,15 @@ class SoSOptions(object):
         self._debug = value
 
     @property
-    def ticket_number(self):
+    def case_id(self):
         if self._options is not None:
-            return self._options.ticket_number
-        return self._ticket_number
+            return self._options.case_id
+        return self._case_id
 
-    @ticket_number.setter
-    def ticket_number(self, value):
+    @case_id.setter
+    def case_id(self, value):
         self._check_options_initialized()
-        self._ticket_number = value
+        self._case_id = value
 
     @property
     def customer_name(self):
@@ -533,8 +533,11 @@ class SoSOptions(object):
                           help="enable interactive debugging using the python "
                                "debugger")
         parser.add_option("--ticket-number", action="store",
-                          dest="ticket_number",
+                          dest="case_id",
                           help="specify ticket number")
+        parser.add_option("--case-id", action="store",
+                          dest="case_id",
+                          help="specify case identifier")
         parser.add_option("--name", action="store",
                           dest="customer_name",
                           help="specify report name")

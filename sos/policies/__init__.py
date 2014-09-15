@@ -152,7 +152,7 @@ No changes will be made to system configuration.
         modifying PATH in their own initializer."""
         self._parse_uname()
         self.report_name = self.hostname
-        self.ticket_number = None
+        self.case_id = None
         self.package_manager = PackageManager()
         self._valid_subclasses = []
         self.set_exec_path()
@@ -198,8 +198,8 @@ No changes will be made to system configuration.
         This function should return the filename of the archive without the
         extension.
         """
-        if self.ticket_number:
-            self.report_name += "." + self.ticket_number
+        if self.case_id:
+            self.report_name += "." + self.case_id
         return "sosreport-%s-%s" % (self.report_name,
                                     time.strftime("%Y%m%d%H%M%S"))
 
@@ -395,8 +395,8 @@ class LinuxPolicy(Policy):
     def sanitize_report_name(self, report_name):
         return re.sub(r"[^-a-zA-Z.0-9]", "", report_name)
 
-    def sanitize_ticket_number(self, ticket_number):
-        return re.sub(r"[^0-9]", "", ticket_number)
+    def sanitize_case_id(self, case_id):
+        return re.sub(r"[^-a-z,A-Z.0-9]", "", case_id)
 
     def pre_work(self):
         # this method will be called before the gathering begins
@@ -409,9 +409,9 @@ class LinuxPolicy(Policy):
                 self.report_name = input(_("Please enter your first initial "
                                          "and last name [%s]: ") % localname)
 
-                self.ticket_number = input(_("Please enter the case number "
-                                             "that you are generating this "
-                                             "report for: "))
+                self.case_id = input(_("Please enter the case id "
+                                       "that you are generating this "
+                                       "report for: "))
                 self._print()
             except:
                 self._print()
@@ -423,13 +423,12 @@ class LinuxPolicy(Policy):
         if self.commons['cmdlineopts'].customer_name:
             self.report_name = self.commons['cmdlineopts'].customer_name
 
-        if self.commons['cmdlineopts'].ticket_number:
-            self.ticket_number = self.commons['cmdlineopts'].ticket_number
+        if self.commons['cmdlineopts'].case_id:
+            self.case_id = self.commons['cmdlineopts'].case_id
 
         self.report_name = self.sanitize_report_name(self.report_name)
-        if self.ticket_number:
-            self.ticket_number = self.sanitize_ticket_number(
-                self.ticket_number)
+        if self.case_id:
+            self.case_id = self.sanitize_case_id(self.case_id)
 
         if (self.report_name == ""):
             self.report_name = "default"
