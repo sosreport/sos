@@ -53,6 +53,22 @@ from six import print_
 # file system errors that should terminate a run
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
+def _format_list(first_line, items, indent=False):
+    lines = []
+    line = first_line
+    if indent:
+        newline = len(first_line) * ' '
+    else:
+        newline = ""
+    for item in items:
+        if len(line) + len(item) + 2 > 72:
+            lines.append(line)
+            line = newline
+        line = line + item + ', '
+    if line[-2:] == ', ':
+        line = line[:-2]
+    lines.append(line)
+    return lines
 
 class TempFileUtil(object):
 
@@ -1008,6 +1024,15 @@ class SoSReport(object):
             self.ui_log.info(_("No plugin options available."))
 
         self.ui_log.info("")
+        profiles = list(self.profiles)
+        profiles.sort()
+        lines = _format_list("Profiles: ", profiles, indent=True)
+        for line in lines:
+            self.ui_log.info(" %s" % line)
+        self.ui_log.info("")
+        self.ui_log.info(" %d profiles, %d plugins"
+                         % (len(self.profiles), len(self.loaded_plugins)))
+        self.ui_log.info("")
 
     def list_profiles(self):
         if not self.profiles:
@@ -1026,20 +1051,12 @@ class SoSReport(object):
             for name, plugin in self.loaded_plugins:
                 if _has_prof(plugin) and profile in plugin.profiles:
                     plugins.append(name)
-            lines = []
-            line = ""
-            for name in plugins:
-                if len(line) + len(name) + 2 > 62:
-                    lines.append(line)
-                    line = ""
-                line = line + name + ', '
-            if line[-2:] == ', ':
-                line = line[:-2]
-            lines.append(line)
-            self.ui_log.info(" %-15s %s" % (profile, lines[0]))
-            lines.pop(0)
+            lines = _format_list("%-15s " % profile, plugins, indent=True)
             for line in lines:
-                self.ui_log.info(" %-15s %s" % ("", line))
+                self.ui_log.info(" %s" % line)
+        self.ui_log.info("")
+        self.ui_log.info(" %d profiles, %d plugins"
+                         % (len(profiles), len(self.loaded_plugins)))
         self.ui_log.info("")
 
     def batch(self):
