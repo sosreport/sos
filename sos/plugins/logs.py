@@ -68,7 +68,11 @@ class RedHatLogs(Logs, RedHatPlugin):
                 days = int(self.get_option("log_days"))
             except:
                 days = 3
-            self.add_cmd_output('journalctl --all --since="-%ddays"' % days)
+            if self.get_option("all_logs"):
+                since_opt = ""
+            else:
+                since_opt = '--since="-%ddays"' % days
+            self.add_cmd_output('journalctl --all %s' % since_opt)
 
 
 class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
