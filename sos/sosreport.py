@@ -889,7 +889,7 @@ class SoSReport(object):
                     continue
 
                 if self._is_not_default(plugbase, plugin_class):
-                    self._skip(plugin_class, _("not default"))
+                    self._skip(plugin_class, _("optional"))
                     continue
 
                 # true when the null (empty) profile is active
