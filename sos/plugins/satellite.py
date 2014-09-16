@@ -26,9 +26,6 @@ class Satellite(Plugin, RedHatPlugin):
 
     option_list = [("log", 'gathers all apache logs', 'slow', False)]
 
-    def default_enabled(self):
-        return False
-
     def rhn_package_check(self):
         self.satellite = self.is_installed("rhns-satellite-tools") \
             or self.is_installed("spacewalk-java") \
