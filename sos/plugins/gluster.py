@@ -29,9 +29,6 @@ class Gluster(Plugin, RedHatPlugin):
     packages = ["glusterfs", "glusterfs-core"]
     files = ["/etc/glusterd", "/var/lib/glusterd"]
 
-    def default_enabled(self):
-        return True
-
     def get_volume_names(self, volume_file):
         """Return a dictionary for which key are volume names according to the
         output of gluster volume info stored in volume_file.
