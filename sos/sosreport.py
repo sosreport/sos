@@ -53,6 +53,7 @@ from six import print_
 # file system errors that should terminate a run
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
+
 def _format_list(first_line, items, indent=False):
     lines = []
     line = first_line
@@ -69,6 +70,7 @@ def _format_list(first_line, items, indent=False):
         line = line[:-2]
     lines.append(line)
     return lines
+
 
 class TempFileUtil(object):
 
