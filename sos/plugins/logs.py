@@ -52,10 +52,23 @@ class Logs(Plugin):
 
 class RedHatLogs(Logs, RedHatPlugin):
 
+    option_list = [
+        ("log_days", "the number of days logs to collect", "", 3)
+    ]
+
     def setup(self):
         super(RedHatLogs, self).setup()
+        messages = "/var/log/messages"
         self.add_copy_spec_limit("/var/log/secure*", sizelimit=self.limit)
-        self.add_copy_spec_limit("/var/log/messages*", sizelimit=self.limit)
+        self.add_copy_spec_limit(messages + "*", sizelimit=self.limit)
+        # collect five days worth of logs by default if the system is
+        # configured to use the journal and not /var/log/messages
+        if not os.path.exists(messages) and self.is_installed("systemd"):
+            try:
+                days = int(self.get_option("log_days"))
+            except:
+                days = 3
+            self.add_cmd_output('journalctl --all --since="-%ddays"' % days)
 
 
 class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
