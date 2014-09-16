@@ -827,6 +827,7 @@ class SoSReport(object):
         plugins = helper.get_modules()
         self.plugin_names = deque()
         self.profiles = set()
+        using_profiles = len(self.opts.profiles)
         # validate and load plugins
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
@@ -873,7 +874,9 @@ class SoSReport(object):
                     self._skip(plugin_class, _("not default"))
                     continue
 
-                if self._is_not_specified(plugbase) and not in_profile:
+                # true when the null (empty) profile is active
+                default_profile = not using_profiles and in_profile
+                if self._is_not_specified(plugbase) and default_profile:
                     self._skip(plugin_class, _("not specified"))
                     continue
 
