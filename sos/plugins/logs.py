@@ -31,6 +31,10 @@ class Logs(Plugin):
         self.limit = self.get_option("log_size")
         self.add_copy_spec_limit("/var/log/boot.log", sizelimit=self.limit)
         self.add_copy_spec_limit("/var/log/cloud-init*", sizelimit=self.limit)
+        self.add_cmd_outputs([
+            "journalctl --all --this-boot --no-pager",
+            "journalctl --all --this-boot --no-pager -o verbose",
+        ])
 
         if self.get_option('all_logs'):
             logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
