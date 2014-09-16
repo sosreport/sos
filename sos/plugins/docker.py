@@ -17,12 +17,16 @@ from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Docker(Plugin):
+
     """Docker containers
     """
 
     plugin_name = 'docker'
     profiles = ('virt',)
     docker_bin = "docker"
+
+    option_list = [("all", "capture all container logs even the "
+                    "terminated ones", 'fast', False)]
 
     def setup(self):
         self.add_copy_specs([
@@ -35,8 +39,11 @@ class Docker(Plugin):
             "{0} images".format(self.docker_bin)
         ])
 
-        result = self.get_command_output("{0} ps".format(
-            self.docker_bin))
+        ps_cmd = "{0} ps".format(self.docker_bin)
+        if self.get_option('all'):
+            ps_cmd = "{0} -a".format(ps_cmd)
+
+        result = self.get_command_output(ps_cmd)
         if result['status'] == 0:
             result['output'] = result['output'].split("\n")
             for line in result['output'][1:]:
