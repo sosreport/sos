@@ -219,6 +219,8 @@ class SoSOptions(object):
     _debug = False
     _case_id = ""
     _customer_name = ""
+    _profiles = deque()
+    _list_profiles = False
     _config_file = ""
     _tmp_dir = ""
     _report = True
@@ -437,6 +439,28 @@ class SoSOptions(object):
         self._customer_name = value
 
     @property
+    def profiles(self):
+        if self._options is not None:
+            return self._options.profiles
+        return self._profiles
+
+    @profiles.setter
+    def profiles(self, value):
+        self._check_options_initialized()
+        self._profiles = value
+
+    @property
+    def list_profiles(self):
+        if self._options is not None:
+            return self._options.list_profiles
+        return self._list_profiles
+
+    @list_profiles.setter
+    def list_profiles(self, value):
+        self._check_options_initialized()
+        self._list_profiles = value
+
+    @property
     def config_file(self):
         if self._options is not None:
             return self._options.config_file
@@ -538,6 +562,11 @@ class SoSOptions(object):
         parser.add_option("--case-id", action="store",
                           dest="case_id",
                           help="specify case identifier")
+        parser.add_option("-p", "--profile", action="extend",
+                          dest="profiles", type="string", default=deque(),
+                          help="enable plugins selected by the given profiles")
+        parser.add_option("--list-profiles", action="store_true",
+                          dest="list_profiles", default=False)
         parser.add_option("--name", action="store",
                           dest="customer_name",
                           help="specify report name")
@@ -750,6 +779,13 @@ class SoSReport(object):
                         self.config.get("plugins", "disable").split(',')]
         return disabled
 
+    def _is_in_profile(self, plugin_class, profiles):
+        if not len(profiles):
+            return True
+        if not hasattr(plugin_class, "profiles"):
+            return False
+        return any([p in profiles for p in plugin_class.profiles])
+
     def _is_skipped(self, plugin_name):
         return (plugin_name in self.opts.noplugins or
                 plugin_name in self._get_disabled_plugins())
@@ -787,7 +823,7 @@ class SoSReport(object):
         helper = ImporterHelper(sos.plugins)
         plugins = helper.get_modules()
         self.plugin_names = deque()
-
+        self.profiles = set()
         # validate and load plugins
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
@@ -814,6 +850,12 @@ class SoSReport(object):
 
                 # plug-in is valid, let's decide whether run it or not
                 self.plugin_names.append(plugbase)
+                if hasattr(plugin_class, "profiles"):
+                    self.profiles.update(plugin_class.profiles)
+
+                if not self._is_in_profile(plugin_class, self.opts.profiles):
+                    self._skip(plugin_class, _("excluded"))
+                    continue
 
                 if self._is_skipped(plugbase):
                     self._skip(plugin_class, _("skipped"))
@@ -958,6 +1000,39 @@ class SoSReport(object):
         else:
             self.ui_log.info(_("No plugin options available."))
 
+        self.ui_log.info("")
+
+    def list_profiles(self):
+        if not self.profiles:
+            self.soslog.fatal(_("no valid profiles found"))
+            return
+        self.ui_log.info(_("The following profiles are available:"))
+        self.ui_log.info("")
+
+        def _has_prof(c):
+            return hasattr(c, "profiles")
+
+        profiles = list(self.profiles)
+        profiles.sort()
+        for profile in profiles:
+            plugins = []
+            for name, plugin in self.loaded_plugins:
+                if _has_prof(plugin) and profile in plugin.profiles:
+                    plugins.append(name)
+            lines = []
+            line = ""
+            for name in plugins:
+                if len(line) + len(name) + 2 > 62:
+                    lines.append(line)
+                    line = ""
+                line = line + name + ', '
+            if line[-2:] == ', ':
+                line = line[:-2]
+            lines.append(line)
+            self.ui_log.info(" %-15s %s" % (profile, lines[0]))
+            lines.pop(0)
+            for line in lines:
+                self.ui_log.info(" %-15s %s" % ("", line))
         self.ui_log.info("")
 
     def batch(self):
@@ -1272,6 +1347,9 @@ class SoSReport(object):
 
             if self.opts.list_plugins:
                 self.list_plugins()
+                return True
+            if self.opts.list_profiles:
+                self.list_profiles()
                 return True
 
             # verify that at least one plug-in is enabled

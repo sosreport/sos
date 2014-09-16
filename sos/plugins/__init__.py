@@ -88,6 +88,10 @@ class Plugin(object):
     of files) to check for before running this plugin. If any of these packages
     or files is found on the system, the default implementation of
     check_enabled will return True.
+
+    profiles is an iterable of profile names that this plugin belongs to.
+    Whenever any of the profiles is selected on the command line the plugin
+    will be enabled (subject to normal check_enabled tests).
     """
 
     plugin_name = None
@@ -96,6 +100,7 @@ class Plugin(object):
     packages = ()
     files = ()
     archive = None
+    profiles = ()
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):

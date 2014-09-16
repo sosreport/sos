@@ -12,15 +12,16 @@ sosreport \- Collect and package diagnostic and support data
           [--batch] [--build] [--debug]\fR
           [--name name] [--case-id id] [--ticket-number nr]
           [--tmp-dir directory]\fR
+          [-p|--profile profile-name]\fR
+          [--list-profiles]\fR
           [-z|--compression-type method]\fR
           [--help]\fR
 .SH DESCRIPTION
-\fBsosreport\fR generates a compressed tar archive of diagnostic
-information from the running system. The archive may be stored
-locally or centrally for recording or tracking purposes or may
-be sent to technical support representatives, developers or
-system administrators to assist with technical fault-finding and
-debugging.
+\fBsosreport\fR generates an archive of configuration and diagnostic
+information from the running system. The archive may be stored locally
+or centrally for recording or tracking purposes or may be sent to
+technical support representatives, developers or system administrators
+to assist with technical fault-finding and debugging.
 .LP
 Sos is modular in design and is able to collect data from a wide
 range of subsystems and packages that may be installed. An
@@ -68,6 +69,17 @@ Specify alternate configuration file.
 .B \--tmp-dir DIRECTORY
 Specify alternate temporary directory to copy data as well as the
 compressed report.
+.TP
+.B \--list-profiles
+Display a list of available profiles and the plugins that they enable.
+.TP
+.B \-p, \--profile NAME
+Only run plugins that correspond to the given profile. Multple profiles
+may be specified as a comma-separated list; the set of plugins executed
+is the union of each of the profile's plugin sets. Currently defined
+profiles include: boot, cluster, desktop, debug, hardware, identity,
+network, openstack, packagemanager, security, services, storage,
+sysmgmt, system, performance, virt, and webserver.
 .TP
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.
