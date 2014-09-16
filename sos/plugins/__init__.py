@@ -468,7 +468,8 @@ class Plugin(object):
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
                            % (prog, timeout))
-        if result['status'] == 127:
+        # 126 means 'found but not executable'
+        if result['status'] == 126 or result['status'] == 127:
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
@@ -557,7 +558,8 @@ class Plugin(object):
         """
         start = time()
         result = self.get_command_output(exe, timeout=timeout, runat=runat)
-        if result['status'] == 127:
+        # 126 means 'found but not executable'
+        if result['status'] == 126 or result['status'] == 127:
             return None
         self._log_debug("collected output of '%s' in %s"
                         % (exe.split()[0], time() - start))
