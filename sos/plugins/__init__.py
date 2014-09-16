@@ -46,7 +46,7 @@ def _mangle_command(command):
     # FIXME: this can be improved
     mangledname = re.sub(r"^/(usr/|)(bin|sbin)/", "", command)
     mangledname = re.sub(r"[^\w\-\.\/]+", "_", mangledname)
-    mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")[0:64]
+    mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")
     return mangledname
 
 

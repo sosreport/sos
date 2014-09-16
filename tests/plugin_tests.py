@@ -119,8 +119,6 @@ class PluginToolTests(unittest.TestCase):
         self.assertEquals("foo_-x", _mangle_command("/usr/bin/foo -x"))
         self.assertEquals("foo_--verbose", _mangle_command("/usr/bin/foo --verbose"))
         self.assertEquals("foo_.path.to.stuff", _mangle_command("/usr/bin/foo /path/to/stuff"))
-        expected = "foo_.path.to.stuff.this.is.very.long.and.i.only.expect.part.of.it.maybe.this.is.enough.i.hope.so"[0:64]
-        self.assertEquals(expected, _mangle_command("/usr/bin/foo /path/to/stuff/this/is/very/long/and/i/only/expect/part/of/it/maybe/this/is/enough/i/hope/so"))
 
 
 class PluginTests(unittest.TestCase):
