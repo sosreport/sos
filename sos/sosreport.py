@@ -781,7 +781,7 @@ class SoSReport(object):
 
     def _is_in_profile(self, plugin_class):
         onlyplugins = self.opts.onlyplugins
-        if not len(self.profiles):
+        if not len(self.opts.profiles):
             return True
         if not hasattr(plugin_class, "profiles"):
             return False
