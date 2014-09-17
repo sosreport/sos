@@ -8,7 +8,7 @@ sosreport \- Collect and package diagnostic and support data
           [-e|--enable-plugins plugin-names]\fR
           [-o|--only-plugins plugin-names]\fR
           [-a|--alloptions] [-v|--verbose]\fR
-          [--report] [--config-file conf]\fR
+          [--no-report] [--config-file conf]\fR
           [--batch] [--build] [--debug]\fR
           [--name name] [--case-id id] [--ticket-number nr]
           [--tmp-dir directory]\fR
@@ -60,8 +60,8 @@ additional debugging messages.
 .B \-q, \--quiet
 Only log fatal errors to stderr.
 .TP
-.B \--report
-Enable HTML/XML report writing.
+.B \--no-report
+Disable HTML/XML report writing.
 .TP
 .B \--config-file CONFIG
 Specify alternate configuration file.
