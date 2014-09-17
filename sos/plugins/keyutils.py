@@ -21,7 +21,7 @@ class Keyutils(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'keyutils'
-    profiles = ('system', 'kernel', 'security',)
+    profiles = ('system', 'kernel', 'security', 'storage')
 
     packages = ('keyutils',)
 
