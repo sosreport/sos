@@ -81,67 +81,6 @@ class Emc(Plugin, RedHatPlugin):
             "powermt dump"
         ])
 
-    def get_symcli_files(self):
-        """ EMC Solutions Enabler SYMCLI specific information - files
-        """
-        self.add_copy_specs([
-            "/var/symapi/db/symapi_db.bin",
-            "/var/symapi/config/[a-z]*",
-            "/var/symapi/log/[a-z]*"
-        ])
-
-    def get_symcli_config(self):
-        """ EMC Solutions Enabler SYMCLI specific information
-        - Symmetrix/DMX - commands
-        """
-        self.add_cmd_outputs([
-            "symclisymcli -def",
-            "symclisymdg list",
-            "symclisymdg -v list",
-            "symclisymcg list",
-            "symclisymcg -v list",
-            "symclisymcfg list",
-            "symclisymcfg -v list",
-            "symclisymcfg -db",
-            "symclisymcfg -semaphores list",
-            "symclisymcfg -dir all -v list",
-            "symclisymcfg -connections list",
-            "symclisymcfg -app -v list",
-            "symclisymcfg -fa all -port list",
-            "symclisymcfg -ra all -port list",
-            "symclisymcfg -sa all -port list",
-            "symclisymcfg list -lock",
-            "symclisymcfg list -lockn all",
-            "symclisyminq",
-            "symclisyminq -v",
-            "symclisyminq -symmids",
-            "symclisyminq hba -fibre",
-            "symclisyminq hba -scsi",
-            "symclisymhost show -config",
-            "symclistordaemon list",
-            "symclistordaemon -v list",
-            "symclisympd list",
-            "symclisympd list -vcm",
-            "symclisymdev list",
-            "symclisymdev -v list",
-            "symclisymdev -rdfa list",
-            "symclisymdev -rdfa -v list",
-            "symclisymbcv list",
-            "symclisymbcv -v list",
-            "symclisymrdf list",
-            "symclisymrdf -v list",
-            "symclisymrdf -rdfa list",
-            "symclisymrdf -rdfa -v list",
-            "symclisymsnap list",
-            "symclisymsnap list -savedevs",
-            "symclisymclone list",
-            "symclisymevent list",
-            "symclisymmask list hba",
-            "symclisymmask list logins",
-            "symclisymmaskdb list database",
-            "symclisymmaskdb -v list database"
-        ])
-
     def get_navicli_config(self):
         """ EMC Navisphere Host Agent NAVICLI specific information - files
         """
@@ -198,17 +137,6 @@ class Emc(Plugin, RedHatPlugin):
             print("EMC PowerPath is running.")
             print(" Gathering additional EMC PowerPath information...")
             self.get_pp_config()
-
-        # If Solutions Enabler is installed collect Symmetrix/DMX specific
-        # information
-        if len(self.policy().package_manager.all_pkgs_by_name_regex(
-                '[Ss][Yy][Mm][Cc][Ll][Ii]-[Ss][Yy][Mm][Cc][Ll][Ii]')) > 0:
-            print("EMC Solutions Enabler SYMCLI is installed.")
-            print(" Gathering EMC Solutions Enabler SYMCLI information...")
-            self.add_custom_text("EMC Solutions Enabler is installed.<br>")
-            self.get_symcli_files()
-            self.get_symcli_config()
-            add_about_emc = "yes"
 
         # If Navisphere Host Agent is installed collect CLARiiON specific
         # information
