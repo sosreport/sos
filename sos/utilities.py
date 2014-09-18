@@ -138,6 +138,9 @@ def sos_get_command_output(command, timeout=300, runat=None):
     if timeout and is_executable("timeout"):
         command = "timeout %ds %s" % (timeout, command)
 
+    # shlex.split() reacts badly to unicode on older python runtimes.
+    if six.PY2:
+        command = command.encode('utf-8')
     args = shlex.split(command)
     try:
         p = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT,
