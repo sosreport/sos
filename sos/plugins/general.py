@@ -32,11 +32,8 @@ class General(Plugin):
             "/etc/os-release"
         ])
 
-        self.add_cmd_output(
-            "hostname -f",
-            root_symlink="hostname",
-            suggest_filename="hostname"
-        )
+        self.add_cmd_output("hostname -f")
+        self.add_cmd_output("hostname", root_symlink=hostname)
 
         self.add_cmd_output("date", root_symlink="date")
         self.add_cmd_output("uptime", root_symlink="uptime")
