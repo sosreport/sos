@@ -30,7 +30,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class Neutron(Plugin):
     """OpenStack Networking
     """
-    plugin_name = "neutron"
+    plugin_name = "openstack_neutron"
     profiles = ('openstack',)
 
     option_list = [("log", "Gathers all Neutron logs", "slow", False),
