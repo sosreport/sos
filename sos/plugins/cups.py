@@ -37,6 +37,7 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.add_copy_specs([
             "/etc/cups/*.conf",
+            "/etc/cups/*.types",
             "/etc/cups/lpoptions",
             "/etc/cups/ppd/*.ppd"
         ])
