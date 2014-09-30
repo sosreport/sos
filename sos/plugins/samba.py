@@ -29,7 +29,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/samba/log.smbd",
             "/var/log/samba/log.nmbd"
         ])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "wbinfo --domain='.' -g",
             "wbinfo --domain='.' -u",
             "testparm -s -v"

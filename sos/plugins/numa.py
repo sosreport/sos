@@ -34,7 +34,7 @@ class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/numad.log*",
             sizelimit=self.get_option("log_size")
         )
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "numastat",
             "numastat -m",
             "numastat -n",

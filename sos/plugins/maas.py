@@ -53,7 +53,7 @@ class Maas(Plugin, UbuntuPlugin):
             "/var/log/maas*",
             "/var/log/upstart/maas-*",
         ])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "apt-cache policy maas-*",
             "apt-cache policy python-django-*",
             "maas dumpdata"

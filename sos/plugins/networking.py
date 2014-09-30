@@ -93,7 +93,7 @@ class Networking(Plugin):
         self.collect_iptable("nat")
         self.collect_iptable("mangle")
         self.add_cmd_output("netstat -neopa", root_symlink="netstat")
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "netstat -s",
             "netstat -agn",
             "ip route show table all",
@@ -115,7 +115,7 @@ class Networking(Plugin):
         ip_link_result = self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
             for eth in self.get_eth_interfaces(ip_link_result['output']):
-                self.add_cmd_outputs([
+                self.add_cmd_output([
                     "ethtool "+eth,
                     "ethtool -i "+eth,
                     "ethtool -k "+eth,
@@ -128,7 +128,7 @@ class Networking(Plugin):
         brctl_file = self.get_cmd_output_now("brctl show")
         if brctl_file:
             for br_name in self.get_bridge_name(brctl_file):
-                self.add_cmd_outputs([
+                self.add_cmd_output([
                     "brctl showstp "+br_name,
                     "brctl showmacs "+br_name
                 ])
@@ -180,7 +180,7 @@ class UbuntuNetworking(Networking, UbuntuPlugin):
             "/var/log/ufw.Log",
             "/etc/resolv.conf"
         ])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "/usr/sbin/ufw status",
             "/usr/sbin/ufw app list"
         ])

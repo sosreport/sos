@@ -36,7 +36,7 @@ class MegaCLI(Plugin, RedHatPlugin):
         """ MegaCLI specific output
         """
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "MegaCli64 LDPDInfo -aALL",
             "MegaCli64 -AdpAllInfo -aALL",
             "MegaCli64 -AdpBbuCmd -GetBbuStatus -aALL",

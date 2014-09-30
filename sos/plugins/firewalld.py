@@ -35,7 +35,7 @@ class FirewallD(Plugin, RedHatPlugin):
             "/etc/sysconfig/firewalld"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "firewall-cmd --list-all-zones",
             "firewall-cmd --permanent --list-all-zones"
         ])

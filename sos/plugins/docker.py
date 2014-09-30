@@ -33,7 +33,7 @@ class Docker(Plugin):
             "/var/lib/docker/repositories-*"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "{0} info".format(self.docker_bin),
             "{0} ps".format(self.docker_bin),
             "{0} images".format(self.docker_bin)
@@ -48,7 +48,7 @@ class Docker(Plugin):
             result['output'] = result['output'].split("\n")
             for line in result['output'][1:]:
                 container_id = line.split(" ")[0]
-                self.add_cmd_outputs([
+                self.add_cmd_output([
                     "{0} logs {1}".format(self.docker_bin, container_id)
                 ])
 

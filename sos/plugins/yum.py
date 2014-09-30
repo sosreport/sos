@@ -49,7 +49,7 @@ class Yum(Plugin, RedHatPlugin):
             "/etc/rhsm/",
             "/var/log/rhsm/rhsm.log",
             "/var/log/rhsm/rhsmcertd.log"])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "subscription-manager list --installed",
             "subscription-manager list --consumed"
         ])

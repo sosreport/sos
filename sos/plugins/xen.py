@@ -79,7 +79,7 @@ class Xen(Plugin, RedHatPlugin):
                 "/sys/hypervisor/compilation",
                 "/sys/hypervisor/properties",
                 "/sys/hypervisor/type"])
-            self.add_cmd_outputs([
+            self.add_cmd_output([
                 "xm dmesg",
                 "xm info",
                 "xm list",

@@ -31,7 +31,7 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/ofed/opensm.conf"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ibv_devices",
             "ibv_devinfo",
             "ibstat",

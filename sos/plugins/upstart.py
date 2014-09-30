@@ -26,7 +26,7 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('upstart',)
 
     def setup(self):
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             'initctl --system list',
             'initctl --system version',
             'init --version',

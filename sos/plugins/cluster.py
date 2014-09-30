@@ -66,7 +66,7 @@ class Cluster(Plugin, RedHatPlugin):
         if self.get_option('lockdump'):
             self.do_lockdump()
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "rg_test test /etc/cluster/cluster.conf",
             "fence_tool ls -n",
             "gfs_control ls -n",

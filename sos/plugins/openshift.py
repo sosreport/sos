@@ -55,7 +55,7 @@ class Openshift(Plugin, RedHatPlugin):
                 "/var/www/openshift/console/httpd/conf.d/*.conf",
             ])
 
-            self.add_cmd_outputs([
+            self.add_cmd_output([
                 "oo-accept-broker -v",
                 "oo-admin-chk -v",
                 "oo-mco ping",
@@ -76,7 +76,7 @@ class Openshift(Plugin, RedHatPlugin):
                 "/var/log/node-web-proxy/supervisor.log",
             ])
 
-            self.add_cmd_outputs([
+            self.add_cmd_output([
                 "oo-accept-node -v",
                 "oo-admin-ctl-gears list",
                 "ls -laZ /var/lib/openshift"

@@ -70,7 +70,7 @@ class Ipa(Plugin, RedHatPlugin):
 
         self.add_forbidden_path("/etc/named.keytab")
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ls -la /etc/dirsrv/slapd-*/schema/",
             "ipa-getcert list",
             "certutil -L -d /etc/httpd/alias/",
@@ -80,7 +80,7 @@ class Ipa(Plugin, RedHatPlugin):
         ])
 
         hostname = self.call_ext_prog('hostname')['output']
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ipa-replica-manage -v list",
             "ipa-replica-manage -v list %s" % hostname
         ], timeout=30)

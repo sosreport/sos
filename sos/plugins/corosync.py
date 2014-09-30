@@ -29,7 +29,7 @@ class Corosync(Plugin):
             "/var/lib/corosync/fdata",
             "/var/log/cluster/corosync.log"
         ])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "corosync-quorumtool -l",
             "corosync-quorumtool -s",
             "corosync-cpgtool",

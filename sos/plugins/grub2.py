@@ -33,7 +33,7 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/grub2.cfg",
             "/etc/grub.d"
         ])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ls -lanR /boot",
             "grub2-mkconfig"
         ])

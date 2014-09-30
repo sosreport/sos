@@ -33,7 +33,7 @@ class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             for disk in os.listdir(sys_block):
                 if disk.startswith("sd") or disk.startswith("hd"):
                     disk_path = os.path.join(dev_path, disk)
-                    self.add_cmd_outputs([
+                    self.add_cmd_output([
                         "hdparm %s" % disk_path,
                         "smartctl -a %s" % disk_path
                     ])

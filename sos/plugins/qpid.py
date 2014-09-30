@@ -26,7 +26,7 @@ class Qpid(Plugin, RedHatPlugin):
 
     def setup(self):
         """ performs data collection for qpid broker """
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "qpid-stat -g",  # applies since 0.18 version
             "qpid-stat -b",  # applies to pre-0.18 versions
             "qpid-stat -c",

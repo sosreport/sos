@@ -43,7 +43,7 @@ class PowerPath(Plugin, RedHatPlugin):
     def get_pp_config(self):
         """ EMC PowerPath specific information - commands
         """
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "powermt display",
             "powermt display dev=all",
             "powermt check_registration",

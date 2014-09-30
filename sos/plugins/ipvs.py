@@ -26,7 +26,7 @@ class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('ipvsadm',)
 
     def setup(self):
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ipvsadm -Ln",
             "ipvsadm -Lc"
         ])

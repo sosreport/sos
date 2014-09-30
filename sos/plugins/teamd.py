@@ -43,7 +43,7 @@ class Teamd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         teams = self._get_team_interfaces()
         for team in teams:
-            self.add_cmd_outputs([
+            self.add_cmd_output([
                 "teamdctl %s state" % team,
                 "teamdctl %s state dump" % team,
                 "teamdctl %s config dump" % team,

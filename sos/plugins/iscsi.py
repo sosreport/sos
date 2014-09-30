@@ -35,7 +35,7 @@ class RedHatIscsi(Iscsi, RedHatPlugin):
             "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"
         ])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "iscsiadm -m session -P 3",
             "iscsiadm -m node -P 3",
             "iscsiadm -m iface -P 1",

@@ -25,7 +25,7 @@ class Tuned(Plugin, RedHatPlugin):
     plugin_name = 'tuned'
 
     def setup(self):
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "tuned-adm list",
             "tuned-adm active",
             "tuned-adm recommend"

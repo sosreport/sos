@@ -28,7 +28,7 @@ class fcoe(Plugin, RedHatPlugin):
         # FCoE instances with the -i option, and
         # information about all discovered FCFs
         # with the -f option
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "fcoeadm -i",
             "fcoeadm -f"
         ])

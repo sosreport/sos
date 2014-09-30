@@ -42,7 +42,7 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/cups/ppd/*.ppd"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "lpstat -t",
             "lpstat -s",
             "lpstat -d"

@@ -33,7 +33,7 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/sys/class/scsi_generic"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "lsscsi",
             "sg_map"
         ])

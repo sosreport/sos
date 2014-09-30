@@ -77,7 +77,7 @@ class Juju(Plugin, UbuntuPlugin):
             "/var/lib/juju"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "juju -v status",
             "juju -v get-constraints"
         ])

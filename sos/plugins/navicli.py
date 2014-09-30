@@ -47,7 +47,7 @@ class Navicli(Plugin, RedHatPlugin):
         """ EMC Navisphere Host Agent NAVICLI specific
         information - CLARiiON - commands
         """
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "navicli -h %s getall" % SP_address,
             "navicli -h %s getsptime -spa" % SP_address,
             "navicli -h %s getsptime -spb" % SP_address,

@@ -26,7 +26,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec("/proc/partitions")
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "lsblk",
             "blkid -c /dev/null",
             "ls -lanR /dev",
@@ -44,7 +44,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 if disk in [".",  ".."] or disk.startswith("ram"):
                     continue
                 disk_path = os.path.join('/dev/', disk)
-                self.add_cmd_outputs([
+                self.add_cmd_output([
                     "udevadm info -ap /sys/block/%s" % (disk),
                     "parted -s %s print" % (disk_path),
                     "fdisk -l %s" % disk_path

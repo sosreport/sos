@@ -89,7 +89,7 @@ class Neutron(Plugin):
 
     def ns_gather_data(self, nsname):
         cmd_prefix = "ip netns exec %s " % nsname
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             cmd_prefix + "iptables-save",
             cmd_prefix + "ifconfig -a",
             cmd_prefix + "route -n"
@@ -102,7 +102,7 @@ class Neutron(Plugin):
                 # virtual. The '-a', '-c' and '-g' options are not likely to be
                 # supported so these ops are not copied from the network
                 # plugin.
-                self.add_cmd_outputs([
+                self.add_cmd_output([
                     cmd_prefix + "ethtool "+eth,
                     cmd_prefix + "ethtool -i "+eth,
                     cmd_prefix + "ethtool -k "+eth,

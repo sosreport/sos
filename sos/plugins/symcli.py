@@ -38,7 +38,7 @@ class Symcli(Plugin, RedHatPlugin):
         """ EMC Solutions Enabler SYMCLI specific information
         - Symmetrix/DMX - commands
         """
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "/usr/symcli/bin/symcli -def",
             "/usr/symcli/bin/symdg list",
             "/usr/symcli/bin/symdg -v list",

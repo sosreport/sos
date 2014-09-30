@@ -28,7 +28,7 @@ class Systemd(Plugin, RedHatPlugin):
     files = ('/usr/lib/systemd/systemd',)
 
     def setup(self):
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "systemctl show --all",
             "systemctl list-units",
             "systemctl list-units --failed",

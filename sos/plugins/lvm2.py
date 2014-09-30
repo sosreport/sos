@@ -59,7 +59,7 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         vgs_cols = 'vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count'
         vgs_cols = vgs_cols + ',' + 'vg_tags'
         lvs_cols = 'lv_tags,devices'
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "vgscan -vvv %s" % lvm_opts,
             "pvscan -v %s" % lvm_opts,
             "pvs -a -v -o +%s %s" % (pvs_cols, lvm_opts),

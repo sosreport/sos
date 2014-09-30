@@ -36,7 +36,7 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/yaboot.conf",
             "/boot/yaboot.conf"
         ])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ls -lanR /boot",
             "lsinitrd"
         ])

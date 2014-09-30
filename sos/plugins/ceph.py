@@ -40,7 +40,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "/var/log/ceph/"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ceph status",
             "ceph health",
             "ceph osd tree",

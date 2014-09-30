@@ -31,7 +31,7 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/sys/devices/system/cpu"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "lscpu",
             "cpupower info",
             "cpupower idle-info",

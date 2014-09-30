@@ -28,7 +28,7 @@ class SystemTap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('systemtap', 'systemtap-runtime')
 
     def setup(self):
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "stap -V 2",
             "uname -r",
             "stap-report"

@@ -31,7 +31,7 @@ class Ctdb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/log.ctdb"
         ])
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ctdb ip",
             "ctdb ping",
             "ctdb status",

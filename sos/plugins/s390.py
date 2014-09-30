@@ -53,7 +53,7 @@ class S390(Plugin, RedHatPlugin):
             "/etc/src_vipa.conf",
             "/etc/ccwgroup.conf",
             "/etc/chandev.conf"])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "lscss",
             "lsdasd",
             "lstape",
@@ -65,7 +65,7 @@ class S390(Plugin, RedHatPlugin):
         r = self.call_ext_prog("ls /dev/dasd?")
         dasd_dev = r['output']
         for x in dasd_dev.split('\n'):
-            self.add_cmd_outputs([
+            self.add_cmd_output([
                 "dasdview -x -i -j -l -f %s" % (x,),
                 "fdasd -p %s" % (x,)
             ])

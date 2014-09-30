@@ -24,7 +24,7 @@ class Soundcard(Plugin):
 
     def setup(self):
         self.add_copy_spec("/proc/asound/*")
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "aplay -l",
             "aplay -L",
             "amixer"

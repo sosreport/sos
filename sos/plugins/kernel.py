@@ -36,7 +36,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         except OSError:
             self._log_warn("could not list %s" % self.sys_module)
 
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "dmesg",
             "sysctl -a",
             "dkms status"

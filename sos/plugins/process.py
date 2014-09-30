@@ -26,7 +26,7 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("ps auxwww", root_symlink="ps")
         self.add_cmd_output("pstree", root_symlink="pstree")
         self.add_cmd_output("lsof -b +M -n -l", root_symlink="lsof")
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "ps auxwwwm",
             "ps alxwww"
         ])

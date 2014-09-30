@@ -50,7 +50,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/dev/nvram",
                 "/var/lib/lsvpd/"
             ])
-            self.add_cmd_outputs([
+            self.add_cmd_output([
                 "ppc64_cpu --smt",
                 "ppc64_cpu --cores-present",
                 "ppc64_cpu --cores-on",
@@ -69,7 +69,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/proc/ppc64/systemcfg",
                 "/var/log/platform"
             ])
-            self.add_cmd_outputs([
+            self.add_cmd_output([
                 "lsvio -des",
                 "servicelog --dump",
                 "servicelog_notify --list",

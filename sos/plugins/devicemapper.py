@@ -23,7 +23,7 @@ class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('storage',)
 
     def setup(self):
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "dmsetup info -c",
             "dmsetup table",
             "dmsetup status",

@@ -486,22 +486,19 @@ class Plugin(object):
         """
         return self.call_ext_prog(prog)['status'] == 0
 
-    def add_cmd_outputs(self, cmds, timeout=300, runat=None):
-        """Run a list of programs and collect the output"""
+    def add_cmd_output(self, cmds, suggest_filename=None,
+                       root_symlink=None, timeout=300, runat=None):
+        """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
-            raise TypeError("add_cmd_outputs called with string argument")
+            cmds = [cmds]
+        if len(cmds) > 1 and (suggest_filename or root_symlink):
+            self._log_warn("ambiguous filename or symlink for command list")
         for cmd in cmds:
-            self.add_cmd_output(cmd, timeout=timeout, runat=runat)
-
-    def add_cmd_output(self, exe, suggest_filename=None,
-                       root_symlink=None, timeout=300,
-                       runat=None):
-        """Run a program and collect the output"""
-        cmd = (exe, suggest_filename, root_symlink, timeout, runat)
-        self._log_debug("packed command tuple: ('%s', '%s', '%s', %s, '%s')"
-                        % cmd)
-        self.collect_cmds.append(cmd)
-        self._log_info("added cmd output '%s'" % exe)
+            cmdt = (cmd, suggest_filename, root_symlink, timeout, runat)
+            _logstr = "packed command tuple: ('%s', '%s', '%s', %s, '%s')"
+            self._log_debug(_logstr % cmdt)
+            self.collect_cmds.append(cmdt)
+            self._log_info("added cmd output '%s'" % cmd)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected

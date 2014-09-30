@@ -24,7 +24,7 @@ class SANLock(Plugin):
 
     def setup(self):
         self.add_copy_spec("/var/log/sanlock.log*")
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "sanlock client status -D",
             "sanlock client host_status -D",
             "sanlock client log_dump"

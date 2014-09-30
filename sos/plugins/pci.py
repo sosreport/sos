@@ -30,7 +30,7 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         ])
 
         self.add_cmd_output("lspci", root_symlink="lspci")
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "lspci -nvv",
             "lspci -tv"
         ])

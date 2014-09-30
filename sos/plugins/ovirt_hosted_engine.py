@@ -77,7 +77,7 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
             )
 
         # Add run-time status
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             'hosted-engine --vm-status',
             'hosted-engine --check-liveliness',
         ])

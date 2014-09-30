@@ -34,7 +34,7 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
         dpkg_output = dpkg_result['output'].splitlines()
         pkg_list = ' '.join(
             [v.split('\t')[0] for v in dpkg_output if 'ok installed' in v])
-        self.add_cmd_outputs([
+        self.add_cmd_output([
             "apt-get check",
             "apt-config dump",
             "apt-cache stats",
