@@ -30,7 +30,7 @@ class RedHatIscsi(Iscsi, RedHatPlugin):
 
     def setup(self):
         super(RedHatIscsi, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"

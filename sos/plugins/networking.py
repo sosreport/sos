@@ -69,7 +69,7 @@ class Networking(Plugin):
 
     def setup(self):
         super(Networking, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/net/",
             "/etc/nsswitch.conf",
             "/etc/yp.conf",
@@ -172,7 +172,7 @@ class UbuntuNetworking(Networking, UbuntuPlugin):
     def setup(self):
         super(UbuntuNetworking, self).setup()
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/resolvconf",
             "/etc/network/interfaces",
             "/etc/network/interfaces.d",

@@ -34,7 +34,7 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         # Job Configuration Files
-        self.add_copy_specs([
+        self.add_copy_spec([
             '/etc/init.conf',
             '/etc/event.d/*',
             '/etc/init/*.conf'

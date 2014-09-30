@@ -87,7 +87,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # in a ridiculous way (i.e. setting PCP_SYSCONF_DIR to '/') this will
         # break badly.
         var_conf_dir = os.path.join(self.pcp_var_dir, 'config')
-        self.add_copy_specs([
+        self.add_copy_spec([
             self.pcp_sysconf_dir,
             var_conf_dir
         ])
@@ -138,7 +138,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         else:
             self._log_warn("pcp_hostname was not set. Skipping.")
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
             os.path.join(self.pcp_log_dir, 'pmcd'),
             os.path.join(self.pcp_log_dir, 'NOTICES*'),

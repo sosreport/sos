@@ -28,7 +28,7 @@ class Oddjob(Plugin, RedHatPlugin):
     packages = ('oddjob',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/oddjobd.conf",
             "/etc/oddjobd.conf.d",
             "/etc/dbus-1/system.d/oddjob.conf"

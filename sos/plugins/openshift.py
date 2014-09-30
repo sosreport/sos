@@ -38,7 +38,7 @@ class Openshift(Plugin, RedHatPlugin):
         return os.path.exists("/etc/openshift/node.conf")
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/openshift-enterprise-release",
             "/var/log/openshift",
             "/etc/openshift/*.conf",
@@ -48,7 +48,7 @@ class Openshift(Plugin, RedHatPlugin):
         self.add_cmd_output("oo-diagnostics -v")
 
         if self.is_broker():
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/etc/openshift/quickstarts.json",
                 "/etc/openshift/plugins.d/*.conf",
                 "/var/www/openshift/broker/httpd/conf.d/*.conf",
@@ -62,7 +62,7 @@ class Openshift(Plugin, RedHatPlugin):
             ])
 
         if self.is_node():
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/etc/openshift/node-plugins.d/*.conf",
                 "/etc/openshift/cart.conf.d",
                 "/etc/openshift/iptables.*.rules",

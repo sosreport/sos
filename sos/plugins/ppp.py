@@ -27,7 +27,7 @@ class Ppp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('ppp',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/wvdial.conf",
             "/etc/ppp",
             "/var/log/ppp"

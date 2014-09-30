@@ -24,7 +24,7 @@ class Pam(Plugin):
     security_libs = ""
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/pam.d",
             "/etc/security"
         ])

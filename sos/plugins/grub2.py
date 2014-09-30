@@ -24,7 +24,7 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('grub2',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/boot/efi/EFI/*/grub.cfg",
             "/boot/grub2/grub.cfg",
             "/boot/grub2/grubenv",

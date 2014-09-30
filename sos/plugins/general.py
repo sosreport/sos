@@ -22,7 +22,7 @@ class General(Plugin):
     profiles = ('system', 'sysmgmt')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/sos.conf",
             "/etc/sysconfig",
             "/proc/stat",
@@ -44,7 +44,7 @@ class RedHatGeneral(General, RedHatPlugin):
     def setup(self):
         super(RedHatGeneral, self).setup()
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/redhat-release",
             "/etc/fedora-release",
             "/var/log/up2date"
@@ -59,7 +59,7 @@ class DebianGeneral(General, DebianPlugin):
 
     def setup(self):
         super(DebianGeneral, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/default",
             "/etc/lsb-release",
             "/etc/debian_version"

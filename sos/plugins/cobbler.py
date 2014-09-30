@@ -27,7 +27,7 @@ class RedHatCobbler(Cobbler, RedHatPlugin):
     profiles = ('cluster', 'sysmgmt')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/cobbler",
             "/var/log/cobbler",
             "/var/lib/rhn/kickstarts",
@@ -40,7 +40,7 @@ class DebianCobbler(Cobbler, DebianPlugin, UbuntuPlugin):
     packages = ('cobbler',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/cobbler",
             "/var/log/cobbler",
             "/var/lib/cobbler"

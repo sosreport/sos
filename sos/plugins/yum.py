@@ -30,7 +30,7 @@ class Yum(Plugin, RedHatPlugin):
 
     def setup(self):
         # Pull all yum related information
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/yum",
             "/etc/yum.repos.d",
             "/etc/yum.conf",
@@ -42,7 +42,7 @@ class Yum(Plugin, RedHatPlugin):
         # candlepin info
         self.add_forbidden_path("/etc/pki/entitlement/key.pem")
         self.add_forbidden_path("/etc/pki/entitlement/*-key.pem")
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",
             "/etc/pki/entitlement/*.pem",

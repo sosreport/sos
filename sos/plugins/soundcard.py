@@ -36,7 +36,7 @@ class RedHatSoundcard(Soundcard, RedHatPlugin):
     def setup(self):
         super(RedHatSoundcard, self).setup()
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/alsa/*",
             "/etc/asound.*"
         ])

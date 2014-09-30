@@ -33,7 +33,7 @@ class OpenStackGlance(plugins.Plugin):
             "glance-manage db_version",
             suggest_filename="glance_db_version"
         )
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/glance/",
             "/var/log/glance/"
         ])

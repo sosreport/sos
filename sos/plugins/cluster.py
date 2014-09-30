@@ -44,7 +44,7 @@ class Cluster(Plugin, RedHatPlugin):
 
     def setup(self):
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/cluster.conf",
             "/etc/cluster.xml",
             "/etc/cluster",

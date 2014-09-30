@@ -40,7 +40,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             isPowerNV = False
 
         if ispSeries or isPowerNV:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/proc/device-tree/",
                 "/proc/loadavg",
                 "/proc/locks",
@@ -63,7 +63,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             ])
 
         if ispSeries:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/proc/ppc64/lparcfg",
                 "/proc/ppc64/eeh",
                 "/proc/ppc64/systemcfg",
@@ -81,7 +81,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             ])
 
         if isPowerNV:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/proc/ppc64/eeh",
                 "/proc/ppc64/systemcfg"
                 "/proc/ppc64/topology_updates"

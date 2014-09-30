@@ -28,7 +28,7 @@ class Named(Plugin):
     def setup(self):
         for cfg in self.config_files:
             if exists(cfg):
-                self.add_copy_specs([
+                self.add_copy_spec([
                     cfg,
                     self.get_dns_dir(cfg)
                 ])

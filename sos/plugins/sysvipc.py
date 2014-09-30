@@ -24,7 +24,7 @@ class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system', 'services')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/sysvipc/msg",
             "/proc/sysvipc/sem",
             "/proc/sysvipc/shm"

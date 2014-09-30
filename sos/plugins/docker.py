@@ -29,7 +29,7 @@ class Docker(Plugin):
                     "terminated ones", 'fast', False)]
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/var/lib/docker/repositories-*"
         ])
 
@@ -60,7 +60,7 @@ class RedHatDocker(Docker, RedHatPlugin):
     def setup(self):
         super(RedHatDocker, self).setup()
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/udev/rules.d/80-docker.rules"
         ])
 
@@ -74,7 +74,7 @@ class UbuntuDocker(Docker, UbuntuPlugin):
 
     def setup(self):
         super(UbuntuDocker, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/default/docker.io"
         ])
 

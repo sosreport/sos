@@ -39,7 +39,7 @@ class DebianIPSec(IPSec, DebianPlugin, UbuntuPlugin):
     files = ('/etc/ipsec-tools.conf',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ipsec-tools.conf",
             "/etc/ipsec-tools.d",
             "/etc/default/setkey"

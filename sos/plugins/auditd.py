@@ -25,7 +25,7 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('audit',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/audit/auditd.conf",
             "/etc/audit/audit.rules"
         ])

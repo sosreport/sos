@@ -26,7 +26,7 @@ class Ssmtp(Plugin, RedHatPlugin):
     packages = ('ssmtp',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ssmtp/ssmtp.conf",
             "/etc/ssmtp/revaliases",
             "/etc/aliases"

@@ -25,7 +25,7 @@ class Ntp(Plugin):
     packages = ('ntp',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ntp.conf",
             "/etc/ntp/step-tickers",
             "/etc/ntp/ntpservers"

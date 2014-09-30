@@ -46,7 +46,7 @@ class Systemd(Plugin, RedHatPlugin):
         if self.get_option("verify"):
             self.add_cmd_output("journalctl --verify")
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/systemd",
             "/lib/systemd/system",
             "/lib/systemd/user",

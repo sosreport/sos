@@ -57,7 +57,7 @@ class CertificateSystem(Plugin, RedHatPlugin):
             self.add_alert("Red Hat Certificate System not found.")
             return
         if csversion == 71:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/opt/redhat-cs/slapd-*/logs/access",
                 "/opt/redhat-cs/slapd-*/logs/errors",
                 "/opt/redhat-cs/slapd-*/config/dse.ldif",
@@ -71,7 +71,7 @@ class CertificateSystem(Plugin, RedHatPlugin):
                 "/opt/redhat-cs/cert-*/tps-debug.log"
             ])
         if csversion == 73:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/var/lib/rhpki-*/conf/*cfg*",
                 "/var/lib/rhpki-*/conf/*.ldif",
                 "/var/lib/rhpki-*/logs/debug",
@@ -81,13 +81,13 @@ class CertificateSystem(Plugin, RedHatPlugin):
                 "/var/lib/rhpki-*/logs/system"
             ])
         if csversion in (73, 8):
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/etc/dirsrv/slapd-*/dse.ldif",
                 "/var/log/dirsrv/slapd-*/access",
                 "/var/log/dirsrv/slapd-*/errors"
             ])
         if csversion == 8:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/etc/pki-*/CS.cfg",
                 "/var/lib/pki-*/conf/*cfg*",
                 "/var/log/pki-*/debug",

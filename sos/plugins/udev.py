@@ -23,7 +23,7 @@ class Udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system', 'hardware', 'boot')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/udev/udev.conf",
             "/lib/udev/rules.d",
             "/etc/udev/rules.d/*"

@@ -28,7 +28,7 @@ class PowerPath(Plugin, RedHatPlugin):
         """ EMC PowerPath specific information - files
         """
         self.add_cmd_output("powermt version")
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/init.d/PowerPath",
             "/etc/powermt.custom",
             "/etc/emcp_registration",

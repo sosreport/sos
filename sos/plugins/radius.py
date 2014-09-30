@@ -32,7 +32,7 @@ class RedHatRadius(Radius, RedHatPlugin):
 
     def setup(self):
         super(RedHatRadius, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/raddb",
             "/etc/pam.d/radiusd",
             "/var/log/radius"
@@ -49,7 +49,7 @@ class DebianRadius(Radius, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianRadius, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/freeradius",
             "/etc/pam.d/radiusd",
             "/etc/default/freeradius",

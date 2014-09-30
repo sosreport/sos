@@ -33,7 +33,7 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         return os.access("/sys/module/kvm", os.R_OK)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/sys/module/kvm/srcversion",
             "/sys/module/kvm_intel/srcversion",
             "/sys/module/kvm_amd/srcversion",

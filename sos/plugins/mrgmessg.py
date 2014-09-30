@@ -23,7 +23,7 @@ class MrgMessg(Plugin, RedHatPlugin):
     profiles = ('mrg',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/qpidd.conf",
             "/etc/sasl2/qpidd.conf",
             "/var/rhm"

@@ -43,7 +43,7 @@ class RedHatLdap(Ldap, RedHatPlugin):
         self.add_forbidden_path("/etc/openldap/certs/pin.txt")
         self.add_forbidden_path("/etc/openldap/certs/*passw*")
         self.add_forbidden_path("/etc/openldap/certs/key3.db")
-        self.add_copy_specs([
+        self.add_copy_spec([
             self.ldap_conf,
             "/etc/openldap/certs/cert8.db",
             "/etc/openldap/certs/secmod.db",
@@ -76,7 +76,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
 
         ldap_search = "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// "
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             self.ldap_conf,
             "/etc/slapd.conf",
             "/etc/ldap/slapd.d"

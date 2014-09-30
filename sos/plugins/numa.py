@@ -26,7 +26,7 @@ class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('numad', 'numactl')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/numad.conf",
             "/etc/logrotate.d/numad"
         ])

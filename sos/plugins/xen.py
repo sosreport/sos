@@ -49,7 +49,7 @@ class Xen(Plugin, RedHatPlugin):
         return xs_pidnum.isdigit()
 
     def dom_collect_proc(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/xen/balloon",
             "/proc/xen/capabilities",
             "/proc/xen/xsd_kva",
@@ -72,7 +72,7 @@ class Xen(Plugin, RedHatPlugin):
             pass
         elif host_type == "dom0":
             # default of dom0, collect lots of system information
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/var/log/xen",
                 "/etc/xen",
                 "/sys/hypervisor/version",

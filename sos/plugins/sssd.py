@@ -26,7 +26,7 @@ class Sssd(Plugin):
     packages = ('sssd',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/sssd/sssd.conf",
             "/var/log/sssd/*"
         ])

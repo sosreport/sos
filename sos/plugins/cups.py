@@ -35,7 +35,7 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         else:
             self.add_copy_spec("/var/log/cups")
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/cups/*.conf",
             "/etc/cups/*.types",
             "/etc/cups/lpoptions",

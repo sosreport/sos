@@ -46,7 +46,7 @@ class Neutron(Plugin):
         else:
             self.component_name = "quantum"
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/%s/" % self.component_name,
             "/var/log/%s/" % self.component_name
         ])
@@ -72,7 +72,7 @@ class Neutron(Plugin):
                     lease_directories.append(
                         "/var/lib/%s/dhcp/%s/" %
                         (self.component_name, netid))
-            self.add_copy_specs(lease_directories)
+            self.add_copy_spec(lease_directories)
 
     # TODO: Refactor! Copied from Networking plugin.
     def get_interface_name(self, ip_addr_out):

@@ -23,7 +23,7 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     profiles = ('storage', 'hardware')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/scsi",
             "/etc/stinit.def",
             "/sys/bus/scsi",

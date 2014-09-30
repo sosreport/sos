@@ -45,7 +45,7 @@ class Maas(Plugin, UbuntuPlugin):
         return ret['status'] == 0
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/squid-deb-proxy",
             "/etc/maas",
             "/var/lib/maas/dhcp*",

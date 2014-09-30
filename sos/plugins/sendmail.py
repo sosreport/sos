@@ -34,7 +34,7 @@ class RedHatSendmail(Sendmail, RedHatPlugin):
 
     def setup(self):
         super(RedHatSendmail, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/mail/*",
             "/var/log/maillog"
         ])
@@ -47,7 +47,7 @@ class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianSendmail, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/mail/*",
             "/var/log/mail.*"
         ])

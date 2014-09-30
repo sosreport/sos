@@ -25,7 +25,7 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     packages = ('cpufreq-utils')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/cpuinfo",
             "/sys/class/cpuid",
             "/sys/devices/system/cpu"

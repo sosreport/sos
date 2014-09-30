@@ -23,7 +23,7 @@ class OpenHPI(Plugin, RedHatPlugin):
     profiles = ('system', 'hardware')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/openhpi/openhpi.conf",
             "/etc/openhpi/openhpiclient.conf"
         ])

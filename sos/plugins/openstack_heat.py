@@ -31,7 +31,7 @@ class OpenStackHeat(plugins.Plugin):
             "heat-manage db_version",
             suggest_filename="heat_db_version"
         )
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/heat/",
             "/var/log/heat/"
         ])

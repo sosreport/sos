@@ -43,7 +43,7 @@ class NfsServer(Plugin, RedHatPlugin):
         return False
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/exports",
             "/etc/exports.d",
             "/var/lib/nfs/etab",

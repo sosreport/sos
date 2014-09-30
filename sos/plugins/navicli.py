@@ -35,7 +35,7 @@ class Navicli(Plugin, RedHatPlugin):
     def get_navicli_config(self):
         """ EMC Navisphere Host Agent NAVICLI specific information - files
         """
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/Navisphere/agent.config",
             "/etc/Navisphere/Navimon.cfg",
             "/etc/Navisphere/Quietmode.cfg",

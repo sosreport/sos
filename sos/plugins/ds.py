@@ -57,7 +57,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
         if not self.check_version():
             self.add_alert("Directory Server not found.")
         elif "ds8" in self.check_version():
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/etc/dirsrv/slapd*/cert8.db",
                 "/etc/dirsrv/slapd*/certmap.conf",
                 "/etc/dirsrv/slapd*/dse.ldif",
@@ -67,7 +67,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 "/var/log/dirsrv/*"
             ])
         elif "ds7" in self.check_version():
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/opt/redhat-ds/slapd-*/config",
                 "/opt/redhat-ds/slapd-*/logs"
             ])

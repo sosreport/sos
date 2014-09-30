@@ -37,7 +37,7 @@ class Teamd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         return teams
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/dbus-1/system.d/teamd.conf",
             "/usr/lib/systemd/system/teamd@.service"
         ])

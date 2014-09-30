@@ -37,14 +37,14 @@ class Ipa(Plugin, RedHatPlugin):
 
     def setup(self):
         if self.ipa_server:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/var/log/ipaserver-install.log",
                 "/var/log/ipareplica-install.log"
             ])
         if self.ipa_client:
             self.add_copy_spec("/var/log/ipaclient-install.log")
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/var/log/ipaupgrade.log",
             "/var/log/krb5kdc.log",
             "/var/log/pki-ca/debug",

@@ -28,7 +28,7 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
     files = ('/etc/mongodb.conf',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/mongodb.conf",
             "/var/log/mongodb/mongodb.log"
         ])

@@ -23,7 +23,7 @@ class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system', 'hardware')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/interrupts",
             "/proc/irq",
             "/proc/dma",

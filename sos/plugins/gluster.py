@@ -82,7 +82,7 @@ class Gluster(Plugin, RedHatPlugin):
 
         self.add_cmd_output("gluster peer status")
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/redhat-storage-release",
             # collect unified file and object storage configuration
             "/etc/swift/",

@@ -42,7 +42,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "dkms status"
         ])
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/modules",
             "/proc/sys/kernel/random/boot_id",
             "/sys/module/*/parameters",

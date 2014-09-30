@@ -24,7 +24,7 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
     files = ('/proc/cgroups',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/cgroups",
             "/sys/fs/cgroup"
         ])
@@ -35,7 +35,7 @@ class RedHatCgroups(Cgroups, RedHatPlugin):
 
     def setup(self):
         super(RedHatCgroups, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/sysconfig/cgconfig",
             "/etc/sysconfig/cgred",
             "/etc/cgsnapshot_blacklist.conf",

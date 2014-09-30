@@ -44,7 +44,7 @@ class Anaconda(Plugin, RedHatPlugin):
                 "/root/install.log.syslog"
             ]
 
-        self.add_copy_specs(paths)
+        self.add_copy_spec(paths)
 
     def postproc(self):
         self.do_file_sub(

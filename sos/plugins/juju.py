@@ -72,7 +72,7 @@ class Juju(Plugin, UbuntuPlugin):
                 suggest_filename="{}.json".format(collection))
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/var/log/juju",
             "/var/lib/juju"
         ])

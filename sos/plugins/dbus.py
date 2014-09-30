@@ -22,7 +22,7 @@ class Dbus(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/dbus-1",
             "/var/lib/dbus/machine-id"
         ])

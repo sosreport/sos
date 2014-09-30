@@ -24,7 +24,7 @@ class Ctdb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "ctdb"
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ctdb/public_addresses",
             "/etc/ctdb/static-routes",
             "/etc/ctdb/multipathd",

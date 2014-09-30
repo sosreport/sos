@@ -28,7 +28,7 @@ class Smartcard(Plugin, RedHatPlugin):
     packages = ('pam_pkcs11',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/reader.conf",
             "/etc/reader.conf.d/",
             "/etc/pam_pkcs11/"])

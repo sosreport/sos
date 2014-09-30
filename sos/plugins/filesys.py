@@ -27,7 +27,7 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                    ("dumpe2fs", 'dump filesystem information', 'slow', False)]
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/filesystems",
             "/etc/fstab",
             "/proc/self/mounts",

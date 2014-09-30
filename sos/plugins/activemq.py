@@ -26,13 +26,13 @@ class ActiveMq(Plugin, RedHatPlugin, DebianPlugin):
     files = ('/var/log/activemq',)
 
     def setup(self):
-        self.add_copy_specs(list(self.files))
+        self.add_copy_spec(list(self.files))
 
 
 class UbuntuActiveMq(ActiveMq, UbuntuPlugin):
     def setup(self):
         super(UbuntuActiveMq, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             '/etc/activemq',
             '/etc/default/activemq'
         ])

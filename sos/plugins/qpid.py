@@ -47,7 +47,7 @@ class Qpid(Plugin, RedHatPlugin):
             "ls -lanR /var/lib/qpidd"
         ])
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/qpidd.conf",  # applies to pre-0.22 versions
             "/etc/qpid/qpidd.conf",  # applies since 0.22 version
             "/var/lib/qpid/syslog",

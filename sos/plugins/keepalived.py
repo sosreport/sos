@@ -26,7 +26,7 @@ class Keepalived(Plugin, RedHatPlugin):
     packages = ('keepalived',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/keepalived/keepalived.conf",
             "/etc/sysconfig/keepalived"
         ])

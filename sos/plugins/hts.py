@@ -23,7 +23,7 @@ class HardwareTestSuite(Plugin, RedHatPlugin):
     profiles = ('debug',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/httpd/conf.d/hts.conf",
             "/var/hts"
         ])

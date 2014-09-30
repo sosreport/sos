@@ -23,7 +23,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('services',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/samba/smb.conf",
             "/etc/samba/lmhosts",
             "/var/log/samba/log.smbd",

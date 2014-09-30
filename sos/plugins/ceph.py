@@ -35,7 +35,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     )
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ceph/",
             "/var/log/ceph/"
         ])

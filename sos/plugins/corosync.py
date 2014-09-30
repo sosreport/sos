@@ -24,7 +24,7 @@ class Corosync(Plugin):
     packages = ('corosync',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/corosync",
             "/var/lib/corosync/fdata",
             "/var/log/cluster/corosync.log"

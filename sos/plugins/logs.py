@@ -23,7 +23,7 @@ class Logs(Plugin):
     profiles = ('system', 'hardware')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/syslog.conf",
             "/etc/rsyslog.conf"
         ])
@@ -79,7 +79,7 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianLogs, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/var/log/syslog",
             "/var/log/udev",
             "/var/log/kern*",

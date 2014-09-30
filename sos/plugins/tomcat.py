@@ -25,7 +25,7 @@ class Tomcat(Plugin, RedHatPlugin):
     packages = ('tomcat6',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/tomcat6",
             "/var/log/tomcat6/catalina.out"
         ])

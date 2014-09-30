@@ -42,7 +42,7 @@ class DebianIscsiTarget(IscsiTarget, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianIscsiTarget, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/iet",
             "/etc/sysctl.d/30-iscsitarget.conf",
             "/etc/default/iscsitarget"

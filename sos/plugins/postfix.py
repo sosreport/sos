@@ -24,7 +24,7 @@ class Postfix(Plugin):
     packages = ('postfix',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/postfix/main.cf",
             "/etc/postfix/master.cf"
         ])

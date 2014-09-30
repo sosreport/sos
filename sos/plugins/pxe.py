@@ -43,7 +43,7 @@ class DebianPxe(Pxe, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianPxe, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/dhcp/dhcpd.conf",
             "/etc/default/tftpd-hpa"
         ])

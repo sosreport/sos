@@ -24,7 +24,7 @@ class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('grub',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/boot/efi/EFI/*/grub.conf",
             "/boot/grub/grub.conf",
             "/boot/grub/device.map",

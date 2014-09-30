@@ -26,7 +26,7 @@ class Keyutils(Plugin, RedHatPlugin):
     packages = ('keyutils',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/request-key.conf",
             "/etc/request-key.d"
         ])

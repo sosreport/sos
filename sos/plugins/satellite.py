@@ -41,7 +41,7 @@ class Satellite(Plugin, RedHatPlugin):
 
     def setup(self):
         self.rhn_package_check()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/httpd/conf*",
             "/etc/rhn",
             "/var/log/rhn*"
@@ -51,14 +51,14 @@ class Satellite(Plugin, RedHatPlugin):
             self.add_copy_spec("/var/log/httpd")
 
         # all these used to go in $DIR/mon-logs/
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/opt/notification/var/*.log*",
             "/var/tmp/ack_handler.log*",
             "/var/tmp/enqueue.log*"
         ])
 
         # monitoring scout logs
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/home/nocpulse/var/*.log*",
             "/home/nocpulse/var/commands/*.log*",
             "/var/tmp/ack_handler.log*",
@@ -75,7 +75,7 @@ class Satellite(Plugin, RedHatPlugin):
                             root_symlink="database-character-sets")
 
         if self.satellite:
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/etc/tnsnames.ora",
                 "/etc/jabberd",
                 "/etc/tomcat6/",
@@ -86,6 +86,6 @@ class Satellite(Plugin, RedHatPlugin):
                 % self.get_cmd_output_path(name="spacewalk-debug"))
 
         if self.proxy:
-            self.add_copy_specs(["/etc/squid", "/var/log/squid"])
+            self.add_copy_spec(["/etc/squid", "/var/log/squid"])
 
 # vim: et ts=4 sw=4

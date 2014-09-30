@@ -23,7 +23,7 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     profiles = ('hardware', 'system')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/ioports",
             "/proc/iomem",
             "/proc/bus/pci"

@@ -26,7 +26,7 @@ class Startup(Plugin):
                     "slow", False)]
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/inittab",
             "/etc/rc.d"
         ])

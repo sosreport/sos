@@ -24,7 +24,7 @@ class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_cmd_output("mdadm -D /dev/md*")
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/mdstat",
             "/etc/mdadm.conf",
             "/dev/md/md-device-map"

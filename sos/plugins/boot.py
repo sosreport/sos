@@ -28,7 +28,7 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     ]
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             # legacy / special purpose bootloader configs
             "/etc/milo.conf",
             "/etc/silo.conf",

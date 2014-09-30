@@ -29,7 +29,7 @@ class KernelRT(Plugin, RedHatPlugin):
     files = ('/sys/kernel/realtime',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             '/etc/rtgroups',
             '/proc/sys/kernel/sched_rt_period_us',
             '/proc/sys/kernel/sched_rt_runtime_us',

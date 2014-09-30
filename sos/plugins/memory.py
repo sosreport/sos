@@ -23,7 +23,7 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system', 'hardware', 'memory')
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/proc/pci",
             "/proc/meminfo",
             "/proc/vmstat",

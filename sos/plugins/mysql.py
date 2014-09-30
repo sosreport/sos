@@ -31,13 +31,13 @@ class Mysql(Plugin):
 
     def setup(self):
         super(Mysql, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             self.mysql_cnf,
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
         if self.get_option("all_logs"):
-            self.add_copy_specs([
+            self.add_copy_spec([
                 "/var/log/mysql*",
                 "/var/log/mariadb*"
             ])
@@ -60,7 +60,7 @@ class RedHatMysql(Mysql, RedHatPlugin):
 
     def setup(self):
         super(RedHatMysql, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ld.so.conf.d/mysql-*.conf",
             "/etc/ld.so.conf.d/mariadb-*.conf"
         ])

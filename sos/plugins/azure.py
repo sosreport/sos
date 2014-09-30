@@ -26,7 +26,7 @@ class Azure(Plugin, UbuntuPlugin):
     packages = ('walinuxagent',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/var/log/waagent*",
             "/var/lib/cloud",
             "/etc/default/kv-kvp-daemon-init",

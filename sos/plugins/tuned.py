@@ -30,7 +30,7 @@ class Tuned(Plugin, RedHatPlugin):
             "tuned-adm active",
             "tuned-adm recommend"
         ])
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/tuned",
             "/usr/lib/tuned",
             "/var/log/tuned/tuned.log"

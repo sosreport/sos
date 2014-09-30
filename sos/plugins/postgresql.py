@@ -145,7 +145,7 @@ class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianPostgreSQL, self).setup()
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/var/log/postgresql/*.log",
             "/etc/postgresql/*/main/*.conf",
             "/var/lib/postgresql/*/main/PG_VERSION",

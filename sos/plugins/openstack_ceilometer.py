@@ -30,7 +30,7 @@ class OpenStackCeilometer(Plugin):
 
     def setup(self):
         # Ceilometer
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ceilometer/",
             "/var/log/ceilometer"
         ])

@@ -37,10 +37,10 @@ class OpenStackCinder(Plugin):
                 "cinder-manage db version",
                 suggest_filename="cinder_db_version")
 
-        self.add_copy_specs(["/etc/cinder/"])
+        self.add_copy_spec(["/etc/cinder/"])
 
         if self.get_option("log"):
-            self.add_copy_specs(["/var/log/cinder/"])
+            self.add_copy_spec(["/var/log/cinder/"])
 
 
 class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
@@ -77,7 +77,7 @@ class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
 
     def setup(self):
         super(RedHatOpenStackCinder, self).setup()
-        self.add_copy_specs(["/etc/sudoers.d/cinder"])
+        self.add_copy_spec(["/etc/sudoers.d/cinder"])
 
 
 # vim: et ts=4 sw=4

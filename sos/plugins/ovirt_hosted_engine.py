@@ -41,9 +41,9 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
         # Add configuration files
         # Collecting the whole directory since it may contain branding
         # configuration files or third party plugins configuration files
-        self.add_copy_specs(['/etc/ovirt-hosted-engine-setup.env.d/'])
+        self.add_copy_spec(['/etc/ovirt-hosted-engine-setup.env.d/'])
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             '/etc/ovirt-hosted-engine/answers.conf',
             '/etc/ovirt-hosted-engine/hosted-engine.conf',
             '/etc/ovirt-hosted-engine/vm.conf',
@@ -65,7 +65,7 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
                 sizelimit=self.limit
             )
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             '/var/log/ovirt-hosted-engine-ha/agent.log',
             '/var/log/ovirt-hosted-engine-ha/broker.log',
         ])

@@ -34,7 +34,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         # legacy location for non-/run distributions
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/blkid.tab",
             "/run/blkid/blkid.tab"
         ])

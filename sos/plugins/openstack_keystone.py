@@ -27,7 +27,7 @@ class OpenStackKeystone(Plugin):
                    ("nopw", "dont gathers keystone passwords", "slow", True)]
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/keystone/default_catalog.templates",
             "/etc/keystone/keystone.conf",
             "/etc/keystone/logging.conf",

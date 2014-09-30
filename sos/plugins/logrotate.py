@@ -25,7 +25,7 @@ class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_cmd_output("logrotate --debug /etc/logrotate.conf",
                             suggest_filename="logrotate_debug")
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/logrotate*",
             "/var/lib/logrotate.status"
         ])

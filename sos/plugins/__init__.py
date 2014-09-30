@@ -446,22 +446,19 @@ class Plugin(object):
                                      self.name(), strfile)
             self.archive.add_link(link_path, _file)
 
-    def add_copy_specs(self, copyspecs):
-        if isinstance(copyspecs, six.string_types):
-            raise TypeError("add_copy_specs called with string argument")
-        for copyspec in copyspecs:
-            self.add_copy_spec(copyspec)
-
-    def add_copy_spec(self, copyspec):
+    def add_copy_spec(self, copyspecs):
         """Add a file specification (can be file, dir,or shell glob) to be
         copied into the sosreport by this module.
         """
-        if not (copyspec and len(copyspec)):
-            self._log_warn("added null or empty copy spec")
-            return False
-        copy_paths = self._expand_copy_spec(copyspec)
-        self.copy_paths.update(copy_paths)
-        self._log_info("added copyspec '%s'" % copyspec)
+        if isinstance(copyspecs, six.string_types):
+            copyspecs = [copyspecs]
+        for copyspec in copyspecs:
+            if not (copyspec and len(copyspec)):
+                self._log_warn("added null or empty copy spec")
+                return False
+            copy_paths = self._expand_copy_spec(copyspec)
+            self.copy_paths.update(copy_paths)
+            self._log_info("added copyspec '%s'" % copyspec)
 
     def get_command_output(self, prog, timeout=300, runat=None):
         result = sos_get_command_output(prog, timeout=timeout, runat=runat)
@@ -674,7 +671,7 @@ class Plugin(object):
         may be overridden to add further copy_specs, forbidden_paths, and
         external programs if required.
         """
-        self.add_copy_specs(list(self.files))
+        self.add_copy_spec(list(self.files))
 
     def postproc(self):
         """Perform any postprocessing. To be replaced by a plugin if required.

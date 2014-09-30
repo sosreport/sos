@@ -32,7 +32,7 @@ class RedHatApache(Apache, RedHatPlugin):
     def setup(self):
         super(RedHatApache, self).setup()
 
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/httpd/conf/httpd.conf",
             "/etc/httpd/conf.d/*.conf"
         ])
@@ -53,7 +53,7 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianApache, self).setup()
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/apache2/*",
             "/etc/default/apache2"
         ])

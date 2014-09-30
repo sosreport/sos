@@ -26,7 +26,7 @@ class Vsftpd(Plugin, RedHatPlugin):
     packages = ('vsftpd',)
 
     def setup(self):
-        self.add_copy_specs([
+        self.add_copy_spec([
             "/etc/ftp*",
             "/etc/vsftpd"
         ])
