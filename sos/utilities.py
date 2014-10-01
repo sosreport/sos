@@ -139,7 +139,7 @@ def sos_get_command_output(command, timeout=300, runat=None):
         command = "timeout %ds %s" % (timeout, command)
 
     # shlex.split() reacts badly to unicode on older python runtimes.
-    if six.PY2:
+    if not six.PY3:
         command = command.encode('utf-8')
     args = shlex.split(command)
     try:
