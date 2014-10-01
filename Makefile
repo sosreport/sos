@@ -25,6 +25,7 @@ RPM_DEFINES = --define "_topdir %(pwd)/$(DIST_BUILD_DIR)" \
 RPM = rpmbuild
 RPM_WITH_DIRS = $(RPM) $(RPM_DEFINES)
 ARCHIVE_DIR = $(DIST_BUILD_DIR)/$(NAME)-$(VERSION)
+DEB_ARCHIVE_DIR = $(DIST_BUILD_DIR)/$(NAME)report-$(VERSION)
 
 SRC_BUILD = $(DIST_BUILD_DIR)/sdist
 PO_DIR = $(SRC_BUILD)/sos/po
@@ -52,8 +53,18 @@ updateversion:
 
 $(NAME)-$(VERSION).tar.gz: clean
 	@mkdir -p $(ARCHIVE_DIR)
-	@tar -cv sosreport sos doc man po sos.conf AUTHORS LICENSE README.md sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
+	@tar -cv sosreport sos docs man po sos.conf AUTHORS LICENSE README.md sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
 	@tar Ccvzf $(DIST_BUILD_DIR) $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) --exclude-vcs
+
+$(NAME)report_$(VERSION).orig.tar.gz: clean
+	@mkdir -p $(DEB_ARCHIVE_DIR)
+	@tar --exclude-vcs \
+             --exclude=.travis.yml \
+             --exclude=debian \
+             --exclude=$(DIST_BUILD_DIR) -cv . | tar -x -C $(DEB_ARCHIVE_DIR)
+	@tar Ccvzf $(DIST_BUILD_DIR) $(DIST_BUILD_DIR)/$(NAME)report_$(VERSION).orig.tar.gz $(NAME)report-$(VERSION)
+	@mv $(DIST_BUILD_DIR)/$(NAME)report_$(VERSION).orig.tar.gz .
+	@rm -Rf $(DIST_BUILD_DIR)
 
 clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz sos.conf.5.gz
