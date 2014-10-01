@@ -357,7 +357,7 @@ class TarFileArchive(FileCacheArchive):
 
     def _build_archive(self):
         # python2.6 TarFile lacks the filter parameter
-        if six.PY2 and sys.version_info[1] < 7:
+        if not six.PY3 and sys.version_info[1] < 7:
             tar = _TarFile.open(self._archive_name, mode="w")
         else:
             tar = tarfile.open(self._archive_name, mode="w")
