@@ -54,7 +54,7 @@ class Yum(Plugin, RedHatPlugin):
             "subscription-manager list --consumed"
         ])
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
-                            "--destination %s"
+                            "--no-subscriptions --destination %s"
                             % self.get_cmd_output_path())
 
         if self.get_option("yumlist"):
