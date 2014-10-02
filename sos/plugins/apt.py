@@ -29,17 +29,20 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             "/etc/apt", "/var/log/apt"
         ])
 
+        self.add_cmd_output([
+            "apt-get check",
+            "apt-config dump",
+            "apt-cache stats",
+            "apt-cache policy"
+        ])
         dpkg_result = self.call_ext_prog(
             "dpkg-query -W -f='${binary:Package}\t${status}\n'")
         dpkg_output = dpkg_result['output'].splitlines()
         pkg_list = ' '.join(
             [v.split('\t')[0] for v in dpkg_output if 'ok installed' in v])
-        self.add_cmd_output([
-            "apt-get check",
-            "apt-config dump",
-            "apt-cache stats",
-            "apt-cache policy",
-            "apt-cache policy {}".format(pkg_list)
-        ])
+        self.add_cmd_output(
+            "apt-cache policy {}".format(pkg_list),
+            suggest_filename="apt-cache_policy_details"
+        )
 
 # vim: et ts=4 sw=4
