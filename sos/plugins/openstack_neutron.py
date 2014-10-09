@@ -40,10 +40,7 @@ class Neutron(Plugin):
     component_name = "neutron"
 
     def setup(self):
-        if os.path.exists("/etc/neutron/") and \
-                self.get_option("quantum", False):
-            self.component_name = self.plugin_name
-        else:
+        if not os.path.exists("/etc/neutron/") or self.get_option("quantum"):
             self.component_name = "quantum"
 
         self.add_copy_spec([
