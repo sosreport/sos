@@ -1,3 +1,20 @@
+sosreport (3.2-1) unstable; urgency=medium
+
+  * Profiles for plugin selection
+  * Improved log size limiting
+  * File archiving enhancements and robustness improvements
+  * Global plugin options:
+        --verify, --log-size, --all-logs
+  * Better plugin descriptions
+  * Improved journalctl log capture
+  * PEP8 compliant code base
+  * oVirt support improvements
+  * New plugins: hpasm, ctdb, dbus, oVirt engine hosted,
+	MongoDB, ActiveMQ, OpenShift 2.0, MegaCLI, FCoE,
+	python, Ubuntu, NUMA, Team network driver
+
+ -- Adam Stokes <adam.stokes@ubuntu.com>  Sun, 12 Oct 2014 12:47:23 -0400
+
 sosreport (3.1-1) unstable; urgency=low
 
   * New upstream release v3.1
