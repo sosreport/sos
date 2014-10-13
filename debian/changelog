@@ -10,8 +10,8 @@ sosreport (3.2-1) unstable; urgency=medium
   * PEP8 compliant code base
   * oVirt support improvements
   * New plugins: hpasm, ctdb, dbus, oVirt engine hosted,
-	MongoDB, ActiveMQ, OpenShift 2.0, MegaCLI, FCoE,
-	python, Ubuntu, NUMA, Team network driver
+        MongoDB, ActiveMQ, OpenShift 2.0, MegaCLI, FCoE,
+        python, Ubuntu, NUMA, Team network driver
 
  -- Adam Stokes <adam.stokes@ubuntu.com>  Sun, 12 Oct 2014 12:47:23 -0400
 
