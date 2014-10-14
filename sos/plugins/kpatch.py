@@ -27,6 +27,8 @@ class Kpatch(Plugin, RedHatPlugin):
 
     def setup(self):
         kpatch_list = self.get_cmd_output_now("kpatch list")
+        if not kpatch_list:
+            return
         kpatches = open(kpatch_list, "r").read().splitlines()
         for patch in kpatches:
             if not re.match("^kpatch-.*\(.*\)", patch):
