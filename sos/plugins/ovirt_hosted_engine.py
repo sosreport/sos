@@ -56,8 +56,9 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
 
         all_setup_logs = glob.glob(self.SETUP_LOG_GLOB)
         all_setup_logs.sort(reverse=True)
-        # Add latest ovirt-hosted-engine-setup log file
-        self.add_copy_spec(all_setup_logs[0])
+        if len(all_setup_logs):
+            # Add latest ovirt-hosted-engine-setup log file
+            self.add_copy_spec(all_setup_logs[0])
         # Add older ovirt-hosted-engine-setup log files only if requested
         if self.get_option('all_logs'):
             self.add_copy_spec_limit(
