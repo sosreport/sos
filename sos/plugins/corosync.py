@@ -40,6 +40,13 @@ class Corosync(Plugin):
         ])
         self.call_ext_prog("killall -USR2 corosync")
 
+    def postproc(self):
+        self.do_cmd_output_sub(
+            "corosync-objctl",
+            r"(.*fence.*\.passwd=)(.*)",
+            r"\1******"
+        )
+
 
 class RedHatCorosync(Corosync, RedHatPlugin):
 
