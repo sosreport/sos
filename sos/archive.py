@@ -98,6 +98,12 @@ class Archive(object):
         to be included in the generated archive."""
         raise NotImplementedError
 
+    def name_max(self):
+        """Return the maximum file name length this archive can support.
+        This is the lesser of the name length limit of the archive
+        format and any temporary file system based cache."""
+        raise NotImplementedError
+
     def get_archive_path(self):
         """Return a string representing the path to the temporary
         archive. For archive classes that implement in-line handling
@@ -205,6 +211,13 @@ class FileCacheArchive(Archive):
 
     def _makedirs(self, path, mode=0o700):
         os.makedirs(path, mode)
+
+    def name_max(self):
+        if 'PC_NAME_MAX' in os.pathconf_names:
+            pc_name_max = os.pathconf_names['PC_NAME_MAX']
+            return os.pathconf(self._archive_root, pc_name_max)
+        else:
+            return 255
 
     def get_tmp_dir(self):
         return self._archive_root
@@ -354,6 +367,11 @@ class TarFileArchive(FileCacheArchive):
 
     def name(self):
         return "%s.%s" % (self._name, self._suffix)
+
+    def name_max(self):
+        # GNU Tar format supports unlimited file name length. Just return
+        # the limit of the underlying FileCacheArchive.
+        return super(TarFileArchive, self).name_max()
 
     def _build_archive(self):
         # python2.6 TarFile lacks the filter parameter

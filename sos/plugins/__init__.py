@@ -42,11 +42,11 @@ def regex_findall(regex, fname):
         return []
 
 
-def _mangle_command(command):
-    # FIXME: this can be improved
+def _mangle_command(command, name_max):
     mangledname = re.sub(r"^/(usr/|)(bin|sbin)/", "", command)
     mangledname = re.sub(r"[^\w\-\.\/]+", "_", mangledname)
     mangledname = re.sub(r"/", ".", mangledname).strip(" ._-")
+    mangledname = mangledname[0:name_max]
     return mangledname
 
 
@@ -518,7 +518,8 @@ class Plugin(object):
         return grep(regexp, *fnames)
 
     def _mangle_command(self, exe):
-        return _mangle_command(exe)
+        name_max = self.archive.name_max()
+        return _mangle_command(exe, name_max)
 
     def _make_command_filename(self, exe):
         """The internal function to build up a filename based on a command."""

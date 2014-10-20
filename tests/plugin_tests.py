@@ -115,10 +115,14 @@ class PluginToolTests(unittest.TestCase):
         self.assertEquals(matches, [])
 
     def test_mangle_command(self):
-        self.assertEquals("foo", _mangle_command("/usr/bin/foo"))
-        self.assertEquals("foo_-x", _mangle_command("/usr/bin/foo -x"))
-        self.assertEquals("foo_--verbose", _mangle_command("/usr/bin/foo --verbose"))
-        self.assertEquals("foo_.path.to.stuff", _mangle_command("/usr/bin/foo /path/to/stuff"))
+        name_max = 255
+        self.assertEquals("foo", _mangle_command("/usr/bin/foo", name_max))
+        self.assertEquals("foo_-x", _mangle_command("/usr/bin/foo -x", name_max))
+        self.assertEquals("foo_--verbose", _mangle_command("/usr/bin/foo --verbose", name_max))
+        self.assertEquals("foo_.path.to.stuff", _mangle_command("/usr/bin/foo /path/to/stuff", name_max))
+        longcmd ="foo is " + "a" * 256 + " long_command"
+        expected = longcmd[0:name_max].replace(' ', '_')
+        self.assertEquals(expected, _mangle_command(longcmd, name_max))
 
 
 class PluginTests(unittest.TestCase):
