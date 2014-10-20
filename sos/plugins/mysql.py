@@ -15,6 +15,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 
+
 class Mysql(Plugin):
     """MySQL and MariaDB RDBMS
     """
@@ -44,7 +45,7 @@ class Mysql(Plugin):
         if self.get_option("dbdump"):
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
-            if dbpass == False and 'MYSQL_PWD' in os.environ:
+            if dbpass is False and 'MYSQL_PWD' in os.environ:
                 dbpass = os.environ['MYSQL_PWD']
             else:
                 # no MySQL password
