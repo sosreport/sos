@@ -22,17 +22,21 @@ class Tomcat(Plugin, RedHatPlugin):
     plugin_name = 'tomcat'
     profiles = ('webserver', 'java', 'services')
 
-    packages = ('tomcat6',)
+    packages = ('tomcat6', 'tomcat')
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/tomcat6",
-            "/var/log/tomcat6/catalina.out"
+            "/etc/tomcat",
+            "/etc/tomcat6"
         ])
 
+        limit = self.get_option("log_size")
+        log_glob = "/var/log/tomcat*/catalina.out"
+        self.add_copy_spec_limit(log_glob, sizelimit=limit)
+
     def postproc(self):
-        self.do_file_sub(
-            "/etc/tomcat6/tomcat-users.xml",
+        self.do_path_regex_sub(
+            r"\/etc\/tomcat.*\/tomcat-users.xml",
             r"password=(\S*)",
             r'password="********"'
         )
