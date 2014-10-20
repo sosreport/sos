@@ -13,7 +13,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-
+import os
 
 class Mysql(Plugin):
     """MySQL and MariaDB RDBMS
@@ -25,7 +25,7 @@ class Mysql(Plugin):
 
     option_list = [
         ("dbuser", "username for database dumps", "", "mysql"),
-        ("dbpass", "password for database dumps", "", ""),
+        ("dbpass", "password for database dumps", "", False),
         ("dbdump", "collect a database dump", "", False)
     ]
 
@@ -44,7 +44,14 @@ class Mysql(Plugin):
         if self.get_option("dbdump"):
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
-            opts = "--user=%s --password=%s --all-databases" % (dbuser, dbpass)
+            if dbpass == False and 'MYSQL_PWD' in os.environ:
+                dbpass = os.environ['MYSQL_PWD']
+            else:
+                # no MySQL password
+                return
+            os.environ['MYSQL_PWD'] = dbpass
+
+            opts = "--user=%s --all-databases" % dbuser
             name = "mysqldump_--all-databases"
             self.add_cmd_output("mysqldump %s" % opts, suggest_filename=name)
 
