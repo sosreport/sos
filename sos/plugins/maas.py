@@ -18,7 +18,7 @@ from sos.plugins import Plugin, UbuntuPlugin
 
 
 class Maas(Plugin, UbuntuPlugin):
-    """Ubuntu Metal-as-a-Service
+    """Ubuntu Metal-As-A-Service
     """
 
     plugin_name = 'maas'
@@ -56,8 +56,12 @@ class Maas(Plugin, UbuntuPlugin):
         self.add_cmd_output([
             "apt-cache policy maas-*",
             "apt-cache policy python-django-*",
-            "maas dumpdata"
         ])
+
+        if self.is_installed("maas-region-controller"):
+            self.add_cmd_output([
+                "maas-region-admin dumpdata",
+            ])
 
         if self._has_login_options():
             if self._remote_api_login():
@@ -65,6 +69,6 @@ class Maas(Plugin, UbuntuPlugin):
                                     self.get_option("profile-name"))
             else:
                 self._log_error(
-                    "Cannot login into Maas remote API with provided creds.")
+                    "Cannot login into MAAS remote API with provided creds.")
 
 # vim: et ts=4 sw=4
