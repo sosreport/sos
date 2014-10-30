@@ -1327,6 +1327,7 @@ class SoSReport(object):
         self._finish_logging()
         # package up the results for the support organization
         if not self.opts.build:
+            old_umask = os.umask(0o077)
             if not self.opts.quiet:
                 print(_("Creating compressed archive..."))
             # compression could fail for a number of reasons
@@ -1345,6 +1346,8 @@ class SoSReport(object):
                     raise
                 else:
                     return False
+            finally:
+                os.umask(old_umask)
         else:
             final_filename = self.archive.get_archive_path()
         self.policy.display_results(final_filename, build=self.opts.build)
