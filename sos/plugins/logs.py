@@ -80,14 +80,14 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianLogs, self).setup()
         self.add_copy_spec([
-            "/var/log/syslog",
+            "/var/log/syslog*",
             "/var/log/udev",
             "/var/log/kern*",
             "/var/log/mail*",
             "/var/log/dist-upgrade",
             "/var/log/installer",
             "/var/log/unattended-upgrades",
-            "/var/log/apport.log",
+            "/var/log/apport.log*",
             "/var/log/landscape"
         ])
 
