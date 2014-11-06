@@ -41,6 +41,7 @@ class Rpm(Plugin, RedHatPlugin):
             query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~'
             query_fmt = query_fmt + '%{INSTALLTIME:date}\t%{INSTALLTIME}\t'
             query_fmt = query_fmt + '%{VENDOR}\t%{BUILDHOST}\t'
+            query_fmt = query_fmt + '%{RPMTAG_SHA1HEADER}\t'
             query_fmt = query_fmt + '%{SIGPGP}\t%{SIGPGP:pgpsig}\n"'
             rpmq_cmd = "rpm --nodigest -qa --qf=%s" % query_fmt
             filter_cmd = 'awk -F "~~" ' \
