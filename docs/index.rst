@@ -3,6 +3,10 @@ SoS
 
 Sos is an extensible, portable, support data collection tool primarily aimed at Linux distributions and other UNIX-like operating systems.
 
+This is the SoS developer documentation, for user documentation refer to:
+
+https://github.com/sosreport/sos/wiki
+
 This project is hosted at:
 
 http://github.com/sosreport/sos
