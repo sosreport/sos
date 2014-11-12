@@ -51,7 +51,8 @@ class Yum(Plugin, RedHatPlugin):
             "/var/log/rhsm/rhsmcertd.log"])
         self.add_cmd_output([
             "subscription-manager list --installed",
-            "subscription-manager list --consumed"
+            "subscription-manager list --consumed",
+            "subscription-manager identity"
         ])
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
                             "--no-subscriptions --destination %s"
