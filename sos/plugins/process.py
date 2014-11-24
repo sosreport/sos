@@ -30,5 +30,13 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "ps auxwwwm",
             "ps alxwww"
         ])
+        self.add_copy_spec([
+            "/proc/*/comm",
+            "/proc/*/limits",
+            "/proc/*/stack",
+            "/proc/*/status",
+            "/proc/*/cpuset",
+            "/proc/*/oom_*"
+        ])
 
 # vim: et ts=4 sw=4
