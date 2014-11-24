@@ -25,5 +25,12 @@ class Apport(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/apport/*")
+        self.add_copy_spec("/var/lib/whoopsie/whoopsie-id")
+        self.add_cmd_output(
+            "gdbus call -y -d com.ubuntu.WhoopsiePreferences \
+            -o /com/ubuntu/WhoopsiePreferences \
+            -m com.ubuntu.WhoopsiePreferences.GetIdentifier")
+        self.add_cmd_output("ls -alh /var/crash/")
+        self.add_cmd_output("bash -c 'grep -B 50 -m 1 ProcMaps /var/crash/*'")
 
 # vim: et ts=4 sw=4
