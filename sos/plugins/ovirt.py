@@ -83,6 +83,8 @@ class Ovirt(Plugin, RedHatPlugin):
 
         self.add_forbidden_path('/etc/ovirt-engine/.pgpass')
         self.add_forbidden_path('/etc/rhevm/.pgpass')
+        self.collectExtOutput("rhevm-config --all")
+        self.collectExtOutput("rhevm-manage-domains list")
         # Copy engine config files.
         self.add_copy_spec([
             "/etc/ovirt-engine",
