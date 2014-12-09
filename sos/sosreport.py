@@ -599,7 +599,7 @@ class SoSOptions(object):
                           dest="report",
                           help="Disable HTML/XML reporting", default=False)
         parser.add_option("-z", "--compression-type", dest="compression_type",
-                          help="compression technology to use [auto, zip, "
+                          help="compression technology to use [auto, "
                                "gzip, bzip2, xz] (default=auto)",
                           default="auto")
 
@@ -675,8 +675,6 @@ class SoSReport(object):
         if self.opts.compression_type == 'auto':
             auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir)
-        elif self.opts.compression_type == 'zip':
-            self.archive = ZipFileArchive(archive_name, self.tmpdir)
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir)
         self.archive.set_debug(True if self.opts.debug else False)
@@ -1080,7 +1078,7 @@ class SoSReport(object):
         self.policy.pre_work()
         try:
             self.ui_log.info(_(" Setting up archive ..."))
-            compression_methods = ('auto', 'zip', 'bzip2', 'gzip', 'xz')
+            compression_methods = ('auto', 'bzip2', 'gzip', 'xz')
             method = self.opts.compression_type
             if method not in compression_methods:
                 compression_list = ', '.join(compression_methods)
