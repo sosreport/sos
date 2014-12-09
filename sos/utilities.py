@@ -140,7 +140,7 @@ def sos_get_command_output(command, timeout=300, runat=None):
 
     # shlex.split() reacts badly to unicode on older python runtimes.
     if not six.PY3:
-        command = command.encode('utf-8')
+        command = command.encode('utf-8', 'ignore')
     args = shlex.split(command)
     try:
         p = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT,
@@ -159,7 +159,10 @@ def sos_get_command_output(command, timeout=300, runat=None):
     if p.returncode == 126 or p.returncode == 127:
         stdout = six.binary_type(b"")
 
-    return {'status': p.returncode, 'output': stdout.decode('utf-8')}
+    return {
+        'status': p.returncode,
+        'output': stdout.decode('utf-8', 'ignore')
+    }
 
 
 def import_module(module_fqname, superclasses=None):

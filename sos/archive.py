@@ -406,9 +406,9 @@ class TarFileArchive(FileCacheArchive):
                           close_fds=True)
                 stdout, stderr = p.communicate()
                 if stdout:
-                    self.log_info(stdout.decode('utf-8'))
+                    self.log_info(stdout.decode('utf-8', 'ignore'))
                 if stderr:
-                    self.log_error(stderr.decode('utf-8'))
+                    self.log_error(stderr.decode('utf-8', 'ignore'))
                 self._suffix += suffix
                 return self.name()
             except Exception as e:
