@@ -7,91 +7,10 @@ import zipfile
 import tempfile
 import shutil
 
-from sos.archive import TarFileArchive, ZipFileArchive
+from sos.archive import TarFileArchive
 
 # PYCOMPAT
 import six
-
-class ZipFileArchiveTest(unittest.TestCase):
-
-    def setUp(self):
-        self.zf = ZipFileArchive('test')
-
-    def tearDown(self):
-        os.unlink('test.zip')
-
-    def check_for_file(self, filename):
-        zf = zipfile.ZipFile('test.zip', 'r')
-        zf.getinfo(filename)
-        zf.close()
-
-    def test_create(self):
-        self.zf.close()
-
-    def test_add_file(self):
-        self.zf.add_file('tests/ziptest')
-        self.zf.close()
-
-        self.check_for_file('tests/ziptest')
-
-    def test_add_unicode_file(self):
-        self.zf.add_file(six.u('tests/'))
-        self.zf.close()
-
-        self.check_for_file('tests/ziptest')
-
-    def test_add_dir(self):
-        self.zf.add_file('tests/')
-        self.zf.close()
-
-        self.check_for_file('tests/ziptest')
-
-    def test_add_renamed(self):
-        self.zf.add_file('tests/ziptest', dest='tests/ziptest_renamed')
-        self.zf.close()
-
-        self.check_for_file('tests/ziptest_renamed')
-
-    def test_add_renamed_dir(self):
-        self.zf.add_file('tests/', 'tests_renamed/')
-        self.zf.close()
-
-        self.check_for_file('tests_renamed/ziptest')
-
-    def test_add_string(self):
-        self.zf.add_string('this is content', 'tests/string_test.txt')
-        self.zf.close()
-
-        self.check_for_file('tests/string_test.txt')
-
-    def test_get_file(self):
-        self.zf.add_string('this is my content', 'tests/string_test.txt')
-
-        afp = self.zf.open_file('tests/string_test.txt')
-        self.assertEquals(six.b('this is my content'), afp.read())
-
-    def test_overwrite_file(self):
-        self.zf.add_string('this is my content', 'tests/string_test.txt')
-        self.zf.add_string('this is my new content', 'tests/string_test.txt')
-
-        afp = self.zf.open_file('tests/string_test.txt')
-        self.assertEquals(six.b('this is my new content'), afp.read())
-
-# Disabled as new api doesnt provide a add_link routine
-#    def test_make_link(self):
-#        self.zf.add_file('tests/ziptest')
-#        self.zf.add_link('tests/ziptest', 'link_name')
-#
-#        self.zf.close()
-#        try:
-#            self.check_for_file('test/link_name')
-#            self.fail("link should not exist")
-#        except KeyError:
-#            pass
-
-# Disabled as new api doesnt provide a compress routine
-#    def test_compress(self):
-#        self.assertEquals(self.zf.compress("zip"), self.zf.name())
 
 
 class TarFileArchiveTest(unittest.TestCase):

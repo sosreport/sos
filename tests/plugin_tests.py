@@ -10,7 +10,7 @@ except:
     from io import StringIO
 
 from sos.plugins import Plugin, regex_findall, _mangle_command
-from sos.archive import TarFileArchive, ZipFileArchive
+from sos.archive import TarFileArchive
 import sos.policies
 
 PATH = os.path.dirname(__file__)
