@@ -18,7 +18,6 @@
 import os
 import time
 import tarfile
-import zipfile
 import shutil
 import logging
 import shlex

@@ -37,7 +37,7 @@ import tempfile
 from sos import _sos as _
 from sos import __version__
 import sos.policies
-from sos.archive import TarFileArchive, ZipFileArchive
+from sos.archive import TarFileArchive
 from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
                            Alert, Note, PlainTextReport)
 

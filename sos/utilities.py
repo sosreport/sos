@@ -18,7 +18,6 @@ import os
 import re
 import inspect
 from subprocess import Popen, PIPE, STDOUT
-import zipfile
 import hashlib
 import logging
 import fnmatch
@@ -191,8 +190,8 @@ def shell_out(cmd, runat=None):
 class ImporterHelper(object):
     """Provides a list of modules that can be imported in a package.
     Importable modules are located along the module __path__ list and modules
-    are files that end in .py. This class will read from PKZip archives as well
-    for listing out jar and egg contents."""
+    are files that end in .py.
+    """
 
     def __init__(self, package):
         """package is a package module
@@ -223,38 +222,6 @@ class ImporterHelper(object):
             else:
                 return []
 
-    def _get_path_to_zip(self, path, tail_list=None):
-        if not tail_list:
-            tail_list = ['']
-
-        if path.endswith(('.jar', '.zip', '.egg')):
-            return path, os.path.join(*tail_list)
-
-        head, tail = os.path.split(path)
-        tail_list.insert(0, tail)
-
-        if head == path:
-            raise Exception("not a zip file")
-        else:
-            return self._get_path_to_zip(head, tail_list)
-
-    def _find_plugins_in_zipfile(self, path):
-        try:
-            path_to_zip, tail = self._get_path_to_zip(path)
-            zf = zipfile.ZipFile(path_to_zip)
-            # the path will have os separators, but the zipfile will
-            # always have '/'
-            tail = tail.replace(os.path.sep, "/")
-            root_names = [name for name in zf.namelist() if tail in name]
-            candidates = self._get_plugins_from_list(root_names)
-            zf.close()
-            if candidates:
-                return candidates
-            else:
-                return []
-        except (IOError, Exception):
-            return []
-
     def get_modules(self):
         """Returns the list of importable modules in the configured python
         package. """
@@ -262,8 +229,6 @@ class ImporterHelper(object):
         for path in self.package.__path__:
             if os.path.isdir(path) or path == '':
                 plugins.extend(self._find_plugins_in_dir(path))
-            else:
-                plugins.extend(self._find_plugins_in_zipfile(path))
 
         return plugins
 
