@@ -51,7 +51,7 @@ class PostgreSQL(Plugin):
         # is no need to save and restore environment variables if the user
         # decided to pass the password on the command line.
         if self.get_option("password") is not False:
-            os.environ["PGPASSWORD"] = self.get_option("password")
+            os.environ["PGPASSWORD"] = str(self.get_option("password"))
 
         if self.get_option("dbhost"):
             cmd = "pg_dump -U %s -h %s -p %s -w -f %s -F t %s" % (
