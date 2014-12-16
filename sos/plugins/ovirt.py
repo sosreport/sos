@@ -171,4 +171,19 @@ class Ovirt(Plugin, RedHatPlugin):
                 r'{key}=********'.format(key=key)
             )
 
+        # Answer files contain passwords
+        for key in (
+            'OVESETUP_CONFIG/adminPassword',
+            'OVESETUP_CONFIG/remoteEngineHostRootPassword',
+            'OVESETUP_DWH_DB/password',
+            'OVESETUP_DB/password',
+            'OVESETUP_REPORTS_CONFIG/adminPassword',
+            'OVESETUP_REPORTS_DB/password',
+        ):
+            self.do_path_regex_sub(
+                r'/var/lib/ovirt-engine/setup/answers/.*',
+                r'{key}=(.*)'.format(key=key),
+                r'{key}=********'.format(key=key)
+            )
+
 # vim: expandtab tabstop=4 shiftwidth=4
