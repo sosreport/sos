@@ -28,7 +28,6 @@ class SELinux(Plugin, RedHatPlugin):
     packages = ('libselinux',)
 
     def setup(self):
-        # sestatus is always collected in check_enabled()
         self.add_copy_spec("/etc/selinux")
         self.add_cmd_output([
             "sestatus -b",
@@ -36,7 +35,8 @@ class SELinux(Plugin, RedHatPlugin):
             "selinuxdefcon root",
             "selinuxconlist root",
             "selinuxexeccon /bin/passwd",
-            "semanage -o -"
+            "semanage -o -",
+            "ps axuZww"
         ])
         if self.get_option('fixfiles'):
             self.add_cmd_output("fixfiles -v check")
