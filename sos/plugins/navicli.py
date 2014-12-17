@@ -69,7 +69,10 @@ class Navicli(Plugin, RedHatPlugin):
         CLARiiON_IP_address_list = []
         CLARiiON_IP_loop = "stay_in"
         while CLARiiON_IP_loop == "stay_in":
-            ans = input("CLARiiON SP IP Address or [Enter] to exit: ")
+            try:
+                ans = input("CLARiiON SP IP Address or [Enter] to exit: ")
+            except:
+                return
             if self.check_ext_prog("navicli -h %s getsptime" % (ans,)):
                 CLARiiON_IP_address_list.append(ans)
             else:
