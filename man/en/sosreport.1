@@ -8,14 +8,19 @@ sosreport \- Collect and package diagnostic and support data
           [-e|--enable-plugins plugin-names]\fR
           [-o|--only-plugins plugin-names]\fR
           [-a|--alloptions] [-v|--verbose]\fR
+          [-k plug.opt|--plugin-option plug.opt]\fR
           [--no-report] [--config-file conf]\fR
           [--batch] [--build] [--debug]\fR
           [--name name] [--case-id id] [--ticket-number nr]
           [--tmp-dir directory]\fR
           [-p|--profile profile-name]\fR
           [--list-profiles]\fR
+          [--verify]\fR
+          [--log-size]\fR
+          [--all-logs]\fR
           [-z|--compression-type method]\fR
-          [--help]\fR
+          [-h|--help]\fR
+
 .SH DESCRIPTION
 \fBsosreport\fR generates an archive of configuration and diagnostic
 information from the running system. The archive may be stored locally
@@ -46,7 +51,7 @@ Enable the specified plugin(s) only (all other plugins should be
 disabled). Multiple plugins may be specified by repeating the option
 or as a comma-separated list.
 .TP
-.B \-k PLUGNAME.PLUGOPT[=VALUE]
+.B \-k PLUGNAME.PLUGOPT[=VALUE], \--plugin-option=PLUGNAME.PLUGOPT[=VALUE]
 Specify plug-in options. The option PLUGOPT is enabled, or set to the
 specified value in the plug-in PLUGNAME.
 .TP
@@ -81,6 +86,22 @@ profiles include: boot, cluster, desktop, debug, hardware, identity,
 network, openstack, packagemanager, security, services, storage,
 sysmgmt, system, performance, virt, and webserver.
 .TP
+.B \--verify
+Instructs plugins to perform plugin-specific verification during data
+collection. This may include package manager verification, log integrity
+testing or other plugin defined behaviour. Use of \--verify may cause
+the time taken to generate a report to be considerably longer.
+.TP
+.B \--log-size
+Places a global limit on the size of any collected set of logs. The
+limit is applied separately for each set of logs collected by any
+plugin.
+.TP
+.B \--all-logs
+Tell plugins to collect all possible log data ignoring any size limits
+and including logs in non-default locations. This option may significantly
+increase the size of reports.
+.TP
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.
 .TP
@@ -94,9 +115,9 @@ Specify a name to be used for the archive.
 .B \--case-id NUMBER
 Specify a case identifier to associate with the archive.
 Identifiers may include alphanumeric characters, commas and periods ('.').
-Synonymous with \--ticket, \--ticket-number.
+Synonymous with \--ticket-number.
 .TP
-.B \--ticket, \--ticket-number NUMBER
+.B \--ticket-number NUMBER
 Specify a ticket number or other identifier to associate with the archive.
 Identifiers may include alphanumeric characters, commas and periods ('.').
 Synonymous with \--case-id.
