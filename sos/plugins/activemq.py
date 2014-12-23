@@ -16,17 +16,42 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class ActiveMq(Plugin, RedHatPlugin, DebianPlugin):
+class ActiveMq(Plugin, DebianPlugin):
     """ActiveMQ message broker
     """
 
     plugin_name = 'activemq'
-    profiles = ()
+    profiles = ('openshift',)
     packages = ('activemq', 'activemq-core')
     files = ('/var/log/activemq',)
 
     def setup(self):
-        self.add_copy_spec(list(self.files))
+        if self.get_option("all_logs"):
+            self.add_copy_spec(list(self.files))
+        else:
+            self.add_copy_spec([
+                "/var/log/activemq/activemq.log",
+                "/var/log/activemq/wrapper.log"
+            ])
+
+    def postproc(self):
+        # activemq.xml contains credentials in this form:
+        #   <authenticationUser ... password="changeme" ... />
+        self.do_file_sub(
+            '/etc/activemq/activemq.xml',
+            r'(\s*password=")[^"]*(".*)',
+            r"\1******\2"
+        )
+
+
+class RedHatActiveMq(ActiveMq, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatActiveMq, self).setup()
+        self.add_copy_spec([
+            '/etc/sysconfig/activemq',
+            '/etc/activemq/activemq.xml'
+        ])
 
 
 class UbuntuActiveMq(ActiveMq, UbuntuPlugin):
