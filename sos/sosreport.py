@@ -1395,12 +1395,19 @@ class SoSReport(object):
             self.version()
 
             return self.final_work()
-        except (SystemExit, KeyboardInterrupt):
-            if self.archive:
-                self.archive.cleanup()
-            if self.tempfile_util:
-                self.tempfile_util.clean()
-            return False
+
+        except (OSError, SystemExit, KeyboardInterrupt):
+            try:
+                # archive and tempfile cleanup may fail due to a fatal
+                # OSError exception (ENOSPC, EROFS etc.).
+                if self.archive:
+                    self.archive.cleanup()
+                if self.tempfile_util:
+                    self.tempfile_util.clean()
+            except:
+                pass
+
+        return False
 
 
 def main(args):
