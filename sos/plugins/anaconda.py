@@ -54,7 +54,7 @@ class Anaconda(Plugin, RedHatPlugin):
         )
         self.do_file_sub(
             "/root/anaconda-ks.cfg",
-            r"(user.*--password=*)(\S*)",
+            r"(user.*--password=*\s*)\s*(\S*)",
             r"\1********"
         )
 
