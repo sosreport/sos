@@ -1091,10 +1091,13 @@ class SoSReport(object):
             self._make_archive_paths()
             return
         except (OSError, IOError) as e:
+            # we must not use the logging subsystem here as it is potentially
+            # in an inconsistent or unreliable state (e.g. an EROFS for the
+            # file system containing our temporary log files).
             if e.errno in fatal_fs_errors:
-                self.ui_log.error("")
-                self.ui_log.error(" %s while setting up archive" % e.strerror)
-                self.ui_log.error("")
+                print("")
+                print(" %s while setting up archive" % e.strerror)
+                print("")
             else:
                 raise e
         except Exception as e:
