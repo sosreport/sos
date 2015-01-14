@@ -28,7 +28,9 @@ class OpenStackSwift(Plugin):
     option_list = [("log", "gathers openstack-swift logs", "slow", False)]
 
     def setup(self):
-        # Swift
+        if self.get_option("log"):
+            self.add_copy_spec("/var/log/swift/")
+
         self.add_copy_spec("/etc/swift/")
 
 
