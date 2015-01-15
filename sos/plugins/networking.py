@@ -12,7 +12,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 import os
 import re
 
@@ -166,7 +166,7 @@ class RedHatNetworking(Networking, RedHatPlugin):
         super(RedHatNetworking, self).setup()
 
 
-class UbuntuNetworking(Networking, UbuntuPlugin):
+class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
     trace_host = "archive.ubuntu.com"
 
     def setup(self):
