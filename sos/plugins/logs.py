@@ -79,17 +79,26 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianLogs, self).setup()
-        self.add_copy_spec([
-            "/var/log/syslog",
-            "/var/log/udev",
-            "/var/log/kern*",
-            "/var/log/mail*",
-            "/var/log/dist-upgrade",
-            "/var/log/installer",
-            "/var/log/unattended-upgrades",
-            "/var/log/apport.log",
-            "/var/log/landscape"
-        ])
+
+        if not self.get_option("all_logs"):
+            limit = self.get_option("log_size")
+            self.add_copy_spec_limit("/var/log/syslog", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/syslog.1", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/kern", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/kern.1", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/apport.log", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/apport.log.1", sizelimit=limit)
+
+            self.add_copy_spec_limit("/var/log/udev", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/mail", sizelimit=limit)
+
+            self.add_copy_spec_limit("/var/log/dist-upgrade", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/installer", sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/unattended-upgrades",
+                                     sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/landscape", sizelimit=limit)
+        else:
+            self.add_copy_spec("/var/log/");
 
 
 # vim: et ts=4 sw=4
