@@ -1330,7 +1330,6 @@ class SoSReport(object):
                 else:
                     self._log_plugin_exception(plugname, "postproc")
 
-
     def final_work(self):
         # this must come before archive creation to ensure that log
         # files are closed and cleaned up at exit.
