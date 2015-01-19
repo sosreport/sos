@@ -31,7 +31,7 @@ class RedHatSquid(Squid, RedHatPlugin):
     def setup(self):
         log_size = self.get_option('log_size')
         log_path = "/var/log/squid/"
-        self.add_copy_spec_limit("/etc/squid/squid.conf", sizelimit=log_size)
+        self.add_copy_spec("/etc/squid/squid.conf")
         self.add_copy_spec_limit(log_path + "access.log", sizelimit=log_size)
         self.add_copy_spec_limit(log_path + "cache.log", sizelimit=log_size)
         self.add_copy_spec_limit(log_path + "squid.out", sizelimit=log_size)
