@@ -1071,8 +1071,14 @@ class SoSReport(object):
                 self.ui_log.info("")
                 self._exit()
 
-    def _log_plugin_exception(self, plugin_name):
-        self.soslog.error("%s\n%s" % (plugin_name, traceback.format_exc()))
+    def _log_plugin_exception(self, plugin, method):
+        trace = traceback.format_exc()
+        msg = "caught exception in plugin method"
+        plugin_err_log = "%s-plugin-errors.txt" % plugin
+        logpath = os.path.join(self.logdir, plugin_err_log)
+        self.soslog.error('%s "%s.%s()"' % (msg, plugin, method))
+        self.soslog.error('writing traceback to %s' % logpath)
+        self.archive.add_string("%s\n" % trace, logpath)
 
     def prework(self):
         self.policy.pre_work()
@@ -1129,7 +1135,7 @@ class SoSReport(object):
                 if self.raise_plugins:
                     raise
                 else:
-                    self._log_plugin_exception(plugname)
+                    self._log_plugin_exception(plugname, "setup")
 
     def version(self):
         """Fetch version information from all plugins and store in the report
@@ -1175,7 +1181,7 @@ class SoSReport(object):
                 if self.raise_plugins:
                     raise
                 else:
-                    self._log_plugin_exception(plugname)
+                    self._log_plugin_exception(plugname, "collect")
         self.ui_log.info("")
 
     def report(self):
@@ -1321,6 +1327,9 @@ class SoSReport(object):
             except:
                 if self.raise_plugins:
                     raise
+                else:
+                    self._log_plugin_exception(plugname, "postproc")
+
 
     def final_work(self):
         # this must come before archive creation to ensure that log
