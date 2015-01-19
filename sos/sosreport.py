@@ -1131,11 +1131,13 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
+                if self.raise_plugins:
+                    raise
+                self._log_plugin_exception(plugname, "setup")
             except:
                 if self.raise_plugins:
                     raise
-                else:
-                    self._log_plugin_exception(plugname, "setup")
+                self._log_plugin_exception(plugname, "setup")
 
     def version(self):
         """Fetch version information from all plugins and store in the report
@@ -1177,11 +1179,13 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
+                if self.raise_plugins:
+                    raise
+                self._log_plugin_exception(plugname, "collect")
             except:
                 if self.raise_plugins:
                     raise
-                else:
-                    self._log_plugin_exception(plugname, "collect")
+                self._log_plugin_exception(plugname, "collect")
         self.ui_log.info("")
 
     def report(self):
@@ -1324,11 +1328,13 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
+                if self.raise_plugins:
+                    raise
+                self._log_plugin_exception(plugname, "postproc")
             except:
                 if self.raise_plugins:
                     raise
-                else:
-                    self._log_plugin_exception(plugname, "postproc")
+                self._log_plugin_exception(plugname, "postproc")
 
     def final_work(self):
         # this must come before archive creation to ensure that log
