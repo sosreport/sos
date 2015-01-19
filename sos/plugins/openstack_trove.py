@@ -45,10 +45,6 @@ class DebianOpenStackTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
         'python-troveclient'
     )
 
-    def check_enabled(self):
-        self.trove = self.is_installed("trove-common")
-        return self.trove
-
     def setup(self):
         super(DebianOpenStackTrove, self).setup()
 
@@ -66,10 +62,6 @@ class RedHatOpenStackTrove(OpenStackTrove, RedHatPlugin):
         'python-trove',
         'python-troveclient'
     )
-
-    def check_enabled(self):
-        self.trove = self.is_installed("openstack-trove")
-        return self.trove
 
     def setup(self):
         super(RedHatOpenStackTrove, self).setup()
