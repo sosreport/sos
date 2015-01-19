@@ -16,7 +16,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Ctdb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Ctdb(Plugin, DebianPlugin, UbuntuPlugin):
     """Samba Clustered TDB
     """
     packages = ('ctdb',)
@@ -45,7 +45,7 @@ class Ctdb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
 class RedHatCtdb(Ctdb, RedHatPlugin):
     def setup(self):
-        super(RedHatCtdb, self).super()
+        super(RedHatCtdb, self).setup()
         self.add_copy_spec("/etc/sysconfig/ctdb")
 
 # vim: et ts=4 sw=4
