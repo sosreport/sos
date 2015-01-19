@@ -529,6 +529,17 @@ class SoSOptions(object):
         self._report = value
 
     @property
+    def sysroot(self):
+        if self._options is not None:
+            return self._options.sysroot
+        return self._sysroot
+
+    @sysroot.setter
+    def sysroot(self, value):
+        self._check_options_initialized()
+        self._sysroot = value
+
+    @property
     def compression_type(self):
         if self._options is not None:
             return self._options.compression_type
@@ -615,7 +626,10 @@ class SoSOptions(object):
                           default=None)
         parser.add_option("--no-report", action="store_true",
                           dest="report",
-                          help="Disable HTML/XML reporting", default=True)
+                          help="Disable HTML/XML reporting", default=False)
+        parser.add_option("-s", "--sysroot", action="store", dest="sysroot",
+                          help="system root directory path (default='/')",
+                          default="/")
         parser.add_option("-z", "--compression-type", dest="compression_type",
                           help="compression technology to use [auto, "
                                "gzip, bzip2, xz] (default=auto)",
