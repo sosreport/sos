@@ -89,7 +89,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         var_conf_dir = os.path.join(self.pcp_var_dir, 'config')
         self.add_copy_spec([
             self.pcp_sysconf_dir,
-            var_conf_dir
+            var_conf_dir,
+            self.pcp_conffile
         ])
 
         # We explicitely avoid /var/lib/pcp/config/{pmchart,pmlogconf,pmieconf,
