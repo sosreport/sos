@@ -45,6 +45,9 @@ class Mysql(Plugin):
         if self.get_option("dbdump"):
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
+            if isinstance(dbuser, bool) or isinstance(dbpass, bool):
+                # sosreport -a
+                return
             if 'MYSQL_PWD' in os.environ:
                 dbpass = os.environ['MYSQL_PWD']
             if not dbpass or dbpass is False:
