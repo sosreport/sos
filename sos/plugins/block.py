@@ -46,7 +46,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 disk_path = os.path.join('/dev/', disk)
                 self.add_cmd_output([
                     "udevadm info -ap /sys/block/%s" % (disk),
-                    "parted -s %s print" % (disk_path),
+                    "parted -s %s unit s print" % (disk_path),
                     "fdisk -l %s" % disk_path
                 ])
 
