@@ -24,35 +24,51 @@ class Mysql(Plugin):
     profiles = ('services',)
     mysql_cnf = "/etc/my.cnf"
 
+    pw_warn_text = " (password visible in process listings)"
+
     option_list = [
         ("dbuser", "username for database dumps", "", "mysql"),
-        ("dbpass", "password for database dumps", "", False),
+        ("dbpass", "password for database dumps" + pw_warn_text, "", False),
         ("dbdump", "collect a database dump", "", False)
     ]
 
     def setup(self):
         super(Mysql, self).setup()
+
         self.add_copy_spec([
             self.mysql_cnf,
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
+
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/mysql*",
                 "/var/log/mariadb*"
             ])
+
         if self.get_option("dbdump"):
+            msg = "database user name and password must be supplied"
+            dbdump_err = "mysql.dbdump: %s" % msg
+
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
-            if isinstance(dbuser, bool) or isinstance(dbpass, bool):
-                # sosreport -a
-                return
+
             if 'MYSQL_PWD' in os.environ:
                 dbpass = os.environ['MYSQL_PWD']
+
+            if dbuser is True or dbpass is True:
+                # sosreport -a or -k mysql.{dbuser,dbpass}
+                self.soslog.warning(dbdump_err)
+                return
+
             if not dbpass or dbpass is False:
                 # no MySQL password
+                self.soslog.warning(dbdump_err)
                 return
+
+            # no need to save/restore as this variable is private to
+            # the mysql plugin.
             os.environ['MYSQL_PWD'] = dbpass
 
             opts = "--user=%s --all-databases" % dbuser
