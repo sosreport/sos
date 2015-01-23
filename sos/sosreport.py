@@ -651,6 +651,7 @@ class SoSReport(object):
         self.archive = None
         self.tempfile_util = None
         self._args = args
+        self.sysroot = "/"
 
         try:
             import signal
@@ -681,6 +682,10 @@ class SoSReport(object):
         self.tempfile_util = TempFileUtil(self.tmpdir)
         self._set_directories()
 
+        # set alternate system root directory
+        if self.opts.sysroot:
+            self.sysroot = self.opts.sysroot
+
     def print_header(self):
         self.ui_log.info("\n%s\n" % _("sosreport (version %s)" %
                                       (__version__,)))
@@ -693,6 +698,7 @@ class SoSReport(object):
             'tmpdir': self.tmpdir,
             'soslog': self.soslog,
             'policy': self.policy,
+            'sysroot': self.sysroot,
             'verbosity': self.opts.verbosity,
             'xmlreport': self.xml_report,
             'cmdlineopts': self.opts,
