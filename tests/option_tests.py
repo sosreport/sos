@@ -8,10 +8,11 @@ class GlobalOptionTest(unittest.TestCase):
 
     def setUp(self):
         self.commons = {
+            'sysroot': '/',
             'global_plugin_options': {
                 'test_option': 'foobar',
                 'baz': None,
-                'empty_global': True,
+                'empty_global': True
             },
         }
         self.plugin = Plugin(self.commons)

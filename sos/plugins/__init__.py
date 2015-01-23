@@ -101,6 +101,7 @@ class Plugin(object):
     files = ()
     archive = None
     profiles = ()
+    sysroot = '/'
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
@@ -117,6 +118,7 @@ class Plugin(object):
         self.copy_paths = set()
         self.copy_strings = []
         self.collect_cmds = []
+        self.sysroot = commons['sysroot']
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -153,6 +155,19 @@ class Plugin(object):
 
     def policy(self):
         return self.commons["policy"]
+
+    def join_sysroot(self, path):
+        if path[0] == os.sep:
+            path = path[1:]
+        return os.path.join(self.sysroot, path)
+
+    def strip_sysroot(self, path):
+        if path.startswith(self.sysroot):
+            return path[len(self.sysroot):]
+        return path
+
+    def use_sysroot(self):
+        return self.sysroot != os.path.abspath(os.sep)
 
     def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
@@ -207,6 +222,7 @@ class Plugin(object):
         '''
         try:
             path = self._get_dest_for_srcpath(srcpath)
+            self._log_debug("substituting scrpath '%s'" % srcpath)
             self._log_debug("substituting '%s' for '%s' in '%s'"
                             % (subst, regexp, path))
             if not path:
@@ -257,8 +273,9 @@ class Plugin(object):
         self._log_debug("copying link '%s' pointing to '%s' with isdir=%s"
                         % (srcpath, linkdest, os.path.isdir(absdest)))
 
+        dstpath = self.strip_sysroot(srcpath)
         # use the relative target path in the tarball
-        self.archive.add_link(reldest, srcpath)
+        self.archive.add_link(reldest, dstpath)
 
         if os.path.isdir(absdest):
             self._log_debug("link '%s' is a directory, skipping..." % linkdest)
@@ -277,7 +294,7 @@ class Plugin(object):
                             % linkdest)
 
         self.copied_files.append({'srcpath': srcpath,
-                                  'dstpath': srcpath,
+                                  'dstpath': dstpath,
                                   'symlink': "yes",
                                   'pointsto': linkdest})
 
@@ -288,6 +305,8 @@ class Plugin(object):
             self._do_copy_path(os.path.join(srcpath, afile), dest=None)
 
     def _get_dest_for_srcpath(self, srcpath):
+        if self.use_sysroot():
+            srcpath = self.join_sysroot(srcpath)
         for copied in self.copied_files:
             if srcpath == copied["srcpath"]:
                 return copied["dstpath"]
@@ -315,6 +334,9 @@ class Plugin(object):
         if not dest:
             dest = srcpath
 
+        if self.use_sysroot():
+            dest = self.strip_sysroot(dest)
+
         try:
             st = os.lstat(srcpath)
         except (OSError, IOError):
@@ -333,7 +355,7 @@ class Plugin(object):
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
             ntype = _node_type(st)
             self._log_debug("creating %s node at archive:'%s'"
-                            % (ntype, srcpath))
+                            % (ntype, dest))
             self._copy_node(srcpath, st)
             return
 
@@ -347,9 +369,11 @@ class Plugin(object):
         else:
             self.archive.add_file(srcpath, dest)
 
-        self.copied_files.append({'srcpath': srcpath,
-                                  'dstpath': dest,
-                                  'symlink': "no"})
+        self.copied_files.append({
+            'srcpath': srcpath,
+            'dstpath': dest,
+            'symlink': "no"
+        })
 
     def add_forbidden_path(self, forbiddenPath):
         """Specify a path to not copy, even if it's part of a copy_specs[]
@@ -416,6 +440,9 @@ class Plugin(object):
         except Exception:
             return default
 
+    def _add_copy_paths(self, copy_paths):
+        self.copy_paths.update(copy_paths)
+
     def add_copy_spec_limit(self, copyspec, sizelimit=None, tailit=True):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
@@ -424,10 +451,13 @@ class Plugin(object):
         if not (copyspec and len(copyspec)):
             return False
 
+        if self.use_sysroot():
+            copyspec = self.join_sysroot(copyspec)
         files = glob.glob(copyspec)
         files.sort()
         if len(files) == 0:
             return
+
         current_size = 0
         limit_reached = False
         sizelimit *= 1024 * 1024  # in MB
@@ -438,7 +468,7 @@ class Plugin(object):
             if sizelimit and current_size > sizelimit:
                 limit_reached = True
                 break
-            self.add_copy_spec(_file)
+            self._add_copy_paths([_file])
 
         if limit_reached and tailit:
             file_name = _file
@@ -459,12 +489,14 @@ class Plugin(object):
         if isinstance(copyspecs, six.string_types):
             copyspecs = [copyspecs]
         for copyspec in copyspecs:
+            if self.use_sysroot():
+                copyspec = self.join_sysroot(copyspec)
             if not (copyspec and len(copyspec)):
                 self._log_warn("added null or empty copy spec")
                 return False
             copy_paths = self._expand_copy_spec(copyspec)
-            self.copy_paths.update(copy_paths)
-            self._log_info("added copyspec '%s'" % copyspec)
+            self._add_copy_paths(copy_paths)
+            self._log_info("added copyspec '%s'" % copy_paths)
 
     def get_command_output(self, prog, timeout=300, runat=None, stderr=True):
         result = sos_get_command_output(prog, timeout=timeout, runat=runat,
