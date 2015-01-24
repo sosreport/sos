@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 3.2
-Release: 1%{?dist}
+Release: 16%{?dist}.atomic
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
@@ -51,6 +51,83 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Fri Jan 23 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-16
+- [docs] add -s/--sysroot to sosreport.1
+- [plugins] prefix target paths with self.sysroot
+- [plugins] propagate sysroot to Plugin via commons
+- [sosreport] add --sysroot option
+
+* Thu Jan 22 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-15
+- [mysql] improve handling of dbuser, dbpass and MYSQL_PWD
+
+* Tue Jan 20 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-14
+- [mysql] test for boolean values in dbuser and dbpass
+
+* Mon Jan 19 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-12
+- [plugin] limit path names to PC_NAME_MAX
+- [squid] collect files from /var/log/squid
+- [sosreport] log plugin exceptions to a file
+- [ctdb] fix collection of /etc/sysconfig/ctdb
+- [sosreport] fix silent exception handling
+
+* Tue Jan 13 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-11
+- [sosreport] do not make logging calls after OSError
+- [sosreport] catch OSError exceptions in SoSReport.execute()
+- [anaconda] make useradd password regex tolerant of whitespace
+
+* Tue Dec 23 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-10
+- [mysql] fix handling of mysql.dbpass option
+
+* Wed Dec 17 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-9
+- [navicli] catch exceptions if stdin is unreadable
+- [docs] update man page for new options
+- [sosreport] make all utf-8 handling user errors=ignore
+
+* Tue Dec 09 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-8
+- [kpatch] do not attempt to collect data if kpatch is not installed
+- [archive] drop support for Zip archives
+
+* Thu Oct 30 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-7
+- [sosreport] fix archive permissions regression
+
+* Mon Oct 20 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-6
+- [tomcat] add support for tomcat7 and default log size limits
+- [mysql] obtain database password from the environment
+
+* Wed Oct 15 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-5
+- [corosync] add postprocessing for corosync-objctl output
+- [ovirt_hosted_engine] fix exception when force-enabled
+
+* Thu Oct 02 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-4
+- [yum] call rhsm-debug with --no-subscriptions
+- [powerpc] allow PowerPC plugin to run on ppc64le
+- [package] add Obsoletes for sos-plugins-openstack
+
+* Wed Oct 01 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2-3
+- [pam] add pam_tally2 and faillock support
+- [postgresql] obtain db password from the environment
+- [pcp] add Performance Co-Pilot plugin
+- [nfsserver] collect /etc/exports.d
+- [sosreport] handle --compression-type correctly
+- [anaconda] redact passwords in kickstart configurations
+- [haproxy] add new plugin
+- [keepalived] add new plugin
+- [lvm2] set locking_type=0 when calling lvm commands
+- [tuned] add new plugin
+- [cgroups] collect /etc/sysconfig/cgred
+- [plugins] ensure doc text is always displayed for plugins
+- [sosreport] fix the distribution version API call
+- [docker] add new plugin
+- [openstack_*] include broken-out openstack plugins
+- [mysql] support MariaDB
+- [openstack] do not collect /var/lib/nova
+- [grub2] collect grub.cfg on UEFI systems
+- [sosreport] handle out-of-space errors gracefully
+- [firewalld] new plugin
+- [networking] collect NetworkManager status
+- [kpatch] new plugin
+- [global] update to upstream 3.2 release
+
 * Tue Sep 30 2014 Bryn M. Reeves <bmr@redhat.com> = 3.2
 - New upstream release
 
