@@ -12,6 +12,7 @@ sosreport \- Collect and package diagnostic and support data
           [--no-report] [--config-file conf]\fR
           [--batch] [--build] [--debug]\fR
           [--name name] [--case-id id] [--ticket-number nr]
+          [-s|--sysroot]\fR
           [--tmp-dir directory]\fR
           [-p|--profile profile-name]\fR
           [--list-profiles]\fR
@@ -71,6 +72,10 @@ Disable HTML/XML report writing.
 .TP
 .B \--config-file CONFIG
 Specify alternate configuration file.
+.TP
+.B \-s, \--sysroot SYSROOT
+Specify an alternate root file system path. Useful for collecting
+reports from containers and images.
 .TP
 .B \--tmp-dir DIRECTORY
 Specify alternate temporary directory to copy data as well as the
