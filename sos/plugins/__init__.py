@@ -317,6 +317,8 @@ class Plugin(object):
         return None
 
     def _is_forbidden_path(self, path):
+        if self.use_sysroot():
+            path = self.join_sysroot(path)
         return _path_in_path_list(path, self.forbidden_paths)
 
     def _copy_node(self, path, st):
@@ -379,13 +381,15 @@ class Plugin(object):
             'symlink': "no"
         })
 
-    def add_forbidden_path(self, forbiddenPath):
+    def add_forbidden_path(self, forbidden):
         """Specify a path to not copy, even if it's part of a copy_specs[]
         entry.
         """
+        if self.use_sysroot():
+            forbidden = self.join_sysroot(forbidden)
         # Glob case handling is such that a valid non-glob is a reduced glob
-        for filespec in glob.glob(forbiddenPath):
-            self.forbidden_paths.append(filespec)
+        for path in glob.glob(forbidden):
+            self.forbidden_paths.append(path)
 
     def get_all_options(self):
         """return a list of all options selected"""
