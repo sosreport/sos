@@ -68,6 +68,11 @@ class ExecutableTest(unittest.TestCase):
         self.assertEquals(result['status'], 127)
         self.assertEquals(result['output'], "")
 
+    def test_output_chdir(self):
+        result = sos_get_command_output("/usr/bin/pwd", chdir=TEST_DIR)
+        self.assertEquals(result['status'], 0)
+        self.assertEquals(result['output'].strip(), TEST_DIR)
+
     def test_shell_out(self):
         path = os.path.join(TEST_DIR, 'test_exe.py')
         self.assertEquals("executed\n", shell_out(path))
