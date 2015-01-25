@@ -288,7 +288,7 @@ class Plugin(object):
 
         # skip recursive copying of symlink pointing to itself.
         if (absdest != srcpath):
-            self._do_copy_path(absdest)
+            self._do_copy_path(self.strip_sysroot(absdest))
         else:
             self._log_debug("link '%s' points to itself, skipping target..."
                             % linkdest)
