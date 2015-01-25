@@ -225,6 +225,10 @@ class XmlReport(object):
         outf.close()
 
 
+# valid modes for --chroot
+chroot_modes = ["auto", "always", "never"]
+
+
 class SoSOptions(object):
     _list_plugins = False
     _noplugins = []
@@ -548,7 +552,7 @@ class SoSOptions(object):
     @chroot.setter
     def chroot(self, value):
         self._check_options_initialized()
-        if value not in ["auto", "always", "never"]:
+        if value not in chroot_modes:
             msg = "SoSOptions.chroot '%s' is not a valid chroot mode: "
             msg += "('auto', 'always', 'never')"
             raise ValueError(msg % value)
@@ -704,6 +708,14 @@ class SoSReport(object):
         # set alternate system root directory
         if self.opts.sysroot:
             self.sysroot = self.opts.sysroot
+
+        self._setup_logging()
+
+        if self.opts.chroot not in chroot_modes:
+            self.soslog.error("invalid chroot mode: %s" % self.opts.chroot)
+            logging.shutdown()
+            self.tempfile_util.clean()
+            self._exit(1)
 
     def print_header(self):
         self.ui_log.info("\n%s\n" % _("sosreport (version %s)" %
@@ -1205,7 +1217,6 @@ class SoSReport(object):
                     self.ui_log.error(" %s while setting up plugins"
                                       % e.strerror)
                     self.ui_log.error("")
-                    self._exit(1)
                 if self.raise_plugins:
                     raise
                 self._log_plugin_exception(plugname, "setup")
@@ -1455,7 +1466,6 @@ class SoSReport(object):
 
     def execute(self):
         try:
-            self._setup_logging()
             self.policy.set_commons(self.get_commons())
             self.print_header()
             self.load_plugins()
