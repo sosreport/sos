@@ -493,7 +493,12 @@ class Plugin(object):
             self._log_info("added copyspec '%s'" % copy_paths)
 
     def get_command_output(self, prog, timeout=300, runat=None):
-        result = sos_get_command_output(prog, timeout=timeout, chdir=runat)
+        if self.commons['cmdlineopts'].chroot == 'always':
+            root = self.sysroot
+        else:
+            root = None
+        result = sos_get_command_output(prog, timeout=timeout,
+                                        chroot=root, chdir=runat)
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
                            % (prog, timeout))
