@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 3.2
-Release: 16%{?dist}.atomic
+Release: 17%{?dist}.atomic
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
@@ -51,6 +51,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Sun Jan 25 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-17
+- [plugins] implement --chroot for command callouts
+- [tests] disable test_output_chdir
+- [sosreport] add --chroot={auto,always,never} option
+- [utilities] add chroot support to sos_get_command_output
+
 * Fri Jan 23 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-16
 - [docs] add -s/--sysroot to sosreport.1
 - [plugins] prefix target paths with self.sysroot
