@@ -285,7 +285,7 @@ class Plugin(object):
         # to absolute paths to pass to _do_copy_path.
         self._log_debug("normalized link target '%s' as '%s'"
                         % (linkdest, absdest))
-        self._do_copy_path(self.join_sysroot(absdest))
+        self._do_copy_path(self.strip_sysroot(absdest))
 
         self.copied_files.append({'srcpath': srcpath,
                                   'dstpath': dstpath,
