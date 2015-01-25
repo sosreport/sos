@@ -492,8 +492,8 @@ class Plugin(object):
             self._add_copy_paths(copy_paths)
             self._log_info("added copyspec '%s'" % copy_paths)
 
-    def get_command_output(self, prog, timeout=300, runat=None):
-        if self.commons['cmdlineopts'].chroot == 'always':
+    def get_command_output(self, prog, timeout=300, chroot=True, runat=None):
+        if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
             root = None
@@ -507,11 +507,12 @@ class Plugin(object):
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
-    def call_ext_prog(self, prog, timeout=300, runat=None):
+    def call_ext_prog(self, prog, timeout=300, chroot=True, runat=None):
         """Execute a command independantly of the output gathering part of
         sosreport.
         """
-        return self.get_command_output(prog, timeout=timeout, runat=runat)
+        return self.get_command_output(prog, timeout=timeout,
+                                       chroot=chroot, runat=runat)
 
     def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
@@ -521,15 +522,19 @@ class Plugin(object):
         return self.call_ext_prog(prog)['status'] == 0
 
     def add_cmd_output(self, cmds, suggest_filename=None,
-                       root_symlink=None, timeout=300, runat=None):
+                       root_symlink=None, timeout=300,
+                       chroot=True, runat=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
         if len(cmds) > 1 and (suggest_filename or root_symlink):
             self._log_warn("ambiguous filename or symlink for command list")
         for cmd in cmds:
-            cmdt = (cmd, suggest_filename, root_symlink, timeout, runat)
-            _logstr = "packed command tuple: ('%s', '%s', '%s', %s, '%s')"
+            cmdt = (
+                cmd, suggest_filename, root_symlink, timeout, chroot, runat
+            )
+            _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s')"
+            _logstr = "packed command tuple: " + _tuplefmt
             self._log_debug(_logstr % cmdt)
             self.collect_cmds.append(cmdt)
             self._log_info("added cmd output '%s'" % cmd)
@@ -584,12 +589,13 @@ class Plugin(object):
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300,
-                           runat=None):
+                           chroot=True, runat=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
-        result = self.get_command_output(exe, timeout=timeout, runat=runat)
+        result = self.get_command_output(exe, timeout=timeout,
+                                         chroot=chroot, runat=runat)
         # 126 means 'found but not executable'
         if result['status'] == 126 or result['status'] == 127:
             return None
@@ -638,13 +644,14 @@ class Plugin(object):
 
     def _collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
-            prog, suggest_filename, root_symlink, timeout, runat = progs[0]
+            (prog, suggest_filename, root_symlink, timeout, chroot, runat
+             ) = progs[0]
             self._log_debug("unpacked command tuple: "
-                            + "('%s', '%s', '%s', %s, '%s')" % progs[0])
+                            + "('%s', '%s', '%s', %s, '%s', '%s')" % progs[0])
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
-                                    root_symlink=root_symlink,
-                                    timeout=timeout, runat=runat)
+                                    root_symlink=root_symlink, timeout=timeout,
+                                    chroot=chroot, runat=runat)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
