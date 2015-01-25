@@ -169,6 +169,10 @@ class Plugin(object):
     def use_sysroot(self):
         return self.sysroot != os.path.abspath(os.sep)
 
+    def tmp_in_sysroot(self):
+        paths = [self.sysroot, self.archive.get_tmp_dir()]
+        return os.path.commonprefix(paths) == self.sysroot
+
     def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
         return self.policy().pkg_by_name(package_name) is not None
