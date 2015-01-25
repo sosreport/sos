@@ -69,7 +69,9 @@ class ExecutableTest(unittest.TestCase):
         self.assertEquals(result['output'], "")
 
     def test_output_chdir(self):
-        result = sos_get_command_output("/usr/bin/pwd", chdir=TEST_DIR)
+        cmd = "/bin/bash -c 'echo $PWD'"
+        result = sos_get_command_output(cmd, chdir=TEST_DIR)
+        print(result)
         self.assertEquals(result['status'], 0)
         self.assertEquals(result['output'].strip(), TEST_DIR)
 

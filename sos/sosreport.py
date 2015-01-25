@@ -525,6 +525,21 @@ class SoSOptions(object):
         self._sysroot = value
 
     @property
+    def chroot(self):
+        if self._options is not None:
+            return self._options.chroot
+        return self._chroot
+
+    @chroot.setter
+    def chroot(self, value):
+        self._check_options_initialized()
+        if value not in ["auto", "always", "never"]:
+            msg = "SoSOptions.chroot '%s' is not a valid chroot mode: "
+            msg += "('auto', 'always', 'never')"
+            raise ValueError(msg % value)
+        self._chroot = value
+
+    @property
     def compression_type(self):
         if self._options is not None:
             return self._options.compression_type
@@ -612,6 +627,9 @@ class SoSOptions(object):
         parser.add_option("-s", "--sysroot", action="store", dest="sysroot",
                           help="system root directory path (default='/')",
                           default="/")
+        parser.add_option("-c", "--chroot", action="store", dest="chroot",
+                          help="chroot executed commands (default=auto)",
+                          default="auto")
         parser.add_option("-z", "--compression-type", dest="compression_type",
                           help="compression technology to use [auto, "
                                "gzip, bzip2, xz] (default=auto)",
