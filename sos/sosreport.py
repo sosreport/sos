@@ -628,8 +628,9 @@ class SoSOptions(object):
                           help="system root directory path (default='/')",
                           default="/")
         parser.add_option("-c", "--chroot", action="store", dest="chroot",
-                          help="chroot executed commands (default=auto)",
-                          default="auto")
+                          help="chroot executed commands to SYSROOT "
+                               "[auto, always, never] (default=auto)",
+                               default="auto")
         parser.add_option("-z", "--compression-type", dest="compression_type",
                           help="compression technology to use [auto, "
                                "gzip, bzip2, xz] (default=auto)",
