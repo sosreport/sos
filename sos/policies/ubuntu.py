@@ -9,8 +9,8 @@ class UbuntuPolicy(DebianPolicy):
     vendor = "Ubuntu"
     vendor_url = "http://www.ubuntu.com/"
 
-    def __init__(self):
-        super(UbuntuPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(UbuntuPolicy, self).__init__(sysroot=sysroot)
         self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
 
     @classmethod
