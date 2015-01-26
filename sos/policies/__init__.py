@@ -56,11 +56,14 @@ class PackageManager(object):
     """
 
     query_command = None
+    chroot = None
 
-    def __init__(self, query_command=None):
+    def __init__(self, query_command=None, chroot=None):
         self.packages = {}
         if query_command:
             self.query_command = query_command
+        if chroot:
+            self.chroot = chroot
 
     def all_pkgs_by_name(self, name):
         """
@@ -92,7 +95,8 @@ class PackageManager(object):
                           version': 'major.minor.version'}}
         """
         if self.query_command:
-            pkg_list = shell_out(self.query_command).splitlines()
+            cmd = self.query_command
+            pkg_list = shell_out(cmd, chroot=self.chroot).splitlines()
             for pkg in pkg_list:
                 if '|' not in pkg:
                     continue
@@ -144,6 +148,9 @@ No changes will be made to system configuration.
     vendor_text = ""
     PATH = ""
 
+    _in_container = False
+    _host_sysroot = '/'
+
     def __init__(self):
         """Subclasses that choose to override this initializer should call
         super() to ensure that they get the required platform bits attached.
@@ -178,6 +185,14 @@ No changes will be made to system configuration.
         is supported by this policy.
         """
         return False
+
+    def in_container(self):
+        """ Returns True if sos is running inside a container environment.
+        """
+        return self._in_container
+
+    def host_sysroot(self):
+        return self._host_sysroot
 
     def dist_version(self):
         """
