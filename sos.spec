@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 3.2
-Release: 18%{?dist}.atomic
+Release: 20%{?dist}.atomic
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
@@ -51,7 +51,19 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
-* Mon Jan 26 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-18
+* Mon Jan 26 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-20
+- [packaging] bump release for build sos-3.2-20.el7.atomic
+- [firewalld] work around command hangs in container environments
+- [sosreport] set SYSROOT by policy
+- [policies] add container support to Red Hat policy
+- [policies] make PackageManager and Policy sysroot-aware
+- [utilities] add chroot support to shell_out()
+- [packaging] bump release for build sos-3.2-19.el7.atomic
+- [docs] fix documentation of --sysroot parameter
+- [kubernetes] new plugin
+- [plugin] handle ELOOP in _copy_dir()
+- [packaging] bump release for build sos-3.2-18.el7.atomic
+- [docs] add --chroot to sosreport.1
 - [lvm2] don't chroot if tmp is not inside sysroot
 - [logs] fix do_regex_find_all() use for --sysroot
 - [libvirt] use join_sysroot() before calling os.path.exists
