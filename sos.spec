@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 3.2
-Release: 17%{?dist}.atomic
+Release: 18%{?dist}.atomic
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
@@ -51,9 +51,22 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Mon Jan 26 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-18
+- [lvm2] don't chroot if tmp is not inside sysroot
+- [logs] fix do_regex_find_all() use for --sysroot
+- [libvirt] use join_sysroot() before calling os.path.exists
+- [foreman] don't chroot if tmp is not inside sysroot
+- [dmraid] don't chroot if tmp is not inside sysroot
+- [cluster] handle crm_report with --sysroot
+- [plugin] enforce forbidden paths when --sysroot is set
+- [plugin] add tmp_in_sysroot() method
+- [plugins] add chroot parameter to callout APIs
+- [sosreport] check for valid CHROOT values
+- [plugin] fix chrooted symlink handling
+- [sosreport] improve --chroot help text
+
 * Sun Jan 25 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-17
 - [plugins] implement --chroot for command callouts
-- [tests] disable test_output_chdir
 - [sosreport] add --chroot={auto,always,never} option
 - [utilities] add chroot support to sos_get_command_output
 
