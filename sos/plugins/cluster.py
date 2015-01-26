@@ -104,8 +104,9 @@ class Cluster(Plugin, RedHatPlugin):
                     "default" % self.get_option('crm_from'))
 
         crm_dest = self.get_cmd_output_path(name='crm_report')
-        self.add_cmd_output('crm_report -S -d --dest %s --from "%s"'
-                            % (crm_dest, crm_from))
+        crm_cmd = 'crm_report -S -d --dest %s --from "%s"'
+        self.add_cmd_output(crm_cmd % (crm_dest, crm_from),
+                            chroot=self.tmp_in_sysroot())
 
     def do_lockdump(self):
         dlm_tool = "dlm_tool ls"
