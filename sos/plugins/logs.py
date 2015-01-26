@@ -38,12 +38,12 @@ class Logs(Plugin):
         ])
 
         if self.get_option('all_logs'):
-            logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
-                                          "/etc/syslog.conf")
+            syslog_conf = self.join_sysroot("/etc/syslog.conf")
+            logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", syslog_conf)
             if self.is_installed("rsyslog") \
                     or os.path.exists("/etc/rsyslog.conf"):
                 logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
-                                               "/etc/rsyslog.conf")
+                                               rsyslog_conf)
             for i in logs:
                 if i.startswith("-"):
                     i = i[1:]
@@ -74,7 +74,7 @@ class RedHatLogs(Logs, RedHatPlugin):
         messages = "/var/log/messages"
         self.add_copy_spec_limit("/var/log/secure*", sizelimit=self.limit)
         self.add_copy_spec_limit(messages + "*", sizelimit=self.limit)
-        # collect five days worth of logs by default if the system is
+        # collect three days worth of logs by default if the system is
         # configured to use the journal and not /var/log/messages
         if not os.path.exists(messages) and self.is_installed("systemd"):
             try:
