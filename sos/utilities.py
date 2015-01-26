@@ -186,11 +186,12 @@ def import_module(module_fqname, superclasses=None):
     return modules
 
 
-def shell_out(cmd, timeout=30, runat=None):
+def shell_out(cmd, timeout=30, chroot=None, runat=None):
     """Shell out to an external command and return the output or the empty
     string in case of error.
     """
-    return sos_get_command_output(cmd, timeout=timeout, chdir=runat)['output']
+    return sos_get_command_output(cmd, timeout=timeout,
+                                  chroot=chroot, chdir=runat)['output']
 
 
 class ImporterHelper(object):
