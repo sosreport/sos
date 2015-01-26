@@ -42,12 +42,16 @@ class RedHatPolicy(LinuxPolicy):
     _in_container = False
     _host_sysroot = '/'
 
-    def __init__(self):
-        super(RedHatPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(RedHatPolicy, self).__init__(sysroot=sysroot)
         self.report_name = ""
         self.ticket_number = ""
         # need to set _host_sysroot before PackageManager()
-        sysroot = self._container_init()
+        if sysroot:
+            self._container_init()
+            self._host_sysroot = sysroot
+        else:
+            sysroot = self._container_init()
         self.package_manager = PackageManager(self._rpmq_cmd, chroot=sysroot)
         self.valid_subclasses = [RedHatPlugin]
 
@@ -145,8 +149,8 @@ No changes will be made to system configuration.
 %(vendor_text)s
 """)
 
-    def __init__(self):
-        super(RHELPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(RHELPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
     def check(self):
@@ -192,8 +196,8 @@ class FedoraPolicy(RedHatPolicy):
     vendor = "the Fedora Project"
     vendor_url = "https://fedoraproject.org/"
 
-    def __init__(self):
-        super(FedoraPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(FedoraPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
     def check(self):

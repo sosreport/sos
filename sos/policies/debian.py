@@ -16,8 +16,8 @@ class DebianPolicy(LinuxPolicy):
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
            + ":/usr/local/sbin:/usr/local/bin"
 
-    def __init__(self):
-        super(DebianPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(DebianPolicy, self).__init__(sysroot=sysroot)
         self.report_name = ""
         self.ticket_number = ""
         self.package_manager = PackageManager(

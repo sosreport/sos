@@ -687,7 +687,7 @@ class SoSReport(object):
         self._read_config()
 
         try:
-            self.policy = sos.policies.load()
+            self.policy = sos.policies.load(sysroot=self.opts.sysroot)
         except KeyboardInterrupt:
             self._exit(0)
 

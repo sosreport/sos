@@ -28,7 +28,7 @@ def import_policy(name):
         return None
 
 
-def load(cache={}):
+def load(cache={}, sysroot=None):
     if 'policy' in cache:
         return cache.get('policy')
 
@@ -37,7 +37,7 @@ def load(cache={}):
     for module in helper.get_modules():
         for policy in import_policy(module):
             if policy.check():
-                cache['policy'] = policy()
+                cache['policy'] = policy(sysroot=sysroot)
 
     if 'policy' not in cache:
         cache['policy'] = GenericPolicy()
@@ -155,7 +155,7 @@ No changes will be made to system configuration.
     _in_container = False
     _host_sysroot = '/'
 
-    def __init__(self):
+    def __init__(self, sysroot=None):
         """Subclasses that choose to override this initializer should call
         super() to ensure that they get the required platform bits attached.
         super(SubClass, self).__init__(). Policies that require runtime
@@ -167,6 +167,7 @@ No changes will be made to system configuration.
         self.package_manager = PackageManager()
         self._valid_subclasses = []
         self.set_exec_path()
+        self._host_sysroot = sysroot
 
     def get_valid_subclasses(self):
         return [IndependentPlugin] + self._valid_subclasses
@@ -372,8 +373,8 @@ class LinuxPolicy(Policy):
     vendor = "None"
     PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
 
-    def __init__(self):
-        super(LinuxPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(LinuxPolicy, self).__init__(sysroot=sysroot)
 
     def get_preferred_hash_algorithm(self):
         checksum = "md5"
