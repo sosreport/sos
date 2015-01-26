@@ -38,13 +38,17 @@ class RedHatPolicy(LinuxPolicy):
     vendor = "Red Hat"
     vendor_url = "http://www.redhat.com/"
     _tmp_dir = "/var/tmp"
+    _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
+    _in_container = False
+    _host_sysroot = '/'
 
     def __init__(self):
         super(RedHatPolicy, self).__init__()
         self.report_name = ""
         self.ticket_number = ""
-        self.package_manager = PackageManager(
-            'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
+        # need to set _host_sysroot before PackageManager()
+        sysroot = self._container_init()
+        self.package_manager = PackageManager(self._rpmq_cmd, chroot=sysroot)
         self.valid_subclasses = [RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()
@@ -69,6 +73,17 @@ class RedHatPolicy(LinuxPolicy):
         overriden by concrete subclasses to return True when running on a
         Fedora, RHEL or other Red Hat distribution or False otherwise."""
         return False
+
+    def _container_init(self):
+        """Check if sos is running in a container and if a host sysroot
+        has been passed in the environment.
+        """
+        if ENV_CONTAINER_UUID in os.environ:
+            self._in_container = True
+        if ENV_HOST_SYSROOT in os.environ:
+            self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
+        use_sysroot = self._in_container and self._host_sysroot != '/'
+        return self._host_sysroot if use_sysroot else None
 
     def runlevel_by_service(self, name):
         from subprocess import Popen, PIPE
@@ -99,6 +114,10 @@ class RedHatPolicy(LinuxPolicy):
 
     def get_local_name(self):
         return self.host_name()
+
+# Container environment variables on Red Hat systems.
+ENV_CONTAINER_UUID = 'container_uuid'
+ENV_HOST_SYSROOT = 'HOST'
 
 
 class RHELPolicy(RedHatPolicy):
