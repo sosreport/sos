@@ -120,8 +120,9 @@ class Cluster(Plugin, RedHatPlugin):
             self._log_warn("scrubbing of crm passwords has been disabled:")
             self._log_warn("data collected by crm_report may contain"
                            " sensitive values.")
-        self.add_cmd_output('crm_report %s -S -d --dest %s --from "%s"'
-                            % (crm_scrub, crm_dest, crm_from))
+        self.add_cmd_output('crm_report %s -S -d --dest %s --from "%s"' %
+                            (crm_scrub, crm_dest, crm_from),
+                            chroot=self.tmp_in_sysroot())
 
     def do_lockdump(self):
         if self._mount_debug():
