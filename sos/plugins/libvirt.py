@@ -56,7 +56,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         else:
             self.add_copy_spec("/var/log/libvirt")
 
-        if os.path.exists(libvirt_keytab):
+        if os.path.exists(self.join_sysroot(libvirt_keytab)):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
         self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
