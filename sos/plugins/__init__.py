@@ -27,6 +27,7 @@ import stat
 from time import time
 import logging
 import fnmatch
+import errno
 
 # PYCOMPAT
 import six
@@ -303,10 +304,17 @@ class Plugin(object):
                                   'pointsto': linkdest})
 
     def _copy_dir(self, srcpath):
-        for afile in os.listdir(srcpath):
-            self._log_debug("recursively adding '%s' from '%s'"
-                            % (afile, srcpath))
-            self._do_copy_path(os.path.join(srcpath, afile), dest=None)
+        try:
+            for afile in os.listdir(srcpath):
+                self._log_debug("recursively adding '%s' from '%s'"
+                                % (afile, srcpath))
+                self._do_copy_path(os.path.join(srcpath, afile), dest=None)
+        except OSError as e:
+            if e.errno == errno.ELOOP:
+                msg = "Too many levels of symbolic links copying"
+                self._log_error("_copy_dir: %s '%s'" % (msg, srcpath))
+                return
+            raise e
 
     def _get_dest_for_srcpath(self, srcpath):
         if self.use_sysroot():
