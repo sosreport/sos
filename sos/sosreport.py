@@ -648,7 +648,7 @@ class SoSOptions(object):
                           help="Disable HTML/XML reporting", default=False)
         parser.add_option("-s", "--sysroot", action="store", dest="sysroot",
                           help="system root directory path (default='/')",
-                          default="/")
+                          default=None)
         parser.add_option("-c", "--chroot", action="store", dest="chroot",
                           help="chroot executed commands to SYSROOT "
                                "[auto, always, never] (default=auto)",
@@ -705,11 +705,18 @@ class SoSReport(object):
         self.tempfile_util = TempFileUtil(self.tmpdir)
         self._set_directories()
 
+        self._setup_logging()
+
+        msg = "default"
+        host_sysroot = self.policy.host_sysroot()
         # set alternate system root directory
         if self.opts.sysroot:
+            msg = "cmdline"
             self.sysroot = self.opts.sysroot
-
-        self._setup_logging()
+        elif self.policy.in_container() and host_sysroot != os.sep:
+            msg = "policy"
+            self.sysroot = host_sysroot
+        self.soslog.debug("set sysroot to '%s' (%s)" % (self.sysroot, msg))
 
         if self.opts.chroot not in chroot_modes:
             self.soslog.error("invalid chroot mode: %s" % self.opts.chroot)
