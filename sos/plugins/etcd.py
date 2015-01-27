@@ -1,5 +1,5 @@
-# Copyright (C) 2014 Red Hat, Inc. Neependra Khare <nkhare@redhat.com>
-# Copyright (C) 2014 Red Hat, Inc. Bryn M. Reeves <bmr@redhat.com>
+# Copyright (C) 2015 Red Hat, Inc. Neependra Khare <nkhare@redhat.com>
+# Copyright (C) 2015 Red Hat, Inc. Bryn M. Reeves <bmr@redhat.com>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -17,22 +17,20 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 
-class kubernetes(Plugin, RedHatPlugin):
+class etcd(Plugin, RedHatPlugin):
 
-    """Kubernetes plugin
+    """etcd plugin
     """
 
     def setup(self):
-        self.add_copy_spec("/etc/kubernetes")
-        self.add_copy_spec("/var/run/flannel")
+        self.add_copy_spec("/etc/etcd")
 
-        # Kubernetes master info
-        self.add_cmd_output("kubectl version")
-        self.add_cmd_output("kubectl get -o json pods")
-        self.add_cmd_output("kubectl get -o json minions")
-        self.add_cmd_output("kubectl get -o json replicationController")
-        self.add_cmd_output("kubectl get -o json events")
-        self.add_cmd_output("journalctl -r -u kubelet")
+        self.add_cmd_output("curl http://localhost:4001/version")
+        self.add_cmd_output("curl http://localhost:4001/v2/members")
+        self.add_cmd_output("curl http://localhost:4001/v2/stats/leader")
+        self.add_cmd_output("curl http://localhost:4001/v2/stats/self")
+        self.add_cmd_output("curl http://localhost:4001/v2/stats/store")
+        self.add_cmd_output("ls -lR /var/lib/etcd/")
 
 
 # vim: et ts=5 sw=4
