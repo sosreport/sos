@@ -246,6 +246,8 @@ class SoSOptions(object):
     _config_file = ""
     _tmp_dir = ""
     _report = True
+    _sysroot = None
+    _chroot = 'auto'
     _compression_type = 'auto'
 
     _options = None
