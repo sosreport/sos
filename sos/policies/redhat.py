@@ -79,14 +79,17 @@ class RedHatPolicy(LinuxPolicy):
         return False
 
     def _container_init(self):
-        """Check if sos is running in a container and if a host sysroot
-        has been passed in the environment.
+        """Check if sos is running in a container and perform container
+        specific initialisation based on ENV_HOST_SYSROOT.
         """
         if ENV_CONTAINER_UUID in os.environ:
             self._in_container = True
         if ENV_HOST_SYSROOT in os.environ:
             self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
         use_sysroot = self._in_container and self._host_sysroot != '/'
+        if use_sysroot:
+            host_tmp_dir = os.path.abspath(self._host_sysroot + self._tmp_dir)
+            self._tmp_dir = host_tmp_dir
         return self._host_sysroot if use_sysroot else None
 
     def runlevel_by_service(self, name):
