@@ -15,6 +15,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 # This enables the use of with syntax in python 2.5 (e.g. jython)
+from __future__ import print_function
 import os
 import sys
 
@@ -46,8 +47,15 @@ class RedHatPolicy(LinuxPolicy):
             'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
         self.valid_subclasses = [RedHatPlugin]
 
+        pkgs = self.package_manager.all_pkgs()
+
+        # If rpm query timed out after timeout duration exit
+        if not pkgs:
+            print("Could not obtain installed package list", file=sys.stderr)
+            sys.exit(1)
+
         # handle PATH for UsrMove
-        if self.package_manager.all_pkgs()['filesystem']['version'][0] == '3':
+        if pkgs['filesystem']['version'][0] == '3':
             self.PATH = "/usr/sbin:/usr/bin:/root/bin"
         else:
             self.PATH = "/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"

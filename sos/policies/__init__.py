@@ -56,6 +56,7 @@ class PackageManager(object):
     """
 
     query_command = None
+    timeout = 30
 
     def __init__(self, query_command=None):
         self.packages = {}
@@ -92,7 +93,7 @@ class PackageManager(object):
                           version': 'major.minor.version'}}
         """
         if self.query_command:
-            pkg_list = shell_out(self.query_command).splitlines()
+            pkg_list = shell_out(self.query_command, self.timeout).splitlines()
             for pkg in pkg_list:
                 if '|' not in pkg:
                     continue
