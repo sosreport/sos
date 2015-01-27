@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 3.2
-Release: 20%{?dist}.atomic
+Release: 21%{?dist}.atomic
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
@@ -51,6 +51,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Mon Jan 26 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-21
+- [kubernetes] add services and pod logs collection
+- [etcd] split etcd functionality from kubernetes into new plugin
+- [sosoptions] ensure '_sysroot' and '_chroot' are initialised
+- [policies] pass --sysroot down to policy classes
+
 * Mon Jan 26 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-20
 - [packaging] bump release for build sos-3.2-20.el7.atomic
 - [firewalld] work around command hangs in container environments
