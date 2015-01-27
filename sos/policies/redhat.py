@@ -37,6 +37,7 @@ class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
     vendor = "Red Hat"
     vendor_url = "http://www.redhat.com/"
+    _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
     _in_container = False
@@ -159,7 +160,7 @@ No changes will be made to system configuration.
     def check(self):
         """This method checks to see if we are running on RHEL. It returns True
         or False."""
-        return (os.path.isfile('/etc/redhat-release') and not
+        return (os.path.isfile(self._redhat_release) and not
                 os.path.isfile('/etc/fedora-release'))
 
     def dist_version(self):
@@ -191,6 +192,42 @@ No changes will be made to system configuration.
 
     def get_local_name(self):
         return self.rhn_username() or self.host_name()
+
+
+class RedHatAtomicPolicy(RHELPolicy):
+    distro = "Red Hat Atomic Host"
+    msg = _("""\
+This command will collect diagnostic and configuration \
+information from this %(distro)s system.
+
+An archive containing the collected information will be \
+generated in %(tmpdir)s and may be provided to a %(vendor)s \
+support representative.
+
+Any information provided to %(vendor)s will be treated in \
+accordance with the published support policies at:\n
+  %(vendor_url)s
+
+The generated archive may contain data considered sensitive \
+and its content should be reviewed by the originating \
+organization before being passed to any third party.
+%(vendor_text)s
+""")
+
+    @classmethod
+    def check(self):
+        atomic = False
+        if ENV_HOST_SYSROOT not in os.environ:
+            return atomic
+        host_release = os.environ[ENV_HOST_SYSROOT] + self._redhat_release
+        if not os.path.exists(host_release):
+            return False
+        try:
+            for line in open(host_release, "r").read().splitlines():
+                atomic |= 'Atomic' in line
+        except:
+            pass
+        return atomic
 
 
 class FedoraPolicy(RedHatPolicy):
