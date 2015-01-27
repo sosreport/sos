@@ -22,6 +22,8 @@ class kubernetes(Plugin, RedHatPlugin):
     """Kubernetes plugin
     """
 
+    option_list = [("podslog", "capture logs for pods", 'slow', False)]
+
     def setup(self):
         self.add_copy_spec("/etc/kubernetes")
         self.add_copy_spec("/var/run/flannel")
@@ -30,9 +32,19 @@ class kubernetes(Plugin, RedHatPlugin):
         self.add_cmd_output("kubectl version")
         self.add_cmd_output("kubectl get -o json pods")
         self.add_cmd_output("kubectl get -o json minions")
+        self.add_cmd_output("kubectl get -o json services")
         self.add_cmd_output("kubectl get -o json replicationController")
         self.add_cmd_output("kubectl get -o json events")
         self.add_cmd_output("journalctl -r -u kubelet")
+
+        if self.get_option('podslog'):
+            result = self.get_command_output("kubectl get pods")
+            if result['status'] == 0:
+                for line in result['output'].splitlines()[1:]:
+                    pod_name = line.split(" ")[0]
+                    self.add_cmd_output([
+                        "{0} log {1}".format("kubectl", pod_name)
+                    ])
 
 
 # vim: et ts=5 sw=4
