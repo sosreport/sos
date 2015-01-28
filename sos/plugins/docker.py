@@ -54,7 +54,7 @@ class Docker(Plugin):
 
 class RedHatDocker(Docker, RedHatPlugin):
 
-    packages = ('docker-io',)
+    packages = ('docker', 'docker-io')
 
     def setup(self):
         super(RedHatDocker, self).setup()
