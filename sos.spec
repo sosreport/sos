@@ -3,7 +3,7 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 3.2
-Release: 22%{?dist}.atomic
+Release: 23%{?dist}.atomic
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
 License: GPLv2+
@@ -51,7 +51,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
-* Mon Jan 26 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-22
+* Wed Jan 28 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-23
+- [packaging] bump release for build sos-3.2-23.el7.atomic
+- [docker] add 'docker' to the package list for Red Hat distros
+
+* Tue Jan 27 2015 Bryn M. Reeves <bmr@redhat.com> = 3.2-22
 - [packaging] bump release for build sos-3.2-22.el7.atomic
 - [policies/redhat] add Red Hat Atomic Host policy
 - [policies/redhat] automatically set tmp_dir in containers
