@@ -117,6 +117,7 @@ class Networking(Plugin):
             for eth in self.get_eth_interfaces(ip_link_result['output']):
                 self.add_cmd_output([
                     "ethtool "+eth,
+                    "ethtool -d "+eth,
                     "ethtool -i "+eth,
                     "ethtool -k "+eth,
                     "ethtool -S "+eth,
