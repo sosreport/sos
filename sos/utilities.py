@@ -120,7 +120,7 @@ def is_executable(command):
     return any(os.access(path, os.X_OK) for path in candidates)
 
 
-def sos_get_command_output(command, timeout=300, runat=None):
+def sos_get_command_output(command, timeout=300, runat=None, stderr=True):
     """Execute a command through the system shell. First checks to see if the
     requested command is executable. Returns (returncode, stdout, 0)"""
     def _child_chdir():
@@ -142,7 +142,8 @@ def sos_get_command_output(command, timeout=300, runat=None):
         command = command.encode('utf-8', 'ignore')
     args = shlex.split(command)
     try:
-        p = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT,
+        p = Popen(args, shell=False, stdout=PIPE,
+                  stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_chdir)
     except OSError as e:
