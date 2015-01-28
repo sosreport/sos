@@ -39,7 +39,7 @@ class SELinux(Plugin, RedHatPlugin):
             "ps axuZww"
         ])
         if self.get_option('fixfiles'):
-            self.add_cmd_output("fixfiles -v check")
+            self.add_cmd_output("restorecon -Rvn /", stderr=False)
         if self.get_option('list'):
             self.add_cmd_output([
                 "semanage fcontext -l",
