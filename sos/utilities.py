@@ -151,16 +151,13 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                   stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)
+        stdout, stderr = p.communicate()
     except OSError as e:
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': ""}
         else:
             raise e
 
-    stdout, stderr = p.communicate()
-
-    # Required hack while we still pass shell=True to Popen; a Popen
-    # call with shell=False for a non-existant binary will raise OSError.
     if p.returncode == 126 or p.returncode == 127:
         stdout = six.binary_type(b"")
 

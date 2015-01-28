@@ -520,13 +520,23 @@ class Plugin(object):
             root = self.sysroot
         else:
             root = None
+
         result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
                                         chroot=root, chdir=runat)
+
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
                            % (prog, timeout))
-        # 126 means 'found but not executable'
+
+        # command not found or not runnable
         if result['status'] == 126 or result['status'] == 127:
+            # automatically retry chroot'ed commands in the host namespace
+            if chroot and self.commons['cmdlineopts'].chroot != 'always':
+                self._log_info("command '%s' not found in %s - "
+                               "re-trying in host root"
+                               % (prog.split()[0], root))
+                return self.get_command_output(prog, timeout=timeout,
+                                               chroot=False, runat=runat)
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
