@@ -1226,6 +1226,7 @@ class SoSReport(object):
                     self.ui_log.error(" %s while setting up plugins"
                                       % e.strerror)
                     self.ui_log.error("")
+                    self._exit(1)
                 if self.raise_plugins:
                     raise
                 self._log_plugin_exception(plugname, "setup")
