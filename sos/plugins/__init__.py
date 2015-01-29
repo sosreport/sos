@@ -265,7 +265,8 @@ class Plugin(object):
         # the target stored in the original symlink
         linkdest = os.readlink(srcpath)
         dest = os.path.join(os.path.dirname(srcpath), linkdest)
-        # absolute path to the link target
+        # Absolute path to the link target. If SYSROOT != '/' this path
+        # is relative to the host root file system.
         absdest = os.path.normpath(dest)
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
