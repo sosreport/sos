@@ -36,6 +36,10 @@ class kubernetes(Plugin, RedHatPlugin):
         self.add_cmd_output("kubectl get -o json replicationController")
         self.add_cmd_output("kubectl get -o json events")
         self.add_cmd_output("journalctl -r -u kubelet")
+        self.add_cmd_output("journalctl -r -u kube-apiserver")
+        self.add_cmd_output("journalctl -r -u kube-controller-manager")
+        self.add_cmd_output("journalctl -r -u kube-scheduler")
+        self.add_cmd_output("journalctl -r -u kube-proxy")
 
         if self.get_option('podslog'):
             result = self.get_command_output("kubectl get pods")
