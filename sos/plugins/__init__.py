@@ -271,6 +271,9 @@ class Plugin(object):
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
             reldest = os.path.relpath(linkdest, os.path.dirname(srcpath))
+            # trim leading /sysroot
+            if self.use_sysroot():
+                reldest = reldest[len(os.sep + os.pardir):]
             self._log_debug("made link target '%s' relative as '%s'"
                             % (linkdest, reldest))
         else:
