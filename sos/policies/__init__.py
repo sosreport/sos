@@ -402,17 +402,20 @@ class LinuxPolicy(Policy):
     def pre_work(self):
         # this method will be called before the gathering begins
 
-        localname = self.get_local_name()
+        cmdline_opts = self.commons['cmdlineopts']
+        customer_name = cmdline_opts.customer_name
+        localname = customer_name if customer_name else self.get_local_name()
+        caseid = cmdline_opts.case_id if cmdline_opts.case_id else ""
 
-        if not self.commons['cmdlineopts'].batch and not \
-                self.commons['cmdlineopts'].quiet:
+        if not cmdline_opts.batch and not \
+                cmdline_opts.quiet:
             try:
                 self.report_name = input(_("Please enter your first initial "
                                          "and last name [%s]: ") % localname)
 
                 self.case_id = input(_("Please enter the case id "
                                        "that you are generating this "
-                                       "report for: "))
+                                       "report for [%s]: ") % caseid)
                 self._print()
             except:
                 self._print()
@@ -421,11 +424,11 @@ class LinuxPolicy(Policy):
         if len(self.report_name) == 0:
             self.report_name = localname
 
-        if self.commons['cmdlineopts'].customer_name:
-            self.report_name = self.commons['cmdlineopts'].customer_name
+        if customer_name:
+            self.report_name = customer_name
 
-        if self.commons['cmdlineopts'].case_id:
-            self.case_id = self.commons['cmdlineopts'].case_id
+        if cmdline_opts.case_id:
+            self.case_id = cmdline_opts.case_id
 
         self.report_name = self.sanitize_report_name(self.report_name)
         if self.case_id:
