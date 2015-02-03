@@ -18,16 +18,16 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Foreman(Plugin, RedHatPlugin):
-    """Foreman systems management
+    """Foreman/Satellite 6 systems management
     """
 
     plugin_name = 'foreman'
     profiles = ('sysmgmt',)
-    packages = ('foreman')
+    packages = ('foreman-debug')
 
     def setup(self):
         cmd = "foreman-debug"
         path = self.get_cmd_output_path(name="foreman-debug")
-        self.add_cmd_output("%s -q -a -d %s" % (cmd, path))
+        self.add_cmd_output("%s -g -q -a -d %s" % (cmd, path))
 
 # vim: et ts=4 sw=4
