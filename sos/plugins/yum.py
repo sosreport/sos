@@ -45,18 +45,7 @@ class Yum(Plugin, RedHatPlugin):
         self.add_copy_spec([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",
-            "/etc/pki/entitlement/*.pem",
-            "/etc/rhsm/",
-            "/var/log/rhsm/rhsm.log",
-            "/var/log/rhsm/rhsmcertd.log"])
-        self.add_cmd_output([
-            "subscription-manager list --installed",
-            "subscription-manager list --consumed",
-            "subscription-manager identity"
-        ])
-        self.add_cmd_output("rhsm-debug system --sos --no-archive "
-                            "--no-subscriptions --destination %s"
-                            % self.get_cmd_output_path())
+            "/etc/pki/entitlement/*.pem"])
 
         if self.get_option("yumlist"):
             # List various information about available packages
