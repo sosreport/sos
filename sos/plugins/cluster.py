@@ -14,18 +14,19 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 import re
+import os.path
 from glob import glob
 from datetime import datetime, timedelta
 
 
 class Cluster(Plugin, RedHatPlugin):
-    """Red Hat Cluster Suite and GFS
+    """Red Hat Cluster High Availability and GFS2
     """
 
     plugin_name = 'cluster'
     profiles = ('cluster',)
     option_list = [
-        ("gfslockdump", 'gather output of gfs lockdumps', 'slow', False),
+        ("gfs2lockdump", 'gather output of gfs2 lockdumps', 'slow', False),
         ("crm_from", 'specify the start time for crm_report', 'fast', False),
         ('lockdump', 'gather dlm lockdumps', 'slow', False)
     ]
@@ -42,12 +43,16 @@ class Cluster(Plugin, RedHatPlugin):
 
     files = ["/etc/cluster/cluster.conf"]
 
+    debugfs_path = "/sys/kernel/debug"
+    _debugfs_cleanup = False
+
     def setup(self):
 
         self.add_copy_spec([
             "/etc/cluster.conf",
-            "/etc/cluster.xml",
             "/etc/cluster",
+            "/etc/sysconfig/dlm",
+            "/etc/sysconfig/pacemaker",
             "/etc/sysconfig/cluster",
             "/etc/sysconfig/cman",
             "/etc/fence_virt.conf",
@@ -56,12 +61,12 @@ class Cluster(Plugin, RedHatPlugin):
             "/var/lib/luci/etc",
             "/var/log/cluster",
             "/var/log/luci",
-            "/etc/fence_virt.conf",
             "/sys/fs/gfs2/*/withdraw"
         ])
 
-        if self.get_option('gfslockdump'):
-            self.do_gfslockdump()
+        if self.get_option('gfs2lockdump'):
+            if self._mount_debug():
+                self.add_copy_spec(["/sys/kernel/debug/gfs2/*"])
 
         if self.get_option('lockdump'):
             self.do_lockdump()
@@ -81,7 +86,6 @@ class Cluster(Plugin, RedHatPlugin):
             "corosync-quorumtool -s",
             "corosync-cpgtool",
             "corosync-objctl",
-            "group_tool ls -g1",
             "gfs_control ls -n",
             "gfs_control dump",
             "fence_tool dump",
@@ -108,26 +112,29 @@ class Cluster(Plugin, RedHatPlugin):
                             % (crm_dest, crm_from))
 
     def do_lockdump(self):
-        dlm_tool = "dlm_tool ls"
-        result = self.call_ext_prog(dlm_tool)
-        if result['status'] != 0:
-            return
+        if self._mount_debug():
+            dlm_tool = "dlm_tool ls"
+            result = self.call_ext_prog(dlm_tool)
+            if result['status'] != 0:
+                return
 
-        lock_exp = r'^name\s+([^\s]+)$'
-        lock_re = re.compile(lock_exp, re.MULTILINE)
-        for lockspace in lock_re.findall(result['output']):
-            self.add_cmd_output(
-                "dlm_tool lockdebug -svw '%s'" % lockspace,
-                suggest_filename="dlm_locks_%s" % lockspace
-            )
+            lock_exp = r'^name\s+([^\s]+)$'
+            lock_re = re.compile(lock_exp, re.MULTILINE)
+            for lockspace in lock_re.findall(result['output']):
+                self.add_cmd_output(
+                    "dlm_tool lockdebug -svw '%s'" % lockspace,
+                    suggest_filename="dlm_locks_%s" % lockspace
+                )
 
-    def do_gfslockdump(self):
-        mnt_exp = r'^\S+\s+([^\s]+)\s+gfs\s+.*$'
-        for mnt in self.do_regex_find_all(mnt_exp, "/proc/mounts"):
-            self.add_cmd_output(
-                "gfs_tool lockdump %s" % mnt,
-                suggest_filename="gfs_lockdump_" + self.mangle_command(mnt)
-            )
+    def _mount_debug(self):
+        if not os.path.ismount(self.debugfs_path):
+            self._debugfs_cleanup = True
+            r = self.call_ext_prog("mount -t debugfs debugfs %s"
+                                   % self.debugfs_path)
+            if r['status'] != 0:
+                self._log_error("debugfs not mounted and mount attempt failed")
+                self._debugfs_cleanup = False
+        return os.path.ismount(self.debugfs_path)
 
     def postproc(self):
         for cluster_conf in glob("/etc/cluster/cluster.conf*"):
@@ -148,6 +155,11 @@ class Cluster(Plugin, RedHatPlugin):
             r"(.*fence.*\.passwd=)(.*)",
             r"\1******"
         )
+        if self._debugfs_cleanup and os.path.ismount(self.debugfs_path):
+            r = self.call_ext_prog("umount %s" % self.debugfs_path)
+            if r['status'] != 0:
+                self._log_error("could not unmount %s" % self.debugfs_path)
+
         return
 
 # vim: et ts=4 sw=4
