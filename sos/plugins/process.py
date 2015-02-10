@@ -23,6 +23,7 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system',)
 
     def setup(self):
+        self.add_copy_spec("/proc/sched_debug")
         self.add_cmd_output("ps auxwww", root_symlink="ps")
         self.add_cmd_output("pstree", root_symlink="pstree")
         self.add_cmd_output("lsof -b +M -n -l", root_symlink="lsof")
