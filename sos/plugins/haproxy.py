@@ -13,10 +13,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
-class HAProxy(Plugin, RedHatPlugin):
+class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
     """HAProxy load balancer
     """
 
@@ -28,5 +28,7 @@ class HAProxy(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec("/etc/haproxy/haproxy.cfg")
         self.add_cmd_output("haproxy -f /etc/haproxy/haproxy.cfg -c")
+
+        self.add_copy_spec("/var/log/haproxy.log")
 
 # vim: et ts=4 sw=4
