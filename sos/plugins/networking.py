@@ -82,7 +82,8 @@ class Networking(Plugin):
             "/etc/NetworkManager/NetworkManager.conf",
             "/etc/NetworkManager/system-connections",
             "/etc/dnsmasq*",
-            "/sys/class/net/*/flags"
+            "/sys/class/net/*/flags",
+            "/etc/iproute2"
         ])
         self.add_forbidden_path("/proc/net/rpc/use-gss-proxy")
         self.add_forbidden_path("/proc/net/rpc/*/channel")
@@ -98,19 +99,24 @@ class Networking(Plugin):
             "netstat -agn",
             "ip route show table all",
             "ip -6 route show table all",
+            "ip -4 rule",
+            "ip -6 rule",
             "ip link",
             "ip address",
             "ifenslave -a",
             "ip mroute show",
             "ip maddr show",
             "ip neigh show",
+            "ip neigh show nud noarp",
             "ip netns",
             "nmcli general status",
             "nmcli connection show",
             "nmcli connection show active",
             "nmcli device status",
             "nmcli device show",
-            "biosdevname -d"
+            "biosdevname -d",
+            "tc -s qdisc show",
+            "iptables -vnxL"
         ])
         ip_link_result = self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
