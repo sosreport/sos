@@ -26,6 +26,7 @@ class Kimchi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     def setup(self):
         log_limit = self.get_option('log_size')
+        self.add_copy_spec('/etc/kimchi/')
         if not self.get_option('all_logs'):
             self.add_copy_spec_limit('/var/log/kimchi/*.log',
                                      sizelimit=log_limit)
@@ -35,6 +36,5 @@ class Kimchi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                                      sizelimit=log_limit)
         else:
             self.add_copy_spec('/var/log/kimchi/')
-            self.add_copy_spec('/etc/kimchi/')
 
 # vim: expandtab tabstop=4 shiftwidth=4
