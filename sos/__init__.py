@@ -21,9 +21,10 @@ This module houses the i18n setup and message function. The default is to use
 gettext to internationalize messages.
 """
 
+import gettext
+
 __version__ = "3.2.0a1"
 
-import gettext
 gettext_dir = "/usr/share/locale"
 gettext_app = "sos"
 

@@ -44,11 +44,12 @@ from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
 # PYCOMPAT
 import six
 from six.moves import zip, input
+from six import print_
+
 if six.PY3:
     from configparser import ConfigParser
 else:
     from ConfigParser import ConfigParser
-from six import print_
 
 # file system errors that should terminate a run
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
@@ -99,7 +100,9 @@ class TempFileUtil(object):
 
 
 class OptionParserExtended(OptionParser):
+
     """ Show examples """
+
     def print_help(self, out=sys.stdout):
         """ Prints help content including examples """
         OptionParser.print_help(self, out)
@@ -116,6 +119,7 @@ class OptionParserExtended(OptionParser):
 
 
 class SosOption(Option):
+
     """Allow to specify comma delimited list of plugins"""
     ACTIONS = Option.ACTIONS + ("extend",)
     STORE_ACTIONS = Option.STORE_ACTIONS + ("extend",)
@@ -135,6 +139,7 @@ class SosOption(Option):
 
 
 class XmlReport(object):
+
     """ Report build class """
 
     def __init__(self):
@@ -607,6 +612,7 @@ class SoSOptions(object):
 
 
 class SoSReport(object):
+
     """The main sosreport class"""
 
     def __init__(self, args):
@@ -649,7 +655,7 @@ class SoSReport(object):
 
     def print_header(self):
         self.ui_log.info("\n%s\n" % _("sosreport (version %s)" %
-                         (__version__,)))
+                                      (__version__,)))
 
     def get_commons(self):
         return {
@@ -664,7 +670,7 @@ class SoSReport(object):
             'cmdlineopts': self.opts,
             'config': self.config,
             'global_plugin_options': self.global_plugin_options,
-            }
+        }
 
     def get_temp_file(self):
         return self.tempfile_util.new()
@@ -899,7 +905,7 @@ class SoSReport(object):
                 self._load(plugin_class)
             except Exception as e:
                 self.soslog.warning(_("plugin %s does not install, "
-                                    "skipping: %s") % (plug, e))
+                                      "skipping: %s") % (plug, e))
                 if self.raise_plugins:
                     raise
 
@@ -996,7 +1002,7 @@ class SoSReport(object):
 
         if self.skipped_plugins:
             self.ui_log.info(_("The following plugins are currently "
-                             "disabled:"))
+                               "disabled:"))
             self.ui_log.info("")
             for (plugname, plugclass, reason) in self.skipped_plugins:
                 self.ui_log.info(" %-20s %-14s %s" % (
@@ -1221,11 +1227,11 @@ class SoSReport(object):
 
             for f in plug.copied_files:
                 section.add(CopiedFile(name=f['srcpath'],
-                            href=".." + f['dstpath']))
+                                       href=".." + f['dstpath']))
 
             for cmd in plug.executed_commands:
                 section.add(Command(name=cmd['exe'], return_code=0,
-                            href="../" + cmd['file']))
+                                    href="../" + cmd['file']))
 
             for content, f in plug.copy_strings:
                 section.add(CreatedFile(name=f))
