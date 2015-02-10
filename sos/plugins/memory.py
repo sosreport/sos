@@ -27,9 +27,16 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/pci",
             "/proc/meminfo",
             "/proc/vmstat",
+            "/proc/swaps",
             "/proc/slabinfo",
-            "/proc/pagetypeinfo"])
+            "/proc/pagetypeinfo",
+            "/proc/vmallocinfo",
+            "/sys/kernel/mm/ksm"
+        ])
         self.add_cmd_output("free", root_symlink="free")
-        self.add_cmd_output("free -m")
+        self.add_cmd_output([
+            "free -m",
+            "swapon --show"
+        ])
 
 # vim: et ts=4 sw=4
