@@ -49,6 +49,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/sys/module/*/initstate",
             "/sys/module/*/refcnt",
             "/sys/module/*/taint",
+            "/sys/firmware/acpi/*",
             "/proc/kallsyms",
             "/proc/buddyinfo",
             "/proc/slabinfo",
