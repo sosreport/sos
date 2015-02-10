@@ -32,6 +32,7 @@ class Cluster(Plugin, RedHatPlugin):
     ]
 
     packages = [
+        "luci",
         "ricci",
         "corosync",
         "openais",
