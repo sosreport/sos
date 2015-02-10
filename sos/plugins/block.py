@@ -24,8 +24,6 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('storage', 'hardware')
 
     def setup(self):
-        self.add_copy_spec("/proc/partitions")
-
         self.add_cmd_output([
             "lsblk",
             "blkid -c /dev/null",
@@ -36,7 +34,9 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # legacy location for non-/run distributions
         self.add_copy_spec([
             "/etc/blkid.tab",
-            "/run/blkid/blkid.tab"
+            "/run/blkid/blkid.tab",
+            "/proc/partitions",
+            "/proc/diskstats"
         ])
 
         if os.path.isdir("/sys/block"):
