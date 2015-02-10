@@ -23,20 +23,27 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'infiniband'
     profiles = ('hardware',)
-    packages = ('libibverbs-utils',)
+    packages = ('libibverbs-utils', 'opensm', 'rdma', 'infiniband-diags')
 
     def setup(self):
         self.add_copy_spec([
             "/etc/ofed/openib.conf",
-            "/etc/ofed/opensm.conf"
+            "/etc/ofed/opensm.conf",
+            "/etc/rdma"
         ])
+
+        self.add_copy_spec_limit("/var/log/opensm*",
+                                 sizelimit=self.get_option("log_size"))
 
         self.add_cmd_output([
             "ibv_devices",
             "ibv_devinfo",
             "ibstat",
             "ibstatus",
-            "ibhosts"
+            "ibhosts",
+            "iblinkinfo",
+            "sminfo",
+            "perfquery"
         ])
 
         return
