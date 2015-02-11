@@ -29,10 +29,7 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/proc/bus/pci"
         ])
 
-        self.add_cmd_output("lspci", root_symlink="lspci")
-        self.add_cmd_output([
-            "lspci -nvv",
-            "lspci -tv"
-        ])
+        self.add_cmd_output("lspci -nnvv", root_symlink="lspci")
+        self.add_cmd_output("lspci -tv")
 
 # vim: et ts=4 sw=4
