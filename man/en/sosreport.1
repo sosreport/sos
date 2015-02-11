@@ -19,6 +19,7 @@ sosreport \- Collect and package diagnostic and support data
           [--log-size]\fR
           [--all-logs]\fR
           [-z|--compression-type method]\fR
+          [--experimental]\fR
           [-h|--help]\fR
 
 .SH DESCRIPTION
@@ -129,6 +130,10 @@ archive as a temporary file or directory tree.
 .B \--debug
 Enable interactive debugging using the python debugger. Exceptions in
 sos or plug-in code will cause a trap to the pdb shell.
+.TP
+.B \--experimental
+Enable plugins marked as experimental. Experimental plugins may not have
+been tested for this port or may still be under active development.
 .TP
 .B \--help
 Display usage message.
