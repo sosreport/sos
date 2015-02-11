@@ -760,6 +760,11 @@ class IndependentPlugin(object):
     pass
 
 
+class ExperimentalPlugin(object):
+    """Tagging class that indicates that this plugin is experimental"""
+    pass
+
+
 def import_plugin(name, superclasses=None):
     """Import name as a module and return a list of all classes defined in that
     module. superclasses should be a tuple of valid superclasses to import,

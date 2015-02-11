@@ -12,7 +12,7 @@ from sos.utilities import (ImporterHelper,
                            import_module,
                            get_hash_name,
                            shell_out)
-from sos.plugins import IndependentPlugin
+from sos.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
 import hashlib
 from textwrap import fill
@@ -219,11 +219,13 @@ No changes will be made to system configuration.
                     return p
         return plugin_classes[0]
 
-    def validate_plugin(self, plugin_class):
+    def validate_plugin(self, plugin_class, experimental=False):
         """
         Verifies that the plugin_class should execute under this policy
         """
         valid_subclasses = [IndependentPlugin] + self.valid_subclasses
+        if experimental:
+            valid_subclasses += [ExperimentalPlugin]
         return any(issubclass(plugin_class, class_) for
                    class_ in valid_subclasses)
 

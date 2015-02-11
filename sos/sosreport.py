@@ -287,6 +287,16 @@ class SoSOptions(object):
         self._noplugins = value
 
     @property
+    def experimental(self):
+        if self._options is not None:
+            return self._options.experimental
+
+    @experimental.setter
+    def experimental(self, value):
+        self._check_options_initialized()
+        self._experimental = value
+
+    @property
     def enableplugins(self):
         if self._options is not None:
             return self._options.enableplugins
@@ -539,6 +549,9 @@ class SoSOptions(object):
         parser.add_option("-n", "--skip-plugins", action="extend",
                           dest="noplugins", type="string",
                           help="disable these plugins", default=deque())
+        parser.add_option("--experimental", action="store_true",
+                          dest="experimental", default=False,
+                          help="enable experimental plugins")
         parser.add_option("-e", "--enable-plugins", action="extend",
                           dest="enableplugins", type="string",
                           help="enable these plugins", default=deque())
@@ -850,18 +863,24 @@ class SoSReport(object):
         self.plugin_names = deque()
         self.profiles = set()
         using_profiles = len(self.opts.profiles)
+        policy_classes = self.policy.valid_subclasses
+        extra_classes = []
+        if self.opts.experimental:
+            extra_classes.append(sos.plugins.ExperimentalPlugin)
+        valid_plugin_classes = tuple(policy_classes + extra_classes)
+        validate_plugin = self.policy.validate_plugin
         # validate and load plugins
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
             try:
-                plugin_classes = import_plugin(
-                    plugbase, tuple(self.policy.valid_subclasses))
+                plugin_classes = import_plugin(plugbase, valid_plugin_classes)
                 if not len(plugin_classes):
                     # no valid plugin classes for this policy
                     continue
 
                 plugin_class = self.policy.match_plugin(plugin_classes)
-                if not self.policy.validate_plugin(plugin_class):
+                if not validate_plugin(plugin_class,
+                                       experimental=self.opts.experimental):
                     self.soslog.warning(
                         _("plugin %s does not validate, skipping") % plug)
                     if self.opts.verbosity > 0:
