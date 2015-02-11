@@ -92,13 +92,6 @@ class PostgreSQL(Plugin):
                 self.add_alert(
                     "WARN: password must be supplied to dump a database."
                 )
-        else:
-            self.soslog.warning(
-                "dbname must be supplied to dump a database."
-            )
-            self.add_alert(
-                "WARN: dbname must be supplied to dump a database."
-            )
 
     def postproc(self):
         import shutil
