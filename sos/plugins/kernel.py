@@ -14,6 +14,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+import glob
 
 
 class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -36,10 +37,21 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         except OSError:
             self._log_warn("could not list %s" % self.sys_module)
 
+        # find /lib/modules/*/{extras,updates,weak-updates} -ls
+        extra_mod_patterns = [
+            "/lib/modules/*/extra",
+            "/lib/modules/*/updates",
+            "/lib/modules/*/weak-updates",
+        ]
+        extra_mod_paths = []
+        for pattern in extra_mod_patterns:
+            extra_mod_paths.extend(glob.glob(pattern))
+
         self.add_cmd_output([
             "dmesg",
             "sysctl -a",
-            "dkms status"
+            "dkms status",
+            "find %s -ls" % " ".join(extra_mod_paths)
         ])
 
         self.add_copy_spec([
