@@ -260,7 +260,7 @@ class SoSOptions(object):
     def _check_options_initialized(self):
         if self._options is not None:
             raise ValueError("SoSOptions object already initialized "
-                             + "from command line")
+                             "from command line")
 
     @property
     def list_plugins(self):
@@ -661,7 +661,7 @@ class SoSReport(object):
                 or not os.access(self.tmpdir, os.W_OK):
             # write directly to stderr as logging is not initialised yet
             sys.stderr.write("temporary directory %s " % self.tmpdir
-                             + "does not exist or is not writable\n")
+                             "does not exist or is not writable\n")
             self._exit(1)
         self.tempfile_util = TempFileUtil(self.tmpdir)
         self._set_directories()

@@ -32,7 +32,7 @@ class Abrt(Plugin, RedHatPlugin):
 
     def do_backtraces(self):
         result = self.call_ext_prog('sqlite3 '
-                                    + '/var/spool/abrt/abrt-db \'select UUID '
+                                    '/var/spool/abrt/abrt-db \'select UUID '
                                     'from abrt_v4\'')
         try:
             for uuid in result['output'].split():

@@ -133,8 +133,8 @@ No changes will be made to system configuration.
     def check(self):
         """This method checks to see if we are running on RHEL. It returns True
         or False."""
-        return (os.path.isfile('/etc/redhat-release')
-                and not os.path.isfile('/etc/fedora-release'))
+        return (os.path.isfile('/etc/redhat-release') and not
+                os.path.isfile('/etc/fedora-release'))
 
     def dist_version(self):
         try:

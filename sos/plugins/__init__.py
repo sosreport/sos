@@ -611,7 +611,7 @@ class Plugin(object):
             (prog, suggest_filename, root_symlink, timeout, runat, stderr
              ) = progs[0]
             self._log_debug("unpacked command tuple: "
-                            + "('%s', '%s', '%s', %s, '%s', %s)" % progs[0])
+                            "('%s', '%s', '%s', %s, '%s', %s)" % progs[0])
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
                                     root_symlink=root_symlink,

@@ -209,8 +209,7 @@ class ImporterHelper(object):
     def _get_plugins_from_list(self, list_):
         plugins = [self._plugin_name(plugin)
                    for plugin in list_
-                   if "__init__" not in plugin
-                   and plugin.endswith(".py")]
+                   if "__init__" not in plugin and plugin.endswith(".py")]
         plugins.sort()
         return plugins
 

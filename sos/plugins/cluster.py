@@ -92,8 +92,8 @@ class Cluster(Plugin, RedHatPlugin):
 
         # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
         # time in order to collect data.
-        crm_from = (datetime.today()
-                    - timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
+        crm_from = (datetime.today() -
+                    timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
         if self.get_option('crm_from') is not False:
             if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',
                         str(self.get_option('crm_from'))):
