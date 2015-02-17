@@ -32,6 +32,12 @@ class OpenVSwitch(Plugin):
         # to the Open vSwitch server, avoiding hangs when running sosreport.
         self.add_cmd_output("ovs-vsctl -t 5 show")
 
+        # dump-flows for each OVS bridge on the host.
+        br_list_result = self.call_ext_prog("ovs-vsctl -t 5 list-br")
+        if br_list_result['status'] == 0:
+            for br in br_list_results['output'].splitlines():
+                self.add_cmd_output("ovs-ofctl dump-flows %s" % br)
+
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
