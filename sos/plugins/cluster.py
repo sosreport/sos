@@ -92,7 +92,10 @@ class Cluster(Plugin, RedHatPlugin):
             "fence_tool dump",
             "dlm_tool dump",
             "dlm_tool ls -n",
-            "mkqdisk -L"
+            "mkqdisk -L",
+            "pcs config",
+            "pcs status",
+            "pcs property list --all"
         ])
 
         # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
