@@ -64,7 +64,9 @@ setup(name='sosreport',
       data_files=[
         ('share/man/man1', ['man/en/sosreport.1']),
         ('share/man/man5', ['man/en/sos.conf.5']),
-        ],
+        # FIXME - does not support --prefix
+        ('/etc', ['sos.conf'])
+      ],
       packages=['sos', 'sos.plugins', 'sos.policies'],
       cmdclass={'build': BuildData, 'install_data': InstallData},
       requires=['six'],
