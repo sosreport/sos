@@ -659,9 +659,10 @@ class SoSReport(object):
             self.policy.get_tmp_dir(self.opts.tmp_dir))
         if not os.path.isdir(self.tmpdir) \
                 or not os.access(self.tmpdir, os.W_OK):
+            msg = "temporary directory %s " % self.tmpdir
+            msg += "does not exist or is not writable\n"
             # write directly to stderr as logging is not initialised yet
-            sys.stderr.write("temporary directory %s " % self.tmpdir
-                             "does not exist or is not writable\n")
+            sys.stderr.write(msg)
             self._exit(1)
         self.tempfile_util = TempFileUtil(self.tmpdir)
         self._set_directories()
