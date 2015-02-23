@@ -1,0 +1,152 @@
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+import os
+import os.path
+import sos.plugintools
+
+
+class sapnw(sos.plugintools.PluginBase):
+    """SAP NetWeaver"""
+
+    files = ['/usr/sap', ]
+
+    def setup(self):
+
+        # list installed instances
+        self.collectExtOutput("/usr/sap/hostctrl/exe/saphostctrl \
+                              -function ListInstances",
+                              suggest_filename="SAPInstances_List")
+        # list installed sap dbs
+        self.collectExtOutput("/usr/sap/hostctrl/exe/saphostctrl \
+                              -function ListDatabases",
+                              suggest_filename="SAPDatabases_List")
+
+        # list defined instances and guess profiles out of them
+        # (good for HA setups with virtual hostnames)
+        # using sap host control agent
+
+        (a, b, c) = self.callExtProg(
+            "/usr/sap/hostctrl/exe/saphostctrl -function ListInstances")
+
+        sids = []
+
+        # Cycle through all the instances, get 'sid' 'instance_number'
+        # and 'vhost' to determine the proper profile
+        for line in b.split('\n'):
+            if "DAA" not in line:
+                fields = line.strip().split()
+                sid = fields[3]
+                inst = fields[5]
+                vhost = fields[7]
+                sids.append(sid)
+                p = os.listdir("/usr/sap/%s/SYS/profile/" % sid)
+                for line in p:
+                    if sid in line and inst in line and vhost in line:
+                        ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
+                        pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
+                        profile = line.strip()
+                        self.collectExtOutput(
+                            "env -i %s %s/sappfpar \
+                                    all pf=/usr/sap/%s/SYS/profile/%s"
+                            % (ldenv, pt, sid, profile),
+                            suggest_filename="%s_parameters" % profile)
+
+                        # collect instance status
+                        self.collectExtOutput(
+                            "env -i %s %s/sapcontrol -nr %s \
+                            -function GetProcessList" % (ldenv, pt, inst),
+                            suggest_filename="%s_%s_GetProcList" % (sid, inst))
+
+                        # collect version info for the various components
+                        self.collectExtOutput(
+                            "env -i %s %s/sapcontrol -nr %s \
+                            -function GetVersionInfo" % (ldenv, pt, inst),
+                            suggest_filename="%s_%s_GetVersInfo" % (sid, inst))
+
+                        # collect <SID>adm user environment
+                        lowsid = sid.lower()
+                        self.collectExtOutput(
+                            "su - %sadm -c \"sapcontrol -nr %s -function \
+                            GetEnvironment\"" % (lowsid, inst),
+                            suggest_filename="%s_%sadm_%s_userenv"
+                            % (sid, lowsid, inst))
+
+        # remove duplicates from sids list
+        sidsunique = list(set(sids))
+
+        # traverse the sids list, collecting info about dbclient
+        for sid in sidsunique:
+            (a, b, c) = self.callExtProg("ls /usr/sap/%s/" % sid)
+            for line in b.split('\n'):
+                if 'DVEB' in line:
+                    self.collectExtOutput(
+                        "grep \"client driver\" /usr/sap/%s/%s/work/dev_w0"
+                        % (sid, line), suggest_filename="%s_dbclient" % sid)
+
+        # get the installed db's
+        (a, b, c) = self.callExtProg(
+            '/usr/sap/hostctrl/exe/saphostctrl -function ListDatabases')
+
+        for line in b.split('\n'):
+            if "Instance name" in line:
+                fields = line.strip().split()
+                dbadm = fields[2][:-1]
+                dbtype = fields[8][:-1]
+                sid = dbadm[3:].upper()
+
+                if dbtype == 'db6':
+                    self.collectExtOutput(
+                        "su - %s -c \"db2 get dbm cfg\""
+                        % dbadm, suggest_filename="%s_%s_db2_info"
+                        % (sid, dbadm))
+
+                if dbtype == 'sap':
+                    sid = fields[2][:-1]
+                    self.collectExtOutput(
+                        "cat /sapdb/%s/data/config/%s.pah"
+                        % (sid, sid),
+                        suggest_filename="%s_%s_maxdb_info"
+                        % (sid, dbadm))
+
+                if dbtype == 'ora':
+                    sid = fields[2][:-1]
+                    self.collectExtOutput(
+                        "cat /oracle/%s/*/dbs/init.ora" % sid,
+                        suggest_filename="%s_oracle_init.ora" % sid)
+
+        # Virtualization metrics
+        (v, w, x) = self.callExtProg("virt-what")
+
+        for line in w.split('\n'):
+            if "vmware" in line or "kvm" in line or "xen" in line:
+
+                if self.isInstalled("vm-dump-metrics"):
+                    self.collectExtOutput("vm-dump-metrics",
+                                          suggest_filename="virt_metrics")
+                else:
+                    (a, b, c) = self.callExtProg("lsblk -d")
+                    for disk in b.split('\n'):
+                        if "256K" in disk:
+                            self.collectExtOutput("cat /dev/%s"
+                                                  % disk.strip().split()[0],
+                                                  suggest_filename="virt_\
+                                                          metrics")
+
+        # if sapconf available run it in check mode
+        if os.path.isfile("/usr/bin/sapconf"):
+            self.collectExtOutput(
+                "/usr/bin/sapconf -n", suggest_filename="sapconf_checkmode")
+
+# vim: et ts=4 sw=4
