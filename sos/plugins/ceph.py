@@ -48,6 +48,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph osd dump",
             "ceph mon stat",
             "ceph mon dump",
+            "ceph df",
             "ceph report"
         ])
 
