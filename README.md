@@ -54,9 +54,9 @@ pull requests.
 ### Manual Installation
 
 ```
+You can simply run from the git checkout now ==> Ex: sudo ./sosreport -a
 to install locally (as root) ==> make install
 to build an rpm ==> make rpm
-to build a deb ==> make deb
 ```
 
 ### Pre-built Packaging
