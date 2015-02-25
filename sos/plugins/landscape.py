@@ -21,11 +21,21 @@ class Landscape(Plugin, UbuntuPlugin):
 
     plugin_name = 'landscape'
     profiles = ('sysmgmt',)
-    files = ('/etc/landscape/client.conf',)
-    packages = ('landscape-client',)
+    files = ('/etc/landscape/client.conf', '/etc/landscape/service.conf')
+    packages = ('landscape-client', 'landscape-server')
 
     def setup(self):
         self.add_copy_spec("/etc/landscape/client.conf")
+        self.add_copy_spec("/etc/default/landscape-client")
+        self.add_copy_spec("/etc/landscape/service.conf")
+        self.add_copy_spec("/etc/landscape/service.conf.old")
+        self.add_copy_spec("/etc/default/landscape-server")
+        if not self.get_option("all_logs"):
+            self.add_copy_spec("/var/log/landscape/*.log")
+        else:
+            self.add_copy_spec("/var/log/landscape")
+        self.add_cmd_output("gpg --verify /etc/landscape/license.txt")
+        self.add_cmd_output("head -n 5 /etc/landscape/license.txt")
 
     def postproc(self):
         self.do_file_sub(
@@ -33,6 +43,35 @@ class Landscape(Plugin, UbuntuPlugin):
             r"registration_password(.*)",
             r"registration_password[********]"
         )
-
+        self.do_file_sub(
+            "/etc/landscape/service.conf",
+            r"password = (.*)",
+            r"password = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf",
+            r"store_password = (.*)",
+            r"store_password = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf",
+            r"secret-token = (.*)",
+            r"secret-token = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf.old",
+            r"password = (.*)",
+            r"password = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf.old",
+            r"store_password = (.*)",
+            r"store_password = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf.old",
+            r"secret-token = (.*)",
+            r"secret-token = [********]"
+        )
 
 # vim: et ts=4 sw=4
