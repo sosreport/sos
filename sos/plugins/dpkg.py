@@ -24,7 +24,19 @@ class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):
     profiles = ('sysmgmt', 'packagemanager')
 
     def setup(self):
-        self.add_copy_spec("/var/log/dpkg.log")
         self.add_cmd_output("dpkg -l", root_symlink="installed-debs")
+        if self.get_option("verify"):
+            self.add_cmd_output("dpkg -V")
+            self.add_cmd_output("dpkg -C")
+        self.add_copy_spec([
+            "/var/cache/debconf/config.dat",
+            "/etc/debconf.conf"
+        ])
+        if not self.get_option("all_logs"):
+            limit = self.get_option("log_size")
+            self.add_copy_spec_limit("/var/log/dpkg.log",
+                                     sizelimit=limit)
+        else:
+            self.add_copy_spec("/var/log/dpkg.log*")
 
 # vim: et ts=4 sw=4
