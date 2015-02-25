@@ -19,7 +19,7 @@ from sos.plugins import Plugin, RedHatPlugin
 class sapnw(Plugin, RedHatPlugin):
     """SAP NetWeaver"""
 
-    files = ['/usr/sap', ]
+    files = ['/usr/sap']
 
     def setup(self):
 
@@ -91,7 +91,7 @@ class sapnw(Plugin, RedHatPlugin):
             for line in c['output'].splitlines():
                 if 'DVEB' in line:
                     self.add_cmd_output(
-                        "grep \"client driver\" /usr/sap/%s/%s/work/dev_w0"
+                        "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
                         % (sid, line), suggest_filename="%s_dbclient" % sid)
 
         # get the installed db's
