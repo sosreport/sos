@@ -125,20 +125,6 @@ class sapnw(Plugin, RedHatPlugin):
                         "cat /oracle/%s/*/dbs/init.ora" % sid,
                         suggest_filename="%s_oracle_init.ora" % sid)
 
-        # Virtualization metrics
-        vw = self.get_command_output("virt-what")['output'].splitlines()
-        if "vmware" in vw or "kvm" in vw or "xen" in vw:
-
-            if self.is_installed("vm-dump-metrics"):
-                self.add_cmd_output("vm-dump-metrics",
-                                    suggest_filename="virt_metrics")
-            else:
-                d = self.get_command_output("lsblk -d")
-                for disk in d['output'].splitlines():
-                    if "256K" in disk:
-                        self.add_cmd_output("cat /dev/%s" % disk,
-                                            suggest_filename="virt_metrics")
-
         # if sapconf available run it in check mode
         if os.path.isfile("/usr/bin/sapconf"):
             self.add_cmd_output(
