@@ -17,46 +17,54 @@ from sets import Set
 from sos.plugins import Plugin, RedHatPlugin
 
 
+def get_directory_listing(path):
+    try:
+        dir_list = os.listdir(path)
+    except:
+        dir_list = []
+    return dir_list
+
+
 class sapnw(Plugin, RedHatPlugin):
     """SAP NetWeaver"""
+
+    plugin_name = 'sapnw'
+    profiles = ['sap']
 
     files = ['/usr/sap']
 
     def setup(self):
 
         # list installed instances
-        self.add_cmd_output("/usr/sap/hostctrl/exe/saphostctrl \
-                            -function ListInstances",
-                            suggest_filename="SAPInstances_List")
+        inst_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
+                                           -function ListInstances",
+                                           suggest_filename="SAPInstances")
         # list installed sap dbs
-        self.add_cmd_output("/usr/sap/hostctrl/exe/saphostctrl \
-                            -function ListDatabases",
-                            suggest_filename="SAPDatabases_List")
-
-        # list defined instances and guess profiles out of them
-        # (good for HA setups with virtual hostnames)
-        # using sap host control agent
-
-        p = self.get_command_output(
-            "/usr/sap/hostctrl/exe/saphostctrl -function ListInstances")
+        db_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
+                                         -function ListDatabases",
+                                         suggest_filename="SAPDatabases")
 
         sidsunique = Set([])
 
         # Cycle through all the instances, get 'sid' 'instance_number'
         # and 'vhost' to determine the proper profile
-        for line in p['output'].splitlines():
+        p = open(inst_out, "r").read().splitlines()
+        for line in p:
             if "DAA" not in line:
                 fields = line.strip().split()
                 sid = fields[3]
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                p = os.listdir("/usr/sap/%s/SYS/profile/" % sid)
-                for line in p:
+                for line in get_directory_listing("/usr/sap/%s/SYS/profile/"
+                                                  % sid):
                     if sid in line and inst in line and vhost in line:
                         ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
+                        # TODO: I am assuming unicode here
+                        # nuc should be accounted
                         pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
                         profile = line.strip()
+                        # collect profiles
                         self.add_cmd_output(
                             "env -i %s %s/sappfpar \
                             all pf=/usr/sap/%s/SYS/profile/%s"
@@ -67,13 +75,15 @@ class sapnw(Plugin, RedHatPlugin):
                         self.add_cmd_output(
                             "env -i %s %s/sapcontrol -nr %s \
                             -function GetProcessList" % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetProcList" % (sid, inst))
+                            suggest_filename="%s_%s_GetProcList"
+                            % (sid, inst))
 
                         # collect version info for the various components
                         self.add_cmd_output(
                             "env -i %s %s/sapcontrol -nr %s \
                             -function GetVersionInfo" % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetVersInfo" % (sid, inst))
+                            suggest_filename="%s_%s_GetVersInfo"
+                            % (sid, inst))
 
                         # collect <SID>adm user environment
                         lowsid = sid.lower()
@@ -85,18 +95,18 @@ class sapnw(Plugin, RedHatPlugin):
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            c = self.get_command_output("ls /usr/sap/%s/" % sid)
-            for line in c['output'].splitlines():
+            for line in get_directory_listing("/usr/sap/%s/" % sid):
                 if 'DVEB' in line:
                     self.add_cmd_output(
                         "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
-                        % (sid, line), suggest_filename="%s_dbclient" % sid)
+                        % (sid, line), suggest_filename="%s_dbclient"
+                        % sid)
 
-        # get the installed db's
-        d = self.get_command_output(
-            '/usr/sap/hostctrl/exe/saphostctrl -function ListDatabases')
+        if not db_out:
+            return
+        dbl = open(db_out, "r").read().splitlines()
 
-        for line in d['output'].splitlines():
+        for line in dbl:
             if "Instance name" in line:
                 fields = line.strip().split()
                 dbadm = fields[2][:-1]
@@ -104,24 +114,22 @@ class sapnw(Plugin, RedHatPlugin):
                 sid = dbadm[3:].upper()
 
                 if dbtype == 'db6':
+                    # IBM DB2
                     self.add_cmd_output(
                         "su - %s -c \"db2 get dbm cfg\""
                         % dbadm, suggest_filename="%s_%s_db2_info"
                         % (sid, dbadm))
 
                 if dbtype == 'sap':
+                    # SAP MAXDB
                     sid = fields[2][:-1]
-                    self.add_cmd_output(
-                        "cat /sapdb/%s/data/config/%s.pah"
-                        % (sid, sid),
-                        suggest_filename="%s_%s_maxdb_info"
-                        % (sid, dbadm))
+                    self.add_copy_spec(
+                        "/sapdb/%s/data/config/%s.pah" % (sid, sid))
 
                 if dbtype == 'ora':
+                    # Oracle
                     sid = fields[2][:-1]
-                    self.add_cmd_output(
-                        "cat /oracle/%s/*/dbs/init.ora" % sid,
-                        suggest_filename="%s_oracle_init.ora" % sid)
+                    self.add_copy_spec("/oracle/%s/*/dbs/init.ora" % sid)
 
         # if sapconf available run it in check mode
         if os.path.isfile("/usr/bin/sapconf"):
