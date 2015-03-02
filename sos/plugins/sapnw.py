@@ -17,6 +17,14 @@ from sets import Set
 from sos.plugins import Plugin, RedHatPlugin
 
 
+def get_directory_listing(path):
+    try:
+        dir_list = os.listdir(path)
+    except:
+        dir_list = []
+    return dir_list
+
+
 class sapnw(Plugin, RedHatPlugin):
     """SAP NetWeaver"""
 
@@ -48,57 +56,50 @@ class sapnw(Plugin, RedHatPlugin):
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                try:
-                    p = os.listdir("/usr/sap/%s/SYS/profile/" % sid)
-                    for line in p:
-                        if sid in line and inst in line and vhost in line:
-                            ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run'\
-                                    % sid
-                            pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
-                            profile = line.strip()
-                            self.add_cmd_output(
-                                "env -i %s %s/sappfpar \
-                                all pf=/usr/sap/%s/SYS/profile/%s"
-                                % (ldenv, pt, sid, profile),
-                                suggest_filename="%s_parameters" % profile)
+                for entry in get_directory_listing("/usr/sap/%s/SYS/profile/"
+                                                   % sid):
+                    pass
+                    if sid in line and inst in line and vhost in line:
+                        ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
+                        pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
+                        profile = line.strip()
+                        self.add_cmd_output(
+                            "env -i %s %s/sappfpar \
+                            all pf=/usr/sap/%s/SYS/profile/%s"
+                            % (ldenv, pt, sid, profile),
+                            suggest_filename="%s_parameters" % profile)
 
-                            # collect instance status
-                            self.add_cmd_output(
-                                "env -i %s %s/sapcontrol -nr %s \
-                                -function GetProcessList" % (ldenv, pt, inst),
-                                suggest_filename="%s_%s_GetProcList"
-                                % (sid, inst))
+                        # collect instance status
+                        self.add_cmd_output(
+                            "env -i %s %s/sapcontrol -nr %s \
+                            -function GetProcessList" % (ldenv, pt, inst),
+                            suggest_filename="%s_%s_GetProcList"
+                            % (sid, inst))
 
-                            # collect version info for the various components
-                            self.add_cmd_output(
-                                "env -i %s %s/sapcontrol -nr %s \
-                                -function GetVersionInfo" % (ldenv, pt, inst),
-                                suggest_filename="%s_%s_GetVersInfo"
-                                % (sid, inst))
+                        # collect version info for the various components
+                        self.add_cmd_output(
+                            "env -i %s %s/sapcontrol -nr %s \
+                            -function GetVersionInfo" % (ldenv, pt, inst),
+                            suggest_filename="%s_%s_GetVersInfo"
+                            % (sid, inst))
 
-                            # collect <SID>adm user environment
-                            lowsid = sid.lower()
-                            self.add_cmd_output(
-                                "su - %sadm -c \"sapcontrol -nr %s -function \
-                                GetEnvironment\"" % (lowsid, inst),
-                                suggest_filename="%s_%sadm_%s_userenv"
-                                % (sid, lowsid, inst))
-                except:
-                    self._log_warn("could not parse /usr/sap/%s/SYS/profile/"
-                                   % sid)
+                        # collect <SID>adm user environment
+                        lowsid = sid.lower()
+                        self.add_cmd_output(
+                            "su - %sadm -c \"sapcontrol -nr %s -function \
+                            GetEnvironment\"" % (lowsid, inst),
+                            suggest_filename="%s_%sadm_%s_userenv"
+                            % (sid, lowsid, inst))
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            try:
-                c = os.listdir("/usr/sap/%s/" % sid)
-                for line in c:
-                    if 'DVEB' in line:
-                        self.add_cmd_output(
-                            "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
-                            % (sid, line), suggest_filename="%s_dbclient"
-                            % sid)
-            except:
-                self._log_warn("could not parse /usr/sap/%s/" % sid)
+            for entry in get_directory_listing("/usr/sap/%s/" % sid):
+                pass
+                if 'DVEB' in line:
+                    self.add_cmd_output(
+                        "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
+                        % (sid, line), suggest_filename="%s_dbclient"
+                        % sid)
 
         if not db_out:
             return
