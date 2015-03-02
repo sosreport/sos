@@ -9,7 +9,7 @@ MINOR   := $(shell echo $(VERSION) | cut -f 2 -d '.')
 RELEASE := $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
 REPO = https://github.com/sosreport/sos
 
-SUBDIRS = po sos sos/plugins sos/policies
+SUBDIRS = po sos sos/plugins sos/policies docs
 PYFILES = $(wildcard *.py)
 # OS X via brew
 # MSGCAT = /usr/local/Cellar/gettext/0.18.1.1/bin/msgcat
@@ -29,6 +29,10 @@ DEB_ARCHIVE_DIR = $(DIST_BUILD_DIR)/$(NAME)report-$(VERSION)
 
 SRC_BUILD = $(DIST_BUILD_DIR)/sdist
 PO_DIR = $(SRC_BUILD)/sos/po
+
+.PHONY: docs
+docs:
+	make -C docs html man
 
 build:
 	for d in $(SUBDIRS); do make -C $$d; [ $$? = 0 ] || exit 1 ; done
