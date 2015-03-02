@@ -48,7 +48,7 @@ class sapnw(Plugin, RedHatPlugin):
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                if os.path.isdir("/usr/sap/%s/SYS/profile/" % sid):
+                try:
                     p = os.listdir("/usr/sap/%s/SYS/profile/" % sid)
                     for line in p:
                         if sid in line and inst in line and vhost in line:
@@ -83,10 +83,13 @@ class sapnw(Plugin, RedHatPlugin):
                                 GetEnvironment\"" % (lowsid, inst),
                                 suggest_filename="%s_%sadm_%s_userenv"
                                 % (sid, lowsid, inst))
+                except:
+                    self._log_warn("could not parse /usr/sap/%s/SYS/profile/"
+                                   % sid)
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            if os.path.isdir("/usr/sap/%s/" % sid):
+            try:
                 c = os.listdir("/usr/sap/%s/" % sid)
                 for line in c:
                     if 'DVEB' in line:
@@ -94,6 +97,8 @@ class sapnw(Plugin, RedHatPlugin):
                             "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
                             % (sid, line), suggest_filename="%s_dbclient"
                             % sid)
+            except:
+                self._log_warn("could not parse /usr/sap/%s/" % sid)
 
         if not db_out:
             return
@@ -114,17 +119,12 @@ class sapnw(Plugin, RedHatPlugin):
 
                 if dbtype == 'sap':
                     sid = fields[2][:-1]
-                    self.add_cmd_output(
-                        "cat /sapdb/%s/data/config/%s.pah"
-                        % (sid, sid),
-                        suggest_filename="%s_%s_maxdb_info"
-                        % (sid, dbadm))
+                    self.add_copy_spec(
+                        "/sapdb/%s/data/config/%s.pah" % (sid, sid))
 
                 if dbtype == 'ora':
                     sid = fields[2][:-1]
-                    self.add_cmd_output(
-                        "cat /oracle/%s/*/dbs/init.ora" % sid,
-                        suggest_filename="%s_oracle_init.ora" % sid)
+                    self.add_copy_spec("/oracle/%s/*/dbs/init.ora" % sid)
 
         # if sapconf available run it in check mode
         if os.path.isfile("/usr/bin/sapconf"):
