@@ -32,9 +32,9 @@ class sapnw(Plugin, RedHatPlugin):
                             -function ListInstances",
                             suggest_filename="SAPInstances_List")
         # list installed sap dbs
-        self.add_cmd_output("/usr/sap/hostctrl/exe/saphostctrl \
-                            -function ListDatabases",
-                            suggest_filename="SAPDatabases_List")
+        db_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
+                                         -function ListDatabases",
+                                         suggest_filename="SAPDatabases_List")
 
         # list defined instances and guess profiles out of them
         # (good for HA setups with virtual hostnames)
@@ -95,11 +95,11 @@ class sapnw(Plugin, RedHatPlugin):
                         "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
                         % (sid, line), suggest_filename="%s_dbclient" % sid)
 
-        # get the installed db's
-        d = self.get_command_output(
-            '/usr/sap/hostctrl/exe/saphostctrl -function ListDatabases')
+        if not db_out:
+            return
+        dbl = open(db_out, "r").read().splitlines()
 
-        for line in d['output'].splitlines():
+        for line in dbl:
             if "Instance name" in line:
                 fields = line.strip().split()
                 dbadm = fields[2][:-1]
