@@ -28,26 +28,20 @@ class sapnw(Plugin, RedHatPlugin):
     def setup(self):
 
         # list installed instances
-        self.add_cmd_output("/usr/sap/hostctrl/exe/saphostctrl \
-                            -function ListInstances",
-                            suggest_filename="SAPInstances_List")
+        inst_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
+                                           -function ListInstances",
+                                           suggest_filename="SAPInstances")
         # list installed sap dbs
         db_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
                                          -function ListDatabases",
-                                         suggest_filename="SAPDatabases_List")
-
-        # list defined instances and guess profiles out of them
-        # (good for HA setups with virtual hostnames)
-        # using sap host control agent
-
-        p = self.get_command_output(
-            "/usr/sap/hostctrl/exe/saphostctrl -function ListInstances")
+                                         suggest_filename="SAPDatabases")
 
         sidsunique = Set([])
 
         # Cycle through all the instances, get 'sid' 'instance_number'
         # and 'vhost' to determine the proper profile
-        for line in p['output'].splitlines():
+        p = open(inst_out, "r").read().splitlines()
+        for line in p:
             if "DAA" not in line:
                 fields = line.strip().split()
                 sid = fields[3]
