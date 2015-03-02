@@ -56,7 +56,7 @@ class sapnw(Plugin, RedHatPlugin):
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                for entry in get_directory_listing("/usr/sap/%s/SYS/profile/"
+                for line in get_directory_listing("/usr/sap/%s/SYS/profile/"
                                                    % sid):
                     pass
                     if sid in line and inst in line and vhost in line:
@@ -93,7 +93,7 @@ class sapnw(Plugin, RedHatPlugin):
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            for entry in get_directory_listing("/usr/sap/%s/" % sid):
+            for line in get_directory_listing("/usr/sap/%s/" % sid):
                 pass
                 if 'DVEB' in line:
                     self.add_cmd_output(
