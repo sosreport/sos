@@ -88,8 +88,8 @@ class sapnw(Plugin, RedHatPlugin):
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            c = self.get_command_output("ls /usr/sap/%s/" % sid)
-            for line in c['output'].splitlines():
+            c = os.listdir("/usr/sap/%s/" % sid)
+            for line in c:
                 if 'DVEB' in line:
                     self.add_cmd_output(
                         "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
