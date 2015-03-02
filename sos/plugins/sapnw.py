@@ -13,6 +13,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
+from sets import Set
 from sos.plugins import Plugin, RedHatPlugin
 
 
@@ -39,7 +40,7 @@ class sapnw(Plugin, RedHatPlugin):
         p = self.get_command_output(
             "/usr/sap/hostctrl/exe/saphostctrl -function ListInstances")
 
-        sids = []
+        sidsunique = Set([])
 
         # Cycle through all the instances, get 'sid' 'instance_number'
         # and 'vhost' to determine the proper profile
@@ -49,7 +50,7 @@ class sapnw(Plugin, RedHatPlugin):
                 sid = fields[3]
                 inst = fields[5]
                 vhost = fields[7]
-                sids.append(sid)
+                sidsunique.add(sid)
                 p = os.listdir("/usr/sap/%s/SYS/profile/" % sid)
                 for line in p:
                     if sid in line and inst in line and vhost in line:
@@ -81,9 +82,6 @@ class sapnw(Plugin, RedHatPlugin):
                             GetEnvironment\"" % (lowsid, inst),
                             suggest_filename="%s_%sadm_%s_userenv"
                             % (sid, lowsid, inst))
-
-        # remove duplicates from sids list
-        sidsunique = list(set(sids))
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
