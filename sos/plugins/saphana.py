@@ -19,7 +19,10 @@ from sos.plugins import Plugin, RedHatPlugin
 class saphana(Plugin, RedHatPlugin):
     """SAP HANA"""
 
-    files = ['/hana', ]
+    plugin_name = 'saphana'
+    profiles = ['sap']
+
+    files = ['/hana']
 
     def setup(self):
 
