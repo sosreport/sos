@@ -57,7 +57,7 @@ class sapnw(Plugin, RedHatPlugin):
                 vhost = fields[7]
                 sidsunique.add(sid)
                 for line in get_directory_listing("/usr/sap/%s/SYS/profile/"
-                                                   % sid):
+                                                  % sid):
                     pass
                     if sid in line and inst in line and vhost in line:
                         ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
