@@ -48,37 +48,41 @@ class sapnw(Plugin, RedHatPlugin):
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                p = os.listdir("/usr/sap/%s/SYS/profile/" % sid)
-                for line in p:
-                    if sid in line and inst in line and vhost in line:
-                        ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
-                        pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
-                        profile = line.strip()
-                        self.add_cmd_output(
-                            "env -i %s %s/sappfpar \
-                            all pf=/usr/sap/%s/SYS/profile/%s"
-                            % (ldenv, pt, sid, profile),
-                            suggest_filename="%s_parameters" % profile)
+                if os.path.isdir("/usr/sap/%s/SYS/profile/" % sid):
+                    p = os.listdir("/usr/sap/%s/SYS/profile/" % sid)
+                    for line in p:
+                        if sid in line and inst in line and vhost in line:
+                            ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run'\
+                                    % sid
+                            pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
+                            profile = line.strip()
+                            self.add_cmd_output(
+                                "env -i %s %s/sappfpar \
+                                all pf=/usr/sap/%s/SYS/profile/%s"
+                                % (ldenv, pt, sid, profile),
+                                suggest_filename="%s_parameters" % profile)
 
-                        # collect instance status
-                        self.add_cmd_output(
-                            "env -i %s %s/sapcontrol -nr %s \
-                            -function GetProcessList" % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetProcList" % (sid, inst))
+                            # collect instance status
+                            self.add_cmd_output(
+                                "env -i %s %s/sapcontrol -nr %s \
+                                -function GetProcessList" % (ldenv, pt, inst),
+                                suggest_filename="%s_%s_GetProcList"
+                                % (sid, inst))
 
-                        # collect version info for the various components
-                        self.add_cmd_output(
-                            "env -i %s %s/sapcontrol -nr %s \
-                            -function GetVersionInfo" % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetVersInfo" % (sid, inst))
+                            # collect version info for the various components
+                            self.add_cmd_output(
+                                "env -i %s %s/sapcontrol -nr %s \
+                                -function GetVersionInfo" % (ldenv, pt, inst),
+                                suggest_filename="%s_%s_GetVersInfo"
+                                % (sid, inst))
 
-                        # collect <SID>adm user environment
-                        lowsid = sid.lower()
-                        self.add_cmd_output(
-                            "su - %sadm -c \"sapcontrol -nr %s -function \
-                            GetEnvironment\"" % (lowsid, inst),
-                            suggest_filename="%s_%sadm_%s_userenv"
-                            % (sid, lowsid, inst))
+                            # collect <SID>adm user environment
+                            lowsid = sid.lower()
+                            self.add_cmd_output(
+                                "su - %sadm -c \"sapcontrol -nr %s -function \
+                                GetEnvironment\"" % (lowsid, inst),
+                                suggest_filename="%s_%sadm_%s_userenv"
+                                % (sid, lowsid, inst))
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
