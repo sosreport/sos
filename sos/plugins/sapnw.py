@@ -20,6 +20,9 @@ from sos.plugins import Plugin, RedHatPlugin
 class sapnw(Plugin, RedHatPlugin):
     """SAP NetWeaver"""
 
+    plugin_name = 'sapnw'
+    profiles = ['sap']
+
     files = ['/usr/sap']
 
     def setup(self):
