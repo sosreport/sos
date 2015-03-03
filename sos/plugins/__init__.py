@@ -854,6 +854,11 @@ class DebianPlugin(object):
     pass
 
 
+class SuSEPlugin(object):
+    """Tagging class for SuSE Linux distributions"""
+    pass
+
+
 class IndependentPlugin(object):
     """Tagging class for plugins that can run on any platform"""
     pass
