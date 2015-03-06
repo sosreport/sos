@@ -60,7 +60,7 @@ class sapnw(Plugin, RedHatPlugin):
                                                   % sid):
                     if sid in line and inst in line and vhost in line:
                         ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
-                        # TODO: I am assuming unicode here 
+                        # TODO: I am assuming unicode here
                         # nuc should be accounted
                         pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
                         profile = line.strip()
@@ -112,7 +112,7 @@ class sapnw(Plugin, RedHatPlugin):
                 dbadm = fields[2][:-1]
                 dbtype = fields[8][:-1]
                 sid = dbadm[3:].upper()
-                
+
                 if dbtype == 'db6':
                     # IBM DB2
                     self.add_cmd_output(
