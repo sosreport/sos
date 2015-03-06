@@ -58,11 +58,13 @@ class sapnw(Plugin, RedHatPlugin):
                 sidsunique.add(sid)
                 for line in get_directory_listing("/usr/sap/%s/SYS/profile/"
                                                   % sid):
-                    pass
                     if sid in line and inst in line and vhost in line:
                         ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
+                        # TODO: I am assuming unicode here 
+                        # nuc should be accounted
                         pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
                         profile = line.strip()
+                        # collect profiles
                         self.add_cmd_output(
                             "env -i %s %s/sappfpar \
                             all pf=/usr/sap/%s/SYS/profile/%s"
@@ -94,7 +96,6 @@ class sapnw(Plugin, RedHatPlugin):
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
             for line in get_directory_listing("/usr/sap/%s/" % sid):
-                pass
                 if 'DVEB' in line:
                     self.add_cmd_output(
                         "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
@@ -111,19 +112,22 @@ class sapnw(Plugin, RedHatPlugin):
                 dbadm = fields[2][:-1]
                 dbtype = fields[8][:-1]
                 sid = dbadm[3:].upper()
-
+                
                 if dbtype == 'db6':
+                    # IBM DB2
                     self.add_cmd_output(
                         "su - %s -c \"db2 get dbm cfg\""
                         % dbadm, suggest_filename="%s_%s_db2_info"
                         % (sid, dbadm))
 
                 if dbtype == 'sap':
+                    # SAP MAXDB
                     sid = fields[2][:-1]
                     self.add_copy_spec(
                         "/sapdb/%s/data/config/%s.pah" % (sid, sid))
 
                 if dbtype == 'ora':
+                    # Oracle
                     sid = fields[2][:-1]
                     self.add_copy_spec("/oracle/%s/*/dbs/init.ora" % sid)
 
