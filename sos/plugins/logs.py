@@ -50,6 +50,18 @@ class Logs(Plugin):
                 if os.path.isfile(i):
                     self.add_copy_spec_limit(i, sizelimit=self.limit)
 
+    def postproc(self):
+        self.do_path_regex_sub(
+            r"/etc/rsyslog*",
+            r"ActionLibdbiPassword (.*)",
+            r"ActionLibdbiPassword [********]"
+        )
+        self.do_path_regex_sub(
+            r"/etc/rsyslog*",
+            r"pwd=.*",
+            r"pwd=[******]"
+        )
+
 
 class RedHatLogs(Logs, RedHatPlugin):
 
@@ -94,6 +106,5 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
             self.add_cmd_output('ls -alRh /var/log/')
         else:
             self.add_copy_spec("/var/log/")
-
 
 # vim: et ts=4 sw=4
