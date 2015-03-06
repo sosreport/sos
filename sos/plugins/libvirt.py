@@ -31,8 +31,6 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_forbidden_path("/etc/libvirt/passwd.db")
         self.add_forbidden_path("/etc/libvirt/krb5.tab")
 
-        self.add_cmd_output("virsh capabilities")
-
         self.add_copy_spec([
             "/etc/libvirt/libvirt.conf",
             "/etc/libvirt/libvirtd.conf",
