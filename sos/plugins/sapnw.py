@@ -131,6 +131,11 @@ class sapnw(Plugin, RedHatPlugin):
                     sid = fields[2][:-1]
                     self.add_copy_spec("/oracle/%s/*/dbs/init.ora" % sid)
 
+                if dbtype == 'syb':
+                    # Sybase
+                    sid = fields[2][:-1]
+                    self.add_copy_spec("/sybase/%s/ASE*/%s.cfg" % (sid, sid))
+
         # if sapconf available run it in check mode
         if os.path.isfile("/usr/bin/sapconf"):
             self.add_cmd_output(
