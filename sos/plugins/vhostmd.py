@@ -15,16 +15,21 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 
-class vm_dump_metrics(Plugin, RedHatPlugin):
+class vhostmd(Plugin, RedHatPlugin):
     """vhostmd virtualization metrics collection
     """
 
-    plugin_name = 'vm_dump_metrics'
+    plugin_name = 'vhostmd'
     profiles = ['sap']
 
-    def setup(self):
+    packages = ['virt-what'] 
 
+    def setup(self):
         vw = self.get_command_output("virt-what")['output'].splitlines()
+
+        if not vw:
+            return
+
         if "vmware" in vw or "kvm" in vw or "xen" in vw:
             # if vm-dump-metrics is installed use it
             if self.is_installed("vm-dump-metrics"):
