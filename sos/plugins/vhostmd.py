@@ -22,7 +22,7 @@ class vhostmd(Plugin, RedHatPlugin):
     plugin_name = 'vhostmd'
     profiles = ['sap']
 
-    packages = ['virt-what'] 
+    packages = ['virt-what']
 
     def setup(self):
         vw = self.get_command_output("virt-what")['output'].splitlines()
