@@ -36,8 +36,12 @@ class vm_dump_metrics(Plugin, RedHatPlugin):
                 for disk in d['output'].splitlines():
                     if "256K" in disk:
                         dev = disk.split()[0]
-                        self.add_cmd_output("dd if=/dev/%s bs=256k count=1"
-                                            % dev,
-                                            suggest_filename="virt_metrics")
+                        check = self.get_command_output(
+                            "dd if=/dev/%s bs=25 count=1" % dev)
+                        if 'metric' in check['output']:
+                            self.add_cmd_output("dd if=/dev/%s bs=256k count=1"
+                                                % dev,
+                                                suggest_filename="virt_\
+                                                        metrics")
 
 # vim: et ts=4 sw=4
