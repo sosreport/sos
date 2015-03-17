@@ -89,7 +89,7 @@ class Networking(Plugin):
         self.add_forbidden_path("/proc/net/rpc/*/channel")
         self.add_forbidden_path("/proc/net/rpc/*/flush")
 
-        self.add_cmd_output("ip -o addr", root_symlink = "ip_addr")
+        self.add_cmd_output("ip -o addr", root_symlink="ip_addr")
         self.add_cmd_output("route -n", root_symlink="route")
         self.collect_iptable("filter")
         self.collect_iptable("nat")
