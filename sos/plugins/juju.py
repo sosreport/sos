@@ -47,6 +47,9 @@ class Juju(Plugin, UbuntuPlugin):
     option_list = [
         ('export-mongodb',
          'Export mongodb collections as json files', '', False),
+        ('generate-bundle',
+         """Generate a YAML bundle of the current environment
+         (requires juju-deployerizer)""", '', False),
     ]
 
     def get_deployed_services(self):
@@ -87,6 +90,10 @@ class Juju(Plugin, UbuntuPlugin):
 
         if self.get_option("export-mongodb"):
             self.export_mongodb()
+
+        if self.get_option("generate-bundle"):
+            self.add_cmd_output("juju deployerizer --include-charm-versions",
+                                suggest_filename="juju-env-bundle.yaml")
 
 
 # vim: et ts=4 sw=4
