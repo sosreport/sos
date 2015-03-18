@@ -133,4 +133,19 @@ class Openshift(Plugin, RedHatPlugin):
                          r"(.*password\s*=\s*)\S+",
                          r"\1********")
 
+        # Redact DNS plugin credentials
+        # Dynect DNS: DYNECT_PASSWORD=s0ME-p4$_w0RD._
+        plugin_dir = '/etc/openshift/plugins.d/'
+        self.do_file_sub(plugin_dir + 'openshift-origin-dns-dynect.conf',
+                         r"(DYNECT_PASSWORD\s*=\s*)(.*)",
+                         r"********")
+        # Fog cloud: FOG_RACKSPACE_API_KEY="apikey"
+        self.do_file_sub(plugin_dir + 'openshift-origin-dns-fog.conf',
+                         r"(FOG_RACKSPACE_API_KEY\s*=\s*)(.*)",
+                         r"********")
+        # ISC bind: BIND_KEYVALUE="rndc key"
+        self.do_file_sub(plugin_dir + 'openshift-origin-dns-nsupdate.conf',
+                         r"(BIND_KEYVALUE\s*=\s*)(.*)",
+                         r"********")
+
 # vim: et ts=4 sw=4
