@@ -45,8 +45,13 @@ class Juju(Plugin, UbuntuPlugin):
     packages = ('juju',)
 
     option_list = [
+        ('env',
+         'Name of the juju environment to use', '', None),
         ('export-mongodb',
          'Export mongodb collections as json files', '', False),
+        ('generate-bundle',
+         'Generate a YAML bundle of the current environment', '', False),
+
     ]
 
     def get_deployed_services(self):
@@ -71,6 +76,31 @@ class Juju(Plugin, UbuntuPlugin):
                 --jsonArray".format(collection),
                 suggest_filename="{}.json".format(collection))
 
+    def get_environment(self):
+        env = self.get_option("env")
+        if not env:
+            env = self.call_ext_prog("juju env").get('output', None)
+        return env
+
+    def generate_bundle(self):
+        env = self.get_environment()
+
+        if not env:
+            return self._log_error("""Not defined juju environment, \
+            Please specify it using the option -k env='name'""")
+
+        program = "juju deployerizer -e %s --include-defaults \
+        --include-charm-versions" % env
+
+        if self.check_ext_prog(program):
+            self.add_cmd_output(program,
+                                suggest_filename="juju-{}.yaml".format(
+                                    env))
+        else:
+            self._log_error("""No juju-deployerizer package has been installed on this system,
+            This package is required for the bundle generation ,
+            (sudo pip install --system juju-deployerizer)""")
+
     def setup(self):
         self.add_copy_spec([
             "/var/log/juju",
@@ -87,6 +117,9 @@ class Juju(Plugin, UbuntuPlugin):
 
         if self.get_option("export-mongodb"):
             self.export_mongodb()
+
+        if self.get_option("generate-bundle"):
+            self.generate_bundle()
 
 
 # vim: et ts=4 sw=4
