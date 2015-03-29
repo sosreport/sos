@@ -27,6 +27,7 @@ class OpenStackNova(Plugin):
     profiles = ('openstack',)
 
     option_list = [("log", "gathers openstack nova logs", "slow", True),
+                   ("guru", "gathers guru meditation reports", "slow", True),
                    ("cmds", "gathers openstack nova commands", "slow", False)]
 
     def setup(self):
@@ -132,12 +133,30 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
         'novnc'
     )
 
+    service_names = [
+        'nova-compute',
+        'nova-api',
+        'nova-conductor',
+        'nova-scheduler',
+        'nova-novncproxy',
+        'nova-consoleauth'
+    ]
+
     def check_enabled(self):
         self.nova = self.is_installed("openstack-nova-common")
         return self.nova
 
     def setup(self):
         super(RedHatOpenStackNova, self).setup()
+
+        if self.get_option("guru"):
+            running_services = [service for service in self.service_names
+                                if self.check_ext_prog('pgrep %s' % service)]
+
+            for service in running_services:
+                self.call_ext_prog("killall -USR1 %s" % service)
+                self.add_cmd_output("journalctl -u openstack-%s" % service)
+
         self.add_copy_spec([
             "/etc/logrotate.d/openstack-nova",
             "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
