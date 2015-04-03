@@ -40,8 +40,7 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         # empty line, and dumpxml domain name in 2nd column
         if domains_file:
             domains_lines = open(domains_file, "r").read().splitlines()[2:]
-            for domain in filter(lambda x: x, domains_lines)
+            for domain in filter(lambda x: x, domains_lines):
                 self.add_cmd_output("virsh dumpxml %s" % domain.split()[1])
-
 
 # vim: et ts=4 sw=4

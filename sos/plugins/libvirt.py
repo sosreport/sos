@@ -52,26 +52,13 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                                      sizelimit=5)
             self.add_copy_spec_limit("/var/log/libvirt/lxc/*.log", sizelimit=5)
             self.add_copy_spec_limit("/var/log/libvirt/uml/*.log", sizelimit=5)
-            self.add_copy_spec_limit("/root/.virt-manager/*", sizelimit=5)
         else:
-            self.add_copy_spec([
-                "/var/log/libvirt",
-                "/root/.virt-manager/*"
-            ])
+            self.add_copy_spec("/var/log/libvirt")
 
         if os.path.exists(libvirt_keytab):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
         self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
-
-        domains_file = self.get_cmd_output_now('virsh list --all')
-
-        # cycle through the VMs/domains list, ignore 2 header lines and latest
-        # empty line, and dumpxml domain name in 2nd column
-        domains_lines = open(domains_file, "r").read().splitlines()[2:]
-        for domain in domains_lines:
-             if domain:
-                 self.add_cmd_output("virsh dumpxml %s" % domain.split()[1])
 
     def postproc(self):
         for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
