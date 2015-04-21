@@ -21,7 +21,7 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """client for libvirt virtualization API
     """
 
-    plugin_name = 'libvirt_client'
+    plugin_name = 'virsh'
     profiles = ('system', 'virt')
 
     packages = ('libvirt-client')
