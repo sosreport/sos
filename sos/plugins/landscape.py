@@ -31,9 +31,14 @@ class Landscape(Plugin, UbuntuPlugin):
         self.add_copy_spec("/etc/landscape/service.conf.old")
         self.add_copy_spec("/etc/default/landscape-server")
         if not self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/landscape/*.log")
+            limit = self.get_option("log_size")
+            self.add_copy_spec_limit("/var/log/landscape/*.log",
+                                     sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/landscape-server/*.log",
+                                     sizelimit=limit)
         else:
             self.add_copy_spec("/var/log/landscape")
+            self.add_copy_spec("/var/log/landscape-server")
         self.add_cmd_output("gpg --verify /etc/landscape/license.txt")
         self.add_cmd_output("head -n 5 /etc/landscape/license.txt")
 
