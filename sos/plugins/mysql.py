@@ -37,6 +37,8 @@ class Mysql(Plugin):
 
         self.add_copy_spec([
             self.mysql_cnf,
+            # Required for MariaDB under pacemaker (MariaDB-Galera)
+            "/var/log/mysqld.log",
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
