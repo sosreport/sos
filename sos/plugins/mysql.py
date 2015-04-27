@@ -37,6 +37,7 @@ class Mysql(Plugin):
 
         self.add_copy_spec([
             self.mysql_cnf,
+            "/var/log/mysqld.log",
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
