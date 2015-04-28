@@ -37,7 +37,10 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/ceph/",
-            "/var/log/ceph/"
+            "/var/log/ceph/",
+            "/etc/calamari/",
+            "/var/log/calamari",
+            "/var/log/radosgw"
         ])
 
         self.add_cmd_output([
