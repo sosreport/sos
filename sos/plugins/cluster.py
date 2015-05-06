@@ -25,10 +25,12 @@ class Cluster(Plugin, RedHatPlugin):
 
     plugin_name = 'cluster'
     profiles = ('cluster',)
+
     option_list = [
         ("gfs2lockdump", 'gather output of gfs2 lockdumps', 'slow', False),
         ("crm_from", 'specify the start time for crm_report', 'fast', False),
-        ('lockdump', 'gather dlm lockdumps', 'slow', False)
+        ('lockdump', 'gather dlm lockdumps', 'slow', False),
+        ('crm_scrub', 'enable password scrubbing for crm_report', '', True),
     ]
 
     packages = [
@@ -112,8 +114,14 @@ class Cluster(Plugin, RedHatPlugin):
                     "default" % self.get_option('crm_from'))
 
         crm_dest = self.get_cmd_output_path(name='crm_report', make=False)
-        self.add_cmd_output('crm_report -S -d --dest %s --from "%s"'
-                            % (crm_dest, crm_from))
+        crm_scrub = '-p "passw.*"'
+        if not self.get_option("crm_scrub"):
+            crm_scrub = ''
+            self._log_warn("scrubbing of crm passwords has been disabled:")
+            self._log_warn("data collected by crm_report may contain"
+                           " sensitive values.")
+        self.add_cmd_output('crm_report %s -S -d --dest %s --from "%s"'
+                            % (crm_scrub, crm_dest, crm_from))
 
     def do_lockdump(self):
         if self._mount_debug():
