@@ -110,15 +110,59 @@ class Networking(Plugin):
             "ip neigh show",
             "ip neigh show nud noarp",
             "ip netns",
-            "nmcli general status",
-            "nmcli connection show",
-            "nmcli connection show active",
-            "nmcli device status",
-            "nmcli device show",
             "biosdevname -d",
             "tc -s qdisc show",
             "iptables -vnxL"
         ])
+
+        # There are some incompatible changes in nmcli since
+        # the release of NetworkManager >= 0.9.9. In addition,
+        # NetworkManager >= 0.9.9 will use the long names of
+        # "nmcli" objects.
+
+        # NetworkManager >= 0.9.9 (Use long names of objects for nmcli)
+        nmcli_status_result = self.call_ext_prog("nmcli general status")
+        if nmcli_status_result['status'] == 0:
+            self.add_cmd_output([
+                "nmcli general status",
+                "nmcli connection show",
+                "nmcli connection show --active",
+                "nmcli device status",
+                "nmcli device show"])
+            nmcli_con_show_result = self.call_ext_prog(
+                "nmcli --terse --fields NAME con show")
+            if nmcli_con_show_result['status'] == 0:
+                for con in nmcli_con_show_result['output'].splitlines():
+                    self.add_cmd_output("nmcli connection show id '%s'" % con)
+
+            nmcli_dev_status_result = self.call_ext_prog(
+                "nmcli --terse --fields DEVICE device status")
+            if nmcli_dev_status_result['status'] == 0:
+                for dev in nmcli_dev_status_result['output'].splitlines():
+                    self.add_cmd_output("nmcli device show '%s'" % dev)
+
+        # NetworkManager < 0.9.9 (Use short name of objects for nmcli)
+        nmcli_status_result = self.call_ext_prog("nmcli nm status")
+        if nmcli_status_result['status'] == 0:
+            self.add_cmd_output([
+                "nmcli nm status",
+                "nmcli con",
+                "nmcli con status",
+                "nmcli dev status",
+                "nmcli dev"])
+
+            nmcli_con_show_result = self.call_ext_prog(
+                "nmcli --terse --fields NAME con")
+            if nmcli_con_show_result['status'] == 0:
+                for con in nmcli_con_show_result['output'].splitlines():
+                    self.add_cmd_output("nmcli con list id '%s'" % con)
+
+            nmcli_dev_status_result = self.call_ext_prog(
+                "nmcli --terse --fields DEVICE dev status")
+            if nmcli_dev_status_result['status'] == 0:
+                for dev in nmcli_dev_status_result['output'].splitlines():
+                    self.add_cmd_output("nmcli dev list iface '%s'" % dev)
+
         ip_link_result = self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
             for eth in self.get_eth_interfaces(ip_link_result['output']):
@@ -140,18 +184,6 @@ class Networking(Plugin):
                     "brctl showstp "+br_name,
                     "brctl showmacs "+br_name
                 ])
-
-        nmcli_con_show_result = self.call_ext_prog(
-            "nmcli --terse --fields NAME con show")
-        if nmcli_con_show_result['status'] == 0:
-            for con in nmcli_con_show_result['output'].splitlines():
-                self.add_cmd_output("nmcli con show conf '%s'" % con)
-
-        nmcli_dev_status_result = self.call_ext_prog(
-            "nmcli --terse --fields DEVICE dev status")
-        if nmcli_dev_status_result['status'] == 0:
-            for dev in nmcli_dev_status_result['output'].splitlines():
-                self.add_cmd_output("nmcli device show "+dev)
 
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
