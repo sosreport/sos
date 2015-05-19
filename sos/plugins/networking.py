@@ -121,47 +121,38 @@ class Networking(Plugin):
         # "nmcli" objects.
 
         # NetworkManager >= 0.9.9 (Use long names of objects for nmcli)
-        nmcli_status_result = self.call_ext_prog("nmcli general status")
-        if nmcli_status_result['status'] == 0:
+        nmcli_con_details_cmd = ""
+        nmcli_dev_details_cmd = ""
+        if self.call_ext_prog("nmcli general status")['status'] == 0:
             self.add_cmd_output([
                 "nmcli general status",
-                "nmcli connection show",
-                "nmcli connection show --active",
-                "nmcli device status",
-                "nmcli device show"])
-            nmcli_con_show_result = self.call_ext_prog(
-                "nmcli --terse --fields NAME con show")
-            if nmcli_con_show_result['status'] == 0:
-                for con in nmcli_con_show_result['output'].splitlines():
-                    self.add_cmd_output("nmcli connection show id '%s'" % con)
-
-            nmcli_dev_status_result = self.call_ext_prog(
-                "nmcli --terse --fields DEVICE device status")
-            if nmcli_dev_status_result['status'] == 0:
-                for dev in nmcli_dev_status_result['output'].splitlines():
-                    self.add_cmd_output("nmcli device show '%s'" % dev)
-
+                "nmcli con",
+                "nmcli con show --active",
+                "nmcli dev"])
+            nmcli_con_details_cmd = "nmcli con show id"
+            nmcli_dev_details_cmd = "nmcli dev show"
         # NetworkManager < 0.9.9 (Use short name of objects for nmcli)
-        nmcli_status_result = self.call_ext_prog("nmcli nm status")
-        if nmcli_status_result['status'] == 0:
+        elif self.call_ext_prog("nmcli nm status")['status'] == 0:
             self.add_cmd_output([
                 "nmcli nm status",
                 "nmcli con",
                 "nmcli con status",
-                "nmcli dev status",
                 "nmcli dev"])
+            nmcli_con_details_cmd = "nmcli con list id"
+            nmcli_dev_details_cmd = "nmcli dev list iface"
 
+        if len(nmcli_con_details_cmd) > 0:
             nmcli_con_show_result = self.call_ext_prog(
                 "nmcli --terse --fields NAME con")
             if nmcli_con_show_result['status'] == 0:
                 for con in nmcli_con_show_result['output'].splitlines():
-                    self.add_cmd_output("nmcli con list id '%s'" % con)
+                    self.add_cmd_output("%s '%s'" % nmcli_con_details_cmd, con)
 
             nmcli_dev_status_result = self.call_ext_prog(
-                "nmcli --terse --fields DEVICE dev status")
+                "nmcli --terse --fields DEVICE dev")
             if nmcli_dev_status_result['status'] == 0:
                 for dev in nmcli_dev_status_result['output'].splitlines():
-                    self.add_cmd_output("nmcli dev list iface '%s'" % dev)
+                    self.add_cmd_output("%s '%s'" % nmcli_dev_details_cmd, dev)
 
         ip_link_result = self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
