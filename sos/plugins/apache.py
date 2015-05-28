@@ -34,7 +34,8 @@ class RedHatApache(Apache, RedHatPlugin):
 
         self.add_copy_spec([
             "/etc/httpd/conf/httpd.conf",
-            "/etc/httpd/conf.d/*.conf"
+            "/etc/httpd/conf.d/*.conf",
+            "/etc/httpd/conf.modules.d/*.conf"
         ])
 
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
