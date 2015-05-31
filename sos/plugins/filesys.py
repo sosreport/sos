@@ -41,6 +41,7 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "df -ali",
             "findmnt"
         ])
+        self.add_cmd_output("ls /var/lock/subsys")
 
         if self.get_option('lsof'):
             self.add_cmd_output("lsof -b +M -n -l -P", root_symlink="lsof")
