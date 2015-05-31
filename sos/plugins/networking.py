@@ -163,6 +163,7 @@ class Networking(Plugin):
                     "ethtool -i "+eth,
                     "ethtool -k "+eth,
                     "ethtool -S "+eth,
+                    "ethtool -T "+eth,
                     "ethtool -a "+eth,
                     "ethtool -c "+eth,
                     "ethtool -g "+eth
