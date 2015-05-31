@@ -30,7 +30,10 @@ class Ntp(Plugin):
             "/etc/ntp/step-tickers",
             "/etc/ntp/ntpservers"
         ])
-        self.add_cmd_output("ntptime")
+        self.add_cmd_output([
+            "ntptime",
+            "ntpq -p"
+        ])
 
 
 class RedHatNtp(Ntp, RedHatPlugin):
