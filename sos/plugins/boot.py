@@ -40,6 +40,9 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "ls -lanR /boot",
             "lsinitrd"
         ])
+
+        self.add_cmd_output("efibootmgr")
+
         if self.get_option("all-images"):
             for image in glob('/boot/initr*.img'):
                 if image[-9:] == "kdump.img":
