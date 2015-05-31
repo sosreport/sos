@@ -57,6 +57,7 @@ class Yum(Plugin, RedHatPlugin):
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
                             "--no-subscriptions --destination %s"
                             % self.get_cmd_output_path())
+        self.add_cmd_output("yum history")
 
         if self.get_option("yumlist"):
             # List various information about available packages
