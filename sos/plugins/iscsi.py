@@ -37,7 +37,7 @@ class RedHatIscsi(Iscsi, RedHatPlugin):
         ])
         self.add_cmd_output([
             "iscsiadm -m session -P 3",
-            "iscsiadm -m node -P 3",
+            "iscsiadm -m node -P 1",
             "iscsiadm -m iface -P 1",
             "iscsiadm -m node --op=show"
         ])
