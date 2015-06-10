@@ -39,7 +39,7 @@ class OpenStackGlance(Plugin):
         ])
 
 
-class DebianOpenStackGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
+class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'glance',
@@ -51,7 +51,7 @@ class DebianOpenStackGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStackGlance(OpenStackGlance, RedHatPlugin):
+class RedHatGlance(OpenStackGlance, RedHatPlugin):
 
     packages = (
         'openstack-glance',
