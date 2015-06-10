@@ -60,7 +60,7 @@ class OpenStackCinder(Plugin):
         self.do_path_regex_sub("/etc/cinder/*", regexp, r"\1*********")
 
 
-class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
+class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
     cinder = False
     packages = (
@@ -81,7 +81,7 @@ class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
         super(DebianOpenStackCinder, self).setup()
 
 
-class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
+class RedHatCinder(OpenStackCinder, RedHatPlugin):
 
     cinder = False
     packages = ('openstack-cinder',

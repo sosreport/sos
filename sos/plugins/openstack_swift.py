@@ -45,7 +45,7 @@ class OpenStackSwift(Plugin):
         self.do_path_regex_sub("/etc/swift/.*\.conf.*", regexp, r"\1*********")
 
 
-class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
+class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'swift',
@@ -59,7 +59,7 @@ class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStackSwift(OpenStackSwift, RedHatPlugin):
+class RedHatSwift(OpenStackSwift, RedHatPlugin):
 
     packages = (
         'openstack-swift',

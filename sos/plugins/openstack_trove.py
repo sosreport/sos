@@ -44,7 +44,7 @@ class OpenStackTrove(Plugin):
         self.do_path_regex_sub("/etc/trove/*", regexp, r"\1*********")
 
 
-class DebianOpenStackTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
+class DebianTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
 
     packages = [
         'python-trove',
@@ -57,7 +57,7 @@ class DebianOpenStackTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
         super(DebianOpenStackTrove, self).setup()
 
 
-class RedHatOpenStackTrove(OpenStackTrove, RedHatPlugin):
+class RedHatTrove(OpenStackTrove, RedHatPlugin):
 
     packages = ['openstack-trove']
 
