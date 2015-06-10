@@ -21,7 +21,7 @@ class OpenStackKeystone(Plugin):
     """OpenStack Keystone
     """
     plugin_name = "openstack_keystone"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
     option_list = [("log", "gathers openstack keystone logs", "slow", True),
                    ("nopw", "dont gathers keystone passwords", "slow", True)]
