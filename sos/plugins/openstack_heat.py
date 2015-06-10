@@ -37,7 +37,7 @@ class OpenStackHeat(Plugin):
         ])
 
 
-class DebianOpenStack(OpenStackHeat, DebianPlugin, UbuntuPlugin):
+class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'heat-api',
@@ -50,7 +50,7 @@ class DebianOpenStack(OpenStackHeat, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStack(OpenStackHeat, RedHatPlugin):
+class RedHatHeat(OpenStackHeat, RedHatPlugin):
 
     packages = (
         'openstack-heat-api',
