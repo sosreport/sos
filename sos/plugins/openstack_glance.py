@@ -17,10 +17,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos import plugins
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class OpenStackGlance(plugins.Plugin):
+class OpenStackGlance(Plugin):
     """OpenStack Glance"""
     plugin_name = "openstack_glance"
     profiles = ('openstack',)
@@ -39,9 +39,7 @@ class OpenStackGlance(plugins.Plugin):
         ])
 
 
-class DebianOpenStackGlance(OpenStackGlance,
-                            plugins.DebianPlugin,
-                            plugins.UbuntuPlugin):
+class DebianOpenStackGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'glance',
@@ -53,7 +51,7 @@ class DebianOpenStackGlance(OpenStackGlance,
     )
 
 
-class RedHatOpenStackGlance(OpenStackGlance, plugins.RedHatPlugin):
+class RedHatOpenStackGlance(OpenStackGlance, RedHatPlugin):
 
     packages = (
         'openstack-glance',
