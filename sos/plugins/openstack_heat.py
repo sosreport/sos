@@ -21,7 +21,7 @@ class OpenStackHeat(Plugin):
     """OpenStack Heat
     """
     plugin_name = "openstack_heat"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
     option_list = [("log", "gathers openstack-heat logs", "slow", False)]
 

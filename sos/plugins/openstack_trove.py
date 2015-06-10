@@ -23,7 +23,7 @@ class OpenStackTrove(Plugin):
     """
 
     plugin_name = "openstack_trove"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
     option_list = [("log", "gathers openstack trove logs", "slow", True)]
 
     def setup(self):

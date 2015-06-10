@@ -20,7 +20,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackSahara(Plugin):
     """OpenStack Sahara"""
     plugin_name = 'openstack_sahara'
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
     option_list = [("log", "gathers openstack sahara logs", "slow", True)]
 

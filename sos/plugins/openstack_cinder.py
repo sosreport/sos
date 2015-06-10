@@ -25,7 +25,7 @@ class OpenStackCinder(Plugin):
     """OpenStack cinder
     """
     plugin_name = "openstack_cinder"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
     option_list = [("log", "gathers openstack cinder logs", "slow", True),
                    ("db", "gathers openstack cinder db version", "slow",

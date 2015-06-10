@@ -23,7 +23,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackGlance(Plugin):
     """OpenStack Glance"""
     plugin_name = "openstack_glance"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
     option_list = [("log", "gathers openstack-glance logs", "slow", False)]
 

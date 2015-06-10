@@ -24,7 +24,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackCeilometer(Plugin):
     """Openstack Ceilometer"""
     plugin_name = "openstack_ceilometer"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
     option_list = [("log", "gathers openstack-ceilometer logs", "slow", False)]
 
