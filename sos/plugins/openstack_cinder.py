@@ -43,7 +43,7 @@ class OpenStackCinder(Plugin):
             self.add_copy_spec(["/var/log/cinder/"])
 
 
-class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
+class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
     cinder = False
     packages = (
@@ -64,7 +64,7 @@ class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
         super(DebianOpenStackCinder, self).setup()
 
 
-class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
+class RedHatCinder(OpenStackCinder, RedHatPlugin):
 
     cinder = False
     packages = ('openstack-cinder',

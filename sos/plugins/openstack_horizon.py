@@ -34,7 +34,7 @@ class OpenStackHorizon(Plugin):
             self.add_copy_spec("/var/log/horizon/")
 
 
-class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
+class DebianHorizon(OpenStackHorizon, DebianPlugin):
 
     packages = (
         'python-django-horizon',
@@ -47,7 +47,7 @@ class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
         self.add_copy_spec("/etc/apache2/sites-available/")
 
 
-class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
+class UbuntuHorizon(OpenStackHorizon, UbuntuPlugin):
 
     packages = (
         'python-django-horizon',
@@ -60,7 +60,7 @@ class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
         self.add_copy_spec("/etc/apache2/conf.d/openstack-dashboard.conf")
 
 
-class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
+class RedHatHorizon(OpenStackHorizon, RedHatPlugin):
 
     packages = (
         'python-django-horizon',

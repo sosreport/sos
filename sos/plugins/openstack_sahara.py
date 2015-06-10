@@ -43,7 +43,7 @@ class OpenStackSahara(Plugin):
         self.do_file_sub('/etc/sahara/sahara.conf', regexp, r"\1*********")
 
 
-class DebianOpenStackSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
+class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
     """OpenStackSahara related information for Debian based distributions."""
 
     packages = (
@@ -58,7 +58,7 @@ class DebianOpenStackSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
         super(DebianOpenStackSahara, self).setup()
 
 
-class RedHatOpenStackSahara(OpenStackSahara, RedHatPlugin):
+class RedHatSahara(OpenStackSahara, RedHatPlugin):
     """OpenStack sahara related information for Red Hat distributions."""
 
     packages = (

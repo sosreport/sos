@@ -55,7 +55,7 @@ class OpenStackKeystone(Plugin):
                          r"\1 ******")
 
 
-class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
+class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'keystone',
@@ -64,7 +64,7 @@ class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
+class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
 
     packages = (
         'openstack-keystone',

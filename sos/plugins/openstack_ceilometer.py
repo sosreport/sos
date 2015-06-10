@@ -36,8 +36,8 @@ class OpenStackCeilometer(Plugin):
         ])
 
 
-class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
-                                UbuntuPlugin):
+class DebianCeilometer(OpenStackCeilometer, DebianPlugin,
+                       UbuntuPlugin):
 
     packages = (
         'ceilometer-api',
@@ -50,7 +50,7 @@ class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
     )
 
 
-class RedHatOpenStackCeilometer(OpenStackCeilometer, RedHatPlugin):
+class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
 
     packages = (
         'openstack-ceilometer',

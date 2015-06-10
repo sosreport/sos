@@ -34,7 +34,7 @@ class OpenStackSwift(Plugin):
         self.add_copy_spec("/etc/swift/")
 
 
-class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
+class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'swift',
@@ -48,7 +48,7 @@ class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStackSwift(OpenStackSwift, RedHatPlugin):
+class RedHatSwift(OpenStackSwift, RedHatPlugin):
 
     packages = (
         'openstack-swift',
