@@ -14,10 +14,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos import plugins
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class OpenStackHeat(plugins.Plugin):
+class OpenStackHeat(Plugin):
     """OpenStack Heat
     """
     plugin_name = "openstack_heat"
@@ -37,9 +37,7 @@ class OpenStackHeat(plugins.Plugin):
         ])
 
 
-class DebianOpenStack(OpenStackHeat,
-                      plugins.DebianPlugin,
-                      plugins.UbuntuPlugin):
+class DebianOpenStack(OpenStackHeat, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'heat-api',
@@ -52,7 +50,7 @@ class DebianOpenStack(OpenStackHeat,
     )
 
 
-class RedHatOpenStack(OpenStackHeat, plugins.RedHatPlugin):
+class RedHatOpenStack(OpenStackHeat, RedHatPlugin):
 
     packages = (
         'openstack-heat-api',
