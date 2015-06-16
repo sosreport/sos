@@ -36,6 +36,10 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "iprconfig -c show-arrays",
             "iprconfig -c show-jbod-disks",
             "iprconfig -c show-ioas",
+            "iprconfig -c show-hot-spares",
+            "iprconfig -c show-af-disks",
+            "iprconfig -c show-all-af-disks",
+            "iprconfig -c show-slots",
         ])
 
         show_ioas = self.call_ext_prog("iprconfig -c show-ioas")
@@ -53,6 +57,9 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         for device in devices:
             self.add_cmd_output("iprconfig -c show-details %s" % (device,))
+            self.add_cmd_output("iprconfig -c show-battery-info %s" % (
+                                device,))
+            self.add_cmd_output("iprconfig -c show-perf %s" % (device,))
 
         # Look for IBM Power RAID enclosures (iprconfig lists them)
         show_config = self.call_ext_prog("iprconfig -c show-config")
