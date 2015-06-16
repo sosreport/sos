@@ -12,7 +12,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# This plugin enables collection of logs for Power systems
+# This plugin enables collection of logs for system using IPR driver HW
 
 import os
 import re
@@ -27,8 +27,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = 'iprconfig'
 
     def check_enabled(self):
-        arch = self.policy().get_arch()
-        return arch == "ppc64" and is_executable("iprconfig")
+        return is_executable("iprconfig")
 
     def setup(self):
         self.add_cmd_output([
