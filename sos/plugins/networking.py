@@ -123,7 +123,10 @@ class Networking(Plugin):
         # NetworkManager >= 0.9.9 (Use long names of objects for nmcli)
         nmcli_con_details_cmd = ""
         nmcli_dev_details_cmd = ""
-        if self.call_ext_prog("nmcli general status")['status'] == 0:
+        nmcli_status_cmd_v1 = "nmcli --terse --fields RUNNING general status"
+        nmcli_status_cmd_v0 = "nmcli --terse --fields RUNNING nm status"
+        if self.call_ext_prog(
+                nmcli_status_cmd_v1)['output'].lower().startswith("running"):
             self.add_cmd_output([
                 "nmcli general status",
                 "nmcli con",
@@ -132,7 +135,8 @@ class Networking(Plugin):
             nmcli_con_details_cmd = "nmcli con show id"
             nmcli_dev_details_cmd = "nmcli dev show"
         # NetworkManager < 0.9.9 (Use short name of objects for nmcli)
-        elif self.call_ext_prog("nmcli nm status")['status'] == 0:
+        elif self.call_ext_prog(
+                nmcli_status_cmd_v0)['output'].lower().startswith("running"):
             self.add_cmd_output([
                 "nmcli nm status",
                 "nmcli con",
@@ -146,13 +150,15 @@ class Networking(Plugin):
                 "nmcli --terse --fields NAME con")
             if nmcli_con_show_result['status'] == 0:
                 for con in nmcli_con_show_result['output'].splitlines():
-                    self.add_cmd_output("%s '%s'" % nmcli_con_details_cmd, con)
+                    self.add_cmd_output("%s '%s'" %
+                                        (nmcli_con_details_cmd, con))
 
             nmcli_dev_status_result = self.call_ext_prog(
                 "nmcli --terse --fields DEVICE dev")
             if nmcli_dev_status_result['status'] == 0:
                 for dev in nmcli_dev_status_result['output'].splitlines():
-                    self.add_cmd_output("%s '%s'" % nmcli_dev_details_cmd, dev)
+                    self.add_cmd_output("%s '%s'" %
+                                        (nmcli_dev_details_cmd, dev))
 
         ip_link_result = self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
