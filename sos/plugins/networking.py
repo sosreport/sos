@@ -120,30 +120,45 @@ class Networking(Plugin):
         # NetworkManager >= 0.9.9 will use the long names of
         # "nmcli" objects.
 
-        # NetworkManager >= 0.9.9 (Use long names of objects for nmcli)
-        nmcli_con_details_cmd = ""
-        nmcli_dev_details_cmd = ""
-        nmcli_status_cmd_v1 = "nmcli --terse --fields RUNNING general status"
-        nmcli_status_cmd_v0 = "nmcli --terse --fields RUNNING nm status"
-        if self.call_ext_prog(
-                nmcli_status_cmd_v1)['output'].lower().startswith("running"):
+        # All versions conform to the following templates with differnt
+        # strings for the object being operated on.
+        nmcli_con_details_template = "nmcli con %s id"
+        nmcli_dev_details_template = "nmcli dev %s"
+
+        # test NetworkManager status for the specified major version
+        def test_nm_status(version=1):
+            status_template = "nmcli --terse --fields RUNNING %s status"
+            obj_table = [
+                "nm",        # <  0.9.9
+                "general"    # >= 0.9.9
+            ]
+            status = self.call_ext_prog(status_template % obj_table[version])
+            return status['output'].lower().startswith("running")
+
+        # NetworkManager >= 0.9.9 (Use short name of objects for nmcli)
+        if test_nm_status(version=1):
             self.add_cmd_output([
                 "nmcli general status",
                 "nmcli con",
                 "nmcli con show --active",
                 "nmcli dev"])
-            nmcli_con_details_cmd = "nmcli con show id"
-            nmcli_dev_details_cmd = "nmcli dev show"
+            nmcli_con_details_cmd = nmcli_con_details_template % "show"
+            nmcli_dev_details_cmd = nmcli_dev_details_template % "show"
+
         # NetworkManager < 0.9.9 (Use short name of objects for nmcli)
-        elif self.call_ext_prog(
-                nmcli_status_cmd_v0)['output'].lower().startswith("running"):
+        elif test_nm_status(version=0):
             self.add_cmd_output([
                 "nmcli nm status",
                 "nmcli con",
                 "nmcli con status",
                 "nmcli dev"])
-            nmcli_con_details_cmd = "nmcli con list id"
-            nmcli_dev_details_cmd = "nmcli dev list iface"
+            nmcli_con_details_cmd = nmcli_con_details_template % "list id"
+            nmcli_dev_details_cmd = nmcli_dev_details_template % "list iface"
+
+        # No grokkable NetworkManager version present
+        else:
+            nmcli_con_details_cmd = ""
+            nmcli_dev_details_cmd = ""
 
         if len(nmcli_con_details_cmd) > 0:
             nmcli_con_show_result = self.call_ext_prog(
