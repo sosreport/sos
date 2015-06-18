@@ -54,6 +54,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "find %s -ls" % " ".join(extra_mod_paths)
         ])
 
+        clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
         self.add_copy_spec([
             "/proc/modules",
             "/proc/sys/kernel/random/boot_id",
@@ -81,7 +82,9 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/timer*",
             "/proc/lock*",
             "/proc/misc",
-            "/var/log/dmesg"
+            "/var/log/dmesg",
+            clocksource_path + "available_clocksource",
+            clocksource_path + "current_clocksource"
         ])
 
 # vim: set et ts=4 sw=4 :
