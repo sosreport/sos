@@ -24,6 +24,10 @@ class OpenVSwitch(Plugin):
     profiles = ('network', 'virt')
 
     def setup(self):
+        self.add_copy_spec([
+            "/var/log/openvswitch/ovs-vswitchd.log",
+            "/var/log/openvswitch/ovsdb-server.log"
+        ])
         # The '-s' option enables dumping of packet counters on the
         # ports.
         self.add_cmd_output("ovs-dpctl -s show")
