@@ -44,6 +44,9 @@ class OpenVSwitch(Plugin):
                 self.add_cmd_output("ovs-ofctl dump-flows %s" % br)
                 self.add_cmd_output("ovs-appctl fdb/show %s" % br)
 
+        # Gather the database.
+        self.add_cmd_output("ovsdb-client dump")
+
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
