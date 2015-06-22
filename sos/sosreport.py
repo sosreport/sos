@@ -615,7 +615,7 @@ class SoSOptions(object):
                           default=None)
         parser.add_option("--no-report", action="store_true",
                           dest="report",
-                          help="Disable HTML/XML reporting", default=False)
+                          help="Disable HTML/XML reporting", default=True)
         parser.add_option("-z", "--compression-type", dest="compression_type",
                           help="compression technology to use [auto, "
                                "gzip, bzip2, xz] (default=auto)",
