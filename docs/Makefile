@@ -6,6 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
+DOCDESTDIR    = ${DESTDIR}/usr/share/doc/sos
 
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
@@ -19,7 +20,7 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext install-dir install-html install-dirhtml install-singlehtml install-pickle install-json install-htmlhelp install-qthelp install-epub install-latex install-text install-man install-texinfo install-info install-gettext install-changes install-linkcheck install-doctest install-xml install-pseudoxml install
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -49,36 +50,79 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 
+install-dir:
+	install -d -m 0755 ${DOCDESTDIR}
+
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+install-html: install-dir
+	if test -d ${BUILDDIR}/html; then \
+		cp -r ${BUILDDIR}/html ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
+install-dirhtml: install-dir
+	if test -d ${BUILDDIR}/dirhtml; then \
+		cp -r ${BUILDDIR}/dirhtml ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
 singlehtml:
 	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
 	@echo
 	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
 
+install-singlehtml: install-dir
+	if test -d ${BUILDDIR}/singlehtml; then \
+		cp -r ${BUILDDIR}/singlehtml ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 pickle:
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) $(BUILDDIR)/pickle
 	@echo
 	@echo "Build finished; now you can process the pickle files."
 
+install-pickle: install-dir
+	if test -d ${BUILDDIR}/pickle; then \
+		cp -r ${BUILDDIR}/pickle ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 json:
 	$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) $(BUILDDIR)/json
 	@echo
 	@echo "Build finished; now you can process the JSON files."
+
+install-json: install-dir
+	if test -d ${BUILDDIR}/json; then \
+		cp -r ${BUILDDIR}/json ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 
 htmlhelp:
 	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) $(BUILDDIR)/htmlhelp
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      ".hhp project file in $(BUILDDIR)/htmlhelp."
+
+install-htmlhelp: install-dir
+	if test -d ${BUILDDIR}/htmlhelp; then \
+		cp -r ${BUILDDIR}/htmlhelp ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 
 qthelp:
 	$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) $(BUILDDIR)/qthelp
@@ -88,6 +132,13 @@ qthelp:
 	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/SoS.qhcp"
 	@echo "To view the help file:"
 	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/SoS.qhc"
+
+install-qthelp: install-dir
+	if test -d ${BUILDDIR}/qthelp; then \
+		cp -r ${BUILDDIR}/qthelp ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 
 devhelp:
 	$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
@@ -103,12 +154,26 @@ epub:
 	@echo
 	@echo "Build finished. The epub file is in $(BUILDDIR)/epub."
 
+install-epub: install-dir
+	if test -d ${BUILDDIR}/epub; then \
+		cp -r ${BUILDDIR}/epub ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
 latex:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
 	@echo "Run \`make' in that directory to run these through (pdf)latex" \
 	      "(use \`make latexpdf' here to do that automatically)."
+
+install-latex: install-dir
+	if test -d ${BUILDDIR}/latex; then \
+		cp -r ${BUILDDIR}/latex ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 
 latexpdf:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
@@ -127,10 +192,25 @@ text:
 	@echo
 	@echo "Build finished. The text files are in $(BUILDDIR)/text."
 
+install-text: install-dir
+	if test -d ${BUILDDIR}/text; then \
+		cp -r ${BUILDDIR}/text ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
 man:
 	$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(BUILDDIR)/man
 	@echo
 	@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
+
+install-man:
+	if test -d ${BUILDDIR}/man; then \
+		gzip -c ${BUILDDIR}/man/sos.1 > ${BUILDDIR}/man/sos.1.gz; \
+		install -m644 ${BUILDDIR}/man/sos.1.gz $(DESTDIR)/usr/share/man/man1; \
+	else \
+		exit 0; \
+	fi
 
 texinfo:
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
@@ -139,21 +219,44 @@ texinfo:
 	@echo "Run \`make' in that directory to run these through makeinfo" \
 	      "(use \`make info' here to do that automatically)."
 
+install-texinfo: install-dir
+	if test -d ${BUILDDIR}/texinfo; then \
+		cp -r ${BUILDDIR}/texinfo ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
 info:
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
 	@echo "Running Texinfo files through makeinfo..."
 	make -C $(BUILDDIR)/texinfo info
 	@echo "makeinfo finished; the Info files are in $(BUILDDIR)/texinfo."
 
+install-info: install-dir install-texinfo
+
 gettext:
 	$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) $(BUILDDIR)/locale
 	@echo
 	@echo "Build finished. The message catalogs are in $(BUILDDIR)/locale."
 
+install-gettext: install-dir
+	if test -d ${BUILDDIR}/locale; then \
+		cp -r ${BUILDDIR}/locale ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
 changes:
 	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 	@echo
 	@echo "The overview file is in $(BUILDDIR)/changes."
+
+install-changes: install-dir
+	if test -d ${BUILDDIR}/changes; then \
+		cp -r ${BUILDDIR}/changes ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 
 linkcheck:
 	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
@@ -161,17 +264,47 @@ linkcheck:
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in $(BUILDDIR)/linkcheck/output.txt."
 
+install-linkcheck: install-dir
+	if test -d ${BUILDDIR}/linkcheck; then \
+		cp -r ${BUILDDIR}/linkcheck ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
 doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
+install-doctest: install-dir
+	if test -d ${BUILDDIR}/doctest; then \
+		cp -r ${BUILDDIR}/doctest ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
 
 xml:
 	$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
 	@echo
 	@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
 
+install-xml: install-dir
+	if test -d ${BUILDDIR}/xml; then \
+		cp -r ${BUILDDIR}/xml ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
 pseudoxml:
 	$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
 	@echo
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
+
+install-pseudoxml: install-dir
+	if test -d ${BUILDDIR}/pseudoxml; then \
+		cp -r ${BUILDDIR}/pseudoxml ${DOCDESTDIR}; \
+	else \
+		exit 0;	\
+	fi
+
+install: install-html install-dirhtml install-singlehtml install-pickle install-json install-htmlhelp install-qthelp install-epub install-latex install-text install-man install-texinfo install-info install-gettext install-changes install-linkcheck install-doctest install-xml install-pseudoxml
