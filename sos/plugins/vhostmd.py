@@ -20,7 +20,7 @@ class vhostmd(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'vhostmd'
-    profiles = ['sap']
+    profiles = ['sap', 'virt', 'system']
 
     packages = ['virt-what']
 
