@@ -59,6 +59,8 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         if os.path.exists(libvirt_keytab):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
+        self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
+
     def postproc(self):
         for loc in ["/etc/", "/var/run/"]:
             for xmlfile in glob.glob(loc + "libvirt/qemu/*.xml"):
