@@ -13,6 +13,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+import os
 
 
 class vhostmd(Plugin, RedHatPlugin):
@@ -31,14 +32,16 @@ class vhostmd(Plugin, RedHatPlugin):
             return
 
         if "vmware" in vw or "kvm" in vw or "xen" in vw:
-            # if vm-dump-metrics is installed use it
             if self.is_installed("vm-dump-metrics"):
+                # if vm-dump-metrics is installed use it
                 self.add_cmd_output("vm-dump-metrics",
                                     suggest_filename="virt_metrics")
             else:
                 # otherwise use the raw vhostmd disk presented (256k size)
-                d = self.get_command_output("lsblk -d")
-                for disk in d['output'].splitlines():
+                sysblock = "/sys/block"
+                if not os.path.isdir(sysblock):
+                    return
+                for disk in os.listdir(sysblock):
                     if "256K" in disk:
                         dev = disk.split()[0]
                         check = self.get_command_output(
