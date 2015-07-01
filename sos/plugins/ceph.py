@@ -37,17 +37,22 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/ceph/",
-            "/var/log/ceph/"
+            "/var/log/ceph/",
+            "/etc/calamari/",
+            "/var/log/calamari",
+            "/var/log/radosgw"
         ])
 
         self.add_cmd_output([
             "ceph status",
-            "ceph health",
+            "ceph health detail",
             "ceph osd tree",
             "ceph osd stat",
             "ceph osd dump",
             "ceph mon stat",
-            "ceph mon dump"
+            "ceph mon dump",
+            "ceph df",
+            "ceph report"
         ])
 
         self.add_forbidden_path("/etc/ceph/*keyring")
