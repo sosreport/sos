@@ -870,6 +870,7 @@ class SoSReport(object):
             extra_classes.append(sos.plugins.ExperimentalPlugin)
         valid_plugin_classes = tuple(policy_classes + extra_classes)
         validate_plugin = self.policy.validate_plugin
+        remaining_profiles = list(self.opts.profiles)
         # validate and load plugins
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
@@ -922,12 +923,21 @@ class SoSReport(object):
                     self._skip(plugin_class, _("not specified"))
                     continue
 
+                for i in plugin_class.profiles:
+                    if i in remaining_profiles:
+                        remaining_profiles.remove(i)
+
                 self._load(plugin_class)
             except Exception as e:
                 self.soslog.warning(_("plugin %s does not install, "
                                       "skipping: %s") % (plug, e))
                 if self.raise_plugins:
                     raise
+        if len(remaining_profiles) > 0:
+            self.soslog.error(_("Unknown or inactive profile(s) provided:"
+                                " %s") % ", ".join(remaining_profiles))
+            self.list_profiles()
+            self._exit(1)
 
     def _set_all_options(self):
         if self.opts.usealloptions:
