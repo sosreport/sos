@@ -12,7 +12,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# This plugin enables collection of logs for Power systems
+# This plugin enables collection of logs for system using IPR driver HW
 
 import os
 import re
@@ -27,8 +27,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = 'iprconfig'
 
     def check_enabled(self):
-        arch = self.policy().get_arch()
-        return arch == "ppc64" and is_executable("iprconfig")
+        return is_executable("iprconfig")
 
     def setup(self):
         self.add_cmd_output([
@@ -37,6 +36,10 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "iprconfig -c show-arrays",
             "iprconfig -c show-jbod-disks",
             "iprconfig -c show-ioas",
+            "iprconfig -c show-hot-spares",
+            "iprconfig -c show-af-disks",
+            "iprconfig -c show-all-af-disks",
+            "iprconfig -c show-slots",
         ])
 
         show_ioas = self.call_ext_prog("iprconfig -c show-ioas")
@@ -54,6 +57,9 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         for device in devices:
             self.add_cmd_output("iprconfig -c show-details %s" % (device,))
+            self.add_cmd_output("iprconfig -c show-battery-info %s" % (
+                                device,))
+            self.add_cmd_output("iprconfig -c show-perf %s" % (device,))
 
         # Look for IBM Power RAID enclosures (iprconfig lists them)
         show_config = self.call_ext_prog("iprconfig -c show-config")
