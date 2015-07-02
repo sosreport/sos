@@ -31,7 +31,9 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         'ceph-mds',
         'ceph-common',
         'libcephfs1',
-        'ceph-fs-common'
+        'ceph-fs-common',
+        'calamari-server',
+        'librados2'
     )
 
     def setup(self):
