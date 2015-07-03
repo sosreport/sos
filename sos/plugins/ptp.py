@@ -1,4 +1,5 @@
-# Copyright (C) 2007-2012 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
+# Copyright (C) 2015 Pavel Moravec <pmoravec@redhat.com>
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -16,22 +17,20 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """SysV IPC
+class Ptp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Precision time protocol
     """
 
-    plugin_name = "sysvipc"
+    plugin_name = "ptp"
     profiles = ('system', 'services')
+
+    packages = ('linuxptp',)
 
     def setup(self):
         self.add_copy_spec([
-            "/proc/sysvipc/msg",
-            "/proc/sysvipc/sem",
-            "/proc/sysvipc/shm"
-        ])
-        self.add_cmd_output([
-            "ipcs",
-            "ipcs -u"
+            "/etc/ptp4l.conf",
+            "/etc/timemaster.conf",
+            "/sys/class/ptp"
         ])
 
 # vim: et ts=4 sw=4

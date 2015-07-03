@@ -29,7 +29,10 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("lsof -b +M -n -l", root_symlink="lsof")
         self.add_cmd_output([
             "ps auxwwwm",
-            "ps alxwww"
+            "ps alxwww",
+            "ps axo pid,ppid,user,group,lwp,nlwp,start_time,comm,cgroup",
+            "ps axo flags,state,uid,pid,ppid,pgid,sid,cls,pri,addr,sz," +
+            "wchan,stime,tty,time,cmd"  # split string due to pep8
         ])
 
 # vim: et ts=4 sw=4

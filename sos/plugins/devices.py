@@ -1,4 +1,3 @@
-# Copyright (C) 2007-2012 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -16,22 +15,14 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """SysV IPC
+class Devices(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """ devices specific commands
     """
 
-    plugin_name = "sysvipc"
-    profiles = ('system', 'services')
+    plugin_name = 'devices'
+    profiles = ('system', 'hardware', 'boot')
 
     def setup(self):
-        self.add_copy_spec([
-            "/proc/sysvipc/msg",
-            "/proc/sysvipc/sem",
-            "/proc/sysvipc/shm"
-        ])
-        self.add_cmd_output([
-            "ipcs",
-            "ipcs -u"
-        ])
+        self.add_cmd_output("udevadm info --export-db")
 
 # vim: et ts=4 sw=4
