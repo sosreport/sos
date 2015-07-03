@@ -741,34 +741,32 @@ class Plugin(object):
 
 
 class RedHatPlugin(object):
-    """Tagging class to indicate that this plugin works with Red Hat Linux"""
+    """Tagging class for Red Hat's Linux distributions"""
     pass
 
 
 class PowerKVMPlugin(RedHatPlugin):
-    """Tagging class to indicate that this plugin works with
-    IBM PowerKVM Linux"""
+    """Tagging class for IBM PowerKVM Linux"""
     pass
 
 
 class ZKVMPlugin(RedHatPlugin):
-    """Tagging class to indicate that this plugin works with
-    IBM ZKVM Linux"""
+    """Tagging class for IBM ZKVM Linux"""
     pass
 
 
 class UbuntuPlugin(object):
-    """Tagging class to indicate that this plugin works with Ubuntu Linux"""
+    """Tagging class for Ubuntu Linux"""
     pass
 
 
 class DebianPlugin(object):
-    """Tagging class to indicate that this plugin works with Debian Linux"""
+    """Tagging class for Debian Linux"""
     pass
 
 
 class IndependentPlugin(object):
-    """Tagging class that indicates this plugin can run on any platform"""
+    """Tagging class for plugins that can run on any platform"""
     pass
 
 
