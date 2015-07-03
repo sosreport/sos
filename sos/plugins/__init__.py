@@ -745,6 +745,18 @@ class RedHatPlugin(object):
     pass
 
 
+class PowerKVMPlugin(RedHatPlugin):
+    """Tagging class to indicate that this plugin works with
+    IBM PowerKVM Linux"""
+    pass
+
+
+class ZKVMPlugin(RedHatPlugin):
+    """Tagging class to indicate that this plugin works with
+    IBM ZKVM Linux"""
+    pass
+
+
 class UbuntuPlugin(object):
     """Tagging class to indicate that this plugin works with Ubuntu Linux"""
     pass
