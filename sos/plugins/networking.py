@@ -240,4 +240,4 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host)
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

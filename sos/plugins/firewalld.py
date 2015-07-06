@@ -40,4 +40,4 @@ class FirewallD(Plugin, RedHatPlugin):
             "firewall-cmd --permanent --list-all-zones"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

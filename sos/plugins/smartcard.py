@@ -38,4 +38,4 @@ class Smartcard(Plugin, RedHatPlugin):
             "ls -nl /usr/lib*/pam_pkcs11/"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

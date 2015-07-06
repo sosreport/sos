@@ -29,4 +29,4 @@ class Python(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_cmd_output("python -V", suggest_filename="python-version")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

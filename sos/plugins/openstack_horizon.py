@@ -73,4 +73,4 @@ class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
         if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd/")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

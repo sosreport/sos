@@ -109,4 +109,4 @@ class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
         super(DebianMysql, self).setup()
         self.add_copy_spec("/etc/mysql/conf.d/mysql*")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

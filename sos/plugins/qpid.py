@@ -65,4 +65,4 @@ class Qpid(Plugin, RedHatPlugin):
             "/var/log/cumin"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

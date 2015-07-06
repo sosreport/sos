@@ -62,4 +62,4 @@ class DebianCorosync(Corosync, DebianPlugin, UbuntuPlugin):
 
     files = ('/usr/sbin/corosync',)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -69,4 +69,4 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             passwd_pbkdf2_sub
         )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

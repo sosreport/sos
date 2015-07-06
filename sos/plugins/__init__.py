@@ -791,4 +791,4 @@ def import_plugin(name, superclasses=None):
         superclasses = (Plugin,)
     return import_module(plugin_fqname, superclasses)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

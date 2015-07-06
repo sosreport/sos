@@ -148,4 +148,4 @@ class Openshift(Plugin, RedHatPlugin):
                          r"(BIND_KEYVALUE\s*=\s*)(.*)",
                          r"\1********")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

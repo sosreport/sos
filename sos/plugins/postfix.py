@@ -49,4 +49,4 @@ class DebianPostfix(Postfix, DebianPlugin, UbuntuPlugin):
         super(DebianPostfix, self).setup()
         self.add_copy_spec("/etc/postfix/dynamicmaps.cf")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

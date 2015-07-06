@@ -30,4 +30,4 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

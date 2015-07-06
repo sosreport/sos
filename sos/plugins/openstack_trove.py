@@ -71,4 +71,4 @@ class RedHatOpenStackTrove(OpenStackTrove, RedHatPlugin):
     def setup(self):
         super(RedHatOpenStackTrove, self).setup()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

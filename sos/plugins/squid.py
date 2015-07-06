@@ -51,4 +51,4 @@ class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec(['/etc/squid-deb-proxy'])
         self.add_copy_spec_limit("/var/log/squid-deb-proxy/*",
                                  sizelimit=self.get_option('log_size'))
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

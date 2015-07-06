@@ -38,4 +38,4 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "sg_map"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

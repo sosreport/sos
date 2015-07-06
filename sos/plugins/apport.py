@@ -41,4 +41,4 @@ class Apport(Plugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("ls -alh /var/crash/")
         self.add_cmd_output("bash -c 'grep -B 50 -m 1 ProcMaps /var/crash/*'")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

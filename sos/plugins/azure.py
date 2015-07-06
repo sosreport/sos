@@ -34,4 +34,4 @@ class Azure(Plugin, UbuntuPlugin):
             "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -74,4 +74,4 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         elif self.get_option('lvmdump-am'):
             self.do_lvmdump(metadata=True)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

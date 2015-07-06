@@ -83,4 +83,4 @@ class DebianSar(Sar, DebianPlugin, UbuntuPlugin):
 
     sa_path = '/var/log/sysstat'
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

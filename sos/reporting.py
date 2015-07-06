@@ -155,4 +155,4 @@ class PlainTextReport(object):
             for item in section.get(key):
                 self.buf.append(format_ % item)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

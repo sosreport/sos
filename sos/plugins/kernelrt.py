@@ -43,4 +43,4 @@ class KernelRT(Plugin, RedHatPlugin):
         # 0.10.4-5.
         self.add_cmd_output('tuna -CP')
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

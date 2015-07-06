@@ -47,4 +47,4 @@ class DebianCobbler(Cobbler, DebianPlugin, UbuntuPlugin):
         ])
         self.add_forbidden_path("/var/lib/cobbler/isos")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

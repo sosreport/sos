@@ -84,4 +84,4 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/dmesg"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

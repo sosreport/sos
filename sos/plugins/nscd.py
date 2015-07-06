@@ -37,4 +37,4 @@ class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 self.add_copy_spec_limit(f[1],
                                          sizelimit=self.get_option("log_size"))
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

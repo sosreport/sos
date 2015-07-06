@@ -40,4 +40,4 @@ class RedHatSANLock(SANLock, RedHatPlugin):
         super(RedHatSANLock, self).setup()
         self.add_copy_spec("/etc/sysconfig/sanlock")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

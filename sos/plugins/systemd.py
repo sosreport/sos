@@ -54,4 +54,4 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/yum/protected.d/systemd.conf"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

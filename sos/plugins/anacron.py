@@ -25,4 +25,4 @@ class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     # just look for the configuration file which is common
     files = ('/etc/anacrontab',)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

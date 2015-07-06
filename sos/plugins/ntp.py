@@ -48,4 +48,4 @@ class DebianNtp(Ntp, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec('/etc/default/ntp')
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

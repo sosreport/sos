@@ -47,4 +47,4 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 self.add_cmd_output("lsinitrd %s" % image)
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

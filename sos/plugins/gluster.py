@@ -113,4 +113,4 @@ class Gluster(Plugin, RedHatPlugin):
 
         self.add_cmd_output("gluster volume status")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

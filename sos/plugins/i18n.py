@@ -29,4 +29,4 @@ class I18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_cmd_output("locale")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

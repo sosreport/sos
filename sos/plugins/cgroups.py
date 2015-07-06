@@ -43,4 +43,4 @@ class RedHatCgroups(Cgroups, RedHatPlugin):
             "/etc/cgrules.conf"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

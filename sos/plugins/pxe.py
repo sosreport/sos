@@ -50,4 +50,4 @@ class DebianPxe(Pxe, DebianPlugin, UbuntuPlugin):
         if self.get_option("tftpboot"):
             self.add_copy_spec("/var/lib/tftpboot")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

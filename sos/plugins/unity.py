@@ -30,4 +30,4 @@ class unity(Plugin, UbuntuPlugin):
     def setup(self):
         self.add_cmd_output("/usr/lib/nux/unity_support_test -p")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

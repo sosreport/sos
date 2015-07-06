@@ -54,4 +54,4 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.call_ext_prog("umount %s" % self.debugfs_path)
             self._log_error("could not unmount %s" % self.debugfs_path)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

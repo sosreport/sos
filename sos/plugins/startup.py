@@ -53,4 +53,4 @@ class DebianStartup(Startup, DebianPlugin, UbuntuPlugin):
         if self.get_option('servicestatus'):
             self.add_cmd_output("/sbin/initctl list")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

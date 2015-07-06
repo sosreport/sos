@@ -70,4 +70,4 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                     r"\1******\3"
                 )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

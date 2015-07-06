@@ -72,4 +72,4 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 "/opt/redhat-ds/slapd-*/logs"
             ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

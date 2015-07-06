@@ -31,4 +31,4 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
 
         self.add_copy_spec("/var/log/haproxy.log")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -113,4 +113,4 @@ class ManageIQ(Plugin, RedHatPlugin):
             os.path.join(self.miq_log_dir, x) for x in self.miq_log_files
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :
