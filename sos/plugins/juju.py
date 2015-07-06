@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import os
 from sos.plugins import Plugin, UbuntuPlugin
 from json import loads as json_load
 
@@ -76,9 +77,28 @@ class Juju(Plugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/var/log/juju",
             "/var/lib/juju"
         ])
+        limit = self.get_option("log_size")
+        self.add_copy_spec_limit("/var/log/upstart/juju-db.log",
+                                 sizelimit=limit)
+        self.add_copy_spec_limit("/var/log/upstart/juju-db.log.1",
+                                 sizelimit=limit)
+        if not self.get_option("all_logs"):
+            # Capture the last bit of all files
+            for filename in os.listdir("/var/log/juju/"):
+                if filename.endswith(".log"):
+                    fullname = "/var/log/juju/" + filename
+                    self.add_copy_spec_limit(fullname, sizelimit=limit)
+            # Do just the all-machines from juju local
+            self.add_copy_spec_limit("/var/log/juju-*/all-machines.log",
+                                     sizelimit=limit)
+            self.add_cmd_output('ls -alRh /var/log/juju*')
+        else:
+            self.add_copy_spec([
+                "/var/log/juju",
+                "/var/log/juju-*"
+            ])
 
         self.add_cmd_output([
             "juju -v status",
