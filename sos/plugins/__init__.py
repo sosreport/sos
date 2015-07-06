@@ -268,7 +268,13 @@ class Plugin(object):
         # to absolute paths to pass to _do_copy_path.
         self._log_debug("normalized link target '%s' as '%s'"
                         % (linkdest, absdest))
-        self._do_copy_path(absdest)
+
+        # skip recursive copying of symlink pointing to itself.
+        if (absdest != srcpath):
+            self._do_copy_path(absdest)
+        else:
+            self._log_debug("link '%s' points to itself, skipping target..."
+                            % linkdest)
 
         self.copied_files.append({'srcpath': srcpath,
                                   'dstpath': srcpath,
