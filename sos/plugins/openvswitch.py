@@ -24,6 +24,10 @@ class OpenVSwitch(Plugin):
     profiles = ('network', 'virt')
 
     def setup(self):
+        self.add_copy_spec([
+            "/var/log/openvswitch/ovs-vswitchd.log",
+            "/var/log/openvswitch/ovsdb-server.log"
+        ])
         # The '-s' option enables dumping of packet counters on the
         # ports.
         self.add_cmd_output("ovs-dpctl -s show")
@@ -39,6 +43,9 @@ class OpenVSwitch(Plugin):
                 self.add_cmd_output("ovs-ofctl show %s" % br)
                 self.add_cmd_output("ovs-ofctl dump-flows %s" % br)
                 self.add_cmd_output("ovs-appctl fdb/show %s" % br)
+
+        # Gather the database.
+        self.add_cmd_output("ovsdb-client dump")
 
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
