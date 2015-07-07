@@ -77,13 +77,13 @@ class RedHatLogs(Logs, RedHatPlugin):
         # collect three days worth of logs by default if the system is
         # configured to use the journal and not /var/log/messages
         if not os.path.exists(messages) and self.is_installed("systemd"):
-            try:
-                days = int(self.get_option("log_days"))
-            except:
-                days = 3
             if self.get_option("all_logs"):
                 since_opt = ""
             else:
+                try:
+                    days = int(self.get_option("log_days"))
+                except:
+                    days = 3
                 since_opt = '--since="-%ddays"' % days
             self.add_cmd_output('journalctl --all %s' % since_opt)
 
