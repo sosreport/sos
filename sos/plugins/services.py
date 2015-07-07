@@ -32,7 +32,10 @@ class Services(Plugin):
         ])
         if self.get_option('servicestatus'):
             self.add_cmd_output("/sbin/service --status-all")
-        self.add_cmd_output("/sbin/runlevel")
+        self.add_cmd_output([
+            "/sbin/runlevel",
+            "ls /var/lock/subsys"
+        ])
 
 
 class RedHatServices(Services, RedHatPlugin):
