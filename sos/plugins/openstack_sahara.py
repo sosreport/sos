@@ -15,6 +15,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins.utilities import journalctl_commands
 
 
 class OpenStackSahara(Plugin):
@@ -26,7 +27,11 @@ class OpenStackSahara(Plugin):
 
     def setup(self):
         self.add_copy_spec("/etc/sahara/")
-        self.add_cmd_output("journalctl -u openstack-sahara-all")
+        cmds = journalctl_commands(
+            ["--unit=openstack-sahara-all"],
+            self.get_option("all_logs")
+        )
+        self.add_cmd_output([" ".join(x) for x in cmds])
 
         if self.get_option("log"):
             self.add_copy_spec("/var/log/sahara/")

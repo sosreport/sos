@@ -13,6 +13,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins.utilities import journalctl_commands
 
 
 class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -25,8 +26,9 @@ class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec("/etc/gdm/*")
         self.add_cmd_output([
-            "journalctl -u gdm",
             "systemctl status gdm.service"
         ])
+        cmds = journalctl_commands(["--unit=gdm"], self.get_option("all_logs"))
+        self.add_cmd_output([" ".join(x) for x in cmds])
 
 # vim: set et ts=4 sw=4 :

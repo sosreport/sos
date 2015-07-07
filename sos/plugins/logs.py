@@ -14,6 +14,7 @@
 
 import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins.utilities import journalctl_commands
 
 
 class Logs(Plugin):
@@ -21,6 +22,9 @@ class Logs(Plugin):
 
     plugin_name = "logs"
     profiles = ('system', 'hardware', 'storage')
+    option_list = [
+        ("log_days", "the number of days logs to collect", "", 3)
+    ]
 
     def setup(self):
         self.add_copy_spec([
@@ -32,10 +36,17 @@ class Logs(Plugin):
         self.limit = self.get_option("log_size")
         self.add_copy_spec_limit("/var/log/boot.log", sizelimit=self.limit)
         self.add_copy_spec_limit("/var/log/cloud-init*", sizelimit=self.limit)
-        self.add_cmd_output([
-            "journalctl --all --this-boot --no-pager",
-            "journalctl --all --this-boot --no-pager -o verbose",
-        ])
+
+        since_opt = ""
+        if not self.get_option("all_logs"):
+            try:
+                days = int(self.get_option("log_days"))
+            except:
+                days = 3
+            since_opt = '--since="-%ddays"' % days
+
+        cmds = journalctl_commands([], self.get_option("all_logs"), since_opt)
+        self.add_cmd_output([" ".join(x) for x in cmds])
 
         if self.get_option('all_logs'):
             syslog_conf = self.join_sysroot("/etc/syslog.conf")
@@ -65,27 +76,11 @@ class Logs(Plugin):
 
 class RedHatLogs(Logs, RedHatPlugin):
 
-    option_list = [
-        ("log_days", "the number of days logs to collect", "", 3)
-    ]
-
     def setup(self):
         super(RedHatLogs, self).setup()
         messages = "/var/log/messages"
         self.add_copy_spec_limit("/var/log/secure*", sizelimit=self.limit)
         self.add_copy_spec_limit(messages + "*", sizelimit=self.limit)
-        # collect three days worth of logs by default if the system is
-        # configured to use the journal and not /var/log/messages
-        if not os.path.exists(messages) and self.is_installed("systemd"):
-            if self.get_option("all_logs"):
-                since_opt = ""
-            else:
-                try:
-                    days = int(self.get_option("log_days"))
-                except:
-                    days = 3
-                since_opt = '--since="-%ddays"' % days
-            self.add_cmd_output('journalctl --all %s' % since_opt)
 
 
 class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):

@@ -13,6 +13,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins.utilities import journalctl_commands
 
 
 class Chrony(Plugin, RedHatPlugin):
@@ -34,7 +35,11 @@ class Chrony(Plugin, RedHatPlugin):
             "chronyc sources",
             "chronyc sourcestats",
             "chronyc clients",
-            "journalctl -u chronyd"
         ])
+        cmds = journalctl_commands(
+            ["--unit=chronyd"],
+            self.get_option("all_logs")
+        )
+        self.add_cmd_output([" ".join(x) for x in cmds])
 
 # vim: et ts=4 sw=4

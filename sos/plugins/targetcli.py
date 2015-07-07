@@ -15,6 +15,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins.utilities import journalctl_commands
 
 
 class TargetCli(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -28,9 +29,13 @@ class TargetCli(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "targetcli ls",
             "targetcli status",
-            "journalctl -u target",
             "systemctl status target.service"
         ])
+        cmds = journalctl_commands(
+            ["--unit=target"],
+            self.get_option("all_logs")
+        )
+        self.add_cmd_output([" ".join(x) for x in cmds])
         self.add_copy_spec("/etc/target")
 
 # vim: set et ts=4 sw=4 :
