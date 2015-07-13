@@ -189,5 +189,15 @@ class Ovirt(Plugin, RedHatPlugin):
                 r'{key}=********'.format(key=key)
             )
 
+        # aaa profiles contain passwords
+        protect_keys = [
+            "vars.password",
+            "pool.default.auth.simple.password",
+            "pool.default.ssl.truststore.password"
+        ]
+        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+
+        self.do_path_regex_sub("/etc/ovirt-engine/aaa/.*\.properties", regexp,
+                               r"\1*********")
 
 # vim: expandtab tabstop=4 shiftwidth=4
