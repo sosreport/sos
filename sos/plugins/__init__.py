@@ -696,7 +696,7 @@ class Plugin(object):
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
                                     root_symlink=root_symlink, timeout=timeout,
-                                    chroot=chroot, runat=runat)
+                                    stderr=stderr, chroot=chroot, runat=runat)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
