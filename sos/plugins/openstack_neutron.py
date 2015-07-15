@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import glob
 import os
 import re
 
@@ -55,16 +54,16 @@ class Neutron(Plugin):
         protect_keys = [
             "rabbit_password", "qpid_password", "nova_admin_password",
             "xenapi_connection_password", "password", "connection",
-            "admin_password", "metadata_proxy_shared_secret", "qpid_password",
-            "eapi_password", "crd_password", "primary_l3_host_password",
-            "serverauth", "ucsm_password", "ha_vrrp_auth_password",
-            "ssl_key_password", "nsx_password", "vcenter_password",
-            "edge_appliance_password", "tenant_admin_password", "apic_password"
+            "admin_password", "metadata_proxy_shared_secret", "eapi_password",
+            "crd_password", "primary_l3_host_password", "serverauth",
+            "ucsm_password", "ha_vrrp_auth_password", "ssl_key_password",
+            "nsx_password", "vcenter_password", "edge_appliance_password",
+            "tenant_admin_password", "apic_password"
         ]
-        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
-        for config_file in glob.glob("/etc/%s/*" % self.component_name):
-            self.do_file_sub(config_file, regexp, r"\1*********")
+        self.do_path_regex_sub("/etc/%s/*" % self.component_name,
+                               regexp, r"\1*********")
 
     def netns_dumps(self):
         # It would've been beautiful if we could get parts of the networking

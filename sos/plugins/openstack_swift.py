@@ -33,6 +33,17 @@ class OpenStackSwift(Plugin):
 
         self.add_copy_spec("/etc/swift/")
 
+    def postproc(self):
+        protect_keys = [
+            "ldap_dns_password", "neutron_admin_password", "rabbit_password",
+            "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
+            "xenapi_connection_password", "password", "host_password",
+            "vnc_password", "connection", "sql_connection", "admin_password"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/swift/*.conf*", regexp, r"\1*********")
+
 
 class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 

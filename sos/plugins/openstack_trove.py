@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -34,21 +35,13 @@ class OpenStackTrove(Plugin):
     def postproc(self):
 
         protect_keys = [
-            "dns_passkey", "nova_proxy_admin_pass", "rabbit_password",
-            "qpid_password", "connection", "sql_connection", "admin_password"
+            "default_password_length", "notifier_queue_password",
+            "rabbit_password", "replication_password", "connection",
+            "admin_password", "dns_passkey"
         ]
 
-        conf_list = [
-            '/etc/trove/trove.conf',
-            '/etc/trove/trove-conductor.conf',
-            '/etc/trove/trove-guestmanager.conf',
-            '/etc/trove/trove-taskmanager.conf'
-        ]
-
-        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-
-        for conf in conf_list:
-            self.do_file_sub(conf, regexp, r"\1*********")
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/trove/*", regexp, r"\1*********")
 
 
 class DebianOpenStackTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):

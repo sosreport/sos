@@ -33,6 +33,15 @@ class OpenStackHorizon(Plugin):
         if self.get_option("log"):
             self.add_copy_spec("/var/log/horizon/")
 
+    def postproc(self):
+        protect_keys = [
+            "SECRET_KEY", "EMAIL_HOST_PASSWORD"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/openstack-dashboard/*",
+                               regexp, r"\1*********")
+
 
 class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
 

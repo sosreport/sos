@@ -35,6 +35,18 @@ class OpenStackCeilometer(Plugin):
             "/var/log/ceilometer"
         ])
 
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "connection_password", "host_password",
+            "memcache_secret_key", "os_password", "password", "qpid_password",
+            "rabbit_password", "readonly_user_password", "secret_key",
+            "ssl_key_password", "telemetry_secret", "connection",
+            "metering_secret"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/ceilometer/*", regexp, r"\1*********")
+
 
 class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
                                 UbuntuPlugin):

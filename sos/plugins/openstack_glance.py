@@ -38,6 +38,16 @@ class OpenStackGlance(Plugin):
             "/var/log/glance/"
         ])
 
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "password", "qpid_password", "rabbit_password",
+            "s3_store_secret_key", "ssl_key_password", "connection",
+            "vmware_server_password"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/glance/*", regexp, r"\1*********")
+
 
 class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 

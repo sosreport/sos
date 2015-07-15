@@ -33,14 +33,13 @@ class OpenStackSahara(Plugin):
 
     def postproc(self):
         protect_keys = [
-            'memcache_secret_key', 'qpid_password', 'rabbit_password',
-            'admin_password', 'password', 'ssl_key_password',
-            'admin_token', 'connection'
+            "admin_password", "memcache_secret_key", "password",
+            "qpid_password", "rabbit_password", "ssl_key_password",
+            "xenapi_connection_password", "connection"
         ]
 
-        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-
-        self.do_file_sub('/etc/sahara/sahara.conf', regexp, r"\1*********")
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/sahara/*", regexp, r"\1*********")
 
 
 class DebianOpenStackSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):

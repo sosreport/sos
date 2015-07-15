@@ -42,6 +42,23 @@ class OpenStackCinder(Plugin):
         if self.get_option("log"):
             self.add_copy_spec(["/var/log/cinder/"])
 
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "backup_tsm_password", "chap_password",
+            "nas_password", "cisco_fc_fabric_password", "coraid_password",
+            "eqlx_chap_password", "fc_fabric_password",
+            "hitachi_auth_password", "hitachi_horcm_password",
+            "hp3par_password", "hplefthand_password", "memcache_secret_key",
+            "netapp_password", "netapp_sa_password", "nexenta_password",
+            "password", "qpid_password", "rabbit_password", "san_password",
+            "ssl_key_password", "vmware_host_password", "zadara_password",
+            "zfssa_initiator_password", "connection", "zfssa_target_password",
+            "os_privileged_user_password", "hmac_keys"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/cinder/*", regexp, r"\1*********")
+
 
 class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 

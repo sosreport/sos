@@ -66,13 +66,13 @@ class OpenStackNova(Plugin):
             "ldap_dns_password", "neutron_admin_password", "rabbit_password",
             "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
             "xenapi_connection_password", "password", "host_password",
-            "vnc_password", "connection", "sql_connection", "admin_password"
+            "vnc_password", "connection", "sql_connection", "admin_password",
+            "connection_password", "memcache_secret_key", "s3_secret_key",
+            "metadata_proxy_shared_secret"
         ]
 
-        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-
-        for conf_file in ["/etc/nova/nova.conf", "/etc/nova/api-paste.ini"]:
-            self.do_file_sub(conf_file, regexp, r"\1*********")
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/nova/*", regexp, r"\1*********")
 
 
 class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):

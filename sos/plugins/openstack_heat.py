@@ -36,6 +36,15 @@ class OpenStackHeat(Plugin):
             "/var/log/heat/"
         ])
 
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "memcache_secret_key", "password", "connection",
+            "qpid_password", "rabbit_password", "stack_domain_admin_password",
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/heat/*", regexp, r"\1*********")
+
 
 class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
 
