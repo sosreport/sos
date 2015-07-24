@@ -40,7 +40,8 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "ls -l /lib/systemd",
             "ls -l /lib/systemd/system-shutdown",
             "ls -l /lib/systemd/system-generators",
-            "ls -l /lib/systemd/user-generators"
+            "ls -l /lib/systemd/user-generators",
+            "timedatectl"
         ])
 
         if self.get_option("verify"):
