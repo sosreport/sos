@@ -32,20 +32,16 @@ class sapnw(Plugin, RedHatPlugin):
 
     files = ['/usr/sap']
 
-    def setup(self):
-
+    def collect_list_instances(self):
         # list installed instances
         inst_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
                                            -function ListInstances",
                                            suggest_filename="SAPInstances")
-        # list installed sap dbs
-        db_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
-                                         -function ListDatabases",
-                                         suggest_filename="SAPDatabases")
+        if not inst_out:
+            return
 
         sidsunique = set()
-
-        # Cycle through all the instances, get 'sid' 'instance_number'
+        # Cycle through all the instances, get 'sid', 'instance_number'
         # and 'vhost' to determine the proper profile
         p = open(inst_out, "r").read().splitlines()
         for line in p:
@@ -101,10 +97,15 @@ class sapnw(Plugin, RedHatPlugin):
                         % (sid, line), suggest_filename="%s_dbclient"
                         % sid)
 
+    def collect_list_dbs(self):
+        # list installed sap dbs
+        db_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
+                                         -function ListDatabases",
+                                         suggest_filename="SAPDatabases")
         if not db_out:
             return
-        dbl = open(db_out, "r").read().splitlines()
 
+        dbl = open(db_out, "r").read().splitlines()
         for line in dbl:
             if "Instance name" in line:
                 fields = line.strip().split()
@@ -135,9 +136,12 @@ class sapnw(Plugin, RedHatPlugin):
                     sid = fields[2][:-1]
                     self.add_copy_spec("/sybase/%s/ASE*/%s.cfg" % (sid, sid))
 
-        # if sapconf available run it in check mode
-        if os.path.isfile("/usr/bin/sapconf"):
-            self.add_cmd_output(
-                "/usr/bin/sapconf -n", suggest_filename="sapconf_checkmode")
+    def setup(self):
+        collect_list_instances()
+        collect_list_dbs()
+
+        # run sapconf in check mode
+        self.add_cmd_output("sapconf -n",
+                            suggest_filename="sapconf_checkmode")
 
 # vim: et ts=4 sw=4
