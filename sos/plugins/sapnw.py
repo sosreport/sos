@@ -13,7 +13,6 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
-from sets import Set
 from sos.plugins import Plugin, RedHatPlugin
 
 
@@ -44,7 +43,7 @@ class sapnw(Plugin, RedHatPlugin):
                                          -function ListDatabases",
                                          suggest_filename="SAPDatabases")
 
-        sidsunique = Set([])
+        sidsunique = set()
 
         # Cycle through all the instances, get 'sid' 'instance_number'
         # and 'vhost' to determine the proper profile
