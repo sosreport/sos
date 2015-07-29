@@ -191,13 +191,18 @@ class Networking(Plugin):
                     "ethtool -g "+eth
                 ])
 
-        brctl_file = self.get_cmd_output_now("brctl show")
-        if brctl_file:
-            for br_name in self.get_bridge_name(brctl_file):
-                self.add_cmd_output([
-                    "brctl showstp "+br_name,
-                    "brctl showmacs "+br_name
-                ])
+        # brctl command will load bridge and related kernel modules
+        # if those modules are not loaded at the time of brctl command running
+        # This behaviour causes an unexpected configuration change for system.
+        # sosreport should aovid such situation.
+        if self.is_module_loaded("bridge"):
+            brctl_file = self.get_cmd_output_now("brctl show")
+            if brctl_file:
+                for br_name in self.get_bridge_name(brctl_file):
+                    self.add_cmd_output([
+                            "brctl showstp "+br_name,
+                            "brctl showmacs "+br_name
+                    ])
 
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
