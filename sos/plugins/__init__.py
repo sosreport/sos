@@ -163,6 +163,8 @@ class Plugin(object):
         return os.path.join(self.sysroot, path)
 
     def strip_sysroot(self, path):
+        if not self.use_sysroot():
+            return path
         if path.startswith(self.sysroot):
             return path[len(self.sysroot):]
         return path
