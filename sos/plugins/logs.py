@@ -38,12 +38,14 @@ class Logs(Plugin):
         ])
 
         if self.get_option('all_logs'):
-            syslog_conf = self.join_sysroot("/etc/syslog.conf")
-            logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", syslog_conf)
-            if self.is_installed("rsyslog") \
-                    or os.path.exists("/etc/rsyslog.conf"):
-                logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
-                                               rsyslog_conf)
+            syslogs = [self.join_sysroot('/etc/%s.conf' % f)
+                       for f in ['syslog', 'rsyslog']]
+            logs = []
+            for syslog_conf in syslogs:
+                if os.path.exists(syslog_conf):
+                    logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
+                                                   syslog_conf)
+
             for i in logs:
                 if i.startswith("-"):
                     i = i[1:]
