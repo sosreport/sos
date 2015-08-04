@@ -137,8 +137,8 @@ class sapnw(Plugin, RedHatPlugin):
                     self.add_copy_spec("/sybase/%s/ASE*/%s.cfg" % (sid, sid))
 
     def setup(self):
-        collect_list_instances()
-        collect_list_dbs()
+        self.collect_list_instances()
+        self.collect_list_dbs()
 
         # run sapconf in check mode
         self.add_cmd_output("sapconf -n",
