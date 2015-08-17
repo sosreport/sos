@@ -41,6 +41,7 @@ class Landscape(Plugin, UbuntuPlugin):
             self.add_copy_spec("/var/log/landscape-server")
         self.add_cmd_output("gpg --verify /etc/landscape/license.txt")
         self.add_cmd_output("head -n 5 /etc/landscape/license.txt")
+        self.add_cmd_output("lsctl status")
 
     def postproc(self):
         self.do_file_sub(
