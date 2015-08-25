@@ -94,9 +94,9 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
             suggest_filename="access_control_lists")
 
     def postproc(self):
-        super(RedHatLdap, self).postproc()
+        super(DebianLdap, self).postproc()
         self.do_cmd_output_sub(
-            "ldapsearch"
+            "ldapsearch",
             r"(olcRootPW\: \s*)\S+",
             r"\1********"
         )
