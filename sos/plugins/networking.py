@@ -63,7 +63,7 @@ class Networking(Plugin):
         the command.  If they aren't loaded, there can't possibly be any
         relevant rules in that table """
 
-        if self.check_ext_prog("grep -q %s /proc/modules" % tablename):
+        if self.check_ext_prog("grep -q %s /proc/modules" % ("iptable_"+tablename)):
             cmd = "iptables -t "+tablename+" -nvL"
             self.add_cmd_output(cmd)
 
