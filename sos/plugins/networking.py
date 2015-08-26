@@ -63,8 +63,13 @@ class Networking(Plugin):
         the command.  If they aren't loaded, there can't possibly be any
         relevant rules in that table """
 
-        if self.check_ext_prog("grep -q %s /proc/modules" % tablename):
+        if self.check_ext_prog("grep -q %s /proc/modules" % ("iptable_"+tablename)):
             cmd = "iptables -t "+tablename+" -nvL"
+            self.add_cmd_output(cmd)
+
+    def collect_ip6table(self, tablename):
+        if self.check_ext_prog("grep -q %s /proc/modules" % ("ip6table_"+tablename)):
+            cmd = "ip6tables -t "+tablename+" -nvL"
             self.add_cmd_output(cmd)
 
     def setup(self):
@@ -95,6 +100,9 @@ class Networking(Plugin):
         self.collect_iptable("filter")
         self.collect_iptable("nat")
         self.collect_iptable("mangle")
+        self.collect_ip6table("filter")
+        self.collect_ip6table("nat")
+        self.collect_ip6table("mangle")
         self.add_cmd_output("netstat -neopa", root_symlink="netstat")
         self.add_cmd_output([
             "netstat -s",
@@ -113,7 +121,8 @@ class Networking(Plugin):
             "ip netns",
             "biosdevname -d",
             "tc -s qdisc show",
-            "iptables -vnxL"
+            "iptables -vnxL",
+            "ip6tables -vnxL"
         ])
 
         # There are some incompatible changes in nmcli since
