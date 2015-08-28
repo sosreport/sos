@@ -662,6 +662,13 @@ class Plugin(object):
 
         return os.path.join(self.archive.get_archive_path(), outfn)
 
+    def is_module_loaded(self, module_name):
+        """Return whether specified moudle as module_name is loaded or not"""
+        if len(grep("^" + module_name + " ", "/proc/modules")) == 0:
+            return None
+        else:
+            return True
+
     # For adding output
     def add_alert(self, alertstring):
         """Add an alert to the collection of alerts for this plugin. These
