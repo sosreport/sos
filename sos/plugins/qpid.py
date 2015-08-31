@@ -34,8 +34,8 @@ class Qpid(Plugin, RedHatPlugin):
             "qpid-stat -q",
             "qpid-stat -u",
             "qpid-stat -m",  # applies since 0.18 version
-            "qpid-config exchanges"
-            "qpid-config queues"
+            "qpid-config exchanges",
+            "qpid-config queues",
             "qpid-config exchanges -b",  # applies to pre-0.18 versions
             "qpid-config queues -b",  # applies to pre-0.18 versions
             "qpid-config exchanges -r",  # applies since 0.18 version
