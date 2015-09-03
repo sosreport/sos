@@ -42,7 +42,7 @@ class OpenStackSwift(Plugin):
         ]
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/swift/*.conf*", regexp, r"\1*********")
+        self.do_path_regex_sub("/etc/swift/.*\.conf.*", regexp, r"\1*********")
 
 
 class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
