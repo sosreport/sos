@@ -31,7 +31,7 @@ class kubernetes(Plugin, RedHatPlugin):
         # Kubernetes master info
         self.add_cmd_output("kubectl version")
         self.add_cmd_output("kubectl get -o json pods")
-        self.add_cmd_output("kubectl get -o json minions")
+        self.add_cmd_output("kubectl get -o json nodes")
         self.add_cmd_output("kubectl get -o json services")
         self.add_cmd_output("kubectl get -o json replicationController")
         self.add_cmd_output("kubectl get -o json events")
