@@ -58,7 +58,7 @@ class Neutron(Plugin):
             "crd_password", "primary_l3_host_password", "serverauth",
             "ucsm_password", "ha_vrrp_auth_password", "ssl_key_password",
             "nsx_password", "vcenter_password", "edge_appliance_password",
-            "tenant_admin_password", "apic_password"
+            "tenant_admin_password", "apic_password", "server_auth"
         ]
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
