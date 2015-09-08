@@ -27,6 +27,8 @@ class OpenStackSahara(Plugin):
     def setup(self):
         self.add_copy_spec("/etc/sahara/")
         self.add_cmd_output("journalctl -u openstack-sahara-all")
+        self.add_cmd_output("journalctl -u openstack-sahara-api")
+        self.add_cmd_output("journalctl -u openstack-sahara-engine")
 
         if self.get_option("log"):
             self.add_copy_spec("/var/log/sahara/")
@@ -62,6 +64,8 @@ class RedHatSahara(OpenStackSahara, RedHatPlugin):
 
     packages = (
         'openstack-sahara',
+        'openstack-sahara-api',
+        'openstack-sahara-engine',
         'python-saharaclient'
     )
 
