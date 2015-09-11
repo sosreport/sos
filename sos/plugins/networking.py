@@ -56,6 +56,37 @@ class Networking(Plugin):
                 out[iface] = True
         return out
 
+    def get_ip_netns(self, ip_netns_file):
+        """Returns a list for which items are namespaces in the output of
+        ip netns stored in the ip_netns_file.
+        """
+        out = []
+        try:
+            ip_netns_out = open(ip_netns_file).read()
+        except:
+            return out
+        for line in ip_netns_out.splitlines():
+            # If there's no namespaces, no need to continue
+            if line.startswith("Object \"netns\" is unknown") \
+               or line.isspace() \
+               or line[:1].isspace():
+                return out
+            out.append(line)
+        return out
+
+    def get_netns_devs(self, namespace):
+        """Returns a list for which items are devices that exist within
+        the provided namespace.
+        """
+        ip_link_result = self.call_ext_prog("ip netns exec " + namespace +
+                                            " ip -o link")
+        dev_list = []
+        if ip_link_result['status'] == 0:
+            for eth in self.get_eth_interfaces(ip_link_result['output']):
+                dev = eth.replace('@NONE', '')
+                dev_list.append(dev)
+        return dev_list
+
     def collect_iptable(self, tablename):
         """ When running the iptables command, it unfortunately auto-loads
         the modules before trying to get output.  Some people explicitly
@@ -122,7 +153,6 @@ class Networking(Plugin):
             "ip maddr show",
             "ip neigh show",
             "ip neigh show nud noarp",
-            "ip netns",
             "biosdevname -d",
             "tc -s qdisc show",
             "iptables -vnxL",
@@ -189,9 +219,12 @@ class Networking(Plugin):
                     self.add_cmd_output("%s '%s'" %
                                         (nmcli_dev_details_cmd, dev))
 
+        # Get ethtool output for every device that does not exist in a
+        # namespace.
         ip_link_result = self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
-            for eth in self.get_eth_interfaces(ip_link_result['output']):
+            for dev in self.get_eth_interfaces(ip_link_result['output']):
+                eth = dev.replace('@NONE', '')
                 self.add_cmd_output([
                     "ethtool "+eth,
                     "ethtool -d "+eth,
@@ -219,6 +252,30 @@ class Networking(Plugin):
 
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
+
+        # Capture additional data from namespaces; each command is run
+        # per-namespace.
+        ip_netns_file = self.get_cmd_output_now("ip netns")
+        cmd_prefix = "ip netns exec "
+        if ip_netns_file:
+            for namespace in self.get_ip_netns(ip_netns_file):
+                self.add_cmd_output([
+                    cmd_prefix + namespace + " ip address show",
+                    cmd_prefix + namespace + " ip route show table all",
+                    cmd_prefix + namespace + " iptables-save"
+                ])
+
+            # Devices that exist in a namespace use less ethtool
+            # parameters. Run this per namespace.
+            for namespace in self.get_ip_netns(ip_netns_file):
+                for eth in self.get_netns_devs(namespace):
+                    ns_cmd_prefix = cmd_prefix + namespace + " "
+                    self.add_cmd_output([
+                        ns_cmd_prefix + "ethtool " + eth,
+                        ns_cmd_prefix + "ethtool -i " + eth,
+                        ns_cmd_prefix + "ethtool -k " + eth,
+                        ns_cmd_prefix + "ethtool -S " + eth
+                    ])
 
         return
 
