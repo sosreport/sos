@@ -250,7 +250,7 @@ class SoSOptions(object):
     _list_profiles = False
     _config_file = ""
     _tmp_dir = ""
-    _report = True
+    _noreport = False
     _sysroot = None
     _chroot = 'auto'
     _compression_type = 'auto'
@@ -522,17 +522,17 @@ class SoSOptions(object):
         self._tmp_dir = value
 
     @property
-    def report(self):
+    def noreport(self):
         if self._options is not None:
-            return self._options.report
-        return self._report
+            return self._options.noreport
+        return self._noreport
 
-    @report.setter
-    def report(self, value):
+    @noreport.setter
+    def noreport(self, value):
         self._check_options_initialized()
         if not isinstance(value, bool):
-            raise TypeError("SoSOptions.report expects a boolean")
-        self._report = value
+            raise TypeError("SoSOptions.noreport expects a boolean")
+        self._noreport = value
 
     @property
     def sysroot(self):
@@ -646,8 +646,8 @@ class SoSOptions(object):
                           help="specify alternate temporary directory",
                           default=None)
         parser.add_option("--no-report", action="store_true",
-                          dest="report",
-                          help="Disable HTML/XML reporting", default=True)
+                          dest="noreport",
+                          help="Disable HTML/XML reporting", default=False)
         parser.add_option("-s", "--sysroot", action="store", dest="sysroot",
                           help="system root directory path (default='/')",
                           default=None)
@@ -1499,7 +1499,7 @@ class SoSReport(object):
             self.prework()
             self.setup()
             self.collect()
-            if not self.opts.report:
+            if not self.opts.noreport:
                 self.report()
                 self.html_report()
                 self.plain_report()
