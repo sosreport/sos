@@ -26,8 +26,7 @@ class OpenStackNova(Plugin):
     plugin_name = "openstack_nova"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
-    option_list = [("log", "gathers openstack nova logs", "slow", True),
-                   ("cmds", "gathers openstack nova commands", "slow", False)]
+    option_list = [("cmds", "gathers openstack nova commands", "slow", False)]
 
     def setup(self):
         if self.get_option("cmds"):
@@ -56,8 +55,13 @@ class OpenStackNova(Plugin):
                 "nova-manage vm list",
                 suggest_filename="nova_vm_list")
 
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/nova/")
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/nova/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/nova/*.log",
+                                     sizelimit=self.limit)
 
         self.add_copy_spec("/etc/nova/")
 
