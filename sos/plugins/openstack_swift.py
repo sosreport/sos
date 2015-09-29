@@ -23,7 +23,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackSwift(Plugin):
     """OpenStack Swift"""
     plugin_name = "openstack_swift"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
     option_list = [("log", "gathers openstack-swift logs", "slow", False)]
 
@@ -45,7 +45,7 @@ class OpenStackSwift(Plugin):
         self.do_path_regex_sub("/etc/swift/.*\.conf.*", regexp, r"\1*********")
 
 
-class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
+class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'swift',
@@ -59,7 +59,7 @@ class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStackSwift(OpenStackSwift, RedHatPlugin):
+class RedHatSwift(OpenStackSwift, RedHatPlugin):
 
     packages = (
         'openstack-swift',

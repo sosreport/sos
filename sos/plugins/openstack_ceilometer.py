@@ -24,7 +24,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackCeilometer(Plugin):
     """Openstack Ceilometer"""
     plugin_name = "openstack_ceilometer"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
     option_list = [("log", "gathers openstack-ceilometer logs", "slow", False)]
 
@@ -48,8 +48,8 @@ class OpenStackCeilometer(Plugin):
         self.do_path_regex_sub("/etc/ceilometer/*", regexp, r"\1*********")
 
 
-class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
-                                UbuntuPlugin):
+class DebianCeilometer(OpenStackCeilometer, DebianPlugin,
+                       UbuntuPlugin):
 
     packages = (
         'ceilometer-api',
@@ -62,7 +62,7 @@ class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
     )
 
 
-class RedHatOpenStackCeilometer(OpenStackCeilometer, RedHatPlugin):
+class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
 
     packages = (
         'openstack-ceilometer',

@@ -24,7 +24,7 @@ class OpenStackNova(Plugin):
     """OpenStack Nova
     """
     plugin_name = "openstack_nova"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
     option_list = [("log", "gathers openstack nova logs", "slow", True),
                    ("cmds", "gathers openstack nova commands", "slow", False)]
@@ -75,7 +75,7 @@ class OpenStackNova(Plugin):
         self.do_path_regex_sub("/etc/nova/*", regexp, r"\1*********")
 
 
-class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
+class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 
     nova = False
     packages = (
@@ -111,7 +111,7 @@ class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec(["/etc/sudoers.d/nova_sudoers"])
 
 
-class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
+class RedHatNova(OpenStackNova, RedHatPlugin):
 
     nova = False
     packages = (
