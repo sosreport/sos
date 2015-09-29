@@ -31,10 +31,9 @@ class OpenStackHeat(Plugin):
             "heat-manage db_version",
             suggest_filename="heat_db_version"
         )
-        self.add_copy_spec([
-            "/etc/heat/",
-            "/var/log/heat/"
-        ])
+        self.add_copy_spec("/etc/heat/")
+        if self.get_option("log"):
+            self.add_copy_spec("/var/log/heat/")
 
     def postproc(self):
         protect_keys = [
