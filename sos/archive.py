@@ -180,6 +180,8 @@ class FileCacheArchive(Archive):
         dest = self.dest_path(dest)
         self._check_path(dest)
         f = codecs.open(dest, 'w', encoding='utf-8')
+        if isinstance(content, bytes):
+            content = content.decode('utf8', 'ignore')
         f.write(content)
         if os.path.exists(src):
             try:
