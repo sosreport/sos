@@ -1,3 +1,5 @@
+# Copyright (C) 2015 Red Hat, Inc., Pavel Moravec <pmoravec@redhat.com>
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -38,15 +40,12 @@ class QpidDispatch(Plugin, RedHatPlugin):
             options = (options + " -b " + gethostname() +
                        ":%s" % (self.get_option("port")))
         # gethostname() is due to DISPATCH-156
-        if self.get_option("ssl-certificate"):
-            options = (options + " --ssl-certificate=" +
-                       self.get_option("ssl-certificate"))
-        if self.get_option("ssl-key"):
-            options = (options + " --ssl-key=" +
-                       self.get_option("ssl-key"))
-        if self.get_option("ssl-trustfile"):
-            options = (options + " --ssl-trustfile=" +
-                       self.get_option("ssl-trustfile"))
+
+        # for either present option, add --option=value to 'options' variable
+        for option in ["ssl-certificate", "ssl-key", "ssl-trustfile"]:
+            if self.get_option(option):
+                options = (options + " --%s=" % (option) +
+                           self.get_option(option))
 
         self.add_cmd_output([
             "qdstat -a" + options,  # Show Router Addresses
