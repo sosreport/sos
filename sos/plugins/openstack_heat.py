@@ -23,7 +23,7 @@ class OpenStackHeat(Plugin):
     plugin_name = "openstack_heat"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack-heat logs", "slow", False)]
+    option_list = []
 
     def setup(self):
         # Heat
@@ -31,10 +31,16 @@ class OpenStackHeat(Plugin):
             "heat-manage db_version",
             suggest_filename="heat_db_version"
         )
-        self.add_copy_spec([
-            "/etc/heat/",
-            "/var/log/heat/"
-        ])
+
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/heat/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/heat/*.log",
+                                     sizelimit=self.limit)
+
+        self.add_copy_spec("/etc/heat/")
 
     def postproc(self):
         protect_keys = [
