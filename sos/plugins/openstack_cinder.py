@@ -27,8 +27,7 @@ class OpenStackCinder(Plugin):
     plugin_name = "openstack_cinder"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack cinder logs", "slow", True),
-                   ("db", "gathers openstack cinder db version", "slow",
+    option_list = [("db", "gathers openstack cinder db version", "slow",
                     False)]
 
     def setup(self):
@@ -39,8 +38,13 @@ class OpenStackCinder(Plugin):
 
         self.add_copy_spec(["/etc/cinder/"])
 
-        if self.get_option("log"):
-            self.add_copy_spec(["/var/log/cinder/"])
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/cinder/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/cinder/*.log",
+                                     sizelimit=self.limit)
 
     def postproc(self):
         protect_keys = [
