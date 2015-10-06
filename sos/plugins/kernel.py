@@ -30,6 +30,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # compat
         self.add_cmd_output("uname -a", root_symlink="uname")
         self.add_cmd_output("lsmod", root_symlink="lsmod")
+        self.add_cmd_output("ls -lt /sys/kernel/slab")
 
         try:
             modules = os.listdir(self.sys_module)
