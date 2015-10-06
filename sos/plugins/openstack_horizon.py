@@ -54,7 +54,7 @@ class DebianHorizon(OpenStackHorizon, DebianPlugin):
     )
 
     def setup(self):
-        super(DebianOpenStackHorizon, self).setup()
+        super(DebianHorizon, self).setup()
         self.add_copy_spec("/etc/apache2/sites-available/")
 
 
@@ -67,7 +67,7 @@ class UbuntuHorizon(OpenStackHorizon, UbuntuPlugin):
     )
 
     def setup(self):
-        super(UbuntuOpenStackHorizon, self).setup()
+        super(UbuntuHorizon, self).setup()
         self.add_copy_spec("/etc/apache2/conf.d/openstack-dashboard.conf")
 
 
@@ -79,7 +79,7 @@ class RedHatHorizon(OpenStackHorizon, RedHatPlugin):
     )
 
     def setup(self):
-        super(RedHatOpenStackHorizon, self).setup()
+        super(RedHatHorizon, self).setup()
         self.add_copy_spec("/etc/httpd/conf.d/openstack-dashboard.conf")
         if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd/")

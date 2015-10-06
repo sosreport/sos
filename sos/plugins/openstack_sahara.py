@@ -56,7 +56,7 @@ class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
     )
 
     def setup(self):
-        super(DebianOpenStackSahara, self).setup()
+        super(DebianSahara, self).setup()
 
 
 class RedHatSahara(OpenStackSahara, RedHatPlugin):
@@ -70,7 +70,7 @@ class RedHatSahara(OpenStackSahara, RedHatPlugin):
     )
 
     def setup(self):
-        super(RedHatOpenStackSahara, self).setup()
+        super(RedHatSahara, self).setup()
         self.add_copy_spec("/etc/sudoers.d/sahara")
 
 
