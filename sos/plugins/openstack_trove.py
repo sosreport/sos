@@ -24,13 +24,19 @@ class OpenStackTrove(Plugin):
 
     plugin_name = "openstack_trove"
     profiles = ('openstack', 'openstack_controller')
-    option_list = [("log", "gathers openstack trove logs", "slow", True)]
+    option_list = []
 
     def setup(self):
-        self.add_copy_spec('/etc/trove/')
 
-        if self.get_option('log'):
-            self.add_copy_spec('/var/log/trove')
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/trove/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/trove/*.log",
+                                     sizelimit=self.limit)
+
+        self.add_copy_spec('/etc/trove/')
 
     def postproc(self):
 
