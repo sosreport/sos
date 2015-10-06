@@ -22,14 +22,19 @@ class OpenStackSahara(Plugin):
     plugin_name = 'openstack_sahara'
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack sahara logs", "slow", True)]
+    option_list = []
 
     def setup(self):
         self.add_copy_spec("/etc/sahara/")
         self.add_cmd_output("journalctl -u openstack-sahara-all")
 
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/sahara/")
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/sahara/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/sahara/*.log",
+                                     sizelimit=self.limit)
 
     def postproc(self):
         protect_keys = [
