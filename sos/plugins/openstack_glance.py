@@ -25,7 +25,7 @@ class OpenStackGlance(Plugin):
     plugin_name = "openstack_glance"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack-glance logs", "slow", False)]
+    option_list = []
 
     def setup(self):
         # Glance
@@ -33,10 +33,16 @@ class OpenStackGlance(Plugin):
             "glance-manage db_version",
             suggest_filename="glance_db_version"
         )
-        self.add_copy_spec([
-            "/etc/glance/",
-            "/var/log/glance/"
-        ])
+
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/glance/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/glance/*.log",
+                                     sizelimit=self.limit)
+
+        self.add_copy_spec("/etc/glance/")
 
     def postproc(self):
         protect_keys = [
