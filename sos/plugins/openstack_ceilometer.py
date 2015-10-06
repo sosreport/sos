@@ -26,14 +26,18 @@ class OpenStackCeilometer(Plugin):
     plugin_name = "openstack_ceilometer"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
-    option_list = [("log", "gathers openstack-ceilometer logs", "slow", False)]
+    option_list = []
 
     def setup(self):
         # Ceilometer
-        self.add_copy_spec([
-            "/etc/ceilometer/",
-            "/var/log/ceilometer"
-        ])
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/ceilometer/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/ceilometer/*.log",
+                                     sizelimit=self.limit)
+        self.add_copy_spec("/etc/ceilometer/")
 
     def postproc(self):
         protect_keys = [
