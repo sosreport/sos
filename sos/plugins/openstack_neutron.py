@@ -33,8 +33,7 @@ class OpenStackNeutron(Plugin):
     plugin_name = "openstack_neutron"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
-    option_list = [("log", "Gathers all Neutron logs", "slow", False),
-                   ("quantum", "Overrides checks for newer Neutron components",
+    option_list = [("quantum", "Overrides checks for newer Neutron components",
                     "fast", False)]
 
     component_name = "neutron"
@@ -43,10 +42,15 @@ class OpenStackNeutron(Plugin):
         if not os.path.exists("/etc/neutron/") or self.get_option("quantum"):
             self.component_name = "quantum"
 
-        self.add_copy_spec([
-            "/etc/%s/" % self.component_name,
-            "/var/log/%s/" % self.component_name
-        ])
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/%s/" % self.component_name,
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/%s/*.log" % self.component_name,
+                                     sizelimit=self.limit)
+
+        self.add_copy_spec("/etc/%s/" % self.component_name)
 
         self.netns_dumps()
 
