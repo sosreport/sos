@@ -23,8 +23,7 @@ class OpenStackKeystone(Plugin):
     plugin_name = "openstack_keystone"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack keystone logs", "slow", True),
-                   ("nopw", "dont gathers keystone passwords", "slow", True)]
+    option_list = [("nopw", "dont gathers keystone passwords", "slow", True)]
 
     def setup(self):
         self.add_copy_spec([
@@ -34,8 +33,13 @@ class OpenStackKeystone(Plugin):
             "/etc/keystone/policy.json"
         ])
 
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/keystone/")
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/keystone/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/keystone/*.log",
+                                     sizelimit=self.limit)
 
     def postproc(self):
         protect_keys = [
