@@ -42,7 +42,7 @@ class OpenStackIronic(Plugin):
             self.do_path_regex_sub(conf, regexp, r"\1*********")
 
 
-class DebianOpenStackIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):
+class DebianIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):
 
     packages = [
         'ironic-api',
@@ -51,10 +51,10 @@ class DebianOpenStackIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):
     ]
 
     def setup(self):
-        super(DebianOpenStackIronic, self).setup()
+        super(DebianIronic, self).setup()
 
 
-class RedHatOpenStackIronic(OpenStackIronic, RedHatPlugin):
+class RedHatIronic(OpenStackIronic, RedHatPlugin):
 
     packages = [
         'openstack-ironic-api',
@@ -68,7 +68,7 @@ class RedHatOpenStackIronic(OpenStackIronic, RedHatPlugin):
     ]
 
     def setup(self):
-        super(RedHatOpenStackIronic, self).setup()
+        super(RedHatIronic, self).setup()
 
         # is the optional ironic-discoverd service installed?
         if any([self.is_installed(p) for p in self.discoverd_packages]):

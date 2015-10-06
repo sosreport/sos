@@ -111,7 +111,7 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         return self.nova
 
     def setup(self):
-        super(DebianOpenStackNova, self).setup()
+        super(DebianNova, self).setup()
         self.add_copy_spec(["/etc/sudoers.d/nova_sudoers"])
 
 
@@ -141,7 +141,7 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
         return self.nova
 
     def setup(self):
-        super(RedHatOpenStackNova, self).setup()
+        super(RedHatNova, self).setup()
         self.add_copy_spec([
             "/etc/logrotate.d/openstack-nova",
             "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",

@@ -78,7 +78,7 @@ class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
         return self.cinder
 
     def setup(self):
-        super(DebianOpenStackCinder, self).setup()
+        super(DebianCinder, self).setup()
 
 
 class RedHatCinder(OpenStackCinder, RedHatPlugin):
@@ -93,7 +93,7 @@ class RedHatCinder(OpenStackCinder, RedHatPlugin):
         return self.cinder
 
     def setup(self):
-        super(RedHatOpenStackCinder, self).setup()
+        super(RedHatCinder, self).setup()
         self.add_copy_spec(["/etc/sudoers.d/cinder"])
 
 

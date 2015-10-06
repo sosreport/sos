@@ -54,7 +54,7 @@ class DebianTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
     ]
 
     def setup(self):
-        super(DebianOpenStackTrove, self).setup()
+        super(DebianTrove, self).setup()
 
 
 class RedHatTrove(OpenStackTrove, RedHatPlugin):
@@ -62,6 +62,6 @@ class RedHatTrove(OpenStackTrove, RedHatPlugin):
     packages = ['openstack-trove']
 
     def setup(self):
-        super(RedHatOpenStackTrove, self).setup()
+        super(RedHatTrove, self).setup()
 
 # vim: set et ts=4 sw=4 :

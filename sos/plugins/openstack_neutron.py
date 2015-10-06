@@ -27,7 +27,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 # info...
 
 
-class Neutron(Plugin):
+class OpenStackNeutron(Plugin):
     """OpenStack Networking
     """
     plugin_name = "openstack_neutron"
@@ -131,7 +131,7 @@ class Neutron(Plugin):
         return tuple(names)
 
 
-class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
+class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
     package_list_template = [
         '%(comp)s-common',
         '%(comp)s-plugin-cisco',
@@ -155,7 +155,7 @@ class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/etc/sudoers.d/%s_sudoers" % self.component_name)
 
 
-class RedHatNeutron(Neutron, RedHatPlugin):
+class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
 
     package_list_template = [
         'openstack-%(comp)s',

@@ -62,7 +62,7 @@ class OpenStackInstack(Plugin):
                          r"\1*********")
 
 
-class RedHatOpenStackRDOManager(OpenStackInstack, RedHatPlugin):
+class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
 
     packages = [
         'instack',
@@ -70,6 +70,6 @@ class RedHatOpenStackRDOManager(OpenStackInstack, RedHatPlugin):
     ]
 
     def setup(self):
-        super(RedHatOpenStackRDOManager, self).setup()
+        super(RedHatRDOManager, self).setup()
 
 # vim: set et ts=4 sw=4 :
