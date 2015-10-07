@@ -43,10 +43,9 @@ class Neutron(Plugin):
         if not os.path.exists("/etc/neutron/") or self.get_option("quantum"):
             self.component_name = "quantum"
 
-        self.add_copy_spec([
-            "/etc/%s/" % self.component_name,
-            "/var/log/%s/" % self.component_name
-        ])
+        self.add_copy_spec("/etc/%s/" % self.component_name)
+        if self.get_option("log"):
+            self.add_copy_spec("/var/log/%s/" % self.component_name)
 
         self.netns_dumps()
 

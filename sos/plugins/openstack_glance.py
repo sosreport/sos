@@ -33,10 +33,9 @@ class OpenStackGlance(Plugin):
             "glance-manage db_version",
             suggest_filename="glance_db_version"
         )
-        self.add_copy_spec([
-            "/etc/glance/",
-            "/var/log/glance/"
-        ])
+        self.add_copy_spec("/etc/glance/")
+        if self.get_option("log"):
+            self.add_copy_spec("/var/log/glance/")
 
     def postproc(self):
         protect_keys = [
