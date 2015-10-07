@@ -34,6 +34,7 @@ class Docker(Plugin):
         ])
 
         self.add_cmd_output([
+            "journalctl -u docker",
             "{0} info".format(self.docker_bin),
             "{0} ps".format(self.docker_bin),
             "{0} images".format(self.docker_bin)
