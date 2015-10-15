@@ -27,17 +27,17 @@ class RedHatAccessInsights(Plugin, RedHatPlugin):
         log_size = self.get_option('log_size')
         self.add_copy_spec(self.conf_file)
         self.add_copy_spec_limit('/var/log/redhat-access-insights/*.log',
-			         sizelimit=log_size)
+                                 sizelimit=log_size)
 
     def postproc(self):
         self.do_file_sub(
             self.conf_file,
             r'(password[\t\ ]*=[\t\ ]*)(.+)',
             r'\1********'
-	)
+        )
 
         self.do_file_sub(
             self.conf_file,
             r'(proxy[\t\ ]*=.*)(:)(.*)(@.*)',
             r'\1\2********\4'
-	)
+        )
