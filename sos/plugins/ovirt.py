@@ -193,7 +193,8 @@ class Ovirt(Plugin, RedHatPlugin):
         protect_keys = [
             "vars.password",
             "pool.default.auth.simple.password",
-            "pool.default.ssl.truststore.password"
+            "pool.default.ssl.truststore.password",
+            "config.datasource.dbpassword"
         ]
         regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
