@@ -42,6 +42,7 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "ps auxwwwm",
             "ps alxwww",
+            "ps -elfL",
             "%s %s" % (ps_axo, ps_group_opts),
             "%s %s" % (ps_axo, ps_sched_opts)
         ])
