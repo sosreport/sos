@@ -147,5 +147,10 @@ class Openshift(Plugin, RedHatPlugin):
         self.do_file_sub(plugin_dir + 'openshift-origin-dns-nsupdate.conf',
                          r"(BIND_KEYVALUE\s*=\s*)(.*)",
                          r"\1********")
+        # LDAP authentication:  AuthLDAPBindPassword "IShouldNotBeHere"
+        ldap_paths = '/var/www/openshift/(broker|console)/httpd/conf.d/.*'
+        self.do_path_regex_sub(ldap_paths,
+                               r"(AuthLDAPBindPassword)\s*(.*)",
+                               r"\1********")
 
 # vim: set et ts=4 sw=4 :
