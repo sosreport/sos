@@ -10,7 +10,6 @@ from os import environ
 
 from sos.utilities import (ImporterHelper,
                            import_module,
-                           get_hash_name,
                            shell_out)
 from sos.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
@@ -286,17 +285,17 @@ No changes will be made to system configuration.
         considered to be a superuser"""
         return (os.getuid() == 0)
 
-    def _create_checksum(self, final_filename=None):
+    def _create_checksum(self, hash_name, final_filename=None):
         if not final_filename:
             return False
 
         archive_fp = open(final_filename, 'rb')
-        digest = hashlib.new(get_hash_name())
+        digest = hashlib.new(hash_name)
         digest.update(archive_fp.read())
         archive_fp.close()
         return digest.hexdigest()
 
-    def get_preferred_hash_algorithm(self):
+    def get_preferred_hash_name(self):
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""
         return "md5"
@@ -309,10 +308,11 @@ No changes will be made to system configuration.
 
         self._print()
 
+        hash_name = self.get_preferred_hash_name()
         if not build:
             # store checksum into file
-            fp = open(final_filename + "." + get_hash_name(), "w")
-            checksum = self._create_checksum(final_filename)
+            fp = open(final_filename + "." + hash_name, "w")
+            checksum = self._create_checksum(hash_name, final_filename)
             if checksum:
                 fp.write(checksum + "\n")
             fp.close()
@@ -373,20 +373,28 @@ class LinuxPolicy(Policy):
     vendor = "None"
     PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
 
+    _preferred_hash_name = None
+
     def __init__(self, sysroot=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot)
 
-    def get_preferred_hash_algorithm(self):
+    def get_preferred_hash_name(self):
+
+        if self._preferred_hash_name:
+            return self._preferred_hash_name
+
         checksum = "md5"
         try:
             fp = open("/proc/sys/crypto/fips_enabled", "r")
         except:
+            self._preferred_hash_name = checksum
             return checksum
 
         fips_enabled = fp.read()
         if fips_enabled.find("1") >= 0:
             checksum = "sha256"
         fp.close()
+        self._preferred_hash_name = checksum
         return checksum
 
     def default_runlevel(self):
