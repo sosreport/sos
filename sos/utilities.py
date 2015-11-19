@@ -52,18 +52,6 @@ def fileobj(path_or_file, mode='r'):
         return closing(path_or_file)
 
 
-def get_hash_name():
-    """Returns the algorithm used when computing a hash"""
-    import sos.policies
-    policy = sos.policies.load()
-    try:
-        name = policy.get_preferred_hash_algorithm()
-        hashlib.new(name)
-        return name
-    except:
-        return 'sha256'
-
-
 def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
     """Converts a number of bytes to a shorter, more human friendly format"""
     fn = float(bytes_)

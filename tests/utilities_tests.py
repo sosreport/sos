@@ -5,7 +5,7 @@ import unittest
 import six
 from six import StringIO
 
-from sos.utilities import grep, get_hash_name, is_executable, sos_get_command_output, find, tail, shell_out
+from sos.utilities import grep, is_executable, sos_get_command_output, find, tail, shell_out
 import sos
 
 TEST_DIR = os.path.dirname(__file__)
