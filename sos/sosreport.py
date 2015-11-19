@@ -33,6 +33,7 @@ from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
 import tempfile
+import hashlib
 
 from sos import _sos as _
 from sos import __version__
@@ -1432,6 +1433,18 @@ class SoSReport(object):
                     raise
                 self._log_plugin_exception(plugname, "postproc")
 
+    def _create_checksum(self, archive=None):
+        if not archive:
+            return False
+
+        hash_name = self.policy.get_preferred_hash_name()
+
+        archive_fp = open(archive, 'rb')
+        digest = hashlib.new(hash_name)
+        digest.update(archive_fp.read())
+        archive_fp.close()
+        return digest.hexdigest()
+
     def final_work(self):
         # this must come before archive creation to ensure that log
         # files are closed and cleaned up at exit.
@@ -1466,7 +1479,18 @@ class SoSReport(object):
         else:
             directory = self.archive.get_archive_path()
 
-        self.policy.display_results(archive, directory)
+        hash_name = self.policy.get_preferred_hash_name()
+        checksum = None
+
+        if hash_name and not self.opts.build:
+            # store checksum into file
+            fp = open(archive + "." + hash_name, "w")
+            checksum = self._create_checksum(archive)
+            if checksum:
+                fp.write(checksum + "\n")
+            fp.close()
+
+        self.policy.display_results(archive, directory, checksum)
 
         self.tempfile_util.clean()
         return True
