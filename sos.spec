@@ -47,7 +47,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %{python_sitelib}/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
-%doc AUTHORS README.md LICENSE 
+%doc AUTHORS README.md LICENSE
+%doc /usr/share/doc/sos/html
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
