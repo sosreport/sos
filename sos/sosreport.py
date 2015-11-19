@@ -1436,6 +1436,10 @@ class SoSReport(object):
         # this must come before archive creation to ensure that log
         # files are closed and cleaned up at exit.
         self._finish_logging()
+
+        archive = None    # archive path
+        directory = None  # report directory path (--build)
+
         # package up the results for the support organization
         if not self.opts.build:
             old_umask = os.umask(0o077)
@@ -1443,7 +1447,7 @@ class SoSReport(object):
                 print(_("Creating compressed archive..."))
             # compression could fail for a number of reasons
             try:
-                final_filename = self.archive.finalize(
+                archive = self.archive.finalize(
                     self.opts.compression_type)
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
@@ -1460,8 +1464,10 @@ class SoSReport(object):
             finally:
                 os.umask(old_umask)
         else:
-            final_filename = self.archive.get_archive_path()
-        self.policy.display_results(final_filename, build=self.opts.build)
+            directory = self.archive.get_archive_path()
+
+        self.policy.display_results(archive, directory)
+
         self.tempfile_util.clean()
         return True
 

@@ -285,11 +285,11 @@ No changes will be made to system configuration.
         considered to be a superuser"""
         return (os.getuid() == 0)
 
-    def _create_checksum(self, hash_name, final_filename=None):
-        if not final_filename:
+    def _create_checksum(self, hash_name, archive=None):
+        if not archive:
             return False
 
-        archive_fp = open(final_filename, 'rb')
+        archive_fp = open(archive, 'rb')
         digest = hashlib.new(hash_name)
         digest.update(archive_fp.read())
         archive_fp.close()
@@ -300,29 +300,33 @@ No changes will be made to system configuration.
         to use"""
         return "md5"
 
-    def display_results(self, final_filename=None, build=False):
+    def display_results(self, archive, directory):
+        # Display results is called from the tail of SoSReport.final_work()
+        #
+        # Logging is already shutdown and all terminal output must use the
+        # print() call.
 
         # make sure a report exists
-        if not final_filename:
+        if not archive and not directory:
             return False
 
         self._print()
 
         hash_name = self.get_preferred_hash_name()
-        if not build:
+        if archive:
             # store checksum into file
-            fp = open(final_filename + "." + hash_name, "w")
-            checksum = self._create_checksum(hash_name, final_filename)
+            fp = open(archive + "." + hash_name, "w")
+            checksum = self._create_checksum(hash_name, archive)
             if checksum:
                 fp.write(checksum + "\n")
             fp.close()
 
             self._print(_("Your sosreport has been generated and saved "
-                        "in:\n  %s") % final_filename)
+                        "in:\n  %s") % archive)
         else:
             checksum = None
             self._print(_("sosreport build tree is located at : %s" %
-                        final_filename))
+                        directory))
 
         self._print()
         if checksum:
