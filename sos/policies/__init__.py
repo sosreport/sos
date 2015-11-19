@@ -13,7 +13,6 @@ from sos.utilities import (ImporterHelper,
                            shell_out)
 from sos.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
-import hashlib
 from textwrap import fill
 from six import print_
 from six.moves import input
@@ -285,22 +284,12 @@ No changes will be made to system configuration.
         considered to be a superuser"""
         return (os.getuid() == 0)
 
-    def _create_checksum(self, hash_name, archive=None):
-        if not archive:
-            return False
-
-        archive_fp = open(archive, 'rb')
-        digest = hashlib.new(hash_name)
-        digest.update(archive_fp.read())
-        archive_fp.close()
-        return digest.hexdigest()
-
     def get_preferred_hash_name(self):
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""
         return "md5"
 
-    def display_results(self, archive, directory):
+    def display_results(self, archive, directory, checksum):
         # Display results is called from the tail of SoSReport.final_work()
         #
         # Logging is already shutdown and all terminal output must use the
@@ -312,19 +301,10 @@ No changes will be made to system configuration.
 
         self._print()
 
-        hash_name = self.get_preferred_hash_name()
         if archive:
-            # store checksum into file
-            fp = open(archive + "." + hash_name, "w")
-            checksum = self._create_checksum(hash_name, archive)
-            if checksum:
-                fp.write(checksum + "\n")
-            fp.close()
-
             self._print(_("Your sosreport has been generated and saved "
                         "in:\n  %s") % archive)
         else:
-            checksum = None
             self._print(_("sosreport build tree is located at : %s" %
                         directory))
 
