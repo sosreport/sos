@@ -32,6 +32,7 @@ from sos.utilities import ImporterHelper
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
+from shutil import rmtree
 import tempfile
 import hashlib
 
@@ -678,6 +679,7 @@ class SoSReport(object):
         self.tempfile_util = None
         self._args = args
         self.sysroot = "/"
+        self.sys_tmp = None
 
         try:
             import signal
@@ -696,16 +698,23 @@ class SoSReport(object):
 
         self._is_root = self.policy.is_root()
 
-        self.tmpdir = os.path.abspath(
-            self.policy.get_tmp_dir(self.opts.tmp_dir))
-        if not os.path.isdir(self.tmpdir) \
-                or not os.access(self.tmpdir, os.W_OK):
-            msg = "temporary directory %s " % self.tmpdir
+        # system temporary directory to use
+        tmp = os.path.abspath(self.policy.get_tmp_dir(self.opts.tmp_dir))
+
+        if not os.path.isdir(tmp) \
+                or not os.access(tmp, os.W_OK):
+            msg = "temporary directory %s " % tmp
             msg += "does not exist or is not writable\n"
             # write directly to stderr as logging is not initialised yet
             sys.stderr.write(msg)
             self._exit(1)
+
+        self.sys_tmp = tmp
+
+        # our (private) temporary directory
+        self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=self.sys_tmp)
         self.tempfile_util = TempFileUtil(self.tmpdir)
+
         self._set_directories()
 
         self._setup_logging()
@@ -1433,11 +1442,9 @@ class SoSReport(object):
                     raise
                 self._log_plugin_exception(plugname, "postproc")
 
-    def _create_checksum(self, archive=None):
+    def _create_checksum(self, archive, hash_name):
         if not archive:
             return False
-
-        hash_name = self.policy.get_preferred_hash_name()
 
         archive_fp = open(archive, 'rb')
         digest = hashlib.new(hash_name)
@@ -1445,15 +1452,24 @@ class SoSReport(object):
         archive_fp.close()
         return digest.hexdigest()
 
+    def _write_checksum(self, archive, hash_name, checksum):
+            # store checksum into file
+            fp = open(archive + "." + hash_name, "w")
+            if checksum:
+                fp.write(checksum + "\n")
+            fp.close()
+
     def final_work(self):
-        # this must come before archive creation to ensure that log
+        # This must come before archive creation to ensure that log
         # files are closed and cleaned up at exit.
+        #
+        # All subsequent terminal output must use print().
         self._finish_logging()
 
         archive = None    # archive path
         directory = None  # report directory path (--build)
 
-        # package up the results for the support organization
+        # package up and compress the results
         if not self.opts.build:
             old_umask = os.umask(0o077)
             if not self.opts.quiet:
@@ -1464,10 +1480,9 @@ class SoSReport(object):
                     self.opts.compression_type)
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
-                    self.ui_log.error("")
-                    self.ui_log.error(" %s while finalizing archive"
-                                      % e.strerror)
-                    self.ui_log.error("")
+                    print("")
+                    print(_(" %s while finalizing archive" % e.strerror))
+                    print("")
                     self._exit(1)
             except:
                 if self.opts.debug:
@@ -1477,18 +1492,55 @@ class SoSReport(object):
             finally:
                 os.umask(old_umask)
         else:
+            # move the archive root out of the private tmp directory.
             directory = self.archive.get_archive_path()
+            dir_name = os.path.basename(directory)
+            try:
+                os.rename(directory, os.path.join(self.sys_tmp, dir_name))
+            except (OSError, IOError):
+                    print(_("Error moving directory: %s" % directory))
+                    return False
 
-        hash_name = self.policy.get_preferred_hash_name()
         checksum = None
 
-        if hash_name and not self.opts.build:
-            # store checksum into file
-            fp = open(archive + "." + hash_name, "w")
-            checksum = self._create_checksum(archive)
-            if checksum:
-                fp.write(checksum + "\n")
-            fp.close()
+        if not self.opts.build:
+            # compute and store the archive checksum
+            hash_name = self.policy.get_preferred_hash_name()
+            checksum = self._create_checksum(archive, hash_name)
+            self._write_checksum(archive, hash_name, checksum)
+
+            # output filename is in the private tmpdir - move it to the
+            # containing directory.
+            final_name = os.path.join(self.sys_tmp, os.path.basename(archive))
+
+            archive_hash = archive + "." + hash_name
+            final_hash = final_name + "." + hash_name
+
+            # move the archive and checksum file
+            try:
+                    os.rename(archive, final_name)
+                    archive = final_name
+            except (OSError, IOError):
+                    print(_("Error moving archive file: %s" % archive))
+                    return False
+
+            # There is a race in the creation of the final checksum file:
+            # since the archive has already been published and the checksum
+            # file name is predictable once the archive name is known a
+            # malicious user could attempt to create a symbolic link in order
+            # to misdirect writes to a file of the attacker's choosing.
+            #
+            # To mitigate this we write the checksum inside the private tmp
+            # directory and use an atomic rename that is guaranteed to either
+            # succeed or fail: at worst the move will fail and be reported to
+            # the user. The correct checksum value is still written to the
+            # terminal and nothing is written to a location under the control
+            # of the user creating the link.
+            try:
+                    os.rename(archive_hash, final_hash)
+            except (OSError, IOError):
+                    print(_("Error moving checksum file: %s" % archive_hash))
+                    return False
 
         self.policy.display_results(archive, directory, checksum)
 
@@ -1546,8 +1598,10 @@ class SoSReport(object):
                     self.archive.cleanup()
                 if self.tempfile_util:
                     self.tempfile_util.clean()
+                if self.tmpdir:
+                    rmtree(self.tmpdir)
             except:
-                pass
+                raise
 
         return False
 
