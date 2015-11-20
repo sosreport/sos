@@ -25,6 +25,10 @@ class Apache(Plugin):
         ("log", "gathers all apache logs", "slow", False)
     ]
 
+    def setup(self):
+        # collect list of installed modules
+        self.add_cmd_output(["apachectl -M"])
+
 
 class RedHatApache(Apache, RedHatPlugin):
     files = ('/etc/httpd/conf/httpd.conf',
