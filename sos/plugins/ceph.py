@@ -40,6 +40,8 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/ceph/",
             "/var/log/ceph/",
+            "/var/lib/ceph/",
+            "/var/run/ceph/",
             "/etc/calamari/",
             "/var/log/calamari",
             "/var/log/radosgw"
@@ -58,7 +60,10 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         ])
 
         self.add_forbidden_path("/etc/ceph/*keyring")
-        self.add_forbidden_path("/var/lib/ceph/*/*keyring")
         self.add_forbidden_path("/var/lib/ceph/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/*/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/*/*/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/osd/*")
+        self.add_forbidden_path("/var/lib/ceph/osd/mon/*")
 
 # vim: set et ts=4 sw=4 :
