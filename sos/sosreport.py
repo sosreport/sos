@@ -1544,7 +1544,12 @@ class SoSReport(object):
 
         self.policy.display_results(archive, directory, checksum)
 
-        self.tempfile_util.clean()
+        # clean up
+        if self.tempfile_util:
+            self.tempfile_util.clean()
+        if self.tmpdir:
+            rmtree(self.tmpdir)
+
         return True
 
     def verify_plugins(self):
