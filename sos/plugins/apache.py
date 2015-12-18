@@ -31,9 +31,11 @@ class Apache(Plugin):
 
 
 class RedHatApache(Apache, RedHatPlugin):
-    files = ('/etc/httpd/conf/httpd.conf',
-             '/etc/httpd22/conf/httpd.conf',
-             '/etc/httpd24/conf/httpd.conf')
+    files = (
+        '/etc/httpd/conf/httpd.conf',
+        '/etc/httpd22/conf/httpd.conf',
+        '/etc/httpd24/conf/httpd.conf'
+    )
 
     def setup(self):
         super(RedHatApache, self).setup()
