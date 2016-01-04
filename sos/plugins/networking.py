@@ -149,7 +149,7 @@ class Networking(Plugin):
             "ip -6 route show table all",
             "ip -4 rule",
             "ip -6 rule",
-            "ip link",
+            "ip -s link",
             "ip address",
             "ifenslave -a",
             "ip mroute show",
