@@ -23,39 +23,54 @@ class Docker(Plugin):
 
     plugin_name = 'docker'
     profiles = ('virt',)
-    docker_bin = "docker"
+    docker_cmd = "docker"
 
-    option_list = [("all", "capture all container logs even the "
-                    "terminated ones", 'fast', False)]
+    option_list = [
+        ("all", "enable capture for all containers, even containers "
+            "that have terminated", 'fast', False),
+        ("logs", "capture logs for running containers",
+            'fast', False)
+    ]
 
     def setup(self):
         self.add_copy_spec([
             "/var/lib/docker/repositories-*"
         ])
 
-        self.add_cmd_output([
-            "{0} info".format(self.docker_bin),
-            "{0} ps".format(self.docker_bin),
-            "{0} images".format(self.docker_bin)
-        ])
+        for subcmd in ['info', 'ps', 'ps -a', 'images', 'version']:
+            self.add_cmd_output(
+                "{0} {1}".format(self.docker_cmd, subcmd)
+            )
+
         self.add_journal(units="docker")
 
-        ps_cmd = "{0} ps".format(self.docker_bin)
+        ps_cmd = "{0} ps -q".format(self.docker_cmd)
         if self.get_option('all'):
             ps_cmd = "{0} -a".format(ps_cmd)
 
         result = self.get_command_output(ps_cmd)
         if result['status'] == 0:
-            for line in result['output'].splitlines()[1:]:
-                container_id = line.split(" ")[0]
-                self.add_cmd_output([
-                    "{0} logs {1}".format(self.docker_bin, container_id)
-                ])
+            containers = [c for c in result['output'].splitlines()]
+            for container in containers:
+                self.add_cmd_output(
+                    "{0} inspect {1}".format(
+                        self.docker_cmd,
+                        container
+                    )
+                )
+            if self.get_option('logs'):
+                for container in containers:
+                    self.add_cmd_output(
+                        "{0} logs {1}".format(
+                            self.docker_cmd,
+                            container
+                        )
+                    )
 
 
 class RedHatDocker(Docker, RedHatPlugin):
 
-    packages = ('docker', 'docker-io')
+    packages = ('docker', 'docker-latest', 'docker-io', 'docker-engine')
 
     def setup(self):
         super(RedHatDocker, self).setup()
@@ -67,10 +82,10 @@ class RedHatDocker(Docker, RedHatPlugin):
 
 class UbuntuDocker(Docker, UbuntuPlugin):
 
-    packages = ('docker.io',)
+    packages = ('docker.io', 'docker-engine')
 
     # Name collision with another package requires docker binary rename
-    docker_bin = 'docker.io'
+    docker_cmd = 'docker.io'
 
     def setup(self):
         super(UbuntuDocker, self).setup()
