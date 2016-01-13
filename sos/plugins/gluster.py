@@ -15,6 +15,7 @@
 import time
 import os.path
 import os
+import glob
 import string
 from sos.plugins import Plugin, RedHatPlugin
 
@@ -92,7 +93,7 @@ class Gluster(Plugin, RedHatPlugin):
             "/etc/glusterfs",
             "/var/lib/glusterd/",
             "/var/log/glusterfs"
-        ])
+        ] + glob.glob('/var/run/gluster/*tier-dht/*'))
 
         self.make_preparations(self.statedump_dir)
         if self.check_ext_prog("killall -USR1 glusterfs glusterfsd"):
