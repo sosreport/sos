@@ -26,6 +26,7 @@ except ImportError:
 
 # PYCOMPAT
 from six import iteritems
+import six
 
 
 class Node(object):
@@ -138,7 +139,7 @@ class PlainTextReport(object):
     def __init__(self, report_node):
         self.report_node = report_node
 
-    def __str__(self):
+    def unicode(self):
         self.buf = buf = []
         for section_name, section_contents in sorted(iteritems(
                 self.report_node.data)):
@@ -146,8 +147,12 @@ class PlainTextReport(object):
             for type_, format_, header in self.subsections:
                 self.process_subsection(section_contents, type_.ADDS_TO,
                                         header, format_)
-
-        return "\n".join(buf)
+        output = u'\n'.join(map(lambda i: (i if isinstance(i, six.text_type)
+                                           else six.u(i)), buf))
+        if six.PY2:
+            return output.encode('utf8')
+        else:
+            return output
 
     def process_subsection(self, section, key, header, format_):
         if key in section:

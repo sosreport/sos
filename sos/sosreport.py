@@ -1356,7 +1356,8 @@ class SoSReport(object):
             report.add(section)
         try:
             fd = self.get_temp_file()
-            fd.write(str(PlainTextReport(report)))
+            output = PlainTextReport(report).unicode()
+            fd.write(output)
             fd.flush()
             self.archive.add_file(fd.name, dest=os.path.join('sos_reports',
                                                              'sos.txt'))
