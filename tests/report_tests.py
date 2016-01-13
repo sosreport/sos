@@ -66,19 +66,19 @@ class TestPlainReport(unittest.TestCase):
         self.div = PlainTextReport.DIVIDER
 
     def test_basic(self):
-        self.assertEquals("", str(PlainTextReport(self.report)))
+        self.assertEquals("", PlainTextReport(self.report).unicode())
 
     def test_one_section(self):
         self.report.add(self.section)
 
-        self.assertEquals("plugin\n" + self.div, str(PlainTextReport(self.report)))
+        self.assertEquals("plugin\n" + self.div, PlainTextReport(self.report).unicode())
 
     def test_two_sections(self):
         section1 = Section(name="first")
         section2 = Section(name="second")
         self.report.add(section1, section2)
 
-        self.assertEquals("first\n" + self.div + "\nsecond\n" + self.div, str(PlainTextReport(self.report)))
+        self.assertEquals("first\n" + self.div + "\nsecond\n" + self.div, PlainTextReport(self.report).unicode())
 
     def test_command(self):
         cmd = Command(name="ls -al /foo/bar/baz",
@@ -88,7 +88,7 @@ class TestPlainReport(unittest.TestCase):
         self.report.add(self.section)
 
         self.assertEquals("plugin\n" + self.div + "\n-  commands executed:\n  * ls -al /foo/bar/baz",
-                str(PlainTextReport(self.report)))
+                PlainTextReport(self.report).unicode())
 
     def test_copied_file(self):
         cf = CopiedFile(name="/etc/hosts", href="etc/hosts")
@@ -96,7 +96,7 @@ class TestPlainReport(unittest.TestCase):
         self.report.add(self.section)
 
         self.assertEquals("plugin\n" + self.div + "\n-  files copied:\n  * /etc/hosts",
-                str(PlainTextReport(self.report)))
+                PlainTextReport(self.report).unicode())
 
     def test_created_file(self):
         crf = CreatedFile(name="sample.txt")
@@ -104,7 +104,7 @@ class TestPlainReport(unittest.TestCase):
         self.report.add(self.section)
 
         self.assertEquals("plugin\n" + self.div + "\n-  files created:\n  * sample.txt",
-                str(PlainTextReport(self.report)))
+                PlainTextReport(self.report).unicode())
 
     def test_alert(self):
         alrt = Alert("this is an alert")
@@ -112,7 +112,7 @@ class TestPlainReport(unittest.TestCase):
         self.report.add(self.section)
 
         self.assertEquals("plugin\n" + self.div + "\n-  alerts:\n  ! this is an alert",
-                str(PlainTextReport(self.report)))
+                PlainTextReport(self.report).unicode())
 
 if __name__ == "__main__":
     unittest.main()
