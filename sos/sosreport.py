@@ -1496,7 +1496,9 @@ class SoSReport(object):
             directory = self.archive.get_archive_path()
             dir_name = os.path.basename(directory)
             try:
-                os.rename(directory, os.path.join(self.sys_tmp, dir_name))
+                final_dir = os.path.join(self.sys_tmp, dir_name)
+                os.rename(directory, final_dir)
+                directory = final_dir
             except (OSError, IOError):
                     print(_("Error moving directory: %s" % directory))
                     return False
