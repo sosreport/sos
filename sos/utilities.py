@@ -18,7 +18,6 @@ import os
 import re
 import inspect
 from subprocess import Popen, PIPE, STDOUT
-import hashlib
 import logging
 import fnmatch
 import errno
