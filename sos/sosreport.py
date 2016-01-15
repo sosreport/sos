@@ -636,7 +636,9 @@ class SoSOptions(object):
                           dest="profiles", type="string", default=deque(),
                           help="enable plugins selected by the given profiles")
         parser.add_option("--list-profiles", action="store_true",
-                          dest="list_profiles", default=False)
+                          dest="list_profiles", default=False,
+                          help="display a list of available profiles and "
+                               "plugins that they include")
         parser.add_option("--name", action="store",
                           dest="customer_name",
                           help="specify report name")
