@@ -680,6 +680,7 @@ class SoSReport(object):
         self._args = args
         self.sysroot = "/"
         self.sys_tmp = None
+        self.exit_process = False
 
         try:
             import signal
@@ -808,8 +809,15 @@ class SoSReport(object):
 
     def get_exit_handler(self):
         def exit_handler(signum, frame):
+            self.exit_process = True
             self._exit()
         return exit_handler
+
+    def handle_exception(self, plugname=None, func=None):
+        if self.raise_plugins or self.exit_process:
+            raise
+        if plugname and func:
+            self._log_plugin_exception(plugname, func)
 
     def _read_config(self):
         self.config = ConfigParser()
@@ -951,6 +959,7 @@ class SoSReport(object):
                     continue
 
                 plugin_class = self.policy.match_plugin(plugin_classes)
+
                 if not validate_plugin(plugin_class,
                                        experimental=self.opts.experimental):
                     self.soslog.warning(
@@ -996,13 +1005,11 @@ class SoSReport(object):
                 for i in plugin_class.profiles:
                     if i in remaining_profiles:
                         remaining_profiles.remove(i)
-
                 self._load(plugin_class)
             except Exception as e:
                 self.soslog.warning(_("plugin %s does not install, "
                                       "skipping: %s") % (plug, e))
-                if self.raise_plugins:
-                    raise
+                self.handle_exception()
         if len(remaining_profiles) > 0:
             self.soslog.error(_("Unknown or inactive profile(s) provided:"
                                 " %s") % ", ".join(remaining_profiles))
@@ -1237,13 +1244,9 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "setup")
+                self.handle_exception(plugname, "setup")
             except:
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "setup")
+                self.handle_exception(plugname, "setup")
 
     def version(self):
         """Fetch version information from all plugins and store in the report
@@ -1251,8 +1254,10 @@ class SoSReport(object):
 
         versions = []
         versions.append("sosreport: %s" % __version__)
+
         for plugname, plug in self.loaded_plugins:
             versions.append("%s: %s" % (plugname, plug.version))
+
         self.archive.add_string(content="\n".join(versions),
                                 dest='version.txt')
 
@@ -1285,13 +1290,9 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "collect")
+                self.handle_exception(plugname, "collect")
             except:
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "collect")
+                self.handle_exception(plugname, "collect")
         self.ui_log.info("")
 
     def report(self):
@@ -1414,8 +1415,7 @@ class SoSReport(object):
             try:
                 html = plug.report()
             except:
-                if self.raise_plugins:
-                    raise
+                self.handle_exception()
             else:
                 rfd.write(html)
         rfd.write("</body></html>")
@@ -1434,13 +1434,9 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "postproc")
+                self.handle_exception(plugname, "postproc")
             except:
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "postproc")
+                self.handle_exception(plugname, "postproc")
 
     def _create_checksum(self, archive, hash_name):
         if not archive:
