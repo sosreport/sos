@@ -28,6 +28,9 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
             "/proc/cgroups",
             "/sys/fs/cgroup"
         ])
+
+        self.add_cmd_output("systemd-cgls")
+
         return
 
 
