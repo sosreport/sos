@@ -651,7 +651,7 @@ class SoSOptions(object):
                           default=None)
         parser.add_option("--no-report", action="store_true",
                           dest="noreport",
-                          help="Disable HTML/XML reporting", default=False)
+                          help="disable HTML/XML reporting", default=False)
         parser.add_option("-s", "--sysroot", action="store", dest="sysroot",
                           help="system root directory path (default='/')",
                           default=None)
