@@ -49,9 +49,9 @@ from six.moves import zip, input
 from six import print_
 
 if six.PY3:
-    from configparser import ConfigParser
+    from configparser import ConfigParser, ParsingError, Error
 else:
-    from ConfigParser import ConfigParser
+    from ConfigParser import ConfigParser, ParsingError, Error
 
 # file system errors that should terminate a run
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
@@ -817,10 +817,17 @@ class SoSReport(object):
             config_file = self.opts.config_file
         else:
             config_file = '/etc/sos.conf'
+
         try:
-            self.config.readfp(open(config_file))
-        except IOError:
-            pass
+            try:
+                with open(config_file) as f:
+                    self.config.readfp(f)
+            except (ParsingError, Error) as e:
+                raise exit('Failed to parse configuration '
+                           'file %s' % config_file)
+        except (OSError, IOError) as e:
+            raise exit('Unable to read configuration file %s '
+                       ': %s' % (config_file, e.args[1]))
 
     def _setup_logging(self):
         # main soslog
