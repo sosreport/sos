@@ -183,9 +183,9 @@ No changes will be made to system configuration.
     def rhn_username(self):
         try:
             # cfg = config.initUp2dateConfig()
-
-            return rpclib.xmlrpclib.loads(
+            rhn_username = rpclib.xmlrpclib.loads(
                 up2dateAuth.getSystemId())[0][0]['username']
+            return rhn_username.encode('utf-8', 'ignore')
         except:
             # ignore any exception and return an empty username
             return ""
