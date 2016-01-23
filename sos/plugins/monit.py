@@ -23,7 +23,7 @@ class Monit(Plugin, RedHatPlugin):
     """Monit monitoring daemon
     """
     packages = ('monit',)
-    profiles = ('system')
+    profiles = ('system',)
     plugin_name = 'monit'
 
     # Define configuration files
