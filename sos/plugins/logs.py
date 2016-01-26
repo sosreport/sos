@@ -33,6 +33,7 @@ class Logs(Plugin):
         self.add_copy_spec_limit("/var/log/boot.log", sizelimit=self.limit)
         self.add_copy_spec_limit("/var/log/cloud-init*", sizelimit=self.limit)
         self.add_cmd_output([
+            "journalctl --disk-usage",
             "journalctl --all --this-boot --no-pager",
             "journalctl --all --this-boot --no-pager -o verbose",
         ])
