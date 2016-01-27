@@ -803,7 +803,7 @@ class SoSReport(object):
             pdb.pm()
 
     def _exit(self, error=0):
-        raise SystemExit()
+        raise SystemExit(error)
 #        sys.exit(error)
 
     def get_exit_handler(self):
@@ -1597,7 +1597,7 @@ class SoSReport(object):
 
             return self.final_work()
 
-        except (OSError, SystemExit, KeyboardInterrupt):
+        except (OSError, SystemExit, KeyboardInterrupt) as to_be_raised:
             try:
                 # archive and tempfile cleanup may fail due to a fatal
                 # OSError exception (ENOSPC, EROFS etc.).
@@ -1609,7 +1609,7 @@ class SoSReport(object):
                     rmtree(self.tmpdir)
             except:
                 raise
-
+            raise to_be_raised
         return False
 
 
