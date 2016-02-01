@@ -28,6 +28,8 @@ import sys
 # required for compression callout (FIXME: move to policy?)
 from subprocess import Popen, PIPE
 
+from sos.utilities import sos_get_command_output
+
 try:
     import selinux
 except ImportError:
@@ -391,7 +393,7 @@ class TarFileArchive(FileCacheArchive):
         if self.method in methods:
             methods = [self.method]
 
-        last_error = Exception("compression failed for an unknown reason")
+        last_error = Exception("compression failed")
 
         for cmd in methods:
             suffix = "." + cmd.replace('ip', '')
@@ -399,19 +401,14 @@ class TarFileArchive(FileCacheArchive):
             if cmd != "gzip":
                 cmd = "%s -1" % cmd
             try:
-                command = shlex.split("%s %s" % (cmd, self.name()))
-                p = Popen(command,
-                          stdout=PIPE,
-                          stderr=PIPE,
-                          bufsize=-1,
-                          close_fds=True)
-                stdout, stderr = p.communicate()
-                if stdout:
-                    self.log_info(stdout.decode('utf-8', 'ignore'))
-                if stderr:
-                    self.log_error(stderr.decode('utf-8', 'ignore'))
+                r = sos_get_command_output("%s %s" % (cmd, self.name()))
+
+                if r['status']:
+                    self.log_info(r['output'])
+
                 self._suffix += suffix
                 return self.name()
+
             except Exception as e:
                 last_error = e
         raise last_error
