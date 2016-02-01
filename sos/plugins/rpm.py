@@ -37,16 +37,31 @@ class Rpm(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec("/var/log/rpmpkgs")
 
+        def add_rpm_cmd(query_fmt, filter_cmd, symlink, suggest):
+            rpmq_cmd = 'rpm --nodigest -qa --qf=%s' % query_fmt
+            shell_cmd = rpmq_cmd
+            if filter_cmd:
+                shell_cmd = "sh -c '%s'" % (rpmq_cmd + "|" + filter_cmd)
+            self.add_cmd_output(shell_cmd, root_symlink=symlink,
+                                suggest_filename=suggest)
+
         if self.get_option("rpmq"):
+            # basic installed-rpms
             query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~'
-            query_fmt = query_fmt + '%{INSTALLTIME:date}\t%{INSTALLTIME}\t'
-            query_fmt = query_fmt + '%{VENDOR}\t%{BUILDHOST}\t'
-            query_fmt = query_fmt + '%{SIGPGP}\t%{SIGPGP:pgpsig}\n"'
-            rpmq_cmd = "rpm --nodigest -qa --qf=%s" % query_fmt
+            query_fmt = query_fmt + '%{INSTALLTIME:date}\n"'
+
             filter_cmd = 'awk -F "~~" ' \
-                '"{printf \\"%-59s %s\\n\\",\$1,\$2}"|sort'
-            shell_cmd = "sh -c '%s'" % (rpmq_cmd + "|" + filter_cmd)
-            self.add_cmd_output(shell_cmd, root_symlink="installed-rpms")
+                '"{printf \\"%-59s %s\\n\\",\$1,\$2}"|sort -f'
+
+            add_rpm_cmd(query_fmt, filter_cmd, "installed-rpms", None)
+
+            # extended package data
+            query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\\t'
+            query_fmt = query_fmt + '%{INSTALLTIME:date}\\t%{INSTALLTIME}\\t'
+            query_fmt = query_fmt + '%{VENDOR}\\t%{BUILDHOST}\\t'
+            query_fmt = query_fmt + '%{SIGPGP}\\t%{SIGPGP:pgpsig}\\n"'
+
+            add_rpm_cmd(query_fmt, None, None, "package-data")
 
         if self.get_option("verify"):
             if self.get_option("rpmva"):
