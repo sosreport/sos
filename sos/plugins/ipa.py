@@ -15,6 +15,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+from glob import glob
 
 
 class Ipa(Plugin, RedHatPlugin):
@@ -56,40 +57,49 @@ class Ipa(Plugin, RedHatPlugin):
             "/etc/dirsrv/slapd-*/dse.ldif",
             "/etc/dirsrv/slapd-*/schema/99user.ldif",
             "/etc/hosts",
-            "/etc/named.*"
+            "/etc/named.*",
+            "/etc/pki-ca/CS.cfg",
+            "/etc/ipa/ca.crt",
+            "/etc/ipa/default.conf",
+            "/var/lib/certmonger/requests/[0-9]*",
+            "/var/lib/certmonger/cas/[0-9]*"
         ])
 
         self.add_forbidden_path("/etc/pki/nssdb/key*")
         self.add_forbidden_path("/etc/pki-ca/flatfile.txt")
         self.add_forbidden_path("/etc/pki-ca/password.conf")
         self.add_forbidden_path("/var/lib/pki-ca/alias/key*")
-
         self.add_forbidden_path("/etc/dirsrv/slapd-*/key*")
         self.add_forbidden_path("/etc/dirsrv/slapd-*/pin.txt")
         self.add_forbidden_path("/etc/dirsrv/slapd-*/pwdfile.txt")
-
         self.add_forbidden_path("/etc/named.keytab")
 
         self.add_cmd_output([
             "ls -la /etc/dirsrv/slapd-*/schema/",
-            "ipa-getcert list",
+            "getcert list",
+            "certutil -L -d /var/lib/pki-ca/alias",
             "certutil -L -d /etc/httpd/alias/",
-            "certutil -L -d /etc/dirsrv/slapd-*/",
             "klist -ket /etc/dirsrv/ds.keytab",
             "klist -ket /etc/httpd/conf/ipa.keytab"
         ])
-
-        hostname = self.call_ext_prog('hostname')['output']
-        self.add_cmd_output([
-            "ipa-replica-manage -v list",
-            "ipa-replica-manage -v list %s" % hostname
-        ], timeout=30)
+        for certdb_directory in glob("/etc/dirsrv/slapd-*/"):
+            self.add_cmd_output(["certutil -L -d %s" % certdb_directory])
         return
 
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"
         subst = r"\1********"
         self.do_file_sub("/etc/named.conf", match, subst)
+
+        self.do_cmd_output_sub("getcert list",
+                               r"(pin=)'(\d+)'",
+                               r"\1'***'")
+
+        request_logs = "/var/lib/certmonger/requests/[0-9]*"
+        for request_log in glob(request_logs):
+            self.do_file_sub(request_log,
+                             r"(key_pin=)(\d+)",
+                             r"\1***")
 
 
 # vim: set et ts=4 sw=4 :
