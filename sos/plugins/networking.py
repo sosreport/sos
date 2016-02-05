@@ -128,6 +128,9 @@ class Networking(Plugin):
         self.add_forbidden_path("/proc/net/rpc/use-gss-proxy")
         self.add_forbidden_path("/proc/net/rpc/*/channel")
         self.add_forbidden_path("/proc/net/rpc/*/flush")
+        # Cisco CDP
+        self.add_forbidden_path("/proc/net/cdp")
+        self.add_forbidden_path("/sys/net/cdp")
 
         self.add_cmd_output("ip -o addr", root_symlink="ip_addr")
         self.add_cmd_output("route -n", root_symlink="route")
