@@ -8,6 +8,7 @@ from distutils.log import warn, info, error
 
 import glob
 import os
+import re
 import subprocess
 import sys
 
@@ -49,13 +50,18 @@ class InstallData(install_data):
       data_files.append((dest, [mo]))
     return data_files
 
-setup(name='sosreport',
+  # Workaround https://bugs.python.org/issue644744
+  def copy_file (self, filename, dirname):
+    (out, _) = install_data.copy_file(self, filename, dirname)
+    # match for man pages
+    if re.search(r'/man/man\d/.+\.\d$', out):
+      return (out+".gz", _)
+    return (out, _)
+
+setup(name='sos',
       version=VERSION,
-      description="""Set of tools to gather troubleshooting data
-      from a system Sos is a set of tools that gathers information about system 
-      hardware and configuration. The information can then be used for
-      diagnostic purposes and debugging. Sos is commonly used to help
-      support technicians and developers.""",
+      description=("""A set of tools to gather troubleshooting"""
+                   """ information from a system."""),
       author='Bryn M. Reeves',
       author_email='bmr@redhat.com',
       url='https://github.com/sosreport/sos',
