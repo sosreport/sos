@@ -63,7 +63,7 @@ class Rpm(Plugin, RedHatPlugin):
 
             add_rpm_cmd(query_fmt, None, None, "package-data")
 
-        if self.get_option("verify"):
+        if self.get_option("verify") or self.get_option("rpmva"):
             if self.get_option("rpmva"):
                 self.add_cmd_output("rpm -Va", root_symlink="rpm-Va",
                                     timeout=180)
