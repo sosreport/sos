@@ -50,14 +50,14 @@ class ExecutableTest(unittest.TestCase):
         self.assertFalse(is_executable(path))
 
     def test_exe_file(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
+        path = os.path.join(TEST_DIR, 'test_exe.sh')
         self.assertTrue(is_executable(path))
 
     def test_exe_file_abs_path(self):
         self.assertTrue(is_executable("/usr/bin/timeout"))
 
     def test_output(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
+        path = os.path.join(TEST_DIR, 'test_exe.sh')
         result = sos_get_command_output(path)
         self.assertEquals(result['status'], 0)
         self.assertEquals(result['output'], "executed\n")
@@ -71,12 +71,11 @@ class ExecutableTest(unittest.TestCase):
     def test_output_chdir(self):
         cmd = "/bin/bash -c 'echo $PWD'"
         result = sos_get_command_output(cmd, chdir=TEST_DIR)
-        print(result)
         self.assertEquals(result['status'], 0)
         self.assertEquals(result['output'].strip(), TEST_DIR)
 
     def test_shell_out(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
+        path = os.path.join(TEST_DIR, 'test_exe.sh')
         self.assertEquals("executed\n", shell_out(path))
 
 
