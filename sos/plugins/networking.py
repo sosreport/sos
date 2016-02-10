@@ -23,8 +23,10 @@ class Networking(Plugin):
     plugin_name = "networking"
     profiles = ('network', 'hardware', 'system')
     trace_host = "www.example.com"
-    option_list = [("traceroute", "collects a traceroute to %s" % trace_host,
-                    "slow", False)]
+    option_list = [(
+        ("traceroute", "collect a traceroute to %s" % trace_host, "slow",
+         False)
+    )]
 
     # switch to enable netstat "wide" (non-truncated) output mode
     ns_wide = "-W"
@@ -150,7 +152,7 @@ class Networking(Plugin):
 
         self.add_cmd_output([
             "netstat -s",
-            "netstat -agn",
+            "netstat %s -agn" % self.ns_wide,
             "ip route show table all",
             "ip -6 route show table all",
             "ip -4 rule",
@@ -312,7 +314,9 @@ class RedHatNetworking(Networking, RedHatPlugin):
             if int(netstat_pkg['version'][0]) < 2:
                 self.ns_wide = "-T"
         except:
-            pass # default to upstream option
+            # default to upstream option
+            pass
+
         super(RedHatNetworking, self).setup()
 
 
