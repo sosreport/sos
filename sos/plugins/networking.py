@@ -26,6 +26,9 @@ class Networking(Plugin):
     option_list = [("traceroute", "collects a traceroute to %s" % trace_host,
                     "slow", False)]
 
+    # switch to enable netstat "wide" (non-truncated) output mode
+    ns_wide = "-W"
+
     def get_bridge_name(self, brctl_file):
         """Return a list for which items are bridge name according to the
         output of brctl show stored in brctl_file.
@@ -141,7 +144,10 @@ class Networking(Plugin):
         self.collect_ip6table("filter")
         self.collect_ip6table("nat")
         self.collect_ip6table("mangle")
-        self.add_cmd_output("netstat -neopa", root_symlink="netstat")
+
+        self.add_cmd_output("netstat %s -neopa" % self.ns_wide,
+                            root_symlink="netstat")
+
         self.add_cmd_output([
             "netstat -s",
             "netstat -agn",
@@ -299,6 +305,14 @@ class RedHatNetworking(Networking, RedHatPlugin):
     trace_host = "rhn.redhat.com"
 
     def setup(self):
+        # Handle change from -T to -W in Red Hat netstat 2.0 and greater.
+        netstat_pkg = self.policy().package_manager.all_pkgs()['net-tools']
+        try:
+            # major version
+            if int(netstat_pkg['version'][0]) < 2:
+                self.ns_wide = "-T"
+        except:
+            pass # default to upstream option
         super(RedHatNetworking, self).setup()
 
 
