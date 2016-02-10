@@ -34,7 +34,7 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_copy_spec("/root/.virt-manager/*")
 
         # get lit of VMs/domains
-        domains_file = self.get_cmd_output_now('virsh list --all')
+        domains_file = self.get_cmd_output_now('virsh -r list --all')
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
         # empty line, and dumpxml domain name in 2nd column
