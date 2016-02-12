@@ -1097,12 +1097,14 @@ class SoSReport(object):
                                          optparm))
 
     def _report_profiles_and_plugins(self):
+        self.ui_log.info("")
         if len(self.loaded_plugins):
             self.ui_log.info(" %d profiles, %d plugins"
                              % (len(self.profiles), len(self.loaded_plugins)))
         else:
             # no valid plugins for this profile
             self.ui_log.info(" %d profiles" % len(self.profiles))
+        self.ui_log.info("")
 
     def list_plugins(self):
         if not self.loaded_plugins and not self.skipped_plugins:
@@ -1154,9 +1156,7 @@ class SoSReport(object):
         lines = _format_list("Profiles: ", profiles, indent=True)
         for line in lines:
             self.ui_log.info(" %s" % line)
-        self.ui_log.info("")
         self._report_profiles_and_plugins()
-        self.ui_log.info("")
 
     def list_profiles(self):
         if not self.profiles:
@@ -1178,9 +1178,7 @@ class SoSReport(object):
             lines = _format_list("%-15s " % profile, plugins, indent=True)
             for line in lines:
                 self.ui_log.info(" %s" % line)
-        self.ui_log.info("")
         self._report_profiles_and_plugins()
-        self.ui_log.info("")
 
     def batch(self):
         if self.opts.batch:
