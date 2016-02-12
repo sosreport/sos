@@ -945,11 +945,13 @@ class SoSReport(object):
         using_profiles = len(self.opts.profiles)
         policy_classes = self.policy.valid_subclasses
         extra_classes = []
+
         if self.opts.experimental:
             extra_classes.append(sos.plugins.ExperimentalPlugin)
         valid_plugin_classes = tuple(policy_classes + extra_classes)
         validate_plugin = self.policy.validate_plugin
         remaining_profiles = list(self.opts.profiles)
+
         # validate and load plugins
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
@@ -1094,6 +1096,14 @@ class SoSReport(object):
                 self.all_options.append((plugin, plugin_name, optname,
                                          optparm))
 
+    def _report_profiles_and_plugins(self):
+        if len(self.loaded_plugins):
+            self.ui_log.info(" %d profiles, %d plugins"
+                             % (len(self.profiles), len(self.loaded_plugins)))
+        else:
+            # no valid plugins for this profile
+            self.ui_log.info(" %d profiles" % len(self.profiles))
+
     def list_plugins(self):
         if not self.loaded_plugins and not self.skipped_plugins:
             self.soslog.fatal(_("no valid plugins found"))
@@ -1145,8 +1155,7 @@ class SoSReport(object):
         for line in lines:
             self.ui_log.info(" %s" % line)
         self.ui_log.info("")
-        self.ui_log.info(" %d profiles, %d plugins"
-                         % (len(self.profiles), len(self.loaded_plugins)))
+        self._report_profiles_and_plugins()
         self.ui_log.info("")
 
     def list_profiles(self):
@@ -1170,8 +1179,7 @@ class SoSReport(object):
             for line in lines:
                 self.ui_log.info(" %s" % line)
         self.ui_log.info("")
-        self.ui_log.info(" %d profiles, %d plugins"
-                         % (len(profiles), len(self.loaded_plugins)))
+        self._report_profiles_and_plugins()
         self.ui_log.info("")
 
     def batch(self):
