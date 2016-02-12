@@ -996,7 +996,7 @@ class SoSReport(object):
                     self._skip(plugin_class, _("optional"))
                     continue
 
-		# only add the plugin's profiles once we know it is usable
+                # only add the plugin's profiles once we know it is usable
                 if hasattr(plugin_class, "profiles"):
                     self.profiles.update(plugin_class.profiles)
 
