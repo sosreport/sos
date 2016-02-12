@@ -978,8 +978,6 @@ class SoSReport(object):
 
                 # plug-in is valid, let's decide whether run it or not
                 self.plugin_names.append(plugbase)
-                if hasattr(plugin_class, "profiles"):
-                    self.profiles.update(plugin_class.profiles)
 
                 in_profile = self._is_in_profile(plugin_class)
                 if not in_profile:
@@ -997,6 +995,10 @@ class SoSReport(object):
                 if self._is_not_default(plugbase, plugin_class):
                     self._skip(plugin_class, _("optional"))
                     continue
+
+		# only add the plugin's profiles once we know it is usable
+                if hasattr(plugin_class, "profiles"):
+                    self.profiles.update(plugin_class.profiles)
 
                 # true when the null (empty) profile is active
                 default_profile = not using_profiles and in_profile
