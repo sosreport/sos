@@ -77,7 +77,8 @@ class Juju(Plugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/var/lib/juju"
+            "/var/lib/juju",
+            "/etc/juju",
         ])
         limit = self.get_option("log_size")
         self.add_copy_spec_limit("/var/log/upstart/juju-db.log",
