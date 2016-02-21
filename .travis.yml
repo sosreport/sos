@@ -19,7 +19,7 @@ notifications:
 dist: trusty
 sudo: true
 install:
-  - "pip install six nose nose-cov pep8"
+  - "pip install -r requirements.txt"
   - "python setup.py install"
 script:
   - "pep8 sos"
