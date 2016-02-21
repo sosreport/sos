@@ -90,40 +90,38 @@ class OpenStackNeutron(Plugin):
                         (self.component_name, netid))
             self.add_copy_spec(lease_directories)
 
-    # TODO: Refactor! Copied from Networking plugin.
-    def get_interface_name(self, ip_addr_out):
-        """Return a dictionary for which key are interface name according to
-        the output of ifconifg-a stored in ifconfig_file.
+    def ns_get_interface_names(self, nsname):
+        """Return a list of interface names based on the output of ip -o addr
         """
-        out = {}
-        for line in ip_addr_out.splitlines():
-            match = re.match('.*link/ether', line)
-            if match:
-                int = match.string.split(':')[1].lstrip()
-                out[int] = True
-        return out
+        interfaces = []
+        ip_addr_result = self.call_ext_prog("ip netns exec %s "
+                                            "ip -o addr" % nsname)
+        if ip_addr_result['status'] == 0:
+            for line in ip_addr_result['output'].splitlines():
+                match = re.match('.*link/ether', line)
+                if match:
+                    interface = match.string.split(':')[1].lstrip()
+                    interfaces.append(interface)
+        return interfaces
 
     def ns_gather_data(self, nsname):
         cmd_prefix = "ip netns exec %s " % nsname
         self.add_cmd_output([
             cmd_prefix + "iptables-save",
-            cmd_prefix + "ifconfig -a",
+            cmd_prefix + "ip a",
             cmd_prefix + "route -n"
         ])
-        # borrowed from networking plugin
-        ip_addr_result = self.call_ext_prog(cmd_prefix + "ip -o addr")
-        if ip_addr_result['status'] == 0:
-            for eth in self.get_interface_name(ip_addr_result['output']):
-                # Most, if not all, IFs in the namespaces are going to be
-                # virtual. The '-a', '-c' and '-g' options are not likely to be
-                # supported so these ops are not copied from the network
-                # plugin.
-                self.add_cmd_output([
-                    cmd_prefix + "ethtool "+eth,
-                    cmd_prefix + "ethtool -i "+eth,
-                    cmd_prefix + "ethtool -k "+eth,
-                    cmd_prefix + "ethtool -S "+eth
-                ])
+        for eth in self.ns_get_interface_names(nsname):
+            # Most, if not all, IFs in the namespaces are going to be
+            # virtual. The '-a', '-c' and '-g' options are not likely to be
+            # supported so these ops are not copied from the network
+            # plugin.
+            self.add_cmd_output([
+                cmd_prefix + "ethtool "+eth,
+                cmd_prefix + "ethtool -i "+eth,
+                cmd_prefix + "ethtool -k "+eth,
+                cmd_prefix + "ethtool -S "+eth
+            ])
 
         # As all of the bridges are in the "global namespace", we do not need
         # to gather info on them.
