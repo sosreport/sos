@@ -42,6 +42,18 @@ patches and commit messages.
 User and API [documentation][6] is automatically generated using [Sphinx][7]
 and [Read the Docs][8].
 
+Ex. To generate HTML documents locally
+
+* Install requirements
+
+```
+pip install -r requirements.txt
+cd docs
+make html
+```
+
+Now open `sos/docs/_build/html/index.html` in your browser
+
 ### Wiki
 
 * [How to write a plugin][1]
