@@ -22,7 +22,7 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = 'processor'
     profiles = ('system', 'hardware', 'memory')
     files = ('/proc/cpuinfo',)
-    packages = ('cpufreq-utils')
+    packages = ('cpufreq-utils', 'cpuid')
 
     def setup(self):
         self.add_copy_spec([
@@ -37,6 +37,8 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "cpupower idle-info",
             "cpupower frequency-info",
             "cpufreq-info"
+            "cpuid",
+            "cpuid -r"
         ])
 
         if '86' in self.policy().get_arch():
