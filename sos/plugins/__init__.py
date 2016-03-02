@@ -75,7 +75,7 @@ class Plugin(object):
     this and set the class variables where applicable.
 
     plugin_name is a string returned by plugin.name(). If this is set to None
-    (the default) class_.__name__.tolower() will be returned. Be sure to set
+    (the default) class\_.__name__.tolower() will be returned. Be sure to set
     this if you are defining multiple plugins that do the same thing on
     different platforms.
 

@@ -46,8 +46,9 @@ def load(cache={}, sysroot=None):
 class PackageManager(object):
     """Encapsulates a package manager. If you provide a query_command to the
     constructor it should print each package on the system in the following
-    format:
-        package name|package.version\n
+    format::
+
+        package name|package.version
 
     You may also subclass this class and provide a get_pkg_list method to
     build the list of packages and versions.
@@ -88,10 +89,12 @@ class PackageManager(object):
             return None
 
     def get_pkg_list(self):
-        """
-        returns a dictionary of packages in the following format:
-        {'package_name': {'name': 'package_name', '
-                          version': 'major.minor.version'}}
+        """Returns a dictionary of packages in the following
+        format::
+
+            {'package_name': {'name': 'package_name',
+                              'version': 'major.minor.version'}}
+
         """
         if self.query_command:
             cmd = self.query_command
