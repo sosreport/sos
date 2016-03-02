@@ -68,10 +68,11 @@ def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
 
 
 def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
-    """generator function to find files recursively. Usage:
+    """Generator function to find files recursively.
+    Usage::
 
-    for filename in find("*.properties", "/var/log/foobar"):
-        print filename
+        for filename in find("*.properties", "/var/log/foobar"):
+            print filename
     """
     if max_depth:
         base_depth = os.path.dirname(top_dir).count(os.path.sep)
