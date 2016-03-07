@@ -35,7 +35,8 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "lscpu",
             "cpupower info",
             "cpupower idle-info",
-            "cpupower frequency-info"
+            "cpupower frequency-info",
+            "cpufreq-info"
         ])
 
         if '86' in self.policy().get_arch():
