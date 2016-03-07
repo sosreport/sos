@@ -28,7 +28,7 @@ import sys
 # required for compression callout (FIXME: move to policy?)
 from subprocess import Popen, PIPE
 
-from sos.utilities import sos_get_command_output
+from sos.utilities import sos_get_command_output, is_executable
 
 try:
     import selinux
@@ -248,7 +248,12 @@ class FileCacheArchive(Archive):
         self.log_info("built archive at '%s' (size=%d)" % (self._archive_name,
                       os.stat(self._archive_name).st_size))
         self.method = method
-        return self._compress()
+        try:
+            return self._compress()
+        except Exception as e:
+            exp_msg = "An error occurred compressing the archive: "
+            self.log_error("%s %s" % (exp_msg, e))
+            return self.name()
 
 
 # Compatibility version of the tarfile.TarFile class. This exists to allow
@@ -389,12 +394,18 @@ class TarFileArchive(FileCacheArchive):
         tar.close()
 
     def _compress(self):
-        methods = ['xz', 'bzip2', 'gzip']
+        methods = []
+        # Make sure that valid compression commands exist.
+        for method in ['xz', 'bzip2', 'gzip']:
+            if is_executable(method):
+                methods.append(method)
+            else:
+                self.log_error("\"%s\" command not found." % method)
         if self.method in methods:
             methods = [self.method]
 
-        last_error = Exception("compression failed")
-
+        exp_msg = "No compression utilities found."
+        last_error = Exception(exp_msg)
         for cmd in methods:
             suffix = "." + cmd.replace('ip', '')
             # use fast compression if using xz or bz2
