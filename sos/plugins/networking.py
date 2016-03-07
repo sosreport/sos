@@ -261,8 +261,8 @@ class Networking(Plugin):
             if brctl_file:
                 for br_name in self.get_bridge_name(brctl_file):
                     self.add_cmd_output([
-                            "brctl showstp "+br_name,
-                            "brctl showmacs "+br_name
+                        "brctl showstp "+br_name,
+                        "brctl showmacs "+br_name
                     ])
 
         if self.get_option("traceroute"):

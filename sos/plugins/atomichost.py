@@ -38,7 +38,6 @@ class AtomicHost(Plugin, RedHatPlugin):
         if self.get_option('info'):
             images = self.get_command_output("docker images -q")
             for image in set(
-                            images['output'].splitlines()
-                        ):
+                    images['output'].splitlines()):
                 if image:
                     self.add_cmd_output("atomic info {0}".format(image))
