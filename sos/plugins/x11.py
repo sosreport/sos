@@ -34,6 +34,8 @@ class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_forbidden_path("/etc/X11/fontpath.d")
         self.add_cmd_output([
             "glxinfo",
+            "clinfo",
+            "vulkaninfo",
             "xrandr --verbose"
         ])
 
