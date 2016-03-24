@@ -33,11 +33,10 @@ class Corosync(Plugin):
             "corosync-quorumtool -l",
             "corosync-quorumtool -s",
             "corosync-cpgtool",
-            "corosync-objctl -a",
             "corosync-cfgtool -s",
-            "corosync-fplay",
-            "corosync-objctl -w runtime.blackbox.dump_state=$(date +\%s)",
-            "corosync-objctl -w runtime.blackbox.dump_flight_data=$(date +\%s)"
+            "corosync-blackbox",
+            "corosync-objctl -a",
+            "corosync-cmapctl"
         ])
         self.call_ext_prog("killall -USR2 corosync")
 
