@@ -17,7 +17,7 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 
-class kubernetes(Plugin, RedHatPlugin):
+class Kubernetes(Plugin, RedHatPlugin):
 
     """Kubernetes plugin
     """
@@ -50,5 +50,19 @@ class kubernetes(Plugin, RedHatPlugin):
                         "{0} log {1}".format("kubectl", pod_name)
                     ])
 
+    def postproc(self):
+        # Clear env values from pods that can contain sensitive data
+        # Sample JSON content:
+        #           {
+        #              "name": "MYSQL_PASSWORD",
+        #              "value": "mypassword"
+        #           },
+        # This will mask values when the "name" looks susceptible of
+        # values worth obfuscating, i.e. if the name contains strings
+        # like "pass", "pwd", "key" or "token"
+        env_regexp = r'(?P<var>{\s*"name":\s*[^,]*' \
+                     r'(pass|pwd|key|token|cred)[^,]*,\s*"value":)[^}]*'
+        self.do_cmd_output_sub('kubectl', env_regexp,
+                               r'\g<var> "********"', ignore_case=True)
 
 # vim: et ts=5 sw=4
