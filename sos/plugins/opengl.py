@@ -15,25 +15,17 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """X windowing system
+class OpenGL(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """OpenGL
     """
 
-    plugin_name = 'x11'
-    profiles = ('hardware', 'desktop')
-
-    files = ('/etc/X11',)
+    plugin_name = 'opengl'
+    profiles = ('hardware', 'desktop', 'gpu')
+    files = ('/usr/bin/glxinfo',)
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/X11",
-            "/var/log/Xorg.*.log",
-            "/var/log/XFree86.*.log",
-        ])
-        self.add_forbidden_path("/etc/X11/X")
-        self.add_forbidden_path("/etc/X11/fontpath.d")
         self.add_cmd_output([
-            "xrandr --verbose"
+            "glxinfo",
         ])
 
 # vim: set et ts=4 sw=4 :
