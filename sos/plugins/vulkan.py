@@ -15,25 +15,17 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """X windowing system
+class Vulkan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Vulkan
     """
 
-    plugin_name = 'x11'
-    profiles = ('hardware', 'desktop')
-
-    files = ('/etc/X11',)
+    plugin_name = 'vulkan'
+    profiles = ('hardware', 'desktop', 'gpu')
+    files = ('/usr/bin/vulkaninfo',)
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/X11",
-            "/var/log/Xorg.*.log",
-            "/var/log/XFree86.*.log",
-        ])
-        self.add_forbidden_path("/etc/X11/X")
-        self.add_forbidden_path("/etc/X11/fontpath.d")
         self.add_cmd_output([
-            "xrandr --verbose"
+            "vulkaninfo",
         ])
 
 # vim: set et ts=4 sw=4 :
