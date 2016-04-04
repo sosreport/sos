@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os
 import re
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
@@ -32,26 +31,19 @@ class OpenStackNeutron(Plugin):
     """
     plugin_name = "openstack_neutron"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
-
-    option_list = [("quantum", "Overrides checks for newer Neutron components",
-                    "fast", False)]
-
-    component_name = "neutron"
+    option_list = [("log", "Gathers all Neutron logs", "slow", False)]
 
     def setup(self):
-        if not os.path.exists("/etc/neutron/") or self.get_option("quantum"):
-            self.component_name = "quantum"
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/%s/" % self.component_name,
+            self.add_copy_spec_limit("/var/log/neutron/",
                                      sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/%s/*.log" % self.component_name,
+            self.add_copy_spec_limit("/var/log/neutron/*.log",
                                      sizelimit=self.limit)
 
-        self.add_copy_spec("/etc/%s/" % self.component_name)
-
+        self.add_copy_spec("/etc/neutron/")
         self.netns_dumps()
 
     def postproc(self):
@@ -66,8 +58,7 @@ class OpenStackNeutron(Plugin):
         ]
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
-        self.do_path_regex_sub("/etc/%s/*" % self.component_name,
-                               regexp, r"\1*********")
+        self.do_path_regex_sub("/etc/neutron/*", regexp, r"\1*********")
 
     def netns_dumps(self):
         # It would've been beautiful if we could get parts of the networking
@@ -86,8 +77,7 @@ class OpenStackNeutron(Plugin):
                 if len(netid) > 0 and prefix in prefixes:
                     self.ns_gather_data(nsname)
                     lease_directories.append(
-                        "/var/lib/%s/dhcp/%s/" %
-                        (self.component_name, netid))
+                        "/var/lib/neutron/dhcp/%s/" % netid)
             self.add_copy_spec(lease_directories)
 
     # TODO: Refactor! Copied from Networking plugin.
@@ -128,63 +118,55 @@ class OpenStackNeutron(Plugin):
         # As all of the bridges are in the "global namespace", we do not need
         # to gather info on them.
 
-    def gen_pkg_tuple(self, packages):
-        names = []
-        for p in packages:
-            names.append(p % {"comp": self.component_name})
-        return tuple(names)
 
-
-class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
-    package_list_template = [
-        '%(comp)s-common',
-        '%(comp)s-plugin-cisco',
-        '%(comp)s-plugin-linuxbridge-agent',
-        '%(comp)s-plugin-nicira',
-        '%(comp)s-plugin-openvswitch',
-        '%(comp)s-plugin-openvswitch-agent',
-        '%(comp)s-plugin-ryu',
-        '%(comp)s-plugin-ryu-agent',
-        '%(comp)s-server',
-        'python-%(comp)s',
-        'python-%(comp)sclient'
+class DebianNeutron(OpenstackNeutron, DebianPlugin, UbuntuPlugin):
+    packages = [
+        'neutron-common',
+        'neutron-plugin-cisco',
+        'neutron-plugin-linuxbridge-agent',
+        'neutron-plugin-nicira',
+        'neutron-plugin-openvswitch',
+        'neutron-plugin-openvswitch-agent',
+        'neutron-plugin-ryu',
+        'neutron-plugin-ryu-agent',
+        'neutron-server',
+        'python-neutron',
+        'python-neutronclient'
     ]
 
     def check_enabled(self):
-        return self.is_installed("%s-common" % self.component_name)
+        return self.is_installed("neutron-common")
 
     def setup(self):
         super(DebianNeutron, self).setup()
-        self.packages = self.gen_pkg_tuple(self.package_list_template)
-        self.add_copy_spec("/etc/sudoers.d/%s_sudoers" % self.component_name)
+        self.add_copy_spec("/etc/sudoers.d/neutron_sudoers")
 
 
 class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
 
-    package_list_template = [
-        'openstack-%(comp)s',
-        'openstack-%(comp)s-linuxbridge'
-        'openstack-%(comp)s-metaplugin',
-        'openstack-%(comp)s-openvswitch',
-        'openstack-%(comp)s-bigswitch',
-        'openstack-%(comp)s-brocade',
-        'openstack-%(comp)s-cisco',
-        'openstack-%(comp)s-hyperv',
-        'openstack-%(comp)s-midonet',
-        'openstack-%(comp)s-nec'
-        'openstack-%(comp)s-nicira',
-        'openstack-%(comp)s-plumgrid',
-        'openstack-%(comp)s-ryu',
-        'python-%(comp)s',
-        'python-%(comp)sclient'
+    packages = [
+        'openstack-neutron',
+        'openstack-neutron-linuxbridge'
+        'openstack-neutron-metaplugin',
+        'openstack-neutron-openvswitch',
+        'openstack-neutron-bigswitch',
+        'openstack-neutron-brocade',
+        'openstack-neutron-cisco',
+        'openstack-neutron-hyperv',
+        'openstack-neutron-midonet',
+        'openstack-neutron-nec'
+        'openstack-neutron-nicira',
+        'openstack-neutron-plumgrid',
+        'openstack-neutron-ryu',
+        'python-neutron',
+        'python-neutronclient'
     ]
 
     def check_enabled(self):
-        return self.is_installed("openstack-%s" % self.component_name)
+        return self.is_installed("openstack-neutron")
 
     def setup(self):
         super(RedHatNeutron, self).setup()
-        self.packages = self.gen_pkg_tuple(self.package_list_template)
-        self.add_copy_spec("/etc/sudoers.d/%s-rootwrap" % self.component_name)
+        self.add_copy_spec("/etc/sudoers.d/neutron-rootwrap")
 
 # vim: set et ts=4 sw=4 :
