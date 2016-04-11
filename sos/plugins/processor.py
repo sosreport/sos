@@ -36,9 +36,10 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "cpupower info",
             "cpupower idle-info",
             "cpupower frequency-info",
-            "cpufreq-info"
+            "cpufreq-info",
             "cpuid",
-            "cpuid -r"
+            "cpuid -r",
+            "turbostat --debug sleep 10"
         ])
 
         if '86' in self.policy().get_arch():
