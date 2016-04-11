@@ -37,7 +37,8 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/blkid.tab",
             "/run/blkid/blkid.tab",
             "/proc/partitions",
-            "/proc/diskstats"
+            "/proc/diskstats",
+            "/sys/block/*/queue/scheduler"
         ])
 
         if os.path.isdir("/sys/block"):
