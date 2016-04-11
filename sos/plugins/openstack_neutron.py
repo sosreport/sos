@@ -17,7 +17,8 @@
 import os
 import re
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import RedHatPlugin, DebianPlugin, UbuntuPlugin
+from networking import Networking
 
 # The Networking plugin includes most of what is needed from a snapshot
 # of the networking, so we only need to focus on the parts that are specific
@@ -27,7 +28,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 # info...
 
 
-class OpenStackNeutron(Plugin):
+class OpenStackNeutron(Networking):
     """OpenStack Networking
     """
     plugin_name = "openstack_neutron"
@@ -89,19 +90,6 @@ class OpenStackNeutron(Plugin):
                         "/var/lib/%s/dhcp/%s/" %
                         (self.component_name, netid))
             self.add_copy_spec(lease_directories)
-
-    # TODO: Refactor! Copied from Networking plugin.
-    def get_interface_name(self, ip_addr_out):
-        """Return a dictionary for which key are interface name according to
-        the output of ifconifg-a stored in ifconfig_file.
-        """
-        out = {}
-        for line in ip_addr_out.splitlines():
-            match = re.match('.*link/ether', line)
-            if match:
-                int = match.string.split(':')[1].lstrip()
-                out[int] = True
-        return out
 
     def ns_gather_data(self, nsname):
         cmd_prefix = "ip netns exec %s " % nsname

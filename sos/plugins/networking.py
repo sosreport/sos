@@ -49,7 +49,7 @@ class Networking(Plugin):
             out.append(br_name)
         return out
 
-    def get_eth_interfaces(self, ip_link_out):
+    def get_interface_name(self, ip_link_out):
         """Return a dictionary for which keys are ethernet interface
         names taken from the output of "ip -o link".
         """
@@ -87,7 +87,7 @@ class Networking(Plugin):
                                             " ip -o link")
         dev_list = []
         if ip_link_result['status'] == 0:
-            for eth in self.get_eth_interfaces(ip_link_result['output']):
+            for eth in self.get_interface_name(ip_link_result['output']):
                 dev = eth.replace('@NONE', '')
                 dev_list.append(dev)
         return dev_list
@@ -238,7 +238,7 @@ class Networking(Plugin):
         # namespace.
         ip_link_result = self.call_ext_prog("ip -o link")
         if ip_link_result['status'] == 0:
-            for dev in self.get_eth_interfaces(ip_link_result['output']):
+            for dev in self.get_interface_name(ip_link_result['output']):
                 eth = dev.replace('@NONE', '')
                 self.add_cmd_output([
                     "ethtool "+eth,
