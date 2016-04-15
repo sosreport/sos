@@ -39,7 +39,7 @@ class Anaconda(Plugin, RedHatPlugin):
             paths.append('/var/log/anaconda')
         else:
             paths = paths + [
-                "/var/log/anaconda.*"
+                "/var/log/anaconda.*",
                 "/root/install.log",
                 "/root/install.log.syslog"
             ]
