@@ -37,4 +37,4 @@ class Kpatch(Plugin, RedHatPlugin):
             self.add_cmd_output("kpatch info " + module)
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -32,4 +32,4 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_cmd_output("ldconfig -v -N -X")
         self.add_cmd_output("ldconfig -p -N -X")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

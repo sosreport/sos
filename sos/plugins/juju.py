@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import os
 from sos.plugins import Plugin, UbuntuPlugin
 from json import loads as json_load
 
@@ -47,6 +48,9 @@ class Juju(Plugin, UbuntuPlugin):
     option_list = [
         ('export-mongodb',
          'Export mongodb collections as json files', '', False),
+        ('generate-bundle',
+         """Generate a YAML bundle of the current environment
+         (requires juju-deployerizer)""", '', False),
     ]
 
     def get_deployed_services(self):
@@ -73,9 +77,28 @@ class Juju(Plugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/var/log/juju",
             "/var/lib/juju"
         ])
+        limit = self.get_option("log_size")
+        self.add_copy_spec_limit("/var/log/upstart/juju-db.log",
+                                 sizelimit=limit)
+        self.add_copy_spec_limit("/var/log/upstart/juju-db.log.1",
+                                 sizelimit=limit)
+        if not self.get_option("all_logs"):
+            # Capture the last bit of all files
+            for filename in os.listdir("/var/log/juju/"):
+                if filename.endswith(".log"):
+                    fullname = "/var/log/juju/" + filename
+                    self.add_copy_spec_limit(fullname, sizelimit=limit)
+            # Do just the all-machines from juju local
+            self.add_copy_spec_limit("/var/log/juju-*/all-machines.log",
+                                     sizelimit=limit)
+            self.add_cmd_output('ls -alRh /var/log/juju*')
+        else:
+            self.add_copy_spec([
+                "/var/log/juju",
+                "/var/log/juju-*"
+            ])
 
         self.add_cmd_output([
             "juju -v status",
@@ -88,5 +111,9 @@ class Juju(Plugin, UbuntuPlugin):
         if self.get_option("export-mongodb"):
             self.export_mongodb()
 
+        if self.get_option("generate-bundle"):
+            self.add_cmd_output("juju deployerizer --include-charm-versions",
+                                suggest_filename="juju-env-bundle.yaml")
 
-# vim: et ts=4 sw=4
+
+# vim: set et ts=4 sw=4 :

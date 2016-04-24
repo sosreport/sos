@@ -23,18 +23,35 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackSwift(Plugin):
     """OpenStack Swift"""
     plugin_name = "openstack_swift"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack-swift logs", "slow", False)]
+    option_list = []
 
     def setup(self):
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/swift/")
+
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/swift/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/swift/*.log",
+                                     sizelimit=self.limit)
 
         self.add_copy_spec("/etc/swift/")
 
+    def postproc(self):
+        protect_keys = [
+            "ldap_dns_password", "neutron_admin_password", "rabbit_password",
+            "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
+            "xenapi_connection_password", "password", "host_password",
+            "vnc_password", "connection", "sql_connection", "admin_password"
+        ]
 
-class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/swift/.*\.conf.*", regexp, r"\1*********")
+
+
+class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'swift',
@@ -48,7 +65,7 @@ class DebianOpenStackSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStackSwift(OpenStackSwift, RedHatPlugin):
+class RedHatSwift(OpenStackSwift, RedHatPlugin):
 
     packages = (
         'openstack-swift',
@@ -60,4 +77,4 @@ class RedHatOpenStackSwift(OpenStackSwift, RedHatPlugin):
         'python-swiftclient'
     )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

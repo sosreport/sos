@@ -29,8 +29,9 @@ class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_cmd_output([
             "multipath -l",
-            "multipath -v4 -ll"
+            "multipath -v4 -ll",
+            "multipathd show config"
         ])
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

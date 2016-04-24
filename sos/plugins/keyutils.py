@@ -32,4 +32,4 @@ class Keyutils(Plugin, RedHatPlugin):
         ])
         self.add_cmd_output("keyctl show")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -49,4 +49,4 @@ class DebianSoundcard(Soundcard, DebianPlugin, UbuntuPlugin):
 
         self.add_copy_spec("/etc/pulse/*")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

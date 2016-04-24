@@ -33,4 +33,4 @@ class DebianAcpid(Acpid, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/acpi/events/powerbtn*"])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

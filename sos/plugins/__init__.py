@@ -27,6 +27,7 @@ import stat
 from time import time
 import logging
 import fnmatch
+import errno
 
 # PYCOMPAT
 import six
@@ -101,6 +102,7 @@ class Plugin(object):
     files = ()
     archive = None
     profiles = ()
+    sysroot = '/'
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
@@ -117,6 +119,7 @@ class Plugin(object):
         self.copy_paths = set()
         self.copy_strings = []
         self.collect_cmds = []
+        self.sysroot = commons['sysroot']
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -153,6 +156,25 @@ class Plugin(object):
 
     def policy(self):
         return self.commons["policy"]
+
+    def join_sysroot(self, path):
+        if path[0] == os.sep:
+            path = path[1:]
+        return os.path.join(self.sysroot, path)
+
+    def strip_sysroot(self, path):
+        if not self.use_sysroot():
+            return path
+        if path.startswith(self.sysroot):
+            return path[len(self.sysroot):]
+        return path
+
+    def use_sysroot(self):
+        return self.sysroot != os.path.abspath(os.sep)
+
+    def tmp_in_sysroot(self):
+        paths = [self.sysroot, self.archive.get_tmp_dir()]
+        return os.path.commonprefix(paths) == self.sysroot
 
     def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
@@ -207,6 +229,7 @@ class Plugin(object):
         '''
         try:
             path = self._get_dest_for_srcpath(srcpath)
+            self._log_debug("substituting scrpath '%s'" % srcpath)
             self._log_debug("substituting '%s' for '%s' in '%s'"
                             % (subst, regexp, path))
             if not path:
@@ -244,11 +267,15 @@ class Plugin(object):
         # the target stored in the original symlink
         linkdest = os.readlink(srcpath)
         dest = os.path.join(os.path.dirname(srcpath), linkdest)
-        # absolute path to the link target
+        # Absolute path to the link target. If SYSROOT != '/' this path
+        # is relative to the host root file system.
         absdest = os.path.normpath(dest)
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
             reldest = os.path.relpath(linkdest, os.path.dirname(srcpath))
+            # trim leading /sysroot
+            if self.use_sysroot():
+                reldest = reldest[len(os.sep + os.pardir):]
             self._log_debug("made link target '%s' relative as '%s'"
                             % (linkdest, reldest))
         else:
@@ -257,8 +284,9 @@ class Plugin(object):
         self._log_debug("copying link '%s' pointing to '%s' with isdir=%s"
                         % (srcpath, linkdest, os.path.isdir(absdest)))
 
+        dstpath = self.strip_sysroot(srcpath)
         # use the relative target path in the tarball
-        self.archive.add_link(reldest, srcpath)
+        self.archive.add_link(reldest, dstpath)
 
         if os.path.isdir(absdest):
             self._log_debug("link '%s' is a directory, skipping..." % linkdest)
@@ -268,26 +296,43 @@ class Plugin(object):
         # to absolute paths to pass to _do_copy_path.
         self._log_debug("normalized link target '%s' as '%s'"
                         % (linkdest, absdest))
-        self._do_copy_path(absdest)
+
+        # skip recursive copying of symlink pointing to itself.
+        if (absdest != srcpath):
+            self._do_copy_path(self.strip_sysroot(absdest))
+        else:
+            self._log_debug("link '%s' points to itself, skipping target..."
+                            % linkdest)
 
         self.copied_files.append({'srcpath': srcpath,
-                                  'dstpath': srcpath,
+                                  'dstpath': dstpath,
                                   'symlink': "yes",
                                   'pointsto': linkdest})
 
     def _copy_dir(self, srcpath):
-        for afile in os.listdir(srcpath):
-            self._log_debug("recursively adding '%s' from '%s'"
-                            % (afile, srcpath))
-            self._do_copy_path(os.path.join(srcpath, afile), dest=None)
+        try:
+            for afile in os.listdir(srcpath):
+                self._log_debug("recursively adding '%s' from '%s'"
+                                % (afile, srcpath))
+                self._do_copy_path(os.path.join(srcpath, afile), dest=None)
+        except OSError as e:
+            if e.errno == errno.ELOOP:
+                msg = "Too many levels of symbolic links copying"
+                self._log_error("_copy_dir: %s '%s'" % (msg, srcpath))
+                return
+            raise e
 
     def _get_dest_for_srcpath(self, srcpath):
+        if self.use_sysroot():
+            srcpath = self.join_sysroot(srcpath)
         for copied in self.copied_files:
             if srcpath == copied["srcpath"]:
                 return copied["dstpath"]
         return None
 
     def _is_forbidden_path(self, path):
+        if self.use_sysroot():
+            path = self.join_sysroot(path)
         return _path_in_path_list(path, self.forbidden_paths)
 
     def _copy_node(self, path, st):
@@ -309,6 +354,9 @@ class Plugin(object):
         if not dest:
             dest = srcpath
 
+        if self.use_sysroot():
+            dest = self.strip_sysroot(dest)
+
         try:
             st = os.lstat(srcpath)
         except (OSError, IOError):
@@ -327,7 +375,7 @@ class Plugin(object):
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
             ntype = _node_type(st)
             self._log_debug("creating %s node at archive:'%s'"
-                            % (ntype, srcpath))
+                            % (ntype, dest))
             self._copy_node(srcpath, st)
             return
 
@@ -341,17 +389,21 @@ class Plugin(object):
         else:
             self.archive.add_file(srcpath, dest)
 
-        self.copied_files.append({'srcpath': srcpath,
-                                  'dstpath': dest,
-                                  'symlink': "no"})
+        self.copied_files.append({
+            'srcpath': srcpath,
+            'dstpath': dest,
+            'symlink': "no"
+        })
 
-    def add_forbidden_path(self, forbiddenPath):
+    def add_forbidden_path(self, forbidden):
         """Specify a path to not copy, even if it's part of a copy_specs[]
         entry.
         """
+        if self.use_sysroot():
+            forbidden = self.join_sysroot(forbidden)
         # Glob case handling is such that a valid non-glob is a reduced glob
-        for filespec in glob.glob(forbiddenPath):
-            self.forbidden_paths.append(filespec)
+        for path in glob.glob(forbidden):
+            self.forbidden_paths.append(path)
 
     def get_all_options(self):
         """return a list of all options selected"""
@@ -410,6 +462,9 @@ class Plugin(object):
         except Exception:
             return default
 
+    def _add_copy_paths(self, copy_paths):
+        self.copy_paths.update(copy_paths)
+
     def add_copy_spec_limit(self, copyspec, sizelimit=None, tailit=True):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
@@ -418,10 +473,13 @@ class Plugin(object):
         if not (copyspec and len(copyspec)):
             return False
 
+        if self.use_sysroot():
+            copyspec = self.join_sysroot(copyspec)
         files = glob.glob(copyspec)
         files.sort()
         if len(files) == 0:
             return
+
         current_size = 0
         limit_reached = False
         sizelimit *= 1024 * 1024  # in MB
@@ -432,7 +490,7 @@ class Plugin(object):
             if sizelimit and current_size > sizelimit:
                 limit_reached = True
                 break
-            self.add_copy_spec(_file)
+            self._add_copy_paths([_file])
 
         if limit_reached and tailit:
             file_name = _file
@@ -453,30 +511,48 @@ class Plugin(object):
         if isinstance(copyspecs, six.string_types):
             copyspecs = [copyspecs]
         for copyspec in copyspecs:
+            if self.use_sysroot():
+                copyspec = self.join_sysroot(copyspec)
             if not (copyspec and len(copyspec)):
                 self._log_warn("added null or empty copy spec")
                 return False
             copy_paths = self._expand_copy_spec(copyspec)
-            self.copy_paths.update(copy_paths)
-            self._log_info("added copyspec '%s'" % copyspec)
+            self._add_copy_paths(copy_paths)
+            self._log_info("added copyspec '%s'" % copy_paths)
 
-    def get_command_output(self, prog, timeout=300, runat=None, stderr=True):
-        result = sos_get_command_output(prog, timeout=timeout, runat=runat,
-                                        stderr=stderr)
+    def get_command_output(self, prog, timeout=300, stderr=True,
+                           chroot=True, runat=None):
+        if chroot or self.commons['cmdlineopts'].chroot == 'always':
+            root = self.sysroot
+        else:
+            root = None
+
+        result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
+                                        chroot=root, chdir=runat)
+
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
                            % (prog, timeout))
-        # 126 means 'found but not executable'
+
+        # command not found or not runnable
         if result['status'] == 126 or result['status'] == 127:
+            # automatically retry chroot'ed commands in the host namespace
+            if chroot and self.commons['cmdlineopts'].chroot != 'always':
+                self._log_info("command '%s' not found in %s - "
+                               "re-trying in host root"
+                               % (prog.split()[0], root))
+                return self.get_command_output(prog, timeout=timeout,
+                                               chroot=False, runat=runat)
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
-    def call_ext_prog(self, prog, timeout=300, runat=None, stderr=True):
+    def call_ext_prog(self, prog, timeout=300, stderr=True,
+                      chroot=True, runat=None):
         """Execute a command independantly of the output gathering part of
         sosreport.
         """
-        return self.get_command_output(prog, timeout=timeout, runat=runat,
-                                       stderr=True)
+        return self.get_command_output(prog, timeout=timeout, stderr=stderr,
+                                       chroot=chroot, runat=runat)
 
     def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
@@ -486,8 +562,8 @@ class Plugin(object):
         return self.call_ext_prog(prog)['status'] == 0
 
     def add_cmd_output(self, cmds, suggest_filename=None,
-                       root_symlink=None, timeout=300, runat=None,
-                       stderr=True):
+                       root_symlink=None, timeout=300, stderr=True,
+                       chroot=True, runat=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -495,9 +571,10 @@ class Plugin(object):
             self._log_warn("ambiguous filename or symlink for command list")
         for cmd in cmds:
             cmdt = (
-                cmd, suggest_filename, root_symlink, timeout, runat, stderr
+                cmd, suggest_filename, root_symlink, timeout, stderr,
+                chroot, runat
             )
-            _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s')"
+            _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s')"
             _logstr = "packed command tuple: " + _tuplefmt
             self._log_debug(_logstr % cmdt)
             self.collect_cmds.append(cmdt)
@@ -552,14 +629,14 @@ class Plugin(object):
         self._log_debug("added string '%s' as '%s'" % (content, filename))
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
-                           root_symlink=False, timeout=300,
-                           runat=None, stderr=True):
+                           root_symlink=False, timeout=300, stderr=True,
+                           chroot=True, runat=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
-        result = self.get_command_output(exe, timeout=timeout, runat=runat,
-                                         stderr=stderr)
+        result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
+                                         chroot=chroot, runat=runat)
         # 126 means 'found but not executable'
         if result['status'] == 126 or result['status'] == 127:
             return None
@@ -585,6 +662,13 @@ class Plugin(object):
 
         return os.path.join(self.archive.get_archive_path(), outfn)
 
+    def is_module_loaded(self, module_name):
+        """Return whether specified moudle as module_name is loaded or not"""
+        if len(grep("^" + module_name + " ", "/proc/modules")) == 0:
+            return None
+        else:
+            return True
+
     # For adding output
     def add_alert(self, alertstring):
         """Add an alert to the collection of alerts for this plugin. These
@@ -608,15 +692,20 @@ class Plugin(object):
 
     def _collect_cmd_output(self):
         for progs in zip(self.collect_cmds):
-            (prog, suggest_filename, root_symlink, timeout, runat, stderr
-             ) = progs[0]
-            self._log_debug("unpacked command tuple: "
-                            "('%s', '%s', '%s', %s, '%s', %s)" % progs[0])
+            (
+                prog,
+                suggest_filename, root_symlink,
+                timeout,
+                stderr,
+                chroot, runat
+            ) = progs[0]
+            self._log_debug("unpacked command tuple: " +
+                            "('%s', '%s', '%s', %s, '%s', '%s', '%s')" %
+                            progs[0])
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
-                                    root_symlink=root_symlink,
-                                    timeout=timeout, runat=runat,
-                                    stderr=stderr)
+                                    root_symlink=root_symlink, timeout=timeout,
+                                    stderr=stderr, chroot=chroot, runat=runat)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
@@ -741,22 +830,32 @@ class Plugin(object):
 
 
 class RedHatPlugin(object):
-    """Tagging class to indicate that this plugin works with Red Hat Linux"""
+    """Tagging class for Red Hat's Linux distributions"""
+    pass
+
+
+class PowerKVMPlugin(RedHatPlugin):
+    """Tagging class for IBM PowerKVM Linux"""
+    pass
+
+
+class ZKVMPlugin(RedHatPlugin):
+    """Tagging class for IBM ZKVM Linux"""
     pass
 
 
 class UbuntuPlugin(object):
-    """Tagging class to indicate that this plugin works with Ubuntu Linux"""
+    """Tagging class for Ubuntu Linux"""
     pass
 
 
 class DebianPlugin(object):
-    """Tagging class to indicate that this plugin works with Debian Linux"""
+    """Tagging class for Debian Linux"""
     pass
 
 
 class IndependentPlugin(object):
-    """Tagging class that indicates this plugin can run on any platform"""
+    """Tagging class for plugins that can run on any platform"""
     pass
 
 
@@ -775,4 +874,4 @@ def import_plugin(name, superclasses=None):
         superclasses = (Plugin,)
     return import_module(plugin_fqname, superclasses)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

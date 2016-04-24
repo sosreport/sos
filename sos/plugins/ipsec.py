@@ -45,4 +45,4 @@ class DebianIPSec(IPSec, DebianPlugin, UbuntuPlugin):
             "/etc/default/setkey"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -71,4 +71,4 @@ class Maas(Plugin, UbuntuPlugin):
                 self._log_error(
                     "Cannot login into MAAS remote API with provided creds.")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

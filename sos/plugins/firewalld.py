@@ -35,9 +35,11 @@ class FirewallD(Plugin, RedHatPlugin):
             "/etc/sysconfig/firewalld"
         ])
 
+        # use a 10s timeout to workaround dbus problems in
+        # docker containers.
         self.add_cmd_output([
             "firewall-cmd --list-all-zones",
             "firewall-cmd --permanent --list-all-zones"
-        ])
+        ], timeout=10)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

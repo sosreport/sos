@@ -12,6 +12,8 @@ sosreport \- Collect and package diagnostic and support data
           [--no-report] [--config-file conf]\fR
           [--batch] [--build] [--debug]\fR
           [--name name] [--case-id id] [--ticket-number nr]
+          [-s|--sysroot SYSROOT]\fR
+          [-c|--chroot {auto|always|never}\fR
           [--tmp-dir directory]\fR
           [-p|--profile profile-name]\fR
           [--list-profiles]\fR
@@ -71,6 +73,17 @@ Disable HTML/XML report writing.
 .TP
 .B \--config-file CONFIG
 Specify alternate configuration file.
+.TP
+.B \-s, \--sysroot SYSROOT
+Specify an alternate root file system path. Useful for collecting
+reports from containers and images.
+.TP
+.B \-c, \--chroot {auto|always|never}
+Set the chroot mode. When \--sysroot is used commands default to
+executing with SYSROOT as the root directory (unless disabled by
+a specific plugin). This can be overriden by setting \--chroot to
+"always" (alwyas chroot) or "never" (always run in the host
+namespace).
 .TP
 .B \--tmp-dir DIRECTORY
 Specify alternate temporary directory to copy data as well as the

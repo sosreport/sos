@@ -25,16 +25,34 @@ class OpenStackHorizon(Plugin):
     """
 
     plugin_name = "openstack_horizon"
-    profiles = ('openstack',)
-    option_list = [("log", "gathers openstack horizon logs", "slow", True)]
+    profiles = ('openstack', 'openstack_controller')
+    option_list = []
 
     def setup(self):
+
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/horizon/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/horizon/*.log",
+                                     sizelimit=self.limit)
+
         self.add_copy_spec("/etc/openstack-dashboard/")
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/horizon/")
+
+    def postproc(self):
+        protect_keys = [
+            "SECRET_KEY", "EMAIL_HOST_PASSWORD"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/openstack-dashboard/.*\.json",
+                               regexp, r"\1*********")
+        self.do_path_regex_sub("/etc/openstack-dashboard/local_settings",
+                               regexp, r"\1*********")
 
 
-class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
+class DebianHorizon(OpenStackHorizon, DebianPlugin):
 
     packages = (
         'python-django-horizon',
@@ -43,11 +61,11 @@ class DebianOpenStackHorizon(OpenStackHorizon, DebianPlugin):
     )
 
     def setup(self):
-        super(DebianOpenStackHorizon, self).setup()
+        super(DebianHorizon, self).setup()
         self.add_copy_spec("/etc/apache2/sites-available/")
 
 
-class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
+class UbuntuHorizon(OpenStackHorizon, UbuntuPlugin):
 
     packages = (
         'python-django-horizon',
@@ -56,11 +74,11 @@ class UbuntuOpenStackHorizon(OpenStackHorizon, UbuntuPlugin):
     )
 
     def setup(self):
-        super(UbuntuOpenStackHorizon, self).setup()
+        super(UbuntuHorizon, self).setup()
         self.add_copy_spec("/etc/apache2/conf.d/openstack-dashboard.conf")
 
 
-class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
+class RedHatHorizon(OpenStackHorizon, RedHatPlugin):
 
     packages = (
         'python-django-horizon',
@@ -68,9 +86,9 @@ class RedHatOpenStackHorizon(OpenStackHorizon, RedHatPlugin):
     )
 
     def setup(self):
-        super(RedHatOpenStackHorizon, self).setup()
+        super(RedHatHorizon, self).setup()
         self.add_copy_spec("/etc/httpd/conf.d/openstack-dashboard.conf")
         if self.get_option("log"):
             self.add_copy_spec("/var/log/httpd/")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

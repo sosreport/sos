@@ -37,6 +37,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/etc/libvirt/lxc.conf",
             "/etc/libvirt/nwfilter/*.xml",
             "/etc/libvirt/qemu/*.xml",
+            "/var/run/libvirt/qemu/*.xml",
             "/etc/libvirt/qemu/networks/*.xml",
             "/etc/libvirt/qemu/networks/autostart/*.xml",
             "/etc/libvirt/storage/*.xml",
@@ -55,15 +56,18 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         else:
             self.add_copy_spec("/var/log/libvirt")
 
-        if os.path.exists(libvirt_keytab):
+        if os.path.exists(self.join_sysroot(libvirt_keytab)):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
-    def postproc(self):
-        for xmlfile in glob.glob("/etc/libvirt/qemu/*.xml"):
-            self.do_file_sub(
-                xmlfile,
-                r"(\s*passwd=\s*')([^']*)('.*)",
-                r"\1******\3"
-            )
+        self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
 
-# vim: et ts=4 sw=4
+    def postproc(self):
+        for loc in ["/etc/", "/var/run/"]:
+            for xmlfile in glob.glob(loc + "libvirt/qemu/*.xml"):
+                self.do_file_sub(
+                    xmlfile,
+                    r"(\s*passwd=\s*')([^']*)('.*)",
+                    r"\1******\3"
+                )
+
+# vim: set et ts=4 sw=4 :

@@ -14,16 +14,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos import plugins
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class OpenStackHeat(plugins.Plugin):
+class OpenStackHeat(Plugin):
     """OpenStack Heat
     """
     plugin_name = "openstack_heat"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack-heat logs", "slow", False)]
+    option_list = []
 
     def setup(self):
         # Heat
@@ -31,15 +31,28 @@ class OpenStackHeat(plugins.Plugin):
             "heat-manage db_version",
             suggest_filename="heat_db_version"
         )
-        self.add_copy_spec([
-            "/etc/heat/",
-            "/var/log/heat/"
-        ])
+
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/heat/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/heat/*.log",
+                                     sizelimit=self.limit)
+
+        self.add_copy_spec("/etc/heat/")
+
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "memcache_secret_key", "password", "connection",
+            "qpid_password", "rabbit_password", "stack_domain_admin_password",
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/heat/*", regexp, r"\1*********")
 
 
-class DebianOpenStack(OpenStackHeat,
-                      plugins.DebianPlugin,
-                      plugins.UbuntuPlugin):
+class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'heat-api',
@@ -52,7 +65,7 @@ class DebianOpenStack(OpenStackHeat,
     )
 
 
-class RedHatOpenStack(OpenStackHeat, plugins.RedHatPlugin):
+class RedHatHeat(OpenStackHeat, RedHatPlugin):
 
     packages = (
         'openstack-heat-api',
@@ -64,4 +77,4 @@ class RedHatOpenStack(OpenStackHeat, plugins.RedHatPlugin):
         'python-heatclient'
     )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

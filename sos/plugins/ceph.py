@@ -31,27 +31,39 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         'ceph-mds',
         'ceph-common',
         'libcephfs1',
-        'ceph-fs-common'
+        'ceph-fs-common',
+        'calamari-server',
+        'librados2'
     )
 
     def setup(self):
         self.add_copy_spec([
             "/etc/ceph/",
-            "/var/log/ceph/"
+            "/var/log/ceph/",
+            "/var/lib/ceph/",
+            "/var/run/ceph/",
+            "/etc/calamari/",
+            "/var/log/calamari",
+            "/var/log/radosgw"
         ])
 
         self.add_cmd_output([
             "ceph status",
-            "ceph health",
+            "ceph health detail",
             "ceph osd tree",
             "ceph osd stat",
             "ceph osd dump",
             "ceph mon stat",
-            "ceph mon dump"
+            "ceph mon dump",
+            "ceph df",
+            "ceph report"
         ])
 
         self.add_forbidden_path("/etc/ceph/*keyring")
-        self.add_forbidden_path("/var/lib/ceph/*/*keyring")
         self.add_forbidden_path("/var/lib/ceph/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/*/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/*/*/*keyring")
+        self.add_forbidden_path("/var/lib/ceph/osd/*")
+        self.add_forbidden_path("/var/lib/ceph/osd/mon/*")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

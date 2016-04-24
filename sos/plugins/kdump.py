@@ -51,4 +51,4 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
             "/etc/default/kdump-tools"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

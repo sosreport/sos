@@ -30,6 +30,6 @@ class Hpasm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "hpasmcli -s 'show asr'",
             "hpasmcli -s 'show server'"
-        ])
+        ], timeout=0)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

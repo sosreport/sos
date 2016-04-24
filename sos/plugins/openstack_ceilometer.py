@@ -24,20 +24,36 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class OpenStackCeilometer(Plugin):
     """Openstack Ceilometer"""
     plugin_name = "openstack_ceilometer"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
-    option_list = [("log", "gathers openstack-ceilometer logs", "slow", False)]
+    option_list = []
 
     def setup(self):
         # Ceilometer
-        self.add_copy_spec([
-            "/etc/ceilometer/",
-            "/var/log/ceilometer"
-        ])
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/ceilometer/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/ceilometer/*.log",
+                                     sizelimit=self.limit)
+        self.add_copy_spec("/etc/ceilometer/")
+
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "connection_password", "host_password",
+            "memcache_secret_key", "os_password", "password", "qpid_password",
+            "rabbit_password", "readonly_user_password", "secret_key",
+            "ssl_key_password", "telemetry_secret", "connection",
+            "metering_secret"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/ceilometer/*", regexp, r"\1*********")
 
 
-class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
-                                UbuntuPlugin):
+class DebianCeilometer(OpenStackCeilometer, DebianPlugin,
+                       UbuntuPlugin):
 
     packages = (
         'ceilometer-api',
@@ -50,7 +66,7 @@ class DebianOpenStackCeilometer(OpenStackCeilometer, DebianPlugin,
     )
 
 
-class RedHatOpenStackCeilometer(OpenStackCeilometer, RedHatPlugin):
+class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
 
     packages = (
         'openstack-ceilometer',
@@ -62,4 +78,4 @@ class RedHatOpenStackCeilometer(OpenStackCeilometer, RedHatPlugin):
         'python-ceilometerclient'
     )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -77,9 +77,7 @@ class Satellite(Plugin, RedHatPlugin):
         if self.satellite:
             self.add_copy_spec([
                 "/etc/tnsnames.ora",
-                "/etc/jabberd",
-                "/etc/tomcat6/",
-                "/var/log/tomcat6/"
+                "/etc/jabberd"
             ])
             self.add_cmd_output(
                 "spacewalk-debug --dir %s"
@@ -88,4 +86,4 @@ class Satellite(Plugin, RedHatPlugin):
         if self.proxy:
             self.add_copy_spec(["/etc/squid", "/var/log/squid"])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

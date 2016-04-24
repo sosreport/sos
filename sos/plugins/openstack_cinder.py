@@ -25,10 +25,9 @@ class OpenStackCinder(Plugin):
     """OpenStack cinder
     """
     plugin_name = "openstack_cinder"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack cinder logs", "slow", True),
-                   ("db", "gathers openstack cinder db version", "slow",
+    option_list = [("db", "gathers openstack cinder db version", "slow",
                     False)]
 
     def setup(self):
@@ -39,11 +38,33 @@ class OpenStackCinder(Plugin):
 
         self.add_copy_spec(["/etc/cinder/"])
 
-        if self.get_option("log"):
-            self.add_copy_spec(["/var/log/cinder/"])
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/cinder/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/cinder/*.log",
+                                     sizelimit=self.limit)
+
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "backup_tsm_password", "chap_password",
+            "nas_password", "cisco_fc_fabric_password", "coraid_password",
+            "eqlx_chap_password", "fc_fabric_password",
+            "hitachi_auth_password", "hitachi_horcm_password",
+            "hp3par_password", "hplefthand_password", "memcache_secret_key",
+            "netapp_password", "netapp_sa_password", "nexenta_password",
+            "password", "qpid_password", "rabbit_password", "san_password",
+            "ssl_key_password", "vmware_host_password", "zadara_password",
+            "zfssa_initiator_password", "connection", "zfssa_target_password",
+            "os_privileged_user_password", "hmac_keys"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/cinder/*", regexp, r"\1*********")
 
 
-class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
+class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
     cinder = False
     packages = (
@@ -61,10 +82,10 @@ class DebianOpenStackCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
         return self.cinder
 
     def setup(self):
-        super(DebianOpenStackCinder, self).setup()
+        super(DebianCinder, self).setup()
 
 
-class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
+class RedHatCinder(OpenStackCinder, RedHatPlugin):
 
     cinder = False
     packages = ('openstack-cinder',
@@ -76,8 +97,8 @@ class RedHatOpenStackCinder(OpenStackCinder, RedHatPlugin):
         return self.cinder
 
     def setup(self):
-        super(RedHatOpenStackCinder, self).setup()
+        super(RedHatCinder, self).setup()
         self.add_copy_spec(["/etc/sudoers.d/cinder"])
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

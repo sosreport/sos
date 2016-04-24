@@ -27,8 +27,9 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/haproxy/haproxy.cfg")
+        self.add_copy_spec("/etc/haproxy/conf.d/*")
         self.add_cmd_output("haproxy -f /etc/haproxy/haproxy.cfg -c")
 
         self.add_copy_spec("/var/log/haproxy.log")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

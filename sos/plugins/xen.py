@@ -104,4 +104,4 @@ class Xen(Plugin, RedHatPlugin):
 
         self.add_custom_text("Xen hostType: "+host_type)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

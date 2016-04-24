@@ -14,10 +14,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Systemd(Plugin, RedHatPlugin):
+class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """ System management daemon
     """
 
@@ -40,7 +40,8 @@ class Systemd(Plugin, RedHatPlugin):
             "ls -l /lib/systemd",
             "ls -l /lib/systemd/system-shutdown",
             "ls -l /lib/systemd/system-generators",
-            "ls -l /lib/systemd/user-generators"
+            "ls -l /lib/systemd/user-generators",
+            "timedatectl"
         ])
 
         if self.get_option("verify"):
@@ -54,4 +55,4 @@ class Systemd(Plugin, RedHatPlugin):
             "/etc/yum/protected.d/systemd.conf"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

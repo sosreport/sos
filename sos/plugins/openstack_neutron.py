@@ -27,14 +27,13 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 # info...
 
 
-class Neutron(Plugin):
+class OpenStackNeutron(Plugin):
     """OpenStack Networking
     """
     plugin_name = "openstack_neutron"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
-    option_list = [("log", "Gathers all Neutron logs", "slow", False),
-                   ("quantum", "Overrides checks for newer Neutron components",
+    option_list = [("quantum", "Overrides checks for newer Neutron components",
                     "fast", False)]
 
     component_name = "neutron"
@@ -43,12 +42,32 @@ class Neutron(Plugin):
         if not os.path.exists("/etc/neutron/") or self.get_option("quantum"):
             self.component_name = "quantum"
 
-        self.add_copy_spec([
-            "/etc/%s/" % self.component_name,
-            "/var/log/%s/" % self.component_name
-        ])
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/%s/" % self.component_name,
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/%s/*.log" % self.component_name,
+                                     sizelimit=self.limit)
+
+        self.add_copy_spec("/etc/%s/" % self.component_name)
 
         self.netns_dumps()
+
+    def postproc(self):
+        protect_keys = [
+            "rabbit_password", "qpid_password", "nova_admin_password",
+            "xenapi_connection_password", "password", "connection",
+            "admin_password", "metadata_proxy_shared_secret", "eapi_password",
+            "crd_password", "primary_l3_host_password", "serverauth",
+            "ucsm_password", "ha_vrrp_auth_password", "ssl_key_password",
+            "nsx_password", "vcenter_password", "edge_appliance_password",
+            "tenant_admin_password", "apic_password", "server_auth"
+        ]
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+
+        self.do_path_regex_sub("/etc/%s/*" % self.component_name,
+                               regexp, r"\1*********")
 
     def netns_dumps(self):
         # It would've been beautiful if we could get parts of the networking
@@ -116,7 +135,7 @@ class Neutron(Plugin):
         return tuple(names)
 
 
-class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
+class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
     package_list_template = [
         '%(comp)s-common',
         '%(comp)s-plugin-cisco',
@@ -140,7 +159,7 @@ class DebianNeutron(Neutron, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/etc/sudoers.d/%s_sudoers" % self.component_name)
 
 
-class RedHatNeutron(Neutron, RedHatPlugin):
+class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
 
     package_list_template = [
         'openstack-%(comp)s',
@@ -168,4 +187,4 @@ class RedHatNeutron(Neutron, RedHatPlugin):
         self.packages = self.gen_pkg_tuple(self.package_list_template)
         self.add_copy_spec("/etc/sudoers.d/%s-rootwrap" % self.component_name)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -20,7 +20,7 @@ class Tomcat(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'tomcat'
-    profiles = ('webserver', 'java', 'services')
+    profiles = ('webserver', 'java', 'services', 'sysmgmt')
 
     packages = ('tomcat6', 'tomcat')
 
@@ -41,4 +41,4 @@ class Tomcat(Plugin, RedHatPlugin):
             r'password="********"'
         )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

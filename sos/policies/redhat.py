@@ -37,14 +37,23 @@ class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
     vendor = "Red Hat"
     vendor_url = "http://www.redhat.com/"
+    _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
+    _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
+    _in_container = False
+    _host_sysroot = '/'
 
-    def __init__(self):
-        super(RedHatPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(RedHatPolicy, self).__init__(sysroot=sysroot)
         self.report_name = ""
         self.ticket_number = ""
-        self.package_manager = PackageManager(
-            'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
+        # need to set _host_sysroot before PackageManager()
+        if sysroot:
+            self._container_init()
+            self._host_sysroot = sysroot
+        else:
+            sysroot = self._container_init()
+        self.package_manager = PackageManager(self._rpmq_cmd, chroot=sysroot)
         self.valid_subclasses = [RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()
@@ -69,6 +78,20 @@ class RedHatPolicy(LinuxPolicy):
         overriden by concrete subclasses to return True when running on a
         Fedora, RHEL or other Red Hat distribution or False otherwise."""
         return False
+
+    def _container_init(self):
+        """Check if sos is running in a container and perform container
+        specific initialisation based on ENV_HOST_SYSROOT.
+        """
+        if ENV_CONTAINER_UUID in os.environ:
+            self._in_container = True
+        if ENV_HOST_SYSROOT in os.environ:
+            self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
+        use_sysroot = self._in_container and self._host_sysroot != '/'
+        if use_sysroot:
+            host_tmp_dir = os.path.abspath(self._host_sysroot + self._tmp_dir)
+            self._tmp_dir = host_tmp_dir
+        return self._host_sysroot if use_sysroot else None
 
     def runlevel_by_service(self, name):
         from subprocess import Popen, PIPE
@@ -100,6 +123,10 @@ class RedHatPolicy(LinuxPolicy):
     def get_local_name(self):
         return self.host_name()
 
+# Container environment variables on Red Hat systems.
+ENV_CONTAINER_UUID = 'container_uuid'
+ENV_HOST_SYSROOT = 'HOST'
+
 
 class RHELPolicy(RedHatPolicy):
     distro = "Red Hat Enterprise Linux"
@@ -126,14 +153,14 @@ No changes will be made to system configuration.
 %(vendor_text)s
 """)
 
-    def __init__(self):
-        super(RHELPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(RHELPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
     def check(self):
         """This method checks to see if we are running on RHEL. It returns True
         or False."""
-        return (os.path.isfile('/etc/redhat-release') and not
+        return (os.path.isfile(self._redhat_release) and not
                 os.path.isfile('/etc/fedora-release'))
 
     def dist_version(self):
@@ -167,14 +194,50 @@ No changes will be made to system configuration.
         return self.rhn_username() or self.host_name()
 
 
+class RedHatAtomicPolicy(RHELPolicy):
+    distro = "Red Hat Atomic Host"
+    msg = _("""\
+This command will collect diagnostic and configuration \
+information from this %(distro)s system.
+
+An archive containing the collected information will be \
+generated in %(tmpdir)s and may be provided to a %(vendor)s \
+support representative.
+
+Any information provided to %(vendor)s will be treated in \
+accordance with the published support policies at:\n
+  %(vendor_url)s
+
+The generated archive may contain data considered sensitive \
+and its content should be reviewed by the originating \
+organization before being passed to any third party.
+%(vendor_text)s
+""")
+
+    @classmethod
+    def check(self):
+        atomic = False
+        if ENV_HOST_SYSROOT not in os.environ:
+            return atomic
+        host_release = os.environ[ENV_HOST_SYSROOT] + self._redhat_release
+        if not os.path.exists(host_release):
+            return False
+        try:
+            for line in open(host_release, "r").read().splitlines():
+                atomic |= 'Atomic' in line
+        except:
+            pass
+        return atomic
+
+
 class FedoraPolicy(RedHatPolicy):
 
     distro = "Fedora"
     vendor = "the Fedora Project"
     vendor_url = "https://fedoraproject.org/"
 
-    def __init__(self):
-        super(FedoraPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(FedoraPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
     def check(self):
@@ -188,4 +251,4 @@ class FedoraPolicy(RedHatPolicy):
         return int(pkg["version"])
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

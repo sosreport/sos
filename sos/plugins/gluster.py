@@ -108,9 +108,20 @@ class Gluster(Plugin, RedHatPlugin):
         volume_file = self.get_cmd_output_now("gluster volume info")
         if volume_file:
             for volname in self.get_volume_names(volume_file):
-                self.add_cmd_output("gluster volume geo-replication %s status"
-                                    % volname)
+                self.add_cmd_output([
+                                    "gluster volume geo-replication %s status"
+                                    % volname,
+                                    "gluster volume heal %s info" % volname,
+                                    "gluster volume heal %s info split-brain"
+                                    % volname,
+                                    "gluster snapshot list %s" % volname,
+                                    "gluster volume quota %s list" % volname,
+                                    "gluster volume rebalance %s status"
+                                    % volname,
+                                    "gluster snapshot info %s" % volname,
+                                    "gluster snapshot status %s" % volname])
 
+        self.add_cmd_output("gluster pool list")
         self.add_cmd_output("gluster volume status")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

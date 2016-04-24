@@ -56,4 +56,4 @@ class example(Plugin, RedHatPlugin):
         self.collectExtOutput("/bin/ps -ef")
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

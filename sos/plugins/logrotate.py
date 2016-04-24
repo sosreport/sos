@@ -30,4 +30,4 @@ class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/lib/logrotate.status"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

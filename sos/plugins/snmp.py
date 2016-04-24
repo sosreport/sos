@@ -44,4 +44,4 @@ class DebianSnmp(Snmp, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianSnmp, self).setup()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -62,4 +62,4 @@ class DebianOpenSSL(OpenSSL, DebianPlugin, UbuntuPlugin):
         super(DebianOpenSSL, self).setup()
         self.add_copy_spec("/etc/ssl/openssl.cnf")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -45,4 +45,4 @@ class DebianDovecot(Dovecot, DebianPlugin, UbuntuPlugin):
 
     files = ('/etc/dovecot/README',)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

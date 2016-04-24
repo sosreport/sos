@@ -21,10 +21,9 @@ class OpenStackKeystone(Plugin):
     """OpenStack Keystone
     """
     plugin_name = "openstack_keystone"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack keystone logs", "slow", True),
-                   ("nopw", "dont gathers keystone passwords", "slow", True)]
+    option_list = [("nopw", "dont gathers keystone passwords", "slow", True)]
 
     def setup(self):
         self.add_copy_spec([
@@ -34,28 +33,26 @@ class OpenStackKeystone(Plugin):
             "/etc/keystone/policy.json"
         ])
 
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/keystone/")
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/keystone/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/keystone/*.log",
+                                     sizelimit=self.limit)
 
     def postproc(self):
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                         r"(?m)^(admin_password.*=)(.*)",
-                         r"\1 ******")
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                         r"(?m)^(admin_token.*=)(.*)",
-                         r"\1 ******")
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                         r"(?m)^(connection.*=.*mysql://)(.*)(:)(.*)(@)(.*)",
-                         r"\1\2:******@\6")
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                         r"(?m)^(password.*=)(.*)",
-                         r"\1 ******")
-        self.do_file_sub('/etc/keystone/keystone.conf',
-                         r"(?m)^(ca_password.*=)(.*)",
-                         r"\1 ******")
+        protect_keys = [
+            "password", "qpid_password", "rabbit_password", "ssl_key_password",
+            "ldap_dns_password", "neutron_admin_password", "host_password",
+            "connection", "admin_password", "admin_token", "ca_password"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/keystone/*", regexp, r"\1*********")
 
 
-class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
+class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'keystone',
@@ -64,7 +61,7 @@ class DebianOpenStackKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
     )
 
 
-class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
+class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
 
     packages = (
         'openstack-keystone',
@@ -73,4 +70,4 @@ class RedHatOpenStackKeystone(OpenStackKeystone, RedHatPlugin):
         'python-keystoneclient'
     )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

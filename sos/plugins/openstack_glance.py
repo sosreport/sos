@@ -17,15 +17,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos import plugins
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class OpenStackGlance(plugins.Plugin):
+class OpenStackGlance(Plugin):
     """OpenStack Glance"""
     plugin_name = "openstack_glance"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("log", "gathers openstack-glance logs", "slow", False)]
+    option_list = []
 
     def setup(self):
         # Glance
@@ -33,15 +33,29 @@ class OpenStackGlance(plugins.Plugin):
             "glance-manage db_version",
             suggest_filename="glance_db_version"
         )
-        self.add_copy_spec([
-            "/etc/glance/",
-            "/var/log/glance/"
-        ])
+
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/glance/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/glance/*.log",
+                                     sizelimit=self.limit)
+
+        self.add_copy_spec("/etc/glance/")
+
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "password", "qpid_password", "rabbit_password",
+            "s3_store_secret_key", "ssl_key_password", "connection",
+            "vmware_server_password"
+        ]
+
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/glance/*", regexp, r"\1*********")
 
 
-class DebianOpenStackGlance(OpenStackGlance,
-                            plugins.DebianPlugin,
-                            plugins.UbuntuPlugin):
+class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 
     packages = (
         'glance',
@@ -53,11 +67,11 @@ class DebianOpenStackGlance(OpenStackGlance,
     )
 
 
-class RedHatOpenStackGlance(OpenStackGlance, plugins.RedHatPlugin):
+class RedHatGlance(OpenStackGlance, RedHatPlugin):
 
     packages = (
         'openstack-glance',
         'python-glanceclient'
     )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

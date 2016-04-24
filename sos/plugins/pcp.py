@@ -156,4 +156,4 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         self.add_cmd_output("pcp")
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

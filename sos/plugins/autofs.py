@@ -68,4 +68,4 @@ class DebianAutofs(Autofs, DebianPlugin, UbuntuPlugin):
         super(DebianAutofs, self).setup()
         self.add_cmd_output("dpkg-query -s autofs")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

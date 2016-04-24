@@ -34,4 +34,4 @@ class SystemTap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "stap-report"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

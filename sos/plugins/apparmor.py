@@ -25,7 +25,15 @@ class Apparmor(Plugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/apparmor"
+            "/etc/apparmor*"
+        ])
+        self.add_forbidden_path("/etc/apparmor.d/cache")
+        self.add_forbidden_path("/etc/apparmor.d/libvirt/libvirt*")
+        self.add_forbidden_path("/etc/apparmor.d/abstractions")
+        self.add_cmd_output([
+            "apparmor_status",
+            "ls -alh /etc/apparmor.d/abstractions",
+            "ls -alh /etc/apparmor.d/libvirt",
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

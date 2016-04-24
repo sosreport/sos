@@ -24,10 +24,9 @@ class OpenStackNova(Plugin):
     """OpenStack Nova
     """
     plugin_name = "openstack_nova"
-    profiles = ('openstack',)
+    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
-    option_list = [("log", "gathers openstack nova logs", "slow", True),
-                   ("cmds", "gathers openstack nova commands", "slow", False)]
+    option_list = [("cmds", "gathers openstack nova commands", "slow", False)]
 
     def setup(self):
         if self.get_option("cmds"):
@@ -56,8 +55,13 @@ class OpenStackNova(Plugin):
                 "nova-manage vm list",
                 suggest_filename="nova_vm_list")
 
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/nova/")
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/nova/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/nova/*.log",
+                                     sizelimit=self.limit)
 
         self.add_copy_spec("/etc/nova/")
 
@@ -66,16 +70,16 @@ class OpenStackNova(Plugin):
             "ldap_dns_password", "neutron_admin_password", "rabbit_password",
             "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
             "xenapi_connection_password", "password", "host_password",
-            "vnc_password", "connection", "sql_connection", "admin_password"
+            "vnc_password", "connection", "sql_connection", "admin_password",
+            "connection_password", "memcache_secret_key", "s3_secret_key",
+            "metadata_proxy_shared_secret"
         ]
 
-        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-
-        for conf_file in ["/etc/nova/nova.conf", "/etc/nova/api-paste.ini"]:
-            self.do_file_sub(conf_file, regexp, r"\1*********")
+        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        self.do_path_regex_sub("/etc/nova/*", regexp, r"\1*********")
 
 
-class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
+class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 
     nova = False
     packages = (
@@ -107,11 +111,11 @@ class DebianOpenStackNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         return self.nova
 
     def setup(self):
-        super(DebianOpenStackNova, self).setup()
+        super(DebianNova, self).setup()
         self.add_copy_spec(["/etc/sudoers.d/nova_sudoers"])
 
 
-class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
+class RedHatNova(OpenStackNova, RedHatPlugin):
 
     nova = False
     packages = (
@@ -137,7 +141,7 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
         return self.nova
 
     def setup(self):
-        super(RedHatOpenStackNova, self).setup()
+        super(RedHatNova, self).setup()
         self.add_copy_spec([
             "/etc/logrotate.d/openstack-nova",
             "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
@@ -146,4 +150,4 @@ class RedHatOpenStackNova(OpenStackNova, RedHatPlugin):
             "/etc/sysconfig/openstack-nova-novncproxy"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

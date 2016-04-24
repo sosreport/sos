@@ -29,6 +29,9 @@ class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/sysvipc/sem",
             "/proc/sysvipc/shm"
         ])
-        self.add_cmd_output("ipcs")
+        self.add_cmd_output([
+            "ipcs",
+            "ipcs -u"
+        ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

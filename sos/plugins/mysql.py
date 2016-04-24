@@ -37,6 +37,8 @@ class Mysql(Plugin):
 
         self.add_copy_spec([
             self.mysql_cnf,
+            # Required for MariaDB under pacemaker (MariaDB-Galera)
+            "/var/log/mysqld.log",
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
@@ -107,4 +109,4 @@ class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
         super(DebianMysql, self).setup()
         self.add_copy_spec("/etc/mysql/conf.d/mysql*")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

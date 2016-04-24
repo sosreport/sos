@@ -40,6 +40,9 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "ls -lanR /boot",
             "lsinitrd"
         ])
+
+        self.add_cmd_output("efibootmgr")
+
         if self.get_option("all-images"):
             for image in glob('/boot/initr*.img'):
                 if image[-9:] == "kdump.img":
@@ -47,4 +50,4 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 self.add_cmd_output("lsinitrd %s" % image)
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

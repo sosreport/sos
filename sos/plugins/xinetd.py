@@ -33,4 +33,4 @@ class Xinetd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/xinetd.d"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

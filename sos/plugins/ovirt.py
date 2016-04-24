@@ -83,6 +83,9 @@ class Ovirt(Plugin, RedHatPlugin):
 
         self.add_forbidden_path('/etc/ovirt-engine/.pgpass')
         self.add_forbidden_path('/etc/rhevm/.pgpass')
+        # Copy all engine tunables and domain information
+        self.add_cmd_output("engine-config --all")
+        self.add_cmd_output("engine-manage-domains list")
         # Copy engine config files.
         self.add_copy_spec([
             "/etc/ovirt-engine",
@@ -186,5 +189,16 @@ class Ovirt(Plugin, RedHatPlugin):
                 r'{key}=********'.format(key=key)
             )
 
+        # aaa profiles contain passwords
+        protect_keys = [
+            "vars.password",
+            "pool.default.auth.simple.password",
+            "pool.default.ssl.truststore.password",
+            "config.datasource.dbpassword"
+        ]
+        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+
+        self.do_path_regex_sub("/etc/ovirt-engine/aaa/.*\.properties", regexp,
+                               r"\1*********")
 
 # vim: expandtab tabstop=4 shiftwidth=4

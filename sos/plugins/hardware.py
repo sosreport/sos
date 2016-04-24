@@ -35,4 +35,4 @@ class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("dmidecode", root_symlink="dmidecode")
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

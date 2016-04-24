@@ -51,4 +51,4 @@ class Teamd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 "teamnl %s ports" % team
             ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

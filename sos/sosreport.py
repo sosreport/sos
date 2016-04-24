@@ -32,7 +32,9 @@ from sos.utilities import ImporterHelper
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
 from collections import deque
+from shutil import rmtree
 import tempfile
+import hashlib
 
 from sos import _sos as _
 from sos import __version__
@@ -225,6 +227,10 @@ class XmlReport(object):
         outf.close()
 
 
+# valid modes for --chroot
+chroot_modes = ["auto", "always", "never"]
+
+
 class SoSOptions(object):
     _list_plugins = False
     _noplugins = []
@@ -246,7 +252,9 @@ class SoSOptions(object):
     _list_profiles = False
     _config_file = ""
     _tmp_dir = ""
-    _report = True
+    _noreport = False
+    _sysroot = None
+    _chroot = 'auto'
     _compression_type = 'auto'
 
     _options = None
@@ -516,17 +524,43 @@ class SoSOptions(object):
         self._tmp_dir = value
 
     @property
-    def report(self):
+    def noreport(self):
         if self._options is not None:
-            return self._options.report
-        return self._report
+            return self._options.noreport
+        return self._noreport
 
-    @report.setter
-    def report(self, value):
+    @noreport.setter
+    def noreport(self, value):
         self._check_options_initialized()
         if not isinstance(value, bool):
-            raise TypeError("SoSOptions.report expects a boolean")
-        self._report = value
+            raise TypeError("SoSOptions.noreport expects a boolean")
+        self._noreport = value
+
+    @property
+    def sysroot(self):
+        if self._options is not None:
+            return self._options.sysroot
+        return self._sysroot
+
+    @sysroot.setter
+    def sysroot(self, value):
+        self._check_options_initialized()
+        self._sysroot = value
+
+    @property
+    def chroot(self):
+        if self._options is not None:
+            return self._options.chroot
+        return self._chroot
+
+    @chroot.setter
+    def chroot(self, value):
+        self._check_options_initialized()
+        if value not in chroot_modes:
+            msg = "SoSOptions.chroot '%s' is not a valid chroot mode: "
+            msg += "('auto', 'always', 'never')"
+            raise ValueError(msg % value)
+        self._chroot = value
 
     @property
     def compression_type(self):
@@ -614,8 +648,15 @@ class SoSOptions(object):
                           help="specify alternate temporary directory",
                           default=None)
         parser.add_option("--no-report", action="store_true",
-                          dest="report",
+                          dest="noreport",
                           help="Disable HTML/XML reporting", default=False)
+        parser.add_option("-s", "--sysroot", action="store", dest="sysroot",
+                          help="system root directory path (default='/')",
+                          default=None)
+        parser.add_option("-c", "--chroot", action="store", dest="chroot",
+                          help="chroot executed commands to SYSROOT "
+                               "[auto, always, never] (default=auto)",
+                               default="auto")
         parser.add_option("-z", "--compression-type", dest="compression_type",
                           help="compression technology to use [auto, "
                                "gzip, bzip2, xz] (default=auto)",
@@ -637,6 +678,9 @@ class SoSReport(object):
         self.archive = None
         self.tempfile_util = None
         self._args = args
+        self.sysroot = "/"
+        self.sys_tmp = None
+        self.exit_process = False
 
         try:
             import signal
@@ -649,23 +693,49 @@ class SoSReport(object):
         self._read_config()
 
         try:
-            self.policy = sos.policies.load()
+            self.policy = sos.policies.load(sysroot=self.opts.sysroot)
         except KeyboardInterrupt:
             self._exit(0)
 
         self._is_root = self.policy.is_root()
 
-        self.tmpdir = os.path.abspath(
-            self.policy.get_tmp_dir(self.opts.tmp_dir))
-        if not os.path.isdir(self.tmpdir) \
-                or not os.access(self.tmpdir, os.W_OK):
-            msg = "temporary directory %s " % self.tmpdir
+        # system temporary directory to use
+        tmp = os.path.abspath(self.policy.get_tmp_dir(self.opts.tmp_dir))
+
+        if not os.path.isdir(tmp) \
+                or not os.access(tmp, os.W_OK):
+            msg = "temporary directory %s " % tmp
             msg += "does not exist or is not writable\n"
             # write directly to stderr as logging is not initialised yet
             sys.stderr.write(msg)
             self._exit(1)
+
+        self.sys_tmp = tmp
+
+        # our (private) temporary directory
+        self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=self.sys_tmp)
         self.tempfile_util = TempFileUtil(self.tmpdir)
+
         self._set_directories()
+
+        self._setup_logging()
+
+        msg = "default"
+        host_sysroot = self.policy.host_sysroot()
+        # set alternate system root directory
+        if self.opts.sysroot:
+            msg = "cmdline"
+            self.sysroot = self.opts.sysroot
+        elif self.policy.in_container() and host_sysroot != os.sep:
+            msg = "policy"
+            self.sysroot = host_sysroot
+        self.soslog.debug("set sysroot to '%s' (%s)" % (self.sysroot, msg))
+
+        if self.opts.chroot not in chroot_modes:
+            self.soslog.error("invalid chroot mode: %s" % self.opts.chroot)
+            logging.shutdown()
+            self.tempfile_util.clean()
+            self._exit(1)
 
     def print_header(self):
         self.ui_log.info("\n%s\n" % _("sosreport (version %s)" %
@@ -679,6 +749,7 @@ class SoSReport(object):
             'tmpdir': self.tmpdir,
             'soslog': self.soslog,
             'policy': self.policy,
+            'sysroot': self.sysroot,
             'verbosity': self.opts.verbosity,
             'xmlreport': self.xml_report,
             'cmdlineopts': self.opts,
@@ -738,8 +809,15 @@ class SoSReport(object):
 
     def get_exit_handler(self):
         def exit_handler(signum, frame):
+            self.exit_process = True
             self._exit()
         return exit_handler
+
+    def handle_exception(self, plugname=None, func=None):
+        if self.raise_plugins or self.exit_process:
+            raise
+        if plugname and func:
+            self._log_plugin_exception(plugname, func)
 
     def _read_config(self):
         self.config = ConfigParser()
@@ -870,6 +948,7 @@ class SoSReport(object):
             extra_classes.append(sos.plugins.ExperimentalPlugin)
         valid_plugin_classes = tuple(policy_classes + extra_classes)
         validate_plugin = self.policy.validate_plugin
+        remaining_profiles = list(self.opts.profiles)
         # validate and load plugins
         for plug in plugins:
             plugbase, ext = os.path.splitext(plug)
@@ -880,6 +959,7 @@ class SoSReport(object):
                     continue
 
                 plugin_class = self.policy.match_plugin(plugin_classes)
+
                 if not validate_plugin(plugin_class,
                                        experimental=self.opts.experimental):
                     self.soslog.warning(
@@ -922,12 +1002,19 @@ class SoSReport(object):
                     self._skip(plugin_class, _("not specified"))
                     continue
 
+                for i in plugin_class.profiles:
+                    if i in remaining_profiles:
+                        remaining_profiles.remove(i)
                 self._load(plugin_class)
             except Exception as e:
                 self.soslog.warning(_("plugin %s does not install, "
                                       "skipping: %s") % (plug, e))
-                if self.raise_plugins:
-                    raise
+                self.handle_exception()
+        if len(remaining_profiles) > 0:
+            self.soslog.error(_("Unknown or inactive profile(s) provided:"
+                                " %s") % ", ".join(remaining_profiles))
+            self.list_profiles()
+            self._exit(1)
 
     def _set_all_options(self):
         if self.opts.usealloptions:
@@ -1157,13 +1244,9 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "setup")
+                self.handle_exception(plugname, "setup")
             except:
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "setup")
+                self.handle_exception(plugname, "setup")
 
     def version(self):
         """Fetch version information from all plugins and store in the report
@@ -1171,8 +1254,10 @@ class SoSReport(object):
 
         versions = []
         versions.append("sosreport: %s" % __version__)
+
         for plugname, plug in self.loaded_plugins:
             versions.append("%s: %s" % (plugname, plug.version))
+
         self.archive.add_string(content="\n".join(versions),
                                 dest='version.txt')
 
@@ -1205,13 +1290,9 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "collect")
+                self.handle_exception(plugname, "collect")
             except:
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "collect")
+                self.handle_exception(plugname, "collect")
         self.ui_log.info("")
 
     def report(self):
@@ -1334,8 +1415,7 @@ class SoSReport(object):
             try:
                 html = plug.report()
             except:
-                if self.raise_plugins:
-                    raise
+                self.handle_exception()
             else:
                 rfd.write(html)
         rfd.write("</body></html>")
@@ -1354,33 +1434,51 @@ class SoSReport(object):
                                       % e.strerror)
                     self.ui_log.error("")
                     self._exit(1)
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "postproc")
+                self.handle_exception(plugname, "postproc")
             except:
-                if self.raise_plugins:
-                    raise
-                self._log_plugin_exception(plugname, "postproc")
+                self.handle_exception(plugname, "postproc")
+
+    def _create_checksum(self, archive, hash_name):
+        if not archive:
+            return False
+
+        archive_fp = open(archive, 'rb')
+        digest = hashlib.new(hash_name)
+        digest.update(archive_fp.read())
+        archive_fp.close()
+        return digest.hexdigest()
+
+    def _write_checksum(self, archive, hash_name, checksum):
+            # store checksum into file
+            fp = open(archive + "." + hash_name, "w")
+            if checksum:
+                fp.write(checksum + "\n")
+            fp.close()
 
     def final_work(self):
-        # this must come before archive creation to ensure that log
+        # This must come before archive creation to ensure that log
         # files are closed and cleaned up at exit.
+        #
+        # All subsequent terminal output must use print().
         self._finish_logging()
-        # package up the results for the support organization
+
+        archive = None    # archive path
+        directory = None  # report directory path (--build)
+
+        # package up and compress the results
         if not self.opts.build:
             old_umask = os.umask(0o077)
             if not self.opts.quiet:
                 print(_("Creating compressed archive..."))
             # compression could fail for a number of reasons
             try:
-                final_filename = self.archive.finalize(
+                archive = self.archive.finalize(
                     self.opts.compression_type)
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
-                    self.ui_log.error("")
-                    self.ui_log.error(" %s while finalizing archive"
-                                      % e.strerror)
-                    self.ui_log.error("")
+                    print("")
+                    print(_(" %s while finalizing archive" % e.strerror))
+                    print("")
                     self._exit(1)
             except:
                 if self.opts.debug:
@@ -1390,9 +1488,66 @@ class SoSReport(object):
             finally:
                 os.umask(old_umask)
         else:
-            final_filename = self.archive.get_archive_path()
-        self.policy.display_results(final_filename, build=self.opts.build)
-        self.tempfile_util.clean()
+            # move the archive root out of the private tmp directory.
+            directory = self.archive.get_archive_path()
+            dir_name = os.path.basename(directory)
+            try:
+                final_dir = os.path.join(self.sys_tmp, dir_name)
+                os.rename(directory, final_dir)
+                directory = final_dir
+            except (OSError, IOError):
+                    print(_("Error moving directory: %s" % directory))
+                    return False
+
+        checksum = None
+
+        if not self.opts.build:
+            # compute and store the archive checksum
+            hash_name = self.policy.get_preferred_hash_name()
+            checksum = self._create_checksum(archive, hash_name)
+            self._write_checksum(archive, hash_name, checksum)
+
+            # output filename is in the private tmpdir - move it to the
+            # containing directory.
+            final_name = os.path.join(self.sys_tmp, os.path.basename(archive))
+
+            archive_hash = archive + "." + hash_name
+            final_hash = final_name + "." + hash_name
+
+            # move the archive and checksum file
+            try:
+                    os.rename(archive, final_name)
+                    archive = final_name
+            except (OSError, IOError):
+                    print(_("Error moving archive file: %s" % archive))
+                    return False
+
+            # There is a race in the creation of the final checksum file:
+            # since the archive has already been published and the checksum
+            # file name is predictable once the archive name is known a
+            # malicious user could attempt to create a symbolic link in order
+            # to misdirect writes to a file of the attacker's choosing.
+            #
+            # To mitigate this we write the checksum inside the private tmp
+            # directory and use an atomic rename that is guaranteed to either
+            # succeed or fail: at worst the move will fail and be reported to
+            # the user. The correct checksum value is still written to the
+            # terminal and nothing is written to a location under the control
+            # of the user creating the link.
+            try:
+                    os.rename(archive_hash, final_hash)
+            except (OSError, IOError):
+                    print(_("Error moving checksum file: %s" % archive_hash))
+                    return False
+
+        self.policy.display_results(archive, directory, checksum)
+
+        # clean up
+        if self.tempfile_util:
+            self.tempfile_util.clean()
+        if self.tmpdir:
+            rmtree(self.tmpdir)
+
         return True
 
     def verify_plugins(self):
@@ -1406,7 +1561,6 @@ class SoSReport(object):
 
     def execute(self):
         try:
-            self._setup_logging()
             self.policy.set_commons(self.get_commons())
             self.print_header()
             self.load_plugins()
@@ -1430,7 +1584,7 @@ class SoSReport(object):
             self.prework()
             self.setup()
             self.collect()
-            if not self.opts.report:
+            if not self.opts.noreport:
                 self.report()
                 self.html_report()
                 self.plain_report()
@@ -1447,8 +1601,10 @@ class SoSReport(object):
                     self.archive.cleanup()
                 if self.tempfile_util:
                     self.tempfile_util.clean()
+                if self.tmpdir:
+                    rmtree(self.tmpdir)
             except:
-                pass
+                raise
 
         return False
 
@@ -1458,4 +1614,4 @@ def main(args):
     sos = SoSReport(args)
     sos.execute()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

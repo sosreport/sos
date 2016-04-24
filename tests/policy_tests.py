@@ -68,4 +68,4 @@ class PackageManagerTests(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

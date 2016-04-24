@@ -42,4 +42,4 @@ class Veritas(Plugin, RedHatPlugin):
             if len(tarfile) == 1:
                 self.add_copy_spec(tarfile[0])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

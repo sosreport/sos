@@ -36,7 +36,7 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("free", root_symlink="free")
         self.add_cmd_output([
             "free -m",
-            "swapon --show"
+            "swapon --bytes --show"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

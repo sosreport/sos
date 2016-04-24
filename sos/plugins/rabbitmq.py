@@ -26,8 +26,9 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_cmd_output("rabbitmqctl report")
         self.add_cmd_output("rabbitmqctl cluster_status")
+        self.add_cmd_output("rabbitmqctl list_policies")
 
         self.add_copy_spec("/etc/rabbitmq/*")
         self.add_copy_spec_limit("/var/log/rabbitmq/*",
                                  sizelimit=self.get_option('log_size'))
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -24,9 +24,11 @@ class Yum(Plugin, RedHatPlugin):
 
     files = ('/etc/yum.conf',)
     packages = ('yum',)
-    option_list = [("yumlist", "list repositories and packages", "slow",
-                    False),
-                   ("yumdebug", "gather yum debugging data", "slow", False)]
+
+    option_list = [
+        ("yumlist", "list repositories and packages", "slow", False),
+        ("yumdebug", "gather yum debugging data", "slow", False)
+    ]
 
     def setup(self):
         # Pull all yum related information
@@ -34,7 +36,8 @@ class Yum(Plugin, RedHatPlugin):
             "/etc/yum",
             "/etc/yum.repos.d",
             "/etc/yum.conf",
-            "/var/log/yum.log"])
+            "/var/log/yum.log"
+        ])
 
         # Get a list of channels the machine is subscribed to.
         self.add_cmd_output("yum -C repolist")
@@ -45,18 +48,9 @@ class Yum(Plugin, RedHatPlugin):
         self.add_copy_spec([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",
-            "/etc/pki/entitlement/*.pem",
-            "/etc/rhsm/",
-            "/var/log/rhsm/rhsm.log",
-            "/var/log/rhsm/rhsmcertd.log"])
-        self.add_cmd_output([
-            "subscription-manager list --installed",
-            "subscription-manager list --consumed",
-            "subscription-manager identity"
+            "/etc/pki/entitlement/*.pem"
         ])
-        self.add_cmd_output("rhsm-debug system --sos --no-archive "
-                            "--no-subscriptions --destination %s"
-                            % self.get_cmd_output_path())
+        self.add_cmd_output("yum history")
 
         if self.get_option("yumlist"):
             # List various information about available packages
@@ -72,4 +66,4 @@ class Yum(Plugin, RedHatPlugin):
             except IndexError:
                 pass
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

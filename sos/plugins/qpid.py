@@ -23,27 +23,47 @@ class Qpid(Plugin, RedHatPlugin):
     profiles = ('services',)
 
     packages = ('qpidd', 'qpid-cpp-server', 'qpid-tools')
+    option_list = [("port", "listening port to connect to", '', ""),
+                   ("ssl-certificate",
+                    "Path to file containing client SSL certificate", '', ""),
+                   ("ssl-key",
+                    "Path to file containing client SSL private key", '', ""),
+                   ("ssl", "enforce SSL / amqps connection", '', False)]
 
     def setup(self):
         """ performs data collection for qpid broker """
+        options = ""
+        amqps_prefix = ""  # set amqps:// when SSL is used
+        if self.get_option("ssl"):
+            amqps_prefix = "amqps://"
+        # for either present option, add --option=value to 'options' variable
+        for option in ["ssl-certificate", "ssl-key"]:
+            if self.get_option(option):
+                amqps_prefix = "amqps://"
+                options = (options + " --%s=" % (option) +
+                           self.get_option(option))
+        if self.get_option("port"):
+            options = (options + " -b " + amqps_prefix +
+                       "localhost:%s" % (self.get_option("port")))
+
         self.add_cmd_output([
-            "qpid-stat -g",  # applies since 0.18 version
-            "qpid-stat -b",  # applies to pre-0.18 versions
-            "qpid-stat -c",
-            "qpid-stat -e",
-            "qpid-stat -q",
-            "qpid-stat -u",
-            "qpid-stat -m",  # applies since 0.18 version
-            "qpid-config exchanges"
-            "qpid-config queues"
-            "qpid-config exchanges -b",  # applies to pre-0.18 versions
-            "qpid-config queues -b",  # applies to pre-0.18 versions
-            "qpid-config exchanges -r",  # applies since 0.18 version
-            "qpid-config queues -r",  # applies since 0.18 version
-            "qpid-route link list",
-            "qpid-route route list",
-            "qpid-cluster",  # applies to pre-0.22 versions
-            "qpid-ha query",  # applies since 0.22 version
+            "qpid-stat -g" + options,  # applies since 0.18 version
+            "qpid-stat -b" + options,  # applies to pre-0.18 versions
+            "qpid-stat -c" + options,
+            "qpid-stat -e" + options,
+            "qpid-stat -q" + options,
+            "qpid-stat -u" + options,
+            "qpid-stat -m" + options,  # applies since 0.18 version
+            "qpid-config exchanges" + options,
+            "qpid-config queues" + options,
+            "qpid-config exchanges -b" + options,  # applies to pre-0.18 vers.
+            "qpid-config queues -b" + options,  # applies to pre-0.18 versions
+            "qpid-config exchanges -r" + options,  # applies since 0.18 version
+            "qpid-config queues -r" + options,  # applies since 0.18 version
+            "qpid-route link list" + options,
+            "qpid-route route list" + options,
+            "qpid-cluster" + options,  # applies to pre-0.22 versions
+            "qpid-ha query" + options,  # applies since 0.22 version
             "ls -lanR /var/lib/qpidd"
         ])
 
@@ -65,4 +85,4 @@ class Qpid(Plugin, RedHatPlugin):
             "/var/log/cumin"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

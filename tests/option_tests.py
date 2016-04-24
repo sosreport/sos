@@ -8,10 +8,11 @@ class GlobalOptionTest(unittest.TestCase):
 
     def setUp(self):
         self.commons = {
+            'sysroot': '/',
             'global_plugin_options': {
                 'test_option': 'foobar',
                 'baz': None,
-                'empty_global': True,
+                'empty_global': True
             },
         }
         self.plugin = Plugin(self.commons)
@@ -33,4 +34,4 @@ class GlobalOptionTest(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -30,4 +30,4 @@ class Ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/ssh/sshd_config"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

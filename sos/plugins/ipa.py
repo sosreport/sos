@@ -92,4 +92,4 @@ class Ipa(Plugin, RedHatPlugin):
         self.do_file_sub("/etc/named.conf", match, subst)
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -27,8 +27,10 @@ class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/proc/mdstat",
             "/etc/mdadm.conf",
-            "/dev/md/md-device-map"
+            "/dev/md/md-device-map",
+            "/proc/sys/dev/raid/*",
+            "/sys/block/md*/md*"
         ])
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

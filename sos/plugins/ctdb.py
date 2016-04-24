@@ -48,4 +48,4 @@ class RedHatCtdb(Ctdb, RedHatPlugin):
         super(RedHatCtdb, self).setup()
         self.add_copy_spec("/etc/sysconfig/ctdb")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

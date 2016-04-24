@@ -127,50 +127,53 @@ class PluginToolTests(unittest.TestCase):
 
 class PluginTests(unittest.TestCase):
 
+    sysroot = os.getcwd()
+
     def setUp(self):
         self.mp = MockPlugin({
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'sysroot': self.sysroot
         })
         self.mp.archive = MockArchive()
 
     def test_plugin_default_name(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.name(), "mockplugin")
 
     def test_plugin_set_name(self):
-        p = NamedMockPlugin({})
+        p = NamedMockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.name(), "testing")
 
     def test_plugin_no_descrip(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.get_description(), "<no description available>")
 
     def test_plugin_no_descrip(self):
-        p = NamedMockPlugin({})
+        p = NamedMockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.get_description(), "This plugin has a description.")
 
     def test_set_plugin_option(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         p.set_option("opt", "testing")
         self.assertEquals(p.get_option("opt"), "testing")
 
     def test_set_nonexistant_plugin_option(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertFalse(p.set_option("badopt", "testing"))
 
     def test_get_nonexistant_plugin_option(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.get_option("badopt"), 0)
 
     def test_get_unset_plugin_option(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.get_option("opt"), 0)
 
     def test_get_unset_plugin_option_with_default(self):
         # this shows that even when we pass in a default to get,
         # we'll get the option's default as set in the plugin
         # this might not be what we really want
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.get_option("opt", True), True)
 
     def test_get_unset_plugin_option_with_default_not_none(self):
@@ -178,20 +181,20 @@ class PluginTests(unittest.TestCase):
         # if the plugin default is not None
         # we'll get the option's default as set in the plugin
         # this might not be what we really want
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.get_option("opt2", True), False)
 
     def test_get_option_as_list_plugin_option(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         p.set_option("opt", "one,two,three")
         self.assertEquals(p.get_option_as_list("opt"), ['one', 'two', 'three'])
 
     def test_get_option_as_list_plugin_option_default(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         self.assertEquals(p.get_option_as_list("opt", default=[]), [])
 
     def test_get_option_as_list_plugin_option_not_list(self):
-        p = MockPlugin({})
+        p = MockPlugin({'sysroot': self.sysroot})
         p.set_option("opt", "testing")
         self.assertEquals(p.get_option_as_list("opt"), ['testing'])
 
@@ -205,7 +208,8 @@ class PluginTests(unittest.TestCase):
 
     def test_copy_dir_forbidden_path(self):
         p = ForbiddenMockPlugin({
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'sysroot': self.sysroot
         })
         p.archive = MockArchive()
         p.setup()
@@ -219,12 +223,18 @@ class AddCopySpecTests(unittest.TestCase):
 
     def setUp(self):
         self.mp = MockPlugin({
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'sysroot': os.getcwd()
         })
         self.mp.archive = MockArchive()
 
     def assert_expect_paths(self):
-        self.assertEquals(self.mp.copy_paths, self.expect_paths)
+        def pathmunge(path):
+            if path[0] == '/':
+                path = path[1:]
+            return os.path.join(self.mp.sysroot, path)
+        expected_paths = set(map(pathmunge, self.expect_paths))
+        self.assertEquals(self.mp.copy_paths, expected_paths)
         
     # add_copy_spec()
 
@@ -242,6 +252,7 @@ class AddCopySpecTests(unittest.TestCase):
     # add_copy_spec_limit()
 
     def test_single_file_over_limit(self):
+        self.mp.sysroot = '/'
         fn = create_file(2) # create 2MB file, consider a context manager
         self.mp.add_copy_spec_limit(fn, 1)
         content, fname = self.mp.copy_strings[0]
@@ -252,10 +263,12 @@ class AddCopySpecTests(unittest.TestCase):
         os.unlink(fn)
 
     def test_bad_filename(self):
+        self.mp.sysroot = '/'
         self.assertFalse(self.mp.add_copy_spec_limit('', 1))
         self.assertFalse(self.mp.add_copy_spec_limit(None, 1))
 
     def test_glob_file_over_limit(self):
+        self.mp.sysroot = '/'
         # assume these are in /tmp
         fn = create_file(2)
         fn2 = create_file(2)
@@ -271,7 +284,10 @@ class AddCopySpecTests(unittest.TestCase):
 class CheckEnabledTests(unittest.TestCase):
 
     def setUp(self):
-        self.mp = EnablerPlugin({'policy': sos.policies.load()})
+        self.mp = EnablerPlugin({
+            'policy': sos.policies.load(),
+            'sysroot': os.getcwd()
+        })
 
     def test_checks_for_file(self):
         f = j("tail_test.txt")
@@ -296,7 +312,8 @@ class RegexSubTests(unittest.TestCase):
 
     def setUp(self):
         self.mp = MockPlugin({
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'sysroot': os.getcwd()
         })
         self.mp.archive = MockArchive()
 
@@ -310,6 +327,8 @@ class RegexSubTests(unittest.TestCase):
         self.assertEquals(0, replacements)
 
     def test_replacements(self):
+        # test uses absolute paths
+        self.mp.sysroot = '/'
         self.mp.add_copy_spec(j("tail_test.txt"))
         self.mp.collect()
         replacements = self.mp.do_file_sub(j("tail_test.txt"), r"(tail)", "foobar")
@@ -319,4 +338,4 @@ class RegexSubTests(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

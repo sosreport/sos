@@ -10,11 +10,9 @@ from os import environ
 
 from sos.utilities import (ImporterHelper,
                            import_module,
-                           get_hash_name,
                            shell_out)
 from sos.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
-import hashlib
 from textwrap import fill
 from six import print_
 from six.moves import input
@@ -28,7 +26,7 @@ def import_policy(name):
         return None
 
 
-def load(cache={}):
+def load(cache={}, sysroot=None):
     if 'policy' in cache:
         return cache.get('policy')
 
@@ -37,7 +35,7 @@ def load(cache={}):
     for module in helper.get_modules():
         for policy in import_policy(module):
             if policy.check():
-                cache['policy'] = policy()
+                cache['policy'] = policy(sysroot=sysroot)
 
     if 'policy' not in cache:
         cache['policy'] = GenericPolicy()
@@ -57,11 +55,14 @@ class PackageManager(object):
 
     query_command = None
     timeout = 30
+    chroot = None
 
-    def __init__(self, query_command=None):
+    def __init__(self, query_command=None, chroot=None):
         self.packages = {}
         if query_command:
             self.query_command = query_command
+        if chroot:
+            self.chroot = chroot
 
     def all_pkgs_by_name(self, name):
         """
@@ -93,7 +94,11 @@ class PackageManager(object):
                           version': 'major.minor.version'}}
         """
         if self.query_command:
-            pkg_list = shell_out(self.query_command, self.timeout).splitlines()
+            cmd = self.query_command
+            pkg_list = shell_out(
+                cmd, timeout=self.timeout, chroot=self.chroot
+            ).splitlines()
+
             for pkg in pkg_list:
                 if '|' not in pkg:
                     continue
@@ -145,7 +150,10 @@ No changes will be made to system configuration.
     vendor_text = ""
     PATH = ""
 
-    def __init__(self):
+    _in_container = False
+    _host_sysroot = '/'
+
+    def __init__(self, sysroot=None):
         """Subclasses that choose to override this initializer should call
         super() to ensure that they get the required platform bits attached.
         super(SubClass, self).__init__(). Policies that require runtime
@@ -157,6 +165,7 @@ No changes will be made to system configuration.
         self.package_manager = PackageManager()
         self._valid_subclasses = []
         self.set_exec_path()
+        self._host_sysroot = sysroot
 
     def get_valid_subclasses(self):
         return [IndependentPlugin] + self._valid_subclasses
@@ -179,6 +188,14 @@ No changes will be made to system configuration.
         is supported by this policy.
         """
         return False
+
+    def in_container(self):
+        """ Returns True if sos is running inside a container environment.
+        """
+        return self._in_container
+
+    def host_sysroot(self):
+        return self._host_sysroot
 
     def dist_version(self):
         """
@@ -267,43 +284,29 @@ No changes will be made to system configuration.
         considered to be a superuser"""
         return (os.getuid() == 0)
 
-    def _create_checksum(self, final_filename=None):
-        if not final_filename:
-            return False
-
-        archive_fp = open(final_filename, 'rb')
-        digest = hashlib.new(get_hash_name())
-        digest.update(archive_fp.read())
-        archive_fp.close()
-        return digest.hexdigest()
-
-    def get_preferred_hash_algorithm(self):
+    def get_preferred_hash_name(self):
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""
         return "md5"
 
-    def display_results(self, final_filename=None, build=False):
+    def display_results(self, archive, directory, checksum):
+        # Display results is called from the tail of SoSReport.final_work()
+        #
+        # Logging is already shutdown and all terminal output must use the
+        # print() call.
 
         # make sure a report exists
-        if not final_filename:
+        if not archive and not directory:
             return False
 
         self._print()
 
-        if not build:
-            # store checksum into file
-            fp = open(final_filename + "." + get_hash_name(), "w")
-            checksum = self._create_checksum(final_filename)
-            if checksum:
-                fp.write(checksum + "\n")
-            fp.close()
-
+        if archive:
             self._print(_("Your sosreport has been generated and saved "
-                        "in:\n  %s") % final_filename)
+                        "in:\n  %s") % archive)
         else:
-            checksum = None
             self._print(_("sosreport build tree is located at : %s" %
-                        final_filename))
+                        directory))
 
         self._print()
         if checksum:
@@ -354,20 +357,28 @@ class LinuxPolicy(Policy):
     vendor = "None"
     PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
 
-    def __init__(self):
-        super(LinuxPolicy, self).__init__()
+    _preferred_hash_name = None
 
-    def get_preferred_hash_algorithm(self):
+    def __init__(self, sysroot=None):
+        super(LinuxPolicy, self).__init__(sysroot=sysroot)
+
+    def get_preferred_hash_name(self):
+
+        if self._preferred_hash_name:
+            return self._preferred_hash_name
+
         checksum = "md5"
         try:
             fp = open("/proc/sys/crypto/fips_enabled", "r")
         except:
+            self._preferred_hash_name = checksum
             return checksum
 
         fips_enabled = fp.read()
         if fips_enabled.find("1") >= 0:
             checksum = "sha256"
         fp.close()
+        self._preferred_hash_name = checksum
         return checksum
 
     def default_runlevel(self):
@@ -442,4 +453,4 @@ class LinuxPolicy(Policy):
         return
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

@@ -34,6 +34,7 @@ class Docker(Plugin):
         ])
 
         self.add_cmd_output([
+            "journalctl -u docker",
             "{0} info".format(self.docker_bin),
             "{0} ps".format(self.docker_bin),
             "{0} images".format(self.docker_bin)
@@ -54,7 +55,7 @@ class Docker(Plugin):
 
 class RedHatDocker(Docker, RedHatPlugin):
 
-    packages = ('docker-io',)
+    packages = ('docker', 'docker-io')
 
     def setup(self):
         super(RedHatDocker, self).setup()
@@ -77,4 +78,4 @@ class UbuntuDocker(Docker, UbuntuPlugin):
             "/etc/default/docker.io"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

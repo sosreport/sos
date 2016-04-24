@@ -180,6 +180,8 @@ class FileCacheArchive(Archive):
         dest = self.dest_path(dest)
         self._check_path(dest)
         f = codecs.open(dest, 'w', encoding='utf-8')
+        if isinstance(content, bytes):
+            content = content.decode('utf8', 'ignore')
         f.write(content)
         if os.path.exists(src):
             try:
@@ -193,7 +195,7 @@ class FileCacheArchive(Archive):
     def add_link(self, source, link_name):
         dest = self.dest_path(link_name)
         self._check_path(dest)
-        if not os.path.exists(dest):
+        if not os.path.lexists(dest):
             os.symlink(source, dest)
         self.log_debug("added symlink at '%s' to '%s' in FileCacheArchive '%s'"
                        % (dest, source, self._archive_root))
@@ -414,4 +416,4 @@ class TarFileArchive(FileCacheArchive):
                 last_error = e
         raise last_error
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

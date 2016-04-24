@@ -45,4 +45,4 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             suggest_filename="apt-cache_policy_details"
         )
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

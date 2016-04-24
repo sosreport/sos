@@ -37,7 +37,7 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             lvmdump_opts = "-a -m"
         cmd = lvmdump_cmd % (lvmdump_opts,
                              self.get_cmd_output_path(name="lvmdump"))
-        self.add_cmd_output(cmd)
+        self.add_cmd_output(cmd, chroot=self.tmp_in_sysroot())
 
     def setup(self):
         # use locking_type 0 (no locks) when running LVM2 commands,
@@ -74,4 +74,4 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         elif self.get_option('lvmdump-am'):
             self.do_lvmdump(metadata=True)
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

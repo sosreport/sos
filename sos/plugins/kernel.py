@@ -30,6 +30,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # compat
         self.add_cmd_output("uname -a", root_symlink="uname")
         self.add_cmd_output("lsmod", root_symlink="lsmod")
+        self.add_cmd_output("ls -lt /sys/kernel/slab")
 
         try:
             modules = os.listdir(self.sys_module)
@@ -54,6 +55,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "find %s -ls" % " ".join(extra_mod_paths)
         ])
 
+        clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
         self.add_copy_spec([
             "/proc/modules",
             "/proc/sys/kernel/random/boot_id",
@@ -81,7 +83,9 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/timer*",
             "/proc/lock*",
             "/proc/misc",
-            "/var/log/dmesg"
+            "/var/log/dmesg",
+            clocksource_path + "available_clocksource",
+            clocksource_path + "current_clocksource"
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

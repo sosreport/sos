@@ -39,6 +39,7 @@ class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.add_cmd_output("dmraid -%s" % (opt,))
         if self.get_option("metadata"):
             metadata_path = self.get_cmd_output_path("metadata")
-            self.add_cmd_output("dmraid -rD", runat=metadata_path)
+            self.add_cmd_output("dmraid -rD", runat=metadata_path,
+                                chroot=self.tmp_in_sysroot())
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

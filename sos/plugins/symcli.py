@@ -93,4 +93,4 @@ class Symcli(Plugin, RedHatPlugin):
         self.get_symcli_files()
         self.get_symcli_config()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

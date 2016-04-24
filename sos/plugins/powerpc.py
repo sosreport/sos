@@ -83,8 +83,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         if isPowerNV:
             self.add_copy_spec([
                 "/proc/ppc64/eeh",
-                "/proc/ppc64/systemcfg"
-                "/proc/ppc64/topology_updates"
+                "/proc/ppc64/systemcfg",
+                "/proc/ppc64/topology_updates",
                 "/sys/firmware/opal/msglog",
                 "/var/log/opal-elog/"
             ])
@@ -92,4 +92,4 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 self.add_cmd_output("ls -l /var/log/dump")
 
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

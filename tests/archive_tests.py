@@ -8,6 +8,7 @@ import tempfile
 import shutil
 
 from sos.archive import TarFileArchive
+from sos.utilities import tail
 
 # PYCOMPAT
 import six
@@ -37,6 +38,19 @@ class TarFileArchiveTest(unittest.TestCase):
         self.tf.finalize('auto')
 
         self.check_for_file('test/tests/ziptest')
+
+    # when the string comes from tail() output
+    def test_add_string_from_file(self):
+        self.copy_strings = []
+        testfile = tempfile.NamedTemporaryFile(dir=self.tmpdir, delete=False)
+        testfile.write(six.b("*" * 1000))
+        testfile.flush()
+        testfile.close()
+
+        self.copy_strings.append((tail(testfile.name, 100), 'string_test.txt'))
+        self.tf.add_string(self.copy_strings[0][0], 'tests/string_test.txt')
+        self.tf.finalize('auto')
+
 
 # Since commit 179d9bb add_file does not support recursive directory
 # addition. Disable this test for now.
@@ -92,4 +106,4 @@ class TarFileArchiveTest(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

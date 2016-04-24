@@ -15,11 +15,11 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Startup(Plugin):
-    """System startup
+class Services(Plugin):
+    """System services
     """
 
-    plugin_name = "startup"
+    plugin_name = "services"
     profiles = ('system', 'boot')
 
     option_list = [("servicestatus", "get a status of all running services",
@@ -32,20 +32,23 @@ class Startup(Plugin):
         ])
         if self.get_option('servicestatus'):
             self.add_cmd_output("/sbin/service --status-all")
-        self.add_cmd_output("/sbin/runlevel")
+        self.add_cmd_output([
+            "/sbin/runlevel",
+            "ls /var/lock/subsys"
+        ])
 
 
-class RedHatStartup(Startup, RedHatPlugin):
+class RedHatServices(Services, RedHatPlugin):
 
     def setup(self):
-        super(RedHatStartup, self).setup()
+        super(RedHatServices, self).setup()
         self.add_cmd_output("/sbin/chkconfig --list", root_symlink="chkconfig")
 
 
-class DebianStartup(Startup, DebianPlugin, UbuntuPlugin):
+class DebianServices(Services, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
-        super(DebianStartup, self).setup()
+        super(DebianServices, self).setup()
         self.add_copy_spec("/etc/rc*.d")
 
         self.add_cmd_output("/sbin/initctl show-config",
@@ -53,4 +56,4 @@ class DebianStartup(Startup, DebianPlugin, UbuntuPlugin):
         if self.get_option('servicestatus'):
             self.add_cmd_output("/sbin/initctl list")
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

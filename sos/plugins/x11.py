@@ -32,5 +32,9 @@ class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_forbidden_path("/etc/X11/X")
         self.add_forbidden_path("/etc/X11/fontpath.d")
+        self.add_cmd_output([
+            "glxinfo",
+            "xrandr --verbose"
+        ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :
