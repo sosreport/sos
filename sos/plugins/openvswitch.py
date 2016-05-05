@@ -40,7 +40,9 @@ class OpenVSwitch(Plugin):
             # to the Open vSwitch server, avoiding hangs when running sos.
             "ovs-vsctl -t 5 show",
             # Gather the database.
-            "ovsdb-client -f list dump"
+            "ovsdb-client -f list dump",
+            # List the contents of runtime directory
+            "ls -laZ /var/run/openvswitch"
         ])
 
         # Gather additional output for each OVS bridge on the host.
