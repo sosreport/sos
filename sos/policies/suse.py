@@ -29,7 +29,7 @@ class SuSEPolicy(LinuxPolicy):
     vendor_url = "https://www.suse.com/"
     _tmp_dir = "/var/tmp"
 
-    def __init__(self):
+    def __init__(self, sysroot=None):
         super(SuSEPolicy, self).__init__()
         self.report_name = ""
         self.ticket_number = ""
