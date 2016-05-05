@@ -59,7 +59,8 @@ class OpenVSwitch(Plugin):
                     "ovs-ofctl dump-flows %s" % br,
                     "ovs-appctl fdb/show %s" % br,
                     "ovs-ofctl dump-ports %s" % br,
-                    "ovs-ofctl dump-ports-desc %s" % br
+                    "ovs-ofctl dump-ports-desc %s" % br,
+                    "ovs-ofctl queue-stats %s" % br
                 ])
 
 
