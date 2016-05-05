@@ -55,13 +55,13 @@ class OpenVSwitch(Plugin):
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
                 self.add_cmd_output([
-                    "ovs-ofctl show %s" % br,
-                    "ovs-ofctl dump-flows %s" % br,
                     "ovs-appctl fdb/show %s" % br,
-                    "ovs-ofctl dump-ports %s" % br,
+                    "ovs-ofctl dump-flows %s" % br,
                     "ovs-ofctl dump-ports-desc %s" % br,
+                    "ovs-ofctl dump-ports %s" % br,
+                    "ovs-ofctl queue-get-config %s" % br,
                     "ovs-ofctl queue-stats %s" % br,
-                    "ovs-ofctl queue-get-config %s" % br
+                    "ovs-ofctl show %s" % br
                 ])
 
 
