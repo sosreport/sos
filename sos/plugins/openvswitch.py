@@ -45,7 +45,9 @@ class OpenVSwitch(Plugin):
             "ls -laZ /var/run/openvswitch",
             # Gather systemd services logs
             "journalctl -u openvswitch",
-            "journalctl -u openvswitch-nonetwork"
+            "journalctl -u openvswitch-nonetwork",
+            # List devices and their drivers
+            "dpdk_nic_bind --status"
         ])
 
         # Gather additional output for each OVS bridge on the host.
