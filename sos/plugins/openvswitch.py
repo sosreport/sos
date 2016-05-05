@@ -55,7 +55,9 @@ class OpenVSwitch(Plugin):
             # Capture LACP details
             "ovs-appctl lacp/show",
             # Capture coverage stats"
-            "ovs-appctl coverage/show"
+            "ovs-appctl coverage/show",
+            # Capture cached routes
+            "ovs-appctl ovs/route/show"
         ])
 
         # Gather additional output for each OVS bridge on the host.
