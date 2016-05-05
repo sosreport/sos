@@ -51,7 +51,9 @@ class OpenVSwitch(Plugin):
             # Capture a list of all bond devices
             "ovs-appctl bond/list",
             # Capture more details from bond devices
-            "ovs-appctl bond/show"
+            "ovs-appctl bond/show",
+            # Capture LACP details
+            "ovs-appctl lacp/show"
         ])
 
         # Gather additional output for each OVS bridge on the host.
