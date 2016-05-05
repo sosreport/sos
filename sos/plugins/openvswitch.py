@@ -49,7 +49,9 @@ class OpenVSwitch(Plugin):
             # List devices and their drivers
             "dpdk_nic_bind --status",
             # Capture a list of all bond devices
-            "ovs-appctl bond/list"
+            "ovs-appctl bond/list",
+            # Capture more details from bond devices
+            "ovs-appctl bond/show"
         ])
 
         # Gather additional output for each OVS bridge on the host.
