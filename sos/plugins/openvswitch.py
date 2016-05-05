@@ -27,7 +27,9 @@ class OpenVSwitch(Plugin):
 
         self.add_copy_spec([
             "/var/log/openvswitch/ovs-vswitchd.log",
-            "/var/log/openvswitch/ovsdb-server.log"
+            "/var/log/openvswitch/ovsdb-server.log",
+            "/var/run/openvswitch/ovsdb-server.pid",
+            "/var/run/openvswitch/ovs-vswitchd.pid"
         ])
 
         self.add_cmd_output([
