@@ -63,7 +63,9 @@ class OpenVSwitch(Plugin):
             # Capture a list of listening ports"
             "ovs-appctl tnl/ports/show",
             # Capture upcall information
-            "ovs-appctl upcall/show"
+            "ovs-appctl upcall/show",
+            # Capture DPDK and other parameters
+            "ovs-vsctl -t 5 get Open_vSwitch . other_config"
         ])
 
         # Gather additional output for each OVS bridge on the host.
