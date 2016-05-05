@@ -54,7 +54,7 @@ class OpenVSwitch(Plugin):
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
-    packages = ('openvswitch',)
+    packages = ('openvswitch', 'openvswitch-dpdk')
 
 
 class DebianOpenVSwitch(OpenVSwitch, DebianPlugin, UbuntuPlugin):
