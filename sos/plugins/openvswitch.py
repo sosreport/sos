@@ -57,7 +57,8 @@ class OpenVSwitch(Plugin):
                 self.add_cmd_output([
                     "ovs-ofctl show %s" % br,
                     "ovs-ofctl dump-flows %s" % br,
-                    "ovs-appctl fdb/show %s" % br
+                    "ovs-appctl fdb/show %s" % br,
+                    "ovs-ofctl dump-ports %s" % br
                 ])
 
 
