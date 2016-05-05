@@ -42,7 +42,10 @@ class OpenVSwitch(Plugin):
             # Gather the database.
             "ovsdb-client -f list dump",
             # List the contents of runtime directory
-            "ls -laZ /var/run/openvswitch"
+            "ls -laZ /var/run/openvswitch",
+            # Gather systemd services logs
+            "journalctl -u openvswitch",
+            "journalctl -u openvswitch-nonetwork"
         ])
 
         # Gather additional output for each OVS bridge on the host.
