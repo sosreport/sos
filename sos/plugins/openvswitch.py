@@ -57,7 +57,9 @@ class OpenVSwitch(Plugin):
             # Capture coverage stats"
             "ovs-appctl coverage/show",
             # Capture cached routes
-            "ovs-appctl ovs/route/show"
+            "ovs-appctl ovs/route/show",
+            # Capture tnl arp table"
+            "ovs-appctl tnl/arp/show"
         ])
 
         # Gather additional output for each OVS bridge on the host.
