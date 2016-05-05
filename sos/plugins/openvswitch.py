@@ -47,7 +47,9 @@ class OpenVSwitch(Plugin):
             "journalctl -u openvswitch",
             "journalctl -u openvswitch-nonetwork",
             # List devices and their drivers
-            "dpdk_nic_bind --status"
+            "dpdk_nic_bind --status",
+            # Capture a list of all bond devices
+            "ovs-appctl bond/list"
         ])
 
         # Gather additional output for each OVS bridge on the host.
