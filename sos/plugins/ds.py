@@ -64,6 +64,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 "/etc/dirsrv/slapd*/dse.ldif.startOK",
                 "/etc/dirsrv/slapd*/secmod.db",
                 "/etc/dirsrv/slapd*/schema/*.ldif",
+                "/etc/dirsrv/admin-serv",
                 "/var/log/dirsrv/*"
             ])
         elif "ds7" in self.check_version():
