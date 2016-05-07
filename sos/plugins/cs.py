@@ -25,7 +25,7 @@ class CertificateSystem(Plugin, RedHatPlugin):
     """Certificate System and Dogtag
     """
 
-    plugin_name = 'certificatesystem'
+    plugin_name = 'cs'
     profiles = ('identity', 'security')
 
     packages = (
