@@ -19,7 +19,7 @@ class HardwareTestSuite(Plugin, RedHatPlugin):
     """Red Hat Hardware Test Suite
     """
 
-    plugin_name = 'hardwaretestsuite'
+    plugin_name = 'hts'
     profiles = ('debug',)
 
     def setup(self):

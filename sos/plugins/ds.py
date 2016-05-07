@@ -23,7 +23,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
     """Directory Server
     """
 
-    plugin_name = 'directoryserver'
+    plugin_name = 'ds'
     profiles = ('identity',)
 
     files = ('/etc/dirsrv', '/opt/redhat-ds')
