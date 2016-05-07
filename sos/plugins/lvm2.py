@@ -36,7 +36,8 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if metadata:
             lvmdump_opts = "-a -m"
         cmd = lvmdump_cmd % (lvmdump_opts,
-                             self.get_cmd_output_path(name="lvmdump"))
+                             self.get_cmd_output_path(name="lvmdump",
+                                                      make=False))
         self.add_cmd_output(cmd, chroot=self.tmp_in_sysroot())
 
     def setup(self):
