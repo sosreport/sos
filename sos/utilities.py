@@ -110,7 +110,7 @@ def is_executable(command):
 
 
 def sos_get_command_output(command, timeout=300, stderr=False,
-                           chroot=None, chdir=None):
+                           chroot=None, chdir=None, env=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -127,6 +127,10 @@ def sos_get_command_output(command, timeout=300, stderr=False,
     cmd_env = os.environ
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C'
+    # optionally add an environment change for the command
+    if env:
+        for key, value in env.iteritems():
+            cmd_env[key] = value
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
         command = "timeout %ds %s" % (timeout, command)

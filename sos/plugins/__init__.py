@@ -561,14 +561,15 @@ class Plugin(object):
             self._log_info("added copyspec '%s'" % copy_paths)
 
     def get_command_output(self, prog, timeout=300, stderr=True,
-                           chroot=True, runat=None):
+                           chroot=True, runat=None, env=None):
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
             root = None
 
         result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
-                                        chroot=root, chdir=runat)
+                                        chroot=root, chdir=runat,
+                                        env=env)
 
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
@@ -582,7 +583,8 @@ class Plugin(object):
                                "re-trying in host root"
                                % (prog.split()[0], root))
                 return self.get_command_output(prog, timeout=timeout,
-                                               chroot=False, runat=runat)
+                                               chroot=False, runat=runat,
+                                               env=env)
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
@@ -603,14 +605,14 @@ class Plugin(object):
 
     def _add_cmd_output(self, cmd, suggest_filename=None,
                         root_symlink=None, timeout=300, stderr=True,
-                        chroot=True, runat=None):
+                        chroot=True, runat=None, env=None):
         """Internal helper to add a single command to the collection list."""
         cmdt = (
             cmd, suggest_filename,
             root_symlink, timeout, stderr,
-            chroot, runat
+            chroot, runat, env
         )
-        _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s')"
+        _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s')"
         _logstr = "packed command tuple: " + _tuplefmt
         self._log_debug(_logstr % cmdt)
         self.collect_cmds.append(cmdt)
@@ -618,7 +620,7 @@ class Plugin(object):
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
-                       chroot=True, runat=None):
+                       chroot=True, runat=None, env=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -627,7 +629,7 @@ class Plugin(object):
         for cmd in cmds:
             self._add_cmd_output(cmd, suggest_filename,
                                  root_symlink, timeout, stderr,
-                                 chroot, runat)
+                                 chroot, runat, env)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -679,13 +681,14 @@ class Plugin(object):
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
-                           chroot=True, runat=None):
+                           chroot=True, runat=None, env=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
-                                         chroot=chroot, runat=runat)
+                                         chroot=chroot, runat=runat,
+                                         env=env)
         # 126 means 'found but not executable'
         if result['status'] == 126 or result['status'] == 127:
             return None
@@ -807,15 +810,17 @@ class Plugin(object):
                 suggest_filename, root_symlink,
                 timeout,
                 stderr,
-                chroot, runat
+                chroot, runat,
+                env
             ) = progs[0]
             self._log_debug("unpacked command tuple: " +
-                            "('%s', '%s', '%s', %s, '%s', '%s', '%s')" %
+                            "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s')" %
                             progs[0])
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
                                     root_symlink=root_symlink, timeout=timeout,
-                                    stderr=stderr, chroot=chroot, runat=runat)
+                                    stderr=stderr, chroot=chroot, runat=runat,
+                                    env=env)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
