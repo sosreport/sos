@@ -31,13 +31,15 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         """Collects an lvmdump in standard format with optional metadata
            archives for each physical volume present.
         """
+        lvmdump_path = self.get_cmd_output_path(name="lvmdump", make=False)
         lvmdump_cmd = "lvmdump %s -d '%s'"
         lvmdump_opts = ""
+
         if metadata:
             lvmdump_opts = "-a -m"
-        cmd = lvmdump_cmd % (lvmdump_opts,
-                             self.get_cmd_output_path(name="lvmdump",
-                                                      make=False))
+
+        cmd = lvmdump_cmd % (lvmdump_opts, lvmdump_path)
+
         self.add_cmd_output(cmd, chroot=self.tmp_in_sysroot())
 
     def setup(self):
