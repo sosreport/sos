@@ -19,7 +19,7 @@ class SubscriptionManager(Plugin, RedHatPlugin):
     """subscription-manager information
     """
 
-    plugin_name = 'subscription-manager'
+    plugin_name = 'subscription_manager'
     profiles = ('system', 'packagemanager', 'sysmgmt')
 
     files = ('/etc/rhsm/rhsm.conf',)

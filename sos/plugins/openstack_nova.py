@@ -2,6 +2,7 @@
 # Copyright (C) 2012 Rackspace US, Inc.,
 #                    Justin Shepherd <jshepher@rackspace.com>
 # Copyright (C) 2013 Red Hat, Inc., Jeremy Agee <jagee@redhat.com>
+# Copyright (C) 2015 Red Hat, Inc., Abhijeet Kasurde <akasurde@redhat.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +19,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import os
 
 
 class OpenStackNova(Plugin):
@@ -30,11 +32,12 @@ class OpenStackNova(Plugin):
 
     def setup(self):
         if self.get_option("cmds"):
+            for os_var in ['OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']:
+                if os_var not in os.environ:
+                    self.soslog.warning("%s not found in environment variables"
+                                        " which is required" % (os_var))
             self.add_cmd_output(
-                "nova-manage config list",
-                suggest_filename="nova_config_list")
-            self.add_cmd_output(
-                "nova-manage service list",
+                "nova service-list",
                 suggest_filename="nova_service_list")
             self.add_cmd_output(
                 "nova-manage db version",
@@ -46,14 +49,23 @@ class OpenStackNova(Plugin):
                 "nova-manage floating list",
                 suggest_filename="nova_floating_ip_list")
             self.add_cmd_output(
-                "nova-manage flavor list",
+                "nova flavor-list",
                 suggest_filename="nova_flavor_list")
             self.add_cmd_output(
-                "nova-manage network list",
+                "nova network-list",
                 suggest_filename="nova_network_list")
             self.add_cmd_output(
-                "nova-manage vm list",
+                "nova list",
                 suggest_filename="nova_vm_list")
+            self.add_cmd_output(
+                "nova agent-list",
+                suggest_filename="nova_agent_list")
+            self.add_cmd_output(
+                "nova version-list",
+                suggest_filename="nova_version_list")
+            self.add_cmd_output(
+                "nova host-list",
+                suggest_filename="nova_host_list")
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):

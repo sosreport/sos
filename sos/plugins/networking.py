@@ -136,6 +136,9 @@ class Networking(Plugin):
         # Cisco CDP
         self.add_forbidden_path("/proc/net/cdp")
         self.add_forbidden_path("/sys/net/cdp")
+        # Dialogic Diva
+        self.add_forbidden_path("/proc/net/eicon/di*")
+        self.add_forbidden_path("/proc/net/eicon/adapter*/dynamic_l1_down")
 
         self.add_cmd_output("ip -o addr", root_symlink="ip_addr")
         self.add_cmd_output("route -n", root_symlink="route")

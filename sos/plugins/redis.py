@@ -1,3 +1,5 @@
+# Copyright (C) 2015 Red Hat, Inc., Abhijeet Kasurde <akasurde@redhat.com>
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -13,48 +15,38 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
-import os
 
 
-class Anaconda(Plugin, RedHatPlugin):
-    """Anaconda installer
+class Redis(Plugin, RedHatPlugin):
+    """Redis, in-memory data structure store
     """
 
-    plugin_name = 'anaconda'
-    profiles = ('system',)
+    plugin_name = 'redis'
+    profiles = ('services',)
 
-    files = (
-        '/var/log/anaconda.log',
-        '/var/log/anaconda'
-    )
+    packages = ('redis',)
+    files = ('/etc/redis.conf', '/var/log/redis')
 
     def setup(self):
-
-        paths = [
-            "/root/anaconda-ks.cfg"
-        ]
-
-        if os.path.isdir('/var/log/anaconda'):
-            # new anaconda
-            paths.append('/var/log/anaconda')
+        self.add_copy_spec("/etc/redis.conf")
+        self.limit = self.get_option("log_size")
+        self.add_cmd_output("redis-cli info")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/redis/redis.log*",
+                                     sizelimit=self.limit)
         else:
-            paths = paths + [
-                "/var/log/anaconda.*",
-                "/root/install.log",
-                "/root/install.log.syslog"
-            ]
-
-        self.add_copy_spec(paths)
+            self.add_copy_spec_limit("/var/log/redis/redis.log",
+                                     sizelimit=self.limit)
 
     def postproc(self):
         self.do_file_sub(
-            "/root/anaconda-ks.cfg",
-            r"(\s*rootpw\s*).*",
+            "/etc/redis.conf",
+            r"(masterauth\s).*",
             r"\1********"
         )
         self.do_file_sub(
-            "/root/anaconda-ks.cfg",
-            r"(user.*--password=*\s*)\s*(\S*)",
+            "/etc/redis.conf",
+            r"(requirepass\s).*",
             r"\1********"
         )
 
