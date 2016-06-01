@@ -32,11 +32,9 @@ class Logs(Plugin):
         self.limit = self.get_option("log_size")
         self.add_copy_spec_limit("/var/log/boot.log", sizelimit=self.limit)
         self.add_copy_spec_limit("/var/log/cloud-init*", sizelimit=self.limit)
-        self.add_cmd_output([
-            "journalctl --disk-usage",
-            "journalctl --all --this-boot --no-pager",
-            "journalctl --all --this-boot --no-pager -o verbose",
-        ])
+        self.add_journal(boot="this")
+        self.add_journal(boot="this", allfields=True, output="verbose")
+        self.add_cmd_output("journalctl --disk-usage")
 
         if self.get_option('all_logs'):
             syslog_conf = self.join_sysroot("/etc/syslog.conf")
@@ -84,10 +82,10 @@ class RedHatLogs(Logs, RedHatPlugin):
             except:
                 days = 3
             if self.get_option("all_logs"):
-                since_opt = ""
+                since = ""
             else:
-                since_opt = '--since="-%ddays"' % days
-            self.add_cmd_output('journalctl --all %s' % since_opt)
+                since = "-%ddays" % days
+            self.add_journal(since=since)
 
 
 class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
