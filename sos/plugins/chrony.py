@@ -33,8 +33,8 @@ class Chrony(Plugin, RedHatPlugin):
             "chronyc tracking",
             "chronyc sources",
             "chronyc sourcestats",
-            "chronyc clients",
-            "journalctl -u chronyd"
+            "chronyc clients"
         ])
+        self.add_journal(units="chronyd")
 
 # vim: et ts=4 sw=4
