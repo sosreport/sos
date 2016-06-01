@@ -84,8 +84,7 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
             self.add_copy_spec('/var/lib/ironic-discoverd/')
             self.add_copy_spec('/var/log/ironic-discoverd/')
 
-            self.add_cmd_output('journalctl -u openstack-ironic-discoverd')
-            self.add_cmd_output('journalctl '
-                                '-u openstack-ironic-discoverd-dnsmasq')
+            self.add_journal(units="openstack-ironic-discoverd")
+            self.add_journal(units="openstack-ironic-discoverd-dnsmasq")
 
 # vim: set et ts=4 sw=4 :
