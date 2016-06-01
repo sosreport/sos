@@ -34,11 +34,11 @@ class Docker(Plugin):
         ])
 
         self.add_cmd_output([
-            "journalctl -u docker",
             "{0} info".format(self.docker_bin),
             "{0} ps".format(self.docker_bin),
             "{0} images".format(self.docker_bin)
         ])
+        self.add_journal(units="docker")
 
         ps_cmd = "{0} ps".format(self.docker_bin)
         if self.get_option('all'):
