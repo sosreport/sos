@@ -35,11 +35,19 @@ class kubernetes(Plugin, RedHatPlugin):
         self.add_cmd_output("kubectl get -o json services")
         self.add_cmd_output("kubectl get -o json replicationController")
         self.add_cmd_output("kubectl get -o json events")
-        self.add_cmd_output("journalctl -u kubelet")
-        self.add_cmd_output("journalctl -u kube-apiserver")
-        self.add_cmd_output("journalctl -u kube-controller-manager")
-        self.add_cmd_output("journalctl -u kube-scheduler")
-        self.add_cmd_output("journalctl -u kube-proxy")
+
+        # This could use a single call:
+        #
+        #   add_journal(units=["kubelet", "kube-apiserver", ... ])
+        #
+        # But this would merge all units into a single text stream - to
+        # preserve existing file layout in archives keep these as
+        # separate journalctl calls.
+        self.add_journal(units="kubelet")
+        self.add_journal(units="kube-apiserver")
+        self.add_journal(units="kube-controller-manager")
+        self.add_journal(units="kube-scheduler")
+        self.add_journal(units="kube-proxy")
 
         if self.get_option('podslog'):
             result = self.get_command_output("kubectl get pods")
