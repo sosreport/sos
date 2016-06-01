@@ -561,6 +561,21 @@ class Plugin(object):
         """
         return self.call_ext_prog(prog)['status'] == 0
 
+    def _add_cmd_output(self, cmd, suggest_filename=None,
+                        root_symlink=None, timeout=300, stderr=True,
+                        chroot=True, runat=None):
+        """Internal helper to add a single command to the collection list."""
+        cmdt = (
+            cmd, suggest_filename,
+            root_symlink, timeout, stderr,
+            chroot, runat
+        )
+        _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s')"
+        _logstr = "packed command tuple: " + _tuplefmt
+        self._log_debug(_logstr % cmdt)
+        self.collect_cmds.append(cmdt)
+        self._log_info("added cmd output '%s'" % cmd)
+
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
                        chroot=True, runat=None):
@@ -570,15 +585,9 @@ class Plugin(object):
         if len(cmds) > 1 and (suggest_filename or root_symlink):
             self._log_warn("ambiguous filename or symlink for command list")
         for cmd in cmds:
-            cmdt = (
-                cmd, suggest_filename, root_symlink, timeout, stderr,
-                chroot, runat
-            )
-            _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s')"
-            _logstr = "packed command tuple: " + _tuplefmt
-            self._log_debug(_logstr % cmdt)
-            self.collect_cmds.append(cmdt)
-            self._log_info("added cmd output '%s'" % cmd)
+            self._add_cmd_output(cmd, suggest_filename,
+                                 root_symlink, timeout, stderr,
+                                 chroot, runat)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -681,6 +690,67 @@ class Plugin(object):
         is freeform and can include html.
         """
         self.custom_text += text
+
+    def add_journal(self, units=None, boot=None, since=None, until=None,
+                    lines=None, allfields=False, output=None, timeout=None):
+        """ Collect journald logs from one of more units.
+
+        Keyword arguments:
+        units     -- A string, or list of strings specifying the systemd
+                     units for which journal entries will be collected.
+        boot      -- A string selecting a boot index using the journalctl
+                     syntax. The special values 'this' and 'last' are also
+                     accepted.
+        since     -- A string representation of the start time for journal
+                     messages.
+        until     -- A string representation of the end time for journal
+                     messages.
+        lines     -- The maximum number of lines to be collected.
+        allfields -- Include all journal fields regardless of size or
+                     non-printable characters.
+        output    -- A journalctl output control string, for example
+                     "verbose".
+        timeout   -- An optional timeout in seconds.
+        """
+        journal_cmd = "journalctl --no-pager "
+        unit_opt = " --unit %s"
+        boot_opt = " --boot %s"
+        since_opt = " --since %s"
+        until_opt = " --until %s"
+        lines_opt = " --lines %s"
+        output_opt = " --output %s"
+
+        if isinstance(units, six.string_types):
+            units = [units]
+
+        if units:
+            for unit in units:
+                journal_cmd += unit_opt % unit
+
+        if allfields:
+            journal_cmd += " --all"
+
+        if boot:
+            if boot == "this":
+                boot = ""
+            if boot == "last":
+                boot = "-1"
+            journal_cmd += boot_opt % boot
+
+        if since:
+            journal_cmd += since_opt % since
+
+        if until:
+            journal_cmd += until_opt % until
+
+        if lines:
+            journal_cmd += lines_opt % lines
+
+        if output:
+            journal_cmd += output_opt % output
+
+        self._log_debug("collecting journal: %s" % journal_cmd)
+        self._add_cmd_output(journal_cmd, None, None, timeout)
 
     def _expand_copy_spec(self, copyspec):
         return glob.glob(copyspec)
