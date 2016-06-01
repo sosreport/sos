@@ -25,10 +25,8 @@ class LightDm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'lightdm'
 
     def setup(self):
-        self.add_cmd_output([
-            "journalctl -u lightdm",
-            "systemctl status lightdm.service"
-        ])
+        self.add_cmd_output(systemctl status lightdm.service)
+        self.add_journal(units="lightdm")
         self.add_copy_spec([
             "/etc/lightdm/lightdm.conf",
             "/etc/lightdm/users.conf"
