@@ -43,9 +43,6 @@ class OpenVSwitch(Plugin):
             "ovsdb-client -f list dump",
             # List the contents of runtime directory
             "ls -laZ /var/run/openvswitch",
-            # Gather systemd services logs
-            "journalctl -u openvswitch",
-            "journalctl -u openvswitch-nonetwork",
             # List devices and their drivers
             "dpdk_nic_bind --status",
             # Capture a list of all bond devices
@@ -67,6 +64,10 @@ class OpenVSwitch(Plugin):
             # Capture DPDK and other parameters
             "ovs-vsctl -t 5 get Open_vSwitch . other_config"
         ])
+
+        # Gather systemd services logs
+        self.add_journal(units="openvswitch")
+        self.add_journal(units="openvswitch-nonetwork")
 
         # Gather additional output for each OVS bridge on the host.
         br_list_result = self.call_ext_prog("ovs-vsctl list-br")
