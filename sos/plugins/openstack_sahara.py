@@ -26,9 +26,9 @@ class OpenStackSahara(Plugin):
 
     def setup(self):
         self.add_copy_spec("/etc/sahara/")
-        self.add_cmd_output("journalctl -u openstack-sahara-all")
-        self.add_cmd_output("journalctl -u openstack-sahara-api")
-        self.add_cmd_output("journalctl -u openstack-sahara-engine")
+        self.add_journal(units="openstack-sahara-all")
+        self.add_journal(units="openstack-sahara-api")
+        self.add_journal(units="openstack-sahara-engine")
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
