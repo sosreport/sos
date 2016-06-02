@@ -64,7 +64,8 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self._log_warn("scrubbing of crm passwords has been disabled:")
             self._log_warn("data collected by crm_report may contain"
                            " sensitive values.")
-        self.add_cmd_output('crm_report %s -S -d --dest %s --from "%s"' %
+        self.add_cmd_output('crm_report --sos-mode %s -S -d '
+                            ' --dest %s --from "%s"' %
                             (crm_scrub, crm_dest, crm_from),
                             chroot=self.tmp_in_sysroot())
 # vim: et ts=4 sw=4
