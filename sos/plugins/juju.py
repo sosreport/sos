@@ -16,7 +16,7 @@
 
 import os
 from sos.plugins import Plugin, UbuntuPlugin
-from json import loads as json_load
+from json import loads as json_loads
 
 
 def ensure_service_is_running(service):
@@ -43,7 +43,7 @@ class Juju(Plugin, UbuntuPlugin):
 
     plugin_name = 'juju'
     profiles = ('virt', 'sysmgmt')
-    packages = ('juju',)
+    files = ('/usr/bin/juju', '/usr/bin/juju-run')
 
     option_list = [
         ('export-mongodb',
@@ -55,8 +55,9 @@ class Juju(Plugin, UbuntuPlugin):
 
     def get_deployed_services(self):
         cmd = "juju status --format json"
-        return json_load(
-            self.call_ext_prog(cmd)['output'])['services'].keys()
+        status_json = self.call_ext_prog(cmd)['output']
+        self.add_string_as_file(status_json, "juju_status_json")
+        return json_loads(status_json)['services'].keys()
 
     @ensure_service_is_running("juju-db")
     def export_mongodb(self):
@@ -76,37 +77,42 @@ class Juju(Plugin, UbuntuPlugin):
                 suggest_filename="{}.json".format(collection))
 
     def setup(self):
-        self.add_copy_spec([
-            "/var/lib/juju"
-        ])
         limit = self.get_option("log_size")
         self.add_copy_spec_limit("/var/log/upstart/juju-db.log",
                                  sizelimit=limit)
         self.add_copy_spec_limit("/var/log/upstart/juju-db.log.1",
                                  sizelimit=limit)
         if not self.get_option("all_logs"):
-            # Capture the last bit of all files
-            for filename in os.listdir("/var/log/juju/"):
-                if filename.endswith(".log"):
-                    fullname = "/var/log/juju/" + filename
-                    self.add_copy_spec_limit(fullname, sizelimit=limit)
-            # Do just the all-machines from juju local
-            self.add_copy_spec_limit("/var/log/juju-*/all-machines.log",
-                                     sizelimit=limit)
+            # We need this because we want to collect to the limit of all
+            # *.logs in the directory.
+            if(os.path.isdir("/var/log/juju/")):
+                for filename in os.listdir("/var/log/juju/"):
+                    if filename.endswith(".log"):
+                        fullname = os.path.join("/var/log/juju/" + filename)
+                        self.add_copy_spec_limit(fullname, sizelimit=limit)
             self.add_cmd_output('ls -alRh /var/log/juju*')
+            self.add_cmd_output('ls -alRh /var/lib/juju/*')
+
         else:
             self.add_copy_spec([
                 "/var/log/juju",
-                "/var/log/juju-*"
+                "/var/log/juju-*",
+                "/var/lib/juju"
+                # /var/lib/juju used to be in the default capture moving here
+                # because it usually was way to big.  However, in most cases
+                # you want all logs you want this too.
             ])
 
         self.add_cmd_output([
-            "juju -v status",
-            "juju -v get-constraints"
+                "juju --version",
+                "juju -v status --format=tabular",
         ])
-
         for service in self.get_deployed_services():
-            self.add_cmd_output("juju get {}".format(service))
+            self.add_cmd_output([
+                "juju get {}".format(service),
+                "juju get-config {}".format(service),
+                "juju get-constraints {}".format(service)
+            ])
 
         if self.get_option("export-mongodb"):
             self.export_mongodb()
