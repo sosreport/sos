@@ -28,11 +28,11 @@ class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
     def setup(self):
         self.add_cmd_output([
             "ipmitool sel info",
-            "ipmitool sel log",
+            "ipmitool sel list",
             "ipmitool sensor list",
             "ipmitool chassis status",
             "ipmitool fru print",
-            "ipmitool bmc info",
+            "ipmitool mc info",
             "ipmitool sdr info"
         ])
 
