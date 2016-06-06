@@ -33,9 +33,17 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/var/lib/pacemaker/cib/cib.xml",
             "/etc/sysconfig/pacemaker",
-            "/var/log/pacemaker.log",
-            "/var/log/pcsd/pcsd.log"
         ])
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/pacemaker.log*",
+                                     sizelimit=self.get_option("log_size"))
+            self.add_copy_spec_limit("/var/log/pcsd.log*",
+                                     sizelimit=self.get_option("log_size"))
+        else:
+            self.add_copy_spec_limit("/var/log/pacemaker.log",
+                                     sizelimit=self.get_option("log_size"))
+            self.add_copy_spec_limit("/var/log/pcsd.log",
+                                     sizelimit=self.get_option("log_size"))
         self.add_cmd_output([
             "crm_mon -1 -A -n -r -t",
             "crm status",
