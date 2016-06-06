@@ -26,9 +26,14 @@ class Corosync(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/corosync",
-            "/var/lib/corosync/fdata",
-            "/var/log/cluster/corosync.log"
+            "/var/lib/corosync/fdata"
         ])
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/cluster/corosync.log*",
+                                     sizelimit=self.get_option("log_size"))
+        else:
+            self.add_copy_spec_limit("/var/log/cluster/corosync.log",
+                                     sizelimit=self.get_option("log_size"))
         self.add_cmd_output([
             "corosync-quorumtool -l",
             "corosync-quorumtool -s",
