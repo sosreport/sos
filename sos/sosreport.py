@@ -597,9 +597,11 @@ class SoSOptions(object):
                           help="plugin options in plugname.option=value "
                                "format (see -l)",
                           default=deque())
+        log_size_help_msg = "set a limit on the size of collected logs "
+        log_size_help_msg += "in  megabytes"
         parser.add_option("--log-size", action="store",
                           dest="log_size", default=10, type="int",
-                          help="set a limit on the size of collected logs")
+                          help=log_size_help_msg)
         parser.add_option("-a", "--alloptions", action="store_true",
                           dest="usealloptions", default=False,
                           help="enable all options for loaded plugins")
