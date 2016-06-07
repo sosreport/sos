@@ -44,7 +44,6 @@ class Cman(Plugin, RedHatPlugin):
             "/etc/sysconfig/cluster",
             "/etc/sysconfig/cman",
             "/etc/fence_virt.conf",
-            "/var/lib/ricci",
             "/var/lib/luci/data/luci.db",
             "/var/lib/luci/etc",
         ])
