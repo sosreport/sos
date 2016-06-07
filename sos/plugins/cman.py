@@ -43,14 +43,21 @@ class Cman(Plugin, RedHatPlugin):
             "/etc/cluster",
             "/etc/sysconfig/cluster",
             "/etc/sysconfig/cman",
-            "/var/log/cluster",
             "/etc/fence_virt.conf",
             "/var/lib/ricci",
             "/var/lib/luci/data/luci.db",
             "/var/lib/luci/etc",
-            "/var/log/luci"
         ])
-
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/cluster/*.log*",
+                                     sizelimit=self.get_option("log_size"))
+            self.add_copy_spec_limit("/var/log/luci/luci.log*",
+                                     sizelimit=self.get_option("log_size"))
+        else:
+            self.add_copy_spec_limit("/var/log/cluster/*.log",
+                                     sizelimit=self.get_option("log_size"))
+            self.add_copy_spec_limit("/var/log/luci/luci.log",
+                                     sizelimit=self.get_option("log_size"))
         self.add_cmd_output([
             "cman_tool services",
             "cman_tool nodes",
