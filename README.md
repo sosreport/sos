@@ -58,6 +58,7 @@ pull requests.
 
 ```
 You can simply run from the git checkout now ==> Ex: sudo ./sosreport -a
+or if you only have python3 installed ==> sudo python3 ./sosreport -a
 to install locally (as root) ==> make install
 to build an rpm ==> make rpm
 ```
@@ -77,7 +78,7 @@ apt-get install sosreport
 ```
 
 
-Ubuntu(Saucy 13.10 and above) users install via apt:
+Ubuntu(14.04 LTS and above) users install via apt:
 
 ```
 sudo apt-get install sosreport
