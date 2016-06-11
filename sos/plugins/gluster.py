@@ -91,9 +91,23 @@ class Gluster(Plugin, RedHatPlugin):
             "/etc/glusterd.rpmsave",
             # common to all versions
             "/etc/glusterfs",
-            "/var/lib/glusterd/",
-            "/var/log/glusterfs"
+            "/var/lib/glusterd/"
         ] + glob.glob('/var/run/gluster/*tier-dht/*'))
+
+        # collect logs - apply log_size for any individual file
+        # all_logs takes precedence over logsize
+        if not self.get_option("all_logs"):
+            limit = self.get_option("log_size")
+        else:
+            limit = 0
+
+        if limit:
+            for f in (glob.glob("/var/log/glusterfs/*log") +
+                      glob.glob("/var/log/glusterfs/*/*log") +
+                      glob.glob("/var/log/glusterfs/geo-replication/*/*log")):
+                self.add_copy_spec_limit(f, limit)
+        else:
+            self.add_copy_spec("/var/log/glusterfs")
 
         self.make_preparations(self.statedump_dir)
         if self.check_ext_prog("killall -USR1 glusterfs glusterfsd"):
