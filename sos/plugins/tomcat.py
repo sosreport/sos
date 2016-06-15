@@ -22,12 +22,14 @@ class Tomcat(Plugin, RedHatPlugin):
     plugin_name = 'tomcat'
     profiles = ('webserver', 'java', 'services', 'sysmgmt')
 
-    packages = ('tomcat6', 'tomcat')
+    packages = ('tomcat', 'tomcat6', 'tomcat7', 'tomcat8')
 
     def setup(self):
         self.add_copy_spec([
             "/etc/tomcat",
-            "/etc/tomcat6"
+            "/etc/tomcat6",
+            "/etc/tomcat7",
+            "/etc/tomcat8"
         ])
 
         limit = self.get_option("log_size")
