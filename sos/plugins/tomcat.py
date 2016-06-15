@@ -13,6 +13,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+from datetime import datetime
 
 
 class Tomcat(Plugin, RedHatPlugin):
@@ -22,19 +23,39 @@ class Tomcat(Plugin, RedHatPlugin):
     plugin_name = 'tomcat'
     profiles = ('webserver', 'java', 'services', 'sysmgmt')
 
-    packages = ('tomcat6', 'tomcat')
+    packages = ('tomcat', 'tomcat6', 'tomcat7', 'tomcat8')
 
     def setup(self):
         self.add_copy_spec([
             "/etc/tomcat",
-            "/etc/tomcat6"
+            "/etc/tomcat6",
+            "/etc/tomcat7",
+            "/etc/tomcat8"
         ])
 
         limit = self.get_option("log_size")
-        log_glob = "/var/log/tomcat*/catalina.out"
-        self.add_copy_spec_limit(log_glob, sizelimit=limit)
+
+        if not self.get_option("all_logs"):
+            log_glob = "/var/log/tomcat*/catalina.out"
+            self.add_copy_spec_limit(log_glob, sizelimit=limit)
+
+            # get today's date in iso format so that days/months below 10
+            # prepend 0
+            today = datetime.date(datetime.now()).isoformat()
+            log_glob = "/var/log/tomcat*/catalina.%s.log" % today
+            self.add_copy_spec_limit(log_glob, sizelimit=limit)
+        else:
+            self.add_copy_spec("/var/log/tomcat*/*")
 
     def postproc(self):
+        serverXmlPasswordAttributes = ['keyPass', 'keystorePass',
+                                       'truststorePass', 'SSLPassword']
+        for attr in serverXmlPasswordAttributes:
+            self.do_path_regex_sub(
+                r"\/etc\/tomcat.*\/server.xml",
+                r"%s=(\S*)" % attr,
+                r'%s="********"' % attr
+            )
         self.do_path_regex_sub(
             r"\/etc\/tomcat.*\/tomcat-users.xml",
             r"password=(\S*)",
