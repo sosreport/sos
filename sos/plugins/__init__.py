@@ -34,6 +34,12 @@ import six
 from six.moves import zip, filter
 
 
+def _to_u(s):
+    if not isinstance(s, six.text_type):
+        s = six.u(s)
+    return s
+
+
 def regex_findall(regex, fname):
     '''Return a list of all non overlapping matches in the string(s)'''
     try:
@@ -853,7 +859,7 @@ class Plugin(object):
         allows browsing the results.
         """
         # make this prettier
-        html = '<hr/><a name="%s"></a>\n' % self.name()
+        html = u'<hr/><a name="%s"></a>\n' % self.name()
 
         # Intro
         html = html + "<h2> Plugin <em>" + self.name() + "</em></h2>\n"
@@ -863,9 +869,9 @@ class Plugin(object):
             html = html + "<p>Files copied:<br><ul>\n"
             for afile in self.copied_files:
                 html = html + '<li><a href="%s">%s</a>' % \
-                    (".." + afile['dstpath'], afile['srcpath'])
+                    (u'..' + _to_u(afile['dstpath']), _to_u(afile['srcpath']))
                 if afile['symlink'] == "yes":
-                    html = html + " (symlink to %s)" % afile['pointsto']
+                    html = html + " (symlink to %s)" % _to_u(afile['pointsto'])
                 html = html + '</li>\n'
             html = html + "</ul></p>\n"
 
@@ -876,27 +882,30 @@ class Plugin(object):
             # don't use relpath - these are HTML paths not OS paths.
             for cmd in self.executed_commands:
                 if cmd["file"] and len(cmd["file"]):
-                    cmd_rel_path = "../" + self.commons['cmddir'] \
-                        + "/" + cmd['file']
+                    cmd_rel_path = u"../" + _to_u(self.commons['cmddir']) \
+                        + "/" + _to_u(cmd['file'])
                     html = html + '<li><a href="%s">%s</a></li>\n' % \
-                        (cmd_rel_path, cmd['exe'])
+                        (cmd_rel_path, _to_u(cmd['exe']))
                 else:
-                    html = html + '<li>%s</li>\n' % (cmd['exe'])
+                    html = html + '<li>%s</li>\n' % (_to_u(cmd['exe']))
             html = html + "</ul></p>\n"
 
         # Alerts
         if len(self.alerts):
             html = html + "<p>Alerts:<br><ul>\n"
             for alert in self.alerts:
-                html = html + '<li>%s</li>\n' % alert
+                html = html + '<li>%s</li>\n' % _to_u(alert)
             html = html + "</ul></p>\n"
 
         # Custom Text
         if self.custom_text != "":
             html = html + "<p>Additional Information:<br>\n"
-            html = html + self.custom_text + "</p>\n"
+            html = html + _to_u(self.custom_text) + "</p>\n"
 
-        return html
+        if six.PY2:
+            return html.encode('utf8')
+        else:
+            return html
 
 
 class RedHatPlugin(object):
