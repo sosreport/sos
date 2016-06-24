@@ -24,7 +24,7 @@ class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/gdm/*")
-        self.add_journal(unit="gdm")
+        self.add_journal(units="gdm")
         self.add_cmd_output("systemctl status gdm.service")
 
 # vim: set et ts=4 sw=4 :
