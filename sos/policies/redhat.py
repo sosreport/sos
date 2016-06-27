@@ -83,8 +83,9 @@ class RedHatPolicy(LinuxPolicy):
         """Check if sos is running in a container and perform container
         specific initialisation based on ENV_HOST_SYSROOT.
         """
-        if ENV_CONTAINER_UUID in os.environ:
-            self._in_container = True
+        if ENV_CONTAINER in os.environ:
+            if os.environ[ENV_CONTAINER] == 'docker':
+                self._in_container = True
         if ENV_HOST_SYSROOT in os.environ:
             self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
         use_sysroot = self._in_container and self._host_sysroot != '/'
@@ -124,7 +125,7 @@ class RedHatPolicy(LinuxPolicy):
         return self.host_name()
 
 # Container environment variables on Red Hat systems.
-ENV_CONTAINER_UUID = 'container_uuid'
+ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
 
 
