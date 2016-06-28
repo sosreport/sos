@@ -186,6 +186,40 @@ class Plugin(object):
         '''Is the package $package_name installed?'''
         return self.policy().pkg_by_name(package_name) is not None
 
+    def do_cmd_private_sub(self, cmd):
+        '''Remove certificate and key output archived by sosreport. cmd
+        is the command name from which output is collected (i.e. exlcuding
+        parameters). Any matching instances are replaced with: '-----SCRUBBED'
+        and this function does not take a regexp or substituting string.
+
+        This function returns the number of replacements made.
+        '''
+        globstr = '*' + cmd + '*'
+        self._log_debug("Scrubbing certs and keys for commands matching %s"
+                        % (cmd))
+
+        if not self.executed_commands:
+            return 0
+
+        replacements = None
+        try:
+            for called in self.executed_commands:
+                if called['file'] is None:
+                    continue
+                if fnmatch.fnmatch(called['exe'], globstr):
+                    path = os.path.join(self.commons['cmddir'], called['file'])
+                    readable = self.archive.open_file(path)
+                    certmatch = re.compile("-----BEGIN.*?-----END", re.DOTALL)
+                    result, replacements = certmatch.subn(
+                        "-----SCRUBBED", readable.read())
+                    if replacements:
+                        self.archive.add_string(result, path)
+        except Exception as e:
+            msg = "Certificate/key scrubbing failed for '%s' with: '%s'"
+            self._log_error(msg % (called['exe'], e))
+            replacements = None
+        return replacements
+
     def do_cmd_output_sub(self, cmd, regexp, subst):
         '''Apply a regexp substitution to command output archived by sosreport.
         cmd is the command name from which output is collected (i.e. excluding
