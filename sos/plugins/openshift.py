@@ -16,8 +16,14 @@ from sos.plugins import Plugin, RedHatPlugin
 import os.path
 
 
+# This plugin handles OpenShift Enterprise versions up to 2.x
+# which are based in the upstream code of OpenShift Origin M4
+# located here: https://github.com/openshift/origin-server
+#
+# For later of OpenShift Origin based on: https://github.com/openshift/origin
+# like OpenShift Enterprise 3.x see the origin.py plugin
 class Openshift(Plugin, RedHatPlugin):
-    '''Openshift node and broker'''
+    '''Openshift 2.x node and broker'''
 
     plugin_name = "openshift"
     profiles = ('virt', 'openshift')
