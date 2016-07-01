@@ -76,7 +76,7 @@ class RedHatSahara(OpenStackSahara, RedHatPlugin):
 
     def setup(self):
         super(RedHatSahara, self).setup()
-        self.add_copy_spec("/etc/sudoers.d/sahara")
+        self.add_copy_spec("/etc/sudoers.d/sahara*")
 
 
 # vim: et ts=4 sw=4
