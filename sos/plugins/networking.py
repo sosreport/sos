@@ -225,7 +225,17 @@ class Networking(Plugin):
                 for con in nmcli_con_show_result['output'].splitlines():
                     if con[0:7] == 'Warning':
                         continue
-                    self.add_cmd_output("%s '%s'" %
+                    # nm names may contain embedded quotes (" and '). These
+                    # will cause an exception in shlex.split() if the quotes
+                    # are unbalanced. This may happen with names like:
+                    # "Foobar's Wireless Network". Although the problen will
+                    # occur for both single and double quote characters the
+                    # former is considerably more likely in object names since
+                    # it is syntactically valid in many human languages.
+                    #
+                    # Reverse the normal sos quoting convention here and place
+                    # double quotes around the innermost quoted string.
+                    self.add_cmd_output('%s "%s"' %
                                         (nmcli_con_details_cmd, con))
 
             nmcli_dev_status_result = self.call_ext_prog(
@@ -234,7 +244,8 @@ class Networking(Plugin):
                 for dev in nmcli_dev_status_result['output'].splitlines():
                     if dev[0:7] == 'Warning':
                         continue
-                    self.add_cmd_output("%s '%s'" %
+                    # See above comment describing quoting conventions.
+                    self.add_cmd_output('%s "%s"' %
                                         (nmcli_dev_details_cmd, dev))
 
         # Get ethtool output for every device that does not exist in a
