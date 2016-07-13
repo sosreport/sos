@@ -27,10 +27,7 @@ class AtomicHost(Plugin, RedHatPlugin):
     ]
 
     def check_enabled(self):
-        if not os.path.exists("/host/etc/system-release-cpe"):
-            return False
-        cpe = open("/host/etc/system-release-cpe", "r").readlines()
-        return ':atomic-host' in cpe[0]
+        return self.policy().in_container()
 
     def setup(self):
         self.add_copy_spec("/etc/ostree/remotes.d")
