@@ -55,8 +55,12 @@ class Juju(Plugin, UbuntuPlugin):
 
     def get_deployed_services(self):
         cmd = "juju status --format json"
-        return json_load(
-            self.call_ext_prog(cmd)['output'])['services'].keys()
+        juju_cmd = self.call_ext_prog(cmd)
+        if juju_cmd['status'] == 0:
+            return json_load(
+                juju_cmd['output'])['services'].keys()
+        else:
+            return []
 
     @ensure_service_is_running("juju-db")
     def export_mongodb(self):
