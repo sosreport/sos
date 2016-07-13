@@ -22,8 +22,9 @@ class AtomicHost(Plugin, RedHatPlugin):
     """ Atomic Host """
 
     plugin_name = "atomichost"
-    option_list = [("info", "gather atomic info for each image",
-                    "fast", False)]
+    option_list = [
+        ("info", "gather atomic info for each image", "fast", False)
+    ]
 
     def check_enabled(self):
         if not os.path.exists("/host/etc/system-release-cpe"):
