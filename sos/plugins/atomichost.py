@@ -34,8 +34,9 @@ class AtomicHost(Plugin, RedHatPlugin):
         self.add_cmd_output("atomic host status")
 
         if self.get_option('info'):
-            images = self.get_command_output("docker images -q")
-            for image in set(
-                    images['output'].splitlines()):
-                if image:
-                    self.add_cmd_output("atomic info {0}".format(image))
+            # images output may have trailing whitespace
+            images = self.get_command_output("docker images -q").strip()
+            for image in set(images['output'].splitlines()):
+                self.add_cmd_output("atomic info {0}".format(image))
+
+# vim: set et ts=4 sw=4 :
