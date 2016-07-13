@@ -90,10 +90,11 @@ class Juju(Plugin, UbuntuPlugin):
                                  sizelimit=limit)
         if not self.get_option("all_logs"):
             # Capture the last bit of all files
-            for filename in os.listdir("/var/log/juju/"):
-                if filename.endswith(".log"):
-                    fullname = "/var/log/juju/" + filename
-                    self.add_copy_spec_limit(fullname, sizelimit=limit)
+            if os.path.exists("/var/log/juju"):
+                for filename in os.listdir("/var/log/juju/"):
+                    if filename.endswith(".log"):
+                        fullname = "/var/log/juju/" + filename
+                        self.add_copy_spec_limit(fullname, sizelimit=limit)
             # Do just the all-machines from juju local
             self.add_copy_spec_limit("/var/log/juju-*/all-machines.log",
                                      sizelimit=limit)
