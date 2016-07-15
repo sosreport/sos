@@ -27,6 +27,7 @@ class Monit(Plugin, RedHatPlugin):
     plugin_name = 'monit'
 
     # Define configuration files
+    # FIXME: direct globs will fail in container environments.
     monit_conf = glob("/etc/monit.d/*")
     monit_conf.append("/etc/monit.conf")
     monit_conf.append("/etc/monitrc")
@@ -38,7 +39,7 @@ class Monit(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output("monit status")
-        self.add_copy_spec([self.monit_log, self.monit_conf])
+        self.add_copy_spec(self.monit_log + self.monit_conf)
 
     def postproc(self):
         # Post process the files included to scrub any
