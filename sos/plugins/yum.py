@@ -27,7 +27,8 @@ class Yum(Plugin, RedHatPlugin):
 
     option_list = [
         ("yumlist", "list repositories and packages", "slow", False),
-        ("yumdebug", "gather yum debugging data", "slow", False)
+        ("yumdebug", "gather yum debugging data", "slow", False),
+        ("yum-history-info", "gather yum history info", "slow", False),
     ]
 
     def setup(self):
@@ -51,6 +52,20 @@ class Yum(Plugin, RedHatPlugin):
             "/etc/pki/entitlement/*.pem"
         ])
         self.add_cmd_output("yum history")
+
+        # packages installed/erased/updated per transaction
+        if self.get_option("yum-history-info"):
+            history = self.call_ext_prog("yum history")
+            transactions = None
+            if history['output']:
+                for line in history['output'].splitlines():
+                    try:
+                        transactions = int(line.split('|')[0].strip())
+                        break
+                    except ValueError:
+                        pass
+            for tr_id in range(1, transactions+1):
+                self.add_cmd_output("yum history info %d" % tr_id)
 
         if self.get_option("yumlist"):
             # List various information about available packages
