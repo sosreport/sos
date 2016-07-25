@@ -91,7 +91,9 @@ class Gluster(Plugin, RedHatPlugin):
             "/etc/glusterd.rpmsave",
             # common to all versions
             "/etc/glusterfs",
-            "/var/lib/glusterd/"
+            "/var/lib/glusterd/",
+            # collect nfs-ganesha related configuration
+            "/var/run/gluster/shared_storage/nfs-ganesha/"
         ] + glob.glob('/var/run/gluster/*tier-dht/*'))
 
         # collect logs - apply log_size for any individual file
