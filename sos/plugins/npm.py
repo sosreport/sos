@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+import os
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
     SuSEPlugin
@@ -26,17 +27,30 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
     requires_root = False
     plugin_name = 'npm'
     profiles = ('system',)
+    option_list = [("project_path",
+                    'List npm modules of a project specified by path',
+                    'fast',
+                    0)]
 
     # in Fedora, Debian, Ubuntu and Suse the package is called npm
     packages = ('npm',)
 
-    def setup(self):
+    def _get_npm_output(self, cmd, filename, working_directory=None):
         # stderr output is already part of the json, key "problems"
         self.add_cmd_output(
-            "npm ls -g --json",
-            suggest_filename="npm-list",
-            stderr=False
+            cmd,
+            suggest_filename=filename,
+            stderr=False,
+            runat=working_directory
         )
+
+    def setup(self):
+        if self.get_option("project_path") != 0:
+            project_path = os.path.abspath(os.path.expanduser(
+                self.get_option("project_path")))
+            self._get_npm_output("npm ls --json", "npm-ls-project",
+                                 working_directory=project_path)
+        self._get_npm_output("npm ls -g --json", "npm-ls-global")
 
 
 class NpmViaNodeJS(Npm):
