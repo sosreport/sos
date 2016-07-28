@@ -14,6 +14,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 import os
+import pwd
+import json
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
     SuSEPlugin
@@ -44,6 +46,41 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
             runat=working_directory
         )
 
+    def _find_modules_in_npm_cache(self):
+        """
+        since format of `~/.npm` is changing with newer npm releases, let's do
+        the easiest thing and don't predict nor expect anything, the structure
+        is suppose to be:
+
+        ~/.npm
+        |-- asap
+        |   `-- 2.0.4
+        |-- dezalgo
+        |   |-- 1.0.2
+        |   `-- 1.0.3
+        """
+        output = []
+
+        for p in pwd.getpwall():
+            user_cache = os.path.join(p.pw_dir, ".npm")
+            try:
+                # most of these stand for names of modules
+                module_names = os.listdir(user_cache)
+            except OSError:
+                self._log_debug("Skipping directory %s" % user_cache)
+                continue
+            else:
+                for m in module_names:
+                    module_path = os.path.join(user_cache, m)
+                    try:
+                        versions = os.listdir(module_path)
+                    except OSError:
+                        continue
+                    else:
+                        output.append({m: versions})
+        outfn = self._make_command_filename("npm-cache-modules")
+        self.archive.add_string(json.dumps(output), outfn)
+
     def setup(self):
         if self.get_option("project_path") != 0:
             project_path = os.path.abspath(os.path.expanduser(
@@ -51,6 +88,7 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
             self._get_npm_output("npm ls --json", "npm-ls-project",
                                  working_directory=project_path)
         self._get_npm_output("npm ls -g --json", "npm-ls-global")
+        self._find_modules_in_npm_cache()
 
 
 class NpmViaNodeJS(Npm):
