@@ -30,7 +30,7 @@ class ManilaPlugin(Plugin, RedHatPlugin):
                     self.soslog.warning("%s not found in environment variables"
                                         " which is required" % (os_var))
             self.add_cmd_output(
-                "manila list"
+                "manila list",
                 suggest_filename="manila_list")
 
         self.limit = self.get_option("log_size")
