@@ -14,31 +14,28 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import os
 from sos.plugins import Plugin, RedHatPlugin
 
 
 class ManilaPlugin(Plugin, RedHatPlugin):
     """Openstack Manila"""
     plugin_name = "manila"
-    profiles = ('openstack', 'openstack_controller', 'openstack_manila')
-    option_list = [("cmds", "gathers openstack manila commands", "slow", False)]
+    profiles = ('openstack', 'storage')
+    option_list = [("list", "List NAS shares", "fast", False)]
 
     def setup(self):
-        if self.get_option("cmds"):
+        if self.get_option("list"):
             for os_var in ['OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']:
                 if os_var not in os.environ:
                     self.soslog.warning("%s not found in environment variables"
                                         " which is required" % (os_var))
-            self.add_cmd_output(
-                "manila list",
-                suggest_filename="manila_list")
+                self.add_cmd_output("manila list")
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/manila/",
-                                     sizelimit=self.limit)
+            self.add_copy_spec_limit("/var/log/manila/")
         else:
             self.add_copy_spec_limit("/var/log/manila/*.log",
-                                     sizelimit=self.limit)
-        self.add_copy_spec("/etc/manila/manila.conf")
+                                     sizelimit=self.get_option("log_size"))
 
+        self.add_copy_spec("/etc/manila/manila.conf")
