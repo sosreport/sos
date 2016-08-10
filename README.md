@@ -57,7 +57,7 @@ pull requests.
 ### Manual Installation
 
 ```
-You can simply run from the git checkout now ==> Ex: sudo ./sosreport -a
+You can simply run from the git checkout now ==> Ex: sudo ./sosreport -a --config-file sos.conf
 to install locally (as root) ==> make install
 to build an rpm ==> make rpm
 ```
