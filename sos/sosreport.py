@@ -682,6 +682,8 @@ class SoSReport(object):
         self._args = args
         self.sysroot = "/"
         self.sys_tmp = None
+        self.project_path = os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__)))
 
         try:
             import signal
@@ -817,8 +819,10 @@ class SoSReport(object):
         self.config = ConfigParser()
         if self.opts.config_file:
             config_file = self.opts.config_file
-        else:
+        elif os.path.exists('/etc/sos.conf'):
             config_file = '/etc/sos.conf'
+        else:
+            config_file = os.path.join(self.project_path, 'sos.conf')
 
         try:
             try:
