@@ -47,6 +47,9 @@ class Docker(Plugin):
         result = self.get_command_output(ps_cmd)
         if result['status'] == 0:
             for line in result['output'].splitlines()[1:]:
+                if not line:
+                    # skip empty line
+                    continue
                 container_id = line.split(" ")[0]
                 self.add_cmd_output([
                     "{0} logs {1}".format(self.docker_bin, container_id)
