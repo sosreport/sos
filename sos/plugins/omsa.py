@@ -48,7 +48,7 @@ class omsa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "{0} system events".format(self.omreport),
             "{0} chassis info".format(self.omreport),
             "{0} chassis biossetup".format(self.omreport),
-            "{0} chassis summary".format(self.omreport),
+            "{0} storage controller".format(self.omreport),
         ], timeout=30)
 
 # vim: et ts=4 sw=4
