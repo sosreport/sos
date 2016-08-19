@@ -34,9 +34,12 @@ class AtomicHost(Plugin, RedHatPlugin):
         self.add_cmd_output("atomic host status")
 
         if self.get_option('info'):
-            # images output may have trailing whitespace
-            images = self.get_command_output("docker images -q").strip()
-            for image in set(images['output'].splitlines()):
+            # The 'docker images' command may include duplicate rows of
+            # output (repeated "IMAGE ID" values). Use a set to filter
+            # these out and only obtain 'docker info' data once per image
+            # identifier.
+            images = self.get_command_output("docker images -q")['output']
+            for image in set(images.splitlines()):
                 self.add_cmd_output("atomic info {0}".format(image))
 
 # vim: set et ts=4 sw=4 :
