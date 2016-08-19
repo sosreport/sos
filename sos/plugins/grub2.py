@@ -33,10 +33,13 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/grub2.cfg",
             "/etc/grub.d"
         ])
-        self.add_cmd_output([
-            "ls -lanR /boot",
-            "grub2-mkconfig"
-        ])
+
+        self.add_cmd_output("ls -lanR /boot")
+        # call grub2-mkconfig with GRUB_DISABLE_OS_PROBER=true to prevent
+        # possible unwanted loading of some kernel modules
+        env = {}
+        env['GRUB_DISABLE_OS_PROBER'] = 'true'
+        self.add_cmd_output("grub2-mkconfig", env=env)
 
     def postproc(self):
         # the trailing space is required; python treats '_' as whitespace
