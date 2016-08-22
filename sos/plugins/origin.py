@@ -119,6 +119,7 @@ class OpenShiftOrigin(Plugin):
             # Note: Information about nodes, events, pods, and services
             # is already collected by the Kubernetes plugin
             self.add_cmd_output([
+                "openshift vesion",
                 "%s describe projects" % self.oc_cmd,
                 "%s get -o json hostsubnet" % self.oc_cmd,
                 "%s get -o json clusternetwork" % self.oc_cmd,
@@ -156,6 +157,7 @@ class OpenShiftOrigin(Plugin):
 
             node_kubecfg = self.get_node_kubecfg()
             self.add_cmd_output([
+                "openshift vesion",
                 "%s config view --config=%s" % (self.oc_cmd, node_kubecfg),
                 "%s diagnostics NodeConfigCheck --node-config=%s"
                 % (self.oadm_cmd, self.node_cfg)

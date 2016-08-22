@@ -88,6 +88,13 @@ class kubernetes(Plugin, RedHatPlugin):
                 "{} get -o json pv".format(kube_cmd)
             ])
 
+            # get a node description from ndoes (convenience)
+            nodes = self.get_command_output("%s get nodes -o name"
+                                            % self.oc_cmd)
+            for node in nodes['output'].splitlines():
+                self.add_cmd_output("%s describe %s"
+                                    % (self.oc_cmd, node))
+
             for n in knsps:
                 knsp = '--namespace=%s' % n
                 k_cmd = '%s %s %s' % (kube_cmd, kube_get_cmd, knsp)
