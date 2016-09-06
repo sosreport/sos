@@ -27,8 +27,10 @@ class OpenStackCinder(Plugin):
     plugin_name = "openstack_cinder"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("db", "gathers openstack cinder db version", "slow",
-                    False)]
+    option_list = [
+        ("db", "gathers openstack cinder db version", "slow", False),
+        ("exclude", "Ignore files matching this path spec", "", "")
+    ]
 
     def setup(self):
         if self.get_option("db"):
@@ -45,6 +47,9 @@ class OpenStackCinder(Plugin):
         else:
             self.add_copy_spec_limit("/var/log/cinder/*.log",
                                      sizelimit=self.limit)
+        if self.get_option("exclude"):
+            exclude = self.get_option("exclude")
+            self.add_forbidden_path(exclude)
 
     def postproc(self):
         protect_keys = [

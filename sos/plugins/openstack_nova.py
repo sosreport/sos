@@ -28,7 +28,10 @@ class OpenStackNova(Plugin):
     plugin_name = "openstack_nova"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
-    option_list = [("cmds", "gathers openstack nova commands", "slow", False)]
+    option_list = [
+        ("cmds", "gathers openstack nova commands", "slow", False),
+        ("exclude", "Ignore files matching this path spec", "", "")
+    ]
 
     def setup(self):
         if self.get_option("cmds"):
@@ -76,6 +79,9 @@ class OpenStackNova(Plugin):
                                      sizelimit=self.limit)
 
         self.add_copy_spec("/etc/nova/")
+        if self.get_option("exclude"):
+            exclude = self.get_option("exclude")
+            self.add_forbidden_path(exclude)
 
     def postproc(self):
         protect_keys = [

@@ -23,6 +23,10 @@ class OpenStackIronic(Plugin):
     plugin_name = "openstack_ironic"
     profiles = ('openstack', 'openstack_undercloud')
 
+    option_list = [
+        ("exclude", "Ignore files matching this path spec", "", "")
+    ]
+
     def setup(self):
         self.conf_list = ['/etc/ironic/*']
         self.add_copy_spec('/etc/ironic/')
@@ -34,6 +38,10 @@ class OpenStackIronic(Plugin):
         else:
             self.add_copy_spec_limit("/var/log/ironic/*.log",
                                      sizelimit=self.limit)
+
+        if self.get_option("exclude"):
+            exclude = self.get_option("exclude")
+            self.add_forbidden_path(exclude)
 
         self.add_cmd_output('ls -laRt /var/lib/ironic/')
 

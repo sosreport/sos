@@ -23,7 +23,9 @@ class OpenStackHeat(Plugin):
     plugin_name = "openstack_heat"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = []
+    option_list = [
+        ("exclude", "Ignore files matching this path spec", "", "")
+    ]
 
     def setup(self):
         # Heat
@@ -41,6 +43,9 @@ class OpenStackHeat(Plugin):
                                      sizelimit=self.limit)
 
         self.add_copy_spec("/etc/heat/")
+        if self.get_option("exclude"):
+            exclude = self.get_option("exclude")
+            self.add_forbidden_path(exclude)
 
     def postproc(self):
         protect_keys = [

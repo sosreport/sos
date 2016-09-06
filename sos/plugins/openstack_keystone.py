@@ -23,7 +23,10 @@ class OpenStackKeystone(Plugin):
     plugin_name = "openstack_keystone"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("nopw", "dont gathers keystone passwords", "slow", True)]
+    option_list = [
+        ("nopw", "dont gathers keystone passwords", "slow", True),
+        ("exclude", "Ignore files matching this path spec", "", "")
+    ]
 
     def setup(self):
         self.add_copy_spec([
@@ -40,6 +43,9 @@ class OpenStackKeystone(Plugin):
         else:
             self.add_copy_spec_limit("/var/log/keystone/*.log",
                                      sizelimit=self.limit)
+        if self.get_option("exclude"):
+            exclude = self.get_option("exclude")
+            self.add_forbidden_path(exclude)
 
     def postproc(self):
         protect_keys = [

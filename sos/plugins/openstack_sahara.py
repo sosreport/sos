@@ -22,7 +22,9 @@ class OpenStackSahara(Plugin):
     plugin_name = 'openstack_sahara'
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = []
+    option_list = [
+        ("exclude", "Ignore files matching this path spec", "", "")
+    ]
 
     def setup(self):
         self.add_copy_spec("/etc/sahara/")
@@ -37,6 +39,9 @@ class OpenStackSahara(Plugin):
         else:
             self.add_copy_spec_limit("/var/log/sahara/*.log",
                                      sizelimit=self.limit)
+        if self.get_option("exclude"):
+            exclude = self.get_option("exclude")
+            self.add_forbidden_path(exclude)
 
     def postproc(self):
         protect_keys = [

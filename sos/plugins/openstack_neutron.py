@@ -23,6 +23,10 @@ class OpenStackNeutron(Plugin):
     plugin_name = "openstack_neutron"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
+    option_list = [
+        ("exclude", "Ignore files matching this path spec", "", "")
+    ]
+
     def setup(self):
 
         self.limit = self.get_option("log_size")
@@ -35,6 +39,9 @@ class OpenStackNeutron(Plugin):
 
         self.add_copy_spec("/etc/neutron/")
         self.add_copy_spec("/var/lib/neutron/")
+        if self.get_option("exclude"):
+            exclude = self.get_option("exclude")
+            self.add_forbidden_path(exclude)
 
     def postproc(self):
         protect_keys = [
