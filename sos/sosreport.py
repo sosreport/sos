@@ -111,8 +111,8 @@ class OptionParserExtended(OptionParser):
         print_()
         print_("Some examples:")
         print_()
-        print_(" enable cluster plugin only and collect dlm lockdumps:")
-        print_("   # sosreport -o cluster -k cluster.lockdump")
+        print_(" enable dlm plugin only and collect dlm lockdumps:")
+        print_("   # sosreport -o dlm -k dlm.lockdump")
         print_()
         print_(" disable memory and samba plugins, turn off rpm -Va "
                "collection:")
