@@ -149,10 +149,10 @@ class PlainTextReport(object):
                                         header, format_)
         output = u'\n'.join(map(lambda i: (i if isinstance(i, six.text_type)
                                            else six.u(i)), buf))
-        if six.PY2:
-            return output.encode('utf8')
-        else:
+        if six.PY3:
             return output
+        else:
+            return output.encode('utf8')
 
     def process_subsection(self, section, key, header, format_):
         if key in section:
