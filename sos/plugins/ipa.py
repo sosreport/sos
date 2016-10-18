@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 from glob import glob
+from os.path import exists
 
 
 class Ipa(Plugin, RedHatPlugin):
@@ -29,7 +30,45 @@ class Ipa(Plugin, RedHatPlugin):
     ipa_client = False
 
     files = ('/etc/ipa',)
-    packages = ('ipa-server', 'ipa-client')
+    packages = ('ipa-server', 'ipa-client', 'freeipa-server', 'freeipa-client')
+
+    def check_ipa_server_version(self):
+        if self.is_installed("pki-server") \
+                or exists("/var/lib/pki") \
+                or exists("/usr/share/doc/ipa-server-4.2.0"):
+            return "v4"
+        elif self.is_installed("pki-common") \
+                or exists("/var/lib/pki-ca/"):
+            return "v3"
+
+    def ca_installed(self):
+        # Follow the same checks as IPA CA installer code
+        if exists("%s/conf/ca/CS.cfg" % self.pki_tomcat_dir_v4) \
+                or exists("%s/conf/CS.cfg" % self.pki_tomcat_dir_v3):
+            return True
+
+    def ipa_server_installed(self):
+        if self.is_installed("ipa-server") \
+                or self.is_installed("freeipa-server"):
+            return True
+
+    def retrieve_pki_logs(self, ipa_version):
+        if ipa_version == "v4":
+            self.add_copy_spec([
+               "/var/log/pki/pki-tomcat/ca/debug",
+               "/var/log/pki/pki-tomcat/ca/system",
+               "/var/log/pki/pki-tomcat/ca/transactions",
+               "/var/log/pki/pki-tomcat/catalina.*",
+               "/var/log/pki/pki-ca-spawn.*"
+            ])
+        elif ipa_version == "v3":
+            self.add_copy_spec([
+               "/var/log/pki-ca/debug",
+               "/var/log/pki-ca/system",
+               "/var/log/pki-ca/transactions",
+               "/var/log/pki-ca/catalina.*",
+               "/var/log/pki/pki-ca-spawn.*"
+            ])
 
     def check_enabled(self):
         self.ipa_server = self.is_installed("ipa-server")
@@ -37,21 +76,28 @@ class Ipa(Plugin, RedHatPlugin):
         return Plugin.check_enabled(self)
 
     def setup(self):
-        if self.ipa_server:
+        self.pki_tomcat_dir_v4 = "/var/lib/pki/pki-tomcat"
+        self.pki_tomcat_dir_v3 = "/var/lib/pki-ca"
+
+        if self.ipa_server_installed():
+            self._log_debug("IPA server install detected")
+
+            ipa_version = self.check_ipa_server_version()
+            self._log_debug("IPA version is [%s]" % ipa_version)
+
             self.add_copy_spec([
                 "/var/log/ipaserver-install.log",
                 "/var/log/ipareplica-install.log"
             ])
-        if self.ipa_client:
-            self.add_copy_spec("/var/log/ipaclient-install.log")
+
+        if self.ca_installed():
+            self._log_debug("CA is installed: retrieving PKI logs")
+            self.retrieve_pki_logs(ipa_version)
 
         self.add_copy_spec([
+            "/var/log/ipaclient-install.log",
             "/var/log/ipaupgrade.log",
             "/var/log/krb5kdc.log",
-            "/var/log/pki-ca/debug",
-            "/var/log/pki-ca/catalina.out",
-            "/var/log/pki-ca/system",
-            "/var/log/pki-ca/transactions",
             "/var/log/dirsrv/slapd-*/logs/access",
             "/var/log/dirsrv/slapd-*/logs/errors",
             "/etc/dirsrv/slapd-*/dse.ldif",
