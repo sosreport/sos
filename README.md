@@ -56,11 +56,31 @@ pull requests.
 
 ### Manual Installation
 
+You can simply run from the git checkout now:
 ```
-You can simply run from the git checkout now ==> Ex: sudo ./sosreport -a
-or if you only have python3 installed ==> sudo python3 ./sosreport -a
-to install locally (as root) ==> make install
-to build an rpm ==> make rpm
+$ sudo ./sosreport -a
+```
+
+Or, if you only have python3 installed:
+```
+$ sudo python3 ./sosreport -a
+```
+
+* Note: the `sosreport` command requires a configuration file: if no `sos.conf`
+is present in the `/etc` directory (i.e. no system installation of sos exists),
+use the `--config` option to provide one:
+```
+$ sudo python ./sosreport -a --config ./sos.conf
+```
+
+To install locally (as root):
+```
+# make install
+```
+
+To build an rpm:
+```
+$ make rpm
 ```
 
 ### Pre-built Packaging
