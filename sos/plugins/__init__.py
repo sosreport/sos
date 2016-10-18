@@ -560,7 +560,7 @@ class Plugin(object):
             self._add_copy_paths(copy_paths)
             self._log_info("added copyspec '%s'" % copy_paths)
 
-    def get_command_output(self, prog, timeout=300, stderr=True,
+    def get_command_output(self, prog, timeout=self._timeout, stderr=True,
                            chroot=True, runat=None, env=None):
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
@@ -588,7 +588,7 @@ class Plugin(object):
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
-    def call_ext_prog(self, prog, timeout=300, stderr=True,
+    def call_ext_prog(self, prog, timeout=self._timeout, stderr=True,
                       chroot=True, runat=None):
         """Execute a command independantly of the output gathering part of
         sosreport.
@@ -604,7 +604,7 @@ class Plugin(object):
         return self.call_ext_prog(prog)['status'] == 0
 
     def _add_cmd_output(self, cmd, suggest_filename=None,
-                        root_symlink=None, timeout=300, stderr=True,
+                        root_symlink=None, timeout=self._timeout, stderr=True,
                         chroot=True, runat=None, env=None):
         """Internal helper to add a single command to the collection list."""
         cmdt = (
@@ -619,7 +619,7 @@ class Plugin(object):
         self._log_info("added cmd output '%s'" % cmd)
 
     def add_cmd_output(self, cmds, suggest_filename=None,
-                       root_symlink=None, timeout=300, stderr=True,
+                       root_symlink=None, timeout=self._timeout, stderr=True,
                        chroot=True, runat=None, env=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):

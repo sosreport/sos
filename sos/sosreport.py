@@ -256,6 +256,7 @@ class SoSOptions(object):
     _sysroot = None
     _chroot = 'auto'
     _compression_type = 'auto'
+    _timeout= "300"
 
     _options = None
 
@@ -663,6 +664,10 @@ class SoSOptions(object):
                           help="compression technology to use [auto, "
                                "gzip, bzip2, xz] (default=auto)",
                           default="auto")
+        parser.add_option("-t", "--timeout", dest="timeout",
+                          help="timeout override setting "
+                               "- value in seconds (default=300)",
+                          default="300")
 
         return parser.parse_args(args)[0]
 
@@ -682,6 +687,7 @@ class SoSReport(object):
         self._args = args
         self.sysroot = "/"
         self.sys_tmp = None
+        self.timeout = self.opts.timeout
 
         try:
             import signal
