@@ -48,10 +48,11 @@ class Ipa(Plugin, RedHatPlugin):
         self.add_copy_spec([
             "/var/log/ipaupgrade.log",
             "/var/log/krb5kdc.log",
-            "/var/log/pki-ca/debug",
-            "/var/log/pki-ca/catalina.out",
-            "/var/log/pki-ca/system",
-            "/var/log/pki-ca/transactions",
+            "/var/log/pki/pki-tomcat/ca/debug",
+            "/var/log/pki/pki-tomcat/ca/system",
+            "/var/log/pki/pki-tomcat/ca/transactions",
+            "/var/log/pki/pki-tomcat/catalina.*"
+            "/var/log/pki/pki-ca-spawn.*"
             "/var/log/dirsrv/slapd-*/logs/access",
             "/var/log/dirsrv/slapd-*/logs/errors",
             "/etc/dirsrv/slapd-*/dse.ldif",
