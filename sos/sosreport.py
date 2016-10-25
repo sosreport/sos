@@ -1265,6 +1265,8 @@ class SoSReport(object):
                 # containing directory.
                 final_name = os.path.join(self.sys_tmp,
                                           os.path.basename(archive))
+                # Get stat on the archive
+                archivestat = os.stat(archive)
 
                 archive_hash = archive + "." + hash_name
                 final_hash = final_name + "." + hash_name
@@ -1294,7 +1296,11 @@ class SoSReport(object):
                 except (OSError, IOError):
                     print(_("Error moving checksum file: %s" % archive_hash))
 
-        self.policy.display_results(archive, directory, checksum)
+        if not self.opts.build:
+            self.policy.display_results(archive, directory, checksum,
+                                        archivestat)
+        else:
+            self.policy.display_results(archive, directory, checksum)
 
         # clean up
         logging.shutdown()
