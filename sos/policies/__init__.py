@@ -9,6 +9,7 @@ import fnmatch
 import tempfile
 import random
 import string
+from pwd import getpwuid
 
 from sos.utilities import (ImporterHelper,
                            import_module,
@@ -22,6 +23,16 @@ from six import print_
 from six.moves import input
 
 PRESETS_PATH = "/var/lib/sos/presets"
+
+
+def GetHumanReadable(size, precision=2):
+    # Credit to Pavan Gupta https://stackoverflow.com/questions/5194057/
+    suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
+    suffixIndex = 0
+    while size > 1024 and suffixIndex < 4:
+        suffixIndex += 1
+        size = size/1024.0
+    return "%.*f%s" % (precision, size, suffixes[suffixIndex])
 
 
 def import_policy(name):
@@ -412,8 +423,7 @@ class Policy(object):
 
     msg = _("""\
 This command will collect system configuration and diagnostic information \
-from this %(distro)s system. An archive containing the collected information \
-will be generated in %(tmpdir)s.
+from this %(distro)s system.
 
 For more information on %(vendor)s visit:
 
@@ -423,7 +433,8 @@ The generated archive may contain data considered sensitive and its content \
 should be reviewed by the originating organization before being passed to \
 any third party.
 
-No changes will be made to system configuration.
+%(changes_text)s
+
 %(vendor_text)s
 """)
 
@@ -645,7 +656,7 @@ No changes will be made to system configuration.
         to use"""
         return "md5"
 
-    def display_results(self, archive, directory, checksum):
+    def display_results(self, archive, directory, checksum, archivestat=None):
         # Display results is called from the tail of SoSReport.final_work()
         #
         # Logging is already shutdown and all terminal output must use the
@@ -659,14 +670,16 @@ No changes will be made to system configuration.
 
         if archive:
             self._print(_("Your sosreport has been generated and saved "
-                        "in:\n  %s") % archive, always=True)
+                          "in:\n  %s\n") % archive, always=True)
+            self._print(_(" Size\t%s") %
+                        GetHumanReadable(archivestat.st_size))
+            self._print(_(" Owner\t%s") %
+                        getpwuid(archivestat.st_uid).pw_name)
         else:
-            self._print(_("sosreport build tree is located at : %s" %
-                        directory), always=True)
-
-        self._print()
+            self._print(_("Your sosreport build tree has been generated "
+                          "in:\n  %s\n") % directory, always=True)
         if checksum:
-            self._print(_("The checksum is: ") + checksum)
+            self._print(" " + self.get_preferred_hash_name() + "\t" + checksum)
             self._print()
             self._print(_("Please send this file to your support "
                         "representative."))
@@ -686,11 +699,15 @@ No changes will be made to system configuration.
         the user in non-batch mode. If your policy sets self.distro that
         text will be substituted accordingly. You can also override this
         method to do something more complicated."""
+        if self.commons['cmdlineopts'].allow_system_changes:
+            changes_text = "Changes CAN be made to system configuration."
+        else:
+            changes_text = "No changes will be made to system configuration."
         width = 72
         _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
                            'vendor_url': self.vendor_url,
                            'vendor_text': self.vendor_text,
-                           'tmpdir': self.commons['tmpdir']}
+                           'changes_text': changes_text}
         _fmt = ""
         for line in _msg.splitlines():
             _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
