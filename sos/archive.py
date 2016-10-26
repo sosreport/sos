@@ -45,10 +45,10 @@ class Archive(object):
     """Abstract base class for archives."""
 
     @classmethod
-    def archive_type(class_):
+    def archive_type(cls):
         """Returns the archive class's name as a string.
         """
-        return class_.__name__
+        return cls.__name__
 
     log = logging.getLogger("sos")
 

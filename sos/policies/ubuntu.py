@@ -14,7 +14,7 @@ class UbuntuPolicy(DebianPolicy):
         self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
 
     @classmethod
-    def check(self):
+    def check(cls):
         """This method checks to see if we are running on Ubuntu.
            It returns True or False."""
         try:

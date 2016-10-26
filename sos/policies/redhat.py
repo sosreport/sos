@@ -73,7 +73,7 @@ class RedHatPolicy(LinuxPolicy):
         self.set_exec_path()
 
     @classmethod
-    def check(self):
+    def check(cls):
         """This method checks to see if we are running on Red Hat. It must be
         overriden by concrete subclasses to return True when running on a
         Fedora, RHEL or other Red Hat distribution or False otherwise."""
@@ -158,10 +158,10 @@ No changes will be made to system configuration.
         super(RHELPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
-    def check(self):
+    def check(cls):
         """This method checks to see if we are running on RHEL. It returns True
         or False."""
-        return (os.path.isfile(self._redhat_release) and not
+        return (os.path.isfile(cls._redhat_release) and not
                 os.path.isfile('/etc/fedora-release'))
 
     def dist_version(self):
@@ -216,11 +216,11 @@ organization before being passed to any third party.
 """)
 
     @classmethod
-    def check(self):
+    def check(cls):
         atomic = False
         if ENV_HOST_SYSROOT not in os.environ:
             return atomic
-        host_release = os.environ[ENV_HOST_SYSROOT] + self._redhat_release
+        host_release = os.environ[ENV_HOST_SYSROOT] + cls._redhat_release
         if not os.path.exists(host_release):
             return False
         try:
@@ -241,7 +241,7 @@ class FedoraPolicy(RedHatPolicy):
         super(FedoraPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
-    def check(self):
+    def check(cls):
         """This method checks to see if we are running on Fedora. It returns
         True or False."""
         return os.path.isfile('/etc/fedora-release')

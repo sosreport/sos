@@ -137,13 +137,13 @@ class Plugin(object):
                                    'enabled': opt[3]})
 
     @classmethod
-    def name(class_):
+    def name(cls):
         """Returns the plugin's name as a string. This should return a
         lowercase string.
         """
-        if class_.plugin_name:
-            return class_.plugin_name
-        return class_.__name__.lower()
+        if cls.plugin_name:
+            return cls.plugin_name
+        return cls.__name__.lower()
 
     def _format_msg(self, msg):
         return "[plugin:%s] %s" % (self.name(), msg)

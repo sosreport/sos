@@ -25,7 +25,7 @@ class DebianPolicy(LinuxPolicy):
         self.valid_subclasses = [DebianPlugin]
 
     @classmethod
-    def check(self):
+    def check(cls):
         """This method checks to see if we are running on Debian.
            It returns True or False."""
         return os.path.isfile('/etc/debian_version')
