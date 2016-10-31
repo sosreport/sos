@@ -30,6 +30,6 @@ class Foreman(Plugin, RedHatPlugin):
 
         path = self.get_cmd_output_path(name="foreman-debug")
         self.add_cmd_output("%s -g -q -a -d %s" % (cmd, path),
-                            chroot=self.tmp_in_sysroot())
+                            chroot=self.tmp_in_sysroot(), timeout=900)
 
 # vim: set et ts=4 sw=4 :
