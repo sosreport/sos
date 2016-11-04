@@ -28,13 +28,16 @@ class Sssd(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/sssd/sssd.conf",
-            "/var/log/sssd/*"
+            "/var/log/sssd/*",
+            # SSSD 1.14
+            "/etc/sssd/conf.d/*.conf"
         ])
 
     def postproc(self):
-        self.do_file_sub("/etc/sssd/sssd.conf",
-                         r"(\s*ldap_default_authtok\s*=\s*)\S+",
-                         r"\1********")
+        regexp = r"(\s*ldap_default_authtok\s*=\s*)\S+"
+
+        self.do_file_sub("/etc/sssd/sssd.conf", regexp, r"\1********")
+        self.do_path_regex_sub("/etc/sssd/conf.d/*", regexp, r"\1********")
 
 
 class RedHatSssd(Sssd, RedHatPlugin):
