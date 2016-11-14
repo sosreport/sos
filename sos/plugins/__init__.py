@@ -360,6 +360,10 @@ class Plugin(object):
                 msg = "Too many levels of symbolic links copying"
                 self._log_error("_copy_dir: %s '%s'" % (msg, srcpath))
                 return
+            if e.errno == errno.EACCES:
+                msg = "Permission Denied"
+                self._log_error("_copy_dir: %s '%s'" % (msg, srcpath))
+                return
             raise e
 
     def _get_dest_for_srcpath(self, srcpath):
