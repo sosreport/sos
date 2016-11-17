@@ -39,6 +39,12 @@ class TarFileArchiveTest(unittest.TestCase):
 
         self.check_for_file('test/tests/ziptest')
 
+    def test_add_node_dev_null(self):
+        st = os.lstat('/dev/null')
+        dev_maj = os.major(st.st_rdev)
+        dev_min = os.minor(st.st_rdev)
+        self.tf.add_node('/dev/null', st.st_mode, os.makedev(dev_maj, dev_min))
+
     # when the string comes from tail() output
     def test_add_string_from_file(self):
         self.copy_strings = []
