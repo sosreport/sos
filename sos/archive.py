@@ -24,6 +24,7 @@ import shlex
 import re
 import codecs
 import sys
+import errno
 
 # required for compression callout (FIXME: move to policy?)
 from subprocess import Popen, PIPE
@@ -209,7 +210,14 @@ class FileCacheArchive(Archive):
         dest = self.dest_path(path)
         self._check_path(dest)
         if not os.path.exists(dest):
-            os.mknod(dest, mode, device)
+            try:
+                os.mknod(dest, mode, device)
+            except OSError as e:
+                if e.errno == errno.EPERM:
+                    msg = "Operation not permitted"
+                    self.log_info("add_node: %s - mknod '%s'" % (msg, dest))
+                    return
+                raise e
             shutil.copystat(path, dest)
 
     def _makedirs(self, path, mode=0o700):
