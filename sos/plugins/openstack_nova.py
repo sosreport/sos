@@ -124,7 +124,10 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianNova, self).setup()
-        self.add_copy_spec(["/etc/sudoers.d/nova_sudoers"])
+        self.add_copy_spec([
+            "/etc/sudoers.d/nova_sudoers",
+            "/usr/share/polkit-1/rules.d/60-libvirt.rules",
+        ])
 
 
 class RedHatNova(OpenStackNova, RedHatPlugin):
