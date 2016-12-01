@@ -32,7 +32,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "wbinfo --domain='.' -g",
             "wbinfo --domain='.' -u",
-            "testparm -s -v"
+            "testparm -s",
         ])
 
 
