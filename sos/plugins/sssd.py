@@ -29,6 +29,7 @@ class Sssd(Plugin):
         self.add_copy_spec([
             "/etc/sssd/sssd.conf",
             "/var/log/sssd/*",
+            "/var/lib/sss/pubconf/krb5.include.d/*",
             # SSSD 1.14
             "/etc/sssd/conf.d/*.conf"
         ])
