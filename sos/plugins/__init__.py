@@ -505,44 +505,55 @@ class Plugin(object):
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
-    def add_copy_spec_limit(self, copyspec, sizelimit=None, tailit=True):
+    def add_copy_spec_limit(self, copyspecs, sizelimit=None, tailit=True):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
-        if not (copyspec and len(copyspec)):
+
+        if sizelimit:
+            sizelimit *= 1024 * 1024  # in MB
+
+        if not copyspecs:
             return False
 
-        if self.use_sysroot():
-            copyspec = self.join_sysroot(copyspec)
-        files = glob.glob(copyspec)
-        files.sort()
-        if len(files) == 0:
-            return
+        if isinstance(copyspecs, six.string_types):
+            copyspecs = [copyspecs]
 
-        current_size = 0
-        limit_reached = False
-        sizelimit *= 1024 * 1024  # in MB
-        _file = None
+        for copyspec in copyspecs:
+            if not (copyspec and len(copyspec)):
+                return False
 
-        for _file in files:
-            current_size += os.stat(_file)[stat.ST_SIZE]
-            if sizelimit and current_size > sizelimit:
-                limit_reached = True
-                break
-            self._add_copy_paths([_file])
+            if self.use_sysroot():
+                copyspec = self.join_sysroot(copyspec)
 
-        if limit_reached and tailit:
-            file_name = _file
+            files = glob.glob(copyspec)
+            files.sort()
+            if len(files) == 0:
+                continue
 
-            if file_name[0] == os.sep:
-                file_name = file_name.lstrip(os.sep)
-            strfile = file_name.replace(os.path.sep, ".") + ".tailed"
-            self.add_string_as_file(tail(_file, sizelimit), strfile)
-            rel_path = os.path.relpath('/', os.path.dirname(_file))
-            link_path = os.path.join(rel_path, 'sos_strings',
-                                     self.name(), strfile)
-            self.archive.add_link(link_path, _file)
+            current_size = 0
+            limit_reached = False
+            _file = None
+
+            for _file in files:
+                current_size += os.stat(_file)[stat.ST_SIZE]
+                if sizelimit and current_size > sizelimit:
+                    limit_reached = True
+                    break
+                self._add_copy_paths([_file])
+
+            if limit_reached and tailit:
+                file_name = _file
+
+                if file_name[0] == os.sep:
+                    file_name = file_name.lstrip(os.sep)
+                strfile = file_name.replace(os.path.sep, ".") + ".tailed"
+                self.add_string_as_file(tail(_file, sizelimit), strfile)
+                rel_path = os.path.relpath('/', os.path.dirname(_file))
+                link_path = os.path.join(rel_path, 'sos_strings',
+                                         self.name(), strfile)
+                self.archive.add_link(link_path, _file)
 
     def add_copy_spec(self, copyspecs):
         """Add a file specification (can be file, dir,or shell glob) to be
