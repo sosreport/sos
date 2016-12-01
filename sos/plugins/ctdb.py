@@ -25,6 +25,7 @@ class Ctdb(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
+            "/etc/ctdb/nodes",
             "/etc/ctdb/public_addresses",
             "/etc/ctdb/static-routes",
             "/etc/ctdb/multipathd",
