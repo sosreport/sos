@@ -23,12 +23,18 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('services',)
 
     def setup(self):
+        self.limit = self.get_option("log_size")
+
         self.add_copy_spec([
             "/etc/samba/smb.conf",
             "/etc/samba/lmhosts",
-            "/var/log/samba/log.smbd",
-            "/var/log/samba/log.nmbd"
         ])
+
+        self.add_copy_spec_limit("/var/log/samba/log.smbd",
+                                 sizelimit=self.limit)
+        self.add_copy_spec_limit("/var/log/samba/log.nmbd",
+                                 sizelimit=self.limit)
+
         self.add_cmd_output([
             "wbinfo --domain='.' -g",
             "wbinfo --domain='.' -u",
