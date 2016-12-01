@@ -34,6 +34,14 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                                  sizelimit=self.limit)
         self.add_copy_spec_limit("/var/log/samba/log.nmbd",
                                  sizelimit=self.limit)
+        self.add_copy_spec_limit("/var/log/samba/log.winbindd",
+                                 sizelimit=self.limit)
+        self.add_copy_spec_limit("/var/log/samba/log.winbindd-idmap",
+                                 sizelimit=self.limit)
+        self.add_copy_spec_limit("/var/log/samba/log.winbindd-dc-connet",
+                                 sizelimit=self.limit)
+        self.add_copy_spec_limit("/var/log/samba/log.wb-*",
+                                 sizelimit=self.limit)
 
         self.add_cmd_output([
             "wbinfo --domain='.' -g",
