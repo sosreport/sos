@@ -43,6 +43,9 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec_limit("/var/log/samba/log.wb-*",
                                  sizelimit=self.limit)
 
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/samba/", sizelimit=self.limit)
+
         self.add_cmd_output([
             "wbinfo --domain='.' -g",
             "wbinfo --domain='.' -u",
