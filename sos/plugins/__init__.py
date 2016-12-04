@@ -527,7 +527,7 @@ class Plugin(object):
             if self.use_sysroot():
                 copyspec = self.join_sysroot(copyspec)
 
-            files = glob.glob(copyspec)
+            files = self._expand_copy_spec(copyspec)
             files.sort()
             if len(files) == 0:
                 continue
