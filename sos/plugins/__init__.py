@@ -861,8 +861,13 @@ class Plugin(object):
         implementation will return True if neither class.files or
         class.packages is specified. If either are specified the plugin will
         check for the existence of any of the supplied files or packages and
-        return True if any exist. It is encouraged to override this method if
-        this behavior isn't applicable.
+        return True if any exist. For SCLPlugin subclasses, it will check
+        whether the plugin can be run for any of installed SCLs. If so,
+        it will store names of these SCLs on the plugin class in addition
+        to returning True.
+
+        It is encouraged to override this method if this behavior
+        isn't applicable.
         """
         # some files or packages have been specified for this package
         if self.files or self.packages:
@@ -872,9 +877,26 @@ class Plugin(object):
             if isinstance(self.packages, six.string_types):
                 self.packages = [self.packages]
 
-            return (any(os.path.exists(fname) for fname in self.files) or
-                    any(self.is_installed(pkg) for pkg in self.packages))
+            if isinstance(self, SCLPlugin):
+                # save SCLs that match files or packages
+                type(self)._scls_matched = []
+                for scl in self._get_scls():
+                    files = [f % {"scl_name": scl} for f in self.files]
+                    packages = [p % {"scl_name": scl} for p in self.packages]
+                    if self._files_or_packages_present(files, packages):
+                        type(self)._scls_matched.append(scl)
+                return len(type(self)._scls_matched) > 0
+
+            return self._files_or_packages_present(self.files, self.packages)
+
+        if isinstance(self, SCLPlugin):
+            # if files and packages weren't specified, we take all SCLs
+            type(self)._scls_matched = self._get_scls()
         return True
+
+    def _files_or_packages_present(self, files, packages):
+            return (any(os.path.exists(fname) for fname in files) or
+                    any(self.is_installed(pkg) for pkg in packages))
 
     def default_enabled(self):
         """This decides whether a plugin should be automatically loaded or
@@ -950,6 +972,76 @@ class Plugin(object):
 class RedHatPlugin(object):
     """Tagging class for Red Hat's Linux distributions"""
     pass
+
+
+class SCLPlugin(RedHatPlugin):
+    """Superclass for plugins operating on Software Collections (SCLs).
+
+    Subclasses of this plugin class can specify class.files and class.packages
+    using "%(scl_name)s" interpolation. The plugin invoking mechanism will try
+    to match these against all found SCLs on the system. SCLs that do match
+    class.files or class.packages are then accessible via self.scls_matched
+    when the plugin is invoked.
+
+    Additionally, this plugin class provides "add_cmd_output_scl" (run
+    a command in context of given SCL), and "add_copy_spec_scl" and
+    "add_copy_spec_limit_scl" (copy package from file system of given SCL).
+
+    For example, you can implement a plugin that will list all global npm
+    packages in every SCL that contains "npm" package:
+
+    class SCLNpmPlugin(Plugin, SCLPlugin):
+        packages = ("%(scl_name)s-npm",)
+
+        def setup(self):
+            for scl in self.scls_matched:
+                self.add_cmd_output_scl(scl, "npm ls -g --json")
+    """
+
+    @property
+    def scls_matched(self):
+        if not hasattr(type(self), '_scls_matched'):
+            type(self)._scls_matched = []
+        return type(self)._scls_matched
+
+    def _get_scls(self):
+        output = sos_get_command_output("scl -l")["output"]
+        return [scl.strip() for scl in output.splitlines()]
+
+    def add_cmd_output_scl(self, scl, cmds, **kwargs):
+        """Same as add_cmd_output, except that it wraps command in
+        "scl enable" call.
+        """
+        if isinstance(cmds, six.string_types):
+            cmds = [cmds]
+        scl_cmds = []
+        scl_cmd_tpl = "scl enable %s \"%s\""
+        for cmd in cmds:
+            scl_cmds.append(scl_cmd_tpl % (scl, cmd))
+        self.add_cmd_output(scl_cmds, **kwargs)
+
+    def _convert_copyspec(self, scl, copyspec):
+        return "/opt/rh/%s/root%s" % (scl, copyspec)
+
+    def add_copy_spec_scl(self, scl, copyspecs):
+        """Same as add_copy_spec, except that it prepends path to SCL root
+        to "copyspecs".
+        """
+        if isinstance(copyspecs, six.string_types):
+            copyspecs = [copyspecs]
+        scl_copyspecs = []
+        for copyspec in copyspecs:
+            scl_copyspecs.append(self._convert_copyspec(scl, copyspec))
+        self.add_copy_spec(scl_copyspecs)
+
+    def add_copy_spec_limit_scl(self, scl, copyspec, **kwargs):
+        """Same as add_copy_spec_limit, except that it prepends path to SCL
+        root to "copyspec".
+        """
+        self.add_copy_spec_limit(
+            self._convert_copyspec(scl, copyspec),
+            **kwargs
+        )
 
 
 class PowerKVMPlugin(RedHatPlugin):
