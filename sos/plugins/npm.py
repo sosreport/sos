@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 import os
-import pwd
 import json
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
@@ -48,36 +47,40 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
 
     def _find_modules_in_npm_cache(self):
         """
-        since format of `~/.npm` is changing with newer npm releases, let's do
-        the easiest thing and don't predict nor expect anything, the structure
-        is suppose to be:
+        Example 'npm cache ls' output
+            ~/.npm
+            ~/.npm/acorn
+            ~/.npm/acorn/1.2.2
+            ~/.npm/acorn/1.2.2/package.tgz
+            ~/.npm/acorn/1.2.2/package
+            ~/.npm/acorn/1.2.2/package/package.json
+            ~/.npm/acorn/4.0.3
+            ~/.npm/acorn/4.0.3/package.tgz
+            ~/.npm/acorn/4.0.3/package
+            ~/.npm/acorn/4.0.3/package/package.json
+            ~/.npm/registry.npmjs.org
+            ~/.npm/registry.npmjs.org/acorn
+            ~/.npm/registry.npmjs.org/acorn/.cache.json
 
-        ~/.npm
-        |-- asap
-        |   `-- 2.0.4
-        |-- dezalgo
-        |   |-- 1.0.2
-        |   `-- 1.0.3
+        https://docs.npmjs.com/cli/cache
         """
-        output = []
+        output = {}
+        # with chroot=True (default) the command fails when run as non-root
+        user_cache = self.get_command_output("npm cache ls", chroot=False)
+        if user_cache['status'] == 0:
+            # filter out dirs with .cache.json ('registry.npmjs.org')
+            for package in [l for l in user_cache['output'].splitlines()
+                            if l.endswith('package.tgz')]:
+                five_tuple = package.split(os.path.sep)
+                if len(five_tuple) != 5:  # sanity check
+                    continue
+                home, cache, name, version, package_tgz = five_tuple
+                if name not in output:
+                    output[name] = [version]
+                else:
+                    output[name].append(version)
+        self._log_debug("modules in cache: %s" % output)
 
-        for p in pwd.getpwall():
-            user_cache = os.path.join(p.pw_dir, ".npm")
-            try:
-                # most of these stand for names of modules
-                module_names = os.listdir(user_cache)
-            except OSError:
-                self._log_debug("Skipping directory %s" % user_cache)
-                continue
-            else:
-                for m in module_names:
-                    module_path = os.path.join(user_cache, m)
-                    try:
-                        versions = os.listdir(module_path)
-                    except OSError:
-                        continue
-                    else:
-                        output.append({m: versions})
         outfn = self._make_command_filename("npm-cache-modules")
         self.archive.add_string(json.dumps(output), outfn)
 
