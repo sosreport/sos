@@ -29,7 +29,8 @@ class Docker(Plugin):
         ("all", "enable capture for all containers, even containers "
             "that have terminated", 'fast', False),
         ("logs", "capture logs for running containers",
-            'fast', False)
+            'fast', False),
+        ("size", "capture image sizes for docker ps", 'slow', False)
     ]
 
     def setup(self):
@@ -37,12 +38,40 @@ class Docker(Plugin):
             "/var/lib/docker/repositories-*"
         ])
 
-        for subcmd in ['info', 'ps', 'ps -a', 'images', 'version']:
+        subcmds = [
+            'info',
+            'images',
+            'network ls',
+            'ps',
+            'ps -a',
+            'stats --no-stream',
+            'version'
+        ]
+
+        for subcmd in subcmds:
             self.add_cmd_output(
                 "{0} {1}".format(self.docker_cmd, subcmd)
             )
 
+        # separately grab ps -s as this can take a *very* long time
+        if self.get_option('size'):
+            self.add_cmd_output('{0} ps -as'.format(self.docker_cmd))
+
         self.add_journal(units="docker")
+        self.add_cmd_output("ls -alhR /etc/docker")
+
+        net_cmd = '{0} network ls'.format(self.docker_cmd)
+        nets = self.get_command_output(net_cmd)
+
+        if nets['status'] == 0:
+            n = [n.split()[1] for n in nets['output'].splitlines()[1:]]
+            for net in n:
+                self.add_cmd_output(
+                    "{0} network inspect {1}".format(
+                        self.docker_cmd,
+                        net
+                    )
+                )
 
         ps_cmd = "{0} ps -q".format(self.docker_cmd)
         if self.get_option('all'):
