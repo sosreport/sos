@@ -1,6 +1,7 @@
 import unittest
 import os
 import tempfile
+import shutil
 
 # PYCOMPAT
 import six
@@ -269,16 +270,15 @@ class AddCopySpecTests(unittest.TestCase):
 
     def test_glob_file_over_limit(self):
         self.mp.sysroot = '/'
-        # assume these are in /tmp
-        fn = create_file(2)
-        fn2 = create_file(2)
-        self.mp.add_copy_spec_limit("/tmp/tmp*", 1)
+        tmpdir = tempfile.mkdtemp()
+        fn = create_file(2, dir=tmpdir)
+        fn2 = create_file(2, dir=tmpdir)
+        self.mp.add_copy_spec_limit(tmpdir + "/*", 1)
         self.assertEquals(len(self.mp.copy_strings), 1)
         content, fname = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
         self.assertEquals(1024 * 1024, len(content))
-        os.unlink(fn)
-        os.unlink(fn2)
+        shutil.rmtree(tmpdir)
 
 
 class CheckEnabledTests(unittest.TestCase):
