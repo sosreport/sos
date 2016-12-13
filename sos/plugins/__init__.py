@@ -555,8 +555,8 @@ class Plugin(object):
                                          self.name(), strfile)
                 self.archive.add_link(link_path, _file)
 
-    def add_copy_spec(self, copyspecs):
-        self.add_copy_spec_limit(copyspecs)
+    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True):
+        self.add_copy_spec_limit(copyspecs, sizelimit, tailit)
 
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None):
