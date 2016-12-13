@@ -237,10 +237,6 @@ class AddCopySpecTests(unittest.TestCase):
         expected_paths = set(map(pathmunge, self.expect_paths))
         self.assertEquals(self.mp.copy_paths, expected_paths)
 
-    def test_glob_file(self):
-        self.mp.add_copy_spec('tests/tail_test.*')
-        self.assert_expect_paths()
-
 
     def test_single_file_no_limit(self):
         self.mp.add_copy_spec("tests/tail_test.txt")
@@ -265,6 +261,10 @@ class AddCopySpecTests(unittest.TestCase):
         self.mp.sysroot = '/'
         self.assertFalse(self.mp.add_copy_spec('', 1))
         self.assertFalse(self.mp.add_copy_spec(None, 1))
+
+    def test_glob_file(self):
+        self.mp.add_copy_spec('tests/tail_test.*')
+        self.assert_expect_paths()
 
     def test_glob_file_limit_no_limit(self):
         self.mp.sysroot = '/'
