@@ -242,6 +242,7 @@ class AddCopySpecTests(unittest.TestCase):
     def test_single_file(self):
         self.mp.add_copy_spec('tests/tail_test.txt')
         self.assert_expect_paths()
+
     def test_glob_file(self):
         self.mp.add_copy_spec('tests/tail_test.*')
         self.assert_expect_paths()
