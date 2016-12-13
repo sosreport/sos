@@ -556,20 +556,7 @@ class Plugin(object):
                 self.archive.add_link(link_path, _file)
 
     def add_copy_spec(self, copyspecs):
-        """Add a file specification (can be file, dir,or shell glob) to be
-        copied into the sosreport by this module.
-        """
-        if isinstance(copyspecs, six.string_types):
-            copyspecs = [copyspecs]
-        for copyspec in copyspecs:
-            if self.use_sysroot():
-                copyspec = self.join_sysroot(copyspec)
-            if not (copyspec and len(copyspec)):
-                self._log_warn("added null or empty copy spec")
-                return False
-            copy_paths = self._expand_copy_spec(copyspec)
-            self._add_copy_paths(copy_paths)
-            self._log_info("added copyspec '%s'" % copy_paths)
+        self.add_copy_spec_limit(copyspecs)
 
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None):
