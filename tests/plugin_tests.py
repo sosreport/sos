@@ -247,6 +247,10 @@ class AddCopySpecTests(unittest.TestCase):
         self.mp.add_copy_spec('tests/tail_test.*')
         self.assert_expect_paths()
 
+    def test_multiple_files(self):
+        self.mp.add_copy_spec(['tests/tail_test.txt', 'tests/test.txt'])
+        self.assertEquals(len(self.mp.copy_paths), 2)
+
     # add_copy_spec_limit()
 
     def test_single_file_under_limit(self):
