@@ -247,11 +247,11 @@ class AddCopySpecTests(unittest.TestCase):
         self.mp.add_copy_spec('tests/tail_test.*')
         self.assert_expect_paths()
 
+    # add_copy_spec_limit()
+
     def test_single_file_under_limit(self):
         self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
         self.assert_expect_paths()
-
-    # add_copy_spec_limit()
 
     def test_single_file_over_limit(self):
         self.mp.sysroot = '/'
