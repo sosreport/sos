@@ -18,8 +18,8 @@ PATH = os.path.dirname(__file__)
 def j(filename):
     return os.path.join(PATH, filename)
 
-def create_file(size):
-   f = tempfile.NamedTemporaryFile(delete=False)
+def create_file(size, dir=None):
+   f = tempfile.NamedTemporaryFile(delete=False, dir=dir)
    f.write(six.b("*" * size * 1024 * 1024))
    f.flush()
    f.close()
