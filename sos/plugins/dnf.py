@@ -39,15 +39,12 @@ class DNFPlugin(Plugin, RedHatPlugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/dnf.*",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/dnf.*", sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/dnf.log",
-                                     sizelimit=self.limit)
-            self.add_copy_spec_limit("/var/log/dnf.librepo.log",
-                                     sizelimit=self.limit)
-            self.add_copy_spec_limit("/var/log/dnf.rpm.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/dnf.log", sizelimit=self.limit)
+            self.add_copy_spec("/var/log/dnf.librepo.log",
+                               sizelimit=self.limit)
+            self.add_copy_spec("/var/log/dnf.rpm.log", sizelimit=self.limit)
 
         self.add_cmd_output("dnf --version",
                             suggest_filename="dnf_version")

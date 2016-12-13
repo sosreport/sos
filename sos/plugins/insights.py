@@ -27,11 +27,11 @@ class RedHatInsights(Plugin, RedHatPlugin):
         self.add_copy_spec(self.conf_file)
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/redhat-access-insights/*.log*",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/redhat-access-insights/*.log*",
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/redhat-access-insights/*.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/redhat-access-insights/*.log",
+                               sizelimit=self.limit)
 
     def postproc(self):
         self.do_file_sub(

@@ -38,11 +38,11 @@ class Sar(Plugin,):
         # Copy all sa??, sar??, sa??.* and sar??.* files, which will net
         # compressed and uncompressed versions, typically.
         for suffix in ('', '.*'):
-            self.add_copy_spec_limit(
+            self.add_copy_spec(
                 os.path.join(self.sa_path, "sa[0-3][0-9]" + suffix),
                 sizelimit=self.sa_size, tailit=False
             )
-            self.add_copy_spec_limit(
+            self.add_copy_spec(
                 os.path.join(self.sa_path, "sar[0-3][0-9]" + suffix),
                 sizelimit=self.sa_size, tailit=False
             )

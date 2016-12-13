@@ -32,11 +32,11 @@ class Redis(Plugin, RedHatPlugin):
         self.limit = self.get_option("log_size")
         self.add_cmd_output("redis-cli info")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/redis/redis.log*",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/redis/redis.log*",
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/redis/redis.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/redis/redis.log",
+                               sizelimit=self.limit)
 
     def postproc(self):
         self.do_file_sub(

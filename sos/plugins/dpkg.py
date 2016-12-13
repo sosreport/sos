@@ -34,8 +34,7 @@ class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):
         ])
         if not self.get_option("all_logs"):
             limit = self.get_option("log_size")
-            self.add_copy_spec_limit("/var/log/dpkg.log",
-                                     sizelimit=limit)
+            self.add_copy_spec("/var/log/dpkg.log", sizelimit=limit)
         else:
             self.add_copy_spec("/var/log/dpkg.log*")
 

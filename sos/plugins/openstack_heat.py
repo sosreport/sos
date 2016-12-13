@@ -45,11 +45,9 @@ class OpenStackHeat(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/heat/",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/heat/", sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/heat/*.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/heat/*.log", sizelimit=self.limit)
 
         self.add_copy_spec("/etc/heat/")
 

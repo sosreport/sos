@@ -31,7 +31,7 @@ class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/numad.conf",
             "/etc/logrotate.d/numad"
         ])
-        self.add_copy_spec_limit(
+        self.add_copy_spec(
             "/var/log/numad.log*",
             sizelimit=self.get_option("log_size")
         )

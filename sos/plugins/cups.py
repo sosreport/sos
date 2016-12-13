@@ -27,11 +27,9 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         if not self.get_option("all_logs"):
             limit = self.get_option("log_size")
-            self.add_copy_spec_limit("/var/log/cups/access_log",
-                                     sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/cups/error_log",
-                                     sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/cups/page_log", sizelimit=limit)
+            self.add_copy_spec("/var/log/cups/access_log", sizelimit=limit)
+            self.add_copy_spec("/var/log/cups/error_log", sizelimit=limit)
+            self.add_copy_spec("/var/log/cups/page_log", sizelimit=limit)
         else:
             self.add_copy_spec("/var/log/cups")
 

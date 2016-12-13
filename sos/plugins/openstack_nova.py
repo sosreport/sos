@@ -63,11 +63,9 @@ class OpenStackNova(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/nova/",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/nova/", sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/nova/*.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/nova/*.log", sizelimit=self.limit)
 
         self.add_copy_spec("/etc/nova/")
 
