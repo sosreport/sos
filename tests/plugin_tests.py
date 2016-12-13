@@ -236,7 +236,7 @@ class AddCopySpecTests(unittest.TestCase):
             return os.path.join(self.mp.sysroot, path)
         expected_paths = set(map(pathmunge, self.expect_paths))
         self.assertEquals(self.mp.copy_paths, expected_paths)
-        
+
     # add_copy_spec()
 
     def test_single_file(self):
