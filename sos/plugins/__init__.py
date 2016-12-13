@@ -505,7 +505,7 @@ class Plugin(object):
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
-    def add_copy_spec_limit(self, copyspecs, sizelimit=None, tailit=True):
+    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
@@ -554,9 +554,6 @@ class Plugin(object):
                 link_path = os.path.join(rel_path, 'sos_strings',
                                          self.name(), strfile)
                 self.archive.add_link(link_path, _file)
-
-    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True):
-        self.add_copy_spec_limit(copyspecs, sizelimit, tailit)
 
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None):
