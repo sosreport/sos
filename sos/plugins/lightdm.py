@@ -33,12 +33,10 @@ class LightDm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         if not self.get_option("all_logs"):
             limit = self.get_option("log_size")
-            self.add_copy_spec_limit("/var/log/lightdm/lightdm.log",
-                                     sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/lightdm/x-0-greeter.log",
-                                     sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/lightdm/x-0.log",
-                                     sizelimit=limit)
+            self.add_copy_spec("/var/log/lightdm/lightdm.log", sizelimit=limit)
+            self.add_copy_spec("/var/log/lightdm/x-0-greeter.log",
+                               sizelimit=limit)
+            self.add_copy_spec("/var/log/lightdm/x-0.log", sizelimit=limit)
         else:
             self.add_copy_spec("/var/log/lightdm")
 

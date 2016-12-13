@@ -61,7 +61,7 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
             self.add_copy_spec(all_setup_logs[0])
         # Add older ovirt-hosted-engine-setup log files only if requested
         if self.get_option('all_logs'):
-            self.add_copy_spec_limit(
+            self.add_copy_spec(
                 self.SETUP_LOG_GLOB,
                 sizelimit=self.limit
             )
@@ -72,7 +72,7 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
         ])
         # Add older ovirt-hosted-engine-ha log files only if requested
         if self.get_option('all_logs'):
-            self.add_copy_spec_limit(
+            self.add_copy_spec(
                 self.HA_LOG_GLOB,
                 sizelimit=self.limit,
             )

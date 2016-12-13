@@ -44,8 +44,8 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec('/var/log/upstart/upstart.state')
 
         # Log files
-        self.add_copy_spec_limit('/var/log/upstart/*',
-                                 sizelimit=self.get_option('log_size'))
+        self.add_copy_spec('/var/log/upstart/*',
+                           sizelimit=self.get_option('log_size'))
         # Session Jobs (running Upstart as a Session Init)
         self.add_copy_spec('/usr/share/upstart/')
 

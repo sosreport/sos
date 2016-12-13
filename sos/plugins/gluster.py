@@ -105,7 +105,7 @@ class Gluster(Plugin, RedHatPlugin):
             for f in (glob.glob("/var/log/glusterfs/*log") +
                       glob.glob("/var/log/glusterfs/*/*log") +
                       glob.glob("/var/log/glusterfs/geo-replication/*/*log")):
-                self.add_copy_spec_limit(f, limit)
+                self.add_copy_spec(f, limit)
         else:
             self.add_copy_spec("/var/log/glusterfs")
 

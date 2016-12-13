@@ -30,8 +30,8 @@ class Logs(Plugin):
         ])
 
         self.limit = self.get_option("log_size")
-        self.add_copy_spec_limit("/var/log/boot.log", sizelimit=self.limit)
-        self.add_copy_spec_limit("/var/log/cloud-init*", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/boot.log", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/cloud-init*", sizelimit=self.limit)
         self.add_journal(boot="this")
         self.add_journal(boot="this", allfields=True, output="verbose")
         self.add_cmd_output("journalctl --disk-usage")
@@ -48,7 +48,7 @@ class Logs(Plugin):
                 if i.startswith("-"):
                     i = i[1:]
                 if os.path.isfile(i):
-                    self.add_copy_spec_limit(i, sizelimit=self.limit)
+                    self.add_copy_spec(i, sizelimit=self.limit)
 
     def postproc(self):
         self.do_path_regex_sub(
@@ -72,8 +72,8 @@ class RedHatLogs(Logs, RedHatPlugin):
     def setup(self):
         super(RedHatLogs, self).setup()
         messages = "/var/log/messages"
-        self.add_copy_spec_limit("/var/log/secure*", sizelimit=self.limit)
-        self.add_copy_spec_limit(messages + "*", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/secure*", sizelimit=self.limit)
+        self.add_copy_spec(messages + "*", sizelimit=self.limit)
         # collect three days worth of logs by default if the system is
         # configured to use the journal and not /var/log/messages
         if not os.path.exists(messages) and self.is_installed("systemd"):
@@ -94,15 +94,14 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
         super(DebianLogs, self).setup()
         if not self.get_option("all_logs"):
             limit = self.get_option("log_size")
-            self.add_copy_spec_limit("/var/log/syslog", sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/syslog.1", sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/kern.log", sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/kern.log.1", sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/udev", sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/dist-upgrade", sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/installer", sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/unattended-upgrades",
-                                     sizelimit=limit)
+            self.add_copy_spec("/var/log/syslog", sizelimit=limit)
+            self.add_copy_spec("/var/log/syslog.1", sizelimit=limit)
+            self.add_copy_spec("/var/log/kern.log", sizelimit=limit)
+            self.add_copy_spec("/var/log/kern.log.1", sizelimit=limit)
+            self.add_copy_spec("/var/log/udev", sizelimit=limit)
+            self.add_copy_spec("/var/log/dist-upgrade", sizelimit=limit)
+            self.add_copy_spec("/var/log/installer", sizelimit=limit)
+            self.add_copy_spec("/var/log/unattended-upgrades", sizelimit=limit)
             self.add_cmd_output('ls -alRh /var/log/')
         else:
             self.add_copy_spec("/var/log/")
