@@ -298,6 +298,14 @@ class AddCopySpecTests(unittest.TestCase):
         self.assertEquals(1024 * 1024, len(content))
         shutil.rmtree(tmpdir)
 
+    def test_multiple_files_no_limit(self):
+        self.mp.add_copy_spec_limit(['tests/tail_test.txt', 'tests/test.txt'])
+        self.assertEquals(len(self.mp.copy_paths), 2)
+
+    def test_multiple_files_under_limit(self):
+        self.mp.add_copy_spec_limit(['tests/tail_test.txt', 'tests/test.txt'], 1)
+        self.assertEquals(len(self.mp.copy_paths), 2)
+
 
 class CheckEnabledTests(unittest.TestCase):
 
