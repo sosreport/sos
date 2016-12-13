@@ -253,6 +253,10 @@ class AddCopySpecTests(unittest.TestCase):
 
     # add_copy_spec_limit()
 
+    def test_single_file_no_limit(self):
+        self.mp.add_copy_spec_limit("tests/tail_test.txt")
+        self.assert_expect_paths()
+
     def test_single_file_under_limit(self):
         self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
         self.assert_expect_paths()
@@ -272,6 +276,15 @@ class AddCopySpecTests(unittest.TestCase):
         self.mp.sysroot = '/'
         self.assertFalse(self.mp.add_copy_spec_limit('', 1))
         self.assertFalse(self.mp.add_copy_spec_limit(None, 1))
+
+    def test_glob_file_limit_no_limit(self):
+        self.mp.sysroot = '/'
+        tmpdir = tempfile.mkdtemp()
+        fn = create_file(2, dir=tmpdir)
+        fn2 = create_file(2, dir=tmpdir)
+        self.mp.add_copy_spec_limit(tmpdir + "/*")
+        self.assertEquals(len(self.mp.copy_paths), 2)
+        shutil.rmtree(tmpdir)
 
     def test_glob_file_over_limit(self):
         self.mp.sysroot = '/'
