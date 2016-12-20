@@ -34,6 +34,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_copy_spec([
             "/etc/libvirt/libvirt.conf",
             "/etc/libvirt/libvirtd.conf",
+            "/etc/libvirt/qemu.conf",
             "/etc/libvirt/lxc.conf",
             "/etc/libvirt/nwfilter/*.xml",
             "/etc/libvirt/qemu/*.xml",
@@ -69,5 +70,11 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                     r"(\s*passwd=\s*')([^']*)('.*)",
                     r"\1******\3"
                 )
+
+        self.do_file_sub(
+            "/etc/libvirt/qemu.conf",
+            r"(\w+_password[\s]+=)(.*)",
+            r"\1*****"
+        )
 
 # vim: set et ts=4 sw=4 :
