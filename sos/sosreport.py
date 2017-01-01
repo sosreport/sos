@@ -83,7 +83,8 @@ class TempFileUtil(object):
 
     def new(self):
         fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
-        fobj = open(fname, 'w')
+        # avoid TOCTOU race by using os.fdopen()
+        fobj = os.fdopen(fd)
         self.files.append((fname, fobj))
         return fobj
 
