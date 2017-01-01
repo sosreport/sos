@@ -83,6 +83,7 @@ class TempFileUtil(object):
 
     def new(self):
         fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
+        os.close(fd)
         fobj = open(fname, 'w')
         self.files.append((fname, fobj))
         return fobj
