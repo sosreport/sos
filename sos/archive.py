@@ -412,7 +412,8 @@ class TarFileArchive(FileCacheArchive):
             if cmd != "gzip":
                 cmd = "%s -1" % cmd
             try:
-                r = sos_get_command_output("%s %s" % (cmd, self.name()))
+                r = sos_get_command_output("%s %s" % (cmd, self.name()),
+                                           timeout=0)
 
                 if r['status']:
                     self.log_info(r['output'])
