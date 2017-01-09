@@ -27,23 +27,18 @@ class Abrt(Plugin, RedHatPlugin):
     files = ('/var/spool/abrt',)
 
     option_list = [
-        ("backtraces", 'collect backtraces for every report', 'slow', False)
+        ("detailed", 'collect detailed info for every report', 'slow', False)
     ]
 
-    def do_backtraces(self):
-        result = self.call_ext_prog('sqlite3 '
-                                    '/var/spool/abrt/abrt-db \'select UUID '
-                                    'from abrt_v4\'')
-        try:
-            for uuid in result['output'].split():
-                self.add_cmd_output("abrt-cli -ib %s" % uuid,
-                                    suggest_filename=("backtrace_%s" % uuid))
-        except IndexError:
-            pass
+    def info_detailed(self, list_file):
+        for line in open(list_file).read().splitlines():
+            if line.startswith("Directory:"):
+                self.add_cmd_output("abrt-cli info -d '%s'" % line.split()[1])
 
     def setup(self):
-        self.add_cmd_output("abrt-cli -lf", suggest_filename="abrt-log")
-        if self.get_option('backtraces'):
-            self.do_backtraces()
+        self.add_cmd_output("abrt-cli status")
+        list_file = self.get_cmd_output_now("abrt-cli list")
+        if self.get_option('detailed') and list_file:
+            self.info_detailed(list_file)
 
 # vim: set et ts=4 sw=4 :
