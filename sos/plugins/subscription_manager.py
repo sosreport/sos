@@ -29,6 +29,7 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         # rhsm config and logs
         self.add_copy_spec([
             "/etc/rhsm/",
+            "/var/lib/rhsm/",
             "/var/log/rhsm/rhsm.log",
             "/var/log/rhsm/rhsmcertd.log"])
         self.add_cmd_output([
