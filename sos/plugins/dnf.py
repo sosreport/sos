@@ -26,7 +26,13 @@ class DNFPlugin(Plugin, RedHatPlugin):
     packages = ('dnf',)
 
     option_list = [
-        ("history", "captures transaction history", "fast", False)
+        ("history", "captures transaction history", "fast", False),
+        (
+            "history-info",
+            "captures detailed transaction history",
+            "slow",
+            False
+        ),
     ]
 
     def setup(self):
@@ -59,5 +65,18 @@ class DNFPlugin(Plugin, RedHatPlugin):
 
         if self.get_option("history"):
             self.add_cmd_output("dnf history")
+
+        if self.get_option("history-info"):
+            history = self.call_ext_prog("dnf history")
+            transactions = None
+            if history['output']:
+                for line in history['output'].splitlines():
+                    try:
+                        transactions = int(line.split('|')[0].strip())
+                        break
+                    except ValueError:
+                        pass
+            for tr_id in range(1, transactions+1):
+                self.add_cmd_output("dnf history info %d" % tr_id)
 
 # vim: set et ts=4 sw=4 :
