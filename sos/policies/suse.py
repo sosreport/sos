@@ -104,8 +104,8 @@ No changes will be made to system configuration.
 %(vendor_text)s
 """)
 
-    def __init__(self):
-        super(OpenSuSEPolicy, self).__init__()
+    def __init__(self, sysroot=None):
+        super(OpenSuSEPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
     def check(cls):
