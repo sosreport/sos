@@ -39,6 +39,7 @@ class OpenStackHorizon(Plugin):
                                      sizelimit=self.limit)
 
         self.add_copy_spec("/etc/openstack-dashboard/")
+        self.add_forbidden_path("*.py[co]")
 
     def postproc(self):
         protect_keys = [
