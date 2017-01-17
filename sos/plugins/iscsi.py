@@ -13,7 +13,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Iscsi(Plugin):
@@ -23,13 +23,7 @@ class Iscsi(Plugin):
     plugin_name = "iscsi"
     profiles = ('storage',)
 
-
-class RedHatIscsi(Iscsi, RedHatPlugin):
-
-    packages = ('iscsi-initiator-utils',)
-
     def setup(self):
-        super(RedHatIscsi, self).setup()
         self.add_copy_spec([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
@@ -41,5 +35,21 @@ class RedHatIscsi(Iscsi, RedHatPlugin):
             "iscsiadm -m iface -P 1",
             "iscsiadm -m node --op=show"
         ])
+
+
+class RedHatIscsi(Iscsi, RedHatPlugin):
+
+    packages = ('iscsi-initiator-utils',)
+
+    def setup(self):
+        super(RedHatIscsi, self).setup()
+
+
+class DebianIscsi(Iscsi, DebianPlugin, UbuntuPlugin):
+
+    packages = ('open-iscsi',)
+
+    def setup(self):
+        super(DebianIscsi, self).setup()
 
 # vim: set et ts=4 sw=4 :
