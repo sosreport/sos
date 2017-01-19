@@ -29,10 +29,10 @@ class Jars(Plugin, RedHatPlugin):
     plugin_name = "jars"
     version = "1.0.0"
     profiles = ("java",)
-    option_list = [("append_locations",
-                    "colon-separated list of additional JAR locations",
-                    "fast",
-                    "")]
+    option_list = [
+        ("append_locations", "colon-separated list of additional JAR paths",
+         "fast", "")
+    ]
 
     # There is no standard location for JAR files and scanning
     # the whole filesystem could be very slow. Therefore we only
