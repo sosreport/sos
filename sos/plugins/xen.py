@@ -44,7 +44,7 @@ class Xen(Plugin, RedHatPlugin):
         return (self.determine_xen_host() == "baremetal")
 
     def is_running_xenstored(self):
-        xs_pid = self.call_ext_prof("pidof xenstored")['ouput']
+        xs_pid = self.call_ext_prog("pidof xenstored")['output']
         xs_pidnum = re.split('\n$', xs_pid)[0]
         return xs_pidnum.isdigit()
 
