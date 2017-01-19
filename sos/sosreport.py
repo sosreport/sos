@@ -599,7 +599,7 @@ class SoSOptions(object):
                           default=deque())
         parser.add_option("--log-size", action="store",
                           dest="log_size", default=10, type="int",
-                          help="set a limit on the size of collected logs")
+                          help="set a limit on the size of collected logs (in MiB)")
         parser.add_option("-a", "--alloptions", action="store_true",
                           dest="usealloptions", default=False,
                           help="enable all options for loaded plugins")
