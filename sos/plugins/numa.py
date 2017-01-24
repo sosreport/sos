@@ -42,4 +42,11 @@ class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "numactl --hardware",
         ])
 
+        numa_path = "/sys/devices/system/node"
+        self.add_copy_spec([
+            os.path.join(numa_path, "node*/meminfo")
+            os.path.join(numa_path, "node*/cpulist")
+            os.path.join(numa_path, "node*/distance")
+        ])
+
 # vim: et ts=4 sw=4
