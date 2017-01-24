@@ -33,15 +33,41 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         else:
             self.add_copy_spec("/root/.virt-manager/*")
 
-        # get lit of VMs/domains
-        domains_file = self.get_cmd_output_now('virsh -r list --all')
+        cmd = 'virsh -r'
+
+        # get host information
+        subcmds = [
+            'list --all',
+            'domcapabilities',
+            'capabilities',
+            'nodeinfo',
+            'freecell',
+            'node-memory-tune',
+            'version'
+        ]
+
+        for subcmd in subcmds:
+            self.add_cmd_output('%s %s' % (cmd, subcmd))
+
+        # get network, pool and nwfilter elements
+        for k in ['net', 'nwfilter', 'pool']:
+            self.add_cmd_output('%s %s-list' % (cmd, k))
+            k_file = self.get_cmd_output_now('%s %s-list' % (cmd, k))
+            if k_file:
+                k_lines = open(k_file, 'r').read().splitlines()
+                # the 'name' column position changes between virsh cmds
+                pos = k_lines[0].split().index('Name')
+                for j in filter(lambda x: x, k_lines[2:]):
+                    n = j.split()[pos]
+                    self.add_cmd_output('%s %s-dumpxml %s' % (cmd, k, n))
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
         # empty line, and dumpxml domain name in 2nd column
+        domains_file = self.get_cmd_output_now('%s list --all' % cmd)
         if domains_file:
             domains_lines = open(domains_file, "r").read().splitlines()[2:]
             for domain in filter(lambda x: x, domains_lines):
-                self.add_cmd_output("virsh -r dumpxml %s" % domain.split()[1],
-                                    timeout=180)
-
+                d = domain.split()[1]
+                for x in ['dumpxml', 'dominfo', 'domblklist']:
+                    self.add_cmd_output('%s %s %s' % (cmd, x, d))
 # vim: et ts=4 sw=4
