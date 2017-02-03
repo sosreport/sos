@@ -131,13 +131,6 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             if self.pcplog_totalsize == 0 or dirsize < max_mb_size:
                 if os.path.isdir(path):
                     self.add_copy_spec(path)
-                else:
-                    self._log_warn("%s not found" % path)
-            else:
-                self._log_warn("skipped %s. Size %d bigger than %d"
-                               % (path, dirsize, max_mb_size))
-        else:
-            self._log_warn("pcp_hostname was not set. Skipping.")
 
         self.add_copy_spec([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
