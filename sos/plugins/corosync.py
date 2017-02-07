@@ -13,6 +13,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import re
 
 
 class Corosync(Plugin):
@@ -39,6 +40,17 @@ class Corosync(Plugin):
             "corosync-cmapctl"
         ])
         self.call_ext_prog("killall -USR2 corosync")
+
+        # collect user-defined logfiles, matching either of pattern:
+        # log_size: filename
+        # or
+        # logging.log_size: filename
+        # (it isnt precise but sufficient)
+        pattern = '^\s*(logging.)?logfile:\s*(\S+)$'
+        with open("/etc/corosync/corosync.conf") as f:
+            for line in f:
+                if re.match(pattern, line):
+                    self.add_copy_spec(re.search(pattern, line).group(2))
 
     def postproc(self):
         self.do_cmd_output_sub(
