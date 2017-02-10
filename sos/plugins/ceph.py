@@ -22,10 +22,6 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'ceph'
     profiles = ('storage', 'virt')
 
-    option_list = [
-        ("log", "gathers all ceph logs", "slow", False)
-    ]
-
     packages = (
         'ceph',
         'ceph-mds',
@@ -37,14 +33,26 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     )
 
     def setup(self):
+        all_logs = self.get_option("all_logs")
+        limit = self.get_option("log_size")
+
+        if not all_logs:
+            self.add_copy_spec([
+                "/var/log/ceph/*.log",
+                "/var/log/radosgw/*.log",
+                "/var/log/calamari/*.log"], sizelimit=limit)
+        else:
+            self.add_copy_spec([
+                "/var/log/ceph/",
+                "/var/log/calamari",
+                "/var/log/radosgw"
+            ], sizelimit=limit)
+
         self.add_copy_spec([
             "/etc/ceph/",
-            "/var/log/ceph/",
+            "/etc/calamari/"
             "/var/lib/ceph/",
-            "/var/run/ceph/",
-            "/etc/calamari/",
-            "/var/log/calamari",
-            "/var/log/radosgw"
+            "/var/run/ceph/"
         ])
 
         self.add_cmd_output([
@@ -56,7 +64,14 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph mon stat",
             "ceph mon dump",
             "ceph df",
-            "ceph report"
+            "ceph report",
+            "ceph osd df tree",
+            "ceph fs dump --format json-pretty",
+            "ceph fs ls",
+            "ceph pg dump",
+            "ceph health detail --format json-pretty",
+            "ceph osd crush show-tunables",
+            "ceph-disk list"
         ])
 
         self.add_forbidden_path("/etc/ceph/*keyring*")
@@ -64,7 +79,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_forbidden_path("/var/lib/ceph/*/*keyring*")
         self.add_forbidden_path("/var/lib/ceph/*/*/*keyring*")
         self.add_forbidden_path("/var/lib/ceph/osd/*")
-        self.add_forbidden_path("/var/lib/ceph/osd/mon/*")
+        self.add_forbidden_path("/var/lib/ceph/mon/*")
         self.add_forbidden_path("/etc/ceph/*bindpass*")
 
 # vim: set et ts=4 sw=4 :
