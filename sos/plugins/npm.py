@@ -90,7 +90,12 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
                 self.get_option("project_path")))
             self._get_npm_output("npm ls --json", "npm_ls_project",
                                  working_directory=project_path)
+        self._get_npm_output("npm config list -l",
+                             "npm_config_list_project",
+                             working_directory=project_path)
+
         self._get_npm_output("npm ls -g --json", "npm_ls_global")
+        self._get_npm_output("npm config list -l", "npm_config_list_global")
         self._find_modules_in_npm_cache()
 
 
