@@ -81,16 +81,16 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
                     output[name].append(version)
         self._log_debug("modules in cache: %s" % output)
 
-        outfn = self._make_command_filename("npm-cache-modules")
+        outfn = self._make_command_filename("npm_cache_modules")
         self.archive.add_string(json.dumps(output), outfn)
 
     def setup(self):
         if self.get_option("project_path") != 0:
             project_path = os.path.abspath(os.path.expanduser(
                 self.get_option("project_path")))
-            self._get_npm_output("npm ls --json", "npm-ls-project",
+            self._get_npm_output("npm ls --json", "npm_ls_project",
                                  working_directory=project_path)
-        self._get_npm_output("npm ls -g --json", "npm-ls-global")
+        self._get_npm_output("npm ls -g --json", "npm_ls_global")
         self._find_modules_in_npm_cache()
 
 
