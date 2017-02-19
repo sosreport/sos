@@ -31,13 +31,16 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_forbidden_path("/etc/libvirt/passwd.db")
         self.add_forbidden_path("/etc/libvirt/krb5.tab")
 
+        self.add_forbidden_path("/var/lib/libvirt/qemu/*/master-key.aes")
+        self.add_forbidden_path("/etc/libvirt/secrets")
+
         self.add_copy_spec([
             "/etc/libvirt/libvirt.conf",
             "/etc/libvirt/libvirtd.conf",
             "/etc/libvirt/lxc.conf",
             "/etc/libvirt/nwfilter/*.xml",
             "/etc/libvirt/qemu/*.xml",
-            "/var/run/libvirt/qemu/*.xml",
+            "/var/run/libvirt/",
             "/etc/libvirt/qemu/networks/*.xml",
             "/etc/libvirt/qemu/networks/autostart/*.xml",
             "/etc/libvirt/storage/*.xml",
@@ -60,6 +63,12 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
         self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
+
+        # get details of processes of KVM hosts
+        for pidfile in glob.glob("/var/run/libvirt/*/*.pid"):
+            pid = open(pidfile).read().splitlines()[0]
+            for pf in ["environ", "cgroups", "maps", "numa_maps", "limits"]:
+                self.add_copy_spec("/proc/%s/%s" % (pid, pf))
 
     def postproc(self):
         for loc in ["/etc/", "/var/run/"]:
