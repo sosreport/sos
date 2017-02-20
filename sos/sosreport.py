@@ -83,6 +83,7 @@ class TempFileUtil(object):
 
     def new(self):
         fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
+        os.close(fd)
         fobj = open(fname, 'w')
         self.files.append((fname, fobj))
         return fobj
@@ -881,9 +882,7 @@ class SoSReport(object):
             ui_console.setLevel(logging.INFO)
             self.ui_log.addHandler(ui_console)
 
-    def _finish_logging(self):
-        logging.shutdown()
-
+    def _add_sos_logs(self):
         # Make sure the log files are added before we remove the log
         # handlers. This prevents "No handlers could be found.." messages
         # from leaking to the console when running in --quiet mode when
@@ -1478,7 +1477,7 @@ class SoSReport(object):
         # files are closed and cleaned up at exit.
         #
         # All subsequent terminal output must use print().
-        self._finish_logging()
+        self._add_sos_logs()
 
         archive = None    # archive path
         directory = None  # report directory path (--build)
@@ -1561,6 +1560,7 @@ class SoSReport(object):
         self.policy.display_results(archive, directory, checksum)
 
         # clean up
+        logging.shutdown()
         if self.tempfile_util:
             self.tempfile_util.clean()
         if self.tmpdir:
