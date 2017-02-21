@@ -11,7 +11,7 @@ class DebianPolicy(LinuxPolicy):
     report_name = ""
     ticket_number = ""
     package_manager = PackageManager(
-        "dpkg-query -W -f='${Package}|${Version}\\n' \*")
+        "dpkg-query -W -f='${Package}|${Version}\\n'")
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
            + ":/usr/local/sbin:/usr/local/bin"
@@ -21,7 +21,7 @@ class DebianPolicy(LinuxPolicy):
         self.report_name = ""
         self.ticket_number = ""
         self.package_manager = PackageManager(
-            "dpkg-query -W -f='${Package}|${Version}\\n' \*")
+            "dpkg-query -W -f='${Package}|${Version}\\n'")
         self.valid_subclasses = [DebianPlugin]
 
     @classmethod
