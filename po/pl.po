@@ -1,18 +1,22 @@
-# translation of pl.po to Polish
-# Piotr Drąg <piotrdrag@gmail.com>, 2007.
+# Polish translation for sos.
+# Copyright © 2007-2010, 2017 the sos authors.
+# This file is distributed under the same license as the sos package.
+# Piotr Drąg <piotrdrag@gmail.com>, 2007-2010, 2017.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: pl\n"
+"Project-Id-Version: sos\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-23 19:17+0100\n"
-"PO-Revision-Date: 2010-03-26 23:42+0100\n"
+"PO-Revision-Date: 2017-02-23 19:29+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
 
 #: ../sos/sosreport.py:745
 #, python-format
@@ -22,59 +26,58 @@ msgstr "sosreport (wersja %s)"
 #: ../sos/sosreport.py:977
 #, python-format
 msgid "plugin %s does not validate, skipping"
-msgstr "nie można sprawdzić wtyczki %s, pomijanie"
+msgstr "nieprawidłowa wtyczka %s, pomijanie"
 
 #: ../sos/sosreport.py:979
-#, fuzzy
 msgid "does not validate"
-msgstr "nie można sprawdzić wtyczki %s, pomijanie"
+msgstr "nieprawidłowa"
 
 #: ../sos/sosreport.py:983
-#, fuzzy, python-format
+#, python-format
 msgid "plugin %s requires root permissionsto execute, skipping"
-msgstr "nie można zainstalować wtyczki %s, pomijanie"
+msgstr "wtyczka %s do wykonania wymaga uprawnień roota, pomijanie"
 
 #: ../sos/sosreport.py:985
 msgid "requires root"
-msgstr ""
+msgstr "wymaga roota"
 
 #: ../sos/sosreport.py:993
 msgid "excluded"
-msgstr ""
+msgstr "wykluczona"
 
 #: ../sos/sosreport.py:997
 msgid "skipped"
-msgstr ""
+msgstr "pominięta"
 
 #: ../sos/sosreport.py:1001
 msgid "inactive"
-msgstr ""
+msgstr "nieaktywna"
 
 #: ../sos/sosreport.py:1005
 msgid "optional"
-msgstr ""
+msgstr "opcjonalna"
 
 #: ../sos/sosreport.py:1015
 msgid "not specified"
-msgstr ""
+msgstr "niepodana"
 
 #: ../sos/sosreport.py:1023
-#, fuzzy, python-format
+#, python-format
 msgid "plugin %s does not install, skipping: %s"
-msgstr "nie można zainstalować wtyczki %s, pomijanie"
+msgstr "nie można zainstalować wtyczki %s, pomijanie: %s"
 
 #: ../sos/sosreport.py:1027
 #, python-format
 msgid "Unknown or inactive profile(s) provided: %s"
-msgstr ""
+msgstr "Podano nieznane lub nieaktywne profile: %s"
 
 #: ../sos/sosreport.py:1120
 msgid "no valid plugins found"
-msgstr "nie odnaleziono prawidłowych wtyczek"
+msgstr "nie odnaleziono żadnych prawidłowych wtyczek"
 
 #: ../sos/sosreport.py:1124
 msgid "The following plugins are currently enabled:"
-msgstr "Następujące wtyczki są obecnie włączone:"
+msgstr "Obecnie włączone wtyczki:"
 
 #: ../sos/sosreport.py:1130
 msgid "No plugin enabled."
@@ -82,69 +85,64 @@ msgstr "Brak włączonych wtyczek."
 
 #: ../sos/sosreport.py:1134
 msgid "The following plugins are currently disabled:"
-msgstr "Następujące wtyczki są obecnie wyłączone:"
+msgstr "Obecnie wyłączone wtyczki:"
 
 #: ../sos/sosreport.py:1145
 msgid "The following plugin options are available:"
-msgstr "Następujące wtyczki są dostępne:"
+msgstr "Dostępne opcje wtyczek:"
 
 #: ../sos/sosreport.py:1160
 msgid "No plugin options available."
-msgstr "Brak dostępnych wtyczek."
+msgstr "Brak dostępnych opcji wtyczek."
 
 #: ../sos/sosreport.py:1172
-#, fuzzy
 msgid "no valid profiles found"
-msgstr "nie odnaleziono prawidłowych wtyczek"
+msgstr "nie odnaleziono żadnych prawidłowych profili"
 
 #: ../sos/sosreport.py:1174
-#, fuzzy
 msgid "The following profiles are available:"
-msgstr "Następujące wtyczki są dostępne:"
+msgstr "Dostępne profile:"
 
 #: ../sos/sosreport.py:1197
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
-msgstr ""
-"Należy nacisnąć przycisk Enter, aby kontynuować lub Ctrl-C, aby zakończyć.\n"
+msgstr "Naciśnięcie klawisza Enter kontynuuje, a Ctrl-C zakończy.\n"
 
 #: ../sos/sosreport.py:1216
-#, fuzzy
 msgid " Setting up archive ..."
-msgstr "Szyfrowanie archiwum..."
+msgstr " Przygotowywanie archiwum…"
 
 #: ../sos/sosreport.py:1250
 msgid " Setting up plugins ..."
-msgstr ""
+msgstr " Przygotowywanie wtyczek…"
 
 #: ../sos/sosreport.py:1282
-#, fuzzy
 msgid " Running plugins. Please wait ..."
-msgstr "  Wykonywanie wtyczek. Proszę czekać..."
+msgstr " Wykonywanie wtyczek. Proszę czekać…"
 
 #: ../sos/sosreport.py:1490
 msgid "Creating compressed archive..."
-msgstr "Tworzenie skompresowanego archiwum..."
+msgstr "Tworzenie skompresowanego archiwum…"
 
 #: ../sos/sosreport.py:1498
 #, python-format
 msgid " %s while finalizing archive"
-msgstr ""
+msgstr " %s podczas finalizowania archiwum"
 
 #: ../sos/sosreport.py:1517
 #, python-format
 msgid "Error moving directory: %s"
-msgstr ""
+msgstr "Błąd podczas przenoszenia katalogu: %s"
 
 #: ../sos/sosreport.py:1540
 #, python-format
 msgid "Error moving archive file: %s"
-msgstr ""
+msgstr "Błąd podczas przenoszenia pliku archiwum: %s"
 
 #: ../sos/sosreport.py:1558
 #, python-format
 msgid "Error moving checksum file: %s"
-msgstr ""
+msgstr "Błąd podczas przenoszenia pliku sumy kontrolnej: %s"
 
 #: ../sos/sosreport.py:1574
 msgid "no valid plugins were enabled"
-msgstr "brak włączonych prawidłowych wtyczek"
+msgstr "nie włączono żadnych prawidłowych wtyczek"
