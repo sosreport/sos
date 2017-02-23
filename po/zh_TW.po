@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-15 15:02+0000\n"
+"POT-Creation-Date: 2017-02-23 19:17+0100\n"
 "PO-Revision-Date: 2010-09-19 00:10+1000\n"
 "Last-Translator: Wei-Lun Chao <chaoweilun@gmail.com>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
@@ -18,176 +18,136 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../sos/sosreport.py:350
-msgid "Could not create temporary directory."
-msgstr "無法建立暫存目錄。"
-
-#: ../sos/sosreport.py:413
+#: ../sos/sosreport.py:745
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport（版本 %s）"
 
-#: ../sos/sosreport.py:438
+#: ../sos/sosreport.py:977
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "外掛程式 %s 無法驗證，因此跳過"
 
-#: ../sos/sosreport.py:467
-#, python-format
-msgid "plugin %s does not install, skipping"
+#: ../sos/sosreport.py:979
+#, fuzzy
+msgid "does not validate"
+msgstr "外掛程式 %s 無法驗證，因此跳過"
+
+#: ../sos/sosreport.py:983
+#, fuzzy, python-format
+msgid "plugin %s requires root permissionsto execute, skipping"
 msgstr "未安裝外掛程式 %s，故而跳過"
 
-#: ../sos/sosreport.py:563
+#: ../sos/sosreport.py:985
+msgid "requires root"
+msgstr ""
+
+#: ../sos/sosreport.py:993
+msgid "excluded"
+msgstr ""
+
+#: ../sos/sosreport.py:997
+msgid "skipped"
+msgstr ""
+
+#: ../sos/sosreport.py:1001
+msgid "inactive"
+msgstr ""
+
+#: ../sos/sosreport.py:1005
+msgid "optional"
+msgstr ""
+
+#: ../sos/sosreport.py:1015
+msgid "not specified"
+msgstr ""
+
+#: ../sos/sosreport.py:1023
+#, fuzzy, python-format
+msgid "plugin %s does not install, skipping: %s"
+msgstr "未安裝外掛程式 %s，故而跳過"
+
+#: ../sos/sosreport.py:1027
+#, python-format
+msgid "Unknown or inactive profile(s) provided: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1120
 msgid "no valid plugins found"
 msgstr "找不到正確的外掛程式"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:1124
 msgid "The following plugins are currently enabled:"
 msgstr "目前以下外掛程式已經啟用："
 
-#: ../sos/sosreport.py:573
+#: ../sos/sosreport.py:1130
 msgid "No plugin enabled."
 msgstr "並未啟用任何外掛程式。"
 
-#: ../sos/sosreport.py:577
+#: ../sos/sosreport.py:1134
 msgid "The following plugins are currently disabled:"
 msgstr "目前以下外掛程式已經停用："
 
-#: ../sos/sosreport.py:585
+#: ../sos/sosreport.py:1145
 msgid "The following plugin options are available:"
 msgstr "外掛程式有以下選項可用："
 
-#: ../sos/sosreport.py:606
+#: ../sos/sosreport.py:1160
 msgid "No plugin options available."
 msgstr "沒有可用的外掛程式選項。"
 
-#: ../sos/sosreport.py:614
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport 需要 root 權限才可以執行。"
+#: ../sos/sosreport.py:1172
+#, fuzzy
+msgid "no valid profiles found"
+msgstr "找不到正確的外掛程式"
 
-#: ../sos/sosreport.py:621
-msgid "no valid plugins were enabled"
-msgstr "並未啟用合用的外掛程式"
+#: ../sos/sosreport.py:1174
+#, fuzzy
+msgid "The following profiles are available:"
+msgstr "外掛程式有以下選項可用："
 
-#: ../sos/sosreport.py:624
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"這個工具程式會蒐集 %(distroa)s 系統的硬體與設定資訊。\n"
-"這些資訊被蒐集後，會以壓縮檔形式備份於 /tmp 目錄中，您可以將\n"
-"這些訊息傳給技術支持人員。%(distrob)s 將這些資訊視為機密，\n"
-"「只會」將它拿來作為診斷問題之用。\n"
-"\n"
-"這個過程會花上一點時間，\n"
-"而您的系統不會有任何改變。\n"
-"\n"
-
-#: ../sos/sosreport.py:639
+#: ../sos/sosreport.py:1197
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "請按下「Enter」繼續，或按下「CTRL-C」離開。\n"
 
-#: ../sos/sosreport.py:665
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "一或多個外掛程式在您的設定中偵測到一個問題。"
+#: ../sos/sosreport.py:1216
+#, fuzzy
+msgid " Setting up archive ..."
+msgstr "加密壓縮檔…"
 
-#: ../sos/sosreport.py:667
-msgid "Please review the following messages:"
-msgstr "請檢視以下訊息："
+#: ../sos/sosreport.py:1250
+msgid " Setting up plugins ..."
+msgstr ""
 
-#: ../sos/sosreport.py:683
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "確定要繼續嗎 (y/n)？"
-
-#: ../sos/sosreport.py:685
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:685
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:688
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:688
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:713
-msgid "  Running plugins. Please wait ..."
+#: ../sos/sosreport.py:1282
+#, fuzzy
+msgid " Running plugins. Please wait ..."
 msgstr "  正在執行外掛程式，請稍待…"
 
-#: ../sos/sosreport.py:827
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "  sosreport 建構樹位於：%s"
-
-#: ../sos/policyredhat.py:211
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "請輸入您的名與姓 [%s]："
-
-#: ../sos/policyredhat.py:214
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "請輸入本報告的編號："
-
-#: ../sos/policyredhat.py:254
+#: ../sos/sosreport.py:1490
 msgid "Creating compressed archive..."
 msgstr "建立壓縮檔…"
 
-#: ../sos/policyredhat.py:284
-msgid "Encrypting archive..."
-msgstr "加密壓縮檔…"
-
-#: ../sos/policyredhat.py:304
-msgid "There was a problem encrypting your report."
-msgstr "壓縮您的報告時出現問題。"
-
-#: ../sos/policyredhat.py:328
+#: ../sos/sosreport.py:1498
 #, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
+msgid " %s while finalizing archive"
 msgstr ""
-"您的 sosreport 報告已經產生，並儲存於：\n"
-"  %s"
 
-#: ../sos/policyredhat.py:331
-msgid "The md5sum is: "
-msgstr "md5sum 檢查碼為："
-
-#: ../sos/policyredhat.py:333
-msgid "Please send this file to your support representative."
-msgstr "請將這檔案傳送給技術人員。"
-
-#: ../sos/policyredhat.py:355
-msgid "No URL defined in config file."
-msgstr "組態檔中沒有定義 URL。"
-
-#: ../sos/policyredhat.py:362
-msgid "Cannot upload to specified URL."
-msgstr "無法上傳指定的網址。"
-
-#: ../sos/policyredhat.py:399
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "將報告上傳至 Red Hat 技術支援時，出現問題。"
-
-#: ../sos/policyredhat.py:401
+#: ../sos/sosreport.py:1517
 #, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "您的報告已經成功傳送至 %s，名稱為："
+msgid "Error moving directory: %s"
+msgstr ""
 
-#: ../sos/policyredhat.py:404
-msgid "Please communicate this name to your support representative."
-msgstr "請將這名稱告知您的技術支援人員。"
+#: ../sos/sosreport.py:1540
+#, python-format
+msgid "Error moving archive file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1558
+#, python-format
+msgid "Error moving checksum file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1574
+msgid "no valid plugins were enabled"
+msgstr "並未啟用合用的外掛程式"

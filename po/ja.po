@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ja\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-15 15:02+0000\n"
+"POT-Creation-Date: 2017-02-23 19:17+0100\n"
 "PO-Revision-Date: 2010-05-31 15:20+0900\n"
 "Last-Translator: Kiyoto Hashida <khashida@redhat.com>\n"
 "Language-Team: Japanese <jp@li.org>\n"
@@ -18,181 +18,138 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"\n"
-"\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/sosreport.py:350
-msgid "Could not create temporary directory."
-msgstr "一時ディレクトリを作成できませんでした。"
-
-#: ../sos/sosreport.py:413
+#: ../sos/sosreport.py:745
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sos レポート （バージョン %s）"
 
-#: ../sos/sosreport.py:438
+#: ../sos/sosreport.py:977
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "プラグイン %s は認証できません、スキップします"
 
-#: ../sos/sosreport.py:467
-#, python-format
-msgid "plugin %s does not install, skipping"
+#: ../sos/sosreport.py:979
+#, fuzzy
+msgid "does not validate"
+msgstr "プラグイン %s は認証できません、スキップします"
+
+#: ../sos/sosreport.py:983
+#, fuzzy, python-format
+msgid "plugin %s requires root permissionsto execute, skipping"
 msgstr "プラグイン %s は インストールできません。スキップします"
 
-#: ../sos/sosreport.py:563
+#: ../sos/sosreport.py:985
+msgid "requires root"
+msgstr ""
+
+#: ../sos/sosreport.py:993
+msgid "excluded"
+msgstr ""
+
+#: ../sos/sosreport.py:997
+msgid "skipped"
+msgstr ""
+
+#: ../sos/sosreport.py:1001
+msgid "inactive"
+msgstr ""
+
+#: ../sos/sosreport.py:1005
+msgid "optional"
+msgstr ""
+
+#: ../sos/sosreport.py:1015
+msgid "not specified"
+msgstr ""
+
+#: ../sos/sosreport.py:1023
+#, fuzzy, python-format
+msgid "plugin %s does not install, skipping: %s"
+msgstr "プラグイン %s は インストールできません。スキップします"
+
+#: ../sos/sosreport.py:1027
+#, python-format
+msgid "Unknown or inactive profile(s) provided: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1120
 msgid "no valid plugins found"
 msgstr "有効なプラグインは見付かりません"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:1124
 msgid "The following plugins are currently enabled:"
 msgstr "以下のプラグインが現在有効になっています:"
 
-#: ../sos/sosreport.py:573
+#: ../sos/sosreport.py:1130
 msgid "No plugin enabled."
 msgstr "有効なプラグインはありません"
 
-#: ../sos/sosreport.py:577
+#: ../sos/sosreport.py:1134
 msgid "The following plugins are currently disabled:"
 msgstr "以下のプラグインは現在無効になっています:"
 
-#: ../sos/sosreport.py:585
+#: ../sos/sosreport.py:1145
 msgid "The following plugin options are available:"
 msgstr "以下のプラグインオプションが使用できます:"
 
-#: ../sos/sosreport.py:606
+#: ../sos/sosreport.py:1160
 msgid "No plugin options available."
 msgstr "プラグインオプションは使用できません。"
 
-#: ../sos/sosreport.py:614
-msgid "sosreport requires root permissions to run."
-msgstr "sos レポートは実行するのに root 権限が必要です。"
+#: ../sos/sosreport.py:1172
+#, fuzzy
+msgid "no valid profiles found"
+msgstr "有効なプラグインは見付かりません"
 
-#: ../sos/sosreport.py:621
-msgid "no valid plugins were enabled"
-msgstr "有効な正当プラグインはありませんでした"
+#: ../sos/sosreport.py:1174
+#, fuzzy
+msgid "The following profiles are available:"
+msgstr "以下のプラグインオプションが使用できます:"
 
-#: ../sos/sosreport.py:624
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"このユーティリティは、ご使用の %(distroa)s システムのハードウェアと \n"
-"セットアップに関する詳細情報を収集します。情報は収集されて、\n"
-" そのアーカイブが /tmp にパッケージされますので、それをサポート担当者に \n"
-" 送信することが出来ます。%(distrob)s は、この情報を分析の為にのみ使用し、\n"
-" これは内密情報として扱われます。\n"
-"\n"
-"このプロセスは完了するまでしばらく時間がかかるかも知れません。\n"
-" ご使用のシステムは変更されません。\n"
-"\n"
-
-#: ../sos/sosreport.py:639
+#: ../sos/sosreport.py:1197
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "ENTER を押して継続するか、又は CTRL-C で終了します。\n"
 
-#: ../sos/sosreport.py:665
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "１つ、又は複数のプラグインが現在の設定に問題を検知しています。"
+#: ../sos/sosreport.py:1216
+#, fuzzy
+msgid " Setting up archive ..."
+msgstr "アーカイブを暗号化しています..."
 
-#: ../sos/sosreport.py:667
-msgid "Please review the following messages:"
-msgstr "以下のメッセージを確認してください:"
+#: ../sos/sosreport.py:1250
+msgid " Setting up plugins ..."
+msgstr ""
 
-#: ../sos/sosreport.py:683
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "本当に継続したいですか (y/n) ? "
-
-#: ../sos/sosreport.py:685
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:685
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:688
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:688
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:713
-msgid "  Running plugins. Please wait ..."
+#: ../sos/sosreport.py:1282
+#, fuzzy
+msgid " Running plugins. Please wait ..."
 msgstr " プラグインを実行中です。少しお待ち下さい ..."
 
-#: ../sos/sosreport.py:827
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr " sosreport のビルドツリーは以下の場所にあります: %s"
-
-#: ../sos/policyredhat.py:211
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "名前のイニシャルと姓を記入してください [%s]: "
-
-#: ../sos/policyredhat.py:214
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "作成しているレポートのケース番号を記入してください :"
-
-#: ../sos/policyredhat.py:254
+#: ../sos/sosreport.py:1490
 msgid "Creating compressed archive..."
 msgstr "アーカイブを圧縮しています..."
 
-#: ../sos/policyredhat.py:284
-msgid "Encrypting archive..."
-msgstr "アーカイブを暗号化しています..."
-
-#: ../sos/policyredhat.py:304
-msgid "There was a problem encrypting your report."
-msgstr "このレポートの暗号化に問題がありました。"
-
-#: ../sos/policyredhat.py:328
+#: ../sos/sosreport.py:1498
 #, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
+msgid " %s while finalizing archive"
 msgstr ""
-"sos レポートが生成されて、以下の場所に保存されました:\n"
-"  %s"
 
-#: ../sos/policyredhat.py:331
-msgid "The md5sum is: "
-msgstr "md5sum は :"
-
-#: ../sos/policyredhat.py:333
-msgid "Please send this file to your support representative."
-msgstr "このファイルを担当のサポート代表者に送信してください。"
-
-#: ../sos/policyredhat.py:355
-msgid "No URL defined in config file."
-msgstr "設定ファイル内に URL が定義されていません。"
-
-#: ../sos/policyredhat.py:362
-msgid "Cannot upload to specified URL."
-msgstr "指定された URL にアップロードできません。"
-
-#: ../sos/policyredhat.py:399
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "レポートを Red Hat サポートにアップロードするのに問題がありました。"
-
-#: ../sos/policyredhat.py:401
+#: ../sos/sosreport.py:1517
 #, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "レポートは以下の名前で正常に %s にアップロードされました:"
+msgid "Error moving directory: %s"
+msgstr ""
 
-#: ../sos/policyredhat.py:404
-msgid "Please communicate this name to your support representative."
-msgstr "担当のサポート代表者とはこの名前を使用して通信してください。"
+#: ../sos/sosreport.py:1540
+#, python-format
+msgid "Error moving archive file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1558
+#, python-format
+msgid "Error moving checksum file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1574
+msgid "no valid plugins were enabled"
+msgstr "有効な正当プラグインはありませんでした"
