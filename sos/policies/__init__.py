@@ -55,7 +55,6 @@ class PackageManager(object):
     """
 
     query_command = None
-    timeout = 30
     chroot = None
 
     def __init__(self, query_command=None, chroot=None):
@@ -99,7 +98,7 @@ class PackageManager(object):
         if self.query_command:
             cmd = self.query_command
             pkg_list = shell_out(
-                cmd, timeout=self.timeout, chroot=self.chroot
+                cmd, timeout=0, chroot=self.chroot
             ).splitlines()
 
             for pkg in pkg_list:
