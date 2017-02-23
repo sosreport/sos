@@ -8,190 +8,147 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk.ml\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-15 15:02+0000\n"
+"POT-Creation-Date: 2017-02-23 19:17+0100\n"
 "PO-Revision-Date: 2011-01-05 21:23+0530\n"
 "Last-Translator: \n"
 "Language-Team:  <en@li.org>\n"
+"Language: ml\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../sos/sosreport.py:350
-msgid "Could not create temporary directory."
-msgstr "താല്‍ക്കാലിക ഡയറക്ടറി ഉണ്ടാക്കുവാന്‍ സാധ്യമായില്ല."
-
-#: ../sos/sosreport.py:413
+#: ../sos/sosreport.py:745
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (%s ലക്കം)"
 
-#: ../sos/sosreport.py:438
+#: ../sos/sosreport.py:977
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "%s എന്നത് ശരിയായ പ്ളഗ്ഗിന്‍ അല്ല, വേണ്ടെന്ന് വയ്ക്കുന്നു"
 
-#: ../sos/sosreport.py:467
-#, python-format
-msgid "plugin %s does not install, skipping"
+#: ../sos/sosreport.py:979
+#, fuzzy
+msgid "does not validate"
+msgstr "%s എന്നത് ശരിയായ പ്ളഗ്ഗിന്‍ അല്ല, വേണ്ടെന്ന് വയ്ക്കുന്നു"
+
+#: ../sos/sosreport.py:983
+#, fuzzy, python-format
+msgid "plugin %s requires root permissionsto execute, skipping"
 msgstr "%s എന്ന പ്ളഗ്ഗിന്‍ ഇന്‍സ്റ്റോള്‍ ചെയ്യുവാന്‍ സാധ്യമല്ല, ഉപേക്ഷിക്കുന്നു"
 
-#: ../sos/sosreport.py:563
+#: ../sos/sosreport.py:985
+msgid "requires root"
+msgstr ""
+
+#: ../sos/sosreport.py:993
+msgid "excluded"
+msgstr ""
+
+#: ../sos/sosreport.py:997
+msgid "skipped"
+msgstr ""
+
+#: ../sos/sosreport.py:1001
+msgid "inactive"
+msgstr ""
+
+#: ../sos/sosreport.py:1005
+msgid "optional"
+msgstr ""
+
+#: ../sos/sosreport.py:1015
+msgid "not specified"
+msgstr ""
+
+#: ../sos/sosreport.py:1023
+#, fuzzy, python-format
+msgid "plugin %s does not install, skipping: %s"
+msgstr "%s എന്ന പ്ളഗ്ഗിന്‍ ഇന്‍സ്റ്റോള്‍ ചെയ്യുവാന്‍ സാധ്യമല്ല, ഉപേക്ഷിക്കുന്നു"
+
+#: ../sos/sosreport.py:1027
+#, python-format
+msgid "Unknown or inactive profile(s) provided: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1120
 msgid "no valid plugins found"
 msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ ലഭ്യമല്ല"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:1124
 msgid "The following plugins are currently enabled:"
 msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിനുകള്‍ നിലവില്‍ സജീവമാണ്:"
 
-#: ../sos/sosreport.py:573
+#: ../sos/sosreport.py:1130
 msgid "No plugin enabled."
 msgstr "ഒരു പ്ളഗ്ഗിനും സജ്ജമല്ല."
 
-#: ../sos/sosreport.py:577
+#: ../sos/sosreport.py:1134
 msgid "The following plugins are currently disabled:"
 msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിനുകള്‍ നിലവില്‍ നിറ്‍ജ്ജീവമാണ്:"
 
-#: ../sos/sosreport.py:585
+#: ../sos/sosreport.py:1145
 msgid "The following plugin options are available:"
 msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിന്‍ ഉപാധികള്‍ ലഭ്യമാണ്:"
 
-#: ../sos/sosreport.py:606
+#: ../sos/sosreport.py:1160
 msgid "No plugin options available."
 msgstr "പ്ളഗ്ഗിന്‍ ഉപാധികള്‍ ലഭ്യമല്ല."
 
-#: ../sos/sosreport.py:614
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport പ്റവറ്‍ത്തിപ്പിക്കുന്നതിനായി റൂട്ട് ആയിരിക്കണം."
+#: ../sos/sosreport.py:1172
+#, fuzzy
+msgid "no valid profiles found"
+msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ ലഭ്യമല്ല"
 
-#: ../sos/sosreport.py:621
-msgid "no valid plugins were enabled"
-msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ സജ്ജമല്ല"
+#: ../sos/sosreport.py:1174
+#, fuzzy
+msgid "The following profiles are available:"
+msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന പ്ളഗ്ഗിന്‍ ഉപാധികള്‍ ലഭ്യമാണ്:"
 
-#: ../sos/sosreport.py:624
-#, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"ഈ പ്രയോഗം നിങ്ങളുടെ %(distroa)s സിസ്റ്റവും ഹാര്‍ഡ്‌വെയറും\n"
-"സംബന്ധിച്ചുള്ള വിശദ വിവരങ്ങള്‍ ശേഖരിക്കുന്നു.ശേഖരിച്ച വിവരങ്ങള്‍\n"
-"ഒരു ആര്‍ക്കൈവായി /tmp എന്ന ഫോള്‍ഡറില്‍ സൂക്ഷിക്കുന്നു. നിങ്ങള്‍ക്കിതു്\n"
-"പിന്തുണ ലഭ്യമാക്കുന്നവര്‍ക്കു് അയയ്ക്കുവാന്‍ സാധിക്കുന്നു. പ്രശ്നങ്ങള്‍ അറിയുന്നതിനും\n"
-"പരിഹരിക്കുന്നതിനും മാത്രം %(distrob)s ഈ വിവരങ്ങള്‍ ഉപയോഗിക്കുന്നതാകുന്നു.\n"
-"ഇവ അതീവ രഹസ്യമായി സൂക്ഷിക്കപ്പെടുന്നു.\n"
-"\n"
-"ഈ പ്രക്രിയയ്ക്കായി കുറച്ച് സമയമെടുക്കുന്നു.\n"
-"നിങ്ങളുടെ സിസ്റ്റത്തില്‍ മാറ്റങ്ങള്‍ വരുത്തുന്നതല്ല.\n"
-"\n"
-
-#: ../sos/sosreport.py:639
+#: ../sos/sosreport.py:1197
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "മുമ്പോട്ട് തുടരുന്നതിനായി ENTER അല്ലെങ്കില്‍ പുറത്ത് കടക്കുന്നതിനായി CTRL-C അമറ്‍ത്തുക.\n"
 
-#: ../sos/sosreport.py:665
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "ഒന്നോ അതിലധികമോ പ്ളഗ്ഗിനുകള്‍ക്ക് നിങ്ങളുടെ ക്റമികരണത്തില്‍ തകരാറുണ്ട്."
+#: ../sos/sosreport.py:1216
+#, fuzzy
+msgid " Setting up archive ..."
+msgstr "ആറ്‍ക്കൈവ് എന്‍ക്രിപ്റ്റ് ചെയ്യുന്നു..."
 
-#: ../sos/sosreport.py:667
-msgid "Please review the following messages:"
-msgstr "താഴെ പറഞ്ഞിരിക്കുന്ന സന്ദേശങ്ങള്‍ ദയവായി വായിക്കുക: "
+#: ../sos/sosreport.py:1250
+msgid " Setting up plugins ..."
+msgstr ""
 
-#: ../sos/sosreport.py:683
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "നിങ്ങള്‍ക്ക് തുടരണമെന്ന് ഉറപ്പാണോ?"
-
-#: ../sos/sosreport.py:685
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:685
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:688
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:688
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:713
-msgid "  Running plugins. Please wait ..."
+#: ../sos/sosreport.py:1282
+#, fuzzy
+msgid " Running plugins. Please wait ..."
 msgstr "  പ്ലഗിനുകള്‍ പ്രവര്‍ത്തിയ്ക്കുന്നു. ദയവായി കാത്തിരിയ്ക്കുക ..."
 
-#: ../sos/sosreport.py:827
-#, python-format
-msgid "  sosreport build tree is located at : %s"
-msgstr "  sosreport ബിള്‍ഡ് ട്രീ സ്ഥിതി ചെയ്യുന്നതു് : %s"
-
-#: ../sos/policyredhat.py:211
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "ദയവായി നിങ്ങളുടെ ആദ്യത്തെ ഇനീഷ്യലും അവസാനത്തെ പേരും നല്‍കുക [%s]: "
-
-#: ../sos/policyredhat.py:214
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "ദയവായി ഈ റിപ്പോറ്‍ട്ടിനുള്ള കേസ് നംബറ്‍ ഇവിടെ നല്‍കുക: "
-
-#: ../sos/policyredhat.py:254
+#: ../sos/sosreport.py:1490
 msgid "Creating compressed archive..."
 msgstr "കംപ്രസ്സ്ഡ് ആറ്‍ക്കൈവ് ഉണ്ടാക്കുന്നു..."
 
-#: ../sos/policyredhat.py:284
-msgid "Encrypting archive..."
-msgstr "ആറ്‍ക്കൈവ് എന്‍ക്രിപ്റ്റ് ചെയ്യുന്നു..."
-
-#: ../sos/policyredhat.py:304
-msgid "There was a problem encrypting your report."
-msgstr "നിങ്ങളുടെ റിപ്പോറ്‍ട്ട് എന്‍ക്രിപ്റ്റ് ചെയ്യുന്നതില്‍ ഒരു പ്രശ്നം നേരിട്ടു."
-
-#: ../sos/policyredhat.py:328
+#: ../sos/sosreport.py:1498
 #, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
+msgid " %s while finalizing archive"
 msgstr ""
-"നിങ്ങളുടെ sosreport ഉണ്ടാക്കി സൂക്ഷിച്ചിരിക്കുന്നത് ഇവിടെയാണ്:\n"
-"  %s"
 
-#: ../sos/policyredhat.py:331
-msgid "The md5sum is: "
-msgstr "md5sum താഴെ പറഞ്ഞിരിക്കുന്നു: "
-
-#: ../sos/policyredhat.py:333
-msgid "Please send this file to your support representative."
-msgstr "നിങ്ങള്‍ക്ക് പിന്തുണ നല്‍കുന്നവറ്‍ക്ക് ഈ ഫയല്‍ അയയ്ക്കുക."
-
-#: ../sos/policyredhat.py:355
-msgid "No URL defined in config file."
-msgstr "ക്രമീകരണ ഫയലില്‍ യുആര്‍എല്‍ നിഷ്കര്‍ഷിച്ചിട്ടില്ല."
-
-#: ../sos/policyredhat.py:362
-msgid "Cannot upload to specified URL."
-msgstr "നല്‍കിയിരിക്കുന്ന URL-ലേക്ക് ഫയല്‍ അപ്ലോഡ് ചെയ്യുവാന്‍ സാധ്യമായില്ല "
-
-#: ../sos/policyredhat.py:399
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "Red Hat-ലേക്ക് നിങ്ങളുടെ റിപ്പോറ്‍ട്ട് അയയ്ക്കുന്നതില്‍ ഏതോ പ്റശ്നം ഉണ്ടായിരിക്കുന്നു."
-
-#: ../sos/policyredhat.py:401
+#: ../sos/sosreport.py:1517
 #, python-format
-msgid "Your report was successfully uploaded to %s with name:"
-msgstr "നിങ്ങളുടെ രേഖ വിജയകരമായി ഈ പേരില്‍ %s-ലേക്കു് അപ്‌ലോഡ് ചെയ്തിരിയ്ക്കുന്നു:"
+msgid "Error moving directory: %s"
+msgstr ""
 
-#: ../sos/policyredhat.py:404
-msgid "Please communicate this name to your support representative."
-msgstr "നിങ്ങള്‍ക്ക് പിന്തുണ ലഭ്യമാക്കുന്നവറ്‍ക്ക് ഈ പേര് അയയ്ക്കുക."
+#: ../sos/sosreport.py:1540
+#, python-format
+msgid "Error moving archive file: %s"
+msgstr ""
 
+#: ../sos/sosreport.py:1558
+#, python-format
+msgid "Error moving checksum file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1574
+msgid "no valid plugins were enabled"
+msgstr "ശരിയായ പ്ളഗ്ഗിനുകള്‍ സജ്ജമല്ല"

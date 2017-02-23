@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sos.trunk.as\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-15 15:02+0000\n"
+"POT-Creation-Date: 2017-02-23 19:17+0100\n"
 "PO-Revision-Date: 2009-09-08 19:15+0530\n"
 "Last-Translator: Amitakhya Phukan <aphukan@fedoraproject.org>\n"
 "Language-Team: Assamese\n"
-"Language: \n"
+"Language: as\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,192 +20,135 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: ../sos/sosreport.py:350
-msgid "Could not create temporary directory."
-msgstr "অস্থাতী পঞ্জিকা নিৰ্মাণ কৰিবলৈ ব্যৰ্থ ।"
-
-#: ../sos/sosreport.py:413
+#: ../sos/sosreport.py:745
 #, python-format
 msgid "sosreport (version %s)"
 msgstr "sosreport (সংস্কৰণ %s)"
 
-#: ../sos/sosreport.py:438
+#: ../sos/sosreport.py:977
 #, python-format
 msgid "plugin %s does not validate, skipping"
 msgstr "প্লাগ-ইন %s অনুমোদন কৰা নাযায়, উপেক্ষা কৰা হৈছে"
 
-#: ../sos/sosreport.py:467
-#, python-format
-msgid "plugin %s does not install, skipping"
+#: ../sos/sosreport.py:979
+#, fuzzy
+msgid "does not validate"
+msgstr "প্লাগ-ইন %s অনুমোদন কৰা নাযায়, উপেক্ষা কৰা হৈছে"
+
+#: ../sos/sosreport.py:983
+#, fuzzy, python-format
+msgid "plugin %s requires root permissionsto execute, skipping"
 msgstr "প্লাগ-ইন %s ইনস্টল কৰা নাযায়, উপেক্ষা কৰা হৈছে "
 
-#: ../sos/sosreport.py:563
+#: ../sos/sosreport.py:985
+msgid "requires root"
+msgstr ""
+
+#: ../sos/sosreport.py:993
+msgid "excluded"
+msgstr ""
+
+#: ../sos/sosreport.py:997
+msgid "skipped"
+msgstr ""
+
+#: ../sos/sosreport.py:1001
+msgid "inactive"
+msgstr ""
+
+#: ../sos/sosreport.py:1005
+msgid "optional"
+msgstr ""
+
+#: ../sos/sosreport.py:1015
+msgid "not specified"
+msgstr ""
+
+#: ../sos/sosreport.py:1023
+#, fuzzy, python-format
+msgid "plugin %s does not install, skipping: %s"
+msgstr "প্লাগ-ইন %s ইনস্টল কৰা নাযায়, উপেক্ষা কৰা হৈছে "
+
+#: ../sos/sosreport.py:1027
+#, python-format
+msgid "Unknown or inactive profile(s) provided: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1120
 msgid "no valid plugins found"
 msgstr "কোনো বৈধ প্লাগ-ইন পোৱা নাযায়"
 
-#: ../sos/sosreport.py:567
+#: ../sos/sosreport.py:1124
 msgid "The following plugins are currently enabled:"
 msgstr "নিম্নলিখিত প্লাগ-ইনসমূহ বৰ্তমানে সক্ৰিয় কৰা হৈছে:"
 
-#: ../sos/sosreport.py:573
+#: ../sos/sosreport.py:1130
 msgid "No plugin enabled."
 msgstr "কোনো প্লাগ-ইন সক্ৰিয় নাই ।"
 
-#: ../sos/sosreport.py:577
+#: ../sos/sosreport.py:1134
 msgid "The following plugins are currently disabled:"
 msgstr "নিম্নলিখিত প্লাগ-ইনসমূহ বৰ্তমানে নিষ্ক্ৰিয় অৱস্থাত আছে:"
 
-#: ../sos/sosreport.py:585
+#: ../sos/sosreport.py:1145
 msgid "The following plugin options are available:"
 msgstr "প্লাগ-ইন সংক্ৰান্ত নিম্নলিখিত বিকল্পসমূহ উপলব্ধ আছে:"
 
-#: ../sos/sosreport.py:606
+#: ../sos/sosreport.py:1160
 msgid "No plugin options available."
 msgstr "প্লাগ-ইন সংক্ৰান্ত কোনো বিকল্প উপলব্ধ নহয় ।"
 
-#: ../sos/sosreport.py:614
-msgid "sosreport requires root permissions to run."
-msgstr "sosreport সঞ্চালনৰ বাবে root ব্যৱহাৰকাৰীৰ অনুমতি আৱশ্যক ।"
+#: ../sos/sosreport.py:1172
+#, fuzzy
+msgid "no valid profiles found"
+msgstr "কোনো বৈধ প্লাগ-ইন পোৱা নাযায়"
 
-#: ../sos/sosreport.py:621
-msgid "no valid plugins were enabled"
-msgstr "কোনো বৈধ প্লাগ-ইন সক্ৰিয় কৰা নহয়"
+#: ../sos/sosreport.py:1174
+#, fuzzy
+msgid "The following profiles are available:"
+msgstr "প্লাগ-ইন সংক্ৰান্ত নিম্নলিখিত বিকল্পসমূহ উপলব্ধ আছে:"
 
-#: ../sos/sosreport.py:624
-#, fuzzy, python-format
-msgid ""
-"This utility will collect some detailed  information about the\n"
-"hardware and setup of your %(distroa)s system.\n"
-"The information is collected and an archive is  packaged under\n"
-"/tmp, which you can send to a support representative.\n"
-"%(distrob)s will use this information for diagnostic purposes ONLY\n"
-"and it will be considered confidential information.\n"
-"\n"
-"This process may take a while to complete.\n"
-"No changes will be made to your system.\n"
-"\n"
-msgstr ""
-"এই সামগ্ৰীৰ সহায়ত যান্ত্ৰিক সামগ্ৰী আৰু Red Hat Enterprise Linux\n"
-"প্ৰণালীৰ প্ৰতিষ্ঠা সম্পৰ্কে বিশদ তথ্য সংগ্ৰহ কৰা হ'ব ।\n"
-"তথ্য সংগ্ৰহৰ পিছত /tmp পঞ্জিকাৰ অধীন এটা আৰ্কাইভ নিৰ্মিত হয় ।\n"
-"এই আৰ্কাইভ আপুনি সহায়তা প্ৰতিনিধিৰ কাশত পঠায় দিব পাৰে ।\n"
-"Red Hat দ্বাৰা এই তথ্য অকল সমস্যাৰ কাৰণ নিৰ্ণয় কৰাৰ বাবে ব্যৱহাৰ কৰা হ'ব\n"
-"আৰু ইয়াৰ গোপনীয়তা বজায় ৰাখা হ'ব ।\n"
-"\n"
-"এই কাম সম্পন্ন হ'বলৈ কিছু সময় ব্যয় হ'ব পাৰে ।\n"
-"ইয়াৰ ফলত প্ৰণালীত কোনো ধৰনৰ পৰিবৰ্তন কৰা ন'হ'ব ।\n"
-"\n"
-
-#: ../sos/sosreport.py:639
+#: ../sos/sosreport.py:1197
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "আগবঢ়াৰ বাবে ENTER টিপক বা প্ৰস্থান কৰিবলৈ CTRL-C টিপক ।\n"
 
-#: ../sos/sosreport.py:665
-msgid "One or more plugins have detected a problem in your configuration."
-msgstr "একাধিক প্লাগ-ইন দ্বাৰা আপোনাৰ বিন্যাসত সমস্যা চিনাক্ত কৰা হৈছে ।"
+#: ../sos/sosreport.py:1216
+#, fuzzy
+msgid " Setting up archive ..."
+msgstr "আৰ্কাইভ এনক্ৰিপ্ট কৰা হৈছে..."
 
-#: ../sos/sosreport.py:667
-msgid "Please review the following messages:"
-msgstr "অনুগ্ৰহ কৰি নিম্নলিখিত বাৰ্তাসমূহ পৰিদৰ্শন কৰক:"
-
-#: ../sos/sosreport.py:683
-msgid "Are you sure you would like to continue (y/n) ? "
-msgstr "আপুনি নিশ্চিতৰূপে আগবাঢ়িবলৈ ইচ্ছুক নে (y/n) ? "
-
-#: ../sos/sosreport.py:685
-msgid "y"
-msgstr "y"
-
-#: ../sos/sosreport.py:685
-msgid "Y"
-msgstr "Y"
-
-#: ../sos/sosreport.py:688
-msgid "n"
-msgstr "n"
-
-#: ../sos/sosreport.py:688
-msgid "N"
-msgstr "N"
-
-#: ../sos/sosreport.py:713
-msgid "  Running plugins. Please wait ..."
+#: ../sos/sosreport.py:1250
+msgid " Setting up plugins ..."
 msgstr ""
 
-#: ../sos/sosreport.py:827
-#, python-format
-msgid "  sosreport build tree is located at : %s"
+#: ../sos/sosreport.py:1282
+msgid " Running plugins. Please wait ..."
 msgstr ""
 
-#: ../sos/policyredhat.py:211
-#, python-format
-msgid "Please enter your first initial and last name [%s]: "
-msgstr "অনুগ্ৰহ কৰি নামৰ অদ্যাক্ষৰ আৰু পদবি লিখক [%s]: "
-
-#: ../sos/policyredhat.py:214
-msgid "Please enter the case number that you are generating this report for: "
-msgstr "বৰ্তমান ৰিপোৰ্ট নিৰ্মাণৰ বাবে অনুগ্ৰহ কৰি প্ৰযোজ্য কেছ সংখ্যা উল্লেখ কৰক: "
-
-#: ../sos/policyredhat.py:254
+#: ../sos/sosreport.py:1490
 msgid "Creating compressed archive..."
 msgstr "কমপ্ৰেছ কৰা আৰ্কাইভ নিৰ্মাণ কৰক..."
 
-#: ../sos/policyredhat.py:284
-msgid "Encrypting archive..."
-msgstr "আৰ্কাইভ এনক্ৰিপ্ট কৰা হৈছে..."
-
-#: ../sos/policyredhat.py:304
-msgid "There was a problem encrypting your report."
-msgstr "ৰিপোৰ্ট এনক্ৰিপ্ট কৰিবলৈ সমস্যা ।"
-
-#: ../sos/policyredhat.py:328
+#: ../sos/sosreport.py:1498
 #, python-format
-msgid ""
-"Your sosreport has been generated and saved in:\n"
-"  %s"
-msgstr ""
-"আপোনাৰ sosreport নিৰ্মাণ কৰি নিম্নলিখিত স্থানত সংৰক্ষিত হৈছে:\n"
-"  %s"
-
-#: ../sos/policyredhat.py:331
-msgid "The md5sum is: "
-msgstr "md5sum হ'ল: "
-
-#: ../sos/policyredhat.py:333
-msgid "Please send this file to your support representative."
-msgstr "অনুগ্ৰহ কৰি সহায়তা প্ৰতিনিধিক এই নথিপত্ৰটি পঠায় দিয়ক ।"
-
-#: ../sos/policyredhat.py:355
-msgid "No URL defined in config file."
+msgid " %s while finalizing archive"
 msgstr ""
 
-#: ../sos/policyredhat.py:362
-msgid "Cannot upload to specified URL."
-msgstr "উল্লিখিত URL-এ আপলোড কৰিবলৈ ব্যৰ্থ ।"
-
-#: ../sos/policyredhat.py:399
-msgid "There was a problem uploading your report to Red Hat support."
-msgstr "আপোনাৰ ৰিপোৰ্টটি Red Hat সহায়তা ব্যৱস্থাত আপলোড কৰিবলৈ সমস্যা ।"
-
-#: ../sos/policyredhat.py:401
-#, fuzzy, python-format
-msgid "Your report was successfully uploaded to %s with name:"
+#: ../sos/sosreport.py:1517
+#, python-format
+msgid "Error moving directory: %s"
 msgstr ""
-"আপোনাৰ প্ৰদত্ত ৰিপোৰ্ট সফলতাৰে সৈতে Red Hat-ৰ ftp সেৱকত নিম্নলিখিত নামত আপলোড "
-"কৰা হৈছে:"
 
-#: ../sos/policyredhat.py:404
-msgid "Please communicate this name to your support representative."
-msgstr "অনুগ্ৰহ কৰি সহায়তা প্ৰতিনিধিক এই নাম জনায় দিয়ক ।"
+#: ../sos/sosreport.py:1540
+#, python-format
+msgid "Error moving archive file: %s"
+msgstr ""
 
-#~ msgid "plugin %s skipped (--skip-plugins)"
-#~ msgstr "প্লাগ-ইন %s উপেক্ষা কৰা হৈছে (--skip-plugins)"
+#: ../sos/sosreport.py:1558
+#, python-format
+msgid "Error moving checksum file: %s"
+msgstr ""
 
-#~ msgid "plugin %s is inactive (use -e or -o to enable)."
-#~ msgstr "প্লাগ-ইন %s সক্ৰিয় নহয় (সক্ৰিয় কৰাৰ বাবে -e বা -o ব্যৱহাৰ কৰক) ।"
-
-#~ msgid "plugin %s not specified in --only-plugins list"
-#~ msgstr "--only-plugins তালিকাত প্লাগ-ইন %s উল্লিখিত নহয়"
-
-#~ msgid "processing options from plugin: %s"
-#~ msgstr "প্লাগ-ইনৰ পৰা বিকল্প প্ৰক্ৰিয়াকৰণ হৈছে: %s"
+#: ../sos/sosreport.py:1574
+msgid "no valid plugins were enabled"
+msgstr "কোনো বৈধ প্লাগ-ইন সক্ৰিয় কৰা নহয়"
