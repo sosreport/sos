@@ -1,14 +1,14 @@
 language: python
 python:
-  - 2.7
-  - 3.4
-  - 3.5
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7-dev"
   - "nightly"
 matrix:
   allow_failures:
-    - python: 3.5
     - python: "nightly"
-sudo: false
 notifications:
   email:
     sos-devel@redhat.com
@@ -16,9 +16,16 @@ notifications:
     channels:
       - "us.freenode.net#sosreport"
     on_success: change
+dist: trusty
+sudo: true
 install:
   - "pip install six nose nose-cov pep8"
   - "python setup.py install"
 script:
   - "pep8 sos"
   - "nosetests -v --with-cover --cover-package=sos --cover-html"
+  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport --help"
+  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport -l --config-file=sos.conf"
+  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport -n kernel --batch --config-file=sos.conf | tee batch_output"
+git:
+  depth: 5
