@@ -76,7 +76,7 @@ class Networking(Plugin):
                or line.isspace() \
                or line[:1].isspace():
                 return out
-            out.append(line)
+            out.append(line.partition(' ')[0])
         return out
 
     def get_netns_devs(self, namespace):
