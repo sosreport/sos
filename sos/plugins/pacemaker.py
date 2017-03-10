@@ -68,4 +68,12 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                             ' --dest %s --from "%s"' %
                             (crm_scrub, crm_dest, crm_from),
                             chroot=self.tmp_in_sysroot())
+
+    def postproc(self):
+        self.do_cmd_output_sub(
+            "pcs config",
+            r"(passwd=|incoming_password=)\S+",
+            r"\1********"
+        )
+
 # vim: et ts=4 sw=4
