@@ -34,6 +34,13 @@ class Sssd(Plugin):
             "/etc/sssd/conf.d/*.conf"
         ])
 
+        self.add_cmd_output("sssctl config-check")
+
+        domain_file = self.get_cmd_output_now("sssctl domain-list")
+        if domain_file:
+            for domain_name in open(domain_file).read().splitlines():
+                self.add_cmd_output("sssctl domain-status -o "+domain_name)
+
     def postproc(self):
         regexp = r"(\s*ldap_default_authtok\s*=\s*)\S+"
 
