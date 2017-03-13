@@ -42,6 +42,9 @@ class OpenStackHeat(Plugin):
 
         self.add_copy_spec("/etc/heat/")
 
+        if self.get_option("verify"):
+            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+
     def postproc(self):
         protect_keys = [
             "admin_password", "memcache_secret_key", "password", "connection",

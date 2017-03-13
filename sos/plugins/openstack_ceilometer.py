@@ -38,6 +38,8 @@ class OpenStackCeilometer(Plugin):
             self.add_copy_spec_limit("/var/log/ceilometer/*.log",
                                      sizelimit=self.limit)
         self.add_copy_spec("/etc/ceilometer/")
+        if self.get_option("verify"):
+            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
 
     def postproc(self):
         protect_keys = [
