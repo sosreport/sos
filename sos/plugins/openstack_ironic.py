@@ -37,6 +37,9 @@ class OpenStackIronic(Plugin):
 
         self.add_cmd_output('ls -laRt /var/lib/ironic/')
 
+        if self.get_option("verify"):
+            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+
     def postproc(self):
         protect_keys = [
             "dns_passkey", "memcache_secret_key", "rabbit_password",

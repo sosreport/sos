@@ -35,6 +35,8 @@ class OpenStackNeutron(Plugin):
 
         self.add_copy_spec("/etc/neutron/")
         self.add_copy_spec("/var/lib/neutron/")
+        if self.get_option("verify"):
+            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
 
     def postproc(self):
         protect_keys = [

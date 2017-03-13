@@ -41,6 +41,9 @@ class OpenStackHorizon(Plugin):
         self.add_copy_spec("/etc/openstack-dashboard/")
         self.add_forbidden_path("*.py[co]")
 
+        if self.get_option("verify"):
+            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+
     def postproc(self):
         protect_keys = [
             "SECRET_KEY", "EMAIL_HOST_PASSWORD"
