@@ -40,11 +40,9 @@ class OpenStackCinder(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/cinder/",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/cinder/", sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/cinder/*.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/cinder/*.log", sizelimit=self.limit)
 
     def postproc(self):
         protect_keys = [

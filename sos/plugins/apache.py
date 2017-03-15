@@ -56,20 +56,20 @@ class RedHatApache(Apache, RedHatPlugin):
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
 
         # collect only the current log set by default
-        self.add_copy_spec_limit("/var/log/httpd/access_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd/error_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd/ssl_access_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd/ssl_error_log", 5)
+        self.add_copy_spec("/var/log/httpd/access_log", 5)
+        self.add_copy_spec("/var/log/httpd/error_log", 5)
+        self.add_copy_spec("/var/log/httpd/ssl_access_log", 5)
+        self.add_copy_spec("/var/log/httpd/ssl_error_log", 5)
         # JBoss Enterprise Web Server 2.x
-        self.add_copy_spec_limit("/var/log/httpd22/access_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd22/error_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd22/ssl_access_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd22/ssl_error_log", 5)
+        self.add_copy_spec("/var/log/httpd22/access_log", 5)
+        self.add_copy_spec("/var/log/httpd22/error_log", 5)
+        self.add_copy_spec("/var/log/httpd22/ssl_access_log", 5)
+        self.add_copy_spec("/var/log/httpd22/ssl_error_log", 5)
         # Red Hat JBoss Web Server 3.x
-        self.add_copy_spec_limit("/var/log/httpd24/access_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd24/error_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd24/ssl_access_log", 5)
-        self.add_copy_spec_limit("/var/log/httpd24/ssl_error_log", 5)
+        self.add_copy_spec("/var/log/httpd24/access_log", 5)
+        self.add_copy_spec("/var/log/httpd24/error_log", 5)
+        self.add_copy_spec("/var/log/httpd24/ssl_access_log", 5)
+        self.add_copy_spec("/var/log/httpd24/ssl_error_log", 5)
         if self.get_option("log"):
             self.add_copy_spec([
                 "/var/log/httpd/*",
@@ -91,8 +91,8 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
         ])
 
         # collect only the current log set by default
-        self.add_copy_spec_limit("/var/log/apache2/access_log", 15)
-        self.add_copy_spec_limit("/var/log/apache2/error_log", 15)
+        self.add_copy_spec("/var/log/apache2/access_log", 15)
+        self.add_copy_spec("/var/log/apache2/error_log", 15)
         if self.get_option("log"):
             self.add_copy_spec("/var/log/apache2/*")
 

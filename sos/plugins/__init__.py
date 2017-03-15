@@ -505,60 +505,55 @@ class Plugin(object):
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
-    def add_copy_spec_limit(self, copyspec, sizelimit=None, tailit=True):
+    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
-        if not (copyspec and len(copyspec)):
+
+        if sizelimit:
+            sizelimit *= 1024 * 1024  # in MB
+
+        if not copyspecs:
             return False
 
-        if self.use_sysroot():
-            copyspec = self.join_sysroot(copyspec)
-        files = glob.glob(copyspec)
-        files.sort()
-        if len(files) == 0:
-            return
-
-        current_size = 0
-        limit_reached = False
-        sizelimit *= 1024 * 1024  # in MB
-        _file = None
-
-        for _file in files:
-            current_size += os.stat(_file)[stat.ST_SIZE]
-            if sizelimit and current_size > sizelimit:
-                limit_reached = True
-                break
-            self._add_copy_paths([_file])
-
-        if limit_reached and tailit:
-            file_name = _file
-
-            if file_name[0] == os.sep:
-                file_name = file_name.lstrip(os.sep)
-            strfile = file_name.replace(os.path.sep, ".") + ".tailed"
-            self.add_string_as_file(tail(_file, sizelimit), strfile)
-            rel_path = os.path.relpath('/', os.path.dirname(_file))
-            link_path = os.path.join(rel_path, 'sos_strings',
-                                     self.name(), strfile)
-            self.archive.add_link(link_path, _file)
-
-    def add_copy_spec(self, copyspecs):
-        """Add a file specification (can be file, dir,or shell glob) to be
-        copied into the sosreport by this module.
-        """
         if isinstance(copyspecs, six.string_types):
             copyspecs = [copyspecs]
+
         for copyspec in copyspecs:
+            if not (copyspec and len(copyspec)):
+                return False
+
             if self.use_sysroot():
                 copyspec = self.join_sysroot(copyspec)
-            if not (copyspec and len(copyspec)):
-                self._log_warn("added null or empty copy spec")
-                return False
-            copy_paths = self._expand_copy_spec(copyspec)
-            self._add_copy_paths(copy_paths)
-            self._log_info("added copyspec '%s'" % copy_paths)
+
+            files = self._expand_copy_spec(copyspec)
+            files.sort()
+            if len(files) == 0:
+                continue
+
+            current_size = 0
+            limit_reached = False
+            _file = None
+
+            for _file in files:
+                current_size += os.stat(_file)[stat.ST_SIZE]
+                if sizelimit and current_size > sizelimit:
+                    limit_reached = True
+                    break
+                self._add_copy_paths([_file])
+
+            if limit_reached and tailit:
+                file_name = _file
+
+                if file_name[0] == os.sep:
+                    file_name = file_name.lstrip(os.sep)
+                strfile = file_name.replace(os.path.sep, ".") + ".tailed"
+                self.add_string_as_file(tail(_file, sizelimit), strfile)
+                rel_path = os.path.relpath('/', os.path.dirname(_file))
+                link_path = os.path.join(rel_path, 'sos_strings',
+                                         self.name(), strfile)
+                self.archive.add_link(link_path, _file)
 
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None):

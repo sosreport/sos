@@ -26,10 +26,8 @@ class Apport(Plugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         if not self.get_option("all_logs"):
             limit = self.get_option("log_size")
-            self.add_copy_spec_limit("/var/log/apport.log",
-                                     sizelimit=limit)
-            self.add_copy_spec_limit("/var/log/apport.log.1",
-                                     sizelimit=limit)
+            self.add_copy_spec("/var/log/apport.log", sizelimit=limit)
+            self.add_copy_spec("/var/log/apport.log.1", sizelimit=limit)
         else:
             self.add_copy_spec("/var/log/apport*")
         self.add_copy_spec("/etc/apport/*")

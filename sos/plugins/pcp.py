@@ -113,7 +113,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # As a default strategy, collect PCP_LOG_DIR/pmlogger/* only if the
         # total size is moderately small: < 100MB. Override is possible via
         # the 'all_pcplogs' option.
-        # FIXME: Doing a recursive size check because add_copy_spec_limit
+        # FIXME: Doing a recursive size check because add_copy_spec
         # won't work for directory trees. I.e. we can't say fetch /foo/bar/
         # only if it is < 100MB. To be killed once the Plugin base class will
         # add a method for this use case via issue #281

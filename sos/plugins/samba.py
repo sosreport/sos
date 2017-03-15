@@ -30,21 +30,17 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/samba/lmhosts",
         ])
 
-        self.add_copy_spec_limit("/var/log/samba/log.smbd",
-                                 sizelimit=self.limit)
-        self.add_copy_spec_limit("/var/log/samba/log.nmbd",
-                                 sizelimit=self.limit)
-        self.add_copy_spec_limit("/var/log/samba/log.winbindd",
-                                 sizelimit=self.limit)
-        self.add_copy_spec_limit("/var/log/samba/log.winbindd-idmap",
-                                 sizelimit=self.limit)
-        self.add_copy_spec_limit("/var/log/samba/log.winbindd-dc-connet",
-                                 sizelimit=self.limit)
-        self.add_copy_spec_limit("/var/log/samba/log.wb-*",
-                                 sizelimit=self.limit)
+        self.add_copy_spec("/var/log/samba/log.smbd", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/samba/log.nmbd", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/samba/log.winbindd", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/samba/log.winbindd-idmap",
+                           sizelimit=self.limit)
+        self.add_copy_spec("/var/log/samba/log.winbindd-dc-connet",
+                           sizelimit=self.limit)
+        self.add_copy_spec("/var/log/samba/log.wb-*", sizelimit=self.limit)
 
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/samba/", sizelimit=self.limit)
+            self.add_copy_spec("/var/log/samba/", sizelimit=self.limit)
 
         self.add_cmd_output([
             "wbinfo --domain='.' -g",

@@ -29,11 +29,9 @@ class OpenStackIronic(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/ironic/",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/ironic/", sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/ironic/*.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/ironic/*.log", sizelimit=self.limit)
 
         self.add_cmd_output('ls -laRt /var/lib/ironic/')
 

@@ -29,6 +29,6 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("rabbitmqctl list_policies")
 
         self.add_copy_spec("/etc/rabbitmq/*")
-        self.add_copy_spec_limit("/var/log/rabbitmq/*",
-                                 sizelimit=self.get_option('log_size'))
+        self.add_copy_spec("/var/log/rabbitmq/*",
+                           sizelimit=self.get_option('log_size'))
 # vim: set et ts=4 sw=4 :

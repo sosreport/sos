@@ -37,13 +37,13 @@ class Tomcat(Plugin, RedHatPlugin):
 
         if not self.get_option("all_logs"):
             log_glob = "/var/log/tomcat*/catalina.out"
-            self.add_copy_spec_limit(log_glob, sizelimit=limit)
+            self.add_copy_spec(log_glob, sizelimit=limit)
 
             # get today's date in iso format so that days/months below 10
             # prepend 0
             today = datetime.date(datetime.now()).isoformat()
             log_glob = "/var/log/tomcat*/catalina.%s.log" % today
-            self.add_copy_spec_limit(log_glob, sizelimit=limit)
+            self.add_copy_spec(log_glob, sizelimit=limit)
         else:
             self.add_copy_spec("/var/log/tomcat*/*")
 

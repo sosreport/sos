@@ -34,7 +34,6 @@ class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if (len(opt) > 0):
             for o in opt:
                 f = o.split()
-                self.add_copy_spec_limit(f[1],
-                                         sizelimit=self.get_option("log_size"))
+                self.add_copy_spec(f[1], sizelimit=self.get_option("log_size"))
 
 # vim: set et ts=4 sw=4 :

@@ -1,6 +1,7 @@
 import unittest
 import os
 import tempfile
+import shutil
 
 # PYCOMPAT
 import six
@@ -18,8 +19,8 @@ PATH = os.path.dirname(__file__)
 def j(filename):
     return os.path.join(PATH, filename)
 
-def create_file(size):
-   f = tempfile.NamedTemporaryFile(delete=False)
+def create_file(size, dir=None):
+   f = tempfile.NamedTemporaryFile(delete=False, dir=dir)
    f.write(six.b("*" * size * 1024 * 1024))
    f.flush()
    f.close()
@@ -235,26 +236,20 @@ class AddCopySpecTests(unittest.TestCase):
             return os.path.join(self.mp.sysroot, path)
         expected_paths = set(map(pathmunge, self.expect_paths))
         self.assertEquals(self.mp.copy_paths, expected_paths)
-        
-    # add_copy_spec()
 
-    def test_single_file(self):
-        self.mp.add_copy_spec('tests/tail_test.txt')
-        self.assert_expect_paths()
-    def test_glob_file(self):
-        self.mp.add_copy_spec('tests/tail_test.*')
+
+    def test_single_file_no_limit(self):
+        self.mp.add_copy_spec("tests/tail_test.txt")
         self.assert_expect_paths()
 
     def test_single_file_under_limit(self):
-        self.mp.add_copy_spec_limit("tests/tail_test.txt", 1)
+        self.mp.add_copy_spec("tests/tail_test.txt", 1)
         self.assert_expect_paths()
-
-    # add_copy_spec_limit()
 
     def test_single_file_over_limit(self):
         self.mp.sysroot = '/'
         fn = create_file(2) # create 2MB file, consider a context manager
-        self.mp.add_copy_spec_limit(fn, 1)
+        self.mp.add_copy_spec(fn, 1)
         content, fname = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
         self.assertTrue("tmp" in fname)
@@ -264,21 +259,41 @@ class AddCopySpecTests(unittest.TestCase):
 
     def test_bad_filename(self):
         self.mp.sysroot = '/'
-        self.assertFalse(self.mp.add_copy_spec_limit('', 1))
-        self.assertFalse(self.mp.add_copy_spec_limit(None, 1))
+        self.assertFalse(self.mp.add_copy_spec('', 1))
+        self.assertFalse(self.mp.add_copy_spec(None, 1))
+
+    def test_glob_file(self):
+        self.mp.add_copy_spec('tests/tail_test.*')
+        self.assert_expect_paths()
+
+    def test_glob_file_limit_no_limit(self):
+        self.mp.sysroot = '/'
+        tmpdir = tempfile.mkdtemp()
+        fn = create_file(2, dir=tmpdir)
+        fn2 = create_file(2, dir=tmpdir)
+        self.mp.add_copy_spec(tmpdir + "/*")
+        self.assertEquals(len(self.mp.copy_paths), 2)
+        shutil.rmtree(tmpdir)
 
     def test_glob_file_over_limit(self):
         self.mp.sysroot = '/'
-        # assume these are in /tmp
-        fn = create_file(2)
-        fn2 = create_file(2)
-        self.mp.add_copy_spec_limit("/tmp/tmp*", 1)
+        tmpdir = tempfile.mkdtemp()
+        fn = create_file(2, dir=tmpdir)
+        fn2 = create_file(2, dir=tmpdir)
+        self.mp.add_copy_spec(tmpdir + "/*", 1)
         self.assertEquals(len(self.mp.copy_strings), 1)
         content, fname = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
         self.assertEquals(1024 * 1024, len(content))
-        os.unlink(fn)
-        os.unlink(fn2)
+        shutil.rmtree(tmpdir)
+
+    def test_multiple_files_no_limit(self):
+        self.mp.add_copy_spec(['tests/tail_test.txt', 'tests/test.txt'])
+        self.assertEquals(len(self.mp.copy_paths), 2)
+
+    def test_multiple_files_under_limit(self):
+        self.mp.add_copy_spec(['tests/tail_test.txt', 'tests/test.txt'], 1)
+        self.assertEquals(len(self.mp.copy_paths), 2)
 
 
 class CheckEnabledTests(unittest.TestCase):
