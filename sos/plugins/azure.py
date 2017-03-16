@@ -14,10 +14,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-from sos.plugins import Plugin, UbuntuPlugin
+from sos.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 
 
-class Azure(Plugin, UbuntuPlugin):
+class Azure(Plugin, UbuntuPlugin, RedHatPlugin):
     """ Microsoft Azure client
     """
 
@@ -30,6 +30,7 @@ class Azure(Plugin, UbuntuPlugin):
             "/var/log/waagent*",
             "/var/lib/cloud",
             "/etc/default/kv-kvp-daemon-init",
+            "/etc/waagent.conf",
             "/sys/module/hv_netvsc/parameters/ring_size",
             "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"
         ])
