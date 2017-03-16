@@ -1,4 +1,5 @@
 # Copyright (C) 2016 Red Hat, Inc., Sachin Patil <psachin@redhat.com>
+# Copyright (C) 2017 Red Hat, Inc., Martin Schuppert <mschuppert@redhat.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,20 +36,21 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
             self.add_copy_spec_limit("/var/log/gnocchi/*.log",
                                      sizelimit=self.limit)
 
-        for os_var in ['OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']:
-            if os_var not in os.environ:
-                self.soslog.warning("%s not found in environment variables"
-                                    " which is required to run gnocchi"
-                                    " commands" % (os_var))
-
-        self.add_cmd_output([
-            "gnocchi --version",
-            "gnocchi status",
-            "gnocchi capabilities list",
-            "gnocchi archive-policy list",
-            "gnocchi resource list",
-            "gnocchi resource-type list"
-        ])
+        vars = [p in os.environ for p in [
+                'OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']]
+        if not all(vars):
+            self.soslog.warning("Not all environment variables set. Source "
+                                "the environment file for the user intended "
+                                "to connect to the OpenStack environment.")
+        else:
+            self.add_cmd_output([
+                "gnocchi --version",
+                "gnocchi status",
+                "gnocchi capabilities list",
+                "gnocchi archive-policy list",
+                "gnocchi resource list",
+                "gnocchi resource-type list"
+            ])
 
     def postproc(self):
         self.do_file_sub(
