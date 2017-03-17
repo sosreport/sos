@@ -2,6 +2,7 @@
 # Copyright (C) 2012 Rackspace US, Inc.,
 #                    Justin Shepherd <jshepher@rackspace.com>
 # Copyright (C) 2009 Red Hat, Inc., Joey Boggs <jboggs@redhat.com>
+# Copyright (C) 2017 Red Hat, Inc., Martin Schuppert <mschuppert@redhat.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +19,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import os
 
 
 class OpenStackGlance(Plugin):
@@ -46,6 +48,15 @@ class OpenStackGlance(Plugin):
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+
+        vars = [p in os.environ for p in [
+                'OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']]
+        if not all(vars):
+            self.soslog.warning("Not all environment variables set. Source "
+                                "the environment file for the user intended "
+                                "to connect to the OpenStack environment.")
+        else:
+            self.add_cmd_output("openstack image list --long")
 
     def postproc(self):
         protect_keys = [
