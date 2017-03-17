@@ -1,4 +1,5 @@
 # Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2017 Red Hat, Inc., Martin Schuppert <mschuppert@redhat.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import os
 
 
 class OpenStackHeat(Plugin):
@@ -31,6 +33,15 @@ class OpenStackHeat(Plugin):
             "heat-manage db_version",
             suggest_filename="heat_db_version"
         )
+
+        vars = [p in os.environ for p in [
+                'OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']]
+        if not all(vars):
+            self.soslog.warning("Not all environment variables set. Source "
+                                "the environment file for the user intended "
+                                "to connect to the OpenStack environment.")
+        else:
+            self.add_cmd_output("openstack stack list")
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
