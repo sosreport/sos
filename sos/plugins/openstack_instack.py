@@ -1,4 +1,5 @@
 # Copyright (C) 2015 Red Hat, Inc., Lee Yarwood <lyarwood@redhat.com>
+# Copyright (C) 2017 Red Hat, Inc., Martin Schuppert <mschuppert@redhat.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +16,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+import os
 
 
 class OpenStackInstack(Plugin):
@@ -27,6 +29,49 @@ class OpenStackInstack(Plugin):
         self.add_copy_spec("/home/stack/.instack/install-undercloud.log")
         self.add_copy_spec("/home/stack/instackenv.json")
         self.add_copy_spec("/home/stack/undercloud.conf")
+
+        self.limit = self.get_option("log_size")
+        if self.get_option("all_logs"):
+            self.add_copy_spec_limit("/var/log/mistral/",
+                                     sizelimit=self.limit)
+            self.add_copy_spec_limit("/var/log/zaqar/",
+                                     sizelimit=self.limit)
+        else:
+            self.add_copy_spec_limit("/var/log/mistral/*.log",
+                                     sizelimit=self.limit)
+            self.add_copy_spec_limit("/var/log/zaqar/*.log",
+                                     sizelimit=self.limit)
+
+        vars = [p in os.environ for p in [
+                'OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']]
+        if not all(vars):
+            self.soslog.warning("Not all environment variables set. Source "
+                                "the environment file for the user intended "
+                                "to connect to the OpenStack environment.")
+        else:
+            # get status of overcloud stack and resources
+            self.add_cmd_output("openstack stack show overcloud")
+            self.add_cmd_output(
+                "openstack stack resource list -n 10 overcloud",
+                timeout=600)
+
+            # get details on failed deployments
+            cmd = "openstack stack resource list -f value -n 5 overcloud"
+            deployments = self.call_ext_prog(cmd, timeout=600)['output']
+            for deployment in deployments.splitlines():
+                if 'FAILED' in deployment:
+                    check = [
+                        "OS::Heat::StructuredDeployment",
+                        "OS::Heat::SoftwareDeployment"]
+                    if any(x in deployment for x in check):
+                        deployment = deployment.split()[1]
+                        cmd = "openstack software deployment show " \
+                            "--long %s" % (deployment)
+                        self.add_cmd_output(
+                            cmd,
+                            suggest_filename="failed-deployment-" +
+                            deployment + ".log",
+                            timeout=600)
 
     def postproc(self):
         protected_keys = [
