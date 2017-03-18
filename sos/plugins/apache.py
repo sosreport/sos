@@ -51,6 +51,14 @@ class RedHatApache(Apache, RedHatPlugin):
             "/etc/httpd24/conf/httpd.conf",
             "/etc/httpd24/conf.d/*.conf",
             "/etc/httpd24/conf.modules.d/*.conf",
+            # Red Hat JBoss Core Services
+            "/opt/rh/jbcs-httpd24/root/etc/httpd/conf/httpd.conf",
+            "/opt/rh/jbcs-httpd24/root/etc/httpd/conf.d/*.conf",
+            "/opt/rh/jbcs-httpd24/root/etc/httpd/conf.modules.d/*.conf",
+            # Red Hat Software Collections
+            "/opt/rh/httpd24/root/etc/httpd/conf/httpd.conf",
+            "/opt/rh/httpd24/root/etc/httpd/conf.d/*.conf",
+            "/opt/rh/httpd24/root/etc/httpd/conf.modules.d/*.conf",
         ])
 
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
@@ -65,11 +73,20 @@ class RedHatApache(Apache, RedHatPlugin):
         self.add_copy_spec_limit("/var/log/httpd22/error_log", 5)
         self.add_copy_spec_limit("/var/log/httpd22/ssl_access_log", 5)
         self.add_copy_spec_limit("/var/log/httpd22/ssl_error_log", 5)
-        # Red Hat JBoss Web Server 3.x
+        # Red Hat JBoss Web Server 3.x and Red Hat Software Collections
         self.add_copy_spec_limit("/var/log/httpd24/access_log", 5)
         self.add_copy_spec_limit("/var/log/httpd24/error_log", 5)
         self.add_copy_spec_limit("/var/log/httpd24/ssl_access_log", 5)
         self.add_copy_spec_limit("/var/log/httpd24/ssl_error_log", 5)
+        # Red Hat JBoss Core Services
+        self.add_copy_spec_limit(
+            "/opt/rh/jbcs-httpd24/root/var/log/httpd/access_log", 5)
+        self.add_copy_spec_limit(
+            "/opt/rh/jbcs-httpd24/root/var/log/httpd/error_log", 5)
+        self.add_copy_spec_limit(
+            "/opt/rh/jbcs-httpd24/root/var/log/httpd/ssl_access_log", 5)
+        self.add_copy_spec_limit(
+            "/opt/rh/jbcs-httpd24/root/var/log/httpd/ssl_error_log", 5)
         if self.get_option("log"):
             self.add_copy_spec([
                 "/var/log/httpd/*",
