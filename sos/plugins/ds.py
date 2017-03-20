@@ -43,7 +43,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
         self.add_forbidden_path("/etc/dirsrv/slapd*/key3.db")
         self.add_forbidden_path("/etc/dirsrv/slapd*/pwfile.txt")
         self.add_forbidden_path("/etc/dirsrv/slapd*/*passw*")
-        self.add_forbidden_path("/etc/dirsrv/admin-serv/key3.db")
+        self.add_forbidden_path("/etc/dirsrv/admin-serv/key[3-4].db")
         self.add_forbidden_path("/etc/dirsrv/admin-serv/admpw")
         self.add_forbidden_path("/etc/dirsrv/admin-serv/password.conf")
         try:
