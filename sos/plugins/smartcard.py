@@ -37,5 +37,6 @@ class Smartcard(Plugin, RedHatPlugin):
             "pklogin_finder debug",
             "ls -nl /usr/lib*/pam_pkcs11/"
         ])
+        self.add_forbidden_path("/etc/pam_pkcs11/nssdb/key[3-4].db")
 
 # vim: set et ts=4 sw=4 :
