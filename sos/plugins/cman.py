@@ -26,7 +26,6 @@ class Cman(Plugin, RedHatPlugin):
 
     packages = [
         "luci",
-        "ricci",
         "cman",
         "clusterlib",
     ]
@@ -45,7 +44,6 @@ class Cman(Plugin, RedHatPlugin):
             "/etc/sysconfig/cman",
             "/var/log/cluster",
             "/etc/fence_virt.conf",
-            "/var/lib/ricci",
             "/var/lib/luci/data/luci.db",
             "/var/lib/luci/etc",
             "/var/log/luci"
