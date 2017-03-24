@@ -14,7 +14,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-
+from os.path import join
 
 class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """NUMA state and configuration
@@ -44,9 +44,9 @@ class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         numa_path = "/sys/devices/system/node"
         self.add_copy_spec([
-            os.path.join(numa_path, "node*/meminfo")
-            os.path.join(numa_path, "node*/cpulist")
-            os.path.join(numa_path, "node*/distance")
+            join(numa_path, "node*/meminfo")
+            join(numa_path, "node*/cpulist")
+            join(numa_path, "node*/distance")
         ])
 
 # vim: set et ts=4 sw=4 :
