@@ -155,6 +155,7 @@ class Networking(Plugin):
         self.add_cmd_output([
             "netstat -s",
             "netstat %s -agn" % self.ns_wide,
+            "ss -peaonmi",
             "ip route show table all",
             "ip -6 route show table all",
             "ip -4 rule",
