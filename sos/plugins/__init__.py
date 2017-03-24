@@ -186,7 +186,7 @@ class Plugin(object):
         '''Is the package $package_name installed?'''
         return self.policy().pkg_by_name(package_name) is not None
 
-    def do_cmd_private_sub(self, cmd):
+    def do_cmd_private_sub(self, cmd, certregexp="-----BEGIN.*?-----END"):
         '''Remove certificate and key output archived by sosreport. cmd
         is the command name from which output is collected (i.e. exlcuding
         parameters). Any matching instances are replaced with: '-----SCRUBBED'
@@ -209,7 +209,7 @@ class Plugin(object):
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
                     readable = self.archive.open_file(path)
-                    certmatch = re.compile("-----BEGIN.*?-----END", re.DOTALL)
+                    certmatch = re.compile(certregexp, re.DOTALL)
                     result, replacements = certmatch.subn(
                         "-----SCRUBBED", readable.read())
                     if replacements:

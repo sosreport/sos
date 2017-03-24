@@ -15,6 +15,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+from tempfile import gettempdir
+from os import remove
 
 
 class OpenStackInstack(Plugin):
@@ -29,6 +31,16 @@ class OpenStackInstack(Plugin):
         self.add_copy_spec("/home/stack/undercloud.conf")
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+
+        # collect undercloud-debug: undercloud-debug.log will be created so we
+        # need to generate it in a tmp.dir, collect it now and then cleanup it
+        tmpdir = gettempdir()
+        self.get_cmd_output_now("su -s /bin/sh -c 'source ~/stackrc && " +
+                                "/usr/libexec/openstack-tripleo/" +
+                                "undercloud-debug' stack",
+                                timeout=600, runat=tmpdir,
+                                suggest_filename="undercloud-debug.log")
+        remove("%s/undercloud-debug.log" % tmpdir)
 
     def postproc(self):
         protected_keys = [
@@ -63,12 +75,17 @@ class OpenStackInstack(Plugin):
         self.do_file_sub("/home/stack/instackenv.json", json_regexp,
                          r"\1*********")
 
+        # obfuscate private keys in undercloud-debug.log
+        self.do_cmd_private_sub('undercloud-debug',
+                                "BEGIN RSA PRIVATE KEY.*?END RSA PRIVATE KEY")
+
 
 class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
 
     packages = [
         'instack',
         'instack-undercloud',
+        'openstack-tripleo-heat-templates',
     ]
 
     def setup(self):
