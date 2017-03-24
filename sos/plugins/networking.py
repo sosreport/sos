@@ -112,6 +112,13 @@ class Networking(Plugin):
             cmd = "ip6tables -t "+tablename+" -nvL"
             self.add_cmd_output(cmd)
 
+    def collect_nftables(self):
+        """ Collects nftables rulesets with 'nft' commands if the modules
+        are present """
+
+        if self.check_ext_prog("grep -q nf_tables /proc/modules"):
+            self.add_cmd_output("nft list ruleset")
+
     def setup(self):
         super(Networking, self).setup()
         self.add_copy_spec([
@@ -126,6 +133,9 @@ class Networking(Plugin):
             "/etc/network*",
             "/etc/NetworkManager/NetworkManager.conf",
             "/etc/NetworkManager/system-connections",
+            "/etc/nftables",
+            "/etc/sysconfig/nftables.conf",
+            "/etc/nftables.conf",
             "/etc/dnsmasq*",
             "/sys/class/net/*/flags",
             "/etc/iproute2"
@@ -148,6 +158,8 @@ class Networking(Plugin):
         self.collect_ip6table("filter")
         self.collect_ip6table("nat")
         self.collect_ip6table("mangle")
+
+        self.collect_nftables()
 
         self.add_cmd_output("netstat %s -neopa" % self.ns_wide,
                             root_symlink="netstat")
