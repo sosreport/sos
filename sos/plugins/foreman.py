@@ -24,12 +24,14 @@ class Foreman(Plugin, RedHatPlugin):
     plugin_name = 'foreman'
     profiles = ('sysmgmt',)
     packages = ('foreman-debug')
-
+    
+    option_list = [("timeout", "set timeout in seconds for foreman-debug execution", 'slow', 900)]
+    
     def setup(self):
         cmd = "foreman-debug"
 
         path = self.get_cmd_output_path(name="foreman-debug")
         self.add_cmd_output("%s -g -q -a -d %s" % (cmd, path),
-                            chroot=self.tmp_in_sysroot(), timeout=900)
+                            chroot=self.tmp_in_sysroot(), timeout=self.get_option("timeout"))
 
 # vim: set et ts=4 sw=4 :
