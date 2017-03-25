@@ -63,7 +63,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
 
         if self.get_option("history-info"):
             history = self.call_ext_prog("dnf history")
-            transactions = None
+            transactions = -1
             if history['output']:
                 for line in history['output'].splitlines():
                     try:
