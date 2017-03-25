@@ -45,6 +45,9 @@ class OpenVSwitch(Plugin):
             "ls -laZ /var/run/openvswitch",
             # List devices and their drivers
             "dpdk_nic_bind --status",
+            "dpdk_devbind.py --status",
+            "driverctl list-devices",
+            "driverctl list-overrides",
             # Capture a list of all bond devices
             "ovs-appctl bond/list",
             # Capture more details from bond devices
