@@ -36,6 +36,8 @@ class OpenVSwitch(Plugin):
             # The '-s' option enables dumping of packet counters on the
             # ports.
             "ovs-dpctl -s show",
+            # Capture the in-kernel flow information if it exists
+            "ovs-dpctl dump-flows -m",
             # The '-t 5' adds an upper bound on how long to wait to connect
             # to the Open vSwitch server, avoiding hangs when running sos.
             "ovs-vsctl -t 5 show",
