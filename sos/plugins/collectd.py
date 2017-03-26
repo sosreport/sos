@@ -31,11 +31,14 @@ class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         p = re.compile('^LoadPlugin.*')
-        with open("/etc/collectd.conf") as f:
-            for line in f:
-                if p.match(line):
-                    self.add_alert("Active Plugin found: %s" %
-                                   line.split()[-1])
+        try:
+            with open("/etc/collectd.conf") as f:
+                for line in f:
+                    if p.match(line):
+                        self.add_alert("Active Plugin found: %s" %
+                                       line.split()[-1])
+        except IOError as e:
+            self._log_warn("could not open /etc/collectd.conf: %s" % e)
 
     def postproc(self):
         # add these to protect_keys if need be:
