@@ -86,7 +86,7 @@ class TempFileUtil(object):
         # avoid TOCTOU race by using os.fdopen()
         fobj = os.fdopen(fd)
         self.files.append((fname, fobj))
-        return fobj
+        return fobj, fname
 
     def clean(self):
         for fname, f in self.files:
@@ -845,9 +845,9 @@ class SoSReport(object):
         # main soslog
         self.soslog = logging.getLogger('sos')
         self.soslog.setLevel(logging.DEBUG)
-        self.sos_log_file = self.get_temp_file()
-        self.sos_log_file.close()
-        flog = logging.FileHandler(self.sos_log_file.name)
+        fd, self.sos_log_file = self.get_temp_file()
+        fd.close()
+        flog = logging.FileHandler(self.sos_log_file)
         flog.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s'))
         flog.setLevel(logging.INFO)
@@ -869,9 +869,9 @@ class SoSReport(object):
         # ui log
         self.ui_log = logging.getLogger('sos_ui')
         self.ui_log.setLevel(logging.INFO)
-        self.sos_ui_log_file = self.get_temp_file()
-        self.sos_ui_log_file.close()
-        ui_fhandler = logging.FileHandler(self.sos_ui_log_file.name)
+        fd, self.sos_ui_log_file = self.get_temp_file()
+        fd.close()
+        ui_fhandler = logging.FileHandler(self.sos_ui_log_file)
         ui_fhandler.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s'))
 
@@ -1356,7 +1356,7 @@ class SoSReport(object):
 
             report.add(section)
         try:
-            fd = self.get_temp_file()
+            fd, fname = self.get_temp_file()
             output = PlainTextReport(report).unicode()
             fd.write(output)
             fd.flush()
@@ -1383,7 +1383,7 @@ class SoSReport(object):
 
     def _html_report(self):
         # Generate the header for the html output file
-        rfd = self.get_temp_file()
+        rfd, fname = self.get_temp_file()
         rfd.write("""
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
