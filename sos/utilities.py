@@ -129,7 +129,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
     cmd_env['LC_ALL'] = 'C'
     # optionally add an environment change for the command
     if env:
-        for key, value in env.iteritems():
+        for key, value in env.items():
             cmd_env[key] = value
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
