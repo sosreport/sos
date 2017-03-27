@@ -846,8 +846,7 @@ class SoSReport(object):
         self.soslog = logging.getLogger('sos')
         self.soslog.setLevel(logging.DEBUG)
         self.sos_log_file = self.get_temp_file()
-        self.sos_log_file.close()
-        flog = logging.FileHandler(self.sos_log_file.name)
+        flog = logging.StreamHandler(self.sos_log_file)
         flog.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s'))
         flog.setLevel(logging.INFO)
@@ -870,8 +869,7 @@ class SoSReport(object):
         self.ui_log = logging.getLogger('sos_ui')
         self.ui_log.setLevel(logging.INFO)
         self.sos_ui_log_file = self.get_temp_file()
-        self.sos_ui_log_file.close()
-        ui_fhandler = logging.FileHandler(self.sos_ui_log_file.name)
+        ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
         ui_fhandler.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s'))
 
@@ -889,10 +887,10 @@ class SoSReport(object):
         # from leaking to the console when running in --quiet mode when
         # Archive classes attempt to acess the log API.
         if getattr(self, "sos_log_file", None):
-            self.archive.add_file(self.sos_log_file.name,
+            self.archive.add_file(self.sos_log_file,
                                   dest=os.path.join('sos_logs', 'sos.log'))
         if getattr(self, "sos_ui_log_file", None):
-            self.archive.add_file(self.sos_ui_log_file.name,
+            self.archive.add_file(self.sos_ui_log_file,
                                   dest=os.path.join('sos_logs', 'ui.log'))
 
     def _get_disabled_plugins(self):
