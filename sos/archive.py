@@ -161,22 +161,38 @@ class FileCacheArchive(Archive):
             dest = src
         dest = self.dest_path(dest)
         self._check_path(dest)
-        try:
-            shutil.copy(src, dest)
-        except IOError as e:
-            self.log_info("caught '%s' copying '%s'" % (e, src))
-        try:
-            shutil.copystat(src, dest)
-        except OSError:
-            # SELinux xattrs in /proc and /sys throw this
-            pass
-        try:
-            stat = os.stat(src)
-            os.chown(dest, stat.st_uid, stat.st_gid)
-        except Exception as e:
-            self.log_debug("caught '%s' setting ownership of '%s'" % (e, dest))
-        self.log_debug("added '%s' to FileCacheArchive '%s'" %
-                       (src, self._archive_root))
+
+        # Handle adding a file from either a string respresenting
+        # a path, or a File object open for reading.
+        if not getattr(src, "read", None):
+            # path case
+            try:
+                shutil.copy(src, dest)
+            except IOError as e:
+                self.log_info("caught '%s' copying '%s'" % (e, src))
+            try:
+                shutil.copystat(src, dest)
+            except OSError:
+                # SELinux xattrs in /proc and /sys throw this
+                pass
+            try:
+                stat = os.stat(src)
+                os.chown(dest, stat.st_uid, stat.st_gid)
+            except Exception as e:
+                self.log_debug("caught '%s' setting ownership of '%s'"
+                               % (e, dest))
+            file_name = "'%s'" % src
+        else:
+            # Open file case: first rewind the file to obtain
+            # everything written to it.
+            src.seek(0)
+            with open(dest, "w") as f:
+                for line in src:
+                    f.write(line)
+            file_name = "open file"
+
+        self.log_debug("added %s to FileCacheArchive '%s'" %
+                       (file_name, self._archive_root))
 
     def add_string(self, content, dest):
         src = dest
