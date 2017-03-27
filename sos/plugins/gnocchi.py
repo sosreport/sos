@@ -20,7 +20,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 class GnocchiPlugin(Plugin, RedHatPlugin):
     """Gnocchi - Metric as a service"""
-    plugin_name = "openstack_gnocchi"
+    plugin_name = "gnocchi"
 
     profiles = ('openstack', 'openstack_controller')
 
