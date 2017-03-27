@@ -48,7 +48,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/proc/swaps",
                 "/proc/version",
                 "/dev/nvram",
-                "/var/lib/lsvpd/"
+                "/var/lib/lsvpd/",
+                "/sys/fs/pstore/"
             ])
             self.add_cmd_output([
                 "ppc64_cpu --smt",
