@@ -21,7 +21,15 @@ from sos.plugins import Plugin, RedHatPlugin
 class GnocchiPlugin(Plugin, RedHatPlugin):
     """Gnocchi - Metric as a service"""
     plugin_name = "openstack_gnocchi"
+
     profiles = ('openstack', 'openstack_controller')
+
+    packages = (
+        'openstack-gnocchi-metricd', 'openstack-gnocchi-common',
+        'openstack-gnocchi-statsd', 'openstack-gnocchi-api',
+        'openstack-gnocchi-carbonara'
+    )
+
     requires_root = False
 
     def setup(self):
