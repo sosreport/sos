@@ -110,9 +110,9 @@ class Jars(Plugin, RedHatPlugin):
                 with f.open(result[0]) as props_f:
                     for line in props_f.readlines():
                         line = line.strip()
-                        if not line.startswith("#"):
+                        if not line.startswith(b"#"):
                             try:
-                                (key, value) = line.split("=")
+                                (key, value) = line.split(b"=")
                                 props[key.strip()] = value.strip()
                             except ValueError:
                                 return None
