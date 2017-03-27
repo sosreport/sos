@@ -56,10 +56,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "ppc64_cpu --cores-on",
                 "ppc64_cpu --run-mode",
                 "ppc64_cpu --frequency",
-                "ppc64_cpu --dscr",
-                "lscfg -vp",
-                "lsmcode -A",
-                "lsvpd --debug"
+                "ppc64_cpu --dscr"
             ])
 
         if ispSeries:
@@ -70,7 +67,6 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/var/log/platform"
             ])
             self.add_cmd_output([
-                "lsvio -des",
                 "servicelog --dump",
                 "servicelog_notify --list",
                 "usysattn",
