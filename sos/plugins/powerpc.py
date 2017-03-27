@@ -56,7 +56,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "ppc64_cpu --cores-on",
                 "ppc64_cpu --run-mode",
                 "ppc64_cpu --frequency",
-                "ppc64_cpu --dscr"
+                "ppc64_cpu --dscr",
+                "diag_encl -v"
             ])
 
         if ispSeries:
