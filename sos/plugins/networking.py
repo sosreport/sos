@@ -291,7 +291,8 @@ class Networking(Plugin):
                 self.add_cmd_output([
                     cmd_prefix + namespace + " ip address show",
                     cmd_prefix + namespace + " ip route show table all",
-                    cmd_prefix + namespace + " iptables-save"
+                    cmd_prefix + namespace + " iptables-save",
+                    cmd_prefix + namespace + " ss -lnp"
                 ])
 
             # Devices that exist in a namespace use less ethtool
