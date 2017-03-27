@@ -74,7 +74,7 @@ clean:
 	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz sos.conf.5.gz
 	@rm -rf rpm-build
 	@for i in `find . -iname *.pyc`; do \
-		rm $$i; \
+		rm -f $$i; \
 	done; \
 	for d in $(SUBDIRS); do make -C $$d clean ; done
 
