@@ -1358,8 +1358,8 @@ class SoSReport(object):
             output = PlainTextReport(report).unicode()
             fd.write(output)
             fd.flush()
-            self.archive.add_file(fd.name, dest=os.path.join('sos_reports',
-                                                             'sos.txt'))
+            self.archive.add_file(fd, dest=os.path.join('sos_reports',
+                                                        'sos.txt'))
         except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("")
@@ -1436,8 +1436,8 @@ class SoSReport(object):
                 rfd.write(html)
         rfd.write("</body></html>")
         rfd.flush()
-        self.archive.add_file(rfd.name, dest=os.path.join('sos_reports',
-                                                          'sos.html'))
+        self.archive.add_file(rfd, dest=os.path.join('sos_reports',
+                                                     'sos.html'))
 
     def postproc(self):
         for plugname, plug in self.loaded_plugins:
