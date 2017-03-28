@@ -17,6 +17,7 @@
 
 import os
 from sos.plugins import Plugin, RedHatPlugin
+import os
 
 
 class GnocchiPlugin(Plugin, RedHatPlugin):
