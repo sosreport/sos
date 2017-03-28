@@ -38,11 +38,11 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec_limit("/var/log/gnocchi/",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/gnocchi/",
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec_limit("/var/log/gnocchi/*.log",
-                                     sizelimit=self.limit)
+            self.add_copy_spec("/var/log/gnocchi/*.log",
+                               sizelimit=self.limit)
 
         vars = [p in os.environ for p in [
                 'OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']]
