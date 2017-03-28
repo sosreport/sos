@@ -25,20 +25,17 @@ class StorageConsole(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('rhscon-core',)
 
     def setup(self):
-        if not self.get_option("all_logs"):
-            limit = self.get_option("log_size")
-        else:
-            limit = 0
+        all_logs = self.get_option("all_logs")
+        limit = self.get_option("log_size")
 
-        if limit:
-            self.add_copy_spec_limit("/var/log/skyring/skyring.log", limit)
-            self.add_copy_spec_limit("/var/log/skyring/bigfin.log", limit)
-            self.add_copy_spec_limit("/var/log/carbon/console.log", limit)
-            self.add_copy_spec_limit("/var/log/graphite-web/info.log", limit)
-            self.add_copy_spec_limit(
+        if not all_logs:
+            self.add_copy_spec([
+                "/var/log/skyring/skyring.log",
+                "/var/log/skyring/bigfin.log",
+                "/var/log/carbon/console.log",
+                "/var/log/graphite-web/info.log",
                 "/var/log/graphite-web/exception.log",
-                limit
-            )
+            ], sizelimit=limit)
         else:
             self.add_copy_spec([
                 "/var/log/skyring/",
