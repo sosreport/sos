@@ -147,6 +147,12 @@ class PlainTextReport(object):
             for type_, format_, header in self.subsections:
                 self.process_subsection(section_contents, type_.ADDS_TO,
                                         header, format_)
+
+        # Workaround python.six mishandling of strings ending in '/' by
+        # adding a single space following any '\' at end-of-line.
+        # See Six issue #60.
+        buf = [(val + " ") if val.endswith('\\') else val for val in buf]
+
         output = u'\n'.join(map(lambda i: (i if isinstance(i, six.text_type)
                                            else six.u(i)), buf))
         if six.PY3:
