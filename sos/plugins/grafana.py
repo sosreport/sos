@@ -21,7 +21,9 @@ class Grafana(Plugin, RedHatPlugin):
     """Fetch Grafana configuration, logs and CLI output
     """
     plugin_name = "grafana"
-    profiles = ('services',)
+    profiles = ('services', 'openstack', 'openstack_controller')
+
+    packages = ('graphana',)
 
     def setup(self):
         if self.get_option("all_logs"):
