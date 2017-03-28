@@ -30,11 +30,7 @@ class SaltMaster(Plugin, RedHatPlugin, DebianPlugin):
         else:
             limit = 0
 
-        if limit:
-            self.add_copy_spec_limit("/var/log/salt/master", limit)
-        else:
-            self.add_copy_spec("/var/log/salt")
-
+        self.add_copy_spec("/var/log/salt/master", sizelimit=limit)
         self.add_cmd_output("salt-key --list all")
 
 # vim: set et ts=4 sw=4 :
