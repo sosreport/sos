@@ -24,6 +24,8 @@ class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "collectd"
     profiles = ('services', 'webserver')
 
+    packages = ('collectd',)
+
     def setup(self):
         self.add_copy_spec([
             '/etc/collectd.conf',
