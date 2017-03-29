@@ -1,4 +1,4 @@
 #!/usr/bin/python
-print "executed"
+print("executed")
 
 # vim: set et ts=4 sw=4 :
