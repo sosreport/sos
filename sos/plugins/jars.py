@@ -113,7 +113,9 @@ class Jars(Plugin, RedHatPlugin):
                         if not line.startswith(b"#"):
                             try:
                                 (key, value) = line.split(b"=")
-                                props[key.strip()] = value.strip()
+                                key = key.decode('utf8').strip()
+                                value = value.decode('utf8').strip()
+                                props[key] = value
                             except ValueError:
                                 return None
         except IOError:
