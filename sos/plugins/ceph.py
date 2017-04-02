@@ -50,7 +50,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_copy_spec([
             "/etc/ceph/",
-            "/etc/calamari/"
+            "/etc/calamari/",
             "/var/lib/ceph/",
             "/var/run/ceph/"
         ])
