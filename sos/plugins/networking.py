@@ -172,7 +172,7 @@ class Networking(Plugin):
             "ip -6 route show table all",
             "ip -4 rule",
             "ip -6 rule",
-            "ip -s link",
+            "ip -s -d link",
             "ip address",
             "ifenslave -a",
             "ip mroute show",
@@ -181,6 +181,7 @@ class Networking(Plugin):
             "ip neigh show nud noarp",
             "biosdevname -d",
             "tc -s qdisc show",
+            "ip -s macsec show",
             "iptables -vnxL",
             "ip6tables -vnxL"
         ])
