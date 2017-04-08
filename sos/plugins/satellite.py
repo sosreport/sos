@@ -81,7 +81,8 @@ class Satellite(Plugin, RedHatPlugin):
             ])
             self.add_cmd_output(
                 "spacewalk-debug --dir %s"
-                % self.get_cmd_output_path(name="spacewalk-debug"))
+                % self.get_cmd_output_path(name="spacewalk-debug"),
+                timeout=900)
 
         if self.proxy:
             self.add_copy_spec(["/etc/squid", "/var/log/squid"])
