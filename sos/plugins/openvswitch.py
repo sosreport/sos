@@ -79,6 +79,8 @@ class OpenVSwitch(Plugin):
         # Gather systemd services logs
         self.add_journal(units="openvswitch")
         self.add_journal(units="openvswitch-nonetwork")
+        self.add_journal(units="ovs-vswitchd")
+        self.add_journal(units="ovsdb-server")
 
         # Gather additional output for each OVS bridge on the host.
         br_list_result = self.call_ext_prog("ovs-vsctl list-br")
