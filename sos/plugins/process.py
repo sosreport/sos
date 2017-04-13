@@ -38,5 +38,13 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "%s %s" % (ps_axo, ps_group_opts),
             "%s %s" % (ps_axo, ps_sched_opts)
         ])
+        self.add_copy_spec([
+            "/proc/*/comm",
+            "/proc/*/limits",
+            "/proc/*/stack",
+            "/proc/*/status",
+            "/proc/*/cpuset",
+            "/proc/*/oom_*"
+        ])
 
 # vim: set et ts=4 sw=4 :
