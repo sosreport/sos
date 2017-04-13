@@ -67,7 +67,13 @@ class OpenVSwitch(Plugin):
             # Capture upcall information
             "ovs-appctl upcall/show",
             # Capture DPDK and other parameters
-            "ovs-vsctl -t 5 get Open_vSwitch . other_config"
+            "ovs-vsctl -t 5 get Open_vSwitch . other_config",
+            # Capture DPDK datapath packet counters and config
+            "ovs-appctl dpctl/show -s",
+            # Capture DPDK queue to pmd mapping
+            "ovs-appctl dpif-netdev/pmd-rxq-show",
+            # Capture DPDK pmd stats
+            "ovs-appctl dpif-netdev/pmd-stats-show"
         ])
 
         # Gather systemd services logs
