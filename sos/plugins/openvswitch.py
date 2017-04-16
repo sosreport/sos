@@ -96,6 +96,14 @@ class OpenVSwitch(Plugin):
                     "ovs-ofctl show %s" % br
                 ])
 
+        # Gather additional output for each OVS bridge on the host.
+        br_list_result = self.call_ext_prog("ovs-vsctl list-br")
+        if br_list_result['status'] == 0:
+            for br in br_list_result['output'].splitlines():
+                self.add_cmd_output("ovs-ofctl show %s" % br)
+                self.add_cmd_output("ovs-ofctl dump-flows %s" % br)
+                self.add_cmd_output("ovs-appctl fdb/show %s" % br)
+
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
