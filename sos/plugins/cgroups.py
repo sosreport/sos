@@ -39,7 +39,6 @@ class RedHatCgroups(Cgroups, RedHatPlugin):
     def setup(self):
         super(RedHatCgroups, self).setup()
         self.add_copy_spec([
-            "/etc/sysconfig/cgconfig",
             "/etc/sysconfig/cgred",
             "/etc/cgsnapshot_blacklist.conf",
             "/etc/cgconfig.conf",
