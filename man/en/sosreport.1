@@ -103,8 +103,9 @@ sysmgmt, system, performance, virt, and webserver.
 .B \--verify
 Instructs plugins to perform plugin-specific verification during data
 collection. This may include package manager verification, log integrity
-testing or other plugin defined behaviour. Use of \--verify may cause
-the time taken to generate a report to be considerably longer.
+testing or other plugin defined behaviour. Use of \--verify may cause the
+time taken to generate a report to be considerably longer.  The \--verify
+option must be specified when enabling the rpm.rpmva option.
 .TP
 .B \--log-size
 Places a global limit on the size (in MiB) of any collected set of logs. The
