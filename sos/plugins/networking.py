@@ -232,7 +232,7 @@ class Networking(Plugin):
 
         if len(nmcli_con_details_cmd) > 0:
             nmcli_con_show_result = self.call_ext_prog(
-                "nmcli --terse --fields NAME con")
+                "nmcli --nocheck --terse --fields NAME con")
             if nmcli_con_show_result['status'] == 0:
                 for con in nmcli_con_show_result['output'].splitlines():
                     if con[0:7] == 'Warning':
@@ -251,7 +251,7 @@ class Networking(Plugin):
                                         (nmcli_con_details_cmd, con))
 
             nmcli_dev_status_result = self.call_ext_prog(
-                "nmcli --terse --fields DEVICE dev")
+                "nmcli --nocheck --terse --fields DEVICE dev")
             if nmcli_dev_status_result['status'] == 0:
                 for dev in nmcli_dev_status_result['output'].splitlines():
                     if dev[0:7] == 'Warning':
