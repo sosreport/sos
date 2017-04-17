@@ -95,3 +95,5 @@ po: clean
 
 test:
 	nosetests -v --with-cover --cover-package=sos --cover-html
+test3:
+	nosetests3 -v --with-cover --cover-package=sos --cover-html
