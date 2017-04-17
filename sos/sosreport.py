@@ -99,6 +99,10 @@ class TempFileUtil(object):
                 os.unlink(fname)
             except Exception:
                 pass
+        try:
+            rmtree(self.tmp_dir)
+        except Exception:
+            pass
         self.files = []
 
 
