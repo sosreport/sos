@@ -36,6 +36,10 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/pacemaker.log",
             "/var/log/pcsd/pcsd.log"
         ])
+
+        self.add_copy_spec_limit("/var/log/pacemaker.log",
+                                 sizelimit=self.get_option("log_size"))
+
         self.add_cmd_output([
             "crm_mon -1 -A -n -r -t",
             "crm status",
