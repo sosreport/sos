@@ -35,7 +35,7 @@ def load(cache={}, sysroot=None):
     for module in helper.get_modules():
         for policy in import_policy(module):
             if policy.check():
-                cache['policy'] = policy(sysroot=sysroot)
+                cache['policy'] = policy()
 
     if 'policy' not in cache:
         cache['policy'] = GenericPolicy()
