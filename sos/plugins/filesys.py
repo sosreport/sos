@@ -22,9 +22,11 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'filesys'
     profiles = ('storage',)
 
-    option_list = [("lsof", 'gathers information on all open files', 'slow',
-                    False),
-                   ("dumpe2fs", 'dump filesystem information', 'slow', False)]
+    option_list = [
+        ("lsof", 'gathers information on all open files', 'slow', False),
+        ("dumpe2fs", 'dump filesystem information', 'slow', False),
+        ("frag", 'filesystem fragmentation status', 'slow', False)
+    ]
 
     def setup(self):
         self.add_copy_spec([
@@ -52,6 +54,9 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
         for dev in self.do_regex_find_all(ext_fs_regex, mounts):
                 self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev))
+
+                if self.get_option('frag'):
+                    self.add_cmd_output("e2freefrag %s" % (dev))
 
     def postproc(self):
         self.do_file_sub(
