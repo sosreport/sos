@@ -25,5 +25,6 @@ class Procenv(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_cmd_output('procenv')
+        self.add_cmd_output('ps -A e')
 
 # vim: set et ts=4 sw=4 :
