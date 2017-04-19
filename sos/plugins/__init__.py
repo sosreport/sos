@@ -692,9 +692,6 @@ class Plugin(object):
         if result['status'] == 126 or result['status'] == 127:
             return None
 
-        if result['status'] == 1:
-            return None
-
         self._log_debug("collected output of '%s' in %s"
                         % (exe.split()[0], time() - start))
 
