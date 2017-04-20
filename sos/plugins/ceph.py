@@ -40,7 +40,8 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_copy_spec([
                 "/var/log/ceph/*.log",
                 "/var/log/radosgw/*.log",
-                "/var/log/calamari/*.log"], sizelimit=limit)
+                "/var/log/calamari/*.log"
+            ], sizelimit=limit)
         else:
             self.add_copy_spec([
                 "/var/log/ceph/",
@@ -50,7 +51,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_copy_spec([
             "/etc/ceph/",
-            "/etc/calamari/"
+            "/etc/calamari/",
             "/var/lib/ceph/",
             "/var/run/ceph/"
         ])
