@@ -77,10 +77,18 @@ class Docker(Plugin):
         if self.get_option('all'):
             ps_cmd = "{0} -a".format(ps_cmd)
 
-        result = self.get_command_output(ps_cmd)
-        if result['status'] == 0:
-            containers = [c for c in result['output'].splitlines()]
-            for container in containers:
+        img_cmd = '{0} images -q'.format(self.docker_cmd)
+        insp = set()
+
+        for icmd in [ps_cmd, img_cmd]:
+            result = self.get_command_output(icmd)
+            if result['status'] == 0:
+                for con in result['output'].splitlines():
+                    insp.add(con)
+
+        insp = list(insp)
+        if insp:
+            for container in insp:
                 self.add_cmd_output(
                     "{0} inspect {1}".format(
                         self.docker_cmd,
