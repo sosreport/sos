@@ -52,10 +52,10 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         # get network, pool and nwfilter elements
         for k in ['net', 'nwfilter', 'pool']:
             self.add_cmd_output('%s %s-list' % (cmd, k))
-            k_file = self.get_cmd_output_now('%s %s-list' % (cmd, k))
-            if k_file:
-                k_lines = open(k_file, 'r').read().splitlines()
-                # the 'name' column position changes between virsh cmds
+            k_list = self.get_command_output('%s %s-list' % (cmd, k))
+            if k_list and k_list['status'] == 0:
+                k_lines = k_list['output'].splitlines()
+                # the 'Name' column position changes between virsh cmds
                 pos = k_lines[0].split().index('Name')
                 for j in filter(lambda x: x, k_lines[2:]):
                     n = j.split()[pos]
@@ -63,9 +63,9 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
         # empty line, and dumpxml domain name in 2nd column
-        domains_file = self.get_cmd_output_now('%s list --all' % cmd)
-        if domains_file:
-            domains_lines = open(domains_file, "r").read().splitlines()[2:]
+        domains_output = self.get_command_output('%s list --all' % cmd)
+        if domains_output and domains_output['status'] == 0:
+            domains_lines = domains_output['output'].splitlines()[2:]
             for domain in filter(lambda x: x, domains_lines):
                 d = domain.split()[1]
                 for x in ['dumpxml', 'dominfo', 'domblklist']:
