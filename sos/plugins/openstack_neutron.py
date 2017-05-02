@@ -36,7 +36,7 @@ class OpenStackNeutron(Plugin):
         self.add_copy_spec("/etc/neutron/")
         self.add_copy_spec("/var/lib/neutron/")
         if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
         vars = [p in os.environ for p in [
                 'OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']]

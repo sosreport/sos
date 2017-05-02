@@ -30,7 +30,7 @@ class OpenStackInstack(Plugin):
         self.add_copy_spec("/home/stack/instackenv.json")
         self.add_copy_spec("/home/stack/undercloud.conf")
         if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):

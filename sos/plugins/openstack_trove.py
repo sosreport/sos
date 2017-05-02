@@ -37,7 +37,7 @@ class OpenStackTrove(Plugin):
         self.add_copy_spec('/etc/trove/')
 
         if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def postproc(self):
 
