@@ -37,7 +37,7 @@ class OpenStackSahara(Plugin):
             self.add_copy_spec("/var/log/sahara/*.log", sizelimit=self.limit)
 
         if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(packages))
+            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def postproc(self):
         protect_keys = [
