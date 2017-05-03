@@ -118,6 +118,17 @@ class Note(Leaf):
         self.data = content
 
 
+def ends_bs(string):
+    """ Return True if 'string' ends with a backslash, and False otherwise.
+
+        Define this as a named function for no other reason than that pep8
+        now forbids binding of a lambda expression to a name:
+
+        'E731 do not assign a lambda expression, use a def'
+    """
+    return string.endswith('\\')
+
+
 class PlainTextReport(object):
     """Will generate a plain text report from a top_level Report object"""
 
@@ -134,16 +145,16 @@ class PlainTextReport(object):
         (Note, NOTE,         "-  notes:"),
     )
 
-    buf = []
+    line_buf = []
 
     def __init__(self, report_node):
         self.report_node = report_node
 
     def unicode(self):
-        self.buf = buf = []
+        self.line_buf = line_buf = []
         for section_name, section_contents in sorted(iteritems(
                 self.report_node.data)):
-            buf.append(section_name + "\n" + self.DIVIDER)
+            line_buf.append(section_name + "\n" + self.DIVIDER)
             for type_, format_, header in self.subsections:
                 self.process_subsection(section_contents, type_.ADDS_TO,
                                         header, format_)
@@ -151,10 +162,10 @@ class PlainTextReport(object):
         # Workaround python.six mishandling of strings ending in '/' by
         # adding a single space following any '\' at end-of-line.
         # See Six issue #60.
-        buf = [(val + " ") if val.endswith('\\') else val for val in buf]
+        line_buf = [line + " " if ends_bs(line) else line for line in line_buf]
 
         output = u'\n'.join(map(lambda i: (i if isinstance(i, six.text_type)
-                                           else six.u(i)), buf))
+                                           else six.u(i)), line_buf))
         if six.PY3:
             return output
         else:
@@ -162,8 +173,8 @@ class PlainTextReport(object):
 
     def process_subsection(self, section, key, header, format_):
         if key in section:
-            self.buf.append(header)
+            self.line_buf.append(header)
             for item in section.get(key):
-                self.buf.append(format_ % item)
+                self.line_buf.append(format_ % item)
 
 # vim: set et ts=4 sw=4 :
