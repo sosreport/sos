@@ -15,6 +15,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from datetime import datetime, timedelta
 import re
+import os.path
 
 
 class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
@@ -45,6 +46,7 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
             "pcs status",
             "pcs property list --all"
         ])
+
         # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
         # time in order to collect data.
         crm_from = (datetime.today() -
@@ -69,6 +71,21 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
                             ' --dest %s --from "%s"' %
                             (crm_scrub, crm_dest, crm_from),
                             chroot=self.tmp_in_sysroot())
+
+        # collect user-defined logfiles, matching pattern:
+        # PCMK_loggfile=filename
+        # specified in the pacemaker defaults file.
+        pattern = '^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
+        if os.path.isfile(self.defaults):
+            with open(self.defaults) as f:
+                for line in f:
+                    if re.match(pattern, line):
+                        # remove trailing and leading quote marks, in case the
+                        # line is e.g. PCMK_logfile="/var/log/pacemaker.log"
+                        logfile = re.search(pattern, line).group(1)
+                        for regexp in [r'^"', r'"$', r'^\'', r'\'$']:
+                            logfile = re.sub(regexp, '', logfile)
+                        self.add_copy_spec(logfile)
 
     def postproc(self):
         self.do_cmd_output_sub(
