@@ -36,6 +36,11 @@ from six.moves import zip, filter
 
 def _to_u(s):
     if not isinstance(s, six.text_type):
+        # Workaround python.six mishandling of strings ending in '\' by
+        # adding a single space following any '\' at end-of-line.
+        # See Six issue #60.
+        if s.endswith('\\'):
+            s += " "
         s = six.u(s)
     return s
 
