@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 import re
 
 
-class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Pacemaker(Plugin):
     """HA Cluster resource manager"""
 
     plugin_name = "pacemaker"
@@ -29,10 +29,10 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ("crm_scrub", "enable password scrubbing for crm_report", "", True),
     ]
 
-    def setup(self):
+    def setup(self, cfgfile):
         self.add_copy_spec([
             "/var/lib/pacemaker/cib/cib.xml",
-            "/etc/sysconfig/pacemaker",
+            cfgfile,
             "/var/log/pacemaker.log",
             "/var/log/pcsd/pcsd.log"
         ])
@@ -75,5 +75,18 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             r"(passwd=|incoming_password=)\S+",
             r"\1********"
         )
+
+
+class RedHatPacemaker(Pacemaker, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatPacemaker, self).setup("/etc/sysconfig/pacemaker")
+
+
+class DebianPacemaker(Pacemaker, DebianPlugin, UbuntuPlugin):
+
+    def setup(self):
+        super(DebianPacemaker, self).setup("/etc/default/pacemaker")
+
 
 # vim: et ts=4 sw=4
