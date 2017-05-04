@@ -15,9 +15,10 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from datetime import datetime, timedelta
 import re
+import os.path
 
 
-class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Pacemaker(Plugin):
     """HA Cluster resource manager"""
 
     plugin_name = "pacemaker"
@@ -29,10 +30,10 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ("crm_scrub", "enable password scrubbing for crm_report", "", True),
     ]
 
-    def setup(self):
+    def setup(self, cfgfile):
         self.add_copy_spec([
             "/var/lib/pacemaker/cib/cib.xml",
-            "/etc/sysconfig/pacemaker",
+            cfgfile,
             "/var/log/pacemaker.log",
             "/var/log/pcsd/pcsd.log"
         ])
@@ -44,6 +45,7 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "pcs status",
             "pcs property list --all"
         ])
+
         # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
         # time in order to collect data.
         crm_from = (datetime.today() -
@@ -69,11 +71,39 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                             (crm_scrub, crm_dest, crm_from),
                             chroot=self.tmp_in_sysroot())
 
+        # collect user-defined logfiles, matching pattern:
+        # PCMK_loggfile=filename
+        # specified in the cfgfile
+        pattern = '^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
+        if os.path.isfile(cfgfile):
+            with open(cfgfile) as f:
+                for line in f:
+                    if re.match(pattern, line):
+                        # remove trailing and leading quote marks, in case the
+                        # line is e.g. PCMK_logfile="/var/log/pacemaker.log"
+                        logfile = re.search(pattern, line).group(1)
+                        for regexp in [r'^"', r'"$', r'^\'', r'\'$']:
+                            logfile = re.sub(regexp, '', logfile)
+                        self.add_copy_spec(logfile)
+
     def postproc(self):
         self.do_cmd_output_sub(
             "pcs config",
             r"(passwd=|incoming_password=)\S+",
             r"\1********"
         )
+
+
+class RedHatPacemaker(Pacemaker, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatPacemaker, self).setup("/etc/sysconfig/pacemaker")
+
+
+class DebianPacemaker(Pacemaker, DebianPlugin, UbuntuPlugin):
+
+    def setup(self):
+        super(DebianPacemaker, self).setup("/etc/default/pacemaker")
+
 
 # vim: et ts=4 sw=4
