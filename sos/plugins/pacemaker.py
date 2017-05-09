@@ -17,12 +17,13 @@ from datetime import datetime, timedelta
 import re
 
 
-class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
     """HA Cluster resource manager"""
 
     plugin_name = "pacemaker"
     profiles = ("cluster", )
     packages = ["pacemaker"]
+    defaults = "/etc/default/pacemaker"
 
     option_list = [
         ("crm_from", "specify the start time for crm_report", "fast", False),
@@ -32,7 +33,7 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/var/lib/pacemaker/cib/cib.xml",
-            "/etc/sysconfig/pacemaker",
+            self.defaults,
             "/var/log/pacemaker.log",
             "/var/log/pcsd/pcsd.log"
         ])
@@ -75,5 +76,14 @@ class Pacemaker(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             r"(passwd=|incoming_password=)\S+",
             r"\1********"
         )
+
+
+class RedHatPacemaker(Pacemaker, RedHatPlugin):
+    """ Handle alternate location of pacemaker defaults file.
+    """
+    def setup(self):
+        self.defaults = "/etc/sysconfig/pacemaker"
+        super(RedHatPacemaker, self).setup()
+
 
 # vim: et ts=4 sw=4
