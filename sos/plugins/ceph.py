@@ -81,6 +81,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_forbidden_path("/var/lib/ceph/*/*/*keyring*")
         self.add_forbidden_path("/var/lib/ceph/osd/*")
         self.add_forbidden_path("/var/lib/ceph/mon/*")
+        self.add_forbidden_path("/var/lib/ceph/tmp/mnt*")
         self.add_forbidden_path("/etc/ceph/*bindpass*")
 
 # vim: set et ts=4 sw=4 :
