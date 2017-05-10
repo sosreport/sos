@@ -542,7 +542,10 @@ class Plugin(object):
             _file = None
 
             for _file in files:
-                current_size += os.stat(_file)[stat.ST_SIZE]
+                try:
+                    current_size += os.stat(_file)[stat.ST_SIZE]
+                except (OSError, FileNotFoundError):
+                    self._log_info("failed to stat '%s'" % _file)
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
                     break
