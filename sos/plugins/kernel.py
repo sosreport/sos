@@ -84,6 +84,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/lock*",
             "/proc/misc",
             "/var/log/dmesg",
+            "/sys/fs/pstore",
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource"
         ])
