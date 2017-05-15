@@ -65,7 +65,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         # get details of processes of KVM hosts
         for pidfile in glob.glob("/var/run/libvirt/*/*.pid"):
             pid = open(pidfile).read().splitlines()[0]
-            for pf in ["environ", "cgroups", "maps", "numa_maps", "limits"]:
+            for pf in ["environ", "cgroup", "maps", "numa_maps", "limits"]:
                 self.add_copy_spec("/proc/%s/%s" % (pid, pf))
 
     def postproc(self):
