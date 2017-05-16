@@ -121,13 +121,12 @@ class UbuntuDocker(Docker, UbuntuPlugin):
 
     packages = ('docker.io', 'docker-engine')
 
-    # Name collision with another package requires docker binary rename
-    docker_cmd = 'docker.io'
-
     def setup(self):
         super(UbuntuDocker, self).setup()
         self.add_copy_spec([
-            "/etc/default/docker.io"
+            "/etc/default/docker",
+            "/etc/docker/daemon.json",
+            "/var/run/docker/libcontainerd/containerd/events.log"
         ])
 
 # vim: set et ts=4 sw=4 :
