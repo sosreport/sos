@@ -91,7 +91,10 @@ class Ipa(Plugin, RedHatPlugin):
 
             self.add_copy_spec([
                 "/var/log/ipaserver-install.log",
-                "/var/log/ipareplica-install.log"
+                "/var/log/ipaserver-kra-install.log",
+                "/var/log/ipareplica-install.log",
+                "/var/log/ipareplica-ca-install.log",
+                "/var/log/ipa-custodia.audit.log"
             ])
 
         if self.ca_installed():
