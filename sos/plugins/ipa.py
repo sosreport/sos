@@ -24,7 +24,7 @@ class Ipa(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'ipa'
-    profiles = ('identity',)
+    profiles = ('identity', 'apache')
 
     ipa_server = False
     ipa_client = False
