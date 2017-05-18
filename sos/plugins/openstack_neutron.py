@@ -49,6 +49,10 @@ class OpenStackNeutron(Plugin):
             self.add_cmd_output("openstack port list")
             self.add_cmd_output("openstack router list")
             self.add_cmd_output("openstack network agent list")
+            self.add_cmd_output("openstack network list")
+            self.add_cmd_output("openstack extension list")
+            self.add_cmd_output("openstack floating ip list")
+            self.add_cmd_output("openstack security group list")
 
     def postproc(self):
         protect_keys = [
