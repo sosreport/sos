@@ -121,9 +121,6 @@ class UbuntuDocker(Docker, UbuntuPlugin):
 
     packages = ('docker.io', 'docker-engine')
 
-    # Name collision with another package requires docker binary rename
-    docker_cmd = 'docker.io'
-
     def setup(self):
         super(UbuntuDocker, self).setup()
         self.add_copy_spec([
