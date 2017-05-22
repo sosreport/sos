@@ -35,7 +35,7 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         self.add_cmd_output([
             "lsscsi",
-            "sg_map"
+            "sg_map -x"
         ])
 
 # vim: set et ts=4 sw=4 :
