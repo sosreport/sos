@@ -58,13 +58,21 @@ class RedHatPolicy(LinuxPolicy):
 
         pkgs = self.package_manager.all_pkgs()
 
-        # If rpm query timed out after timeout duration exit
+        # If rpm query failed, exit
         if not pkgs:
             print("Could not obtain installed package list", file=sys.stderr)
             sys.exit(1)
 
         # handle PATH for UsrMove
-        if pkgs['filesystem']['version'][0] == '3':
+        if 'filesystem' not in pkgs:
+            print("Could not find 'filesystem' package: "
+                  "assuming PATH settings")
+            usrmove = True
+        else:
+            filesys_version = pkgs['filesystem']['version']
+            usrmove = True if filesys_version[0] == '3' else False
+
+        if usrmove:
             self.PATH = "/usr/sbin:/usr/bin:/root/bin"
         else:
             self.PATH = "/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
