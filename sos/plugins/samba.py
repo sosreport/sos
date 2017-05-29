@@ -35,7 +35,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec("/var/log/samba/log.winbindd", sizelimit=self.limit)
         self.add_copy_spec("/var/log/samba/log.winbindd-idmap",
                            sizelimit=self.limit)
-        self.add_copy_spec("/var/log/samba/log.winbindd-dc-connet",
+        self.add_copy_spec("/var/log/samba/log.winbindd-dc-connect",
                            sizelimit=self.limit)
         self.add_copy_spec("/var/log/samba/log.wb-*", sizelimit=self.limit)
 
