@@ -1,45 +1,139 @@
 Individuals
 -----------
+Aaron Conole <aconole@redhat.com>
 Abhijeet Kasurde <akasurde@redhat.com>
 Adam Stokes <adam.stokes@ubuntu.com>
+Adrien Kunysz <akunysz@acunu.com>
+Alan Pevec <apevec@redhat.com>
+Alexandru Juncu <alexj@linux.com>
+Ante Karamatic <ante.karamatic@canonical.com>
+Archit Sharma <arcsharm@redhat.com>
+Aruna Balakrishnaiah <aruna@linux.vnet.ibm.com>
+Assaf Muller <amuller@redhat.com>
 Ben Turner <bturner@redhat.com>
 Bharani C.V. <bharanve@linux.vnet.ibm.com>
+Bill Yodlowsky <byodlows@redhat.com>
 Brent Eagles <beagles@redhat.com>
+Bryan Quigley <bryan.quigley@canonical.com>
 Bryn M. Reeves <bmr@redhat.com>
 Chris J Arges <chris.j.arges@ubuntu.com>
-Coty Sutherland <sutherland.coty@gmail.com>
+Chris Johnston <chrisjohnston@ubuntu.com>
+Chris Newcomer <chris.newcomer@canonical.com>
+Christy Perez <christy@linux.vnet.ibm.com>
+Coty Sutherland <csutherl@redhat.com>
+Dimitri John Ledkov <xnox@ubuntu.com>
+Eduardo Damato <eduardo.damato@canonical.com>
+Edward Hope-Morley <edward.hope-morley@canonical.com>
 Eoghan Glynn <eglynn@redhat.com>
+Eric Desrochers <eric.desrochers@canonical.com>
+Eric Rich <erich@redhat.com>
 Eric Williams <eric.williams@canonical.com>
 Eugene Teo <eteo@redhat.com>
+Felipe Reyes <felipe.reyes@canonical.com>
+Flaper Fesp <flaper87@gmail.com>
+Flavio Leitner <fbl@redhat.com>
 Flavio Percoco <fpercoco@redhat.com>
+Frank Ch. Eigler <fche@elastic.org>
 Gary Kotton <gkotton@redhat.com>
+Gaël Chamoulaud <gael.chamoulaud@gmail.com>
+Germano Veit Michel <germano@redhat.com>
 Guy Streeter <streeter@redhat.com>
+Günther Deschner <gd@samba.org>
+Harald Klein <hari@vt100.at>
+Hisanobu Okuda <hokuda@redhat.com>
+Jacob Wen <jian.w.wen@oracle.com>
+Jake Hunsaker <jhunsake@redhat.com>
 James Hunt <james.hunt@ubuntu.com>
+Jan Grant <jan.grant@hp.com>
+Jan Pokorný <jpokorny@redhat.com>
 Jeff Dutton <jeff.r.dutton@gmail.com>
 Jeff Peeler <jpeeler@redhat.com>
+Jeff Welch <whatthejeff@gmail.com>
 Jeremy Agee <jagee@redhat.com>
+Jeremy Crafts <jcrafts@redhat.com>
+Jeremy Eder <jeder@redhat.com>
 Jesse Jaggars <jjaggars@redhat.com>
+Jian Wen <jian.wen@canonical.com>
+Jiri Popelka <jpopelka@redhat.com>
+Jirka Hladky <jhladky@redhat.com>
+Joel Stanley <joel@jms.id.au>
 Joey Boggs <jboggs@redhat.com>
 John Berninger <jwb@redhat.com>
-Jorge Niedbalski <jnr@metaklass.org>
+John Haxby <john.haxby@oracle.com>
+Jon Magrini <jmagrini@redhat.com>
+Jon Stanley <jonstanley@gmail.com>
+Jorge Niedbalski <niedbalski@gmail.com>
+Jose Castillo <jcastillo@redhat.com>
 Justin Payne <jpayne@redhat.com>
+Justin Stephenson <jstephen@redhat.com>
+Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Keigo Noha <knoha@redhat.com>
 Keith Kearnan <kearnan_keith@emc.com>
+Keith Robertson <kroberts@redhat.com>
+Kenneth Koski <mechaxl@gmail.com>
 Kent Lamb <klamb@redhat.com>
+Kevin Traynor <ktraynor@redhat.com>
+Lee Yarwood <lyarwood@redhat.com>
+Leno Hou <lenohou@gmail.com>
 Louis Bouchard <louis.bouchard@canonical.com>
+Luca Miccini <luca.miccini@redhat.com>
+Luigi Toscano <ltoscano@redhat.com>
+Lukas Herbolt <lherbolt@redhat.com>
 Lukas Zapletal <lzap@redhat.com>
+Major Hayden <major@mhtx.net>
 Marc Sauton <msauton@redhat.com>
+Martin Frodl <mfrodl@redhat.com>
+Martin Schuppert <mschuppert@redhat.com>
+Michael Adam <obnox@samba.org>
 Michael Kerrin <michael.kerrin@hp.com>
+Michal Srb <msrb@redhat.com>
 Michele Baldessari <michele@acksyn.org>
+Mukesh Ojha <mukesh02@linux.vnet.ibm.com>
 Navid Sheikhol-Eslami <navid@redhat.com>
+Neependra Khare <nkhare@redhat.com>
+Nijin Ashok <nashok@redhat.com>
+Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>
+Patrick Talbert <ptalbert@redhat.com>
+Pavel Moravec <pmoravec@redhat.com>
+Pep Turro Mauri <pep@redhat.com>
+Peter Portante <peter.portante@redhat.com>
+Pierguido Lambri <plambri@redhat.com>
 Pierre Amadio  <pamadio@redhat.com>
 Pierre Carrier <pcarrier@redhat.com>
-Raphael Badin <raphael.badin@canonical.com>
+Piotr Drąg <piotrdrag@gmail.com>
+Poornima <pkshiras@redhat.com>
+Pratik Bandarkar <pbandark@redhat.com>
 Ranjith Rajaram <rrajaram@redhat.com>
+Raphael Badin <raphael.badin@canonical.com>
+Richard Brantley <brantleyr@gmail.com>
+Robb Manes <rmanes@redhat.com>
+Rohan Kanade <rkanade@redhat.com>
+Sachin <psachin@redhat.com>
 Sadique Puthen <sputhenp@redhat.com>
+Samuel Mendoza-Jonas <samjc.mj@gmail.com>
+Sandro Bonazzola <sbonazzo redhat com>
+Shane Bradley <sbradley@redhat.com>
 Shijoe George <spanjikk@redhat.com>
+Soumya Koduri <skoduri@redhat.com>
 Steve Conklin <sconklin@redhat.com>
+Tim Speetjens <tim.speetjens@redhat.com>
+Tomas Petr <tpetr@redhat.com>
 Tomas Smetana <tsmetana@redhat.com>
+Tomas Tomecek <ttomecek@redhat.com>
 Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Xavier Queralt <xqueralt@redhat.com>
+Yedidyah Bar David <didi@redhat.com>
+amitg.b14@gmail.com <amitg.b14@gmail.com>
+galstrom21 <jshepher@rackspace.com>
+hari gowtham <hgowtham@redhat.com>
+jbainbri <jbainbri@redhat.com>
+jhjaggars <jhjaggars@gmail.com>
+mulhern <amulhern@redhat.com>
+ncoghlan <ncoghlan@gmail.com>
+qsn <sd@queasysnail.net>
+spandey <spandey@redhat.com>
+tanaka_733 <tanaka-takayoshi@users.noreply.github.com>
+tiwillia@redhat.com <tiwillia@redhat.com>
 
 Companies
 ---------
@@ -49,3 +143,9 @@ EMC Corporation
 Canonical, Ltd.
 IBM Corporation
 Hewlett-Packard Development Company, L.P.
+Oracle Corporation
+
+Organizations
+-------------
+The Linux Foundation
+Samba
