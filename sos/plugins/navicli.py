@@ -30,6 +30,10 @@ class Navicli(Plugin, RedHatPlugin):
     plugin_name = 'navicli'
     profiles = ('storage', 'hardware')
 
+    option_list = [
+        ("ipaddrs", "list of CLARiiON SP IP Addresses separated by spaces", "", "")
+    ]
+
     def check_enabled(self):
         return is_executable("navicli")
 
@@ -67,21 +71,35 @@ class Navicli(Plugin, RedHatPlugin):
 
     def setup(self):
         self.get_navicli_config()
+        ipaddr_list = self.get_option_as_list("ipaddrs", delimiter = " ")
         CLARiiON_IP_address_list = []
-        CLARiiON_IP_loop = "stay_in"
-        while CLARiiON_IP_loop == "stay_in":
-            try:
-                ans = input("CLARiiON SP IP Address or [Enter] to exit: ")
-            except:
-                return
-            if self.check_ext_prog("navicli -h %s getsptime" % (ans,)):
-                CLARiiON_IP_address_list.append(ans)
+
+        if len(ipaddr_list) == 0:
+            if not self.batch:
+                CLARiiON_IP_address_list = []
+                CLARiiON_IP_loop = "stay_in"
+                while CLARiiON_IP_loop == "stay_in":
+                    try:
+                        ans = input("CLARiiON SP IP Address or [Enter] to exit: ")
+                    except:
+                        return
+                    if self.check_ext_prog("navicli -h %s getsptime" % (ans,)):
+                        CLARiiON_IP_address_list.append(ans)
+                    else:
+                        if ans != "":
+                            print("The IP address you entered, %s, is not to an "
+                                  "active CLARiiON SP." % ans)
+                        if ans == "":
+                            CLARiiON_IP_loop = "get_out"
             else:
-                if ans != "":
-                    print("The IP address you entered, %s, is not to an "
-                          "active CLARiiON SP." % ans)
-                if ans == "":
-                    CLARiiON_IP_loop = "get_out"
+                self._log_warn("No CLARiiON SP IP Address specified as plugin option and in batch mode: skipping")
+        else:
+            for SP_address in ipaddr_list:
+                if self.check_ext_prog("navicli -h %s getsptime" % (SP_address,)):
+                    CLARiiON_IP_address_list.append(SP_address)
+                else:
+                    self._log_warn("IP address %s is not an active CLARiiON SP." % SP_address)
+
         # Sort and dedup the list of CLARiiON IP Addresses
         CLARiiON_IP_address_list.sort()
         for SP_address in CLARiiON_IP_address_list:

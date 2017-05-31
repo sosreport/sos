@@ -148,6 +148,7 @@ class Plugin(object):
         self.copy_strings = []
         self.collect_cmds = []
         self.sysroot = commons['sysroot']
+        self.batch = commons['cmdlineopts'].batch
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -485,7 +486,7 @@ class Plugin(object):
         passed in via the command line or set via set_option or via the
         global_plugin_options dictionary, in that order.
 
-        optionaname may be iterable, in which case the first option that
+        optionname may be iterable, in which case the first option that
         matches any of the option names is returned.
         """
 
