@@ -1115,7 +1115,8 @@ class SoSReport(object):
 
     def list_plugins(self):
 	if  not os.geteuid() == 0:
-            self.ui_log.info(_("Plugin list unavailable, root access required."))
+            self.ui_log.info(_("Plugin list unavailable, "
+	                       "root access required."))
             return
 
         if not self.loaded_plugins and not self.skipped_plugins:
