@@ -8,9 +8,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
@@ -22,6 +22,15 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'block'
     profiles = ('storage', 'hardware')
+    option_list = [("all", "get all block info", "fast", False)]
+
+    def get_info_for_all_devices(self):
+        block_devices = [blk for blk in os.listdir('/sys/block/')]
+        for blk in block_devices:
+            all_files = self.call_ext_prog("find /sys/block/%s/ -type f" % blk)
+            if all_files['status'] == 0:
+                files = all_files['output'].splitlines()
+                self.add_copy_spec(files)
 
     def setup(self):
         self.add_cmd_output([
@@ -31,6 +40,9 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "ls -lanR /dev",
             "ls -lanR /sys/block"
         ])
+
+        if self.get_option("all"):
+            self.get_info_for_all_devices()
 
         # legacy location for non-/run distributions
         self.add_copy_spec([
