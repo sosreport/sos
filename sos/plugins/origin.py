@@ -162,6 +162,12 @@ class OpenShiftOrigin(Plugin):
             ])
             self.add_journal(units="atomic-openshift-node")
 
+            # The node bridge is always named br0, collect OVS flows
+            self.add_cmd_output([
+                "ovs-ofctl -O OpenFlow13 dump-flows br0",
+                "ovs-ofctl -O OpenFlow13 dump-ports-desc br0"
+            ])
+
     def postproc(self):
         # Clear env values from objects that can contain sensitive data
         # Sample JSON content:
