@@ -75,6 +75,12 @@ class OpenStackInstack(Plugin):
                             deployment + ".log",
                             timeout=600)
 
+            # get tripleo-ui logs from swift
+            cmd = ("openstack object tripleo-ui-logs tripleo-ui.log "
+                   "--filename /var/log/tripleo-ui.log")
+            self.call_ext_prog(cmd)
+            self.add_cmd_output("/var/log/tripleo-ui.log")
+
     def postproc(self):
         protected_keys = [
             "UNDERCLOUD_TUSKAR_PASSWORD", "UNDERCLOUD_ADMIN_PASSWORD",
