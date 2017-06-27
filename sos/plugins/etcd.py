@@ -16,7 +16,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from sos.plugins import Plugin, RedHatPlugin
-import socket
 
 
 class etcd(Plugin, RedHatPlugin):
@@ -24,32 +23,31 @@ class etcd(Plugin, RedHatPlugin):
     """etcd plugin
     """
 
-    def port_report(self):
-        """ Until etcd v2, the daemon listens on port 4001 for backward
-        compatibility of v2.0 eariler. But etcd v3 no loger litens on 
-        port 4001 and it listens on port 2379 only. 
-        To collect information in any version, this plugin should check 
-        which port is available.
-        """
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.sock.connect(("localhost", 2379))
-        except socket.error, msg:
-            self.sock.close()
-            return "4001"
-        self.sock.close()
-        return "2379"
+    def report_url_and_port(self):
+        access_url_port = 'http://localhost:4001'
+        peer_flag = False
+        f = open('/etc/etcd/etcd.conf', 'r')
+
+        for line in f:
+            if line.startswith('ETCD_LISTEN_CLIENT_URLS='):
+                access_url_port = line[len('ETCD_LISTEN_CLIENT_URLS='):-1]
+            elif line.startswith('[peer]'):
+                peer_flag = True
+            elif line.startswith('addr =') and (peer_flag is False):
+                access_url_port = line[len('addr ='):-1]
+
+        f.close()
+        return access_url_port
 
     def setup(self):
         self.add_copy_spec("/etc/etcd")
 
-        curl_command = "curl -s http://localhost:" + str(self.port_report())
-        self.add_cmd_output(str(curl_command) + "/version")
-        self.add_cmd_output(str(curl_command) + "/v2/members")
-        self.add_cmd_output(str(curl_command) + "/v2/stats/leader")
-        self.add_cmd_output(str(curl_command) + "/v2/stats/self")
-        self.add_cmd_output(str(curl_command) + "/v2/stats/store")
+        curl_command = "curl -s {}".format(self.report_url_and_port())
+        self.add_cmd_output("{}/version".format(curl_command))
+        self.add_cmd_output("{}/v2/members".format(curl_command))
+        self.add_cmd_output("{}/v2/stats/leader".format(curl_command))
+        self.add_cmd_output("{}/v2/stats/self".format(curl_command))
+        self.add_cmd_output("{}/v2/stats/store".format(curl_command))
         self.add_cmd_output("ls -lR /var/lib/etcd/")
-
 
 # vim: et ts=5 sw=4
