@@ -37,9 +37,13 @@ class OpenStackKeystone(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/keystone/", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/keystone/",
+                                "/var/log/containers/keystone/"],
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/keystone/*.log", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/keystone/*.log",
+                                "/var/log/containers/keystone/*.log"],
+                               sizelimit=self.limit)
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))

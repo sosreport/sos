@@ -36,7 +36,8 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
             "/var/lib/pacemaker/cib/cib.xml",
             self.defaults,
             "/var/log/pacemaker.log",
-            "/var/log/pcsd/pcsd.log"
+            "/var/log/pcsd/pcsd.log",
+            "/var/log/pacemaker/bundles/*/",
         ])
         self.add_cmd_output([
             "crm_mon -1 -A -n -r -t",

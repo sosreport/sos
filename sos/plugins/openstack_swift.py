@@ -31,9 +31,13 @@ class OpenStackSwift(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/swift/", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/swift/",
+                                "/var/log/containers/swift/"],
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/swift/*.log", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/swift/*.log",
+                                "/var/log/containers/swift/*.log"],
+                               sizelimit=self.limit)
 
         self.add_copy_spec("/etc/swift/")
 

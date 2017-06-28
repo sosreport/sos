@@ -40,12 +40,14 @@ class Mysql(Plugin):
             # Required for MariaDB under pacemaker (MariaDB-Galera)
             "/var/log/mysqld.log",
             "/var/log/mysql/mysqld.log",
+            "/var/log/containers/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
         ])
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/mysql*",
+                "/var/log/containers/mysql*",
                 "/var/log/mariadb*"
             ])
 
