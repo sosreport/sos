@@ -33,7 +33,6 @@ class Smartcard(Plugin, RedHatPlugin):
             "/etc/reader.conf.d/",
             "/etc/pam_pkcs11/"])
         self.add_cmd_output([
-            "pkcs11_inspect debug",
             "pklogin_finder debug",
             "ls -nl /usr/lib*/pam_pkcs11/"
         ])
