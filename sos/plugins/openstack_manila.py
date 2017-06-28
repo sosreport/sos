@@ -29,10 +29,12 @@ class OpenStackManila(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/manila/*",
+            self.add_copy_spec(["/var/log/manila/*",
+                                "/var/log/containers/manila/*"],
                                sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/manila/*.log",
+            self.add_copy_spec(["/var/log/manila/*.log",
+                                "/var/log/containers/manila/*.log"],
                                sizelimit=self.limit)
 
     def postproc(self):

@@ -32,9 +32,13 @@ class OpenStackHorizon(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/horizon/", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/horizon/",
+                                "/var/log/containers/horizon/"],
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/horizon/*.log", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/horizon/*.log",
+                                "/var/log/containers/horizon/*.log"],
+                               sizelimit=self.limit)
 
         self.add_copy_spec("/etc/openstack-dashboard/")
         self.add_forbidden_path("*.py[co]")

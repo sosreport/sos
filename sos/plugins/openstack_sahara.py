@@ -32,9 +32,13 @@ class OpenStackSahara(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/sahara/", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/sahara/",
+                                "/var/log/containers/sahara/"],
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/sahara/*.log", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/sahara/*.log",
+                                "/var/log/containers/sahara/*.log"],
+                               sizelimit=self.limit)
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))

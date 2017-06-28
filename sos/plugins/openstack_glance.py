@@ -38,9 +38,13 @@ class OpenStackGlance(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/glance/", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/glance/",
+                                "/var/log/containers/glance/"],
+                               sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/glance/*.log", sizelimit=self.limit)
+            self.add_copy_spec(["/var/log/glance/*.log",
+                                "/var/log/containers/glance/*.log"],
+                               sizelimit=self.limit)
 
         self.add_copy_spec("/etc/glance/")
 

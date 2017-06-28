@@ -30,7 +30,8 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/mongodb.conf",
-            "/var/log/mongodb/mongodb.log"
+            "/var/log/mongodb/mongodb.log",
+            "/var/log/containers/mongodb/mongodb.log"
         ])
 
     def postproc(self):

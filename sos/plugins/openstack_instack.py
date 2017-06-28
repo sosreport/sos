@@ -34,14 +34,18 @@ class OpenStackInstack(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/mistral/",
+            self.add_copy_spec(["/var/log/mistral/",
+                                "/var/log/containers/mistral/"],
                                sizelimit=self.limit)
-            self.add_copy_spec("/var/log/zaqar/",
+            self.add_copy_spec(["/var/log/zaqar/",
+                                "/var/log/containers/zaqar/"],
                                sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/mistral/*.log",
+            self.add_copy_spec(["/var/log/mistral/*.log",
+                                "/var/log/containers/mistral/*.log"],
                                sizelimit=self.limit)
-            self.add_copy_spec("/var/log/zaqar/*.log",
+            self.add_copy_spec(["/var/log/zaqar/*.log",
+                                "/var/log/containers/zaqar/*.log"],
                                sizelimit=self.limit)
 
         vars = [p in os.environ for p in [
