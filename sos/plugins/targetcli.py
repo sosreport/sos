@@ -31,6 +31,7 @@ class TargetCli(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "systemctl status target.service"
         ])
         self.add_journal(units="targetcli")
+        self.add_copy_spec("/sys/kernel/config/target")
         self.add_copy_spec("/etc/target")
 
 # vim: set et ts=4 sw=4 :
