@@ -35,9 +35,13 @@ class OpenStackNova(Plugin):
         self.add_cmd_output("nova-manage fixed list")
         self.add_cmd_output("nova-manage floating list")
 
-        vars = [p in os.environ for p in [
-                'OS_USERNAME', 'OS_PASSWORD', 'OS_TENANT_NAME']]
-        if not all(vars):
+        vars_all = [p in os.environ for p in [
+                    'OS_USERNAME', 'OS_PASSWORD']]
+
+        vars_any = [p in os.environ for p in [
+                    'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+
+        if not (all(vars_all) and any(vars_any)):
             self.soslog.warning("Not all environment variables set. Source "
                                 "the environment file for the user intended "
                                 "to connect to the OpenStack environment.")
