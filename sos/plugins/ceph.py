@@ -12,6 +12,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import glob
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
@@ -51,10 +52,28 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_copy_spec([
             "/etc/ceph/",
-            "/etc/calamari/",
             "/var/lib/ceph/",
-            "/var/run/ceph/"
+            "/var/run/ceph/",
+            "/etc/calamari/"
         ])
+
+        # collect logs and apply log_size for individual files
+        # all_logs will prevent log_size and collect everything
+        if not self.get_option("all_logs"):
+            limit = self.get_option("log_size")
+            self.add_copy_spec_limit("/var/log/ceph/*.log",
+                                     sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/calamari/*.log",
+                                     sizelimit=limit)
+            self.add_copy_spec_limit("/var/log/radosgw/*.log",
+                                     sizelimit=limit)
+
+        else:
+            self.add_copy_spec([
+                "/var/log/ceph/",
+                "/var/log/calamari/",
+                "/var/log/radosgw/"
+            ])
 
         self.add_cmd_output([
             "ceph status",
