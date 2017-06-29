@@ -31,7 +31,10 @@ class CertificateSystem(Plugin, RedHatPlugin):
     packages = (
         "redhat-cs",
         "rhpki-common",
-        "pki-common"
+        "pki-common",
+        "redhat-pki",
+        "dogtag-pki",
+        "pki-base"
     )
 
     files = (
@@ -47,12 +50,17 @@ class CertificateSystem(Plugin, RedHatPlugin):
                 len(glob("/var/lib/rhpki-*")):
             return 73
         # 8 should cover dogtag
-        elif self.is_installed("pki-common") or exists("/usr/share/java/pki"):
+        elif self.is_installed("pki-common"):
             return 8
+        elif self.is_installed("redhat-pki") or \
+                self.is_installed("dogtag-pki") or \
+                self.is_installed("pki-base"):
+            return 9
         return False
 
     def setup(self):
         csversion = self.checkversion()
+
         if not csversion:
             self.add_alert("Red Hat Certificate System not found.")
             return
@@ -95,6 +103,26 @@ class CertificateSystem(Plugin, RedHatPlugin):
                 "/var/log/pki-*/ra-debug.log",
                 "/var/log/pki-*/transactions",
                 "/var/log/pki-*/system"
+            ])
+        if csversion == 9:
+            # Get logs and configs for each subsystem if installed
+            for subsystem in ('ca', 'kra', 'ocsp', 'tks', 'tps'):
+                self.add_copy_spec([
+                    "/var/lib/pki/*/" + subsystem + "/conf/CS.cfg",
+                    "/var/lib/pki/*/logs/" + subsystem + "/system",
+                    "/var/lib/pki/*/logs/" + subsystem + "/transactions",
+                    "/var/lib/pki/*/logs/" + subsystem + "/debug",
+                    "/var/lib/pki/*/logs/" + subsystem + "/selftests.log"
+                ])
+
+            # Common log files
+            self.add_copy_spec([
+                "/var/lib/pki/*/logs/catalina.*",
+                "/var/lib/pki/*/logs/localhost*.log",
+                "/var/lib/pki/*/logs/localhost*.txt",
+                "/var/lib/pki/*/logs/manager*.log",
+                "/var/lib/pki/*/logs/host-manager*.log",
+                "/var/lib/pki/*/logs/tps/tokendb-audit.log"
             ])
 
 # vim: set et ts=4 sw=4 :
