@@ -75,6 +75,9 @@ class OpenStackInstack(Plugin):
                             deployment + ".log",
                             timeout=600)
 
+            self.add_cmd_output("openstack object save "
+                                "tripleo-ui-logs tripleo-ui.logs --file -")
+
     def postproc(self):
         protected_keys = [
             "UNDERCLOUD_TUSKAR_PASSWORD", "UNDERCLOUD_ADMIN_PASSWORD",
