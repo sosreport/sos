@@ -27,8 +27,8 @@ class NfsGanesha(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/ganesha",
             "/etc/sysconfig/ganesha",
             "/var/run/sysconfig/ganesha",
-            "/var/log/ganesha.log",
-            "/var/log/ganesha-gfapi.log"
+            "/var/log/ganesha*log*",
+            "/var/log/ganesha-gfapi*log*"
         ])
 
         self.add_cmd_output([
