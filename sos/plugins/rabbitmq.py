@@ -20,7 +20,11 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     plugin_name = 'rabbitmq'
     profiles = ('services',)
-    files = ('/etc/rabbitmq/rabbitmq.conf',)
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/rabbitmq"
+    files = (
+        '/etc/rabbitmq/rabbitmq.conf',
+        var_puppet_gen + '/etc/rabbitmq/rabbitmq.config'
+    )
     packages = ('rabbitmq-server',)
 
     def setup(self):
@@ -28,8 +32,16 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("rabbitmqctl cluster_status")
         self.add_cmd_output("rabbitmqctl list_policies")
 
-        self.add_copy_spec("/etc/rabbitmq/*")
-        self.add_copy_spec(["/var/log/rabbitmq/*",
-                            "/var/log/containers/rabbitmq/*"],
-                           sizelimit=self.get_option('log_size'))
+        self.add_copy_spec([
+            "/etc/rabbitmq/*",
+            self.var_puppet_gen + "/etc/rabbitmq/*",
+            self.var_puppet_gen + "/etc/security/limits.d/",
+            self.var_puppet_gen + "/etc/systemd/"
+        ])
+        self.add_copy_spec([
+            "/var/log/rabbitmq/*",
+            "/var/log/containers/rabbitmq/*"
+        ], sizelimit=self.get_option('log_size'))
+
+
 # vim: set et ts=4 sw=4 :

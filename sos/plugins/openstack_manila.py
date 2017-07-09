@@ -24,18 +24,25 @@ class OpenStackManila(Plugin):
     profiles = ('openstack', 'openstack_controller')
     option_list = []
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/manila"
+
     def setup(self):
-        self.add_copy_spec("/etc/manila/")
+        self.add_copy_spec([
+            "/etc/manila/",
+            self.var_puppet_gen + "/etc/manila/"
+        ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/manila/*",
-                                "/var/log/containers/manila/*"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/manila/*",
+                "/var/log/containers/manila/*"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/manila/*.log",
-                                "/var/log/containers/manila/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/manila/*.log",
+                "/var/log/containers/manila/*.log"
+            ], sizelimit=self.limit)
 
     def postproc(self):
         protect_keys = [
@@ -47,6 +54,10 @@ class OpenStackManila(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/manila/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/manila/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianManila(OpenStackManila, DebianPlugin, UbuntuPlugin):

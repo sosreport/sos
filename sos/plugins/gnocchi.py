@@ -33,8 +33,17 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
 
     requires_root = False
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/gnocchi"
+
     def setup(self):
-        self.add_copy_spec("/etc/gnocchi/")
+        self.add_copy_spec([
+            "/etc/gnocchi/*",
+            self.var_puppet_gen + "/etc/gnocchi/*",
+            self.var_puppet_gen + "/etc/httpd/conf/*",
+            self.var_puppet_gen + "/etc/httpd/conf.d/*",
+            self.var_puppet_gen + "/etc/httpd/conf.modules.d/wsgi.conf",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
+        ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
@@ -70,5 +79,12 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
             r"password=(.*)",
             r"password=*****",
         )
+        self.do_file_sub(
+            self.var_puppet_gen + "/etc/gnocchi/"
+            "gnocchi.conf",
+            r"password=(.*)",
+            r"password=*****",
+        )
+
 
 # vim: set et ts=4 sw=4 :

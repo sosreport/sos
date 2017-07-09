@@ -25,9 +25,11 @@ class Iscsi(Plugin):
     profiles = ('storage',)
 
     def setup(self):
+        var_puppet_gen = "/var/lib/config-data/puppet-generated/iscsid"
         self.add_copy_spec([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
+            var_puppet_gen + "/etc/iscsi/initiatorname.iscsi",
             "/var/lib/iscsi"
         ])
         self.add_cmd_output([

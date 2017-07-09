@@ -26,24 +26,34 @@ class OpenStackKeystone(Plugin):
     profiles = ('openstack', 'openstack_controller')
 
     option_list = [("nopw", "dont gathers keystone passwords", "slow", True)]
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/keystone"
 
     def setup(self):
         self.add_copy_spec([
             "/etc/keystone/default_catalog.templates",
             "/etc/keystone/keystone.conf",
             "/etc/keystone/logging.conf",
-            "/etc/keystone/policy.json"
+            "/etc/keystone/policy.json",
+            self.var_puppet_gen + "/etc/keystone/*.conf",
+            self.var_puppet_gen + "/etc/keystone/*.json",
+            self.var_puppet_gen + "/etc/httpd/conf/",
+            self.var_puppet_gen + "/etc/httpd/conf.d/",
+            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "/var/spool/cron/",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/keystone/",
-                                "/var/log/containers/keystone/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/keystone/",
+                "/var/log/containers/keystone/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/keystone/*.log",
-                                "/var/log/containers/keystone/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/keystone/*.log",
+                "/var/log/containers/keystone/*.log"
+            ], sizelimit=self.limit)
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -71,6 +81,10 @@ class OpenStackKeystone(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/keystone/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/keystone/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
