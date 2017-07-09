@@ -27,19 +27,25 @@ class OpenStackCeilometer(Plugin):
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
     option_list = []
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/ceilometer"
 
     def setup(self):
         # Ceilometer
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/ceilometer/",
-                                "/var/log/containers/ceilometer/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/ceilometer/*",
+                "/var/log/containers/ceilometer/*"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/ceilometer/*.log",
-                                "/var/log/containers/ceilometer/*.log"],
-                               sizelimit=self.limit)
-        self.add_copy_spec("/etc/ceilometer/")
+            self.add_copy_spec([
+                "/var/log/ceilometer/*.log",
+                "/var/log/containers/ceilometer/*.log"
+            ], sizelimit=self.limit)
+        self.add_copy_spec([
+            "/etc/ceilometer/*",
+            self.var_puppet_gen + "/etc/ceilometer/*"
+        ])
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
@@ -54,6 +60,10 @@ class OpenStackCeilometer(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/ceilometer/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/ceilometer/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianCeilometer(OpenStackCeilometer, DebianPlugin,

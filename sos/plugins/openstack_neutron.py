@@ -25,19 +25,26 @@ class OpenStackNeutron(Plugin):
     plugin_name = "openstack_neutron"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/neutron"
+
     def setup(self):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/neutron/",
-                                "/var/log/containers/neutron/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/neutron/",
+                "/var/log/containers/neutron/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/neutron/*.log",
-                                "/var/log/containers/neutron/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/neutron/*.log",
+                "/var/log/containers/neutron/*.log"
+            ], sizelimit=self.limit)
 
-        self.add_copy_spec("/etc/neutron/")
+        self.add_copy_spec([
+            "/etc/neutron/",
+            self.var_puppet_gen + "/etc/neutron/"
+        ])
         self.add_copy_spec("/var/lib/neutron/")
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -75,6 +82,10 @@ class OpenStackNeutron(Plugin):
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
         self.do_path_regex_sub("/etc/neutron/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/neutron/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):

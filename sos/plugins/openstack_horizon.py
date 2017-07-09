@@ -27,36 +27,58 @@ class OpenStackHorizon(Plugin):
     plugin_name = "openstack_horizon"
     profiles = ('openstack', 'openstack_controller')
     option_list = []
+    var_puppet_gen = "/var/lib/config-data/puppet-generated"
 
     def setup(self):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/horizon/",
-                                "/var/log/containers/horizon/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/horizon/",
+                "/var/log/containers/horizon/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/horizon/*.log",
-                                "/var/log/containers/horizon/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/horizon/*.log",
+                "/var/log/containers/horizon/*.log"
+            ], sizelimit=self.limit)
 
-        self.add_copy_spec("/etc/openstack-dashboard/")
+        self.add_copy_spec([
+            "/etc/openstack-dashboard/",
+            self.var_puppet_gen + "/horizon/etc/openstack-dashboard/",
+            self.var_puppet_gen + "/horizon/etc/httpd/conf/",
+            self.var_puppet_gen + "/horizon/etc/httpd/conf.d/",
+            self.var_puppet_gen + "/horizon/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "/memcached/etc/sysconfig/memcached"
+        ])
         self.add_forbidden_path("*.py[co]")
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def postproc(self):
+        var_puppet_gen = self.var_puppet_gen + "/horizon"
         protect_keys = [
             "SECRET_KEY", "EMAIL_HOST_PASSWORD"
         ]
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/openstack-dashboard/.*\.json",
-                               regexp, r"\1*********")
-        self.do_path_regex_sub("/etc/openstack-dashboard/local_settings/ + \
-                               .*\.conf.*",
-                               regexp, r"\1*********")
+        self.do_path_regex_sub(
+            "/etc/openstack-dashboard/.*\.json",
+            regexp, r"\1*********"
+        )
+        self.do_path_regex_sub(
+            var_puppet_gen + "/etc/openstack-dashboard/.*\.json",
+            regexp, r"\1*********"
+        )
+        self.do_path_regex_sub(
+            "/etc/openstack-dashboard/local_settings/.*\.conf.*",
+            regexp, r"\1*********"
+        )
+        self.do_path_regex_sub(
+            var_puppet_gen + "/etc/openstack-dashboard/.*\.conf.*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianHorizon(OpenStackHorizon, DebianPlugin):

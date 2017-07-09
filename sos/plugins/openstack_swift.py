@@ -27,19 +27,29 @@ class OpenStackSwift(Plugin):
 
     option_list = []
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated"
+
     def setup(self):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/swift/",
-                                "/var/log/containers/swift/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/swift/",
+                "/var/log/containers/swift/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/swift/*.log",
-                                "/var/log/containers/swift/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/swift/*.log",
+                "/var/log/containers/swift/*.log"
+            ], sizelimit=self.limit)
 
-        self.add_copy_spec("/etc/swift/")
+        self.add_copy_spec([
+            "/etc/swift/",
+            self.var_puppet_gen + "/swift/etc/*",
+            self.var_puppet_gen + "/swift/etc/swift/*",
+            self.var_puppet_gen + "/swift/etc/xinetd.d/*",
+            self.var_puppet_gen + "/memcached/etc/sysconfig/memcached"
+        ])
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -54,6 +64,10 @@ class OpenStackSwift(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/swift/.*\.conf.*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/swift/etc/swift/.*\.conf.*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):

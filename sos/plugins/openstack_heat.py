@@ -26,6 +26,7 @@ class OpenStackHeat(Plugin):
     profiles = ('openstack', 'openstack_controller')
 
     option_list = []
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/heat"
 
     def setup(self):
         # Heat
@@ -49,15 +50,31 @@ class OpenStackHeat(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/heat/",
-                                "/var/log/containers/heat/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/heat/",
+                "/var/log/containers/heat/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/heat/*.log",
-                                "/var/log/containers/heat/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/heat/*.log",
+                "/var/log/containers/heat/*.log"
+            ], sizelimit=self.limit)
 
-        self.add_copy_spec("/etc/heat/")
+        self.add_copy_spec([
+            "/etc/heat/",
+            self.var_puppet_gen + "/etc/heat/",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
+            self.var_puppet_gen + "_api/etc/heat/",
+            self.var_puppet_gen + "_api/etc/httpd/conf/",
+            self.var_puppet_gen + "_api/etc/httpd/conf.d/",
+            self.var_puppet_gen + "_api/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "_api/var/spool/cron/heat",
+            self.var_puppet_gen + "_api_cfn/etc/heat/",
+            self.var_puppet_gen + "_api_cfn/etc/httpd/conf/",
+            self.var_puppet_gen + "_api_cfn/etc/httpd/conf.d/",
+            self.var_puppet_gen + "_api_cfn/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "_api_cfn/var/spool/cron/heat",
+        ])
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -69,7 +86,21 @@ class OpenStackHeat(Plugin):
         ]
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/heat/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            "/etc/heat/*",
+            regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/heat/*",
+            regexp, r"\1*********"
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "_api/etc/heat/*",
+            regexp, r"\1*********"
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "_api_cfn/etc/heat/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
