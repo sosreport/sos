@@ -808,8 +808,7 @@ class SoSReport(object):
             pdb.pm()
 
     def _exit(self, error=0):
-        raise SystemExit()
-#        sys.exit(error)
+        raise SystemExit(error)
 
     def get_exit_handler(self):
         def exit_handler(signum, frame):
@@ -1195,9 +1194,9 @@ class SoSReport(object):
             msg += _("Press ENTER to continue, or CTRL-C to quit.\n")
             try:
                 input(msg)
-            except:
+            except Exception as err:
                 self.ui_log.info("")
-                self._exit()
+                self._exit(err)
 
     def _log_plugin_exception(self, plugin, method):
         trace = traceback.format_exc()
@@ -1610,7 +1609,7 @@ class SoSReport(object):
 
             return self.final_work()
 
-        except (OSError, SystemExit, KeyboardInterrupt):
+        except (OSError, SystemExit, KeyboardInterrupt) as to_be_raised:
             try:
                 # archive and tempfile cleanup may fail due to a fatal
                 # OSError exception (ENOSPC, EROFS etc.).
@@ -1622,6 +1621,8 @@ class SoSReport(object):
                     rmtree(self.tmpdir)
             except:
                 raise
+
+            self._exit(to_be_raised)
 
         return False
 
