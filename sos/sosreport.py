@@ -26,7 +26,8 @@ import traceback
 import os
 import errno
 import logging
-from optparse import OptionParser, Option
+
+from argparse import ArgumentParser, Action
 from sos.plugins import import_plugin
 from sos.utilities import ImporterHelper
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
@@ -102,43 +103,15 @@ class TempFileUtil(object):
         self.files = []
 
 
-class OptionParserExtended(OptionParser):
-
-    """ Show examples """
-
-    def print_help(self, out=sys.stdout):
-        """ Prints help content including examples """
-        OptionParser.print_help(self, out)
-        print_()
-        print_("Some examples:")
-        print_()
-        print_(" enable dlm plugin only and collect dlm lockdumps:")
-        print_("   # sosreport -o dlm -k dlm.lockdump")
-        print_()
-        print_(" disable memory and samba plugins, turn off rpm -Va "
-               "collection:")
-        print_("   # sosreport -n memory,samba -k rpm.rpmva=off")
-        print_()
-
-
-class SosOption(Option):
+class SosListOption(Action):
 
     """Allow to specify comma delimited list of plugins"""
-    ACTIONS = Option.ACTIONS + ("extend",)
-    STORE_ACTIONS = Option.STORE_ACTIONS + ("extend",)
-    TYPED_ACTIONS = Option.TYPED_ACTIONS + ("extend",)
 
-    def take_action(self, action, dest, opt, value, values, parser):
-        """ Performs list extension on plugins """
-        if action == "extend":
-            try:
-                lvalue = value.split(",")
-            except:
-                pass
-            else:
-                values.ensure_value(dest, deque()).extend(lvalue)
-        else:
-            Option.take_action(self, action, dest, opt, value, values, parser)
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = [opt for opt in values.split(',')]
+        if getattr(namespace, self.dest):
+            items += getattr(namespace, self.dest)
+        setattr(namespace, self.dest, items)
 
 
 class XmlReport(object):
@@ -577,96 +550,105 @@ class SoSOptions(object):
     def _parse_args(self, args):
         """ Parse command line options and arguments"""
 
-        self.parser = parser = OptionParserExtended(option_class=SosOption)
-        parser.add_option("-l", "--list-plugins", action="store_true",
-                          dest="list_plugins", default=False,
-                          help="list plugins and available plugin options")
-        parser.add_option("-n", "--skip-plugins", action="extend",
-                          dest="noplugins", type="string",
-                          help="disable these plugins", default=deque())
-        parser.add_option("--experimental", action="store_true",
-                          dest="experimental", default=False,
-                          help="enable experimental plugins")
-        parser.add_option("-e", "--enable-plugins", action="extend",
-                          dest="enableplugins", type="string",
-                          help="enable these plugins", default=deque())
-        parser.add_option("-o", "--only-plugins", action="extend",
-                          dest="onlyplugins", type="string",
-                          help="enable these plugins only", default=deque())
-        parser.add_option("-k", "--plugin-option", action="extend",
-                          dest="plugopts", type="string",
-                          help="plugin options in plugname.option=value "
-                               "format (see -l)",
-                          default=deque())
-        parser.add_option("--log-size", action="store",
-                          dest="log_size", default=10, type="int",
-                          help="set a limit on the size of collected logs "
-                               "(in MiB)")
-        parser.add_option("-a", "--alloptions", action="store_true",
-                          dest="usealloptions", default=False,
-                          help="enable all options for loaded plugins")
-        parser.add_option("--all-logs", action="store_true",
-                          dest="all_logs", default=False,
-                          help="collect all available logs regardless of size")
-        parser.add_option("--batch", action="store_true",
-                          dest="batch", default=False,
-                          help="batch mode - do not prompt interactively")
-        parser.add_option("--build", action="store_true",
-                          dest="build", default=False,
-                          help="preserve the temporary directory and do not "
-                               "package results")
-        parser.add_option("-v", "--verbose", action="count",
-                          dest="verbosity",
-                          help="increase verbosity")
-        parser.add_option("", "--verify", action="store_true",
-                          dest="verify", default=False,
-                          help="perform data verification during collection")
-        parser.add_option("", "--quiet", action="store_true",
-                          dest="quiet", default=False,
-                          help="only print fatal errors")
-        parser.add_option("--debug", action="count",
-                          dest="debug",
-                          help="enable interactive debugging using the python "
-                               "debugger")
-        parser.add_option("--ticket-number", action="store",
-                          dest="case_id",
-                          help="specify ticket number")
-        parser.add_option("--case-id", action="store",
-                          dest="case_id",
-                          help="specify case identifier")
-        parser.add_option("-p", "--profile", action="extend",
-                          dest="profiles", type="string", default=deque(),
-                          help="enable plugins selected by the given profiles")
-        parser.add_option("--list-profiles", action="store_true",
-                          dest="list_profiles", default=False,
-                          help="display a list of available profiles and "
-                               "plugins that they include")
-        parser.add_option("--name", action="store",
-                          dest="customer_name",
-                          help="specify report name")
-        parser.add_option("--config-file", action="store",
-                          dest="config_file",
-                          help="specify alternate configuration file")
-        parser.add_option("--tmp-dir", action="store",
-                          dest="tmp_dir",
-                          help="specify alternate temporary directory",
-                          default=None)
-        parser.add_option("--no-report", action="store_true",
-                          dest="noreport",
-                          help="disable HTML/XML reporting", default=False)
-        parser.add_option("-s", "--sysroot", action="store", dest="sysroot",
-                          help="system root directory path (default='/')",
-                          default=None)
-        parser.add_option("-c", "--chroot", action="store", dest="chroot",
-                          help="chroot executed commands to SYSROOT "
-                               "[auto, always, never] (default=auto)",
-                               default="auto")
-        parser.add_option("-z", "--compression-type", dest="compression_type",
-                          help="compression technology to use [auto, "
-                               "gzip, bzip2, xz] (default=auto)",
-                          default="auto")
+        usage_string = ("%(prog)s [options]\n\n"
+                        "Some examples:\n\n"
+                        "enable dlm plugin only and collect dlm lockdumps:\n"
+                        "  # sosreport -o dlm -k dlm.lockdump\n\n"
+                        "disable memory and samba plugins, turn off rpm "
+                        "-Va collection:\n"
+                        "  # sosreport -n memory,samba -k rpm.rpmva=off")
 
-        return parser.parse_args(args)[0]
+        self.parser = parser = ArgumentParser(usage=usage_string)
+        parser.register('action', 'extend', SosListOption)
+        parser.add_argument("-l", "--list-plugins", action="store_true",
+                            dest="list_plugins", default=False,
+                            help="list plugins and available plugin options")
+        parser.add_argument("-n", "--skip-plugins", action="extend",
+                            dest="noplugins", type=str,
+                            help="disable these plugins", default=deque())
+        parser.add_argument("--experimental", action="store_true",
+                            dest="experimental", default=False,
+                            help="enable experimental plugins")
+        parser.add_argument("-e", "--enable-plugins", action="extend",
+                            dest="enableplugins", type=str,
+                            help="enable these plugins", default=deque())
+        parser.add_argument("-o", "--only-plugins", action="extend",
+                            dest="onlyplugins", type=str,
+                            help="enable these plugins only", default=deque())
+        parser.add_argument("-k", "--plugin-option", action="extend",
+                            dest="plugopts", type=str,
+                            help="plugin options in plugname.option=value "
+                                 "format (see -l)",
+                            default=deque())
+        parser.add_argument("--log-size", action="store",
+                            dest="log_size", default=10, type=int,
+                            help="set a limit on the size of collected logs "
+                                 "(in MiB)")
+        parser.add_argument("-a", "--alloptions", action="store_true",
+                            dest="usealloptions", default=False,
+                            help="enable all options for loaded plugins")
+        parser.add_argument("--all-logs", action="store_true",
+                            dest="all_logs", default=False,
+                            help="collect all available logs regardless "
+                                 "of size")
+        parser.add_argument("--batch", action="store_true",
+                            dest="batch", default=False,
+                            help="batch mode - do not prompt interactively")
+        parser.add_argument("--build", action="store_true",
+                            dest="build", default=False,
+                            help="preserve the temporary directory and do not "
+                                 "package results")
+        parser.add_argument("-v", "--verbose", action="count",
+                            dest="verbosity", help="increase verbosity")
+        parser.add_argument("--verify", action="store_true",
+                            dest="verify", default=False,
+                            help="perform data verification during collection")
+        parser.add_argument("--quiet", action="store_true",
+                            dest="quiet", default=False,
+                            help="only print fatal errors")
+        parser.add_argument("--debug", action="count",
+                            dest="debug",
+                            help="enable interactive debugging using the "
+                                 "python debugger")
+        parser.add_argument("--ticket-number", action="store",
+                            dest="case_id",
+                            help="specify ticket number")
+        parser.add_argument("--case-id", action="store",
+                            dest="case_id",
+                            help="specify case identifier")
+        parser.add_argument("-p", "--profile", action="extend",
+                            dest="profiles", type=str, default=deque(),
+                            help="enable plugins used by the given profiles")
+        parser.add_argument("--list-profiles", action="store_true",
+                            dest="list_profiles", default=False,
+                            help="display a list of available profiles and "
+                                 "plugins that they include")
+        parser.add_argument("--name", action="store",
+                            dest="customer_name",
+                            help="specify report name")
+        parser.add_argument("--config-file", action="store",
+                            dest="config_file",
+                            help="specify alternate configuration file")
+        parser.add_argument("--tmp-dir", action="store",
+                            dest="tmp_dir",
+                            help="specify alternate temporary directory",
+                            default=None)
+        parser.add_argument("--no-report", action="store_true",
+                            dest="noreport",
+                            help="disable HTML/XML reporting", default=False)
+        parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
+                            help="system root directory path (default='/')",
+                            default=None)
+        parser.add_argument("-c", "--chroot", action="store", dest="chroot",
+                            help="chroot executed commands to SYSROOT "
+                                 "[auto, always, never] (default=auto)",
+                            default="auto")
+        parser.add_argument("-z", "--compression-type",
+                            dest="compression_type", default="auto",
+                            help="compression technology to use [auto, "
+                                 "gzip, bzip2, xz] (default=auto)")
+
+        return parser.parse_args(args)
 
 
 class SoSReport(object):
