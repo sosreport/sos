@@ -23,15 +23,48 @@ class etcd(Plugin, RedHatPlugin):
     """etcd plugin
     """
 
-    def setup(self):
-        self.add_copy_spec("/etc/etcd")
+    packages = ('etcd',)
 
-        self.add_cmd_output("curl http://localhost:4001/version")
-        self.add_cmd_output("curl http://localhost:4001/v2/members")
-        self.add_cmd_output("curl http://localhost:4001/v2/stats/leader")
-        self.add_cmd_output("curl http://localhost:4001/v2/stats/self")
-        self.add_cmd_output("curl http://localhost:4001/v2/stats/store")
+    cmd = 'etcdctl'
+
+    def setup(self):
+        etcd_url = self.get_etcd_url()
+
+        self.add_copy_spec('/etc/etcd')
+
+        subcmds = [
+           '--version',
+           'member list',
+           'cluster-health',
+           'ls --recursive',
+        ]
+
+        self.add_cmd_output(['%s %s' % (self.cmd, sub) for sub in subcmd])
+
+        urls = [
+            '/v2/stats/leader',
+            '/v2/stats/self',
+            '/v2/stats/store',
+        ]
+
+        if etcd_url:
+            self.add_cmd_output(['curl -s %s%s' % (etcd_url, u) for u in urls])
+
         self.add_cmd_output("ls -lR /var/lib/etcd/")
 
+    def get_etcd_url(self):
+        try:
+            with open('/etc/etcd/etcd.conf', 'r') as ef:
+                for line in ef:
+                    if line.startswith('ETCD_LISTEN_CLIENT_URLS'):
+                        return line.split('=')[1].replace('"', '').strip()
+        # If we can't read etcd.conf, assume defaults by etcd version
+        except:
+            ver = self.policy().package_manager.get_pkg_list()['etcd']
+            ver = ver['version'][0]
+            if ver == '2':
+                return 'http://localhost:4001'
+            if ver == '3':
+                return 'http://localhost:2379'
 
 # vim: et ts=5 sw=4
