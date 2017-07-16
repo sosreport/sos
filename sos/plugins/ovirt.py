@@ -22,6 +22,7 @@ import signal
 
 
 from sos.plugins import Plugin, RedHatPlugin
+from sos.utilities import is_executable
 
 
 # Class name must be the same as file name and method names must not change
@@ -66,7 +67,7 @@ class Ovirt(Plugin, RedHatPlugin):
     ]
 
     def setup(self):
-        if self.get_option('jbosstrace'):
+        if self.get_option('jbosstrace') and self.is_installed('ovirt-engine'):
             engine_pattern = "^ovirt-engine\ -server.*jboss-modules.jar"
             pgrep = "pgrep -f '%s'" % engine_pattern
             lines = self.call_ext_prog(pgrep)['output'].splitlines()
@@ -85,7 +86,26 @@ class Ovirt(Plugin, RedHatPlugin):
         self.add_forbidden_path('/etc/rhevm/.pgpass')
         # Copy all engine tunables and domain information
         self.add_cmd_output("engine-config --all")
-        self.add_cmd_output("engine-manage-domains list")
+
+        # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
+        if is_executable('engine-manage-domains'):
+            self.add_cmd_output('engine-manage-domains list')
+        if is_executable('ovirt-engine-extensions-tool'):
+            self.add_cmd_output(
+                'ovirt-engine-extensions-tool info list-extensions'
+            )
+        if is_executable('ovirt-aaa-jdbc-tool'):
+            cmd = 'ovirt-aaa-jdbc-tool'
+            subcmds = [
+                'query --what=user',
+                'query --what=group',
+                'settings show'
+            ]
+
+            self.add_cmd_output([
+                '%s %s' % (cmd, sub) for sub in subcmds
+            ])
+
         # Copy engine config files.
         self.add_copy_spec([
             "/etc/ovirt-engine",
