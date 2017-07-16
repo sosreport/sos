@@ -791,7 +791,6 @@ class SoSReport(object):
 
     def _exit(self, error=0):
         raise SystemExit(error)
-#        sys.exit(error)
 
     def get_exit_handler(self):
         def exit_handler(signum, frame):
@@ -1177,9 +1176,9 @@ class SoSReport(object):
             msg += _("Press ENTER to continue, or CTRL-C to quit.\n")
             try:
                 input(msg)
-            except:
+            except Exception as err:
                 self.ui_log.info("")
-                self._exit()
+                self._exit(err)
 
     def _log_plugin_exception(self, plugin, method):
         trace = traceback.format_exc()
