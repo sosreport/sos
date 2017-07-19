@@ -34,7 +34,8 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         try:
             modules = os.listdir(self.sys_module)
-            self.add_cmd_output("modinfo " + " ".join(modules))
+            self.add_cmd_output("modinfo " + " ".join(modules),
+                                suggest_filename="modinfo_ALL_MODULES")
         except OSError:
             self._log_warn("could not list %s" % self.sys_module)
 
@@ -63,6 +64,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/sys/module/*/initstate",
             "/sys/module/*/refcnt",
             "/sys/module/*/taint",
+            "/sys/module/*/version",
             "/sys/firmware/acpi/*",
             "/proc/kallsyms",
             "/proc/buddyinfo",
