@@ -186,7 +186,7 @@ class Networking(Plugin):
             "ifenslave -a",
             "ip mroute show",
             "ip maddr show",
-            "ip neigh show",
+            "ip -s -s neigh show",
             "ip neigh show nud noarp",
             "biosdevname -d",
             "tc -s qdisc show",
