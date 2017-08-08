@@ -96,6 +96,29 @@ class OpenVSwitch(Plugin):
                     "ovs-ofctl show %s" % br
                 ])
 
+                # Flow protocols currently supported
+                flow_versions = ["OpenFlow10",
+                                 "OpenFlow11",
+                                 "OpenFlow12",
+                                 "OpenFlow13"]
+
+                # List protocols currently in use, if any
+                br_info_file = self.get_cmd_output_now(
+                                   "ovs-vsctl list bridge %s" % br)
+                br_info = open(br_info_file).read()
+                for line in br_info.splitlines():
+                    if "protocols" in line:
+                        br_protos_ln = line[line.find("[")+1:line.find("]")]
+                        br_protos = br_protos_ln.replace('"', '').split(", ")
+
+                # Collect flow information for relevant protocol versions only
+                for flow in flow_versions:
+                    if flow in br_protos:
+                        self.add_cmd_output([
+                            "ovs-ofctl -O %s dump-flows %s" % (flow, br),
+                            "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
+                        ])
+
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
