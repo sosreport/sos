@@ -19,7 +19,7 @@
 from __future__ import with_statement
 
 from sos.utilities import (sos_get_command_output, import_module, grep,
-                           fileobj, tail)
+                           fileobj, tail, is_executable)
 import os
 import glob
 import re
@@ -111,6 +111,7 @@ class Plugin(object):
     version = 'unversioned'
     packages = ()
     files = ()
+    commands = ()
     archive = None
     profiles = ()
     sysroot = '/'
@@ -865,23 +866,31 @@ class Plugin(object):
 
     def check_enabled(self):
         """This method will be used to verify that a plugin should execute
-        given the condition of the underlying environment. The default
-        implementation will return True if neither class.files or
-        class.packages is specified. If either are specified the plugin will
-        check for the existence of any of the supplied files or packages and
-        return True if any exist. It is encouraged to override this method if
-        this behavior isn't applicable.
+        given the condition of the underlying environment.
+
+        The default implementation will return True if none of class.files,
+        class.packages, nor class.commands is specified. If any of these is
+        specified the plugin will check for the existence of any of the
+        corresponding paths, packages or commands and return True if any
+        are present.
+
+        For plugins with more complex enablement checks this method may be
+        overridden.
         """
         # some files or packages have been specified for this package
-        if self.files or self.packages:
+        if any([self.files, self.packages, self.commands]):
             if isinstance(self.files, six.string_types):
                 self.files = [self.files]
 
             if isinstance(self.packages, six.string_types):
                 self.packages = [self.packages]
 
+            if isinstance(self.commands, six.string_types):
+                self.commands = [self.commands]
+
             return (any(os.path.exists(fname) for fname in self.files) or
-                    any(self.is_installed(pkg) for pkg in self.packages))
+                    any(self.is_installed(pkg) for pkg in self.packages) or
+                    any(is_executable(cmd) for cmd in self.commands))
         return True
 
     def default_enabled(self):
