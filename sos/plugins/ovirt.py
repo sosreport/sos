@@ -49,7 +49,7 @@ class Ovirt(Plugin, RedHatPlugin):
         /etc/
         (rhevm|ovirt-engine|ovirt-engine-dwh)/
         (engine.conf|ovirt-engine-dwhd.conf)
-        (\.d/.+.conf)?
+        (\.d/.+.conf.*?)?
         $
         """
     )
