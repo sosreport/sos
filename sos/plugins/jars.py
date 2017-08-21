@@ -31,7 +31,8 @@ class Jars(Plugin, RedHatPlugin):
     profiles = ("java",)
     option_list = [
         ("append_locations", "colon-separated list of additional JAR paths",
-         "fast", "")
+         "fast", ""),
+        ("all_known_locations", "scan all known paths", "slow", False)
     ]
 
     # There is no standard location for JAR files and scanning
@@ -39,7 +40,12 @@ class Jars(Plugin, RedHatPlugin):
     # scan directories in which JARs can be typically found.
     jar_locations = (
         "/usr/share/java",  # common location for JARs
-        "/usr/lib/java",    # common location for JARs containing native code
+        "/usr/lib/java"     # common location for JARs containing native code
+    )
+
+    # Following paths can be optionally scanned as well. Note the scan can take
+    # *very* long time.
+    extra_jar_locations = (
         "/opt",             # location for RHSCL and 3rd party software
         "/usr/local",       # used by sysadmins when installing SW locally
         "/var/lib"          # Java services commonly explode WARs there
@@ -50,9 +56,13 @@ class Jars(Plugin, RedHatPlugin):
         jar_paths = []
 
         locations = list(Jars.jar_locations)
-        extra_locations = self.get_option("append_locations")
-        if extra_locations:
-            locations += extra_locations.split(":")
+        if self.get_option("all_known_locations"):
+            locations += list(Jars.extra_jar_locations)
+
+        # append also user-defined locations, if any
+        user_locations = self.get_option("append_locations")
+        if user_locations:
+            locations += user_locations.split(":")
 
         # find all JARs in given locations
         for location in locations:
