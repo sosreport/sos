@@ -98,7 +98,7 @@ class Jars(Plugin, RedHatPlugin):
                 with zipfile.ZipFile(path) as f:
                     if "META-INF/MANIFEST.MF" in f.namelist():
                         return True
-            except IOError:
+            except (IOError, zipfile.BadZipfile):
                 pass
         return False
 
