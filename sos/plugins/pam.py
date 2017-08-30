@@ -21,6 +21,7 @@ class Pam(Plugin):
 
     plugin_name = "pam"
     profiles = ('security', 'identity', 'system')
+    verify_packages = ('pam_.*',)
     security_libs = ""
 
     def setup(self):
