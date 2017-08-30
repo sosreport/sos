@@ -26,9 +26,7 @@ class Rpm(Plugin, RedHatPlugin):
                     "fast", True),
                    ("rpmva", "runs a verify on all packages", "slow", False)]
 
-    verify_list = [
-        'rpm', 'yum'
-    ]
+    verify_packages = ('rpm',)
 
     def setup(self):
         self.add_copy_spec("/var/log/rpmpkgs")
@@ -59,21 +57,8 @@ class Rpm(Plugin, RedHatPlugin):
 
             add_rpm_cmd(query_fmt, None, None, "package-data")
 
-        if self.get_option("verify") or self.get_option("rpmva"):
-            if self.get_option("rpmva"):
-                self.add_cmd_output("rpm -Va", root_symlink="rpm-Va",
-                                    timeout=180)
-            else:
-                pkgs_by_regex = \
-                    self.policy().package_manager.all_pkgs_by_name_regex
-                verify_list = map(pkgs_by_regex, self.verify_list)
-                verify_pkgs = ""
-                for pkg_list in verify_list:
-                    for pkg in pkg_list:
-                        if 'debuginfo' in pkg or 'devel' in pkg:
-                            continue
-                        verify_pkgs = "%s %s" % (verify_pkgs, pkg)
-                self.add_cmd_output("rpm -V %s" % verify_pkgs)
-
+        if self.get_option("rpmva"):
+            self.add_cmd_output("rpm -Va", root_symlink="rpm-Va",
+                                timeout=180)
 
 # vim: set et ts=4 sw=4 :
