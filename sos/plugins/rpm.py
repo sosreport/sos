@@ -27,7 +27,7 @@ class Rpm(Plugin, RedHatPlugin):
                    ("rpmva", "runs a verify on all packages", "slow", False)]
 
     verify_list = [
-        'kernel$', 'glibc', 'initscripts',
+        'kernel$', 'initscripts',
         'pam_.*',
         'java.*', 'perl.*',
         'rpm', 'yum',
