@@ -55,12 +55,18 @@ class PackageManager(object):
     """
 
     query_command = None
+    verify_command = None
+    verify_filter = None
     chroot = None
 
-    def __init__(self, query_command=None, chroot=None):
+    def __init__(self, chroot=None, query_command=None,
+                 verify_command=None, verify_filter=None):
         self.packages = {}
-        if query_command:
-            self.query_command = query_command
+
+        self.query_command = query_command if query_command else None
+        self.verify_command = verify_command if verify_command else None
+        self.verify_filter = verify_filter if verify_filter else None
+
         if chroot:
             self.chroot = chroot
 
@@ -125,6 +131,38 @@ class PackageManager(object):
         version, release, arch = fields[-3:]
         name = "-".join(fields[:-3])
         return (name, version, release, arch)
+
+    def build_verify_command(self, packages):
+        """build_verify_command(self, packages) -> str
+            Generate a command to verify the list of packages given
+            in ``packages`` using the native package manager's
+            verification tool.
+
+            The command to be executed is returned as a string that
+            may be passed to a command execution routine (for e.g.
+            ``sos_get_command_output()``.
+
+            :param packages: a string, or a list of strings giving
+                             package names to be verified.
+            :returns: a string containing an executable command
+                      that will perform verification of the given
+                      packages.
+            :returntype: str or ``NoneType``
+        """
+        if not self.verify_command:
+            return None
+
+        by_regex = self.all_pkgs_by_name_regex
+        verify_list = map(by_regex, packages)
+        verify_packages = ""
+        for package_list in verify_list:
+            for package in package_list:
+                if any([f in package for f in self.verify_filter]):
+                    continue
+                if len(verify_packages):
+                    verify_packages += " "
+                verify_packages += package
+        return self.verify_command + " " + verify_packages
 
 
 class Policy(object):

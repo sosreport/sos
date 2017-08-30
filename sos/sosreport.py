@@ -1250,6 +1250,8 @@ class SoSReport(object):
             try:
                 plug.archive = self.archive
                 plug.setup()
+                if self.opts.verify:
+                    plug.setup_verify()
             except KeyboardInterrupt:
                 raise
             except (OSError, IOError) as e:

@@ -40,6 +40,8 @@ class RedHatPolicy(LinuxPolicy):
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
+    _rpmv_cmd = 'rpm -V'
+    _rpmv_filter = ["debuginfo", "-devel"]
     _in_container = False
     _host_sysroot = '/'
 
@@ -53,7 +55,12 @@ class RedHatPolicy(LinuxPolicy):
             self._host_sysroot = sysroot
         else:
             sysroot = self._container_init()
-        self.package_manager = PackageManager(self._rpmq_cmd, chroot=sysroot)
+
+        self.package_manager = PackageManager(query_command=self._rpmq_cmd,
+                                              verify_command=self._rpmv_cmd,
+                                              verify_filter=self._rpmv_filter,
+                                              chroot=sysroot)
+
         self.valid_subclasses = [RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()
