@@ -32,6 +32,7 @@ class Rpm(Plugin, RedHatPlugin):
         'java.*', 'perl.*',
         'rpm', 'yum',
         'spacewalk.*',
+        'zlib', 'openssl.*', 'nss.*',
     ]
 
     def setup(self):
