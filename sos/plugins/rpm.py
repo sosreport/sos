@@ -27,8 +27,7 @@ class Rpm(Plugin, RedHatPlugin):
                    ("rpmva", "runs a verify on all packages", "slow", False)]
 
     verify_list = [
-        'rpm', 'yum',
-        'spacewalk.*',
+        'rpm', 'yum'
     ]
 
     def setup(self):

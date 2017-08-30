@@ -21,6 +21,7 @@ class Satellite(Plugin, RedHatPlugin):
 
     plugin_name = 'satellite'
     profiles = ('sysmgmt',)
+    verify_packages = ('spacewalk.*',)
     satellite = False
     proxy = False
 
