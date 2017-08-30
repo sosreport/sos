@@ -20,6 +20,7 @@ class Java(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     plugin_name = "java"
     profiles = ('webserver', 'java')
+    verify_packages = ('java.*',)
 
     def setup(self):
         self.add_copy_spec("/etc/java")
