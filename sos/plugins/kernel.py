@@ -23,6 +23,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'kernel'
     profiles = ('system', 'hardware', 'kernel')
+    verify_packages = ('kernel$',)
 
     sys_module = '/sys/module'
 
