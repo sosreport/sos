@@ -24,6 +24,7 @@ class Yum(Plugin, RedHatPlugin):
 
     files = ('/etc/yum.conf',)
     packages = ('yum',)
+    verify_packages = ('yum',)
 
     option_list = [
         ("yumlist", "list repositories and packages", "slow", False),
