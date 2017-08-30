@@ -27,7 +27,6 @@ class Rpm(Plugin, RedHatPlugin):
                    ("rpmva", "runs a verify on all packages", "slow", False)]
 
     verify_list = [
-        'perl.*',
         'rpm', 'yum',
         'spacewalk.*',
     ]
