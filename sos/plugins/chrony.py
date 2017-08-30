@@ -36,7 +36,7 @@ class Chrony(Plugin, RedHatPlugin):
             "chronyc sourcestats",
             "chronyc serverstats",
             "chronyc ntpdata",
-            "chronyc clients"
+            "chronyc -n clients"
         ])
         self.add_journal(units="chronyd")
 
