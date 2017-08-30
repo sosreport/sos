@@ -28,6 +28,7 @@ from time import time
 import logging
 import fnmatch
 import errno
+import operator
 
 # PYCOMPAT
 import six
@@ -508,6 +509,21 @@ class Plugin(object):
         except Exception:
             return default
 
+    def sort_by_mtime(self, files):
+        '''sort the list of files according to their mtime from the newest to
+        the oldest.
+        '''
+        files_dict = {}
+        for _file in files:
+            try:
+                files_dict[_file] = os.path.getmtime(_file)
+            except (OSError, FileNotFoundError):
+                self._log_info("failed to stat '%s'" % _file)
+
+        sorted_list = sorted(files_dict.items(), key=operator.itemgetter(1),
+                             reverse=True)
+        return [x for x, _ in sorted_list]
+
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
@@ -534,7 +550,11 @@ class Plugin(object):
                 copyspec = self.join_sysroot(copyspec)
 
             files = self._expand_copy_spec(copyspec)
-            files.sort()
+            # if we are limited by size, sort from the newest to the oldest
+            if sizelimit and (len(files) > 1):
+                files = self.sort_by_mtime(files)
+            else:
+                files.sort()
             if len(files) == 0:
                 continue
 
