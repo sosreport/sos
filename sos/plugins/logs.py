@@ -29,7 +29,8 @@ class Logs(Plugin):
             "/etc/rsyslog.d"
         ])
 
-        self.limit = self.get_option("log_size")
+        self.limit = (None if self.get_option("all_logs")
+                      else self.get_option("log_size"))
         self.add_copy_spec("/var/log/boot.log", sizelimit=self.limit)
         self.add_copy_spec("/var/log/cloud-init*", sizelimit=self.limit)
         self.add_journal(boot="this")
