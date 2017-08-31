@@ -23,15 +23,31 @@ class etcd(Plugin, RedHatPlugin):
     """etcd plugin
     """
 
+    def report_url_and_port(self):
+        access_url_port = 'http://localhost:4001'
+        peer_flag = False
+        f = open('/etc/etcd/etcd.conf', 'r')
+
+        for line in f:
+            if line.startswith('ETCD_LISTEN_CLIENT_URLS='):
+                access_url_port = line[len('ETCD_LISTEN_CLIENT_URLS='):-1]
+            elif line.startswith('[peer]'):
+                peer_flag = True
+            elif line.startswith('addr =') and (peer_flag is False):
+                access_url_port = line[len('addr ='):-1]
+
+        f.close()
+        return access_url_port
+
     def setup(self):
         self.add_copy_spec("/etc/etcd")
 
-        self.add_cmd_output("curl http://localhost:4001/version")
-        self.add_cmd_output("curl http://localhost:4001/v2/members")
-        self.add_cmd_output("curl http://localhost:4001/v2/stats/leader")
-        self.add_cmd_output("curl http://localhost:4001/v2/stats/self")
-        self.add_cmd_output("curl http://localhost:4001/v2/stats/store")
+        curl_command = "curl -s {}".format(self.report_url_and_port())
+        self.add_cmd_output("{}/version".format(curl_command))
+        self.add_cmd_output("{}/v2/members".format(curl_command))
+        self.add_cmd_output("{}/v2/stats/leader".format(curl_command))
+        self.add_cmd_output("{}/v2/stats/self".format(curl_command))
+        self.add_cmd_output("{}/v2/stats/store".format(curl_command))
         self.add_cmd_output("ls -lR /var/lib/etcd/")
-
 
 # vim: et ts=5 sw=4
