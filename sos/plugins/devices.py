@@ -21,6 +21,8 @@ class Devices(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'devices'
     profiles = ('system', 'hardware', 'boot')
+    packages = ('udev', 'systemd-udev')
+    files = ('/dev',)
 
     def setup(self):
         self.add_cmd_output("udevadm info --export-db")
