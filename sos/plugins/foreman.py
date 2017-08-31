@@ -23,7 +23,7 @@ class Foreman(Plugin, RedHatPlugin):
 
     plugin_name = 'foreman'
     profiles = ('sysmgmt',)
-    packages = ('foreman-debug')
+    packages = ('foreman-debug',)
 
     def setup(self):
         cmd = "foreman-debug"
