@@ -21,6 +21,7 @@ class Cron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = "cron"
     profiles = ('system',)
+    packages = ('cron', 'anacron', 'chronie')
 
     files = ('/etc/crontab')
 
