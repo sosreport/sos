@@ -22,6 +22,8 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'block'
     profiles = ('storage', 'hardware')
+    verify_packages = ('util-linux',)
+    files = ('/sys/block',)
 
     def setup(self):
         self.add_cmd_output([
