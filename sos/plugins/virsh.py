@@ -24,7 +24,7 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = 'virsh'
     profiles = ('system', 'virt')
 
-    packages = ('libvirt-client')
+    packages = ('libvirt-client',)
 
     def setup(self):
         # virt-manager logs
