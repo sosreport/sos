@@ -22,6 +22,7 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'boot'
     profiles = ('system', 'boot')
+    packages = ('grub', 'grub2', 'zipl')
 
     option_list = [
         ("all-images", "collect lsinitrd for all images", "slow", False)
