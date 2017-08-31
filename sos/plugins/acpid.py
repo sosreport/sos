@@ -19,6 +19,7 @@ class Acpid(Plugin):
     """ACPI daemon information"""
     plugin_name = "acpid"
     profiles = ('hardware',)
+    packages = ('acpid',)
 
 
 class RedHatAcpid(Acpid, RedHatPlugin):
