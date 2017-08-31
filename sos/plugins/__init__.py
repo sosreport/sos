@@ -582,13 +582,14 @@ class Plugin(object):
         # command not found or not runnable
         if result['status'] == 126 or result['status'] == 127:
             # automatically retry chroot'ed commands in the host namespace
-            if chroot and self.commons['cmdlineopts'].chroot != 'always':
-                self._log_info("command '%s' not found in %s - "
-                               "re-trying in host root"
-                               % (prog.split()[0], root))
-                return self.get_command_output(prog, timeout=timeout,
-                                               chroot=False, runat=runat,
-                                               env=env)
+            if root and root != '/':
+                if self.commons['cmdlineopts'].chroot != 'always':
+                    self._log_info("command '%s' not found in %s - "
+                                   "re-trying in host root"
+                                   % (prog.split()[0], root))
+                    return self.get_command_output(prog, timeout=timeout,
+                                                   chroot=False, runat=runat,
+                                                   env=env)
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
