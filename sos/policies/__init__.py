@@ -154,6 +154,11 @@ class PackageManager(object):
 
         by_regex = self.all_pkgs_by_name_regex
         verify_list = map(by_regex, packages)
+
+        # No packages after regex match?
+        if not verify_list:
+            return None
+
         verify_packages = ""
         for package_list in verify_list:
             for package in package_list:
