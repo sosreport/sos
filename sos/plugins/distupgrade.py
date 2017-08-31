@@ -28,6 +28,13 @@ class DistUpgrade(Plugin):
 
 class RedHatDistUpgrade(DistUpgrade, RedHatPlugin):
 
+    packages = (
+        'preupgrade-assistant',
+        'preupgrade-assistant-ui',
+        'preupgrade-assistant-el6toel7',
+        'redhat-upgrade-tool'
+    )
+
     files = (
         "/var/log/upgrade.log",
         "/var/log/redhat_update_tool.log",
