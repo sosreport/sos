@@ -21,6 +21,8 @@ class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'dmraid'
     profiles = ('hardware', 'storage')
+    packages = ('dmraid',)
+
     option_list = [
         ("metadata", "capture dmraid device metadata", "slow", False)
     ]
