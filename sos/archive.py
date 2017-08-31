@@ -169,7 +169,11 @@ class FileCacheArchive(Archive):
             try:
                 shutil.copy(src, dest)
             except IOError as e:
-                self.log_info("caught '%s' copying '%s'" % (e, src))
+                # Filter out IO errors on virtual file systems.
+                if src.startswith("/sys/") or src.startswith("/proc/"):
+                    pass
+                else:
+                    self.log_info("caught '%s' copying '%s'" % (e, src))
             try:
                 shutil.copystat(src, dest)
             except OSError:
