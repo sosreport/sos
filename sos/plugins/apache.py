@@ -20,6 +20,8 @@ class Apache(Plugin):
     """
     plugin_name = "apache"
     profiles = ('webserver', 'openshift')
+    packages = ('httpd',)
+    files = ('/var/www/',)
 
     option_list = [
         ("log", "gathers all apache logs", "slow", False)
