@@ -19,11 +19,12 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class etcd(Plugin, RedHatPlugin):
-
     """etcd plugin
     """
 
+    plugin_name = 'etcd'
     packages = ('etcd',)
+    profiles = ('system', 'services', 'cluster')
 
     cmd = 'etcdctl'
 
