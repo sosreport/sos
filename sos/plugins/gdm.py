@@ -21,6 +21,7 @@ class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'gdm'
     profiles = ('desktop',)
+    packages = ('gdm',)
 
     def setup(self):
         self.add_copy_spec("/etc/gdm/*")
