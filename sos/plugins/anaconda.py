@@ -22,6 +22,7 @@ class Anaconda(Plugin, RedHatPlugin):
 
     plugin_name = 'anaconda'
     profiles = ('system',)
+    packages = ('anaconda',)
 
     files = (
         '/var/log/anaconda.log',
