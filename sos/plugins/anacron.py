@@ -20,6 +20,7 @@ class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'anacron'
     profiles = ('system',)
+    packages = ('anacron', 'chronie-anacron')
 
     # anacron may be provided by anacron, cronie-anacron etc.
     # just look for the configuration file which is common
