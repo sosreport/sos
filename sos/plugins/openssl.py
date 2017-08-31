@@ -24,6 +24,7 @@ class OpenSSL(Plugin):
     plugin_name = "openssl"
     profiles = ('network', 'security')
     packages = ('openssl',)
+    verify_packages = ('openssl.*',)
 
     def postproc(self):
         protect_keys = [
