@@ -957,7 +957,12 @@ class Plugin(object):
 
     def setup_verify(self):
         if not hasattr(self, "verify_packages") or not self.verify_packages:
-            return
+            if hasattr(self, "packages") and self.packages:
+                # Limit automatic verification to only the named packages
+                self.verify_packages = [p + "$" for p in self.packages]
+            else:
+                return
+
         pm = self.policy().package_manager
         verify_cmd = pm.build_verify_command(self.verify_packages)
         if verify_cmd:
