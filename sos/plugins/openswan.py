@@ -28,7 +28,7 @@ class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                     "slow", False)]
 
     files = ('/etc/ipsec.conf',)
-    packages = ('openswan',)
+    packages = ('openswan', 'libreswan')
 
     def setup(self):
         self.add_copy_spec([
