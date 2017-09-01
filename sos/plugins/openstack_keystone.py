@@ -55,6 +55,15 @@ class OpenStackKeystone(Plugin):
                 "/var/log/containers/keystone/*.log"
             ], sizelimit=self.limit)
 
+        # collect domain config directory, if exists
+        self.domain_config_dir_added = False
+        self.domain_config_dir = self.get_cmd_output_now(
+                "openstack-config --get /etc/keystone/keystone.conf "
+                "identity domain_config_dir")
+        if self.domain_config_dir and os.path.isdir(self.domain_config_dir):
+            self.add_copy_spec(self.domain_config_dir)
+            self.domain_config_dir_added = True
+
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
@@ -85,6 +94,11 @@ class OpenStackKeystone(Plugin):
             self.var_puppet_gen + "/etc/keystone/*",
             regexp, r"\1*********"
         )
+
+        # obfuscate LDAP plaintext passwords in domain config dir, if collected
+        if self.domain_config_dir_added:
+            self.do_path_regex_sub(self.domain_config_dir,
+                                   r"((?m)^\s*(%s)\s*=\s*)(.*)", r"\1********")
 
 
 class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
