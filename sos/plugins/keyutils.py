@@ -29,7 +29,8 @@ class Keyutils(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/request-key.conf",
-            "/etc/request-key.d"
+            "/etc/request-key.d",
+            "/proc/key-users"
         ])
         self.add_cmd_output("keyctl show")
 
