@@ -22,6 +22,7 @@ class NSS(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "nss"
     profiles = ('network', 'security')
     packages = ('nss',)
+    verify_packages = ('nss.*',)
 
     def setup(self):
         self.add_forbidden_path("/etc/pki/nssdb/cert*")
