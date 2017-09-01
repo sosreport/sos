@@ -32,6 +32,7 @@ class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             for e in dev:
                 parts = e.split(' ')
                 self.add_cmd_output("xfs_info %s" % (parts[1]))
+                self.add_cmd_output("xfs_admin -l -u %s" % (parts[1]))
 
         if self.get_option('logprint'):
             for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
