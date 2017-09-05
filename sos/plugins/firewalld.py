@@ -34,7 +34,8 @@ class FirewallD(Plugin, RedHatPlugin):
             "/etc/firewalld/icmptypes/*.xml",
             "/etc/firewalld/services/*.xml",
             "/etc/firewalld/zones/*.xml",
-            "/etc/sysconfig/firewalld"
+            "/etc/sysconfig/firewalld",
+            "/var/log/firewalld",
         ])
 
         # use a 10s timeout to workaround dbus problems in
