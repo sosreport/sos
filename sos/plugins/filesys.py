@@ -36,9 +36,9 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/mounts"
         ])
         self.add_cmd_output("mount -l", root_symlink="mount")
-        self.add_cmd_output("df -al", root_symlink="df")
+        self.add_cmd_output("df -al -x autofs", root_symlink="df")
         self.add_cmd_output([
-            "df -ali",
+            "df -ali -x autofs",
             "findmnt"
         ])
 
