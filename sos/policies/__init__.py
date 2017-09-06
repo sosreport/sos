@@ -432,9 +432,9 @@ class LinuxPolicy(Policy):
                                        "that you are generating this "
                                        "report for [%s]: ") % caseid)
                 self._print()
-            except:
+            except KeyboardInterrupt:
                 self._print()
-                self.report_name = localname
+                raise
 
         if len(self.report_name) == 0:
             self.report_name = localname
