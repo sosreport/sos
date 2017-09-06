@@ -105,7 +105,8 @@ class RedHatDocker(Docker, RedHatPlugin):
         super(RedHatDocker, self).setup()
 
         self.add_copy_spec([
-            "/etc/udev/rules.d/80-docker.rules"
+            "/etc/udev/rules.d/80-docker.rules",
+            "/etc/containers/"
         ])
 
 
