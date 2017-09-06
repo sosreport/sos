@@ -432,7 +432,7 @@ class LinuxPolicy(Policy):
                                        "that you are generating this "
                                        "report for [%s]: ") % caseid)
                 self._print()
-            except:
+            except Exception:
                 self._print()
                 self.report_name = localname
 
