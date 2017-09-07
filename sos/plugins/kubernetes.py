@@ -83,10 +83,12 @@ class kubernetes(Plugin, RedHatPlugin):
                 'services'
             ]
 
-            # nodes and pvs are not namespaced, must pull separately
+            # nodes and pvs are not namespaced, must pull separately.
+            # Also collect master metrics
             self.add_cmd_output([
                 "{} get -o json nodes".format(kube_cmd),
-                "{} get -o json pv".format(kube_cmd)
+                "{} get -o json pv".format(kube_cmd),
+                "{} get --raw /metrics".format(kube_cmd)
             ])
 
             for n in knsps:
