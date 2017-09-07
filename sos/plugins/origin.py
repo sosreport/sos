@@ -45,14 +45,21 @@ class OpenShiftOrigin(Plugin):
     files = None  # file lists assigned after path setup below
     profiles = ('openshift',)
 
+    option_list = [
+        ("diag", "run 'oc adm diagnostics' to collect its output",
+         'fast', True),
+        ("diag-prevent", "set --prevent-modifications on 'oc adm diagnostics'",
+         'fast', False),
+    ]
+
     master_base_dir = "/etc/origin/master"
     node_base_dir = "/etc/origin/node"
     master_cfg = os.path.join(master_base_dir, "master-config.yaml")
     node_cfg_file = "node-config.yaml"
     node_cfg = os.path.join(node_base_dir, node_cfg_file)
     admin_cfg = os.path.join(master_base_dir, "admin.kubeconfig")
-    oc_cmd = "oc --config=%s" % admin_cfg
-    oadm_cmd = "oadm --config=%s" % admin_cfg
+    oc_cmd = "oc"
+    oc_cmd_admin = "%s --config=%s" % (oc_cmd, admin_cfg)
 
     files = (master_cfg, node_cfg)
 
@@ -103,14 +110,15 @@ class OpenShiftOrigin(Plugin):
                 os.path.join(self.master_base_dir, "*.crt"),
             ])
 
-            # TODO: some thoughts about information that might also be
-            # useful to collect. However, the are maybe not needed in general
+            # TODO: some thoughts about information that might also be useful
+            # to collect. However, these are maybe not needed in general
             # and/or present some challenges (scale, sensitive, ...) and need
             # some more thought. For now just leaving this comment here until
             # we decide if it's worth collecting:
             #
             # General project status:
             #   oc status --all-namespaces   (introduced in OSE 3.2)
+            #      -> deemed as not worthy in BZ#1394527
             # Metrics deployment configurations
             #   oc get -o json dc -n openshift-infra
             # Logging stack deployment configurations
@@ -119,32 +127,28 @@ class OpenShiftOrigin(Plugin):
             # Note: Information about nodes, events, pods, and services
             # is already collected by the Kubernetes plugin
             self.add_cmd_output([
-                "%s describe projects" % self.oc_cmd,
-                "%s get -o json hostsubnet" % self.oc_cmd,
-                "%s get -o json clusternetwork" % self.oc_cmd,
-                "%s get -o json netnamespaces" % self.oc_cmd,
+                "%s describe projects" % self.oc_cmd_admin,
+                "%s get -o json hostsubnet" % self.oc_cmd_admin,
+                "%s get -o json clusternetwork" % self.oc_cmd_admin,
+                "%s get -o json netnamespaces" % self.oc_cmd_admin,
                 # Registry and router configs are typically here
-                "%s get -o json dc -n default" % self.oc_cmd,
-                "%s adm diagnostics -l 0 --config=%s"
-                % (self.oc_cmd, self.admin_cfg),
-                # Note: the diagnostics command was not available in earlier
-                # versions. OSE 3.1 had it as an ex[perimental] subcommand.
-                # If the above fails we could try this instead:
-                #  "openshift ex diagnostics --config=%s" % self.admin_cfg,
-                #  "openshift ex validate master-config %s" % self.master_cfg,
-                # We could do full version checks to act accordingly but
-                # the experimental versions are deprecated, so not worth it
+                "%s get -o json dc -n default" % self.oc_cmd_admin,
             ])
+            if self.get_option('diag'):
+                diag_cmd = "%s adm diagnostics -l 0" % self.oc_cmd_admin
+                if self.get_option('diag-prevent'):
+                    diag_cmd += " --prevent-modifications=true"
+                self.add_cmd_output(diag_cmd)
             self.add_journal(units=["atomic-openshift-master",
                                     "atomic-openshift-master-api",
                                     "atomic-openshift-master-controllers"])
 
             # get logs from the infrastruture pods running in the default ns
             pods = self.get_command_output("%s get pod -o name -n default"
-                                           % self.oc_cmd)
+                                           % self.oc_cmd_admin)
             for pod in pods['output'].splitlines():
                 self.add_cmd_output("%s logs -n default %s"
-                                    % (self.oc_cmd, pod))
+                                    % (self.oc_cmd_admin, pod))
 
         # Note that a system can run both a master and a node.
         # See "Master vs. node" above.
@@ -157,8 +161,8 @@ class OpenShiftOrigin(Plugin):
             node_kubecfg = self.get_node_kubecfg()
             self.add_cmd_output([
                 "%s config view --config=%s" % (self.oc_cmd, node_kubecfg),
-                "%s diagnostics NodeConfigCheck --node-config=%s"
-                % (self.oadm_cmd, self.node_cfg)
+                "%s adm diagnostics NodeConfigCheck --node-config=%s"
+                % (self.oc_cmd, self.node_cfg)
             ])
             self.add_journal(units="atomic-openshift-node")
 
