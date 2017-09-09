@@ -60,5 +60,8 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/containers/rabbitmq/*"
         ], sizelimit=self.get_option('log_size'))
 
+    def postproc(self):
+        self.do_file_sub("/etc/rabbitmq/rabbitmq.conf",
+                         r"(\s*default_pass\s*,\s*)\S+", r"\1<<***>>},")
 
 # vim: set et ts=4 sw=4 :
