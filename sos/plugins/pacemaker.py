@@ -34,6 +34,20 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
         ("crm_scrub", "enable password scrubbing for crm_report", "", True),
     ]
 
+    def postproc_crm_shell(self):
+        self.do_cmd_output_sub(
+            "crm configure show",
+            r"passw(\S*)=\S+",
+            r"passw\1=********"
+        )
+
+    def postproc_pcs(self):
+        self.do_cmd_output_sub(
+            "pcs config",
+            r"passw(\S*)=\S+",
+            r"passw\1=********"
+        )
+
     def setup(self):
         self.add_copy_spec([
             # Pacemaker cluster configuration file
@@ -73,8 +87,9 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
                     "default" % self.get_option("crm_from"))
 
         crm_dest = self.get_cmd_output_path(name="crm_report", make=False)
-        crm_scrub = '-p "passw.*"'
-        if not self.get_option("crm_scrub"):
+        if self.get_option("crm_scrub"):
+            crm_scrub = '-p "passw.*"'
+        else:
             crm_scrub = ""
             self._log_warn("scrubbing of crm passwords has been disabled:")
             self._log_warn("data collected by crm_report may contain"
@@ -100,11 +115,8 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
                         self.add_copy_spec(logfile)
 
     def postproc(self):
-        self.do_cmd_output_sub(
-            "pcs config",
-            r"(passwd=|incoming_password=)\S+",
-            r"\1********"
-        )
+        self.postproc_crm_shell()
+        self.postproc_pcs()
 
 
 class RedHatPacemaker(Pacemaker, RedHatPlugin):
