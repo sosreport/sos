@@ -23,7 +23,10 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = "pacemaker"
     profiles = ("cluster", )
-    packages = ["pacemaker"]
+    packages = (
+        "pacemaker",
+        "pacemaker-remote",
+    )
     defaults = "/etc/default/pacemaker"
 
     option_list = [
