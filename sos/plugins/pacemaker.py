@@ -36,11 +36,19 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
+            # Pacemaker cluster configuration file
             "/var/lib/pacemaker/cib/cib.xml",
-            self.defaults,
+
+            # Pacemaker 2.x default log locations
+            "/var/log/cluster/pacemaker.log",
+            "/var/log/cluster/bundles/*/",
+
+            # Pacemaker 1.x default log locations
             "/var/log/pacemaker.log",
-            "/var/log/pcsd/pcsd.log",
             "/var/log/pacemaker/bundles/*/",
+
+            self.defaults,
+            "/var/log/pcsd/pcsd.log",
         ])
         self.add_cmd_output([
             "crm_mon -1 -A -n -r -t",
@@ -76,9 +84,9 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
                             (crm_scrub, crm_dest, crm_from),
                             chroot=self.tmp_in_sysroot())
 
-        # collect user-defined logfiles, matching pattern:
-        # PCMK_loggfile=filename
-        # specified in the pacemaker defaults file.
+        # collect user-defined logfiles, matching a shell-style syntax:
+        #   PCMK_logfile=filename
+        # specified in the pacemaker start-up environment file.
         pattern = '^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
         if os.path.isfile(self.defaults):
             with open(self.defaults) as f:
