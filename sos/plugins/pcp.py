@@ -30,8 +30,10 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
     pcp_conffile = '/etc/pcp.conf'
 
-    # size-limit total PCP log data collected by default (MB)
-    pcplog_totalsize = 100
+    # size-limit of PCP logger and manager data collected by default (MB)
+    option_list = [
+        ("pcplogs", "size-limit in MB of pmlogger and pmmgr logs", "", 100),
+    ]
 
     pcp_sysconf_dir = None
     pcp_var_dir = None
@@ -75,8 +77,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         return True
 
     def setup(self):
-        if self.get_option("all_logs"):
-            self.pcplog_totalsize = 0
+        self.limit = (None if self.get_option("all_logs")
+                      else self.get_option("pcplogs"))
 
         if not self.pcp_parse_conffile():
             self._log_warn("could not parse %s" % self.pcp_conffile)
@@ -102,6 +104,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         self.add_forbidden_path(os.path.join(var_conf_dir, 'pmieconf'))
         self.add_forbidden_path(os.path.join(var_conf_dir, 'pmlogrewrite'))
 
+        # Take PCP_LOG_DIR/pmlogger/`hostname` + PCP_LOG_DIR/pmmgr/`hostname`
         # The *default* directory structure for pmlogger is the following:
         # Dir: PCP_LOG_DIR/pmlogger/HOST/ (we only collect the HOST data
         # itself)
@@ -110,27 +113,17 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # - pmlogger.{log,log.prior}
         #
         # Can be changed via configuration in PCP_SYSCONF_DIR/pmlogger/control
-        # As a default strategy, collect PCP_LOG_DIR/pmlogger/* only if the
-        # total size is moderately small: < 100MB. Override is possible via
-        # the 'all_pcplogs' option.
-        # FIXME: Doing a recursive size check because add_copy_spec
-        # won't work for directory trees. I.e. we can't say fetch /foo/bar/
-        # only if it is < 100MB. To be killed once the Plugin base class will
-        # add a method for this use case via issue #281
+        # As a default strategy, collect up to 100MB data from each dir.
+        # Can be overwritten either via pcp.pcplogsize option or all_logs.
         self.pcp_hostname = gethostname()
 
-        # Make sure we only add PCP_LOG_DIR/pmlogger/`hostname` if hostname
-        # is set, otherwise we'd collect everything
+        # Make sure we only add the two dirs if hostname is set, otherwise
+        # we would collect everything
         if self.pcp_hostname != '':
-            path = os.path.join(self.pcp_log_dir, 'pmlogger',
-                                self.pcp_hostname)
-            dirsize = self.get_size(path)
-            max_mb_size = self.pcplog_totalsize * 1024 * 1024
-            # If explicitely asked collect all logs, otherwise only if < 100MB
-            # in total
-            if self.pcplog_totalsize == 0 or dirsize < max_mb_size:
-                if os.path.isdir(path):
-                    self.add_copy_spec(path)
+            for pmdir in ('pmlogger', 'pmmgr'):
+                path = os.path.join(self.pcp_log_dir, pmdir,
+                                    self.pcp_hostname)
+                self.add_copy_spec(path, sizelimit=self.limit)
 
         self.add_copy_spec([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
