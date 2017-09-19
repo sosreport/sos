@@ -18,21 +18,41 @@ import re
 import os.path
 
 
-class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
-    """HA Cluster resource manager"""
+class Pacemaker(Plugin):
+    """Pacemaker high-availability cluster resource manager
+    """
 
     plugin_name = "pacemaker"
+    version = "1.0"
     profiles = ("cluster", )
     packages = (
         "pacemaker",
         "pacemaker-remote",
     )
-    defaults = "/etc/default/pacemaker"
 
     option_list = [
         ("crm_from", "specify the start time for crm_report", "fast", False),
         ("crm_scrub", "enable password scrubbing for crm_report", "", True),
     ]
+
+    envfile = ""
+
+    def setup_crm_mon(self):
+        self.add_cmd_output("crm_mon -1 -A -n -r -t")
+
+    def setup_crm_shell(self):
+        self.add_cmd_output([
+            "crm status",
+            "crm configure show",
+        ])
+
+    def setup_pcs(self):
+        self.add_copy_spec("/var/log/pcsd/pcsd.log")
+        self.add_cmd_output([
+            "pcs config",
+            "pcs status",
+            "pcs property list --all"
+        ])
 
     def postproc_crm_shell(self):
         self.do_cmd_output_sub(
@@ -60,18 +80,9 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
             # Pacemaker 1.x default log locations
             "/var/log/pacemaker.log",
             "/var/log/pacemaker/bundles/*/",
+        ])
 
-            self.defaults,
-            "/var/log/pcsd/pcsd.log",
-        ])
-        self.add_cmd_output([
-            "crm_mon -1 -A -n -r -t",
-            "crm status",
-            "crm configure show",
-            "pcs config",
-            "pcs status",
-            "pcs property list --all"
-        ])
+        self.setup_crm_mon()
 
         # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
         # time in order to collect data.
@@ -103,8 +114,9 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
         #   PCMK_logfile=filename
         # specified in the pacemaker start-up environment file.
         pattern = '^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
-        if os.path.isfile(self.defaults):
-            with open(self.defaults) as f:
+        if os.path.isfile(self.envfile):
+            self.add_copy_spec(self.envfile)
+            with open(self.envfile) as f:
                 for line in f:
                     if re.match(pattern, line):
                         # remove trailing and leading quote marks, in case the
@@ -114,17 +126,26 @@ class Pacemaker(Plugin, DebianPlugin, UbuntuPlugin):
                             logfile = re.sub(regexp, '', logfile)
                         self.add_copy_spec(logfile)
 
+
+class DebianPacemaker(Pacemaker, DebianPlugin, UbuntuPlugin):
+    def setup(self):
+        self.envfile = "/etc/default/pacemaker"
+        self.setup_crm_shell()
+        self.setup_pcs()
+        super(DebianPacemaker, self).setup()
+
     def postproc(self):
         self.postproc_crm_shell()
         self.postproc_pcs()
 
 
 class RedHatPacemaker(Pacemaker, RedHatPlugin):
-    """ Handle alternate location of pacemaker defaults file.
-    """
     def setup(self):
-        self.defaults = "/etc/sysconfig/pacemaker"
+        self.envfile = "/etc/sysconfig/pacemaker"
+        self.setup_pcs()
         super(RedHatPacemaker, self).setup()
 
+    def postproc(self):
+        self.postproc_pcs()
 
 # vim: et ts=4 sw=4
