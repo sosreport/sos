@@ -32,5 +32,12 @@ class Zfs(Plugin, UbuntuPlugin, DebianPlugin):
             "zpool list",
             "zpool status -x"
         ])
+        zpools = self.call_ext_prog("zpool list -H -o name")
+        if zpools['status'] == 0:
+            zpools_list = zpools['output'].splitlines()
+            for zpool in zpools_list:
+                self.add_cmd_output("zpool get all %s" % zpool,
+                                    suggest_filename="zpool-%s-properties"
+                                    % zpool)
 
 # vim: set et ts=4 sw=4 :
