@@ -32,7 +32,8 @@ class OpenStackKeystone(Plugin):
             "/etc/keystone/default_catalog.templates",
             "/etc/keystone/keystone.conf",
             "/etc/keystone/logging.conf",
-            "/etc/keystone/policy.json"
+            "/etc/keystone/policy.json",
+            "/etc/keystone/domains"
         ])
 
         self.limit = self.get_option("log_size")
