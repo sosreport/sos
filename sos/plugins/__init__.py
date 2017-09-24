@@ -81,6 +81,16 @@ def _node_type(st):
             return t[1]
 
 
+def _file_is_compressed(path):
+    """Check if a file appears to be compressed
+
+    Return True if the file specified by path appears to be compressed,
+    or False otherwise by testing the file name extension against a
+    list of known file compression extentions.
+    """
+    return path.endswith(('.gz', '.xz', '.bz', '.bz2'))
+
+
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
@@ -564,7 +574,7 @@ class Plugin(object):
                     break
                 self._add_copy_paths([_file])
 
-            if limit_reached and tailit:
+            if limit_reached and tailit and not _file_is_compressed(_file):
                 file_name = _file
 
                 if file_name[0] == os.sep:
