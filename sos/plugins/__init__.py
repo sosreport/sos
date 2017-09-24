@@ -517,6 +517,9 @@ class Plugin(object):
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
 
+        if self.get_option('all_logs'):
+            sizelimit = None
+
         if sizelimit:
             sizelimit *= 1024 * 1024  # in MB
 
