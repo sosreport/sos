@@ -90,7 +90,7 @@ class EnablerPlugin(Plugin):
 
 
 class MockOptions(object):
-    pass
+    all_logs = False
 
 
 class PluginToolTests(unittest.TestCase):
