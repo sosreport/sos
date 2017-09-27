@@ -16,12 +16,14 @@
 
 # This enables the use of with syntax in python 2.5 (e.g. jython)
 from __future__ import print_function
+
 import os
+import re
 import sys
 
+from sos import _sos as _
 from sos.plugins import RedHatPlugin
 from sos.policies import LinuxPolicy, PackageManager
-from sos import _sos as _
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
@@ -132,6 +134,7 @@ class RedHatPolicy(LinuxPolicy):
     def get_local_name(self):
         return self.host_name()
 
+
 # Container environment variables on Red Hat systems.
 ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
@@ -168,14 +171,14 @@ No changes will be made to system configuration.
     @classmethod
     def check(cls):
         """This method checks to see if we are running on RHEL. It returns True
-        or False."""
+        or False. Returns also false when distro is RH based"""
         return (os.path.isfile(cls._redhat_release) and not
-                os.path.isfile('/etc/fedora-release'))
+        os.path.isfile('/etc/fedora-release')) and not RHBasedDistro.check()
 
     def dist_version(self):
         try:
             pkg = self.pkg_by_name("redhat-release") or \
-                self.all_pkgs_by_name_regex("redhat-release-.*")[-1]
+                  self.all_pkgs_by_name_regex("redhat-release-.*")[-1]
             pkgname = pkg["version"]
             if pkgname[0] == "4":
                 return 4
@@ -240,7 +243,6 @@ organization before being passed to any third party.
 
 
 class FedoraPolicy(RedHatPolicy):
-
     distro = "Fedora"
     vendor = "the Fedora Project"
     vendor_url = "https://fedoraproject.org/"
@@ -256,8 +258,75 @@ class FedoraPolicy(RedHatPolicy):
 
     def fedora_version(self):
         pkg = self.pkg_by_name("fedora-release") or \
-            self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
+              self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
         return int(pkg["version"])
 
+
+class RHBasedDistro(RHELPolicy):
+    """
+    Note: This policy is for RH based distributions, but check method will return False when RH is detected.
+    """
+    _os_release = '/etc/os-release'
+    distro = None
+    vendor = None
+    vendor_url = None
+
+    @classmethod
+    def _os_to_dict(cls, os_data):
+        """
+        os data has format
+        NAME="Value"
+        """
+        rv = {}
+        os_data_new = [x for x in os_data.split('\n') if len(x) > 0]
+        for line in os_data_new:
+            eq_pos = line.find('=')
+            name = line[0:eq_pos]
+            value = line[eq_pos + 2:-1]  # +2 and -1 removes "
+            rv[name] = value
+        return rv
+
+    @classmethod
+    def make_vars(cls):
+        if cls.distro is None:
+            # EL 7 has os_release
+            if os.path.isfile(cls._os_release):
+                with open(cls._os_release)  as os_file:
+                    os_data = os_file.read()
+                os_dict = cls._os_to_dict(os_data)
+                cls.vendor = os_dict['NAME']
+                cls.distro = cls.vendor
+                cls.vendor_url = os_dict['HOME_URL']
+            else:
+                with open(cls._redhat_release) as release_file:
+                    release_data = release_file.read()
+                cls.vendor = release_data.split('release')[0]
+                cls.distro = cls.vendor
+                cls.vendor_url = ""
+
+    @classmethod
+    def check(cls):
+        rh_release = (os.path.isfile(cls._redhat_release) and not os.path.isfile('/etc/fedora-release'))
+        if rh_release:
+            if 'Red Hat' in open(cls._redhat_release).read() or 'RHEL' in open(cls._redhat_release).read():
+                return False
+            else:
+                cls.make_vars()
+                return True
+        else:
+            return False
+
+    def dist_version(self):
+        """
+        This dist version is different than original RHEL.
+        Not based package but on first digit in _redhat_release.
+        """
+        with open(self._redhat_release) as release_file:
+            release_data = release_file.read()
+        version_reg = re.search("\d", release_data)
+        if version_reg:
+            return int(release_data[version_reg.start()])
+        else:
+            return False
 
 # vim: set et ts=4 sw=4 :
