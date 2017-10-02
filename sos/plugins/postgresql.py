@@ -30,7 +30,7 @@ class PostgreSQL(Plugin):
     plugin_name = "postgresql"
     profiles = ('services',)
 
-    packages = ('postgresql',)
+    packages = ('postgresql', 'postgresql-common')
 
     tmp_dir = None
 
