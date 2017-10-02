@@ -25,9 +25,17 @@ class OpenVSwitch(Plugin):
 
     def setup(self):
 
+        all_logs = self.get_option("all_logs")
+        limit = self.get_option("log_size")
+
+        if not all_logs:
+            self.add_copy_spec("/var/log/openvswitch/*.log",
+                               sizelimit=limit)
+        else:
+            self.add_copy_spec("/var/log/openvswitch/",
+                               sizelimit=limit)
+
         self.add_copy_spec([
-            "/var/log/openvswitch/ovs-vswitchd.log",
-            "/var/log/openvswitch/ovsdb-server.log",
             "/var/run/openvswitch/ovsdb-server.pid",
             "/var/run/openvswitch/ovs-vswitchd.pid"
         ])
