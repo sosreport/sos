@@ -769,7 +769,8 @@ class Plugin(object):
         self.custom_text += text
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
-                    lines=None, allfields=False, output=None, timeout=None):
+                    lines=None, allfields=False, output=None, timeout=None,
+                    identifier=None):
         """ Collect journald logs from one of more units.
 
         Keyword arguments:
@@ -796,6 +797,7 @@ class Plugin(object):
         until_opt = " --until %s"
         lines_opt = " --lines %s"
         output_opt = " --output %s"
+        identifier_opt = " --identifier %s"
 
         if isinstance(units, six.string_types):
             units = [units]
@@ -803,6 +805,9 @@ class Plugin(object):
         if units:
             for unit in units:
                 journal_cmd += unit_opt % unit
+
+        if identifier:
+            journal_cmd += identifier_opt % identifier
 
         if allfields:
             journal_cmd += " --all"
