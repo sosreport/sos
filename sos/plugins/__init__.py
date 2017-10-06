@@ -600,7 +600,7 @@ class Plugin(object):
 
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
-                           binary=False):
+                           binary=False, sizelimit=None):
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
@@ -608,7 +608,8 @@ class Plugin(object):
 
         result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
                                         chroot=root, chdir=runat,
-                                        env=env, binary=binary)
+                                        env=env, binary=binary,
+                                        sizelimit=sizelimit)
 
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
@@ -646,14 +647,16 @@ class Plugin(object):
 
     def _add_cmd_output(self, cmd, suggest_filename=None,
                         root_symlink=None, timeout=300, stderr=True,
-                        chroot=True, runat=None, env=None, binary=False):
+                        chroot=True, runat=None, env=None, binary=False,
+                        sizelimit=None):
         """Internal helper to add a single command to the collection list."""
         cmdt = (
             cmd, suggest_filename,
             root_symlink, timeout, stderr,
-            chroot, runat, env, binary
+            chroot, runat, env, binary, sizelimit
         )
-        _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s', '%s')"
+        _tuplefmt = ("('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s', '%s', "
+                     "'%s')")
         _logstr = "packed command tuple: " + _tuplefmt
         self._log_debug(_logstr % cmdt)
         self.collect_cmds.append(cmdt)
@@ -661,7 +664,8 @@ class Plugin(object):
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
-                       chroot=True, runat=None, env=None, binary=False):
+                       chroot=True, runat=None, env=None, binary=False,
+                       sizelimit=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -670,7 +674,7 @@ class Plugin(object):
         for cmd in cmds:
             self._add_cmd_output(cmd, suggest_filename,
                                  root_symlink, timeout, stderr,
-                                 chroot, runat, env, binary)
+                                 chroot, runat, env, binary, sizelimit)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -725,14 +729,15 @@ class Plugin(object):
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
-                           binary=False):
+                           binary=False, sizelimit=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
                                          chroot=chroot, runat=runat,
-                                         env=env, binary=binary)
+                                         env=env, binary=binary,
+                                         sizelimit=sizelimit)
         self._log_debug("collected output of '%s' in %s"
                         % (exe.split()[0], time() - start))
 
@@ -781,7 +786,7 @@ class Plugin(object):
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None, timeout=None,
-                    identifier=None, catalog=None):
+                    identifier=None, catalog=None, sizelimit=None):
         """ Collect journald logs from one of more units.
 
         Keyword arguments:
@@ -803,6 +808,8 @@ class Plugin(object):
         identifier -- an optional message identifier.
         catalog    -- If True, augment lines with descriptions from the
                    system catalog.
+        sizelimit  -- Limit to the size of output returned in MB. Defaults
+                      to --log-size
         """
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
@@ -850,7 +857,9 @@ class Plugin(object):
             journal_cmd += output_opt % output
 
         self._log_debug("collecting journal: %s" % journal_cmd)
-        self._add_cmd_output(journal_cmd, None, None, timeout)
+        self._add_cmd_output(journal_cmd, None, None, timeout,
+                             sizelimit=sizelimit
+                             )
 
     def add_udev_info(self, device, attrs=False):
         """Collect udevadm info output for a given device
@@ -887,16 +896,18 @@ class Plugin(object):
                 timeout,
                 stderr,
                 chroot, runat,
-                env, binary
+                env, binary,
+                sizelimit
             ) = progs[0]
             self._log_debug(("unpacked command tuple: " +
                              "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s'," +
-                             "'%s')") % progs[0])
+                             "'%s %s')") % progs[0])
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
                                     root_symlink=root_symlink, timeout=timeout,
                                     stderr=stderr, chroot=chroot, runat=runat,
-                                    env=env, binary=binary)
+                                    env=env, binary=binary,
+                                    sizelimit=sizelimit)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
