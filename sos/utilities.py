@@ -17,8 +17,10 @@ import fnmatch
 import errno
 import shlex
 import glob
+import threading
 
 from contextlib import closing
+from collections import deque
 
 # PYCOMPAT
 import six
@@ -105,7 +107,7 @@ def is_executable(command):
 
 def sos_get_command_output(command, timeout=300, stderr=False,
                            chroot=None, chdir=None, env=None,
-                           binary=False):
+                           binary=False, sizelimit=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -147,7 +149,11 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                   stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)
-        stdout, stderr = p.communicate()
+
+        reader = AsyncReader(p.stdout, sizelimit, binary)
+        stdout = reader.get_contents()
+        p.poll()
+
     except OSError as e:
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': ""}
@@ -159,7 +165,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
 
     return {
         'status': p.returncode,
-        'output': stdout if binary else stdout.decode('utf-8', 'ignore')
+        'output': stdout
     }
 
 
@@ -185,6 +191,55 @@ def shell_out(cmd, timeout=30, chroot=None, runat=None):
     """
     return sos_get_command_output(cmd, timeout=timeout,
                                   chroot=chroot, chdir=runat)['output']
+
+
+class AsyncReader(threading.Thread):
+    '''Used to limit command output to a given size without deadlocking
+    sos.
+
+    Takes a sizelimit value in MB, and will compile stdout from Popen into a
+    string that is limited to the given sizelimit.
+    '''
+
+    def __init__(self, channel, sizelimit, binary):
+        super(AsyncReader, self).__init__()
+        self.chan = channel
+        self.binary = binary
+        self.chunksize = 2048
+        slots = None
+        if sizelimit:
+            sizelimit = sizelimit * 1048576  # convert to bytes
+            slots = sizelimit / self.chunksize
+        self.deque = deque(maxlen=slots)
+        self.start()
+        self.join()
+
+    def run(self):
+        '''Reads from the channel (pipe) that is the output pipe for a
+        called Popen. As we are reading from the pipe, the output is added
+        to a deque. After the size of the deque exceeds the sizelimit
+        earlier (older) entries are removed.
+
+        This means the returned output is chunksize-sensitive, but is not
+        really byte-sensitive.
+        '''
+        try:
+            while True:
+                line = self.chan.read(self.chunksize)
+                if not line:
+                    # Pipe can remain open after output has completed
+                    break
+                self.deque.append(line)
+        except (ValueError, IOError):
+            # pipe has closed, meaning command output is done
+            pass
+
+    def get_contents(self):
+        '''Returns the contents of the deque as a string'''
+        if not self.binary:
+            return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
+        else:
+            return b''.join(ln for ln in self.deque)
 
 
 class ImporterHelper(object):
