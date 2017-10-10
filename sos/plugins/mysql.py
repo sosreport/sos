@@ -93,9 +93,10 @@ class RedHatMysql(Mysql, RedHatPlugin):
         super(RedHatMysql, self).setup()
         self.add_copy_spec([
             "/etc/ld.so.conf.d/mysql-*.conf",
-            "/etc/ld.so.conf.d/mariadb-*.conf"
+            "/etc/ld.so.conf.d/mariadb-*.conf",
+            "/etc/my.cnf.d/*",
+            "/var/lib/config-data/puppet-generated/mysql/etc/my.cnf.d/*"
         ])
-        self.add_copy_spec("/etc/my.cnf.d/*")
 
 
 class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
