@@ -41,7 +41,6 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "systemctl list-units",
             "systemctl list-units --failed",
             "systemctl list-unit-files",
-            "systemctl show-environment",
             "systemd-delta",
             "systemd-analyze",
             "journalctl --list-boots",
