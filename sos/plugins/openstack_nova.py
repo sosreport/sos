@@ -102,7 +102,7 @@ class OpenStackNova(Plugin):
             "xenapi_connection_password", "password", "host_password",
             "vnc_password", "connection", "sql_connection", "admin_password",
             "connection_password", "memcache_secret_key", "s3_secret_key",
-            "metadata_proxy_shared_secret"
+            "metadata_proxy_shared_secret", "fixed_key"
         ]
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
