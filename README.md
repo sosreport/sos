@@ -42,6 +42,20 @@ patches and commit messages.
 User and API [documentation][6] is automatically generated using [Sphinx][7]
 and [Read the Docs][8].
 
+To generate HTML documents locally, install dependencies using
+
+```
+pip install -r requirements.txt
+```
+
+and run
+
+```
+make
+```
+
+Please run `make test` before sending a [pull request][0]
+
 ### Wiki
 
 * [How to write a plugin][1]
