@@ -35,6 +35,8 @@ class Logs(Plugin):
         self.add_copy_spec("/var/log/cloud-init*", sizelimit=self.limit)
         self.add_journal(boot="this")
         self.add_journal(boot="this", allfields=True, output="verbose")
+        self.add_journal(boot="last")
+        self.add_journal(boot="last", allfields=True, output="verbose")
         self.add_cmd_output("journalctl --disk-usage")
 
         if self.get_option('all_logs'):
