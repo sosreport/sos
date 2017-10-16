@@ -1,3 +1,4 @@
+# Copyright (C) 2017 Red Hat, Inc., Pavel Moravec <pmoravec@redhat.com>
 # Copyright (C) 2014 Red Hat, Inc., Sandro Bonazzola <sbonazzo@redhat.com>
 # Copyright (C) 2013 Chris J Arges <chris.j.arges@canonical.com>
 # Copyright (C) 2012-2013 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
@@ -20,7 +21,8 @@
 import os
 import tempfile
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin,
+                         SCLPlugin)
 from sos.utilities import find
 
 
@@ -45,53 +47,52 @@ class PostgreSQL(Plugin):
         ('dbport', 'database server port number', '', '5432')
     ]
 
-    def pg_dump(self):
-        dest_file = os.path.join(self.tmp_dir, "sos_pgdump.tar")
-        # We're only modifying this for ourself and our children so there
-        # is no need to save and restore environment variables if the user
-        # decided to pass the password on the command line.
-        if self.get_option("password") is not False:
-            os.environ["PGPASSWORD"] = str(self.get_option("password"))
-
-        if self.get_option("dbhost"):
-            cmd = "pg_dump -U %s -h %s -p %s -w -f %s -F t %s" % (
-                self.get_option("username"),
-                self.get_option("dbhost"),
-                self.get_option("dbport"),
-                dest_file,
-                self.get_option("dbname")
-            )
-        else:
-            cmd = "pg_dump -C -U %s -w -f %s -F t %s " % (
-                self.get_option("username"),
-                dest_file,
-                self.get_option("dbname")
-            )
-
-        result = self.call_ext_prog(cmd)
-        if (result['status'] == 0):
-            self.add_copy_spec(dest_file)
-        else:
-            self._log_error(
-                "Unable to execute pg_dump. Error(%s)" % (result['output'])
-            )
-            self.add_alert(
-                "ERROR: Unable to execute pg_dump. Error(%s)" %
-                (result['output'])
-            )
-
-    def setup(self):
+    def pg_dump(self, pg_dump_command="pg_dump", filename="sos_pgdump.tar"):
         if self.get_option("dbname"):
             if self.get_option("password") or "PGPASSWORD" in os.environ:
                 self.tmp_dir = tempfile.mkdtemp()
-                self.pg_dump()
-            else:
+                dest_file = os.path.join(self.tmp_dir, filename)
+                # We're only modifying this for ourself and our children so
+                # there is no need to save and restore environment variables if
+                # the user decided to pass the password on the command line.
+                if self.get_option("password") is not False:
+                    os.environ["PGPASSWORD"] = str(self.get_option("password"))
+
+                if self.get_option("dbhost"):
+                    cmd = "%s -U %s -h %s -p %s -w -f %s -F t %s" % (
+                        pg_dump_command,
+                        self.get_option("username"),
+                        self.get_option("dbhost"),
+                        self.get_option("dbport"),
+                        dest_file,
+                        self.get_option("dbname")
+                    )
+                else:
+                    cmd = "%s -C -U %s -w -f %s -F t %s " % (
+                        pg_dump_command,
+                        self.get_option("username"),
+                        dest_file,
+                        self.get_option("dbname")
+                    )
+
+                result = self.call_ext_prog(cmd)
+                if (result['status'] == 0):
+                    self.add_copy_spec(dest_file)
+                else:
+                    self._log_info(
+                        "Unable to execute pg_dump. Error(%s)" %
+                        (result['output'])
+                    )
+            else:  # no password in env or options
                 self.soslog.warning(
                     "password must be supplied to dump a database."
                 )
                 self.add_alert(
                     "WARN: password must be supplied to dump a database."
                 )
+
+    def setup(self):
+        self.pg_dump()
 
     def postproc(self):
         import shutil
@@ -105,32 +106,44 @@ class PostgreSQL(Plugin):
                 self.add_alert("ERROR: Unable to remove %s." % (self.tmp_dir))
 
 
-class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
+class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
+
+    packages = ('postgresql', 'rh-postgresql95-postgresql-server', )
 
     def setup(self):
         super(RedHatPostgreSQL, self).setup()
 
+        scl = "rh-postgresql95"
+        pghome = self.get_option("pghome")
+
         # Copy PostgreSQL log files.
-        for filename in find("*.log", self.get_option("pghome")):
+        for filename in find("*.log", pghome):
             self.add_copy_spec(filename)
-        # Copy PostgreSQL config files.
-        for filename in find("*.conf", self.get_option("pghome")):
+        for filename in find("*.log", self.convert_copyspec_scl(scl, pghome)):
             self.add_copy_spec(filename)
 
-        self.add_copy_spec(
-            os.path.join(
-                self.get_option("pghome"),
-                "data",
-                "PG_VERSION"
-            )
-        )
-        self.add_copy_spec(
-            os.path.join(
-                self.get_option("pghome"),
+        # Copy PostgreSQL config files.
+        for filename in find("*.conf", pghome):
+            self.add_copy_spec(filename)
+        for filename in find("*.conf", self.convert_copyspec_scl(scl, pghome)):
+            self.add_copy_spec(filename)
+
+        self.add_copy_spec(os.path.join(pghome, "data", "PG_VERSION"))
+        self.add_copy_spec(os.path.join(pghome, "data", "postmaster.opts"))
+
+        self.add_copy_spec_scl(scl, os.path.join(pghome, "data", "PG_VERSION"))
+        self.add_copy_spec_scl(scl, os.path.join(
+                pghome,
                 "data",
                 "postmaster.opts"
             )
         )
+
+        if scl in self.scls_matched:
+            self.pg_dump(
+                pg_dump_command="scl enable rh-postgresql95 -- pg_dump",
+                filename="sos_scl_pgdump.tar"
+            )
 
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
