@@ -1,4 +1,5 @@
 # Copyright (C) 2017 Red Hat, Inc., Sachin Patil <psachin@redhat.com>
+# Copyright (C) 2017 Red Hat, Inc., Martin Schuppert <mschuppert@redhat.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,16 +34,31 @@ class OpenStackAodh(Plugin, RedHatPlugin):
 
     requires_root = False
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/aodh"
+
     def setup(self):
-        self.add_copy_spec("/etc/aodh/")
+        self.add_copy_spec([
+            "/etc/aodh/",
+            self.var_puppet_gen + "/etc/aodh/*",
+            self.var_puppet_gen + "/etc/httpd/conf/*",
+            self.var_puppet_gen + "/etc/httpd/conf.d/*",
+            self.var_puppet_gen + "/etc/httpd/conf.modules.d/wsgi.conf",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
+        ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/aodh/",
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/aodh/*",
+                "/var/log/containers/aodh/*",
+                "/var/log/containers/httpd/aodh-api/*"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec("/var/log/aodh/*.log",
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/aodh/*.log",
+                "/var/log/containers/aodh/*.log",
+                "/var/log/containers/httpd/aodh-api/*log"
+            ], sizelimit=self.limit)
 
         vars_all = [p in os.environ for p in [
             'OS_USERNAME', 'OS_PASSWORD', 'OS_AUTH_TYPE'
@@ -72,8 +88,21 @@ class OpenStackAodh(Plugin, RedHatPlugin):
 
         self.do_file_sub(
             "/etc/aodh/aodh.conf",
-            r"(auth_url[\t\ ]*=[\t\ ]*)(.+)",
+            r"(rabbit_password[\t\ ]*=[\t\ ]*)(.+)",
             r"\1********",
         )
+
+        self.do_file_sub(
+            self.var_puppet_gen + "/etc/aodh/aodh.conf",
+            r"(password[\t\ ]*=[\t\ ]*)(.+)",
+            r"\1********"
+        )
+
+        self.do_file_sub(
+            self.var_puppet_gen + "/etc/aodh/aodh.conf",
+            r"(rabbit_password[\t\ ]*=[\t\ ]*)(.+)",
+            r"\1********",
+        )
+
 
 # vim: set et ts=4 sw=4 :

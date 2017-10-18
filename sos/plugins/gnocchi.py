@@ -49,13 +49,15 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/gnocchi/*",
-                "/var/log/containers/gnocchi/*"],
+                "/var/log/containers/gnocchi/*",
+                "/var/log/containers/httpd/gnocchi-api/*"],
                 sizelimit=self.limit
             )
         else:
             self.add_copy_spec([
                 "/var/log/gnocchi/*.log",
-                "/var/log/containers/gnocchi/*.log"],
+                "/var/log/containers/gnocchi/*.log",
+                "/var/log/containers/httpd/gnocchi-api/*log"],
                 sizelimit=self.limit
             )
 

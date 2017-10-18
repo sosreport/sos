@@ -33,17 +33,21 @@ class OpenStackNeutron(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/neutron/",
-                "/var/log/containers/neutron/"
+                "/var/log/containers/neutron/",
+                "/var/log/containers/httpd/neutron-api/"
             ], sizelimit=self.limit)
         else:
             self.add_copy_spec([
                 "/var/log/neutron/*.log",
-                "/var/log/containers/neutron/*.log"
+                "/var/log/containers/neutron/*.log",
+                "/var/log/containers/httpd/neutron-api/*log"
             ], sizelimit=self.limit)
 
         self.add_copy_spec([
             "/etc/neutron/",
-            self.var_puppet_gen + "/etc/neutron/"
+            self.var_puppet_gen + "/etc/neutron/",
+            self.var_puppet_gen + "/etc/default/neutron-server",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
         self.add_copy_spec("/var/lib/neutron/")
         if self.get_option("verify"):

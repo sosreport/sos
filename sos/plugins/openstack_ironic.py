@@ -25,21 +25,48 @@ class OpenStackIronic(Plugin):
     plugin_name = "openstack_ironic"
     profiles = ('openstack', 'openstack_undercloud')
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/ironic"
+
     def setup(self):
-        self.conf_list = ['/etc/ironic/*']
-        self.add_copy_spec('/etc/ironic/')
+        self.conf_list = [
+            "/etc/ironic/*",
+            self.var_puppet_gen + "/etc/ironic/*",
+            self.var_puppet_gen + "_api/etc/ironic/*"
+        ]
+        self.add_copy_spec([
+            "/etc/ironic/",
+            self.var_puppet_gen + "/etc/xinetd.conf",
+            self.var_puppet_gen + "/etc/xinetd.d/",
+            self.var_puppet_gen + "/etc/ironic/",
+            self.var_puppet_gen + "/etc/httpd/conf/",
+            self.var_puppet_gen + "/etc/httpd/conf.d/",
+            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
+            self.var_puppet_gen + "_api/etc/ironic/",
+            self.var_puppet_gen + "_api/etc/httpd/conf/",
+            self.var_puppet_gen + "_api/etc/httpd/conf.d/",
+            self.var_puppet_gen + "_api/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "_api/etc/my.cnf.d/tripleo.cnf"
+        ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/ironic/",
-                                "/var/log/containers/ironic/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/ironic/",
+                "/var/log/containers/ironic/",
+                "/var/log/containers/httpd/ironic-api/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/ironic/*.log",
-                                "/var/log/containers/ironic/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/ironic/*.log",
+                "/var/log/containers/ironic/*.log",
+                "/var/log/containers/httpd/ironic-api/*log"
+            ], sizelimit=self.limit)
 
         self.add_cmd_output('ls -laRt /var/lib/ironic/')
+        self.add_cmd_output(
+            'ls -laRt ' + self.var_puppet_gen + '/var/lib/ironic/'
+        )
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
