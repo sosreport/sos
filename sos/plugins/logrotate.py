@@ -22,12 +22,16 @@ class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'logrotate'
     profiles = ('system',)
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/crond"
+
     def setup(self):
         self.add_cmd_output("logrotate --debug /etc/logrotate.conf",
                             suggest_filename="logrotate_debug")
         self.add_copy_spec([
             "/etc/logrotate*",
-            "/var/lib/logrotate.status"
+            "/var/lib/logrotate.status",
+            self.var_puppet_gen + "/etc/logrotate-crond.conf",
+            self.var_puppet_gen + "/var/spool/cron/root"
         ])
 
 # vim: set et ts=4 sw=4 :
