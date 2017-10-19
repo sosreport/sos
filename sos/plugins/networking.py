@@ -173,7 +173,7 @@ class Networking(Plugin):
             "ip -4 rule",
             "ip -6 rule",
             "ip -s -d link",
-            "ip address",
+            "ip -d address",
             "ifenslave -a",
             "ip mroute show",
             "ip maddr show",
