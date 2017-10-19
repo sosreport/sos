@@ -534,10 +534,19 @@ class Plugin(object):
                 copyspec = self.join_sysroot(copyspec)
 
             files = self._expand_copy_spec(copyspec)
-            files.sort()
+
             if len(files) == 0:
                 continue
 
+            # Files hould be sorted in most-recently-modified order, so that
+            # we collect the newest data first before reaching the limit.
+            def getmtime(path):
+                try:
+                    return os.path.getmtime(path)
+                except (OSError, FileNotFoundError):
+                    return 0
+
+            files.sort(key=getmtime, reverse=True)
             current_size = 0
             limit_reached = False
             _file = None
