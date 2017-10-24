@@ -152,12 +152,21 @@ class Networking(Plugin):
         self.add_cmd_output("ip -o addr", root_symlink="ip_addr")
         self.add_cmd_output("route -n", root_symlink="route")
         self.add_cmd_output("plotnetcfg")
-        self.collect_iptable("filter")
-        self.collect_iptable("nat")
-        self.collect_iptable("mangle")
-        self.collect_ip6table("filter")
-        self.collect_ip6table("nat")
-        self.collect_ip6table("mangle")
+        # collect iptables -t for any existing table, if we can't read the
+        # tables, collect 3 default ones (nat, mangle, filter)
+        try:
+            ip_tables_names = open("/proc/net/ip_tables_names").read()
+        except:
+            ip_tables_names = "nat\nmangle\nfilter\n"
+        for table in ip_tables_names.splitlines():
+            self.collect_iptable(table)
+        # collect the same for ip6tables
+        try:
+            ip_tables_names = open("/proc/net/ip6_tables_names").read()
+        except:
+            ip_tables_names = "nat\nmangle\nfilter\n"
+        for table in ip_tables_names.splitlines():
+            self.collect_ip6table(table)
 
         self.collect_nftables()
 
@@ -173,7 +182,7 @@ class Networking(Plugin):
             "ip -4 rule",
             "ip -6 rule",
             "ip -s -d link",
-            "ip address",
+            "ip -d address",
             "ifenslave -a",
             "ip mroute show",
             "ip maddr show",

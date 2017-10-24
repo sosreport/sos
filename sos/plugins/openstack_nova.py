@@ -29,6 +29,8 @@ class OpenStackNova(Plugin):
     plugin_name = "openstack_nova"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/nova"
+
     def setup(self):
         # commands we do not need to source the environment file
         self.add_cmd_output("nova-manage db version")
@@ -67,15 +69,28 @@ class OpenStackNova(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/nova/",
-                                "/var/log/containers/nova/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/nova/",
+                "/var/log/containers/nova/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/nova/*.log",
-                                "/var/log/containers/nova/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/nova/*.log",
+                "/var/log/containers/nova/*.log"
+            ], sizelimit=self.limit)
 
-        self.add_copy_spec("/etc/nova/")
+        self.add_copy_spec([
+            "/etc/nova/",
+            self.var_puppet_gen + "/etc/nova/",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
+            self.var_puppet_gen + "_placement/var/spool/cron/nova",
+            self.var_puppet_gen + "_placement/etc/nova/",
+            self.var_puppet_gen + "_placement/etc/httpd/conf/",
+            self.var_puppet_gen + "_placement/etc/httpd/conf.d/",
+            self.var_puppet_gen + "_placement/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "_placement/etc/my.cnf.d/tripleo.cnf",
+            self.var_puppet_gen + "/../memcached/etc/sysconfig/memcached"
+        ])
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -92,6 +107,14 @@ class OpenStackNova(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/nova/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/nova/*",
+            regexp, r"\1*********"
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "_placement/etc/nova/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):

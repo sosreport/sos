@@ -43,7 +43,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         if os.path.isdir("/sys/block"):
             for disk in os.listdir("/sys/block"):
-                if disk in [".",  ".."] or disk.startswith("ram"):
+                if disk.startswith("ram"):
                     continue
                 disk_path = os.path.join('/dev/', disk)
                 self.add_cmd_output([

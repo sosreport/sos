@@ -1,4 +1,5 @@
 # Copyright (C) 2015 Red Hat, Inc., Abhijeet Kasurde <akasurde@redhat.com>
+# Copyright (C) 2017 Red Hat, Inc., Martin Schuppert <mschuppe@redhat.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,20 +26,32 @@ class Redis(Plugin, RedHatPlugin):
     profiles = ('services',)
 
     packages = ('redis',)
-    files = ('/etc/redis.conf', '/var/log/redis')
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/redis"
+    files = (
+        '/etc/redis.conf',
+        '/var/log/redis',
+        var_puppet_gen + '/etc/redis.conf'
+    )
 
     def setup(self):
-        self.add_copy_spec("/etc/redis.conf")
+        self.add_copy_spec([
+            "/etc/redis.conf",
+            self.var_puppet_gen + "/etc/redis*",
+            self.var_puppet_gen + "/etc/redis/",
+            self.var_puppet_gen + "/etc/security/limits.d/"
+        ])
         self.limit = self.get_option("log_size")
         self.add_cmd_output("redis-cli info")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/redis/redis.log*",
-                                "/var/log/containers/redis/redis.log*"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/redis/redis.log*",
+                "/var/log/containers/redis/redis.log*"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/redis/redis.log",
-                                "/var/log/containers/redis/redis.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/redis/redis.log",
+                "/var/log/containers/redis/redis.log"
+            ], sizelimit=self.limit)
 
     def postproc(self):
         self.do_file_sub(
@@ -51,5 +64,16 @@ class Redis(Plugin, RedHatPlugin):
             r"(requirepass\s).*",
             r"\1********"
         )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/redis.conf*",
+            r"(masterauth\s).*",
+            r"\1*********"
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/redis.conf*",
+            r"(requirepass\s).*",
+            r"\1*********"
+        )
+
 
 # vim: set et ts=4 sw=4 :

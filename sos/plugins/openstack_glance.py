@@ -28,6 +28,7 @@ class OpenStackGlance(Plugin):
     profiles = ('openstack', 'openstack_controller')
 
     option_list = []
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/glance_api"
 
     def setup(self):
         # Glance
@@ -38,15 +39,21 @@ class OpenStackGlance(Plugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/glance/",
-                                "/var/log/containers/glance/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/glance/",
+                "/var/log/containers/glance/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/glance/*.log",
-                                "/var/log/containers/glance/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/glance/*.log",
+                "/var/log/containers/glance/*.log"
+            ], sizelimit=self.limit)
 
-        self.add_copy_spec("/etc/glance/")
+        self.add_copy_spec([
+            "/etc/glance/",
+            self.var_puppet_gen + "/etc/glance/",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
+        ])
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -73,6 +80,10 @@ class OpenStackGlance(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/glance/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/glance/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
