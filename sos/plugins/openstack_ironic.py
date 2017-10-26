@@ -77,7 +77,9 @@ class OpenStackIronic(Plugin):
         vars_any = [p in os.environ for p in [
                     'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
 
-        if not (all(vars_all) and any(vars_any)):
+        self.osc_available = all(vars_all) and any(vars_any)
+
+        if not self.osc_available:
             self.soslog.warning("Not all environment variables set. Source "
                                 "the environment file for the user intended "
                                 "to connect to the OpenStack environment.")
@@ -136,5 +138,25 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
 
             self.add_journal(units="openstack-ironic-discoverd")
             self.add_journal(units="openstack-ironic-discoverd-dnsmasq")
+
+        # ironic-discoverd was renamed to ironic-inspector in Liberty
+        self.conf_list.append('/etc/ironic-inspector/*')
+        self.conf_list.append(self.var_puppet_gen + '/etc/ironic-inspector/*')
+        self.add_copy_spec('/etc/ironic-inspector/')
+        self.add_copy_spec(self.var_puppet_gen + '/etc/ironic-inspector/')
+        self.add_copy_spec('/var/lib/ironic-inspector/')
+        if self.get_option("all_logs"):
+            self.add_copy_spec('/var/log/ironic-inspector/')
+            self.add_copy_spec('/var/log/containers/ironic-inspector/')
+        else:
+            self.add_copy_spec('/var/log/ironic-inspector/*.log')
+            self.add_copy_spec('/var/log/ironic-inspector/ramdisk/')
+            self.add_copy_spec('/var/log/containers/ironic-inspector/*.log')
+            self.add_copy_spec('/var/log/containers/ironic-inspector/ramdisk/')
+
+        self.add_journal(units="openstack-ironic-inspector-dnsmasq")
+
+        if self.osc_available:
+            self.add_cmd_output("openstack baremetal introspection list")
 
 # vim: set et ts=4 sw=4 :
