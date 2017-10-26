@@ -125,6 +125,20 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
         'openstack-ironic-discoverd-ramdisk'
     ]
 
+    def collect_introspection_data(self):
+        uuids_result = self.call_ext_prog('openstack baremetal node list '
+                                          '-f value -c UUID')
+        if uuids_result['status']:
+            self.soslog.warning('Failed to fetch list of ironic node UUIDs, '
+                                'introspection data won\'t be collected')
+            return
+
+        uuids = [uuid for uuid in uuids_result['output'].split()
+                 if uuid.strip()]
+        for uuid in uuids:
+            self.add_cmd_output('openstack baremetal introspection '
+                                'data save %s' % uuid)
+
     def setup(self):
         super(RedHatIronic, self).setup()
 
@@ -157,5 +171,7 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
 
         if self.osc_available:
             self.add_cmd_output("openstack baremetal introspection list")
+            if self.get_option("all_logs"):
+                self.collect_introspection_data()
 
 # vim: set et ts=4 sw=4 :
