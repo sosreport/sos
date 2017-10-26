@@ -82,8 +82,10 @@ class OpenStackIronic(Plugin):
                                 "the environment file for the user intended "
                                 "to connect to the OpenStack environment.")
         else:
+            self.add_cmd_output("openstack baremetal driver list --long")
             self.add_cmd_output("openstack baremetal node list --long")
-            self.add_cmd_output("openstack baremetal port list")
+            self.add_cmd_output("openstack baremetal port list --long")
+            self.add_cmd_output("openstack baremetal port group list --long")
 
     def postproc(self):
         protect_keys = [
