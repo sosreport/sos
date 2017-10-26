@@ -63,10 +63,9 @@ class OpenStackIronic(Plugin):
                 "/var/log/containers/httpd/ironic-api/*log"
             ], sizelimit=self.limit)
 
-        self.add_cmd_output('ls -laRt /var/lib/ironic/')
-        self.add_cmd_output(
-            'ls -laRt ' + self.var_puppet_gen + '/var/lib/ironic/'
-        )
+        for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
+            self.add_cmd_output('ls -laRt %s' % path)
+            self.add_cmd_output('ls -laRt %s' % (self.var_puppet_gen + path))
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
