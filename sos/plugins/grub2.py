@@ -21,7 +21,7 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'grub2'
     profiles = ('boot',)
-    packages = ('grub2',)
+    packages = ('grub2', 'grub2-efi')
 
     def setup(self):
         self.add_copy_spec([
