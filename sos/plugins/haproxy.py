@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
+from urlparse import urlparse
 
 
 class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
@@ -36,5 +37,21 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
         self.add_cmd_output("haproxy -f /etc/haproxy/haproxy.cfg -c")
 
         self.add_copy_spec("/var/log/haproxy.log")
+
+        # collect haproxy overview - curl to IP address taken from haproxy.cfg
+        # as 2nd word on line below "haproxy.stats"
+        # so parse haproxy.cfg until "haproxy.stats" read, and take 2nd word
+        # from the next line
+        matched = None
+        for line in open("/etc/haproxy/haproxy.cfg").read().splitlines():
+            if matched:
+                provision_ip = line.split()[1]
+                break
+            matched = match(".*haproxy\.stats.*", line)
+        # check if provision_ip contains port - if not, add default ":1993"
+        if urlparse("http://"+provision_ip).port is None:
+            provision_ip = provision_ip + ":1993"
+        self.add_cmd_output("curl http://"+provision_ip+"/\;csv",
+                            suggest_filename="haproxy_overview.txt")
 
 # vim: set et ts=4 sw=4 :
