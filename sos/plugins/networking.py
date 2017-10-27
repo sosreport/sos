@@ -191,9 +191,15 @@ class Networking(Plugin):
             "biosdevname -d",
             "tc -s qdisc show",
             "ip -s macsec show",
-            "iptables -vnxL",
-            "ip6tables -vnxL"
         ])
+
+        # When iptables is called it will load the modules
+        # iptables and iptables_filter if they are not loaded.
+        # The same goes for ipv6.
+        if self.check_ext_prog("grep -q iptable_filter /proc/modules"):
+            self.add_cmd_output("iptables -vnxL")
+        if self.check_ext_prog("grep -q ip6table_filter /proc/modules"):
+            self.add_cmd_output("ip6tables -vnxL")
 
         # There are some incompatible changes in nmcli since
         # the release of NetworkManager >= 0.9.9. In addition,
