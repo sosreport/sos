@@ -117,7 +117,14 @@ class RedHatHorizon(OpenStackHorizon, RedHatPlugin):
     def setup(self):
         super(RedHatHorizon, self).setup()
         self.add_copy_spec("/etc/httpd/conf.d/openstack-dashboard.conf")
-        if self.get_option("log"):
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/httpd/horizon*",
+            ], sizelimit=self.limit)
+        else:
+            self.add_copy_spec([
+                "/var/log/httpd/horizon*.log"
+            ], sizelimit=self.limit)
             self.add_copy_spec("/var/log/httpd/")
 
 # vim: set et ts=4 sw=4 :

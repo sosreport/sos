@@ -120,4 +120,16 @@ class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
         'python-keystoneclient'
     )
 
+    def setup(self):
+        super(RedHatKeystone, self).setup()
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/httpd/keystone*",
+            ], sizelimit=self.limit)
+        else:
+            self.add_copy_spec([
+                "/var/log/httpd/keystone*.log",
+            ], sizelimit=self.limit)
+
+
 # vim: set et ts=4 sw=4 :
