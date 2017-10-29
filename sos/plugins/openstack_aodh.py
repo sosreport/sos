@@ -50,12 +50,14 @@ class OpenStackAodh(Plugin, RedHatPlugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/aodh/*",
+                "/var/log/httpd/aodh*",
                 "/var/log/containers/aodh/*",
                 "/var/log/containers/httpd/aodh-api/*"
             ], sizelimit=self.limit)
         else:
             self.add_copy_spec([
                 "/var/log/aodh/*.log",
+                "/var/log/httpd/aodh*.log",
                 "/var/log/containers/aodh/*.log",
                 "/var/log/containers/httpd/aodh-api/*log"
             ], sizelimit=self.limit)

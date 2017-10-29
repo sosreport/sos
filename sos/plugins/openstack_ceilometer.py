@@ -92,4 +92,15 @@ class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
         'python-ceilometerclient'
     )
 
+    def setup(self):
+        super(RedHatCeilometer, self).setup()
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/httpd/ceilometer*",
+            ], sizelimit=self.limit)
+        else:
+            self.add_copy_spec([
+                "/var/log/httpd/ceilometer*.log",
+            ], sizelimit=self.limit)
+
 # vim: set et ts=4 sw=4 :
