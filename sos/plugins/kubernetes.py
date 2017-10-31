@@ -30,10 +30,10 @@ class kubernetes(Plugin, RedHatPlugin):
     files = ("/etc/origin/master/master-config.yaml",)
 
     option_list = [
-        ("all", "also collect --all-namespaces output separately",
-            'fast', True),
+        ("all", "also collect all namespaces output separately",
+            'slow', False),
         ("describe", "capture descriptions of all kube resources",
-            'fast', True),
+            'fast', False),
         ("podlogs", "capture logs for pods", 'slow', False),
     ]
 
@@ -88,29 +88,29 @@ class kubernetes(Plugin, RedHatPlugin):
                 "{} get -o json nodes".format(kube_cmd),
                 "{} get -o json pv".format(kube_cmd)
             ])
+            if self.get_option('all'):
+                for n in knsps:
+                    knsp = '--namespace=%s' % n
+                    k_cmd = '%s %s %s' % (kube_cmd, kube_get_cmd, knsp)
 
-            for n in knsps:
-                knsp = '--namespace=%s' % n
-                k_cmd = '%s %s %s' % (kube_cmd, kube_get_cmd, knsp)
+                    self.add_cmd_output('%s events' % k_cmd)
 
-                self.add_cmd_output('%s events' % k_cmd)
-
-                for res in resources:
-                    self.add_cmd_output('%s %s' % (k_cmd, res))
-
-                if self.get_option('describe'):
-                    # need to drop json formatting for this
-                    k_cmd = '%s get %s' % (kube_cmd, knsp)
                     for res in resources:
-                        r = self.get_command_output(
-                            '%s %s' % (k_cmd, res))
-                        if r['status'] == 0:
-                            k_list = [k.split()[0] for k in
-                                      r['output'].splitlines()[1:]]
-                            for k in k_list:
-                                k_cmd = '%s %s' % (kube_cmd, knsp)
-                                self.add_cmd_output(
-                                    '%s describe %s %s' % (k_cmd, res, k))
+                        self.add_cmd_output('%s %s' % (k_cmd, res))
+
+                    if self.get_option('describe'):
+                        # need to drop json formatting for this
+                        k_cmd = '%s get %s' % (kube_cmd, knsp)
+                        for res in resources:
+                            r = self.get_command_output(
+                                '%s %s' % (k_cmd, res))
+                            if r['status'] == 0:
+                                k_list = [k.split()[0] for k in
+                                          r['output'].splitlines()[1:]]
+                                for k in k_list:
+                                    k_cmd = '%s %s' % (kube_cmd, knsp)
+                                    self.add_cmd_output(
+                                        '%s describe %s %s' % (k_cmd, res, k))
 
                 if self.get_option('podlogs'):
                     k_cmd = '%s get %s' % (kube_cmd, knsp)
@@ -121,10 +121,9 @@ class kubernetes(Plugin, RedHatPlugin):
                         for pod in pods:
                             self.add_cmd_output('%s logs %s' % (k_cmd, pod))
 
-            if self.get_option('all'):
-                k_cmd = '%s get --all-namespaces=true' % kube_cmd
-                for res in resources:
-                    self.add_cmd_output('%s %s' % (k_cmd, res))
+            k_cmd = '%s get --all-namespaces=true' % kube_cmd
+            for res in resources:
+                self.add_cmd_output('%s %s' % (k_cmd, res))
 
     def postproc(self):
         # First, clear sensitive data from the json output collected.
