@@ -38,11 +38,16 @@ class OpenStackAodh(Plugin, RedHatPlugin):
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/aodh/",
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/aodh/",
+                "/var/log/httpd/aodh*"
+            ], sizelimit=self.limit)
+
         else:
-            self.add_copy_spec("/var/log/aodh/*.log",
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/aodh/*.log",
+                "/var/log/httpd/aodh*.log"
+            ], sizelimit=self.limit)
 
         vars_all = [p in os.environ for p in [
             'OS_USERNAME', 'OS_PASSWORD', 'OS_AUTH_TYPE'

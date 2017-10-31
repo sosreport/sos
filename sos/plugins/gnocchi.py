@@ -49,15 +49,15 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/gnocchi/*",
-                "/var/log/containers/gnocchi/*"],
-                sizelimit=self.limit
-            )
+                "/var/log/httpd/gnocchi*",
+                "/var/log/containers/gnocchi/*"
+                ], sizelimit=self.limit)
         else:
             self.add_copy_spec([
                 "/var/log/gnocchi/*.log",
-                "/var/log/containers/gnocchi/*.log"],
-                sizelimit=self.limit
-            )
+                "/var/log/httpd/gnocchi*.log",
+                "/var/log/containers/gnocchi/*.log"
+                ], sizelimit=self.limit)
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
