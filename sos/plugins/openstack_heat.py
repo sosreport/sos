@@ -58,12 +58,16 @@ class OpenStackHeat(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/heat/",
-                "/var/log/containers/heat/"
+                "/var/log/containers/heat/",
+                "/var/log/containers/httpd/heat-api/",
+                "/var/log/containers/httpd/heat-api-cfn"
             ], sizelimit=self.limit)
         else:
             self.add_copy_spec([
                 "/var/log/heat/*.log",
-                "/var/log/containers/heat/*.log"
+                "/var/log/containers/heat/*.log",
+                "/var/log/containers/httpd/heat-api/*log",
+                "/var/log/containers/httpd/heat-api-cfn/*log"
             ], sizelimit=self.limit)
 
         self.add_copy_spec([

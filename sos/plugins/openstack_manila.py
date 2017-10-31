@@ -29,19 +29,25 @@ class OpenStackManila(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/manila/",
-            self.var_puppet_gen + "/etc/manila/"
+            self.var_puppet_gen + "/etc/manila/",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
+            self.var_puppet_gen + "/etc/httpd/conf/",
+            self.var_puppet_gen + "/etc/httpd/conf.d/",
+            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
         ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/manila/*",
-                "/var/log/containers/manila/*"
+                "/var/log/containers/manila/*",
+                "/var/log/containers/httpd/manila-api/*"
             ], sizelimit=self.limit)
         else:
             self.add_copy_spec([
                 "/var/log/manila/*.log",
-                "/var/log/containers/manila/*.log"
+                "/var/log/containers/manila/*.log",
+                "/var/log/containers/httpd/manila-api/*log"
             ], sizelimit=self.limit)
 
     def postproc(self):

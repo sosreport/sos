@@ -30,23 +30,39 @@ class OpenStackCinder(Plugin):
     option_list = [("db", "gathers openstack cinder db version", "slow",
                     False)]
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/cinder"
+
     def setup(self):
         if self.get_option("db"):
             self.add_cmd_output(
                 "cinder-manage db version",
                 suggest_filename="cinder_db_version")
 
-        self.add_copy_spec(["/etc/cinder/"])
+        self.add_copy_spec([
+            "/etc/cinder/",
+            self.var_puppet_gen + "/etc/cinder/",
+            self.var_puppet_gen + "/etc/httpd/conf/",
+            self.var_puppet_gen + "/etc/httpd/conf.d/",
+            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
+            self.var_puppet_gen + "/etc/sysconfig/",
+        ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/cinder/",
-                                "/var/log/containers/cinder/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/cinder/",
+                "/var/log/httpd/cinder*",
+                "/var/log/containers/cinder/",
+                "/var/log/containers/httpd/cinder-api/"
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec(["/var/log/cinder/*.log",
-                                "/var/log/containers/cinder/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/cinder/*.log",
+                "/var/log/httpd/cinder*.log",
+                "/var/log/containers/cinder/*.log",
+                "/var/log/containers/httpd/cinder-api/*log"
+            ], sizelimit=self.limit)
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -67,6 +83,10 @@ class OpenStackCinder(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/cinder/*", regexp, r"\1*********")
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/cinder/*",
+            regexp, r"\1*********"
+        )
 
 
 class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):

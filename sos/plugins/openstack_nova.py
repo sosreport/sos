@@ -71,12 +71,16 @@ class OpenStackNova(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/nova/",
-                "/var/log/containers/nova/"
+                "/var/log/containers/nova/",
+                "/var/log/containers/httpd/nova-api/",
+                "/var/log/containers/httpd/nova-placement/"
             ], sizelimit=self.limit)
         else:
             self.add_copy_spec([
                 "/var/log/nova/*.log",
-                "/var/log/containers/nova/*.log"
+                "/var/log/containers/nova/*.log",
+                "/var/log/containers/httpd/nova-api/*log",
+                "/var/log/containers/httpd/nova-placement/*log"
             ], sizelimit=self.limit)
 
         self.add_copy_spec([
@@ -89,7 +93,12 @@ class OpenStackNova(Plugin):
             self.var_puppet_gen + "_placement/etc/httpd/conf.d/",
             self.var_puppet_gen + "_placement/etc/httpd/conf.modules.d/*.conf",
             self.var_puppet_gen + "_placement/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "/../memcached/etc/sysconfig/memcached"
+            self.var_puppet_gen + "/../memcached/etc/sysconfig/memcached",
+            self.var_puppet_gen + "_libvirt/etc/libvirt/",
+            self.var_puppet_gen + "_libvirt/etc/my.cnf.d/tripleo.cnf",
+            self.var_puppet_gen + "_libvirt/etc/nova/migration/"
+            "authorized_keys",
+            self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config",
         ])
 
         if self.get_option("verify"):
@@ -113,6 +122,10 @@ class OpenStackNova(Plugin):
         )
         self.do_path_regex_sub(
             self.var_puppet_gen + "_placement/etc/nova/*",
+            regexp, r"\1*********"
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "_libvirt/etc/nova/*",
             regexp, r"\1*********"
         )
 
