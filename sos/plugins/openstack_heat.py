@@ -29,24 +29,30 @@ class OpenStackHeat(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/heat"
 
     def setup(self):
-        # Heat
-        self.add_cmd_output(
-            "heat-manage db_version",
-            suggest_filename="heat_db_version"
-        )
 
-        vars_all = [p in os.environ for p in [
-                    'OS_USERNAME', 'OS_PASSWORD']]
+        # collect commands output only if the openstack-heat-api service
+        # is running
+        service_status = self.get_command_output("systemctl status "
+                                                 "openstack-heat-api.service")
+        if service_status['status'] == 0:
+            self.add_cmd_output(
+                "heat-manage db_version",
+                suggest_filename="heat_db_version"
+            )
 
-        vars_any = [p in os.environ for p in [
-                    'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+            vars_all = [p in os.environ for p in [
+                        'OS_USERNAME', 'OS_PASSWORD']]
 
-        if not (all(vars_all) and any(vars_any)):
-            self.soslog.warning("Not all environment variables set. Source "
-                                "the environment file for the user intended "
-                                "to connect to the OpenStack environment.")
-        else:
-            self.add_cmd_output("openstack stack list")
+            vars_any = [p in os.environ for p in [
+                        'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+
+            if not (all(vars_all) and any(vars_any)):
+                self.soslog.warning("Not all environment variables set. "
+                                    "Source the environment file for the user "
+                                    "intended to connect to the OpenStack "
+                                    "environment.")
+            else:
+                self.add_cmd_output("openstack stack list")
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):

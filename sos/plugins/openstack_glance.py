@@ -31,12 +31,6 @@ class OpenStackGlance(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/glance_api"
 
     def setup(self):
-        # Glance
-        self.add_cmd_output(
-            "glance-manage db_version",
-            suggest_filename="glance_db_version"
-        )
-
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
@@ -64,12 +58,23 @@ class OpenStackGlance(Plugin):
         vars_any = [p in os.environ for p in [
                     'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
 
-        if not (all(vars_all) and any(vars_any)):
-            self.soslog.warning("Not all environment variables set. Source "
-                                "the environment file for the user intended "
-                                "to connect to the OpenStack environment.")
-        else:
-            self.add_cmd_output("openstack image list --long")
+        # collect commands output only if the openstack-glance-api service
+        # is running
+        service_status = self.get_command_output(
+                "systemctl status openstack-glance-api.service"
+        )
+        if service_status['status'] == 0:
+            self.add_cmd_output(
+                "glance-manage db_version",
+                suggest_filename="glance_db_version"
+            )
+            if not (all(vars_all) and any(vars_any)):
+                self.soslog.warning("Not all environment variables set. "
+                                    "Source the environment file for the user "
+                                    "intended to connect to the OpenStack "
+                                    "environment.")
+            else:
+                self.add_cmd_output("openstack image list --long")
 
     def postproc(self):
         protect_keys = [
