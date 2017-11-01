@@ -81,6 +81,15 @@ def _node_type(st):
             return t[1]
 
 
+def _file_is_archive(_file):
+    """ check if the file is an archive - used to decide if we can tail it or
+    skip if sizelimit is reached.
+    The check is done heuristically just by comparing file suffix against four
+    most often used archive algorithms.
+    """
+    return _file.endswith(('.gz', '.xz', '.bz', '.bz2'))
+
+
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
@@ -517,6 +526,9 @@ class Plugin(object):
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
 
+        if self.get_option('all_logs'):
+            sizelimit = None
+
         if sizelimit:
             sizelimit *= 1024 * 1024  # in MB
 
@@ -561,7 +573,7 @@ class Plugin(object):
                     break
                 self._add_copy_paths([_file])
 
-            if limit_reached and tailit:
+            if limit_reached and tailit and not _file_is_archive(_file):
                 file_name = _file
 
                 if file_name[0] == os.sep:
