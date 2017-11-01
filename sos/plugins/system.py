@@ -21,7 +21,7 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = "system"
     profiles = ('system', 'kernel')
-    verify_packages = ('glibc', 'initscripts')
+    verify_packages = ('glibc', 'initscripts', 'zlib')
 
     def setup(self):
         self.add_copy_spec("/proc/sys")
