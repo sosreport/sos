@@ -16,6 +16,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 from urlparse import urlparse
+from re import match
 
 
 class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
@@ -43,14 +44,20 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
         # so parse haproxy.cfg until "haproxy.stats" read, and take 2nd word
         # from the next line
         matched = None
+        provision_ip = None
         for line in open("/etc/haproxy/haproxy.cfg").read().splitlines():
             if matched:
                 provision_ip = line.split()[1]
                 break
             matched = match(".*haproxy\.stats.*", line)
+
+        if not provision_ip:
+            return
+
         # check if provision_ip contains port - if not, add default ":1993"
         if urlparse("http://"+provision_ip).port is None:
             provision_ip = provision_ip + ":1993"
+
         self.add_cmd_output("curl http://"+provision_ip+"/\;csv",
                             suggest_filename="haproxy_overview.txt")
 
