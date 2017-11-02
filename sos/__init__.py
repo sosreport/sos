@@ -23,7 +23,7 @@ gettext to internationalize messages.
 
 import gettext
 
-__version__ = "3.4"
+__version__ = "3.5"
 
 gettext_dir = "/usr/share/locale"
 gettext_app = "sos"

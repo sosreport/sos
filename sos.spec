@@ -2,7 +2,7 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 3.4
+Version: 3.5
 Release: 1%{?dist}
 Group: Applications/System
 Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
@@ -52,6 +52,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Thu Nov 02 2017 Bryn M. Reeves <bmr@redhat.com> = 3.5
+- New upstream release
+
 * Tue Mar 28 2017 Bryn M. Reeves <bmr@redhat.com> = 3.4
 - New upstream release
 
