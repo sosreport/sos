@@ -27,8 +27,8 @@ class Vdo(Plugin, RedHatPlugin):
     profiles = ('storage',)
     packages = ('vdo',)
     files = (
-        '/sys/vdo',
-        '/sys/albireo',
+        '/sys/kvdo',
+        '/sys/uds',
         '/etc/vdoconf.yml',
         '/etc/vdoconf.xml'
     )
