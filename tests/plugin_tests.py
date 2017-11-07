@@ -217,6 +217,13 @@ class PluginTests(unittest.TestCase):
         p._do_copy_path("tests")
         self.assertEquals(p.archive.m, {})
 
+    def test_copy_recursive_symlink(self):
+        dir = tempfile.mkdtemp()
+        full_path = os.path.join(dir, "test")
+        os.symlink(full_path, full_path)
+        self.mp._do_copy_path(full_path)
+        self.assertEquals(self.mp.archive.m, {})
+
 
 class AddCopySpecTests(unittest.TestCase):
 
