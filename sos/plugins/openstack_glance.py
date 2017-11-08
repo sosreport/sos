@@ -54,22 +54,34 @@ class OpenStackGlance(Plugin):
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
-        vars_all = [p in os.environ for p in [
-                    'OS_USERNAME', 'OS_PASSWORD']]
-
-        vars_any = [p in os.environ for p in [
-                    'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
-
         # collect commands output only if the openstack-glance-api service
         # is running
         service_status = self.get_command_output(
-                "systemctl status openstack-glance-api.service"
+            "systemctl status openstack-glance-api.service"
         )
-        if service_status['status'] == 0:
+        container_status = self.get_command_output(
+            "bash -c 'docker ps| grep glance_api$'"
+        )
+
+        if (service_status['status'] == 0) or \
+                (container_status['status'] == 0):
+            glance_config = ""
+            # if containerized we need to pass the config to the cont.
+            if container_status['status'] == 0:
+                glance_config = "--config-dir " + self.var_puppet_gen + \
+                                "/etc/glance/"
+
             self.add_cmd_output(
-                "glance-manage db_version",
+                "glance-manage " + glance_config + " db_version",
                 suggest_filename="glance_db_version"
             )
+
+            vars_all = [p in os.environ for p in [
+                        'OS_USERNAME', 'OS_PASSWORD']]
+
+            vars_any = [p in os.environ for p in [
+                        'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+
             if not (all(vars_all) and any(vars_any)):
                 self.soslog.warning("Not all environment variables set. "
                                     "Source the environment file for the user "
