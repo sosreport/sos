@@ -15,8 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
-from urlparse import urlparse
 from re import match
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 
 class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
