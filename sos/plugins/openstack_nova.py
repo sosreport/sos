@@ -32,40 +32,70 @@ class OpenStackNova(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/nova"
 
     def setup(self):
-        # commands we do not need to source the environment file
-        self.add_cmd_output("nova-manage db version")
-        self.add_cmd_output("nova-manage fixed list")
-        self.add_cmd_output("nova-manage floating list")
 
-        vars_all = [p in os.environ for p in [
-                    'OS_USERNAME', 'OS_PASSWORD']]
+        # collect commands output only if the openstack-nova-api service
+        # is running
+        service_status = self.get_command_output(
+            "systemctl status openstack-nova-api.service"
+        )
 
-        vars_any = [p in os.environ for p in [
-                    'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+        container_status = self.get_command_output("docker ps")
+        in_container = False
+        if container_status['status'] == 0:
+            for line in container_status['output'].splitlines():
+                if line.endswith("cinder_api"):
+                    in_container = True
 
-        if not (all(vars_all) and any(vars_any)):
-            self.soslog.warning("Not all environment variables set. Source "
-                                "the environment file for the user intended "
-                                "to connect to the OpenStack environment.")
-        else:
-            self.add_cmd_output("nova service-list")
-            self.add_cmd_output("openstack flavor list --long")
-            self.add_cmd_output("nova network-list")
-            self.add_cmd_output("nova list")
-            self.add_cmd_output("nova agent-list")
-            self.add_cmd_output("nova version-list")
-            self.add_cmd_output("nova host-list")
-            self.add_cmd_output("openstack quota show")
-            self.add_cmd_output("openstack hypervisor stats show")
-            # get details for each nova instance
-            cmd = "openstack server list -f value"
-            nova_instances = self.call_ext_prog(cmd)['output']
-            for instance in nova_instances.splitlines():
-                instance = instance.split()[0]
-                cmd = "openstack server show %s" % (instance)
-                self.add_cmd_output(
-                    cmd,
-                    suggest_filename="instance-" + instance + ".log")
+        if (service_status['status'] == 0) or in_container:
+            nova_config = ""
+            # if containerized we need to pass the config to the cont.
+            if in_container:
+                nova_config = "--config-dir " + self.var_puppet_gen + \
+                                "/etc/nova/"
+
+            self.add_cmd_output(
+                "nova-manage " + nova_config + " db version",
+                suggest_filename="nova-manage_db_version"
+            )
+            self.add_cmd_output(
+                "nova-manage " + nova_config + " fixed list",
+                suggest_filename="nova-manage_fixed_list"
+            )
+            self.add_cmd_output(
+                "nova-manage " + nova_config + " floating list",
+                suggest_filename="nova-manage_floating_list"
+            )
+
+            vars_all = [p in os.environ for p in [
+                        'OS_USERNAME', 'OS_PASSWORD']]
+
+            vars_any = [p in os.environ for p in [
+                        'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+
+            if not (all(vars_all) and any(vars_any)):
+                self.soslog.warning("Not all environment variables set. "
+                                    "Source the environment file for the user "
+                                    "intended to connect to the OpenStack "
+                                    "environment.")
+            else:
+                self.add_cmd_output("nova service-list")
+                self.add_cmd_output("openstack flavor list --long")
+                self.add_cmd_output("nova network-list")
+                self.add_cmd_output("nova list")
+                self.add_cmd_output("nova agent-list")
+                self.add_cmd_output("nova version-list")
+                self.add_cmd_output("nova hypervisor-list")
+                self.add_cmd_output("openstack quota show")
+                self.add_cmd_output("openstack hypervisor stats show")
+                # get details for each nova instance
+                cmd = "openstack server list -f value"
+                nova_instances = self.call_ext_prog(cmd)['output']
+                for instance in nova_instances.splitlines():
+                    instance = instance.split()[0]
+                    cmd = "openstack server show %s" % (instance)
+                    self.add_cmd_output(
+                        cmd,
+                        suggest_filename="instance-" + instance + ".log")
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):

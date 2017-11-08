@@ -32,11 +32,26 @@ class OpenStackHeat(Plugin):
 
         # collect commands output only if the openstack-heat-api service
         # is running
-        service_status = self.get_command_output("systemctl status "
-                                                 "openstack-heat-api.service")
-        if service_status['status'] == 0:
+        service_status = self.get_command_output(
+            "systemctl status openstack-heat-api.service"
+        )
+
+        container_status = self.get_command_output("docker ps")
+        in_container = False
+        if container_status['status'] == 0:
+            for line in container_status['output'].splitlines():
+                if line.endswith("cinder_api"):
+                    in_container = True
+
+        if (service_status['status'] == 0) or in_container:
+            heat_config = ""
+            # if containerized we need to pass the config to the cont.
+            if in_container:
+                heat_config = "--config-dir " + self.var_puppet_gen + \
+                                "_api/etc/heat/"
+
             self.add_cmd_output(
-                "heat-manage db_version",
+                "heat-manage " + heat_config + " db_version",
                 suggest_filename="heat_db_version"
             )
 

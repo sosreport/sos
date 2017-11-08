@@ -27,16 +27,34 @@ class OpenStackCinder(Plugin):
     plugin_name = "openstack_cinder"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("db", "gathers openstack cinder db version", "slow",
-                    False)]
-
     var_puppet_gen = "/var/lib/config-data/puppet-generated/cinder"
 
     def setup(self):
-        if self.get_option("db"):
+
+        # collect commands output only if the openstack-cinder-api service
+        # is running
+        service_status = self.get_command_output(
+            "systemctl status openstack-cinder-api.service"
+        )
+
+        container_status = self.get_command_output("docker ps")
+        in_container = False
+        if container_status['status'] == 0:
+            for line in container_status['output'].splitlines():
+                if line.endswith("cinder_api"):
+                    in_container = True
+
+        if (service_status['status'] == 0) or in_container:
+            cinder_config = ""
+            # if containerized we need to pass the config to the cont.
+            if in_container:
+                cinder_config = "--config-dir " + self.var_puppet_gen + \
+                                "/etc/cinder/"
+
             self.add_cmd_output(
-                "cinder-manage db version",
-                suggest_filename="cinder_db_version")
+                "cinder-manage " + cinder_config + " db version",
+                suggest_filename="cinder_db_version"
+            )
 
         self.add_copy_spec([
             "/etc/cinder/",
