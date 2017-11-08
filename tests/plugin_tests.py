@@ -223,6 +223,7 @@ class PluginTests(unittest.TestCase):
         os.symlink(full_path, full_path)
         self.mp._do_copy_path(full_path)
         self.assertEquals(self.mp.archive.m, {})
+        shutil.rmtree(dir)
 
 
 class AddCopySpecTests(unittest.TestCase):
