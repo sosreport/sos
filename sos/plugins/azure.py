@@ -15,15 +15,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from sos.plugins import Plugin, UbuntuPlugin, RedHatPlugin
+import os
 
 
-class Azure(Plugin, UbuntuPlugin, RedHatPlugin):
+class Azure(Plugin, UbuntuPlugin):
     """ Microsoft Azure client
     """
 
     plugin_name = 'azure'
     profiles = ('virt',)
-    packages = ('walinuxagent',)
+    packages = ('WALinuxAgent',)
 
     def setup(self):
         self.add_copy_spec([
@@ -34,5 +35,32 @@ class Azure(Plugin, UbuntuPlugin, RedHatPlugin):
             "/sys/module/hv_netvsc/parameters/ring_size",
             "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"
         ])
+
+        self.add_cmd_output((
+            'curl -s -H Metadata:true '
+            '"http://169.254.169.254/metadata/instance?'
+            'api-version=2017-08-01"'
+        ), suggest_filename='instance_metadata.json')
+
+
+class RedHatAzure(Azure, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatAzure, self).setup()
+
+        if os.path.isfile('/etc/yum.repos.d/rh-cloud.repo'):
+            curl_cmd = ('curl -s -m 5 -vvv '
+                        'https://rhui-%s.microsoft.com/pulp/repos/%s')
+            self.add_cmd_output([
+                curl_cmd % ('1', 'microsoft-azure-rhel7'),
+                curl_cmd % ('2', 'microsoft-azure-rhel7'),
+                curl_cmd % ('3', 'microsoft-azure-rhel7')
+            ])
+
+        crt_path = '/etc/pki/rhui/product/content.crt'
+        if os.path.isfile(crt_path):
+            self.add_cmd_output([
+                'openssl x509 -noout -text -in ' + crt_path
+            ])
 
 # vim: set et ts=4 sw=4 :
