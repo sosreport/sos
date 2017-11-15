@@ -34,7 +34,6 @@ class OpenStackKeystone(Plugin):
             "/etc/keystone/keystone.conf",
             "/etc/keystone/logging.conf",
             "/etc/keystone/policy.json",
-            "/etc/keystone/domains",
             self.var_puppet_gen + "/etc/keystone/*.conf",
             self.var_puppet_gen + "/etc/keystone/*.json",
             self.var_puppet_gen + "/etc/httpd/conf/",
@@ -58,14 +57,15 @@ class OpenStackKeystone(Plugin):
                 "/var/log/containers/httpd/keystone/*log"
             ], sizelimit=self.limit)
 
-        # collect domain config directory, if exists
-        self.domain_config_dir_added = False
+        # collect domain config directory, if specified
+        # if not, collect default /etc/keystone/domains
         self.domain_config_dir = self.get_cmd_output_now(
-                "openstack-config --get /etc/keystone/keystone.conf "
+                "crudini --get /etc/keystone/keystone.conf "
                 "identity domain_config_dir")
-        if self.domain_config_dir and os.path.isdir(self.domain_config_dir):
-            self.add_copy_spec(self.domain_config_dir)
-            self.domain_config_dir_added = True
+        if self.domain_config_dir is None or \
+                not(os.path.isdir(self.domain_config_dir)):
+            self.domain_config_dir = "/etc/keystone/domains"
+        self.add_copy_spec(self.domain_config_dir)
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
@@ -98,10 +98,9 @@ class OpenStackKeystone(Plugin):
             regexp, r"\1*********"
         )
 
-        # obfuscate LDAP plaintext passwords in domain config dir, if collected
-        if self.domain_config_dir_added:
-            self.do_path_regex_sub(self.domain_config_dir,
-                                   r"((?m)^\s*(%s)\s*=\s*)(.*)", r"\1********")
+        # obfuscate LDAP plaintext passwords in domain config dir
+        self.do_path_regex_sub(self.domain_config_dir,
+                               r"((?m)^\s*(%s)\s*=\s*)(.*)", r"\1********")
 
 
 class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
