@@ -46,4 +46,6 @@ class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "lpstat -d"
         ])
 
+        self.add_journal(units="cups")
+
 # vim: set et ts=4 sw=4 :
