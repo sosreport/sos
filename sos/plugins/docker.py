@@ -97,7 +97,7 @@ class Docker(Plugin):
                     )
                 )
             if self.get_option('logs'):
-                for container in containers:
+                for container in insp:
                     self.add_cmd_output(
                         "{0} logs {1}".format(
                             self.docker_cmd,
