@@ -40,7 +40,7 @@ class etcd(Plugin, RedHatPlugin):
            'ls --recursive',
         ]
 
-        self.add_cmd_output(['%s %s' % (self.cmd, sub) for sub in subcmd])
+        self.add_cmd_output(['%s %s' % (self.cmd, sub) for sub in subcmds])
 
         urls = [
             '/v2/stats/leader',
