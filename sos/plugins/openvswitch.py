@@ -76,6 +76,8 @@ class OpenVSwitch(Plugin):
             "ovs-appctl upcall/show",
             # Capture DPDK and other parameters
             "ovs-vsctl -t 5 get Open_vSwitch . other_config",
+            # Capture OVS list
+            "ovs-vsctl list Open_vSwitch",
             # Capture DPDK datapath packet counters and config
             "ovs-appctl dpctl/show -s",
             # Capture DPDK queue to pmd mapping
@@ -126,6 +128,9 @@ class OpenVSwitch(Plugin):
                 for flow in flow_versions:
                     if flow in br_protos:
                         self.add_cmd_output([
+                            "ovs-ofctl -O %s show %s" % (flow, br),
+                            "ovs-ofctl -O %s dump-groups %s" % (flow, br),
+                            "ovs-ofctl -O %s dump-group-stats %s" % (flow, br),
                             "ovs-ofctl -O %s dump-flows %s" % (flow, br),
                             "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
                         ])
