@@ -74,11 +74,11 @@ class OpenStackHorizon(Plugin):
             regexp, r"\1*********"
         )
         self.do_path_regex_sub(
-            "/etc/openstack-dashboard/local_settings/.*\.conf.*",
+            "/etc/openstack-dashboard/local_settings$",
             regexp, r"\1*********"
         )
         self.do_path_regex_sub(
-            var_puppet_gen + "/etc/openstack-dashboard/.*\.conf.*",
+            var_puppet_gen + "/etc/openstack-dashboard/local_settings$",
             regexp, r"\1*********"
         )
 
