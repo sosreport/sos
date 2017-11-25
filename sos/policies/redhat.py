@@ -44,6 +44,7 @@ class RedHatPolicy(LinuxPolicy):
     _rpmv_filter = ["debuginfo", "-devel"]
     _in_container = False
     _host_sysroot = '/'
+    default_scl_prefix = '/opt/rh'
 
     def __init__(self, sysroot=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot)
