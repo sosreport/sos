@@ -1066,25 +1066,48 @@ class SCLPlugin(RedHatPlugin):
         output = sos_get_command_output("scl -l")["output"]
         return [scl.strip() for scl in output.splitlines()]
 
+    def convert_cmd_scl(self, scl, cmd):
+        """wrapping command in "scl enable" call and adds proper PATH
+        """
+        # load default SCL prefix to PATH
+        prefix = self.policy().get_default_scl_prefix()
+        # read prefix from /etc/scl/prefixes/${scl} and strip trailing '\n'
+        try:
+            prefix = open('/etc/scl/prefixes/%s' % scl, 'r').read()\
+                     .rstrip('\n')
+        except Exception as e:
+            self._log_error("Failed to find prefix for SCL %s, using %s"
+                            % (scl, prefix))
+
+        # expand PATH by equivalent prefixes under the SCL tree
+        path = os.environ["PATH"]
+        for p in path.split(':'):
+            path = '%s/%s%s:%s' % (prefix, scl, p, path)
+
+        scl_cmd = "scl enable %s \"PATH=%s %s\"" % (scl, path, cmd)
+        return scl_cmd
+
     def add_cmd_output_scl(self, scl, cmds, **kwargs):
         """Same as add_cmd_output, except that it wraps command in
-        "scl enable" call.
+        "scl enable" call and sets proper PATH.
         """
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
         scl_cmds = []
-        scl_cmd_tpl = "scl enable %s \"%s\""
         for cmd in cmds:
-            scl_cmds.append(scl_cmd_tpl % (scl, cmd))
+            scl_cmds.append(convert_cmd_scl(scl, cmd))
         self.add_cmd_output(scl_cmds, **kwargs)
 
-    # config files for Software Collections are under /etc/opt/rh/${scl} and
-    # var files are under /var/opt/rh/${scl}. So we need to insert the paths
-    # after the appropriate root dir.
+    # config files for Software Collections are under /etc/${prefix}/${scl} and
+    # var files are under /var/${prefix}/${scl} where the ${prefix} is distro
+    # specific path. So we need to insert the paths after the appropriate root
+    # dir.
     def convert_copyspec_scl(self, scl, copyspec):
+        scl_prefix = self.policy().get_default_scl_prefix()
         for rootdir in ['etc', 'var']:
             p = re.compile('^/%s/' % rootdir)
-            copyspec = p.sub('/%s/opt/rh/%s/' % (rootdir, scl), copyspec)
+            copyspec = p.sub('/%s/%s/%s/' % (rootdir, scl_prefix, scl),
+                             copyspec)
         return copyspec
 
     def add_copy_spec_scl(self, scl, copyspecs):

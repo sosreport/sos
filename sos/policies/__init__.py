@@ -194,6 +194,7 @@ No changes will be made to system configuration.
     vendor_url = "http://www.example.com/"
     vendor_text = ""
     PATH = ""
+    default_scl_prefix = ""
 
     _in_container = False
     _host_sysroot = '/'
@@ -270,6 +271,9 @@ No changes will be made to system configuration.
         if not opt_tmp_dir:
             return tempfile.gettempdir()
         return opt_tmp_dir
+
+    def get_default_scl_prefix(self):
+        return self.default_scl_prefix
 
     def match_plugin(self, plugin_classes):
         if len(plugin_classes) > 1:
