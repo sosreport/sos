@@ -59,8 +59,8 @@ class PackageManager(object):
     verify_filter = None
     chroot = None
 
-    def __init__(self, chroot=None, query_command=None,
-                 verify_command=None, verify_filter=None):
+    def __init__(self,  query_command=None, verify_command=None,
+                 verify_filter=None, chroot=None,):
         self.packages = {}
 
         self.query_command = query_command if query_command else None
