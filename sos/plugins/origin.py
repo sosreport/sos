@@ -48,7 +48,7 @@ class OpenShiftOrigin(Plugin):
     option_list = [
         ("diag", "run 'oc adm diagnostics' to collect its output",
          'fast', True),
-        ("diag-prevent", "set --prevent-modifications on 'oc adm diagnostics'",
+        ("diag-prevent", "set --prevent-modification on 'oc adm diagnostics'",
          'fast', False),
     ]
 
@@ -137,7 +137,7 @@ class OpenShiftOrigin(Plugin):
             if self.get_option('diag'):
                 diag_cmd = "%s adm diagnostics -l 0" % self.oc_cmd_admin
                 if self.get_option('diag-prevent'):
-                    diag_cmd += " --prevent-modifications=true"
+                    diag_cmd += " --prevent-modification=true"
                 self.add_cmd_output(diag_cmd)
             self.add_journal(units=["atomic-openshift-master",
                                     "atomic-openshift-master-api",
