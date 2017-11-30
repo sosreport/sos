@@ -141,8 +141,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
 
         if scl in self.scls_matched:
             self.pg_dump(
-                pg_dump_command="scl enable rh-postgresql95 -- pg_dump",
-                filename="sos_scl_pgdump.tar"
+                pg_dump_command="scl enable rh-postgresql95 -- pg_dump"
             )
 
 
