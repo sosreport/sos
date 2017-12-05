@@ -49,11 +49,15 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
         # from the next line
         matched = None
         provision_ip = None
-        for line in open("/etc/haproxy/haproxy.cfg").read().splitlines():
-            if matched:
-                provision_ip = line.split()[1]
-                break
-            matched = match(".*haproxy\.stats.*", line)
+        try:
+            for line in open("/etc/haproxy/haproxy.cfg").read().splitlines():
+                if matched:
+                    provision_ip = line.split()[1]
+                    break
+                matched = match(".*haproxy\.stats.*", line)
+        except:
+            # fallback when the cfg file is not accessible
+            pass
 
         if not provision_ip:
             return
