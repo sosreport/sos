@@ -61,11 +61,16 @@ class etcd(Plugin, RedHatPlugin):
                         return line.split('=')[1].replace('"', '').strip()
         # If we can't read etcd.conf, assume defaults by etcd version
         except:
-            ver = self.policy().package_manager.get_pkg_list()['etcd']
-            ver = ver['version'][0]
-            if ver == '2':
-                return 'http://localhost:4001'
-            if ver == '3':
-                return 'http://localhost:2379'
+            # assume v3 is the default
+            url = 'http://localhost:2379'
+            try:
+                ver = self.policy().package_manager.get_pkg_list()['etcd']
+                ver = ver['version'][0]
+                if ver == '2':
+                    url = 'http://localhost:4001'
+            except:
+                # fallback when etcd is not installed
+                pass
+            return url
 
 # vim: et ts=5 sw=4
