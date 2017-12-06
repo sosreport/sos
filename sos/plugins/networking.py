@@ -375,7 +375,8 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             "/etc/network/interfaces.d",
             "/etc/ufw",
             "/var/log/ufw.Log",
-            "/etc/resolv.conf"
+            "/etc/resolv.conf",
+            "/etc/netplan/*.yaml"
         ])
         self.add_cmd_output([
             "/usr/sbin/ufw status",
