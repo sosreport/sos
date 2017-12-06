@@ -10,8 +10,9 @@ class DebianPolicy(LinuxPolicy):
     vendor_url = "http://www.debian.org/"
     report_name = ""
     ticket_number = ""
-    package_manager = PackageManager(
-        "dpkg-query -W -f='${Package}|${Version}\\n'")
+    _debq_cmd = "dpkg-query -W -f='${Package}|${Version}\\n'"
+    _debv_cmd = "dpkg --verify"
+    _debv_filter = ""
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
            + ":/usr/local/sbin:/usr/local/bin"
@@ -20,8 +21,11 @@ class DebianPolicy(LinuxPolicy):
         super(DebianPolicy, self).__init__(sysroot=sysroot)
         self.report_name = ""
         self.ticket_number = ""
-        self.package_manager = PackageManager(
-            "dpkg-query -W -f='${Package}|${Version}\\n'")
+        self.package_manager = PackageManager(query_command=self._debq_cmd,
+                                              verify_command=self._debv_cmd,
+                                              verify_filter=self._debv_filter,
+                                              chroot=sysroot)
+
         self.valid_subclasses = [DebianPlugin]
 
     @classmethod
