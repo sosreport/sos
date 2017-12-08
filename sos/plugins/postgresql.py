@@ -34,8 +34,6 @@ class PostgreSQL(Plugin):
 
     packages = ('postgresql',)
 
-    tmp_dir = None
-
     password_warn_text = " (password visible in process listings)"
 
     option_list = [
@@ -47,11 +45,9 @@ class PostgreSQL(Plugin):
         ('dbport', 'database server port number', '', '5432')
     ]
 
-    def pg_dump(self, pg_dump_command="pg_dump", filename="sos_pgdump.tar"):
+    def do_pg_dump(self, scl=None, filename="pgdump.tar"):
         if self.get_option("dbname"):
             if self.get_option("password") or "PGPASSWORD" in os.environ:
-                self.tmp_dir = tempfile.mkdtemp()
-                dest_file = os.path.join(self.tmp_dir, filename)
                 # We're only modifying this for ourself and our children so
                 # there is no need to save and restore environment variables if
                 # the user decided to pass the password on the command line.
@@ -59,30 +55,21 @@ class PostgreSQL(Plugin):
                     os.environ["PGPASSWORD"] = str(self.get_option("password"))
 
                 if self.get_option("dbhost"):
-                    cmd = "%s -U %s -h %s -p %s -w -f %s -F t %s" % (
-                        pg_dump_command,
+                    cmd = "pg_dump -U %s -h %s -p %s -w -F t %s" % (
                         self.get_option("username"),
                         self.get_option("dbhost"),
                         self.get_option("dbport"),
-                        dest_file,
                         self.get_option("dbname")
                     )
                 else:
-                    cmd = "%s -C -U %s -w -f %s -F t %s " % (
-                        pg_dump_command,
+                    cmd = "pg_dump -C -U %s -w -F t %s " % (
                         self.get_option("username"),
-                        dest_file,
                         self.get_option("dbname")
                     )
 
-                result = self.call_ext_prog(cmd)
-                if (result['status'] == 0):
-                    self.add_copy_spec(dest_file)
-                else:
-                    self._log_info(
-                        "Unable to execute pg_dump. Error(%s)" %
-                        (result['output'])
-                    )
+                if scl is not None:
+                    cmd = self.convert_cmd_scl(scl, cmd)
+                self.add_cmd_output(cmd, suggest_filename=filename)
             else:  # no password in env or options
                 self.soslog.warning(
                     "password must be supplied to dump a database."
@@ -92,18 +79,7 @@ class PostgreSQL(Plugin):
                 )
 
     def setup(self):
-        self.pg_dump()
-
-    def postproc(self):
-        import shutil
-        if self.tmp_dir:
-            try:
-                shutil.rmtree(self.tmp_dir)
-            except shutil.Error:
-                self.soslog.exception(
-                    "Unable to remove %s." % (self.tmp_dir)
-                )
-                self.add_alert("ERROR: Unable to remove %s." % (self.tmp_dir))
+        self.do_pg_dump()
 
 
 class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
@@ -140,10 +116,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
         )
 
         if scl in self.scls_matched:
-            self.pg_dump(
-                pg_dump_command="scl enable rh-postgresql95 -- pg_dump",
-                filename="sos_scl_pgdump.tar"
-            )
+            self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
 
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
