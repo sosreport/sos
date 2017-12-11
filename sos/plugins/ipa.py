@@ -79,6 +79,9 @@ class Ipa(Plugin, RedHatPlugin):
         self.pki_tomcat_dir_v4 = "/var/lib/pki/pki-tomcat"
         self.pki_tomcat_dir_v3 = "/var/lib/pki-ca"
 
+        self.pki_tomcat_conf_dir_v4 = "/etc/pki/pki-tomcat/ca"
+        self.pki_tomcat_conf_dir_v3 = "/etc/pki-ca"
+
         if self.ipa_server_installed():
             self._log_debug("IPA server install detected")
 
@@ -104,7 +107,6 @@ class Ipa(Plugin, RedHatPlugin):
             "/etc/dirsrv/slapd-*/schema/99user.ldif",
             "/etc/hosts",
             "/etc/named.*",
-            "/etc/pki-ca/CS.cfg",
             "/etc/ipa/ca.crt",
             "/etc/ipa/default.conf",
             "/var/lib/certmonger/requests/[0-9]*",
@@ -112,22 +114,31 @@ class Ipa(Plugin, RedHatPlugin):
         ])
 
         self.add_forbidden_path("/etc/pki/nssdb/key*")
-        self.add_forbidden_path("/etc/pki-ca/flatfile.txt")
-        self.add_forbidden_path("/etc/pki-ca/password.conf")
-        self.add_forbidden_path("/var/lib/pki-ca/alias/key*")
         self.add_forbidden_path("/etc/dirsrv/slapd-*/key*")
         self.add_forbidden_path("/etc/dirsrv/slapd-*/pin.txt")
         self.add_forbidden_path("/etc/dirsrv/slapd-*/pwdfile.txt")
         self.add_forbidden_path("/etc/named.keytab")
 
+        #  Make sure to use the right PKI config and NSS DB folders
+        self.pki_tomcat_dir = self.pki_tomcat_dir_v4 \
+            if ipa_version == "v4" else self.pki_tomcat_dir_v3
+        self.pki_tomcat_conf_dir = self.pki_tomcat_conf_dir_v4 \
+            if ipa_version == "v4" else self.pki_tomcat_conf_dir_v3
+
+        self.add_cmd_output("certutil -L -d %s/alias" % self.pki_tomcat_dir)
+        self.add_copy_spec("%s/CS.cfg" % self.pki_tomcat_conf_dir)
+        self.add_forbidden_path("%s/alias/key*" % self.pki_tomcat_dir)
+        self.add_forbidden_path("%s/flatfile.txt" % self.pki_tomcat_conf_dir)
+        self.add_forbidden_path("%s/password.conf" % self.pki_tomcat_conf_dir)
+
         self.add_cmd_output([
             "ls -la /etc/dirsrv/slapd-*/schema/",
             "getcert list",
-            "certutil -L -d /var/lib/pki-ca/alias",
             "certutil -L -d /etc/httpd/alias/",
             "klist -ket /etc/dirsrv/ds.keytab",
             "klist -ket /etc/httpd/conf/ipa.keytab"
         ])
+
         for certdb_directory in glob("/etc/dirsrv/slapd-*/"):
             self.add_cmd_output(["certutil -L -d %s" % certdb_directory])
         return
