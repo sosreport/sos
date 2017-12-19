@@ -12,6 +12,7 @@ sosreport \- Collect and package diagnostic and support data
           [--no-report] [--config-file conf]\fR
           [--batch] [--build] [--debug]\fR
           [--label label] [--case-id id] [--ticket-number nr]
+          [--threads threads]
           [-s|--sysroot SYSROOT]\fR
           [-c|--chroot {auto|always|never}\fR
           [--tmp-dir directory]\fR
@@ -130,6 +131,9 @@ Deprecated. See \--label
 Specify an arbitrary identifier to associate with the archive.
 Labels will be appended after the system's short hostname and may contain
 alphanumeric characters.
+.TP
+.B \--threads THREADS
+Specify the number of threads sosreport will use for concurrency. Defaults to 4.
 .TP
 .B \--case-id NUMBER
 Specify a case identifier to associate with the archive.

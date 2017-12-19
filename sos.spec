@@ -19,6 +19,7 @@ Requires: tar
 Requires: bzip2
 Requires: xz
 Requires: python-six
+Requires: python-futures
 
 %description
 Sos is a set of tools that gathers information about system
