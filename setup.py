@@ -73,7 +73,7 @@ setup(name='sos',
         ],
       packages=['sos', 'sos.plugins', 'sos.policies'],
       cmdclass={'build': BuildData, 'install_data': InstallData},
-      requires=['six'],
+      requires=['six', 'futures'],
      )
 
 

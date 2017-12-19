@@ -30,6 +30,7 @@ from collections import deque
 from shutil import rmtree
 import tempfile
 import hashlib
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 from sos import _sos as _
 from sos import __version__
@@ -541,6 +542,17 @@ class SoSOptions(object):
         self._check_options_initialized()
         self._compression_type = value
 
+    @property
+    def threads(self):
+        if self._options is not None:
+            return self._options.threads
+        return self._threads
+
+    @threads.setter
+    def threads(self, value):
+        self._check_options_initialized()
+        self._threads = value
+
     def _parse_args(self, args):
         """ Parse command line options and arguments"""
 
@@ -640,7 +652,10 @@ class SoSOptions(object):
                             dest="compression_type", default="auto",
                             help="compression technology to use [auto, "
                                  "gzip, bzip2, xz] (default=auto)")
-
+        parser.add_argument("-t", "--threads", action="store", dest="threads",
+                            default=4, type=int,
+                            help="specify number of concurrent plugins to run"
+                                 " (default=4)")
         return parser.parse_args(args)
 
 
@@ -1261,34 +1276,85 @@ class SoSReport(object):
         self.ui_log.info("")
 
         plugruncount = 0
-        for i in zip(self.loaded_plugins):
+        self.pluglist = []
+        self.running_plugs = []
+        for i in self.loaded_plugins:
             plugruncount += 1
-            plugname, plug = i[0]
-            status_line = ("  Running %d/%d: %s...        "
-                           % (plugruncount, len(self.loaded_plugins),
-                              plugname))
-            if self.opts.verbosity == 0:
-                status_line = "\r%s" % status_line
-            else:
-                status_line = "%s\n" % status_line
-            if not self.opts.quiet:
-                sys.stdout.write(status_line)
-                sys.stdout.flush()
+            self.pluglist.append((plugruncount, i[0]))
+        try:
+            self.plugpool = ThreadPoolExecutor(self.opts.threads)
+            self.plugpool.map(self._collect_plugin, self.pluglist, chunksize=1)
+            self.plugpool.shutdown(wait=True)
+            self.ui_log.info("")
+        except KeyboardInterrupt:
+            self.ui_log.error(" Keyboard interrupt\n")
+            os._exit(1)
+
+    def _collect_plugin(self, plugin):
+        '''Wraps the collect_plugin() method so we can apply a timeout
+        against the plugin as a whole'''
+        with ThreadPoolExecutor(1) as pool:
             try:
-                plug.collect()
-            except KeyboardInterrupt:
-                raise
-            except (OSError, IOError) as e:
-                if e.errno in fatal_fs_errors:
-                    self.ui_log.error("")
-                    self.ui_log.error(" %s while collecting plugin data"
-                                      % e.strerror)
-                    self.ui_log.error("")
-                    self._exit(1)
-                self.handle_exception(plugname, "collect")
+                t = pool.submit(self.collect_plugin, plugin)
+                t.result(timeout=self.loaded_plugins[plugin[0]-1][1].timeout)
+                return True
+            except TimeoutError:
+                self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])
+                self.running_plugs.remove(plugin[1])
+                pool.shutdown(wait=False)
+
+    def collect_plugin(self, plugin):
+        try:
+            count, plugname = plugin
+            plug = self.loaded_plugins[count-1][1]
+            self.running_plugs.append(plugname)
+        except:
+            return False
+        status_line = "  Starting {:<5}: {:<15} [Running: {}]".format(
+            '%d/%d' % (count, len(self.loaded_plugins)),
+            plugname,
+            ' '.join(p for p in self.running_plugs))
+        self.ui_progress(status_line)
+        try:
+            plug.collect()
+            # certain exceptions can cause either of these lists to no
+            # longer contain the plugin, which will result in sos hanging
+            # so we can't blindly call remove() on these two.
+            try:
+                self.pluglist.remove(plugin)
             except:
-                self.handle_exception(plugname, "collect")
-        self.ui_log.info("")
+                pass
+            try:
+                self.running_plugs.remove(plugname)
+            except:
+                pass
+            status = ''
+            if (len(self.pluglist) <= int(self.opts.threads) and
+                    self.running_plugs):
+                status = "  Finishing plugins %-13s [Running: %s]" % (
+                         ' ',
+                         ' '.join(p for p in self.running_plugs))
+            if not self.pluglist and not self.running_plugs:
+                status = "  Finished running plugins"
+            if status:
+                self.ui_progress(status)
+        except (OSError, IOError) as e:
+            if e.errno in fatal_fs_errors:
+                self.ui_log.error("\n %s while collecting plugin data\n"
+                                  % e.strerror)
+                self._exit(1)
+            self.handle_exception(plugname, "collect")
+        except:
+            self.handle_exception(plugname, "collect")
+
+    def ui_progress(self, status_line):
+        if self.opts.verbosity == 0:
+            status_line = "\r%s" % status_line
+        else:
+            status_line = "%s\n" % status_line
+        if not self.opts.quiet:
+            sys.stdout.write(status_line)
+            sys.stdout.flush()
 
     def report(self):
         for plugname, plug in self.loaded_plugins:
