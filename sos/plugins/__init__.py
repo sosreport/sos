@@ -132,6 +132,7 @@ class Plugin(object):
     archive = None
     profiles = ()
     sysroot = '/'
+    timeout = 300
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
