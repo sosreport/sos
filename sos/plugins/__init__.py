@@ -228,6 +228,10 @@ class Plugin(object):
             for called in self.executed_commands:
                 if called['file'] is None:
                     continue
+                if called['binary'] == 'yes':
+                    self._log_warn("Cannot apply regex substitution to binary"
+                                   " output: '%s'" % called['exe'])
+                    continue
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
                     readable = self.archive.open_file(path)
@@ -265,6 +269,10 @@ class Plugin(object):
             for called in self.executed_commands:
                 # was anything collected?
                 if called['file'] is None:
+                    continue
+                if called['binary'] == 'yes':
+                    self._log_warn("Cannot apply regex substitution to binary"
+                                   " output: '%s'" % called['exe'])
                     continue
                 if fnmatch.fnmatch(called['exe'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
@@ -593,7 +601,8 @@ class Plugin(object):
                 self.archive.add_link(link_path, _file)
 
     def get_command_output(self, prog, timeout=300, stderr=True,
-                           chroot=True, runat=None, env=None):
+                           chroot=True, runat=None, env=None,
+                           binary=False):
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
@@ -601,7 +610,7 @@ class Plugin(object):
 
         result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
                                         chroot=root, chdir=runat,
-                                        env=env)
+                                        env=env, binary=binary)
 
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
@@ -617,7 +626,8 @@ class Plugin(object):
                                    % (prog.split()[0], root))
                     return self.get_command_output(prog, timeout=timeout,
                                                    chroot=False, runat=runat,
-                                                   env=env)
+                                                   env=env,
+                                                   binary=binary)
             self._log_debug("could not run '%s': command not found" % prog)
         return result
 
@@ -638,14 +648,14 @@ class Plugin(object):
 
     def _add_cmd_output(self, cmd, suggest_filename=None,
                         root_symlink=None, timeout=300, stderr=True,
-                        chroot=True, runat=None, env=None):
+                        chroot=True, runat=None, env=None, binary=False):
         """Internal helper to add a single command to the collection list."""
         cmdt = (
             cmd, suggest_filename,
             root_symlink, timeout, stderr,
-            chroot, runat, env
+            chroot, runat, env, binary
         )
-        _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s')"
+        _tuplefmt = "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s', '%s')"
         _logstr = "packed command tuple: " + _tuplefmt
         self._log_debug(_logstr % cmdt)
         self.collect_cmds.append(cmdt)
@@ -653,7 +663,7 @@ class Plugin(object):
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
-                       chroot=True, runat=None, env=None):
+                       chroot=True, runat=None, env=None, binary=False):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -662,7 +672,7 @@ class Plugin(object):
         for cmd in cmds:
             self._add_cmd_output(cmd, suggest_filename,
                                  root_symlink, timeout, stderr,
-                                 chroot, runat, env)
+                                 chroot, runat, env, binary)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -718,14 +728,15 @@ class Plugin(object):
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
-                           chroot=True, runat=None, env=None):
+                           chroot=True, runat=None, env=None,
+                           binary=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
                                          chroot=chroot, runat=runat,
-                                         env=env)
+                                         env=env, binary=binary)
         self._log_debug("collected output of '%s' in %s"
                         % (exe.split()[0], time() - start))
 
@@ -735,13 +746,17 @@ class Plugin(object):
             outfn = self._make_command_filename(exe)
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
-        self.archive.add_string(result['output'], outfn)
+        if binary:
+            self.archive.add_binary(result['output'], outfn)
+        else:
+            self.archive.add_string(result['output'], outfn)
         if root_symlink:
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
         # save in our list
-        self.executed_commands.append({'exe': exe, 'file': outfn_strip})
+        self.executed_commands.append({'exe': exe, 'file': outfn_strip,
+                                       'binary': 'yes' if binary else 'no'})
         self.commons['xmlreport'].add_command(cmdline=exe,
                                               exitcode=result['status'],
                                               f_stdout=outfn_strip)
@@ -850,16 +865,16 @@ class Plugin(object):
                 timeout,
                 stderr,
                 chroot, runat,
-                env
+                env, binary
             ) = progs[0]
-            self._log_debug("unpacked command tuple: " +
-                            "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s')" %
-                            progs[0])
+            self._log_debug(("unpacked command tuple: " +
+                             "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s'," +
+                             "'%s')") % progs[0])
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
                                     root_symlink=root_symlink, timeout=timeout,
                                     stderr=stderr, chroot=chroot, runat=runat,
-                                    env=env)
+                                    env=env, binary=binary)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:

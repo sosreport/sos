@@ -110,7 +110,8 @@ def is_executable(command):
 
 
 def sos_get_command_output(command, timeout=300, stderr=False,
-                           chroot=None, chdir=None, env=None):
+                           chroot=None, chdir=None, env=None,
+                           binary=False):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -164,7 +165,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
 
     return {
         'status': p.returncode,
-        'output': stdout.decode('utf-8', 'ignore')
+        'output': stdout if binary else stdout.decode('utf-8', 'ignore')
     }
 
 
