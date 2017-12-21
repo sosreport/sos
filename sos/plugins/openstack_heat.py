@@ -40,7 +40,7 @@ class OpenStackHeat(Plugin):
         in_container = False
         if container_status['status'] == 0:
             for line in container_status['output'].splitlines():
-                if line.endswith("cinder_api"):
+                if line.endswith("heat_api"):
                     in_container = True
 
         if (service_status['status'] == 0) or in_container:
