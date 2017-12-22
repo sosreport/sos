@@ -30,6 +30,8 @@ class Gluster(Plugin, RedHatPlugin):
     packages = ["glusterfs", "glusterfs-core"]
     files = ["/etc/glusterd", "/var/lib/glusterd"]
 
+    option_list = [("dump", "enable glusterdump support", "slow", False)]
+
     def get_volume_names(self, volume_file):
         """Return a dictionary for which key are volume names according to the
         output of gluster volume info stored in volume_file.
@@ -111,32 +113,32 @@ class Gluster(Plugin, RedHatPlugin):
         else:
             self.add_copy_spec("/var/log/glusterfs")
 
-        self.make_preparations(self.statedump_dir)
-        if self.check_ext_prog("killall -USR1 glusterfs glusterfsd"):
-            # let all the processes catch the signal and create statedump file
-            # entries.
-            time.sleep(1)
-            self.wait_for_statedump(self.statedump_dir)
-            self.add_copy_spec('/tmp/glusterdump.options')
-            self.add_copy_spec(self.statedump_dir)
-        else:
-            self.soslog.info("could not send SIGUSR1 to glusterfs processes")
+        if self.get_option("dump"):
+            self.make_preparations(self.statedump_dir)
+            if self.check_ext_prog("killall -USR1 glusterfs glusterfsd"):
+                # let all the processes catch the signal and create
+                # statedump file entries.
+                time.sleep(1)
+                self.wait_for_statedump(self.statedump_dir)
+                self.add_copy_spec('/tmp/glusterdump.options')
+                self.add_copy_spec(self.statedump_dir)
+            else:
+                self.soslog.info("could not send SIGUSR1 to glusterfs \
+                processes")
 
         volume_file = self.get_cmd_output_now("gluster volume info")
         if volume_file:
             for volname in self.get_volume_names(volume_file):
                 self.add_cmd_output([
-                                    "gluster volume geo-replication %s status"
-                                    % volname,
-                                    "gluster volume heal %s info" % volname,
-                                    "gluster volume heal %s info split-brain"
-                                    % volname,
-                                    "gluster snapshot list %s" % volname,
-                                    "gluster volume quota %s list" % volname,
-                                    "gluster volume rebalance %s status"
-                                    % volname,
-                                    "gluster snapshot info %s" % volname,
-                                    "gluster snapshot status %s" % volname])
+                    "gluster volume geo-replication %s status" % volname,
+                    "gluster volume heal %s info" % volname,
+                    "gluster volume heal %s info split-brain" % volname,
+                    "gluster snapshot list %s" % volname,
+                    "gluster volume quota %s list" % volname,
+                    "gluster volume rebalance %s status" % volname,
+                    "gluster snapshot info %s" % volname,
+                    "gluster snapshot status %s" % volname
+                ])
 
         self.add_cmd_output("gluster pool list")
         self.add_cmd_output("gluster volume status")
