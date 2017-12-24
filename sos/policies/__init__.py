@@ -6,6 +6,8 @@ import platform
 import time
 import fnmatch
 import tempfile
+import random
+import string
 from os import environ
 
 from sos.utilities import (ImporterHelper,
@@ -195,6 +197,7 @@ No changes will be made to system configuration.
     vendor_text = ""
     PATH = ""
     default_scl_prefix = ""
+    name_pattern = 'legacy'
 
     _in_container = False
     _host_sysroot = '/'
@@ -206,7 +209,6 @@ No changes will be made to system configuration.
         tests to construct PATH must call self.set_exec_path() after
         modifying PATH in their own initializer."""
         self._parse_uname()
-        self.report_name = self.hostname
         self.case_id = None
         self.package_manager = PackageManager()
         self._valid_subclasses = []
@@ -261,11 +263,53 @@ No changes will be made to system configuration.
         """
         This function should return the filename of the archive without the
         extension.
+
+        This uses the policy's name_pattern attribute to determine the name.
+        There are two pre-defined naming patterns - 'legacy' and 'friendly'
+        that give names like the following:
+
+        legacy - 'sosreport-tux.123456-20171224185433'
+        friendly - 'sosreport-tux-mylabel-123456-2017-12-24-ezcfcop.tar.xz'
+
+        A custom name_pattern can be used by a policy provided that it
+        defines name_pattern using a format() style string substitution.
+
+        Usable substitutions are:
+
+            name  - the short hostname of the system
+            label - the label given by --label
+            case  - the case id given by --case-id or --ticker-number
+            rand  - a random string of 7 alpha characters
+
+        Note that if a datestamp is needed, the substring should be set
+        in the name_pattern and be parsable by strftime().
+
         """
-        if self.case_id:
-            self.report_name += "." + self.case_id
-        return "sosreport-%s-%s" % (self.report_name,
-                                    time.strftime("%Y%m%d%H%M%S"))
+        name = self.get_local_name().split('.')[0]
+        case = self.case_id
+        label = self.commons['cmdlineopts'].label
+        rand = ''.join(random.choice(string.lowercase) for x in range(7))
+
+        if self.name_pattern == 'legacy':
+            nstr = "sosreport-{name}{case}{date}"
+            case = '.' + case if case else ''
+            date = '-%Y%m%d%H%M%S'
+        elif self.name_pattern == 'friendly':
+            nstr = "sosreport-{name}{label}{case}{date}-{rand}"
+            case = '-' + case if case else ''
+            label = '-' + label if label else ''
+            date = '-%Y-%m-%d'
+        else:
+            nstr = self.name_pattern
+
+        nstr = nstr.format(
+            name=name,
+            label=label,
+            case=case,
+            date=date,
+            rand=rand
+        )
+        return time.strftime(nstr)
 
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
@@ -455,9 +499,6 @@ class LinuxPolicy(Policy):
         """Returns the name usd in the pre_work step"""
         return self.host_name()
 
-    def sanitize_report_name(self, report_name):
-        return re.sub(r"[^-a-zA-Z.0-9]", "", report_name)
-
     def sanitize_case_id(self, case_id):
         return re.sub(r"[^-a-z,A-Z.0-9]", "", case_id)
 
@@ -465,16 +506,11 @@ class LinuxPolicy(Policy):
         # this method will be called before the gathering begins
 
         cmdline_opts = self.commons['cmdlineopts']
-        customer_name = cmdline_opts.customer_name
-        localname = customer_name if customer_name else self.get_local_name()
         caseid = cmdline_opts.case_id if cmdline_opts.case_id else ""
 
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
             try:
-                self.report_name = input(_("Please enter your first initial "
-                                         "and last name [%s]: ") % localname)
-
                 self.case_id = input(_("Please enter the case id "
                                        "that you are generating this "
                                        "report for [%s]: ") % caseid)
@@ -483,21 +519,11 @@ class LinuxPolicy(Policy):
                 self._print()
                 raise
 
-        if len(self.report_name) == 0:
-            self.report_name = localname
-
-        if customer_name:
-            self.report_name = customer_name
-
         if cmdline_opts.case_id:
             self.case_id = cmdline_opts.case_id
 
-        self.report_name = self.sanitize_report_name(self.report_name)
         if self.case_id:
             self.case_id = self.sanitize_case_id(self.case_id)
-
-        if (self.report_name == ""):
-            self.report_name = "default"
 
         return
 

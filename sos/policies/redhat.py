@@ -45,10 +45,10 @@ class RedHatPolicy(LinuxPolicy):
     _in_container = False
     _host_sysroot = '/'
     default_scl_prefix = '/opt/rh'
+    name_pattern = 'friendly'
 
     def __init__(self, sysroot=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot)
-        self.report_name = ""
         self.ticket_number = ""
         # need to set _host_sysroot before PackageManager()
         if sysroot:
