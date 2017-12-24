@@ -221,7 +221,7 @@ class SoSOptions(object):
     _quiet = False
     _debug = False
     _case_id = ""
-    _customer_name = ""
+    _label = ""
     _profiles = deque()
     _list_profiles = False
     _config_file = ""
@@ -443,15 +443,15 @@ class SoSOptions(object):
         self._case_id = value
 
     @property
-    def customer_name(self):
+    def label(self):
         if self._options is not None:
-            return self._options.customer_name
-        return self._customer_name
+            return self._options.label
+        return self._label
 
-    @customer_name.setter
-    def customer_name(self, value):
+    @label.setter
+    def label(self, value):
         self._check_options_initialized()
-        self._customer_name = value
+        self._label = value
 
     @property
     def profiles(self):
@@ -626,6 +626,8 @@ class SoSOptions(object):
         parser.add_argument("--name", action="store",
                             dest="customer_name",
                             help="specify report name")
+        parser.add_argument("--label", "--name", action="store", dest="label",
+                            help="specify an additional report label")
         parser.add_argument("--config-file", action="store",
                             dest="config_file",
                             help="specify alternate configuration file")
