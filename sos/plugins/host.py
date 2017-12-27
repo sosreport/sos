@@ -1,3 +1,5 @@
+# Copyright (C) 2018 Red Hat, Inc. Jake Hunsaker <jhunsake@redhat.com>
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -12,22 +14,28 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
+class Host(Plugin, RedHatPlugin, DebianPlugin):
+    '''Host information
+    '''
 
-class LsbRelease(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Linux standard base
-    """
-
-    plugin_name = 'lsbrelease'
+    plugin_name = 'host'
     profiles = ('system',)
 
     def setup(self):
-        self.add_cmd_output("lsb_release -a")
-        self.add_cmd_output(
-            "lsb_release -d", suggest_filename="lsb_release",
-            root_symlink="lsb-release")
-        self.add_copy_spec("/etc/lsb-release*")
 
-# vim: set et ts=4 sw=4 :
+        self.add_cmd_output('hostname', root_symlink='hostname')
+        self.add_cmd_output('uptime', root_symlink='uptime')
+
+        self.add_cmd_output([
+            'hostname -f',
+            'hostid',
+            'hostnamectl status'
+        ])
+
+        self.add_copy_spec([
+            '/etc/sos.conf',
+            '/etc/hostid',
+        ])
