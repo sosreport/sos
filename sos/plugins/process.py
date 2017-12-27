@@ -33,7 +33,10 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ps_group_opts = "pid,ppid,user,group,lwp,nlwp,start_time,comm,cgroup"
         ps_sched_opts = "flags,state,uid,pid,ppid,pgid,sid,cls,pri,addr,sz,"
         ps_sched_opts += "wchan,stime,tty,time,cmd"
-        self.add_copy_spec("/proc/sched_debug")
+        self.add_copy_spec([
+            "/proc/sched_debug",
+            "/proc/stat"
+        ])
         self.add_cmd_output("ps auxwww", root_symlink="ps")
         self.add_cmd_output("pstree", root_symlink="pstree")
         self.add_cmd_output("lsof -b +M -n -l -c ''", root_symlink="lsof")

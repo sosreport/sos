@@ -1,3 +1,5 @@
+# Copyright (C) 2018 Red Hat, Inc. Jake Hunsaker <jhunsake@redhat.com>
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -12,28 +14,21 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
-class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """core system information
-    """
+class Date(Plugin, RedHatPlugin, DebianPlugin):
+    '''Basic system time information
+    '''
 
-    plugin_name = "system"
-    profiles = ('system', 'kernel')
-    verify_packages = ('glibc', 'initscripts', 'zlib')
+    plugin_name = 'date'
 
     def setup(self):
-        self.add_copy_spec([
-            "/proc/sys",
-            "/etc/sysconfig",
-            "/etc/default",
+        self.add_cmd_output('date', root_symlink='date')
+
+        self.add_cmd_output([
+            'date --utc',
+            'hwclock'
         ])
 
-        self.add_forbidden_path(
-            "/proc/sys/net/ipv6/neigh/*/retrans_time")
-        self.add_forbidden_path(
-            "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
-
-
-# vim: set et ts=4 sw=4 :
+        self.add_copy_spec('/etc/localtime')

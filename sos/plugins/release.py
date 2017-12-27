@@ -12,28 +12,32 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """core system information
+class Release(Plugin, RedHatPlugin, UbuntuPlugin):
+    """Linux release information
     """
 
-    plugin_name = "system"
-    profiles = ('system', 'kernel')
-    verify_packages = ('glibc', 'initscripts', 'zlib')
+    plugin_name = 'release'
+    profiles = ('system',)
 
     def setup(self):
+        self.add_cmd_output("lsb_release -a")
+        self.add_cmd_output("lsb_release -d", suggest_filename="lsb_release",
+                            root_symlink="lsb-release")
+
         self.add_copy_spec([
-            "/proc/sys",
-            "/etc/sysconfig",
-            "/etc/default",
+            "/etc/*release",
+            "/etc/lsb-release/*"
         ])
 
-        self.add_forbidden_path(
-            "/proc/sys/net/ipv6/neigh/*/retrans_time")
-        self.add_forbidden_path(
-            "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
 
+class DebianRelease(Release, DebianPlugin):
+
+    def setup(self):
+        super(DebianRelease, self).setup()
+        self.add_copy_spec('/etc/debian_version')
 
 # vim: set et ts=4 sw=4 :
