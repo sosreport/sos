@@ -1026,6 +1026,17 @@ class Plugin(object):
         else:
             return html
 
+    def check_process_by_name(self, pr):
+        """Checks if a named process is listed in ps -ef output."""
+        ps = self.get_command_output("ps -ef")
+        status = False
+        if ps['status'] == 0:
+            for line in ps['output'].splitlines():
+                if pr in line:
+                    status = True
+                    break
+        return status
+
 
 class RedHatPlugin(object):
     """Tagging class for Red Hat's Linux distributions"""
