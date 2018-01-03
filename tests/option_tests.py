@@ -3,12 +3,15 @@
 import unittest
 
 from sos.plugins import Plugin
+from sos.policies import LinuxPolicy
+
 
 class GlobalOptionTest(unittest.TestCase):
 
     def setUp(self):
         self.commons = {
             'sysroot': '/',
+            'policy': LinuxPolicy(),
             'global_plugin_options': {
                 'test_option': 'foobar',
                 'baz': None,

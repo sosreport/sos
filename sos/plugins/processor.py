@@ -42,7 +42,7 @@ class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "turbostat --debug sleep 10"
         ])
 
-        if '86' in self.policy().get_arch():
+        if '86' in self.policy.get_arch():
             self.add_cmd_output("x86info -a")
 
 

@@ -71,7 +71,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/buddyinfo",
             "/proc/slabinfo",
             "/proc/zoneinfo",
-            "/lib/modules/%s/modules.dep" % self.policy().kernel_version(),
+            "/lib/modules/%s/modules.dep" % self.policy.kernel_version(),
             "/etc/conf.modules",
             "/etc/modules.conf",
             "/etc/modprobe.conf",
