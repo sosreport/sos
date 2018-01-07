@@ -22,7 +22,9 @@ class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'nis'
     profiles = ('identity', 'services')
 
-    files = ('/var/yp',)
+    files = ('/var/yp', '/etc/ypserv.conf')
+
+    packages = ('ypserv')
 
     def setup(self):
         self.add_copy_spec([
