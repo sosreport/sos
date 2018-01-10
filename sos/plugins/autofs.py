@@ -49,7 +49,7 @@ class Autofs(Plugin):
 
     def setup(self):
         self.add_copy_spec("/etc/auto*")
-        self.add_cmd_output("/etc/init.d/autofs status")
+        self.add_cmd_output("service autofs status")
         self.add_cmd_output("automount -m")
         if self.checkdebug():
             self.add_copy_spec(self.getdaemondebug())
