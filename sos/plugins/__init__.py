@@ -1050,15 +1050,20 @@ class Plugin(object):
         else:
             return html
 
-    def check_process_by_name(self, pr):
-        """Checks if a named process is listed in ps -ef output."""
-        ps = self.get_command_output("ps -ef")
+    def check_process_by_name(self, process):
+        """Checks if a named process is found in /proc/[0-9]*/cmdline.
+        Returns either True or False."""
         status = False
-        if ps['status'] == 0:
-            for line in ps['output'].splitlines():
-                if pr in line:
+        cmd_line_glob = "/proc/[0-9]*/cmdline"
+        try:
+            cmd_line_paths = glob.glob(cmd_line_glob)
+            for path in cmd_line_paths:
+                f = open(path, 'r')
+                cmd_line = f.read().strip()
+                if process in cmd_line:
                     status = True
-                    break
+        except IOError as e:
+            return False
         return status
 
 
