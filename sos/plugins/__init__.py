@@ -1026,6 +1026,22 @@ class Plugin(object):
         else:
             return html
 
+    def check_process_by_name(self, process):
+        """Checks if a named process is found in /proc/[0-9]*/cmdline.
+        Returns either True or False."""
+        status = False
+        cmd_line_glob = "/proc/[0-9]*/cmdline"
+        try:
+            cmd_line_paths = glob.glob(cmd_line_glob)
+            for path in cmd_line_paths:
+                f = open(path, 'r')
+                cmd_line = f.read().strip()
+                if process in cmd_line:
+                    status = True
+        except IOError as e:
+            return False
+        return status
+
 
 class RedHatPlugin(object):
     """Tagging class for Red Hat's Linux distributions"""
