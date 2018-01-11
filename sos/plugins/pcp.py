@@ -122,7 +122,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         if self.pcp_hostname != '':
             for pmdir in ('pmlogger', 'pmmgr'):
                 path = os.path.join(self.pcp_log_dir, pmdir,
-                                    self.pcp_hostname)
+                                    self.pcp_hostname, '*')
                 self.add_copy_spec(path, sizelimit=self.limit)
 
         self.add_copy_spec([
