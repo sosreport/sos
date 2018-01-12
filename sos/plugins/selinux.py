@@ -23,30 +23,42 @@ class SELinux(Plugin, RedHatPlugin):
     profiles = ('system', 'security', 'openshift')
 
     option_list = [("fixfiles", 'Print incorrect file context labels',
-                    'slow', False),
-                   ("list", 'List objects and their context', 'slow', False)]
+                    'slow', False)]
     packages = ('libselinux',)
 
     def setup(self):
-        self.add_copy_spec("/etc/selinux")
-        self.add_cmd_output([
-            "sestatus -b",
-            "semodule -l",
-            "selinuxdefcon root",
-            "selinuxconlist root",
-            "selinuxexeccon /bin/passwd",
-            "semanage -o -",
-            "ps axuZww"
+        self.add_copy_spec([
+            '/etc/sestatus.conf',
+            '/etc/selinux'
         ])
-        if self.get_option('fixfiles'):
-            self.add_cmd_output("restorecon -Rvn /", stderr=False)
-        if self.get_option('list'):
+        self.add_cmd_output('sestatus')
+
+        state = self.get_command_output('getenforce')['output']
+        if state is not 'Disabled':
             self.add_cmd_output([
-                "semanage fcontext -l",
-                "semanage user -l",
-                "semanage login -l",
-                "semanage port -l"
+                'ps auxZww',
+                'sestatus -v',
+                'sestatus -b',
+                'selinuxdefcon root',
+                'selinuxconlist root',
+                'selinuxexeccon /bin/passwd',
+                'semanage -o'  # deprecated, may disappear at some point
             ])
 
+            subcmds = [
+                'fcontext',
+                'user',
+                'port',
+                'login',
+                'node',
+                'interface',
+                'module'
+            ]
+
+            for subcmd in subcmds:
+                self.add_cmd_output("semanage %s -l" % subcmd)
+
+            if self.get_option('fixfiles'):
+                self.add_cmd_output("restorecon -Rvn /", stderr=False)
 
 # vim: set et ts=4 sw=4 :
