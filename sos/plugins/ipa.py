@@ -24,7 +24,7 @@ class Ipa(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'ipa'
-    profiles = ('identity',)
+    profiles = ('identity', 'apache')
 
     ipa_server = False
     ipa_client = False
@@ -60,6 +60,10 @@ class Ipa(Plugin, RedHatPlugin):
                "/var/log/pki/pki-tomcat/ca/transactions",
                "/var/log/pki/pki-tomcat/catalina.*",
                "/var/log/pki/pki-ca-spawn.*"
+               "/var/log/pki/pki-tomcat/kra/debug",
+               "/var/log/pki/pki-tomcat/kra/system",
+               "/var/log/pki/pki-tomcat/kra/transactions",
+               "/var/log/pki/pki-kra-spawn.*"
             ])
         elif ipa_version == "v3":
             self.add_copy_spec([
@@ -87,7 +91,10 @@ class Ipa(Plugin, RedHatPlugin):
 
             self.add_copy_spec([
                 "/var/log/ipaserver-install.log",
-                "/var/log/ipareplica-install.log"
+                "/var/log/ipaserver-kra-install.log",
+                "/var/log/ipareplica-install.log",
+                "/var/log/ipareplica-ca-install.log",
+                "/var/log/ipa-custodia.audit.log"
             ])
 
         if self.ca_installed():
