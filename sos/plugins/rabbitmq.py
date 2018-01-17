@@ -28,9 +28,26 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('rabbitmq-server',)
 
     def setup(self):
-        self.add_cmd_output("rabbitmqctl report")
-        self.add_cmd_output("rabbitmqctl cluster_status")
-        self.add_cmd_output("rabbitmqctl list_policies")
+        container_status = self.get_command_output(
+            "docker ps -a --format='{{ .Names }}'")
+
+        in_container = False
+        container_names = []
+        if container_status['status'] == 0:
+            for line in container_status['output'].splitlines():
+                if line.startswith("rabbitmq"):
+                    in_container = True
+                    container_names.append(line)
+
+        if in_container:
+            for container in container_names:
+                self.add_cmd_output('docker logs {0}'.format(container))
+                self.add_cmd_output(
+                    'docker exec -t {0} rabbitmqctl report'
+                    .format(container)
+                )
+        else:
+            self.add_cmd_output("rabbitmqctl report")
 
         self.add_copy_spec([
             "/etc/rabbitmq/*",
