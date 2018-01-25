@@ -31,6 +31,7 @@ class etcd(Plugin, RedHatPlugin):
     def setup(self):
         etcd_url = self.get_etcd_url()
 
+        self.add_forbidden_path('/etc/etcd/ca')
         self.add_copy_spec('/etc/etcd')
 
         subcmds = [
