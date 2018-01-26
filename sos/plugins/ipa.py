@@ -59,7 +59,7 @@ class Ipa(Plugin, RedHatPlugin):
                "/var/log/pki/pki-tomcat/ca/system",
                "/var/log/pki/pki-tomcat/ca/transactions",
                "/var/log/pki/pki-tomcat/catalina.*",
-               "/var/log/pki/pki-ca-spawn.*"
+               "/var/log/pki/pki-ca-spawn.*",
                "/var/log/pki/pki-tomcat/kra/debug",
                "/var/log/pki/pki-tomcat/kra/system",
                "/var/log/pki/pki-tomcat/kra/transactions",
