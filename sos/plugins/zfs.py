@@ -13,24 +13,24 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from sos.plugins import Plugin, UbuntuPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
-class Zfs(Plugin, UbuntuPlugin, DebianPlugin):
+class Zfs(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """ZFS filesystem
     """
 
     plugin_name = 'zfs'
     profiles = ('storage',)
 
-    packages = ('zfsutils-linux',)
+    packages = ('zfsutils-linux', 'zfs',)
 
     def setup(self):
         self.add_cmd_output([
             "zfs get all",
             "zfs list -t all -o space",
             "zpool list",
-            "zpool status -x"
+            "zpool status -vx"
         ])
 
 # vim: set et ts=4 sw=4 :
