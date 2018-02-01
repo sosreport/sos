@@ -23,7 +23,15 @@ class PowerPath(Plugin, RedHatPlugin):
 
     plugin_name = 'powerpath'
     profiles = ('storage', 'hardware')
-    packages = ('EMCpower',)
+
+    def check_enabled(self):
+        mods = ['emcp', 'emcpdm', 'emcpgpx', 'emcpmpx']
+        res = self.get_command_output('lsmod')
+        if res['status'] == 0:
+            loaded = [l.split()[0] for l in mods['output'].split('\n')]
+            if any(mod in loaded for mod in mods):
+                return True
+        return self.is_installed('EMCpower')
 
     def get_pp_files(self):
         """ EMC PowerPath specific information - files
