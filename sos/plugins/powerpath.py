@@ -24,6 +24,7 @@ class PowerPath(Plugin, RedHatPlugin):
     plugin_name = 'powerpath'
     profiles = ('storage', 'hardware')
     packages = ('EMCpower',)
+    kernel_mods = ('emcp', 'emcpdm', 'emcpgpx', 'emcpmpx')
 
     def get_pp_files(self):
         """ EMC PowerPath specific information - files
