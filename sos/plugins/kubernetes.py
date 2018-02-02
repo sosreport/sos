@@ -9,11 +9,13 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+import os
 from os import path
+from os.path import expanduser
 
 
-class kubernetes(Plugin, RedHatPlugin):
+class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
 
     """Kubernetes plugin
     """
@@ -24,11 +26,18 @@ class kubernetes(Plugin, RedHatPlugin):
     profiles = ('container',)
     files = ("/etc/origin/master/master-config.yaml",)
 
+    # For IBM Cloud Private(ICP):
+    # Set the environment variable like:
+    # export icp=true
+    # Then run the sosreport like:
+    # sosreport -o kubernetes -k kubernetes.kubeconfig=/root/.kube/config
     option_list = [
         ("all", "also collect all namespaces output separately",
             'slow', False),
         ("describe", "capture descriptions of all kube resources",
             'fast', False),
+        ("kubeconfig", "kubecofig file other than the default location",
+            'fast', ""),
         ("podlogs", "capture logs for pods", 'slow', False),
     ]
 
@@ -56,9 +65,20 @@ class kubernetes(Plugin, RedHatPlugin):
             self.add_journal(units=svc)
 
         # We can only grab kubectl output from the master
-        if self.check_is_master():
+        if self.check_is_master() or "icp" in os.environ:
             kube_cmd = "kubectl "
-            if path.exists('/etc/origin/master/admin.kubeconfig'):
+            if os.getenv("icp"):
+                # If the user wants to provide kubeconfig path,
+                # fetch the path from user option, otherwise fetch
+                # from default location.
+                if self.get_option('kubeconfig'):
+                    kubeconfig_path = self.get_option('kubeconfig')
+                else:
+                    kubeconfig_path = expanduser("~/.kube/config")
+                if kubeconfig_path != "" and path.exists(kubeconfig_path):
+                    kube_cmd += "--kubeconfig=" + kubeconfig_path + " "
+
+            elif path.exists('/etc/origin/master/admin.kubeconfig'):
                 kube_cmd += "--config=/etc/origin/master/admin.kubeconfig"
 
             kube_get_cmd = "get -o json "
