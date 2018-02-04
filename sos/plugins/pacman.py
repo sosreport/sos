@@ -12,10 +12,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from sos.plugins import Plugin
+from sos.plugins import Plugin, ArchPlugin
 
 
-class Pacman(Plugin):
+class Pacman(Plugin, ArchPlugin):
     """ Pacman specific information
     """
 
@@ -26,12 +26,15 @@ class Pacman(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/pacman.conf",
-            "/etc/makepkg.conf"
+            "/etc/makepkg.conf",
+            "/var/log/pacman.log"
         ])
 
         self.add_cmd_output(
             "ls -l /usr/share/libalpm/hooks /etc/pacman.d/hooks",
-            suggest_filename="hooks")
+            suggest_filename="hooks"
+        )
+
         self.add_cmd_output([
             "checkupdates",
             "pacdiff --output",

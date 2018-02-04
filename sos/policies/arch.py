@@ -1,6 +1,5 @@
-import os
 from sos.policies import PackageManager, LinuxPolicy
-from sos.plugins import Plugin
+from sos.plugins import ArchPlugin
 from sos.utilities import shell_out
 
 
@@ -12,7 +11,7 @@ class ArchPolicy(LinuxPolicy):
     vendor_text = ""
     # package_manager = PackageManager(
     #   "pacman --query | awk 'BEGIN {OFS = \"|\"} {print $1,$2}'")
-    valid_subclasses = [Plugin]
+    valid_subclasses = [ArchPlugin]
 
     def __init__(self, sysroot=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot)
@@ -30,10 +29,6 @@ class ArchPolicy(LinuxPolicy):
 
 
 class Pacman(PackageManager):
-    # this subclass is only needed because sos_get_command_output()
-    # in utilities.py sets shell=False so the pipe to awk in the
-    # command below used to format pacman output does not work
-    # pacman --query | awk 'BEGIN {OFS = \"|\"} {print $1,$2}'
 
     def get_pkg_list(self):
         cmd = "pacman --query"
