@@ -135,6 +135,18 @@ class OpenVSwitch(Plugin):
                             "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
                         ])
 
+        # Gather info on the DPDK mempools associated with each DPDK port
+        br_list_result = self.call_ext_prog("ovs-vsctl -t 5 list-br")
+        if br_list_result['status'] == 0:
+            for br in br_list_result['output'].splitlines():
+                port_list_result = self.call_ext_prog("ovs-vsctl -t 5 "
+                                                      "list-ports %s" % br)
+                if port_list_result['status'] == 0:
+                    for port in port_list_result['output'].splitlines():
+                        self.add_cmd_output(
+                            "ovs-appctl netdev-dpdk/get-mempool-info %s" % port
+                        )
+
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
