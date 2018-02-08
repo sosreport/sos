@@ -79,6 +79,8 @@ class Mysql(Plugin):
             name = "mysqldump_--all-databases"
             self.add_cmd_output("mysqldump %s" % opts, suggest_filename=name)
 
+        self.add_cmd_output("du -s /var/lib/mysql/*")
+
 
 class RedHatMysql(Mysql, RedHatPlugin):
 
