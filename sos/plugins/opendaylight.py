@@ -22,7 +22,7 @@ class OpenDaylight(Plugin, RedHatPlugin):
     plugin_name = 'opendaylight'
     profiles = ('openstack', 'openstack_controller')
 
-    packages = ('opendaylight',)
+    packages = ('opendaylight', 'puppet-opendaylight')
 
     def setup(self):
         self.add_copy_spec("/opt/opendaylight/etc/")
