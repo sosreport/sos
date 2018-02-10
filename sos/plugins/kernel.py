@@ -62,6 +62,15 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
+
+        self.add_forbidden_path([
+            '/sys/kernel/debug/tracing/trace_pipe',
+            '/sys/kernel/debug/tracing/README',
+            '/sys/kernel/debug/tracing/trace_stat/*',
+            '/sys/kernel/debug/tracing/per_cpu/*',
+            '/sys/kernel/debug/tracing/events/*'
+        ])
+
         self.add_copy_spec([
             "/proc/modules",
             "/proc/sys/kernel/random/boot_id",
@@ -71,6 +80,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/sys/module/*/taint",
             "/sys/module/*/version",
             "/sys/firmware/acpi/*",
+            "/sys/kernel/debug/tracing/*",
             "/proc/kallsyms",
             "/proc/buddyinfo",
             "/proc/slabinfo",
