@@ -86,6 +86,8 @@ class Ipa(Plugin, RedHatPlugin):
         self.pki_tomcat_conf_dir_v4 = "/etc/pki/pki-tomcat/ca"
         self.pki_tomcat_conf_dir_v3 = "/etc/pki-ca"
 
+        ipa_version = None
+
         if self.ipa_server_installed():
             self._log_debug("IPA server install detected")
 
