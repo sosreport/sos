@@ -7,10 +7,11 @@
 # See the LICENSE file in the source distribution for further information.
 
 from glob import glob
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, \
+        ArchPlugin
 
 
-class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, ArchPlugin):
     """SCSI devices
     """
 

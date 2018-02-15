@@ -7,10 +7,11 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
+    ArchPlugin
 
 
-class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, ArchPlugin):
     """Block device information
     """
 

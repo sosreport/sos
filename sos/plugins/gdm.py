@@ -6,10 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
+    ArchPlugin
 
 
-class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, ArchPlugin):
     """GNOME display manager
     """
 

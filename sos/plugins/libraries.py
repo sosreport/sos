@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, ArchPlugin
 
 
-class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
+class Libraries(Plugin, RedHatPlugin, UbuntuPlugin, ArchPlugin):
     """Dynamic shared libraries
     """
 

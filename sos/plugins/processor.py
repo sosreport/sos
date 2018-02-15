@@ -6,10 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, \
+    ArchPlugin
 
 
-class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, ArchPlugin):
     """CPU information
     """
 

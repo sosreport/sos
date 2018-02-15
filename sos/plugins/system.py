@@ -6,10 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
+    ArchPlugin
 
 
-class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, ArchPlugin):
     """core system information
     """
 

@@ -6,10 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
+    ArchPlugin
 
 
-class I18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class I18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, ArchPlugin):
     """Internationalization
     """
 

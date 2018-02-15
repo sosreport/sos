@@ -6,12 +6,13 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, \
+    ArchPlugin
 import glob
 import os
 
 
-class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, ArchPlugin):
     """libvirt virtualization API
     """
 

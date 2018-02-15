@@ -6,11 +6,12 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, \
+    ArchPlugin
 import os
 
 
-class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin, ArchPlugin):
     """ ATA and IDE information
     """
 

@@ -6,11 +6,12 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
+    ArchPlugin
 from six.moves import zip
 
 
-class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, ArchPlugin):
     """XFS filesystem
     """
 
