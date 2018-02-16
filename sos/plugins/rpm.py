@@ -13,6 +13,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+from sos.utilities import is_executable
 
 
 class Rpm(Plugin, RedHatPlugin):
@@ -24,7 +25,8 @@ class Rpm(Plugin, RedHatPlugin):
 
     option_list = [("rpmq", "queries for package information via rpm -q",
                     "fast", True),
-                   ("rpmva", "runs a verify on all packages", "slow", False)]
+                   ("rpmva", "runs a verify on all packages", "slow", False),
+                   ("rpmdb", "collect /var/lib/rpm", "slow", False)]
 
     verify_packages = ('rpm',)
 
@@ -60,5 +62,10 @@ class Rpm(Plugin, RedHatPlugin):
         if self.get_option("rpmva"):
             self.add_cmd_output("rpm -Va", root_symlink="rpm-Va",
                                 timeout=180)
+
+        if self.get_option("rpmdb"):
+            self.add_cmd_output("lsof +D /var/lib/rpm",
+                                suggest_filename='lsof_D_var_lib_rpm')
+            self.add_copy_spec("/var/lib/rpm")
 
 # vim: set et ts=4 sw=4 :
