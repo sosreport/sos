@@ -13,6 +13,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os
+import glob
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -36,20 +37,28 @@ class Logs(Plugin):
         self.add_journal(boot="this")
         self.add_journal(boot="this", allfields=True, output="verbose")
         self.add_cmd_output("journalctl --disk-usage")
+        self.add_cmd_output("journalctl -xe")
 
-        if self.get_option('all_logs'):
-            syslog_conf = self.join_sysroot("/etc/syslog.conf")
-            logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", syslog_conf)
-            if self.is_installed("rsyslog") \
-                    or os.path.exists("/etc/rsyslog.conf"):
-                rsyslog_conf = self.join_sysroot("/etc/rsyslog.conf")
-                logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+",
-                                               rsyslog_conf)
-            for i in logs:
-                if i.startswith("-"):
-                    i = i[1:]
-                if os.path.isfile(i):
-                    self.add_copy_spec(i, sizelimit=self.limit)
+        confs = ['/etc/syslog.conf', '/etc/rsyslog.conf']
+        logs = []
+
+        if os.path.exists('/etc/rsyslog.conf'):
+            with open('/etc/rsyslog.conf', 'r') as conf:
+                for line in conf.readlines():
+                    if line.startswith('$IncludeConfig'):
+                        confs += glob.glob(line.split()[1])
+
+        for conf in confs:
+            if not os.path.exists(conf):
+                continue
+            config = self.join_sysroot(conf)
+            logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", config)
+
+        for i in logs:
+            if i.startswith("-"):
+                i = i[1:]
+            if os.path.isfile(i):
+                self.add_copy_spec(i, sizelimit=self.limit)
 
     def postproc(self):
         self.do_path_regex_sub(
