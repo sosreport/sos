@@ -14,42 +14,19 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class SunRPC(Plugin):
+class SunRPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Sun RPC service
     """
 
     plugin_name = "sunrpc"
     profiles = ('system', 'storage', 'network', 'nfs')
-    service = None
-
-    def check_enabled(self):
-        if self.policy().default_runlevel() in \
-                self.policy().runlevel_by_service(self.service):
-            return True
-        return False
+    packages = ('rpcbind',)
 
     def setup(self):
         self.add_cmd_output("rpcinfo -p localhost")
-        return
-
-
-class RedHatSunRPC(SunRPC, RedHatPlugin):
-
-    service = 'rpcbind'
-
-# FIXME: depends on addition of runlevel_by_service (or similar)
-# in Debian/Ubuntu policy classes
-# class DebianSunRPC(SunRPC, DebianPlugin, UbuntuPlugin):
-#    """Sun RPC related information
-#    """
-#
-#    service = 'rpcbind-boot'
-#
-#    def setup(self):
-#        self.add_cmd_output("rpcinfo -p localhost")
-#        return
+        self.add_copy_spec('/sys/kernel/debug/sunrpc')
 
 # vim: set et ts=4 sw=4 :
