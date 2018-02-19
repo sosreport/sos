@@ -23,33 +23,31 @@ class Sendmail(Plugin):
 
     plugin_name = "sendmail"
     profiles = ('services', 'mail')
-
     packages = ('sendmail',)
+
+    def setup(self):
+        self.add_copy_spec("/etc/mail/*")
+        self.add_cmd_output([
+            'mailq',
+            'mailq -Ac'
+        ])
 
 
 class RedHatSendmail(Sendmail, RedHatPlugin):
 
     files = ('/etc/rc.d/init.d/sendmail',)
-    packages = ('sendmail',)
 
     def setup(self):
         super(RedHatSendmail, self).setup()
-        self.add_copy_spec([
-            "/etc/mail/*",
-            "/var/log/maillog"
-        ])
+        self.add_copy_spec('/var/log/maillog')
 
 
 class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
 
     files = ('/etc/init.d/sendmail',)
-    packages = ('sendmail',)
 
     def setup(self):
         super(DebianSendmail, self).setup()
-        self.add_copy_spec([
-            "/etc/mail/*",
-            "/var/log/mail.*"
-        ])
+        self.add_copy_spec("/var/log/mail.*")
 
 # vim: set et ts=4 sw=4 :
