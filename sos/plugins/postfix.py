@@ -28,7 +28,10 @@ class Postfix(Plugin):
             "/etc/postfix/main.cf",
             "/etc/postfix/master.cf"
         ])
-        self.add_cmd_output("postconf")
+        self.add_cmd_output([
+            'postconf',
+            'mailq'
+        ])
 
 
 class RedHatPostfix(Postfix, RedHatPlugin):
