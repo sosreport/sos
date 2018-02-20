@@ -110,11 +110,17 @@ class PackageManager(object):
             for pkg in pkg_list:
                 if '|' not in pkg:
                     continue
-                name, version = pkg.split("|")
+                elif pkg.count("|") == 1:
+                    name, version = pkg.split("|")
+                    release = None
+                elif pkg.count("|") == 2:
+                    name, version, release = pkg.split("|")
                 self.packages[name] = {
                     'name': name,
                     'version': version.split(".")
                 }
+                release = release if release else None
+                self.packages[name]['release'] = release
 
         return self.packages
 

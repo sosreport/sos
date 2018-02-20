@@ -39,7 +39,7 @@ class RedHatPolicy(LinuxPolicy):
     vendor_url = "http://www.redhat.com/"
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
-    _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
+    _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}|%{RELEASE}\\n"'
     _rpmv_cmd = 'rpm -V'
     _rpmv_filter = ["debuginfo", "-devel"]
     _in_container = False
