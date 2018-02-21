@@ -138,6 +138,7 @@ class Networking(Plugin):
             "/etc/nftables.conf",
             "/etc/dnsmasq*",
             "/sys/class/net/*/flags",
+            "/sys/class/net/*/statistics/",
             "/etc/iproute2"
         ])
 
