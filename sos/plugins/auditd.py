@@ -31,7 +31,8 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_cmd_output([
             "ausearch --input-logs -m avc,user_avc -ts today",
-            "auditctl -s"
+            "auditctl -s",
+            "auditctl -l"
         ])
 
         if not self.get_option("all_logs"):
