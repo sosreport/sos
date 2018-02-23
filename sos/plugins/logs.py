@@ -61,6 +61,9 @@ class Logs(Plugin):
             if os.path.isfile(i):
                 self.add_copy_spec(i, sizelimit=self.limit)
 
+        if self.get_option('all_logs'):
+            self.add_journal(boot="this", allfields=True, output="verbose")
+
     def postproc(self):
         self.do_path_regex_sub(
             r"/etc/rsyslog*",
