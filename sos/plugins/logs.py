@@ -34,10 +34,10 @@ class Logs(Plugin):
         self.add_copy_spec("/var/log/boot.log", sizelimit=self.limit)
         self.add_copy_spec("/var/log/cloud-init*", sizelimit=self.limit)
         self.add_journal(boot="this")
-        self.add_journal(boot="this", allfields=True, output="verbose")
         self.add_cmd_output("journalctl --disk-usage")
 
         if self.get_option('all_logs'):
+            self.add_journal(boot="this", allfields=True, output="verbose")
             syslog_conf = self.join_sysroot("/etc/syslog.conf")
             logs = self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", syslog_conf)
             if self.is_installed("rsyslog") \
