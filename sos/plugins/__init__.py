@@ -556,7 +556,7 @@ class Plugin(object):
             def getmtime(path):
                 try:
                     return os.path.getmtime(path)
-                except (OSError, FileNotFoundError):
+                except OSError:
                     return 0
 
             files.sort(key=getmtime, reverse=True)
@@ -567,7 +567,7 @@ class Plugin(object):
             for _file in files:
                 try:
                     current_size += os.stat(_file)[stat.ST_SIZE]
-                except (OSError, FileNotFoundError):
+                except OSError:
                     self._log_info("failed to stat '%s'" % _file)
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
