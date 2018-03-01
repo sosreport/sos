@@ -78,6 +78,7 @@ class Yum(Plugin, RedHatPlugin):
 
         self.add_cmd_output([
             "yum history",
+            "yum list installed",
             "package-cleanup --dupes",
             "package-cleanup --problems"
         ])
