@@ -428,7 +428,7 @@ class TarFileArchive(FileCacheArchive):
             if is_executable(method):
                 methods.append(method)
             else:
-                self.log_error("\"%s\" command not found." % method)
+                self.log_info("\"%s\" compression method unavailable" % method)
         if self.method in methods:
             methods = [self.method]
 
