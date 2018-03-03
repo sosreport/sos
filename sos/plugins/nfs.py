@@ -27,7 +27,8 @@ class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/nfsmount.conf",
             "/etc/idmapd.conf",
             "/proc/fs/nfsfs/servers",
-            "/proc/fs/nfsfs/volumes"
+            "/proc/fs/nfsfs/volumes",
+            "/run/sysconfig/nfs-utils",
         ])
         return
 
