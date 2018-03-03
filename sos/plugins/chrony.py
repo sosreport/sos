@@ -32,7 +32,7 @@ class Chrony(Plugin, RedHatPlugin):
         self.add_cmd_output([
             "chronyc activity",
             "chronyc tracking",
-            "chronyc sources",
+            "chronyc -n sources",
             "chronyc sourcestats",
             "chronyc serverstats",
             "chronyc ntpdata",
