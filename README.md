@@ -107,17 +107,17 @@ Fedora/RHEL users install via yum:
 yum install sos
 ```
 
-Debian(Sid) users install via apt:
+Debian users install via apt:
 
 ```
-apt-get install sosreport
+apt install sosreport
 ```
 
 
-Ubuntu(14.04 LTS and above) users install via apt:
+Ubuntu (14.04 LTS and above) users install via apt:
 
 ```
-sudo apt-get install sosreport
+sudo apt install sosreport
 ```
 
  [0]: https://github.com/sosreport/sos/wiki/Contribution-Guidelines
