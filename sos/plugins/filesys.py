@@ -33,13 +33,15 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/self/mounts",
             "/proc/self/mountinfo",
             "/proc/self/mountstats",
+            "/proc/[0-9]*/mountinfo",
             "/proc/mounts"
         ])
         self.add_cmd_output("mount -l", root_symlink="mount")
         self.add_cmd_output("df -al -x autofs", root_symlink="df")
         self.add_cmd_output([
             "df -ali -x autofs",
-            "findmnt"
+            "findmnt",
+            "lslocks"
         ])
 
         if self.get_option('lsof'):
@@ -59,5 +61,12 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             r"(password=)[^\s]*",
             r"\1********"
         )
+
+        # remove expected errors from lsof due to command formatting, but still
+        # keep stderr so other errors are reported
+        regex = (r"(lsof: (avoiding (.*?)|WARNING: can't stat\(\) (.*?))|"
+                 "Output information may be incomplete.)\n")
+
+        self.do_cmd_output_sub("lsof", regex, '')
 
 # vim: set et ts=4 sw=4 :
