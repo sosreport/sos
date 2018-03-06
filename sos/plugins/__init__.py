@@ -33,6 +33,12 @@ import errno
 import six
 from six.moves import zip, filter
 
+# FileNotFoundError does not exist in 2.7, so map it to IOError
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 
 def _to_u(s):
     if not isinstance(s, six.text_type):
