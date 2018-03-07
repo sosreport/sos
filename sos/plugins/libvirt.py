@@ -41,6 +41,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/etc/libvirt/lxc.conf",
             "/etc/libvirt/nwfilter/*.xml",
             "/etc/libvirt/qemu/*.xml",
+            "/etc/libvirt/qemu.conf",
             "/var/run/libvirt/",
             "/etc/libvirt/qemu/networks/*.xml",
             "/etc/libvirt/qemu/networks/autostart/*.xml",
