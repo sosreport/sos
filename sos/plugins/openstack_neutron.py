@@ -73,22 +73,33 @@ class OpenStackNeutron(Plugin):
             self.add_cmd_output("openstack floating ip list")
             self.add_cmd_output("openstack security group list")
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/neutron/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/neutron/*",
+            regexp, subst
+        )
+
     def postproc(self):
         protect_keys = [
             "rabbit_password", "qpid_password", "nova_admin_password",
-            "xenapi_connection_password", "password", "connection",
+            "xenapi_connection_password", "password", "server_auth",
             "admin_password", "metadata_proxy_shared_secret", "eapi_password",
             "crd_password", "primary_l3_host_password", "serverauth",
             "ucsm_password", "ha_vrrp_auth_password", "ssl_key_password",
             "nsx_password", "vcenter_password", "edge_appliance_password",
-            "tenant_admin_password", "apic_password", "server_auth"
+            "tenant_admin_password", "apic_password"
         ]
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        connection_keys = ["connection"]
 
-        self.do_path_regex_sub("/etc/neutron/*", regexp, r"\1*********")
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/neutron/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 
