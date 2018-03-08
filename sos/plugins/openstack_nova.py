@@ -138,29 +138,40 @@ class OpenStackNova(Plugin):
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/nova/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/nova/*",
+            regexp, subst
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "_placement/etc/nova/*",
+            regexp, subst
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "_libvirt/etc/nova/*",
+            regexp, subst
+        )
+
     def postproc(self):
         protect_keys = [
             "ldap_dns_password", "neutron_admin_password", "rabbit_password",
             "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
             "xenapi_connection_password", "password", "host_password",
-            "vnc_password", "connection", "sql_connection", "admin_password",
-            "connection_password", "memcache_secret_key", "s3_secret_key",
+            "vnc_password", "admin_password", "connection_password",
+            "memcache_secret_key", "s3_secret_key",
             "metadata_proxy_shared_secret"
         ]
+        connection_keys = ["connection", "sql_connection"]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/nova/*", regexp, r"\1*********")
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/nova/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
         )
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "_placement/etc/nova/*",
-            regexp, r"\1*********"
-        )
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "_libvirt/etc/nova/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 

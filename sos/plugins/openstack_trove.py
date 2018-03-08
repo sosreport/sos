@@ -50,19 +50,29 @@ class OpenStackTrove(Plugin):
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
-    def postproc(self):
-
-        protect_keys = [
-            "default_password_length", "notifier_queue_password",
-            "rabbit_password", "replication_password", "connection",
-            "admin_password", "dns_passkey"
-        ]
-
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/trove/*", regexp, r"\1*********")
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/trove/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/trove/*",
-            regexp, r"\1*********"
+            regexp, subst
+        )
+
+    def postproc(self):
+        protect_keys = [
+            "default_password_length", "notifier_queue_password",
+            "rabbit_password", "replication_password", "admin_password",
+            "dns_passkey"
+        ]
+        connection_keys = ["connection"]
+
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 

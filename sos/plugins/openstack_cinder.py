@@ -85,6 +85,13 @@ class OpenStackCinder(Plugin):
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/cinder/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/cinder/*",
+            regexp, subst
+        )
+
     def postproc(self):
         protect_keys = [
             "admin_password", "backup_tsm_password", "chap_password",
@@ -95,15 +102,19 @@ class OpenStackCinder(Plugin):
             "netapp_password", "netapp_sa_password", "nexenta_password",
             "password", "qpid_password", "rabbit_password", "san_password",
             "ssl_key_password", "vmware_host_password", "zadara_password",
-            "zfssa_initiator_password", "connection", "zfssa_target_password",
-            "os_privileged_user_password", "hmac_keys"
+            "zfssa_initiator_password", "hmac_keys", "zfssa_target_password",
+            "os_privileged_user_password"
         ]
+        connection_keys = ["connection"]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/cinder/*", regexp, r"\1*********")
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/cinder/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 
