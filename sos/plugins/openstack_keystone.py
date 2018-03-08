@@ -84,18 +84,29 @@ class OpenStackKeystone(Plugin):
             self.add_cmd_output("openstack endpoint list")
             self.add_cmd_output("openstack catalog list")
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/keystone/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/keystone/*",
+            regexp, subst
+        )
+
     def postproc(self):
         protect_keys = [
             "password", "qpid_password", "rabbit_password", "ssl_key_password",
             "ldap_dns_password", "neutron_admin_password", "host_password",
-            "connection", "admin_password", "admin_token", "ca_password"
+            "admin_password", "admin_token", "ca_password"
         ]
+        connection_keys = ["connection"]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/keystone/*", regexp, r"\1*********")
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/keystone/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
         # obfuscate LDAP plaintext passwords in domain config dir

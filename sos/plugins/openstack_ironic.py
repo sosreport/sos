@@ -88,16 +88,27 @@ class OpenStackIronic(Plugin):
             self.add_cmd_output("openstack baremetal port list --long")
             self.add_cmd_output("openstack baremetal port group list --long")
 
+    def apply_regex_sub(self, regexp, subst):
+        for conf in self.conf_list:
+            self.do_path_regex_sub(conf, regexp, subst)
+
     def postproc(self):
         protect_keys = [
             "dns_passkey", "memcache_secret_key", "rabbit_password",
-            "password", "qpid_password", "connection", "sql_connection",
-            "admin_password", "ssl_key_password", "os_password"
+            "password", "qpid_password", "admin_password", "ssl_key_password",
+            "os_password"
         ]
-        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        connection_keys = ["connection", "sql_connection"]
 
-        for conf in self.conf_list:
-            self.do_path_regex_sub(conf, regexp, r"\1*********")
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
+        )
 
 
 class DebianIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):

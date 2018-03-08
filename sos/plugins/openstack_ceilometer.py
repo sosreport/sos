@@ -49,20 +49,30 @@ class OpenStackCeilometer(Plugin):
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/ceilometer/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/ceilometer/*",
+            regexp, subst
+        )
+
     def postproc(self):
         protect_keys = [
             "admin_password", "connection_password", "host_password",
             "memcache_secret_key", "os_password", "password", "qpid_password",
             "rabbit_password", "readonly_user_password", "secret_key",
-            "ssl_key_password", "telemetry_secret", "connection",
-            "metering_secret"
+            "ssl_key_password", "telemetry_secret", "metering_secret"
         ]
+        connection_keys = ["connection"]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/ceilometer/*", regexp, r"\1*********")
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/ceilometer/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 

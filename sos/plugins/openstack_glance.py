@@ -93,18 +93,28 @@ class OpenStackGlance(Plugin):
             else:
                 self.add_cmd_output("openstack image list --long")
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/glance/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/glance/*",
+            regexp, subst
+        )
+
     def postproc(self):
         protect_keys = [
             "admin_password", "password", "qpid_password", "rabbit_password",
-            "s3_store_secret_key", "ssl_key_password", "connection",
-            "vmware_server_password"
+            "s3_store_secret_key", "ssl_key_password", "vmware_server_password"
         ]
+        connection_keys = ["connection"]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/glance/*", regexp, r"\1*********")
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/glance/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 

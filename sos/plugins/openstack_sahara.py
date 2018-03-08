@@ -49,18 +49,29 @@ class OpenStackSahara(Plugin):
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub("/etc/sahara/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/sahara/*",
+            regexp, subst
+        )
+
     def postproc(self):
         protect_keys = [
             "admin_password", "memcache_secret_key", "password",
             "qpid_password", "rabbit_password", "ssl_key_password",
-            "xenapi_connection_password", "connection"
+            "xenapi_connection_password"
         ]
+        connection_keys = ["connection"]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/sahara/*", regexp, r"\1*********")
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/sahara/*",
-            regexp, r"\1*********"
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 
