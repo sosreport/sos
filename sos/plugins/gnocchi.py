@@ -19,17 +19,11 @@ import os
 from sos.plugins import Plugin, RedHatPlugin
 
 
-class GnocchiPlugin(Plugin, RedHatPlugin):
+class GnocchiPlugin(Plugin):
     """Gnocchi - Metric as a service"""
     plugin_name = "gnocchi"
 
     profiles = ('openstack', 'openstack_controller')
-
-    packages = (
-        'openstack-gnocchi-metricd', 'openstack-gnocchi-common',
-        'openstack-gnocchi-statsd', 'openstack-gnocchi-api',
-        'openstack-gnocchi-carbonara'
-    )
 
     requires_root = False
 
@@ -93,6 +87,19 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
             r"password=(.*)",
             r"password=*****",
         )
+
+
+
+class RedHatGnocchi(GnocchiPlugin, RedHatPlugin):
+    """OpenStack Gnocchi for Red Hat distributions."""
+
+    packages = (
+        'openstack-gnocchi-api',
+        'openstack-gnocchi-common',
+        'openstack-gnocchi-metricd',
+        'openstack-gnocchi-statsd',
+        'openstack-gnocchi-carbonara'
+    )
 
 
 # vim: set et ts=4 sw=4 :
