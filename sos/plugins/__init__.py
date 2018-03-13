@@ -872,8 +872,8 @@ class Plugin(object):
     def collect(self):
         """Collect the data for a plugin."""
         start = time()
-        self._collect_copy_specs()
         self._collect_cmd_output()
+        self._collect_copy_specs()
         self._collect_strings()
         fields = (self.name(), time() - start)
         self._log_debug("collected plugin '%s' in %s" % fields)
