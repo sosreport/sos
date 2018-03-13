@@ -808,7 +808,7 @@ class SoSReport(object):
             pdb.pm()
 
     def _exit(self, error=0):
-        raise SystemExit()
+        raise SystemExit(error)
 #        sys.exit(error)
 
     def get_exit_handler(self):
@@ -1578,6 +1578,19 @@ class SoSReport(object):
     def set_global_plugin_option(self, key, value):
         self.global_plugin_options[key] = value
 
+    def _cleanup(self):
+        try:
+            # archive and tempfile cleanup may fail due to a fatal
+            # OSError exception (ENOSPC, EROFS etc.).
+            if self.archive:
+                self.archive.cleanup()
+            if self.tempfile_util:
+                self.tempfile_util.clean()
+            if self.tmpdir:
+                rmtree(self.tmpdir)
+        except:
+            raise
+
     def execute(self):
         try:
             self.policy.set_commons(self.get_commons())
@@ -1612,20 +1625,13 @@ class SoSReport(object):
 
             return self.final_work()
 
-        except (OSError, SystemExit, KeyboardInterrupt):
-            try:
-                # archive and tempfile cleanup may fail due to a fatal
-                # OSError exception (ENOSPC, EROFS etc.).
-                if self.archive:
-                    self.archive.cleanup()
-                if self.tempfile_util:
-                    self.tempfile_util.clean()
-                if self.tmpdir:
-                    rmtree(self.tmpdir)
-            except:
-                raise
+        except (OSError):
+            self._cleanup()
+        except (SystemExit, KeyboardInterrupt):
+            self._cleanup()
+            self._exit(0)
 
-        return False
+        self._exit(1)
 
 
 def main(args):
