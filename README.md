@@ -54,7 +54,9 @@ and run
 make
 ```
 
-Please run `make test` before sending a [pull request][0]
+Please run `make test` before sending a [pull request][0], or run the
+test suite manually using the `nosetests` command (ideally for the
+set of Python versions currently supported by `sos` upstream).
 
 ### Wiki
 
