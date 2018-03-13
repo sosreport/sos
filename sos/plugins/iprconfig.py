@@ -57,10 +57,9 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                     devices.append(temp[0])
 
         for device in devices:
-            self.add_cmd_output("iprconfig -c show-details %s" % (device,))
-            self.add_cmd_output("iprconfig -c show-battery-info %s" % (
-                                device,))
-            self.add_cmd_output("iprconfig -c show-perf %s" % (device,))
+            self.add_cmd_output("iprconfig -c show-details %s" % device)
+            self.add_cmd_output("iprconfig -c show-battery-info %s" % device)
+            self.add_cmd_output("iprconfig -c show-perf %s" % device)
 
         # Look for IBM Power RAID enclosures (iprconfig lists them)
         show_config = self.call_ext_prog("iprconfig -c show-config")
@@ -114,4 +113,6 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                         temp = line.split(' ')
                         # temp[0] holds device name
                         self.add_cmd_output("iprconfig -c "
-                                            "query-ses-mode %s" % (temp[0],))
+                                            "query-ses-mode %s" % temp[0])
+
+# vim: set et ts=4 sw=4 :
