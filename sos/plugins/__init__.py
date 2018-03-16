@@ -88,40 +88,43 @@ def _node_type(st):
 
 
 def _file_is_compressed(path):
-    """Check if a file appears to be compressed
+    """Check if a file appears to be compressed.
 
-    Return True if the file specified by path appears to be compressed,
-    or False otherwise by testing the file name extension against a
-    list of known file compression extentions.
+    :param path: File path.
+    :returns: ``True`` if the file specified by path appears to be
+               compressed, or False otherwise by testing the file name
+               extension against a list of known file compression
+               extentions.
+    :returntype: bool
     """
     return path.endswith(('.gz', '.xz', '.bz', '.bz2'))
 
 
 class Plugin(object):
-    """ This is the base class for sosreport plugins. Plugins should subclass
+    """This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
 
-    plugin_name is a string returned by plugin.name(). If this is set to None
-    (the default) class\_.__name__.tolower() will be returned. Be sure to set
-    this if you are defining multiple plugins that do the same thing on
-    different platforms.
-
-    requires_root is a boolean that specifies whether or not sosreport should
-    execute this plugin as a super user.
-
-    version is a string representing the version of the plugin. This can be
-    useful for post-collection tooling.
-
-    packages (files) is an iterable of the names of packages (the paths
-    of files) to check for before running this plugin. If any of these packages
-    or files is found on the system, the default implementation of
-    check_enabled will return True.
-
-    profiles is an iterable of profile names that this plugin belongs to.
-    Whenever any of the profiles is selected on the command line the plugin
-    will be enabled (subject to normal check_enabled tests).
+    Attributes:
+        plugin_name: String returned by ``plugin.name()``. If this is
+                     set to ``None`` (the default)
+                     ``class_.__name__.tolower()`` will be returned.
+                     Be sure to set this if you are defining multiple
+                     plugins that do the same thing on different
+                     platforms.
+        requires_root: Bool specifies whether or not sosreport should
+                       execute this plugin as a super user.
+        version: String representing the version of the plugin. This
+                 can be useful for post-collection tooling.
+        packages: Iterable of the names of packages (the paths of
+                  files) to check for before running this plugin. If
+                  any of these packages or files is found on the
+                  system, the default implementation of
+                  ``check_enabled`` will return ``True``.
+        profiles: Iterable of profile names that this plugin belongs
+                  to. Whenever any of the profiles is selected on the
+                  command line the plugin will be enabled (subject to
+                  normal ``check_enabled`` tests).
     """
-
     plugin_name = None
     requires_root = True
     version = 'unversioned'
@@ -162,8 +165,9 @@ class Plugin(object):
 
     @classmethod
     def name(cls):
-        """Returns the plugin's name as a string. This should return a
-        lowercase string.
+        """
+        :returns: The plugin's name as a string. This should return a
+                  lowercase string.
         """
         if cls.plugin_name:
             return cls.plugin_name
@@ -213,7 +217,7 @@ class Plugin(object):
         parameters). Any matching instances are replaced with: '-----SCRUBBED'
         and this function does not take a regexp or substituting string.
 
-        This function returns the number of replacements made.
+        :returns: Number of replacements made.
         '''
         globstr = '*' + cmd + '*'
         self._log_debug("Scrubbing certs and keys for commands matching %s"
@@ -246,16 +250,21 @@ class Plugin(object):
         return replacements
 
     def do_cmd_output_sub(self, cmd, regexp, subst):
-        '''Apply a regexp substitution to command output archived by sosreport.
-        cmd is the command name from which output is collected (i.e. excluding
-        parameters). The regexp can be a string or a compiled re object. The
-        substitution string, subst, is a string that replaces each occurrence
-        of regexp in each file collected from cmd. Internally 'cmd' is treated
-        as a glob with a leading and trailing '*' and each matching file from
-        the current module's command list is subjected to the replacement.
+        """Apply a regexp substitution to command output archived by
+        sosreport.
 
-        This function returns the number of replacements made.
-        '''
+        :param cmd: A sring from which output is collected (i.e.
+                    excluding parameters).
+        :param regexp: Can be a string or a compiled re object.
+        :param subst: A string that replaces each occurrence of regexp
+                      in each file collected from cmd. Internally
+                      ``cmd`` is treated as a glob with a leading and
+                      trailing '*' and each matching file from the
+                      current module's command list is subjected to
+                      the replacement.
+        :returns: Number of replacements made.
+        :returntype: integer
+        """
         globstr = '*' + cmd + '*'
         self._log_debug("substituting '%s' for '%s' in commands matching '%s'"
                         % (subst, regexp, globstr))
@@ -294,7 +303,7 @@ class Plugin(object):
         can be a regexp string or a compiled re object.  subst is a string to
         replace each occurance of regexp in the content of srcpath.
 
-        This function returns the number of replacements made.
+        :returns: Number of replacements made.
         '''
         try:
             path = self._get_dest_for_srcpath(srcpath)
@@ -493,12 +502,14 @@ class Plugin(object):
             return False
 
     def get_option(self, optionname, default=0):
-        """Returns the first value that matches 'optionname' in parameters
-        passed in via the command line or set via set_option or via the
-        global_plugin_options dictionary, in that order.
-
-        optionaname may be iterable, in which case the first option that
-        matches any of the option names is returned.
+        """
+        :param optionaname: An iterable, in which case the first
+                            option that matches any of the option
+                            names is returned.
+        :returns: the first value that matches 'optionname' in
+                  parameters passed in via the command line or set via
+                  set_option or via the global_plugin_options
+                  dictionary, in that order.
         """
 
         global_options = ('verify', 'all_logs', 'log_size')
@@ -645,8 +656,8 @@ class Plugin(object):
 
     def check_ext_prog(self, prog):
         """Execute a command independently of the output gathering part of
-        sosreport and check the return code. Return True for a return code of 0
-        and False otherwise.
+        sosreport and check the return code. Return ``True`` for a
+        return code of 0 and False otherwise.
         """
         return self.call_ext_prog(prog)['status'] == 0
 
@@ -679,8 +690,15 @@ class Plugin(object):
                                  chroot, runat, env, binary)
 
     def get_cmd_output_path(self, name=None, make=True):
-        """Return a path into which this module should store collected
-        command output
+        """Return a path into which this module should store collected command
+        output.
+
+        :param name: Command name.
+        :param make: A bool. Create a directory path into which this
+                     module should store command output.
+        :returns: A path into which this module should store collected
+                  command output.
+        :returntype: string
         """
         cmd_output_path = os.path.join(self.archive.get_tmp_dir(),
                                        'sos_commands', self.name())
@@ -778,39 +796,53 @@ class Plugin(object):
     def add_alert(self, alertstring):
         """Add an alert to the collection of alerts for this plugin. These
         will be displayed in the report
+
+        :param alertstring: A string specific to a plugin that will
+                            appear in the report.
         """
         self.alerts.append(alertstring)
 
     def add_custom_text(self, text):
         """Append text to the custom text that is included in the report. This
         is freeform and can include html.
+
+        :param text: A string specific to a plugin that will appear in
+                     the report.
         """
         self.custom_text += text
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None, timeout=None,
                     identifier=None, catalog=None):
-        """ Collect journald logs from one of more units.
+        """Collect journald logs from one of more units.
 
-        Keyword arguments:
-        units      -- A string, or list of strings specifying the systemd
-                     units for which journal entries will be collected.
-        boot       -- A string selecting a boot index using the journalctl
-                     syntax. The special values 'this' and 'last' are also
-                     accepted.
-        since      -- A string representation of the start time for journal
-                     messages.
-        until      -- A string representation of the end time for journal
-                     messages.
-        lines      -- The maximum number of lines to be collected.
-        allfields  -- Include all journal fields regardless of size or
-                     non-printable characters.
-        output     -- A journalctl output control string, for example
-                     "verbose".
-        timeout    -- An optional timeout in seconds.
-        identifier -- an optional message identifier.
-        catalog    -- If True, augment lines with descriptions from the
-                   system catalog.
+        :param units: A string, or list of strings specifying the
+                       systemd units for which journal entries will be
+                       collected.
+
+        :param boot: A string selecting a boot index using the
+                      journalctl syntax. The special values 'this' and
+                      'last' are also accepted.
+
+        :param since: A string representation of the start time for
+                       journal messages.
+
+        :param until: A string representation of the end time for
+                       journal messages.
+
+        :param lines: The maximum number of lines to be collected.
+
+        :param allfields: A bool. Include all journal fields
+                           regardless of size or non-printable
+                           characters.
+
+        :param output: A journalctl output control string, for
+                        example "verbose".
+
+        :param timeout: An optional timeout in seconds.
+        :param identifier: An optional message identifier.
+        :param catalog: Bool. If True, augment lines with descriptions
+                        from the system catalog.
         """
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
@@ -928,15 +960,16 @@ class Plugin(object):
         """This method will be used to verify that a plugin should execute
         given the condition of the underlying environment.
 
-        The default implementation will return True if none of class.files,
-        class.packages, nor class.commands is specified. If any of these is
-        specified the plugin will check for the existence of any of the
-        corresponding paths, packages or commands and return True if any
-        are present.
+        The default implementation will return ``True`` if none of
+        ``class.files``, ``class.packages``, nor ``class.commands`` is
+        specified. If any of these is specified the plugin will check
+        for the existence of any of the corresponding paths, packages
+        or commands and return ``True`` if any are present.
 
-        For SCLPlugin subclasses, it will check whether the plugin can be run
-        for any of installed SCLs. If so, it will store names of these SCLs
-        on the plugin class in addition to returning True.
+        For SCLPlugin subclasses, it will check whether the plugin can
+        be run for any of installed SCLs. If so, it will store names
+        of these SCLs on the plugin class in addition to returning
+        ``True``.
 
         For plugins with more complex enablement checks this method may be
         overridden.
@@ -1097,25 +1130,26 @@ class RedHatPlugin(object):
 class SCLPlugin(RedHatPlugin):
     """Superclass for plugins operating on Software Collections (SCLs).
 
-    Subclasses of this plugin class can specify class.files and class.packages
-    using "%(scl_name)s" interpolation. The plugin invoking mechanism will try
-    to match these against all found SCLs on the system. SCLs that do match
-    class.files or class.packages are then accessible via self.scls_matched
+    Subclasses of this plugin class can specify class.files and
+    class.packages using ``"%(scl_name)s"`` interpolation. The plugin
+    invoking mechanism will try to match these against all found SCLs
+    on the system. SCLs that do match ``class.files`` or
+    ``class.packages`` are then accessible via ``self.scls_matched``
     when the plugin is invoked.
 
-    Additionally, this plugin class provides "add_cmd_output_scl" (run
-    a command in context of given SCL), and "add_copy_spec_scl" and
-    "add_copy_spec_limit_scl" (copy package from file system of given SCL).
+    Additionally, this plugin class provides ``add_cmd_output_scl`` (run
+    a command in context of given SCL), and ``add_copy_spec_scl`` and
+    ``add_copy_spec_limit_scl`` (copy package from file system of given SCL).
 
     For example, you can implement a plugin that will list all global npm
-    packages in every SCL that contains "npm" package:
+    packages in every SCL that contains "npm" package::
 
-    class SCLNpmPlugin(Plugin, SCLPlugin):
-        packages = ("%(scl_name)s-npm",)
+        class SCLNpmPlugin(Plugin, SCLPlugin):
+            packages = ("%(scl_name)s-npm",)
 
-        def setup(self):
-            for scl in self.scls_matched:
-                self.add_cmd_output_scl(scl, "npm ls -g --json")
+            def setup(self):
+                for scl in self.scls_matched:
+                    self.add_cmd_output_scl(scl, "npm ls -g --json")
     """
 
     @property
@@ -1150,7 +1184,7 @@ class SCLPlugin(RedHatPlugin):
         return scl_cmd
 
     def add_cmd_output_scl(self, scl, cmds, **kwargs):
-        """Same as add_cmd_output, except that it wraps command in
+        """Same as ``add_cmd_output``, except that it wraps command in
         "scl enable" call and sets proper PATH.
         """
         if isinstance(cmds, six.string_types):
@@ -1173,7 +1207,7 @@ class SCLPlugin(RedHatPlugin):
         return copyspec
 
     def add_copy_spec_scl(self, scl, copyspecs):
-        """Same as add_copy_spec, except that it prepends path to SCL root
+        """Same as ``add_copy_spec``, except that it prepends path to SCL root
         to "copyspecs".
         """
         if isinstance(copyspecs, six.string_types):
@@ -1184,7 +1218,7 @@ class SCLPlugin(RedHatPlugin):
         self.add_copy_spec(scl_copyspecs)
 
     def add_copy_spec_limit_scl(self, scl, copyspec, **kwargs):
-        """Same as add_copy_spec_limit, except that it prepends path to SCL
+        """Same as ``add_copy_spec_limit``, except that it prepends path to SCL
         root to "copyspec".
         """
         self.add_copy_spec_limit(
