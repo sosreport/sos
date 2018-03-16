@@ -788,29 +788,37 @@ class Plugin(object):
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None, timeout=None,
                     identifier=None, catalog=None, sizelimit=None):
-        """ Collect journald logs from one of more units.
+        """Collect journald logs from one of more units.
 
-        Keyword arguments:
-        units      -- A string, or list of strings specifying the systemd
-                     units for which journal entries will be collected.
-        boot       -- A string selecting a boot index using the journalctl
-                     syntax. The special values 'this' and 'last' are also
-                     accepted.
-        since      -- A string representation of the start time for journal
-                     messages.
-        until      -- A string representation of the end time for journal
-                     messages.
-        lines      -- The maximum number of lines to be collected.
-        allfields  -- Include all journal fields regardless of size or
-                     non-printable characters.
-        output     -- A journalctl output control string, for example
-                     "verbose".
-        timeout    -- An optional timeout in seconds.
-        identifier -- an optional message identifier.
-        catalog    -- If True, augment lines with descriptions from the
-                   system catalog.
-        sizelimit  -- Limit to the size of output returned in MB. Defaults
-                      to --log-size
+        :param units: A string, or list of strings specifying the
+                       systemd units for which journal entries will be
+                       collected.
+
+        :param boot: A string selecting a boot index using the
+                      journalctl syntax. The special values 'this' and
+                      'last' are also accepted.
+
+        :param since: A string representation of the start time for
+                       journal messages.
+
+        :param until: A string representation of the end time for
+                       journal messages.
+
+        :param lines: The maximum number of lines to be collected.
+
+        :param allfields: A bool. Include all journal fields
+                           regardless of size or non-printable
+                           characters.
+
+        :param output: A journalctl output control string, for
+                        example "verbose".
+
+        :param timeout: An optional timeout in seconds.
+        :param identifier: An optional message identifier.
+        :param catalog: Bool. If True, augment lines with descriptions
+                        from the system catalog.
+        :param sizelimit: Limit to the size of output returned in MB.
+                          Defaults to the value of --log-size.
         """
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
