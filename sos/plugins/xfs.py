@@ -23,8 +23,6 @@ class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'xfs'
     profiles = ('storage',)
 
-    option_list = [("logprint", 'gathers the log information', 'slow', False)]
-
     def setup(self):
         mounts = '/proc/mounts'
         ext_fs_regex = r"^(/dev/.+).+xfs\s+"
@@ -33,10 +31,6 @@ class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 parts = e.split(' ')
                 self.add_cmd_output("xfs_info %s" % (parts[1]))
 
-        if self.get_option('logprint'):
-            for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
-                for e in dev:
-                    parts = e.split(' ')
-                    self.add_cmd_output("xfs_logprint -c %s" % (parts[0]))
+        self.add_copy_spec('/proc/fs/xfs')
 
 # vim: set et ts=4 sw=4 :
