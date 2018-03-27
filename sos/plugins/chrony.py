@@ -30,10 +30,13 @@ class Chrony(Plugin, RedHatPlugin):
             "/var/lib/chrony/drift"
         ])
         self.add_cmd_output([
+            "chronyc activity",
             "chronyc tracking",
             "chronyc sources",
             "chronyc sourcestats",
-            "chronyc clients"
+            "chronyc serverstats",
+            "chronyc ntpdata",
+            "chronyc -n clients"
         ])
         self.add_journal(units="chronyd")
 
