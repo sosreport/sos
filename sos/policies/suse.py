@@ -31,7 +31,6 @@ class SuSEPolicy(LinuxPolicy):
 
     def __init__(self, sysroot=None):
         super(SuSEPolicy, self).__init__()
-        self.report_name = ""
         self.ticket_number = ""
         self.package_manager = PackageManager(
             'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
