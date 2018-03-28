@@ -15,7 +15,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Wireless(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Wireless(Plugin, DebianPlugin, UbuntuPlugin):
     """Wireless
     """
 
@@ -30,5 +30,13 @@ class Wireless(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "iwconfig",
             "iwlist scanning"
         ])
+
+
+class RedHatWireless(Wireless, RedHatPlugin):
+    """Wireless
+    """
+
+    files = ('/usr/sbin/iw', '/usr/sbin/iwlist')
+    packages = ('iw', 'wireless-tools')
 
 # vim: set et ts=4 sw=4 :
