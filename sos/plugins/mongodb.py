@@ -40,6 +40,7 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
             "/var/log/mongodb/mongodb.log",
             "/var/log/containers/mongodb/mongodb.log"
         ])
+        self.add_cmd_output("du -s /var/lib/mongodb/")
 
     def postproc(self):
         self.do_file_sub(
