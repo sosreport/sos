@@ -1176,9 +1176,13 @@ class SoSReport(object):
             msg += _("Press ENTER to continue, or CTRL-C to quit.\n")
             try:
                 input(msg)
-            except Exception as err:
+            except KeyboardInterrupt as e:
+                self.ui_log.error("Exiting on user cancel")
+                self._exit(130)
+            except Exception as e:
                 self.ui_log.info("")
-                self._exit(err)
+                self.ui_log.error(e)
+                self._exit(e)
 
     def _log_plugin_exception(self, plugin, method):
         trace = traceback.format_exc()
