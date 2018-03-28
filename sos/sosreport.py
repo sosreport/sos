@@ -1604,12 +1604,15 @@ class SoSReport(object):
                 self.plain_report()
             self.postproc()
             self.version()
-
             return self.final_work()
 
         except (OSError):
             self._cleanup()
-        except (SystemExit, KeyboardInterrupt):
+        except (KeyboardInterrupt):
+            self.ui_log.error("Exiting on user cancel")
+            self._cleanup()
+            self._exit(130)
+        except (SystemExit):
             self._cleanup()
             self._exit(0)
 
