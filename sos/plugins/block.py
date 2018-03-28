@@ -29,6 +29,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "lsblk",
             "lsblk -t",
+            "lsblk -D",
             "blkid -c /dev/null",
             "blockdev --report",
             "ls -lanR /dev",
