@@ -1560,17 +1560,14 @@ class SoSReport(object):
         self.global_plugin_options[key] = value
 
     def _cleanup(self):
-        try:
-            # archive and tempfile cleanup may fail due to a fatal
-            # OSError exception (ENOSPC, EROFS etc.).
-            if self.archive:
-                self.archive.cleanup()
-            if self.tempfile_util:
-                self.tempfile_util.clean()
-            if self.tmpdir:
-                rmtree(self.tmpdir)
-        except:
-            raise
+        # archive and tempfile cleanup may fail due to a fatal
+        # OSError exception (ENOSPC, EROFS etc.).
+        if self.archive:
+            self.archive.cleanup()
+        if self.tempfile_util:
+            self.tempfile_util.clean()
+        if self.tmpdir:
+            rmtree(self.tmpdir)
 
     def execute(self):
         try:
