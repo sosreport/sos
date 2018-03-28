@@ -20,7 +20,7 @@ class Wireless(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'wireless'
-    profiles = ('hardware', 'desktop', 'networking')
+    profiles = ('hardware', 'desktop', 'network')
     files = ('/sbin/iw', '/usr/sbin/iw')
 
     def setup(self):
