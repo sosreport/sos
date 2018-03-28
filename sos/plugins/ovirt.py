@@ -88,23 +88,22 @@ class Ovirt(Plugin, RedHatPlugin):
         self.add_cmd_output("engine-config --all")
 
         # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
-        if is_executable('engine-manage-domains'):
-            self.add_cmd_output('engine-manage-domains list')
-        if is_executable('ovirt-engine-extensions-tool'):
-            self.add_cmd_output(
-                'ovirt-engine-extensions-tool info list-extensions'
-            )
+        manage_domains = 'engine-manage-domains'
+        extensions_tool = 'ovirt-engine-extensions-tool'
+        jdbc_tool = 'ovirt-aaa-jdbc-tool'
+
+        if is_executable(manage_domains):
+            self.add_cmd_output('%s list' % manage_domains)
+        if is_executable(extensions_tool):
+            self.add_cmd_output('%s info list-extensions' % extensions_tool)
         if is_executable('ovirt-aaa-jdbc-tool'):
-            cmd = 'ovirt-aaa-jdbc-tool'
             subcmds = [
                 'query --what=user',
                 'query --what=group',
                 'settings show'
             ]
 
-            self.add_cmd_output([
-                '%s %s' % (cmd, sub) for sub in subcmds
-            ])
+            self.add_cmd_output(['%s %s' % (jdbc_tool, sc) for sc in subcmds])
 
         # Copy engine config files.
         self.add_copy_spec([
