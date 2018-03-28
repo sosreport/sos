@@ -30,12 +30,13 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
+            "/proc/fs/",
+            "/proc/mounts"
             "/proc/filesystems",
-            "/etc/fstab",
             "/proc/self/mounts",
             "/proc/self/mountinfo",
             "/proc/self/mountstats",
-            "/proc/mounts"
+            "/etc/fstab",
         ])
         self.add_cmd_output("mount -l", root_symlink="mount")
         self.add_cmd_output("df -al -x autofs", root_symlink="df")
