@@ -22,6 +22,7 @@ class AtomicHost(Plugin, RedHatPlugin):
     """ Atomic Host """
 
     plugin_name = "atomichost"
+    profiles = ('container',)
     option_list = [
         ("info", "gather atomic info for each image", "fast", False)
     ]

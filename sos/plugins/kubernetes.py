@@ -27,6 +27,7 @@ class kubernetes(Plugin, RedHatPlugin):
     # Red Hat Atomic Platform and OpenShift Enterprise use the
     # atomic-openshift-master package to provide kubernetes
     packages = ('kubernetes', 'kubernetes-master', 'atomic-openshift-master')
+    profiles = ('container',)
     files = ("/etc/origin/master/master-config.yaml",)
 
     option_list = [
