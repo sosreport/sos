@@ -24,7 +24,7 @@ class etcd(Plugin, RedHatPlugin):
 
     plugin_name = 'etcd'
     packages = ('etcd',)
-    profiles = ('system', 'services', 'cluster')
+    profiles = ('container', 'system', 'services', 'cluster')
 
     cmd = 'etcdctl'
 

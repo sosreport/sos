@@ -21,6 +21,7 @@ class Runc(Plugin):
     """runC container runtime"""
 
     plugin_name = 'runc'
+    profiles = ('container',)
 
     def setup(self):
 

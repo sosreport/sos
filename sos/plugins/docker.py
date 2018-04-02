@@ -23,7 +23,7 @@ class Docker(Plugin):
     """
 
     plugin_name = 'docker'
-    profiles = ('virt',)
+    profiles = ('container',)
     docker_cmd = "docker"
 
     option_list = [

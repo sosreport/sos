@@ -22,6 +22,7 @@ class DockerDistribution(Plugin):
     """Docker Distribution"""
 
     plugin_name = "docker_distribution"
+    profiles = ('container',)
 
     def setup(self):
         self.add_copy_spec('/etc/docker-distribution/')
