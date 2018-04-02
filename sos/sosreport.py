@@ -581,7 +581,7 @@ class SoSOptions(object):
                                  "format (see -l)",
                             default=deque())
         parser.add_argument("--log-size", action="store",
-                            dest="log_size", default=10, type=int,
+                            dest="log_size", default=25, type=int,
                             help="set a limit on the size of collected logs "
                                  "(in MiB)")
         parser.add_argument("-a", "--alloptions", action="store_true",
