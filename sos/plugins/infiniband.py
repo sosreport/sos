@@ -14,6 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -37,15 +38,52 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.add_cmd_output([
             "ibv_devices",
-            "ibv_devinfo",
+            "ibv_devinfo -v",
             "ibstat",
-            "ibstatus",
+            "ibstatus"
+        ])
+
+        # run below commands for every IB device and its active port
+        ports_cmds = [
             "ibhosts",
             "iblinkinfo",
             "sminfo",
             "perfquery"
-        ])
+        ]
+        IB_SYS_DIR = "/sys/class/infiniband/"
+        ibs = os.listdir(IB_SYS_DIR)
+        for ib in ibs:
+            """
+            Skip OPA hardware, as infiniband-diags tools does not understand
+            OPA specific MAD sent by opa-fm. Intel provides OPA specific tools
+            for OPA fabric diagnose.
+            """
+            if ib.startswith("hfi"):
+                continue
 
-        return
+            for port in os.listdir(IB_SYS_DIR + ib + "/ports"):
+                # skip IWARP and RoCE devices
+                try:
+                    p = open(IB_SYS_DIR + ib + "/ports/" + port +
+                             "/link_layer")
+                except:
+                    continue
+                link_layer = p.readline()
+                p.close()
+                if link_layer != "InfiniBand\n":
+                    continue
+
+                try:
+                    s = open(IB_SYS_DIR + ib + "/ports/" + port + "/state")
+                except:
+                    continue
+                state = s.readline()
+                s.close()
+
+                if not state.endswith(": ACTIVE\n"):
+                    continue
+
+                opts = "-C %s -P %s" % (ib, port)
+                self.add_cmd_output(["%s %s" % (c, opts) for c in port_cmds])
 
 # vim: set et ts=4 sw=4 :
