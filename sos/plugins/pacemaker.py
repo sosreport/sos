@@ -74,12 +74,16 @@ class Pacemaker(Plugin):
             "/var/lib/pacemaker/cib/cib.xml",
 
             # Pacemaker 2.x default log locations
-            "/var/log/cluster/pacemaker.log",
-            "/var/log/cluster/bundles/*/",
+            "/var/log/pacemaker/pacemaker.log",
+            "/var/log/pacemaker/bundles/*/",
 
             # Pacemaker 1.x default log locations
             "/var/log/pacemaker.log",
             "/var/log/pacemaker/bundles/*/",
+
+            # Common user-specified locations
+            "/var/log/cluster/pacemaker.log",
+            "/var/log/cluster/bundles/*/",
         ])
 
         self.setup_crm_mon()
