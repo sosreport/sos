@@ -31,26 +31,29 @@ class OpenStackCinder(Plugin):
 
     def setup(self):
 
-        # collect commands output only if the openstack-cinder-api service
-        # is running
-        service_status = self.get_command_output(
-            "systemctl status openstack-cinder-api.service"
-        )
+        # check if either standalone (cinder-api) or httpd wsgi (cinder_wsgi)
+        # is up and running
+        cinder_process = ["cinder_wsgi", "cinder-api"]
+        in_ps = False
+        for process in cinder_process:
+            in_ps = self.check_process_by_name(process)
+            if in_ps:
+                break
 
         container_status = self.get_command_output("docker ps")
         in_container = False
+        cinder_config = ""
         if container_status['status'] == 0:
             for line in container_status['output'].splitlines():
                 if line.endswith("cinder_api"):
                     in_container = True
+                    # if containerized we need to pass the config to the cont.
+                    cinder_config = "--config-dir " + self.var_puppet_gen + \
+                                    "/etc/cinder/"
+                    break
 
-        if (service_status['status'] == 0) or in_container:
-            cinder_config = ""
-            # if containerized we need to pass the config to the cont.
-            if in_container:
-                cinder_config = "--config-dir " + self.var_puppet_gen + \
-                                "/etc/cinder/"
-
+        # collect commands output if the standalone, wsgi or container is up
+        if in_ps or in_container:
             self.add_cmd_output(
                 "cinder-manage " + cinder_config + " db version",
                 suggest_filename="cinder_db_version"
