@@ -36,6 +36,7 @@ class Docker(Plugin):
 
     def setup(self):
         self.add_copy_spec([
+            "/etc/docker/daemon.json",
             "/var/lib/docker/repositories-*"
         ])
 
@@ -127,7 +128,6 @@ class UbuntuDocker(Docker, UbuntuPlugin):
         super(UbuntuDocker, self).setup()
         self.add_copy_spec([
             "/etc/default/docker",
-            "/etc/docker/daemon.json",
             "/var/run/docker/libcontainerd/containerd/events.log"
         ])
 
