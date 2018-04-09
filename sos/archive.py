@@ -85,6 +85,9 @@ class Archive(object):
     def add_string(self, content, dest):
         raise NotImplementedError
 
+    def add_binary(self, content, dest):
+        raise NotImplementedError
+
     def add_link(self, source, link_name):
         raise NotImplementedError
 
@@ -214,6 +217,14 @@ class FileCacheArchive(Archive):
                     "Unable to add '%s' to FileCacheArchive: %s" % (dest, e))
         self.log_debug("added string at '%s' to FileCacheArchive '%s'"
                        % (src, self._archive_root))
+
+    def add_binary(self, content, dest):
+        dest = self.dest_path(dest)
+        self._check_path(dest)
+        f = codecs.open(dest, 'wb', encoding=None)
+        f.write(content)
+        self.log_debug("added binary content at '%s' to FileCacheArchive '%s'"
+                       % (dest, self._archive_root))
 
     def add_link(self, source, link_name):
         dest = self.dest_path(link_name)
