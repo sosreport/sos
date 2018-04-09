@@ -27,8 +27,8 @@ class NfsServer(Plugin, RedHatPlugin):
     profiles = ('storage', 'network', 'services', 'nfs')
 
     def check_enabled(self):
-        default_runlevel = self.policy().default_runlevel()
-        nfs_runlevels = self.policy().runlevel_by_service("nfs")
+        default_runlevel = self.policy.default_runlevel()
+        nfs_runlevels = self.policy.runlevel_by_service("nfs")
         if default_runlevel in nfs_runlevels:
             return True
 

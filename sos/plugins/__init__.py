@@ -148,6 +148,7 @@ class Plugin(object):
         self.copy_strings = []
         self.collect_cmds = []
         self.sysroot = commons['sysroot']
+        self.policy = commons['policy']
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -182,9 +183,6 @@ class Plugin(object):
     def _log_debug(self, msg):
         self.soslog.debug(self._format_msg(msg))
 
-    def policy(self):
-        return self.commons["policy"]
-
     def join_sysroot(self, path):
         if path[0] == os.sep:
             path = path[1:]
@@ -206,7 +204,7 @@ class Plugin(object):
 
     def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
-        return self.policy().pkg_by_name(package_name) is not None
+        return self.policy.pkg_by_name(package_name) is not None
 
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd
@@ -974,7 +972,7 @@ class Plugin(object):
             else:
                 return
 
-        pm = self.policy().package_manager
+        pm = self.policy.package_manager
         verify_cmd = pm.build_verify_command(self.verify_packages)
         if verify_cmd:
             self.add_cmd_output(verify_cmd)
@@ -1081,7 +1079,7 @@ class SCLPlugin(RedHatPlugin):
         """wrapping command in "scl enable" call and adds proper PATH
         """
         # load default SCL prefix to PATH
-        prefix = self.policy().get_default_scl_prefix()
+        prefix = self.policy.get_default_scl_prefix()
         # read prefix from /etc/scl/prefixes/${scl} and strip trailing '\n'
         try:
             prefix = open('/etc/scl/prefixes/%s' % scl, 'r').read()\
@@ -1114,7 +1112,7 @@ class SCLPlugin(RedHatPlugin):
     # specific path. So we need to insert the paths after the appropriate root
     # dir.
     def convert_copyspec_scl(self, scl, copyspec):
-        scl_prefix = self.policy().get_default_scl_prefix()
+        scl_prefix = self.policy.get_default_scl_prefix()
         for rootdir in ['etc', 'var']:
             p = re.compile('^/%s/' % rootdir)
             copyspec = p.sub('/%s/%s/%s/' % (rootdir, scl_prefix, scl),

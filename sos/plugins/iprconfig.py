@@ -27,7 +27,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = 'iprconfig'
 
     def check_enabled(self):
-        arch = self.policy().get_arch()
+        arch = self.policy.get_arch()
         return "ppc64" in arch and is_executable("iprconfig")
 
     def setup(self):

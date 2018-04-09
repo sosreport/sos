@@ -26,8 +26,8 @@ class SunRPC(Plugin):
     service = None
 
     def check_enabled(self):
-        if self.policy().default_runlevel() in \
-                self.policy().runlevel_by_service(self.service):
+        if self.policy.default_runlevel() in \
+                self.policy.runlevel_by_service(self.service):
             return True
         return False
 
