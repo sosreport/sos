@@ -1,18 +1,13 @@
-# -*- python -*-
-# -*- coding: utf-8 -*-
-
-#
 # Copyright 2012 Red Hat Inc.
 # Guy Streeter <streeter@redhat.com>
+
+# This file is part of the sos project: https://github.com/sosreport/sos
 #
-#   This program is free software; you can redistribute it and/or
-#   modify it under the terms of the GNU General Public License
-#   as published by the Free Software Foundation; version 2.
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
 #
-#   This application is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#   General Public License for more details.
+# See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin
 
