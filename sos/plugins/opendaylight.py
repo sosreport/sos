@@ -24,15 +24,26 @@ class OpenDaylight(Plugin, RedHatPlugin):
 
     packages = ('opendaylight', 'puppet-opendaylight')
 
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/opendaylight"
+
     def setup(self):
-        self.add_copy_spec("/opt/opendaylight/etc/")
+        self.add_copy_spec([
+            "/opt/opendaylight/etc/",
+            self.var_puppet_gen + "/opt/opendaylight/etc/",
+        ])
 
         self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/opt/opendaylight/data/log/",
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/opt/opendaylight/data/log/",
+                "/var/log/containers/opendaylight/",
+            ], sizelimit=self.limit)
         else:
-            self.add_copy_spec("/opt/opendaylight/data/log/*log",
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/opt/opendaylight/data/log/*.log*",
+                "/var/log/containers/opendaylight/*.log*",
+            ], sizelimit=self.limit)
+
+        self.add_cmd_output("docker logs opendaylight_api")
 
 # vim: set et ts=4 sw=4 :
