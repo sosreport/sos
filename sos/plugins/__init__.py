@@ -709,12 +709,10 @@ class Plugin(object):
     def add_string_as_file(self, content, filename):
         """Add a string to the archive as a file named `filename`"""
         self.copy_strings.append((content, filename))
-        if isinstance(content, six.string_types):
-            content = "..." + content.splitlines()[0]
-        else:
-            content = ("..." +
-                       (content.splitlines()[0]).decode('utf8', 'ignore'))
-        self._log_debug("added string '%s' as '%s'" % (content, filename))
+        content = content.splitlines()[0]
+        if not isinstance(content, six.string_types):
+            content = content.decode('utf8', 'ignore')
+        self._log_debug("added string ...'%s' as '%s'" % (content, filename))
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
@@ -863,13 +861,10 @@ class Plugin(object):
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
-            content = "..."
-            if isinstance(string, six.string_types):
-                content = "..." + content.splitlines()[0]
-            else:
-                content = ("..." +
-                           (content.splitlines()[0]).decode('utf8', 'ignore'))
-            self._log_info("collecting string '%s' as '%s'"
+            content = string.splitlines()[0]
+            if not isinstance(content, six.string_types):
+                content = content.decode('utf8', 'ignore')
+            self._log_info("collecting string ...'%s' as '%s'"
                            % (content, file_name))
             try:
                 self.archive.add_string(string,
