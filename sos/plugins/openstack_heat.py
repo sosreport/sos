@@ -104,27 +104,38 @@ class OpenStackHeat(Plugin):
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
-    def postproc(self):
-        protect_keys = [
-            "admin_password", "memcache_secret_key", "password", "connection",
-            "qpid_password", "rabbit_password", "stack_domain_admin_password",
-        ]
-
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+    def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub(
             "/etc/heat/*",
-            regexp, r"\1*********")
+            regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/heat/*",
-            regexp, r"\1*********"
+            regexp, subst
         )
         self.do_path_regex_sub(
             self.var_puppet_gen + "_api/etc/heat/*",
-            regexp, r"\1*********"
+            regexp, subst
         )
         self.do_path_regex_sub(
             self.var_puppet_gen + "_api_cfn/etc/heat/*",
-            regexp, r"\1*********"
+            regexp, subst
+        )
+
+    def postproc(self):
+        protect_keys = [
+            "admin_password", "memcache_secret_key", "password",
+            "qpid_password", "rabbit_password", "stack_domain_admin_password",
+        ]
+        connection_keys = ["connection"]
+
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 
