@@ -27,6 +27,10 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     sys_module = '/sys/module'
 
+    option_list = [
+        ("with-timer", "gather /proc/timer* statistics", "slow", False)
+    ]
+
     def setup(self):
         # compat
         self.add_cmd_output("uname -a", root_symlink="uname")
@@ -83,7 +87,6 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/driver",
             "/proc/sys/kernel/tainted",
             "/proc/softirqs",
-            "/proc/timer*",
             "/proc/lock*",
             "/proc/misc",
             "/var/log/dmesg",
@@ -91,5 +94,10 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource"
         ])
+
+        if self.get_option("with-timer"):
+            # This can be very slow, depending on the number of timers,
+            # and may also cause softlockups
+            self.add_copy_spec("/proc/timer*")
 
 # vim: set et ts=4 sw=4 :
