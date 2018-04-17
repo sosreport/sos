@@ -623,9 +623,6 @@ class SoSOptions(object):
                             dest="list_profiles", default=False,
                             help="display a list of available profiles and "
                                  "plugins that they include")
-        parser.add_argument("--name", action="store",
-                            dest="customer_name",
-                            help="specify report name")
         parser.add_argument("--label", "--name", action="store", dest="label",
                             help="specify an additional report label")
         parser.add_argument("--config-file", action="store",
