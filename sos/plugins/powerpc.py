@@ -77,7 +77,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/proc/ppc64/systemcfg",
                 "/proc/ppc64/topology_updates",
                 "/sys/firmware/opal/msglog",
-                "/var/log/opal-elog/"
+                "/var/log/opal-elog/",
+                "/var/log/opal-prd"
             ])
             if os.path.isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
