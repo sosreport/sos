@@ -26,7 +26,10 @@ class OpenStackInstack(Plugin):
     profiles = ('openstack', 'openstack_undercloud')
 
     def setup(self):
+        # For non-containerized undercloud
         self.add_copy_spec("/home/stack/.instack/install-undercloud.log")
+        # For containerized undercloud
+        self.add_copy_spec("/home/stack/install-undercloud.log")
         self.add_copy_spec("/home/stack/instackenv.json")
         self.add_copy_spec("/home/stack/undercloud.conf")
         if self.get_option("verify"):
