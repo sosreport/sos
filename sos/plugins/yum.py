@@ -44,6 +44,13 @@ class Yum(Plugin, RedHatPlugin):
         # Get a list of channels the machine is subscribed to.
         self.add_cmd_output("yum -C repolist")
 
+        # Get a list of available plugins
+        cmd = """bash -c '
+            for i in /usr/lib/yum-plugins/*.py; do
+                echo "$i ($(rpm -qf $i))";
+            done'"""
+        self.add_cmd_output(cmd, suggest_filename='yum_plugins')
+
         # candlepin info
         self.add_forbidden_path("/etc/pki/entitlement/key.pem")
         self.add_forbidden_path("/etc/pki/entitlement/*-key.pem")
