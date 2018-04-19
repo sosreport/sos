@@ -13,6 +13,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from sos.plugins import Plugin, RedHatPlugin
+import os
+
+YUM_PLUGIN_PATH = "/usr/lib/yum-plugins/"
 
 
 class Yum(Plugin, RedHatPlugin):
@@ -43,6 +46,21 @@ class Yum(Plugin, RedHatPlugin):
 
         # Get a list of channels the machine is subscribed to.
         self.add_cmd_output("yum -C repolist")
+
+        # Get list of available plugins and their configuration files.
+        if os.path.exists(YUM_PLUGIN_PATH) and os.path.isdir(YUM_PLUGIN_PATH):
+            plugins = ""
+            names = ""
+            for p in os.listdir(YUM_PLUGIN_PATH):
+                if not p.endswith(".py"):
+                    continue
+                plugins = plugins + " " if len(plugins) else ""
+                plugins = plugins + os.path.join(YUM_PLUGIN_PATH, p)
+                names += "%s\n" % p[:-3]
+            self.add_cmd_output("rpm -qf %s" % plugins)
+            self.add_string_as_file(names, "plugin-names")
+
+        self.add_copy_spec("/etc/yum/pluginconf.d")
 
         # candlepin info
         self.add_forbidden_path("/etc/pki/entitlement/key.pem")
