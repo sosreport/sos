@@ -277,7 +277,8 @@ class FileCacheArchive(Archive):
         return codecs.open(path, "r", encoding='utf-8')
 
     def cleanup(self):
-        shutil.rmtree(self._archive_root)
+        if os.path.isdir(self._archive_root):
+            shutil.rmtree(self._archive_root)
 
     def finalize(self, method):
         self.log_info("finalizing archive '%s' using method '%s'"
@@ -451,11 +452,13 @@ class TarFileArchive(FileCacheArchive):
             if cmd != "gzip":
                 cmd = "%s -1" % cmd
             try:
-                r = sos_get_command_output("%s %s" % (cmd, self.name()),
-                                           timeout=0)
+                exec_cmd = "%s %s" % (cmd, self.name())
+                r = sos_get_command_output(exec_cmd, stderr=True, timeout=0)
 
                 if r['status']:
-                    self.log_info(r['output'])
+                    self.log_error(r['output'])
+                    raise Exception("%s exited with %s" % (exec_cmd,
+                                    r['status']))
 
                 self._suffix += suffix
                 return self.name()
