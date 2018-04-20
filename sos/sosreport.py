@@ -1501,7 +1501,10 @@ class SoSReport(object):
             # compute and store the archive checksum
             hash_name = self.policy.get_preferred_hash_name()
             checksum = self._create_checksum(archive, hash_name)
-            self._write_checksum(archive, hash_name, checksum)
+            try:
+                self._write_checksum(archive, hash_name, checksum)
+            except (OSError, IOError):
+                print(_("Error writing checksum for file: %s" % archive))
 
             # output filename is in the private tmpdir - move it to the
             # containing directory.
@@ -1534,7 +1537,6 @@ class SoSReport(object):
                     os.rename(archive_hash, final_hash)
             except (OSError, IOError):
                     print(_("Error moving checksum file: %s" % archive_hash))
-                    return False
 
         self.policy.display_results(archive, directory, checksum)
 
