@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, ArchPlugin
 from datetime import datetime
 
 
-class Tomcat(Plugin, RedHatPlugin):
+class Tomcat(Plugin, RedHatPlugin, ArchPlugin):
     """Apache Tomcat server
     """
 

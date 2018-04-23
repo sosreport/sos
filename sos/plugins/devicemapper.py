@@ -10,10 +10,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
     ArchPlugin
 
 
-class DeviceMapper(Plugin,
-                   RedHatPlugin,
-                   DebianPlugin,
-                   UbuntuPlugin,
+class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
                    ArchPlugin):
     """device-mapper framework
     """

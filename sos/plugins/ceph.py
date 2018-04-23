@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, ArchPlugin
 from socket import gethostname
 
 
-class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
+class Ceph(Plugin, RedHatPlugin, UbuntuPlugin, ArchPlugin):
     """CEPH distributed storage
     """
 

@@ -8,10 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, ArchPlugin
 
 
-class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
+class IpmiTool(Plugin, RedHatPlugin, DebianPlugin, ArchPlugin):
     """IpmiTool hardware information.
     """
 

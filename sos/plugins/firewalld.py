@@ -9,10 +9,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, ArchPlugin
 
 
-class FirewallD(Plugin, RedHatPlugin):
+class FirewallD(Plugin, RedHatPlugin, ArchPlugin):
     """Firewall daemon
     """
 

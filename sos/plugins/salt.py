@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, ArchPlugin
 
 
-class Salt(Plugin, RedHatPlugin, DebianPlugin):
+class Salt(Plugin, RedHatPlugin, DebianPlugin, ArchPlugin):
     """Salt
     """
 

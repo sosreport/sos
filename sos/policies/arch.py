@@ -1,3 +1,11 @@
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
+
 from sos.policies import PackageManager, LinuxPolicy
 from sos.plugins import ArchPlugin
 from sos.utilities import shell_out
@@ -14,7 +22,7 @@ class ArchPolicy(LinuxPolicy):
     valid_subclasses = [ArchPlugin]
 
     def __init__(self, sysroot=None):
-        super(LinuxPolicy, self).__init__(sysroot=sysroot)
+        super(ArchPolicy, self).__init__(sysroot=sysroot)
         self.package_manager = Pacman()
 
     @classmethod
@@ -24,7 +32,7 @@ class ArchPolicy(LinuxPolicy):
         try:
             with open('/etc/os-release', 'r') as f:
                 return "archlinux" in f.read()
-        except:
+        except IOError:
             return False
 
 

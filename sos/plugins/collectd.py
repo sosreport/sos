@@ -8,10 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import re
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
+    ArchPlugin
 
 
-class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, ArchPlugin):
     '''
     Collectd config collector
     '''

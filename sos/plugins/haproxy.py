@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, ArchPlugin
 from re import match
 
 try:
@@ -17,7 +17,7 @@ except ImportError:
     from urlparse import urlparse
 
 
-class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
+class HAProxy(Plugin, RedHatPlugin, DebianPlugin, ArchPlugin):
     """HAProxy load balancer
     """
 

@@ -11,10 +11,11 @@ import os
 import json
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
-    SuSEPlugin
+    SuSEPlugin, ArchPlugin
 
 
-class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
+class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin,
+          ArchPlugin):
     """
     Get info about available npm modules
     """
@@ -26,7 +27,7 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
                     'fast',
                     '')]
 
-    # in Fedora, Debian, Ubuntu and Suse the package is called npm
+    # in Fedora, Debian, Ubuntu, Suse and Arch the package is called npm
     packages = ('npm',)
 
     def _get_npm_output(self, cmd, filename, working_directory=None):

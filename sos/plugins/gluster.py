@@ -11,10 +11,10 @@ import os.path
 import os
 import glob
 import string
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, ArchPlugin
 
 
-class Gluster(Plugin, RedHatPlugin):
+class Gluster(Plugin, RedHatPlugin, ArchPlugin):
     """GlusterFS storage"""
 
     plugin_name = 'gluster'

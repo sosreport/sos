@@ -8,10 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
+    ArchPlugin
 
 
-class LightDm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class LightDm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, ArchPlugin):
     """Light Display Manager
     """
     packages = ('lightdm', )
