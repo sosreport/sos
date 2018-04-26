@@ -50,15 +50,17 @@ class Yum(Plugin, RedHatPlugin):
         # Get list of available plugins and their configuration files.
         if os.path.exists(YUM_PLUGIN_PATH) and os.path.isdir(YUM_PLUGIN_PATH):
             plugins = ""
-            names = ""
             for p in os.listdir(YUM_PLUGIN_PATH):
                 if not p.endswith(".py"):
                     continue
                 plugins = plugins + " " if len(plugins) else ""
                 plugins = plugins + os.path.join(YUM_PLUGIN_PATH, p)
-                names += "%s\n" % p[:-3]
-            self.add_cmd_output("rpm -qf %s" % plugins)
-            self.add_string_as_file(names, "plugin-names")
+            if len(plugins):
+                self.add_cmd_output("rpm -qf %s" % plugins,
+                                    suggest_filename="plugin-packages")
+                plugnames = [os.path.basename(p)[:-3] for p in plugins.split()]
+                plugnames = "%s\n" % "\n".join(plugnames)
+                self.add_string_as_file(plugnames, "plugin-names")
 
         self.add_copy_spec("/etc/yum/pluginconf.d")
 
