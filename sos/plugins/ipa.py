@@ -120,12 +120,6 @@ class Ipa(Plugin, RedHatPlugin):
             "/var/lib/certmonger/cas/[0-9]*"
         ])
 
-        self.add_forbidden_path("/etc/pki/nssdb/key*")
-        self.add_forbidden_path("/etc/dirsrv/slapd-*/key*")
-        self.add_forbidden_path("/etc/dirsrv/slapd-*/pin.txt")
-        self.add_forbidden_path("/etc/dirsrv/slapd-*/pwdfile.txt")
-        self.add_forbidden_path("/etc/named.keytab")
-
         #  Make sure to use the right PKI config and NSS DB folders
         if ipa_version == "v4":
             self.pki_tomcat_dir = self.pki_tomcat_dir_v4
@@ -136,9 +130,17 @@ class Ipa(Plugin, RedHatPlugin):
 
         self.add_cmd_output("certutil -L -d %s/alias" % self.pki_tomcat_dir)
         self.add_copy_spec("%s/CS.cfg" % self.pki_tomcat_conf_dir)
-        self.add_forbidden_path("%s/alias/key*" % self.pki_tomcat_dir)
-        self.add_forbidden_path("%s/flatfile.txt" % self.pki_tomcat_conf_dir)
-        self.add_forbidden_path("%s/password.conf" % self.pki_tomcat_conf_dir)
+
+        self.add_forbidden_path([
+            "/etc/pki/nssdb/key*",
+            "/etc/dirsrv/slapd-*/key*",
+            "/etc/dirsrv/slapd-*/pin.txt",
+            "/etc/dirsrv/slapd-*/pwdfile.txt",
+            "/etc/named.keytab",
+            "%s/alias/key*" % self.pki_tomcat_dir,
+            "%s/flatfile.txt" % self.pki_tomcat_conf_dir,
+            "%s/password.conf" % self.pki_tomcat_conf_dir,
+        ])
 
         self.add_cmd_output([
             "ls -la /etc/dirsrv/slapd-*/schema/",
@@ -149,7 +151,7 @@ class Ipa(Plugin, RedHatPlugin):
         ])
 
         for certdb_directory in glob("/etc/dirsrv/slapd-*/"):
-            self.add_cmd_output(["certutil -L -d %s" % certdb_directory])
+            self.add_cmd_output("certutil -L -d %s" % certdb_directory)
         return
 
     def postproc(self):

@@ -30,8 +30,12 @@ class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/Xorg.*.log",
             "/var/log/XFree86.*.log",
         ])
-        self.add_forbidden_path("/etc/X11/X")
-        self.add_forbidden_path("/etc/X11/fontpath.d")
+
+        self.add_forbidden_path([
+            "/etc/X11/X",
+            "/etc/X11/fontpath.d"
+        ])
+
         self.add_cmd_output([
             "xrandr --verbose"
         ])

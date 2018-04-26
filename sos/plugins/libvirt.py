@@ -28,11 +28,12 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         libvirt_keytab = "/etc/libvirt/krb5.tab"
 
         # authentication databases used for libvirt SASL authentication
-        self.add_forbidden_path("/etc/libvirt/passwd.db")
-        self.add_forbidden_path("/etc/libvirt/krb5.tab")
-
-        self.add_forbidden_path("/var/lib/libvirt/qemu/*/master-key.aes")
-        self.add_forbidden_path("/etc/libvirt/secrets")
+        self.add_forbidden_path([
+            "/etc/libvirt/passwd.db",
+            "/etc/libvirt/krb5.tab",
+            "/var/lib/libvirt/qemu/*/master-key.aes",
+            "/etc/libvirt/secrets"
+        ])
 
         self.add_copy_spec([
             "/etc/libvirt/libvirt.conf",

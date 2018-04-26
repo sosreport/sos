@@ -39,13 +39,16 @@ class DirectoryServer(Plugin, RedHatPlugin):
         return False
 
     def setup(self):
-        self.add_forbidden_path("/etc/dirsrv/slapd*/pin.txt")
-        self.add_forbidden_path("/etc/dirsrv/slapd*/key3.db")
-        self.add_forbidden_path("/etc/dirsrv/slapd*/pwfile.txt")
-        self.add_forbidden_path("/etc/dirsrv/slapd*/*passw*")
-        self.add_forbidden_path("/etc/dirsrv/admin-serv/key[3-4].db")
-        self.add_forbidden_path("/etc/dirsrv/admin-serv/admpw")
-        self.add_forbidden_path("/etc/dirsrv/admin-serv/password.conf")
+        self.add_forbidden_path([
+            "/etc/dirsrv/slapd*/pin.txt",
+            "/etc/dirsrv/slapd*/key3.db",
+            "/etc/dirsrv/slapd*/pwfile.txt",
+            "/etc/dirsrv/slapd*/*passw*",
+            "/etc/dirsrv/admin-serv/key[3-4].db",
+            "/etc/dirsrv/admin-serv/admpw",
+            "/etc/dirsrv/admin-serv/password.conf"
+        ])
+
         try:
             for d in os.listdir("/etc/dirsrv"):
                 if d[0:5] == 'slapd':
