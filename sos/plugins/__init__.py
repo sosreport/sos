@@ -464,14 +464,18 @@ class Plugin(object):
         })
 
     def add_forbidden_path(self, forbidden):
-        """Specify a path to not copy, even if it's part of a copy_specs[]
-        entry.
+        """Specify a path, or list of paths, to not copy, even if it's
+            part of a copy_specs[] entry.
         """
+        if isinstance(forbidden, six.string_types):
+            forbidden = [forbidden]
+
         if self.use_sysroot():
-            forbidden = self.join_sysroot(forbidden)
-        # Glob case handling is such that a valid non-glob is a reduced glob
-        for path in glob.glob(forbidden):
-            self.forbidden_paths.append(path)
+            forbidden = [self.join_sysroot(f) for f in forbidden]
+
+        for forbid in forbidden:
+            for path in glob.glob(forbid):
+                self.forbidden_paths.append(path)
 
     def get_all_options(self):
         """return a list of all options selected"""
