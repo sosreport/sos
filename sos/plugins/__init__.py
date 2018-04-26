@@ -474,6 +474,7 @@ class Plugin(object):
             forbidden = [self.join_sysroot(f) for f in forbidden]
 
         for forbid in forbidden:
+            self._log_info("adding forbidden path '%s'" % forbid)
             for path in glob.glob(forbid):
                 self.forbidden_paths.append(path)
 
