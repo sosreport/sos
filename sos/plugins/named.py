@@ -32,10 +32,10 @@ class Named(Plugin):
                     cfg,
                     self.get_dns_dir(cfg)
                 ])
-                self.add_forbidden_path(join(self.get_dns_dir(cfg),
-                                        "chroot/dev"))
-                self.add_forbidden_path(join(self.get_dns_dir(cfg),
-                                        "chroot/proc"))
+                self.add_forbidden_path([
+                    join(self.get_dns_dir(cfg), "chroot/dev"),
+                    join(self.get_dns_dir(cfg), "chroot/proc")
+                ])
 
     def get_dns_dir(self, config_file):
         """ grab directory path from named{conf,boot}

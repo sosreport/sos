@@ -25,9 +25,12 @@ class NSS(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     verify_packages = ('nss.*',)
 
     def setup(self):
-        self.add_forbidden_path("/etc/pki/nssdb/cert*")
-        self.add_forbidden_path("/etc/pki/nssdb/key*")
-        self.add_forbidden_path("/etc/pki/nssdb/secmod.db")
+        self.add_forbidden_path([
+            "/etc/pki/nssdb/cert*",
+            "/etc/pki/nssdb/key*",
+            "/etc/pki/nssdb/secmod.db"
+        ])
+
         self.add_copy_spec("/etc/pki/nssdb/pkcs11.txt")
 
 # vim: set et ts=4 sw=4 :

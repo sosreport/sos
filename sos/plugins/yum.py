@@ -65,8 +65,11 @@ class Yum(Plugin, RedHatPlugin):
         self.add_copy_spec("/etc/yum/pluginconf.d")
 
         # candlepin info
-        self.add_forbidden_path("/etc/pki/entitlement/key.pem")
-        self.add_forbidden_path("/etc/pki/entitlement/*-key.pem")
+        self.add_forbidden_path([
+            "/etc/pki/entitlement/key.pem",
+            "/etc/pki/entitlement/*-key.pem"
+        ])
+
         self.add_copy_spec([
             "/etc/pki/product/*.pem",
             "/etc/pki/consumer/cert.pem",

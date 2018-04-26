@@ -82,8 +82,11 @@ class Ovirt(Plugin, RedHatPlugin):
                 except OSError as e:
                     self.soslog.error('Unable to send signal to %d' % pid, e)
 
-        self.add_forbidden_path('/etc/ovirt-engine/.pgpass')
-        self.add_forbidden_path('/etc/rhevm/.pgpass')
+        self.add_forbidden_path([
+            '/etc/ovirt-engine/.pgpass',
+            '/etc/rhevm/.pgpass'
+        ])
+
         # Copy all engine tunables and domain information
         self.add_cmd_output("engine-config --all")
 

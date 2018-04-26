@@ -30,10 +30,10 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/default",
         ])
 
-        self.add_forbidden_path(
-            "/proc/sys/net/ipv6/neigh/*/retrans_time")
-        self.add_forbidden_path(
-            "/proc/sys/net/ipv6/neigh/*/base_reachable_time")
+        self.add_forbidden_path([
+            "/proc/sys/net/ipv6/neigh/*/retrans_time",
+            "/proc/sys/net/ipv6/neigh/*/base_reachable_time"
+        ])
 
 
 # vim: set et ts=4 sw=4 :

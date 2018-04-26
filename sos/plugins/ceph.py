@@ -75,19 +75,17 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph-disk list"
         ])
 
-        self.add_forbidden_path("/etc/ceph/*keyring*")
-        self.add_forbidden_path("/var/lib/ceph/*keyring*")
-        self.add_forbidden_path("/var/lib/ceph/*/*keyring*")
-        self.add_forbidden_path("/var/lib/ceph/*/*/*keyring*")
-        self.add_forbidden_path("/var/lib/ceph/osd/*")
-        self.add_forbidden_path("/var/lib/ceph/mon/*")
-
-# Excludes temporary ceph-osd mount location like
-# /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-# In the /var/lib/ceph/tmp/ can still other files of potential
-# interest exists, so exclude only known temporary mount locations.
-
-        self.add_forbidden_path("/var/lib/ceph/tmp/*mnt*")
-        self.add_forbidden_path("/etc/ceph/*bindpass*")
+        self.add_forbidden_path([
+            "/etc/ceph/*keyring*",
+            "/var/lib/ceph/*keyring*",
+            "/var/lib/ceph/*/*keyring*",
+            "/var/lib/ceph/*/*/*keyring*",
+            "/var/lib/ceph/osd/*",
+            "/var/lib/ceph/mon/*",
+            # Excludes temporary ceph-osd mount location like
+            # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
+            "var/lib/ceph/tmp/*mnt*",
+            "/etc/ceph/*bindpass*"
+        ])
 
 # vim: set et ts=4 sw=4 :

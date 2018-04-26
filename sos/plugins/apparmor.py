@@ -28,9 +28,13 @@ class Apparmor(Plugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/apparmor*"
         ])
-        self.add_forbidden_path("/etc/apparmor.d/cache")
-        self.add_forbidden_path("/etc/apparmor.d/libvirt/libvirt*")
-        self.add_forbidden_path("/etc/apparmor.d/abstractions")
+
+        self.add_forbidden_path([
+            "/etc/apparmor.d/cache",
+            "/etc/apparmor.d/libvirt/libvirt*",
+            "etc/apparmor.d/abstractions"
+        ])
+
         self.add_cmd_output([
             "apparmor_status",
             "ls -alh /etc/apparmor.d/abstractions",

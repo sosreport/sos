@@ -140,14 +140,17 @@ class Networking(Plugin):
             "/sys/class/net/*/flags",
             "/etc/iproute2"
         ])
-        self.add_forbidden_path("/proc/net/rpc/use-gss-proxy")
-        self.add_forbidden_path("/proc/net/rpc/*/channel")
-        self.add_forbidden_path("/proc/net/rpc/*/flush")
-        # Cisco CDP
-        self.add_forbidden_path("/proc/net/cdp")
-        self.add_forbidden_path("/sys/net/cdp")
-        # Dialogic Diva
-        self.add_forbidden_path("/proc/net/eicon")
+
+        self.add_forbidden_path([
+            "/proc/net/rpc/use-gss-proxy",
+            "/proc/net/rpc/*/channel",
+            "/proc/net/rpc/*/flush",
+            # Cisco CDP
+            "/proc/net/cdp",
+            "/sys/net/cdp",
+            # Dialogic Diva
+            "/proc/net/eicon"
+        ])
 
         self.add_cmd_output("ip -o addr", root_symlink="ip_addr")
         self.add_cmd_output("route -n", root_symlink="route")

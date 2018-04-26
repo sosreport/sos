@@ -99,10 +99,12 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # pmlogrewrite} as in 99% of the cases they are just copies from the
         # rpms. It does not make up for a lot of size but it contains many
         # files
-        self.add_forbidden_path(os.path.join(var_conf_dir, 'pmchart'))
-        self.add_forbidden_path(os.path.join(var_conf_dir, 'pmlogconf'))
-        self.add_forbidden_path(os.path.join(var_conf_dir, 'pmieconf'))
-        self.add_forbidden_path(os.path.join(var_conf_dir, 'pmlogrewrite'))
+        self.add_forbidden_path([
+            os.path.join(var_conf_dir, 'pmchart'),
+            os.path.join(var_conf_dir, 'pmlogconf'),
+            os.path.join(var_conf_dir, 'pmieconf'),
+            os.path.join(var_conf_dir, 'pmlogrewrite')
+        ])
 
         # Take PCP_LOG_DIR/pmlogger/`hostname` + PCP_LOG_DIR/pmmgr/`hostname`
         # The *default* directory structure for pmlogger is the following:

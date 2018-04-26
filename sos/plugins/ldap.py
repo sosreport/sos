@@ -38,11 +38,14 @@ class RedHatLdap(Ldap, RedHatPlugin):
 
     def setup(self):
         super(RedHatLdap, self).setup()
-        self.add_forbidden_path("/etc/openldap/certs/password")
-        self.add_forbidden_path("/etc/openldap/certs/pwfile.txt")
-        self.add_forbidden_path("/etc/openldap/certs/pin.txt")
-        self.add_forbidden_path("/etc/openldap/certs/*passw*")
-        self.add_forbidden_path("/etc/openldap/certs/key3.db")
+        self.add_forbidden_path([
+            "/etc/openldap/certs/password",
+            "/etc/openldap/certs/pwfile.txt",
+            "/etc/openldap/certs/pin.txt",
+            "/etc/openldap/certs/*passw*",
+            "/etc/openldap/certs/key3.db"
+        ])
+
         self.add_copy_spec([
             self.ldap_conf,
             "/etc/openldap/certs/cert8.db",
