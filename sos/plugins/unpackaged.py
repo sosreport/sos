@@ -66,8 +66,8 @@ class Unpackaged(Plugin, RedHatPlugin):
             return expanded
 
         all_fsystem = []
-        all_frpm = set(self.policy().mangle_package_path(
-                       self.policy().package_manager.files))
+        all_frpm = set(self.policy.mangle_package_path(
+                       self.policy.package_manager.files))
         for d in get_env_path_list():
             all_fsystem += all_files_system(d)
         not_packaged = [x for x in all_fsystem if x not in all_frpm]
