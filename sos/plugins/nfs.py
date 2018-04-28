@@ -20,6 +20,7 @@ class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/nfsmount.conf",
             "/etc/idmapd.conf",
+            "/etc/nfs.conf",
             "/proc/fs/nfsfs/servers",
             "/proc/fs/nfsfs/volumes",
             "/run/sysconfig/nfs-utils",
