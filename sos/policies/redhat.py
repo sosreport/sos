@@ -40,6 +40,7 @@ class RedHatPolicy(LinuxPolicy):
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}|%{RELEASE}\\n"'
+    _rpmql_cmd = 'rpm -qal'
     _rpmv_cmd = 'rpm -V'
     _rpmv_filter = ["debuginfo", "-devel"]
     _in_container = False
@@ -60,15 +61,23 @@ class RedHatPolicy(LinuxPolicy):
         self.package_manager = PackageManager(query_command=self._rpmq_cmd,
                                               verify_command=self._rpmv_cmd,
                                               verify_filter=self._rpmv_filter,
+                                              grab_files=self._rpmql_cmd,
                                               chroot=sysroot)
 
         self.valid_subclasses = [RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()
+        files = self.package_manager.all_files()
 
         # If rpm query failed, exit
         if not pkgs:
             print("Could not obtain installed package list", file=sys.stderr)
+            sys.exit(1)
+
+        # If the files rpm query failed, exit
+        if not files:
+            print("Could not obtain the files list known to the package \
+                  manager", file=sys.stderr)
             sys.exit(1)
 
         # handle PATH for UsrMove
@@ -139,6 +148,7 @@ class RedHatPolicy(LinuxPolicy):
 
     def get_local_name(self):
         return self.host_name()
+
 
 # Container environment variables on Red Hat systems.
 ENV_CONTAINER = 'container'
