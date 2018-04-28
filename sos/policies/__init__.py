@@ -151,7 +151,7 @@ class PackageManager(object):
             cmd = self.grab_files
             self.files = shell_out(
                 cmd, timeout=0, chroot=self.chroot
-            )['output'].splitlines()
+            ).splitlines()
         return self.files
 
     def build_verify_command(self, packages):
