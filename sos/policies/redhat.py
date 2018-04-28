@@ -18,6 +18,7 @@
 from __future__ import print_function
 import os
 import sys
+import re
 
 from sos.plugins import RedHatPlugin
 from sos.policies import LinuxPolicy, PackageManager
@@ -51,6 +52,7 @@ class RedHatPolicy(LinuxPolicy):
     def __init__(self, sysroot=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot)
         self.ticket_number = ""
+        self.usrmove = False
         # need to set _host_sysroot before PackageManager()
         if sysroot:
             self._container_init()
@@ -80,16 +82,9 @@ class RedHatPolicy(LinuxPolicy):
                   manager", file=sys.stderr)
             sys.exit(1)
 
-        # handle PATH for UsrMove
-        if 'filesystem' not in pkgs:
-            print("Could not find 'filesystem' package: "
-                  "assuming PATH settings")
-            usrmove = True
-        else:
-            filesys_version = pkgs['filesystem']['version']
-            usrmove = True if filesys_version[0] == '3' else False
+        self.usrmove = self.check_usrmove(pkgs)
 
-        if usrmove:
+        if self.usrmove:
             self.PATH = "/usr/sbin:/usr/bin:/root/bin"
         else:
             self.PATH = "/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
@@ -103,6 +98,36 @@ class RedHatPolicy(LinuxPolicy):
         overriden by concrete subclasses to return True when running on a
         Fedora, RHEL or other Red Hat distribution or False otherwise."""
         return False
+
+    def check_usrmove(self, pkgs):
+        """
+        pkgs: list
+
+        It checks if the system has been moved to UsrMove.
+        If the 'filesystem' package is present, it will check the version.
+        If not it checks if '/bin' and '/sbin' are symlinks.
+        """
+        if 'filesystem' not in pkgs:
+            return os.path.islink('/bin') and os.path.islink('/sbin')
+        else:
+            filesys_version = pkgs['filesystem']['version']
+            return True if filesys_version[0] == '3' else False
+
+    def mangle_package_path(self, files):
+        """
+        files: list
+
+        If we are on a post-usrmove system, all files will be in
+        '/usr/[s]bin'.
+        This will substitute all the /[s]bin references in the 'files' list
+        with '/usr/[s]bin'
+        If not post UsrMove, returns all untouched files.
+        """
+
+        if self.usrmove:
+            return [re.sub(r'(^)(/s?bin)', r'\1/usr\2', f) for f in files]
+        else:
+            return files
 
     def _container_init(self):
         """Check if sos is running in a container and perform container
