@@ -62,12 +62,15 @@ class PackageManager(object):
     chroot = None
 
     def __init__(self, chroot=None, query_command=None,
-                 verify_command=None, verify_filter=None):
+                 verify_command=None, verify_filter=None,
+                 grab_files=None):
         self.packages = {}
+        self.files = []
 
         self.query_command = query_command if query_command else None
         self.verify_command = verify_command if verify_command else None
         self.verify_filter = verify_filter if verify_filter else None
+        self.grab_files = grab_files if grab_files else None
 
         if chroot:
             self.chroot = chroot
@@ -139,6 +142,17 @@ class PackageManager(object):
         version, release, arch = fields[-3:]
         name = "-".join(fields[:-3])
         return (name, version, release, arch)
+
+    def all_files(self):
+        """
+        Returns a list of files known by the package manager
+        """
+        if self.grab_files:
+            cmd = self.grab_files
+            self.files = shell_out(
+                cmd, timeout=0, chroot=self.chroot
+            )['output'].splitlines()
+        return self.files
 
     def build_verify_command(self, packages):
         """build_verify_command(self, packages) -> str
