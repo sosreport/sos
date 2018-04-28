@@ -99,10 +99,10 @@ class CertificateSystem(Plugin, RedHatPlugin):
             for dirs in os.listdir('/var/lib/pki'):
 
                 # Files containing sensitive information.
-                self.add_forbidden_path('/etc/pki/' + dirs
-                                        + '/password.conf')
-                self.add_forbidden_path('/etc/pki/' + dirs
-                                        + '/alias/key3.db')
+                self.add_forbidden_path('/etc/pki/%s/password.conf'
+                                        % dirs)
+                self.add_forbidden_path('/etc/pki/%s/alias/key3.db'
+                                        % dirs)
 
                 # Get certificates from CA.
                 try:
