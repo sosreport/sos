@@ -1,60 +1,55 @@
-# Copyright (C) 2007-2010 Red Hat, Inc., Kent Lamb <klamb@redhat.com>
-#                                        Marc Sauton <msauton@redhat.com>
-#                                        Pierre Carrier <pcarrier@redhat.com>
-
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# Copyright (C) 2018 Brian Gribble <bgribble@redhat.com>, Red Hat.
+# All rights reserved.
+#
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions
+# of the version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further
+# information.
 
 from sos.plugins import Plugin, RedHatPlugin
 from os.path import exists
 from glob import glob
+import os
 
 
 class CertificateSystem(Plugin, RedHatPlugin):
-    """Certificate System and Dogtag
+    """ Certificate System and Dogtag
     """
 
     plugin_name = 'cs'
     profiles = ('identity', 'security')
 
     packages = (
-        "redhat-cs",
-        "rhpki-common",
-        "pki-common",
-        "redhat-pki",
-        "dogtag-pki",
-        "pki-base"
+        'redhat-cs',
+        'rhpki-common',
+        'pki-common',
+        'pki-base'
     )
 
     files = (
-        "/opt/redhat-cs",
-        "/usr/share/java/rhpki",
-        "/usr/share/java/pki"
+        '/opt/redhat-cs',
+        '/usr/share/java/rhpki',
+        '/usr/share/java/pki'
     )
 
     def checkversion(self):
-        if self.is_installed("redhat-cs") or exists("/opt/redhat-cs"):
+        """ Check if Certificate System 7, 8, or 9 is installed.
+        """
+
+        if self.is_installed('redhat-cs') or exists('/opt/redhat-cs'):
             return 71
-        elif self.is_installed("rhpki-common") or \
-                len(glob("/var/lib/rhpki-*")):
+        elif self.is_installed('rhpki-common') or \
+                len(glob('/var/lib/rhpki-*')):
             return 73
-        # 8 should cover dogtag
-        elif self.is_installed("pki-common"):
+        # 8 should cover Dogtag.
+        elif self.is_installed('pki-common'):
             return 8
-        elif self.is_installed("redhat-pki") or \
-                self.is_installed("dogtag-pki") or \
-                self.is_installed("pki-base"):
+        # pki-base is the common package for 9.
+        elif self.is_installed('pki-base'):
             return 9
         return False
 
@@ -62,67 +57,84 @@ class CertificateSystem(Plugin, RedHatPlugin):
         csversion = self.checkversion()
 
         if not csversion:
-            self.add_alert("Red Hat Certificate System not found.")
+            self.add_alert('Red Hat Certificate System not found.')
             return
         if csversion == 71:
             self.add_copy_spec([
-                "/opt/redhat-cs/slapd-*/logs/access",
-                "/opt/redhat-cs/slapd-*/logs/errors",
-                "/opt/redhat-cs/slapd-*/config/dse.ldif",
-                "/opt/redhat-cs/cert-*/errors",
-                "/opt/redhat-cs/cert-*/config/CS.cfg",
-                "/opt/redhat-cs/cert-*/access",
-                "/opt/redhat-cs/cert-*/errors",
-                "/opt/redhat-cs/cert-*/system",
-                "/opt/redhat-cs/cert-*/transactions",
-                "/opt/redhat-cs/cert-*/debug",
-                "/opt/redhat-cs/cert-*/tps-debug.log"
+                '/opt/redhat-cs/slapd-*/logs/access',
+                '/opt/redhat-cs/slapd-*/logs/errors',
+                '/opt/redhat-cs/slapd-*/config/dse.ldif',
+                '/opt/redhat-cs/cert-*/errors',
+                '/opt/redhat-cs/cert-*/config/CS.cfg',
+                '/opt/redhat-cs/cert-*/access',
+                '/opt/redhat-cs/cert-*/errors',
+                '/opt/redhat-cs/cert-*/system',
+                '/opt/redhat-cs/cert-*/transactions',
+                '/opt/redhat-cs/cert-*/debug',
+                '/opt/redhat-cs/cert-*/tps-debug.log'
             ])
         if csversion == 73:
             self.add_copy_spec([
-                "/var/lib/rhpki-*/conf/*cfg*",
-                "/var/lib/rhpki-*/conf/*.ldif",
-                "/var/lib/rhpki-*/logs/debug",
-                "/var/lib/rhpki-*/logs/catalina.*",
-                "/var/lib/rhpki-*/logs/ra-debug.log",
-                "/var/lib/rhpki-*/logs/transactions",
-                "/var/lib/rhpki-*/logs/system"
-            ])
-        if csversion in (73, 8):
-            self.add_copy_spec([
-                "/etc/dirsrv/slapd-*/dse.ldif",
-                "/var/log/dirsrv/slapd-*/access",
-                "/var/log/dirsrv/slapd-*/errors"
+                '/var/lib/rhpki-*/conf/*cfg*',
+                '/var/lib/rhpki-*/conf/*.ldif',
+                '/var/lib/rhpki-*/logs/debug',
+                '/var/lib/rhpki-*/logs/catalina.*',
+                '/var/lib/rhpki-*/logs/ra-debug.log',
+                '/var/lib/rhpki-*/logs/transactions',
+                '/var/lib/rhpki-*/logs/system'
             ])
         if csversion == 8:
             self.add_copy_spec([
-                "/etc/pki-*/CS.cfg",
-                "/var/lib/pki-*/conf/*cfg*",
-                "/var/log/pki-*/debug",
-                "/var/log/pki-*/catalina.*",
-                "/var/log/pki-*/ra-debug.log",
-                "/var/log/pki-*/transactions",
-                "/var/log/pki-*/system"
+                '/var/lib/pki-*/conf/*cfg*',
+                '/var/log/pki-*/debug',
+                '/var/log/pki-*/catalina.*',
+                '/var/log/pki-*/localhost.*',
+                '/var/log/pki-*/manager.*',
+                '/var/log/pki-*/ra-debug.log',
+                '/var/log/pki-*/transactions',
+                '/var/log/pki-*/selftests.log',
+                '/var/log/pki-*/system'
             ])
         if csversion == 9:
-            # Get logs and configs for each subsystem if installed
-            for subsystem in ('ca', 'kra', 'ocsp', 'tks', 'tps'):
+            for dirs in os.listdir('/var/lib/pki'):
+
+                # Files containing sensitive information.
+                self.add_forbidden_path('/etc/pki/' + dirs
+                                        + '/password.conf')
+                self.add_forbidden_path('/etc/pki/' + dirs
+                                        + '/alias/key3.db')
+
+                # Get certificates from CA.
+                try:
+                    certpath = os.path.join('/var/lib/pki', dirs)
+                    self.add_cmd_output('certutil -L -d %s/alias'
+                                        % certpath)
+                except:
+                    self._log_warn('Could not list /var/lib/pki')
+
+                # Grab logs and configs for each subsystem.
                 self.add_copy_spec([
-                    "/var/lib/pki/*/" + subsystem + "/conf/CS.cfg",
-                    "/var/lib/pki/*/logs/" + subsystem + "/system",
-                    "/var/lib/pki/*/logs/" + subsystem + "/transactions",
-                    "/var/lib/pki/*/logs/" + subsystem + "/debug",
-                    "/var/lib/pki/*/logs/" + subsystem + "/selftests.log"
+                    '/var/lib/pki/' + dirs,
+                    '/etc/pki/' + dirs,
+                    '/var/log/pki/' + dirs,
+                    '/var/log/pki/pki-*-spawn.*'
                 ])
 
-            # Common log files
-            self.add_copy_spec([
-                "/var/lib/pki/*/logs/catalina.*",
-                "/var/lib/pki/*/logs/localhost*.log",
-                "/var/lib/pki/*/logs/localhost*.txt",
-                "/var/lib/pki/*/logs/manager*.log",
-                "/var/lib/pki/*/logs/host-manager*.log",
-                "/var/lib/pki/*/logs/tps/tokendb-audit.log"
-            ])
+    # Obfuscate passwords in CS 9 tomcat files.
+    def postproc(self):
+        for dirs in os.listdir('/var/lib/pki'):
+            serverXmlPasswordAttributes = ['keyPass', 'keystorePass',
+                                           'truststorePass', 'SSLPassword']
+            for attr in serverXmlPasswordAttributes:
+                self.do_path_regex_sub(
+                    r'\/etc\/pki\/' + dirs + '\/server.xml',
+                    r'%s=(\S*)' % attr,
+                    r'%s="********"' % attr
+                )
+            self.do_path_regex_sub(
+                r'\/etc\/pki\/' + dirs + '\/tomcat-users.xml',
+                r'password=(\S*)',
+                r'password="********"'
+            )
 
 # vim: set et ts=4 sw=4 :
