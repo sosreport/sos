@@ -75,11 +75,6 @@ class Ipa(Plugin, RedHatPlugin):
                "/var/log/pki/pki-ca-spawn.*"
             ])
 
-    def check_enabled(self):
-        self.ipa_server = self.is_installed("ipa-server")
-        self.ipa_client = self.is_installed("ipa-client")
-        return Plugin.check_enabled(self)
-
     def setup(self):
         self.pki_tomcat_dir_v4 = "/var/lib/pki/pki-tomcat"
         self.pki_tomcat_dir_v3 = "/var/lib/pki-ca"
