@@ -789,25 +789,28 @@ class Plugin(object):
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None, timeout=None,
-                    identifier=None):
+                    identifier=None, catalog=None):
         """ Collect journald logs from one of more units.
 
         Keyword arguments:
-        units     -- A string, or list of strings specifying the systemd
+        units      -- A string, or list of strings specifying the systemd
                      units for which journal entries will be collected.
-        boot      -- A string selecting a boot index using the journalctl
+        boot       -- A string selecting a boot index using the journalctl
                      syntax. The special values 'this' and 'last' are also
                      accepted.
-        since     -- A string representation of the start time for journal
+        since      -- A string representation of the start time for journal
                      messages.
-        until     -- A string representation of the end time for journal
+        until      -- A string representation of the end time for journal
                      messages.
-        lines     -- The maximum number of lines to be collected.
-        allfields -- Include all journal fields regardless of size or
+        lines      -- The maximum number of lines to be collected.
+        allfields  -- Include all journal fields regardless of size or
                      non-printable characters.
-        output    -- A journalctl output control string, for example
+        output     -- A journalctl output control string, for example
                      "verbose".
-        timeout   -- An optional timeout in seconds.
+        timeout    -- An optional timeout in seconds.
+        identifier -- an optional message identifier.
+        catalog    -- If True, augment lines with descriptions from the
+                   system catalog.
         """
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
@@ -817,6 +820,7 @@ class Plugin(object):
         lines_opt = " --lines %s"
         output_opt = " --output %s"
         identifier_opt = " --identifier %s"
+        catalog_opt = " --catalog"
 
         if isinstance(units, six.string_types):
             units = [units]
@@ -827,6 +831,9 @@ class Plugin(object):
 
         if identifier:
             journal_cmd += identifier_opt % identifier
+
+        if catalog:
+            journal_cmd += catalog_opt
 
         if allfields:
             journal_cmd += " --all"
