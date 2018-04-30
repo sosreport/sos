@@ -40,6 +40,7 @@ class Ipa(Plugin, RedHatPlugin):
         elif self.is_installed("pki-common") \
                 or exists("/var/lib/pki-ca/"):
             return "v3"
+        return None
 
     def ca_installed(self):
         # Follow the same checks as IPA CA installer code
@@ -86,10 +87,12 @@ class Ipa(Plugin, RedHatPlugin):
         self.pki_tomcat_conf_dir_v4 = "/etc/pki/pki-tomcat/ca"
         self.pki_tomcat_conf_dir_v3 = "/etc/pki-ca"
 
+        # Returns "v3", "v4", or None
+        ipa_version = self.check_ipa_server_version()
+
         if self.ipa_server_installed():
             self._log_debug("IPA server install detected")
 
-            ipa_version = self.check_ipa_server_version()
             self._log_debug("IPA version is [%s]" % ipa_version)
 
             self.add_copy_spec([
