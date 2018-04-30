@@ -29,6 +29,7 @@ class OpenStackInstack(Plugin):
         self.add_copy_spec("/home/stack/.instack/install-undercloud.log")
         self.add_copy_spec("/home/stack/instackenv.json")
         self.add_copy_spec("/home/stack/undercloud.conf")
+        self.add_copy_spec("/var/log/heat-launcher/")
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
