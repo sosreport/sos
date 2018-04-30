@@ -128,6 +128,7 @@ class Plugin(object):
     packages = ()
     files = ()
     commands = ()
+    kernel_mods = ()
     archive = None
     profiles = ()
     sysroot = '/'
@@ -934,7 +935,7 @@ class Plugin(object):
         overridden.
         """
         # some files or packages have been specified for this package
-        if any([self.files, self.packages, self.commands]):
+        if any([self.files, self.packages, self.commands, self.kernel_mods]):
             if isinstance(self.files, six.string_types):
                 self.files = [self.files]
 
@@ -943,6 +944,9 @@ class Plugin(object):
 
             if isinstance(self.commands, six.string_types):
                 self.commands = [self.commands]
+
+            if isinstance(self.kernel_mods, six.string_types):
+                self.kernel_mods = [self.kernel_mods]
 
             if isinstance(self, SCLPlugin):
                 # save SCLs that match files or packages
@@ -968,9 +972,15 @@ class Plugin(object):
         return True
 
     def _files_pkgs_or_cmds_present(self, files, packages, commands):
+            kernel_mods = self.policy.lsmod()
+
+            def have_kmod(kmod):
+                return kmod in kernel_mods
+
             return (any(os.path.exists(fname) for fname in files) or
                     any(self.is_installed(pkg) for pkg in packages) or
-                    any(is_executable(cmd) for cmd in commands))
+                    any(is_executable(cmd) for cmd in commands) or
+                    any(have_kmod(kmod) for kmod in self.kernel_mods))
 
     def default_enabled(self):
         """This decides whether a plugin should be automatically loaded or

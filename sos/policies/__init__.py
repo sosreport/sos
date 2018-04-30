@@ -508,6 +508,12 @@ class LinuxPolicy(Policy):
     def sanitize_case_id(self, case_id):
         return re.sub(r"[^-a-z,A-Z.0-9]", "", case_id)
 
+    def lsmod(self):
+        """Return a list of kernel module names as strings.
+        """
+        lines = shell_out("lsmod", timeout=0).splitlines()
+        return [line.split()[0].strip() for line in lines]
+
     def pre_work(self):
         # this method will be called before the gathering begins
 
