@@ -24,6 +24,23 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_copy_spec(["/etc/ld.so.conf", "/etc/ld.so.conf.d"])
         if self.get_option("ldconfigv"):
             self.add_cmd_output("ldconfig -v -N -X")
-        self.add_cmd_output("ldconfig -p -N -X")
+
+        ldconfig_file = self.get_cmd_output_now("ldconfig -p -N -X")
+
+        if not ldconfig_file:
+            return
+
+        # Collect library directories from ldconfig's cache
+        dirs = set()
+        with open(ldconfig_file) as f:
+            for l in f.read().splitlines():
+                s = l.split(" => ", 2)
+                if len(s) != 2:
+                    continue
+                dirs.add(s[1].rsplit('/', 1)[0])
+
+        if dirs:
+            self.add_cmd_output("ls -lanH %s" % " ".join(dirs),
+                                suggest_filename="ld_so_cache")
 
 # vim: set et ts=4 sw=4 :
