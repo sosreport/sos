@@ -54,7 +54,10 @@ class S390(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "find /proc/s390dbf -type f",
             "qethconf list_all",
             "lsqeth",
-            "lszfcp"
+            "lszfcp",
+            "lszcrypt",
+            "icainfo",
+            "icastats"
         ])
         r = self.call_ext_prog("ls /dev/dasd?")
         dasd_dev = r['output']
