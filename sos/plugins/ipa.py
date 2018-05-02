@@ -139,7 +139,8 @@ class Ipa(Plugin, RedHatPlugin):
             "getcert list",
             "certutil -L -d /etc/httpd/alias/",
             "klist -ket /etc/dirsrv/ds.keytab",
-            "klist -ket /etc/httpd/conf/ipa.keytab"
+            "klist -ket /etc/httpd/conf/ipa.keytab",
+            "klist -ket /var/lib/ipa/gssproxy/http.keytab"
         ])
 
         for certdb_directory in glob("/etc/dirsrv/slapd-*/"):
