@@ -39,10 +39,14 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "systemd-delta",
             "systemd-analyze",
             "systemd-analyze blame",
+            "systemd-analyze dump",
             "journalctl --list-boots",
             "ls -lR /lib/systemd",
             "timedatectl"
         ])
+
+        self.add_cmd_output("systemd-analyze plot",
+                            suggest_filename="systemd-analyze_plot.svg")
 
         if self.get_option("verify"):
             self.add_cmd_output("journalctl --verify")
@@ -52,7 +56,12 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/lib/systemd/system",
             "/lib/systemd/user",
             "/etc/vconsole.conf",
-            "/etc/yum/protected.d/systemd.conf"
+            "/etc/yum/protected.d/systemd.conf",
+            "/run/systemd/generator*",
+            "/run/systemd/seats",
+            "/run/systemd/sessions",
+            "/run/systemd/system",
+            "/run/systemd/users"
         ])
 
 # vim: set et ts=4 sw=4 :
