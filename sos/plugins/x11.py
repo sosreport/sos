@@ -28,7 +28,9 @@ class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/X11",
             "/var/log/Xorg.*.log",
+            "/var/log/Xorg.*.log.old",
             "/var/log/XFree86.*.log",
+            "/var/log/XFree86.*.log.old",
         ])
 
         self.add_forbidden_path([
