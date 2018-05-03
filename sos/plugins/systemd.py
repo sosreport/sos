@@ -44,6 +44,8 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "systemctl show-environment",
             "systemd-delta",
             "systemd-analyze",
+            "systemd-analyze dump",
+            "systemd-analyze plot",
             "journalctl --list-boots",
             "ls -lR /lib/systemd",
             "timedatectl"
@@ -57,7 +59,8 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/lib/systemd/system",
             "/lib/systemd/user",
             "/etc/vconsole.conf",
-            "/etc/yum/protected.d/systemd.conf"
+            "/etc/yum/protected.d/systemd.conf",
+            "/run/systemd"
         ])
 
 # vim: set et ts=4 sw=4 :
