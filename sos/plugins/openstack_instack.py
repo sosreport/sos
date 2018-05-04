@@ -13,6 +13,18 @@ from sos.plugins import Plugin, RedHatPlugin
 import os
 
 
+NON_CONTAINERIZED_DEPLOY = [
+        '/home/stack/.instack/install-undercloud.log',
+        '/home/stack/instackenv.json',
+        '/home/stack/undercloud.conf'
+]
+CONTAINERIZED_DEPLOY = [
+        '/var/log/heat-launcher/',
+        '/home/stack/install-undercloud.log',
+        '/home/stack/undercloud-install-*.tar.bzip2'
+]
+
+
 class OpenStackInstack(Plugin):
     """OpenStack Instack
     """
@@ -20,9 +32,7 @@ class OpenStackInstack(Plugin):
     profiles = ('openstack', 'openstack_undercloud')
 
     def setup(self):
-        self.add_copy_spec("/home/stack/.instack/install-undercloud.log")
-        self.add_copy_spec("/home/stack/instackenv.json")
-        self.add_copy_spec("/home/stack/undercloud.conf")
+        self.add_copy_spec(NON_CONTAINERIZED_DEPLOY + CONTAINERIZED_DEPLOY)
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
