@@ -78,7 +78,7 @@ class CertificateSystem(Plugin, RedHatPlugin):
                     "/opt/redhat-cs/cert-*/debug",
                     "/opt/redhat-cs/cert-*/tps-debug.log"
                 ])
- 
+
             # Grab logs for each subsystem.
             self.add_copy_spec([
                 "/opt/redhat-cs/slapd-*/logs/access",
@@ -177,8 +177,8 @@ class CertificateSystem(Plugin, RedHatPlugin):
                         "/var/log/pki/" + dirs + "/localhost.*",
                         "/var/log/pki/" + dirs + "/manager.*",
                         "/var/log/pki/" + dirs + "/" + subsystem + "/debug",
-                        "/var/log/pki/" + dirs + "/"
-                                        + subsystem + "/selftests",
+                        "/var/log/pki/" + dirs + "/" +
+                                          subsystem + "/selftests",
                         "/var/log/pki/" + dirs + "/" + subsystem + "/system"
                     ], sizelimit=self.limit)
 
