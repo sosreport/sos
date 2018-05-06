@@ -78,7 +78,7 @@ class CertificateSystem(Plugin, RedHatPlugin):
                     "/opt/redhat-cs/cert-*/debug",
                     "/opt/redhat-cs/cert-*/tps-debug.log"
                 ])
- 
+
             # Grab logs for each subsystem.
             self.add_copy_spec([
                 "/opt/redhat-cs/slapd-*/logs/access",
