@@ -13,7 +13,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from sos.plugins import Plugin, RedHatPlugin
-from sos.utilities import is_executable
 
 
 class Rpm(Plugin, RedHatPlugin):
