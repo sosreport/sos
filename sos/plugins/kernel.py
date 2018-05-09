@@ -71,11 +71,13 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         for pattern in extra_mod_patterns:
             extra_mod_paths.extend(glob.glob(pattern))
 
+        if extra_mod_paths:
+            self.add_cmd_output("find %s -ls" % " ".join(extra_mod_paths))
+
         self.add_cmd_output([
             "dmesg",
             "sysctl -a",
-            "dkms status",
-            "find %s -ls" % " ".join(extra_mod_paths)
+            "dkms status"
         ])
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
