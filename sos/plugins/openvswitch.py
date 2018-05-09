@@ -71,7 +71,7 @@ class OpenVSwitch(Plugin):
             # Capture tnl arp table"
             "ovs-appctl tnl/arp/show",
             # Capture a list of listening ports"
-            "ovs-appctl tnl/ports/show",
+            "ovs-appctl tnl/ports/show -v",
             # Capture upcall information
             "ovs-appctl upcall/show",
             # Capture DPDK and other parameters
