@@ -131,13 +131,13 @@ class Networking(Plugin):
             "/etc/host*",
             "/etc/resolv.conf",
             "/etc/network*",
-            "/etc/NetworkManager/NetworkManager.conf",
-            "/etc/NetworkManager/system-connections",
+            "/etc/NetworkManager/",
             "/etc/nftables",
             "/etc/sysconfig/nftables.conf",
             "/etc/nftables.conf",
             "/etc/dnsmasq*",
             "/sys/class/net/*/flags",
+            "/sys/class/net/*/statistics/",
             "/etc/iproute2"
         ])
 
