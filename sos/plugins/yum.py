@@ -75,7 +75,12 @@ class Yum(Plugin, RedHatPlugin):
             "/etc/pki/consumer/cert.pem",
             "/etc/pki/entitlement/*.pem"
         ])
-        self.add_cmd_output("yum history")
+
+        self.add_cmd_output([
+            "yum history",
+            "package-cleanup --dupes",
+            "package-cleanup --problems"
+        ])
 
         # packages installed/erased/updated per transaction
         if self.get_option("yum-history-info"):

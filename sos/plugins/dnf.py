@@ -50,6 +50,8 @@ class DNFPlugin(Plugin, RedHatPlugin):
             "dnf --version",
             "dnf list installed *dnf*",
             "dnf list extras",
+            "package-cleanup --dupes",
+            "package-cleanup --problems"
         ])
 
         if self.get_option("history"):
