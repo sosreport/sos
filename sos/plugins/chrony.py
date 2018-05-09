@@ -33,6 +33,7 @@ class Chrony(Plugin, RedHatPlugin):
             "chronyc activity",
             "chronyc tracking",
             "chronyc sources",
+            "chronyc -n sources",
             "chronyc sourcestats",
             "chronyc serverstats",
             "chronyc ntpdata",
