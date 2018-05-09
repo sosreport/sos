@@ -44,6 +44,7 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "systemctl show-environment",
             "systemd-delta",
             "systemd-analyze",
+            "systemd-analyze blame",
             "journalctl --list-boots",
             "ls -lR /lib/systemd",
             "timedatectl"
