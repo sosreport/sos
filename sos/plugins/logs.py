@@ -86,8 +86,15 @@ class RedHatLogs(Logs, RedHatPlugin):
     def setup(self):
         super(RedHatLogs, self).setup()
         messages = "/var/log/messages"
-        self.add_copy_spec("/var/log/secure*", sizelimit=self.limit)
-        self.add_copy_spec(messages + "*", sizelimit=self.limit)
+        secure = "/var/log/secure"
+
+        if self.get_option("all_logs"):
+            messages += "*"
+            secure += "*"
+
+        self.add_copy_spec(secure, sizelimit=self.limit)
+        self.add_copy_spec(messages, sizelimit=self.limit)
+
         # collect three days worth of logs by default if the system is
         # configured to use the journal and not /var/log/messages
         if not os.path.exists(messages) and self.is_installed("systemd"):
