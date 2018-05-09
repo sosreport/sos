@@ -46,14 +46,11 @@ class DNFPlugin(Plugin, RedHatPlugin):
                                sizelimit=self.limit)
             self.add_copy_spec("/var/log/dnf.rpm.log", sizelimit=self.limit)
 
-        self.add_cmd_output("dnf --version",
-                            suggest_filename="dnf_version")
-
-        self.add_cmd_output("dnf list installed *dnf*",
-                            suggest_filename="dnf_installed_plugins")
-
-        self.add_cmd_output("dnf list extras",
-                            suggest_filename="dnf_extra_packages")
+        self.add_cmd_output([
+            "dnf --version",
+            "dnf list installed *dnf*",
+            "dnf list extras",
+        ])
 
         if self.get_option("history"):
             self.add_cmd_output("dnf history")
