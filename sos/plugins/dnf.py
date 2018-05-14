@@ -30,6 +30,21 @@ class DNFPlugin(Plugin, RedHatPlugin):
         ("history-info", "detailed transaction history", "slow", False),
     ]
 
+    def get_modules_info(self, module_file):
+        if module_file:
+            try:
+                module_out = open(module_file).read()
+            except:
+                self._log_warn("could not read module list file")
+                return
+            # take just lines with the module names, i.e. containing "[i]" and
+            # not the "Hint: [d]efault, [e]nabled, [i]nstalled,.."
+            for line in module_out.splitlines():
+                if "[i]" in line:
+                    module = line.split()[0]
+                    if module != "Hint:":
+                        self.add_cmd_output("dnf module info "+module)
+
     def setup(self):
         self.add_copy_spec([
             "/etc/dnf/dnf.conf",
@@ -69,5 +84,9 @@ class DNFPlugin(Plugin, RedHatPlugin):
                         pass
             for tr_id in range(1, transactions+1):
                 self.add_cmd_output("dnf history info %d" % tr_id)
+
+        # Get list of dnf installed modules and their details.
+        module_file = self.get_cmd_output_now("dnf module list --installed")
+        self.get_modules_info(module_file)
 
 # vim: set et ts=4 sw=4 :
