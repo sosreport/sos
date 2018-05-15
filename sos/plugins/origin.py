@@ -55,11 +55,11 @@ class OpenShiftOrigin(Plugin):
     master_base_dir = "/etc/origin/master"
     node_base_dir = "/etc/origin/node"
     master_cfg = os.path.join(master_base_dir, "master-config.yaml")
+    master_env = os.path.join(master_base_dir, "master.env")
     node_cfg_file = "node-config.yaml"
     node_cfg = os.path.join(node_base_dir, node_cfg_file)
-    admin_cfg = os.path.join(master_base_dir, "admin.kubeconfig")
-    oc_cmd = "oc"
-    oc_cmd_admin = "%s --config=%s" % (oc_cmd, admin_cfg)
+    node_kubeconfig = os.path.join(node_base_dir, "node.kubeconfig")
+    static_pod_dir = os.path.join(node_base_dir, "pods")
 
     files = (master_cfg, node_cfg)
 
@@ -79,36 +79,40 @@ class OpenShiftOrigin(Plugin):
         '''Determine if we are on a node'''
         return os.path.exists(self.node_cfg)
 
-    def get_node_kubecfg(self):
-        '''Get the full path to the node's kubeconfig file
-        from the node's configuration'''
+    def is_static_etcd(self):
+        '''Determine if we are on a node running etcd'''
+        return os.path.exists(os.path.join(self.static_pod_dir, "etcd.yaml"))
 
-        # If we fail to find a specific kubeconfig we will
-        # just point to the general node configuration
-        kubeconfig = self.node_cfg_file
-
-        # This should ideally use PyYAML to parse the node's
-        # configuration file, but PyYAML is currently not a
-        # dependency of sos and we can't guarantee it will
-        # be available, so this is a quick&dirty "grep" for
-        # the parameter we're looking for
-        cfgfile = open(self.node_cfg, 'r')
-        for line in cfgfile:
-            parts = line.split()
-            if len(parts) > 1 and parts[0] == 'masterKubeConfig:':
-                kubeconfig = parts[1]
-                break
-        cfgfile.close()
-        return os.path.join(self.node_base_dir, kubeconfig)
+    def is_static_pod_compatible(self):
+        '''Determine if a node is running static pods'''
+        return os.path.exists(self.static_pod_dir)
 
     def setup(self):
+        bstrap_node_cfg = os.path.join(self.node_base_dir,
+                                       "bootstrap-" + self.node_cfg_file)
+        bstrap_kubeconfig = os.path.join(self.node_base_dir,
+                                         "bootstrap.kubeconfig")
+        node_certs = os.path.join(self.node_base_dir, "certs", "*")
+        node_client_ca = os.path.join(self.node_base_dir, "client-ca.crt")
+        admin_cfg = os.path.join(self.master_base_dir, "admin.kubeconfig")
+        oc_cmd_admin = "%s --config=%s" % ("oc", admin_cfg)
+        static_pod_logs_cmd = "master-logs"
+
         # Note that a system can run both a master and a node.
         # See "Master vs. node" above.
         if self.is_master():
             self.add_copy_spec([
                 self.master_cfg,
+                self.master_env,
                 os.path.join(self.master_base_dir, "*.crt"),
             ])
+
+            if self.is_static_pod_compatible():
+                self.add_copy_spec(os.path.join(self.static_pod_dir, "*.yaml"))
+                self.add_cmd_output([
+                    "%s api api" % static_pod_logs_cmd,
+                    "%s controllers controllers" % static_pod_logs_cmd,
+                ])
 
             # TODO: some thoughts about information that might also be useful
             # to collect. However, these are maybe not needed in general
@@ -127,15 +131,15 @@ class OpenShiftOrigin(Plugin):
             # Note: Information about nodes, events, pods, and services
             # is already collected by the Kubernetes plugin
             self.add_cmd_output([
-                "%s describe projects" % self.oc_cmd_admin,
-                "%s get -o json hostsubnet" % self.oc_cmd_admin,
-                "%s get -o json clusternetwork" % self.oc_cmd_admin,
-                "%s get -o json netnamespaces" % self.oc_cmd_admin,
+                "%s describe projects" % oc_cmd_admin,
+                "%s get -o json hostsubnet" % oc_cmd_admin,
+                "%s get -o json clusternetwork" % oc_cmd_admin,
+                "%s get -o json netnamespaces" % oc_cmd_admin,
                 # Registry and router configs are typically here
-                "%s get -o json dc -n default" % self.oc_cmd_admin,
+                "%s get -o json dc -n default" % oc_cmd_admin,
             ])
             if self.get_option('diag'):
-                diag_cmd = "%s adm diagnostics -l 0" % self.oc_cmd_admin
+                diag_cmd = "%s adm diagnostics -l 0" % oc_cmd_admin
                 if self.get_option('diag-prevent'):
                     diag_cmd += " --prevent-modification=true"
                 self.add_cmd_output(diag_cmd)
@@ -145,26 +149,28 @@ class OpenShiftOrigin(Plugin):
 
             # get logs from the infrastruture pods running in the default ns
             pods = self.get_command_output("%s get pod -o name -n default"
-                                           % self.oc_cmd_admin)
+                                           % oc_cmd_admin)
             for pod in pods['output'].splitlines():
                 self.add_cmd_output("%s logs -n default %s"
-                                    % (self.oc_cmd_admin, pod))
+                                    % (oc_cmd_admin, pod))
 
         # Note that a system can run both a master and a node.
         # See "Master vs. node" above.
         if self.is_node():
             self.add_copy_spec([
                 self.node_cfg,
+                self.node_kubeconfig,
+                node_certs,
+                node_client_ca,
+                bstrap_node_cfg,
+                bstrap_kubeconfig,
                 os.path.join(self.node_base_dir, "*.crt"),
             ])
 
-            node_kubecfg = self.get_node_kubecfg()
-            self.add_cmd_output([
-                "%s config view --config=%s" % (self.oc_cmd, node_kubecfg),
-                "%s adm diagnostics NodeConfigCheck --node-config=%s"
-                % (self.oc_cmd, self.node_cfg)
-            ])
             self.add_journal(units="atomic-openshift-node")
+
+        if self.is_static_etcd():
+            self.add_cmd_output("%s etcd etcd" % static_pod_logs_cmd)
 
     def postproc(self):
         # Clear env values from objects that can contain sensitive data
