@@ -71,12 +71,13 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 self.add_copy_spec("/proc/%s/%s" % (pid, pf))
 
     def postproc(self):
-        for loc in ["/etc/", "/var/run/"]:
-            for xmlfile in glob.glob(loc + "libvirt/qemu/*.xml"):
-                self.do_file_sub(
-                    xmlfile,
-                    r"(\s*passwd=\s*')([^']*)('.*)",
-                    r"\1******\3"
-                )
+        match_exp = r"(\s*passwd=\s*')([^']*)('.*)"
+        libvirt_path_exps = [
+            "/etc/libvirt/qemu/.*\.xml",
+            "/var/run/libvirt/qemu/.*\.xml",
+            "/etc/libvirt/.*\.conf"
+        ]
+        for path_exp in libvirt_path_exps:
+            self.do_path_regex_sub(path_exp, match_exp, r"\1******\3")
 
 # vim: set et ts=4 sw=4 :
