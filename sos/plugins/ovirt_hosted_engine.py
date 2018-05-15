@@ -32,7 +32,6 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
     plugin_name = 'ovirt_hosted_engine'
     profiles = ('virt',)
 
-    SETUP_LOG_GLOB = '/var/log/ovirt-hosted-engine-setup/*.log'
     HA_LOG_GLOB = '/var/log/ovirt-hosted-engine-ha/*.log'
 
     def setup(self):
@@ -56,19 +55,8 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
             '/var/lib/ovirt-hosted-engine-ha/broker.conf',
         ])
 
-        all_setup_logs = glob.glob(self.SETUP_LOG_GLOB)
-        all_setup_logs.sort(reverse=True)
-        if len(all_setup_logs):
-            # Add latest ovirt-hosted-engine-setup log file
-            self.add_copy_spec(all_setup_logs[0])
-        # Add older ovirt-hosted-engine-setup log files only if requested
-        if self.get_option('all_logs'):
-            self.add_copy_spec(
-                self.SETUP_LOG_GLOB,
-                sizelimit=self.limit
-            )
-
         self.add_copy_spec([
+            '/var/log/ovirt-hosted-engine-setup',
             '/var/log/ovirt-hosted-engine-ha/agent.log',
             '/var/log/ovirt-hosted-engine-ha/broker.log',
         ])
