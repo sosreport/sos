@@ -41,6 +41,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/etc/libvirt/lxc.conf",
             "/etc/libvirt/nwfilter/*.xml",
             "/etc/libvirt/qemu/*.xml",
+            "/etc/libvirt/qemu.conf",
             "/var/run/libvirt/",
             "/etc/libvirt/qemu/networks/*.xml",
             "/etc/libvirt/qemu/networks/autostart/*.xml",
@@ -70,10 +71,16 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 self.add_copy_spec("/proc/%s/%s" % (pid, pf))
 
     def postproc(self):
-        for loc in ["/etc/", "/var/run/"]:
-            for xmlfile in glob.glob(loc + "libvirt/qemu/*.xml"):
+        # get files
+        libvirt_lists = [glob.glob('/etc/libvirt/qemu/*.xml'),
+                         glob.glob('/var/run/libvirt/qemu/*.xml'),
+                         glob.glob('/etc/libvirt/*.conf')]
+
+        # parse files
+        for libvirt_list in libvirt_lists:
+            for libvirt_file in libvirt_list:
                 self.do_file_sub(
-                    xmlfile,
+                    libvirt_file,
                     r"(\s*passwd=\s*')([^']*)('.*)",
                     r"\1******\3"
                 )
