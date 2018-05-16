@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin
-from string import join
 
 
 class Lustre(Plugin, RedHatPlugin):
@@ -22,7 +21,7 @@ class Lustre(Plugin, RedHatPlugin):
             file.
 
         '''
-        self.add_cmd_output("lctl get_param %s" % join(param_list, " "),
+        self.add_cmd_output("lctl get_param %s" % " ".join(param_list),
                             suggest_filename="params-%s" % name,
                             stderr=False)
 
