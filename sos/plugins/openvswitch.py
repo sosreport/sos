@@ -16,6 +16,9 @@
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
+from os.path import join as path_join
+from os import environ
+
 
 class OpenVSwitch(Plugin):
     """ OpenVSwitch networking
@@ -28,12 +31,22 @@ class OpenVSwitch(Plugin):
         all_logs = self.get_option("all_logs")
         limit = self.get_option("log_size")
 
+        log_dirs = [
+            '/var/log/containers/openvswitch/',
+            '/var/log/openvswitch/',
+            '/usr/local/var/log/openvswitch/',
+        ]
+
+        if environ.get('OVS_LOGDIR'):
+            log_dirs.append(environ.get('OVS_LOGDIR'))
+
         if not all_logs:
-            self.add_copy_spec("/var/log/openvswitch/*.log",
+            self.add_copy_spec([path_join(ld, '*.log') for ld in log_dirs],
+                               sizelimit=limit)
+            self.add_copy_spec([path_join(ld, '*.log') for ld in log_dirs],
                                sizelimit=limit)
         else:
-            self.add_copy_spec("/var/log/openvswitch/",
-                               sizelimit=limit)
+            self.add_copy_spec(log_dirs, sizelimit=limit)
 
         self.add_copy_spec([
             "/var/run/openvswitch/ovsdb-server.pid",
