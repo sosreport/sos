@@ -28,12 +28,20 @@ class OpenVSwitch(Plugin):
         all_logs = self.get_option("all_logs")
         limit = self.get_option("log_size")
 
+        log_dirs = [
+            '/var/log/containers/openvswitch/',
+            '/var/log/openvswitch/',
+            '/usr/local/var/log/openvswitch/',
+        ]
+
+        if os.environ.get('OVS_LOGDIR'):
+            log_dirs.append(os.environ.get('OVS_LOGDIR'))
+
         if not all_logs:
-            self.add_copy_spec("/var/log/openvswitch/*.log",
-                               sizelimit=limit)
+            self.add_copy_spec([os.path.join(log_dir, '*.log') for log_dir in
+                               log_dirs], sizelimit=limit)
         else:
-            self.add_copy_spec("/var/log/openvswitch/",
-                               sizelimit=limit)
+            self.add_copy_spec(log_dirs, sizelimit=limit)
 
         self.add_copy_spec([
             "/var/run/openvswitch/ovsdb-server.pid",
