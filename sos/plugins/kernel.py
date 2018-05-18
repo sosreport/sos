@@ -80,12 +80,16 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
 
+        # FIXME: provide a a long-term solution for #1299
         self.add_forbidden_path([
             '/sys/kernel/debug/tracing/trace_pipe',
             '/sys/kernel/debug/tracing/README',
             '/sys/kernel/debug/tracing/trace_stat/*',
             '/sys/kernel/debug/tracing/per_cpu/*',
-            '/sys/kernel/debug/tracing/events/*'
+            '/sys/kernel/debug/tracing/events/*',
+            '/sys/kernel/debug/tracing/free_buffer',
+            '/sys/kernel/debug/tracing/trace_marker',
+            '/sys/kernel/debug/tracing/trace_marker_raw'
         ])
 
         self.add_copy_spec([
