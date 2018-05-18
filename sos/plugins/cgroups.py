@@ -20,7 +20,7 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
     """
 
     plugin_name = "cgroups"
-    profiles = ('system',)
+    profiles = ('container', 'system')
     files = ('/proc/cgroups',)
 
     def setup(self):
