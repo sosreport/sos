@@ -319,11 +319,15 @@ class Networking(Plugin):
         cmd_prefix = "ip netns exec "
         if ip_netns_file:
             for namespace in self.get_ip_netns(ip_netns_file):
+                ns_cmd_prefix = cmd_prefix + namespace + " "
                 self.add_cmd_output([
-                    cmd_prefix + namespace + " ip address show",
-                    cmd_prefix + namespace + " ip route show table all",
-                    cmd_prefix + namespace + " iptables-save",
-                    cmd_prefix + namespace + " ss -peaonmi"
+                    ns_cmd_prefix + "ip address show",
+                    ns_cmd_prefix + "ip route show table all",
+                    ns_cmd_prefix + "iptables-save",
+                    ns_cmd_prefix + "ss -peaonmi",
+                    ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
+                    ns_cmd_prefix + "netstat -s",
+                    ns_cmd_prefix + "netstat %s -agn" % self.ns_wide
                 ])
 
             # Devices that exist in a namespace use less ethtool
