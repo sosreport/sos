@@ -83,6 +83,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
             self.ldap_conf,
             "/etc/slapd.conf",
             "/etc/ldap/slapd.d"
+            "/etc/nslcd.conf",
         ])
 
         self.add_cmd_output("ldapsearch -x -b '' -s base 'objectclass=*'")
@@ -98,10 +99,16 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
 
     def postproc(self):
         super(DebianLdap, self).postproc()
+        self.do_file_sub(
+            "/etc/nslcd.conf",
+            r"(\s*bindpw\s*)\S+",
+            r"\1********"
+        )
         self.do_cmd_output_sub(
             "ldapsearch",
             r"(olcRootPW\: \s*)\S+",
             r"\1********"
         )
+
 
 # vim: set et ts=4 sw=4 :
