@@ -14,6 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -37,14 +38,50 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.add_cmd_output([
             "ibv_devices",
-            "ibv_devinfo",
+            "ibv_devinfo -v",
             "ibstat",
-            "ibstatus",
+            "ibstatus"
+        ])
+
+        # run below commands for every IB device and its active port
+        active_ports_cmds = [
             "ibhosts",
             "iblinkinfo",
             "sminfo",
             "perfquery"
-        ])
+        ]
+        IB_SYS_DIR = "/sys/class/infiniband/"
+        CA = os.listdir(IB_SYS_DIR)
+        for ca in CA:
+            """
+            Skip OPA hardware, as infiniband-diags tools does not understand
+            OPA specific MAD sent by opa-fm. Intel provides OPA specific tools
+            for OPA fabric diagnose.
+            """
+            if ca.startswith("hfi"):
+                continue
+
+            for port in os.listdir(IB_SYS_DIR + ca + "/ports"):
+                # skip IWARP and RoCE devices
+                try:
+                    p = open(IB_SYS_DIR + ca + "/ports/" + port +
+                             "/link_layer")
+                except:
+                    continue
+                link_layer = p.readline()
+                p.close()
+                if link_layer != "InfiniBand\n":
+                    continue
+
+                try:
+                    s = open(IB_SYS_DIR + ca + "/ports/" + port + "/state")
+                except:
+                    continue
+                state = s.readline()
+                s.close()
+                if state.endswith(": ACTIVE\n"):
+                    for cmd in active_ports_cmds:
+                        self.add_cmd_output("%s -C %s -P %s" % (cmd, ca, port))
 
         return
 
