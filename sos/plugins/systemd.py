@@ -56,12 +56,13 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/lib/systemd/system",
             "/lib/systemd/user",
             "/etc/vconsole.conf",
-            "/etc/yum/protected.d/systemd.conf",
             "/run/systemd/generator*",
             "/run/systemd/seats",
             "/run/systemd/sessions",
             "/run/systemd/system",
             "/run/systemd/users"
+            "/etc/modules-load.d/*.conf",
+            "/etc/yum/protected.d/systemd.conf"
         ])
 
 # vim: set et ts=4 sw=4 :
