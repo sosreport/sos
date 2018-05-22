@@ -16,7 +16,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'networkmanager'
     profiles = ('network', 'hardware', 'system')
-    packages = ('NetworkManager',)
+    packages = ('NetworkManager', 'network-manager')
 
     def setup(self):
         self.add_copy_spec([
