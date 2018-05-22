@@ -449,7 +449,7 @@ class TarFileArchive(FileCacheArchive):
             suffix = "." + cmd.replace('ip', '')
             # use fast compression if using xz or bz2
             if cmd != "gzip":
-                cmd = "%s -1" % cmd
+                cmd = "%s -2" % cmd
             try:
                 r = sos_get_command_output("%s %s" % (cmd, self.name()),
                                            timeout=0)
