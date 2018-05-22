@@ -21,6 +21,7 @@ class LXD(Plugin, UbuntuPlugin):
     """LXD is a containers hypervisor.
     """
     plugin_name = 'lxd'
+    profiles = ('container',)
 
     def setup(self):
         self.add_copy_spec([
