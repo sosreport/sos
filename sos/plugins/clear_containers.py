@@ -24,7 +24,7 @@ class ClearContainers(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
     """
 
     plugin_name = 'clear_containers'
-    profiles = ('system', 'virt')
+    profiles = ('system', 'virt', 'container')
 
     runtime = 'cc-runtime'
     packages = (runtime,)

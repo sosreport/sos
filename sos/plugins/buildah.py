@@ -23,6 +23,7 @@ class Buildah(Plugin, RedHatPlugin):
 
     plugin_name = 'buildah'
     packages = ('buildah',)
+    profiles = ('container',)
 
     def setup(self):
         self.add_cmd_output([
