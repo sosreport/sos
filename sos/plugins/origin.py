@@ -159,6 +159,8 @@ class OpenShiftOrigin(Plugin):
                 bstrap_node_cfg,
                 bstrap_kubeconfig,
                 os.path.join(self.node_base_dir, "*.crt"),
+                os.path.join(self.node_base_dir, "resolv.conf"),
+                os.path.join(self.node_base_dir, "node-dnsmasq.conf"),
             ])
 
             self.add_journal(units="atomic-openshift-node")
