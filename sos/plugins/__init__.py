@@ -1165,7 +1165,7 @@ class SCLPlugin(RedHatPlugin):
             cmds = [cmds]
         scl_cmds = []
         for cmd in cmds:
-            scl_cmds.append(convert_cmd_scl(scl, cmd))
+            scl_cmds.append(self.convert_cmd_scl(scl, cmd))
         self.add_cmd_output(scl_cmds, **kwargs)
 
     # config files for Software Collections are under /etc/${prefix}/${scl} and
