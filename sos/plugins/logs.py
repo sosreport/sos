@@ -29,9 +29,7 @@ class Logs(Plugin):
         self.add_copy_spec("/var/log/boot.log", sizelimit=self.limit)
         self.add_copy_spec("/var/log/cloud-init*", sizelimit=self.limit)
         self.add_journal(boot="this", catalog=True)
-        self.add_journal(boot="this", allfields=True, output="verbose")
         self.add_journal(boot="last", catalog=True)
-        self.add_journal(boot="last", allfields=True, output="verbose")
         self.add_cmd_output("journalctl --disk-usage")
 
         confs = ['/etc/syslog.conf', '/etc/rsyslog.conf']
@@ -57,6 +55,7 @@ class Logs(Plugin):
 
         if self.get_option('all_logs'):
             self.add_journal(boot="this", allfields=True, output="verbose")
+            self.add_journal(boot="last", allfields=True, output="verbose")
 
     def postproc(self):
         self.do_path_regex_sub(
