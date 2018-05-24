@@ -49,7 +49,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             extra_mod_paths.extend(glob.glob(pattern))
 
         self.add_cmd_output([
-            "dmesg",
+            "dmesg -T",
             "sysctl -a",
             "dkms status",
             "find %s -ls" % " ".join(extra_mod_paths)
