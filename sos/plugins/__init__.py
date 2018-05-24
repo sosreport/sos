@@ -852,6 +852,26 @@ class Plugin(object):
         self._log_debug("collecting journal: %s" % journal_cmd)
         self._add_cmd_output(journal_cmd, None, None, timeout)
 
+    def add_udev_info(self, device, attrs=False):
+        """Collect udevadm info output for a given device
+
+        Arguments:
+        device      - A string or list of strings of device names or sysfs
+                      paths. E.G. either '/dev/sda' or
+                      '/sys/class/scsi_host/host0' is valid.
+        attrs       - If True, run udevadm with the --attribute-walk option.
+        """
+        udev_cmd = 'udevadm info'
+        if attrs:
+            udev_cmd += ' -a'
+
+        if isinstance(device, six.string_types):
+            device = [device]
+
+        for dev in device:
+            self._log_debug("collecting udev info for: %s" % dev)
+            self._add_cmd_output('%s %s' % (udev_cmd, dev))
+
     def _expand_copy_spec(self, copyspec):
         return glob.glob(copyspec)
 
