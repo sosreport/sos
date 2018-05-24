@@ -150,6 +150,8 @@ class OpenShiftOrigin(Plugin):
             self.add_copy_spec([
                 self.node_cfg,
                 os.path.join(self.node_base_dir, "*.crt"),
+                os.path.join(self.node_base_dir, "resolv.conf"),
+                os.path.join(self.node_base_dir, "node-dnsmasq.conf"),
             ])
 
             node_kubecfg = self.get_node_kubecfg()
