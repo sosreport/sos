@@ -200,464 +200,163 @@ class XmlReport(object):
 chroot_modes = ["auto", "always", "never"]
 
 
+def _parse_args(args):
+    """ Parse command line options and arguments"""
+
+    usage_string = ("%(prog)s [options]\n\n"
+                    "Some examples:\n\n"
+                    "enable dlm plugin only and collect dlm lockdumps:\n"
+                    "  # sosreport -o dlm -k dlm.lockdump\n\n"
+                    "disable memory and samba plugins, turn off rpm "
+                    "-Va collection:\n"
+                    "  # sosreport -n memory,samba -k rpm.rpmva=off")
+
+    parser = ArgumentParser(usage=usage_string)
+    parser.register('action', 'extend', SosListOption)
+    parser.add_argument("-l", "--list-plugins", action="store_true",
+                        dest="list_plugins", default=False,
+                        help="list plugins and available plugin options")
+    parser.add_argument("-n", "--skip-plugins", action="extend",
+                        dest="noplugins", type=str,
+                        help="disable these plugins", default=deque())
+    parser.add_argument("--experimental", action="store_true",
+                        dest="experimental", default=False,
+                        help="enable experimental plugins")
+    parser.add_argument("-e", "--enable-plugins", action="extend",
+                        dest="enableplugins", type=str,
+                        help="enable these plugins", default=deque())
+    parser.add_argument("-o", "--only-plugins", action="extend",
+                        dest="onlyplugins", type=str,
+                        help="enable these plugins only", default=deque())
+    parser.add_argument("-k", "--plugin-option", action="extend",
+                        dest="plugopts", type=str,
+                        help="plugin options in plugname.option=value "
+                             "format (see -l)",
+                        default=deque())
+    parser.add_argument("--log-size", action="store",
+                        dest="log_size", default=25, type=int,
+                        help="set a limit on the size of collected logs "
+                             "(in MiB)")
+    parser.add_argument("-a", "--alloptions", action="store_true",
+                        dest="usealloptions", default=False,
+                        help="enable all options for loaded plugins")
+    parser.add_argument("--all-logs", action="store_true",
+                        dest="all_logs", default=False,
+                        help="collect all available logs regardless "
+                             "of size")
+    parser.add_argument("--batch", action="store_true",
+                        dest="batch", default=False,
+                        help="batch mode - do not prompt interactively")
+    parser.add_argument("--build", action="store_true",
+                        dest="build", default=False,
+                        help="preserve the temporary directory and do not "
+                             "package results")
+    parser.add_argument("-v", "--verbose", action="count", default=0,
+                        dest="verbosity", help="increase verbosity")
+    parser.add_argument("--verify", action="store_true",
+                        dest="verify", default=False,
+                        help="perform data verification during collection")
+    parser.add_argument("--quiet", action="store_true",
+                        dest="quiet", default=False,
+                        help="only print fatal errors")
+    parser.add_argument("--debug", action="count",
+                        dest="debug",
+                        help="enable interactive debugging using the "
+                             "python debugger")
+    parser.add_argument("--ticket-number", action="store",
+                        dest="case_id",
+                        help="specify ticket number")
+    parser.add_argument("--case-id", action="store",
+                        dest="case_id",
+                        help="specify case identifier")
+    parser.add_argument("-p", "--profile", action="extend",
+                        dest="profiles", type=str, default=deque(),
+                        help="enable plugins used by the given profiles")
+    parser.add_argument("--list-profiles", action="store_true",
+                        dest="list_profiles", default=False,
+                        help="display a list of available profiles and "
+                             "plugins that they include")
+    parser.add_argument("--label", "--name", action="store", dest="label",
+                        help="specify an additional report label")
+    parser.add_argument("--config-file", action="store",
+                        dest="config_file",
+                        help="specify alternate configuration file")
+    parser.add_argument("--tmp-dir", action="store",
+                        dest="tmp_dir",
+                        help="specify alternate temporary directory",
+                        default=None)
+    parser.add_argument("--no-report", action="store_true",
+                        dest="noreport",
+                        help="disable HTML/XML reporting", default=False)
+    parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
+                        help="system root directory path (default='/')",
+                        default=None)
+    parser.add_argument("-c", "--chroot", action="store", dest="chroot",
+                        help="chroot executed commands to SYSROOT "
+                             "[auto, always, never] (default=auto)",
+                        default="auto")
+    parser.add_argument("-z", "--compression-type",
+                        dest="compression_type", default="auto",
+                        help="compression technology to use [auto, "
+                             "gzip, bzip2, xz] (default=auto)")
+    parser.add_argument("-t", "--threads", action="store", dest="threads",
+                        help="specify number of concurrent plugins to run"
+                        " (default=4)", default=4, type=int)
+
+    return parser.parse_args(args)
+
+
+_arg_names = [
+    'all_logs', 'batch', 'build', 'case_id', 'chroot', 'compression_type',
+    'config_file', 'debug', 'enableplugins', 'experimental', 'label',
+    'list_plugins', 'list_profiles', 'log_size', 'noplugins', 'noreport',
+    'onlyplugins', 'plugopts', 'profiles', 'quiet', 'sysroot', 'tmp_dir',
+    'usealloptions', 'verbosity', 'verify'
+]
+
+
 class SoSOptions(object):
-    _list_plugins = False
-    _noplugins = []
-    _enableplugins = []
-    _onlyplugins = []
-    _plugopts = []
-    _usealloptions = False
-    _all_logs = False
-    _log_size = 10
-    _batch = False
-    _build = False
-    _verbosity = 0
-    _verify = False
-    _quiet = False
-    _debug = False
-    _case_id = ""
-    _label = ""
-    _profiles = deque()
-    _list_profiles = False
-    _config_file = ""
-    _tmp_dir = ""
-    _noreport = False
-    _sysroot = None
-    _chroot = 'auto'
-    _compression_type = 'auto'
-    _threads = 4
+    list_plugins = False
+    noplugins = []
+    enableplugins = []
+    onlyplugins = []
+    plugopts = []
+    usealloptions = False
+    all_logs = False
+    log_size = 10
+    batch = False
+    build = False
+    verbosity = 0
+    verify = False
+    quiet = False
+    debug = False
+    case_id = ""
+    label = ""
+    profiles = deque()
+    list_profiles = False
+    config_file = ""
+    tmp_dir = ""
+    noreport = False
+    sysroot = None
+    chroot = 'auto'
+    compression_type = 'auto'
+    experimental = False
+    threads = 4
 
-    _options = None
+    @classmethod
+    def from_args(cls, args):
+        """Initialise a new SoSOptions object from a ``Namespace``
+            obtained by parsing command line arguments.
 
-    def __init__(self, args=None):
-        if args:
-            self._options = self._parse_args(args)
-        else:
-            self._options = None
-
-    def _check_options_initialized(self):
-        if self._options is not None:
-            raise ValueError("SoSOptions object already initialized "
-                             "from command line")
-
-    @property
-    def list_plugins(self):
-        if self._options is not None:
-            return self._options.list_plugins
-        return self._list_plugins
-
-    @list_plugins.setter
-    def list_plugins(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.list_plugins expects a boolean")
-        self._list_plugins = value
-
-    @property
-    def noplugins(self):
-        if self._options is not None:
-            return self._options.noplugins
-        return self._noplugins
-
-    @noplugins.setter
-    def noplugins(self, value):
-        self._check_options_initialized()
-        self._noplugins = value
-
-    @property
-    def experimental(self):
-        if self._options is not None:
-            return self._options.experimental
-
-    @experimental.setter
-    def experimental(self, value):
-        self._check_options_initialized()
-        self._experimental = value
-
-    @property
-    def enableplugins(self):
-        if self._options is not None:
-            return self._options.enableplugins
-        return self._enableplugins
-
-    @enableplugins.setter
-    def enableplugins(self, value):
-        self._check_options_initialized()
-        self._enableplugins = value
-
-    @property
-    def onlyplugins(self):
-        if self._options is not None:
-            return self._options.onlyplugins
-        return self._onlyplugins
-
-    @onlyplugins.setter
-    def onlyplugins(self, value):
-        self._check_options_initialized()
-        self._onlyplugins = value
-
-    @property
-    def plugopts(self):
-        if self._options is not None:
-            return self._options.plugopts
-        return self._plugopts
-
-    @plugopts.setter
-    def plugopts(self, value):
-        # If we check for anything it should be itterability.
-        # if not isinstance(value, list):
-        #    raise TypeError("SoSOptions.plugopts expects a list")
-        self._plugopts = value
-
-    @property
-    def usealloptions(self):
-        if self._options is not None:
-            return self._options.usealloptions
-        return self._usealloptions
-
-    @usealloptions.setter
-    def usealloptions(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.usealloptions expects a boolean")
-        self._usealloptions = value
-
-    @property
-    def all_logs(self):
-        if self._options is not None:
-            return self._options.all_logs
-        return self._all_logs
-
-    @all_logs.setter
-    def all_logs(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.all_logs expects a boolean")
-        self._all_logs = value
-
-    @property
-    def log_size(self):
-        if self._options is not None:
-            return self._options.log_size
-        return self._log_size
-
-    @log_size.setter
-    def log_size(self, value):
-        self._check_options_initialized()
-        if value < 0:
-            raise ValueError("SoSOptions.log_size expects a value greater "
-                             "than zero")
-        self._log_size = value
-
-    @property
-    def batch(self):
-        if self._options is not None:
-            return self._options.batch
-        return self._batch
-
-    @batch.setter
-    def batch(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.batch expects a boolean")
-        self._batch = value
-
-    @property
-    def build(self):
-        if self._options is not None:
-            return self._options.build
-        return self._build
-
-    @build.setter
-    def build(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.build expects a boolean")
-        self._build = value
-
-    @property
-    def verbosity(self):
-        if self._options is not None:
-            return self._options.verbosity
-        return self._verbosity
-
-    @verbosity.setter
-    def verbosity(self, value):
-        self._check_options_initialized()
-        if value < 0 or value > 3:
-            raise ValueError("SoSOptions.verbosity expects a value [0..3]")
-        self._verbosity = value
-
-    @property
-    def verify(self):
-        if self._options is not None:
-            return self._options.verify
-        return self._verify
-
-    @verify.setter
-    def verify(self, value):
-        self._check_options_initialized()
-        if value < 0 or value > 3:
-            raise ValueError("SoSOptions.verify expects a value [0..3]")
-        self._verify = value
-
-    @property
-    def quiet(self):
-        if self._options is not None:
-            return self._options.quiet
-        return self._quiet
-
-    @quiet.setter
-    def quiet(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.quiet expects a boolean")
-        self._quiet = value
-
-    @property
-    def debug(self):
-        if self._options is not None:
-            return self._options.debug
-        return self._debug
-
-    @debug.setter
-    def debug(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.debug expects a boolean")
-        self._debug = value
-
-    @property
-    def case_id(self):
-        if self._options is not None:
-            return self._options.case_id
-        return self._case_id
-
-    @case_id.setter
-    def case_id(self, value):
-        self._check_options_initialized()
-        self._case_id = value
-
-    @property
-    def label(self):
-        if self._options is not None:
-            return self._options.label
-        return self._label
-
-    @label.setter
-    def label(self, value):
-        self._check_options_initialized()
-        self._label = value
-
-    @property
-    def profiles(self):
-        if self._options is not None:
-            return self._options.profiles
-        return self._profiles
-
-    @profiles.setter
-    def profiles(self, value):
-        self._check_options_initialized()
-        self._profiles = value
-
-    @property
-    def list_profiles(self):
-        if self._options is not None:
-            return self._options.list_profiles
-        return self._list_profiles
-
-    @list_profiles.setter
-    def list_profiles(self, value):
-        self._check_options_initialized()
-        self._list_profiles = value
-
-    @property
-    def config_file(self):
-        if self._options is not None:
-            return self._options.config_file
-        return self._config_file
-
-    @config_file.setter
-    def config_file(self, value):
-        self._check_options_initialized()
-        self._config_file = value
-
-    @property
-    def tmp_dir(self):
-        if self._options is not None:
-            return self._options.tmp_dir
-        return self._tmp_dir
-
-    @tmp_dir.setter
-    def tmp_dir(self, value):
-        self._check_options_initialized()
-        self._tmp_dir = value
-
-    @property
-    def noreport(self):
-        if self._options is not None:
-            return self._options.noreport
-        return self._noreport
-
-    @noreport.setter
-    def noreport(self, value):
-        self._check_options_initialized()
-        if not isinstance(value, bool):
-            raise TypeError("SoSOptions.noreport expects a boolean")
-        self._noreport = value
-
-    @property
-    def sysroot(self):
-        if self._options is not None:
-            return self._options.sysroot
-        return self._sysroot
-
-    @sysroot.setter
-    def sysroot(self, value):
-        self._check_options_initialized()
-        self._sysroot = value
-
-    @property
-    def chroot(self):
-        if self._options is not None:
-            return self._options.chroot
-        return self._chroot
-
-    @chroot.setter
-    def chroot(self, value):
-        self._check_options_initialized()
-        if value not in chroot_modes:
-            msg = "SoSOptions.chroot '%s' is not a valid chroot mode: "
-            msg += "('auto', 'always', 'never')"
-            raise ValueError(msg % value)
-        self._chroot = value
-
-    @property
-    def compression_type(self):
-        if self._options is not None:
-            return self._options.compression_type
-        return self._compression_type
-
-    @compression_type.setter
-    def compression_type(self, value):
-        self._check_options_initialized()
-        self._compression_type = value
-
-    @property
-    def threads(self):
-        if self._options is not None:
-            return self._options.threads
-        return self._threads
-
-    @threads.setter
-    def threads(self, value):
-        self._check_options_initialized()
-        self._threads = value
-
-    def _parse_args(self, args):
-        """ Parse command line options and arguments"""
-
-        usage_string = ("%(prog)s [options]\n\n"
-                        "Some examples:\n\n"
-                        "enable dlm plugin only and collect dlm lockdumps:\n"
-                        "  # sosreport -o dlm -k dlm.lockdump\n\n"
-                        "disable memory and samba plugins, turn off rpm "
-                        "-Va collection:\n"
-                        "  # sosreport -n memory,samba -k rpm.rpmva=off")
-
-        self.parser = parser = ArgumentParser(usage=usage_string)
-        parser.register('action', 'extend', SosListOption)
-        parser.add_argument("-l", "--list-plugins", action="store_true",
-                            dest="list_plugins", default=False,
-                            help="list plugins and available plugin options")
-        parser.add_argument("-n", "--skip-plugins", action="extend",
-                            dest="noplugins", type=str,
-                            help="disable these plugins", default=deque())
-        parser.add_argument("--experimental", action="store_true",
-                            dest="experimental", default=False,
-                            help="enable experimental plugins")
-        parser.add_argument("-e", "--enable-plugins", action="extend",
-                            dest="enableplugins", type=str,
-                            help="enable these plugins", default=deque())
-        parser.add_argument("-o", "--only-plugins", action="extend",
-                            dest="onlyplugins", type=str,
-                            help="enable these plugins only", default=deque())
-        parser.add_argument("-k", "--plugin-option", action="extend",
-                            dest="plugopts", type=str,
-                            help="plugin options in plugname.option=value "
-                                 "format (see -l)",
-                            default=deque())
-        parser.add_argument("--log-size", action="store",
-                            dest="log_size", default=25, type=int,
-                            help="set a limit on the size of collected logs "
-                                 "(in MiB)")
-        parser.add_argument("-a", "--alloptions", action="store_true",
-                            dest="usealloptions", default=False,
-                            help="enable all options for loaded plugins")
-        parser.add_argument("--all-logs", action="store_true",
-                            dest="all_logs", default=False,
-                            help="collect all available logs regardless "
-                                 "of size")
-        parser.add_argument("--batch", action="store_true",
-                            dest="batch", default=False,
-                            help="batch mode - do not prompt interactively")
-        parser.add_argument("--build", action="store_true",
-                            dest="build", default=False,
-                            help="preserve the temporary directory and do not "
-                                 "package results")
-        parser.add_argument("-v", "--verbose", action="count", default=0,
-                            dest="verbosity", help="increase verbosity")
-        parser.add_argument("--verify", action="store_true",
-                            dest="verify", default=False,
-                            help="perform data verification during collection")
-        parser.add_argument("--quiet", action="store_true",
-                            dest="quiet", default=False,
-                            help="only print fatal errors")
-        parser.add_argument("--debug", action="count",
-                            dest="debug",
-                            help="enable interactive debugging using the "
-                                 "python debugger")
-        parser.add_argument("--ticket-number", action="store",
-                            dest="case_id",
-                            help="specify ticket number")
-        parser.add_argument("--case-id", action="store",
-                            dest="case_id",
-                            help="specify case identifier")
-        parser.add_argument("-p", "--profile", action="extend",
-                            dest="profiles", type=str, default=deque(),
-                            help="enable plugins used by the given profiles")
-        parser.add_argument("--list-profiles", action="store_true",
-                            dest="list_profiles", default=False,
-                            help="display a list of available profiles and "
-                                 "plugins that they include")
-        parser.add_argument("--label", "--name", action="store", dest="label",
-                            help="specify an additional report label")
-        parser.add_argument("--config-file", action="store",
-                            dest="config_file",
-                            help="specify alternate configuration file")
-        parser.add_argument("--tmp-dir", action="store",
-                            dest="tmp_dir",
-                            help="specify alternate temporary directory",
-                            default=None)
-        parser.add_argument("--no-report", action="store_true",
-                            dest="noreport",
-                            help="disable HTML/XML reporting", default=False)
-        parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
-                            help="system root directory path (default='/')",
-                            default=None)
-        parser.add_argument("-c", "--chroot", action="store", dest="chroot",
-                            help="chroot executed commands to SYSROOT "
-                                 "[auto, always, never] (default=auto)",
-                            default="auto")
-        parser.add_argument("-z", "--compression-type",
-                            dest="compression_type", default="auto",
-                            help="compression technology to use [auto, "
-                                 "gzip, bzip2, xz] (default=auto)")
-        parser.add_argument("-t", "--threads", action="store", dest="threads",
-                            default=4, type=int,
-                            help="specify number of concurrent plugins to run"
-                                 " (default=4)")
-        return parser.parse_args(args)
+            :param args: parsed command line arguments
+            :returns: an initialised SoSOptions object
+            :returntype: SoSOptions
+        """
+        opts = SoSOptions()
+        for arg in _arg_names:
+            if hasattr(args, arg):
+                setattr(opts, arg, getattr(args, arg))
+        return opts
 
 
 class SoSReport(object):
@@ -683,7 +382,8 @@ class SoSReport(object):
         except Exception:
             pass  # not available in java, but we don't care
 
-        self.opts = SoSOptions(args)
+        cmd_args = _parse_args(args)
+        self.opts = SoSOptions.from_args(cmd_args)
         self._set_debug()
         self._read_config()
 
