@@ -199,6 +199,22 @@ class XmlReport(object):
 # valid modes for --chroot
 chroot_modes = ["auto", "always", "never"]
 
+#: Names of all arguments
+_arg_names = [
+    'all_logs', 'batch', 'build', 'case_id', 'chroot', 'compression_type',
+    'config_file', 'debug', 'enableplugins', 'experimental', 'label',
+    'list_plugins', 'list_profiles', 'log_size', 'noplugins', 'noreport',
+    'onlyplugins', 'plugopts', 'profiles', 'quiet', 'sysroot', 'tmp_dir',
+    'usealloptions', 'verbosity', 'verify'
+]
+
+#: Arguments with non-zero default values
+_arg_defaults = {
+    "log_size": 10,
+    "chroot": "auto",
+    "compression_type": "auto",
+}
+
 
 def _parse_args(args):
     """ Parse command line options and arguments"""
@@ -233,7 +249,7 @@ def _parse_args(args):
     parser.add_argument("-c", "--chroot", action="store", dest="chroot",
                         help="chroot executed commands to SYSROOT "
                              "[auto, always, never] (default=auto)",
-                        default="auto")
+                        default=_arg_defaults["chroot"])
     parser.add_argument("--config-file", action="store",
                         dest="config_file",
                         help="specify alternate configuration file")
@@ -260,10 +276,9 @@ def _parse_args(args):
                         dest="list_profiles", default=False,
                         help="display a list of available profiles and "
                              "plugins that they include")
-    parser.add_argument("--log-size", action="store",
-                        dest="log_size", default=25, type=int,
-                        help="set a limit on the size of collected logs "
-                             "(in MiB)")
+    parser.add_argument("--log-size", action="store", dest="log_size",
+                        type=int, default=_arg_defaults["log_size"],
+                        help="limit the size of collected logs (in MiB)")
     parser.add_argument("-n", "--skip-plugins", action="extend",
                         dest="noplugins", type=str,
                         help="disable these plugins", default=deque())
@@ -294,8 +309,8 @@ def _parse_args(args):
     parser.add_argument("--verify", action="store_true",
                         dest="verify", default=False,
                         help="perform data verification during collection")
-    parser.add_argument("-z", "--compression-type",
-                        dest="compression_type", default="auto",
+    parser.add_argument("-z", "--compression-type", dest="compression_type",
+                        default=_arg_defaults["compression_type"],
                         help="compression technology to use [auto, "
                              "gzip, bzip2, xz] (default=auto)")
     parser.add_argument("-t", "--threads", action="store", dest="threads",
@@ -303,15 +318,6 @@ def _parse_args(args):
                         " (default=4)", default=4, type=int)
 
     return parser.parse_args(args)
-
-
-_arg_names = [
-    'all_logs', 'batch', 'build', 'case_id', 'chroot', 'compression_type',
-    'config_file', 'debug', 'enableplugins', 'experimental', 'label',
-    'list_plugins', 'list_profiles', 'log_size', 'noplugins', 'noreport',
-    'onlyplugins', 'plugopts', 'profiles', 'quiet', 'sysroot', 'tmp_dir',
-    'usealloptions', 'verbosity', 'verify'
-]
 
 
 class SoSOptions(object):
