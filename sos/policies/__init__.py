@@ -160,8 +160,12 @@ class PackageManager(object):
         if not self.verify_command:
             return None
 
+        # The re.match(pkg) used by all_pkgs_by_name_regex() may return
+        # an empty list (`[[]]`) when no package matches: avoid building
+        # an rpm -V command line with the empty string as the package
+        # list in this case.
         by_regex = self.all_pkgs_by_name_regex
-        verify_list = map(by_regex, packages)
+        verify_list = filter(None, map(by_regex, packages))
 
         # No packages after regex match?
         if not verify_list:
