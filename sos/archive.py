@@ -142,11 +142,12 @@ class FileCacheArchive(Archive):
     _archive_root = ""
     _archive_name = ""
 
-    def __init__(self, name, tmpdir, policy, threads):
+    def __init__(self, name, tmpdir, policy, threads, enc_opts):
         self._name = name
         self._tmp_dir = tmpdir
         self._policy = policy
         self._threads = threads
+        self.enc_opts = enc_opts
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)
@@ -384,11 +385,64 @@ class FileCacheArchive(Archive):
                       os.stat(self._archive_name).st_size))
         self.method = method
         try:
-            return self._compress()
+            res = self._compress()
         except Exception as e:
             exp_msg = "An error occurred compressing the archive: "
             self.log_error("%s %s" % (exp_msg, e))
             return self.name()
+
+        if self.enc_opts['encrypt']:
+            try:
+                return self._encrypt(res)
+            except Exception as e:
+                exp_msg = "An error occurred encrypting the archive:"
+                self.log_error("%s %s" % (exp_msg, e))
+                return res
+        else:
+            return res
+
+    def _encrypt(self, archive):
+        """Encrypts the compressed archive using GPG.
+
+        If encryption fails for any reason, it should be logged by sos but not
+        cause execution to stop. The assumption is that the unencrypted archive
+        would still be of use to the user, and/or that the end user has another
+        means of securing the archive.
+
+        Returns the name of the encrypted archive, or raises an exception to
+        signal that encryption failed and the unencrypted archive name should
+        be used.
+        """
+        arc_name = archive.replace("sosreport-", "secured-sosreport-")
+        arc_name += ".gpg"
+        enc_cmd = "gpg --batch -o %s " % arc_name
+        env = None
+        if self.enc_opts["key"]:
+            # need to assume a trusted key here to be able to encrypt the
+            # archive non-interactively
+            enc_cmd += "--trust-model always -e -r %s " % self.enc_opts["key"]
+            enc_cmd += archive
+        if self.enc_opts["password"]:
+            # prevent change of gpg options using a long password, but also
+            # prevent the addition of quote characters to the passphrase
+            passwd = "%s" % self.enc_opts["password"].replace('\'"', '')
+            env = {"sos_gpg": passwd}
+            enc_cmd += "-c --passphrase-fd 0 "
+            enc_cmd = "/bin/bash -c \"echo $sos_gpg | %s\"" % enc_cmd
+            enc_cmd += archive
+        r = sos_get_command_output(enc_cmd, timeout=0, env=env)
+        if r["status"] == 0:
+            return arc_name
+        elif r["status"] == 2:
+            if self.enc_opts["key"]:
+                msg = "Specified key not in keyring"
+            else:
+                msg = "Could not read passphrase"
+        else:
+            # TODO: report the actual error from gpg. Currently, we cannot as
+            # sos_get_command_output() does not capture stderr
+            msg = "gpg exited with code %s" % r["status"]
+        raise Exception(msg)
 
 
 # Compatibility version of the tarfile.TarFile class. This exists to allow
@@ -468,8 +522,9 @@ class TarFileArchive(FileCacheArchive):
     method = None
     _with_selinux_context = False
 
-    def __init__(self, name, tmpdir, policy, threads):
-        super(TarFileArchive, self).__init__(name, tmpdir, policy, threads)
+    def __init__(self, name, tmpdir, policy, threads, enc_opts):
+        super(TarFileArchive, self).__init__(name, tmpdir, policy, threads,
+                                             enc_opts)
         self._suffix = "tar"
         self._archive_name = os.path.join(tmpdir, self.name())
 
