@@ -44,8 +44,9 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 if disk.startswith("ram"):
                     continue
                 disk_path = os.path.join('/dev/', disk)
+                self.add_udev_info(disk_path)
+                self.add_udev_info(disk_path, attrs=True)
                 self.add_cmd_output([
-                    "udevadm info -ap /sys/block/%s" % (disk),
                     "parted -s %s unit s print" % (disk_path),
                     "fdisk -l %s" % disk_path
                 ])
