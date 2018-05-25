@@ -22,6 +22,8 @@ sosreport \- Collect and package diagnostic and support data
           [--log-size]\fR
           [--all-logs]\fR
           [-z|--compression-type method]\fR
+          [--encrypt-key KEY]\fR
+          [--encrypt-pass PASS]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -120,6 +122,32 @@ increase the size of reports.
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.
 .TP
+.B \--encrypt-key KEY
+Encrypts the resulting archive that sosreport produces using GPG. KEY must be
+an existing key in the user's keyring as GPG does not allow for keyfiles.
+KEY can be any value accepted by gpg's 'recipient' option.
+
+Note that the user running sosreport must match the user owning the keyring
+from which keys will be obtained. In particular this means that if sudo is
+used to run sosreport, the keyring must also be set up using sudo
+(or direct shell access to the account).
+
+Users should be aware that encrypting the final archive will result in sos
+using double the amount of temporary disk space - the encrypted archive must be
+written as a separate, rather than replacement, file within the temp directory
+that sos writes the archive to. However, since the encrypted archive will be
+the same size as the original archive, there is no additional space consumption
+once the temporary directory is removed at the end of execution.
+
+This means that only the encrypted archive is present on disk after sos
+finishes running.
+
+If encryption fails for any reason, the original unencrypted archive is
+preserved instead.
+.TP
+.B \--encrypt-pass PASS
+The same as \--encrypt-key, but use the provided PASS for symmetric encryption
+rather than key-pair encryption.
 .TP
 .B \--batch
 Generate archive without prompting for interactive input.
