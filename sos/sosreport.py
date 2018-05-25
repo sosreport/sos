@@ -348,6 +348,14 @@ class SoSOptions(object):
     experimental = False
     threads = 4
 
+    def _copy_opt(self, opt, src):
+        if hasattr(src, opt):
+            setattr(self, opt, getattr(src, opt))
+
+    def _copy_opts(self, src):
+        for arg in _arg_names:
+            self._copy_opt(arg, src)
+
     @classmethod
     def from_args(cls, args):
         """Initialise a new SoSOptions object from a ``Namespace``
@@ -358,10 +366,29 @@ class SoSOptions(object):
             :returntype: SoSOptions
         """
         opts = SoSOptions()
-        for arg in _arg_names:
-            if hasattr(args, arg):
-                setattr(opts, arg, getattr(args, arg))
+        opts._copy_opts(args)
         return opts
+
+    def merge(self, src, replace=False):
+        """Merge another set of ``SoSOptions`` into this object.
+
+            Merge two ``SoSOptions`` objects by setting unset or default
+            values to their value in the ``src`` object.
+
+            :param src: the ``SoSOptions`` object to copy from
+            :param replace: ``True`` if non-default values should be
+                            overwritten.
+        """
+
+        for arg in _arg_names:
+            if not hasattr(src, arg):
+                continue
+            if arg in _arg_defaults.keys():
+                if replace or getattr(self, arg) == _arg_defaults[arg]:
+                    self._copy_opt(arg, src)
+            else:
+                if replace or not getattr(self, arg):
+                    self._copy_opt(arg, src)
 
 
 class SoSReport(object):
