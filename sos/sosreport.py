@@ -316,6 +316,13 @@ def _parse_args(args):
     preset_grp.add_argument("--del-preset", type=str, action="store",
                             help="Delete the named command line preset")
 
+    encrypt_grp = parser.add_mutually_exclusive_group()
+    encrypt_grp.add_argument("--encrypt-key",
+                             help="Encrypt the final archive using a GPG "
+                                  "key-pair")
+    encrypt_grp.add_argument("--encrypt-pass",
+                             help="Encrypt the final archive using a password")
+
     return parser.parse_args(args)
 
 
@@ -431,16 +438,25 @@ class SoSReport(object):
         return self.tempfile_util.new()
 
     def _set_archive(self):
+        enc_opts = {
+            'encrypt': True if (self.opts.encrypt_pass or
+                                self.opts.encrypt_key) else False,
+            'key': self.opts.encrypt_key,
+            'password': self.opts.encrypt_pass
+        }
+
         archive_name = os.path.join(self.tmpdir,
                                     self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
             auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir,
-                                        self.policy, self.opts.threads)
+                                        self.policy, self.opts.threads,
+                                        enc_opts)
 
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir,
-                                          self.policy, self.opts.threads)
+                                          self.policy, self.opts.threads,
+                                          enc_opts)
 
         self.archive.set_debug(True if self.opts.debug else False)
 

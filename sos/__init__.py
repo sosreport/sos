@@ -45,10 +45,10 @@ _sos = _default
 _arg_names = [
     'add_preset', 'alloptions', 'all_logs', 'batch', 'build', 'case_id',
     'chroot', 'compression_type', 'config_file', 'desc', 'debug', 'del_preset',
-    'enableplugins', 'experimental', 'label', 'list_plugins', 'list_presets',
-    'list_profiles', 'log_size', 'noplugins', 'noreport', 'note',
-    'onlyplugins', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
-    'threads', 'tmp_dir', 'verbosity', 'verify'
+    'enableplugins', 'encrypt_key', 'encrypt_pass', 'experimental', 'label',
+    'list_plugins', 'list_presets', 'list_profiles', 'log_size', 'noplugins',
+    'noreport', 'note', 'onlyplugins', 'plugopts', 'preset', 'profiles',
+    'quiet', 'sysroot', 'threads', 'tmp_dir', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -84,6 +84,8 @@ class SoSOptions(object):
     del_preset = ""
     desc = ""
     enableplugins = []
+    encrypt_key = None
+    encrypt_pass = None
     experimental = False
     label = ""
     list_plugins = False
