@@ -293,7 +293,9 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             "/etc/ufw",
             "/var/log/ufw.Log",
             "/etc/resolv.conf",
+            "/run/netplan/*.yaml",
             "/etc/netplan/*.yaml",
+            "/lib/netplan/*.yaml",
             "/run/systemd/network"
         ])
         self.add_cmd_output([
