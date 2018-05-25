@@ -14,7 +14,7 @@ class NfsGanesha(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     plugin_name = 'nfsganesha'
     profiles = ('storage', 'network', 'nfs')
-    packages = ('nfs-ganesha')
+    packages = ('nfs-ganesha',)
 
     def setup(self):
         self.add_copy_spec([
