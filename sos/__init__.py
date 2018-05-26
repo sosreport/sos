@@ -94,6 +94,37 @@ class SoSOptions(object):
         for arg in _arg_names:
             self._copy_opt(arg, src)
 
+    def __str(self, quote=False, sep=" ", prefix="", suffix=""):
+        """Format a SoSOptions object as a human or machine readable string.
+
+            :param quote: quote option values
+            :param sep: list separator string
+            :param prefix: arbitrary prefix string
+            :param suffix: arbitrary suffix string
+            :param literal: print values as Python literals
+        """
+        fmt = prefix
+        arg_fmt = "=%s" if not quote else "='%s'"
+        for arg in _arg_names:
+            fmt += arg + arg_fmt + sep
+        fmt.strip(sep)
+        fmt += suffix
+        return fmt % (self.all_logs, self.batch, self.build, self.case_id,
+                      self.chroot, self.compression_type, self.config_file,
+                      self.debug, self.enableplugins, self.experimental,
+                      self.label, self.list_plugins, self.list_profiles,
+                      self.log_size, self.noplugins, self.noreport,
+                      self.onlyplugins, self.plugopts, self.product,
+                      self.profiles, self.quiet, self.sysroot, self.tmp_dir,
+                      self.usealloptions, self.verbosity, self.verify)
+
+    def __str__(self):
+        return self.__str()
+
+    def __repr__(self):
+        return self.__str(quote=True, sep=", ", prefix="SoSOptions(",
+                          suffix=")")
+
     def __init__(self, **kwargs):
         """Initialise a new ``SoSOptions`` object from keyword arguments.
 
@@ -135,7 +166,6 @@ class SoSOptions(object):
             :param replace: ``True`` if non-default values should be
                             overwritten.
         """
-
         for arg in _arg_names:
             if not hasattr(src, arg):
                 continue
