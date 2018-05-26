@@ -213,30 +213,6 @@ def _parse_args(args):
 
     parser = ArgumentParser(usage=usage_string)
     parser.register('action', 'extend', SosListOption)
-    parser.add_argument("-l", "--list-plugins", action="store_true",
-                        dest="list_plugins", default=False,
-                        help="list plugins and available plugin options")
-    parser.add_argument("-n", "--skip-plugins", action="extend",
-                        dest="noplugins", type=str,
-                        help="disable these plugins", default=deque())
-    parser.add_argument("--experimental", action="store_true",
-                        dest="experimental", default=False,
-                        help="enable experimental plugins")
-    parser.add_argument("-e", "--enable-plugins", action="extend",
-                        dest="enableplugins", type=str,
-                        help="enable these plugins", default=deque())
-    parser.add_argument("-o", "--only-plugins", action="extend",
-                        dest="onlyplugins", type=str,
-                        help="enable these plugins only", default=deque())
-    parser.add_argument("-k", "--plugin-option", action="extend",
-                        dest="plugopts", type=str,
-                        help="plugin options in plugname.option=value "
-                             "format (see -l)",
-                        default=deque())
-    parser.add_argument("--log-size", action="store",
-                        dest="log_size", default=25, type=int,
-                        help="set a limit on the size of collected logs "
-                             "(in MiB)")
     parser.add_argument("-a", "--alloptions", action="store_true",
                         dest="usealloptions", default=False,
                         help="enable all options for loaded plugins")
@@ -251,50 +227,74 @@ def _parse_args(args):
                         dest="build", default=False,
                         help="preserve the temporary directory and do not "
                              "package results")
+    parser.add_argument("--case-id", action="store",
+                        dest="case_id",
+                        help="specify case identifier")
+    parser.add_argument("-c", "--chroot", action="store", dest="chroot",
+                        help="chroot executed commands to SYSROOT "
+                             "[auto, always, never] (default=auto)",
+                        default="auto")
+    parser.add_argument("--config-file", action="store",
+                        dest="config_file",
+                        help="specify alternate configuration file")
+    parser.add_argument("--debug", action="count",
+                        dest="debug",
+                        help="enable interactive debugging using the "
+                             "python debugger")
+    parser.add_argument("--experimental", action="store_true",
+                        dest="experimental", default=False,
+                        help="enable experimental plugins")
+    parser.add_argument("-e", "--enable-plugins", action="extend",
+                        dest="enableplugins", type=str,
+                        help="enable these plugins", default=deque())
+    parser.add_argument("-k", "--plugin-option", action="extend",
+                        dest="plugopts", type=str,
+                        help="plugin options in plugname.option=value "
+                             "format (see -l)",
+                        default=deque())
+    parser.add_argument("--label", "--name", action="store", dest="label",
+                        help="specify an additional report label")
+    parser.add_argument("-l", "--list-plugins", action="store_true",
+                        dest="list_plugins", default=False,
+                        help="list plugins and available plugin options")
+    parser.add_argument("--list-profiles", action="store_true",
+                        dest="list_profiles", default=False,
+                        help="display a list of available profiles and "
+                             "plugins that they include")
+    parser.add_argument("--log-size", action="store",
+                        dest="log_size", default=25, type=int,
+                        help="set a limit on the size of collected logs "
+                             "(in MiB)")
+    parser.add_argument("-n", "--skip-plugins", action="extend",
+                        dest="noplugins", type=str,
+                        help="disable these plugins", default=deque())
+    parser.add_argument("--no-report", action="store_true",
+                        dest="noreport",
+                        help="disable HTML/XML reporting", default=False)
+    parser.add_argument("-o", "--only-plugins", action="extend",
+                        dest="onlyplugins", type=str,
+                        help="enable these plugins only", default=deque())
+    parser.add_argument("-p", "--profile", action="extend",
+                        dest="profiles", type=str, default=deque(),
+                        help="enable plugins used by the given profiles")
+    parser.add_argument("--quiet", action="store_true",
+                        dest="quiet", default=False,
+                        help="only print fatal errors")
+    parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
+                        help="system root directory path (default='/')",
+                        default=None)
+    parser.add_argument("--ticket-number", action="store",
+                        dest="case_id",
+                        help="specify ticket number")
+    parser.add_argument("--tmp-dir", action="store",
+                        dest="tmp_dir",
+                        help="specify alternate temporary directory",
+                        default=None)
     parser.add_argument("-v", "--verbose", action="count", default=0,
                         dest="verbosity", help="increase verbosity")
     parser.add_argument("--verify", action="store_true",
                         dest="verify", default=False,
                         help="perform data verification during collection")
-    parser.add_argument("--quiet", action="store_true",
-                        dest="quiet", default=False,
-                        help="only print fatal errors")
-    parser.add_argument("--debug", action="count",
-                        dest="debug",
-                        help="enable interactive debugging using the "
-                             "python debugger")
-    parser.add_argument("--ticket-number", action="store",
-                        dest="case_id",
-                        help="specify ticket number")
-    parser.add_argument("--case-id", action="store",
-                        dest="case_id",
-                        help="specify case identifier")
-    parser.add_argument("-p", "--profile", action="extend",
-                        dest="profiles", type=str, default=deque(),
-                        help="enable plugins used by the given profiles")
-    parser.add_argument("--list-profiles", action="store_true",
-                        dest="list_profiles", default=False,
-                        help="display a list of available profiles and "
-                             "plugins that they include")
-    parser.add_argument("--label", "--name", action="store", dest="label",
-                        help="specify an additional report label")
-    parser.add_argument("--config-file", action="store",
-                        dest="config_file",
-                        help="specify alternate configuration file")
-    parser.add_argument("--tmp-dir", action="store",
-                        dest="tmp_dir",
-                        help="specify alternate temporary directory",
-                        default=None)
-    parser.add_argument("--no-report", action="store_true",
-                        dest="noreport",
-                        help="disable HTML/XML reporting", default=False)
-    parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
-                        help="system root directory path (default='/')",
-                        default=None)
-    parser.add_argument("-c", "--chroot", action="store", dest="chroot",
-                        help="chroot executed commands to SYSROOT "
-                             "[auto, always, never] (default=auto)",
-                        default="auto")
     parser.add_argument("-z", "--compression-type",
                         dest="compression_type", default="auto",
                         help="compression technology to use [auto, "
