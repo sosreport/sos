@@ -4,6 +4,7 @@ import os
 import re
 import platform
 import time
+import json
 import fnmatch
 import tempfile
 import random
@@ -15,10 +16,12 @@ from sos.utilities import (ImporterHelper,
                            shell_out)
 from sos.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
-from sos import SoSOptions
+from sos import SoSOptions, _arg_names
 from textwrap import fill
 from six import print_
 from six.moves import input
+
+PRESETS_PATH = "/var/lib/sos/presets"
 
 
 def import_policy(name):
@@ -183,6 +186,12 @@ class PackageManager(object):
         return self.verify_command + " " + verify_packages
 
 
+#: Constants for on-disk preset fields
+DESC = "desc"
+NOTE = "note"
+OPTS = "args"
+
+
 class PresetDefaults(object):
     """Preset command line defaults.
     """
@@ -195,8 +204,8 @@ class PresetDefaults(object):
     #: Options set for this preset
     opts = SoSOptions()
 
-    #: Flag indicating whether this profile was read from disk
-    read = False
+    #: ``True`` if this preset if built-in or ``False`` otherwise.
+    builtin = True
 
     def __str__(self):
         """Return a human readable string representation of this
@@ -227,6 +236,25 @@ class PresetDefaults(object):
         self.note = note
         self.opts = opts
 
+    def write(self, presets_path):
+        """Write this preset to disk in JSON notation.
+
+            :param presets_path: the directory where the preset will be
+                                 written.
+        """
+        if self.builtin:
+            raise TypeError("Cannot write built-in preset")
+
+        # Make dictionaries of PresetDefaults values
+        odict = self.opts.dict()
+        pdict = {self.name: {DESC: self.desc, NOTE: self.note, OPTS: odict}}
+
+        with open(os.path.join(presets_path, self.name), "w") as pfile:
+            json.dump(pdict, pfile)
+
+    def delete(self, presets_path):
+        os.unlink(os.path.join(presets_path, self.name))
+
 
 class Policy(object):
 
@@ -255,6 +283,7 @@ No changes will be made to system configuration.
     default_scl_prefix = ""
     name_pattern = 'legacy'
     presets = {"": PresetDefaults()}
+    presets_path = PRESETS_PATH
     _in_container = False
     _host_sysroot = '/'
 
@@ -513,6 +542,24 @@ No changes will be made to system configuration.
             _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
         return _fmt
 
+    def register_presets(self, presets, replace=False):
+        """Add new presets to this policy object.
+
+            Merges the presets dictionary ``presets`` into this ``Policy``
+            object, or replaces the current presets if ``replace`` is
+            ``True``.
+
+            ``presets`` should be a dictionary mapping ``str`` preset names
+            to ``<class PresetDefaults>`` objects specifying the command
+            line defaults.
+
+            :param presets: dictionary of presets to add or replace
+            :param replace: replace presets rather than merge new presets.
+        """
+        if replace:
+            self.presets = {}
+        self.presets.update(presets)
+
     def find_preset(self, preset):
         """Find a preset profile matching the specified preset string.
 
@@ -535,6 +582,65 @@ No changes will be made to system configuration.
             :returns: a ``PresetDefaults`` object.
         """
         return self.presets[""]
+
+    def load_presets(self, presets_path=None):
+        """Load presets from disk.
+
+            Read JSON formatted preset data from the specified path,
+            or the default location at ``/var/lib/sos/presets``.
+
+            :param presets_path: a directory containing JSON presets.
+        """
+        presets_path = presets_path or self.presets_path
+        if not os.path.exists(presets_path):
+            return
+        for preset_path in os.listdir(presets_path):
+            preset_path = os.path.join(presets_path, preset_path)
+
+            preset_data = json.load(open(preset_path))
+            for preset in preset_data.keys():
+                pd = PresetDefaults(preset, opts=SoSOptions())
+                data = preset_data[preset]
+                pd.desc = data[DESC] if DESC in data else ""
+                pd.note = data[NOTE] if NOTE in data else ""
+
+                if OPTS in data:
+                    for arg in _arg_names:
+                        if arg in data[OPTS]:
+                            setattr(pd.opts, arg, data[OPTS][arg])
+                pd.builtin = False
+                self.presets[preset] = pd
+
+    def add_preset(self, name=None, desc=None, note=None, opts=SoSOptions()):
+        """Add a new on-disk preset and write it to the configured
+            presets path.
+
+            :param preset: the new PresetDefaults to add
+        """
+        presets_path = self.presets_path
+
+        if not name:
+            raise ValueError("Preset name cannot be empty")
+
+        if name in self.presets.keys():
+            raise ValueError("A preset with name '%s' already exists" % name)
+
+        preset = PresetDefaults(name=name, desc=desc, note=note, opts=opts)
+        self.presets[preset.name] = preset
+        preset.write(presets_path)
+
+    def del_preset(self, name=""):
+        if not name or name not in self.presets.keys():
+            raise ValueError("Unknown profile: '%s'" % name)
+
+        preset = self.presets[name]
+
+        if preset.builtin:
+            raise ValueError("Cannot delete built-in preset '%s'" %
+                             preset.name)
+
+        preset.delete(self.presets_path)
+        self.presets.pop(name)
 
 
 class GenericPolicy(Policy):
