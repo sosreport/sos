@@ -273,6 +273,8 @@ def _parse_args(args):
     parser.add_argument("-o", "--only-plugins", action="extend",
                         dest="onlyplugins", type=str,
                         help="enable these plugins only", default=deque())
+    parser.add_argument("--preset", action="store", type=str,
+                        help="A preset identifier")
     parser.add_argument("-p", "--profile", action="extend",
                         dest="profiles", type=str, default=deque(),
                         help="enable plugins used by the given profiles")
