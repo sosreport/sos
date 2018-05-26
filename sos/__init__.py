@@ -46,8 +46,8 @@ _arg_names = [
     'all_logs', 'batch', 'build', 'case_id', 'chroot', 'compression_type',
     'config_file', 'debug', 'enableplugins', 'experimental', 'label',
     'list_plugins', 'list_profiles', 'log_size', 'noplugins', 'noreport',
-    'onlyplugins', 'plugopts', 'profiles', 'quiet', 'sysroot', 'tmp_dir',
-    'usealloptions', 'verbosity', 'verify'
+    'onlyplugins', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
+    'tmp_dir', 'usealloptions', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -77,6 +77,7 @@ class SoSOptions(object):
     noreport = False
     onlyplugins = []
     plugopts = []
+    preset = ""
     profiles = []
     quiet = False
     sysroot = None
@@ -114,7 +115,7 @@ class SoSOptions(object):
                       self.debug, self.enableplugins, self.experimental,
                       self.label, self.list_plugins, self.list_profiles,
                       self.log_size, self.noplugins, self.noreport,
-                      self.onlyplugins, self.plugopts, self.product,
+                      self.onlyplugins, self.plugopts, self.preset,
                       self.profiles, self.quiet, self.sysroot, self.tmp_dir,
                       self.usealloptions, self.verbosity, self.verify)
 
