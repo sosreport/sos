@@ -15,6 +15,7 @@ from sos.utilities import (ImporterHelper,
                            shell_out)
 from sos.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
+from sos import SoSOptions
 from textwrap import fill
 from six import print_
 from six.moves import input
@@ -182,6 +183,51 @@ class PackageManager(object):
         return self.verify_command + " " + verify_packages
 
 
+class PresetDefaults(object):
+    """Preset command line defaults.
+    """
+    #: Preset name, used for selection
+    name = None
+    #: Human readable preset description
+    desc = None
+    #: Notes on preset behaviour
+    note = None
+    #: Options set for this preset
+    opts = SoSOptions()
+
+    #: Flag indicating whether this profile was read from disk
+    read = False
+
+    def __str__(self):
+        """Return a human readable string representation of this
+            ``PresetDefaults`` object.
+        """
+        return ("name=%s desc=%s note=%s opts=(%s)" %
+                (self.name, self.desc, self.note, str(self.opts)))
+
+    def __repr__(self):
+        """Return a machine readable string representation of this
+            ``PresetDefaults`` object.
+        """
+        return ("PresetDefaults(name='%s' desc='%s' note='%s' opts=(%s)" %
+                (self.name, self.desc, self.note, repr(self.opts)))
+
+    def __init__(self, name="", desc="", note=None, opts=SoSOptions()):
+        """Initialise a new ``PresetDefaults`` object with the specified
+            arguments.
+
+            :param name: The name of the new preset
+            :param desc: A description for the new preset
+            :param note: Note for the new preset
+            :param opts: Options set for the new preset
+            :returns: The newly initialised ``PresetDefaults``
+        """
+        self.name = name
+        self.desc = desc
+        self.note = note
+        self.opts = opts
+
+
 class Policy(object):
 
     msg = _("""\
@@ -208,7 +254,7 @@ No changes will be made to system configuration.
     PATH = ""
     default_scl_prefix = ""
     name_pattern = 'legacy'
-
+    presets = {"": PresetDefaults()}
     _in_container = False
     _host_sysroot = '/'
 
@@ -466,6 +512,20 @@ No changes will be made to system configuration.
         for line in _msg.splitlines():
             _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
         return _fmt
+
+    def find_preset(self, preset):
+        """Find a preset profile matching the specified preset string.
+
+            :param preset: a string containing a preset profile name.
+            :returns: a matching ProductProfile.
+        """
+        # FIXME: allow fuzzy matching?
+        for match in self.presets.keys():
+            if match == preset:
+                return self.presets[match]
+
+        # Return default preset
+        return self.presets[""]
 
 
 class GenericPolicy(Policy):
