@@ -323,6 +323,7 @@ class SoSReport(object):
         self.sysroot = "/"
         self.sys_tmp = None
         self.exit_process = False
+        self.preset = None
 
         try:
             import signal
@@ -341,6 +342,9 @@ class SoSReport(object):
             self._exit(0)
 
         self._is_root = self.policy.is_root()
+
+        self.preset = self.policy.find_preset(cmd_args.preset)
+        self.opts.merge(self.preset.opts)
 
         # system temporary directory to use
         tmp = os.path.abspath(self.policy.get_tmp_dir(self.opts.tmp_dir))
@@ -888,8 +892,19 @@ class SoSReport(object):
         self._exit(1)
 
     def setup(self):
+        # Log command line options
         msg = "[%s:%s] executing 'sosreport %s'"
         self.soslog.info(msg % (__name__, "setup", " ".join(self._args)))
+
+        # Log active preset defaults
+        msg = ("[%s:%s] using '%s' preset defaults" %
+               (__name__, "setup", self.preset.name))
+        self.soslog.info(msg)
+
+        # Log effective options after applying preset defaults
+        self.soslog.info("[%s:%s] effective options now: %s" %
+                         (__name__, "steup", str(self.opts)))
+
         self.ui_log.info(_(" Setting up plugins ..."))
         for plugname, plug in self.loaded_plugins:
             try:
