@@ -26,6 +26,8 @@ except:
     # might fail if non-RHEL
     pass
 
+OS_RELEASE = "/etc/os-release"
+
 
 class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
@@ -138,9 +140,11 @@ class RedHatPolicy(LinuxPolicy):
 ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
 
+RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
+
 
 class RHELPolicy(RedHatPolicy):
-    distro = "Red Hat Enterprise Linux"
+    distro = RHEL_RELEASE_STR
     vendor = "Red Hat"
     vendor_url = "https://access.redhat.com/support/"
     msg = _("""\
@@ -169,10 +173,27 @@ No changes will be made to system configuration.
 
     @classmethod
     def check(cls):
-        """This method checks to see if we are running on RHEL. It returns True
-        or False."""
-        return (os.path.isfile(cls._redhat_release) and not
-                os.path.isfile('/etc/fedora-release'))
+        """Test to see if the running host is a RHEL installation.
+
+            Checks for the presence of the "Red Hat Enterprise Linux"
+            release string at the beginning of the NAME field in the
+            `/etc/os-release` file and returns ``True`` if it is
+            found, and ``False`` otherwise.
+
+            :returns: ``True`` if the host is running RHEL or ``False``
+                      otherwise.
+        """
+        if not os.path.exists(OS_RELEASE):
+            return False
+
+        with open(OS_RELEASE, "r") as f:
+            for line in f:
+                if line.startswith("NAME"):
+                    (name, value) = line.split("=")
+                    value = value.strip("\"'")
+                    if value.startswith(RHEL_RELEASE_STR):
+                        return True
+        return False
 
     def dist_version(self):
         try:
