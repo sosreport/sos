@@ -92,6 +92,7 @@ class RedHatPolicy(LinuxPolicy):
         self.PATH += os.pathsep + "/usr/local/bin"
         self.PATH += os.pathsep + "/usr/local/sbin"
         self.set_exec_path()
+        self.load_presets()
 
     @classmethod
     def check(cls):
@@ -210,7 +211,7 @@ No changes will be made to system configuration.
 
     def __init__(self, sysroot=None):
         super(RHELPolicy, self).__init__(sysroot=sysroot)
-        self.presets.update(rhel_presets)
+        self.register_presets(rhel_presets)
 
     @classmethod
     def check(cls):
