@@ -59,32 +59,32 @@ _arg_defaults = {
 
 
 class SoSOptions(object):
-    list_plugins = False
-    noplugins = []
-    enableplugins = []
-    onlyplugins = []
-    plugopts = []
-    usealloptions = False
     all_logs = False
-    log_size = _arg_defaults["log_size"]
     batch = False
     build = False
-    verbosity = 0
-    verify = False
-    quiet = False
-    debug = False
     case_id = ""
-    label = ""
-    profiles = deque()
-    list_profiles = False
-    config_file = ""
-    tmp_dir = ""
-    noreport = False
-    sysroot = None
     chroot = _arg_defaults["chroot"]
     compression_type = _arg_defaults["compression_type"]
+    config_file = ""
+    debug = False
+    enableplugins = []
     experimental = False
+    label = ""
+    list_plugins = False
+    list_profiles = False
+    log_size = _arg_defaults["log_size"]
+    noplugins = []
+    noreport = False
+    onlyplugins = []
+    plugopts = []
+    profiles = deque()
+    quiet = False
+    sysroot = None
     threads = 4
+    tmp_dir = ""
+    usealloptions = False
+    verbosity = 0
+    verify = False
 
     def _copy_opt(self, opt, src):
         if hasattr(src, opt):
