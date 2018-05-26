@@ -274,7 +274,7 @@ def _parse_args(args):
                         dest="onlyplugins", type=str,
                         help="enable these plugins only", default=deque())
     parser.add_argument("--preset", action="store", type=str,
-                        help="A preset identifier")
+                        help="A preset identifier", default="auto")
     parser.add_argument("-p", "--profile", action="extend",
                         dest="profiles", type=str, default=deque(),
                         help="enable plugins used by the given profiles")
@@ -343,7 +343,11 @@ class SoSReport(object):
 
         self._is_root = self.policy.is_root()
 
-        self.preset = self.policy.find_preset(cmd_args.preset)
+        # Apply per-preset command line defaults
+        if cmd_args.preset != _arg_defaults["preset"]:
+            self.preset = self.policy.find_preset(cmd_args.preset)
+        else:
+            self.preset = self.policy.probe_preset()
         self.opts.merge(self.preset.opts)
 
         # system temporary directory to use

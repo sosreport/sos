@@ -517,7 +517,7 @@ No changes will be made to system configuration.
         """Find a preset profile matching the specified preset string.
 
             :param preset: a string containing a preset profile name.
-            :returns: a matching ProductProfile.
+            :returns: a matching PresetProfile.
         """
         # FIXME: allow fuzzy matching?
         for match in self.presets.keys():
@@ -525,6 +525,15 @@ No changes will be made to system configuration.
                 return self.presets[match]
 
         # Return default preset
+        return self.presets[""]
+
+    def probe_preset(self):
+        """Return a ``PresetDefaults`` object matching the runing host.
+
+            Stub method to be implemented by derived policy classes.
+
+            :returns: a ``PresetDefaults`` object.
+        """
         return self.presets[""]
 
 

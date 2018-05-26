@@ -55,6 +55,7 @@ _arg_defaults = {
     "log_size": 10,
     "chroot": "auto",
     "compression_type": "auto",
+    "preset": "auto"
 }
 
 
