@@ -34,6 +34,7 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 from sos import _sos as _
 from sos import __version__
+from sos import _arg_names, _arg_defaults, SoSOptions
 import sos.policies
 from sos.archive import TarFileArchive
 from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
@@ -199,22 +200,6 @@ class XmlReport(object):
 # valid modes for --chroot
 chroot_modes = ["auto", "always", "never"]
 
-#: Names of all arguments
-_arg_names = [
-    'all_logs', 'batch', 'build', 'case_id', 'chroot', 'compression_type',
-    'config_file', 'debug', 'enableplugins', 'experimental', 'label',
-    'list_plugins', 'list_profiles', 'log_size', 'noplugins', 'noreport',
-    'onlyplugins', 'plugopts', 'profiles', 'quiet', 'sysroot', 'tmp_dir',
-    'usealloptions', 'verbosity', 'verify'
-]
-
-#: Arguments with non-zero default values
-_arg_defaults = {
-    "log_size": 10,
-    "chroot": "auto",
-    "compression_type": "auto",
-}
-
 
 def _parse_args(args):
     """ Parse command line options and arguments"""
@@ -318,77 +303,6 @@ def _parse_args(args):
                         " (default=4)", default=4, type=int)
 
     return parser.parse_args(args)
-
-
-class SoSOptions(object):
-    list_plugins = False
-    noplugins = []
-    enableplugins = []
-    onlyplugins = []
-    plugopts = []
-    usealloptions = False
-    all_logs = False
-    log_size = 10
-    batch = False
-    build = False
-    verbosity = 0
-    verify = False
-    quiet = False
-    debug = False
-    case_id = ""
-    label = ""
-    profiles = deque()
-    list_profiles = False
-    config_file = ""
-    tmp_dir = ""
-    noreport = False
-    sysroot = None
-    chroot = 'auto'
-    compression_type = 'auto'
-    experimental = False
-    threads = 4
-
-    def _copy_opt(self, opt, src):
-        if hasattr(src, opt):
-            setattr(self, opt, getattr(src, opt))
-
-    def _copy_opts(self, src):
-        for arg in _arg_names:
-            self._copy_opt(arg, src)
-
-    @classmethod
-    def from_args(cls, args):
-        """Initialise a new SoSOptions object from a ``Namespace``
-            obtained by parsing command line arguments.
-
-            :param args: parsed command line arguments
-            :returns: an initialised SoSOptions object
-            :returntype: SoSOptions
-        """
-        opts = SoSOptions()
-        opts._copy_opts(args)
-        return opts
-
-    def merge(self, src, replace=False):
-        """Merge another set of ``SoSOptions`` into this object.
-
-            Merge two ``SoSOptions`` objects by setting unset or default
-            values to their value in the ``src`` object.
-
-            :param src: the ``SoSOptions`` object to copy from
-            :param replace: ``True`` if non-default values should be
-                            overwritten.
-        """
-
-        for arg in _arg_names:
-            if not hasattr(src, arg):
-                continue
-            if arg in _arg_defaults.keys():
-                if replace or getattr(self, arg) == _arg_defaults[arg]:
-                    self._copy_opt(arg, src)
-            else:
-                if replace or not getattr(self, arg):
-                    self._copy_opt(arg, src)
 
 
 class SoSReport(object):
