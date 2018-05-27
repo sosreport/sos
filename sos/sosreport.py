@@ -865,7 +865,15 @@ class SoSReport(object):
             if preset.note:
                 self.ui_log.info("%-15s (%s)" % ("", preset.note))
             if self.opts.verbosity > 0:
+                # Filter out options that do not make sense in presets
+                def filter_opt(opt):
+                    if opt.startswith("add_preset"):
+                        return False
+                    if opt.startswith("del_preset"):
+                        return False
+                    return True
                 opts = str(preset.opts).split()
+                opts = [opt for opt in opts if filter_opt(opt)]
                 lines = _format_list("%-15s" % "options: ", opts, indent=True)
                 for line in lines:
                     self.ui_log.info(line)
