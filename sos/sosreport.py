@@ -887,7 +887,7 @@ class SoSReport(object):
             :returns: True on success or False otherwise
         """
         policy = self.policy
-        if policy.find_preset(name).name is not "":
+        if policy.find_preset(name):
             self.ui_log.error("A preset named '%s' already exists" % name)
             return False
 
@@ -915,7 +915,7 @@ class SoSReport(object):
             :returns: True on success or False otherwise
         """
         policy = self.policy
-        if policy.find_preset(name).name is "":
+        if not policy.find_preset(name):
             self.ui_log.error("Preset '%s' not found" % name)
             return False
 

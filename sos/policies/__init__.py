@@ -571,8 +571,7 @@ No changes will be made to system configuration.
             if match == preset:
                 return self.presets[match]
 
-        # Return default preset
-        return self.presets[""]
+        return None
 
     def probe_preset(self):
         """Return a ``PresetDefaults`` object matching the runing host.
