@@ -257,6 +257,8 @@ def _parse_args(args):
     parser.add_argument("-l", "--list-plugins", action="store_true",
                         dest="list_plugins", default=False,
                         help="list plugins and available plugin options")
+    parser.add_argument("--list-presets", action="store_true",
+                        help="display a list of available presets")
     parser.add_argument("--list-profiles", action="store_true",
                         dest="list_profiles", default=False,
                         help="display a list of available profiles and "
@@ -837,6 +839,27 @@ class SoSReport(object):
                 self.ui_log.info(" %s" % line)
         self._report_profiles_and_plugins()
 
+    def list_presets(self):
+        if not self.policy.presets:
+            self.soslog.fatal(_("no valid presets found"))
+            return
+        self.ui_log.info(_("The following presets are available:"))
+        self.ui_log.info("")
+
+        for preset in self.policy.presets.keys():
+            if not preset:
+                continue
+            preset = self.policy.presets[preset]
+            self.ui_log.info("%-15s %s" % (preset.name, preset.desc))
+            if preset.note:
+                self.ui_log.info("%-15s (%s)" % ("", preset.note))
+            if self.opts.verbosity > 0:
+                opts = str(preset.opts).split()
+                lines = _format_list("%-15s" % "options: ", opts, indent=True)
+                for line in lines:
+                    self.ui_log.info(line)
+            self.ui_log.info("")
+
     def batch(self):
         if self.opts.batch:
             self.ui_log.info(self.policy.get_msg())
@@ -1333,6 +1356,9 @@ class SoSReport(object):
                 return True
             if self.opts.list_profiles:
                 self.list_profiles()
+                return True
+            if self.opts.list_presets:
+                self.list_presets()
                 return True
 
             # verify that at least one plug-in is enabled
