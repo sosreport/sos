@@ -45,9 +45,9 @@ _sos = _default
 _arg_names = [
     'all_logs', 'batch', 'build', 'case_id', 'chroot', 'compression_type',
     'config_file', 'debug', 'enableplugins', 'experimental', 'label',
-    'list_plugins', 'list_profiles', 'log_size', 'noplugins', 'noreport',
-    'onlyplugins', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
-    'tmp_dir', 'usealloptions', 'verbosity', 'verify'
+    'list_plugins', 'list_presets', 'list_profiles', 'log_size', 'noplugins',
+    'noreport', 'onlyplugins', 'plugopts', 'preset', 'profiles', 'quiet',
+    'sysroot', 'tmp_dir', 'usealloptions', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -72,6 +72,7 @@ class SoSOptions(object):
     experimental = False
     label = ""
     list_plugins = False
+    list_presets = False
     list_profiles = False
     log_size = _arg_defaults["log_size"]
     noplugins = []
