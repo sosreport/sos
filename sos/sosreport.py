@@ -860,20 +860,45 @@ class SoSReport(object):
         for preset in self.policy.presets.keys():
             if not preset:
                 continue
-            preset = self.policy.presets[preset]
-            self.ui_log.info("%-15s %s" % (preset.name, preset.desc))
+            preset = self.policy.find_preset(preset)
+            self.ui_log.info("%14s %s" % ("name:", preset.name))
+            self.ui_log.info("%14s %s" % ("description:", preset.desc))
             if preset.note:
-                self.ui_log.info("%-15s (%s)" % ("", preset.note))
+                self.ui_log.info("%14s %s" % ("note:", preset.note))
             if self.opts.verbosity > 0:
-                # Filter out options that do not make sense in presets
                 def filter_opt(opt):
+                    """ Filter out preset options.
+                    """
                     opt = opt.split("=")[0]
                     if opt in ("add_preset", "del_preset", "desc", "note"):
                         return False
                     return True
+
+                def argify(opt):
+                    """ Convert sos option notation to command line arguments.
+                    """
+                    arg = "--" + opt
+                    arg = arg.replace("_", "-")
+                    arg = arg.strip("=True")
+                    return arg
+
+                def has_value(opt):
+                    """ Test for null option values.
+                    """
+                    null_values = ("False", "None", "[]", '""', "''", "0")
+                    (opt_name, opt_value) = opt.split("=")
+                    if opt_name in _arg_defaults:
+                        if opt_value == str(_arg_defaults[opt_name]):
+                            return False
+                    if not opt_value or opt_value in null_values:
+                        return False
+                    return True
+
                 opts = str(preset.opts).split()
                 opts = [opt for opt in opts if filter_opt(opt)]
-                lines = _format_list("%-15s" % "options: ", opts, indent=True)
+                args = [argify(opt) for opt in opts if has_value(opt)]
+                options_str = "%14s " % "options:"
+                lines = _format_list(options_str, args, indent=True, sep=' ')
                 for line in lines:
                     self.ui_log.info(line)
             self.ui_log.info("")
