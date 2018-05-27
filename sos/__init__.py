@@ -16,7 +16,6 @@ gettext to internationalize messages.
 """
 
 import gettext
-from collections import deque
 
 __version__ = "3.5"
 
@@ -171,5 +170,20 @@ class SoSOptions(object):
             else:
                 if replace or not getattr(self, arg):
                     self._copy_opt(arg, src)
+
+    def dict(self):
+        """Return this ``SoSOptions`` option values as a dictionary of
+            argument name to value mappings.
+
+            :returns: a name:value dictionary of option values.
+        """
+        odict = {}
+        for arg in _arg_names:
+            value = getattr(self, arg)
+            # Do not attempt to store --add-preset <name> in presets
+            if arg == 'add_preset':
+                value = None
+            odict[arg] = value
+        return odict
 
 # vim: set et ts=4 sw=4 :
