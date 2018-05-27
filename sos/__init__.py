@@ -59,6 +59,13 @@ _arg_defaults = {
 }
 
 
+def _is_seq(val):
+    """Return true if val is an instance of a known sequence type.
+    """
+    val_type = type(val)
+    return val_type is list or val_type is tuple
+
+
 class SoSOptions(object):
     add_preset = ""
     alloptions = False
@@ -93,13 +100,19 @@ class SoSOptions(object):
     verbosity = 0
     verify = False
 
-    def _copy_opt(self, opt, src):
+    def _merge_opt(self, opt, src, replace):
         if hasattr(src, opt):
-            setattr(self, opt, getattr(src, opt))
+            value = getattr(src, opt)
+            if replace or not _is_seq(value):
+                # Overwrite atomic values
+                setattr(self, opt, getattr(src, opt))
+            else:
+                # Concatenate sequence types
+                setattr(self, opt, getattr(self, opt) + getattr(src, opt))
 
-    def _copy_opts(self, src):
+    def _merge_opts(self, src, replace):
         for arg in _arg_names:
-            self._copy_opt(arg, src)
+            self._merge_opt(arg, src, replace)
 
     def __str(self, quote=False, sep=" ", prefix="", suffix=""):
         """Format a SoSOptions object as a human or machine readable string.
@@ -117,16 +130,10 @@ class SoSOptions(object):
         fmt.strip(sep)
         fmt += suffix
 
-        def is_seq(val):
-            """Return true if val is an instance of a known sequence type.
-            """
-            val_type = type(val)
-            return val_type is list or val_type is tuple
-
         if not quote:
             # Convert Python source notation for sequences into plain strings
             args = [getattr(self, arg) for arg in _arg_names]
-            args = [",".join(a) if is_seq(a) else a for a in args]
+            args = [",".join(a) if _is_seq(a) else a for a in args]
 
         return fmt % tuple(args)
 
@@ -165,7 +172,7 @@ class SoSOptions(object):
             :returntype: SoSOptions
         """
         opts = SoSOptions()
-        opts._copy_opts(args)
+        opts._merge_opts(args, True)
         return opts
 
     def merge(self, src, replace=False):
@@ -183,10 +190,12 @@ class SoSOptions(object):
                 continue
             if arg in _arg_defaults.keys():
                 if replace or getattr(self, arg) == _arg_defaults[arg]:
-                    self._copy_opt(arg, src)
+                    self._merge_opt(arg, src, replace)
+            elif _is_seq(getattr(self, arg)):
+                self._merge_opt(arg, src, replace)
             else:
                 if replace or not getattr(self, arg):
-                    self._copy_opt(arg, src)
+                    self._merge_opt(arg, src, replace)
 
     def dict(self):
         """Return this ``SoSOptions`` option values as a dictionary of
