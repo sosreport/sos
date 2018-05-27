@@ -241,6 +241,8 @@ def _parse_args(args):
     parser.add_argument("--debug", action="store_true", dest="debug",
                         help="enable interactive debugging using the "
                              "python debugger")
+    parser.add_argument("--desc", "--description", type=str, action="store",
+                        help="Description for a new preset", default="")
     parser.add_argument("--experimental", action="store_true",
                         dest="experimental", default=False,
                         help="enable experimental plugins")
@@ -272,6 +274,8 @@ def _parse_args(args):
     parser.add_argument("--no-report", action="store_true",
                         dest="noreport",
                         help="disable HTML/XML reporting", default=False)
+    parser.add_argument("--note", type=str, action="store", default="",
+                        help="Behaviour notes for new preset")
     parser.add_argument("-o", "--only-plugins", action="extend",
                         dest="onlyplugins", type=str,
                         help="enable these plugins only", default=deque())
@@ -305,6 +309,13 @@ def _parse_args(args):
     parser.add_argument("-t", "--threads", action="store", dest="threads",
                         help="specify number of concurrent plugins to run"
                         " (default=4)", default=4, type=int)
+
+    # Group to make add/del preset exclusive
+    preset_grp = parser.add_mutually_exclusive_group()
+    preset_grp.add_argument("--add-preset", type=str, action="store",
+                            help="Add a new named command line preset")
+    preset_grp.add_argument("--del-preset", type=str, action="store",
+                            help="Delete the named command line preset")
 
     return parser.parse_args(args)
 
@@ -860,6 +871,55 @@ class SoSReport(object):
                     self.ui_log.info(line)
             self.ui_log.info("")
 
+    def add_preset(self, name, desc="", note=""):
+        """Add a new command line preset for the current options with the
+            specified name.
+
+            :param name: the name of the new preset
+            :returns: True on success or False otherwise
+        """
+        policy = self.policy
+        if policy.find_preset(name).name is not "":
+            self.ui_log.error("A preset named '%s' already exists" % name)
+            return False
+
+        desc = desc or self.opts.desc
+        note = note or self.opts.note
+
+        try:
+            policy.add_preset(name=name, desc=desc, note=note, opts=self.opts)
+        except Exception as e:
+            self.ui_log.error("Could not add preset: %s" % e)
+            return False
+
+        # Filter --add-preset <name> from arguments list
+        arg_index = self._args.index("--add-preset")
+        args = self._args[0:arg_index] + self._args[arg_index + 2:]
+
+        self.ui_log.info("Added preset '%s' with options %s\n" %
+                         (name, " ".join(args)))
+        return True
+
+    def del_preset(self, name):
+        """Delete a named command line preset.
+
+            :param name: the name of the preset to delete
+            :returns: True on success or False otherwise
+        """
+        policy = self.policy
+        if policy.find_preset(name).name is "":
+            self.ui_log.error("Preset '%s' not found" % name)
+            return False
+
+        try:
+            policy.del_preset(name=name)
+        except Exception as e:
+            self.ui_log.error(str(e) + "\n")
+            return False
+
+        self.ui_log.info("Deleted preset '%s'\n" % name)
+        return True
+
     def batch(self):
         if self.opts.batch:
             self.ui_log.info(self.policy.get_msg())
@@ -1360,7 +1420,10 @@ class SoSReport(object):
             if self.opts.list_presets:
                 self.list_presets()
                 return True
-
+            if self.opts.add_preset:
+                return self.add_preset(self.opts.add_preset)
+            if self.opts.del_preset:
+                return self.del_preset(self.opts.del_preset)
             # verify that at least one plug-in is enabled
             if not self.verify_plugins():
                 return False
