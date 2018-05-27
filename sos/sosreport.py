@@ -52,7 +52,7 @@ else:
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
 
-def _format_list(first_line, items, indent=False):
+def _format_list(first_line, items, indent=False, sep=", "):
     lines = []
     line = first_line
     if indent:
@@ -60,12 +60,12 @@ def _format_list(first_line, items, indent=False):
     else:
         newline = ""
     for item in items:
-        if len(line) + len(item) + 2 > 72:
+        if len(line) + len(item) + len(sep) > 72:
             lines.append(line)
             line = newline
-        line = line + item + ', '
-    if line[-2:] == ', ':
-        line = line[:-2]
+        line = line + item + sep
+    if line[-len(sep):] == sep:
+        line = line[:-len(sep)]
     lines.append(line)
     return lines
 
