@@ -116,7 +116,19 @@ class SoSOptions(object):
             fmt += arg + arg_fmt + sep
         fmt.strip(sep)
         fmt += suffix
-        return fmt % tuple([getattr(self, arg) for arg in _arg_names])
+
+        def is_seq(val):
+            """Return true if val is an instance of a known sequence type.
+            """
+            val_type = type(val)
+            return val_type is list or val_type is tuple
+
+        if not quote:
+            # Convert Python source notation for sequences into plain strings
+            args = [getattr(self, arg) for arg in _arg_names]
+            args = [",".join(a) if is_seq(a) else a for a in args]
+
+        return fmt % tuple(args)
 
     def __str__(self):
         return self.__str()
