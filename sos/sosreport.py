@@ -354,11 +354,18 @@ class SoSReport(object):
 
         self._is_root = self.policy.is_root()
 
-        # Apply per-preset command line defaults
+        # user specified command line preset
         if cmd_args.preset != _arg_defaults["preset"]:
             self.preset = self.policy.find_preset(cmd_args.preset)
-        else:
+            if not self.preset:
+                sys.stderr.write("Unknown preset: '%s'\n" % cmd_args.preset)
+                self.preset = self.policy.probe_preset()
+                self.opts.list_presets = True
+
+        # --preset=auto
+        if not self.preset:
             self.preset = self.policy.probe_preset()
+
         self.opts.merge(self.preset.opts)
 
         # system temporary directory to use
