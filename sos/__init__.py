@@ -112,14 +112,7 @@ class SoSOptions(object):
             fmt += arg + arg_fmt + sep
         fmt.strip(sep)
         fmt += suffix
-        return fmt % (self.all_logs, self.batch, self.build, self.case_id,
-                      self.chroot, self.compression_type, self.config_file,
-                      self.debug, self.enableplugins, self.experimental,
-                      self.label, self.list_plugins, self.list_profiles,
-                      self.log_size, self.noplugins, self.noreport,
-                      self.onlyplugins, self.plugopts, self.preset,
-                      self.profiles, self.quiet, self.sysroot, self.tmp_dir,
-                      self.usealloptions, self.verbosity, self.verify)
+        return fmt % tuple([getattr(self, arg) for arg in _arg_names])
 
     def __str__(self):
         return self.__str()
