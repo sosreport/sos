@@ -77,7 +77,7 @@ class SoSOptions(object):
     noreport = False
     onlyplugins = []
     plugopts = []
-    profiles = deque()
+    profiles = []
     quiet = False
     sysroot = None
     threads = 4
