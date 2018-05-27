@@ -42,12 +42,12 @@ _sos = _default
 
 #: Names of all arguments
 _arg_names = [
-    'add_preset', 'all_logs', 'batch', 'build', 'case_id', 'chroot',
-    'compression_type', 'config_file', 'desc', 'debug', 'del_preset',
+    'add_preset', 'alloptions', 'all_logs', 'batch', 'build', 'case_id',
+    'chroot', 'compression_type', 'config_file', 'desc', 'debug', 'del_preset',
     'enableplugins', 'experimental', 'label', 'list_plugins', 'list_presets',
     'list_profiles', 'log_size', 'noplugins', 'noreport', 'note',
     'onlyplugins', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
-    'tmp_dir', 'usealloptions', 'verbosity', 'verify'
+    'tmp_dir', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -61,6 +61,7 @@ _arg_defaults = {
 
 class SoSOptions(object):
     add_preset = ""
+    alloptions = False
     all_logs = False
     batch = False
     build = False
@@ -89,7 +90,6 @@ class SoSOptions(object):
     sysroot = None
     threads = 4
     tmp_dir = ""
-    usealloptions = False
     verbosity = 0
     verify = False
 

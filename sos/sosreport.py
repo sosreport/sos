@@ -215,7 +215,7 @@ def _parse_args(args):
     parser = ArgumentParser(usage=usage_string)
     parser.register('action', 'extend', SosListOption)
     parser.add_argument("-a", "--alloptions", action="store_true",
-                        dest="usealloptions", default=False,
+                        dest="alloptions", default=False,
                         help="enable all options for loaded plugins")
     parser.add_argument("--all-logs", action="store_true",
                         dest="all_logs", default=False,
@@ -691,7 +691,7 @@ class SoSReport(object):
             self._exit(1)
 
     def _set_all_options(self):
-        if self.opts.usealloptions:
+        if self.opts.alloptions:
             for plugname, plug in self.loaded_plugins:
                 for name, parms in zip(plug.opt_names, plug.opt_parms):
                     if type(parms["enabled"]) == bool:
