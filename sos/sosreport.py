@@ -26,7 +26,6 @@ from sos.plugins import import_plugin
 from sos.utilities import ImporterHelper
 from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
 from time import strftime, localtime
-from collections import deque
 from shutil import rmtree
 import tempfile
 import hashlib
@@ -248,12 +247,11 @@ def _parse_args(args):
                         help="enable experimental plugins")
     parser.add_argument("-e", "--enable-plugins", action="extend",
                         dest="enableplugins", type=str,
-                        help="enable these plugins", default=deque())
+                        help="enable these plugins", default=[])
     parser.add_argument("-k", "--plugin-option", action="extend",
                         dest="plugopts", type=str,
                         help="plugin options in plugname.option=value "
-                             "format (see -l)",
-                        default=deque())
+                             "format (see -l)", default=[])
     parser.add_argument("--label", "--name", action="store", dest="label",
                         help="specify an additional report label")
     parser.add_argument("-l", "--list-plugins", action="store_true",
@@ -270,7 +268,7 @@ def _parse_args(args):
                         help="limit the size of collected logs (in MiB)")
     parser.add_argument("-n", "--skip-plugins", action="extend",
                         dest="noplugins", type=str,
-                        help="disable these plugins", default=deque())
+                        help="disable these plugins", default=[])
     parser.add_argument("--no-report", action="store_true",
                         dest="noreport",
                         help="disable HTML/XML reporting", default=False)
@@ -278,11 +276,11 @@ def _parse_args(args):
                         help="Behaviour notes for new preset")
     parser.add_argument("-o", "--only-plugins", action="extend",
                         dest="onlyplugins", type=str,
-                        help="enable these plugins only", default=deque())
+                        help="enable these plugins only", default=[])
     parser.add_argument("--preset", action="store", type=str,
                         help="A preset identifier", default="auto")
     parser.add_argument("-p", "--profile", action="extend",
-                        dest="profiles", type=str, default=deque(),
+                        dest="profiles", type=str, default=[],
                         help="enable plugins used by the given profiles")
     parser.add_argument("--quiet", action="store_true",
                         dest="quiet", default=False,
@@ -325,9 +323,9 @@ class SoSReport(object):
     """The main sosreport class"""
 
     def __init__(self, args):
-        self.loaded_plugins = deque()
-        self.skipped_plugins = deque()
-        self.all_options = deque()
+        self.loaded_plugins = []
+        self.skipped_plugins = []
+        self.all_options = []
         self.xml_report = XmlReport()
         self.global_plugin_options = {}
         self.archive = None
@@ -609,7 +607,7 @@ class SoSReport(object):
         import sos.plugins
         helper = ImporterHelper(sos.plugins)
         plugins = helper.get_modules()
-        self.plugin_names = deque()
+        self.plugin_names = []
         self.profiles = set()
         using_profiles = len(self.opts.profiles)
         policy_classes = self.policy.valid_subclasses
@@ -700,7 +698,7 @@ class SoSReport(object):
     def _set_tunables(self):
         if self.config.has_section("tunables"):
             if not self.opts.plugopts:
-                self.opts.plugopts = deque()
+                self.opts.plugopts = []
 
             for opt, val in self.config.items("tunables"):
                 if not opt.split('.')[0] in self._get_disabled_plugins():
@@ -733,7 +731,7 @@ class SoSReport(object):
                 try:
                     opts[plug]
                 except KeyError:
-                    opts[plug] = deque()
+                    opts[plug] = []
                 opts[plug].append((opt, val))
 
             for plugname, plug in self.loaded_plugins:
@@ -1235,8 +1233,8 @@ class SoSReport(object):
         """)
 
         # Make a pass to gather Alerts and a list of module names
-        allAlerts = deque()
-        plugNames = deque()
+        allAlerts = []
+        plugNames = []
         for plugname, plug in self.loaded_plugins:
             for alert in plug.alerts:
                 allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname,
