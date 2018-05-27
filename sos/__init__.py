@@ -185,8 +185,8 @@ class SoSOptions(object):
         odict = {}
         for arg in _arg_names:
             value = getattr(self, arg)
-            # Do not attempt to store --add-preset <name> in presets
-            if arg == 'add_preset':
+            # Do not attempt to store preset option values in presets
+            if arg in ('add_preset', 'del_preset', 'desc', 'note'):
                 value = None
             odict[arg] = value
         return odict
