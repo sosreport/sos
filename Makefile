@@ -34,9 +34,11 @@ PO_DIR = $(SRC_BUILD)/sos/po
 docs:
 	make -C docs html man
 
+.PHONY: build
 build:
 	for d in $(SUBDIRS); do make -C $$d; [ $$? = 0 ] || exit 1 ; done
 
+.PHONY: install
 install:
 	mkdir -p $(DESTDIR)/usr/sbin
 	mkdir -p $(DESTDIR)/usr/share/man/man1
