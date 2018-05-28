@@ -188,11 +188,12 @@ class SoSOptions(object):
         for arg in _arg_names:
             if not hasattr(src, arg):
                 continue
+            if _is_seq(getattr(self, arg)):
+                self._merge_opt(arg, src, replace)
+                continue
             if arg in _arg_defaults.keys():
                 if replace or getattr(self, arg) == _arg_defaults[arg]:
                     self._merge_opt(arg, src, replace)
-            elif _is_seq(getattr(self, arg)):
-                self._merge_opt(arg, src, replace)
             else:
                 if replace or not getattr(self, arg):
                     self._merge_opt(arg, src, replace)
