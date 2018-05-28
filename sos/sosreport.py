@@ -237,8 +237,7 @@ def _parse_args(args):
     parser.add_argument("--config-file", action="store",
                         dest="config_file",
                         help="specify alternate configuration file")
-    parser.add_argument("--debug", action="count",
-                        dest="debug",
+    parser.add_argument("--debug", action="store_true", dest="debug",
                         help="enable interactive debugging using the "
                              "python debugger")
     parser.add_argument("--experimental", action="store_true",
