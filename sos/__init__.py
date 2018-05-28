@@ -213,4 +213,54 @@ class SoSOptions(object):
             odict[arg] = value
         return odict
 
+    def to_args(self):
+        """Return command arguments for this object.
+
+            Return a list of the non-default options of this ``SoSOptions``
+            object in ``sosreport`` command line argument notation:
+
+                ``["--all-logs", "-vvv"]``
+
+        """
+        def has_value(name, value):
+            """ Test for non-null option values.
+            """
+            null_values = ("False", "None", "[]", '""', "''", "0")
+            if not value or value in null_values:
+                return False
+            if name in _arg_defaults:
+                if value == str(_arg_defaults[name]):
+                    return False
+            return True
+
+        def filter_opt(name, value):
+            """ Filter out preset and null-valued options.
+            """
+            if name in ("add_preset", "del_preset", "desc", "note"):
+                return False
+            return has_value(name, value)
+
+        def argify(name, value):
+            """ Convert sos option notation to command line arguments.
+            """
+            # Handle --verbosity specially
+            if name.startswith("verbosity"):
+                arg = "-" + int(value) * "v"
+                return arg
+
+            name = name.replace("_", "-")
+
+            value = ",".join(value) if _is_seq(value) else value
+
+            if value is not True:
+                opt = "%s %s" % (name, value)
+            else:
+                opt = name
+
+            arg = "--" + opt if len(opt) > 1 else "-" + opt
+            return arg
+
+        opt_items = sorted(self.dict().items(), key=lambda x: x[0])
+        return [argify(n, v) for (n, v) in opt_items if filter_opt(n, v)]
+
 # vim: set et ts=4 sw=4 :
