@@ -882,9 +882,17 @@ class SoSReport(object):
                 def argify(opt):
                     """ Convert sos option notation to command line arguments.
                     """
-                    arg = "--" + opt
+                    # Handle --verbosity specially
+                    if opt.startswith("verbosity"):
+                        (arg, value) = opt.split("=")
+                        arg = "-" + int(value) * "v"
+                        return arg
+
+                    # Convert "a_name=value" to "--a-name=value" and
+                    # "name=True" to "--name"
+                    arg = "--" + opt if len(opt) > 1 else "-" + opt
                     arg = arg.replace("_", "-")
-                    arg = arg.strip("=True")
+                    arg = arg[:-len("=True")] if arg.endswith("=True") else arg
                     return arg
 
                 def has_value(opt):
