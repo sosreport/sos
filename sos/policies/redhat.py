@@ -14,8 +14,9 @@ import os
 import sys
 
 from sos.plugins import RedHatPlugin
-from sos.policies import LinuxPolicy, PackageManager
+from sos.policies import LinuxPolicy, PackageManager, PresetDefaults
 from sos import _sos as _
+from sos import SoSOptions
 
 sys.path.insert(0, "/usr/share/rhn/")
 try:
@@ -25,6 +26,14 @@ try:
 except ImportError:
     # might fail if non-RHEL
     pass
+
+rh_presets = {
+    "": PresetDefaults(name="rhel"),
+    "rhel7": PresetDefaults(name="rhel7"),
+    "rhosp": PresetDefaults(name="rhosp", opts=SoSOptions(all_logs=True)),
+    "rhv": PresetDefaults(name="rhv",
+                          opts=SoSOptions(all_logs=True, verify=True))
+}
 
 OS_RELEASE = "/etc/os-release"
 
@@ -141,7 +150,37 @@ class RedHatPolicy(LinuxPolicy):
 ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
 
+_opts_all_logs = SoSOptions(all_logs=True)
+_opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
+
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
+
+RHV = "rhv"
+RHEL = "rhel"
+RHOSP = "rhosp"
+SATELLITE = "satellite"
+
+RHV_DESC = "Red Hat Virtualization"
+RHEL_DESC = RHEL_RELEASE_STR
+RHOSP_DESC = "Red Hat OpenStack Platform"
+SATELLITE_DESC = "Red Hat Satellite"
+
+NOTE_SIZE = "This preset may increase report size"
+NOTE_TIME = "This preset may increase report run time"
+NOTE_SIZE_TIME = "This preset may increase report size and run time"
+
+RHEL_PRESET = PresetDefaults(name=RHEL, desc=RHEL_DESC)
+rhel_presets = {
+    "": RHEL_PRESET,
+    RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
+                        opts=_opts_all_logs_verify),
+    RHEL: RHEL_PRESET,
+    RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, note=NOTE_SIZE,
+                          opts=_opts_all_logs),
+    SATELLITE: PresetDefaults(name=SATELLITE, desc=SATELLITE_DESC,
+                              note=NOTE_SIZE_TIME,
+                              opts=_opts_all_logs_verify),
+}
 
 
 class RHELPolicy(RedHatPolicy):
@@ -171,6 +210,7 @@ No changes will be made to system configuration.
 
     def __init__(self, sysroot=None):
         super(RHELPolicy, self).__init__(sysroot=sysroot)
+        self.presets.update(rhel_presets)
 
     @classmethod
     def check(cls):
@@ -226,6 +266,18 @@ No changes will be made to system configuration.
     def get_local_name(self):
         return self.rhn_username() or self.host_name()
 
+    def probe_preset(self):
+        # Package based checks
+        if self.pkg_by_name("satellite-common") is not None:
+            return self.find_preset(SATELLITE)
+
+        # Vanilla RHEL is default
+        return self.find_preset(RHEL)
+
+
+ATOMIC = "atomic"
+ATOMIC_RELEASE_STR = "Atomic"
+
 
 class RedHatAtomicPolicy(RHELPolicy):
     distro = "Red Hat Atomic Host"
@@ -257,10 +309,13 @@ organization before being passed to any third party.
             return False
         try:
             for line in open(host_release, "r").read().splitlines():
-                atomic |= 'Atomic' in line
+                atomic |= ATOMIC_RELEASE_STR in line
         except IOError:
             pass
         return atomic
+
+    def probe_preset(self):
+        return ATOMIC
 
 
 class FedoraPolicy(RedHatPolicy):
