@@ -30,7 +30,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         out = []
         try:
             prog_data = json.load(open(prog_file))
-        except Exception, e:
+        except Exception as e:
             self._log_info("Could not parse bpftool prog list as JSON: %s" % e)
             return out
         for item in range(len(prog_data)):
@@ -41,7 +41,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         out = []
         try:
             map_data = json.load(open(map_file))
-        except Exception, e:
+        except Exception as e:
             self._log_info("Could not parse bpftool map list as JSON: %s" % e)
             return out
         for item in range(len(map_data)):
