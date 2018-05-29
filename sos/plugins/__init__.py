@@ -541,6 +541,8 @@ class Plugin(object):
 
         if self.get_option('all_logs'):
             sizelimit = None
+        elif sizelimit is None:
+            sizelimit = self.get_option("log_size")
 
         if sizelimit:
             sizelimit *= 1024 * 1024  # in MB
