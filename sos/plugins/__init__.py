@@ -667,6 +667,9 @@ class Plugin(object):
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None):
         """Run a program or a list of programs and collect the output"""
+        if sizelimit is None:
+            sizelimit = int(self.get_option('log_size'))
+
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
         if len(cmds) > 1 and (suggest_filename or root_symlink):
@@ -855,6 +858,9 @@ class Plugin(object):
 
         if output:
             journal_cmd += output_opt % output
+
+        if sizelimit is None:
+            sizelimit = max(100, int(self.get_option('log_size')))
 
         self._log_debug("collecting journal: %s" % journal_cmd)
         self._add_cmd_output(journal_cmd, None, None, timeout,
