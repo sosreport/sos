@@ -867,9 +867,8 @@ class SoSReport(object):
             if self.opts.verbosity > 0:
                 # Filter out options that do not make sense in presets
                 def filter_opt(opt):
-                    if opt.startswith("add_preset"):
-                        return False
-                    if opt.startswith("del_preset"):
+                    opt = opt.split("=")[0]
+                    if opt in ("add_preset", "del_preset", "desc", "note"):
                         return False
                     return True
                 opts = str(preset.opts).split()
