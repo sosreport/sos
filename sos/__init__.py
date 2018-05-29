@@ -16,6 +16,7 @@ gettext to internationalize messages.
 """
 
 import gettext
+import six
 
 __version__ = "3.5"
 
@@ -123,19 +124,23 @@ class SoSOptions(object):
             :param suffix: arbitrary suffix string
             :param literal: print values as Python literals
         """
-        fmt = prefix
-        arg_fmt = "=%s" if not quote else "='%s'"
+        args = prefix
+        arg_fmt = "=%s"
         for arg in _arg_names:
-            fmt += arg + arg_fmt + sep
-        fmt.strip(sep)
-        fmt += suffix
+            args += arg + arg_fmt + sep
+        args.strip(sep)
 
+        vals = [getattr(self, arg) for arg in _arg_names]
         if not quote:
             # Convert Python source notation for sequences into plain strings
-            args = [getattr(self, arg) for arg in _arg_names]
-            args = [",".join(a) if _is_seq(a) else a for a in args]
+            vals = [",".join(v) if _is_seq(v) else v for v in vals]
+        else:
+            def is_string(val):
+                return isinstance(val, six.string_types)
+            # Only quote strings if quote=False
+            vals = ["'%s'" % v if is_string(v) else v for v in vals]
 
-        return fmt % tuple(args)
+        return (args % tuple(vals)).strip(sep) + suffix
 
     def __str__(self):
         return self.__str()
