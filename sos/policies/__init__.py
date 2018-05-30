@@ -625,6 +625,7 @@ No changes will be made to system configuration.
             raise ValueError("A preset with name '%s' already exists" % name)
 
         preset = PresetDefaults(name=name, desc=desc, note=note, opts=opts)
+        preset.builtin = False
         self.presets[preset.name] = preset
         preset.write(presets_path)
 
