@@ -34,13 +34,16 @@ class Docker(Plugin):
         ])
 
         subcmds = [
+            'events --since 24h --until 1s',
             'info',
             'images',
             'network ls',
             'ps',
             'ps -a',
             'stats --no-stream',
-            'version'
+            'system df',
+            'version',
+            'volume ls'
         ]
 
         for subcmd in subcmds:
