@@ -18,7 +18,6 @@ class Docker(Plugin):
 
     plugin_name = 'docker'
     profiles = ('container',)
-    docker_cmd = "docker"
 
     option_list = [
         ("all", "enable capture for all containers, even containers "
@@ -45,35 +44,27 @@ class Docker(Plugin):
         ]
 
         for subcmd in subcmds:
-            self.add_cmd_output(
-                "{0} {1}".format(self.docker_cmd, subcmd)
-            )
+            self.add_cmd_output("docker %s" % subcmd)
 
         # separately grab ps -s as this can take a *very* long time
         if self.get_option('size'):
-            self.add_cmd_output('{0} ps -as'.format(self.docker_cmd))
+            self.add_cmd_output('docker ps -as')
 
         self.add_journal(units="docker")
         self.add_cmd_output("ls -alhR /etc/docker")
 
-        net_cmd = '{0} network ls'.format(self.docker_cmd)
-        nets = self.get_command_output(net_cmd)
+        nets = self.get_command_output('docker network ls')
 
         if nets['status'] == 0:
             n = [n.split()[1] for n in nets['output'].splitlines()[1:]]
             for net in n:
-                self.add_cmd_output(
-                    "{0} network inspect {1}".format(
-                        self.docker_cmd,
-                        net
-                    )
-                )
+                self.add_cmd_output("docker network inspect %s" % net)
 
-        ps_cmd = "{0} ps -q".format(self.docker_cmd)
+        ps_cmd = 'docker ps -q'
         if self.get_option('all'):
-            ps_cmd = "{0} -a".format(ps_cmd)
+            ps_cmd = "%s -a" % ps_cmd
 
-        img_cmd = '{0} images -q'.format(self.docker_cmd)
+        img_cmd = 'docker images -q'
         insp = set()
 
         for icmd in [ps_cmd, img_cmd]:
@@ -85,20 +76,11 @@ class Docker(Plugin):
         insp = list(insp)
         if insp:
             for container in insp:
-                self.add_cmd_output(
-                    "{0} inspect {1}".format(
-                        self.docker_cmd,
-                        container
-                    )
-                )
+                self.add_cmd_output("docker inspect %s" % container)
+
             if self.get_option('logs'):
                 for container in insp:
-                    self.add_cmd_output(
-                        "{0} logs -t {1}".format(
-                            self.docker_cmd,
-                            container
-                        )
-                    )
+                    self.add_cmd_output("docker logs -t %s" % container)
 
 
 class RedHatDocker(Docker, RedHatPlugin):
