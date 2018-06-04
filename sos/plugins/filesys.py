@@ -9,7 +9,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Filesys(Plugin, DebianPlugin, UbuntuPlugin):
     """Local file systems
     """
 
@@ -68,5 +68,12 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                  "Output information may be incomplete.)\n")
 
         self.do_cmd_output_sub("lsof", regex, '')
+
+
+class RedHatFilesys(Filesys, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatFilesys, self).setup()
+        self.add_cmd_output("ls -ltradZ /tmp")
 
 # vim: set et ts=4 sw=4 :
