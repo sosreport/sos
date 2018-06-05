@@ -1538,10 +1538,11 @@ class SoSReport(object):
                 archive = self.archive.finalize(
                     self.opts.compression_type)
             except (OSError, IOError) as e:
+                print("")
+                print(_(" %s while finalizing archive %s" %
+                        (e.strerror, self.archive.get_archive_path())))
+                print("")
                 if e.errno in fatal_fs_errors:
-                    print("")
-                    print(_(" %s while finalizing archive" % e.strerror))
-                    print("")
                     self._exit(1)
             except:
                 if self.opts.debug:
