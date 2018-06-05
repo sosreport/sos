@@ -1566,47 +1566,54 @@ class SoSReport(object):
         checksum = None
 
         if not self.opts.build:
-            # compute and store the archive checksum
-            hash_name = self.policy.get_preferred_hash_name()
-            checksum = self._create_checksum(archive, hash_name)
-            try:
-                self._write_checksum(archive, hash_name, checksum)
-            except (OSError, IOError):
-                print(_("Error writing checksum for file: %s" % archive))
+            # if creating archive file failed, report it and
+            # skip generating checksum
+            if not archive:
+                print("Creating archive tarball failed.")
+            else:
+                # compute and store the archive checksum
+                hash_name = self.policy.get_preferred_hash_name()
+                checksum = self._create_checksum(archive, hash_name)
+                try:
+                    self._write_checksum(archive, hash_name, checksum)
+                except (OSError, IOError):
+                    print(_("Error writing checksum for file: %s" % archive))
 
-            # output filename is in the private tmpdir - move it to the
-            # containing directory.
-            final_name = os.path.join(self.sys_tmp, os.path.basename(archive))
+                # output filename is in the private tmpdir - move it to the
+                # containing directory.
+                final_name = os.path.join(self.sys_tmp,
+                                          os.path.basename(archive))
 
-            archive_hash = archive + "." + hash_name
-            final_hash = final_name + "." + hash_name
+                archive_hash = archive + "." + hash_name
+                final_hash = final_name + "." + hash_name
 
-            # move the archive and checksum file
-            try:
+                # move the archive and checksum file
+                try:
                     os.rename(archive, final_name)
                     archive = final_name
-            except (OSError, IOError):
+                except (OSError, IOError):
                     print(_("Error moving archive file: %s" % archive))
                     return False
 
-            # There is a race in the creation of the final checksum file:
-            # since the archive has already been published and the checksum
-            # file name is predictable once the archive name is known a
-            # malicious user could attempt to create a symbolic link in order
-            # to misdirect writes to a file of the attacker's choosing.
-            #
-            # To mitigate this we write the checksum inside the private tmp
-            # directory and use an atomic rename that is guaranteed to either
-            # succeed or fail: at worst the move will fail and be reported to
-            # the user. The correct checksum value is still written to the
-            # terminal and nothing is written to a location under the control
-            # of the user creating the link.
-            try:
+                # There is a race in the creation of the final checksum file:
+                # since the archive has already been published and the checksum
+                # file name is predictable once the archive name is known a
+                # malicious user could attempt to create a symbolic link in
+                # order to misdirect writes to a file of the attacker's choose.
+                #
+                # To mitigate this we write the checksum inside the private tmp
+                # directory and use an atomic rename that is guaranteed to
+                # either succeed or fail: at worst the move will fail and be
+                # reported to the user. The correct checksum value is still
+                # written to the terminal and nothing is written to a location
+                # under the control of the user creating the link.
+                try:
                     os.rename(archive_hash, final_hash)
-            except (OSError, IOError):
+                except (OSError, IOError):
                     print(_("Error moving checksum file: %s" % archive_hash))
 
-        self.policy.display_results(archive, directory, checksum)
+        if archive and checksum:
+            self.policy.display_results(archive, directory, checksum)
 
         # clean up
         logging.shutdown()
