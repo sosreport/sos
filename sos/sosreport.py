@@ -1544,7 +1544,7 @@ class SoSReport(object):
         logging.shutdown()
         if self.tempfile_util:
             self.tempfile_util.clean()
-        if self.tmpdir:
+        if self.tmpdir and os.path.isdir(self.tmpdir):
             rmtree(self.tmpdir)
 
         return True
