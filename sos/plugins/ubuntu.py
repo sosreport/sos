@@ -16,16 +16,9 @@ class Ubuntu(Plugin, UbuntuPlugin):
     plugin_name = 'ubuntu'
     profiles = ('system',)
 
-    option_list = [
-        ('support-show-all',
-         'Show all packages with their status', '', False),
-    ]
-
     def setup(self):
-        cmd = ["ubuntu-support-status"]
-
-        if self.get_option('support-show-all'):
-            cmd.append("--show-all")
-
-        self.add_cmd_output(" ".join(cmd),
-                            suggest_filename='ubuntu-support-status.txt')
+        self.add_cmd_output([
+            "ubuntu-support-status --show-all",
+            "hwe-support-status --verbose",
+            "ubuntu-advantage status"
+        ])
