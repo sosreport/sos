@@ -26,4 +26,16 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_cmd_output("ldconfig -v -N -X")
         self.add_cmd_output("ldconfig -p -N -X")
 
+        # Collect library directories from ldconfig's cache
+        cmd = self.get_command_output("ldconfig -p -N -X")
+        dirs = set()
+        if cmd['status'] == 0:
+            for l in cmd['output'].splitlines():
+                s = l.split(" => ", 2)
+                if len(s) != 2:
+                    continue
+                dirs.add(s[1].rsplit('/', 1)[0])
+        self.add_cmd_output("ls -lanH %s" % " ".join(dirs),
+                            suggest_filename="ld_so_cache")
+
 # vim: set et ts=4 sw=4 :
