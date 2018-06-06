@@ -52,6 +52,7 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/lib/systemd/system",
             "/lib/systemd/user",
             "/etc/vconsole.conf",
+            "/etc/modules-load.d/*.conf",
             "/etc/yum/protected.d/systemd.conf"
         ])
 
