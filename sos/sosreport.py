@@ -1287,7 +1287,8 @@ class SoSReport(object):
             self.plugpool.shutdown(wait=True)
             self.ui_log.info("")
         except KeyboardInterrupt:
-            self.ui_log.error(" Keyboard interrupt\n")
+            # We may not be at a newline when the user issues Ctrl-C
+            self.ui_log.error("\nExiting on user cancel\n")
             os._exit(1)
 
     def _collect_plugin(self, plugin):
@@ -1670,7 +1671,7 @@ class SoSReport(object):
         except (OSError):
             self._cleanup()
         except (KeyboardInterrupt):
-            self.ui_log.error("Exiting on user cancel")
+            self.ui_log.error("\nExiting on user cancel")
             self._cleanup()
             self._exit(130)
         except (SystemExit):
