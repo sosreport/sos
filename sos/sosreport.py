@@ -225,6 +225,7 @@ class SoSOptions(object):
     _sysroot = None
     _chroot = 'auto'
     _compression_type = 'auto'
+    _threads = 4
 
     _options = None
 
@@ -1311,10 +1312,12 @@ class SoSReport(object):
             self.running_plugs.append(plugname)
         except:
             return False
-        status_line = "  Starting {:<5}: {:<15} [Running: {}]".format(
-            '%d/%d' % (count, len(self.loaded_plugins)),
+        numplugs = len(self.loaded_plugins)
+        status_line = "  Starting %-5s %-15s %s" % (
+            "%d/%d" % (count, numplugs),
             plugname,
-            ' '.join(p for p in self.running_plugs))
+            "[Running: %s]" % ' '.join(p for p in self.running_plugs)
+        )
         self.ui_progress(status_line)
         try:
             plug.collect()
@@ -1332,11 +1335,12 @@ class SoSReport(object):
             status = ''
             if (len(self.pluglist) <= int(self.opts.threads) and
                     self.running_plugs):
-                status = "  Finishing plugins %-13s [Running: %s]" % (
-                         ' ',
-                         ' '.join(p for p in self.running_plugs))
-            if not self.pluglist and not self.running_plugs:
-                status = "  Finished running plugins"
+                status = "  Finishing plugins %-12s %s" % (
+                    " ",
+                    "[Running: %s]" % (' '.join(p for p in self.running_plugs))
+                )
+            if not self.running_plugs:
+                status = "\n  Finished running plugins"
             if status:
                 self.ui_progress(status)
         except (OSError, IOError) as e:
@@ -1350,7 +1354,7 @@ class SoSReport(object):
 
     def ui_progress(self, status_line):
         if self.opts.verbosity == 0:
-            status_line = "\r%s" % status_line
+            status_line = "\r%s" % status_line.ljust(90)
         else:
             status_line = "%s\n" % status_line
         if not self.opts.quiet:
