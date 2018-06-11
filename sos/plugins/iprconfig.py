@@ -99,7 +99,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         for line in show_config['output'].splitlines():
             if "Enclosure" in line:
-                temp = re.split('\s+', line)
+                temp = re.split(r'\s+', line)
                 # temp[1] holds the PCI/SCSI location
                 pci, scsi = temp[1].split('/')
                 for line in altconfig['output'].splitlines():

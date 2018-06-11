@@ -60,11 +60,11 @@ class OpenStackHorizon(Plugin):
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub(
-            "/etc/openstack-dashboard/.*\.json",
+            r"/etc/openstack-dashboard/.*\.json",
             regexp, r"\1*********"
         )
         self.do_path_regex_sub(
-            var_puppet_gen + "/etc/openstack-dashboard/.*\.json",
+            var_puppet_gen + r"/etc/openstack-dashboard/.*\.json",
             regexp, r"\1*********"
         )
         self.do_path_regex_sub(

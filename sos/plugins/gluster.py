@@ -43,7 +43,7 @@ class Gluster(Plugin, RedHatPlugin):
     def make_preparations(self, name_dir):
         try:
             os.mkdir(name_dir)
-        except:
+        except OSError:
             pass
         fp = open('/tmp/glusterdump.options', 'w')
         data = 'path=' + name_dir + '\n'
@@ -71,7 +71,7 @@ class Gluster(Plugin, RedHatPlugin):
                 os.remove(os.path.join(self.statedump_dir, dirs))
             os.rmdir(self.statedump_dir)
             os.unlink('/tmp/glusterdump.options')
-        except:
+        except OSError:
             pass
 
     def setup(self):

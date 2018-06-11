@@ -22,7 +22,7 @@ try:
     from up2date_client import up2dateAuth
     from up2date_client import config
     from rhn import rpclib
-except:
+except ImportError:
     # might fail if non-RHEL
     pass
 
@@ -121,7 +121,7 @@ class RedHatPolicy(LinuxPolicy):
         for tabs in out.split()[1:]:
             try:
                 (runlevel, onoff) = tabs.split(":", 1)
-            except:
+            except IndexError:
                 pass
             else:
                 if onoff == "on":
@@ -135,6 +135,7 @@ class RedHatPolicy(LinuxPolicy):
 
     def get_local_name(self):
         return self.host_name()
+
 
 # Container environment variables on Red Hat systems.
 ENV_CONTAINER = 'container'
@@ -208,7 +209,7 @@ No changes will be made to system configuration.
                 return 6
             elif pkgname[0] == "7":
                 return 7
-        except:
+        except Exception:
             pass
         return False
 
@@ -218,7 +219,7 @@ No changes will be made to system configuration.
             rhn_username = rpclib.xmlrpclib.loads(
                 up2dateAuth.getSystemId())[0][0]['username']
             return rhn_username.encode('utf-8', 'ignore')
-        except:
+        except Exception:
             # ignore any exception and return an empty username
             return ""
 
@@ -257,7 +258,7 @@ organization before being passed to any third party.
         try:
             for line in open(host_release, "r").read().splitlines():
                 atomic |= 'Atomic' in line
-        except:
+        except IOError:
             pass
         return atomic
 
