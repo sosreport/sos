@@ -1620,8 +1620,7 @@ class SoSReport(object):
                 except (OSError, IOError):
                     print(_("Error moving checksum file: %s" % archive_hash))
 
-        if archive and checksum:
-            self.policy.display_results(archive, directory, checksum)
+        self.policy.display_results(archive, directory, checksum)
 
         # clean up
         logging.shutdown()
