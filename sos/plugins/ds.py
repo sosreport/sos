@@ -48,7 +48,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 if d[0:5] == 'slapd':
                     certpath = os.path.join("/etc/dirsrv", d)
                     self.add_cmd_output("certutil -L -d %s" % certpath)
-        except:
+        except OSError:
             self._log_warn("could not list /etc/dirsrv")
 
         if not self.check_version():

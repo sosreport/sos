@@ -40,7 +40,7 @@ def fileobj(path_or_file, mode='r'):
     if isinstance(path_or_file, six.string_types):
         try:
             return open(path_or_file, mode)
-        except:
+        except IOError:
             log = logging.getLogger('sos')
             log.debug("fileobj: %s could not be opened" % path_or_file)
             return closing(StringIO())

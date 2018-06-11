@@ -29,7 +29,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 contents = fp.read()
                 ispSeries = "pSeries" in contents
                 isPowerNV = "PowerNV" in contents
-        except:
+        except IOError:
             ispSeries = False
             isPowerNV = False
 

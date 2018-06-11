@@ -45,7 +45,7 @@ class Logs(Plugin):
             if not os.path.exists(conf):
                 continue
             config = self.join_sysroot(conf)
-            logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", config)
+            logs += self.do_regex_find_all(r"^\S+\s+(-?\/.*$)\s+", config)
 
         for i in logs:
             if i.startswith("-"):
@@ -93,7 +93,7 @@ class RedHatLogs(Logs, RedHatPlugin):
         if not os.path.exists(messages) and self.is_installed("systemd"):
             try:
                 days = int(self.get_option("log_days"))
-            except:
+            except ValueError:
                 days = 3
             if self.get_option("all_logs"):
                 since = ""
