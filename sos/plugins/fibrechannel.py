@@ -29,7 +29,8 @@ class Fibrechannel(Plugin, RedHatPlugin):
         ]
 
         for loc in dirs:
-            devs.extend([loc + device for device in os.listdir(loc)])
+            devs.extend([loc + device for device in os.listdir(loc)
+                         if os.path.isdir(loc)])
 
         if devs:
             self.add_udev_info(devs, attrs=True)
