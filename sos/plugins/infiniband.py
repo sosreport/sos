@@ -45,7 +45,7 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "perfquery"
         ]
         IB_SYS_DIR = "/sys/class/infiniband/"
-        ibs = os.listdir(IB_SYS_DIR)
+        ibs = os.listdir(IB_SYS_DIR) if os.path.isdir(IB_SYS_DIR) else []
         for ib in ibs:
             """
             Skip OPA hardware, as infiniband-diags tools does not understand
