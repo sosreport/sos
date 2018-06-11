@@ -22,7 +22,7 @@ class OvirtProviderOvn(Plugin, RedHatPlugin):
     provider_conf = '/etc/ovirt-provider-ovn/ovirt-provider-ovn.conf'
 
     def setup(self):
-        self.add_copy_spec(self.provider_file)
+        self.add_copy_spec(self.provider_conf)
         self.add_copy_spec('/etc/ovirt-provider-ovn/conf.d/*')
 
         spec = '/var/log/ovirt-provider-ovn.log'
