@@ -13,7 +13,7 @@ from sos.plugins import Plugin, RedHatPlugin
 def get_directory_listing(path):
     try:
         dir_list = os.listdir(path)
-    except:
+    except OSError:
         dir_list = []
     return dir_list
 

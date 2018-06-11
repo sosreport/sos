@@ -60,7 +60,7 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 try:
                     p = open(IB_SYS_DIR + ib + "/ports/" + port +
                              "/link_layer")
-                except:
+                except IOError:
                     continue
                 link_layer = p.readline()
                 p.close()
@@ -69,7 +69,7 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
                 try:
                     s = open(IB_SYS_DIR + ib + "/ports/" + port + "/state")
-                except:
+                except IOError:
                     continue
                 state = s.readline()
                 s.close()

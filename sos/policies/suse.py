@@ -64,7 +64,7 @@ class SuSEPolicy(LinuxPolicy):
         for tabs in out.split()[1:]:
             try:
                 (runlevel, onoff) = tabs.split(":", 1)
-            except:
+            except IndexError:
                 pass
             else:
                 if onoff == "on":

@@ -32,7 +32,7 @@ class Networking(Plugin):
         out = []
         try:
             brctl_out = open(brctl_file).read()
-        except:
+        except IOError:
             return out
         for line in brctl_out.splitlines():
             if line.startswith("bridge name") \
@@ -62,7 +62,7 @@ class Networking(Plugin):
         out = []
         try:
             ip_netns_out = open(ip_netns_file).read()
-        except:
+        except IOError:
             return out
         for line in ip_netns_out.splitlines():
             # If there's no namespaces, no need to continue
@@ -152,14 +152,14 @@ class Networking(Plugin):
         # tables, collect 3 default ones (nat, mangle, filter)
         try:
             ip_tables_names = open("/proc/net/ip_tables_names").read()
-        except:
+        except IOError:
             ip_tables_names = "nat\nmangle\nfilter\n"
         for table in ip_tables_names.splitlines():
             self.collect_iptable(table)
         # collect the same for ip6tables
         try:
             ip_tables_names = open("/proc/net/ip6_tables_names").read()
-        except:
+        except IOError:
             ip_tables_names = "nat\nmangle\nfilter\n"
         for table in ip_tables_names.splitlines():
             self.collect_ip6table(table)
@@ -273,7 +273,7 @@ class RedHatNetworking(Networking, RedHatPlugin):
             # major version
             if int(netstat_pkg['version'][0]) < 2:
                 self.ns_wide = "-T"
-        except:
+        except Exception:
             # default to upstream option
             pass
 

@@ -45,7 +45,7 @@ class Corosync(Plugin):
         # or
         # logging.log_size: filename
         # (it isnt precise but sufficient)
-        pattern = '^\s*(logging.)?logfile:\s*(\S+)$'
+        pattern = r'^\s*(logging.)?logfile:\s*(\S+)$'
         try:
             with open("/etc/corosync/corosync.conf") as f:
                 for line in f:

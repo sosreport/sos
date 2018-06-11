@@ -28,7 +28,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
         if module_file:
             try:
                 module_out = open(module_file).read()
-            except:
+            except IOError:
                 self._log_warn("could not read module list file")
                 return
             # take just lines with the module names, i.e. containing "[i]" and

@@ -34,7 +34,7 @@ class Named(Plugin):
     def get_dns_dir(self, config_file):
         """ grab directory path from named{conf,boot}
         """
-        directory_list = self.do_regex_find_all("directory\s+\"(.*)\"",
+        directory_list = self.do_regex_find_all(r"directory\s+\"(.*)\"",
                                                 config_file)
         if directory_list:
             return normpath(directory_list[0])

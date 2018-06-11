@@ -499,7 +499,7 @@ class TarFileArchive(FileCacheArchive):
         try:
             (rc, c) = selinux.getfilecon(path)
             return c
-        except:
+        except Exception:
             return None
 
     def name(self):

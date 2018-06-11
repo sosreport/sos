@@ -497,7 +497,7 @@ class LinuxPolicy(Policy):
         checksum = "md5"
         try:
             fp = open("/proc/sys/crypto/fips_enabled", "r")
-        except:
+        except IOError:
             self._preferred_hash_name = checksum
             return checksum
 
@@ -514,7 +514,7 @@ class LinuxPolicy(Policy):
                 pattern = r"id:(\d{1}):initdefault:"
                 text = fp.read()
                 return int(re.findall(pattern, text)[0])
-        except:
+        except (IndexError, IOError):
             return 3
 
     def kernel_version(self):

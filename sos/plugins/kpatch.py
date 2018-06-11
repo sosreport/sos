@@ -26,7 +26,7 @@ class Kpatch(Plugin, RedHatPlugin):
             return
         kpatches = open(kpatch_list, "r").read().splitlines()
         for patch in kpatches:
-            if not re.match("^kpatch-.*\(.*\)", patch):
+            if not re.match(r"^kpatch-.*\(.*\)", patch):
                 continue
             (module, version) = patch.split()
             self.add_cmd_output("kpatch info " + module)

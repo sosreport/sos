@@ -67,9 +67,9 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     def postproc(self):
         match_exp = r"(\s*passwd=\s*')([^']*)('.*)"
         libvirt_path_exps = [
-            "/etc/libvirt/qemu/.*\.xml",
-            "/var/run/libvirt/qemu/.*\.xml",
-            "/etc/libvirt/.*\.conf"
+            r"/etc/libvirt/qemu/.*\.xml",
+            r"/var/run/libvirt/qemu/.*\.xml",
+            r"/etc/libvirt/.*\.conf"
         ]
         for path_exp in libvirt_path_exps:
             self.do_path_regex_sub(path_exp, match_exp, r"\1******\3")

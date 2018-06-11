@@ -47,7 +47,7 @@ class DebianPolicy(LinuxPolicy):
                 elif "jessie/sid" in rel_string:
                     return 7
             return False
-        except:
+        except IOError:
             return False
 
 # vim: set et ts=4 sw=4 :

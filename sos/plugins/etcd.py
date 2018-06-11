@@ -55,7 +55,7 @@ class etcd(Plugin, RedHatPlugin):
                     if line.startswith('ETCD_LISTEN_CLIENT_URLS'):
                         return line.split('=')[1].replace('"', '').strip()
         # If we can't read etcd.conf, assume defaults by etcd version
-        except:
+        except IOError:
             # assume v3 is the default
             url = 'http://localhost:2379'
             try:
@@ -63,7 +63,7 @@ class etcd(Plugin, RedHatPlugin):
                 ver = ver['version'][0]
                 if ver == '2':
                     url = 'http://localhost:4001'
-            except:
+            except Exception:
                 # fallback when etcd is not installed
                 pass
             return url

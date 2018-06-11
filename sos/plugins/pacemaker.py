@@ -111,7 +111,7 @@ class Pacemaker(Plugin):
         # collect user-defined logfiles, matching a shell-style syntax:
         #   PCMK_logfile=filename
         # specified in the pacemaker start-up environment file.
-        pattern = '^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
+        pattern = r'^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
         if os.path.isfile(self.envfile):
             self.add_copy_spec(self.envfile)
             with open(self.envfile) as f:

@@ -20,7 +20,7 @@ class UbuntuPolicy(DebianPolicy):
         try:
             with open('/etc/lsb-release', 'r') as fp:
                 return "Ubuntu" in fp.read()
-        except:
+        except IOError:
             return False
 
     def dist_version(self):
@@ -33,7 +33,7 @@ class UbuntuPolicy(DebianPolicy):
                     if "DISTRIB_RELEASE" in line:
                         return line.split("=")[1].strip()
             return False
-        except:
+        except IOError:
             return False
 
 # vim: set et ts=4 sw=4 :

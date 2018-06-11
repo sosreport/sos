@@ -25,7 +25,7 @@ class OVNCentral(Plugin):
             with open(filename, 'r') as f:
                 try:
                     db = json.load(f)
-                except:
+                except Exception:
                     # If json can't be parsed, then exit early
                     self._log_error("Cannot parse JSON file %s" % filename)
                     return

@@ -48,7 +48,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             pcpconf = open(self.pcp_conffile, "r")
             lines = pcpconf.readlines()
             pcpconf.close()
-        except:
+        except IOError:
             return False
         env_vars = {}
         for line in lines:
@@ -57,14 +57,14 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             try:
                 (key, value) = line.strip().split('=')
                 env_vars[key] = value
-            except:
+            except (ValueError, KeyError):
                 pass
 
         try:
             self.pcp_sysconf_dir = env_vars['PCP_SYSCONF_DIR']
             self.pcp_var_dir = env_vars['PCP_VAR_DIR']
             self.pcp_log_dir = env_vars['PCP_LOG_DIR']
-        except:
+        except Exception:
             # Fail if all three env variables are not found
             return False
 
