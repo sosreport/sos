@@ -92,12 +92,22 @@ class TarFileArchiveTest(unittest.TestCase):
         afp = self.tf.open_file('tests/string_test.txt')
         self.assertEquals('this is my content', afp.read())
 
-    def test_overwrite_file(self):
+    def test_rewrite_file(self):
+        """Test that re-writing a file does not modify the content.
+
+            In sos we do not have a use for overwriting archive content
+            in-place (it is an error if different plugins attempt to
+            store different content at the same path).
+
+            We do not enforce the content check at runtime since it
+            would be prohibitively costly: instead just verify in the
+            unit suite that the original content is preserved.
+        """
         self.tf.add_string('this is my content', 'tests/string_test.txt')
         self.tf.add_string('this is my new content', 'tests/string_test.txt')
 
         afp = self.tf.open_file('tests/string_test.txt')
-        self.assertEquals('this is my new content', afp.read())
+        self.assertEquals('this is my content', afp.read())
 
     def test_make_link(self):
         self.tf.add_file('tests/ziptest')
