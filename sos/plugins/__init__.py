@@ -431,7 +431,7 @@ class Plugin(object):
             self._copy_symlink(srcpath)
             return
         else:
-            if stat.S_ISDIR(st.st_mode):
+            if stat.S_ISDIR(st.st_mode) and os.access(srcpath, os.R_OK):
                 self._copy_dir(srcpath)
                 return
 
