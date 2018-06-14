@@ -53,6 +53,7 @@ class Ipa(Plugin, RedHatPlugin):
                "/var/log/pki/pki-tomcat/ca/debug",
                "/var/log/pki/pki-tomcat/ca/system",
                "/var/log/pki/pki-tomcat/ca/transactions",
+               "/var/log/pki/pki-tomcat/ca/selftests.log",
                "/var/log/pki/pki-tomcat/catalina.*",
                "/var/log/pki/pki-ca-spawn.*",
                "/var/log/pki/pki-tomcat/kra/debug",
@@ -65,6 +66,7 @@ class Ipa(Plugin, RedHatPlugin):
                "/var/log/pki-ca/debug",
                "/var/log/pki-ca/system",
                "/var/log/pki-ca/transactions",
+               "/var/log/pki-ca/selftests.log",
                "/var/log/pki-ca/catalina.*",
                "/var/log/pki/pki-ca-spawn.*"
             ])
@@ -105,11 +107,16 @@ class Ipa(Plugin, RedHatPlugin):
             "/etc/dirsrv/slapd-*/dse.ldif",
             "/etc/dirsrv/slapd-*/schema/99user.ldif",
             "/etc/hosts",
+            "/etc/httpd/alias/*",
             "/etc/named.*",
             "/etc/ipa/ca.crt",
             "/etc/ipa/default.conf",
+            "/root/.ipa/log/cli.log",
             "/var/lib/certmonger/requests/[0-9]*",
-            "/var/lib/certmonger/cas/[0-9]*"
+            "/var/lib/certmonger/cas/[0-9]*",
+            "/var/lib/ipa/ra-agent.pem",
+            "/var/kerberos/krb5kdc/kdc.crt",
+            "/var/lib/ipa/sysrestore/sysrestore.state"
         ])
 
         #  Make sure to use the right PKI config and NSS DB folders
@@ -128,6 +135,10 @@ class Ipa(Plugin, RedHatPlugin):
             "/etc/dirsrv/slapd-*/key*",
             "/etc/dirsrv/slapd-*/pin.txt",
             "/etc/dirsrv/slapd-*/pwdfile.txt",
+            "/etc/httpd/alias/ipasession.key",
+            "/etc/httpd/alias/key*",
+            "/etc/httpd/alias/pin.txt",
+            "/etc/httpd/alias/pwdfile.txt",
             "/etc/named.keytab",
             "%s/alias/key*" % self.pki_tomcat_dir,
             "%s/flatfile.txt" % self.pki_tomcat_conf_dir,
@@ -138,6 +149,8 @@ class Ipa(Plugin, RedHatPlugin):
             "ls -la /etc/dirsrv/slapd-*/schema/",
             "getcert list",
             "certutil -L -d /etc/httpd/alias/",
+            "pki-server cert-find --show-all",
+            "pki-server subsystem-cert-validate ca",
             "klist -ket /etc/dirsrv/ds.keytab",
             "klist -ket /etc/httpd/conf/ipa.keytab",
             "klist -ket /var/lib/ipa/gssproxy/http.keytab"
