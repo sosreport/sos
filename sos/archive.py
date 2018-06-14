@@ -151,7 +151,13 @@ class FileCacheArchive(Archive):
         if not dest_dir:
             return
         if not os.path.isdir(dest_dir):
-            self._makedirs(dest_dir)
+            # prevent raising OSError exception when concurrently calling
+            # _makedirs on same dest_dir from more plugins
+            try:
+                self._makedirs(dest_dir)
+            except OSError as e:
+                if not os.path.isdir(dest_dir):
+                    raise e
 
     def add_file(self, src, dest=None):
         if not dest:
@@ -224,7 +230,13 @@ class FileCacheArchive(Archive):
         dest = self.dest_path(link_name)
         self._check_path(dest)
         if not os.path.lexists(dest):
-            os.symlink(source, dest)
+            # prevent raising OSError exception when concurrently symlinking
+            # same source and dest from more plugins
+            try:
+                os.symlink(source, dest)
+            except OSError as e:
+                if not os.path.lexists(dest):
+                    raise e
         self.log_debug("added symlink at '%s' to '%s' in FileCacheArchive '%s'"
                        % (dest, source, self._archive_root))
 
