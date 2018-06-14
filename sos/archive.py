@@ -19,6 +19,8 @@ import re
 import codecs
 import sys
 import errno
+import stat
+from threading import Lock
 
 # required for compression callout (FIXME: move to policy?)
 from subprocess import Popen, PIPE
@@ -35,6 +37,11 @@ import six
 if six.PY3:
     long = int
 
+P_FILE = "file"
+P_LINK = "link"
+P_NODE = "node"
+P_DIR = "dir"
+
 
 class Archive(object):
     """Abstract base class for archives."""
@@ -49,6 +56,8 @@ class Archive(object):
 
     _name = "unset"
     _debug = False
+
+    _path_lock = Lock()
 
     def _format_msg(self, msg):
         return "[archive:%s] %s" % (self.archive_type(), msg)
@@ -137,7 +146,8 @@ class FileCacheArchive(Archive):
         self._name = name
         self._tmp_dir = tmpdir
         self._archive_root = os.path.join(tmpdir, name)
-        os.makedirs(self._archive_root, 0o700)
+        with self._path_lock:
+            os.makedirs(self._archive_root, 0o700)
         self.log_info("initialised empty FileCacheArchive at '%s'" %
                       (self._archive_root,))
 
@@ -146,94 +156,173 @@ class FileCacheArchive(Archive):
             name = name.lstrip(os.sep)
         return (os.path.join(self._archive_root, name))
 
-    def _check_path(self, dest):
+    def _check_path(self, src, path_type, dest=None):
+        """Check a new destination path in the archive.
+
+            Since it is possible for multiple plugins to collect the same
+            paths, and since plugins can now run concurrently, it is possible
+            for two threads to race in archive methods: historically the
+            archive class only needed to test for the actual presence of a
+            path, since it was impossible for another `Archive` client to
+            enter the class while another method invocation was being
+            dispatched.
+
+            Deal with this by implementing a locking scheme for operations
+            that modify the path structure of the archive, and by testing
+            explicitly for conflicts with any existing content at the
+            specified destination path.
+
+            It is not an error to attempt to create a path that already
+            exists in the archive so long as the type of the object to be
+            added matches the type of object already found at the path.
+
+            It is an error to attempt to re-create an existing path with
+            a different path type (for example, creating a symbolic link
+            at a path already occupied by a regular file).
+
+            :param src: the source path to be copied to the archive
+            :param path_type: the type of object to be copied
+            :param dest: an optional destination path
+            :returns: An absolute destination path if the path should be
+                      copied now or `None` otherwise
+        """
+        dest = dest or self.dest_path(src)
         dest_dir = os.path.split(dest)[0]
         if not dest_dir:
-            return
-        if not os.path.isdir(dest_dir):
+            return dest
+
+        # Check containing directory presence and path type
+        if os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
+            raise ValueError("path '%s' exists and is not a directory" %
+                             dest_dir)
+        elif not os.path.exists(dest_dir):
             self._makedirs(dest_dir)
 
+        def is_special(mode):
+            return any([
+                stat.ISBLK(mode),
+                stat.ISCHR(mode),
+                stat.ISFIFO(mode),
+                stat.ISSOCK(mode)
+            ])
+
+        # Check destination path presence and type
+        if os.path.exists(dest):
+            # Use lstat: we care about the current object, not the referent.
+            st = os.lstat(dest)
+            ve_msg = "path '%s' exists and is not a %s"
+            if path_type == P_FILE and not stat.S_ISREG(st.st_mode):
+                raise ValueError(ve_msg % (dest, "regular file"))
+            if path_type == P_LINK and not stat.S_ISLNK(st.st_mode):
+                raise ValueError(ve_msg % (dest, "symbolic link"))
+            if path_type == P_NODE and not is_special(st.st_mode):
+                raise ValueError(ve_msg % (dest, "special file"))
+            if path_type == P_DIR and not stat.S_ISDIR(st.st_mode):
+                raise ValueError(ve_msg % (dest, "directory"))
+            # Path has already been copied: skip
+            return None
+        return dest
+
     def add_file(self, src, dest=None):
-        if not dest:
-            dest = src
-        dest = self.dest_path(dest)
-        self._check_path(dest)
+        with self._path_lock:
+            if not dest:
+                dest = src
 
-        # Handle adding a file from either a string respresenting
-        # a path, or a File object open for reading.
-        if not getattr(src, "read", None):
-            # path case
-            try:
-                shutil.copy(src, dest)
-            except IOError as e:
-                # Filter out IO errors on virtual file systems.
-                if src.startswith("/sys/") or src.startswith("/proc/"):
+            dest = self._check_path(dest, P_FILE)
+            if not dest:
+                return
+
+            # Handle adding a file from either a string respresenting
+            # a path, or a File object open for reading.
+            if not getattr(src, "read", None):
+                # path case
+                try:
+                    shutil.copy(src, dest)
+                except IOError as e:
+                    # Filter out IO errors on virtual file systems.
+                    if src.startswith("/sys/") or src.startswith("/proc/"):
+                        pass
+                    else:
+                        self.log_info("caught '%s' copying '%s'" % (e, src))
+                try:
+                    shutil.copystat(src, dest)
+                except OSError:
+                    # SELinux xattrs in /proc and /sys throw this
                     pass
-                else:
-                    self.log_info("caught '%s' copying '%s'" % (e, src))
-            try:
-                shutil.copystat(src, dest)
-            except OSError:
-                # SELinux xattrs in /proc and /sys throw this
-                pass
-            try:
-                stat = os.stat(src)
-                os.chown(dest, stat.st_uid, stat.st_gid)
-            except Exception as e:
-                self.log_debug("caught '%s' setting ownership of '%s'"
-                               % (e, dest))
-            file_name = "'%s'" % src
-        else:
-            # Open file case: first rewind the file to obtain
-            # everything written to it.
-            src.seek(0)
-            with open(dest, "w") as f:
-                for line in src:
-                    f.write(line)
-            file_name = "open file"
+                try:
+                    stat = os.stat(src)
+                    os.chown(dest, stat.st_uid, stat.st_gid)
+                except Exception as e:
+                    self.log_debug("caught '%s' setting ownership of '%s'"
+                                   % (e, dest))
+                file_name = "'%s'" % src
+            else:
+                # Open file case: first rewind the file to obtain
+                # everything written to it.
+                src.seek(0)
+                with open(dest, "w") as f:
+                    for line in src:
+                        f.write(line)
+                file_name = "open file"
 
-        self.log_debug("added %s to FileCacheArchive '%s'" %
-                       (file_name, self._archive_root))
+            self.log_debug("added %s to FileCacheArchive '%s'" %
+                           (file_name, self._archive_root))
 
     def add_string(self, content, dest):
-        src = dest
-        dest = self.dest_path(dest)
-        self._check_path(dest)
-        f = codecs.open(dest, 'w', encoding='utf-8')
-        if isinstance(content, bytes):
-            content = content.decode('utf8', 'ignore')
-        f.write(content)
-        if os.path.exists(src):
-            try:
-                shutil.copystat(src, dest)
-            except OSError as e:
-                self.log_error(
-                    "Unable to add '%s' to FileCacheArchive: %s" % (dest, e))
-        self.log_debug("added string at '%s' to FileCacheArchive '%s'"
-                       % (src, self._archive_root))
+        with self._path_lock:
+            src = dest
+
+            dest = self._check_path(dest, P_FILE)
+            if not dest:
+                return
+
+            f = codecs.open(dest, 'w', encoding='utf-8')
+            if isinstance(content, bytes):
+                content = content.decode('utf8', 'ignore')
+            f.write(content)
+            if os.path.exists(src):
+                try:
+                    shutil.copystat(src, dest)
+                except OSError as e:
+                    self.log_error("Unable to add '%s' to archive: %s" %
+                                   (dest, e))
+            self.log_debug("added string at '%s' to FileCacheArchive '%s'"
+                           % (src, self._archive_root))
 
     def add_binary(self, content, dest):
-        dest = self.dest_path(dest)
-        self._check_path(dest)
-        f = codecs.open(dest, 'wb', encoding=None)
-        f.write(content)
-        self.log_debug("added binary content at '%s' to FileCacheArchive '%s'"
-                       % (dest, self._archive_root))
+        with self._path_lock:
+            dest = self._check_path(dest, P_FILE)
+            if not dest:
+                return
+
+            f = codecs.open(dest, 'wb', encoding=None)
+            f.write(content)
+            self.log_debug("added binary content at '%s' to archive '%s'"
+                           % (dest, self._archive_root))
 
     def add_link(self, source, link_name):
-        dest = self.dest_path(link_name)
-        self._check_path(dest)
-        if not os.path.lexists(dest):
-            os.symlink(source, dest)
-        self.log_debug("added symlink at '%s' to '%s' in FileCacheArchive '%s'"
-                       % (dest, source, self._archive_root))
+        with self._path_lock:
+            dest = self._check_path(link_name, P_LINK)
+            if not dest:
+                return
+
+            if not os.path.lexists(dest):
+                os.symlink(source, dest)
+            self.log_debug("added symlink at '%s' to '%s' in archive '%s'"
+                           % (dest, source, self._archive_root))
 
     def add_dir(self, path):
-        self.makedirs(path)
+        with self._path_lock:
+            dest = self._check_path(path, P_DIR)
+            if not dest:
+                return
+            self.makedirs(path)
 
     def add_node(self, path, mode, device):
-        dest = self.dest_path(path)
-        self._check_path(dest)
+        dest = self._check_path(path, P_NODE)
+        if not dest:
+            return
+
         if not os.path.exists(dest):
             try:
                 os.mknod(dest, mode, device)
@@ -262,6 +351,10 @@ class FileCacheArchive(Archive):
         return self._archive_root
 
     def makedirs(self, path, mode=0o700):
+        dest = self._check_path(path, P_DIR)
+        if not dest:
+            return
+
         self._makedirs(self.dest_path(path))
         self.log_debug("created directory at '%s' in FileCacheArchive '%s'"
                        % (path, self._archive_root))
