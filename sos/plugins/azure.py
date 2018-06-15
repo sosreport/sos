@@ -11,6 +11,7 @@
 import os
 from sos.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 
+
 class Azure(Plugin, UbuntuPlugin):
     """ Microsoft Azure client
     """
@@ -30,8 +31,8 @@ class Azure(Plugin, UbuntuPlugin):
         ])
 
         # Adds all files under /var/log/azure to the sosreport
-        # os.walk is used here because /var/log/azure is used by multiple Microsoft Azure extensions
-        # and there is no standard log filename format
+        # os.walk is used because /var/log/azure is used by multiple Azure
+        # extensions and there is no standard log filename format
         limit = self.get_option("log_size")
 
         for path, subdirs, files in os.walk("/var/log/azure"):
