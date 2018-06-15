@@ -1233,10 +1233,9 @@ class SoSReport(object):
             else:
                 raise e
         except Exception as e:
-            import traceback
             self.ui_log.error("")
             self.ui_log.error(" Unexpected exception setting up archive:")
-            traceback.print_exc(e)
+            traceback.print_exc()
             self.ui_log.error(e)
         self._exit(1)
 
