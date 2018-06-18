@@ -26,6 +26,12 @@ class DebianPolicy(LinuxPolicy):
 
         self.valid_subclasses = [DebianPlugin]
 
+    def _get_pkg_name_for_binary(self, binary):
+        # for binary not specified inside {..}, return binary itself
+        return {
+            "xz": "xz-utils"
+        }.get(binary, binary)
+
     @classmethod
     def check(cls):
         """This method checks to see if we are running on Debian.
