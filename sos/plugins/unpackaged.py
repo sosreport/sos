@@ -73,3 +73,5 @@ class Unpackaged(Plugin, RedHatPlugin):
         not_packaged = [x for x in all_fsystem if x not in all_frpm]
         not_packaged_expanded = format_output(not_packaged)
         self.add_string_as_file('\n'.join(not_packaged_expanded), 'unpackaged')
+
+# vim: set et ts=4 sw=4 :
