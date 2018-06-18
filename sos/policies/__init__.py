@@ -321,6 +321,12 @@ No changes will be made to system configuration.
         )
         return time.strftime(nstr)
 
+    # for some specific binaries like "xz", we need to determine package
+    # providing it; that is policy specific. By default return the binary
+    # name itself until particular policy overwrites it
+    def _get_pkg_name_for_binary(self, binary):
+        return binary
+
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
             return tempfile.gettempdir()
