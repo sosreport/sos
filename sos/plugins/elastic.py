@@ -23,17 +23,20 @@ class Elastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def get_hostname_port(self, els_config_file):
         hostname = "localhost"
-        port = 9200
-        with open(els_config_file) as fread:
-            for line in fread:
-                network_host = re.search(r'(^network.host):(.*)', line)
-                network_port = re.search(r'(^http.port):(.*)', line)
-                if network_host and len(network_host.groups()) == 2:
-                    hostname = network_host.groups()[-1].strip()
-                    hostname = re.sub(r'"|\'', '', hostname)
-                    continue
-                if network_port and len(network_port.groups()) == 2:
-                    port = network_port.groups()[-1].strip()
+        port = "9200"
+        try:
+            with open(els_config_file) as fread:
+                for line in fread:
+                    network_host = re.search(r'(^network.host):(.*)', line)
+                    network_port = re.search(r'(^http.port):(.*)', line)
+                    if network_host and len(network_host.groups()) == 2:
+                        hostname = network_host.groups()[-1].strip()
+                        hostname = re.sub(r'"|\'', '', hostname)
+                        continue
+                    if network_port and len(network_port.groups()) == 2:
+                        port = network_port.groups()[-1].strip()
+        except Exception as e:
+            self._log_info("Failed to parse %s: %s" % (els_config_file, e))
         return hostname, port
 
     def setup(self):
