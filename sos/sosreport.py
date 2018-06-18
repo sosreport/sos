@@ -760,9 +760,13 @@ class SoSReport(object):
                                     self.policy.get_archive_name())
         if self.opts.compression_type == 'auto':
             auto_archive = self.policy.get_preferred_archive()
-            self.archive = auto_archive(archive_name, self.tmpdir)
+            self.archive = auto_archive(archive_name, self.tmpdir,
+                                        self.policy, self.opts.threads)
+
         else:
-            self.archive = TarFileArchive(archive_name, self.tmpdir)
+            self.archive = TarFileArchive(archive_name, self.tmpdir,
+                                          self.policy, self.opts.threads)
+
         self.archive.set_debug(True if self.opts.debug else False)
 
     def _make_archive_paths(self):
