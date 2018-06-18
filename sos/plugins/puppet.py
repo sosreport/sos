@@ -16,6 +16,8 @@ class Puppet(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'puppet'
     profiles = ('services',)
+    packages = ('puppet', 'puppet-common', 'puppet-server',
+                'puppetserver', 'puppetmaster', 'puppet-master')
 
     def setup(self):
         self.add_copy_spec([
