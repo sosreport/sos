@@ -327,6 +327,24 @@ No changes will be made to system configuration.
     def _get_pkg_name_for_binary(self, binary):
         return binary
 
+    def get_cmd_for_compress_method(self, method, threads):
+        cmd = method
+        # use fast compression if using xz or bz2
+        if cmd != "gzip":
+            cmd = "%s -2" % cmd
+        # determine number of threads to use for compressing - applicable
+        # only for xz and of version 5.2 or higher
+        if cmd.startswith("xz"):
+            try:
+                xz_package = self._get_pkg_name_for_binary(method)
+                xz_version = self.package_manager\
+                                 .all_pkgs()[xz_package]["version"]
+            except Exception as e:
+                xz_version = [0]  # deal like xz version is really old
+            if xz_version >= [u'5', u'2']:
+                cmd = "%s -T%d" % (cmd, threads)
+        return cmd
+
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
             return tempfile.gettempdir()

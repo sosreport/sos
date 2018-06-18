@@ -142,9 +142,11 @@ class FileCacheArchive(Archive):
     _archive_root = ""
     _archive_name = ""
 
-    def __init__(self, name, tmpdir):
+    def __init__(self, name, tmpdir, policy, threads):
         self._name = name
         self._tmp_dir = tmpdir
+        self._policy = policy
+        self._threads = threads
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)
@@ -460,8 +462,8 @@ class TarFileArchive(FileCacheArchive):
     method = None
     _with_selinux_context = False
 
-    def __init__(self, name, tmpdir):
-        super(TarFileArchive, self).__init__(name, tmpdir)
+    def __init__(self, name, tmpdir, policy, threads):
+        super(TarFileArchive, self).__init__(name, tmpdir, policy, threads)
         self._suffix = "tar"
         self._archive_name = os.path.join(tmpdir, self.name())
 
@@ -535,9 +537,7 @@ class TarFileArchive(FileCacheArchive):
         last_error = Exception(exp_msg)
         for cmd in methods:
             suffix = "." + cmd.replace('ip', '')
-            # use fast compression if using xz or bz2
-            if cmd != "gzip":
-                cmd = "%s -2" % cmd
+            cmd = self._policy.get_cmd_for_compress_method(cmd, self._threads)
             try:
                 exec_cmd = "%s %s" % (cmd, self.name())
                 r = sos_get_command_output(exec_cmd, stderr=True, timeout=0)

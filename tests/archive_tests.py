@@ -9,6 +9,7 @@ import shutil
 
 from sos.archive import TarFileArchive
 from sos.utilities import tail
+from sos.policies import Policy
 
 # PYCOMPAT
 import six
@@ -18,7 +19,7 @@ class TarFileArchiveTest(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-        self.tf = TarFileArchive('test', self.tmpdir)
+        self.tf = TarFileArchive('test', self.tmpdir, Policy(), 1)
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
