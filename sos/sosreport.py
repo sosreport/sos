@@ -1287,7 +1287,9 @@ class SoSReport(object):
             self.pluglist.append((plugruncount, i[0]))
         try:
             self.plugpool = ThreadPoolExecutor(self.opts.threads)
-            self.plugpool.map(self._collect_plugin, self.pluglist, chunksize=1)
+            # Pass the plugpool its own private copy of self.pluglist
+            self.plugpool.map(self._collect_plugin, list(self.pluglist),
+                              chunksize=1)
             self.plugpool.shutdown(wait=True)
             self.ui_log.info("")
         except KeyboardInterrupt:
