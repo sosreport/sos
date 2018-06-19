@@ -1344,7 +1344,7 @@ class SoSReport(object):
                     " ",
                     "[Running: %s]" % (' '.join(p for p in self.running_plugs))
                 )
-            if not self.running_plugs:
+            if not self.running_plugs and not self.pluglist:
                 status = "\n  Finished running plugins"
             if status:
                 self.ui_progress(status)
