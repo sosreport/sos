@@ -55,7 +55,7 @@ _arg_names = [
 _arg_defaults = {
     "chroot": "auto",
     "compression_type": "auto",
-    "log_size": 10,
+    "log_size": 25,
     "preset": "auto",
     # Verbosity has an explicit zero default since the ArgumentParser
     # count action default is None.
