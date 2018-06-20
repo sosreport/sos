@@ -28,4 +28,5 @@ gettext.bindtextdomain(gettext_app, gettext_dir)
 def _default(msg):
     return gettext.dgettext(gettext_app, msg)
 
+
 _sos = _default

@@ -51,9 +51,9 @@ class OpenStackSwift(Plugin):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def apply_regex_sub(self, regexp, subst):
-        self.do_path_regex_sub("/etc/swift/.*\.conf.*", regexp, subst)
+        self.do_path_regex_sub(r"/etc/swift/.*\.conf.*", regexp, subst)
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/swift/etc/swift/.*\.conf.*",
+            self.var_puppet_gen + r"/swift/etc/swift/.*\.conf.*",
             regexp, subst
         )
 

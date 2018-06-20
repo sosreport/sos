@@ -96,7 +96,7 @@ class Plugin(object):
     this and set the class variables where applicable.
 
     plugin_name is a string returned by plugin.name(). If this is set to None
-    (the default) class\_.__name__.tolower() will be returned. Be sure to set
+    (the default) class\\_.__name__.tolower() will be returned. Be sure to set
     this if you are defining multiple plugins that do the same thing on
     different platforms.
 
@@ -949,7 +949,7 @@ class Plugin(object):
             if hasattr(self, '__doc__') and self.__doc__:
                 return self.__doc__.strip()
             return super(self.__class__, self).__doc__.strip()
-        except:
+        except Exception:
             return "<no description available>"
 
     def check_enabled(self):

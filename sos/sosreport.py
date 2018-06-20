@@ -1042,7 +1042,7 @@ class SoSReport(object):
                 # split up "general.syslogsize=5"
                 try:
                     opt, val = opt.split("=")
-                except:
+                except ValueError:
                     val = True
                 else:
                     if val.lower() in ["off", "disable", "disabled", "false"]:
@@ -1051,13 +1051,13 @@ class SoSReport(object):
                         # try to convert string "val" to int()
                         try:
                             val = int(val)
-                        except:
+                        except ValueError:
                             pass
 
                 # split up "general.syslogsize"
                 try:
                     plug, opt = opt.split(".")
-                except:
+                except ValueError:
                     plug = opt
                     opt = True
 
@@ -1259,7 +1259,7 @@ class SoSReport(object):
                     self.ui_log.error("")
                     self._exit(1)
                 self.handle_exception(plugname, "setup")
-            except:
+            except Exception:
                 self.handle_exception(plugname, "setup")
 
     def version(self):
@@ -1315,7 +1315,7 @@ class SoSReport(object):
             count, plugname = plugin
             plug = self.loaded_plugins[count-1][1]
             self.running_plugs.append(plugname)
-        except:
+        except Exception:
             return False
         numplugs = len(self.loaded_plugins)
         status_line = "  Starting %-5s %-15s %s" % (
@@ -1331,11 +1331,11 @@ class SoSReport(object):
             # so we can't blindly call remove() on these two.
             try:
                 self.pluglist.remove(plugin)
-            except:
+            except ValueError:
                 pass
             try:
                 self.running_plugs.remove(plugname)
-            except:
+            except ValueError:
                 pass
             status = ''
             if (len(self.pluglist) <= int(self.opts.threads) and
@@ -1354,7 +1354,7 @@ class SoSReport(object):
                                   % e.strerror)
                 self._exit(1)
             self.handle_exception(plugname, "collect")
-        except:
+        except Exception:
             self.handle_exception(plugname, "collect")
 
     def ui_progress(self, status_line):
@@ -1372,7 +1372,7 @@ class SoSReport(object):
                 try:
                     self.xml_report.add_file(oneFile["srcpath"],
                                              os.stat(oneFile["srcpath"]))
-                except:
+                except IOError:
                     pass
         try:
             self.xml_report.serialize_to_file(os.path.join(self.rptdir,
@@ -1486,7 +1486,7 @@ class SoSReport(object):
         for plugname, plug in self.loaded_plugins:
             try:
                 html = plug.report()
-            except:
+            except Exception:
                 self.handle_exception()
             else:
                 rfd.write(html)
@@ -1507,7 +1507,7 @@ class SoSReport(object):
                     self.ui_log.error("")
                     self._exit(1)
                 self.handle_exception(plugname, "postproc")
-            except:
+            except Exception:
                 self.handle_exception(plugname, "postproc")
 
     def _create_checksum(self, archive, hash_name):
@@ -1553,7 +1553,7 @@ class SoSReport(object):
                 print("")
                 if e.errno in fatal_fs_errors:
                     self._exit(1)
-            except:
+            except Exception:
                 if self.opts.debug:
                     raise
                 else:

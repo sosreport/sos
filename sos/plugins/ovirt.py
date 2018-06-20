@@ -62,7 +62,7 @@ class Ovirt(Plugin, RedHatPlugin):
 
     def setup(self):
         if self.get_option('jbosstrace') and self.is_installed('ovirt-engine'):
-            engine_pattern = "^ovirt-engine\ -server.*jboss-modules.jar"
+            engine_pattern = r"^ovirt-engine\ -server.*jboss-modules.jar"
             pgrep = "pgrep -f '%s'" % engine_pattern
             lines = self.call_ext_prog(pgrep)['output'].splitlines()
             engine_pids = [int(x) for x in lines]
@@ -214,7 +214,7 @@ class Ovirt(Plugin, RedHatPlugin):
         ]
         regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
-        self.do_path_regex_sub("/etc/ovirt-engine/aaa/.*\.properties", regexp,
+        self.do_path_regex_sub(r"/etc/ovirt-engine/aaa/.*\.properties", regexp,
                                r"\1*********")
 
 # vim: expandtab tabstop=4 shiftwidth=4
