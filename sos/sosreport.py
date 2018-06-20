@@ -295,8 +295,9 @@ def _parse_args(args):
                         dest="tmp_dir",
                         help="specify alternate temporary directory",
                         default=None)
-    parser.add_argument("-v", "--verbose", action="count", default=0,
-                        dest="verbosity", help="increase verbosity")
+    parser.add_argument("-v", "--verbose", action="count", dest="verbosity",
+                        default=_arg_defaults["verbosity"],
+                        help="increase verbosity"),
     parser.add_argument("--verify", action="store_true",
                         dest="verify", default=False,
                         help="perform data verification during collection")
