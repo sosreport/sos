@@ -605,7 +605,7 @@ class SoSOptions(object):
                             dest="build", default=False,
                             help="preserve the temporary directory and do not "
                                  "package results")
-        parser.add_argument("-v", "--verbose", action="count",
+        parser.add_argument("-v", "--verbose", action="count", default=0,
                             dest="verbosity", help="increase verbosity")
         parser.add_argument("--verify", action="store_true",
                             dest="verify", default=False,
@@ -1358,7 +1358,7 @@ class SoSReport(object):
             self.handle_exception(plugname, "collect")
 
     def ui_progress(self, status_line):
-        if self.opts.verbosity == 0:
+        if self.opts.verbosity == 0 and not self.opts.batch:
             status_line = "\r%s" % status_line.ljust(90)
         else:
             status_line = "%s\n" % status_line
