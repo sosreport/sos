@@ -53,10 +53,13 @@ _arg_names = [
 
 #: Arguments with non-zero default values
 _arg_defaults = {
-    "log_size": 10,
     "chroot": "auto",
     "compression_type": "auto",
-    "preset": "auto"
+    "log_size": 10,
+    "preset": "auto",
+    # Verbosity has an explicit zero default since the ArgumentParser
+    # count action default is None.
+    "verbosity": 0
 }
 
 
