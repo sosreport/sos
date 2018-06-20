@@ -673,9 +673,10 @@ class Plugin(object):
         if len(cmds) > 1 and (suggest_filename or root_symlink):
             self._log_warn("ambiguous filename or symlink for command list")
         for cmd in cmds:
-            self._add_cmd_output(cmd, suggest_filename,
-                                 root_symlink, timeout, stderr,
-                                 chroot, runat, env, binary, sizelimit)
+            self._add_cmd_output(cmd, suggest_filename=suggest_filename,
+                                 root_symlink=root_symlink, timeout=timeout,
+                                 stderr=stderr, chroot=chroot, runat=runat,
+                                 env=env, binary=binary, sizelimit=sizelimit)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
