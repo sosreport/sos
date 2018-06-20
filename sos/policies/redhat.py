@@ -31,8 +31,9 @@ rh_presets = {
     "": PresetDefaults(name="rhel"),
     "rhel7": PresetDefaults(name="rhel7"),
     "rhosp": PresetDefaults(name="rhosp", opts=SoSOptions(all_logs=True)),
-    "rhv": PresetDefaults(name="rhv",
-                          opts=SoSOptions(all_logs=True, verify=True))
+    "ocp": PresetDefaults(name="ocp",
+                          opts=SoSOptions(all_logs=True, verify=True)),
+    "rhv": PresetDefaults(name="rhv", opts=SoSOptions(verify=True))
 }
 
 OS_RELEASE = "/etc/os-release"
