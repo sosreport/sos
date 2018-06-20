@@ -867,9 +867,8 @@ class Plugin(object):
             journal_cmd += output_opt % output
 
         self._log_debug("collecting journal: %s" % journal_cmd)
-        self._add_cmd_output(journal_cmd, None, None, timeout,
-                             sizelimit=sizelimit
-                             )
+        self._add_cmd_output(journal_cmd, timeout=timeout,
+                             sizelimit=sizelimit)
 
     def add_udev_info(self, device, attrs=False):
         """Collect udevadm info output for a given device
