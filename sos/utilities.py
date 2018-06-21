@@ -209,7 +209,7 @@ class AsyncReader(threading.Thread):
         slots = None
         if sizelimit:
             sizelimit = sizelimit * 1048576  # convert to bytes
-            slots = sizelimit / self.chunksize
+            slots = int(sizelimit / self.chunksize)
         self.deque = deque(maxlen=slots)
         self.start()
         self.join()
