@@ -834,13 +834,9 @@ class Plugin(object):
         catalog_opt = " --catalog"
 
         journal_size = 100
-
-        sizelimit = sizelimit or self.get_option("log_size")
-        if not sizelimit or int(sizelimit) < journal_size:
-            sizelimit = journal_size
-
-        if self.get_option('all_logs'):
-            sizelimit = None
+        all_logs = self.get_option("all_logs")
+        log_size = sizelimit or self.get_option("log_size")
+        log_size = max(log_size, journal_size) if not all_logs else 0
 
         if isinstance(units, six.string_types):
             units = [units]
