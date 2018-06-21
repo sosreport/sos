@@ -993,13 +993,14 @@ class SoSReport(object):
         self.soslog.info(msg % (__name__, "setup", " ".join(self._args)))
 
         # Log active preset defaults
-        msg = ("[%s:%s] using '%s' preset defaults" %
-               (__name__, "setup", self.preset.name))
+        preset_args = self.preset.opts.to_args()
+        msg = ("[%s:%s] using '%s' preset defaults (%s)" %
+               (__name__, "setup", self.preset.name, " ".join(preset_args)))
         self.soslog.info(msg)
 
         # Log effective options after applying preset defaults
         self.soslog.info("[%s:%s] effective options now: %s" %
-                         (__name__, "steup", str(self.opts)))
+                         (__name__, "steup", " ".join(self.opts.to_args())))
 
         self.ui_log.info(_(" Setting up plugins ..."))
         for plugname, plug in self.loaded_plugins:
