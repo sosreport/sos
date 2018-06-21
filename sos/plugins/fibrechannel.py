@@ -29,7 +29,7 @@ class Fibrechannel(Plugin, RedHatPlugin):
             '/sys/class/fc_transport/'
         ]
 
-        devs = [join(d, dev) for d in dirs for dev in listdir(d) if isdir(d)]
+        devs = [join(d, dev) for d in dirs if isdir(d) for dev in listdir(d)]
         if devs:
             self.add_udev_info(devs, attrs=True)
 
