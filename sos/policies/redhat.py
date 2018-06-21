@@ -27,15 +27,6 @@ except ImportError:
     # might fail if non-RHEL
     pass
 
-rh_presets = {
-    "": PresetDefaults(name="rhel"),
-    "rhel7": PresetDefaults(name="rhel7"),
-    "rhosp": PresetDefaults(name="rhosp", opts=SoSOptions(all_logs=True)),
-    "ocp": PresetDefaults(name="ocp",
-                          opts=SoSOptions(all_logs=True, verify=True)),
-    "rhv": PresetDefaults(name="rhv", opts=SoSOptions(verify=True))
-}
-
 OS_RELEASE = "/etc/os-release"
 
 
@@ -152,36 +143,41 @@ class RedHatPolicy(LinuxPolicy):
 ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
 
+_opts_verify = SoSOptions(verify=True)
 _opts_all_logs = SoSOptions(all_logs=True)
 _opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
 
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
 
 RHV = "rhv"
-RHEL = "rhel"
-RHOSP = "rhosp"
-SATELLITE = "satellite"
-
 RHV_DESC = "Red Hat Virtualization"
+
+RHEL = "rhel"
 RHEL_DESC = RHEL_RELEASE_STR
+
+RHOSP = "rhosp"
 RHOSP_DESC = "Red Hat OpenStack Platform"
-SATELLITE_DESC = "Red Hat Satellite"
+
+RHOCP = "ocp"
+RHOCP_DESC = "OpenShift Container Platform by Red Hat"
+
+RH_SATELLITE = "satellite"
+RH_SATELLITE_DESC = "Red Hat Satellite"
 
 NOTE_SIZE = "This preset may increase report size"
 NOTE_TIME = "This preset may increase report run time"
 NOTE_SIZE_TIME = "This preset may increase report size and run time"
 
-RHEL_PRESET = PresetDefaults(name=RHEL, desc=RHEL_DESC)
 rhel_presets = {
-    "": RHEL_PRESET,
     RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
                         opts=_opts_all_logs_verify),
-    RHEL: RHEL_PRESET,
+    RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
     RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, note=NOTE_SIZE,
                           opts=_opts_all_logs),
-    SATELLITE: PresetDefaults(name=SATELLITE, desc=SATELLITE_DESC,
-                              note=NOTE_SIZE_TIME,
-                              opts=_opts_all_logs_verify),
+    RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
+                          opts=_opts_all_logs_verify),
+    RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
+                                 note=NOTE_TIME, opts=_opts_verify),
 }
 
 
