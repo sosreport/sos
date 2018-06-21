@@ -237,7 +237,7 @@ class SoSOptions(object):
             if not value or value in null_values:
                 return False
             if name in _arg_defaults:
-                if value == str(_arg_defaults[name]):
+                if str(value) == str(_arg_defaults[name]):
                     return False
             return True
 
