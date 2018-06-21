@@ -267,7 +267,7 @@ No changes will be made to system configuration.
     def probe_preset(self):
         # Package based checks
         if self.pkg_by_name("satellite-common") is not None:
-            return self.find_preset(SATELLITE)
+            return self.find_preset(RH_SATELLITE)
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
