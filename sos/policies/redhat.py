@@ -170,7 +170,7 @@ NOTE_SIZE_TIME = "This preset may increase report size and run time"
 
 rhel_presets = {
     RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
-                        opts=_opts_all_logs_verify),
+                        opts=_opts_verify),
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
     RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, note=NOTE_SIZE,
                           opts=_opts_all_logs),
