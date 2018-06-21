@@ -1131,7 +1131,7 @@ class SoSReport(object):
                 try:
                     self.xml_report.add_file(oneFile["srcpath"],
                                              os.stat(oneFile["srcpath"]))
-                except IOError:
+                except (OSError, IOError):
                     pass
         try:
             self.xml_report.serialize_to_file(os.path.join(self.rptdir,
