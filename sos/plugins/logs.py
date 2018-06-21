@@ -78,12 +78,12 @@ class RedHatLogs(Logs, RedHatPlugin):
 
     def setup(self):
         super(RedHatLogs, self).setup()
-        messages = "/var/log/messages"
-        secure = "/var/log/secure"
-
-        if self.get_option("all_logs"):
-            messages += "*"
-            secure += "*"
+        # NOTE: for historical reasons the 'messages' and 'secure' log
+        # paths for the RedHatLogs plugin do not obey the normal --all-logs
+        # convention. The rotated copies are collected unconditionally
+        # due to their frequent importance in diagnosing problems.
+        messages = "/var/log/messages*"
+        secure = "/var/log/secure*"
 
         self.add_copy_spec(secure, sizelimit=self.limit)
         self.add_copy_spec(messages, sizelimit=self.limit)
