@@ -48,7 +48,7 @@ _arg_names = [
     'enableplugins', 'experimental', 'label', 'list_plugins', 'list_presets',
     'list_profiles', 'log_size', 'noplugins', 'noreport', 'note',
     'onlyplugins', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
-    'tmp_dir', 'verbosity', 'verify'
+    'threads', 'tmp_dir', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
