@@ -78,6 +78,6 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                     continue
 
                 opts = "-C %s -P %s" % (ib, port)
-                self.add_cmd_output(["%s %s" % (c, opts) for c in port_cmds])
+                self.add_cmd_output(["%s %s" % (c, opts) for c in ports_cmds])
 
 # vim: set et ts=4 sw=4 :
