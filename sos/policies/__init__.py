@@ -596,7 +596,11 @@ No changes will be made to system configuration.
         for preset_path in os.listdir(presets_path):
             preset_path = os.path.join(presets_path, preset_path)
 
-            preset_data = json.load(open(preset_path))
+            try:
+                preset_data = json.load(open(preset_path))
+            except ValueError:
+                continue
+
             for preset in preset_data.keys():
                 pd = PresetDefaults(preset, opts=SoSOptions())
                 data = preset_data[preset]
