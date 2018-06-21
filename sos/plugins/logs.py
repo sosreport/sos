@@ -82,15 +82,17 @@ class RedHatLogs(Logs, RedHatPlugin):
         # paths for the RedHatLogs plugin do not obey the normal --all-logs
         # convention. The rotated copies are collected unconditionally
         # due to their frequent importance in diagnosing problems.
-        messages = "/var/log/messages*"
-        secure = "/var/log/secure*"
+        messages = "/var/log/messages"
+        secure = "/var/log/secure"
 
-        self.add_copy_spec(secure, sizelimit=self.limit)
-        self.add_copy_spec(messages, sizelimit=self.limit)
+        have_messages = os.path.exists(messages)
+
+        self.add_copy_spec(secure + "*", sizelimit=self.limit)
+        self.add_copy_spec(messages + "*", sizelimit=self.limit)
 
         # collect three days worth of logs by default if the system is
         # configured to use the journal and not /var/log/messages
-        if not os.path.exists(messages) and self.is_installed("systemd"):
+        if not have_messages and self.is_installed("systemd"):
             try:
                 days = int(self.get_option("log_days"))
             except ValueError:
