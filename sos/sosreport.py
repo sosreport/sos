@@ -1000,7 +1000,7 @@ class SoSReport(object):
 
         # Log effective options after applying preset defaults
         self.soslog.info("[%s:%s] effective options now: %s" %
-                         (__name__, "steup", " ".join(self.opts.to_args())))
+                         (__name__, "setup", " ".join(self.opts.to_args())))
 
         self.ui_log.info(_(" Setting up plugins ..."))
         for plugname, plug in self.loaded_plugins:
