@@ -122,8 +122,20 @@ class RedHatPolicy(LinuxPolicy):
 
             :param files: the list of package managed files
         """
+        paths = []
+
+        def transform_path(path):
+            # Some packages actually own paths in /bin: in this case,
+            # duplicate the path as both the / and /usr version.
+            skip_paths = ["/bin/rpm", "/bin/mailx"]
+            if path in skip_paths:
+                return (path, os.path.join("/usr", path[1:]))
+            return (re.sub(r'(^)(/s?bin)', r'\1/usr\2', path),)
+
         if self.usrmove:
-            return [re.sub(r'(^)(/s?bin)', r'\1/usr\2', f) for f in files]
+            for f in files:
+                paths.extend(transform_path(f))
+            return paths
         else:
             return files
 
