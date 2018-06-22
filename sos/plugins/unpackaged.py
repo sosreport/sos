@@ -43,7 +43,8 @@ class Unpackaged(Plugin, RedHatPlugin):
 
             for root, dirs, files in os.walk(path, topdown=True):
                 if exclude:
-                    dirs[:] = [d for d in dirs if dirs not in exclude]
+                    for e in exclude:
+                        dirs[:] = [d for d in dirs if d not in e]
                 for name in files:
                     file_list.append(os.path.join(root, name))
                 for name in dirs:
