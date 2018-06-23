@@ -25,19 +25,18 @@ class OpenStackGlance(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/glance_api"
 
     def setup(self):
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/glance/",
                 "/var/log/containers/glance/",
                 "/var/log/containers/httpd/glance-api/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/glance/*.log",
                 "/var/log/containers/glance/*.log",
                 "/var/log/containers/httpd/glance-api/*log"
-            ], sizelimit=self.limit)
+            ])
 
         self.add_copy_spec([
             "/etc/glance/",

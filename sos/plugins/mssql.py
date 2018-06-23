@@ -80,9 +80,8 @@ class MsSQL(Plugin, RedHatPlugin):
         ])
 
         if not self.get_option('all_logs'):
-            limit = self.get_option('log_size')
-            self.add_copy_spec(errorlogfile + '/*', sizelimit=limit)
-            self.add_copy_spec(sqlagent_errorlogfile, sizelimit=limit)
+            self.add_copy_spec(errorlogfile + '/*')
+            self.add_copy_spec(sqlagent_errorlogfile)
         else:
             self.add_copy_spec(errorlogfile + '/*')
             self.add_copy_spec(sqlagent_errorlogfile)

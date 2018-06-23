@@ -21,11 +21,9 @@ class Grafana(Plugin, RedHatPlugin):
 
     def setup(self):
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/grafana/*.log",
-                               sizelimit=self.get_option("log_size"))
+            self.add_copy_spec("/var/log/grafana/*.log")
         else:
-            self.add_copy_spec("/var/log/grafana/*.log",
-                               sizelimit=self.get_option("log_size"))
+            self.add_copy_spec("/var/log/grafana/*.log")
 
         self.add_cmd_output([
             "grafana-cli plugins ls",

@@ -24,8 +24,7 @@ class LXD(Plugin, UbuntuPlugin):
             "/etc/default/lxc-bridge",
         ])
 
-        self.add_copy_spec("/var/log/lxd*",
-                           sizelimit=self.get_option("log_size"))
+        self.add_copy_spec("/var/log/lxd*")
 
         # List of containers available on the machine
         self.add_cmd_output([

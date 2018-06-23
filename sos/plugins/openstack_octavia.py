@@ -34,19 +34,18 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_forbidden_path("/etc/octavia/certs/")
 
         # logs
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/containers/httpd/octavia-api/*",
                 "/var/log/containers/octavia/*",
                 "/var/log/octavia/*",
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/containers/httpd/octavia-api/*.log",
                 "/var/log/containers/octavia/*.log",
                 "/var/log/octavia/*.log",
-            ], sizelimit=self.limit)
+            ])
 
         # commands
         self.add_cmd_output([

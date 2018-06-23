@@ -20,20 +20,16 @@ class Rear(Plugin, RedHatPlugin):
     packages = ('rear',)
 
     def setup(self):
-        limit = self.get_option('log_size')
-
         # don't collect recovery ISOs or tar archives
         self.add_forbidden_path([
             '/var/log/rear/*.iso',
             '/var/log/rear/*.tar.gz'
         ])
 
-        rdirs = [
+        self.add_copy_spec([
             '/etc/rear/*conf',
             '/var/log/rear/*log*'
-        ]
-
-        self.add_copy_spec(rdirs, sizelimit=limit)
+        ])
 
         self.add_cmd_output([
             'rear -V',

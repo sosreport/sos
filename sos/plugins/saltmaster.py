@@ -19,12 +19,7 @@ class SaltMaster(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('salt-master',)
 
     def setup(self):
-        if not self.get_option("all_logs"):
-            limit = self.get_option("log_size")
-        else:
-            limit = 0
-
-        self.add_copy_spec("/var/log/salt/master", sizelimit=limit)
+        self.add_copy_spec("/var/log/salt/master")
         self.add_cmd_output("salt-key --list all")
 
 # vim: set et ts=4 sw=4 :

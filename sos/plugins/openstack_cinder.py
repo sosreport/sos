@@ -63,21 +63,20 @@ class OpenStackCinder(Plugin):
             self.var_puppet_gen + "/etc/sysconfig/",
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/cinder/",
                 "/var/log/httpd/cinder*",
                 "/var/log/containers/cinder/",
                 "/var/log/containers/httpd/cinder-api/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/cinder/*.log",
                 "/var/log/httpd/cinder*.log",
                 "/var/log/containers/cinder/*.log",
                 "/var/log/containers/httpd/cinder-api/*log"
-            ], sizelimit=self.limit)
+            ])
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))

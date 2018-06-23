@@ -89,6 +89,6 @@ class Watchdog(Plugin, RedHatPlugin):
             log_files = (glob(os.path.join(log_dir, '*.stdout')) +
                          glob(os.path.join(log_dir, '*.stderr')))
 
-        self.add_copy_spec(log_files, sizelimit=self.get_option('log_size'))
+        self.add_copy_spec(log_files)
 
 # vim: set et ts=4 sw=4 :

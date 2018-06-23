@@ -17,24 +17,21 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('services',)
 
     def setup(self):
-        self.limit = self.get_option("log_size")
 
         self.add_copy_spec([
             "/etc/samba/smb.conf",
             "/etc/samba/lmhosts",
         ])
 
-        self.add_copy_spec("/var/log/samba/log.smbd", sizelimit=self.limit)
-        self.add_copy_spec("/var/log/samba/log.nmbd", sizelimit=self.limit)
-        self.add_copy_spec("/var/log/samba/log.winbindd", sizelimit=self.limit)
-        self.add_copy_spec("/var/log/samba/log.winbindd-idmap",
-                           sizelimit=self.limit)
-        self.add_copy_spec("/var/log/samba/log.winbindd-dc-connect",
-                           sizelimit=self.limit)
-        self.add_copy_spec("/var/log/samba/log.wb-*", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/samba/log.smbd")
+        self.add_copy_spec("/var/log/samba/log.nmbd")
+        self.add_copy_spec("/var/log/samba/log.winbindd")
+        self.add_copy_spec("/var/log/samba/log.winbindd-idmap")
+        self.add_copy_spec("/var/log/samba/log.winbindd-dc-connect")
+        self.add_copy_spec("/var/log/samba/log.wb-*")
 
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/samba/", sizelimit=self.limit)
+            self.add_copy_spec("/var/log/samba/")
 
         self.add_cmd_output([
             "wbinfo --domain='.' -g",

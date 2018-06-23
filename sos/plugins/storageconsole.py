@@ -20,7 +20,6 @@ class StorageConsole(Plugin, RedHatPlugin, DebianPlugin):
 
     def setup(self):
         all_logs = self.get_option("all_logs")
-        limit = self.get_option("log_size")
 
         if not all_logs:
             self.add_copy_spec([
@@ -29,7 +28,7 @@ class StorageConsole(Plugin, RedHatPlugin, DebianPlugin):
                 "/var/log/carbon/console.log",
                 "/var/log/graphite-web/info.log",
                 "/var/log/graphite-web/exception.log",
-            ], sizelimit=limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/skyring/",

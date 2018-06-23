@@ -28,20 +28,19 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
 
     def setup(self):
         all_logs = self.get_option("all_logs")
-        limit = self.get_option("log_size")
 
         if not all_logs:
             self.add_copy_spec([
                 "/var/log/ceph/*.log",
                 "/var/log/radosgw/*.log",
                 "/var/log/calamari/*.log"
-            ], sizelimit=limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/ceph/",
                 "/var/log/calamari",
                 "/var/log/radosgw"
-            ], sizelimit=limit)
+            ])
 
         self.add_copy_spec([
             "/etc/ceph/",

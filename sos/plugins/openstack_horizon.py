@@ -24,20 +24,18 @@ class OpenStackHorizon(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated"
 
     def setup(self):
-
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/horizon/",
                 "/var/log/containers/horizon/",
                 "/var/log/containers/httpd/horizon/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/horizon/*.log",
                 "/var/log/containers/horizon/*.log",
                 "/var/log/containers/httpd/horizon/*log"
-            ], sizelimit=self.limit)
+            ])
 
         self.add_copy_spec([
             "/etc/openstack-dashboard/",
@@ -114,13 +112,11 @@ class RedHatHorizon(OpenStackHorizon, RedHatPlugin):
         super(RedHatHorizon, self).setup()
         self.add_copy_spec("/etc/httpd/conf.d/openstack-dashboard.conf")
         if self.get_option("all_logs"):
-            self.add_copy_spec([
-                "/var/log/httpd/horizon*",
-            ], sizelimit=self.limit)
+            self.add_copy_spec("/var/log/httpd/horizon*")
         else:
             self.add_copy_spec([
                 "/var/log/httpd/horizon*.log"
-            ], sizelimit=self.limit)
-            self.add_copy_spec("/var/log/httpd/")
+                "/var/log/httpd/"
+            ])
 
 # vim: set et ts=4 sw=4 :
