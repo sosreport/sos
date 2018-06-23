@@ -32,9 +32,8 @@ class Skydive(Plugin, RedHatPlugin):
     ]
 
     def setup(self):
-        self.limit = self.get_option("log_size")
         self.add_copy_spec("/etc/skydive/skydive.yml")
-        self.add_copy_spec("/var/log/skydive.log", sizelimit=self.limit)
+        self.add_copy_spec("/var/log/skydive.log")
 
         username = (self.get_option("username") or
                     os.getenv("SKYDIVE_USERNAME", "") or

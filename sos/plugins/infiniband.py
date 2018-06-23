@@ -27,8 +27,7 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/rdma"
         ])
 
-        self.add_copy_spec("/var/log/opensm*",
-                           sizelimit=self.get_option("log_size"))
+        self.add_copy_spec("/var/log/opensm*")
 
         self.add_cmd_output([
             "ibv_devices",

@@ -71,9 +71,8 @@ class Juju(Plugin, UbuntuPlugin):
                 suggest_filename="{}.json".format(collection))
 
     def setup(self):
-        limit = self.get_option("log_size")
-        self.add_copy_spec("/var/log/upstart/juju-db.log", sizelimit=limit)
-        self.add_copy_spec("/var/log/upstart/juju-db.log.1", sizelimit=limit)
+        self.add_copy_spec("/var/log/upstart/juju-db.log")
+        self.add_copy_spec("/var/log/upstart/juju-db.log.1")
         if not self.get_option("all_logs"):
             # We need this because we want to collect to the limit of all
             # *.logs in the directory.
@@ -81,7 +80,7 @@ class Juju(Plugin, UbuntuPlugin):
                 for filename in os.listdir("/var/log/juju/"):
                     if filename.endswith(".log"):
                         fullname = os.path.join("/var/log/juju/" + filename)
-                        self.add_copy_spec(fullname, sizelimit=limit)
+                        self.add_copy_spec(fullname)
             self.add_cmd_output('ls -alRh /var/log/juju*')
             self.add_cmd_output('ls -alRh /var/lib/juju/*')
 

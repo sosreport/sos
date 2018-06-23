@@ -24,20 +24,18 @@ class OpenStackSwift(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated"
 
     def setup(self):
-
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/swift/",
                 "/var/log/containers/swift/",
                 "/var/log/containers/httpd/swift-proxy/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/swift/*.log",
                 "/var/log/containers/swift/*.log",
                 "/var/log/containers/httpd/swift-proxy/*log"
-            ], sizelimit=self.limit)
+            ])
 
         self.add_copy_spec([
             "/etc/swift/",

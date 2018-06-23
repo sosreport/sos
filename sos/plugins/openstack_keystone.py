@@ -37,19 +37,18 @@ class OpenStackKeystone(Plugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/keystone/",
                 "/var/log/containers/keystone/",
                 "/var/log/containers/httpd/keystone/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/keystone/*.log",
                 "/var/log/containers/keystone/*.log",
                 "/var/log/containers/httpd/keystone/*log"
-            ], sizelimit=self.limit)
+            ])
 
         # collect domain config directory, if specified
         # if not, collect default /etc/keystone/domains
@@ -129,13 +128,9 @@ class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
     def setup(self):
         super(RedHatKeystone, self).setup()
         if self.get_option("all_logs"):
-            self.add_copy_spec([
-                "/var/log/httpd/keystone*",
-            ], sizelimit=self.limit)
+            self.add_copy_spec("/var/log/httpd/keystone*")
         else:
-            self.add_copy_spec([
-                "/var/log/httpd/keystone*.log",
-            ], sizelimit=self.limit)
+            self.add_copy_spec("/var/log/httpd/keystone*.log")
 
 
 # vim: set et ts=4 sw=4 :
