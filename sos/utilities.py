@@ -121,13 +121,16 @@ def sos_get_command_output(command, timeout=300, stderr=False,
         if (chdir):
                 os.chdir(chdir)
 
-    cmd_env = os.environ
+    cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C'
     # optionally add an environment change for the command
     if env:
         for key, value in env.items():
-            cmd_env[key] = value
+            if value:
+                cmd_env[key] = value
+            else:
+                cmd_env.pop(key, None)
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
         command = "timeout %ds %s" % (timeout, command)
