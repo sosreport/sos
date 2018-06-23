@@ -52,7 +52,7 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/var/log/rabbitmq/*",
             "/var/log/containers/rabbitmq/*"
-        ], sizelimit=self.get_option('log_size'))
+        ])
 
     def postproc(self):
         self.do_file_sub("/etc/rabbitmq/rabbitmq.conf",

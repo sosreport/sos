@@ -43,13 +43,10 @@ class Elastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         els_config_file = "/etc/elasticsearch/elasticsearch.yml"
         self.add_copy_spec(els_config_file)
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/elasticsearch/*",
-                               sizelimit=self.limit)
+            self.add_copy_spec("/var/log/elasticsearch/*")
         else:
-            self.add_copy_spec("/var/log/elasticsearch/elasticsearch.log",
-                               sizelimit=self.limit)
+            self.add_copy_spec("/var/log/elasticsearch/elasticsearch.log")
 
         host, port = self.get_hostname_port(els_config_file)
         endpoint = host + ":" + port

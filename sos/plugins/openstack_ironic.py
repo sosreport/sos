@@ -43,19 +43,18 @@ class OpenStackIronic(Plugin):
             self.var_puppet_gen + "_api/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/ironic/",
                 "/var/log/containers/ironic/",
                 "/var/log/containers/httpd/ironic-api/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/ironic/*.log",
                 "/var/log/containers/ironic/*.log",
                 "/var/log/containers/httpd/ironic-api/*log"
-            ], sizelimit=self.limit)
+            ])
 
         for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
             self.add_cmd_output('ls -laRt %s' % path)

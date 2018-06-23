@@ -28,7 +28,7 @@ class OvirtProviderOvn(Plugin, RedHatPlugin):
         spec = '/var/log/ovirt-provider-ovn.log'
         if self.get_option('all_logs'):
             spec += '*'
-        self.add_copy_spec(spec, sizelimit=self.get_option('log_size'))
+        self.add_copy_spec(spec)
 
     def postproc(self):
         self.do_file_sub(self.provider_conf,

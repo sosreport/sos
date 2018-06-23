@@ -20,12 +20,11 @@ class Salt(Plugin, RedHatPlugin, DebianPlugin):
 
     def setup(self):
         all_logs = self.get_option("all_logs")
-        limit = self.get_option("log_size")
 
         if not all_logs:
-            self.add_copy_spec("/var/log/salt/minion", sizelimit=limit)
+            self.add_copy_spec("/var/log/salt/minion")
         else:
-            self.add_copy_spec("/var/log/salt", sizelimit=limit)
+            self.add_copy_spec("/var/log/salt")
 
         self.add_copy_spec("/etc/salt")
         self.add_forbidden_path("/etc/salt/pki/*/*.pem")
