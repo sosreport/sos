@@ -65,11 +65,11 @@ class RedHatPolicy(LinuxPolicy):
 
         self.valid_subclasses = [RedHatPlugin]
 
-        pkgs = self.package_manager.all_pkgs()
+        self.pkgs = self.package_manager.all_pkgs()
         files = self.package_manager.all_files()
 
         # If rpm query failed, exit
-        if not pkgs:
+        if not self.pkgs:
             print("Could not obtain installed package list", file=sys.stderr)
             sys.exit(1)
 
@@ -79,7 +79,7 @@ class RedHatPolicy(LinuxPolicy):
                   manager", file=sys.stderr)
             sys.exit(1)
 
-        self.usrmove = self.check_usrmove(pkgs)
+        self.usrmove = self.check_usrmove(self.pkgs)
 
         if self.usrmove:
             self.PATH = "/usr/sbin:/usr/bin:/root/bin"
@@ -282,9 +282,8 @@ No changes will be made to system configuration.
 
     def dist_version(self):
         try:
-            pkg = self.pkg_by_name("redhat-release") or \
-                self.all_pkgs_by_name_regex("redhat-release-.*")[-1]
-            pkgname = pkg["version"]
+            rr = self.package_manager.all_pkgs_by_name_regex("redhat-release*")
+            pkgname = self.pkgs[rr[0]]["version"]
             if pkgname[0] == "4":
                 return 4
             elif pkgname[0] in ["5Server", "5Client"]:
