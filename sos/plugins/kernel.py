@@ -34,7 +34,8 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self._log_info("Could not parse bpftool prog list as JSON: %s" % e)
             return out
         for item in range(len(prog_data)):
-            out.append(prog_data[item]["id"])
+            if "id" in prog_data[item]:
+                out.append(prog_data[item]["id"])
         return out
 
     def get_bpftool_map_ids(self, map_file):
@@ -45,7 +46,8 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self._log_info("Could not parse bpftool map list as JSON: %s" % e)
             return out
         for item in range(len(map_data)):
-            out.append(map_data[item]["id"])
+            if "id" in map_data[item]:
+                out.append(map_data[item]["id"])
         return out
 
     def setup(self):
