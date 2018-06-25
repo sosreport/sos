@@ -18,7 +18,7 @@ gettext to internationalize messages.
 import gettext
 import six
 
-__version__ = "3.5"
+__version__ = "3.6"
 
 gettext_dir = "/usr/share/locale"
 gettext_app = "sos"
