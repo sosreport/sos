@@ -9,11 +9,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 from os import path
 
 
-class kubernetes(Plugin, RedHatPlugin):
+class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
 
     """Kubernetes plugin
     """
@@ -22,7 +22,7 @@ class kubernetes(Plugin, RedHatPlugin):
     # atomic-openshift-master package to provide kubernetes
     packages = ('kubernetes', 'kubernetes-master', 'atomic-openshift-master')
     profiles = ('container',)
-    files = ("/etc/origin/master/master-config.yaml",)
+    files = ("/etc/origin/master/master-config.yaml", "/root/cdk/server.key")
 
     option_list = [
         ("all", "also collect all namespaces output separately",
@@ -35,7 +35,22 @@ class kubernetes(Plugin, RedHatPlugin):
     def check_is_master(self):
         if any([
             path.exists("/var/run/kubernetes/apiserver.key"),
-            path.exists("/etc/origin/master/master-config.yaml")
+            path.exists("/etc/origin/master/master-config.yaml"),
+            path.exists("/root/cdk/server.key")
+        ]):
+            return True
+        return False
+
+    def check_is_ubuntu(self):
+        if any([
+            path.exists("/etc/lsb-release")
+        ]):
+            return True
+        return False
+
+    def check_is_redhat(self):
+        if any([
+            path.exists("/etc/redhat-release")
         ]):
             return True
         return False
@@ -55,9 +70,14 @@ class kubernetes(Plugin, RedHatPlugin):
         for svc in svcs:
             self.add_journal(units=svc)
 
+        if self.check_is_ubuntu():
+            kube_cmd = "snap run kubectl "
+
+        if self.check_is_redhat():
+            kube_cmd = "kubectl "
+
         # We can only grab kubectl output from the master
         if self.check_is_master():
-            kube_cmd = "kubectl "
             if path.exists('/etc/origin/master/admin.kubeconfig'):
                 kube_cmd += "--config=/etc/origin/master/admin.kubeconfig"
 
