@@ -23,7 +23,9 @@ class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "dmsetup info -c",
             "dmsetup table",
             "dmsetup status",
-            "dmsetup ls --tree"
+            "dmsetup ls --tree",
+            "dmstats list",
+            "dmstats print --allregions"
         ])
 
 # vim: set et ts=4 sw=4 :
