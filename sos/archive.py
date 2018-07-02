@@ -203,10 +203,10 @@ class FileCacheArchive(Archive):
 
         def is_special(mode):
             return any([
-                stat.ISBLK(mode),
-                stat.ISCHR(mode),
-                stat.ISFIFO(mode),
-                stat.ISSOCK(mode)
+                stat.S_ISBLK(mode),
+                stat.S_ISCHR(mode),
+                stat.S_ISFIFO(mode),
+                stat.S_ISSOCK(mode)
             ])
 
         if force:
