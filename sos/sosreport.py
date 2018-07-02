@@ -282,7 +282,7 @@ def _parse_args(args):
     parser.add_argument("-p", "--profile", action="extend",
                         dest="profiles", type=str, default=[],
                         help="enable plugins used by the given profiles")
-    parser.add_argument("--quiet", action="store_true",
+    parser.add_argument("-q", "--quiet", action="store_true",
                         dest="quiet", default=False,
                         help="only print fatal errors")
     parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
