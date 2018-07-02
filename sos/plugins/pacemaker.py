@@ -80,6 +80,11 @@ class Pacemaker(Plugin):
             "/var/log/cluster/bundles/*/",
         ])
 
+        self.add_cmd_output([
+            "pcs stonith sbd status",
+            "pcs quorum status"
+        ])
+
         self.setup_crm_mon()
 
         # crm_report needs to be given a --from "YYYY-MM-DD HH:MM:SS" start
