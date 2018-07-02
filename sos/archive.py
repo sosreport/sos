@@ -158,7 +158,7 @@ class FileCacheArchive(Archive):
             name = name.lstrip(os.sep)
         return (os.path.join(self._archive_root, name))
 
-    def _check_path(self, src, path_type, dest=None):
+    def _check_path(self, src, path_type, dest=None, force=False):
         """Check a new destination path in the archive.
 
             Since it is possible for multiple plugins to collect the same
@@ -185,6 +185,7 @@ class FileCacheArchive(Archive):
             :param src: the source path to be copied to the archive
             :param path_type: the type of object to be copied
             :param dest: an optional destination path
+            :param force: force file creation even if the path exists
             :returns: An absolute destination path if the path should be
                       copied now or `None` otherwise
         """
@@ -207,6 +208,9 @@ class FileCacheArchive(Archive):
                 stat.ISFIFO(mode),
                 stat.ISSOCK(mode)
             ])
+
+        if force:
+            return dest
 
         # Check destination path presence and type
         if os.path.exists(dest):
@@ -274,9 +278,11 @@ class FileCacheArchive(Archive):
         with self._path_lock:
             src = dest
 
-            dest = self._check_path(dest, P_FILE)
-            if not dest:
-                return
+            # add_string() is a special case: it must always take precedence
+            # over any exixting content in the archive, since it is used by
+            # the Plugin postprocessing hooks to perform regex substitution
+            # on file content.
+            dest = self._check_path(dest, P_FILE, force=True)
 
             f = codecs.open(dest, 'w', encoding='utf-8')
             if isinstance(content, bytes):
