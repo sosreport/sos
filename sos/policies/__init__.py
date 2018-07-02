@@ -519,10 +519,10 @@ No changes will be made to system configuration.
 
         if archive:
             self._print(_("Your sosreport has been generated and saved "
-                        "in:\n  %s") % archive)
+                        "in:\n  %s") % archive, always=True)
         else:
             self._print(_("sosreport build tree is located at : %s" %
-                        directory))
+                        directory), always=True)
 
         self._print()
         if checksum:
@@ -532,10 +532,10 @@ No changes will be made to system configuration.
                         "representative."))
         self._print()
 
-    def _print(self, msg=None):
+    def _print(self, msg=None, always=False):
         """A wrapper around print that only prints if we are not running in
         quiet mode"""
-        if not self.commons['cmdlineopts'].quiet:
+        if always or not self.commons['cmdlineopts'].quiet:
             if msg:
                 print_(msg)
             else:
