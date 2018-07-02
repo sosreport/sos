@@ -21,7 +21,7 @@ class Grafana(Plugin, RedHatPlugin):
 
     def setup(self):
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/grafana/*.log")
+            self.add_copy_spec("/var/log/grafana/*.log*")
         else:
             self.add_copy_spec("/var/log/grafana/*.log")
 
