@@ -91,7 +91,7 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         protect_keys = [
             "ca_private_key_passphrase", "heartbeat_key", "password",
-            "connection"
+            "connection", "transport_url"
         ]
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
