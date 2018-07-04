@@ -96,7 +96,8 @@ class OpenStackGlance(Plugin):
     def postproc(self):
         protect_keys = [
             "admin_password", "password", "qpid_password", "rabbit_password",
-            "s3_store_secret_key", "ssl_key_password", "vmware_server_password"
+            "s3_store_secret_key", "ssl_key_password",
+            "vmware_server_password", "transport_url"
         ]
         connection_keys = ["connection"]
 

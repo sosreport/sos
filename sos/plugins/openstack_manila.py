@@ -54,7 +54,8 @@ class OpenStackManila(Plugin):
         protect_keys = [
             "nova_admin_password",  "rabbit_password",  "qpid_password",
             "password", "netapp_nas_password", "cinder_admin_password",
-            "neutron_admin_password", "service_instance_password"
+            "neutron_admin_password", "service_instance_password",
+            "transport_url"
         ]
         connection_keys = ["connection", "sql_connection"]
 
