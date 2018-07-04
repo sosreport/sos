@@ -99,7 +99,7 @@ class OpenStackCinder(Plugin):
             "password", "qpid_password", "rabbit_password", "san_password",
             "ssl_key_password", "vmware_host_password", "zadara_password",
             "zfssa_initiator_password", "hmac_keys", "zfssa_target_password",
-            "os_privileged_user_password"
+            "os_privileged_user_password", "transport_url"
         ]
         connection_keys = ["connection"]
 
