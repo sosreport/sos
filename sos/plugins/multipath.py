@@ -24,6 +24,7 @@ class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "multipath -ll",
             "multipath -v4 -ll",
+            "multipath -t",
             "multipathd show config"
         ])
 
