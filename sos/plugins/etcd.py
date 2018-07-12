@@ -10,6 +10,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin
+from os import path
 
 
 class etcd(Plugin, RedHatPlugin):
@@ -19,10 +20,14 @@ class etcd(Plugin, RedHatPlugin):
     plugin_name = 'etcd'
     packages = ('etcd',)
     profiles = ('container', 'system', 'services', 'cluster')
-
-    cmd = 'etcdctl'
+    files = ('/etc/origin/node/pods/etcd.yaml',)
 
     def setup(self):
+        if path.exists('/etc/origin/node/pods/etcd.yaml'):
+            etcd_cmd = 'master-exec etcd etcd etcdctl'
+        else:
+            etcd_cmd = 'etcdctl'
+
         etcd_url = self.get_etcd_url()
 
         self.add_forbidden_path('/etc/etcd/ca')
@@ -35,7 +40,7 @@ class etcd(Plugin, RedHatPlugin):
            'ls --recursive',
         ]
 
-        self.add_cmd_output(['%s %s' % (self.cmd, sub) for sub in subcmds])
+        self.add_cmd_output(['%s %s' % (etcd_cmd, sub) for sub in subcmds])
 
         urls = [
             '/v2/stats/leader',

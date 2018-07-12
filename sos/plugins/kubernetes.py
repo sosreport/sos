@@ -18,11 +18,16 @@ class kubernetes(Plugin, RedHatPlugin):
     """Kubernetes plugin
     """
 
-    # Red Hat Atomic Platform and OpenShift Enterprise use the
-    # atomic-openshift-master package to provide kubernetes
+    # OpenShift Container Platform uses the atomic-openshift-master package
+    # to provide kubernetes
     packages = ('kubernetes', 'kubernetes-master', 'atomic-openshift-master')
     profiles = ('container',)
-    files = ("/etc/origin/master/master-config.yaml",)
+    # use files only for masters, rely on package list for nodes
+    files = (
+        "/var/run/kubernetes/apiserver.key",
+        "/etc/origin/master/",
+        "/etc/origin/node/pods/master-config.yaml"
+    )
 
     option_list = [
         ("all", "also collect all namespaces output separately",
@@ -33,12 +38,7 @@ class kubernetes(Plugin, RedHatPlugin):
     ]
 
     def check_is_master(self):
-        if any([
-            path.exists("/var/run/kubernetes/apiserver.key"),
-            path.exists("/etc/origin/master/master-config.yaml")
-        ]):
-            return True
-        return False
+        return any([path.exists(f) for f in self.files])
 
     def setup(self):
         self.add_copy_spec("/etc/kubernetes")
@@ -56,73 +56,75 @@ class kubernetes(Plugin, RedHatPlugin):
             self.add_journal(units=svc)
 
         # We can only grab kubectl output from the master
-        if self.check_is_master():
-            kube_cmd = "kubectl "
-            if path.exists('/etc/origin/master/admin.kubeconfig'):
-                kube_cmd += "--config=/etc/origin/master/admin.kubeconfig"
+        if not self.check_is_master():
+            return
 
-            kube_get_cmd = "get -o json "
-            for subcmd in ['version', 'config view']:
-                self.add_cmd_output('%s %s' % (kube_cmd, subcmd))
+        kube_cmd = "kubectl "
+        if path.exists('/etc/origin/master/admin.kubeconfig'):
+            kube_cmd += "--config=/etc/origin/master/admin.kubeconfig"
 
-            # get all namespaces in use
-            kn = self.get_command_output('%s get namespaces' % kube_cmd)
-            knsps = [n.split()[0] for n in kn['output'].splitlines()[1:] if n]
+        kube_get_cmd = "get -o json "
+        for subcmd in ['version', 'config view']:
+            self.add_cmd_output('%s %s' % (kube_cmd, subcmd))
 
-            resources = [
-                'limitrange',
-                'pods',
-                'pvc',
-                'rc',
-                'resourcequota',
-                'services'
-            ]
+        # get all namespaces in use
+        kn = self.get_command_output('%s get namespaces' % kube_cmd)
+        knsps = [n.split()[0] for n in kn['output'].splitlines()[1:] if n]
 
-            # nodes and pvs are not namespaced, must pull separately.
-            # Also collect master metrics
-            self.add_cmd_output([
-                "{} get -o json nodes".format(kube_cmd),
-                "{} get -o json pv".format(kube_cmd),
-                "{} get --raw /metrics".format(kube_cmd)
-            ])
+        resources = [
+            'limitrange',
+            'pods',
+            'pvc',
+            'rc',
+            'resourcequota',
+            'services'
+        ]
 
-            for n in knsps:
-                knsp = '--namespace=%s' % n
-                if self.get_option('all'):
-                    k_cmd = '%s %s %s' % (kube_cmd, kube_get_cmd, knsp)
+        # nodes and pvs are not namespaced, must pull separately.
+        # Also collect master metrics
+        self.add_cmd_output([
+            "{} get -o json nodes".format(kube_cmd),
+            "{} get -o json pv".format(kube_cmd),
+            "{} get --raw /metrics".format(kube_cmd)
+        ])
 
-                    self.add_cmd_output('%s events' % k_cmd)
+        for n in knsps:
+            knsp = '--namespace=%s' % n
+            if self.get_option('all'):
+                k_cmd = '%s %s %s' % (kube_cmd, kube_get_cmd, knsp)
 
-                    for res in resources:
-                        self.add_cmd_output('%s %s' % (k_cmd, res))
+                self.add_cmd_output('%s events' % k_cmd)
 
-                    if self.get_option('describe'):
-                        # need to drop json formatting for this
-                        k_cmd = '%s get %s' % (kube_cmd, knsp)
-                        for res in resources:
-                            r = self.get_command_output(
-                                '%s %s' % (k_cmd, res))
-                            if r['status'] == 0:
-                                k_list = [k.split()[0] for k in
-                                          r['output'].splitlines()[1:]]
-                                for k in k_list:
-                                    k_cmd = '%s %s' % (kube_cmd, knsp)
-                                    self.add_cmd_output(
-                                        '%s describe %s %s' % (k_cmd, res, k))
-
-                if self.get_option('podlogs'):
-                    k_cmd = '%s %s' % (kube_cmd, knsp)
-                    r = self.get_command_output('%s get pods' % k_cmd)
-                    if r['status'] == 0:
-                        pods = [p.split()[0] for p in
-                                r['output'].splitlines()[1:]]
-                        for pod in pods:
-                            self.add_cmd_output('%s logs %s' % (k_cmd, pod))
-
-            if not self.get_option('all'):
-                k_cmd = '%s get --all-namespaces=true' % kube_cmd
                 for res in resources:
                     self.add_cmd_output('%s %s' % (k_cmd, res))
+
+                if self.get_option('describe'):
+                    # need to drop json formatting for this
+                    k_cmd = '%s get %s' % (kube_cmd, knsp)
+                    for res in resources:
+                        r = self.get_command_output(
+                            '%s %s' % (k_cmd, res))
+                        if r['status'] == 0:
+                            k_list = [k.split()[0] for k in
+                                      r['output'].splitlines()[1:]]
+                            for k in k_list:
+                                k_cmd = '%s %s' % (kube_cmd, knsp)
+                                self.add_cmd_output(
+                                    '%s describe %s %s' % (k_cmd, res, k))
+
+            if self.get_option('podlogs'):
+                k_cmd = '%s %s' % (kube_cmd, knsp)
+                r = self.get_command_output('%s get pods' % k_cmd)
+                if r['status'] == 0:
+                    pods = [p.split()[0] for p in
+                            r['output'].splitlines()[1:]]
+                    for pod in pods:
+                        self.add_cmd_output('%s logs %s' % (k_cmd, pod))
+
+        if not self.get_option('all'):
+            k_cmd = '%s get --all-namespaces=true' % kube_cmd
+            for res in resources:
+                self.add_cmd_output('%s %s' % (k_cmd, res))
 
     def postproc(self):
         # First, clear sensitive data from the json output collected.
