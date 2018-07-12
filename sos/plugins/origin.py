@@ -124,14 +124,28 @@ class OpenShiftOrigin(Plugin):
             #
             # Note: Information about nodes, events, pods, and services
             # is already collected by the Kubernetes plugin
+
+            subcmds = [
+                "describe projects",
+                "adm top images",
+                "adm top imagestreams"
+            ]
+
             self.add_cmd_output([
-                "%s describe projects" % oc_cmd_admin,
-                "%s get -o json hostsubnet" % oc_cmd_admin,
-                "%s get -o json clusternetwork" % oc_cmd_admin,
-                "%s get -o json netnamespaces" % oc_cmd_admin,
-                # Registry and router configs are typically here
-                "%s get -o json dc -n default" % oc_cmd_admin,
+                '%s %s' % (oc_cmd_admin, subcmd) for subcmd in subcmds
             ])
+
+            jcmds = [
+                "hostsubnet",
+                "clusternetwork",
+                "netnamespaces",
+                "dc -n default"
+            ]
+
+            self.add_cmd_output([
+                '%s get -o json %s' % (oc_cmd_admin, jcmd) for jcmd in jcmds
+            ])
+
             if self.get_option('diag'):
                 diag_cmd = "%s adm diagnostics -l 0" % oc_cmd_admin
                 if self.get_option('diag-prevent'):
