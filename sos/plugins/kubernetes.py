@@ -61,7 +61,7 @@ class kubernetes(Plugin, RedHatPlugin):
 
         kube_cmd = "kubectl "
         if path.exists('/etc/origin/master/admin.kubeconfig'):
-            kube_cmd += "--config=/etc/origin/master/admin.kubeconfig"
+            kube_cmd += "--kubeconfig=/etc/origin/master/admin.kubeconfig"
 
         kube_get_cmd = "get -o json "
         for subcmd in ['version', 'config view']:
