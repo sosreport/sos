@@ -22,7 +22,8 @@ class Rhui(Plugin, RedHatPlugin):
     files = [rhui_debug_path]
 
     def setup(self):
-        if self.is_installed("pulp-cds"):
+        if self.is_installed("pulp-cds") \
+                or self.is_installed("rhui-mirrorlist"):
             cds = "--cds"
         else:
             cds = ""
