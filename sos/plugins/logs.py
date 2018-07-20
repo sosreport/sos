@@ -60,6 +60,9 @@ class Logs(Plugin):
             if "*" in path:
                 return glob(path)
 
+        if exists(RSYSLOG_D):
+            confs += get_conf_paths(RSYSLOG_D)
+
         if exists(RSYSLOG_CONF):
             with open(RSYSLOG_CONF, 'r') as conf:
                 for line in conf.readlines():
