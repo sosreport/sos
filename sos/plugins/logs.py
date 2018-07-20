@@ -21,6 +21,10 @@ class Logs(Plugin):
     plugin_name = "logs"
     profiles = ('system', 'hardware', 'storage')
 
+    option_list = [
+        ("log_days", "the number of days of journal logs to collect", "", 3)
+    ]
+
     def setup(self):
         self.add_copy_spec([
             SYSLOG_CONF,
@@ -73,11 +77,6 @@ class Logs(Plugin):
 
 
 class RedHatLogs(Logs, RedHatPlugin):
-
-    option_list = [
-        ("log_days", "the number of days logs to collect", "", 3)
-    ]
-
     def setup(self):
         super(RedHatLogs, self).setup()
         # NOTE: for historical reasons the 'messages' and 'secure' log
