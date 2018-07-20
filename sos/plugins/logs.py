@@ -10,6 +10,10 @@ import os
 import glob
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
+RSYSLOG_D = "/etc/rsyslog.d"
+SYSLOG_CONF = "/etc/syslog.conf"
+RSYSLOG_CONF = "/etc/rsyslog.conf"
+
 
 class Logs(Plugin):
     """System logs"""
@@ -19,9 +23,9 @@ class Logs(Plugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/syslog.conf",
-            "/etc/rsyslog.conf",
-            "/etc/rsyslog.d"
+            SYSLOG_CONF,
+            RSYSLOG_CONF,
+            RSYSLOG_D
         ])
 
         self.add_copy_spec("/var/log/boot.log")
