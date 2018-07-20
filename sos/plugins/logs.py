@@ -7,8 +7,9 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-from os.path import exists, isfile, join
+from os.path import exists, isdir, isfile, join
 from os import listdir
+from glob import glob
 
 RSYSLOG_D = "/etc/rsyslog.d"
 SYSLOG_CONF = "/etc/syslog.conf"
@@ -44,11 +45,27 @@ class Logs(Plugin):
         confs = [SYSLOG_CONF, RSYSLOG_CONF]
         logs = []
 
+        def is_cfg(path):
+            return path.endswith(".conf")
+
+        def get_conf_paths(path):
+            # Need to handle the three allowed styles of config specification:
+            # * config file path
+            # * path to a directory containing configuration files
+            # * glob specifying particular files in a directory
+            if isfile(path):
+                return [path]
+            if isdir(path):
+                return [join(RSYSLOG_D, f) for f in listdir(path) if is_cfg(f)]
+            if "*" in path:
+                return glob(path)
+
         if exists(RSYSLOG_CONF):
             with open(RSYSLOG_CONF, 'r') as conf:
                 for line in conf.readlines():
                     if line.startswith('$IncludeConfig'):
-                        confs += glob.glob(line.split()[1])
+                        name, path = line.split()
+                        confs += get_conf_paths(path)
 
         for conf in confs:
             if not exists(conf):
