@@ -22,6 +22,7 @@ class Logs(Plugin):
     profiles = ('system', 'hardware', 'storage')
 
     option_list = [
+        ("nojournal", "Disable collection of journal data", "", False),
         ("log_days", "the number of days of journal logs to collect", "", 3)
     ]
 
@@ -34,11 +35,13 @@ class Logs(Plugin):
 
         self.add_copy_spec("/var/log/boot.log")
         self.add_copy_spec("/var/log/cloud-init*")
-        self.add_journal(boot="this", catalog=True)
-        self.add_journal(boot="last", catalog=True)
-        self.add_cmd_output("journalctl --disk-usage")
 
-        confs = ['/etc/syslog.conf', '/etc/rsyslog.conf']
+        if not self.get_option("nojournal"):
+            self.add_journal(boot="this", catalog=True)
+            self.add_journal(boot="last", catalog=True)
+            self.add_cmd_output("journalctl --disk-usage")
+
+        confs = [SYSLOG_CONF, RSYSLOG_CONF]
         logs = []
 
         if os.path.exists('/etc/rsyslog.conf'):
@@ -59,7 +62,7 @@ class Logs(Plugin):
             if os.path.isfile(i):
                 self.add_copy_spec(i)
 
-        if self.get_option('all_logs'):
+        if not self.get_option("nojournal") and self.get_option('all_logs'):
             self.add_journal(boot="this", allfields=True, output="verbose")
             self.add_journal(boot="last", allfields=True, output="verbose")
 
@@ -86,14 +89,17 @@ class RedHatLogs(Logs, RedHatPlugin):
         messages = "/var/log/messages"
         secure = "/var/log/secure"
 
-        have_messages = os.path.exists(messages)
+        nojournal = self.get_option("nojournal")
+
+        have_messages = exists(messages)
+        use_journal = not (nojournal or have_messages)
 
         self.add_copy_spec(secure + "*")
         self.add_copy_spec(messages + "*")
 
         # collect three days worth of logs by default if the system is
         # configured to use the journal and not /var/log/messages
-        if not have_messages and self.is_installed("systemd"):
+        if use_journal and self.is_installed("systemd"):
             try:
                 days = int(self.get_option("log_days"))
             except ValueError:
