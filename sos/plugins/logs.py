@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
-import glob
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from os.path import exists, isfile, join
+from os import listdir
 
 RSYSLOG_D = "/etc/rsyslog.d"
 SYSLOG_CONF = "/etc/syslog.conf"
@@ -44,14 +44,14 @@ class Logs(Plugin):
         confs = [SYSLOG_CONF, RSYSLOG_CONF]
         logs = []
 
-        if os.path.exists('/etc/rsyslog.conf'):
-            with open('/etc/rsyslog.conf', 'r') as conf:
+        if exists(RSYSLOG_CONF):
+            with open(RSYSLOG_CONF, 'r') as conf:
                 for line in conf.readlines():
                     if line.startswith('$IncludeConfig'):
                         confs += glob.glob(line.split()[1])
 
         for conf in confs:
-            if not os.path.exists(conf):
+            if not exists(conf):
                 continue
             config = self.join_sysroot(conf)
             logs += self.do_regex_find_all(r"^\S+\s+(-?\/.*$)\s+", config)
@@ -59,7 +59,7 @@ class Logs(Plugin):
         for i in logs:
             if i.startswith("-"):
                 i = i[1:]
-            if os.path.isfile(i):
+            if isfile(i):
                 self.add_copy_spec(i)
 
         if not self.get_option("nojournal") and self.get_option('all_logs'):
