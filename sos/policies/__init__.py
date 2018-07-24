@@ -13,7 +13,8 @@ from os import environ
 
 from sos.utilities import (ImporterHelper,
                            import_module,
-                           shell_out)
+                           shell_out,
+                           sos_get_command_output)
 from sos.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
 from sos import SoSOptions, _arg_names
@@ -47,6 +48,113 @@ def load(cache={}, sysroot=None):
         cache['policy'] = GenericPolicy()
 
     return cache['policy']
+
+
+class InitSystem(object):
+    """Encapsulates an init system to provide service-oriented functions to
+    sos.
+
+    This should be used to query the status of services, such as if they are
+    enabled or disabled on boot, or if the service is currently running.
+    """
+
+    def __init__(self, init_cmd=None, list_cmd=None, query_cmd=None):
+
+        self.services = {}
+
+        self.init_cmd = init_cmd
+        self.list_cmd = "%s %s" % (self.init_cmd, list_cmd) or None
+        self.query_cmd = "%s %s" % (self.init_cmd, query_cmd) or None
+
+        self.load_all_services()
+
+    def is_enabled(self, name):
+        """Check if given service name is enabled """
+        if self.services and name in self.services:
+            return self.services[name]['config'] == 'enabled'
+        return False
+
+    def is_disabled(self, name):
+        """Check if a given service name is disabled """
+        if self.services and name in self.services:
+            return self.services[name]['config'] == 'disabled'
+        return False
+
+    def is_service(self, name):
+        """Checks if the given service name exists on the system at all, this
+        does not check for the service status
+        """
+        return name in self.services
+
+    def load_all_services(self):
+        """This loads all services known to the init system into a dict.
+        The dict should be keyed by the service name, and contain a dict of the
+        name and service status
+        """
+        pass
+
+    def _query_service(self, name):
+        """Query an individual service"""
+        if self.query_cmd:
+            res = sos_get_command_output("%s %s" % (self.query_cmd, name))
+            if res['status'] == 0:
+                return res
+            else:
+                return None
+        return None
+
+    def parse_query(self, output):
+        """Parses the output returned by the query command to make a
+        determination of what the state of the service is
+
+        This should be overriden by anything that subclasses InitSystem
+        """
+        return output
+
+    def get_service_status(self, name):
+        """Returns the status for the given service name along with the output
+        of the query command
+        """
+        svc = self._query_service(name)
+        if svc is not None:
+            return {'name': name,
+                    'status': self.parse_query(svc['output']),
+                    'output': svc['output']
+                    }
+        else:
+            return {'name': name,
+                    'status': 'missing',
+                    'output': ''
+                    }
+
+
+class SystemdInit(InitSystem):
+
+    def __init__(self):
+        super(SystemdInit, self).__init__(
+            init_cmd='systemctl',
+            list_cmd='list-unit-files --type=service',
+            query_cmd='status'
+        )
+
+    def parse_query(self, output):
+        for line in output.splitlines():
+            if line.strip().startswith('Active:'):
+                return line.split()[1]
+        return 'unknown'
+
+    def load_all_services(self):
+        svcs = shell_out(self.list_cmd).splitlines()
+        for line in svcs:
+            try:
+                name = line.split('.service')[0]
+                config = line.split()[1]
+                self.services[name] = {
+                    'name': name,
+                    'config': config
+                }
+            except IndexError:
+                pass
 
 
 class PackageManager(object):
@@ -676,11 +784,16 @@ class LinuxPolicy(Policy):
     distro = "Linux"
     vendor = "None"
     PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
+    init = None
 
     _preferred_hash_name = None
 
     def __init__(self, sysroot=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot)
+        if self.init == 'systemd':
+            self.init_system = SystemdInit()
+        else:
+            self.init_system = InitSystem()
 
     def get_preferred_hash_name(self):
 

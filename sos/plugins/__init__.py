@@ -123,6 +123,7 @@ class Plugin(object):
     files = ()
     commands = ()
     kernel_mods = ()
+    services = ()
     archive = None
     profiles = ()
     sysroot = '/'
@@ -201,6 +202,22 @@ class Plugin(object):
     def is_installed(self, package_name):
         '''Is the package $package_name installed?'''
         return self.policy.pkg_by_name(package_name) is not None
+
+    def is_service(self, name):
+        '''Does the service $name exist on the system?'''
+        return self.policy.init_system.is_service(name)
+
+    def service_is_enabled(self, name):
+        '''Is the service $name enabled?'''
+        return self.policy.init_system.is_enabled(name)
+
+    def service_is_disabled(self, name):
+        '''Is the service $name disabled?'''
+        return self.policy.init_system.is_disabled(name)
+
+    def get_service_status(self, name):
+        '''Return the reported status for service $name'''
+        return self.policy.init_system.get_service_status(name)
 
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd
@@ -977,7 +994,8 @@ class Plugin(object):
         overridden.
         """
         # some files or packages have been specified for this package
-        if any([self.files, self.packages, self.commands, self.kernel_mods]):
+        if any([self.files, self.packages, self.commands, self.kernel_mods,
+                self.services]):
             if isinstance(self.files, six.string_types):
                 self.files = [self.files]
 
@@ -989,6 +1007,9 @@ class Plugin(object):
 
             if isinstance(self.kernel_mods, six.string_types):
                 self.kernel_mods = [self.kernel_mods]
+
+            if isinstance(self.services, six.string_types):
+                self.services = [self.services]
 
             if isinstance(self, SCLPlugin):
                 # save SCLs that match files or packages
@@ -1005,7 +1026,8 @@ class Plugin(object):
 
             return self._files_pkgs_or_cmds_present(self.files,
                                                     self.packages,
-                                                    self.commands)
+                                                    self.commands,
+                                                    self.services)
 
         if isinstance(self, SCLPlugin):
             # if files and packages weren't specified, we take all SCLs
@@ -1013,7 +1035,7 @@ class Plugin(object):
 
         return True
 
-    def _files_pkgs_or_cmds_present(self, files, packages, commands):
+    def _files_pkgs_or_cmds_present(self, files, packages, commands, services):
             kernel_mods = self.policy.lsmod()
 
             def have_kmod(kmod):
@@ -1022,7 +1044,8 @@ class Plugin(object):
             return (any(os.path.exists(fname) for fname in files) or
                     any(self.is_installed(pkg) for pkg in packages) or
                     any(is_executable(cmd) for cmd in commands) or
-                    any(have_kmod(kmod) for kmod in self.kernel_mods))
+                    any(have_kmod(kmod) for kmod in self.kernel_mods) or
+                    any(self.is_service(svc) for svc in services))
 
     def default_enabled(self):
         """This decides whether a plugin should be automatically loaded or
