@@ -1389,6 +1389,22 @@ class Plugin(object):
             return False
         return status
 
+    def get_process_pids(self, process):
+        """Returns PIDs of all processes with process name.
+        If the process doesn't exist, returns an empty list"""
+        pids = []
+        cmd_line_glob = "/proc/[0-9]*/cmdline"
+        cmd_line_paths = glob.glob(cmd_line_glob)
+        for path in cmd_line_paths:
+            try:
+                with open(path, 'r') as f:
+                    cmd_line = f.read().strip()
+                    if process in cmd_line:
+                        pids.append(path.split("/")[2])
+            except IOError as e:
+                continue
+        return pids
+
 
 class RedHatPlugin(object):
     """Tagging class for Red Hat's Linux distributions"""
