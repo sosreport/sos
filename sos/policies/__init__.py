@@ -408,7 +408,7 @@ No changes will be made to system configuration.
             date=date,
             rand=rand
         )
-        return time.strftime(nstr)
+        return self.sanitize_filename(time.strftime(nstr))
 
     # for some specific binaries like "xz", we need to determine package
     # providing it; that is policy specific. By default return the binary
@@ -726,8 +726,8 @@ class LinuxPolicy(Policy):
         """Returns the name usd in the pre_work step"""
         return self.host_name()
 
-    def sanitize_case_id(self, case_id):
-        return re.sub(r"[^-a-z,A-Z.0-9]", "", case_id)
+    def sanitize_filename(self, name):
+        return re.sub(r"[^-a-z,A-Z.0-9]", "", name)
 
     def lsmod(self):
         """Return a list of kernel module names as strings.
@@ -754,9 +754,6 @@ class LinuxPolicy(Policy):
 
         if cmdline_opts.case_id:
             self.case_id = cmdline_opts.case_id
-
-        if self.case_id:
-            self.case_id = self.sanitize_case_id(self.case_id)
 
         return
 
