@@ -77,7 +77,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "/var/lib/ceph/mon/*",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            "var/lib/ceph/tmp/*mnt*",
+            "/var/lib/ceph/tmp/*mnt*",
             "/etc/ceph/*bindpass*"
         ])
 
