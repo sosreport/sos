@@ -315,6 +315,8 @@ No changes will be made to system configuration.
         # Package based checks
         if self.pkg_by_name("satellite-common") is not None:
             return self.find_preset(RH_SATELLITE)
+        if self.pkg_by_name("rhosp-release") is not None:
+            return self.find_preset(RHOSP)
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
