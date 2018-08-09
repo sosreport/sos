@@ -192,6 +192,8 @@ ENV_HOST_SYSROOT = 'HOST'
 _opts_verify = SoSOptions(verify=True)
 _opts_all_logs = SoSOptions(all_logs=True)
 _opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
+_opts_all_logs_no_lsof = SoSOptions(all_logs=True,
+                                    plugopts=['process.lsof=off'])
 
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
 
@@ -219,7 +221,7 @@ rhel_presets = {
                         opts=_opts_verify),
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
     RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, note=NOTE_SIZE,
-                          opts=_opts_all_logs),
+                          opts=_opts_all_logs_no_lsof),
     RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
                           opts=_opts_all_logs_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
