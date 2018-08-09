@@ -17,6 +17,7 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system',)
 
     option_list = [
+        ("lsof", "gathers information on all open files", "slow", True),
         ("lsof-threads", "gathers threads' open file info if supported",
          "slow", False)
     ]
@@ -35,9 +36,10 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.add_cmd_output("ps auxwww", root_symlink="ps")
         self.add_cmd_output("pstree", root_symlink="pstree")
-        self.add_cmd_output("lsof -b +M -n -l -c ''", root_symlink="lsof")
+        if self.get_option("lsof"):
+            self.add_cmd_output("lsof -b +M -n -l -c ''", root_symlink="lsof")
 
-        if self.get_option("lsof-threads") or self.get_option("all_logs"):
+        if self.get_option("lsof-threads"):
             self.add_cmd_output("lsof -b +M -n -l")
 
         self.add_cmd_output([
