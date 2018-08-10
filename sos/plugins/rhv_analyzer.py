@@ -11,12 +11,12 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 
-class RhvLogCollectorAnalyzer(Plugin, RedHatPlugin):
+class Rhv_Analyzer(Plugin, RedHatPlugin):
     """RHV Log Collector Analyzer"""
 
     packages = ('rhv-log-collector-analyzer',)
 
-    plugin_name = 'RhvLogCollectorAnalyzer'
+    plugin_name = 'rhv_analyzer'
     profiles = ('virt',)
 
     def setup(self):
