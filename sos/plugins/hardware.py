@@ -28,6 +28,7 @@ class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         self.add_cmd_output("dmidecode", root_symlink="dmidecode")
+        self.add_cmd_output("ndctl list -NXRBDHMFi")
 
 
 # vim: set et ts=4 sw=4 :
