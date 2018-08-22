@@ -251,16 +251,17 @@ class FileCacheArchive(Archive):
                         pass
                     else:
                         self.log_info("caught '%s' copying '%s'" % (e, src))
-                try:
-                    shutil.copystat(src, dest)
-                except OSError:
-                    # SELinux xattrs in /proc and /sys throw this
-                    pass
+                # copy file attributes, skip SELinux xattrs for /sys and /proc
                 try:
                     stat = os.stat(src)
+                    if src.startswith("/sys/") or src.startswith("/proc/"):
+                        shutil.copymode(src, dest)
+                        os.utime(dest, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+                    else:
+                        shutil.copystat(src, dest)
                     os.chown(dest, stat.st_uid, stat.st_gid)
                 except Exception as e:
-                    self.log_debug("caught '%s' setting ownership of '%s'"
+                    self.log_debug("caught '%s' setting attributes of '%s'"
                                    % (e, dest))
                 file_name = "'%s'" % src
             else:
