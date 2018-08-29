@@ -246,5 +246,15 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
             "/etc/security/limits.d/91-nova.conf",
             "/etc/sysconfig/openstack-nova-novncproxy"
         ])
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/httpd/nova_api*",
+                "/var/log/httpd/placement*",
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/httpd/nova_api*.log",
+                "/var/log/httpd/placement*.log",
+            ])
 
 # vim: set et ts=4 sw=4 :
