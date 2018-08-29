@@ -34,11 +34,7 @@ class OpenStackNova(Plugin):
         )
 
         container_status = self.get_command_output("docker ps")
-        in_container = False
-        if container_status['status'] == 0:
-            for line in container_status['output'].splitlines():
-                if line.endswith("nova_api"):
-                    in_container = True
+        in_container = self.running_in_container()
 
         if (service_status['status'] == 0) or in_container:
             nova_config = ""
@@ -130,6 +126,15 @@ class OpenStackNova(Plugin):
 
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
+
+    def running_in_container(self):
+        for runtime in ["docker", "podman"]:
+            container_status = self.get_command_output(runtime + " ps")
+            if container_status['status'] == 0:
+                for line in container_status['output'].splitlines():
+                    if line.endswith("nova_api"):
+                        return True
+        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
