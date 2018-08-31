@@ -8,7 +8,8 @@
 
 import os
 import glob
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import (Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
+                         CosPlugin)
 
 
 class Logs(Plugin):
@@ -120,5 +121,24 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
             self.add_cmd_output('ls -alRh /var/log/')
         else:
             self.add_copy_spec("/var/log/")
+
+
+class CosLogs(Logs, CosPlugin):
+
+    option_list = [
+        ("log_days", "the number of days logs to collect", "", 3)
+    ]
+
+    def setup(self):
+        super(CosLogs, self).setup()
+        self.add_cmd_output('ls -alRh /var/log/')
+        if self.get_option("all_logs"):
+            self.add_cmd_output("journalctl -o export")
+        else:
+            try:
+                days = int(self.get_option("log_days"))
+            except ValueError:
+                days = 3
+            self.add_journal(since="-%ddays" % days)
 
 # vim: set et ts=4 sw=4 :
