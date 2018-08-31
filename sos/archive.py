@@ -191,7 +191,10 @@ class FileCacheArchive(Archive):
                       copied now or `None` otherwise
         """
         dest = dest or self.dest_path(src)
-        dest_dir = os.path.split(dest)[0]
+        if path_type == P_DIR:
+            dest_dir = dest
+        else:
+            dest_dir = os.path.split(dest)[0]
         if not dest_dir:
             return dest
 
