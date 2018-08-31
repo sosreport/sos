@@ -8,10 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import (Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
+                         CosPlugin)
 
 
-class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
     """ System management daemon
     """
 
