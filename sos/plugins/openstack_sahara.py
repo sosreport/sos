@@ -86,12 +86,7 @@ class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
 class RedHatSahara(OpenStackSahara, RedHatPlugin):
     """OpenStack sahara related information for Red Hat distributions."""
 
-    packages = (
-        'openstack-sahara',
-        'openstack-sahara-api',
-        'openstack-sahara-engine',
-        'python-saharaclient'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatSahara, self).setup()

@@ -83,7 +83,7 @@ class DebianTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
 
 class RedHatTrove(OpenStackTrove, RedHatPlugin):
 
-    packages = ['openstack-trove']
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatTrove, self).setup()
