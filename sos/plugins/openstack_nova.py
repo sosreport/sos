@@ -200,10 +200,6 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         'python-novnc'
     )
 
-    def check_enabled(self):
-        self.nova = self.is_installed("nova-common")
-        return self.nova
-
     def setup(self):
         super(DebianNova, self).setup()
         self.add_copy_spec([
@@ -232,10 +228,6 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
         'python-novaclient',
         'novnc'
     )
-
-    def check_enabled(self):
-        self.nova = self.is_installed("openstack-nova-common")
-        return self.nova
 
     def setup(self):
         super(RedHatNova, self).setup()
