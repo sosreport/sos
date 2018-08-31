@@ -995,7 +995,8 @@ class SoSReport(object):
                 print(" %s while setting up archive" % e.strerror)
                 print("")
             else:
-                raise e
+                print("Error setting up archive: %s" % e)
+                raise
         except Exception as e:
             self.ui_log.error("")
             self.ui_log.error(" Unexpected exception setting up archive:")
@@ -1467,6 +1468,8 @@ class SoSReport(object):
             return self.final_work()
 
         except (OSError):
+            if self.opts.debug:
+                raise
             self._cleanup()
         except (KeyboardInterrupt):
             self.ui_log.error("\nExiting on user cancel")
