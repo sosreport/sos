@@ -18,13 +18,7 @@ class OpenStackAodh(Plugin, RedHatPlugin):
     plugin_name = "openstack_aodh"
     profiles = ('openstack', 'openstack_controller')
 
-    packages = (
-        'openstack-aodh-api',
-        'openstack-aodh-listener',
-        'openstack-aodh-notifier',
-        'openstack-aodh-evaluator,'
-        'openstack-aodh-common'
-    )
+    packages = ('openstack-selinux',)
 
     requires_root = False
 

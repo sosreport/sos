@@ -152,14 +152,6 @@ class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
 
 class RedHatHeat(OpenStackHeat, RedHatPlugin):
 
-    packages = (
-        'openstack-heat-api',
-        'openstack-heat-api-cfn',
-        'openstack-heat-api-cloudwatch',
-        'openstack-heat-cli',
-        'openstack-heat-common',
-        'openstack-heat-engine',
-        'python-heatclient'
-    )
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

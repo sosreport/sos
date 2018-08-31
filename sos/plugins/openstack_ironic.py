@@ -118,11 +118,7 @@ class DebianIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):
 
 class RedHatIronic(OpenStackIronic, RedHatPlugin):
 
-    packages = [
-        'openstack-ironic-api',
-        'openstack-ironic-common',
-        'openstack-ironic-conductor',
-    ]
+    packages = ('openstack-selinux',)
 
     discoverd_packages = [
         'openstack-ironic-discoverd',

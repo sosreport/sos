@@ -86,15 +86,7 @@ class DebianCeilometer(OpenStackCeilometer, DebianPlugin,
 
 class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
 
-    packages = (
-        'openstack-ceilometer',
-        'openstack-ceilometer-api',
-        'openstack-ceilometer-central',
-        'openstack-ceilometer-collector',
-        'openstack-ceilometer-common',
-        'openstack-ceilometer-compute',
-        'python-ceilometerclient'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatCeilometer, self).setup()

@@ -91,14 +91,6 @@ class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
 class RedHatSwift(OpenStackSwift, RedHatPlugin):
 
-    packages = (
-        'openstack-swift',
-        'openstack-swift-account',
-        'openstack-swift-container',
-        'openstack-swift-object',
-        'openstack-swift-proxy',
-        'swift',
-        'python-swiftclient'
-    )
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

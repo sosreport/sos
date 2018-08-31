@@ -118,12 +118,7 @@ class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
 
 class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
 
-    packages = (
-        'openstack-keystone',
-        'python-keystone',
-        'python-django-openstack-auth',
-        'python-keystoneclient'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatKeystone, self).setup()
