@@ -159,6 +159,67 @@ class FileCacheArchive(Archive):
             name = name.lstrip(os.sep)
         return (os.path.join(self._archive_root, name))
 
+    def _make_leading_paths(self, src, mode=0o700):
+        """Create leading path components
+
+            The standard python `os.makedirs` is insufficient for our
+            needs: it will only create directories, and ignores the fact
+            that some path components may be symbolic links.
+        """
+        self.log_debug("Making leading paths for %s" % src)
+        root = self._archive_root
+
+        def in_archive(path):
+            """Test whether path ``path`` is inside the archive.
+            """
+            return path.startswith(os.path.join(root, ""))
+
+        if not src.startswith("/"):
+            # Sos archive path (sos_commands, sos_logs etc.)
+            src_dir = src
+        else:
+            # Host file path
+            src_dir = src if os.path.isdir(src) else os.path.split(src)[0]
+
+        # Build a list of path components in root-to-leaf order.
+        path = src_dir
+        path_comps = []
+        while path != '/' and path != '':
+            head, tail = os.path.split(path)
+            path_comps.append(tail)
+            path = head
+        path_comps.reverse()
+
+        abs_path = root
+        rel_path = ""
+
+        # Check and create components as needed
+        for comp in path_comps:
+            abs_path = os.path.join(abs_path, comp)
+
+            if not in_archive(abs_path):
+                continue
+
+            rel_path = os.path.join(rel_path, comp)
+            src_path = os.path.join("/", rel_path)
+
+            if not os.path.exists(abs_path):
+                self.log_debug("Making path %s" % abs_path)
+                if os.path.islink(src_path) and os.path.isdir(src_path):
+                    target = os.readlink(src_path)
+                    abs_target = os.path.join(root, target)
+
+                    # Recursively create leading components of target
+                    self._make_leading_paths(abs_target, mode=mode)
+
+                    self.log_debug("Making symlink '%s' -> '%s'" %
+                                   (abs_path, target))
+                    target = os.path.relpath(target)
+                    os.symlink(target, abs_path)
+                else:
+                    self.log_debug("Making directory %s" % abs_path)
+                    os.mkdir(abs_path, mode)
+
     def _check_path(self, src, path_type, dest=None, force=False):
         """Check a new destination path in the archive.
 
@@ -203,7 +264,8 @@ class FileCacheArchive(Archive):
             raise ValueError("path '%s' exists and is not a directory" %
                              dest_dir)
         elif not os.path.exists(dest_dir):
-            self._makedirs(dest_dir)
+            src_dir = src if path_type == P_DIR else os.path.split(src)[0]
+            self._make_leading_paths(src_dir)
 
         def is_special(mode):
             return any([
@@ -326,10 +388,7 @@ class FileCacheArchive(Archive):
 
     def add_dir(self, path):
         with self._path_lock:
-            dest = self._check_path(path, P_DIR)
-            if not dest:
-                return
-            self.makedirs(path)
+            self._check_path(path, P_DIR)
 
     def add_node(self, path, mode, device):
         dest = self._check_path(path, P_NODE)
@@ -346,9 +405,6 @@ class FileCacheArchive(Archive):
                     return
                 raise e
             shutil.copystat(path, dest)
-
-    def _makedirs(self, path, mode=0o700):
-        os.makedirs(path, mode)
 
     def name_max(self):
         if 'PC_NAME_MAX' in os.pathconf_names:
