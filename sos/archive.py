@@ -361,11 +361,11 @@ class FileCacheArchive(Archive):
         return self._archive_root
 
     def makedirs(self, path, mode=0o700):
-        dest = self._check_path(path, P_DIR)
-        if not dest:
-            return
+        """Create path, including leading components.
 
-        self._makedirs(self.dest_path(path))
+            Used by sos.sosreport to set up sos_* directories.
+        """
+        os.makedirs(os.path.join(self._archive_root, path), mode=mode)
         self.log_debug("created directory at '%s' in FileCacheArchive '%s'"
                        % (path, self._archive_root))
 
