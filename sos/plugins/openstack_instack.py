@@ -125,19 +125,7 @@ class OpenStackInstack(Plugin):
 
 class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
 
-    packages = [
-        'instack',
-        'instack-undercloud',
-        'openstack-tripleo',
-        'openstack-tripleo-common',
-        'openstack-tripleo-heat-templates',
-        'openstack-tripleo-image-elements',
-        'openstack-tripleo-puppet-elements',
-        'openstack-tripleo-ui',
-        'openstack-tripleo-validations',
-        'puppet-tripleo',
-        'python-tripleoclient'
-    ]
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatRDOManager, self).setup()

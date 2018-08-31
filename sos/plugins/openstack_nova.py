@@ -206,23 +206,7 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 class RedHatNova(OpenStackNova, RedHatPlugin):
 
     nova = False
-    packages = (
-        'openstack-nova-common',
-        'openstack-nova-network',
-        'openstack-nova-conductor',
-        'openstack-nova-conductor',
-        'openstack-nova-scheduler',
-        'openstack-nova-console',
-        'openstack-nova-novncproxy',
-        'openstack-nova-compute',
-        'openstack-nova-api',
-        'openstack-nova-cert',
-        'openstack-nova-cells',
-        'openstack-nova-objectstore',
-        'python-nova',
-        'python-novaclient',
-        'novnc'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatNova, self).setup()

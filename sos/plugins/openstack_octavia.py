@@ -9,12 +9,11 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class OpenStackOctavia(Plugin):
     """Openstack Octavia"""
 
     plugin_name = "openstack_octavia"
     profiles = ('openstack', 'openstack_controller')
-    packages = ('openstack-octavia-common',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/octavia"
 
@@ -100,5 +99,15 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.var_puppet_gen + "/etc/octavia/*",
             regexp, r"\1*********"
         )
+
+
+class DebianOctavia(OpenStackOctavia, DebianPlugin, UbuntuPlugin):
+
+    packages = ('openstack-octavia-common',)
+
+
+class RedHatOctavia(OpenStackOctavia, RedHatPlugin):
+
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

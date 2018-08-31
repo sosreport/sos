@@ -84,14 +84,7 @@ class DebianManila(OpenStackManila, DebianPlugin, UbuntuPlugin):
 class RedHatManila(OpenStackManila, RedHatPlugin):
     """OpenStackManila related information for Red Hat distributions."""
 
-    packages = (
-        'puppet-manila',
-        'openstack-manila',
-        'openstack-manila-share',
-        'python-manila',
-        'python-manilaclient',
-        'python-manila-tests'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatManila, self).setup()
