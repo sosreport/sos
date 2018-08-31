@@ -24,6 +24,7 @@ class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/logrotate*",
             "/var/lib/logrotate.status",
+            "/var/lib/logrotate/logrotate.status",
             self.var_puppet_gen + "/etc/logrotate-crond.conf",
             self.var_puppet_gen + "/var/spool/cron/root"
         ])
