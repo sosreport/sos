@@ -80,9 +80,7 @@ class Docker(Plugin):
         if insp:
             for container in insp:
                 self.add_cmd_output("docker inspect %s" % container)
-
-            if self.get_option('logs'):
-                for container in insp:
+                if self.get_option('logs'):
                     self.add_cmd_output("docker logs -t %s" % container)
 
 
