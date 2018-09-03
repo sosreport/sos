@@ -20,6 +20,13 @@ class Buildah(Plugin, RedHatPlugin):
     profiles = ('container',)
 
     def setup(self):
+        self.add_copy_spec([
+            "/etc/containers/registries.conf",
+            "/etc/containers/storage.conf",
+            "/etc/containers/mounts.conf",
+            "/etc/containers/policy.json",
+        ])
+
         self.add_cmd_output([
             'buildah containers',
             'buildah images',
