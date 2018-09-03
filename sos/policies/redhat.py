@@ -45,6 +45,7 @@ class RedHatPolicy(LinuxPolicy):
     _host_sysroot = '/'
     default_scl_prefix = '/opt/rh'
     name_pattern = 'friendly'
+    init = 'systemd'
 
     def __init__(self, sysroot=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot)
