@@ -124,20 +124,25 @@ class OpenStackInstack(Plugin):
 
 
 class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
-
-    packages = [
-        'instack',
-        'instack-undercloud',
-        'openstack-tripleo',
-        'openstack-tripleo-common',
-        'openstack-tripleo-heat-templates',
-        'openstack-tripleo-image-elements',
-        'openstack-tripleo-puppet-elements',
-        'openstack-tripleo-ui',
-        'openstack-tripleo-validations',
-        'puppet-tripleo',
-        'python-tripleoclient'
-    ]
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # instack specific packages:
+    #   'instack',
+    #   'instack-undercloud',
+    #   'openstack-tripleo',
+    #   'openstack-tripleo-common',
+    #   'openstack-tripleo-heat-templates',
+    #   'openstack-tripleo-image-elements',
+    #   'openstack-tripleo-puppet-elements',
+    #   'openstack-tripleo-ui',
+    #   'openstack-tripleo-validations',
+    #   'puppet-tripleo',
+    #   'python-tripleoclient'
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatRDOManager, self).setup()

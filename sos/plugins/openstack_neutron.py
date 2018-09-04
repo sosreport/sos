@@ -119,24 +119,29 @@ class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
-
-    packages = [
-        'openstack-neutron',
-        'openstack-neutron-linuxbridge'
-        'openstack-neutron-metaplugin',
-        'openstack-neutron-openvswitch',
-        'openstack-neutron-bigswitch',
-        'openstack-neutron-brocade',
-        'openstack-neutron-cisco',
-        'openstack-neutron-hyperv',
-        'openstack-neutron-midonet',
-        'openstack-neutron-nec'
-        'openstack-neutron-nicira',
-        'openstack-neutron-plumgrid',
-        'openstack-neutron-ryu',
-        'python-neutron',
-        'python-neutronclient'
-    ]
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # neutron specific packages:
+    #   'openstack-neutron',
+    #   'openstack-neutron-linuxbridge'
+    #   'openstack-neutron-metaplugin',
+    #   'openstack-neutron-openvswitch',
+    #   'openstack-neutron-bigswitch',
+    #   'openstack-neutron-brocade',
+    #   'openstack-neutron-cisco',
+    #   'openstack-neutron-hyperv',
+    #   'openstack-neutron-midonet',
+    #   'openstack-neutron-nec'
+    #   'openstack-neutron-nicira',
+    #   'openstack-neutron-plumgrid',
+    #   'openstack-neutron-ryu',
+    #   'python-neutron',
+    #   'python-neutronclient'
+    packages = ('openstack-selinux',)
 
     def check_enabled(self):
         return self.is_installed("openstack-neutron")

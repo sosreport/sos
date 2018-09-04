@@ -18,13 +18,19 @@ class OpenStackAodh(Plugin, RedHatPlugin):
     plugin_name = "openstack_aodh"
     profiles = ('openstack', 'openstack_controller')
 
-    packages = (
-        'openstack-aodh-api',
-        'openstack-aodh-listener',
-        'openstack-aodh-notifier',
-        'openstack-aodh-evaluator,'
-        'openstack-aodh-common'
-    )
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # aodh specific packages:
+    #   'openstack-aodh-api',
+    #   'openstack-aodh-listener',
+    #   'openstack-aodh-notifier',
+    #   'openstack-aodh-evaluator,'
+    #   'openstack-aodh-common'
+    packages = ('openstack-selinux',)
 
     requires_root = False
 

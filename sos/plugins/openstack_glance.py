@@ -129,10 +129,16 @@ class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatGlance(OpenStackGlance, RedHatPlugin):
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # glance specific packages:
+    #   'openstack-glance',
+    #   'python-glanceclient'
 
-    packages = (
-        'openstack-glance',
-        'python-glanceclient'
-    )
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

@@ -139,11 +139,19 @@ class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatCinder(OpenStackCinder, RedHatPlugin):
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # cinder specific packages:
+    #   'openstack-cinder',
+    #   'python-cinder',
+    #   'python-cinderclient'
+    packages = ('openstack-selinux',)
 
     cinder = False
-    packages = ('openstack-cinder',
-                'python-cinder',
-                'python-cinderclient')
 
     def check_enabled(self):
         self.cinder = self.is_installed("openstack-cinder")

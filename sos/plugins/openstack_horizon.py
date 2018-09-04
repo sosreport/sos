@@ -102,11 +102,16 @@ class UbuntuHorizon(OpenStackHorizon, UbuntuPlugin):
 
 
 class RedHatHorizon(OpenStackHorizon, RedHatPlugin):
-
-    packages = (
-        'python-django-horizon',
-        'openstack-dashboard'
-    )
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # horizon specific packages:
+    #   'python-django-horizon',
+    #   'openstack-dashboard'
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatHorizon, self).setup()

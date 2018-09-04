@@ -90,15 +90,20 @@ class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatSwift(OpenStackSwift, RedHatPlugin):
-
-    packages = (
-        'openstack-swift',
-        'openstack-swift-account',
-        'openstack-swift-container',
-        'openstack-swift-object',
-        'openstack-swift-proxy',
-        'swift',
-        'python-swiftclient'
-    )
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # swift specific packages:
+    #   'openstack-swift',
+    #   'openstack-swift-account',
+    #   'openstack-swift-container',
+    #   'openstack-swift-object',
+    #   'openstack-swift-proxy',
+    #   'swift',
+    #   'python-swiftclient'
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

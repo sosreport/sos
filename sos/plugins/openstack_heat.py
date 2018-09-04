@@ -151,15 +151,20 @@ class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatHeat(OpenStackHeat, RedHatPlugin):
-
-    packages = (
-        'openstack-heat-api',
-        'openstack-heat-api-cfn',
-        'openstack-heat-api-cloudwatch',
-        'openstack-heat-cli',
-        'openstack-heat-common',
-        'openstack-heat-engine',
-        'python-heatclient'
-    )
+    # In order to support containerised deployments we need a trigger
+    # package that will always be present on the host running the
+    # container: use openstack-selinux for this until a better method
+    # exists to allow inspection of container packages, or matching
+    # of specific OpenStack containers by name or other property.
+    #
+    # heat specific packages:
+    #   'openstack-heat-api',
+    #   'openstack-heat-api-cfn',
+    #   'openstack-heat-api-cloudwatch',
+    #   'openstack-heat-cli',
+    #   'openstack-heat-common',
+    #   'openstack-heat-engine',
+    #   'python-heatclient'
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :
