@@ -42,8 +42,6 @@ class OpenStackNeutron(Plugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
         self.add_copy_spec("/var/lib/neutron/")
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
