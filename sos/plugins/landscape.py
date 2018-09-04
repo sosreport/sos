@@ -24,6 +24,7 @@ class Landscape(Plugin, UbuntuPlugin):
         self.add_copy_spec("/etc/landscape/service.conf")
         self.add_copy_spec("/etc/landscape/service.conf.old")
         self.add_copy_spec("/etc/default/landscape-server")
+        self.add_copy_spec("/var/lib/landscape/landscape-oops/*/OOPS-*")
         if not self.get_option("all_logs"):
             self.add_copy_spec("/var/log/landscape/*.log")
             self.add_copy_spec("/var/log/landscape-server/*.log")
