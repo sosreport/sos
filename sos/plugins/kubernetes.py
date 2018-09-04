@@ -72,11 +72,18 @@ class kubernetes(Plugin, RedHatPlugin):
         knsps = [n.split()[0] for n in kn['output'].splitlines()[1:] if n]
 
         resources = [
-            'limitrange',
+            'deployments',
+            'ingresses',
+            'limitranges',
+            'namespaces',
             'pods',
+            'policies',
+            'projects',
+            'pv',
             'pvc',
             'rc',
-            'resourcequota',
+            'resourcequotas',
+            'routes',
             'services'
         ]
 
