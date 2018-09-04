@@ -44,6 +44,8 @@ class OpenShiftOrigin(Plugin):
          'fast', True),
         ("diag-prevent", "set --prevent-modification on 'oc adm diagnostics'",
          'fast', False),
+        ("all-namespaces", "collect dc output for all namespaces", "fast",
+         False)
     ]
 
     master_base_dir = "/etc/origin/master"
@@ -138,12 +140,27 @@ class OpenShiftOrigin(Plugin):
             jcmds = [
                 "hostsubnet",
                 "clusternetwork",
-                "netnamespaces",
-                "dc -n default"
+                "netnamespaces"
             ]
 
             self.add_cmd_output([
                 '%s get -o json %s' % (oc_cmd_admin, jcmd) for jcmd in jcmds
+            ])
+
+            if self.get_option('all-namespaces'):
+                ocn = self.get_command_output('%s get namespaces'
+                                              % oc_cmd_admin)
+                ns_output = ocn['output'].splitlines()[1:]
+                nmsps = [n.split()[0] for n in ns_output if n]
+            else:
+                nmsps = [
+                    'default',
+                    'openshift-web-console',
+                    'openshift-ansible-service-broker'
+                ]
+
+            self.add_cmd_output([
+                '%s get -o json dc -n %s' % (oc_cmd_admin, n) for n in nmsps
             ])
 
             if self.get_option('diag'):
