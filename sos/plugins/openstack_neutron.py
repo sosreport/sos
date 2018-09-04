@@ -123,23 +123,24 @@ class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
     #
-    # neutron specific packages:
-    #   'openstack-neutron',
-    #   'openstack-neutron-linuxbridge'
-    #   'openstack-neutron-metaplugin',
-    #   'openstack-neutron-openvswitch',
-    #   'openstack-neutron-bigswitch',
-    #   'openstack-neutron-brocade',
-    #   'openstack-neutron-cisco',
-    #   'openstack-neutron-hyperv',
-    #   'openstack-neutron-midonet',
-    #   'openstack-neutron-nec'
-    #   'openstack-neutron-nicira',
-    #   'openstack-neutron-plumgrid',
-    #   'openstack-neutron-ryu',
-    #   'python-neutron',
-    #   'python-neutronclient'
     packages = ('openstack-selinux',)
+    verify_packages = (
+       'openstack-neutron',
+       'openstack-neutron-linuxbridge'
+       'openstack-neutron-metaplugin',
+       'openstack-neutron-openvswitch',
+       'openstack-neutron-bigswitch',
+       'openstack-neutron-brocade',
+       'openstack-neutron-cisco',
+       'openstack-neutron-hyperv',
+       'openstack-neutron-midonet',
+       'openstack-neutron-nec'
+       'openstack-neutron-nicira',
+       'openstack-neutron-plumgrid',
+       'openstack-neutron-ryu',
+       'python-neutron',
+       'python-neutronclient'
+    )
 
     def check_enabled(self):
         return self.is_installed("openstack-neutron")

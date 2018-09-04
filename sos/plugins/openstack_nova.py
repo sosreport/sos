@@ -216,23 +216,24 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
     #
-    # nova specific packages:
-    #   'openstack-nova-common',
-    #   'openstack-nova-network',
-    #   'openstack-nova-conductor',
-    #   'openstack-nova-conductor',
-    #   'openstack-nova-scheduler',
-    #   'openstack-nova-console',
-    #   'openstack-nova-novncproxy',
-    #   'openstack-nova-compute',
-    #   'openstack-nova-api',
-    #   'openstack-nova-cert',
-    #   'openstack-nova-cells',
-    #   'openstack-nova-objectstore',
-    #   'python-nova',
-    #   'python-novaclient',
-    #   'novnc'
     packages = ('openstack-selinux',)
+    verify_packages = (
+       'openstack-nova-common',
+       'openstack-nova-network',
+       'openstack-nova-conductor',
+       'openstack-nova-conductor',
+       'openstack-nova-scheduler',
+       'openstack-nova-console',
+       'openstack-nova-novncproxy',
+       'openstack-nova-compute',
+       'openstack-nova-api',
+       'openstack-nova-cert',
+       'openstack-nova-cells',
+       'openstack-nova-objectstore',
+       'python-nova',
+       'python-novaclient',
+       'novnc'
+    )
 
     nova = False
 

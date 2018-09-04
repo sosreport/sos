@@ -85,9 +85,8 @@ class RedHatTrove(OpenStackTrove, RedHatPlugin):
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
     #
-    # trove specific packages:
-    #   'openstack-trove'
     packages = ('openstack-selinux',)
+    verify_packages = ('openstack-trove',)
 
     def setup(self):
         super(RedHatTrove, self).setup()

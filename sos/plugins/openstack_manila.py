@@ -91,14 +91,15 @@ class RedHatManila(OpenStackManila, RedHatPlugin):
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
     #
-    # manila specific packages:
-    #   'puppet-manila',
-    #   'openstack-manila',
-    #   'openstack-manila-share',
-    #   'python-manila',
-    #   'python-manilaclient',
-    #   'python-manila-tests'
     packages = ('openstack-selinux',)
+    verify_packages = (
+       'puppet-manila',
+       'openstack-manila',
+       'openstack-manila-share',
+       'python-manila',
+       'python-manilaclient',
+       'python-manila-tests'
+    )
 
     def setup(self):
         super(RedHatManila, self).setup()

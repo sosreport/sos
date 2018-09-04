@@ -119,12 +119,12 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
     # container: use openstack-selinux for this until a better method
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
-    #
-    # ironic specific packages:
-    #   'openstack-ironic-api',
-    #   'openstack-ironic-common',
-    #   'openstack-ironic-conductor',
     packages = ('openstack-selinux',)
+    verify_packages = (
+       'openstack-ironic-api',
+       'openstack-ironic-common',
+       'openstack-ironic-conductor',
+    )
 
     discoverd_packages = [
         'openstack-ironic-discoverd',

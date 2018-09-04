@@ -120,12 +120,13 @@ class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
     #
-    # keystone specific packages:
-    #   'openstack-keystone',
-    #   'python-keystone',
-    #   'python-django-openstack-auth',
-    #   'python-keystoneclient'
     packages = ('openstack-selinux',)
+    verify_packages = (
+       'openstack-keystone',
+       'python-keystone',
+       'python-django-openstack-auth',
+       'python-keystoneclient'
+    )
 
     def setup(self):
         super(RedHatKeystone, self).setup()

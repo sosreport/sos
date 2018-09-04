@@ -93,14 +93,15 @@ class RedHatSwift(OpenStackSwift, RedHatPlugin):
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
     #
-    # swift specific packages:
-    #   'openstack-swift',
-    #   'openstack-swift-account',
-    #   'openstack-swift-container',
-    #   'openstack-swift-object',
-    #   'openstack-swift-proxy',
-    #   'swift',
-    #   'python-swiftclient'
     packages = ('openstack-selinux',)
+    verify_packages = (
+       'openstack-swift',
+       'openstack-swift-account',
+       'openstack-swift-container',
+       'openstack-swift-object',
+       'openstack-swift-proxy',
+       'swift',
+       'python-swiftclient'
+    )
 
 # vim: set et ts=4 sw=4 :

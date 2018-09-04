@@ -89,12 +89,13 @@ class RedHatSahara(OpenStackSahara, RedHatPlugin):
     # exists to allow inspection of container packages, or matching
     # of specific OpenStack containers by name or other property.
     #
-    # sahara specific packages:
-    #   'openstack-sahara',
-    #   'openstack-sahara-api',
-    #   'openstack-sahara-engine',
-    #   'python-saharaclient'
     packages = ('openstack-selinux',)
+    verify_packages = (
+       'openstack-sahara',
+       'openstack-sahara-api',
+       'openstack-sahara-engine',
+       'python-saharaclient'
+    )
 
     def setup(self):
         super(RedHatSahara, self).setup()
