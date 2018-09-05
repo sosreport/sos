@@ -1033,16 +1033,18 @@ class Plugin(object):
                     files = [f % {"scl_name": scl} for f in self.files]
                     packages = [p % {"scl_name": scl} for p in self.packages]
                     commands = [c % {"scl_name": scl} for c in self.commands]
-                    if self._files_pkgs_or_cmds_present(files,
-                                                        packages,
-                                                        commands):
+                    services = [s % {"scl_name": scl} for s in self.services]
+                    if self._check_plugin_triggers(files,
+                                                   packages,
+                                                   commands,
+                                                   services):
                         type(self)._scls_matched.append(scl)
                 return len(type(self)._scls_matched) > 0
 
-            return self._files_pkgs_or_cmds_present(self.files,
-                                                    self.packages,
-                                                    self.commands,
-                                                    self.services)
+            return self._check_plugin_triggers(self.files,
+                                               self.packages,
+                                               self.commands,
+                                               self.services)
 
         if isinstance(self, SCLPlugin):
             # if files and packages weren't specified, we take all SCLs
@@ -1050,7 +1052,7 @@ class Plugin(object):
 
         return True
 
-    def _files_pkgs_or_cmds_present(self, files, packages, commands, services):
+    def _check_plugin_triggers(self, files, packages, commands, services):
             kernel_mods = self.policy.lsmod()
 
             def have_kmod(kmod):
