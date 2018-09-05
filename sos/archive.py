@@ -165,9 +165,24 @@ class FileCacheArchive(Archive):
             The standard python `os.makedirs` is insufficient for our
             needs: it will only create directories, and ignores the fact
             that some path components may be symbolic links.
+
+            :param src: The source path in the host file system for which
+                        leading components should be created, or the path
+                        to an sos_* virtual directory inside the archive.
+
+                        Host paths must be absolute (initial '/'), and
+                        sos_* directory paths must be a path relative to
+                        the root of the archive.
+
+            :param mode: An optional mode to be used when creating path
+                         components.
+            :returns: A rewritten destination path in the case that one
+                      or more symbolic links in intermediate components
+                      of the path have altered the path destination.
         """
         self.log_debug("Making leading paths for %s" % src)
         root = self._archive_root
+        dest = src
 
         def in_archive(path):
             """Test whether path ``path`` is inside the archive.
@@ -191,34 +206,42 @@ class FileCacheArchive(Archive):
         path_comps.reverse()
 
         abs_path = root
-        rel_path = ""
+        src_path = "/"
 
         # Check and create components as needed
         for comp in path_comps:
             abs_path = os.path.join(abs_path, comp)
 
+            # Do not create components that are above the archive root.
             if not in_archive(abs_path):
                 continue
 
-            rel_path = os.path.join(rel_path, comp)
-            src_path = os.path.join("/", rel_path)
+            src_path = os.path.join(src_path, comp)
 
             if not os.path.exists(abs_path):
                 self.log_debug("Making path %s" % abs_path)
                 if os.path.islink(src_path) and os.path.isdir(src_path):
                     target = os.readlink(src_path)
-                    abs_target = os.path.join(root, target)
+
+                    # The directory containing the source in the host fs,
+                    # adjusted for the current level of path creation.
+                    target_dir = os.path.split(src_path)[0]
+
+                    # The source path of the target in the host fs to be
+                    # recursively copied.
+                    target_src = os.path.join(target_dir, target)
 
                     # Recursively create leading components of target
-                    self._make_leading_paths(abs_target, mode=mode)
+                    dest = self._make_leading_paths(target_src, mode=mode)
+                    dest = os.path.normpath(dest)
 
                     self.log_debug("Making symlink '%s' -> '%s'" %
                                    (abs_path, target))
-                    target = os.path.relpath(target)
                     os.symlink(target, abs_path)
                 else:
                     self.log_debug("Making directory %s" % abs_path)
                     os.mkdir(abs_path, mode)
+        return dest
 
     def _check_path(self, src, path_type, dest=None, force=False):
         """Check a new destination path in the archive.
@@ -259,13 +282,17 @@ class FileCacheArchive(Archive):
         if not dest_dir:
             return dest
 
+        # Preserve destination basename for rewritten dest_dir
+        dest_name = os.path.split(src)[1]
+
         # Check containing directory presence and path type
         if os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
             raise ValueError("path '%s' exists and is not a directory" %
                              dest_dir)
         elif not os.path.exists(dest_dir):
             src_dir = src if path_type == P_DIR else os.path.split(src)[0]
-            self._make_leading_paths(src_dir)
+            src_dir = self._make_leading_paths(src_dir)
+            dest = self.dest_path(os.path.join(src_dir, dest_name))
 
         def is_special(mode):
             return any([
