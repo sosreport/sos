@@ -325,6 +325,12 @@ No changes will be made to system configuration.
 
 ATOMIC = "atomic"
 ATOMIC_RELEASE_STR = "Atomic"
+ATOMIC_DESC = "Red Hat Enterprise Linux Atomic Host"
+
+atomic_presets = {
+    ATOMIC: PresetDefaults(name=ATOMIC, desc=ATOMIC_DESC, note=NOTE_TIME,
+                           opts=_opts_verify)
+}
 
 
 class RedHatAtomicPolicy(RHELPolicy):
@@ -347,6 +353,10 @@ organization before being passed to any third party.
 %(vendor_text)s
 """)
 
+    def __init__(self, sysroot=None):
+        super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot)
+        self.register_presets(atomic_presets)
+
     @classmethod
     def check(cls):
         atomic = False
@@ -363,7 +373,10 @@ organization before being passed to any third party.
         return atomic
 
     def probe_preset(self):
-        return ATOMIC
+        if self.pkg_by_name('atomic-openshift'):
+            return self.find_preset(RHOCP)
+
+        return self.find_preset(ATOMIC)
 
 
 class FedoraPolicy(RedHatPolicy):
