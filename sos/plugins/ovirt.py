@@ -57,7 +57,9 @@ class Ovirt(Plugin, RedHatPlugin):
         ('jbosstrace', 'Enable oVirt Engine JBoss stack trace collection',
          '', True),
         ('sensitive_keys', 'Sensitive keys to be masked',
-         '', DEFAULT_SENSITIVE_KEYS)
+         '', DEFAULT_SENSITIVE_KEYS),
+        ('heapdump', 'Collect heap dumps from /var/log/ovirt-engine/dump/',
+         '', False)
     ]
 
     def setup(self):
@@ -80,6 +82,10 @@ class Ovirt(Plugin, RedHatPlugin):
             '/etc/ovirt-engine/.pgpass',
             '/etc/rhevm/.pgpass'
         ])
+
+        if not self.get_option('heapdump'):
+            self.add_forbidden_path('/var/log/ovirt-engine/dump')
+            self.add_cmd_output('ls -l /var/log/ovirt-engine/dump/')
 
         # Copy all engine tunables and domain information
         self.add_cmd_output("engine-config --all")
