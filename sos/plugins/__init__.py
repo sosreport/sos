@@ -401,7 +401,7 @@ class Plugin(object):
                 msg = "Too many levels of symbolic links copying"
                 self._log_error("_copy_dir: %s '%s'" % (msg, srcpath))
                 return
-            raise e
+            raise
 
     def _get_dest_for_srcpath(self, srcpath):
         if self.use_sysroot():
