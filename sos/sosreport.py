@@ -1065,9 +1065,13 @@ class SoSReport(object):
         try:
             self.plugpool = ThreadPoolExecutor(self.opts.threads)
             # Pass the plugpool its own private copy of self.pluglist
-            self.plugpool.map(self._collect_plugin, list(self.pluglist),
-                              chunksize=1)
+            results = self.plugpool.map(self._collect_plugin,
+                                        list(self.pluglist), chunksize=1)
             self.plugpool.shutdown(wait=True)
+            for res in results:
+                if not res:
+                    self.soslog.debug("Unexpected plugin task result: %s" %
+                                      res)
             self.ui_log.info("")
         except KeyboardInterrupt:
             # We may not be at a newline when the user issues Ctrl-C
