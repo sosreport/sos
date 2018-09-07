@@ -88,7 +88,7 @@ class OpenStackGlance(Plugin):
                 for line in container_status['output'].splitlines():
                     if line.endswith("glance_api"):
                         return True
-        return false
+        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)
