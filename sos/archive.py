@@ -403,6 +403,7 @@ class FileCacheArchive(Archive):
                            % (dest, self._archive_root))
 
     def add_link(self, source, link_name):
+        self.log_debug("adding symlink at '%s' -> '%s'" % (link_name, source))
         with self._path_lock:
             dest = self._check_path(link_name, P_LINK)
             if not dest:
@@ -410,10 +411,41 @@ class FileCacheArchive(Archive):
 
             if not os.path.lexists(dest):
                 os.symlink(source, dest)
-            self.log_debug("added symlink at '%s' to '%s' in archive '%s'"
-                           % (dest, source, self._archive_root))
+                self.log_debug("added symlink at '%s' to '%s' in archive '%s'"
+                               % (dest, source, self._archive_root))
 
-    def add_dir(self, path):
+        # Follow-up must be outside the path lock: we recurse into
+        # other monitor methods that will attempt to reacquire it.
+
+        source_dir = os.path.dirname(link_name)
+        host_source = os.path.join(source_dir, source)
+        if not os.path.exists(self.dest_path(host_source)):
+            if os.path.islink(host_source):
+                link_dir = os.path.dirname(link_name)
+                link_name = os.path.normpath(os.path.join(link_dir, source))
+                dest_dir = os.path.dirname(link_name)
+                source = os.path.join(dest_dir, os.readlink(link_name))
+                source = os.path.relpath(source)
+                self.log_debug("Adding link %s -> %s for link follow up" %
+                               (link_name, source))
+                self.add_link(source, link_path)
+            elif os.path.isdir(host_source):
+                self.log_debug("Adding dir %s for link follow up" % source)
+                self.add_dir(host_source)
+            elif os.path.isfile(host_source):
+                self.log_debug("Adding file %s for link follow up" % source)
+                self.add_file(host_source)
+            else:
+                self.log_debug("No link follow up: source=%s link_name=%s" %
+                               (source, link_name))
+
+
+    def add_dir(self, path, copy=False):
+        """Create a directory in the archive.
+
+            :param path: the path in the host file system to add
+        """
+        # Establish path structure
         with self._path_lock:
             self._check_path(path, P_DIR)
 
