@@ -30,6 +30,7 @@ from shutil import rmtree
 import tempfile
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
+import pdb
 
 from sos import _sos as _
 from sos import __version__
@@ -504,7 +505,13 @@ class SoSReport(object):
 
     def handle_exception(self, plugname=None, func=None):
         if self.raise_plugins or self.exit_process:
-            raise
+            # retrieve exception info for the current thread and stack.
+            (etype, val, tb) = sys.exc_info()
+            # we are NOT in interactive mode, print the exception...
+            traceback.print_exception(etype, val, tb, file=sys.stdout)
+            print_()
+            # ...then start the debugger in post-mortem mode.
+            pdb.post_mortem(tb)
         if plugname and func:
             self._log_plugin_exception(plugname, func)
 
