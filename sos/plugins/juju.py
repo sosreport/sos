@@ -51,7 +51,12 @@ class Juju(Plugin, UbuntuPlugin):
         cmd = "juju status --format json"
         status_json = self.call_ext_prog(cmd)['output']
         self.add_string_as_file(status_json, "juju_status_json")
-        return json_loads(status_json)['services'].keys()
+        # if status_json isn't in JSON format (i.e. 'juju' command not found),
+        # or if it does not contain 'services' key, return empty list
+        try:
+            return json_loads(status_json)['services'].keys()
+        except ValueError:
+            return []
 
     @ensure_service_is_running("juju-db")
     def export_mongodb(self):
