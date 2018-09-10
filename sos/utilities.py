@@ -155,7 +155,8 @@ def sos_get_command_output(command, timeout=300, stderr=False,
 
         reader = AsyncReader(p.stdout, sizelimit, binary)
         stdout = reader.get_contents()
-        p.poll()
+        while p.poll() == None:
+            pass
 
     except OSError as e:
         if e.errno == errno.ENOENT:
