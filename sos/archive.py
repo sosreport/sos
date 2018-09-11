@@ -428,7 +428,7 @@ class FileCacheArchive(Archive):
                 source = os.path.relpath(source)
                 self.log_debug("Adding link %s -> %s for link follow up" %
                                (link_name, source))
-                self.add_link(source, link_path)
+                self.add_link(source, link_name)
             elif os.path.isdir(host_source):
                 self.log_debug("Adding dir %s for link follow up" % source)
                 self.add_dir(host_source)
