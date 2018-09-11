@@ -417,27 +417,35 @@ class FileCacheArchive(Archive):
         # Follow-up must be outside the path lock: we recurse into
         # other monitor methods that will attempt to reacquire it.
 
+        self.log_debug("Link follow up: source=%s link_name=%s dest=%s" %
+                       (source, link_name, dest))
+
         source_dir = os.path.dirname(link_name)
-        host_source = os.path.join(source_dir, source)
-        if not os.path.exists(self.dest_path(host_source)):
-            if os.path.islink(host_source):
-                link_dir = os.path.dirname(link_name)
-                link_name = os.path.normpath(os.path.join(link_dir, source))
+        host_path_name = os.path.normpath(os.path.join(source_dir, source))
+        dest_path_name = self.dest_path(host_path_name)
+
+        if not os.path.exists(dest_path_name):
+            if os.path.islink(host_path_name):
+                # Normalised path for the new link_name
+                link_name = host_path_name
+                # Containing directory for the new link
                 dest_dir = os.path.dirname(link_name)
-                source = os.path.join(dest_dir, os.readlink(link_name))
-                source = os.path.relpath(source)
+                # Relative source path of the new link
+                source = os.path.join(dest_dir, os.readlink(host_path_name))
+                source = os.path.relpath(source, dest_dir)
                 self.log_debug("Adding link %s -> %s for link follow up" %
                                (link_name, source))
                 self.add_link(source, link_name)
-            elif os.path.isdir(host_source):
+            elif os.path.isdir(host_path_name):
                 self.log_debug("Adding dir %s for link follow up" % source)
-                self.add_dir(host_source)
-            elif os.path.isfile(host_source):
+                self.add_dir(host_path_name)
+            elif os.path.isfile(host_path_name):
                 self.log_debug("Adding file %s for link follow up" % source)
-                self.add_file(host_source)
+                self.add_file(host_path_name)
             else:
                 self.log_debug("No link follow up: source=%s link_name=%s" %
                                (source, link_name))
+        self.log_debug("leaving add_link()")
 
     def add_dir(self, path):
         """Create a directory in the archive.
