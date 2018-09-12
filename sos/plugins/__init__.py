@@ -353,7 +353,10 @@ class Plugin(object):
         absdest = os.path.normpath(dest)
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
-            reldest = os.path.relpath(linkdest, os.path.dirname(srcpath))
+            # Canonicalize the link target path to avoid additional levels
+            # of symbolic links (that would affect the path nesting level).
+            realdir = os.path.realpath(os.path.dirname(srcpath))
+            reldest = os.path.relpath(linkdest, start=realdir)
             # trim leading /sysroot
             if self.use_sysroot():
                 reldest = reldest[len(os.sep + os.pardir):]
