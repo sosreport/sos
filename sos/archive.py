@@ -421,7 +421,7 @@ class FileCacheArchive(Archive):
                        (source, link_name, dest))
 
         source_dir = os.path.dirname(link_name)
-        host_path_name = os.path.normpath(os.path.join(source_dir, source))
+        host_path_name = os.path.realpath(os.path.join(source_dir, source))
         dest_path_name = self.dest_path(host_path_name)
 
         if not os.path.exists(dest_path_name):
