@@ -106,7 +106,8 @@ class OpenVSwitch(Plugin):
                     "ovs-ofctl dump-ports %s" % br,
                     "ovs-ofctl queue-get-config %s" % br,
                     "ovs-ofctl queue-stats %s" % br,
-                    "ovs-ofctl show %s" % br
+                    "ovs-ofctl show %s" % br,
+                    "ovs-appctl fdb/stats-show %s" % br
                 ])
 
                 # Flow protocols currently supported
