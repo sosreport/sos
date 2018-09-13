@@ -424,6 +424,29 @@ class FileCacheArchive(Archive):
         host_path_name = os.path.realpath(os.path.join(source_dir, source))
         dest_path_name = self.dest_path(host_path_name)
 
+        def is_loop(link_name, source):
+            """Return ``True`` if the symbolic link ``link_name`` is part
+                of a file system loop, or ``False`` otherwise.
+            """
+            link_dir = os.path.dirname(link_name)
+            if not os.path.isabs(source):
+                source = os.path.realpath(os.path.join(link_dir, source))
+            link_name = os.path.realpath(link_name)
+
+            # Simple a -> a loop
+            if link_name == source:
+                return True
+
+            # Find indirect loops (a->b-a) by stat()ing the first step
+            # in the symlink chain
+            try:
+                os.stat(link_name)
+            except OSError as e:
+                if e.errno == 40:
+                    return True
+                raise
+            return False
+
         if not os.path.exists(dest_path_name):
             if os.path.islink(host_path_name):
                 # Normalised path for the new link_name
@@ -433,6 +456,10 @@ class FileCacheArchive(Archive):
                 # Relative source path of the new link
                 source = os.path.join(dest_dir, os.readlink(host_path_name))
                 source = os.path.relpath(source, dest_dir)
+                if is_loop(link_name, source):
+                    self.log_debug("Link '%s' - '%s' loops: skipping..." %
+                                   (link_name, source))
+                    return
                 self.log_debug("Adding link %s -> %s for link follow up" %
                                (link_name, source))
                 self.add_link(source, link_name)
