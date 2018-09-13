@@ -43,6 +43,16 @@ class OpenVSwitch(Plugin):
             "/var/run/openvswitch/ovs-vswitchd.pid"
         ])
 
+        # Gather fdb statistical output for each OVS bridge on the host.
+        br_list_result = self.call_ext_prog("ovs-vsctl list-br")
+        if br_list_result['status'] == 0:
+            for br in br_list_result['output'].splitlines():
+                # FDB statistics command, first iteration do this early on
+                # so we get some natural delay between the two iterations.
+                self.add_cmd_output(
+                    ["sh -c \"ovs-appctl fdb/stats-show %s && date +%%T.%%3N\"" % br],
+                    suggest_filename="ovs-appctl fdb/stats-show %s  seq1" %br)
+
         self.add_cmd_output([
             # The '-s' option enables dumping of packet counters on the
             # ports.
@@ -137,6 +147,11 @@ class OpenVSwitch(Plugin):
                             "ovs-ofctl -O %s dump-flows %s" % (flow, br),
                             "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
                         ])
+
+                # FDB statistics command, second iteration
+                self.add_cmd_output(
+                    ["sh -c \"ovs-appctl fdb/stats-show %s && date +%%T.%%3N\"" % br],
+                    suggest_filename="ovs-appctl fdb/stats-show %s  seq2" %br)
 
         # Gather info on the DPDK mempools associated with each DPDK port
         br_list_result = self.call_ext_prog("ovs-vsctl -t 5 list-br")
