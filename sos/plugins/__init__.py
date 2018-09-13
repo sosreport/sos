@@ -376,6 +376,21 @@ class Plugin(object):
             self._log_debug("link '%s' is a directory, skipping..." % linkdest)
             return
 
+        self.copied_files.append({'srcpath': srcpath,
+                                  'dstpath': dstpath,
+                                  'symlink': "yes",
+                                  'pointsto': linkdest})
+
+        # Check for indirect symlink loops by stat()ing the next step
+        # in the link chain.
+        try:
+            os.stat(absdest)
+        except OSError as e:
+            if e.errno == 40:
+                self._log_debug("link '%s' is part of a file system "
+                                "loop, skipping target..." % dstpath)
+                return
+
         # copy the symlink target translating relative targets
         # to absolute paths to pass to _do_copy_path.
         self._log_debug("normalized link target '%s' as '%s'"
@@ -387,11 +402,6 @@ class Plugin(object):
         else:
             self._log_debug("link '%s' points to itself, skipping target..."
                             % linkdest)
-
-        self.copied_files.append({'srcpath': srcpath,
-                                  'dstpath': dstpath,
-                                  'symlink': "yes",
-                                  'pointsto': linkdest})
 
     def _copy_dir(self, srcpath):
         try:
