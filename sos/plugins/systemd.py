@@ -29,6 +29,7 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "systemctl status --all",
             "systemctl show --all",
             "systemctl show *service --all",
+            "systemctl list-jobs",
             # It is possible to do systemctl show with target, slice,
             # device, socket, scope, and mount too but service and
             # status --all mostly seems to cover the others.
