@@ -241,6 +241,8 @@ class FileCacheArchive(Archive):
                 else:
                     self.log_debug("Making directory %s" % abs_path)
                     os.mkdir(abs_path, mode)
+                    dest = src_path
+
         return dest
 
     def _check_path(self, src, path_type, dest=None, force=False):
@@ -282,17 +284,13 @@ class FileCacheArchive(Archive):
         if not dest_dir:
             return dest
 
-        # Preserve destination basename for rewritten dest_dir
-        dest_name = os.path.split(src)[1]
-
         # Check containing directory presence and path type
         if os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
             raise ValueError("path '%s' exists and is not a directory" %
                              dest_dir)
         elif not os.path.exists(dest_dir):
             src_dir = src if path_type == P_DIR else os.path.split(src)[0]
-            src_dir = self._make_leading_paths(src_dir)
-            dest = self.dest_path(os.path.join(src_dir, dest_name))
+            self._make_leading_paths(src_dir)
 
         def is_special(mode):
             return any([
