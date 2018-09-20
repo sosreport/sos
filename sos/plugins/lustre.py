@@ -51,4 +51,8 @@ class Lustre(Plugin, RedHatPlugin):
         self.get_params("quota", ["osd-*.*.quota_slave." +
                                   "{info,limit_*,acct_*}"])
 
+        # Grab emergency ring buffer dumps
+        if self.get_option("all_logs"):
+            self.add_copy_spec("/tmp/lustre-log.*")
+
 # vim: set et ts=4 sw=4 :
