@@ -45,9 +45,10 @@ class Unpackaged(Plugin, RedHatPlugin):
                             path = os.path.abspath(os.readlink(path))
                     except Exception:
                         continue
-                    file_list.append(path)
+                    file_list.append(os.path.realpath(path))
                 for name in dirs:
-                    file_list.append(os.path.join(root, name))
+                    file_list.append(os.path.realpath(
+                                     os.path.join(root, name)))
 
             return file_list
 
@@ -63,7 +64,8 @@ class Unpackaged(Plugin, RedHatPlugin):
             return expanded
 
         all_fsystem = []
-        all_frpm = set(self.policy.mangle_package_path(
+        all_frpm = set(os.path.realpath(x)
+                       for x in self.policy.mangle_package_path(
                        self.policy.package_manager.files))
 
         for d in get_env_path_list():
