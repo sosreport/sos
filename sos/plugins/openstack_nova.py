@@ -70,7 +70,7 @@ class OpenStackNova(Plugin):
                 self.add_cmd_output("nova service-list")
                 self.add_cmd_output("openstack flavor list --long")
                 self.add_cmd_output("nova network-list")
-                self.add_cmd_output("nova list")
+                self.add_cmd_output("nova list --all-tenants")
                 self.add_cmd_output("nova agent-list")
                 self.add_cmd_output("nova version-list")
                 self.add_cmd_output("nova hypervisor-list")
