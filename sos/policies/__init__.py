@@ -9,6 +9,7 @@ import fnmatch
 import tempfile
 import random
 import string
+import sys
 from os import environ
 
 from sos.utilities import (ImporterHelper,
@@ -611,7 +612,7 @@ No changes will be made to system configuration.
     def get_preferred_hash_name(self):
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""
-        return "md5"
+        return "sha256"
 
     def display_results(self, archive, directory, checksum):
         # Display results is called from the tail of SoSReport.final_work()
@@ -800,17 +801,11 @@ class LinuxPolicy(Policy):
         if self._preferred_hash_name:
             return self._preferred_hash_name
 
-        checksum = "md5"
-        try:
-            fp = open("/proc/sys/crypto/fips_enabled", "r")
-        except IOError:
-            self._preferred_hash_name = checksum
-            return checksum
-
-        fips_enabled = fp.read()
-        if fips_enabled.find("1") >= 0:
+        if sys.version_info[0] <= 2:
+            checksum = "md5"
+        else:
             checksum = "sha256"
-        fp.close()
+
         self._preferred_hash_name = checksum
         return checksum
 
