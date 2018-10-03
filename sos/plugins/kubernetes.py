@@ -69,7 +69,9 @@ class kubernetes(Plugin, RedHatPlugin):
 
         # get all namespaces in use
         kn = self.get_command_output('%s get namespaces' % kube_cmd)
-        knsps = [n.split()[0] for n in kn['output'].splitlines()[1:] if n]
+        # namespace is the 1st word on line, until the line has spaces only
+        kn_output = kn['output'].splitlines()[1:]
+        knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
 
         resources = [
             'deployments',
