@@ -130,9 +130,6 @@ class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 
 class RedHatGlance(OpenStackGlance, RedHatPlugin):
 
-    packages = (
-        'openstack-glance',
-        'python-glanceclient'
-    )
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

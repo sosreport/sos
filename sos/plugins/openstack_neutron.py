@@ -120,26 +120,7 @@ class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
 
 class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
 
-    packages = [
-        'openstack-neutron',
-        'openstack-neutron-linuxbridge'
-        'openstack-neutron-metaplugin',
-        'openstack-neutron-openvswitch',
-        'openstack-neutron-bigswitch',
-        'openstack-neutron-brocade',
-        'openstack-neutron-cisco',
-        'openstack-neutron-hyperv',
-        'openstack-neutron-midonet',
-        'openstack-neutron-nec'
-        'openstack-neutron-nicira',
-        'openstack-neutron-plumgrid',
-        'openstack-neutron-ryu',
-        'python-neutron',
-        'python-neutronclient'
-    ]
-
-    def check_enabled(self):
-        return self.is_installed("openstack-neutron")
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatNeutron, self).setup()

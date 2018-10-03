@@ -200,10 +200,6 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         'python-novnc'
     )
 
-    def check_enabled(self):
-        self.nova = self.is_installed("nova-common")
-        return self.nova
-
     def setup(self):
         super(DebianNova, self).setup()
         self.add_copy_spec([
@@ -215,27 +211,7 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 class RedHatNova(OpenStackNova, RedHatPlugin):
 
     nova = False
-    packages = (
-        'openstack-nova-common',
-        'openstack-nova-network',
-        'openstack-nova-conductor',
-        'openstack-nova-conductor',
-        'openstack-nova-scheduler',
-        'openstack-nova-console',
-        'openstack-nova-novncproxy',
-        'openstack-nova-compute',
-        'openstack-nova-api',
-        'openstack-nova-cert',
-        'openstack-nova-cells',
-        'openstack-nova-objectstore',
-        'python-nova',
-        'python-novaclient',
-        'novnc'
-    )
-
-    def check_enabled(self):
-        self.nova = self.is_installed("openstack-nova-common")
-        return self.nova
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatNova, self).setup()

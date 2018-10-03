@@ -141,12 +141,10 @@ class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 class RedHatCinder(OpenStackCinder, RedHatPlugin):
 
     cinder = False
-    packages = ('openstack-cinder',
-                'python-cinder',
-                'python-cinderclient')
+    packages = ('openstack-selinux',)
 
     def check_enabled(self):
-        self.cinder = self.is_installed("openstack-cinder")
+        self.cinder = self.is_installed("openstack-selinux")
         return self.cinder
 
     def setup(self):

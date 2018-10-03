@@ -103,10 +103,7 @@ class UbuntuHorizon(OpenStackHorizon, UbuntuPlugin):
 
 class RedHatHorizon(OpenStackHorizon, RedHatPlugin):
 
-    packages = (
-        'python-django-horizon',
-        'openstack-dashboard'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatHorizon, self).setup()
