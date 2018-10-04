@@ -55,11 +55,15 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             ])
 
         if ispSeries:
+            cmd_output_path = self.get_cmd_output_path(name="ctsnap",
+                                                       make=True)
             self.add_copy_spec([
                 "/proc/ppc64/lparcfg",
                 "/proc/ppc64/eeh",
                 "/proc/ppc64/systemcfg",
-                "/var/log/platform"
+                "/var/log/platform",
+                "/var/log/drmgr",
+                "/var/log/drmgr.0"
             ])
             self.add_cmd_output([
                 "servicelog --dump",
@@ -68,7 +72,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "usysident",
                 "serv_config -l",
                 "bootlist -m both -r",
-                "lparstat -i"
+                "lparstat -i",
+                "ctsnap -xrunrpttr -d %s" % (cmd_output_path)
             ])
 
         if isPowerNV:
