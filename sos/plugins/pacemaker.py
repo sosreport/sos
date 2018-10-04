@@ -66,9 +66,6 @@ class Pacemaker(Plugin):
 
     def setup(self):
         self.add_copy_spec([
-            # Pacemaker cluster configuration file
-            "/var/lib/pacemaker/cib/cib.xml",
-
             # Pacemaker 2.x default log locations
             "/var/log/pacemaker/pacemaker.log",
             "/var/log/pacemaker/bundles/*/",
