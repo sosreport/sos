@@ -45,6 +45,8 @@ class Pacemaker(Plugin):
         self.add_cmd_output([
             "pcs config",
             "pcs status",
+            "pcs stonith sbd status",
+            "pcs quorum status",
             "pcs property list --all"
         ])
 
@@ -78,11 +80,6 @@ class Pacemaker(Plugin):
             # Common user-specified locations
             "/var/log/cluster/pacemaker.log",
             "/var/log/cluster/bundles/*/",
-        ])
-
-        self.add_cmd_output([
-            "pcs stonith sbd status",
-            "pcs quorum status"
         ])
 
         self.setup_crm_mon()
