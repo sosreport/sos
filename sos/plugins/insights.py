@@ -13,16 +13,10 @@ class RedHatInsights(Plugin, RedHatPlugin):
     '''Collect config and log for Red Hat Insights
     '''
     plugin_name = 'insights'
-<<<<<<< HEAD
     packages = ['redhat-access-insights', 'insights-client']
     profiles = ('system', 'sysmgmt')
     conf_file = ('/etc/insights-client/insights-client.conf', \
                  '/etc/redhat-access-insights/redhat-access-insights.conf')
-=======
-    packages = ['insights-client']
-    profiles = ('system', 'sysmgmt')
-    conf_file = '/etc/insights-client/insights-client.conf'
->>>>>>> 1f5570a5afa3aa0dfc6590e275ba83d3321e3a13
 
     def setup(self):
         self.add_copy_spec(self.conf_file)
@@ -30,12 +24,8 @@ class RedHatInsights(Plugin, RedHatPlugin):
             self.add_copy_spec("/var/log/insights-client/*.log*")
             self.add_copy_spec("/var/log/redhat-access-insights/*.log*")
         else:
-<<<<<<< HEAD
             self.add_copy_spec("/var/log/insights-client/insights-client.log")
             self.add_copy_spec("/var/log/redhat-access-insights/*.log")
-=======
-            self.add_copy_spec("/var/log/insights-client/*.log")
->>>>>>> 1f5570a5afa3aa0dfc6590e275ba83d3321e3a13
 
     def postproc(self):
         self.do_file_sub(
