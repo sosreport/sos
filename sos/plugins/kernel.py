@@ -93,7 +93,10 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             '/sys/kernel/debug/tracing/events/*',
             '/sys/kernel/debug/tracing/free_buffer',
             '/sys/kernel/debug/tracing/trace_marker',
-            '/sys/kernel/debug/tracing/trace_marker_raw'
+            '/sys/kernel/debug/tracing/trace_marker_raw',
+            '/sys/kernel/debug/tracing/instances/*/per_cpu/*/snapshot_raw',
+            '/sys/kernel/debug/tracing/instances/*/per_cpu/*/trace_pipe*',
+            '/sys/kernel/debug/tracing/instances/*/trace_pipe'
         ])
 
         self.add_copy_spec([
