@@ -281,7 +281,7 @@ support representative.
                 if line.startswith("NAME"):
                     (name, value) = line.split("=")
                     value = value.strip("\"'")
-                    if value.startswith(RHEL_RELEASE_STR):
+                    if value.startswith(cls.distro):
                         return True
         return False
 
@@ -323,6 +323,12 @@ support representative.
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
+
+
+class CentOsPolicy(RHELPolicy):
+    distro = "CentOS"
+    vendor = "CentOS"
+    vendor_url = "http://www.centos.org/"
 
 
 ATOMIC = "atomic"
@@ -403,6 +409,12 @@ support representative.
         # As of the creation of this policy, RHCOS is only available for
         # RH OCP environments.
         return self.find_preset(RHOCP)
+
+
+class CentOsAtomicPolicy(RedHatAtomicPolicy):
+    distro = "CentOS Atomic Host"
+    vendor = "CentOS"
+    vendor_url = "http://www.centos.org/"
 
 
 class FedoraPolicy(RedHatPolicy):
