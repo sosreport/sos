@@ -21,7 +21,15 @@ class Crypto(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/proc/crypto",
-            "/proc/sys/crypto/fips_enabled"
+            "/proc/sys/crypto/fips_enabled",
+            "/etc/system-fips",
+            "/etc/crypto-policies/*"
+        ])
+
+        self.add_cmd_output([
+            "fips-mode-setup --check",
+            "update-crypto-policies --show",
+            "update-crypto-policies --is-applied"
         ])
 
 # vim: et ts=4 sw=4
