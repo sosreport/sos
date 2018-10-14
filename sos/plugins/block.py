@@ -27,11 +27,11 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             return out
         for line in lsblk_out.splitlines():
             # find in output lines like
-            # |-sda2    crypto_LUKS    <uuid>
-            # and separate device name - it will be 1st string on the line
-            # after first '-'
+            # sda2      crypto_LUKS    <uuid>
+            # loop0     crypto_LUKS    <uuid>
+            # and separate device name - it will be the 1st string on the line
             if 'crypto_LUKS' in line:
-                dev = line.split()[0].split('-', 1)[1]
+                dev = line.split()[0]
                 out.append(dev)
         return out
 
@@ -67,7 +67,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                     "fdisk -l %s" % disk_path
                 ])
 
-        lsblk_file = self.get_cmd_output_now("lsblk -f -a")
+        lsblk_file = self.get_cmd_output_now("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump
         if lsblk_file:
             for dev in self.get_luks_devices(lsblk_file):
