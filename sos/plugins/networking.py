@@ -111,6 +111,7 @@ class Networking(Plugin):
             "/etc/sysconfig/nftables.conf",
             "/etc/nftables.conf",
             "/etc/dnsmasq*",
+            "/sys/class/net/*/device/numa_node",
             "/sys/class/net/*/flags",
             "/sys/class/net/*/statistics/",
             "/etc/iproute2"
