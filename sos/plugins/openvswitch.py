@@ -49,6 +49,8 @@ class OpenVSwitch(Plugin):
             "ovs-dpctl -s show",
             # Capture the in-kernel flow information if it exists
             "ovs-dpctl dump-flows -m",
+            # Capture the flow information also for offloaded rules
+            "ovs-dpctl dump-flows type=offloaded -m",
             # The '-t 5' adds an upper bound on how long to wait to connect
             # to the Open vSwitch server, avoiding hangs when running sos.
             "ovs-vsctl -t 5 show",
