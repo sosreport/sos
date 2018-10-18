@@ -1497,5 +1497,6 @@ def main(args):
     """The main entry point"""
     sos = SoSReport(args)
     sos.execute()
+    sos._cleanup()
 
 # vim: set et ts=4 sw=4 :
