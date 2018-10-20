@@ -25,18 +25,6 @@ class Networking(Plugin):
     # switch to enable netstat "wide" (non-truncated) output mode
     ns_wide = "-W"
 
-    def get_eth_interfaces(self, ip_link_out):
-        """Return a dictionary for which keys are ethernet interface
-        names taken from the output of "ip -o link".
-        """
-        out = {}
-        for line in ip_link_out.splitlines():
-            match = re.match('.*link/ether', line)
-            if match:
-                iface = match.string.split(':')[1].lstrip()
-                out[iface] = True
-        return out
-
     def get_ip_netns(self, ip_netns_file):
         """Returns a list for which items are namespaces in the output of
         ip netns stored in the ip_netns_file.
@@ -54,19 +42,6 @@ class Networking(Plugin):
                 return out
             out.append(line.partition(' ')[0])
         return out
-
-    def get_netns_devs(self, namespace):
-        """Returns a list for which items are devices that exist within
-        the provided namespace.
-        """
-        ip_link_result = self.call_ext_prog("ip netns exec " + namespace +
-                                            " ip -o link")
-        dev_list = []
-        if ip_link_result['status'] == 0:
-            for eth in self.get_eth_interfaces(ip_link_result['output']):
-                dev = eth.replace('@NONE', '')
-                dev_list.append(dev)
-        return dev_list
 
     def collect_iptable(self, tablename):
         """ When running the iptables command, it unfortunately auto-loads
@@ -182,21 +157,22 @@ class Networking(Plugin):
 
         # Get ethtool output for every device that does not exist in a
         # namespace.
-        ip_link_result = self.call_ext_prog("ip -o link")
-        if ip_link_result['status'] == 0:
-            for dev in self.get_eth_interfaces(ip_link_result['output']):
-                eth = dev.replace('@NONE', '')
-                self.add_cmd_output([
-                    "ethtool "+eth,
-                    "ethtool -d "+eth,
-                    "ethtool -i "+eth,
-                    "ethtool -k "+eth,
-                    "ethtool -S "+eth,
-                    "ethtool -T "+eth,
-                    "ethtool -a "+eth,
-                    "ethtool -c "+eth,
-                    "ethtool -g "+eth
-                ])
+        for eth in os.listdir("/sys/class/net/"):
+            # skip 'bonding_masters' file created when loading the bonding
+            # module but the file does not correspond to a device
+            if eth == "bonding_masters":
+                continue
+            self.add_cmd_output([
+                "ethtool " + eth,
+                "ethtool -d " + eth,
+                "ethtool -i " + eth,
+                "ethtool -k " + eth,
+                "ethtool -S " + eth,
+                "ethtool -T " + eth,
+                "ethtool -a " + eth,
+                "ethtool -c " + eth,
+                "ethtool -g " + eth
+            ])
 
         # Collect information about bridges (some data already collected via
         # "ip .." commands)
@@ -230,8 +206,15 @@ class Networking(Plugin):
             # Devices that exist in a namespace use less ethtool
             # parameters. Run this per namespace.
             for namespace in self.get_ip_netns(ip_netns_file):
-                for eth in self.get_netns_devs(namespace):
-                    ns_cmd_prefix = cmd_prefix + namespace + " "
+                ns_cmd_prefix = cmd_prefix + namespace + " "
+                netns_netdev_list = self.call_ext_prog(ns_cmd_prefix +
+                                                       "ls -1 /sys/class/net/")
+                for eth in netns_netdev_list['output'].splitlines():
+                    # skip 'bonding_masters' file created when loading the
+                    # bonding module but the file does not correspond to
+                    # a device
+                    if eth == "bonding_masters":
+                        continue
                     self.add_cmd_output([
                         ns_cmd_prefix + "ethtool " + eth,
                         ns_cmd_prefix + "ethtool -i " + eth,
