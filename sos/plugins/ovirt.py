@@ -87,8 +87,12 @@ class Ovirt(Plugin, RedHatPlugin):
             self.add_forbidden_path('/var/log/ovirt-engine/dump')
             self.add_cmd_output('ls -l /var/log/ovirt-engine/dump/')
 
-        # Copy all engine tunables and domain information
-        self.add_cmd_output("engine-config --all")
+        self.add_cmd_output([
+            # Copy all engine tunables and domain information
+            "engine-config --all",
+            # clearer diff from factory defaults (only on ovirt>=4.2.8)
+            "engine-config -d"
+        ])
 
         # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
         manage_domains = 'engine-manage-domains'
