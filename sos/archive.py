@@ -85,7 +85,7 @@ class Archive(object):
     def add_file(self, src, dest=None):
         raise NotImplementedError
 
-    def add_string(self, content, dest):
+    def add_string(self, content, dest, mode='w'):
         raise NotImplementedError
 
     def add_binary(self, content, dest):
@@ -366,7 +366,7 @@ class FileCacheArchive(Archive):
             self.log_debug("added %s to FileCacheArchive '%s'" %
                            (file_name, self._archive_root))
 
-    def add_string(self, content, dest):
+    def add_string(self, content, dest, mode='w'):
         with self._path_lock:
             src = dest
 
@@ -376,7 +376,7 @@ class FileCacheArchive(Archive):
             # on file content.
             dest = self._check_path(dest, P_FILE, force=True)
 
-            f = codecs.open(dest, 'w', encoding='utf-8')
+            f = codecs.open(dest, mode, encoding='utf-8')
             if isinstance(content, bytes):
                 content = content.decode('utf8', 'ignore')
             f.write(content)
