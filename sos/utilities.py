@@ -285,7 +285,7 @@ class ImporterHelper(object):
         package. """
         plugins = []
         for path in self.package.__path__:
-            if os.path.isdir(path) or path == '':
+            if os.path.isdir(path):
                 plugins.extend(self._find_plugins_in_dir(path))
 
         return plugins
