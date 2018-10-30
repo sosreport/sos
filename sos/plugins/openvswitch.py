@@ -85,6 +85,8 @@ class OpenVSwitch(Plugin):
             "ovs-vsctl list Open_vSwitch",
             # Capture DPDK datapath packet counters and config
             "ovs-appctl dpctl/show -s",
+            # Capture DPDK datapath flows
+            "ovs-appctl dpctl/dump-flows",
             # Capture DPDK queue to pmd mapping
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
