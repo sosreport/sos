@@ -79,7 +79,8 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "dmesg",
             "sysctl -a",
-            "dkms status"
+            "dkms status",
+            "file /dev/null /dev/zero /dev/urandom /dev/random"
         ])
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"

@@ -68,11 +68,10 @@ def _path_in_path_list(path, path_list):
 
 def _node_type(st):
     """ return a string indicating the type of special node represented by
-    the stat buffer st (block, character, fifo, socket).
+    the stat buffer st (block, fifo, socket).
     """
     _types = [
         (stat.S_ISBLK, "block device"),
-        (stat.S_ISCHR, "character device"),
         (stat.S_ISFIFO, "named pipe"),
         (stat.S_ISSOCK, "socket")
     ]
@@ -503,7 +502,12 @@ class Plugin(object):
                 self._copy_dir(srcpath)
                 return
 
-        # handle special nodes (block, char, fifo, socket)
+        if stat.S_ISCHR(st.st_mode):
+            self._log_debug("not creating char device:'%s'"
+                            % (dest))
+            return
+
+        # handle special nodes (block, fifo, socket)
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
             ntype = _node_type(st)
             self._log_debug("creating %s node at archive:'%s'"
