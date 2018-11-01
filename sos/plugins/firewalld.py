@@ -32,6 +32,9 @@ class FirewallD(Plugin, RedHatPlugin):
             "/var/log/firewalld",
         ])
 
+        # collect nftables ruleset
+        self.add_cmd_output("nft list ruleset")
+
         # use a 10s timeout to workaround dbus problems in
         # docker containers.
         self.add_cmd_output([
