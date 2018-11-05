@@ -322,8 +322,14 @@ class Plugin(object):
             else:
                 replacements = 0
         except Exception as e:
-            msg = "regex substitution failed for '%s' with: '%s'"
-            self._log_error(msg % (path, e))
+            # if trying to regexp a nonexisting file, dont log it as an
+            # error to stdout
+            if e.errno == errno.ENOENT:
+                msg = "file '%s' not collected, substitution skipped"
+                self._log_debug(msg % path)
+            else:
+                msg = "regex substitution failed for '%s' with: '%s'"
+                self._log_error(msg % (path, e))
             replacements = 0
         return replacements
 
