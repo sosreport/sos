@@ -25,24 +25,6 @@ class Networking(Plugin):
     # switch to enable netstat "wide" (non-truncated) output mode
     ns_wide = "-W"
 
-    def get_bridge_name(self, brctl_file):
-        """Return a list for which items are bridge name according to the
-        output of brctl show stored in brctl_file.
-        """
-        out = []
-        try:
-            brctl_out = open(brctl_file).read()
-        except IOError:
-            return out
-        for line in brctl_out.splitlines():
-            if line.startswith("bridge name") \
-               or line.isspace() \
-               or line[:1].isspace():
-                continue
-            br_name, br_rest = line.split(None, 1)
-            out.append(br_name)
-        return out
-
     def get_eth_interfaces(self, ip_link_out):
         """Return a dictionary for which keys are ethernet interface
         names taken from the output of "ip -o link".
@@ -215,18 +197,14 @@ class Networking(Plugin):
                     "ethtool -g "+eth
                 ])
 
-        # brctl command will load bridge and related kernel modules
-        # if those modules are not loaded at the time of brctl command running
-        # This behaviour causes an unexpected configuration change for system.
-        # sosreport should aovid such situation.
-        if self.is_module_loaded("bridge"):
-            brctl_file = self.get_cmd_output_now("brctl show")
-            if brctl_file:
-                for br_name in self.get_bridge_name(brctl_file):
-                    self.add_cmd_output([
-                        "brctl showstp "+br_name,
-                        "brctl showmacs "+br_name
-                    ])
+        # Collect information about bridges (some data already collected via
+        # "ip .." commands)
+        self.add_cmd_output([
+            "bridge -s -s -d link show",
+            "bridge -s -s -d -t fdb show",
+            "bridge -s -s -d -t mdb show",
+            "bridge -d vlan show"
+        ])
 
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
