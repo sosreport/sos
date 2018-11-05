@@ -78,7 +78,7 @@ class Xen(Plugin, RedHatPlugin):
                 "xm info",
                 "xm list",
                 "xm list --long",
-                "brctl show"
+                "bridge link show"
             ])
             self.dom_collect_proc()
             if self.is_running_xenstored():
