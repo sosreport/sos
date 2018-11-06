@@ -11,7 +11,7 @@
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
-class Podman(Plugin):
+class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
     """Podman containers
     """
@@ -69,11 +69,10 @@ class Podman(Plugin):
                 for con in result['output'].splitlines():
                     insp.add(con)
 
-        if insp:
-            for container in insp:
-                self.add_cmd_output("podman inspect %s" % container)
-                if self.get_option('logs'):
-                    self.add_cmd_output("podman logs -t %s" % container)
+        for container in insp:
+            self.add_cmd_output("podman inspect %s" % container)
+            if self.get_option('logs'):
+                self.add_cmd_output("podman logs -t %s" % container)
 
 
 # vim: set et ts=4 sw=4 :
