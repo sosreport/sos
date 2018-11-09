@@ -55,6 +55,7 @@ class etcd(Plugin, RedHatPlugin):
             self.add_cmd_output(['curl -s %s%s' % (etcd_url, u) for u in urls])
 
         self.add_cmd_output("ls -lR /var/lib/etcd/")
+        self.add_journal(units="etcd")
 
     def get_etcd_url(self):
         try:
