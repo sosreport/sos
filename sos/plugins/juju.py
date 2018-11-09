@@ -37,7 +37,7 @@ class Juju(Plugin, UbuntuPlugin):
 
     plugin_name = 'juju'
     profiles = ('virt', 'sysmgmt')
-    files = ('/usr/bin/juju', '/usr/bin/juju-run')
+    files = ('/usr/bin/juju', '/usr/bin/juju-run', '/snap/bin/juju')
 
     option_list = [
         ('export-mongodb',
