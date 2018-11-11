@@ -19,16 +19,23 @@ class Smartcard(Plugin, RedHatPlugin):
     profiles = ('security', 'identity', 'hardware')
 
     files = ('/etc/pam_pkcs11/pam_pkcs11.conf',)
-    packages = ('pam_pkcs11',)
+    packages = ('pam_pkcs11', 'pcsc-tools', 'opensc')
 
     def setup(self):
         self.add_copy_spec([
             "/etc/reader.conf",
             "/etc/reader.conf.d/",
-            "/etc/pam_pkcs11/"])
+            "/etc/pam_pkcs11/",
+            "/etc/opensc-*.conf"
+        ])
         self.add_cmd_output([
             "pklogin_finder debug",
-            "ls -nl /usr/lib*/pam_pkcs11/"
+            "ls -nl /usr/lib*/pam_pkcs11/",
+            "pcsc_scan",
+            "pkcs11-tool --show-info",
+            "pkcs11-tool --list-mechanisms",
+            "pkcs11-tool --list-slots",
+            "pkcs11-tool --list-objects"
         ])
         self.add_forbidden_path("/etc/pam_pkcs11/nssdb/key[3-4].db")
 
