@@ -10,6 +10,8 @@ sosreport \- Collect and package diagnostic and support data
           [-a|--alloptions] [-v|--verbose]\fR
           [-k plug.opt|--plugin-option plug.opt]\fR
           [--no-report] [--config-file conf]\fR
+          [--preset preset] [--add-preset add_preset]\fR
+          [--del-preset del_preset] [--desc description]\fR
           [--batch] [--build] [--debug]\fR
           [--label label] [--case-id id] [--ticket-number nr]
           [--threads threads]
@@ -76,6 +78,37 @@ Disable HTML/XML report writing.
 .TP
 .B \--config-file CONFIG
 Specify alternate configuration file.
+.TP
+.B \--preset PRESET
+Specify an existing preset to use for sos options.
+
+Presets are pre-configured sets of options for both sos and sos plugins. For
+example a preset may enable a certain set of plugins, disable others, or enable
+specific plugin options. They may also specify sos options such as log-size or
+package verification.
+
+User defined presets are saved under /var/lib/sos/presets as JSON-formatted files.
+.TP
+.B \--add-preset ADD_PRESET [options]
+Add a preset with name ADD_PRESET that enables [options] when called.
+
+For example, 'sosreport --add-preset mypreset --log-size=50 -n logs' will enable
+a user to run 'sosreport --preset mypreset' that sets the maximum log size to
+50 and disables the logs plugin.
+
+Note: to set a description for the preset that is displayed with \fB--list-presets\fR
+use the \fB--desc\fR option.
+.TP
+.B \--del-preset DEL_PRESET
+Deletes the preset with name DEL_PRESET from the filesystem so that it can no
+longer be used.
+.TP
+.B \--list-presets
+Display a list of available presets and what options they carry.
+.TP
+.B \--desc DESCRIPTION
+When using \fB--add-preset\fR use this option to add a description of the preset
+that will be displayed when using \fB--list-presets\fR.
 .TP
 .B \-s, \--sysroot SYSROOT
 Specify an alternate root file system path. Useful for collecting
