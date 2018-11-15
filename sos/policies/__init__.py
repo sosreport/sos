@@ -385,6 +385,9 @@ class PresetDefaults(object):
         odict = self.opts.dict()
         pdict = {self.name: {DESC: self.desc, NOTE: self.note, OPTS: odict}}
 
+        if not os.path.exists(presets_path):
+            os.makedirs(presets_path, mode=0o755)
+
         with open(os.path.join(presets_path, self.name), "w") as pfile:
             json.dump(pdict, pfile)
 
