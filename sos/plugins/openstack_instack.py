@@ -11,6 +11,7 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 import os
+import re
 
 
 NON_CONTAINERIZED_DEPLOY = [
@@ -62,29 +63,32 @@ class OpenStackInstack(Plugin):
                                 "the environment file for the user intended "
                                 "to connect to the OpenStack environment.")
         else:
+            # capture all the possible stack uuids
+            get_stacks = "openstack stack list"
+            stacks = self.call_ext_prog(get_stacks)['output']
+            stack_ids = re.findall(r'(\s(\w+-\w+)+\s)', stacks)
             # get status of overcloud stack and resources
-            self.add_cmd_output("openstack stack show overcloud")
-            self.add_cmd_output(
-                "openstack stack resource list -n 10 overcloud",
-                timeout=600)
+            for sid in stack_ids:
+                self.add_cmd_output("openstack stack show %s" % sid[0])
+                self.add_cmd_output(
+                        "openstack stack resource list -n 10 %s" % sid[0])
 
-            # get details on failed deployments
-            cmd = "openstack stack resource list -f value -n 5 overcloud"
-            deployments = self.call_ext_prog(cmd, timeout=600)['output']
-            for deployment in deployments.splitlines():
-                if 'FAILED' in deployment:
-                    check = [
-                        "OS::Heat::StructuredDeployment",
-                        "OS::Heat::SoftwareDeployment"]
-                    if any(x in deployment for x in check):
-                        deployment = deployment.split()[1]
-                        cmd = "openstack software deployment show " \
-                            "--long %s" % (deployment)
-                        self.add_cmd_output(
-                            cmd,
-                            suggest_filename="failed-deployment-" +
-                            deployment + ".log",
-                            timeout=600)
+                # get details on failed deployments
+                cmd = "openstack stack resource list -f value -n 5 %s" % sid[0]
+                deployments = self.call_ext_prog(cmd)['output']
+                for deployment in deployments.splitlines():
+                        if 'FAILED' in deployment:
+                            check = [
+                                     "OS::Heat::StructuredDeployment",
+                                     "OS::Heat::SoftwareDeployment"]
+                            if any(x in deployment for x in check):
+                                    deploy = deployment.split()[1]
+                                    cmd = "openstack software deployment " \
+                                          "show --long %s" % (deployment)
+                                    fname = "failed-deployment-%s.log" % deploy
+                                    self.add_cmd_output(
+                                                        cmd,
+                                                        suggest_filename=fname)
 
             self.add_cmd_output("openstack object save "
                                 "tripleo-ui-logs tripleo-ui.logs --file -")
