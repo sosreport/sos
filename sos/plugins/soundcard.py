@@ -21,6 +21,8 @@ class Soundcard(Plugin):
         self.add_cmd_output([
             "aplay -l",
             "aplay -L",
+            "arecord -l",
+            "arecord -L",
             "amixer"
         ])
 
