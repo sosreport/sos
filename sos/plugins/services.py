@@ -9,26 +9,23 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Services(Plugin):
+class Services(Plugin, DebianPlugin, UbuntuPlugin):
     """System services
     """
 
     plugin_name = "services"
     profiles = ('system', 'boot')
 
-    option_list = [("servicestatus", "get a status of all running services",
-                    "slow", False)]
-
     def setup(self):
         self.add_copy_spec([
             "/etc/inittab",
-            "/etc/rc.d"
+            "/etc/rc.d",
+            "/etc/rc*.d"
         ])
-        if self.get_option('servicestatus'):
-            self.add_cmd_output("/sbin/service --status-all")
         self.add_cmd_output([
             "/sbin/runlevel",
-            "ls /var/lock/subsys"
+            "ls /var/lock/subsys",
+            "service --status-all"
         ])
 
 
@@ -38,16 +35,5 @@ class RedHatServices(Services, RedHatPlugin):
         super(RedHatServices, self).setup()
         self.add_cmd_output("/sbin/chkconfig --list", root_symlink="chkconfig")
 
-
-class DebianServices(Services, DebianPlugin, UbuntuPlugin):
-
-    def setup(self):
-        super(DebianServices, self).setup()
-        self.add_copy_spec("/etc/rc*.d")
-
-        self.add_cmd_output("/sbin/initctl show-config",
-                            root_symlink="initctl")
-        if self.get_option('servicestatus'):
-            self.add_cmd_output("/sbin/initctl list")
 
 # vim: set et ts=4 sw=4 :
