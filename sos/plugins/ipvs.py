@@ -23,7 +23,12 @@ class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
     def setup(self):
         self.add_cmd_output([
             "ipvsadm -Ln",
-            "ipvsadm -Lc"
+            "ipvsadm -Ln --connection",
+            "ipvsadm -Ln --persistent-conn",
+            "ipvsadm -Ln --rate",
+            "ipvsadm -Ln --stats",
+            "ipvsadm -Ln --thresholds",
+            "ipvsadm -Ln --timeout"
         ])
 
 # vim: set et ts=4 sw=4 :
