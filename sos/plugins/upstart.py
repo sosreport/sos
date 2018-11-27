@@ -24,7 +24,8 @@ class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             'initctl --system list',
             'initctl --system version',
             'init --version',
-            "ls -l /etc/init/"
+            "ls -l /etc/init/",
+            'initctl show-config'
         ])
 
         # Job Configuration Files
