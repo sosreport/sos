@@ -537,7 +537,7 @@ No changes will be made to system configuration.
                 xz_version = self.package_manager\
                                  .all_pkgs()[xz_package]["version"]
             except Exception as e:
-                xz_version = [0]  # deal like xz version is really old
+                xz_version = [u'0']  # deal like xz version is really old
             if xz_version >= [u'5', u'2']:
                 cmd = "%s -T%d" % (cmd, threads)
         return cmd
