@@ -26,7 +26,7 @@ class Services(Plugin):
             "/etc/rc.local"
         ])
         if self.get_option('servicestatus'):
-            self.add_cmd_output("/sbin/service --status-all")
+            self.add_cmd_output("service --status-all")
         self.add_cmd_output([
             "/sbin/runlevel",
             "ls /var/lock/subsys"
@@ -45,10 +45,5 @@ class DebianServices(Services, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianServices, self).setup()
         self.add_copy_spec("/etc/rc*.d")
-
-        self.add_cmd_output("/sbin/initctl show-config",
-                            root_symlink="initctl")
-        if self.get_option('servicestatus'):
-            self.add_cmd_output("/sbin/initctl list")
 
 # vim: set et ts=4 sw=4 :
