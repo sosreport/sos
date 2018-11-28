@@ -14,7 +14,7 @@ class DebianPolicy(LinuxPolicy):
     _debv_filter = ""
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
-           + ":/usr/local/sbin:/usr/local/bin"
+           + ":/usr/local/sbin:/usr/local/bin:/snap/bin"
 
     def __init__(self, sysroot=None):
         super(DebianPolicy, self).__init__(sysroot=sysroot)

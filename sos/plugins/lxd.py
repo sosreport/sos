@@ -17,6 +17,7 @@ class LXD(Plugin, UbuntuPlugin):
     plugin_name = 'lxd'
     profiles = ('container',)
     packages = ('lxd',)
+    commands = ('lxc', 'lxd')
 
     def setup(self):
         self.add_copy_spec([
