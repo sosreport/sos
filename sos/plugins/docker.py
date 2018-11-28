@@ -83,6 +83,23 @@ class Docker(Plugin):
                 if self.get_option('logs'):
                     self.add_cmd_output("docker logs -t %s" % container)
 
+    def postproc(self):
+        # Attempts to match key=value pairs inside container inspect output
+        # for potentially sensitive items like env vars that contain passwords.
+        # Typically, these will be seen in env elements or similar, and look
+        # like this:
+        #             "Env": [
+        #                "mypassword=supersecret",
+        #                "container=oci"
+        #             ],
+        # This will mask values when the variable name looks like it may be
+        # something worth obfuscating.
+
+        env_regexp = r'(?P<var>(pass|key|secret|PASS|KEY|SECRET).*?)=' \
+                      '(?P<value>.*?)"'
+        self.do_cmd_output_sub('*inspect*', env_regexp,
+                               r'\g<var>=********"')
+
 
 class RedHatDocker(Docker, RedHatPlugin):
 
