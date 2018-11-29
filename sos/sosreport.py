@@ -292,6 +292,8 @@ def _parse_args(args):
     parser.add_argument("--ticket-number", action="store",
                         dest="case_id",
                         help="specify ticket number")
+    parser.add_argument("--timeout", dest="timeout", default=None,
+                        help="specify plugin timeout in seconds")
     parser.add_argument("--tmp-dir", action="store",
                         dest="tmp_dir",
                         help="specify alternate temporary directory",
@@ -1091,7 +1093,21 @@ class SoSReport(object):
         with ThreadPoolExecutor(1) as pool:
             try:
                 t = pool.submit(self.collect_plugin, plugin)
-                t.result(timeout=self.loaded_plugins[plugin[0]-1][1].timeout)
+                if self.opts.timeout is not None:
+                    # This probably seems strange, however it turns out that
+                    # result() treats int 0 as a literal 0-second timeout,
+                    # so we need to set timeout back to NoneType if a user
+                    # passes timeout=0 so that result() understands not to set
+                    # a timeout.
+                    try:
+                        timeout = int(self.opts.timeout) or None
+                    except ValueError:
+                        # We cannot type timeout to int via argparse as it will
+                        # convert int 0 to None.
+                        timeout = self.loaded_plugins[plugin[0]-1][1].timeout
+                else:
+                    timeout = self.loaded_plugins[plugin[0]-1][1].timeout
+                t.result(timeout=timeout)
                 return True
             except TimeoutError:
                 self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])

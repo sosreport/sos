@@ -48,7 +48,7 @@ _arg_names = [
     'enableplugins', 'encrypt_key', 'encrypt_pass', 'experimental', 'label',
     'list_plugins', 'list_presets', 'list_profiles', 'log_size', 'noplugins',
     'noreport', 'note', 'onlyplugins', 'plugopts', 'preset', 'profiles',
-    'quiet', 'sysroot', 'threads', 'tmp_dir', 'verbosity', 'verify'
+    'quiet', 'sysroot', 'threads', 'timeout', 'tmp_dir', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -102,6 +102,7 @@ class SoSOptions(object):
     quiet = False
     sysroot = None
     threads = 4
+    timeout = None
     tmp_dir = ""
     verbosity = 0
     verify = False

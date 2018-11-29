@@ -13,6 +13,7 @@ sosreport \- Collect and package diagnostic and support data
           [--batch] [--build] [--debug]\fR
           [--label label] [--case-id id] [--ticket-number nr]
           [--threads threads]
+          [--timeout timeout]\fR
           [-s|--sysroot SYSROOT]\fR
           [-c|--chroot {auto|always|never}\fR
           [--tmp-dir directory]\fR
@@ -162,6 +163,12 @@ alphanumeric characters.
 .TP
 .B \--threads THREADS
 Specify the number of threads sosreport will use for concurrency. Defaults to 4.
+.TP
+.B \--timeout TIMEOUT
+Specify the amount of time in seconds after starting a plugin to wait until a
+timeout is hit. Note that this value is applied to ALL plugins being run.
+
+A value of 0 (zero) means no timeout will be applied.
 .TP
 .B \--case-id NUMBER
 Specify a case identifier to associate with the archive.
