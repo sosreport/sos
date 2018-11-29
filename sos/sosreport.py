@@ -1103,7 +1103,7 @@ class SoSReport(object):
             except TimeoutError:
                 self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])
                 self.running_plugs.remove(plugin[1])
-                pool.shutdown(wait=False)
+                pool._threads.clear()
 
     def collect_plugin(self, plugin):
         try:
