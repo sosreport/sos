@@ -98,19 +98,19 @@ class kubernetes(Plugin, RedHatPlugin):
                 for res in resources:
                     self.add_cmd_output('%s %s' % (k_cmd, res))
 
-                if self.get_option('describe'):
-                    # need to drop json formatting for this
-                    k_cmd = '%s get %s' % (kube_cmd, knsp)
-                    for res in resources:
-                        r = self.get_command_output(
-                            '%s %s' % (k_cmd, res))
-                        if r['status'] == 0:
-                            k_list = [k.split()[0] for k in
-                                      r['output'].splitlines()[1:]]
-                            for k in k_list:
-                                k_cmd = '%s %s' % (kube_cmd, knsp)
-                                self.add_cmd_output(
-                                    '%s describe %s %s' % (k_cmd, res, k))
+            if self.get_option('describe'):
+                # need to drop json formatting for this
+                k_cmd = '%s %s' % (kube_cmd, knsp)
+                for res in resources:
+                    r = self.get_command_output(
+                        '%s get %s' % (k_cmd, res))
+                    if r['status'] == 0:
+                        k_list = [k.split()[0] for k in
+                                  r['output'].splitlines()[1:]]
+                        for k in k_list:
+                            k_cmd = '%s %s' % (kube_cmd, knsp)
+                            self.add_cmd_output(
+                                '%s describe %s %s' % (k_cmd, res, k))
 
             if self.get_option('podlogs'):
                 k_cmd = '%s %s' % (kube_cmd, knsp)
