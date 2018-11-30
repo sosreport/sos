@@ -60,8 +60,10 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 if disk.startswith("ram"):
                     continue
                 disk_path = os.path.join('/dev/', disk)
+                queue_path = os.path.join('/sys/block/', disk, 'queue')
                 self.add_udev_info(disk_path)
                 self.add_udev_info(disk_path, attrs=True)
+                self.add_udev_info(queue_path, attrs=True)
                 self.add_cmd_output([
                     "parted -s %s unit s print" % (disk_path),
                     "fdisk -l %s" % disk_path
