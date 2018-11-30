@@ -26,7 +26,8 @@ class Fibrechannel(Plugin, RedHatPlugin):
         dirs = [
             '/sys/class/fc_host/',
             '/sys/class/fc_remote_ports/',
-            '/sys/class/fc_transport/'
+            '/sys/class/fc_transport/',
+            '/sys/class/fc_vports/'
         ]
 
         devs = [join(d, dev) for d in dirs if isdir(d) for dev in listdir(d)]
