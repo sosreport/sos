@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
@@ -31,5 +32,10 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "lsscsi",
             "sg_map -x"
         ])
+
+        if os.path.isdir("/sys/class/scsi_host"):
+            for host in os.listdir("/sys/class/scsi_host"):
+                host_path = os.path.join('/sys/class/scsi_host/', host)
+                self.add_udev_info(host_path, attrs=True)
 
 # vim: set et ts=4 sw=4 :
