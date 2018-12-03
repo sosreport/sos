@@ -280,6 +280,8 @@ def _parse_args(args):
                         help="enable these plugins only", default=[])
     parser.add_argument("--preset", action="store", type=str,
                         help="A preset identifier", default="auto")
+    parser.add_argument("--plugin-timeout", default=None,
+                        help="set a timeout for all plugins")
     parser.add_argument("-p", "--profile", action="extend",
                         dest="profiles", type=str, default=[],
                         help="enable plugins used by the given profiles")
@@ -833,8 +835,12 @@ class SoSReport(object):
 
         if self.all_options:
             self.ui_log.info(_("The following plugin options are available:"))
-            self.ui_log.info("")
+            self.ui_log.info(_("\n Option 'timeout' available to all plugins -"
+                               " time in seconds to allow plugin to run, use 0"
+                               " for no timeout\n"))
             for (plug, plugname, optname, optparm) in self.all_options:
+                if optname == 'timeout':
+                    continue
                 # format option value based on its type (int or bool)
                 if type(optparm["enabled"]) == bool:
                     if optparm["enabled"] is True:
@@ -1091,7 +1097,10 @@ class SoSReport(object):
         with ThreadPoolExecutor(1) as pool:
             try:
                 t = pool.submit(self.collect_plugin, plugin)
-                t.result(timeout=self.loaded_plugins[plugin[0]-1][1].timeout)
+                # Re-type int 0 to NoneType, as otherwise result() will treat
+                # it as a literal 0-second timeout
+                timeout = self.loaded_plugins[plugin[0]-1][1].timeout or None
+                t.result(timeout=timeout)
                 return True
             except TimeoutError:
                 self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])

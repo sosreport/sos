@@ -127,7 +127,7 @@ class Plugin(object):
     archive = None
     profiles = ()
     sysroot = '/'
-    timeout = 300
+    plugin_timeout = 300
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
@@ -150,11 +150,39 @@ class Plugin(object):
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
 
+        # add the 'timeout' plugin option automatically
+        self.option_list.append(('timeout', 'timeout in seconds for plugin',
+                                 'fast', -1))
+
         # get the option list into a dictionary
         for opt in self.option_list:
             self.opt_names.append(opt[0])
             self.opt_parms.append({'desc': opt[1], 'speed': opt[2],
                                    'enabled': opt[3]})
+
+    @property
+    def timeout(self):
+        '''Returns either the default plugin timeout value, the value as
+        provided on the commandline via -k plugin.timeout=value, or the value
+        of the global --plugin-timeout option.
+        '''
+        _timeout = None
+        try:
+            opt_timeout = self.get_option('plugin_timeout')
+            own_timeout = int(self.get_option('timeout'))
+            if opt_timeout is None:
+                _timeout = own_timeout
+            elif opt_timeout is not None and own_timeout == -1:
+                _timeout = int(opt_timeout)
+            elif opt_timeout is not None and own_timeout > -1:
+                _timeout = own_timeout
+            else:
+                return None
+        except ValueError:
+            return self.plugin_timeout  # Default to known safe value
+        if _timeout is not None and _timeout > -1:
+            return _timeout
+        return self.plugin_timeout
 
     @classmethod
     def name(cls):
@@ -526,7 +554,7 @@ class Plugin(object):
         matches any of the option names is returned.
         """
 
-        global_options = ('verify', 'all_logs', 'log_size')
+        global_options = ('verify', 'all_logs', 'log_size', 'plugin_timeout')
 
         if optionname in global_options:
             return getattr(self.commons['cmdlineopts'], optionname)
