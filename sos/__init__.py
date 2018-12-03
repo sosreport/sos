@@ -47,8 +47,8 @@ _arg_names = [
     'chroot', 'compression_type', 'config_file', 'desc', 'debug', 'del_preset',
     'enableplugins', 'encrypt_key', 'encrypt_pass', 'experimental', 'label',
     'list_plugins', 'list_presets', 'list_profiles', 'log_size', 'noplugins',
-    'noreport', 'note', 'onlyplugins', 'plugopts', 'preset', 'profiles',
-    'quiet', 'sysroot', 'threads', 'tmp_dir', 'verbosity', 'verify'
+    'noreport', 'note', 'onlyplugins', 'plugin_timeout', 'plugopts', 'preset',
+    'profiles', 'quiet', 'sysroot', 'threads', 'tmp_dir', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -96,6 +96,7 @@ class SoSOptions(object):
     noreport = False
     note = ""
     onlyplugins = []
+    plugin_timeout = None
     plugopts = []
     preset = ""
     profiles = []
