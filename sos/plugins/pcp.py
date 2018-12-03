@@ -26,7 +26,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
     # size-limit of PCP logger and manager data collected by default (MB)
     option_list = [
-        ("pcplogs", "size-limit in MB of pmlogger and pmmgr logs", "", 100),
+        ("pmmgrlogs", "size-limit in MB of pmmgr logs", "", 100),
+        ("pmloggerfiles", "number of newest pmlogger files to grab", "", 12),
     ]
 
     pcp_sysconf_dir = None
@@ -71,8 +72,10 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         return True
 
     def setup(self):
-        self.limit = (None if self.get_option("all_logs")
-                      else self.get_option("pcplogs"))
+        self.sizelimit = (None if self.get_option("all_logs")
+                          else self.get_option("pmmgrlogs"))
+        self.countlimit = (None if self.get_option("all_logs")
+                           else self.get_option("pmloggerfiles"))
 
         if not self.pcp_parse_conffile():
             self._log_warn("could not parse %s" % self.pcp_conffile)
@@ -116,10 +119,21 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # Make sure we only add the two dirs if hostname is set, otherwise
         # we would collect everything
         if self.pcp_hostname != '':
-            for pmdir in ('pmlogger', 'pmmgr'):
-                path = os.path.join(self.pcp_log_dir, pmdir,
-                                    self.pcp_hostname, '*')
-                self.add_copy_spec(path, sizelimit=self.limit)
+            # collect pmmgr logs up to 'pmmgrlogs' size limit
+            path = os.path.join(self.pcp_log_dir, 'pmmgr',
+                                self.pcp_hostname, '*')
+            self.add_copy_spec(path, sizelimit=self.sizelimit, tailit=False)
+            # collect newest pmlogger logs up to 'pmloggerfiles' count
+            files_collected = 0
+            path = os.path.join(self.pcp_log_dir, 'pmlogger',
+                                self.pcp_hostname, '*')
+            pmlogger_ls = self.get_cmd_output_now("ls -t1 %s" % path)
+            if pmlogger_ls:
+                for line in open(pmlogger_ls).read().splitlines():
+                    self.add_copy_spec(line, sizelimit=None)
+                    files_collected = files_collected + 1
+                    if self.countlimit and files_collected == self.countlimit:
+                        break
 
         self.add_copy_spec([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
