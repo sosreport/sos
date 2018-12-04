@@ -569,7 +569,8 @@ class Plugin(object):
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
-        sizelimit = sizelimit or self.get_option("log_size")
+        if sizelimit is None:
+            sizelimit = self.get_option("log_size")
 
         if self.get_option('all_logs'):
             sizelimit = None
@@ -703,7 +704,8 @@ class Plugin(object):
             cmds = [cmds]
         if len(cmds) > 1 and (suggest_filename or root_symlink):
             self._log_warn("ambiguous filename or symlink for command list")
-        sizelimit = sizelimit or self.get_option("log_size")
+        if sizelimit is None:
+            sizelimit = self.get_option("log_size")
         for cmd in cmds:
             self._add_cmd_output(cmd, suggest_filename=suggest_filename,
                                  root_symlink=root_symlink, timeout=timeout,
