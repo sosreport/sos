@@ -64,7 +64,7 @@ class PostgreSQL(Plugin):
                 if scl is not None:
                     cmd = self.convert_cmd_scl(scl, cmd)
                 self.add_cmd_output(cmd, suggest_filename=filename,
-                                    binary=True)
+                                    binary=True, sizelimit=0)
 
             else:  # no password in env or options
                 self.soslog.warning(
