@@ -82,7 +82,8 @@ class RedHatMysql(Mysql, RedHatPlugin):
         'mysql-server',
         'mysql',
         'mariadb-server',
-        'mariadb'
+        'mariadb',
+        'openstack-selinux'
     )
 
     def setup(self):
