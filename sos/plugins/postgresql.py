@@ -39,7 +39,7 @@ class PostgreSQL(Plugin):
         ('dbport', 'database server port number', '', '5432')
     ]
 
-    def do_pg_dump(self, scl=None, filename="pgdump.tar"):
+    def do_pg_dump(self, scl=None, filename="pgdump.dump"):
         if self.get_option("dbname"):
             if self.get_option("password") or "PGPASSWORD" in os.environ:
                 # We're only modifying this for ourself and our children so
@@ -49,14 +49,14 @@ class PostgreSQL(Plugin):
                     os.environ["PGPASSWORD"] = str(self.get_option("password"))
 
                 if self.get_option("dbhost"):
-                    cmd = "pg_dump -U %s -h %s -p %s -w -F t %s" % (
+                    cmd = "pg_dump -U %s -h %s -p %s -w -F c %s" % (
                         self.get_option("username"),
                         self.get_option("dbhost"),
                         self.get_option("dbport"),
                         self.get_option("dbname")
                     )
                 else:
-                    cmd = "pg_dump -C -U %s -w -F t %s " % (
+                    cmd = "pg_dump -C -U %s -w -F c %s " % (
                         self.get_option("username"),
                         self.get_option("dbname")
                     )
@@ -112,7 +112,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
         )
 
         if scl in self.scls_matched:
-            self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
+            self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.dump" % scl)
 
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
