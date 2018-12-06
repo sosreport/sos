@@ -171,7 +171,13 @@ class Networking(Plugin):
                 "ethtool -T " + eth,
                 "ethtool -a " + eth,
                 "ethtool -c " + eth,
-                "ethtool -g " + eth
+                "ethtool -g " + eth,
+                "ethtool -e " + eth,
+                "ethtool -P " + eth,
+                "ethtool -l " + eth,
+                "ethtool --phy-statistics " + eth,
+                "ethtool --show-priv-flags " + eth,
+                "ethtool --show-eee " + eth
             ])
 
         # Collect information about bridges (some data already collected via
