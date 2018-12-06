@@ -212,7 +212,13 @@ class Networking(Plugin):
                     "ethtool -T "+eth,
                     "ethtool -a "+eth,
                     "ethtool -c "+eth,
-                    "ethtool -g "+eth
+                    "ethtool -g "+eth,
+                    "ethtool -e "+eth,
+                    "ethtool -P "+eth,
+                    "ethtool -l "+eth,
+                    "ethtool --phy-statistics "+eth,
+                    "ethtool --show-priv-flags "+eth,
+                    "ethtool --show-eee "+eth
                 ])
 
         # brctl command will load bridge and related kernel modules
