@@ -24,7 +24,8 @@ class GlobalOptionTest(unittest.TestCase):
         self.commons = {
             'sysroot': '/',
             'policy': LinuxPolicy(init=InitSystem()),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         }
         self.plugin = Plugin(self.commons)
         self.plugin.opt_names = ['baz', 'empty', 'test_option']

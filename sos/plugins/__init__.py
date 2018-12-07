@@ -459,6 +459,7 @@ class Plugin(object):
         self.collect_cmds = []
         self.sysroot = commons['sysroot']
         self.policy = commons['policy']
+        self.devices = commons['devices']
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -1136,6 +1137,69 @@ class Plugin(object):
                 else:
                     # size limit not hit, copy the file
                     self._add_copy_paths([_file])
+
+    def add_blockdev_cmd(self, cmds, devices='block', timeout=300,
+                         sizelimit=None, chroot=True, runat=None, env=None,
+                         binary=False, prepend_path=None, whitelist=[],
+                         blacklist=[]):
+        """Run a command or list of commands against storage-related devices.
+
+        Any commands specified by cmd will be iterated over the list of the
+        specified devices. Commands passed to this should include a '%(dev)s'
+        variable for substitution.
+
+            devices - Either 'block', 'fibre', or a list of device paths to
+                      run against. If set to 'block' or 'fibre', the commands
+                      will be run against the matching list of discovered
+                      devices.
+            prepend_path - the leading path for block device names, e.g.
+                        '/dev/' or '/sys/block/'.
+            whitelist - limit the devices iterated over. May be a str or list
+                        of strings (e.g. regexes)
+            blacklist - exclude the devices iterated over. May be a str or list
+                        of strings (e.g. regexes)
+        """
+        if devices == 'block':
+            prepend_path = prepend_path or '/dev/'
+            devices = self.devices['block']
+        if devices == 'fibre':
+            devices = self.devices['fibre']
+        self._add_device_cmd(cmds, devices, timeout=timeout,
+                             sizelimit=sizelimit, chroot=chroot, runat=runat,
+                             env=env, binary=binary, prepend_path=prepend_path,
+                             whitelist=whitelist, blacklist=blacklist)
+
+    def _add_device_cmd(self, cmds, devices, timeout=300, sizelimit=None,
+                        chroot=True, runat=None, env=None, binary=False,
+                        prepend_path=None, whitelist=[], blacklist=[]):
+        """Run a command against all specified devices on the system.
+        """
+        if isinstance(cmds, six.string_types):
+            cmds = [cmds]
+        if isinstance(devices, six.string_types):
+            devices = [devices]
+        if isinstance(whitelist, six.string_types):
+            whitelist = [whitelist]
+        if isinstance(blacklist, six.string_types):
+            blacklist = [blacklist]
+        sizelimit = sizelimit or self.get_option('log_size')
+        for cmd in cmds:
+            for device in devices:
+                _dev_ok = True
+                if whitelist:
+                    if not any(re.match(wl, device) for wl in whitelist):
+                        _dev_ok = False
+                if blacklist:
+                    if any(re.match(blist, device) for blist in blacklist):
+                        _dev_ok = False
+                if not _dev_ok:
+                    continue
+                if prepend_path:
+                    device = os.path.join(prepend_path, device)
+                _cmd = cmd % {'dev': device}
+                self._add_cmd_output(cmd=_cmd, timeout=timeout,
+                                     sizelimit=sizelimit, chroot=chroot,
+                                     runat=runat, env=env, binary=binary)
 
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
