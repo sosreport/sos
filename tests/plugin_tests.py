@@ -160,7 +160,8 @@ class PluginTests(unittest.TestCase):
         self.mp = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.mp.archive = MockArchive()
 
@@ -168,7 +169,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.name(), "mockplugin")
 
@@ -176,7 +178,8 @@ class PluginTests(unittest.TestCase):
         p = NamedMockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.name(), "testing")
 
@@ -184,7 +187,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.get_description(), "<no description available>")
 
@@ -192,7 +196,8 @@ class PluginTests(unittest.TestCase):
         p = NamedMockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.get_description(), "This plugin has a description.")
 
@@ -200,7 +205,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         p.set_option("opt", "testing")
         self.assertEquals(p.get_option("opt"), "testing")
@@ -209,7 +215,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertFalse(p.set_option("badopt", "testing"))
 
@@ -217,7 +224,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.get_option("badopt"), 0)
 
@@ -225,7 +233,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.get_option("opt"), 0)
 
@@ -236,7 +245,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.get_option("opt", True), True)
 
@@ -248,7 +258,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.get_option("opt2", True), False)
 
@@ -256,7 +267,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         p.set_option("opt", "one,two,three")
         self.assertEquals(p.get_option_as_list("opt"), ['one', 'two', 'three'])
@@ -265,7 +277,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.assertEquals(p.get_option_as_list("opt", default=[]), [])
 
@@ -273,7 +286,8 @@ class PluginTests(unittest.TestCase):
         p = MockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         p.set_option("opt", "testing")
         self.assertEquals(p.get_option_as_list("opt"), ['testing'])
@@ -290,7 +304,8 @@ class PluginTests(unittest.TestCase):
         p = ForbiddenMockPlugin({
             'cmdlineopts': MockOptions(),
             'sysroot': self.sysroot,
-            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False)
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'devices': {}
         })
         p.archive = MockArchive()
         p.setup()
@@ -301,7 +316,8 @@ class PluginTests(unittest.TestCase):
         p = PostprocMockPlugin({
             'cmdlineopts': MockOptions(),
             'sysroot': self.sysroot,
-            'policy': LinuxPolicy(init=InitSystem())
+            'policy': LinuxPolicy(init=InitSystem()),
+            'devices': {}
         })
         p.postproc()
         self.assertTrue(p.did_postproc)
@@ -316,7 +332,8 @@ class AddCopySpecTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
             'sysroot': os.getcwd(),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
         self.mp.archive = MockArchive()
 
@@ -393,7 +410,8 @@ class CheckEnabledTests(unittest.TestCase):
         self.mp = EnablerPlugin({
             'policy': LinuxPolicy(probe_runtime=False),
             'sysroot': os.getcwd(),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         })
 
     def test_checks_for_file(self):
@@ -421,7 +439,8 @@ class RegexSubTests(unittest.TestCase):
         self.mp = MockPlugin({
             'cmdlineopts': MockOptions(),
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'sysroot': os.getcwd()
+            'sysroot': os.getcwd(),
+            'devices': {}
         })
         self.mp.archive = MockArchive()
 
