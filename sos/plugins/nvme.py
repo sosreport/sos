@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-import os
 
 
 class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -16,29 +15,24 @@ class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "nvme"
     packages = ('nvme-cli',)
 
-    def get_nvme_devices(self):
-        sys_block = os.listdir('/sys/block/')
-        return [dev for dev in sys_block if dev.startswith('nvme')]
-
     def setup(self):
         self.add_copy_spec("/etc/nvme/discovery.conf")
         self.add_cmd_output([
             "nvme list",
             "nvme list-subsys",
         ])
-        for dev in self.get_nvme_devices():
-            # runs nvme-cli commands
-            self.add_cmd_output([
-                "smartctl --all /dev/%s" % dev,
-                "nvme list-ns /dev/%s" % dev,
-                "nvme fw-log /dev/%s" % dev,
-                "nvme list-ctrl /dev/%s" % dev,
-                "nvme id-ctrl -H /dev/%s" % dev,
-                "nvme id-ns -H /dev/%s" % dev,
-                "nvme smart-log /dev/%s" % dev,
-                "nvme error-log /dev/%s" % dev,
-                "nvme show-regs /dev/%s" % dev,
-                "nvme get-ns-id /dev/%s" % dev
-            ])
+
+        cmds = [
+            "smartctl --all %(dev)s",
+            "nvme list-ns %(dev)s",
+            "nvme fw-log %(dev)s",
+            "nvme list-ctrl %(dev)s",
+            "nvme id-ctrl -H %(dev)s",
+            "nvme id-ns -H %(dev)s",
+            "nvme smart-log %(dev)s",
+            "nvme error-log %(dev)s",
+            "nvme show-regs %(dev)s"
+        ]
+        self.add_blockdev_cmd(cmds, whitelist='nvme.*')
 
 # vim: set et ts=4 sw=4 :
