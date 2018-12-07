@@ -10,9 +10,6 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 
-from os import listdir
-from os.path import isdir, join
-
 
 class Fibrechannel(Plugin, RedHatPlugin):
     """Collects information on fibrechannel devices, if present"""
@@ -22,16 +19,6 @@ class Fibrechannel(Plugin, RedHatPlugin):
     files = ('/sys/class/fc_host')
 
     def setup(self):
-
-        dirs = [
-            '/sys/class/fc_host/',
-            '/sys/class/fc_remote_ports/',
-            '/sys/class/fc_transport/',
-            '/sys/class/fc_vports/'
-        ]
-
-        devs = [join(d, dev) for d in dirs if isdir(d) for dev in listdir(d)]
-        if devs:
-            self.add_udev_info(devs, attrs=True)
+        self.add_blockdev_cmd("udevadm info -a %(dev)s", devices='fibre')
 
 # vim: set et ts=4 sw=4 :
