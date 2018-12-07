@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -20,6 +19,8 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     files = ('/sys/block',)
 
     def setup(self):
+        self.add_forbidden_path("/sys/block/*/queue/iosched")
+
         self.add_cmd_output([
             "lsblk",
             "lsblk -t",
@@ -36,22 +37,16 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/run/blkid/blkid.tab",
             "/proc/partitions",
             "/proc/diskstats",
-            "/sys/block/*/queue/scheduler"
+            "/sys/block/*/queue/"
         ])
 
-        if os.path.isdir("/sys/block"):
-            for disk in os.listdir("/sys/block"):
-                if disk.startswith("ram"):
-                    continue
-                disk_path = os.path.join('/dev/', disk)
-                queue_path = os.path.join('/sys/block/', disk, 'queue')
-                self.add_udev_info(disk_path)
-                self.add_udev_info(disk_path, attrs=True)
-                self.add_udev_info(queue_path, attrs=True)
-                self.add_cmd_output([
-                    "parted -s %s unit s print" % (disk_path),
-                    "fdisk -l %s" % disk_path
-                ])
+        cmds = [
+            "parted -s %(dev)s unit s print",
+            "fdisk -l %(dev)s",
+            "udevadm info %(dev)s",
+            "udevadm info -a %(dev)s"
+        ]
+        self.add_blockdev_cmd(cmds, blacklist='ram.*')
 
         lsblk = self.collect_cmd_output("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump
