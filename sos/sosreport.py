@@ -381,8 +381,50 @@ class SoSReport(object):
             self.tempfile_util.clean()
             self._exit(1)
 
+        self._get_hardware_devices()
+
     def print_header(self):
         print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))
+
+    def _get_hardware_devices(self):
+        self.devices = {
+            'block': self.get_block_devs(),
+            'fibre': self.get_fibre_devs()
+        }
+        # TODO: enumerate network devices, preferably with devtype info
+
+    def get_fibre_devs(self):
+        '''Enumerate a list of fibrechannel devices on this system so that
+        plugins can iterate over them
+
+        These devices are used by add_fibredev_cmd() in the Plugin class.
+        '''
+        try:
+            devs = []
+            devdirs = [
+                'fc_host',
+                'fc_transport',
+                'fc_remote_ports',
+                'fc_vports'
+            ]
+            for devdir in devdirs:
+                if os.isdir("/sys/class/%s" % devdir):
+                    devs.extend(glob.glob("/sys/class/%s/*" % devdir))
+            return devs
+        except Exception as err:
+            return []
+
+    def get_block_devs(self):
+        '''Enumerate a list of block devices on this system so that plugins
+        can iterate over them
+
+        These devices are used by add_blockdev_cmd() in the Plugin class.
+        '''
+        try:
+            return os.listdir('/sys/block/')
+        except Exception as err:
+            self.soslog.error("Could not get block device list: %s" % err)
+            return []
 
     def get_commons(self):
         return {
@@ -395,6 +437,7 @@ class SoSReport(object):
             'sysroot': self.sysroot,
             'verbosity': self.opts.verbosity,
             'cmdlineopts': self.opts,
+            'devices': self.devices
         }
 
     def get_temp_file(self):
