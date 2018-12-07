@@ -11,7 +11,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Crypto(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Crypto(Plugin, DebianPlugin, UbuntuPlugin):
     """ System crypto services information
     """
 
@@ -24,4 +24,14 @@ class Crypto(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/sys/crypto/fips_enabled"
         ])
 
+
+class RedHatCrypto(Crypto, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatCrypto, self).setup()
+        self.add_copy_spec('/etc/crypto-policies/')
+        self.add_cmd_output([
+            'update-crypto-policies --show',
+            'update-crypto-policies --is-applied'
+        ])
 # vim: et ts=4 sw=4
