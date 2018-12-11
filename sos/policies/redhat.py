@@ -297,6 +297,8 @@ support representative.
                 return 6
             elif pkgname[0] == "7":
                 return 7
+            elif pkgname[0] == "8":
+                return 8
         except Exception:
             pass
         return False
