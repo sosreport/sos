@@ -82,6 +82,8 @@ class Pacemaker(Plugin):
 
         self.add_cmd_output([
             "pcs stonith sbd status",
+            "pcs stonith sbd watchdog list",
+            "pcs stonith history show",
             "pcs quorum status"
         ])
 
