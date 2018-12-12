@@ -46,6 +46,8 @@ class Pacemaker(Plugin):
             "pcs config",
             "pcs status",
             "pcs stonith sbd status",
+            "pcs stonith sbd watchdog list",
+            "pcs stonith history show",
             "pcs quorum status",
             "pcs property list --all"
         ])
