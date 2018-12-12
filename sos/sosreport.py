@@ -336,7 +336,6 @@ class SoSReport(object):
         self.skipped_plugins = []
         self.all_options = []
         self.xml_report = XmlReport()
-        self.global_plugin_options = {}
         self.archive = None
         self.tempfile_util = None
         self._args = args
@@ -432,7 +431,6 @@ class SoSReport(object):
             'xmlreport': self.xml_report,
             'cmdlineopts': self.opts,
             'config': self.config,
-            'global_plugin_options': self.global_plugin_options,
         }
 
     def get_temp_file(self):
@@ -1425,9 +1423,6 @@ class SoSReport(object):
             self.soslog.error(_("no valid plugins were enabled"))
             return False
         return True
-
-    def set_global_plugin_option(self, key, value):
-        self.global_plugin_options[key] = value
 
     def _cleanup(self):
         # archive and tempfile cleanup may fail due to a fatal

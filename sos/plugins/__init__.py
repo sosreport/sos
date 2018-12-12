@@ -531,22 +531,11 @@ class Plugin(object):
         if optionname in global_options:
             return getattr(self.commons['cmdlineopts'], optionname)
 
-        def _check(key):
-            if hasattr(optionname, "__iter__"):
-                return key in optionname
-            else:
-                return key == optionname
-
         for name, parms in zip(self.opt_names, self.opt_parms):
-            if _check(name):
+            if name == optionname:
                 val = parms['enabled']
                 if val is not None:
                     return val
-
-        items = six.iteritems(self.commons.get('global_plugin_options', {}))
-        for key, value in items:
-            if _check(key):
-                return value
 
         return default
 
