@@ -532,10 +532,10 @@ class Plugin(object):
             return getattr(self.commons['cmdlineopts'], optionname)
 
         def _check(key):
-            if hasattr(optionname, "__iter__"):
-                return key in optionname
-            else:
+            if hasattr(optionname, "encode"):
                 return key == optionname
+            else:
+                return key in optionname
 
         for name, parms in zip(self.opt_names, self.opt_parms):
             if _check(name):
