@@ -12,11 +12,11 @@ class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def _get_blueprints(self):
         blueprints = []
-        bp_result = self.get_command_output("composer-cli blueprints list")
-        if bp_result['status'] != 0:
-            return blueprints
-        for line in bp_result['output'].splitlines():
-            blueprints.append(line)
+        bp_file = self.get_cmd_output_now("composer-cli blueprints list")
+        if bp_file:
+            with open(bp_file, "r") as bps:
+                for line in bps.read().splitlines():
+                    blueprints.append(line)
         return blueprints
 
     def setup(self):
@@ -31,9 +31,6 @@ class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         for blueprint in blueprints:
             self.add_cmd_output("composer-cli blueprints show %s" % blueprint)
 
-        self.add_cmd_output([
-            "composer-cli blueprints list",
-            "composer-cli sources list"
-        ])
+        self.add_cmd_output("composer-cli sources list")
 
 # vim: set et ts=4 sw=4 :
