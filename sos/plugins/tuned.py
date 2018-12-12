@@ -22,7 +22,8 @@ class Tuned(Plugin, RedHatPlugin):
         self.add_cmd_output([
             "tuned-adm list",
             "tuned-adm active",
-            "tuned-adm recommend"
+            "tuned-adm recommend",
+            "tuned-adm verify"
         ])
         self.add_copy_spec([
             "/etc/tuned.conf",
