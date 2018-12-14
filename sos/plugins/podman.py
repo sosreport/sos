@@ -41,6 +41,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             'images',
             'pod ps',
             'pod ps -a',
+            'port --all',
             'ps',
             'ps -a',
             'stats --no-stream',
