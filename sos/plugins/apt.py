@@ -23,6 +23,8 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             "/etc/apt", "/var/log/apt"
         ])
 
+        self.add_forbidden_path("/etc/apt/auth.conf")
+
         self.add_cmd_output([
             "apt-get check",
             "apt-config dump",
