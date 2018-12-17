@@ -104,21 +104,43 @@ class RedHatLogs(Logs, RedHatPlugin):
 
 class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
 
+    option_list = [
+        ("log_days", "the number of days logs to collect", "", 7)
+    ]
+
     def setup(self):
         super(DebianLogs, self).setup()
-        if not self.get_option("all_logs"):
-            self.add_copy_spec([
-                "/var/log/syslog",
-                "/var/log/syslog.1",
-                "/var/log/kern.log",
-                "/var/log/kern.log.1",
-                "/var/log/udev",
-                "/var/log/dist-upgrade",
-                "/var/log/installer",
-                "/var/log/unattended-upgrades"
+        days = int(self.get_option("log_days"))
+        journal = os.path.exists("/var/log/journal/")
+        self.add_copy_spec([
+            "/var/log/udev",
+            "/var/log/dist-upgrade",
+            "/var/log/installer",
+            "/var/log/unattended-upgrades"
             ])
-            self.add_cmd_output('ls -alRh /var/log/')
+        self.add_cmd_output('ls -alRh /var/log/')
+
+        if journal and self.is_installed("systemd"):
+            if self.get_option("all_logs"):
+                since = ""
+            else:
+                since = "-%ddays" % days
+            self.add_journal(since=since)
         else:
-            self.add_copy_spec("/var/log/")
+            if not self.get_option("all_logs"):
+                self.add_copy_spec([
+                    "/var/log/syslog",
+                    "/var/log/syslog.1",
+                    "/var/log/kern.log",
+                    "/var/log/kern.log.1",
+                    "/var/log/auth.log",
+                    "/var/log/auth.log.1",
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/log/syslog*",
+                    "/var/log/kern.log*",
+                    "/var/log/auth.log*",
+                ])
 
 # vim: set et ts=4 sw=4 :
