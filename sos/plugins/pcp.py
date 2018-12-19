@@ -150,6 +150,16 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
         # Need to get the current status of the PCP infrastructure
         self.add_cmd_output("pcp")
-
+        # Collect a summary for the current day
+        res = self.get_command_output('pcp')
+        if res['status'] == 0:
+            for line in res['output'].splitlines():
+                if line.startswith(' pmlogger:'):
+                    arc = line.split()[-1]
+                    self.add_cmd_output(
+                        "pmstat -S 00:00 -T 23:59 -t 5m -x -a %s" % arc,
+                        root_symlink="pmstat"
+                    )
+                    break
 
 # vim: set et ts=4 sw=4 :
