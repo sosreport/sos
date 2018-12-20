@@ -44,7 +44,7 @@ class Pacemaker(Plugin):
         self.add_copy_spec("/var/log/pcsd/pcsd.log")
         self.add_cmd_output([
             "pcs config",
-            "pcs status",
+            "pcs status --full",
             "pcs stonith sbd status",
             "pcs stonith sbd watchdog list",
             "pcs stonith history show",
