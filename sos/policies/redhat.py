@@ -195,6 +195,9 @@ _opts_all_logs = SoSOptions(all_logs=True)
 _opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
 _opts_all_logs_no_lsof = SoSOptions(all_logs=True,
                                     plugopts=['process.lsof=off'])
+_cb_plugs = ['abrt', 'block', 'boot', 'dnf', 'dracut', 'filesys', 'grub2',
+             'hardware', 'host', 'kernel', 'logs', 'lvm2', 'memory', 'rpm',
+             'process', 'systemd', 'yum', 'xfs']
 
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
 
@@ -213,6 +216,11 @@ RHOCP_DESC = "OpenShift Container Platform by Red Hat"
 RH_SATELLITE = "satellite"
 RH_SATELLITE_DESC = "Red Hat Satellite"
 
+CB = "cantboot"
+CB_DESC = "For use when normal system startup fails"
+CB_OPTS = SoSOptions(verify=True, all_logs=True, onlyplugins=_cb_plugs)
+CB_NOTE = ("Data collection will be limited to a boot-affecting scope")
+
 NOTE_SIZE = "This preset may increase report size"
 NOTE_TIME = "This preset may increase report run time"
 NOTE_SIZE_TIME = "This preset may increase report size and run time"
@@ -227,6 +235,7 @@ rhel_presets = {
                           opts=_opts_all_logs_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
                                  note=NOTE_TIME, opts=_opts_verify),
+    CB: PresetDefaults(name=CB, desc=CB_DESC, note=CB_NOTE, opts=CB_OPTS)
 }
 
 
