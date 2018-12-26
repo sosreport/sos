@@ -11,7 +11,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Python(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Python(Plugin, DebianPlugin, UbuntuPlugin):
     """Python runtime
     """
 
@@ -22,5 +22,20 @@ class Python(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_cmd_output("python -V", suggest_filename="python-version")
+
+
+class RedHatPython(Python, RedHatPlugin):
+
+    packages = ('python', 'python36', 'python2', 'platform-python')
+
+    def setup(self):
+        self.add_cmd_output(['python2 -V', 'python3 -V'])
+        if self.policy.dist_version() > 7:
+            self.add_cmd_output(
+                '/usr/libexec/platform-python -V',
+                suggest_filename='python-version'
+            )
+        else:
+            self.add_cmd_output('python -V', suggest_filename='python-version')
 
 # vim: set et ts=4 sw=4 :
