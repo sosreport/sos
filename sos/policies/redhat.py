@@ -212,6 +212,7 @@ RHOCP_DESC = "OpenShift Container Platform by Red Hat"
 
 RH_SATELLITE = "satellite"
 RH_SATELLITE_DESC = "Red Hat Satellite"
+SAT_OPTS = SoSOptions(verify=True, plugopts=['apache.log=on'])
 
 NOTE_SIZE = "This preset may increase report size"
 NOTE_TIME = "This preset may increase report run time"
@@ -226,7 +227,7 @@ rhel_presets = {
     RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
                           opts=_opts_all_logs_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
-                                 note=NOTE_TIME, opts=_opts_verify),
+                                 note=NOTE_TIME, opts=SAT_OPTS),
 }
 
 
