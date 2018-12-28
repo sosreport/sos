@@ -214,6 +214,7 @@ RHOCP_DESC = "OpenShift Container Platform by Red Hat"
 
 RH_SATELLITE = "satellite"
 RH_SATELLITE_DESC = "Red Hat Satellite"
+SAT_OPTS = SoSOptions(verify=True, plugopts=['apache.log=on'])
 
 CB = "cantboot"
 CB_DESC = "For use when normal system startup fails"
@@ -233,7 +234,7 @@ rhel_presets = {
     RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
                           opts=_opts_all_logs_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
-                                 note=NOTE_TIME, opts=_opts_verify),
+                                 note=NOTE_TIME, opts=SAT_OPTS),
     CB: PresetDefaults(name=CB, desc=CB_DESC, note=CB_NOTE, opts=CB_OPTS)
 }
 
