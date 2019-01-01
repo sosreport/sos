@@ -547,9 +547,19 @@ class Plugin(object):
         return (self.opt_names, self.opt_parms)
 
     def set_option(self, optionname, value):
-        '''set the named option to value.'''
+        """Set the named option to value. Ensure the original type
+           of the option value is preserved.
+        """
         for name, parms in zip(self.opt_names, self.opt_parms):
             if name == optionname:
+                # FIXME: ensure that the resulting type of the set option
+                # matches that of the default value. This prevents a string
+                # option from being coerced to int simply because it holds
+                # a numeric value (e.g. a password).
+                # See PR #1526 and Issue #1597
+                defaulttype = type(parms['enabled'])
+                if defaulttype != type(value) and defaulttype != type(None):
+                    value = (defaulttype)(value)
                 parms['enabled'] = value
                 return True
         else:
