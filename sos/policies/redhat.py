@@ -379,6 +379,48 @@ organization before being passed to any third party.
         return self.find_preset(ATOMIC)
 
 
+class RedHatCoreOSPolicy(RHELPolicy):
+    distro = "Red Hat CoreOS"
+    msg = _("""\
+This command will collect diagnostic and configuration \
+information from this %(distro)s system.
+
+An archive containing the collected information will be \
+generated in %(tmpdir)s and may be provided to a %(vendor)s \
+support representative.
+
+Any information provided to %(vendor)s will be treated in \
+accordance with the published support policies at:\n
+  %(vendor_url)s
+
+The generated archive may contain data considered sensitive \
+and its content should be reviewed by the originating \
+organization before being passed to any third party.
+%(vendor_text)s
+""")
+
+    def __init__(self, sysroot=None):
+        super(RedHatCoreOSPolicy, self).__init__(sysroot=sysroot)
+
+    @classmethod
+    def check(cls):
+        coreos = False
+        if ENV_HOST_SYSROOT not in os.environ:
+            return coreos
+        host_release = os.environ[ENV_HOST_SYSROOT] + cls._redhat_release
+        try:
+            for line in open(host_release, 'r').read().splitlines():
+                coreos |= 'Red Hat CoreOS' in line
+        except IOError:
+            pass
+        return coreos
+
+    def probe_preset(self):
+        # As of the creation of this policy, RHCOS is only available for
+        # RH OCP environments.
+        return self.find_preset(RHOCP)
+
+
 class FedoraPolicy(RedHatPolicy):
 
     distro = "Fedora"
