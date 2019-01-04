@@ -25,7 +25,6 @@ class AtomicHost(Plugin, RedHatPlugin):
         return self.policy.in_container()
 
     def setup(self):
-        self.add_copy_spec("/etc/ostree/remotes.d")
         self.add_cmd_output("atomic host status")
 
         if self.get_option('info'):
