@@ -18,6 +18,13 @@ gettext to internationalize messages.
 import gettext
 import six
 
+from argparse import ArgumentParser
+
+if six.PY3:
+    from configparser import ConfigParser, ParsingError, Error
+else:
+    from ConfigParser import ConfigParser, ParsingError, Error
+
 __version__ = "3.6"
 
 gettext_dir = "/usr/share/locale"
@@ -71,55 +78,34 @@ def _is_seq(val):
 
 
 class SoSOptions(object):
-    add_preset = ""
-    alloptions = False
-    all_logs = False
-    batch = False
-    build = False
-    case_id = ""
-    chroot = _arg_defaults["chroot"]
-    compression_type = _arg_defaults["compression_type"]
-    config_file = ""
-    debug = False
-    del_preset = ""
-    desc = ""
-    enableplugins = []
-    encrypt_key = None
-    encrypt_pass = None
-    experimental = False
-    label = ""
-    list_plugins = False
-    list_presets = False
-    list_profiles = False
-    log_size = _arg_defaults["log_size"]
-    noplugins = []
-    noreport = False
-    note = ""
-    onlyplugins = []
-    plugin_timeout = None
-    plugopts = []
-    preset = ""
-    profiles = []
-    quiet = False
-    sysroot = None
-    threads = 4
-    tmp_dir = ""
-    verbosity = 0
-    verify = False
 
-    def _merge_opt(self, opt, src, replace):
+    def _merge_opt(self, opt, src, is_default):
+        def _unset(val):
+            return (val == "" or val is None)
+
         if hasattr(src, opt):
-            value = getattr(src, opt)
-            if replace or not _is_seq(value):
+            newvalue = getattr(src, opt)
+            oldvalue = getattr(self, opt)
+            # overwrite value iff:
+            # - we replace unset option by a real value
+            # - new default is set, or
+            # - non-sequential variable keeps its default value
+            if (_unset(oldvalue) and not _unset(newvalue)) or \
+               is_default or \
+               ((opt not in self._nondefault) and (not _is_seq(newvalue))):
                 # Overwrite atomic values
-                setattr(self, opt, getattr(src, opt))
-            else:
+                setattr(self, opt, newvalue)
+                if is_default:
+                    self._nondefault.discard(opt)
+                else:
+                    self._nondefault.add(opt)
+            elif _is_seq(newvalue):
                 # Concatenate sequence types
-                setattr(self, opt, getattr(self, opt) + getattr(src, opt))
+                setattr(self, opt, newvalue + oldvalue)
 
-    def _merge_opts(self, src, replace):
+    def _merge_opts(self, src, is_default):
         for arg in _arg_names:
-            self._merge_opt(arg, src, replace)
+            self._merge_opt(arg, src, is_default)
 
     def __str(self, quote=False, sep=" ", prefix="", suffix=""):
         """Format a SoSOptions object as a human or machine readable string.
@@ -168,6 +154,42 @@ class SoSOptions(object):
             :param *kwargs: a list of ``SoSOptions`` keyword args.
             :returns: the new ``SoSOptions`` object.
         """
+        self.add_preset = ""
+        self.alloptions = False
+        self.all_logs = False
+        self.batch = False
+        self.build = False
+        self.case_id = ""
+        self.chroot = _arg_defaults["chroot"]
+        self.compression_type = _arg_defaults["compression_type"]
+        self.config_file = ""
+        self.debug = False
+        self.del_preset = ""
+        self.desc = ""
+        self.enableplugins = []
+        self.encrypt_key = None
+        self.encrypt_pass = None
+        self.experimental = False
+        self.label = ""
+        self.list_plugins = False
+        self.list_presets = False
+        self.list_profiles = False
+        self.log_size = _arg_defaults["log_size"]
+        self.noplugins = []
+        self.noreport = False
+        self.note = ""
+        self.onlyplugins = []
+        self.plugin_timeout = None
+        self.plugopts = []
+        self.preset = _arg_defaults["preset"]
+        self.profiles = []
+        self.quiet = False
+        self.sysroot = None
+        self.threads = 4
+        self.tmp_dir = ""
+        self.verbosity = _arg_defaults["verbosity"]
+        self.verify = False
+        self._nondefault = set()
         for arg in kwargs.keys():
             if arg not in _arg_names:
                 raise ValueError("Unknown SoSOptions attribute: %s" % arg)
@@ -186,28 +208,61 @@ class SoSOptions(object):
         opts._merge_opts(args, True)
         return opts
 
-    def merge(self, src, replace=False):
+    @classmethod
+    def from_file(cls, argparser, config_file, is_default=True):
+        opts = SoSOptions()
+        config = ConfigParser()
+        try:
+            try:
+                with open(config_file) as f:
+                    config.readfp(f)
+            except (ParsingError, Error) as e:
+                raise exit('Failed to parse configuration '
+                           'file %s' % config_file)
+        except (OSError, IOError) as e:
+            raise exit('Unable to read configuration file %s '
+                       ': %s' % (config_file, e.args[1]))
+
+        if config.has_section("general"):
+            optlist = []
+            for opt, val in config.items("general"):
+                # assume just long options are specified so prefix them by "--"
+                optlist.append("--" + opt + "=" + val)
+            opts._merge_opts(argparser.parse_args(optlist), is_default)
+
+        if config.has_option("plugins", "disable"):
+            opts.noplugins = []
+            opts.noplugins.extend([plugin.strip() for plugin in
+                                  config.get("plugins", "disable").split(',')])
+
+        if config.has_option("plugins", "enable"):
+            opts.enableplugins = []
+            opts.enableplugins.extend(
+                    [plugin.strip() for plugin in
+                     config.get("plugins", "enable").split(',')])
+
+        if config.has_section("tunables"):
+            opts.plugopts = []
+            for opt, val in config.items("tunables"):
+                if not opt.split('.')[0] in opts.noplugins:
+                    opts.plugopts.append(opt + "=" + val)
+
+        return opts
+
+    def merge(self, src, skip_default=True):
         """Merge another set of ``SoSOptions`` into this object.
 
             Merge two ``SoSOptions`` objects by setting unset or default
             values to their value in the ``src`` object.
 
             :param src: the ``SoSOptions`` object to copy from
-            :param replace: ``True`` if non-default values should be
-                            overwritten.
+            :param is_default: ``True`` if new default values are to be set.
         """
         for arg in _arg_names:
             if not hasattr(src, arg):
                 continue
-            if _is_seq(getattr(self, arg)):
-                self._merge_opt(arg, src, replace)
-                continue
-            if arg in _arg_defaults.keys():
-                if replace or getattr(self, arg) == _arg_defaults[arg]:
-                    self._merge_opt(arg, src, replace)
-            else:
-                if replace or not getattr(self, arg):
-                    self._merge_opt(arg, src, replace)
+            if getattr(src, arg) is not None or not skip_default:
+                self._merge_opt(arg, src, False)
 
     def dict(self):
         """Return this ``SoSOptions`` option values as a dictionary of
