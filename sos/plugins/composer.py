@@ -22,10 +22,10 @@ class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/lorax/composer.conf",
-            "/var/log/lorax-composer/composer.log"
-            "/var/log/lorax-composer/dnf.log"
-            "/var/log/lorax-composer/program.log"
-            "/var/log/lorax-composer/server.log"
+            "/var/log/lorax-composer/composer.log",
+            "/var/log/lorax-composer/dnf.log",
+            "/var/log/lorax-composer/program.log",
+            "/var/log/lorax-composer/server.log",
         ])
         blueprints = self._get_blueprints()
         for blueprint in blueprints:
