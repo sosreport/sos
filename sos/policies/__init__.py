@@ -378,6 +378,16 @@ class PresetDefaults(object):
         os.unlink(os.path.join(presets_path, self.name))
 
 
+NO_PRESET = 'none'
+NO_PRESET_DESC = 'Do not load a preset'
+NO_PRESET_NOTE = 'Use to disable automatically loaded presets'
+
+GENERIC_PRESETS = {
+    NO_PRESET: PresetDefaults(name=NO_PRESET, desc=NO_PRESET_DESC,
+                              note=NO_PRESET_NOTE, opts=SoSOptions())
+    }
+
+
 class Policy(object):
 
     msg = _("""\
@@ -421,6 +431,7 @@ No changes will be made to system configuration.
         self._valid_subclasses = []
         self.set_exec_path()
         self._host_sysroot = sysroot
+        self.register_presets(GENERIC_PRESETS)
 
     def get_valid_subclasses(self):
         return [IndependentPlugin] + self._valid_subclasses
@@ -702,7 +713,7 @@ No changes will be made to system configuration.
 
             :returns: a ``PresetDefaults`` object.
         """
-        return self.presets[""]
+        return self.presets[NO_PRESET]
 
     def load_presets(self, presets_path=None):
         """Load presets from disk.
