@@ -37,14 +37,18 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output(cmd, chroot=self.tmp_in_sysroot())
 
     def setup(self):
-        # use locking_type 0 (no locks) when running LVM2 commands,
-        # from lvm.conf:
-        # Turn locking off by setting to 0 (dangerous: risks metadata
-        # corruption if LVM2 commands get run concurrently).
-        # None of the commands issued by sos ever modify metadata and this
-        # avoids the possibility of hanging lvm commands when another process
-        # or node holds a conflicting lock.
-        lvm_opts = '--config="global{locking_type=0}"'
+        # When running LVM2 comamnds:
+        # - use locking_type 0 (no locks) from lvm.conf: Turn locking
+        #   off by setting to 0 (dangerous: risks metadata corruption if
+        #   LVM2 commands get run concurrently).  This avoids the
+        #   possibility of hanging lvm commands when another process or
+        #   node holds a conflicting lock.
+        # - use metadata_read_only 1 (forbid on-disk changes). Although
+        #   all LVM2 commands we use should be read-only, any LVM2
+        #   command may attempt to recover on-disk data in some cases.
+        #   This option prevents such changes, allowing safe use of
+        #   locking_type=0.
+        lvm_opts = '--config="global{locking_type=0 metadata_read_only=1}"'
 
         self.add_cmd_output(
             "vgdisplay -vv %s" % lvm_opts,
