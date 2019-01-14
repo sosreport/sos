@@ -33,5 +33,6 @@ class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                                 "nvme smart-log /dev/%s" % dev,
                                 "nvme error-log /dev/%s" % dev,
                                 "nvme show-regs /dev/%s" % dev])
+            self.add_copy_spec(["/etc/nvme/discovery.conf"])
 
 # vim: set et ts=4 sw=4 :
