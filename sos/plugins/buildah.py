@@ -30,7 +30,7 @@ class Buildah(Plugin, RedHatPlugin):
         self.add_cmd_output([
             'buildah containers',
             'buildah images',
-            'buildah version'
+            'buildah --version'
         ])
 
         def make_chowdah(aurdah):
