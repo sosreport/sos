@@ -32,9 +32,10 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
             self.var_puppet_gen + "/etc/",
             self.var_puppet_gen + "/etc/systemd/system/mongod.service.d/",
             "/var/log/mongodb/mongodb.log",
-            "/var/log/containers/mongodb/mongodb.log"
+            "/var/log/containers/mongodb/mongodb.log",
+            "/var/lib/mongodb/mongodb.log*"
         ])
-        self.add_cmd_output("du -s /var/lib/mongodb/")
+        self.add_cmd_output("du -sh /var/lib/mongodb/")
 
     def postproc(self):
         self.do_file_sub(
