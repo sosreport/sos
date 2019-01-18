@@ -229,6 +229,19 @@ rhel_presets = {
                                  note=NOTE_TIME, opts=_opts_verify),
 }
 
+# Legal disclaimer text for Red Hat products
+disclaimer_text = """
+Any information provided to %(vendor)s will be treated in \
+accordance with the published support policies at:\n
+  %(vendor_url)s
+
+The generated archive may contain data considered sensitive \
+and its content should be reviewed by the originating \
+organization before being passed to any third party.
+
+No changes will be made to system configuration.
+"""
+
 
 class RHELPolicy(RedHatPolicy):
     distro = RHEL_RELEASE_STR
@@ -242,18 +255,7 @@ applications.
 An archive containing the collected information will be \
 generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
-
-Any information provided to %(vendor)s will be treated in \
-accordance with the published support policies at:\n
-  %(vendor_url)s
-
-The generated archive may contain data considered sensitive \
-and its content should be reviewed by the originating \
-organization before being passed to any third party.
-
-No changes will be made to system configuration.
-%(vendor_text)s
-""")
+""" + disclaimer_text + "%(vendor_text)s\n")
 
     def __init__(self, sysroot=None):
         super(RHELPolicy, self).__init__(sysroot=sysroot)
@@ -342,16 +344,7 @@ information from this %(distro)s system.
 An archive containing the collected information will be \
 generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
-
-Any information provided to %(vendor)s will be treated in \
-accordance with the published support policies at:\n
-  %(vendor_url)s
-
-The generated archive may contain data considered sensitive \
-and its content should be reviewed by the originating \
-organization before being passed to any third party.
-%(vendor_text)s
-""")
+""" + disclaimer_text + "%(vendor_text)s\n")
 
     def __init__(self, sysroot=None):
         super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot)
@@ -388,16 +381,7 @@ information from this %(distro)s system.
 An archive containing the collected information will be \
 generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
-
-Any information provided to %(vendor)s will be treated in \
-accordance with the published support policies at:\n
-  %(vendor_url)s
-
-The generated archive may contain data considered sensitive \
-and its content should be reviewed by the originating \
-organization before being passed to any third party.
-%(vendor_text)s
-""")
+""" + disclaimer_text + "%(vendor_text)s\n")
 
     def __init__(self, sysroot=None):
         super(RedHatCoreOSPolicy, self).__init__(sysroot=sysroot)
