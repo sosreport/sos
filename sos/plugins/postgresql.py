@@ -76,6 +76,7 @@ class PostgreSQL(Plugin):
 
     def setup(self):
         self.do_pg_dump()
+        self.add_cmd_output("du -sh %s" % self.get_option('pghome'))
 
 
 class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
