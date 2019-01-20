@@ -15,7 +15,7 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'grub2'
     profiles = ('boot',)
-    packages = ('grub2', 'grub2-efi')
+    packages = ('grub2', 'grub2-efi', 'grub2-common')
 
     def setup(self):
         self.add_copy_spec([
@@ -23,6 +23,7 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/boot/grub2/grub.cfg",
             "/boot/grub2/grubenv",
             "/boot/grub/grub.cfg",
+            "/boot/loader/entries",
             "/etc/default/grub",
             "/etc/grub2.cfg",
             "/etc/grub.d"
