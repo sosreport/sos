@@ -14,6 +14,7 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 import os.path
+import os.environ
 
 
 class ManageIQ(Plugin, RedHatPlugin):
@@ -28,68 +29,33 @@ class ManageIQ(Plugin, RedHatPlugin):
     files = (
         os.path.join(miq_dir, 'BUILD'),
         os.path.join(miq_dir, 'GUID'),
-        os.path.join(miq_dir, 'VERSION')
+        os.path.join(miq_dir, 'VERSION'),
+        os.path.join(miq_dir, 'REGION')
     )
 
     # Config files to collect from miq_dir/config/
     miq_conf_dir = os.path.join(miq_dir, "config")
     miq_conf_files = [
-        'application.rb',
-        'boot.rb',
-        'environment.rb',
-        'preinitializer.rb',
-        'routes.rb',
-        'environments/metric_fu.rb',
-        'environments/production.rb',
-        'api.yml',
-        'broker_notify_properties.tmpl.yml',
-        'capacity.tmpl.yml',
-        'dashboard.yml',
-        'event_handling.tmpl.yml',
-        'hostdefaults.tmpl.yml',
-        'mongrel_cluster.yml',
-        'mongrel_win.yml',
-        'storage.tmpl.yml',
-        'vmdb.tmpl.yml',
-        'vmdb.yml.db',
-        'event_handling.yml.db',
-        'lighttpd.conf',
-        'replication.conf'
+        '*.rb',
+        '*.yaml',
+        '*.yml',
+        '*.yml.db',
+        '*.yml.sample',
+        'settings/*.yml',
+        'environments/*.rb',
+        'environments/*.yml',
+        'environments/patches/*.rb',
+        'initializers/*.rb',
+        'database.yml.old',
+        'brakeman.ignore',
     ]
 
     # Log files to collect from miq_dir/log/
     miq_log_dir = os.path.join(miq_dir, "log")
     miq_log_files = [
-        'appliance_console.log',
-        'api.log',
-        'audit.log',
-        'automation.log',
-        'aws.log',
-        'evm.log',
-        'fog.log',
-        'miq_ntpdate.log',
-        'mongrel.log',
-        'policy.log',
-        'prince.log',
-        'production.log',
-        'rhevm.log',
-        'scvmm.log',
-        'top_output.log',
-        'vim.log',
-        'vmdb_restart.log',
-        'vmstat_output.log',
-        'vmstat_output.log',
-        'apache/miq_apache.log',
-        'apache/ssl_access.log',
-        'apache/ssl_error.log',
-        'apache/ssl_request.log',
-        'apache/ssl_mirror_request.log',
-        'apache/ssl_mirror_error.log',
-        'apache/ssl_mirror_access_error.log',
-        'gem_list.txt',
-        'last_startup.txt',
-        'package_list_rpm.txt',
-        'vendor_gems.txt'
+        '*.log',
+        'apache/*.log',
+        '*.txt',
     ]
 
     def setup(self):
@@ -106,5 +72,13 @@ class ManageIQ(Plugin, RedHatPlugin):
         self.add_copy_spec([
             os.path.join(self.miq_log_dir, x) for x in self.miq_log_files
         ])
+        self.add_copy_spec("/var/log/tower.log")
+
+        if "APPLIANCE_PG_DATA" in os.environ:
+            pg_dir = os.environ["APPLIANCE_PG_DATA"]
+            self.add_copy_spec([
+                    os.path.join(pg_dir, 'pg_log'),
+                    os.path.join(pg_dir, 'postgresql.conf')
+            ])
 
 # vim: set et ts=4 sw=4 :
