@@ -27,12 +27,39 @@ class RedHatKDump(KDump, RedHatPlugin):
     files = ('/etc/kdump.conf',)
     packages = ('kexec-tools',)
 
+    def fstab_parse_fs(self, device):
+        with open('/etc/fstab', 'r') as fp:
+            for line in fp:
+                if line.startswith((device)):
+                    return line.split()[1].rstrip('/')
+        return ""
+
+    def read_kdump_conffile(self):
+        fs = ""
+        path = "/var/crash"
+
+        with open('/etc/kdump.conf', 'r') as fp:
+            for line in fp:
+                if line.startswith("path"):
+                    path = line.split()[1]
+                elif line.startswith(("ext2", "ext3", "ext4", "xfs")):
+                    device = line.split()[1]
+                    fs = self.fstab_parse_fs(device)
+        return fs + path
+
     def setup(self):
         self.add_copy_spec([
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules",
             "/var/crash/*/vmcore-dmesg.txt"
         ])
+        try:
+            path = self.read_kdump_conffile()
+        except Exception:
+            # set no filesystem and default path
+            path = "/var/crash"
+
+        self.add_copy_spec("{}/*/vmcore-dmesg.txt".format(path))
 
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
