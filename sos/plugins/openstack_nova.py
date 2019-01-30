@@ -33,7 +33,6 @@ class OpenStackNova(Plugin):
             "systemctl status openstack-nova-api.service"
         )
 
-        container_status = self.get_command_output("docker ps")
         in_container = self.running_in_container()
 
         if (service_status['status'] == 0) or in_container:
