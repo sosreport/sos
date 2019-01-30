@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import (Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
+                         CosPlugin)
 
 
 class KDump(Plugin):
@@ -44,5 +45,25 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/default/kdump-tools"
         ])
+
+
+class CosKDump(KDump, CosPlugin):
+
+    option_list = [
+        ("all_dumps", "enable capture for all kernel dumps", "", False),
+        ("latest_dump", "enable capture for latest kernel crash dump", "", False),
+    ]
+
+    def setup(self):
+        super(CosLogs, self).setup()
+        self.add_cmd_output('ls -alRh /var/kdump*')
+        if self.get_option("all_dumps"):
+            self.add_copy_spec([
+                "/var/kdump-*"
+            ])
+        if self.get_option("latest_dump"):
+            self.add_copy_spec([
+                "/var/kdump"
+            ])
 
 # vim: set et ts=4 sw=4 :
