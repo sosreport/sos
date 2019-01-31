@@ -4,7 +4,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7-dev"
+  - "3.7"
   - "nightly"
 matrix:
   allow_failures:
@@ -16,13 +16,13 @@ notifications:
     channels:
       - "us.freenode.net#sosreport"
     on_success: change
-dist: trusty
-sudo: true
+dist: xenial
 install:
   - "pip install -r requirements.txt"
   - "python setup.py install"
 script:
   - "pycodestyle sos"
+  - "pycodestyle --version"
   - "nosetests -v --with-cover --cover-package=sos --cover-html"
   - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport --help"
   - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport -l --config-file=sos.conf"
