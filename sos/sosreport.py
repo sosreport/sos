@@ -1307,11 +1307,11 @@ class SoSReport(object):
         return digest.hexdigest()
 
     def _write_checksum(self, archive, hash_name, checksum):
-            # store checksum into file
-            fp = open(archive + "." + hash_name, "w")
-            if checksum:
-                fp.write(checksum + "\n")
-            fp.close()
+        # store checksum into file
+        fp = open(archive + "." + hash_name, "w")
+        if checksum:
+            fp.write(checksum + "\n")
+        fp.close()
 
     def final_work(self):
         # This must come before archive creation to ensure that log
@@ -1355,8 +1355,8 @@ class SoSReport(object):
                 os.rename(directory, final_dir)
                 directory = final_dir
             except (OSError, IOError):
-                    print(_("Error moving directory: %s" % directory))
-                    return False
+                print(_("Error moving directory: %s" % directory))
+                return False
 
         checksum = None
 

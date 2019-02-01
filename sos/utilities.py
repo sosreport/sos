@@ -117,9 +117,9 @@ def sos_get_command_output(command, timeout=300, stderr=False,
     # the enclosing scope).
     def _child_prep_fn():
         if (chroot):
-                os.chroot(chroot)
+            os.chroot(chroot)
         if (chdir):
-                os.chdir(chdir)
+            os.chdir(chdir)
 
     cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
