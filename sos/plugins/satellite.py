@@ -63,7 +63,7 @@ class Satellite(Plugin, RedHatPlugin):
             "/var/log/nocpulse/TSDBLocalQueue/TSDBLocalQueue.log"
         ])
 
-        self.add_copy_spec("/root/ssl-build")
+        self.add_cmd_output("ls -lanR /root/ssl-build")
         self.add_cmd_output("rhn-schema-version",
                             root_symlink="database-schema-version")
         self.add_cmd_output("rhn-charsets",
