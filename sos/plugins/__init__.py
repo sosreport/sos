@@ -1045,16 +1045,16 @@ class Plugin(object):
         return True
 
     def _check_plugin_triggers(self, files, packages, commands, services):
-            kernel_mods = self.policy.lsmod()
+        kernel_mods = self.policy.lsmod()
 
-            def have_kmod(kmod):
-                return kmod in kernel_mods
+        def have_kmod(kmod):
+            return kmod in kernel_mods
 
-            return (any(os.path.exists(fname) for fname in files) or
-                    any(self.is_installed(pkg) for pkg in packages) or
-                    any(is_executable(cmd) for cmd in commands) or
-                    any(have_kmod(kmod) for kmod in self.kernel_mods) or
-                    any(self.is_service(svc) for svc in services))
+        return (any(os.path.exists(fname) for fname in files) or
+                any(self.is_installed(pkg) for pkg in packages) or
+                any(is_executable(cmd) for cmd in commands) or
+                any(have_kmod(kmod) for kmod in self.kernel_mods) or
+                any(self.is_service(svc) for svc in services))
 
     def default_enabled(self):
         """This decides whether a plugin should be automatically loaded or
