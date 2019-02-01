@@ -50,10 +50,10 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin):
         mounts = '/proc/mounts'
         ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
         for dev in self.do_regex_find_all(ext_fs_regex, mounts):
-                self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev))
+            self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev))
 
-                if self.get_option('frag'):
-                    self.add_cmd_output("e2freefrag %s" % (dev))
+            if self.get_option('frag'):
+                self.add_cmd_output("e2freefrag %s" % (dev))
 
     def postproc(self):
         self.do_file_sub(
