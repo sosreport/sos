@@ -9,7 +9,6 @@ import fnmatch
 import tempfile
 import random
 import string
-from os import environ
 
 from sos.utilities import (ImporterHelper,
                            import_module,
@@ -627,7 +626,7 @@ No changes will be made to system configuration.
         self.commons = commons
 
     def _set_PATH(self, path):
-        environ['PATH'] = path
+        os.environ['PATH'] = path
 
     def set_exec_path(self):
         self._set_PATH(self.PATH)
