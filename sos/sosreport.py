@@ -24,8 +24,6 @@ import logging
 from argparse import ArgumentParser, Action
 from sos.plugins import import_plugin
 from sos.utilities import ImporterHelper
-from stat import ST_UID, ST_GID, ST_MODE, ST_CTIME, ST_ATIME, ST_MTIME, S_IMODE
-from time import strftime, localtime
 from shutil import rmtree
 import tempfile
 import hashlib
@@ -105,93 +103,6 @@ class SosListOption(Action):
         setattr(namespace, self.dest, items)
 
 
-class XmlReport(object):
-
-    """ Report build class """
-
-    def __init__(self):
-        try:
-            import libxml2
-        except ImportError:
-            self.enabled = False
-            return
-        else:
-            self.enabled = False
-            return
-        self.doc = libxml2.newDoc("1.0")
-        self.root = self.doc.newChild(None, "sos", None)
-        self.commands = self.root.newChild(None, "commands", None)
-        self.files = self.root.newChild(None, "files", None)
-
-    def add_command(self, cmdline, exitcode, stdout=None, stderr=None,
-                    f_stdout=None, f_stderr=None, runtime=None):
-        """ Appends command run into report """
-        if not self.enabled:
-            return
-
-        cmd = self.commands.newChild(None, "cmd", None)
-
-        cmd.setNsProp(None, "cmdline", cmdline)
-
-        cmdchild = cmd.newChild(None, "exitcode", str(exitcode))
-
-        if runtime:
-            cmd.newChild(None, "runtime", str(runtime))
-
-        if stdout or f_stdout:
-            cmdchild = cmd.newChild(None, "stdout", stdout)
-            if f_stdout:
-                cmdchild.setNsProp(None, "file", f_stdout)
-
-        if stderr or f_stderr:
-            cmdchild = cmd.newChild(None, "stderr", stderr)
-            if f_stderr:
-                cmdchild.setNsProp(None, "file", f_stderr)
-
-    def add_file(self, fname, stats):
-        """ Appends file(s) added to report """
-        if not self.enabled:
-            return
-
-        cfile = self.files.newChild(None, "file", None)
-
-        cfile.setNsProp(None, "fname", fname)
-
-        cchild = cfile.newChild(None, "uid", str(stats[ST_UID]))
-        cchild = cfile.newChild(None, "gid", str(stats[ST_GID]))
-        cfile.newChild(None, "mode", str(oct(S_IMODE(stats[ST_MODE]))))
-        cchild = cfile.newChild(None, "ctime",
-                                strftime('%a %b %d %H:%M:%S %Y',
-                                         localtime(stats[ST_CTIME])))
-        cchild.setNsProp(None, "tstamp", str(stats[ST_CTIME]))
-        cchild = cfile.newChild(None, "atime",
-                                strftime('%a %b %d %H:%M:%S %Y',
-                                         localtime(stats[ST_ATIME])))
-        cchild.setNsProp(None, "tstamp", str(stats[ST_ATIME]))
-        cchild = cfile.newChild(None, "mtime",
-                                strftime('%a %b %d %H:%M:%S %Y',
-                                         localtime(stats[ST_MTIME])))
-        cchild.setNsProp(None, "tstamp", str(stats[ST_MTIME]))
-
-    def serialize(self):
-        """ Serializes xml """
-        if not self.enabled:
-            return
-
-        self.ui_log.info(self.doc.serialize(None,  1))
-
-    def serialize_to_file(self, fname):
-        """ Serializes to file """
-        if not self.enabled:
-            return
-
-        outf = tempfile.NamedTemporaryFile()
-        outf.write(self.doc.serialize(None, 1))
-        outf.flush()
-        self.archive.add_file(outf.name, dest=fname)
-        outf.close()
-
-
 # valid modes for --chroot
 chroot_modes = ["auto", "always", "never"]
 
@@ -267,7 +178,7 @@ def _get_parser():
                         help="disable these plugins", default=[])
     parser.add_argument("--no-report", action="store_true",
                         dest="noreport",
-                        help="disable HTML/XML reporting", default=False)
+                        help="disable plaintext/HTML reporting", default=False)
     parser.add_argument("--note", type=str, action="store", default="",
                         help="Behaviour notes for new preset")
     parser.add_argument("-o", "--only-plugins", action="extend",
@@ -333,7 +244,6 @@ class SoSReport(object):
         self.loaded_plugins = []
         self.skipped_plugins = []
         self.all_options = []
-        self.xml_report = XmlReport()
         self.archive = None
         self.tempfile_util = None
         self._args = args
@@ -443,7 +353,6 @@ class SoSReport(object):
             'policy': self.policy,
             'sysroot': self.sysroot,
             'verbosity': self.opts.verbosity,
-            'xmlreport': self.xml_report,
             'cmdlineopts': self.opts,
         }
 
@@ -1148,25 +1057,6 @@ class SoSReport(object):
             sys.stdout.write(status_line)
             sys.stdout.flush()
 
-    def report(self):
-        for plugname, plug in self.loaded_plugins:
-            for oneFile in plug.copied_files:
-                try:
-                    self.xml_report.add_file(oneFile["srcpath"],
-                                             os.stat(oneFile["srcpath"]))
-                except (OSError, IOError):
-                    pass
-        try:
-            self.xml_report.serialize_to_file(os.path.join(self.rptdir,
-                                                           "sosreport.xml"))
-        except (OSError, IOError) as e:
-            if e.errno in fatal_fs_errors:
-                self.ui_log.error("")
-                self.ui_log.error(" %s while writing report data"
-                                  % e.strerror)
-                self.ui_log.error("")
-                self._exit(1)
-
     def plain_report(self):
         report = Report()
 
@@ -1462,7 +1352,6 @@ class SoSReport(object):
             self.setup()
             self.collect()
             if not self.opts.noreport:
-                self.report()
                 self.html_report()
                 self.plain_report()
             self.postproc()
