@@ -101,9 +101,9 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 temp = re.split(r'\s+', line)
                 # temp[1] holds the PCI/SCSI location
                 pci, scsi = temp[1].split('/')
-                for line in altconfig['output'].splitlines():
-                    if scsi in line:
-                        temp = line.split(' ')
+                for alt_line in altconfig['output'].splitlines():
+                    if scsi in alt_line:
+                        temp = alt_line.split(' ')
                         # temp[0] holds device name
                         self.add_cmd_output("iprconfig -c "
                                             "query-ses-mode %s" % temp[0])
