@@ -38,9 +38,9 @@ class sapnw(Plugin, RedHatPlugin):
         # Cycle through all the instances, get 'sid', 'instance_number'
         # and 'vhost' to determine the proper profile
         p = open(inst_out, "r").read().splitlines()
-        for line in p:
-            if "DAA" not in line:
-                fields = line.strip().split()
+        for inst_line in p:
+            if "DAA" not in inst_line:
+                fields = inst_line.strip().split()
                 sid = fields[3]
                 inst = fields[5]
                 vhost = fields[7]
