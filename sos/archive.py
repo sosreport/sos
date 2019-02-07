@@ -10,12 +10,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import os
-import time
 import tarfile
 import shutil
 import logging
-import shlex
-import re
 import codecs
 import sys
 import errno
@@ -23,7 +20,7 @@ import stat
 from threading import Lock
 
 # required for compression callout (FIXME: move to policy?)
-from subprocess import Popen, PIPE
+from subprocess import Popen
 
 from sos.utilities import sos_get_command_output, is_executable
 
