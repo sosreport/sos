@@ -60,7 +60,7 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/run/systemd/seats",
             "/run/systemd/sessions",
             "/run/systemd/system",
-            "/run/systemd/users"
+            "/run/systemd/users",
             "/etc/modules-load.d/*.conf",
             "/etc/yum/protected.d/systemd.conf"
         ])
