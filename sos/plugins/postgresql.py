@@ -13,10 +13,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-import tempfile
 
-from sos.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin,
-                         SCLPlugin)
+from sos.plugins import (Plugin, UbuntuPlugin, DebianPlugin, SCLPlugin)
 from sos.utilities import find
 
 

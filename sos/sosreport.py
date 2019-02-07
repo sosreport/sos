@@ -32,7 +32,7 @@ import pdb
 
 from sos import _sos as _
 from sos import __version__
-from sos import _arg_names, _arg_defaults, SoSOptions
+from sos import _arg_defaults, SoSOptions
 import sos.policies
 from sos.archive import TarFileArchive
 from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,

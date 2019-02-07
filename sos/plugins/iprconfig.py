@@ -8,7 +8,6 @@
 
 # This plugin enables collection of logs for Power systems
 
-import os
 import re
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 from sos.utilities import is_executable
