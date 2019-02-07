@@ -22,7 +22,6 @@ from sos import SoSOptions
 sys.path.insert(0, "/usr/share/rhn/")
 try:
     from up2date_client import up2dateAuth
-    from up2date_client import config
     from rhn import rpclib
 except ImportError:
     # might fail if non-RHEL
@@ -314,7 +313,6 @@ support representative.
 
     def rhn_username(self):
         try:
-            # cfg = config.initUp2dateConfig()
             rhn_username = rpclib.xmlrpclib.loads(
                 up2dateAuth.getSystemId())[0][0]['username']
             return rhn_username.encode('utf-8', 'ignore')

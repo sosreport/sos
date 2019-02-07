@@ -9,7 +9,6 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 import re
-from stat import *
 
 
 class Xen(Plugin, RedHatPlugin):
