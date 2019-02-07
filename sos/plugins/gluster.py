@@ -56,7 +56,6 @@ class Gluster(Plugin, RedHatPlugin):
         statedump_entries = os.listdir(name_dir)
         for statedump_file in statedump_entries:
             statedumps_present = statedumps_present+1
-            last_line = 'tmp'
             ret = -1
             while ret == -1:
                 last_line = file(
