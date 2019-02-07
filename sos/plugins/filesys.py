@@ -25,7 +25,7 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/proc/fs/",
-            "/proc/mounts"
+            "/proc/mounts",
             "/proc/filesystems",
             "/proc/self/mounts",
             "/proc/self/mountinfo",
