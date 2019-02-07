@@ -19,7 +19,6 @@ except ImportError:
     import simplejson as json
 
 # PYCOMPAT
-from six import iteritems
 import six
 
 
@@ -146,7 +145,7 @@ class PlainTextReport(object):
 
     def unicode(self):
         self.line_buf = line_buf = []
-        for section_name, section_contents in sorted(iteritems(
+        for section_name, section_contents in sorted(six.iteritems(
                 self.report_node.data)):
             line_buf.append(section_name + "\n" + self.DIVIDER)
             for type_, format_, header in self.subsections:

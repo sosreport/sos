@@ -24,7 +24,6 @@ from collections import deque
 
 # PYCOMPAT
 import six
-from six import StringIO
 
 
 def tail(filename, number_of_bytes):
@@ -43,7 +42,7 @@ def fileobj(path_or_file, mode='r'):
         except IOError:
             log = logging.getLogger('sos')
             log.debug("fileobj: %s could not be opened" % path_or_file)
-            return closing(StringIO())
+            return closing(six.StringIO())
     else:
         return closing(path_or_file)
 

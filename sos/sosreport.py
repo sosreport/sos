@@ -41,7 +41,6 @@ from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
 # PYCOMPAT
 import six
 from six.moves import zip, input
-from six import print_
 
 if six.PY3:
     from configparser import ConfigParser, ParsingError, Error
@@ -393,11 +392,10 @@ class SoSReport(object):
             # device, so we call the default hook
             sys.__excepthook__(etype, eval_, etrace)
         else:
-            import pdb
             # we are NOT in interactive mode, print the exception...
             traceback.print_exception(etype, eval_, etrace, limit=2,
                                       file=sys.stdout)
-            print_()
+            six.print_()
             # ...then start the debugger in post-mortem mode.
             pdb.pm()
 
@@ -416,7 +414,7 @@ class SoSReport(object):
             (etype, val, tb) = sys.exc_info()
             # we are NOT in interactive mode, print the exception...
             traceback.print_exception(etype, val, tb, file=sys.stdout)
-            print_()
+            six.print_()
             # ...then start the debugger in post-mortem mode.
             pdb.post_mortem(tb)
         if plugname and func:
