@@ -85,4 +85,8 @@ class Watchdog(Plugin, RedHatPlugin):
 
         self.add_copy_spec(log_files)
 
+        # Get output of "wdctl <device>" for each /dev/watchdog*
+        for dev in glob('/dev/watchdog'):
+            self.add_cmd_output("wdctl %s" % dev)
+
 # vim: set et ts=4 sw=4 :
