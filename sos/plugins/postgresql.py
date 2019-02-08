@@ -78,13 +78,24 @@ class PostgreSQL(Plugin):
 
 class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
 
-    packages = ('postgresql', 'rh-postgresql95-postgresql-server', )
+    packages = (
+        'postgresql',
+        'rh-postgresql95-postgresql-server',
+        'rh-postgresql10-postgresql-server'
+    )
 
     def setup(self):
         super(RedHatPostgreSQL, self).setup()
 
-        scl = "rh-postgresql95"
         pghome = self.get_option("pghome")
+
+        scl = None
+        for pkg in self.packages[1:]:
+            # The scl name, package name, and service name all differ slightly
+            # but is at least consistent in doing so across versions, so we
+            # need to do some mangling here
+            if self.service_is_running(pkg.replace('-server', '')):
+                scl = pkg.split('-postgresql-')[0]
 
         # Copy PostgreSQL log files.
         for filename in find("*.log", pghome):
@@ -109,7 +120,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
             )
         )
 
-        if scl in self.scls_matched:
+        if scl and scl in self.scls_matched:
             self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
 
 
