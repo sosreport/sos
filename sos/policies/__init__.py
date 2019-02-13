@@ -509,6 +509,7 @@ No changes will be made to system configuration.
         name = self.get_local_name().split('.')[0]
         case = self.case_id
         label = self.commons['cmdlineopts'].label
+        date = ''
         rand = ''.join(random.choice(string.ascii_lowercase) for x in range(7))
 
         if self.name_pattern == 'legacy':
