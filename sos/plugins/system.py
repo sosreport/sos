@@ -22,6 +22,7 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/sys",
             "/etc/sysconfig",
             "/etc/default",
+            "/etc/environment",
         ])
 
         # FIXME: provide a a long-term solution for #1299
