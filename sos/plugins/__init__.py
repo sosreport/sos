@@ -215,9 +215,13 @@ class Plugin(object):
         '''Is the service $name disabled?'''
         return self.policy.init_system.is_disabled(name)
 
+    def service_is_running(self, name):
+        '''Is the service $name currently running?'''
+        return self.policy.init_system.is_running(name)
+
     def get_service_status(self, name):
         '''Return the reported status for service $name'''
-        return self.policy.init_system.get_service_status(name)
+        return self.policy.init_system.get_service_status(name)['status']
 
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd

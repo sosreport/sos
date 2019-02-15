@@ -86,6 +86,17 @@ class InitSystem(object):
         """
         return name in self.services
 
+    def is_running(self, name):
+        """Checks if the given service name is in a running state.
+
+        This should be overridden by initsystems that subclass InitSystem
+        """
+        # This is going to be primarily used in gating if service related
+        # commands are going to be run or not. Default to always returning
+        # True when an actual init system is not specified by policy so that
+        # we don't inadvertantly restrict sosreports on those systems
+        return True
+
     def load_all_services(self):
         """This loads all services known to the init system into a dict.
         The dict should be keyed by the service name, and contain a dict of the
@@ -96,10 +107,9 @@ class InitSystem(object):
     def _query_service(self, name):
         """Query an individual service"""
         if self.query_cmd:
-            res = sos_get_command_output("%s %s" % (self.query_cmd, name))
-            if res['status'] == 0:
-                return res
-            else:
+            try:
+                return sos_get_command_output("%s %s" % (self.query_cmd, name))
+            except Exception:
                 return None
         return None
 
@@ -155,6 +165,10 @@ class SystemdInit(InitSystem):
                 }
             except IndexError:
                 pass
+
+    def is_running(self, name):
+        svc = self.get_service_status(name)
+        return svc['status'] == 'active'
 
 
 class PackageManager(object):
