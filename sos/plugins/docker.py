@@ -33,6 +33,14 @@ class Docker(Plugin):
             "/var/lib/docker/repositories-*"
         ])
 
+        self.add_journal(units="docker")
+        self.add_cmd_output("ls -alhR /etc/docker")
+
+        if not self.service_is_running('docker'):
+            # if docker is not running none of the below commands will provide
+            # any useful output
+            return
+
         subcmds = [
             'events --since 24h --until 1s',
             'info',
@@ -52,9 +60,6 @@ class Docker(Plugin):
         # separately grab ps -s as this can take a *very* long time
         if self.get_option('size'):
             self.add_cmd_output('docker ps -as')
-
-        self.add_journal(units="docker")
-        self.add_cmd_output("ls -alhR /etc/docker")
 
         nets = self.get_command_output('docker network ls')
 
