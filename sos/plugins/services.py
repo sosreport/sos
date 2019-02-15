@@ -36,7 +36,9 @@ class RedHatServices(Services, RedHatPlugin):
 
     def setup(self):
         super(RedHatServices, self).setup()
-        self.add_cmd_output("/sbin/chkconfig --list", root_symlink="chkconfig")
+        if self.policy.dist_version() <= 6:
+            self.add_cmd_output("/sbin/chkconfig --list",
+                                root_symlink="chkconfig")
 
 
 class DebianServices(Services, DebianPlugin, UbuntuPlugin):
