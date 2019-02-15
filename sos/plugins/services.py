@@ -22,7 +22,8 @@ class Services(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/inittab",
-            "/etc/rc.d"
+            "/etc/rc.d",
+            "/etc/rc.local"
         ])
         if self.get_option('servicestatus'):
             self.add_cmd_output("/sbin/service --status-all")
