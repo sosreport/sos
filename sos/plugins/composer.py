@@ -10,14 +10,14 @@ class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     packages = ('composer-cli',)
 
-    def _get_blueprints(self):
-        blueprints = []
-        bp_file = self.get_cmd_output_now("composer-cli blueprints list")
-        if bp_file:
-            with open(bp_file, "r") as bps:
-                for line in bps.read().splitlines():
-                    blueprints.append(line)
-        return blueprints
+    def _get_entries(self, cmd):
+        entries = []
+        ent_file = self.get_cmd_output_now(cmd)
+        if ent_file:
+            with open(ent_file, "r") as ents:
+                for line in ents.read().splitlines():
+                    entries.append(line)
+        return entries
 
     def setup(self):
         self.add_copy_spec([
@@ -27,10 +27,12 @@ class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/lorax-composer/program.log",
             "/var/log/lorax-composer/server.log",
         ])
-        blueprints = self._get_blueprints()
+        blueprints = self._get_entries("composer-cli blueprints list")
         for blueprint in blueprints:
             self.add_cmd_output("composer-cli blueprints show %s" % blueprint)
 
-        self.add_cmd_output("composer-cli sources list")
+        sources = self._get_entries("composer-cli sources list")
+        for src in sources:
+            self.add_cmd_output("composer-cli sources info %s" % src)
 
 # vim: set et ts=4 sw=4 :
