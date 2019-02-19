@@ -23,7 +23,10 @@ class Apache(Plugin):
 
     def setup(self):
         # collect list of installed modules
-        self.add_cmd_output(["apachectl -M"])
+        self.add_cmd_output([
+            "apachectl -M",
+            "apachectl -S"
+        ])
 
 
 class RedHatApache(Apache, RedHatPlugin):
