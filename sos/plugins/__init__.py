@@ -970,7 +970,7 @@ class Plugin(object):
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None, timeout=None,
-                    identifier=None, catalog=None, sizelimit=None):
+                    identifier=None, catalog=None, sizelimit=None, pred=None):
         """Collect journald logs from one of more units.
 
         :param units: A string, or list of strings specifying the
@@ -1055,7 +1055,7 @@ class Plugin(object):
 
         self._log_debug("collecting journal: %s" % journal_cmd)
         self._add_cmd_output(journal_cmd, timeout=timeout,
-                             sizelimit=log_size)
+                             sizelimit=log_size, pred=pred)
 
     def add_udev_info(self, device, attrs=False):
         """Collect udevadm info output for a given device
