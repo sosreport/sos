@@ -91,6 +91,81 @@ def _file_is_compressed(path):
     return path.endswith(('.gz', '.xz', '.bz', '.bz2'))
 
 
+class SoSPredicate(object):
+    """A class to implement collection predicates.
+
+        A predicate gates the collection of data by an sos plugin. For any
+        `add_cmd_output()`, `add_copy_spec()` or `add_journal()` call, the
+        passed predicate will be evaulated and collection will proceed if
+        the result is `True`, and not otherwise.
+
+        Predicates may be used to control conditional data collection
+        without the need for explicit conditional blocks in plugins.
+    """
+    #: The plugin that owns this predicate
+    _owner = None
+
+    #: Skip all collection?
+    _dry_run = False
+
+    #: Kernel module enablement list
+    _kmods = []
+
+    #: Services enablement list
+    _services = []
+
+    def __str(self, quote=False, prefix="", suffix=""):
+        """Return a string representation of this SoSPredicate with
+            optional prefix, suffix and value quoting.
+        """
+        quotes = '"%s"'
+        pstr = "dry_run=%s, " % self._dry_run
+
+        kmods = self._kmods
+        kmods = [quotes % k for k in kmods] if quote else kmods
+        pstr += "kmods=[%s], " % (",".join(kmods))
+
+        services = self._services
+        services = [quotes % s for s in services] if quote else services
+        pstr += "services=[%s]" % (",".join(services))
+
+        return prefix + pstr + suffix
+
+    def __str__(self):
+        """Return a string representation of this SoSPredicate.
+
+            "dry_run=False, kmods=[], services=[]"
+        """
+        return self.__str()
+
+    def __repr__(self):
+        """Return a machine readable string representation of this
+            SoSPredicate.
+
+            "SoSPredicate(dry_run=False, kmods=[], services=[])"
+        """
+        return self.__str(quote=True, prefix="SoSPredicate(", suffix=")")
+
+    def __nonzero__(self):
+        """Predicate evaluation hook.
+        """
+        pvalue = False
+        for k in self._kmods:
+            pvalue |= self._owner.is_module_loaded(k)
+
+        for s in self._services:
+            pvalue |= self._owner.is_service(s) and self._owner.is_enabled(s)
+
+        return pvalue and not self._dry_run
+
+    def __init__(self, owner, dry_run=False, kmods=[], services=[]):
+        """Initialise a new SoSPredicate object.
+        """
+        self._owner = owner
+        self._kmods = list(kmods)
+        self._services = list(services)
+
+
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
@@ -741,7 +816,7 @@ class Plugin(object):
     def _add_cmd_output(self, cmd, suggest_filename=None,
                         root_symlink=None, timeout=300, stderr=True,
                         chroot=True, runat=None, env=None, binary=False,
-                        sizelimit=None):
+                        sizelimit=None, pred=None):
         """Internal helper to add a single command to the collection list."""
         cmdt = (
             cmd, suggest_filename,
@@ -752,13 +827,17 @@ class Plugin(object):
                      "'%s')")
         _logstr = "packed command tuple: " + _tuplefmt
         self._log_debug(_logstr % cmdt)
-        self.collect_cmds.append(cmdt)
-        self._log_info("added cmd output '%s'" % cmd)
+        if pred is None or pred:
+            self.collect_cmds.append(cmdt)
+            self._log_info("added cmd output '%s'" % cmd)
+        else:
+            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
+                           (cmd, pred))
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
-                       sizelimit=None):
+                       sizelimit=None, pred=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -770,7 +849,8 @@ class Plugin(object):
             self._add_cmd_output(cmd, suggest_filename=suggest_filename,
                                  root_symlink=root_symlink, timeout=timeout,
                                  stderr=stderr, chroot=chroot, runat=runat,
-                                 env=env, binary=binary, sizelimit=sizelimit)
+                                 env=env, binary=binary, sizelimit=sizelimit,
+                                 pred=pred)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -860,7 +940,7 @@ class Plugin(object):
     def is_module_loaded(self, module_name):
         """Return whether specified moudle as module_name is loaded or not"""
         if len(grep("^" + module_name + " ", "/proc/modules")) == 0:
-            return None
+            return False
         else:
             return True
 
