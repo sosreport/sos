@@ -695,11 +695,16 @@ class Plugin(object):
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
-    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True):
+    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True, pred=None):
         """Add a file or glob but limit it to sizelimit megabytes. If fname is
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
+        if pred is not None and not pred:
+            self._log_info("skipped copy spec '%s' due to predicate (%s)" %
+                           (copyspecs, pred))
+            return
+
         if sizelimit is None:
             sizelimit = self.get_option("log_size")
 
