@@ -154,7 +154,7 @@ class SoSPredicate(object):
             pvalue |= self._owner.is_module_loaded(k)
 
         for s in self._services:
-            pvalue |= self._owner.is_service(s) and self._owner.is_enabled(s)
+            pvalue |= self._owner.service_is_running(s)
 
         return pvalue and not self._dry_run
 
