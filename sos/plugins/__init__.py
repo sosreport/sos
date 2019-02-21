@@ -906,11 +906,17 @@ class Plugin(object):
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
-                           binary=False, sizelimit=None):
+                           binary=False, sizelimit=None, pred=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
+
+        if pred is not None and not pred:
+            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
+                           (exe, pred))
+            return None
+
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
                                          chroot=chroot, runat=runat,
                                          env=env, binary=binary,
