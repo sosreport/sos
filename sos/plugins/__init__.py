@@ -164,6 +164,7 @@ class SoSPredicate(object):
         self._owner = owner
         self._kmods = list(kmods)
         self._services = list(services)
+        self._dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
 
 
 class Plugin(object):
@@ -239,6 +240,9 @@ class Plugin(object):
             self.opt_names.append(opt[0])
             self.opt_parms.append({'desc': opt[1], 'speed': opt[2],
                                    'enabled': opt[3]})
+
+        # Initialise the default --dry-run predicate
+        self.set_predicate(SoSPredicate(self))
 
     @property
     def timeout(self):
@@ -373,7 +377,7 @@ class Plugin(object):
         """
         if cmd and self.cmd_predicate:
             return self.cmd_predicate
-        return self.predicate or pred
+        return pred or self.predicate
 
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd
