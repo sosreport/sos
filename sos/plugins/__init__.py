@@ -205,6 +205,10 @@ class Plugin(object):
     plugin_timeout = 300
     _timeout_hit = False
 
+    # Default predicates
+    predicate = None
+    cmd_predicate = None
+
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
             self.option_list = []
@@ -344,6 +348,32 @@ class Plugin(object):
     def get_service_status(self, name):
         '''Return the reported status for service $name'''
         return self.policy.init_system.get_service_status(name)['status']
+
+    def set_predicate(self, pred):
+        """Set or clear the default predicate for this plugin.
+        """
+        self.predicate = pred
+
+    def set_cmd_predicate(self, pred):
+        """Set or clear the default predicate for command collection
+            for this plugin. If set, this predecate takes precedence
+            over the `Plugin` default predicate for command and journal
+            data collection.
+        """
+        self.cmd_predicate = pred
+
+    def get_predicate(self, cmd=False, pred=None):
+        """Get the current default `Plugin` or command predicate. If the
+            `cmd` argument is `True`, the current command predicate is
+            returned if set, otherwise the default `Plugin` predicate
+            will be returned (which may be `None`).
+
+            If no default predicate is set and a `pred` value is passed
+            it will be returned.
+        """
+        if cmd and self.cmd_predicate:
+            return self.cmd_predicate
+        return self.predicate or pred
 
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd
@@ -700,6 +730,7 @@ class Plugin(object):
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
+        pred = self.get_predicate(pred=pred)
         if pred is not None and not pred:
             self._log_info("skipped copy spec '%s' due to predicate (%s)" %
                            (copyspecs, pred))
@@ -832,6 +863,7 @@ class Plugin(object):
                      "'%s')")
         _logstr = "packed command tuple: " + _tuplefmt
         self._log_debug(_logstr % cmdt)
+        pred = self.get_predicate(pred=pred, cmd=True)
         if pred is None or pred:
             self.collect_cmds.append(cmdt)
             self._log_info("added cmd output '%s'" % cmd)
@@ -917,6 +949,7 @@ class Plugin(object):
         """
         start = time()
 
+        pred = self.get_predicate(pred=pred, cmd=True)
         if pred is not None and not pred:
             self._log_info("skipped cmd output '%s' due to predicate (%s)" %
                            (exe, pred))
