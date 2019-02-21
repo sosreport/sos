@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, SoSPredicate
 
 
 class Docker(Plugin):
@@ -28,6 +28,8 @@ class Docker(Plugin):
     ]
 
     def setup(self):
+        self.set_cmd_predicate(SoSPredicate(services=["docker"]))
+
         self.add_copy_spec([
             "/etc/docker/daemon.json",
             "/var/lib/docker/repositories-*"
