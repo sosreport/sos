@@ -21,17 +21,23 @@ class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         return [dev for dev in sys_block if dev.startswith('nvme')]
 
     def setup(self):
+        self.add_cmd_output([
+            "nvme list",
+            "nvme list-subsys",
+        ])
         for dev in self.get_nvme_devices():
             # runs nvme-cli commands
             self.add_cmd_output([
-                                "nvme list",
-                                "nvme list-ns /dev/%s" % dev,
-                                "nvme fw-log /dev/%s" % dev,
-                                "nvme list-ctrl /dev/%s" % dev,
-                                "nvme id-ctrl -H /dev/%s" % dev,
-                                "nvme id-ns -H /dev/%s" % dev,
-                                "nvme smart-log /dev/%s" % dev,
-                                "nvme error-log /dev/%s" % dev,
-                                "nvme show-regs /dev/%s" % dev])
+                "smartctl --all /dev/%s" % dev,
+                "nvme list-ns /dev/%s" % dev,
+                "nvme fw-log /dev/%s" % dev,
+                "nvme list-ctrl /dev/%s" % dev,
+                "nvme id-ctrl -H /dev/%s" % dev,
+                "nvme id-ns -H /dev/%s" % dev,
+                "nvme smart-log /dev/%s" % dev,
+                "nvme error-log /dev/%s" % dev,
+                "nvme show-regs /dev/%s" % dev,
+                "nvme get-ns-id /dev/%s" % dev
+            ])
 
 # vim: set et ts=4 sw=4 :
