@@ -11,7 +11,7 @@
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
-class CRIO(Plugin):
+class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
 
     """CRI-O containers
     """
