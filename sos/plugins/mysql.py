@@ -36,6 +36,7 @@ class Mysql(Plugin):
             "/var/log/mysql/mysqld.log",
             "/var/log/containers/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
+            "/var/lib/mysql/grastate.dat"
         ])
 
         if self.get_option("all_logs"):
