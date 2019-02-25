@@ -41,7 +41,6 @@ class Docker(Plugin):
             'ps',
             'ps -a',
             'stats --no-stream',
-            'system df',
             'version',
             'volume ls'
         ]
@@ -49,9 +48,10 @@ class Docker(Plugin):
         for subcmd in subcmds:
             self.add_cmd_output("docker %s" % subcmd)
 
-        # separately grab ps -s as this can take a *very* long time
+        # separately grab these separately as they can take a *very* long time
         if self.get_option('size'):
             self.add_cmd_output('docker ps -as')
+            self.add_cmd_output('docker system df')
 
         self.add_journal(units="docker")
         self.add_cmd_output("ls -alhR /etc/docker")
@@ -67,26 +67,40 @@ class Docker(Plugin):
         if self.get_option('all'):
             ps_cmd = "%s -a" % ps_cmd
 
-        img_cmd = 'docker images -q'
-        insp = set()
+        fmt = '{{lower .Repository}}:{{lower .Tag}} {{lower .ID}}'
+        img_cmd = "docker images --format='%s'" % fmt
+        vol_cmd = 'docker volume ls -q'
 
-        for icmd in [ps_cmd, img_cmd]:
-            result = self.get_command_output(icmd)
-            if result['status'] == 0:
-                for con in result['output'].splitlines():
-                    insp.add(con)
+        containers = self._get_docker_list(ps_cmd)
+        images = self._get_docker_list(img_cmd)
+        volumes = self._get_docker_list(vol_cmd)
 
-        insp = list(insp)
-        if insp:
-            for container in insp:
-                self.add_cmd_output("docker inspect %s" % container)
-                if self.get_option('logs'):
-                    self.add_cmd_output("docker logs -t %s" % container)
+        for container in containers:
+            self.add_cmd_output("docker inspect %s" % container)
+            if self.get_option('logs'):
+                self.add_cmd_output("docker logs -t %s" % container)
+
+        for img in images:
+            name, img_id = img.strip().split()
+            insp = name if 'none' not in name else img_id
+            self.add_cmd_output("docker inspect %s" % insp)
+
+        for vol in volumes:
+            self.add_cmd_output("docker volume inspect %s" % vol)
+
+    def _get_docker_list(self, cmd):
+        ret = []
+        result = self.get_command_output(cmd)
+        if result['status'] == 0:
+            for ent in result['output'].splitlines():
+                ret.append(ent)
+        return ret
 
 
 class RedHatDocker(Docker, RedHatPlugin):
 
-    packages = ('docker', 'docker-latest', 'docker-io', 'docker-engine')
+    packages = ('docker', 'docker-latest', 'docker-io', 'docker-engine',
+                'docker-ce', 'docker-ee')
 
     def setup(self):
         super(RedHatDocker, self).setup()
