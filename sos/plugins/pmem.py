@@ -52,7 +52,6 @@ class Pmem(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         ''' Use the Intel ipmctl(1) to collect data from
         Intel(R) Optane(TM) DC Persistent Memory Modules.
-        ixpdimm-cli is now deprecated and removed from this module.
         '''
         self.add_cmd_output([
             "ipmctl version",
