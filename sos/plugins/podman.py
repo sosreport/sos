@@ -43,8 +43,9 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             'pod ps -a',
             'ps',
             'ps -a',
-            'stats --no-stream',
+            'stats --no-stream --all',
             'version',
+            'volume ls'
         ]
 
         self.add_cmd_output(["podman %s" % s for s in subcmds])
@@ -53,26 +54,41 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
         if self.get_option('size'):
             self.add_cmd_output('podman ps -as')
 
-        self.add_journal(units="podman")
         self.add_cmd_output("ls -alhR /etc/cni")
 
         ps_cmd = 'podman ps -q'
         if self.get_option('all'):
             ps_cmd = "%s -a" % ps_cmd
 
-        img_cmd = 'podman images -q'
-        insp = set()
+        fmt = '{{lower .Repository}}:{{lower .Tag}} {{lower .ID}}'
+        img_cmd = "podman images --format='%s'" % fmt
+        vol_cmd = 'podman volume ls -q'
 
-        for icmd in [ps_cmd, img_cmd]:
-            result = self.get_command_output(icmd)
-            if result['status'] == 0:
-                for con in result['output'].splitlines():
-                    insp.add(con)
+        containers = self._get_podman_list(ps_cmd)
+        images = self._get_podman_list(img_cmd)
+        volumes = self._get_podman_list(vol_cmd)
 
-        for container in insp:
+        for container in containers:
             self.add_cmd_output("podman inspect %s" % container)
-            if self.get_option('logs'):
-                self.add_cmd_output("podman logs -t %s" % container)
 
+        for img in images:
+            name, img_id = img.strip().split()
+            insp = name if 'none' not in name else img_id
+            self.add_cmd_output("podman inspect %s" % insp)
+
+        for vol in volumes:
+            self.add_cmd_output("podman volume inspect %s" % vol)
+
+        if self.get_option('logs'):
+            for con in containers:
+                self.add_cmd_output("podman logs -t %s" % con)
+
+    def _get_podman_list(self, cmd):
+        ret = []
+        result = self.get_command_output(cmd)
+        if result['status'] == 0:
+            for ent in result['output'].splitlines():
+                ret.append(ent)
+        return ret
 
 # vim: set et ts=4 sw=4 :
