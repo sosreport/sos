@@ -845,7 +845,7 @@ class Plugin(object):
         :param sizelimit: Limit to the size of output returned in MB.
                           Defaults to the value of --log-size.
         """
-        journal_cmd = "journalctl --no-pager "
+        journal_cmd = "journalctl --no-pager --all "
         unit_opt = " --unit %s"
         boot_opt = " --boot %s"
         since_opt = " --since %s"
