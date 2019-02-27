@@ -107,7 +107,7 @@ def is_executable(command):
 
 def sos_get_command_output(command, timeout=300, stderr=False,
                            chroot=None, chdir=None, env=None,
-                           binary=False, sizelimit=None):
+                           binary=False, sizelimit=None, dest=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -153,8 +153,9 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)
 
-        reader = AsyncReader(p.stdout, sizelimit, binary)
-        stdout = reader.get_contents()
+        reader = AsyncReader(p.stdout, sizelimit, binary, dest)
+        if not dest:
+            stdout = reader.get_contents()
         while p.poll() is None:
             pass
 
@@ -167,9 +168,13 @@ def sos_get_command_output(command, timeout=300, stderr=False,
     if p.returncode == 126 or p.returncode == 127:
         stdout = six.binary_type(b"")
 
+    if dest:
+        # Rewind output file
+        dest.seek(0, 0)
+
     return {
         'status': p.returncode,
-        'output': stdout
+        'output': dest or stdout
     }
 
 
@@ -205,7 +210,7 @@ class AsyncReader(threading.Thread):
     string that is limited to the given sizelimit.
     '''
 
-    def __init__(self, channel, sizelimit, binary):
+    def __init__(self, channel, sizelimit, binary, dest):
         super(AsyncReader, self).__init__()
         self.chan = channel
         self.binary = binary
@@ -214,7 +219,14 @@ class AsyncReader(threading.Thread):
         if sizelimit:
             sizelimit = sizelimit * 1048576  # convert to bytes
             slots = int(sizelimit / self.chunksize)
-        self.deque = deque(maxlen=slots)
+
+        if not dest:
+            self.deque = deque(maxlen=slots)
+            self.dest = None
+        else:
+            self.deque = None
+            self.dest = dest
+
         self.start()
         self.join()
 
@@ -233,7 +245,12 @@ class AsyncReader(threading.Thread):
                 if not line:
                     # Pipe can remain open after output has completed
                     break
-                self.deque.append(line)
+
+                if not self.dest:
+                    self.deque.append(line)
+                else:
+                    self.dest.write(line)
+
         except (ValueError, IOError):
             # pipe has closed, meaning command output is done
             pass
