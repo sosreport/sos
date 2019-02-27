@@ -622,7 +622,7 @@ class Plugin(object):
 
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
-                           binary=False, sizelimit=None):
+                           binary=False, sizelimit=None, dest=None):
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
@@ -631,7 +631,7 @@ class Plugin(object):
         result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
                                         chroot=root, chdir=runat,
                                         env=env, binary=binary,
-                                        sizelimit=sizelimit)
+                                        sizelimit=sizelimit, dest=dest)
 
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
@@ -670,15 +670,15 @@ class Plugin(object):
     def _add_cmd_output(self, cmd, suggest_filename=None,
                         root_symlink=None, timeout=300, stderr=True,
                         chroot=True, runat=None, env=None, binary=False,
-                        sizelimit=None):
+                        sizelimit=None, direct=False):
         """Internal helper to add a single command to the collection list."""
         cmdt = (
             cmd, suggest_filename,
             root_symlink, timeout, stderr,
-            chroot, runat, env, binary, sizelimit
+            chroot, runat, env, binary, sizelimit, direct
         )
         _tuplefmt = ("('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s', '%s', "
-                     "'%s')")
+                     "'%s', '%s')")
         _logstr = "packed command tuple: " + _tuplefmt
         self._log_debug(_logstr % cmdt)
         self.collect_cmds.append(cmdt)
@@ -755,33 +755,47 @@ class Plugin(object):
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
-                           binary=False, sizelimit=None):
+                           binary=False, sizelimit=None, direct=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
-        result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
-                                         chroot=chroot, runat=runat,
-                                         env=env, binary=binary,
-                                         sizelimit=sizelimit)
-        self._log_debug("collected output of '%s' in %s"
-                        % (exe.split()[0], time() - start))
 
         if suggest_filename:
             outfn = self._make_command_filename(suggest_filename)
         else:
             outfn = self._make_command_filename(exe)
 
-        outfn_strip = outfn[len(self.commons['cmddir'])+1:]
-        if binary:
-            self.archive.add_binary(result['output'], outfn)
+        if direct:
+            output_path = os.path.join(self.archive.get_archive_path(), outfn)
+            output_dir = os.path.dirname(outfn)
+            # Ensure the command output directory exists
+            self.archive.add_dir(output_dir)
+            dest = open(output_path, "w+")
         else:
-            self.archive.add_string(result['output'], outfn)
+            dest = None
+
+        result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
+                                         chroot=chroot, runat=runat,
+                                         env=env, binary=binary,
+                                         sizelimit=sizelimit, dest=dest)
+        self._log_debug("collected output of '%s' in %s"
+                        % (exe.split()[0], time() - start))
+
+        if not direct:
+            if binary:
+                self.archive.add_binary(result['output'], outfn)
+            else:
+                self.archive.add_string(result['output'], outfn)
+        else:
+            dest.close()
+
         if root_symlink:
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
         # save in our list
+        outfn_strip = outfn[len(self.commons['cmddir'])+1:]
         self.executed_commands.append({'exe': exe, 'file': outfn_strip,
                                        'binary': 'yes' if binary else 'no'})
         self.commons['xmlreport'].add_command(cmdline=exe,
@@ -935,17 +949,18 @@ class Plugin(object):
                 stderr,
                 chroot, runat,
                 env, binary,
-                sizelimit
+                sizelimit,
+                direct
             ) = progs[0]
             self._log_debug(("unpacked command tuple: " +
                              "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s'," +
-                             "'%s %s')") % progs[0])
+                             "'%s %s', '%s')") % progs[0])
             self._log_info("collecting output of '%s'" % prog)
             self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
                                     root_symlink=root_symlink, timeout=timeout,
                                     stderr=stderr, chroot=chroot, runat=runat,
                                     env=env, binary=binary,
-                                    sizelimit=sizelimit)
+                                    sizelimit=sizelimit, direct=direct)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
