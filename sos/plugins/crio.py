@@ -29,13 +29,12 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/containers/registries.conf",
-            "/etc/containers/storage.conf",
-            "/etc/containers/mounts.conf",
-            "/etc/containers/policy.json",
+            "/etc/containers",
+            "/etc/crictl.yaml",
             "/etc/crio/crio.conf",
             "/etc/crio/seccomp.json",
             "/etc/systemd/system/cri-o.service",
+            "/etc/sysconfig/crio-*"
         ])
 
         subcmds = [
@@ -44,31 +43,46 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
             'pods',
             'ps',
             'ps -a',
+            'ps -v',
             'stats',
             'version',
         ]
 
         self.add_cmd_output(["crictl %s" % s for s in subcmds])
-        self.add_journal(units="cri-o")
+        self.add_journal(units="crio")
         self.add_cmd_output("ls -alhR /etc/cni")
 
         ps_cmd = 'crictl ps --quiet'
         if self.get_option('all'):
             ps_cmd = "%s -a" % ps_cmd
 
-        img_cmd = 'cri-o images --quiet'
-        insp = set()
+        img_cmd = 'crictl images --quiet'
+        pod_cmd = 'crictl pods --quiet'
 
-        for icmd in [ps_cmd, img_cmd]:
-            result = self.get_command_output(icmd)
-            if result['status'] == 0:
-                for con in result['output'].splitlines():
-                    insp.add(con)
+        containers = self._get_crio_list(ps_cmd)
+        images = self._get_crio_list(img_cmd)
+        pods = self._get_crio_list(pod_cmd)
 
-        if insp:
-            for container in insp:
-                self.add_cmd_output("crictl inspect %s" % container)
-                if self.get_option('logs'):
-                    self.add_cmd_output("crictl logs -t %s" % container)
+        for container in containers:
+            self.add_cmd_output("crictl inspect %s" % container)
+            if self.get_option('logs'):
+                self.add_cmd_output("crictl logs -t %s" % container)
+
+        for image in images:
+            self.add_cmd_output("crictl inspecti %s" % image)
+
+        for pod in pods:
+            self.add_cmd_output("crictl inspectp %s" % pod)
+
+    def _get_crio_list(self, cmd):
+        ret = []
+        result = self.get_command_output(cmd)
+        if result['status'] == 0:
+            for ent in result['output'].splitlines():
+                ret.append(ent)
+            # Prevent the socket deprecation warning from being iterated over
+            if 'deprecated' in ret[0]:
+                ret.pop(0)
+        return ret
 
 # vim: set et ts=4 sw=4 :
