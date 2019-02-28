@@ -27,11 +27,15 @@ class Buildah(Plugin, RedHatPlugin):
             "/etc/containers/policy.json",
         ])
 
-        self.add_cmd_output([
-            'buildah containers',
-            'buildah images',
-            'buildah version'
-        ])
+        subcmds = [
+            'containers',
+            'containers --all',
+            'images',
+            'images --all',
+            'version'
+        ]
+
+        self.add_cmd_output(["buildah %s" % sub for sub in subcmds])
 
         def make_chowdah(aurdah):
             chowdah = self.get_command_output(aurdah)
@@ -43,8 +47,8 @@ class Buildah(Plugin, RedHatPlugin):
         if containahs['is_wicked_pissah']:
             for containah in containahs['auutput'].splitlines():
                 # obligatory Tom Brady
-                brady = containah.split()[4]
-                self.add_cmd_output('buildah inspect -t container %s' % brady)
+                goat = containah.split()[4]
+                self.add_cmd_output('buildah inspect -t container %s' % goat)
 
         pitchez = make_chowdah('buildah images -n')
         if pitchez['is_wicked_pissah']:
