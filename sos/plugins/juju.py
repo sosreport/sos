@@ -9,113 +9,201 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
+import re
+import glob
 from sos.plugins import Plugin, UbuntuPlugin
 from json import loads as json_loads
-
-
-def ensure_service_is_running(service):
-    def wrapper(callback):
-        def wrapped_f(self, *args, **kwargs):
-            try:
-                result = self.call_ext_prog("service {0} stop".format(service))
-                if result["status"] != 0:
-                    raise Exception("Cannot stop {0} service".format(service))
-                callback(self, *args, **kwargs)
-            except Exception as ex:
-                self._log_error("Cannot stop {0}, exception: {1}".format(
-                    service,
-                    ex.message))
-            finally:
-                self.call_ext_prog("service {0} start".format(service))
-        return wrapped_f
-    return wrapper
 
 
 class Juju(Plugin, UbuntuPlugin):
     """ Juju orchestration tool
     """
 
-    plugin_name = 'juju'
-    profiles = ('virt', 'sysmgmt')
-    files = ('/usr/bin/juju', '/usr/bin/juju-run')
+    plugin_name = "juju"
+    profiles = ("virt", "sysmgmt")
+    files = ("/snap/bin/juju", "/usr/bin/juju")
 
     option_list = [
-        ('export-mongodb',
-         'Export mongodb collections as json files', '', False),
-        ('generate-bundle',
-         """Generate a YAML bundle of the current environment
-         (requires juju-deployerizer)""", '', False),
+        ("juju-user", "The user to run juju commands as", "", "ubuntu")
     ]
 
-    def get_deployed_services(self):
-        cmd = "juju status --format json"
-        status_json = self.call_ext_prog(cmd)['output']
-        self.add_string_as_file(status_json, "juju_status_json")
-        # if status_json isn't in JSON format (i.e. 'juju' command not found),
-        # or if it does not contain 'services' key, return empty list
+    # Get the configuration of each application deployed in a model
+    def collect_app_config(self, username, modelname, statusfilespath):
+        statusinfo = {}
         try:
-            return json_loads(status_json)['services'].keys()
-        except ValueError:
-            return []
+            fp = open(statusfilespath, "r")
+            statusinfo = json_loads(fp.read())
+            fp.close()
+        except Exception:
+            return
+        if "applications" in statusinfo:
+            for appname, appinfo in statusinfo["applications"].items():
+                # Get the application config for every application in every
+                # model
+                self.add_cmd_output(
+                    "sudo -i -u {} juju config --format yaml -m {} {}".format(
+                        username, modelname, appname
+                    ),
+                    suggest_filename="juju_config_-m_{}_{}.yaml".format(
+                        modelname, appname
+                    ),
+                )
 
-    @ensure_service_is_running("juju-db")
-    def export_mongodb(self):
-        collections = (
-            "relations",
-            "environments",
-            "linkednetworks",
-            "system",
-            "settings",
+    # Get some information pertaining to each model
+    def collect_model_output(self, username, modelsfilepath):
+        modelsinfo = {}
+        try:
+            fp = open(modelsfilepath, "r")
+            modelsinfo = json_loads(fp.read())
+            fp.close()
+        except Exception:
+            return
+        if "models" in modelsinfo:
+            for model in modelsinfo["models"]:
+                if "short-name" in model:
+                    modelname = model["short-name"]
+                    # Run these commands for each model
+                    model_cmds = [
+                        "juju debug-log -n 500 --no-tail -m " + modelname,
+                        "juju model-config --format yaml -m " + modelname,
+                    ]
+                    for cmd in model_cmds:
+                        # The file names can be long and confusing from the
+                        # juju commands, clean them up and give them an
+                        # appropriate extension if possible
+                        filename = self._mangle_command(cmd)
+                        if re.match(r".*_--format_yaml.*", filename):
+                            filename = re.sub(r"_--format_yaml", "", filename)
+                            filename += ".yaml"
+                        self.add_cmd_output(
+                            "su - " + username + ' -c "' + cmd + '"',
+                            suggest_filename=filename,
+                        )
+
+                    # Get the model status as json so we can dig deeper
+                    status = self.get_cmd_output_now(
+                        "sudo -i -u {} juju status -m {} --format json".format(
+                            username, modelname
+                        ),
+                        suggest_filename="juju_status_-m_{}.json".format(
+                            modelname
+                        ),
+                    )
+                    self.collect_app_config(username, modelname, status)
+
+    # Get some high level juju configuration and start processing model info
+    def collect_juju_output(self, username):
+        # Run these commands once, no model or app option required
+        juju_cmds = [
+            "juju clouds --format yaml",
+            "juju controller-config --format yaml",
+            "juju storage --format yaml",
+            "juju storage-pools --format yaml",
+            "juju spaces --format yaml",
+            "juju credentials --format yaml",
+            "juju model-defaults --format yaml",
+            "juju show-controller --format yaml",
+        ]
+
+        # Get the model information as json so we can dig deeper
+        models = self.get_cmd_output_now(
+            "sudo -i -u {} juju models --format json".format(username),
+            suggest_filename="juju_models.json",
         )
+        self.collect_model_output(username, models)
 
-        for collection in collections:
+        # Use sudo to run the commands as the appropriate user and name the
+        # files something sane
+        for cmd in juju_cmds:
+            # The file names can be long and confusing from the juju commands,
+            # clean them up and give them an approriate extension if possible
+            filename = self._mangle_command(cmd)
+            if re.match(r".*_--format_yaml.*", filename):
+                filename = re.sub(r"_--format_yaml", "", filename)
+                filename += ".yaml"
             self.add_cmd_output(
-                "/usr/lib/juju/bin/mongoexport --ssl \
-                --dbpath=/var/lib/juju/db --db juju --collection {0} \
-                --jsonArray".format(collection),
-                suggest_filename="{}.json".format(collection))
+                "sudo -i -u {} {}".format(username, cmd),
+                suggest_filename=filename,
+            )
 
     def setup(self):
-        self.add_copy_spec("/var/log/upstart/juju-db.log")
-        self.add_copy_spec("/var/log/upstart/juju-db.log.1")
-        if not self.get_option("all_logs"):
-            # We need this because we want to collect to the limit of all
-            # *.logs in the directory.
-            if(os.path.isdir("/var/log/juju/")):
-                for filename in os.listdir("/var/log/juju/"):
-                    if filename.endswith(".log"):
-                        fullname = os.path.join("/var/log/juju/" + filename)
-                        self.add_copy_spec(fullname)
-            self.add_cmd_output('ls -alRh /var/log/juju*')
-            self.add_cmd_output('ls -alRh /var/lib/juju/*')
+        # Make sure it looks like juju is configured before continuing
+        username = self.get_option("juju-user")
+        homedir = os.path.expanduser("~" + username)
+        if os.path.exists(homedir + "/.local/share/juju"):
+            self.collect_juju_output(username)
 
-        else:
-            self.add_copy_spec([
-                "/var/log/juju",
-                "/var/log/juju-*",
-                "/var/lib/juju"
-                # /var/lib/juju used to be in the default capture moving here
-                # because it usually was way to big.  However, in most cases
-                # you want all logs you want this too.
-            ])
+    def postproc(self):
+        juju_config_keys = [
+            "password",
+            "credentials",
+            "client_password",
+            "endpoint-tls-ca",
+            "docker-logins",
+            "license-key",
+            "registry-credentials",
+        ]
 
-        self.add_cmd_output([
-                "juju --version",
-                "juju -v status --format=tabular",
-        ])
-        for service in self.get_deployed_services():
-            self.add_cmd_output([
-                "juju get {}".format(service),
-                "juju get-config {}".format(service),
-                "juju get-constraints {}".format(service)
-            ])
+        juju_config_certs = ["ca-cert"]
 
-        if self.get_option("export-mongodb"):
-            self.export_mongodb()
+        # Handle the case where the key and value are on seperate lines
+        # in a juju config yaml file
+        juju_config_regex = (
+            r"(?m)^(\s*)(((%s):((\n\1\s+.*)|\n)+)\1\s+value:\s*).*"
+            % "|".join(juju_config_keys)
+        )
+        juju_config_sub_regex = r"\1\2*********"
 
-        if self.get_option("generate-bundle"):
-            self.add_cmd_output("juju deployerizer --include-charm-versions",
-                                suggest_filename="juju-env-bundle.yaml")
+        # Will match and replace a certificat in a yaml file
+        certs_regex = (
+            r"((?m)^\s*(%s)\s*:\s*)(\|\s*\n\s+-+BEGIN (.*)"
+            r"-+\s(\s+\S+\n)+\s+-+END )\4(-+)" % "|".join(juju_config_certs)
+        )
+        certs_sub_regex = r"\1*********"
+
+        # Go through all output files and sanitize them (sos doesn't have a
+        # builtin method of doing this currently):
+        output_dir = self.get_cmd_output_path(make=False)
+        juju_config_files = glob.glob(output_dir + "/juju_config*.yaml")
+        juju_cert_files = glob.glob(output_dir + "/juju*controller*.yaml")
+
+        for file in juju_config_files:
+            self._log_debug(
+                "substituting {} for {} in {}".format(
+                    juju_config_sub_regex, juju_config_regex, file
+                )
+            )
+            try:
+                fp = open(file, "r")
+                result, replacements = re.subn(
+                    juju_config_regex, juju_config_sub_regex, fp.read()
+                )
+                fp.close()
+                fp = open(file, "w")
+                fp.write(result)
+                fp.close()
+            except Exception as e:
+                msg = "regex substitution failed for '%s' with: '%s'"
+                self.log_error(msg % (file, e))
+
+        for file in juju_cert_files:
+            self._log_debug(
+                "substituting {} for {} in {}".format(
+                    certs_sub_regex, certs_regex, file
+                )
+            )
+            try:
+                fp = open(file, "r")
+                result, replacements = re.subn(
+                    certs_regex, certs_sub_regex, fp.read()
+                )
+                fp.close()
+                fp = open(file, "w")
+                fp.write(result)
+                fp.close()
+            except Exception as e:
+                msg = "regex substitution failed for '%s' with: '%s'"
+                self.log_error(msg % (file, e))
 
 
 # vim: set et ts=4 sw=4 :
