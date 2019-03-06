@@ -136,20 +136,20 @@ class Juju(Plugin, UbuntuPlugin):
             r"(?m)^(\s*)(((%s):((\n\1\s+.*)|\n)+)\1\s+value:\s*).*"
             % "|".join(juju_config_keys)
         )
-        juju_config_sub_regex = r"\1\2*********"
+        juju_config_subst = r"\1\2*********"
 
         # Will match and replace a certificat in a yaml file
         certs_regex = (
             r"((?m)^\s*(%s)\s*:\s*)(\|\s*\n\s+-+BEGIN (.*)"
             r"-+\s(\s+\S+\n)+\s+-+END )\4(-+)" % "|".join(juju_config_certs)
         )
-        certs_sub_regex = r"\1*********"
+        certs_subst = r"\1*********"
 
         self.do_cmd_output_sub(
-            "*juju_config*yaml*", juju_config_regex, juju_config_sub_regex
+            "*juju*config*yaml*", juju_config_regex, juju_config_subst
         )
         self.do_cmd_output_sub(
-            "*juju*controller*yaml", certs_regex, certs_sub_regex
+            "*juju*controller*yaml", certs_regex, certs_subst
         )
 
     # juju_config_files = glob.glob(output_dir + "/juju_config*.yaml")
