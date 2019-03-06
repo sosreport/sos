@@ -146,10 +146,10 @@ class Juju(Plugin, UbuntuPlugin):
         certs_sub_regex = r"\1*********"
 
         self.do_cmd_output_sub(
-            r".*juju_config.*yaml.*", juju_config_regex, juju_config_sub_regex
+            "*juju_config*yaml*", juju_config_regex, juju_config_sub_regex
         )
         self.do_cmd_output_sub(
-            r".*juju.*controller.*yaml.*", certs_regex, certs_sub_regex
+            "*juju*controller*yaml", certs_regex, certs_sub_regex
         )
 
     # juju_config_files = glob.glob(output_dir + "/juju_config*.yaml")
