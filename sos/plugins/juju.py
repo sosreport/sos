@@ -40,11 +40,11 @@ class Juju(Plugin, UbuntuPlugin):
             for appname, appinfo in statusinfo["applications"].items():
                 # Get the application config for every application in every
                 # model
-                cmd = "sudo -i -u {} juju config --format yaml -m {} {}".format(
-                    username, modelname, appname
+                self.add_cmd_output(
+                    "sudo -i -u {} juju config --format yaml -m {} {}".format(
+                        username, modelname, appname
+                    )
                 )
-                self.add_cmd_output(cmd)
-                self.juju_config_cmds.append(cmd)
 
     # Get some information pertaining to each model
     def collect_model_output(self, username, modelsfilepath):
@@ -103,16 +103,12 @@ class Juju(Plugin, UbuntuPlugin):
         for cmd in juju_cmds:
             # The file names can be long and confusing from the juju commands,
             # clean them up and give them an approriate extension if possible
-            sudocmd = "sudo -i -u {} {}".format(username, cmd)
-            self.add_cmd_output(sudocmd)
-            self.juju_controller_cmds.append(sudocmd)
+            self.add_cmd_output("sudo -i -u {} {}".format(username, cmd))
 
     def setup(self):
         # Make sure it looks like juju is configured before continuing
         username = self.get_option("juju-user")
         homedir = os.path.expanduser("~" + username)
-        self.juju_config_cmds = []
-        self.juju_controller_cmds = []
 
         if os.path.exists(homedir + "/.local/share/juju"):
             self.collect_juju_output(username)
