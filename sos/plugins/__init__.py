@@ -337,6 +337,7 @@ class Plugin(object):
         if not hasattr(pathexp, "match"):
             pathexp = re.compile(pathexp)
         match = pathexp.match
+        self.log_error("Nick " + self.copied_files)
         file_list = [f for f in self.copied_files if match(f['srcpath'])]
         for file in file_list:
             self.do_file_sub(file['srcpath'], regexp, subst)
