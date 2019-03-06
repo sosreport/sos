@@ -43,10 +43,7 @@ class Juju(Plugin, UbuntuPlugin):
                 self.add_cmd_output(
                     "sudo -i -u {} juju config --format yaml -m {} {}".format(
                         username, modelname, appname
-                    ),
-                    suggest_filename="juju_config_-m_{}_{}.yaml".format(
-                        modelname, appname
-                    ),
+                    )
                 )
 
     # Get some information pertaining to each model
@@ -63,31 +60,21 @@ class Juju(Plugin, UbuntuPlugin):
                 if "short-name" in model:
                     modelname = model["short-name"]
                     # Run these commands for each model
-                    model_cmds = [
-                        "juju debug-log -n 500 --no-tail -m " + modelname,
-                        "juju model-config --format yaml -m " + modelname,
-                    ]
-                    for cmd in model_cmds:
-                        # The file names can be long and confusing from the
-                        # juju commands, clean them up and give them an
-                        # appropriate extension if possible
-                        filename = self._mangle_command(cmd)
-                        if re.match(r".*_--format_yaml.*", filename):
-                            filename = re.sub(r"_--format_yaml", "", filename)
-                            filename += ".yaml"
-                        self.add_cmd_output(
-                            "su - " + username + ' -c "' + cmd + '"',
-                            suggest_filename=filename,
-                        )
-
+                    self.add_cmd_output(
+                        [
+                            "su - {} -c 'juju debug-log -n 500 --no-tail -m {}'".format(
+                                username, modelname
+                            ),
+                            "su - {} -c 'juju model-config --format yaml -m {}'".format(
+                                username, modelname
+                            ),
+                        ]
+                    )
                     # Get the model status as json so we can dig deeper
                     status = self.get_cmd_output_now(
                         "sudo -i -u {} juju status -m {} --format json".format(
                             username, modelname
-                        ),
-                        suggest_filename="juju_status_-m_{}.json".format(
-                            modelname
-                        ),
+                        )
                     )
                     self.collect_app_config(username, modelname, status)
 
@@ -107,8 +94,7 @@ class Juju(Plugin, UbuntuPlugin):
 
         # Get the model information as json so we can dig deeper
         models = self.get_cmd_output_now(
-            "sudo -i -u {} juju models --format json".format(username),
-            suggest_filename="juju_models.json",
+            "sudo -i -u {} juju models --format json".format(username)
         )
         self.collect_model_output(username, models)
 
@@ -121,10 +107,7 @@ class Juju(Plugin, UbuntuPlugin):
             if re.match(r".*_--format_yaml.*", filename):
                 filename = re.sub(r"_--format_yaml", "", filename)
                 filename += ".yaml"
-            self.add_cmd_output(
-                "sudo -i -u {} {}".format(username, cmd),
-                suggest_filename=filename,
-            )
+            self.add_cmd_output("sudo -i -u {} {}".format(username, cmd))
 
     def setup(self):
         # Make sure it looks like juju is configured before continuing
@@ -164,46 +147,45 @@ class Juju(Plugin, UbuntuPlugin):
         # Go through all output files and sanitize them (sos doesn't have a
         # builtin method of doing this currently):
         output_dir = self.get_cmd_output_path(make=False)
-        juju_config_files = glob.glob(output_dir + "/juju_config*.yaml")
-        juju_cert_files = glob.glob(output_dir + "/juju*controller*.yaml")
 
-        for file in juju_config_files:
-            self._log_debug(
-                "substituting {} for {} in {}".format(
-                    juju_config_sub_regex, juju_config_regex, file
-                )
-            )
-            try:
-                fp = open(file, "r")
-                result, replacements = re.subn(
-                    juju_config_regex, juju_config_sub_regex, fp.read()
-                )
-                fp.close()
-                fp = open(file, "w")
-                fp.write(result)
-                fp.close()
-            except Exception as e:
-                msg = "regex substitution failed for '%s' with: '%s'"
-                self.log_error(msg % (file, e))
+        self.do_path_regex_sub(
+            output_dir + "/juju_config*.yaml",
+            juju_config_regex,
+            juju_config_sub_regex,
+        )
+        self.do_path_regex_sub(
+            output_dir + "/juju*controller*.yaml", certs_regex, certs_sub_regex
+        )
+        # juju_config_files = glob.glob(output_dir + "/juju_config*.yaml")
+        # juju_cert_files = glob.glob(output_dir + "/juju*controller*.yaml")
 
-        for file in juju_cert_files:
-            self._log_debug(
-                "substituting {} for {} in {}".format(
-                    certs_sub_regex, certs_regex, file
-                )
-            )
-            try:
-                fp = open(file, "r")
-                result, replacements = re.subn(
-                    certs_regex, certs_sub_regex, fp.read()
-                )
-                fp.close()
-                fp = open(file, "w")
-                fp.write(result)
-                fp.close()
-            except Exception as e:
-                msg = "regex substitution failed for '%s' with: '%s'"
-                self.log_error(msg % (file, e))
+        # for file in juju_config_files:
+        #     try:
+        #         fp = open(file, "r")
+        #         result, replacements = re.subn(
+        #             juju_config_regex, juju_config_sub_regex, fp.read()
+        #         )
+        #         fp.close()
+        #         fp = open(file, "w")
+        #         fp.write(result)
+        #         fp.close()
+        #     except Exception as e:
+        #         msg = "regex substitution failed for '%s' with: '%s'"
+        #         self.log_error(msg % (file, e))
+
+        # for file in juju_cert_files:
+        #     try:
+        #         fp = open(file, "r")
+        #         result, replacements = re.subn(
+        #             certs_regex, certs_sub_regex, fp.read()
+        #         )
+        #         fp.close()
+        #         fp = open(file, "w")
+        #         fp.write(result)
+        #         fp.close()
+        #     except Exception as e:
+        #         msg = "regex substitution failed for '%s' with: '%s'"
+        #         self.log_error(msg % (file, e))
 
 
 # vim: set et ts=4 sw=4 :

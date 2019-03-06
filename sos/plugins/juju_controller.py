@@ -34,7 +34,7 @@ class JujuController(Plugin, UbuntuPlugin):
         )
     ]
 
-    def export_mongodb(self, machineid, dbpass):
+    def export_mongodb(self, juju_machine_id, dbpass):
         collections = [
             "actionnotifications",
             "actions",
@@ -109,7 +109,7 @@ class JujuController(Plugin, UbuntuPlugin):
         for collection in collections:
             filename = "mongoexport_collection_{}.json".format(collection)
             # This will execute a mongoexport command, note it will add the
-            # password to the sos log
+            # password to the sos log, however we remove it from the filename
             mongocmd = (
                 "mongoexport --host 127.0.0.1 --port 37017 --db juju "
                 + "--authenticationDatabase admin --ssl "
@@ -117,11 +117,11 @@ class JujuController(Plugin, UbuntuPlugin):
                 + "'{}' --collection {} --jsonArray"
             )
             self.add_cmd_output(
-                mongocmd.format(machineid, dbpass, collection),
+                mongocmd.format(juju_machine_id, dbpass, collection),
                 suggest_filename=filename,
             )
 
-    def get_machine_id(self):
+    def get_juju_machine_id(self):
         # get the juju machine name machine-X
         for dirpath, dirnames, filenames in os.walk("/var/lib/juju/agents"):
             for dirname in dirnames:
@@ -130,10 +130,12 @@ class JujuController(Plugin, UbuntuPlugin):
                     return match.group(1)
         return None
 
-    def get_jujudb_pass(self, machineid):
+    def get_jujudb_pass(self, juju_machine_id):
         # Get agent config and figure out password
         try:
-            fp = open("/var/lib/juju/agents/" + machineid + "/agent.conf", "r")
+            fp = open(
+                "/var/lib/juju/agents/" + juju_machine_id + "/agent.conf", "r"
+            )
             filecontents = fp.read()
             fp.close()
         except Exception:
@@ -144,25 +146,30 @@ class JujuController(Plugin, UbuntuPlugin):
                 return match.group(1)
         return None
 
-    def add_query(self, machineid, dbpass, queryname, query):
+    def add_query(self, juju_machine_id, dbpass, queryname, query):
         # Run a command for a single query
         filename = "mongo_{}.json".format(queryname)
         # This will execute a mongo command, note it will add the password to
-        # the sos log
+        # the sos log we remove it from the filename however
         mongocmd = (
             "mongo 127.0.0.1:37017/juju --authenticationDatabase admin"
             + " --ssl --sslAllowInvalidCertificates --quiet --username '{}' "
             + "--password '{}' --eval '{}'"
         )
         self.add_cmd_output(
-            mongocmd.format(machineid, dbpass, query),
+            mongocmd.format(juju_machine_id, dbpass, query),
             suggest_filename=filename,
         )
 
     def setup(self):
-        self.add_copy_spec("/etc/default/mongodb")
-        self.add_copy_spec("/var/lib/juju/bootstrap-params")
-        self.add_copy_spec("/lib/systemd/system/juju-db/juju-db.service")
+
+        self.add_copy_spec(
+            [
+                "/etc/default/mongodb",
+                "/var/lib/juju/bootstrap-params",
+                "/lib/systemd/system/juju-db/juju-db.service",
+            ]
+        )
 
         # The key is the queryname to be used as the file name instead of the
         # entire query
@@ -179,15 +186,15 @@ class JujuController(Plugin, UbuntuPlugin):
             + 'print("["); print(stats.join(",")); print("]")',
         }
 
-        machineid = self.get_machine_id()
-        dbpass = self.get_jujudb_pass(machineid)
+        juju_machine_id = self.get_machine_id()
+        dbpass = self.get_jujudb_pass(juju_machine_id)
 
         # If we got the password we can run some queries and export if needed
         if dbpass:
             for queryname, query in mongo_db_queries.items():
-                self.add_query(machineid, dbpass, queryname, query)
+                self.add_query(juju_machine_id, dbpass, queryname, query)
             if self.get_option("export-mongodb"):
-                self.export_mongodb(machineid, dbpass)
+                self.export_mongodb(juju_machine_id, dbpass)
 
 
 # vim: set et ts=4 sw=4 :

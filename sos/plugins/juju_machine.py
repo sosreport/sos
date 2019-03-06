@@ -40,8 +40,11 @@ class JujuMachine(Plugin, UbuntuPlugin):
                     "/var/lib/juju/agents/" + dirname + "/agent.conf"
                 )
 
-        self.add_cmd_output("ls -alRh /var/log/juju*")
-        self.add_cmd_output("ls -alRh /var/lib/juju*")
+        # Get a directory listing of /var/log/juju and /var/lib/juju
+        self.add_cmd_output(
+            ["ls -alRh /var/log/juju*", "ls -alRh /var/lib/juju*"]
+        )
+
         if self.get_option("all_logs"):
             # /var/lib/juju used to be in the default capture moving here
             # because it usually was way to big.  However, in most cases you
@@ -50,16 +53,10 @@ class JujuMachine(Plugin, UbuntuPlugin):
         else:
             # We need this because we want to collect to the limit of all
             # *.logs in the directory.
-            if os.path.isdir("/var/log/juju/"):
-                for filename in os.listdir("/var/log/juju/"):
-                    if filename.endswith(".log"):
-                        fullname = os.path.join("/var/log/juju/" + filename)
-                        self.add_copy_spec(fullname)
-
-    def apply_regex_sub(self, regexp, subst):
-        self.do_path_regex_sub("/var/lib/juju/agents/*", regexp, subst)
+            self.add_copy_spec("/var/log/juju/*.log")
 
     def postproc(self):
+        agents_path = "/var/lib/juju/agents/*"
         protect_keys = [
             "sharedsecret",
             "apipassword",
@@ -84,8 +81,8 @@ class JujuMachine(Plugin, UbuntuPlugin):
         )
         sub_regex = r"\1*********"
 
-        self.apply_regex_sub(keys_regex, sub_regex)
-        self.apply_regex_sub(certs_regex, sub_regex)
+        self.do_path_regex_sub(agents_path, keys_regex, sub_regex)
+        self.do_path_regex_sub(agents_path, certs_regex, sub_regex)
 
 
 # vim: set et ts=4 sw=4 :
