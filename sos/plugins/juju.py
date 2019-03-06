@@ -105,7 +105,7 @@ class Juju(Plugin, UbuntuPlugin):
             # clean them up and give them an approriate extension if possible
             sudocmd = "sudo -i -u {} {}".format(username, cmd)
             self.add_cmd_output(sudocmd)
-            self.juju_controller_cmds.app(sudocmd)
+            self.juju_controller_cmds.append(sudocmd)
 
     def setup(self):
         # Make sure it looks like juju is configured before continuing
