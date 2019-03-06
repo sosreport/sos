@@ -30,6 +30,26 @@ class Juju(Plugin, UbuntuPlugin):
     # Get the configuration of each application deployed in a model
     def collect_app_config(self, username, modelname, statusfilespath):
         statusinfo = {}
+        # Juju config parameter values to sanitize in the output yaml
+        juju_config_keys = [
+            "password",
+            "credentials",
+            "client_password",
+            "endpoint-tls-ca",
+            "docker-logins",
+            "license-key",
+            "registry-credentials",
+        ]
+
+        # Handle the case where the key and value are on seperate lines
+        # in a juju config yaml file
+        juju_config_regex = (
+            r"(?m)^(\s*)(((%s):((\n\1\s+.*)|\n)+)\1\s+value:\s*).*"
+            % "|".join(juju_config_keys)
+        )
+
+        juju_config_subst = r"\1\2*********"
+
         try:
             fp = open(statusfilespath, "r")
             statusinfo = json_loads(fp.read())
@@ -40,10 +60,12 @@ class Juju(Plugin, UbuntuPlugin):
             for appname, appinfo in statusinfo["applications"].items():
                 # Get the application config for every application in every
                 # model
-                self.add_cmd_output(
-                    "sudo -i -u {} juju config --format yaml -m {} {}".format(
-                        username, modelname, appname
-                    )
+                cmd = "sudo -i -u {} juju config --format yaml -m {} {}".format(
+                    username, modelname, appname
+                )
+                self.add_cmd_output(cmd)
+                self.do_cmd_output_sub(
+                    cmd, juju_config_regex, juju_config_subst
                 )
 
     # Get some information pertaining to each model
@@ -92,6 +114,17 @@ class Juju(Plugin, UbuntuPlugin):
             "juju show-controller --format yaml",
         ]
 
+        # Certificates to sanitize in command output
+        juju_config_certs = ["ca-cert"]
+
+        # Will match and replace a certificat in a yaml file
+        certs_regex = (
+            r"((?m)^\s*(%s)\s*:\s*)(\|\s*\n\s+-+BEGIN (.*)"
+            r"-+\s(\s+\S+\n)+\s+-+END )\4(-+)" % "|".join(juju_config_certs)
+        )
+
+        certs_sub_regex = r"\1*********"
+
         # Get the model information as json so we can dig deeper
         models = self.get_cmd_output_now(
             "sudo -i -u {} juju models --format json".format(username)
@@ -103,11 +136,9 @@ class Juju(Plugin, UbuntuPlugin):
         for cmd in juju_cmds:
             # The file names can be long and confusing from the juju commands,
             # clean them up and give them an approriate extension if possible
-            filename = self._mangle_command(cmd)
-            if re.match(r".*_--format_yaml.*", filename):
-                filename = re.sub(r"_--format_yaml", "", filename)
-                filename += ".yaml"
-            self.add_cmd_output("sudo -i -u {} {}".format(username, cmd))
+            sudocmd = "sudo -i -u {} {}".format(username, cmd)
+            self.add_cmd_output(sudocmd)
+            self.do_cmd_output_sub(sudocmd, certs_regex, certs_sub_regex)
 
     def setup(self):
         # Make sure it looks like juju is configured before continuing
@@ -116,46 +147,46 @@ class Juju(Plugin, UbuntuPlugin):
         if os.path.exists(homedir + "/.local/share/juju"):
             self.collect_juju_output(username)
 
-    def postproc(self):
-        juju_config_keys = [
-            "password",
-            "credentials",
-            "client_password",
-            "endpoint-tls-ca",
-            "docker-logins",
-            "license-key",
-            "registry-credentials",
-        ]
+    # def postproc(self):
+    #     juju_config_keys = [
+    #         "password",
+    #         "credentials",
+    #         "client_password",
+    #         "endpoint-tls-ca",
+    #         "docker-logins",
+    #         "license-key",
+    #         "registry-credentials",
+    #     ]
 
-        juju_config_certs = ["ca-cert"]
+    #     juju_config_certs = ["ca-cert"]
 
-        # Handle the case where the key and value are on seperate lines
-        # in a juju config yaml file
-        juju_config_regex = (
-            r"(?m)^(\s*)(((%s):((\n\1\s+.*)|\n)+)\1\s+value:\s*).*"
-            % "|".join(juju_config_keys)
-        )
-        juju_config_sub_regex = r"\1\2*********"
+    #     # Handle the case where the key and value are on seperate lines
+    #     # in a juju config yaml file
+    #     juju_config_regex = (
+    #         r"(?m)^(\s*)(((%s):((\n\1\s+.*)|\n)+)\1\s+value:\s*).*"
+    #         % "|".join(juju_config_keys)
+    #     )
+    #     juju_config_sub_regex = r"\1\2*********"
 
-        # Will match and replace a certificat in a yaml file
-        certs_regex = (
-            r"((?m)^\s*(%s)\s*:\s*)(\|\s*\n\s+-+BEGIN (.*)"
-            r"-+\s(\s+\S+\n)+\s+-+END )\4(-+)" % "|".join(juju_config_certs)
-        )
-        certs_sub_regex = r"\1*********"
+    #     # Will match and replace a certificat in a yaml file
+    #     certs_regex = (
+    #         r"((?m)^\s*(%s)\s*:\s*)(\|\s*\n\s+-+BEGIN (.*)"
+    #         r"-+\s(\s+\S+\n)+\s+-+END )\4(-+)" % "|".join(juju_config_certs)
+    #     )
+    #     certs_sub_regex = r"\1*********"
 
-        # Go through all output files and sanitize them (sos doesn't have a
-        # builtin method of doing this currently):
-        output_dir = self.get_cmd_output_path(make=False)
+    #     juju_username = self.get_option("juju-user")
 
-        self.do_path_regex_sub(
-            output_dir + "/.*juju_config.*yaml.*",
-            juju_config_regex,
-            juju_config_sub_regex,
-        )
-        self.do_path_regex_sub(
-            output_dir + "/.*juju.*controller.*yaml.*", certs_regex, certs_sub_regex
-        )
+    #     self.do_cmd_output_sub(
+    #         output_dir + "/.*juju_config.*yaml.*",
+    #         juju_config_regex,
+    #         juju_config_sub_regex,
+    #     )
+    #     self.do_cmd_output_sub(
+    #         output_dir + "/.*juju.*controller.*yaml.*",
+    #         certs_regex,
+    #         certs_sub_regex,
+    #     )
         # juju_config_files = glob.glob(output_dir + "/juju_config*.yaml")
         # juju_cert_files = glob.glob(output_dir + "/juju*controller*.yaml")
 
