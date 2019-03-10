@@ -26,6 +26,12 @@ sosreport \- Collect and package diagnostic and support data
           [--encrypt-pass PASS]\fR
           [--experimental]\fR
           [-h|--help]\fR
+          [-q|--quiet]\fR
+          [--list-presets]\fR
+          [--preset PRESET]\fR
+          [--del-preset PRESET]\fR
+          [--add-preset PRESET]\fR
+          [--desc|--description] [--note]\fR
 
 .SH DESCRIPTION
 \fBsosreport\fR generates an archive of configuration and diagnostic
@@ -148,6 +154,21 @@ preserved instead.
 .B \--encrypt-pass PASS
 The same as \--encrypt-key, but use the provided PASS for symmetric encryption
 rather than key-pair encryption.
+.TP
+.B \--list-presets
+Display currently known presets. A preset is a combination of command line
+parameters, as defined by a user or declared by a policy.
+.TP
+.B \--preset PRESET
+Load command line parameters specified in given preset.
+.TP
+.B \--del-preset PRESET
+Delete user-defined preset.
+.TP
+.B \--add-preset PRESET [--desc|--description DESC] [--note NOTE]
+Add a new user-defined preset. A description via \--desc option and/or a note
+via \--note option can be optionally provided. All other command line options
+will constitute the collection of options for the new preset.
 .TP
 .B \--batch
 Generate archive without prompting for interactive input.
