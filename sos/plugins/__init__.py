@@ -557,10 +557,13 @@ class Plugin(object):
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
-    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True):
-        """Add a file or glob but limit it to sizelimit megabytes. If fname is
-        a single file the file will be tailed to meet sizelimit. If the first
-        file in a glob is too large it will be tailed to meet the sizelimit.
+    def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
+                      tailit=True):
+        """Add a file or glob but limit it to sizelimit megabytes. Collect
+        files with mtime not older than maxage hours.
+        If fname is a single file the file will be tailed to meet sizelimit.
+        If the first file in a glob is too large it will be tailed to meet
+        the sizelimit.
         """
         if sizelimit is None:
             sizelimit = self.get_option("log_size")
@@ -589,20 +592,26 @@ class Plugin(object):
             if len(files) == 0:
                 continue
 
+            # if maxage is specified, filter out files with mtime older than
+            # time()-maxage
+            files_with_ts = [(x, os.path.getmtime(x)) for x in files]
+            if maxage:
+                now = time()
+                filtered_files = []
+                for file_ts in files_with_ts:
+                    if (now-file_ts[1] < maxage*3600):
+                        filtered_files.append(file_ts)
+                files_with_ts = filtered_files
+
             # Files hould be sorted in most-recently-modified order, so that
             # we collect the newest data first before reaching the limit.
-            def getmtime(path):
-                try:
-                    return os.path.getmtime(path)
-                except OSError:
-                    return 0
+            files_with_ts.sort(key=lambda x: x[1], reverse=True)
 
-            files.sort(key=getmtime, reverse=True)
             current_size = 0
             limit_reached = False
             _file = None
 
-            for _file in files:
+            for _file, _ts in files_with_ts:
                 try:
                     current_size += os.stat(_file)[stat.ST_SIZE]
                 except OSError:
