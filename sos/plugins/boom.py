@@ -26,7 +26,7 @@ class Boom(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/boot/boom/profiles",
+            "/boot/boom",
             "/boot/loader/entries",
             "/etc/default/boom",
             "/etc/grub.d/42_boom"
