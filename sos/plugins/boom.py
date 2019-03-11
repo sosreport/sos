@@ -17,7 +17,12 @@ class Boom(Plugin, RedHatPlugin):
     plugin_name = 'boom'
     profiles = ('boot', 'system')
 
-    packages = ('python-boom', 'python2-boom', 'python3-boom')
+    packages = (
+        'lvm2-python-boom',
+        'python-boom',
+        'python2-boom',
+        'python3-boom'
+    )
 
     def setup(self):
         self.add_copy_spec([
