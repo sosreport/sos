@@ -19,6 +19,7 @@ class VirtWho(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec("/etc/virt-who.d/*")
+        self.add_cmd_output("virt-who -dop")
 
     def postproc(self):
         self.do_path_regex_sub(r"\/etc\/virt-who\.d",
