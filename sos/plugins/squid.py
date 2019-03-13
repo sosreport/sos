@@ -23,11 +23,12 @@ class RedHatSquid(Squid, RedHatPlugin):
     packages = ('squid',)
 
     def setup(self):
-        log_path = "/var/log/squid/"
-        self.add_copy_spec("/etc/squid/squid.conf")
-        self.add_copy_spec(log_path + "access.log")
-        self.add_copy_spec(log_path + "cache.log")
-        self.add_copy_spec(log_path + "squid.out")
+        self.add_copy_spec([
+            "/etc/squid/squid.conf",
+            "/var/log/squid/access.log*",
+            "/var/log/squid/cache.log*",
+            "/var/log/squid/squid.out*"
+        ])
 
 
 class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
