@@ -20,6 +20,10 @@ class Named(Plugin):
     config_files = named_conf
 
     def setup(self):
+        self.add_copy_spec([
+            "/etc/default/bind",
+            "/var/log/named*.log"
+        ])
         for cfg in self.config_files:
             if exists(cfg):
                 self.add_copy_spec([
