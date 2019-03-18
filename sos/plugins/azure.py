@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 import os
+from sos.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 
 
 class Azure(Plugin, UbuntuPlugin):
@@ -29,6 +29,15 @@ class Azure(Plugin, UbuntuPlugin):
             "/sys/module/hv_netvsc/parameters/ring_size",
             "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"
         ])
+
+        # Adds all files under /var/log/azure to the sosreport
+        # os.walk is used because /var/log/azure is used by multiple Azure
+        # extensions and there is no standard log filename format
+        limit = self.get_option("log_size")
+
+        for path, subdirs, files in os.walk("/var/log/azure"):
+            for name in files:
+                self.add_copy_spec(os.path.join(path, name), sizelimit=limit)
 
         self.add_cmd_output((
             'curl -s -H Metadata:true '
