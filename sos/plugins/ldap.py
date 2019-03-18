@@ -76,7 +76,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             self.ldap_conf,
             "/etc/slapd.conf",
-            "/etc/ldap/slapd.d"
+            "/etc/ldap/slapd.d",
             "/etc/nslcd.conf",
         ])
 
