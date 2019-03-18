@@ -17,9 +17,10 @@ class Openswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'openswan'
     profiles = ('network', 'security')
-    option_list = [("ipsec-barf",
-                    "collect the output of the ipsec barf command",
-                    "slow", False)]
+    option_list = [
+        ("ipsec-barf", "collect the output of the ipsec barf command",
+         "slow", False)
+    ]
 
     files = ('/etc/ipsec.conf',)
     packages = ('openswan', 'libreswan')
