@@ -979,7 +979,7 @@ class SoSReport(object):
         logpath = os.path.join(self.logdir, plugin_err_log)
         self.soslog.error('%s "%s.%s()"' % (msg, plugin, method))
         self.soslog.error('writing traceback to %s' % logpath)
-        self.archive.add_string("%s\n" % trace, logpath)
+        self.archive.add_string("%s\n" % trace, logpath, mode='a')
 
     def prework(self):
         self.policy.pre_work()
