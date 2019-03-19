@@ -21,11 +21,10 @@ class RedHatInsights(Plugin, RedHatPlugin):
     )
 
     def setup(self):
-        self.add_copy_spec([
-            self.config,
-            # Legacy log file location
-            "/var/log/redhat-access-insights/*.log"
-        ])
+        self.add_copy_spec(self.config)
+
+        # Legacy log file location
+        self.add_copy_spec("/var/log/redhat-access-insights/*.log")
 
         if self.get_option("all_logs"):
             self.add_copy_spec("/var/log/insights-client/*.log*")
@@ -33,14 +32,11 @@ class RedHatInsights(Plugin, RedHatPlugin):
             self.add_copy_spec("/var/log/insights-client/insights-client.log")
 
     def postproc(self):
-        self.do_file_sub(
-            self.conf_file,
-            r'(password[\t\ ]*=[\t\ ]*)(.+)',
-            r'\1********'
-        )
+        for conf in self.config:
+            self.do_file_sub(
+                conf, r'(password[\t\ ]*=[\t\ ]*)(.+)', r'\1********'
+            )
 
-        self.do_file_sub(
-            self.conf_file,
-            r'(proxy[\t\ ]*=.*)(:)(.*)(@.*)',
-            r'\1\2********\4'
-        )
+            self.do_file_sub(
+                conf, r'(proxy[\t\ ]*=.*)(:)(.*)(@.*)', r'\1\2********\4'
+            )
