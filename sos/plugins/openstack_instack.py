@@ -80,16 +80,16 @@ class OpenStackInstack(Plugin):
                 for deployment in deployments.splitlines():
                         if 'FAILED' in deployment:
                             check = [
-                                     "OS::Heat::StructuredDeployment",
-                                     "OS::Heat::SoftwareDeployment"]
-                            if any(x in deployment for x in check):
-                                    deploy = deployment.split()[1]
-                                    cmd = "openstack software deployment " \
-                                          "show --long %s" % (deployment)
-                                    fname = "failed-deployment-%s.log" % deploy
-                                    self.add_cmd_output(
-                                                        cmd,
-                                                        suggest_filename=fname)
+                                "OS::Heat::StructuredDeployment",
+                                "OS::Heat::SoftwareDeployment"
+                            ]
+                            if not any(x in deployment for x in check):
+                                continue
+                            deploy = deployment.split()[1]
+                            cmd = ("openstack software deployment "
+                                   "show --long %s" % (deployment))
+                            fname = "failed-deployment-%s.log" % deploy
+                            self.add_cmd_output(cmd, suggest_filename=fname)
 
             self.add_cmd_output("openstack object save "
                                 "tripleo-ui-logs tripleo-ui.logs --file -")
