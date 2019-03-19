@@ -1455,13 +1455,13 @@ class SoSReport(object):
 
             if self.opts.list_plugins:
                 self.list_plugins()
-                return True
+                raise SystemExit
             if self.opts.list_profiles:
                 self.list_profiles()
-                return True
+                raise SystemExit
             if self.opts.list_presets:
                 self.list_presets()
-                return True
+                raise SystemExit
             if self.opts.add_preset:
                 return self.add_preset(self.opts.add_preset)
             if self.opts.del_preset:
@@ -1501,6 +1501,5 @@ def main(args):
     """The main entry point"""
     sos = SoSReport(args)
     sos.execute()
-    sos._cleanup()
 
 # vim: set et ts=4 sw=4 :
