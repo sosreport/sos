@@ -70,5 +70,6 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/modules-load.d/*.conf",
             "/etc/yum/protected.d/systemd.conf"
         ])
+        self.add_forbidden_path('/dev/null')
 
 # vim: set et ts=4 sw=4 :
