@@ -41,7 +41,12 @@ class OpenStackNeutron(Plugin):
             self.var_puppet_gen + "/etc/default/neutron-server",
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
+        # copy whole /var/lib/neutron except for potentially huge lock subdir;
+        # rather take a list of files in the dir only
         self.add_copy_spec("/var/lib/neutron/")
+        self.add_forbidden_path("/var/lib/neutron/lock")
+        self.add_cmd_option("ls -laZR /var/lib/neutron/lock")
+
         if self.get_option("verify"):
             self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
