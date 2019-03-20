@@ -209,6 +209,25 @@ class SoSOptions(object):
         return opts
 
     @classmethod
+    def _opt_to_args(cls, opt, val):
+        """Convert a named option and optional value to command line
+            argument notation, correctly handling options that take
+            no value or that have special representations (e.g. verify
+            and verbose).
+        """
+        no_value = (
+            "alloptions", "all-logs", "batch", "build", "debug",
+            "experimental", "list-plugins", "list-presets", "list-profiles",
+            "noreport", "quiet", "verify"
+        )
+        count = ("verbose",)
+        if opt in no_value:
+            return ["--%s" % opt]
+        if opt in count:
+            return ["--%s" % opt for d in range(0, int(val))]
+        return ["--" + opt + "=" + val]
+
+    @classmethod
     def from_file(cls, argparser, config_file, is_default=True):
         opts = SoSOptions()
         config = ConfigParser()
@@ -226,8 +245,7 @@ class SoSOptions(object):
         if config.has_section("general"):
             optlist = []
             for opt, val in config.items("general"):
-                # assume just long options are specified so prefix them by "--"
-                optlist.append("--" + opt + "=" + val)
+                optlist.extend(SoSOptions._opt_to_args(opt, val))
             opts._merge_opts(argparser.parse_args(optlist), is_default)
 
         if config.has_option("plugins", "disable"):
