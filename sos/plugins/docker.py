@@ -121,7 +121,8 @@ class Docker(Plugin):
 
 class RedHatDocker(Docker, RedHatPlugin):
 
-    packages = ('docker', 'docker-latest', 'docker-io', 'docker-engine')
+    packages = ('docker', 'docker-latest', 'docker-io', 'docker-engine',
+                'docker-ce', 'docker-ee')
 
     def setup(self):
         super(RedHatDocker, self).setup()
