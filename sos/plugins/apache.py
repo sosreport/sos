@@ -51,24 +51,23 @@ class RedHatApache(Apache, RedHatPlugin):
 
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
 
-        # determine how much logs to collect
-        self.limit = None if self.get_option("all_logs") else 5
-
         # collect only the current log set by default
-        self.add_copy_spec("/var/log/httpd/access_log", self.limit)
-        self.add_copy_spec("/var/log/httpd/error_log", self.limit)
-        self.add_copy_spec("/var/log/httpd/ssl_access_log", self.limit)
-        self.add_copy_spec("/var/log/httpd/ssl_error_log", self.limit)
-        # JBoss Enterprise Web Server 2.x
-        self.add_copy_spec("/var/log/httpd22/access_log", self.limit)
-        self.add_copy_spec("/var/log/httpd22/error_log", self.limit)
-        self.add_copy_spec("/var/log/httpd22/ssl_access_log", self.limit)
-        self.add_copy_spec("/var/log/httpd22/ssl_error_log", self.limit)
-        # Red Hat JBoss Web Server 3.x
-        self.add_copy_spec("/var/log/httpd24/access_log", self.limit)
-        self.add_copy_spec("/var/log/httpd24/error_log", self.limit)
-        self.add_copy_spec("/var/log/httpd24/ssl_access_log", self.limit)
-        self.add_copy_spec("/var/log/httpd24/ssl_error_log", self.limit)
+        self.add_copy_spec([
+            "/var/log/httpd/access_log",
+            "/var/log/httpd/error_log",
+            "/var/log/httpd/ssl_access_log",
+            "/var/log/httpd/ssl_error_log",
+            # JBoss Enterprise Web Server 2.x
+            "/var/log/httpd22/access_log",
+            "/var/log/httpd22/error_log",
+            "/var/log/httpd22/ssl_access_log",
+            "/var/log/httpd22/ssl_error_log",
+            # Red Hat JBoss Web Server 3.x
+            "/var/log/httpd24/access_log",
+            "/var/log/httpd24/error_log",
+            "/var/log/httpd24/ssl_access_log",
+            "/var/log/httpd24/ssl_error_log",
+        ])
         if self.get_option("log") or self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/httpd/*",
@@ -89,12 +88,11 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
             "/etc/default/apache2"
         ])
 
-        # determine how much logs to collect
-        self.limit = None if self.get_option("all_logs") else 15
-
         # collect only the current log set by default
-        self.add_copy_spec("/var/log/apache2/access_log", self.limit)
-        self.add_copy_spec("/var/log/apache2/error_log", self.limit)
+        self.add_copy_spec([
+            "/var/log/apache2/access_log",
+            "/var/log/apache2/error_log",
+        ])
         if self.get_option("log") or self.get_option("all_logs"):
             self.add_copy_spec("/var/log/apache2/*")
 
