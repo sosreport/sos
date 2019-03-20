@@ -49,7 +49,6 @@ class Docker(Plugin):
             'ps',
             'ps -a',
             'stats --no-stream',
-            'system df',
             'version',
             'volume ls'
         ]
@@ -57,9 +56,10 @@ class Docker(Plugin):
         for subcmd in subcmds:
             self.add_cmd_output("docker %s" % subcmd)
 
-        # separately grab ps -s as this can take a *very* long time
+        # separately grab these separately as they can take a *very* long time
         if self.get_option('size'):
             self.add_cmd_output('docker ps -as')
+            self.add_cmd_output('docker system df')
 
         nets = self.get_command_output('docker network ls')
 
