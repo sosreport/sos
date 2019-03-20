@@ -97,6 +97,11 @@ class kubernetes(Plugin, RedHatPlugin):
             "{} get --raw /metrics".format(kube_cmd)
         ])
 
+        # CNV is not part of the base installation, but can be added
+        if self.is_installed('kubevirt-virtctl'):
+            resources.extend(['vms', 'vmis'])
+            self.add_cmd_output('virtctl version')
+
         for n in knsps:
             knsp = '--namespace=%s' % n
             if self.get_option('all'):
