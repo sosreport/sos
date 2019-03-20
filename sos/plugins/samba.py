@@ -34,10 +34,10 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.add_copy_spec("/var/log/samba/")
 
         self.add_cmd_output([
-            "wbinfo --domain='.' -g",
-            "wbinfo --domain='.' -u",
-            "wbinfo --trusted-domains --verbose",
             "testparm -s",
+            "wbinfo --domain='.' --domain-users",
+            "wbinfo --domain='.' --domain-groups",
+            "wbinfo --trusted-domains --verbose",
         ])
 
 
