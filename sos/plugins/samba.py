@@ -38,6 +38,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "wbinfo --domain='.' --domain-users",
             "wbinfo --domain='.' --domain-groups",
             "wbinfo --trusted-domains --verbose",
+            "net primarytrust dumpinfo",
         ])
 
 
