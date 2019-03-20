@@ -26,6 +26,9 @@ script:
   - "nosetests -v --with-cover --cover-package=sos --cover-html"
   - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport --help"
   - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport -l --config-file=sos.conf"
-  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport -n kernel --batch --config-file=sos.conf | tee batch_output"
+  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport --batch --config-file=sos.conf 2> errors | tee batch_output"
+  - "[[ ! -s errors ]]"
+  - "cat errors"
+  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport --batch --build --config-file=sos.conf"
 git:
   depth: 5
