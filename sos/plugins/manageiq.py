@@ -12,9 +12,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin
-
+from os import environ
 import os.path
-import os.environ
 
 
 class ManageIQ(Plugin, RedHatPlugin):
@@ -74,8 +73,8 @@ class ManageIQ(Plugin, RedHatPlugin):
         ])
         self.add_copy_spec("/var/log/tower.log")
 
-        if "APPLIANCE_PG_DATA" in os.environ:
-            pg_dir = os.environ["APPLIANCE_PG_DATA"]
+        if environ.get("APPLIANCE_PG_DATA"):
+            pg_dir = environ.get("APPLIANCE_PG_DATA")
             self.add_copy_spec([
                     os.path.join(pg_dir, 'pg_log'),
                     os.path.join(pg_dir, 'postgresql.conf')
