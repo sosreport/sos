@@ -829,12 +829,8 @@ class Plugin(object):
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
-        # save in our list
         self.executed_commands.append({'exe': exe, 'file': outfn_strip,
                                        'binary': 'yes' if binary else 'no'})
-        self.commons['xmlreport'].add_command(cmdline=exe,
-                                              exitcode=result['status'],
-                                              f_stdout=outfn_strip)
 
         return os.path.join(self.archive.get_archive_path(), outfn)
 
