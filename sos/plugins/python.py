@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import sos.policies
 
 
 class Python(Plugin, DebianPlugin, UbuntuPlugin):
@@ -30,7 +31,8 @@ class RedHatPython(Python, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output(['python2 -V', 'python3 -V'])
-        if self.policy.dist_version() > 7:
+        if isinstance(self.policy, sos.policies.redhat.RHELPolicy) and \
+                self.policy.dist_version() > 7:
             self.add_cmd_output(
                 '/usr/libexec/platform-python -V',
                 suggest_filename='python-version'
