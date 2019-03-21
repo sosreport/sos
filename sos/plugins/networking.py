@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from os import listdir
 import re
 
 
@@ -156,7 +157,7 @@ class Networking(Plugin):
 
         # Get ethtool output for every device that does not exist in a
         # namespace.
-        for eth in os.listdir("/sys/class/net/"):
+        for eth in listdir("/sys/class/net/"):
             # skip 'bonding_masters' file created when loading the bonding
             # module but the file does not correspond to a device
             if eth == "bonding_masters":
