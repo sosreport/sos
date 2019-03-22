@@ -124,17 +124,22 @@ class InitSystem(object):
         """Returns the status for the given service name along with the output
         of the query command
         """
+        _default = {
+            'name': name,
+            'status': 'missing',
+            'output': ''
+        }
+        if name not in self.services:
+            return _default
+        if 'status' in self.services[name]:
+            # service status has been queried before, return existing info
+            return self.services[name]
         svc = self._query_service(name)
         if svc is not None:
-            return {'name': name,
-                    'status': self.parse_query(svc['output']),
-                    'output': svc['output']
-                    }
-        else:
-            return {'name': name,
-                    'status': 'missing',
-                    'output': ''
-                    }
+            self.services[name]['status'] = self.parse_query(svc['output'])
+            self.services[name]['output'] = svc['output']
+            return self.services[name]
+        return _default
 
 
 class SystemdInit(InitSystem):
