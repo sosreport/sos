@@ -156,6 +156,10 @@ class SoSPredicate(object):
         for s in self._services:
             pvalue |= self._owner.service_is_running(s)
 
+        # Null predicate?
+        if not any([self._kmods, self._services, self._dry_run]):
+            return True
+
         return pvalue and not self._dry_run
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[]):
@@ -494,7 +498,7 @@ class Plugin(object):
                 self.archive.add_string(result, srcpath)
             else:
                 replacements = 0
-        except Exception as e:
+        except OSError as e:
             # if trying to regexp a nonexisting file, dont log it as an
             # error to stdout
             if e.errno == errno.ENOENT:
