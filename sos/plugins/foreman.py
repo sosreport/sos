@@ -37,7 +37,7 @@ class Foreman(Plugin):
         # Collect these completely everytime
         self.add_copy_spec([
             "/var/log/foreman/production.log",
-            "/var/log/{}*/foreman-ssl_access_ssl.log".format(self.apachepkg)
+            "/var/log/{}*/foreman-ssl_*_ssl.log".format(self.apachepkg)
         ], sizelimit=0)
 
         # Allow limiting these
@@ -53,7 +53,7 @@ class Foreman(Plugin):
             "/var/log/foreman/cron*.log*",
             "/var/log/foreman/db_migrate*log*",
             "/var/log/foreman/db_seed*log*",
-            "/var/log/foreman/production.log-*",
+            "/var/log/foreman/production.log[.-]*",
             "/var/log/foreman-proxy/cron*log*",
             "/var/log/foreman-proxy/migrate_settings*log*",
             "/var/log/foreman-proxy/proxy*log*",
@@ -75,7 +75,7 @@ class Foreman(Plugin):
             "/etc/puppetlabs/puppet/ssl/certs/ca.pem",
             "/etc/puppetlabs/puppet/ssl/certs/{}.pem".format(_hostname),
             "/var/lib/puppet/ssl/certs/{}.pem".format(_hostname),
-            "/var/log/{}*/foreman-ssl_access_ssl*log*".format(self.apachepkg),
+            "/var/log/{}*/foreman-ssl_*_ssl*log[.-]*".format(self.apachepkg),
             "/var/log/{}*/error_log*".format(self.apachepkg),
             "/etc/{}*/conf/".format(self.apachepkg),
             "/etc/{}*/conf.d/".format(self.apachepkg)
