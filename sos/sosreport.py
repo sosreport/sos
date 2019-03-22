@@ -23,7 +23,7 @@ import logging
 
 from argparse import ArgumentParser, Action
 from sos.plugins import import_plugin
-from sos.utilities import ImporterHelper
+from sos.utilities import ImporterHelper, SoSTimeoutError
 from shutil import rmtree
 import tempfile
 import hashlib
@@ -993,11 +993,12 @@ class SoSReport(object):
                 # it as a literal 0-second timeout
                 timeout = self.loaded_plugins[plugin[0]-1][1].timeout or None
                 t.result(timeout=timeout)
-                return True
             except TimeoutError:
                 self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])
                 self.running_plugs.remove(plugin[1])
+                self.loaded_plugins[plugin[0]-1][1]._timeout_hit = True
                 pool._threads.clear()
+        return True
 
     def collect_plugin(self, plugin):
         try:
@@ -1037,6 +1038,10 @@ class SoSReport(object):
                 status = "\n  Finished running plugins"
             if status:
                 self.ui_progress(status)
+        except SoSTimeoutError:
+            # we already log and handle the plugin timeout in the nested thread
+            # pool this is running in, so don't do anything here.
+            pass
         except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error("\n %s while collecting plugin data\n"
