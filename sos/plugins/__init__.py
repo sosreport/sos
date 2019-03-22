@@ -656,7 +656,8 @@ class Plugin(object):
                     break
                 self._add_copy_paths([_file])
 
-            if limit_reached and tailit and not _file_is_compressed(_file):
+            if limit_reached and tailit and not _file_is_compressed(_file) \
+                    and not self._is_forbidden_path(_file):
                 file_name = _file
 
                 if file_name[0] == os.sep:
