@@ -935,14 +935,22 @@ class Plugin(object):
 
         return outfn
 
-    def add_string_as_file(self, content, filename):
+    def add_string_as_file(self, content, filename, pred=None):
         """Add a string to the archive as a file named `filename`"""
+
+        # Generate summary string for logging
+        summary = content.splitlines()[0]
+        if not isinstance(summary, six.string_types):
+            summary = content.decode('utf8', 'ignore')
+
+        pred = self.get_predicate(pred=pred)
+        if pred is not None and not pred:
+            self._log_info("skipped string ...'%s' due to predicate (%s)" %
+                           (summary, pred))
+            return
+
         self.copy_strings.append((content, filename))
-        if content:
-            content = content.splitlines()[0]
-            if not isinstance(content, six.string_types):
-                content = content.decode('utf8', 'ignore')
-        self._log_debug("added string ...'%s' as '%s'" % (content, filename))
+        self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
