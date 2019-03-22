@@ -28,6 +28,10 @@ class Apache(Plugin):
             "apachectl -S"
         ])
 
+        # The foreman plugin collects these files with a greater size limit:
+        # do not collect them here to avoid collisions in the archive paths.
+        self.add_forbidden_path("/var/log/{}*/foreman*".format(self.apachepkg))
+
 
 class RedHatApache(Apache, RedHatPlugin):
     files = (
@@ -35,6 +39,7 @@ class RedHatApache(Apache, RedHatPlugin):
         '/etc/httpd22/conf/httpd.conf',
         '/etc/httpd24/conf/httpd.conf'
     )
+    apachepkg = 'httpd'
 
     def setup(self):
         super(RedHatApache, self).setup()
@@ -83,6 +88,7 @@ class RedHatApache(Apache, RedHatPlugin):
 
 class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
     files = ('/etc/apache2/apache2.conf',)
+    apachepkg = 'apache'
 
     def setup(self):
         super(DebianApache, self).setup()
