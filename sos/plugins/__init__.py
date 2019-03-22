@@ -647,6 +647,9 @@ class Plugin(object):
             _file = None
 
             for _file in files:
+                if self._is_forbidden_path(_file):
+                    self._log_debug("skipping forbidden path '%s'" % _file)
+                    continue
                 try:
                     current_size += os.stat(_file)[stat.ST_SIZE]
                 except OSError:
