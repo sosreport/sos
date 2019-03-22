@@ -493,7 +493,10 @@ class Plugin(object):
             if not path:
                 return 0
             readable = self.archive.open_file(path)
-            result, replacements = re.subn(regexp, subst, readable.read())
+            content = readable.read()
+            if not isinstance(content, six.string_types):
+                content = content.decode('utf8', 'ignore')
+            result, replacements = re.subn(regexp, subst, content)
             if replacements:
                 self.archive.add_string(result, srcpath)
             else:
