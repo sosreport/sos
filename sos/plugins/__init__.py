@@ -379,7 +379,7 @@ class Plugin(object):
             If no default predicate is set and a `pred` value is passed
             it will be returned.
         """
-        if cmd and self.cmd_predicate:
+        if cmd and self.cmd_predicate is not None:
             return self.cmd_predicate
         return pred or self.predicate
 
@@ -977,11 +977,6 @@ class Plugin(object):
         report.
         """
         start = time()
-
-        if not self.test_predicate(cmd=True, pred=pred):
-            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (exe, self.get_predicate(cmd=True, pred=pred)))
-            return None
 
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
                                          chroot=chroot, runat=runat,
