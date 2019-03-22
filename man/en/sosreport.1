@@ -12,9 +12,9 @@ sosreport \- Collect and package diagnostic and support data
           [--no-report] [--config-file conf]\fR
           [--preset preset] [--add-preset add_preset]\fR
           [--del-preset del_preset] [--desc description]\fR
-          [--batch] [--build] [--debug]\fR
-          [--label label] [--case-id id] [--ticket-number nr]
-          [--threads threads]
+          [--batch] [--build] [--debug] [--dry-run]\fR
+          [--label label] [--case-id id] [--ticket-number nr]\fR
+          [--threads threads]\fR
           [--plugin-timeout TIMEOUT]\fR
           [-s|--sysroot SYSROOT]\fR
           [-c|--chroot {auto|always|never}\fR
@@ -226,6 +226,12 @@ archive as a temporary file or directory tree.
 .B \--debug
 Enable interactive debugging using the python debugger. Exceptions in
 sos or plug-in code will cause a trap to the pdb shell.
+.TP
+.B \--dry-run
+Execute plugins as normal, but do not collect any file content, command
+output, or string data from the system. The resulting logs may be used
+to understand the actions that sos would have taken without the dry run
+option.
 .TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
