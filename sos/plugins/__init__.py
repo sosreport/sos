@@ -749,7 +749,7 @@ class Plugin(object):
         """
         if not self.test_predicate(pred=pred):
             self._log_info("skipped copy spec '%s' due to predicate (%s)" %
-                           (copyspecs, pred))
+                           (copyspecs, self.get_predicate(pred=pred)))
             return
 
         if sizelimit is None:
@@ -884,7 +884,7 @@ class Plugin(object):
             self._log_info("added cmd output '%s'" % cmd)
         else:
             self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (cmd, pred))
+                           (cmd, self.get_predicate(cmd=True, pred=pred)))
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
@@ -956,7 +956,7 @@ class Plugin(object):
 
         if not self.test_predicate(cmd=False, pred=pred):
             self._log_info("skipped string ...'%s' due to predicate (%s)" %
-                           (summary, pred))
+                           (summary, self.get_predicate(pred=pred)))
             return
 
         self.copy_strings.append((content, filename))
@@ -973,7 +973,7 @@ class Plugin(object):
 
         if not self.test_predicate(cmd=True, pred=pred):
             self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (exe, pred))
+                           (exe, self.get_predicate(cmd=True, pred=pred)))
             return None
 
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
