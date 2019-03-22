@@ -106,7 +106,7 @@ def is_executable(command):
 
 def sos_get_command_output(command, timeout=300, stderr=False,
                            chroot=None, chdir=None, env=None,
-                           binary=False, sizelimit=None):
+                           binary=False, sizelimit=None, poller=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -153,6 +153,11 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                   preexec_fn=_child_prep_fn)
 
         reader = AsyncReader(p.stdout, sizelimit, binary)
+        if poller:
+            while reader.running:
+                if poller():
+                    p.terminate()
+                    raise SoSTimeoutError
         stdout = reader.get_contents()
         while p.poll() is None:
             pass
@@ -214,8 +219,8 @@ class AsyncReader(threading.Thread):
             sizelimit = sizelimit * 1048576  # convert to bytes
             slots = int(sizelimit / self.chunksize)
         self.deque = deque(maxlen=slots)
+        self.running = True
         self.start()
-        self.join()
 
     def run(self):
         '''Reads from the channel (pipe) that is the output pipe for a
@@ -236,9 +241,14 @@ class AsyncReader(threading.Thread):
         except (ValueError, IOError):
             # pipe has closed, meaning command output is done
             pass
+        self.running = False
 
     def get_contents(self):
         '''Returns the contents of the deque as a string'''
+        # block until command completes or timesout (separate from the plugin
+        # hitting a timeout)
+        while self.running:
+            pass
         if not self.binary:
             return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
         else:
@@ -288,5 +298,9 @@ class ImporterHelper(object):
                 plugins.extend(self._find_plugins_in_dir(path))
 
         return plugins
+
+
+class SoSTimeoutError(OSError):
+    pass
 
 # vim: set et ts=4 sw=4 :

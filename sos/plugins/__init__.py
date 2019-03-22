@@ -128,6 +128,7 @@ class Plugin(object):
     profiles = ()
     sysroot = '/'
     plugin_timeout = 300
+    _timeout_hit = False
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
@@ -183,6 +184,24 @@ class Plugin(object):
         if _timeout is not None and _timeout > -1:
             return _timeout
         return self.plugin_timeout
+
+    def check_timeout(self):
+        '''
+        Checks to see if the plugin has hit its timeout.
+
+        This is set when the sos.collect_plugin() method hits a timeout and
+        terminates the thread. From there, a Popen() call can still continue to
+        run, and we need to manually terminate it. Thus, check_timeout() should
+        only be called in sos_get_command_output().
+
+        Since sos_get_command_output() is not plugin aware, this method is
+        handed to that call to use as a polling method, to avoid passing the
+        entire plugin object.
+
+        Returns True if timeout has been hit, else False.
+
+        '''
+        return self._timeout_hit
 
     @classmethod
     def name(cls):
@@ -682,7 +701,8 @@ class Plugin(object):
         result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
                                         chroot=root, chdir=runat,
                                         env=env, binary=binary,
-                                        sizelimit=sizelimit)
+                                        sizelimit=sizelimit,
+                                        poller=self.check_timeout)
 
         if result['status'] == 124:
             self._log_warn("command '%s' timed out after %ds"
