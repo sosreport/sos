@@ -29,10 +29,10 @@ class Candlepin(Plugin, RedHatPlugin):
         self.add_copy_spec([
             "/etc/candlepin/candlepin.conf",
             "/var/log/candlepin/audit*.log*",
-            "/var/log/candlepin/candlepin.log-*",
+            "/var/log/candlepin/candlepin.log[.-]*",
             "/var/log/candlepin/cpdb*.log*",
             "/var/log/candlepin/cpinit*.log*",
-            "/var/log/candlepin/error.log-*"
+            "/var/log/candlepin/error.log[.-]*"
         ])
 
         self.add_cmd_output("du -sh /var/lib/candlepin/*/*")
