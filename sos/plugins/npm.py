@@ -76,7 +76,7 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
         self._log_debug("modules in cache: %s" % output)
 
         outfn = self._make_command_filename("npm_cache_modules")
-        self.archive.add_string(json.dumps(output), outfn)
+        self.add_string_as_file(json.dumps(output), outfn)
 
     def setup(self):
         if self.get_option("project_path") != 0:
