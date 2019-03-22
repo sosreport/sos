@@ -63,6 +63,10 @@ class Unpackaged(Plugin, RedHatPlugin):
                     expanded.append(f)
             return expanded
 
+        # Check command predicate to avoid costly processing
+        if not self.test_predicate(cmd=True):
+            return
+
         all_fsystem = []
         all_frpm = set(os.path.realpath(x)
                        for x in self.policy.mangle_package_path(
