@@ -379,6 +379,19 @@ class Plugin(object):
             return self.cmd_predicate
         return pred or self.predicate
 
+    def test_predicate(self, cmd=False, pred=None):
+        """Test the current predicate and return its value.
+
+            :param cmd: ``True`` if the predicate is gating a command or
+                        ``False`` otherwise.
+            :param pred: An optional predicate to override the current
+                         ``Plugin`` or command predicate.
+        """
+        pred = self.get_predicate(cmd=cmd, pred=pred)
+        if pred is not None:
+            return bool(pred)
+        return False
+
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd
         is the command name from which output is collected (i.e. exlcuding
@@ -734,8 +747,7 @@ class Plugin(object):
         a single file the file will be tailed to meet sizelimit. If the first
         file in a glob is too large it will be tailed to meet the sizelimit.
         """
-        pred = self.get_predicate(pred=pred)
-        if pred is not None and not pred:
+        if not self.test_predicate(pred=pred):
             self._log_info("skipped copy spec '%s' due to predicate (%s)" %
                            (copyspecs, pred))
             return
@@ -867,8 +879,7 @@ class Plugin(object):
                      "'%s')")
         _logstr = "packed command tuple: " + _tuplefmt
         self._log_debug(_logstr % cmdt)
-        pred = self.get_predicate(pred=pred, cmd=True)
-        if pred is None or pred:
+        if self.test_predicate(cmd=True, pred=pred):
             self.collect_cmds.append(cmdt)
             self._log_info("added cmd output '%s'" % cmd)
         else:
@@ -943,8 +954,7 @@ class Plugin(object):
         if not isinstance(summary, six.string_types):
             summary = content.decode('utf8', 'ignore')
 
-        pred = self.get_predicate(pred=pred)
-        if pred is not None and not pred:
+        if not self.test_predicate(cmd=False, pred=pred):
             self._log_info("skipped string ...'%s' due to predicate (%s)" %
                            (summary, pred))
             return
@@ -961,8 +971,7 @@ class Plugin(object):
         """
         start = time()
 
-        pred = self.get_predicate(pred=pred, cmd=True)
-        if pred is not None and not pred:
+        if not self.test_predicate(cmd=True, pred=pred):
             self._log_info("skipped cmd output '%s' due to predicate (%s)" %
                            (exe, pred))
             return None
