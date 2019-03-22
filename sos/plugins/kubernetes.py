@@ -77,11 +77,8 @@ class kubernetes(Plugin, RedHatPlugin):
             'deployments',
             'ingresses',
             'limitranges',
-            'namespaces',
             'pods',
             'policies',
-            'projects',
-            'pv',
             'pvc',
             'rc',
             'resourcequotas',
@@ -89,13 +86,18 @@ class kubernetes(Plugin, RedHatPlugin):
             'services'
         ]
 
-        # nodes and pvs are not namespaced, must pull separately.
-        # Also collect master metrics
+        # these are not namespaced, must pull separately.
+        global_resources = [
+            'namespaces',
+            'nodes',
+            'projects',
+            'pvs'
+        ]
         self.add_cmd_output([
-            "{} get -o json nodes".format(kube_cmd),
-            "{} get -o json pv".format(kube_cmd),
-            "{} get --raw /metrics".format(kube_cmd)
+            "%s get %s" % (kube_cmd, res) for res in global_resources
         ])
+        # Also collect master metrics
+        self.add_cmd_output("%s get --raw /metrics" % kube_cmd)
 
         # CNV is not part of the base installation, but can be added
         if self.is_installed('kubevirt-virtctl'):
