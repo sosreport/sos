@@ -959,7 +959,7 @@ class Plugin(object):
         """Add a string to the archive as a file named `filename`"""
 
         # Generate summary string for logging
-        summary = content.splitlines()[0]
+        summary = content.splitlines()[0] if content else ''
         if not isinstance(summary, six.string_types):
             summary = content.decode('utf8', 'ignore')
 
