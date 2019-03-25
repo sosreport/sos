@@ -1,4 +1,4 @@
-# Copyright (C) Steve Conklin <sconklin@redhat.com>
+# Copyright (C) Red Hat, Inc. 2019
 
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
