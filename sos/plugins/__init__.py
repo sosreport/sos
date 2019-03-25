@@ -969,19 +969,14 @@ class Plugin(object):
         self.copy_strings.append((content, filename))
         self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
 
-    def get_cmd_output_now(self, exe, suggest_filename=None,
-                           root_symlink=False, timeout=300, stderr=True,
-                           chroot=True, runat=None, env=None,
-                           binary=False, sizelimit=None, pred=None):
+    def _get_cmd_output_now(self, exe, suggest_filename=None,
+                            root_symlink=False, timeout=300, stderr=True,
+                            chroot=True, runat=None, env=None,
+                            binary=False, sizelimit=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         start = time()
-
-        if not self.test_predicate(cmd=True, pred=pred):
-            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (exe, self.get_predicate(cmd=True, pred=pred)))
-            return None
 
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
                                          chroot=chroot, runat=runat,
@@ -1008,6 +1003,23 @@ class Plugin(object):
                                        'binary': 'yes' if binary else 'no'})
 
         return os.path.join(self.archive.get_archive_path(), outfn)
+
+    def get_cmd_output_now(self, exe, suggest_filename=None,
+                           root_symlink=False, timeout=300, stderr=True,
+                           chroot=True, runat=None, env=None,
+                           binary=False, sizelimit=None, pred=None):
+        """Execute a command and save the output to a file for inclusion in the
+        report.
+        """
+        if not self.test_predicate(cmd=True, pred=pred):
+            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
+                           (exe, self.get_predicate(cmd=True, pred=pred)))
+            return None
+
+        return self._get_cmd_output_now(exe, timeout=timeout, stderr=stderr,
+                                        chroot=chroot, runat=runat,
+                                        env=env, binary=binary,
+                                        sizelimit=sizelimit)
 
     def is_module_loaded(self, module_name):
         """Return whether specified moudle as module_name is loaded or not"""
@@ -1160,11 +1172,12 @@ class Plugin(object):
                              "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s'," +
                              "'%s %s')") % progs[0])
             self._log_info("collecting output of '%s'" % prog)
-            self.get_cmd_output_now(prog, suggest_filename=suggest_filename,
-                                    root_symlink=root_symlink, timeout=timeout,
-                                    stderr=stderr, chroot=chroot, runat=runat,
-                                    env=env, binary=binary,
-                                    sizelimit=sizelimit)
+            self._get_cmd_output_now(prog, suggest_filename=suggest_filename,
+                                     root_symlink=root_symlink,
+                                     timeout=timeout, stderr=stderr,
+                                     chroot=chroot, runat=runat,
+                                     env=env, binary=binary,
+                                     sizelimit=sizelimit)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
