@@ -28,8 +28,6 @@ class Docker(Plugin):
     ]
 
     def setup(self):
-        self.set_cmd_predicate(SoSPredicate(services=["docker"]))
-
         self.add_copy_spec([
             "/etc/docker/daemon.json",
             "/var/lib/docker/repositories-*"
@@ -38,10 +36,7 @@ class Docker(Plugin):
         self.add_journal(units="docker")
         self.add_cmd_output("ls -alhR /etc/docker")
 
-        if not self.service_is_running('docker'):
-            # if docker is not running none of the below commands will provide
-            # any useful output
-            return
+        self.set_cmd_predicate(SoSPredicate(self, services=["docker"]))
 
         subcmds = [
             'events --since 24h --until 1s',
