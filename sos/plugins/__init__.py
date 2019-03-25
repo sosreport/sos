@@ -503,7 +503,7 @@ class Plugin(object):
                 self.archive.add_string(result, srcpath)
             else:
                 replacements = 0
-        except OSError as e:
+        except (OSError, IOError) as e:
             # if trying to regexp a nonexisting file, dont log it as an
             # error to stdout
             if e.errno == errno.ENOENT:
