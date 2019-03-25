@@ -518,7 +518,7 @@ class FileCacheArchive(Archive):
 
     def open_file(self, path):
         path = self.dest_path(path)
-        return codecs.open(path, "r", encoding='utf-8')
+        return codecs.open(path, "r", encoding='utf-8', errors='ignore')
 
     def cleanup(self):
         if os.path.isdir(self._archive_root):
