@@ -379,9 +379,11 @@ class Plugin(object):
             If no default predicate is set and a `pred` value is passed
             it will be returned.
         """
-        if cmd and self.cmd_predicate:
+        if pred is not None:
+            return pred
+        if cmd and self.cmd_predicate is not None:
             return self.cmd_predicate
-        return pred or self.predicate
+        return self.predicate
 
     def test_predicate(self, cmd=False, pred=None):
         """Test the current predicate and return its value.
