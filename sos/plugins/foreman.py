@@ -22,7 +22,7 @@ class Foreman(Plugin):
     profiles = ('sysmgmt',)
     packages = ('foreman', 'foreman-proxy')
     option_list = [
-        ('months', 'number of months for dynflow output', 'fast', 6)
+        ('months', 'number of months for dynflow output', 'fast', 1)
     ]
 
     def setup(self):
@@ -154,11 +154,11 @@ class Foreman(Plugin):
 
         for table in foremandb:
             _cmd = self.build_query_cmd(foremandb[table])
-            self.add_cmd_output(_cmd, suggest_filename=table)
+            self.add_cmd_output(_cmd, suggest_filename=table, timeout=600)
 
         for dyn in foremancsv:
             _cmd = self.build_query_cmd(foremancsv[dyn], csv=True)
-            self.add_cmd_output(_cmd, suggest_filename=dyn)
+            self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600)
 
     def build_query_cmd(self, query, csv=False):
         """
