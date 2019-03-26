@@ -43,7 +43,7 @@ class OpenShiftOrigin(Plugin):
         ("diag", "run 'oc adm diagnostics' to collect its output",
          'fast', True),
         ("diag-prevent", "set --prevent-modification on 'oc adm diagnostics'",
-         'fast', False),
+         'fast', True),
         ("all-namespaces", "collect dc output for all namespaces", "fast",
          False)
     ]
