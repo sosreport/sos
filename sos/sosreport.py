@@ -973,7 +973,7 @@ class SoSReport(object):
             self.plugpool = ThreadPoolExecutor(self.opts.threads)
             # Pass the plugpool its own private copy of self.pluglist
             results = self.plugpool.map(self._collect_plugin,
-                                        list(self.pluglist), chunksize=1)
+                                        list(self.pluglist))
             self.plugpool.shutdown(wait=True)
             for res in results:
                 if not res:
