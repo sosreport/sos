@@ -45,7 +45,7 @@ class Pacemaker(Plugin):
         self.add_cmd_output([
             "pcs config",
             "pcs status --full",
-            "pcs stonith sbd status",
+            "pcs stonith sbd status --full",
             "pcs stonith sbd watchdog list",
             "pcs stonith history show",
             "pcs quorum status",
@@ -142,6 +142,7 @@ class RedHatPacemaker(Pacemaker, RedHatPlugin):
     def setup(self):
         self.envfile = "/etc/sysconfig/pacemaker"
         self.setup_pcs()
+        self.add_copy_spec("/etc/sysconfig/sbd")
         super(RedHatPacemaker, self).setup()
 
     def postproc(self):
