@@ -76,9 +76,7 @@ class Vdsm(Plugin, RedHatPlugin):
             '/etc/vdsm/*'
         ])
 
-        limit = self.get_option('log_size')
-
-        self.add_copy_spec('/var/log/vdsm/*', sizelimit=limit)
+        self.add_copy_spec('/var/log/vdsm/*')
 
         self._add_vdsm_forbidden_paths()
         self.add_copy_spec([
