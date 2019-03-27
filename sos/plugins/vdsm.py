@@ -52,7 +52,7 @@ LVM_CONFIG = re.sub(r"\s+", " ", LVM_CONFIG).strip()
 
 
 class Vdsm(Plugin, RedHatPlugin):
-    """vdsm Plugin"""
+    """vdsm plugin"""
 
     packages = (
         'vdsm',
