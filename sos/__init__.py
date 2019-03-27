@@ -25,7 +25,7 @@ if six.PY3:
 else:
     from ConfigParser import ConfigParser, ParsingError, Error
 
-__version__ = "3.6"
+__version__ = "3.7"
 
 gettext_dir = "/usr/share/locale"
 gettext_app = "sos"
