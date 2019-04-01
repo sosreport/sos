@@ -117,7 +117,7 @@ class kubernetes(Plugin, RedHatPlugin):
                 self.add_cmd_output('%s events' % k_cmd)
 
                 for res in resources:
-                    self.add_cmd_output('%s %s' % (k_cmd, res))
+                    self.add_cmd_output('%s %s' % (k_cmd, res), subdir=res)
 
             if self.get_option('describe'):
                 # need to drop json formatting for this
@@ -131,7 +131,9 @@ class kubernetes(Plugin, RedHatPlugin):
                         for k in k_list:
                             k_cmd = '%s %s' % (kube_cmd, knsp)
                             self.add_cmd_output(
-                                '%s describe %s %s' % (k_cmd, res, k))
+                                '%s describe %s %s' % (k_cmd, res, k),
+                                subdir=res
+                            )
 
             if self.get_option('podlogs'):
                 k_cmd = '%s %s' % (kube_cmd, knsp)
@@ -145,12 +147,13 @@ class kubernetes(Plugin, RedHatPlugin):
                     for pod in pods:
                         if reg and not re.match(reg, pod):
                             continue
-                        self.add_cmd_output('%s logs %s' % (k_cmd, pod))
+                        self.add_cmd_output('%s logs %s' % (k_cmd, pod),
+                                            subdir='pods')
 
         if not self.get_option('all'):
             k_cmd = '%s get --all-namespaces=true' % kube_cmd
             for res in resources:
-                self.add_cmd_output('%s %s' % (k_cmd, res))
+                self.add_cmd_output('%s %s' % (k_cmd, res), subdir=res)
 
     def postproc(self):
         # First, clear sensitive data from the json output collected.
