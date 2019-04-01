@@ -78,17 +78,20 @@ class Docker(Plugin):
         volumes = self._get_docker_list(vol_cmd)
 
         for container in containers:
-            self.add_cmd_output("docker inspect %s" % container)
+            self.add_cmd_output("docker inspect %s" % container,
+                                subdir='containers')
             if self.get_option('logs'):
-                self.add_cmd_output("docker logs -t %s" % container)
+                self.add_cmd_output("docker logs -t %s" % container,
+                                    subdir='containers')
 
         for img in images:
             name, img_id = img.strip().split()
             insp = name if 'none' not in name else img_id
-            self.add_cmd_output("docker inspect %s" % insp)
+            self.add_cmd_output("docker inspect %s" % insp, subdir='images')
 
         for vol in volumes:
-            self.add_cmd_output("docker volume inspect %s" % vol)
+            self.add_cmd_output("docker volume inspect %s" % vol,
+                                subdir='volumes')
 
     def _get_docker_list(self, cmd):
         ret = []
