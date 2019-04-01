@@ -70,19 +70,22 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
         volumes = self._get_podman_list(vol_cmd)
 
         for container in containers:
-            self.add_cmd_output("podman inspect %s" % container)
+            self.add_cmd_output("podman inspect %s" % container,
+                                subdir='containers')
 
         for img in images:
             name, img_id = img.strip().split()
             insp = name if 'none' not in name else img_id
-            self.add_cmd_output("podman inspect %s" % insp)
+            self.add_cmd_output("podman inspect %s" % insp, subdir='images')
 
         for vol in volumes:
-            self.add_cmd_output("podman volume inspect %s" % vol)
+            self.add_cmd_output("podman volume inspect %s" % vol,
+                                subdir='volumes')
 
         if self.get_option('logs'):
             for con in containers:
-                self.add_cmd_output("podman logs -t %s" % con)
+                self.add_cmd_output("podman logs -t %s" % con,
+                                    subdir='containers')
 
     def _get_podman_list(self, cmd):
         ret = []
