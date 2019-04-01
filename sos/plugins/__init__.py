@@ -913,7 +913,7 @@ class Plugin(object):
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
-                       sizelimit=None, pred=None):
+                       sizelimit=None, pred=None, subdir=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -926,7 +926,7 @@ class Plugin(object):
                                  root_symlink=root_symlink, timeout=timeout,
                                  stderr=stderr, chroot=chroot, runat=runat,
                                  env=env, binary=binary, sizelimit=sizelimit,
-                                 pred=pred)
+                                 pred=pred, subdir=subdir)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -952,10 +952,14 @@ class Plugin(object):
         name_max = self.archive.name_max()
         return _mangle_command(exe, name_max)
 
-    def _make_command_filename(self, exe):
+    def _make_command_filename(self, exe, subdir=None):
         """The internal function to build up a filename based on a command."""
 
-        outfn = os.path.join(self.commons['cmddir'], self.name(),
+        plugin_dir = self.name()
+        if subdir:
+            # only allow a single level of subdir to be created
+            plugin_dir += "/%s" % subdir.split('/')[0]
+        outfn = os.path.join(self.commons['cmddir'], plugin_dir,
                              self._mangle_command(exe))
 
         # check for collisions
@@ -1004,7 +1008,7 @@ class Plugin(object):
     def _get_cmd_output_now(self, cmd, suggest_filename=None,
                             root_symlink=False, timeout=300, stderr=True,
                             chroot=True, runat=None, env=None,
-                            binary=False, sizelimit=None):
+                            binary=False, sizelimit=None, subdir=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
@@ -1018,9 +1022,9 @@ class Plugin(object):
                         % (cmd.split()[0], time() - start))
 
         if suggest_filename:
-            outfn = self._make_command_filename(suggest_filename)
+            outfn = self._make_command_filename(suggest_filename, subdir)
         else:
-            outfn = self._make_command_filename(cmd)
+            outfn = self._make_command_filename(cmd, subdir)
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
         if binary:
