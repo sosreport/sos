@@ -25,7 +25,6 @@ class Logs(Plugin):
         ])
 
         self.add_copy_spec("/var/log/boot.log")
-        self.add_copy_spec("/var/log/cloud-init*")
         self.add_journal(boot="this", catalog=True)
         self.add_journal(boot="last", catalog=True)
         self.add_cmd_output("journalctl --disk-usage")
