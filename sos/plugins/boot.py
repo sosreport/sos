@@ -36,7 +36,10 @@ class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "lsinitrd"
         ])
 
-        self.add_cmd_output("efibootmgr -v")
+        self.add_cmd_output([
+            "efibootmgr -v",
+            "mokutil --sb-state"
+        ])
 
         if self.get_option("all-images"):
             for image in glob('/boot/initr*.img'):
