@@ -25,7 +25,7 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
     option_list = [("project_path",
                     'List npm modules of a project specified by path',
                     'fast',
-                    0)]
+                    '')]
 
     # in Fedora, Debian, Ubuntu and Suse the package is called npm
     packages = ('npm',)
@@ -79,7 +79,7 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
         self.add_string_as_file(json.dumps(output), outfn)
 
     def setup(self):
-        if self.get_option("project_path") != 0:
+        if self.get_option("project_path"):
             project_path = os.path.abspath(os.path.expanduser(
                 self.get_option("project_path")))
             self._get_npm_output("npm ls --json", "npm_ls_project",
