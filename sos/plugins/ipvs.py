@@ -21,14 +21,15 @@ class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('ipvsadm',)
 
     def setup(self):
-        self.add_cmd_output([
-            "ipvsadm -Ln",
-            "ipvsadm -Ln --connection",
-            "ipvsadm -Ln --persistent-conn",
-            "ipvsadm -Ln --rate",
-            "ipvsadm -Ln --stats",
-            "ipvsadm -Ln --thresholds",
-            "ipvsadm -Ln --timeout"
-        ])
+        if self.check_ext_prog("grep -q ip_vs /proc/modules"):
+            self.add_cmd_output([
+                "ipvsadm -Ln",
+                "ipvsadm -Ln --connection",
+                "ipvsadm -Ln --persistent-conn",
+                "ipvsadm -Ln --rate",
+                "ipvsadm -Ln --stats",
+                "ipvsadm -Ln --thresholds",
+                "ipvsadm -Ln --timeout"
+            ])
 
 # vim: set et ts=4 sw=4 :
