@@ -73,6 +73,8 @@ class ManageIQ(Plugin, RedHatPlugin):
         ])
         self.add_copy_spec("/var/log/tower.log")
 
+        self.add_copy_spec("/etc/manageiq/postgresql.conf.d/*.conf")
+
         if environ.get("APPLIANCE_PG_DATA"):
             pg_dir = environ.get("APPLIANCE_PG_DATA")
             self.add_copy_spec([
