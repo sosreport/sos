@@ -22,6 +22,10 @@ import re
 # there is a stuck lvm command.
 # locking_type=0
 #
+# To prevent modifications to volume group metadata (for e.g. due to a
+# automatically detected inconsistency), metadata_read_only is set to 1.
+# metadata_read_only=1
+#
 # use_lvmetad is set to 0 in order not to show cached, old lvm metadata.
 # use_lvmetad=0
 #
@@ -31,6 +35,7 @@ import re
 LVM_CONFIG = """
 global {
     locking_type=0
+    metadata_read_only=1
     use_lvmetad=0
 }
 devices {
