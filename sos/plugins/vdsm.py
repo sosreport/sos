@@ -65,6 +65,7 @@ class Vdsm(Plugin, RedHatPlugin):
         self.add_forbidden_path('/etc/pki/libvirt/private/*')
 
         self.add_cmd_output('service vdsmd status')
+        self.add_cmd_output('service supervdsmd status')
 
         self.add_copy_spec([
             '/tmp/vds_installer*',
