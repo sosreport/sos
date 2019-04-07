@@ -43,7 +43,7 @@ devices {
     ignore_suspended_devices=1
     write_cache_state=0
     disable_after_error_count=3
-    filter=["a|^/dev/mapper/.*|", "r|.*|"]
+    filter=["a|^/dev/disk/by-id/dm-uuid-mpath-|", "r|.+|"]
 }
 """
 LVM_CONFIG = re.sub(r"\s+", " ", LVM_CONFIG).strip()
