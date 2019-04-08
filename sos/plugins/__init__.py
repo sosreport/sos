@@ -171,6 +171,28 @@ class SoSPredicate(object):
         self._dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
 
 
+class SoSCommand(object):
+    """A class to represent a command to be collected.
+
+    A SoSCommand() object is instantiated for each command handed to an
+    _add_cmd_output() call, so that we no longer need to pass around a very
+    long tuple to handle the parameters.
+
+    Any option supported by _add_cmd_output() is passed to the SoSCommand
+    object and converted to an attribute. SoSCommand.__dict__ is then passed to
+    _get_command_output_now() for each command to be collected.
+    """
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __str__(self):
+        """Return a human readable string representation of this SoSCommand
+        """
+        return ', '.join("%s=%r" % (param, val) for (param, val) in
+                         sorted(self.__dict__.items()))
+
+
 class Plugin(object):
     """ This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
@@ -874,26 +896,18 @@ class Plugin(object):
         """
         return self.call_ext_prog(prog)['status'] == 0
 
-    def _add_cmd_output(self, cmd, suggest_filename=None,
-                        root_symlink=None, timeout=300, stderr=True,
-                        chroot=True, runat=None, env=None, binary=False,
-                        sizelimit=None, pred=None):
+    def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
-        cmdt = (
-            cmd, suggest_filename,
-            root_symlink, timeout, stderr,
-            chroot, runat, env, binary, sizelimit
-        )
-        _tuplefmt = ("('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s', '%s', "
-                     "'%s')")
-        _logstr = "packed command tuple: " + _tuplefmt
-        self._log_debug(_logstr % cmdt)
+        pred = kwargs.pop('pred') if 'pred' in kwargs else None
+        soscmd = SoSCommand(**kwargs)
+        self._log_debug("packed command: " + soscmd.__str__())
         if self.test_predicate(cmd=True, pred=pred):
-            self.collect_cmds.append(cmdt)
-            self._log_info("added cmd output '%s'" % cmd)
+            self.collect_cmds.append(soscmd)
+            self._log_info("added cmd output '%s'" % soscmd.cmd)
         else:
             self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (cmd, self.get_predicate(cmd=True, pred=pred)))
+                           (soscmd.cmd,
+                            self.get_predicate(cmd=True, pred=pred)))
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
@@ -907,7 +921,7 @@ class Plugin(object):
         if sizelimit is None:
             sizelimit = self.get_option("log_size")
         for cmd in cmds:
-            self._add_cmd_output(cmd, suggest_filename=suggest_filename,
+            self._add_cmd_output(cmd=cmd, suggest_filename=suggest_filename,
                                  root_symlink=root_symlink, timeout=timeout,
                                  stderr=stderr, chroot=chroot, runat=runat,
                                  env=env, binary=binary, sizelimit=sizelimit,
@@ -971,7 +985,7 @@ class Plugin(object):
         self.copy_strings.append((content, filename))
         self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
 
-    def _get_cmd_output_now(self, exe, suggest_filename=None,
+    def _get_cmd_output_now(self, cmd, suggest_filename=None,
                             root_symlink=False, timeout=300, stderr=True,
                             chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None):
@@ -980,17 +994,17 @@ class Plugin(object):
         """
         start = time()
 
-        result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
+        result = self.get_command_output(cmd, timeout=timeout, stderr=stderr,
                                          chroot=chroot, runat=runat,
                                          env=env, binary=binary,
                                          sizelimit=sizelimit)
         self._log_debug("collected output of '%s' in %s"
-                        % (exe.split()[0], time() - start))
+                        % (cmd.split()[0], time() - start))
 
         if suggest_filename:
             outfn = self._make_command_filename(suggest_filename)
         else:
-            outfn = self._make_command_filename(exe)
+            outfn = self._make_command_filename(cmd)
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
         if binary:
@@ -1001,7 +1015,7 @@ class Plugin(object):
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
-        self.executed_commands.append({'exe': exe, 'file': outfn_strip,
+        self.executed_commands.append({'exe': cmd, 'file': outfn_strip,
                                        'binary': 'yes' if binary else 'no'})
 
         return os.path.join(self.archive.get_archive_path(), outfn)
@@ -1129,7 +1143,7 @@ class Plugin(object):
             journal_cmd += output_opt % output
 
         self._log_debug("collecting journal: %s" % journal_cmd)
-        self._add_cmd_output(journal_cmd, timeout=timeout,
+        self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
                              sizelimit=log_size, pred=pred)
 
     def add_udev_info(self, device, attrs=False):
@@ -1149,7 +1163,7 @@ class Plugin(object):
 
         for dev in device:
             self._log_debug("collecting udev info for: %s" % dev)
-            self._add_cmd_output('%s %s' % (udev_cmd, dev))
+            self._add_cmd_output(cmd='%s %s' % (udev_cmd, dev))
 
     def _expand_copy_spec(self, copyspec):
         return glob.glob(copyspec)
@@ -1160,26 +1174,10 @@ class Plugin(object):
             self._do_copy_path(path)
 
     def _collect_cmd_output(self):
-        for progs in zip(self.collect_cmds):
-            (
-                prog,
-                suggest_filename, root_symlink,
-                timeout,
-                stderr,
-                chroot, runat,
-                env, binary,
-                sizelimit
-            ) = progs[0]
-            self._log_debug(("unpacked command tuple: " +
-                             "('%s', '%s', '%s', %s, '%s', '%s', '%s', '%s'," +
-                             "'%s %s')") % progs[0])
-            self._log_info("collecting output of '%s'" % prog)
-            self._get_cmd_output_now(prog, suggest_filename=suggest_filename,
-                                     root_symlink=root_symlink,
-                                     timeout=timeout, stderr=stderr,
-                                     chroot=chroot, runat=runat,
-                                     env=env, binary=binary,
-                                     sizelimit=sizelimit)
+        for soscmd in self.collect_cmds:
+            self._log_debug("unpacked command: " + soscmd.__str__())
+            self._log_info("collecting output of '%s'" % soscmd.cmd)
+            self._get_cmd_output_now(**soscmd.__dict__)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
