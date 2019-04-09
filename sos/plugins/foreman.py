@@ -19,6 +19,7 @@ class Foreman(Plugin):
     """
 
     plugin_name = 'foreman'
+    plugin_timeout = 1800
     profiles = ('sysmgmt',)
     packages = ('foreman', 'foreman-proxy')
     option_list = [
