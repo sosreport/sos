@@ -263,6 +263,8 @@ class SoSReport(object):
         except Exception:
             pass  # not available in java, but we don't care
 
+        self.print_header()
+
         # load default options and store them in self.opts
         parser = _get_parser()
         self.opts = SoSOptions().from_args(parser.parse_args([]))
@@ -345,8 +347,7 @@ class SoSReport(object):
             self._exit(1)
 
     def print_header(self):
-        self.ui_log.info("\n%s\n" % _("sosreport (version %s)" %
-                                      (__version__,)))
+        print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))
 
     def get_commons(self):
         return {
@@ -1343,7 +1344,6 @@ class SoSReport(object):
     def execute(self):
         try:
             self.policy.set_commons(self.get_commons())
-            self.print_header()
             self.load_plugins()
             self._set_all_options()
             self._set_tunables()
