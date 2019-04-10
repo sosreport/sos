@@ -220,6 +220,7 @@ class Plugin(object):
 
         self.copied_files = []
         self.executed_commands = []
+        self._env_vars = set()
         self.alerts = []
         self.custom_text = ""
         self.opt_names = []
@@ -954,6 +955,21 @@ class Plugin(object):
                 inc += 1
 
         return outfn
+
+    def add_env_var(self, name):
+        """Add an environment variable to the list of to-be-collected env vars.
+
+        Accepts either a single variable name or a list of names. Any value
+        given will be added as provided to the method, as well as an upper-
+        and lower- cased version.
+        """
+        if not isinstance(name, list):
+            name = [name]
+        for env in name:
+            # get both upper and lower cased vars since a common support issue
+            # is setting the env vars to the wrong case, and if the plugin
+            # adds a mixed case variable name, still get that as well
+            self._env_vars.update([env, env.upper(), env.lower()])
 
     def add_string_as_file(self, content, filename, pred=None):
         """Add a string to the archive as a file named `filename`"""

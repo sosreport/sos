@@ -54,9 +54,9 @@ _arg_names = [
     'chroot', 'compression_type', 'config_file', 'desc', 'debug', 'del_preset',
     'dry_run', 'enableplugins', 'encrypt_key', 'encrypt_pass', 'experimental',
     'label', 'list_plugins', 'list_presets', 'list_profiles', 'log_size',
-    'noplugins', 'noreport', 'note', 'onlyplugins', 'plugin_timeout',
-    'plugopts', 'preset', 'profiles', 'quiet', 'sysroot', 'threads', 'tmp_dir',
-    'verbosity', 'verify'
+    'noplugins', 'noreport', 'no_env_vars', 'note', 'onlyplugins',
+    'plugin_timeout', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
+    'threads', 'tmp_dir', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -179,6 +179,7 @@ class SoSOptions(object):
         self.log_size = _arg_defaults["log_size"]
         self.noplugins = []
         self.noreport = False
+        self.no_env_vars = False
         self.note = ""
         self.onlyplugins = []
         self.plugin_timeout = None
@@ -220,7 +221,7 @@ class SoSOptions(object):
         no_value = (
             "alloptions", "all-logs", "batch", "build", "debug",
             "experimental", "list-plugins", "list-presets", "list-profiles",
-            "noreport", "quiet", "verify"
+            "noreport", "no-env-vars", "quiet", "verify"
         )
         count = ("verbose",)
         if opt in no_value:
