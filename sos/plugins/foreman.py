@@ -12,6 +12,8 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,\
                         SCLPlugin
 from pipes import quote
+from re import match
+import os
 
 
 class Foreman(Plugin):
@@ -26,6 +28,38 @@ class Foreman(Plugin):
     ]
 
     def setup(self):
+        # for external DB, search in /etc/foreman/database.yml for:
+        # production:
+        # ..
+        #   host: some.hostname
+        production_scope = False
+        self.dbhost = "localhost"
+        self.dbpasswd = ""
+        try:
+            for line in open("/etc/foreman/database.yml").read().splitlines():
+                # skip empty lines and lines with comments
+                if not line or line[0] == '#':
+                    continue
+                if line.startswith("production:"):
+                    production_scope = True
+                    continue
+                if production_scope and match(r"\s+host:\s+\S+", line):
+                    self.dbhost = line.split()[1]
+                if production_scope and match(r"\s+password:\s+\S+", line):
+                    self.dbpasswd = line.split()[1]
+                # if line starts with a text, it is a different scope
+                if not line.startswith(" "):
+                    production_scope = False
+        except IOError:
+            # fallback when the cfg file is not accessible
+            pass
+        # strip wrapping ".." or '..' around password
+        if (self.dbpasswd.startswith('"') and self.dbpasswd.endswith('"')) or \
+           (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
+            self.dbpasswd = self.dbpasswd[1:-1]
+        # set the password to os.environ to prevent printing it in sos logs
+        os.environ["PGPASSWORD"] = self.dbpasswd
+
         self.add_forbidden_path([
             "/etc/foreman*/*key.pem",
             "/etc/foreman*/encryption_key.rb"
@@ -168,13 +202,9 @@ class Foreman(Plugin):
         shell and postgres parsing requirements. Note that this will generate
         a large amount of quoting in sos logs referencing the command being run
         """
-        _cmd = "su postgres -c %s"
-        if not csv:
-            _dbcmd = "psql foreman -c %s"
-        else:
-            _dbcmd = "psql foreman -A -F , -X -c %s"
-        dbq = _dbcmd % quote(query)
-        return _cmd % quote(dbq)
+        csvformat = "-A -F , -X" if csv else ""
+        _dbcmd = "psql -h %s -p 5432 -U foreman -d foreman %s -c %s"
+        return _dbcmd % (self.dbhost, csvformat, quote(query))
 
     def postproc(self):
         satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?(::(.*)::.*" \
