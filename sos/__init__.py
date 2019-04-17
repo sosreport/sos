@@ -250,8 +250,8 @@ class SoSOptions(object):
                 optlist.extend(SoSOptions._opt_to_args(opt, val))
             opts._merge_opts(argparser.parse_args(optlist), is_default)
 
+        opts.noplugins = []
         if config.has_option("plugins", "disable"):
-            opts.noplugins = []
             opts.noplugins.extend([plugin.strip() for plugin in
                                   config.get("plugins", "disable").split(',')])
 
