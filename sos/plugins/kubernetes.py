@@ -9,14 +9,13 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 from fnmatch import translate
 from os import path
-
 import re
 
 
-class kubernetes(Plugin, RedHatPlugin):
+class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
 
     """Kubernetes plugin
     """
@@ -29,7 +28,8 @@ class kubernetes(Plugin, RedHatPlugin):
     files = (
         "/var/run/kubernetes/apiserver.key",
         "/etc/origin/master/",
-        "/etc/origin/node/pods/master-config.yaml"
+        "/etc/origin/node/pods/master-config.yaml",
+        "/root/cdk/kubeproxyconfig"
     )
 
     option_list = [
@@ -71,9 +71,15 @@ class kubernetes(Plugin, RedHatPlugin):
         if not self.check_is_master():
             return
 
+        # Red Hat
         kube_cmd = "kubectl "
         if path.exists('/etc/origin/master/admin.kubeconfig'):
             kube_cmd += "--kubeconfig=/etc/origin/master/admin.kubeconfig"
+
+        # Ubuntu Charmed Distribution of Kubernetes
+        if path.exists('/root/cdk/kubeproxyconfig'):
+            kube_cmd = "/snap/bin/kubectl "
+            kube_cmd += "--kubeconfig=/root/cdk/kubeproxyconfig"
 
         kube_get_cmd = "get -o json "
         for subcmd in ['version', 'config view']:
