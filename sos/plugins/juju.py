@@ -13,24 +13,6 @@ from sos.plugins import Plugin, UbuntuPlugin
 from json import loads as json_loads
 
 
-def ensure_service_is_running(service):
-    def wrapper(callback):
-        def wrapped_f(self, *args, **kwargs):
-            try:
-                result = self.call_ext_prog("service {0} stop".format(service))
-                if result["status"] != 0:
-                    raise Exception("Cannot stop {0} service".format(service))
-                callback(self, *args, **kwargs)
-            except Exception as ex:
-                self._log_error("Cannot stop {0}, exception: {1}".format(
-                    service,
-                    ex.message))
-            finally:
-                self.call_ext_prog("service {0} start".format(service))
-        return wrapped_f
-    return wrapper
-
-
 class Juju(Plugin, UbuntuPlugin):
     """ Juju orchestration tool
     """
@@ -58,7 +40,6 @@ class Juju(Plugin, UbuntuPlugin):
         except ValueError:
             return []
 
-    @ensure_service_is_running("juju-db")
     def export_mongodb(self):
         collections = (
             "relations",
@@ -102,6 +83,7 @@ class Juju(Plugin, UbuntuPlugin):
         self.add_cmd_output([
                 "juju --version",
                 "juju -v status --format=tabular",
+                "service juju-db status",
         ])
         for service in self.get_deployed_services():
             self.add_cmd_output([
