@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-from distutils.spawn import find_executable
+from sos.utilities import is_executable
 
 
 class Lstopo(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -16,13 +16,13 @@ class Lstopo(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = "lstopo"
     profiles = ("system", "hardware")
-    packages = ("hwloc-libs", )
+    packages = ("hwloc-libs", "libhwloc5")
 
     def setup(self):
         # binary depends on particular package, both require hwloc-libs one
         # hwloc-gui provides lstopo command
         # hwloc provides lstopo-no-graphics command
-        if find_executable("lstopo"):
+        if is_executable("lstopo"):
             cmd = "lstopo"
         else:
             cmd = "lstopo-no-graphics"
