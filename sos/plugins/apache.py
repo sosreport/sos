@@ -22,10 +22,11 @@ class Apache(Plugin):
     ]
 
     def setup(self):
-        # collect list of installed modules
+        # collect list of installed modules and verify config syntax.
         self.add_cmd_output([
             "apachectl -M",
-            "apachectl -S"
+            "apachectl -S",
+            "apachectl -t"
         ])
 
         # The foreman plugin collects these files with a greater size limit:
@@ -58,6 +59,8 @@ class RedHatApache(Apache, RedHatPlugin):
         ])
 
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
+
+        self.add_cmd_output('systemctl status httpd')
 
         # collect only the current log set by default
         self.add_copy_spec([
@@ -96,6 +99,8 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
             "/etc/apache2/*",
             "/etc/default/apache2"
         ])
+
+        self.add_cmd_output('systemctl status apache2')
 
         # collect only the current log set by default
         self.add_copy_spec([
