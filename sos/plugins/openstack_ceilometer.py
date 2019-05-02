@@ -28,12 +28,10 @@ class OpenStackCeilometer(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/ceilometer/*",
-                "/var/log/containers/ceilometer/*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/ceilometer/*.log",
-                "/var/log/containers/ceilometer/*.log"
             ])
         self.add_copy_spec([
             "/etc/ceilometer/*",

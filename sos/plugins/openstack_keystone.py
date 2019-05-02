@@ -40,14 +40,10 @@ class OpenStackKeystone(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/keystone/",
-                "/var/log/containers/keystone/",
-                "/var/log/containers/httpd/keystone/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/keystone/*.log",
-                "/var/log/containers/keystone/*.log",
-                "/var/log/containers/httpd/keystone/*log"
             ])
 
         # collect domain config directory, if specified

@@ -42,16 +42,12 @@ class OpenStackInstack(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/mistral/",
-                "/var/log/containers/mistral/",
                 "/var/log/zaqar/",
-                "/var/log/containers/zaqar/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/mistral/*.log",
-                "/var/log/containers/mistral/*.log",
                 "/var/log/zaqar/*.log",
-                "/var/log/containers/zaqar/*.log"
             ])
 
         vars_all = [p in os.environ for p in [

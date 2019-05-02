@@ -35,14 +35,10 @@ class OpenStackOctavia(Plugin):
         # logs
         if self.get_option("all_logs"):
             self.add_copy_spec([
-                "/var/log/containers/httpd/octavia-api/*",
-                "/var/log/containers/octavia/*",
                 "/var/log/octavia/*",
             ])
         else:
             self.add_copy_spec([
-                "/var/log/containers/httpd/octavia-api/*.log",
-                "/var/log/containers/octavia/*.log",
                 "/var/log/octavia/*.log",
             ])
 

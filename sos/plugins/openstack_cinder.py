@@ -61,15 +61,11 @@ class OpenStackCinder(Plugin):
             self.add_copy_spec([
                 "/var/log/cinder/",
                 "/var/log/httpd/cinder*",
-                "/var/log/containers/cinder/",
-                "/var/log/containers/httpd/cinder-api/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/cinder/*.log",
                 "/var/log/httpd/cinder*.log",
-                "/var/log/containers/cinder/*.log",
-                "/var/log/containers/httpd/cinder-api/*log"
             ])
 
     def running_in_container(self):

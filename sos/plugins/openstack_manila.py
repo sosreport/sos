@@ -33,14 +33,10 @@ class OpenStackManila(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/manila/*",
-                "/var/log/containers/manila/*",
-                "/var/log/containers/httpd/manila-api/*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/manila/*.log",
-                "/var/log/containers/manila/*.log",
-                "/var/log/containers/httpd/manila-api/*log"
             ])
 
     def apply_regex_sub(self, regexp, subst):

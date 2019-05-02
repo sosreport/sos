@@ -39,12 +39,10 @@ class Redis(Plugin, RedHatPlugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/redis/redis.log*",
-                "/var/log/containers/redis/redis.log*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/redis/redis.log",
-                "/var/log/containers/redis/redis.log"
             ])
 
     def postproc(self):
