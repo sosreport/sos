@@ -51,7 +51,6 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_copy_spec([
             "/var/log/rabbitmq/*",
-            "/var/log/containers/rabbitmq/*"
         ])
 
     def postproc(self):

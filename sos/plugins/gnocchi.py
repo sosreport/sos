@@ -43,15 +43,11 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
             self.add_copy_spec([
                 "/var/log/gnocchi/*",
                 "/var/log/httpd/gnocchi*",
-                "/var/log/containers/gnocchi/*",
-                "/var/log/containers/httpd/gnocchi-api/*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/gnocchi/*.log",
                 "/var/log/httpd/gnocchi*.log",
-                "/var/log/containers/gnocchi/*.log",
-                "/var/log/containers/httpd/gnocchi-api/*log"
             ])
 
         vars_all = [p in os.environ for p in [

@@ -25,7 +25,6 @@ class OpenVSwitch(Plugin):
         all_logs = self.get_option("all_logs")
 
         log_dirs = [
-            '/var/log/containers/openvswitch/',
             '/var/log/openvswitch/',
             '/usr/local/var/log/openvswitch/',
         ]

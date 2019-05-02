@@ -46,14 +46,10 @@ class OpenStackIronic(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/ironic/",
-                "/var/log/containers/ironic/",
-                "/var/log/containers/httpd/ironic-api/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/ironic/*.log",
-                "/var/log/containers/ironic/*.log",
-                "/var/log/containers/httpd/ironic-api/*log"
             ])
 
         for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
@@ -157,12 +153,9 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
         self.add_copy_spec('/var/lib/ironic-inspector/')
         if self.get_option("all_logs"):
             self.add_copy_spec('/var/log/ironic-inspector/')
-            self.add_copy_spec('/var/log/containers/ironic-inspector/')
         else:
             self.add_copy_spec('/var/log/ironic-inspector/*.log')
             self.add_copy_spec('/var/log/ironic-inspector/ramdisk/')
-            self.add_copy_spec('/var/log/containers/ironic-inspector/*.log')
-            self.add_copy_spec('/var/log/containers/ironic-inspector/ramdisk/')
 
         self.add_journal(units="openstack-ironic-inspector-dnsmasq")
 

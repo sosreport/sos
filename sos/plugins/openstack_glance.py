@@ -28,14 +28,10 @@ class OpenStackGlance(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/glance/",
-                "/var/log/containers/glance/",
-                "/var/log/containers/httpd/glance-api/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/glance/*.log",
-                "/var/log/containers/glance/*.log",
-                "/var/log/containers/httpd/glance-api/*log"
             ])
 
         self.add_copy_spec([

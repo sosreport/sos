@@ -38,15 +38,11 @@ class OpenStackAodh(Plugin, RedHatPlugin):
             self.add_copy_spec([
                 "/var/log/aodh/*",
                 "/var/log/httpd/aodh*",
-                "/var/log/containers/aodh/*",
-                "/var/log/containers/httpd/aodh-api/*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/aodh/*.log",
                 "/var/log/httpd/aodh*.log",
-                "/var/log/containers/aodh/*.log",
-                "/var/log/containers/httpd/aodh-api/*log"
             ])
 
         vars_all = [p in os.environ for p in [
