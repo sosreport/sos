@@ -1186,6 +1186,28 @@ class Plugin(object):
         """
         self.custom_text += text
 
+    def add_service_status(self, services, timeout=None, pred=None):
+        '''Collect service status information based on the InitSystem used.
+
+        :param services: A string, or list of strings, specifying the services
+                          to collect
+        :param timeout:  Optional timeout in seconds
+        :param pred:     An optional predicate to gate collection
+        '''
+        if isinstance(services, six.string_types):
+            services = [services]
+
+        query = self.policy.init_system.query_cmd
+        if not query:
+            # No policy defined InitSystem, cannot use add_service_status
+            self._log_debug('Cannot add service output, policy does not define'
+                            ' an InitSystem to use')
+            return
+
+        for service in services:
+            self._add_cmd_output(cmd="%s %s" % (query, service), pred=pred,
+                                 timeout=timeout)
+
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None, timeout=None,
                     identifier=None, catalog=None, sizelimit=None, pred=None):
