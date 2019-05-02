@@ -25,14 +25,10 @@ class OpenStackNeutron(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/neutron/",
-                "/var/log/containers/neutron/",
-                "/var/log/containers/httpd/neutron-api/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/neutron/*.log",
-                "/var/log/containers/neutron/*.log",
-                "/var/log/containers/httpd/neutron-api/*log"
             ])
 
         self.add_copy_spec([

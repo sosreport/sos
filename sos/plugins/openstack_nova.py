@@ -89,18 +89,9 @@ class OpenStackNova(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/nova/",
-                "/var/log/containers/nova/",
-                "/var/log/containers/httpd/nova-api/",
-                "/var/log/containers/httpd/nova-placement/"
             ])
         else:
-            # apply sizelimit to individual logs separately
-            novadirs = [
-                "/var/log/nova/",
-                "/var/log/containers/nova/",
-                "/var/log/containers/httpd/nova-api/",
-                "/var/log/containers/httpd/nova-placement/"
-            ]
+            novadir = '/var/log/nova/'
             novalogs = [
                 "nova-api.log*",
                 "nova-compute.log*",
@@ -109,9 +100,8 @@ class OpenStackNova(Plugin):
                 "nova-placement-api.log*",
                 "nova-scheduler.log*"
             ]
-            for novadir in novadirs:
-                for novalog in novalogs:
-                    self.add_copy_spec(os.path.join(novadir, novalog))
+            for novalog in novalogs:
+                self.add_copy_spec(os.path.join(novadir, novalog))
 
         self.add_copy_spec([
             "/etc/nova/",

@@ -28,26 +28,20 @@ class OpenDaylight(Plugin, RedHatPlugin):
 
         if self.get_option("all_logs"):
 
-            # /var/log/containers/opendaylight/ path is specific to ODL
             # Oxygen-SR3 and earlier versions, and may be removed in a future
             # update.
 
             self.add_copy_spec([
                 "/opt/opendaylight/data/log/",
-                "/var/log/containers/opendaylight/",
-                "/var/log/containers/opendaylight/karaf/logs/",
             ])
 
         else:
 
-            # /var/log/containers/opendaylight/ path is specific to ODL
             # Oxygen-SR3 and earlier versions, and may be removed in a future
             # update.
 
             self.add_copy_spec([
                 "/opt/opendaylight/data/log/*.log*",
-                "/var/log/containers/opendaylight/*.log*",
-                "/var/log/containers/opendaylight/karaf/logs/*.log*",
             ])
 
         self.add_cmd_output("docker logs opendaylight_api")

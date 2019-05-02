@@ -31,12 +31,10 @@ class OpenStackSahara(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/sahara/",
-                "/var/log/containers/sahara/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/sahara/*.log",
-                "/var/log/containers/sahara/*.log"
             ])
 
         if self.get_option("verify"):

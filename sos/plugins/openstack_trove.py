@@ -26,12 +26,10 @@ class OpenStackTrove(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/trove/",
-                "/var/log/containers/trove/"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/trove/*.log",
-                "/var/log/containers/trove/*.log"
             ])
 
         self.add_copy_spec([
