@@ -9,26 +9,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.plugins import Plugin, UbuntuPlugin
 from json import loads as json_loads
-
-
-def ensure_service_is_running(service):
-    def wrapper(callback):
-        def wrapped_f(self, *args, **kwargs):
-            try:
-                result = self.call_ext_prog("service {0} stop".format(service))
-                if result["status"] != 0:
-                    raise Exception("Cannot stop {0} service".format(service))
-                callback(self, *args, **kwargs)
-            except Exception as ex:
-                self._log_error("Cannot stop {0}, exception: {1}".format(
-                    service,
-                    ex.message))
-            finally:
-                self.call_ext_prog("service {0} start".format(service))
-        return wrapped_f
-    return wrapper
+from sos.plugins import Plugin, UbuntuPlugin
 
 
 class Juju(Plugin, UbuntuPlugin):
@@ -40,82 +22,142 @@ class Juju(Plugin, UbuntuPlugin):
     files = ('/usr/bin/juju', '/usr/bin/juju-run', '/snap/bin/juju')
 
     option_list = [
-        ('export-mongodb',
-         'Export mongodb collections as json files', '', False),
-        ('generate-bundle',
-         """Generate a YAML bundle of the current environment
-         (requires juju-deployerizer)""", '', False),
+        ("juju-user", "The user to run juju commands as", "", "ubuntu")
     ]
 
-    def get_deployed_services(self):
-        cmd = "juju status --format json"
-        status_json = self.call_ext_prog(cmd)['output']
-        self.add_string_as_file(status_json, "juju_status_json")
-        # if status_json isn't in JSON format (i.e. 'juju' command not found),
-        # or if it does not contain 'services' key, return empty list
+    # Get the configuration of each application deployed in a model
+    def collect_app_config(self, username, modelname, statusfilespath):
+        statusinfo = {}
         try:
-            return json_loads(status_json)['services'].keys()
-        except ValueError:
-            return []
+            fp = open(statusfilespath, "r")
+            statusinfo = json_loads(fp.read())
+            fp.close()
+        except Exception:
+            return
+        if "applications" in statusinfo:
+            for appname, appinfo in statusinfo["applications"].items():
+                # Get the application config for every application in every
+                # model
+                self.add_cmd_output(
+                    "sudo -i -u {} juju config --format yaml -m {} {}".format(
+                        username, modelname, appname
+                    )
+                )
 
-    @ensure_service_is_running("juju-db")
-    def export_mongodb(self):
-        collections = (
-            "relations",
-            "environments",
-            "linkednetworks",
-            "system",
-            "settings",
+    # Get some information pertaining to each model
+    def collect_model_output(self, username, modelsfilepath):
+        modelsinfo = {}
+        try:
+            fp = open(modelsfilepath, "r")
+            modelsinfo = json_loads(fp.read())
+            fp.close()
+        except Exception:
+            return
+        if "models" in modelsinfo:
+            for model in modelsinfo["models"]:
+                if "short-name" in model:
+                    modelname = model["short-name"]
+                    # Run these commands for each model
+                    self.add_cmd_output(
+                        [
+                            ("sudo -i -u {} juju debug-log "
+                             "-n 500 --no-tail -m {}"
+                             .format(username, modelname)),
+                            ("sudo -i -u {} juju model-config "
+                             "--format yaml -m {}"
+                             .format(username, modelname)),
+                        ]
+                    )
+                    # Get the model status as json so we can dig deeper
+                    status = self.get_cmd_output_now(
+                        "sudo -i -u {} juju status -m {} --format json".format(
+                            username, modelname
+                        )
+                    )
+                    self.collect_app_config(username, modelname, status)
+
+    # Get some high level juju configuration and start processing model info
+    def collect_juju_output(self, username):
+        # Run these commands once, no model or app option required
+        juju_cmds = [
+            "juju clouds --format yaml",
+            "juju controller-config --format yaml",
+            "juju storage --format yaml",
+            "juju storage-pools --format yaml",
+            "juju spaces --format yaml",
+            "juju credentials --format yaml",
+            "juju model-defaults --format yaml",
+            "juju show-controller --format yaml",
+        ]
+
+        # Get the model information as json so we can dig deeper
+        models = self.get_cmd_output_now(
+            "sudo -i -u {} juju models --format json".format(username)
         )
+        self.collect_model_output(username, models)
 
-        for collection in collections:
-            self.add_cmd_output(
-                "/usr/lib/juju/bin/mongoexport --ssl \
-                --dbpath=/var/lib/juju/db --db juju --collection {0} \
-                --jsonArray".format(collection),
-                suggest_filename="{}.json".format(collection))
+        # Use sudo to run the commands as the appropriate user and name the
+        # files something sane
+        for cmd in juju_cmds:
+            # The file names can be long and confusing from the juju commands,
+            # clean them up and give them an approriate extension if possible
+            self.add_cmd_output("sudo -i -u {} {}".format(username, cmd))
 
     def setup(self):
-        self.add_copy_spec("/var/log/upstart/juju-db.log")
-        self.add_copy_spec("/var/log/upstart/juju-db.log.1")
-        if not self.get_option("all_logs"):
-            # We need this because we want to collect to the limit of all
-            # *.logs in the directory.
-            if(os.path.isdir("/var/log/juju/")):
-                for filename in os.listdir("/var/log/juju/"):
-                    if filename.endswith(".log"):
-                        fullname = os.path.join("/var/log/juju/" + filename)
-                        self.add_copy_spec(fullname)
-            self.add_cmd_output('ls -alRh /var/log/juju*')
-            self.add_cmd_output('ls -alRh /var/lib/juju/*')
+        # Make sure it looks like juju is configured before continuing
+        username = self.get_option("juju-user")
+        homedir = os.path.expanduser("~" + username)
 
-        else:
-            self.add_copy_spec([
-                "/var/log/juju",
-                "/var/log/juju-*",
-                "/var/lib/juju"
-                # /var/lib/juju used to be in the default capture moving here
-                # because it usually was way to big.  However, in most cases
-                # you want all logs you want this too.
-            ])
+        if os.path.exists(homedir + "/.local/share/juju"):
+            self.collect_juju_output(username)
 
-        self.add_cmd_output([
-                "juju --version",
-                "juju -v status --format=tabular",
-        ])
-        for service in self.get_deployed_services():
-            self.add_cmd_output([
-                "juju get {}".format(service),
-                "juju get-config {}".format(service),
-                "juju get-constraints {}".format(service)
-            ])
+    # TODO Add more keys as we see fit
+    def postproc(self):
+        juju_config_keys = [
+            "corosync_key",
+            "password",
+            "root-password",
+            "sst-password",
+            "credentials",
+            "client_password",
+            "endpoint-tls-ca",
+            "docker-logins",
+            "license-key",
+            "registry-credentials",
+            "admin-password",
+            "ldap-password",
+            "mem-password",
+            "nsx-password",
+            "plumgrid-password",
+            ]
 
-        if self.get_option("export-mongodb"):
-            self.export_mongodb()
+        # Handle the case where the key and value are on separate lines.
+        # In Juju, a yaml key might be set and have no subkey 'value'.
+        # This is the case when the subkey for the key 'source' has
+        # the value 'unset'.
+        # Hence, we need to run a conditional statement below in order
+        # to match the case when a certain key we want to substitute
+        # is unset, meaning that it has no 'value' subkey set, so, we
+        # need to match for the string right below it which is 'type: .*'
+        # In the case that indeed the 'source' subkey is set to anything
+        # else other than 'unset' we will match until the subkey 'value'
+        # and we can do the substitution for the whole match.
+        # No stars added to the substitution as this will look weird
+        # on the case that we hit the 'source: unset' case and wil show
+        # as 'source: unset********'.
+        juju_config_regex = (
+            r"(?m)(.*(%s):[\s\S]+?source: "
+            r"(unset)?(?(3)[\s\S]+?type: .*|[\s\S]+?value: )).*"
+            % "|".join(juju_config_keys)
+        )
 
-        if self.get_option("generate-bundle"):
-            self.add_cmd_output("juju deployerizer --include-charm-versions",
-                                suggest_filename="juju-env-bundle.yaml")
+        juju_config_subst = r"\1"
 
+        # Replace all Certificate / Private key information from files
+        self.do_cmd_private_sub('juju')
+
+        self.do_cmd_output_sub(
+            "*juju*config*yaml*", juju_config_regex, juju_config_subst
+        )
 
 # vim: set et ts=4 sw=4 :
