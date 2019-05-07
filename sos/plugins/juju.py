@@ -29,9 +29,8 @@ class Juju(Plugin, UbuntuPlugin):
     def collect_app_config(self, username, modelname, statusfilespath):
         statusinfo = {}
         try:
-            fp = open(statusfilespath, "r")
-            statusinfo = json_loads(fp.read())
-            fp.close()
+            with open(statusfilespath, 'r') as fd:
+                statusinfo = json_loads(fd.read())
         except Exception:
             return
         if "applications" in statusinfo:
@@ -48,9 +47,8 @@ class Juju(Plugin, UbuntuPlugin):
     def collect_model_output(self, username, modelsfilepath):
         modelsinfo = {}
         try:
-            fp = open(modelsfilepath, "r")
-            modelsinfo = json_loads(fp.read())
-            fp.close()
+            with open(modelsfilepath, 'r') as fd:
+                modelsinfo = json_loads(fd.read())
         except Exception:
             return
         if "models" in modelsinfo:
