@@ -21,10 +21,10 @@ class Maas(Plugin, UbuntuPlugin):
 
     option_list = [
         ('profile-name',
-         'The name with which you will later refer to this remote', '', False),
-        ('url', 'The URL of the remote API', '', False),
+         'The name with which you will later refer to this remote', '', ''),
+        ('url', 'The URL of the remote API', '', ''),
         ('credentials',
-         'The credentials, also known as the API key', '', False)
+         'The credentials, also known as the API key', '', '')
     ]
 
     def _has_login_options(self):

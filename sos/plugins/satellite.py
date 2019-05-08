@@ -14,6 +14,7 @@ class Satellite(Plugin, RedHatPlugin):
     """
 
     plugin_name = 'satellite'
+    plugin_timeout = 1200
     profiles = ('sysmgmt',)
     verify_packages = ('spacewalk.*',)
     satellite = False
