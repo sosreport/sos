@@ -6,19 +6,49 @@ sos.conf \- sosreport configuration
 sosreport uses a configuration file at /etc/sos.conf.
 .SH PARAMETERS
 .sp
-There are two sections in the sosreport configuration file:
-plugins, and tunables. Options are set using 'ini'-style
-\fBname = value\fP pairs.
+There are three sections in the sosreport configuration file:
+general, plugins and tunables. Options are set using 'ini'-style
+\fBname = value\fP pairs. Disabling/enabling a boolean option
+is done the same way like on command line (e.g. process.lsof=off).
 
 Some options accept a comma separated list of values.
 
+Using options that dont expect a value (like all-logs or no-report)
+will result in enabling those options, regardless of value set.
+
+Sections are parsed in the ordering:
+.br
+- \fB[general]\fP
+.br
+- \fB[plugins]\fP (disable)
+.br
+- \fB[plugins]\fP (enable)
+.br
+- \fB[tunables]\fP
+
+.TP
+\fB[general]\fP
+<option>      Sets (long) option value. Short options (i.e. z=auto)
+              are not supported.
 .TP
 \fB[plugins]\fP
-disable Comma separated list of plugins to disable.
+disable       Comma separated list of plugins to disable.
+.br
+enable        Comma separated list of plugins to enable.
 .TP
 \fB[tunables]\fP
 plugin.option Alter available options for defined plugin.
 .SH EXAMPLES
+To use quiet and batch mode with 10 threads:
+.LP
+[general]
+.br
+batch=yes
+.br
+build=true
+.br
+threads=10
+.sp
 To disable the 'general' and 'filesys' plugins:
 .LP
 [plugins]

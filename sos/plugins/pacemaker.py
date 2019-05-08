@@ -25,7 +25,7 @@ class Pacemaker(Plugin):
     )
 
     option_list = [
-        ("crm_from", "specify the start time for crm_report", "fast", False),
+        ("crm_from", "specify the start time for crm_report", "fast", ''),
         ("crm_scrub", "enable password scrubbing for crm_report", "", True),
     ]
 
@@ -87,7 +87,7 @@ class Pacemaker(Plugin):
         # time in order to collect data.
         crm_from = (datetime.today() -
                     timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
-        if self.get_option("crm_from") is not False:
+        if self.get_option("crm_from"):
             if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',
                         str(self.get_option("crm_from"))):
                 crm_from = self.get_option("crm_from")

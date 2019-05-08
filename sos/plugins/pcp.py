@@ -130,7 +130,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             pmlogger_ls = self.get_cmd_output_now("ls -t1 %s" % path)
             if pmlogger_ls:
                 for line in open(pmlogger_ls).read().splitlines():
-                    self.add_copy_spec(line, sizelimit=None)
+                    self.add_copy_spec(line, sizelimit=0)
                     files_collected = files_collected + 1
                     if self.countlimit and files_collected == self.countlimit:
                         break
