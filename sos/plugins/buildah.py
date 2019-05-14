@@ -47,7 +47,7 @@ class Buildah(Plugin, RedHatPlugin):
         if containahs['is_wicked_pissah']:
             for containah in containahs['auutput'].splitlines():
                 # obligatory Tom Brady
-                goat = containah.split()[4]
+                goat = containah.split()[-1]
                 self.add_cmd_output('buildah inspect -t container %s' % goat)
 
         pitchez = make_chowdah('buildah images -n')

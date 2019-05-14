@@ -70,7 +70,7 @@ class Unpackaged(Plugin, RedHatPlugin):
         all_fsystem = []
         all_frpm = set(os.path.realpath(x)
                        for x in self.policy.mangle_package_path(
-                       self.policy.package_manager.files))
+                       self.policy.package_manager.all_files()))
 
         for d in get_env_path_list():
             all_fsystem += all_files_system(d)
