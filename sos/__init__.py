@@ -56,7 +56,7 @@ _arg_names = [
     'label', 'list_plugins', 'list_presets', 'list_profiles', 'log_size',
     'noplugins', 'noreport', 'no_env_vars', 'note', 'onlyplugins',
     'plugin_timeout', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
-    'threads', 'tmp_dir', 'verbosity', 'verify'
+    'threads', 'tmp_dir', 'verbosity', 'verify', 'since'
 ]
 
 #: Arguments with non-zero default values
@@ -158,6 +158,7 @@ class SoSOptions(object):
         self.add_preset = ""
         self.alloptions = False
         self.all_logs = False
+        self.since = None
         self.batch = False
         self.build = False
         self.case_id = ""

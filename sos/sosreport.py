@@ -21,6 +21,7 @@ import os
 import errno
 import logging
 
+from datetime import datetime
 from argparse import ArgumentParser, Action
 from sos.plugins import import_plugin
 from sos.utilities import ImporterHelper, SoSTimeoutError
@@ -62,6 +63,14 @@ def _format_list(first_line, items, indent=False, sep=", "):
         line = line[:-len(sep)]
     lines.append(line)
     return lines
+
+
+def _format_since(date):
+    """ This function will format --since arg to append 0s if enduser
+    didn't. It's used in the _get_parser.
+    This will also be a good place to add human readable and relative
+    date parsing (like '2 days ago') in the future """
+    return datetime.strptime('{:<014s}'.format(date), '%Y%m%d%H%M%S')
 
 
 class TempFileUtil(object):
@@ -126,6 +135,12 @@ def _get_parser():
                         dest="all_logs", default=False,
                         help="collect all available logs regardless "
                              "of size")
+    parser.add_argument("--since", action="store",
+                        dest="since", default=None,
+                        type=_format_since,
+                        help="Escapes archived files older than date. "
+                             "This will also affect --all-logs. "
+                             "Format: YYYYMMDD[HHMMSS]")
     parser.add_argument("--batch", action="store_true",
                         dest="batch", default=False,
                         help="batch mode - do not prompt interactively")
@@ -302,6 +317,7 @@ class SoSReport(object):
                 sys.stderr.write("Unknown preset: '%s'\n" % self.opts.preset)
                 self.preset = self.policy.probe_preset()
                 self.opts.list_presets = True
+
         # --preset=auto
         if not self.preset:
             self.preset = self.policy.probe_preset()

@@ -52,7 +52,8 @@ class Logs(Plugin):
                 self.add_copy_spec(i)
 
         if self.get_option('all_logs'):
-            self.add_journal(boot="this", allfields=True, output="verbose")
+            self.add_journal(boot="this", since=self.get_option("since"),
+                             allfields=True, output="verbose")
             self.add_journal(boot="last", allfields=True, output="verbose")
 
     def postproc(self):
@@ -95,8 +96,8 @@ class RedHatLogs(Logs, RedHatPlugin):
                 days = int(self.get_option("log_days"))
             except ValueError:
                 days = 3
-            if self.get_option("all_logs"):
-                since = ""
+            if self.get_option("all_logs") and self.get_options("since"):
+                since = self.get_options("since")
             else:
                 since = "-%ddays" % days
             self.add_journal(since=since)
@@ -122,7 +123,7 @@ class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
 
         if journal and self.is_installed("systemd"):
             if self.get_option("all_logs"):
-                since = ""
+                since = self.get_options("since")
             else:
                 since = "-%ddays" % days
             self.add_journal(since=since)

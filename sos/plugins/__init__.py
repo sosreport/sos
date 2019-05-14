@@ -26,6 +26,7 @@ import errno
 # PYCOMPAT
 import six
 from six.moves import zip, filter
+from datetime import datetime
 
 # FileNotFoundError does not exist in 2.7, so map it to IOError
 try:
@@ -747,7 +748,8 @@ class Plugin(object):
         matches any of the option names is returned.
         """
 
-        global_options = ('verify', 'all_logs', 'log_size', 'plugin_timeout')
+        global_options = ('verify', 'all_logs', 'log_size', 'since',
+                          'plugin_timeout')
 
         if optionname in global_options:
             return getattr(self.commons['cmdlineopts'], optionname)
@@ -774,11 +776,20 @@ class Plugin(object):
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
-    def add_copy_spec(self, copyspecs, sizelimit=None, tailit=True, pred=None):
-        """Add a file or glob but limit it to sizelimit megabytes. If fname is
-        a single file the file will be tailed to meet sizelimit. If the first
-        file in a glob is too large it will be tailed to meet the sizelimit.
+    def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
+                      tailit=True, pred=None):
+        """Add a file or glob but limit it to sizelimit megabytes. Collect
+        files with mtime not older than maxage hours.
+        If fname is a single file the file will be tailed to meet sizelimit.
+        If the first file in a glob is too large it will be tailed to meet
+        the sizelimit.
         """
+        since = None
+        if self.get_option('since'):
+            since = self.get_option('since')
+
+        logarchive_pattern = re.compile(r'.*((\.(zip|gz|bz2|xz))|[-.][\d]+)$')
+
         if not self.test_predicate(pred=pred):
             self._log_info("skipped copy spec '%s' due to predicate (%s)" %
                            (copyspecs, self.get_predicate(pred=pred)))
@@ -819,6 +830,21 @@ class Plugin(object):
                 except OSError:
                     return 0
 
+            def time_filter(path):
+                """ When --since is passed, or maxage is coming from the
+                plugin, we need to filter out older files """
+
+                if logarchive_pattern.search(path) is None:
+                    return True
+                filetime = datetime.fromtimestamp(getmtime(path))
+                if ((since and filetime < since) or
+                   (maxage and (time()-filetime < maxage*3600))):
+                    return False
+                return True
+
+            if since or maxage:
+                files = list(filter(lambda f: time_filter(f), files))
+
             files.sort(key=getmtime, reverse=True)
             current_size = 0
             limit_reached = False
@@ -829,12 +855,16 @@ class Plugin(object):
                     self._log_debug("skipping forbidden path '%s'" % _file)
                     continue
                 try:
-                    current_size += os.stat(_file)[stat.ST_SIZE]
+                    filestat = os.stat(_file)
                 except OSError:
                     self._log_info("failed to stat '%s'" % _file)
+                    continue
+                current_size += filestat[stat.ST_SIZE]
+
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
                     break
+
                 self._add_copy_paths([_file])
 
             if limit_reached and tailit and not _file_is_compressed(_file):
@@ -1111,7 +1141,7 @@ class Plugin(object):
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
         boot_opt = " --boot %s"
-        since_opt = " --since %s"
+        since_opt = " --since '%s'"
         until_opt = " --until %s"
         lines_opt = " --lines %s"
         output_opt = " --output %s"
