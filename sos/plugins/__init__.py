@@ -26,6 +26,7 @@ import errno
 # PYCOMPAT
 import six
 from six.moves import zip, filter
+from datetime import datetime
 
 # FileNotFoundError does not exist in 2.7, so map it to IOError
 try:
@@ -724,7 +725,8 @@ class Plugin(object):
         matches any of the option names is returned.
         """
 
-        global_options = ('verify', 'all_logs', 'log_size', 'plugin_timeout')
+        global_options = ('verify', 'all_logs', 'since' 'log_size',
+                          'plugin_timeout')
 
         if optionname in global_options:
             return getattr(self.commons['cmdlineopts'], optionname)
@@ -806,13 +808,27 @@ class Plugin(object):
                     self._log_debug("skipping forbidden path '%s'" % _file)
                     continue
                 try:
-                    current_size += os.stat(_file)[stat.ST_SIZE]
+                    filestat  = os.stat(_file)
                 except OSError:
                     self._log_info("failed to stat '%s'" % _file)
+                    continue
+                current_size += filestat[stat.ST_SIZE]
+                filetime = datetime.fromtimestamp(filestat[stat.ST_MTIME])
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
                     break
-                self._add_copy_paths([_file])
+
+                if _file.endswith('.gz') or re.search(r'-\d{8}$', _file):
+                    fileisarchive = True
+                else:
+                    fileisarchive = False
+
+                if (self.get_option('since') is None or
+                    fileisarchive is False or
+                    (fileisarchive is True and
+                     self.get_option('since') is not None  and
+                     self.get_option('since') <= filetime)):
+                    self._add_copy_paths([_file])
 
             if limit_reached and tailit and not _file_is_compressed(_file):
                 file_name = _file
@@ -1081,7 +1097,7 @@ class Plugin(object):
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
         boot_opt = " --boot %s"
-        since_opt = " --since %s"
+        since_opt = " --since '%s'"
         until_opt = " --until %s"
         lines_opt = " --lines %s"
         output_opt = " --output %s"
