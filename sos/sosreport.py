@@ -21,6 +21,7 @@ import os
 import errno
 import logging
 
+from datetime import datetime
 from argparse import ArgumentParser, Action
 from sos.plugins import import_plugin
 from sos.utilities import ImporterHelper, SoSTimeoutError
@@ -126,6 +127,11 @@ def _get_parser():
                         dest="all_logs", default=False,
                         help="collect all available logs regardless "
                              "of size")
+    parser.add_argument("--since", action="store",
+                        dest="since", default=None,
+                        type=lambda d: datetime.strptime(d, '%Y%m%d%H%M%S'),
+                        help="Use in conjunction with --all-logs, only"
+                             " grab files since date. Format: YYYYMMDDHHMMSS")
     parser.add_argument("--batch", action="store_true",
                         dest="batch", default=False,
                         help="batch mode - do not prompt interactively")
@@ -296,6 +302,12 @@ class SoSReport(object):
                 sys.stderr.write("Unknown preset: '%s'\n" % self.opts.preset)
                 self.preset = self.policy.probe_preset()
                 self.opts.list_presets = True
+
+        # --since depends on --all-logs
+        if self.opts.since is not None and self.opts.all_logs is False:
+            sys.stderr.write("--since can only be used with --all-logs\n")
+            self._exit(1)
+
         # --preset=auto
         if not self.preset:
             self.preset = self.policy.probe_preset()
