@@ -186,6 +186,9 @@ def _get_parser():
     parser.add_argument("--no-report", action="store_true",
                         dest="noreport",
                         help="disable plaintext/HTML reporting", default=False)
+    parser.add_argument("--no-env-vars", action="store_true", default=False,
+                        dest="no_env_vars",
+                        help="Do not collect environment variables")
     parser.add_argument("--note", type=str, action="store", default="",
                         help="Behaviour notes for new preset")
     parser.add_argument("-o", "--only-plugins", action="extend",
@@ -251,6 +254,7 @@ class SoSReport(object):
         self.loaded_plugins = []
         self.skipped_plugins = []
         self.all_options = []
+        self.env_vars = set()
         self.archive = None
         self.tempfile_util = None
         self._args = args
@@ -264,6 +268,8 @@ class SoSReport(object):
             signal.signal(signal.SIGTERM, self.get_exit_handler())
         except Exception:
             pass  # not available in java, but we don't care
+
+        self.print_header()
 
         # load default options and store them in self.opts
         parser = _get_parser()
@@ -353,8 +359,7 @@ class SoSReport(object):
             self._exit(1)
 
     def print_header(self):
-        self.ui_log.info("\n%s\n" % _("sosreport (version %s)" %
-                                      (__version__,)))
+        print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))
 
     def get_commons(self):
         return {
@@ -943,6 +948,7 @@ class SoSReport(object):
             try:
                 plug.archive = self.archive
                 plug.setup()
+                self.env_vars.update(plug._env_vars)
                 if self.opts.verify:
                     plug.setup_verify()
             except KeyboardInterrupt:
@@ -1073,6 +1079,16 @@ class SoSReport(object):
         if not self.opts.quiet:
             sys.stdout.write(status_line)
             sys.stdout.flush()
+
+    def collect_env_vars(self):
+        if not self.env_vars:
+            return
+        env = '\n'.join([
+            "%s=%s" % (name, val) for (name, val) in
+            [(name, '%s' % os.environ.get(name)) for name in self.env_vars if
+             os.environ.get(name) is not None]
+        ]) + '\n'
+        self.archive.add_string(env, 'environment')
 
     def plain_report(self):
         report = Report()
@@ -1340,7 +1356,6 @@ class SoSReport(object):
     def execute(self):
         try:
             self.policy.set_commons(self.get_commons())
-            self.print_header()
             self.load_plugins()
             self._set_all_options()
             self._set_tunables()
@@ -1368,6 +1383,8 @@ class SoSReport(object):
             self.prework()
             self.setup()
             self.collect()
+            if not self.opts.no_env_vars:
+                self.collect_env_vars()
             if not self.opts.noreport:
                 self.html_report()
                 self.plain_report()

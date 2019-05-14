@@ -66,17 +66,10 @@ class RedHatPolicy(LinuxPolicy):
         self.valid_subclasses = [RedHatPlugin]
 
         self.pkgs = self.package_manager.all_pkgs()
-        files = self.package_manager.all_files()
 
         # If rpm query failed, exit
         if not self.pkgs:
             print("Could not obtain installed package list", file=sys.stderr)
-            sys.exit(1)
-
-        # If the files rpm query failed, exit
-        if not files:
-            print("Could not obtain the files list known to the package \
-                  manager", file=sys.stderr)
             sys.exit(1)
 
         self.usrmove = self.check_usrmove(self.pkgs)

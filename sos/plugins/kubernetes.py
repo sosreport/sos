@@ -10,7 +10,10 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin
+from fnmatch import translate
 from os import path
+
+import re
 
 
 class kubernetes(Plugin, RedHatPlugin):
@@ -35,6 +38,8 @@ class kubernetes(Plugin, RedHatPlugin):
         ("describe", "capture descriptions of all kube resources",
             'fast', False),
         ("podlogs", "capture logs for pods", 'slow', False),
+        ("podlogs-filter", "only capture logs for pods matching this string",
+            'fast', '')
     ]
 
     def check_is_master(self):
@@ -134,7 +139,12 @@ class kubernetes(Plugin, RedHatPlugin):
                 if r['status'] == 0:
                     pods = [p.split()[0] for p in
                             r['output'].splitlines()[1:]]
+                    # allow shell-style regex
+                    reg = (translate(self.get_option('podlogs-filter')) if
+                           self.get_option('podlogs-filter') else None)
                     for pod in pods:
+                        if reg and not re.match(reg, pod):
+                            continue
                         self.add_cmd_output('%s logs %s' % (k_cmd, pod))
 
         if not self.get_option('all'):
