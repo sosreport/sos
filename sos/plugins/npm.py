@@ -19,7 +19,6 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
     Get info about available npm modules
     """
 
-    requires_root = False
     plugin_name = 'npm'
     profiles = ('system',)
     option_list = [("project_path",
