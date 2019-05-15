@@ -33,3 +33,9 @@ class Host(Plugin, RedHatPlugin, DebianPlugin):
             '/etc/sos.conf',
             '/etc/hostid',
         ])
+
+        self.add_env_var([
+            'REMOTEHOST',
+            'TERM',
+            'COLORTERM'
+        ])
