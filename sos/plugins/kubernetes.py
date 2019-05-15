@@ -49,6 +49,13 @@ class kubernetes(Plugin, RedHatPlugin):
         self.add_copy_spec("/etc/kubernetes")
         self.add_copy_spec("/var/run/flannel")
 
+        self.add_env_var([
+            'KUBECONFIG',
+            'KUBERNETES_HTTP_PROXY',
+            'KUBERNETES_HTTPS_PROXY',
+            'KUBERNETES_NO_PROXY'
+        ])
+
         svcs = [
             'kubelet',
             'kube-apiserver',
