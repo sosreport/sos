@@ -33,6 +33,15 @@ class Docker(Plugin):
             "/var/lib/docker/repositories-*"
         ])
 
+        self.add_env_var([
+            'HTTP_PROXY',
+            'HTTPS_PROXY',
+            'NO_PROXY',
+            'ALL_PROXY',
+            'DOCKER_BUILD_PROXY',
+            'DOCKER_RUN_PROXY'
+        ])
+
         self.add_journal(units="docker")
         self.add_cmd_output("ls -alhR /etc/docker")
 
