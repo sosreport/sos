@@ -27,4 +27,6 @@ class Dbus(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "busctl status"
         ])
 
+        self.add_env_var('DBUS_SESSION_BUS_ADDRESS')
+
 # vim: set et ts=4 sw=4 :
