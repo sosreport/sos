@@ -25,6 +25,12 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
         if self.get_option("ldconfigv"):
             self.add_cmd_output("ldconfig -v -N -X")
 
+        self.add_env_var([
+            'PATH',
+            'LD_LIBRARY_PATH',
+            'LD_PRELOAD'
+        ])
+
         ldconfig_file = self.get_cmd_output_now("ldconfig -p -N -X")
 
         if not ldconfig_file:
