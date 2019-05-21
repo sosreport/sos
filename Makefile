@@ -46,7 +46,7 @@ install:
 	mkdir -p $(DESTDIR)/usr/share/$(NAME)/extras
 	@gzip -c man/en/sosreport.1 > sosreport.1.gz
 	@gzip -c man/en/sos.conf.5 > sos.conf.5.gz
-	mkdir -p $(DESTDIR)/etc
+	mkdir -p $(DESTDIR)/etc/sos.extras.d
 	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
 	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
