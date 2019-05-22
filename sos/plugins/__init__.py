@@ -959,20 +959,27 @@ class Plugin(object):
         if subdir:
             # only allow a single level of subdir to be created
             plugin_dir += "/%s" % subdir.split('/')[0]
-        outfn = os.path.join(self.commons['cmddir'], plugin_dir,
-                             self._mangle_command(exe))
+        outdir = os.path.join(self.commons['cmddir'], plugin_dir)
+        outfn = self._mangle_command(exe)
 
         # check for collisions
-        if os.path.exists(outfn):
-            inc = 2
+        if os.path.exists(os.path.join(self.archive.get_tmp_dir(),
+                                       outdir, outfn)):
+            inc = 1
+            name_max = self.archive.name_max()
             while True:
-                newfn = "%s_%d" % (outfn, inc)
-                if not os.path.exists(newfn):
+                suffix = ".%d" % inc
+                newfn = outfn
+                if name_max < len(newfn)+len(suffix):
+                    newfn = newfn[:(name_max-len(newfn)-len(suffix))]
+                newfn = newfn + suffix
+                if not os.path.exists(os.path.join(self.archive.get_tmp_dir(),
+                                                   outdir, newfn)):
                     outfn = newfn
                     break
                 inc += 1
 
-        return outfn
+        return os.path.join(outdir, outfn)
 
     def add_env_var(self, name):
         """Add an environment variable to the list of to-be-collected env vars.
