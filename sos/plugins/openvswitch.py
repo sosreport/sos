@@ -90,7 +90,9 @@ class OpenVSwitch(Plugin):
             # Capture DPDK queue to pmd mapping
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
-            "ovs-appctl dpif-netdev/pmd-stats-show"
+            "ovs-appctl dpif-netdev/pmd-stats-show",
+            # Capture DPDK pmd performance counters
+            "ovs-appctl dpif-netdev/pmd-perf-show"
         ])
 
         # Gather systemd services logs
