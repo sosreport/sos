@@ -26,6 +26,8 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ("with-timer", "gather /proc/timer* statistics", "slow", False)
     ]
 
+    trace_timeout = 60
+
     def get_bpftool_prog_ids(self, prog_file):
         out = []
         try:
@@ -86,6 +88,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         # FIXME: provide a a long-term solution for #1299
         self.add_forbidden_path([
+            '/sys/kernel/debug/tracing/trace',
             '/sys/kernel/debug/tracing/trace_pipe',
             '/sys/kernel/debug/tracing/README',
             '/sys/kernel/debug/tracing/trace_stat/*',
@@ -132,6 +135,12 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource"
         ])
+
+        if self.get_option('all_logs'):
+            self.trace_timeout=0
+
+        self.add_cmd_output("cat /sys/kernel/debug/tracing/trace",
+                            timeout=self.trace_timeout)
 
         if self.get_option("with-timer"):
             # This can be very slow, depending on the number of timers,
