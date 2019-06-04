@@ -548,6 +548,35 @@ class Plugin(object):
             replacements = None
         return replacements
 
+    def do_file_private_sub(self, pathregex):
+        '''Scrub certificate/key/etc information from files collected by sos.
+
+        Files matching the provided pathregex are searched for content that
+        resembles certificate, ssh keys, or similar information. Any matches
+        are replaced with "-----SCRUBBED $thing" where $thing is the specific
+        type of content being replaced, e.g. "-----SCRUBBED RSA PRIVATE KEY" so
+        that support representatives can at least be informed of what type of
+        content it was originally.
+
+        Positional arguments:
+            :param pathregex: A string or regex of a filename to match against
+        '''
+        certmatch = re.compile("-*BEGIN.*?-*END", re.DOTALL)
+        match = re.compile(pathregex).match
+        file_list = [f for f in self.copied_files if match(f['srcpath'])]
+        for i in file_list:
+            path = i['dstpath']
+            if not path:
+                continue
+            self._log_debug("Scrubbing %s for certificate content" % path)
+            readable = self.archive.open_file(path)
+            content = readable.read()
+            if not isinstance(content, six.string_types):
+                content = content.decode('utf-8', 'ignore')
+            result, replacements = certmatch.subn('-----SCRUBBED', content)
+            if replacements:
+                self.archive.add_string(result, path)
+
     def do_file_sub(self, srcpath, regexp, subst):
         '''Apply a regexp substitution to a file archived by sosreport.
         srcpath is the path in the archive where the file can be found.  regexp
