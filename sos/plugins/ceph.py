@@ -65,7 +65,9 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph pg dump",
             "ceph health detail --format json-pretty",
             "ceph osd crush show-tunables",
-            "ceph-disk list"
+            "ceph-disk list",
+            "ceph versions",
+            "ceph osd crush dump"
         ])
 
         self.add_forbidden_path([
