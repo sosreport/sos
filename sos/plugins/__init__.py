@@ -63,7 +63,7 @@ def _mangle_command(command, name_max):
 
 
 def _path_in_path_list(path, path_list):
-    return any(p in path for p in path_list)
+    return any(p == path for p in path_list)
 
 
 def _node_type(st):
