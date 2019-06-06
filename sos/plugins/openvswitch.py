@@ -14,6 +14,7 @@ from os.path import join as path_join
 from os import environ
 import re
 
+
 class OpenVSwitch(Plugin):
     """ OpenVSwitch networking
     """
@@ -43,14 +44,19 @@ class OpenVSwitch(Plugin):
             "/var/run/openvswitch/ovs-vswitchd.pid"
         ])
         # Collect ovs-vswitchd's pmd thread details in procfs.
-        pid = open("/var/run/openvswitch/ovs-vswitchd.pid").read().splitlines()[0]
+        pid = open("/var/run/openvswitch/ovs-vswitchd.pid").read()\
+            .splitlines()[0]
         # List TID & thread command name.
         ps_tidlist_cmd = "ps -p %s -Lo tid=,comm= " % pid
-        tid_list = filter( re.compile(r'pmd').search ,  self.call_ext_prog(ps_tidlist_cmd)['output'].splitlines() )
-        # filter out list elements with string 'pmd' & if not empty, capture process details.
+        tid_list = filter(
+                re.compile(r'pmd').search,
+                self.call_ext_prog(ps_tidlist_cmd)['output'].splitlines())
+        # filter out list elements with string 'pmd' & if not empty,
+        # capture process details.
         if tid_list:
             for tid in tid_list:
-                for pf in ["environ", "cgroup", "maps", "numa_maps", "limits","status"]:
+                for pf in ["environ", "cgroup", "maps", "numa_maps",
+                           "limits", "status"]:
                     self.add_copy_spec("/proc/%s/%s" % (tid.split()[0], pf))
 
         self.add_cmd_output([
@@ -100,9 +106,11 @@ class OpenVSwitch(Plugin):
             # Capture DPDK queue to pmd mapping
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
-            "ovs-appctl dpif-netdev/pmd-stats-show"
+            "ovs-appctl dpif-netdev/pmd-stats-show",
             # Collect ovs-vswitchd thread details in ps command.
-            "ps -p %s -Lo pid,tid,user,pcpu,psr,trs,rss,size,sz,drs,vsz,maj_flt,min_flt,class,rtprio,ni,pri,s,stat,wchan,flags,comm" % pid
+            "ps -p %s -Lo \
+pid,tid,user,pcpu,psr,trs,rss,size,sz,drs,vsz,maj_flt,\
+min_flt,class,rtprio,ni,pri,s,stat,wchan,flags,comm" % pid
         ])
 
         # Gather systemd services logs
