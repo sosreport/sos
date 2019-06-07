@@ -84,9 +84,6 @@ class OpenStackOctavia(Plugin):
                 "openstack loadbalancer member list %s" % (pool)
             )
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
     def postproc(self):
         protect_keys = [
             "ca_private_key_passphrase", "heartbeat_key", "password",

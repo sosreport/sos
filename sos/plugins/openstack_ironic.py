@@ -60,9 +60,6 @@ class OpenStackIronic(Plugin):
             self.add_cmd_output('ls -laRt %s' % path)
             self.add_cmd_output('ls -laRt %s' % (self.var_puppet_gen + path))
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
 

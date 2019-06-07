@@ -47,9 +47,6 @@ class OpenStackHorizon(Plugin):
         ])
         self.add_forbidden_path("*.py[co]")
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
     def postproc(self):
         var_puppet_gen = self.var_puppet_gen + "/horizon"
         protect_keys = [

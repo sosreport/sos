@@ -39,9 +39,6 @@ class OpenStackTrove(Plugin):
             self.var_puppet_gen + '/etc/trove/'
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/trove/*", regexp, subst)
         self.do_path_regex_sub(

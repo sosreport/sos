@@ -39,8 +39,6 @@ class OpenStackCeilometer(Plugin):
             "/etc/ceilometer/*",
             self.var_puppet_gen + "/etc/ceilometer/*"
         ])
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/ceilometer/*", regexp, subst)
