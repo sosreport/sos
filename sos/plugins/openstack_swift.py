@@ -45,9 +45,6 @@ class OpenStackSwift(Plugin):
             self.var_puppet_gen + "/memcached/etc/sysconfig/memcached"
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub(r"/etc/swift/.*\.conf.*", regexp, subst)
         self.do_path_regex_sub(
