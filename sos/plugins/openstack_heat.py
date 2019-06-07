@@ -89,9 +89,6 @@ class OpenStackHeat(Plugin):
             self.var_puppet_gen + "_api_cfn/var/spool/cron/heat",
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
     def running_in_container(self):
         for runtime in ["docker", "podman"]:
             container_status = self.get_command_output(runtime + " ps")

@@ -44,9 +44,6 @@ class OpenStackGlance(Plugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
         # collect commands output only if the openstack-glance-api service
         # is running
         service_status = self.get_command_output(

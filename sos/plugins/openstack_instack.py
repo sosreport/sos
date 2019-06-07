@@ -35,8 +35,6 @@ class OpenStackInstack(Plugin):
 
     def setup(self):
         self.add_copy_spec(NON_CONTAINERIZED_DEPLOY + CONTAINERIZED_DEPLOY)
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
