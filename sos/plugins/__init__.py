@@ -750,7 +750,10 @@ class Plugin(object):
         matches any of the option names is returned.
         """
 
-        global_options = ('verify', 'all_logs', 'log_size', 'plugin_timeout')
+        global_options = (
+            'all_logs', 'allow_system_changes', 'log_size', 'plugin_timeout',
+            'verify'
+        )
 
         if optionname in global_options:
             return getattr(self.commons['cmdlineopts'], optionname)
