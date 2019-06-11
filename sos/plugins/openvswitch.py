@@ -82,6 +82,10 @@ class OpenVSwitch(Plugin):
             "ovs-vsctl -t 5 get Open_vSwitch . other_config",
             # Capture OVS list
             "ovs-vsctl list Open_vSwitch",
+            # Capture OVS interface list
+            "ovs-vsctl list interface",
+            # Capture OVS detailed information from all the bridges
+            "ovs-vsctl list bridge",
             # Capture DPDK datapath packet counters and config
             "ovs-appctl dpctl/show -s",
             # Capture DPDK datapath flows
