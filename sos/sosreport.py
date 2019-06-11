@@ -221,6 +221,10 @@ def _get_parser():
     parser.add_argument("-t", "--threads", action="store", dest="threads",
                         help="specify number of concurrent plugins to run"
                         " (default=4)", default=4, type=int)
+    parser.add_argument("--allow-system-changes", action="store_true",
+                        dest="allow_system_changes", default=False,
+                        help="Run commands even if they can change the "
+                             "system (e.g. load kernel modules)")
 
     # Group to make add/del preset exclusive
     preset_grp = parser.add_mutually_exclusive_group()
