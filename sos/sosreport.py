@@ -457,7 +457,7 @@ class SoSReport(object):
         self.soslog.addHandler(flog)
 
         if not self.opts.quiet:
-            console = logging.StreamHandler(sys.stderr)
+            console = logging.StreamHandler(sys.stdout)
             console.setFormatter(logging.Formatter('%(message)s'))
             if self.opts.verbosity and self.opts.verbosity > 1:
                 console.setLevel(logging.DEBUG)
@@ -468,6 +468,11 @@ class SoSReport(object):
             else:
                 console.setLevel(logging.WARNING)
             self.soslog.addHandler(console)
+            # log ERROR or higher logs to stderr instead
+            console_err = logging.StreamHandler(sys.stderr)
+            console_err.setFormatter(logging.Formatter('%(message)s'))
+            console_err.setLevel(logging.ERROR)
+            self.soslog.addHandler(console_err)
 
         # ui log
         self.ui_log = logging.getLogger('sos_ui')
