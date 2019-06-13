@@ -19,14 +19,6 @@ from sos.policies import LinuxPolicy, PackageManager, PresetDefaults
 from sos import _sos as _
 from sos import SoSOptions
 
-sys.path.insert(0, "/usr/share/rhn/")
-try:
-    from up2date_client import up2dateAuth
-    from rhn import rpclib
-except ImportError:
-    # might fail if non-RHEL
-    pass
-
 OS_RELEASE = "/etc/os-release"
 
 
@@ -174,9 +166,6 @@ class RedHatPolicy(LinuxPolicy):
             return self._tmp_dir
         return opt_tmp_dir
 
-    def get_local_name(self):
-        return self.host_name()
-
 
 # Container environment variables on Red Hat systems.
 ENV_CONTAINER = 'container'
@@ -304,18 +293,6 @@ support representative.
         except Exception:
             pass
         return False
-
-    def rhn_username(self):
-        try:
-            rhn_username = rpclib.xmlrpclib.loads(
-                up2dateAuth.getSystemId())[0][0]['username']
-            return rhn_username.encode('utf-8', 'ignore')
-        except Exception:
-            # ignore any exception and return an empty username
-            return ""
-
-    def get_local_name(self):
-        return self.rhn_username() or self.host_name()
 
     def probe_preset(self):
         # Package based checks
