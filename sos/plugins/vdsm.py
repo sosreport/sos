@@ -70,7 +70,8 @@ class Vdsm(Plugin, RedHatPlugin):
         self.add_copy_spec([
             '/tmp/vds_installer*',
             '/tmp/vds_bootstrap*',
-            '/etc/vdsm/*'
+            '/etc/vdsm/*',
+            '/etc/pki/vdsm/certs/'
         ])
 
         self.add_copy_spec('/var/log/vdsm/*')
@@ -79,7 +80,7 @@ class Vdsm(Plugin, RedHatPlugin):
         self.add_copy_spec([
             '/var/run/vdsm/*',
             '/usr/libexec/vdsm/hooks',
-            '/var/lib/vdsm'
+            '/var/lib/vdsm',
         ])
 
         qemu_pids = self.get_process_pids('qemu-kvm')
