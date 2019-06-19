@@ -20,7 +20,7 @@ class TarFileArchiveTest(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         enc = {'encrypt': False}
-        self.tf = TarFileArchive('test', self.tmpdir, Policy(), 1, enc)
+        self.tf = TarFileArchive('test', self.tmpdir, Policy(), 1, enc, '/')
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)

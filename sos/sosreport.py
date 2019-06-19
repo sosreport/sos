@@ -379,12 +379,12 @@ class SoSReport(object):
             auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir,
                                         self.policy, self.opts.threads,
-                                        enc_opts)
+                                        enc_opts, self.sysroot)
 
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir,
                                           self.policy, self.opts.threads,
-                                          enc_opts)
+                                          enc_opts, self.sysroot)
 
         self.archive.set_debug(True if self.opts.debug else False)
 
