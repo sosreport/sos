@@ -73,13 +73,14 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
         for container in containers:
             self.add_cmd_output("crictl inspect %s" % container)
             if self.get_option('logs'):
-                self.add_cmd_output("crictl logs -t %s" % container)
+                self.add_cmd_output("crictl logs -t %s" % container,
+                                    subdir="containers")
 
         for image in images:
-            self.add_cmd_output("crictl inspecti %s" % image)
+            self.add_cmd_output("crictl inspecti %s" % image, subdir="images")
 
         for pod in pods:
-            self.add_cmd_output("crictl inspectp %s" % pod)
+            self.add_cmd_output("crictl inspectp %s" % pod, subdir="pods")
 
     def _get_crio_list(self, cmd):
         ret = []
@@ -88,7 +89,7 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
             for ent in result['output'].splitlines():
                 ret.append(ent)
             # Prevent the socket deprecation warning from being iterated over
-            if 'deprecated' in ret[0]:
+            if ret and 'deprecated' in ret[0]:
                 ret.pop(0)
         return ret
 
