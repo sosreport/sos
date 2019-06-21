@@ -1008,7 +1008,8 @@ class Plugin(object):
     def _get_cmd_output_now(self, cmd, suggest_filename=None,
                             root_symlink=False, timeout=300, stderr=True,
                             chroot=True, runat=None, env=None,
-                            binary=False, sizelimit=None, subdir=None):
+                            binary=False, sizelimit=None, subdir=None,
+                            content=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
@@ -1037,8 +1038,11 @@ class Plugin(object):
         # save info for later
         self.executed_commands.append({'exe': cmd, 'file': outfn_strip,
                                        'binary': 'yes' if binary else 'no'})
-
-        return os.path.join(self.archive.get_archive_path(), outfn)
+        fname = os.path.join(self.archive.get_archive_path(), outfn)
+        if content:
+            result['filename'] = fname
+            return result
+        return fname
 
     def get_cmd_output_now(self, exe, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
@@ -1055,7 +1059,25 @@ class Plugin(object):
         return self._get_cmd_output_now(exe, timeout=timeout, stderr=stderr,
                                         chroot=chroot, runat=runat,
                                         env=env, binary=binary,
-                                        sizelimit=sizelimit)
+                                        sizelimit=sizelimit, content=False)
+
+    def get_cmd_content_now(self, exe, timeout=300, root_symlink=False,
+                            suggest_filename=None, stderr=True, chroot=True,
+                            runat=None, env=None, binary=False, sizelimit=None,
+                            pred=None, subdir=None):
+        """Execute a command and save the output to a file then return the
+        output of the command
+        """
+        if not self.test_predicate(cmd=True, pred=pred):
+            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
+                           (exe, self.get_predicate(cmd=True, pred=pred)))
+            return None
+
+        return self._get_cmd_output_now(exe, timeout=timeout, stderr=stderr,
+                                        chroot=chroot, runat=runat, env=env,
+                                        binary=binary, sizelimit=sizelimit,
+                                        suggest_filename=suggest_filename,
+                                        subdir=subdir, content=True)
 
     def is_module_loaded(self, module_name):
         """Return whether specified moudle as module_name is loaded or not"""
