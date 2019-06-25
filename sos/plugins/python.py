@@ -23,6 +23,7 @@ class Python(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_cmd_output("python -V", suggest_filename="python-version")
+        self.add_cmd_output("pip list")
 
 
 class RedHatPython(Python, RedHatPlugin):
@@ -31,6 +32,7 @@ class RedHatPython(Python, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output(['python2 -V', 'python3 -V'])
+        self.add_cmd_output("pip list")
         if isinstance(self.policy, sos.policies.redhat.RHELPolicy) and \
                 self.policy.dist_version() > 7:
             self.add_cmd_output(
