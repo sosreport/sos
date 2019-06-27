@@ -138,6 +138,10 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             # and may also cause softlockups
             self.add_copy_spec("/proc/timer*")
 
+        # collect list of bpf program attachments in the kernel
+        # networking subsystem
+        self.add_cmd_output("bpftool net list")
+
         # collect list of eBPF programs and maps and their dumps
         prog_file = self.get_cmd_output_now("bpftool -j prog list")
         for prog_id in self.get_bpftool_prog_ids(prog_file):
