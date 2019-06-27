@@ -232,6 +232,11 @@ class FileCacheArchive(Archive):
                     dest = self._make_leading_paths(target_src, mode=mode)
                     dest = os.path.normpath(dest)
 
+                    # In case symlink target is an absolute path, make it
+                    # relative to the directory with symlink source
+                    if os.path.isabs(target):
+                        target = os.path.relpath(target, target_dir)
+
                     self.log_debug("Making symlink '%s' -> '%s'" %
                                    (abs_path, target))
                     os.symlink(target, abs_path)
