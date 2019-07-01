@@ -115,6 +115,7 @@ class Ipa(Plugin, RedHatPlugin):
             "/var/lib/certmonger/requests/[0-9]*",
             "/var/lib/certmonger/cas/[0-9]*",
             "/var/lib/ipa/ra-agent.pem",
+            "/var/lib/ipa/certs/httpd.crt",
             "/var/kerberos/krb5kdc/kdc.crt",
             "/var/lib/ipa/sysrestore/sysrestore.state"
         ])
