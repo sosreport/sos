@@ -822,32 +822,40 @@ class Plugin(object):
             files.sort(key=getmtime, reverse=True)
             current_size = 0
             limit_reached = False
-            _file = None
 
             for _file in files:
                 if self._is_forbidden_path(_file):
                     self._log_debug("skipping forbidden path '%s'" % _file)
                     continue
+                if limit_reached:
+                    self._log_info("skipping '%s' over size limit" % _file)
+                    continue
+
                 try:
                     current_size += os.stat(_file)[stat.ST_SIZE]
                 except OSError:
                     self._log_info("failed to stat '%s'" % _file)
+
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
-                    break
-                self._add_copy_paths([_file])
-
-            if limit_reached and tailit and not _file_is_compressed(_file):
-                file_name = _file
-
-                if file_name[0] == os.sep:
-                    file_name = file_name.lstrip(os.sep)
-                strfile = file_name.replace(os.path.sep, ".") + ".tailed"
-                self.add_string_as_file(tail(_file, sizelimit), strfile)
-                rel_path = os.path.relpath('/', os.path.dirname(_file))
-                link_path = os.path.join(rel_path, 'sos_strings',
-                                         self.name(), strfile)
-                self.archive.add_link(link_path, _file)
+                    if tailit and not _file_is_compressed(_file):
+                        self._log_info("collecting tail of '%s' due to size "
+                                       "limit" % _file)
+                        file_name = _file
+                        if file_name[0] == os.sep:
+                            file_name = file_name.lstrip(os.sep)
+                        strfile = (file_name.replace(os.path.sep, ".") +
+                                   ".tailed")
+                        self.add_string_as_file(tail(_file, sizelimit),
+                                                strfile)
+                        rel_path = os.path.relpath('/', os.path.dirname(_file))
+                        link_path = os.path.join(rel_path, 'sos_strings',
+                                                 self.name(), strfile)
+                        self.archive.add_link(link_path, _file)
+                    else:
+                        self._log_info("skipping '%s' over size limit" % _file)
+                else:
+                    self._add_copy_paths([_file])
 
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
