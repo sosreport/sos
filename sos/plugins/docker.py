@@ -61,7 +61,7 @@ class Docker(Plugin):
         nets = self.get_command_output('docker network ls')
 
         if nets['status'] == 0:
-            n = [n.split()[1] for n in nets['output'].splitlines()[1:]]
+            n = [n.split()[0] for n in nets['output'].splitlines()[1:]]
             for net in n:
                 self.add_cmd_output("docker network inspect %s" % net)
 
