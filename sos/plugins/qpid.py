@@ -65,6 +65,8 @@ class Qpid(Plugin, RedHatPlugin):
             "/etc/qpidd.conf",  # applies to pre-0.22 versions
             "/etc/qpid/qpidd.conf",  # applies since 0.22 version
             "/var/lib/qpid/syslog",
+            "/var/lib/qpidd/.qpidd/qls/dat2/DB_CONFIG",
+            "/var/lib/qpidd/qls/dat2/DB_CONFIG",
             "/etc/ais/openais.conf",
             "/var/log/cumin.log",
             "/var/log/mint.log",
