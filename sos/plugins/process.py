@@ -27,7 +27,7 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # process group and thread options
         ps_group_opts = "pid,ppid,user,group,lwp,nlwp,start_time,comm,cgroup"
         ps_sched_opts = "flags,state,uid,pid,ppid,pgid,sid,cls,pri,addr,sz,"
-        ps_sched_opts += "wchan,lstart,tty,time,cmd"
+        ps_sched_opts += "wchan:20,lstart,tty,time,cmd"
 
         self.add_copy_spec([
             "/proc/sched_debug",
