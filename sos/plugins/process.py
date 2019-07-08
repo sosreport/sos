@@ -19,7 +19,8 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     option_list = [
         ("lsof", "gathers information on all open files", "slow", True),
         ("lsof-threads", "gathers threads' open file info if supported",
-         "slow", False)
+         "slow", False),
+        ("smaps", "gathers all /proc/*/smaps files", "", False)
     ]
 
     def setup(self):
@@ -33,6 +34,9 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/sched_debug",
             "/proc/stat"
         ])
+
+        if self.get_option("smaps"):
+            self.add_copy_spec("/proc/[0-9]*/smaps")
 
         self.add_cmd_output("ps auxwww", root_symlink="ps")
         self.add_cmd_output("pstree", root_symlink="pstree")
