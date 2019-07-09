@@ -139,12 +139,13 @@ class FileCacheArchive(Archive):
     _archive_root = ""
     _archive_name = ""
 
-    def __init__(self, name, tmpdir, policy, threads, enc_opts):
+    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot):
         self._name = name
         self._tmp_dir = tmpdir
         self._policy = policy
         self._threads = threads
         self.enc_opts = enc_opts
+        self.sysroot = sysroot
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)
@@ -155,6 +156,13 @@ class FileCacheArchive(Archive):
         if os.path.isabs(name):
             name = name.lstrip(os.sep)
         return (os.path.join(self._archive_root, name))
+
+    def join_sysroot(self, path):
+        if path.startswith(self.sysroot):
+            return path
+        if path[0] == os.sep:
+            path = path[1:]
+        return os.path.join(self.sysroot, path)
 
     def _make_leading_paths(self, src, mode=0o700):
         """Create leading path components
@@ -191,7 +199,8 @@ class FileCacheArchive(Archive):
             src_dir = src
         else:
             # Host file path
-            src_dir = src if os.path.isdir(src) else os.path.split(src)[0]
+            src_dir = (src if os.path.isdir(self.join_sysroot(src))
+                       else os.path.split(src)[0])
 
         # Build a list of path components in root-to-leaf order.
         path = src_dir
@@ -675,9 +684,9 @@ class TarFileArchive(FileCacheArchive):
     method = None
     _with_selinux_context = False
 
-    def __init__(self, name, tmpdir, policy, threads, enc_opts):
+    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot):
         super(TarFileArchive, self).__init__(name, tmpdir, policy, threads,
-                                             enc_opts)
+                                             enc_opts, sysroot)
         self._suffix = "tar"
         self._archive_name = os.path.join(tmpdir, self.name())
 
