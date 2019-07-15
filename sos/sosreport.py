@@ -36,7 +36,8 @@ from sos import _arg_defaults, SoSOptions
 import sos.policies
 from sos.archive import TarFileArchive
 from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
-                           Alert, Note, PlainTextReport)
+                           Alert, Note, PlainTextReport, JSONReport,
+                           HTMLReport)
 
 # PYCOMPAT
 import six
@@ -1078,9 +1079,10 @@ class SoSReport(object):
         ]) + '\n'
         self.archive.add_string(env, 'environment')
 
-    def plain_report(self):
+    def generate_reports(self):
         report = Report()
 
+        # generate report content
         for plugname, plug in self.loaded_plugins:
             section = Section(name=plugname)
 
@@ -1096,97 +1098,43 @@ class SoSReport(object):
 
             for cmd in plug.executed_commands:
                 section.add(Command(name=cmd['exe'], return_code=0,
-                                    href="../" + cmd['file']))
+                                    href=os.path.join(
+                                        "..",
+                                        self.get_commons()['cmddir'],
+                                        cmd['file']
+                                    )))
 
             for content, f in plug.copy_strings:
-                section.add(CreatedFile(name=f))
+                section.add(CreatedFile(name=f,
+                                        href=os.path.join(
+                                            "..",
+                                            "sos_strings",
+                                            plugname,
+                                            f)))
 
             report.add(section)
-        try:
-            fd = self.get_temp_file()
-            output = PlainTextReport(report).unicode()
-            fd.write(output)
-            fd.flush()
-            self.archive.add_file(fd, dest=os.path.join('sos_reports',
-                                                        'sos.txt'))
-        except (OSError, IOError) as e:
-            if e.errno in fatal_fs_errors:
-                self.ui_log.error("")
-                self.ui_log.error(" %s while writing text report"
-                                  % e.strerror)
-                self.ui_log.error("")
-                self._exit(1)
 
-    def html_report(self):
-        try:
-            self._html_report()
-        except (OSError, IOError) as e:
-            if e.errno in fatal_fs_errors:
-                self.ui_log.error("")
-                self.ui_log.error(" %s while writing HTML report"
-                                  % e.strerror)
-                self.ui_log.error("")
-                self._exit(1)
-
-    def _html_report(self):
-        # Generate the header for the html output file
-        rfd = self.get_temp_file()
-        rfd.write("""
-        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-        <head>
-            <link rel="stylesheet" type="text/css" media="screen"
-                  href="donot.css" />
-            <meta http-equiv="Content-Type" content="text/html;
-                  charset=utf-8" />
-            <title>Sos System Report</title>
-        </head>
-        <body>
-        """)
-
-        # Make a pass to gather Alerts and a list of module names
-        allAlerts = []
-        plugNames = []
-        for plugname, plug in self.loaded_plugins:
-            for alert in plug.alerts:
-                allAlerts.append('<a href="#%s">%s</a>: %s' % (plugname,
-                                                               plugname,
-                                                               alert))
-            plugNames.append(plugname)
-
-        # Create a table of links to the module info
-        rfd.write("<hr/><h3>Loaded Plugins:</h3>")
-        rfd.write("<table><tr>\n")
-        rr = 0
-        for i in range(len(plugNames)):
-            rfd.write('<td><a href="#%s">%s</a></td>\n' % (plugNames[i],
-                                                           plugNames[i]))
-            rr = divmod(i, 4)[1]
-            if (rr == 3):
-                rfd.write('</tr>')
-        if not (rr == 3):
-            rfd.write('</tr>')
-        rfd.write('</table>\n')
-
-        rfd.write('<hr/><h3>Alerts:</h3>')
-        rfd.write('<ul>')
-        for alert in allAlerts:
-            rfd.write('<li>%s</li>' % alert)
-        rfd.write('</ul>')
-
-        # Call the report method for each plugin
-        for plugname, plug in self.loaded_plugins:
+        # print it in text, JSON and HTML formats
+        formatlist = (
+            (PlainTextReport, "sos.txt",  "text"),
+            (JSONReport,      "sos.json", "JSON"),
+            (HTMLReport,      "sos.html", "HTML")
+        )
+        for class_, filename, type_ in formatlist:
             try:
-                html = plug.report()
-            except Exception:
-                self.handle_exception()
-            else:
-                rfd.write(html)
-        rfd.write("</body></html>")
-        rfd.flush()
-        self.archive.add_file(rfd, dest=os.path.join('sos_reports',
-                                                     'sos.html'))
+                fd = self.get_temp_file()
+                output = class_(report).unicode()
+                fd.write(output)
+                fd.flush()
+                self.archive.add_file(fd, dest=os.path.join('sos_reports',
+                                                            filename))
+            except (OSError, IOError) as e:
+                if e.errno in fatal_fs_errors:
+                    self.ui_log.error("")
+                    self.ui_log.error(" %s while writing %s report"
+                                      % (e.strerror, type_))
+                    self.ui_log.error("")
+                    self._exit(1)
 
     def postproc(self):
         for plugname, plug in self.loaded_plugins:
@@ -1374,8 +1322,7 @@ class SoSReport(object):
             if not self.opts.no_env_vars:
                 self.collect_env_vars()
             if not self.opts.noreport:
-                self.html_report()
-                self.plain_report()
+                self.generate_reports()
             self.postproc()
             self.version()
             return self.final_work()

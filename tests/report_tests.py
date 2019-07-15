@@ -8,8 +8,9 @@ try:
 except ImportError:
     import simplejson as json
 
-from sos.reporting import Report, Section, Command, CopiedFile, CreatedFile, Alert
-from sos.reporting import PlainTextReport
+from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
+                           Alert, PlainTextReport)
+
 
 class ReportTest(unittest.TestCase):
 
@@ -38,22 +39,23 @@ class ReportTest(unittest.TestCase):
         report.add(section2)
 
         expected = json.dumps({"section": {},
-                               "section2": {},})
+                               "section2": {}, })
 
         self.assertEquals(expected, str(report))
-
 
     def test_deeply_nested(self):
         report = Report()
         section = Section(name="section")
-        command = Command(name="a command", return_code=0, href="does/not/matter")
+        command = Command(name="a command", return_code=0,
+                          href="does/not/matter")
 
         section.add(command)
         report.add(section)
 
-        expected = json.dumps({"section": {"commands": [{"name": "a command",
-                                                         "return_code": 0,
-                                                         "href": "does/not/matter"}]}})
+        expected = json.dumps({"section": {
+            "commands": [{"name": "a command",
+                          "return_code": 0,
+                          "href": "does/not/matter"}]}})
 
         self.assertEquals(expected, str(report))
 
@@ -63,22 +65,37 @@ class TestPlainReport(unittest.TestCase):
     def setUp(self):
         self.report = Report()
         self.section = Section(name="plugin")
-        self.div = PlainTextReport.DIVIDER
+        self.div = '\n' + PlainTextReport.PLUGDIVIDER
+        self.pluglist = "Loaded Plugins:\n{pluglist}"
+        self.defaultheader = u''.join([
+            self.pluglist.format(pluglist="  plugin"),
+            self.div,
+            "\nplugin\n"
+        ])
 
     def test_basic(self):
-        self.assertEquals("", PlainTextReport(self.report).unicode())
+        self.assertEquals(self.pluglist.format(pluglist=""),
+                          PlainTextReport(self.report).unicode())
 
     def test_one_section(self):
         self.report.add(self.section)
 
-        self.assertEquals("plugin\n" + self.div, PlainTextReport(self.report).unicode())
+        self.assertEquals(self.defaultheader,
+                          PlainTextReport(self.report).unicode() + '\n')
 
     def test_two_sections(self):
         section1 = Section(name="first")
         section2 = Section(name="second")
         self.report.add(section1, section2)
 
-        self.assertEquals("first\n" + self.div + "\nsecond\n" + self.div, PlainTextReport(self.report).unicode())
+        self.assertEquals(u''.join([
+                            self.pluglist.format(pluglist="  first  second"),
+                            self.div,
+                            "\nfirst",
+                            self.div,
+                            "\nsecond"
+                        ]),
+                        PlainTextReport(self.report).unicode())
 
     def test_command(self):
         cmd = Command(name="ls -al /foo/bar/baz",
@@ -87,32 +104,46 @@ class TestPlainReport(unittest.TestCase):
         self.section.add(cmd)
         self.report.add(self.section)
 
-        self.assertEquals("plugin\n" + self.div + "\n-  commands executed:\n  * ls -al /foo/bar/baz",
-                PlainTextReport(self.report).unicode())
+        self.assertEquals(u''.join([
+                            self.defaultheader,
+                            "-  commands executed:\n  * ls -al /foo/bar/baz"
+                        ]),
+                        PlainTextReport(self.report).unicode())
 
     def test_copied_file(self):
         cf = CopiedFile(name="/etc/hosts", href="etc/hosts")
         self.section.add(cf)
         self.report.add(self.section)
 
-        self.assertEquals("plugin\n" + self.div + "\n-  files copied:\n  * /etc/hosts",
-                PlainTextReport(self.report).unicode())
+        self.assertEquals(u''.join([
+                            self.defaultheader,
+                            "-  files copied:\n  * /etc/hosts"
+                        ]),
+                        PlainTextReport(self.report).unicode())
 
     def test_created_file(self):
-        crf = CreatedFile(name="sample.txt")
+        crf = CreatedFile(name="sample.txt",
+                          href="../sos_strings/sample/sample.txt")
         self.section.add(crf)
         self.report.add(self.section)
 
-        self.assertEquals("plugin\n" + self.div + "\n-  files created:\n  * sample.txt",
-                PlainTextReport(self.report).unicode())
+        self.assertEquals(u''.join([
+                            self.defaultheader,
+                            "-  files created:\n  * sample.txt"
+                        ]),
+                        PlainTextReport(self.report).unicode())
 
     def test_alert(self):
         alrt = Alert("this is an alert")
         self.section.add(alrt)
         self.report.add(self.section)
 
-        self.assertEquals("plugin\n" + self.div + "\n-  alerts:\n  ! this is an alert",
-                PlainTextReport(self.report).unicode())
+        self.assertEquals(u''.join([
+                            self.defaultheader,
+                            "-  alerts:\n  ! this is an alert"
+                        ]),
+                        PlainTextReport(self.report).unicode())
+
 
 if __name__ == "__main__":
     unittest.main()
