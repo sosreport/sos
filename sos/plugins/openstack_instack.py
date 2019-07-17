@@ -23,7 +23,8 @@ CONTAINERIZED_DEPLOY = [
         '/var/log/heat-launcher/',
         '/home/stack/install-undercloud.log',
         '/home/stack/undercloud-install-*.tar.bzip2',
-        '/var/lib/mistral/config-download-latest/ansible.log'
+        '/var/lib/mistral/config-download-latest/ansible.log',
+        '/var/log/tripleo-container-image-prepare.log'
 ]
 
 
