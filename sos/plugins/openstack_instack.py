@@ -26,6 +26,7 @@ CONTAINERIZED_DEPLOY = [
         '/var/lib/mistral/config-download-latest/ansible.log',
         '/home/stack/.tripleo/history',
         '/var/lib/tripleo-config/',
+        '/var/log/tripleo-container-image-prepare.log',
 ]
 
 
