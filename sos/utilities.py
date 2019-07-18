@@ -18,6 +18,7 @@ import errno
 import shlex
 import glob
 import threading
+import time
 
 from contextlib import closing
 from collections import deque
@@ -158,6 +159,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                 if poller():
                     p.terminate()
                     raise SoSTimeoutError
+                time.sleep(0.01)
         stdout = reader.get_contents()
         while p.poll() is None:
             pass
@@ -248,7 +250,7 @@ class AsyncReader(threading.Thread):
         # block until command completes or timesout (separate from the plugin
         # hitting a timeout)
         while self.running:
-            pass
+            time.sleep(0.01)
         if not self.binary:
             return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
         else:
