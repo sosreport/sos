@@ -57,6 +57,8 @@ class OVNCentral(Plugin):
 
         # Some user-friendly versions of DB output
         cmds = [
+            'ovn-nbctl show',
+            'ovn-sbctl show',
             'ovn-sbctl lflow-list',
             'ovn-nbctl get-ssl',
             'ovn-nbctl get-connection',
