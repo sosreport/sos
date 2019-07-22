@@ -66,4 +66,9 @@ class Maas(Plugin, UbuntuPlugin):
                 self._log_error(
                     "Cannot login into MAAS remote API with provided creds.")
 
+    def postproc(self):
+        self.do_file_sub("/etc/maas/regiond.conf",
+                         r"(database_pass\s*:\s*)(.*)",
+                         r"\1********")
+
 # vim: set et ts=4 sw=4 :
