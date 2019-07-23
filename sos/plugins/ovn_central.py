@@ -19,6 +19,8 @@ class OVNCentral(Plugin):
     """
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
+    _container_runtime = None
+    _container_name = None
 
     def add_database_output(self, filename, cmds, ovn_cmd, skip=[]):
         try:
@@ -42,7 +44,24 @@ class OVNCentral(Plugin):
                                                                       ex))
             return
 
+    def running_in_container(self):
+        for runtime in ["docker", "podman"]:
+            container_status = self.get_command_output(runtime + " ps")
+            if container_status['status'] == 0:
+                for line in container_status['output'].splitlines():
+                    if "ovn-dbs-bundle" in line:
+                        self._container_name = line.split()[-1]
+                        self._container_runtime = runtime
+                        return True
+        return False
+
+    def check_enabled(self):
+        return (self.running_in_container() or
+                super(OVNCentral, self).check_enabled())
+
     def setup(self):
+        containerized = self.running_in_container()
+
         ovs_rundir = os.environ.get('OVS_RUNDIR')
         for pidfile in ['ovnnb_db.pid', 'ovnsb_db.pid', 'ovn-northd.pid']:
             self.add_copy_spec([
@@ -66,12 +85,25 @@ class OVNCentral(Plugin):
             'ovn-sbctl get-connection',
         ]
 
+
         schema_dir = '/usr/share/openvswitch'
+        if containerized:
+            cmd = "%s cp %s:/usr/share/openvswitch/ovn*.ovsschema /tmp/" % (
+                self._container_runtime, self._container_name)
+            if self.get_command_output(cmd)['status'] == 0:
+                schema_dir = '/tmp'
 
         self.add_database_output(os.path.join(schema_dir, 'ovn-nb.ovsschema'),
                                  cmds, 'ovn-nbctl')
         self.add_database_output(os.path.join(schema_dir, 'ovn-sb.ovsschema'),
                                  cmds, 'ovn-sbctl', ['Logical_Flow'])
+
+        # If OVN is containerized, we need to run the above commands inside
+        # the container.
+        if containerized:
+            cmds = ['%s exec %s %s' % (self._container_runtime,
+                                       self._container_name,
+                                       cmd) for cmd in cmds]
 
         self.add_cmd_output(cmds)
 
