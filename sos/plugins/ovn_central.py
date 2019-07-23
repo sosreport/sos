@@ -19,30 +19,64 @@ class OVNCentral(Plugin):
     """
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
+    _container_runtime = None
+    _container_name = None
 
-    def add_database_output(self, filename, cmds, ovn_cmd, skip=[]):
+    def get_tables_from_schema(self, filename, skip=[]):
+        if self._container_name:
+            cmd = "%s exec %s cat %s" % (
+                self._container_runtime, self._container_name, filename)
+            res = self.get_command_output(cmd)
+            if res['status'] != 0:
+                self._log_error("Could not retrieve DB schema file from "
+                                "container %s" % self._container_name)
+                return
+            try:
+                db = json.loads(res['output'])
+            except Exception:
+                self._log_error("Cannot parse JSON file %s" % filename)
+                return
+        else:
+            try:
+                with open(filename, 'r') as f:
+                    try:
+                        db = json.load(f)
+                    except Exception:
+                        self._log_error(
+                            "Cannot parse JSON file %s" % filename)
+                        return
+            except IOError as ex:
+                self._log_error(
+                    "Could not open DB schema file %s: %s" % (filename, ex))
+                return
         try:
-            with open(filename, 'r') as f:
-                try:
-                    db = json.load(f)
-                except Exception:
-                    # If json can't be parsed, then exit early
-                    self._log_error("Cannot parse JSON file %s" % filename)
-                    return
-                try:
-                    for table in six.iterkeys(db['tables']):
-                        if table not in skip:
-                            cmds.append('%s list %s' % (ovn_cmd, table))
-                except AttributeError:
-                    self._log_error("DB schema %s has no 'tables' key" %
-                                    filename)
-                    return
-        except IOError as ex:
-            self._log_error("Could not open DB schema file %s: %s" % (filename,
-                                                                      ex))
-            return
+            return [table for table in six.iterkeys(
+                db['tables']) if table not in skip]
+        except AttributeError:
+            self._log_error("DB schema %s has no 'tables' key" % filename)
+
+    def add_database_output(self, tables, cmds, ovn_cmd):
+        for table in tables:
+            cmds.append('%s list %s' % (ovn_cmd, table))
+
+    def running_in_container(self):
+        for runtime in ["podman", "docker"]:
+            container_status = self.get_command_output(runtime + " ps")
+            if container_status['status'] == 0:
+                for line in container_status['output'].splitlines():
+                    if "ovn-dbs-bundle" in line:
+                        self._container_name = line.split()[-1]
+                        self._container_runtime = runtime
+                        return True
+        return False
+
+    def check_enabled(self):
+        return (self.running_in_container() or
+                super(OVNCentral, self).check_enabled())
 
     def setup(self):
+        containerized = self.running_in_container()
+
         ovs_rundir = os.environ.get('OVS_RUNDIR')
         for pidfile in ['ovnnb_db.pid', 'ovnsb_db.pid', 'ovn-northd.pid']:
             self.add_copy_spec([
@@ -68,10 +102,20 @@ class OVNCentral(Plugin):
 
         schema_dir = '/usr/share/openvswitch'
 
-        self.add_database_output(os.path.join(schema_dir, 'ovn-nb.ovsschema'),
-                                 cmds, 'ovn-nbctl')
-        self.add_database_output(os.path.join(schema_dir, 'ovn-sb.ovsschema'),
-                                 cmds, 'ovn-sbctl', ['Logical_Flow'])
+        nb_tables = self.get_tables_from_schema(os.path.join(
+            schema_dir, 'ovn-nb.ovsschema'))
+        sb_tables = self.get_tables_from_schema(os.path.join(
+            schema_dir, 'ovn-sb.ovsschema'), ['Logical_Flow'])
+
+        self.add_database_output(nb_tables, cmds, 'ovn-nbctl')
+        self.add_database_output(sb_tables, cmds, 'ovn-sbctl')
+
+        # If OVN is containerized, we need to run the above commands inside
+        # the container.
+        if containerized:
+            cmds = ['%s exec %s %s' % (self._container_runtime,
+                                       self._container_name,
+                                       cmd) for cmd in cmds]
 
         self.add_cmd_output(cmds)
 
