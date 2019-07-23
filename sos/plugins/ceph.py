@@ -50,27 +50,41 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         ])
 
         self.add_cmd_output([
-            "ceph status",
-            "ceph health detail",
-            "ceph osd tree",
-            "ceph osd stat",
-            "ceph osd dump",
             "ceph mon stat",
             "ceph mon_status",
             "ceph quorum_status",
-            "ceph mon dump",
-            "ceph df",
+            "ceph osd erasure-code-profile ls",
             "ceph report",
-            "ceph osd df tree",
-            "ceph fs dump --format json-pretty",
-            "ceph fs ls",
-            "ceph pg dump",
-            "ceph health detail --format json-pretty",
             "ceph osd crush show-tunables",
             "ceph-disk list",
             "ceph versions",
-            "ceph osd crush dump"
+            "ceph osd crush dump",
+            "ceph -v"
         ])
+
+        ceph_cmds = [
+            "status",
+            "health detail",
+            "osd tree",
+            "osd stat",
+            "osd df tree",
+            "osd dump",
+            "osd df",
+            "mon dump",
+            "df",
+            "df detail",
+            "fs ls",
+            "fs dump",
+            "pg dump",
+        ]
+
+        self.add_cmd_output([
+            "ceph %s" % s for s in ceph_cmds
+        ])
+
+        self.add_cmd_output([
+            "ceph %s --format json-pretty" % s for s in ceph_cmds
+        ], subdir="json_output")
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
