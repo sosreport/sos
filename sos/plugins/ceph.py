@@ -56,6 +56,8 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph osd stat",
             "ceph osd dump",
             "ceph mon stat",
+            "ceph mon_status",
+            "ceph quorum_status",
             "ceph mon dump",
             "ceph df",
             "ceph report",
