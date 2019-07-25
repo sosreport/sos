@@ -147,7 +147,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
         else:
             expanded_args.append(arg)
     try:
-        p = Popen(expanded_args, shell=False, stdout=PIPE,
+        p = Popen(expanded_args, stdin=PIPE, shell=False, stdout=PIPE,
                   stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)
