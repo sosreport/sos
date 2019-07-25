@@ -12,6 +12,15 @@ import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
+pidfile = 'ovn-controller.pid'
+pid_paths = [
+        '/var/lib/openvswitch/ovn',
+        '/usr/local/var/run/openvswitch',
+        '/var/run/openvswitch',
+        '/run/openvswitch'
+]
+
+
 class OVNHost(Plugin):
     """ OVN Controller
     """
@@ -19,13 +28,6 @@ class OVNHost(Plugin):
     profiles = ('network', 'virt')
 
     def setup(self):
-        pidfile = 'ovn-controller.pid'
-        pid_paths = [
-                '/var/lib/openvswitch/ovn',
-                '/usr/local/var/run/openvswitch',
-                '/var/run/openvswitch',
-                '/run/openvswitch'
-        ]
         if os.environ.get('OVS_RUNDIR'):
             pid_paths.append(os.environ.get('OVS_RUNDIR'))
         self.add_copy_spec([os.path.join(pp, pidfile) for pp in pid_paths])
@@ -39,6 +41,11 @@ class OVNHost(Plugin):
         ])
 
         self.add_journal(units="ovn-controller")
+
+    def check_enabled(self):
+        return (any([os.path.isfile(
+            os.path.join(pp, pidfile)) for pp in pid_paths]) or
+            super(OVNHost, self).check_enabled())
 
 
 class RedHatOVNHost(OVNHost, RedHatPlugin):
