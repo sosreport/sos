@@ -652,6 +652,9 @@ class Plugin(object):
         everything below it is recursively copied. A list of copied files are
         saved for use later in preparing a report.
         '''
+        if self._timeout_hit:
+            return
+
         if self._is_forbidden_path(srcpath):
             self._log_debug("skipping forbidden path '%s'" % srcpath)
             return ''
@@ -852,6 +855,9 @@ class Plugin(object):
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None):
+        if self._timeout_hit:
+            return
+
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
@@ -1012,6 +1018,9 @@ class Plugin(object):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
+        if self._timeout_hit:
+            return
+
         start = time()
 
         result = self.get_command_output(cmd, timeout=timeout, stderr=stderr,
@@ -1201,6 +1210,8 @@ class Plugin(object):
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
+            if self._timeout_hit:
+                return
             content = ''
             if string:
                 content = string.splitlines()[0]
