@@ -21,6 +21,7 @@ class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         return [dev for dev in sys_block if dev.startswith('nvme')]
 
     def setup(self):
+        self.add_copy_spec("/etc/nvme/discovery.conf")
         self.add_cmd_output([
             "nvme list",
             "nvme list-subsys",
@@ -39,6 +40,5 @@ class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 "nvme show-regs /dev/%s" % dev,
                 "nvme get-ns-id /dev/%s" % dev
             ])
-            self.add_copy_spec("/etc/nvme/discovery.conf")
 
 # vim: set et ts=4 sw=4 :
