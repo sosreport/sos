@@ -6,6 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
+import platform
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -28,11 +30,17 @@ class RedHatKDump(KDump, RedHatPlugin):
     packages = ('kexec-tools',)
 
     def setup(self):
+        initramfs_img = "/boot/initramfs-" + platform.release() \
+                        + "kdump.img"
+
         self.add_copy_spec([
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules",
             "/var/crash/*/vmcore-dmesg.txt"
         ])
+
+        if os.path.exists(initramfs_img):
+            self.add_cmd_output("lsinitrd %s" % initramfs_img)
 
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
@@ -41,8 +49,13 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     packages = ('kdump-tools',)
 
     def setup(self):
+        initramfs_img = "/var/lib/kdump/initrd.img-" + platform.release()
+
         self.add_copy_spec([
             "/etc/default/kdump-tools"
         ])
+
+        if os.path.exists(initramfs_img):
+            self.add_cmd_output("lsinitrd %s" % initramfs_img)
 
 # vim: set et ts=4 sw=4 :
