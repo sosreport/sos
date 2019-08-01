@@ -18,7 +18,9 @@ class KDump(Plugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/proc/cmdline"
+            "/proc/cmdline",
+            "/sys/kernel/kexec_crash_loaded",
+            "/sys/kernel/kexec_crash_size"
         ])
 
 
@@ -28,6 +30,7 @@ class RedHatKDump(KDump, RedHatPlugin):
     packages = ('kexec-tools',)
 
     def setup(self):
+        super(RedHatKDump, self).setup()
         self.add_copy_spec([
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules",
@@ -41,6 +44,7 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     packages = ('kdump-tools',)
 
     def setup(self):
+        super(DebianKDump, self).setup()
         self.add_copy_spec([
             "/etc/default/kdump-tools"
         ])
