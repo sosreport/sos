@@ -1150,7 +1150,9 @@ class Plugin(object):
                            (exe, self.get_predicate(cmd=True, pred=pred)))
             return None
 
-        return self._get_cmd_output_now(exe, timeout=timeout, stderr=stderr,
+        return self._get_cmd_output_now(exe, suggest_filename=suggest_filename,
+                                        root_symlink=root_symlink,
+                                        timeout=timeout, stderr=stderr,
                                         chroot=chroot, runat=runat,
                                         env=env, binary=binary,
                                         sizelimit=sizelimit)
