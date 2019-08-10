@@ -48,6 +48,12 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
             '/var/log/ovirt-hosted-engine-ha/agent.log',
             '/var/log/ovirt-hosted-engine-ha/broker.log',
         ])
+
+        # Add gluster deployment and cleanup log
+        self.add_copy_spec([
+            '/var/log/cockpit/ovirt-dashboard'
+        ])
+
         # Add older ovirt-hosted-engine-ha log files only if requested
         if self.get_option('all_logs'):
             self.add_copy_spec(self.HA_LOG_GLOB)
