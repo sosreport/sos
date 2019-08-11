@@ -13,7 +13,6 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,\
                         SCLPlugin
 from pipes import quote
 from re import match
-import os
 
 
 class Foreman(Plugin):
@@ -58,8 +57,10 @@ class Foreman(Plugin):
         if (self.dbpasswd.startswith('"') and self.dbpasswd.endswith('"')) or \
            (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
             self.dbpasswd = self.dbpasswd[1:-1]
-        # set the password to os.environ to prevent printing it in sos logs
-        os.environ["PGPASSWORD"] = self.dbpasswd
+        # set the password to os.environ when calling psql commands to prevent
+        # printing it in sos logs
+        # we can't set os.environ directly now: other plugins can overwrite it
+        self.env = {"PGPASSWORD": self.dbpasswd}
 
         self.add_forbidden_path([
             "/etc/foreman*/*key.pem",
@@ -132,6 +133,24 @@ class Foreman(Plugin):
             'ping -c1 -W1 localhost'
         ])
 
+        # collect tables sizes, ordered
+        _cmd = self.build_query_cmd("\
+            SELECT schema_name, relname, \
+                   pg_size_pretty(table_size) AS size, table_size \
+            FROM ( \
+              SELECT \
+                pg_catalog.pg_namespace.nspname AS schema_name, \
+                relname, \
+                pg_relation_size(pg_catalog.pg_class.oid) AS table_size \
+              FROM pg_catalog.pg_class \
+              JOIN pg_catalog.pg_namespace \
+                ON relnamespace = pg_catalog.pg_namespace.oid \
+            ) t \
+            WHERE schema_name NOT LIKE 'pg_%' \
+            ORDER BY table_size DESC;")
+        self.add_cmd_output(_cmd, suggest_filename='foreman_db_tables_sizes',
+                            env=self.env)
+
         months = '%s months' % self.get_option('months')
 
         # Construct the DB queries, using the months option to limit the range
@@ -189,11 +208,13 @@ class Foreman(Plugin):
 
         for table in foremandb:
             _cmd = self.build_query_cmd(foremandb[table])
-            self.add_cmd_output(_cmd, suggest_filename=table, timeout=600)
+            self.add_cmd_output(_cmd, suggest_filename=table, timeout=600,
+                                env=self.env)
 
         for dyn in foremancsv:
             _cmd = self.build_query_cmd(foremancsv[dyn], csv=True)
-            self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600)
+            self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
+                                env=self.env)
 
     def build_query_cmd(self, query, csv=False):
         """
