@@ -82,6 +82,7 @@ class Foreman(Plugin):
             "/etc/sysconfig/foreman",
             "/etc/default/foreman",
             "/etc/foreman-installer/",
+            "/etc/puppetlabs/puppetserver/conf.d/",
             "/var/log/foreman/dynflow_executor*log*",
             "/var/log/foreman/dynflow_executor*.output*",
             "/var/log/foreman/apipie_cache*.log*",
