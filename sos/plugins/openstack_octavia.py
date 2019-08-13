@@ -103,7 +103,7 @@ class OpenStackOctavia(Plugin):
 
 class DebianOctavia(OpenStackOctavia, DebianPlugin, UbuntuPlugin):
 
-    packages = ('openstack-octavia-common',)
+    packages = ('octavia-common',)
 
 
 class RedHatOctavia(OpenStackOctavia, RedHatPlugin):
