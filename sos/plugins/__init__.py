@@ -106,26 +106,26 @@ class SoSPredicate(object):
     _owner = None
 
     #: Skip all collection?
-    _dry_run = False
+    dry_run = False
 
     #: Kernel module enablement list
-    _kmods = []
+    kmods = []
 
     #: Services enablement list
-    _services = []
+    services = []
 
     def __str(self, quote=False, prefix="", suffix=""):
         """Return a string representation of this SoSPredicate with
             optional prefix, suffix and value quoting.
         """
         quotes = '"%s"'
-        pstr = "dry_run=%s, " % self._dry_run
+        pstr = "dry_run=%s, " % self.dry_run
 
-        kmods = self._kmods
+        kmods = self.kmods
         kmods = [quotes % k for k in kmods] if quote else kmods
         pstr += "kmods=[%s], " % (",".join(kmods))
 
-        services = self._services
+        services = self.services
         services = [quotes % s for s in services] if quote else services
         pstr += "services=[%s]" % (",".join(services))
 
@@ -150,25 +150,25 @@ class SoSPredicate(object):
         """Predicate evaluation hook.
         """
         pvalue = False
-        for k in self._kmods:
+        for k in self.kmods:
             pvalue |= self._owner.is_module_loaded(k)
 
-        for s in self._services:
+        for s in self.services:
             pvalue |= self._owner.service_is_running(s)
 
         # Null predicate?
-        if not any([self._kmods, self._services, self._dry_run]):
+        if not any([self.kmods, self.services, self.dry_run]):
             return True
 
-        return pvalue and not self._dry_run
+        return pvalue and not self.dry_run
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[]):
         """Initialise a new SoSPredicate object.
         """
         self._owner = owner
-        self._kmods = list(kmods)
-        self._services = list(services)
-        self._dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
+        self.kmods = list(kmods)
+        self.services = list(services)
+        self.dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
 
 
 class SoSCommand(object):
