@@ -941,14 +941,15 @@ class Plugin(object):
             self.collect_cmds.append(soscmd)
             self._log_info("added cmd output '%s'" % soscmd.cmd)
         else:
-            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (soscmd.cmd,
-                            self.get_predicate(cmd=True, pred=pred)))
+            self.log_skipped_cmd(pred, soscmd.cmd, kmods=bool(pred.kmods),
+                                 services=bool(pred.services),
+                                 changes=soscmd.changes)
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
-                       sizelimit=None, pred=None, subdir=None):
+                       sizelimit=None, pred=None, subdir=None,
+                       changes=False):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -961,7 +962,8 @@ class Plugin(object):
                                  root_symlink=root_symlink, timeout=timeout,
                                  stderr=stderr, chroot=chroot, runat=runat,
                                  env=env, binary=binary, sizelimit=sizelimit,
-                                 pred=pred, subdir=subdir)
+                                 pred=pred, subdir=subdir,
+                                 changes=changes)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -1050,7 +1052,8 @@ class Plugin(object):
     def _get_cmd_output_now(self, cmd, suggest_filename=None,
                             root_symlink=False, timeout=300, stderr=True,
                             chroot=True, runat=None, env=None,
-                            binary=False, sizelimit=None, subdir=None):
+                            binary=False, sizelimit=None, subdir=None,
+                            changes=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
@@ -1063,8 +1066,8 @@ class Plugin(object):
                                          chroot=chroot, runat=runat,
                                          env=env, binary=binary,
                                          sizelimit=sizelimit)
-        self._log_debug("collected output of '%s' in %s"
-                        % (cmd.split()[0], time() - start))
+        self._log_debug("collected output of '%s' in %s (changes=%s)"
+                        % (cmd.split()[0], time() - start, changes))
 
         if suggest_filename:
             outfn = self._make_command_filename(suggest_filename, subdir)
