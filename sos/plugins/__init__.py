@@ -150,6 +150,11 @@ class SoSPredicate(object):
         """Predicate evaluation hook.
         """
         pvalue = False
+
+        # Allow loading kernel modules?
+        pvalue |= self._owner.get_option("allow_system_changes")
+
+        # Are kernel modules loaded?
         for k in self.kmods:
             pvalue |= self._owner.is_module_loaded(k)
 
