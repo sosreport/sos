@@ -151,26 +151,14 @@ class Networking(Plugin):
         # via --allow-system-changes option
         ip_macsec_show_cmd = "ip -s macsec show"
         macsec_pred = SoSPredicate(self, kmods=['macsec'])
-        if self.test_predicate(self, pred=macsec_pred) or \
-                self.get_option("allow_system_changes"):
-            self.add_cmd_output(ip_macsec_show_cmd)
-        else:
-            self._log_warn("skipped command '%s' as it requires kernel module "
-                           "'macsecs' that is unloaded; use "
-                           "--allow-system-changes to collect it"
-                           % ip_macsec_show_cmd)
+        self.add_cmd_output(ip_macsec_show_cmd, pred=macsec_pred, changes=True)
 
         ss_cmd = "ss -peaonmi"
-        ss_pred = SoSPredicate(self, kmods=['tcp_diag', 'udp_diag',
-                                            'inet_diag', 'unix_diag',
-                                            'netlink_diag', 'af_packet_diag'])
-        if self.test_predicate(self, pred=ss_pred) or \
-                self.get_option("allow_system_changes"):
-            self.add_cmd_output(ss_cmd)
-        else:
-            self._log_warn("skipped command '%s' as it requires some *_diag "
-                           "kernel module that is unloaded; use "
-                           "--allow-system-changes to collect it" % ss_cmd)
+        ss_pred = SoSPredicate(self, kmods=[
+            'tcp_diag', 'udp_diag', 'inet_diag', 'unix_diag', 'netlink_diag',
+            'af_packet_diag'
+        ])
+        self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
 
         # When iptables is called it will load the modules
         # iptables and iptables_filter if they are not loaded.
