@@ -426,6 +426,27 @@ class Plugin(object):
             return bool(pred)
         return False
 
+    def log_skipped_cmd(self, pred, cmd, kmods=False, services=False,
+                        changes=False):
+        """Log that a command was skipped due to predicate evaluation.
+
+            Emit a warning message indicating that a command was skipped due
+            to predicate evaluation. If ``kmods`` or ``services`` are ``True``
+            then the list of expected kernel modules or services will be
+            included in the log message. If ``allow_changes`` is ``True`` a
+            message indicating that the missing data can be collected by using
+            the "--allow-system-changes" command line option will be included.
+        """
+        msg = ("skipped command '%s': required kernel modules or"
+               " services not present (%s).")
+
+        needs = "kmods=[%s] services=[%s]" % (",".join(pred.kmods),
+                                              ",".join(pred.services))
+        if changes:
+            msg += " Use '--allow-system-changes' to enable collection."
+
+        self._log_warn(msg % (cmd, needs))
+
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd
         is the command name from which output is collected (i.e. exlcuding
