@@ -986,6 +986,8 @@ class Plugin(object):
             self._log_warn("ambiguous filename or symlink for command list")
         if sizelimit is None:
             sizelimit = self.get_option("log_size")
+        if pred is None:
+            pred = self.get_predicate(cmd=True)
         for cmd in cmds:
             self._add_cmd_output(cmd=cmd, suggest_filename=suggest_filename,
                                  root_symlink=root_symlink, timeout=timeout,
