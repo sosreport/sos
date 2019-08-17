@@ -147,34 +147,53 @@ class SoSPredicate(object):
         """
         return self.__str(quote=True, prefix="SoSPredicate(", suffix=")")
 
+    def _eval_kmods(self):
+        if not self.kmods or self._owner.get_option('allow_system_changes'):
+            return True
+
+        # Are kernel modules loaded?
+        _kmods = [self._owner.is_module_loaded(k) for k in self.kmods]
+
+        if self.required['kmods'] == 'any':
+            return any(_kmods)
+        else:
+            return all(_kmods)
+
+    def _eval_services(self):
+        if not self.services:
+            return True
+
+        _svcs = [self._owner.service_is_running(s) for s in self.services]
+
+        if self.required['services'] == 'any':
+            return any(_svcs)
+        else:
+            return all(_svcs)
+
     def __nonzero__(self):
         """Predicate evaluation hook.
         """
-        pvalue = False
-
-        # Allow loading kernel modules?
-        pvalue |= self._owner.get_option("allow_system_changes")
-
-        # Are kernel modules loaded?
-        for k in self.kmods:
-            pvalue |= self._owner.is_module_loaded(k)
-
-        for s in self.services:
-            pvalue |= self._owner.service_is_running(s)
 
         # Null predicate?
         if not any([self.kmods, self.services, self.dry_run]):
             return True
 
-        return pvalue and not self.dry_run
+        return ((self._eval_kmods() and self._eval_services()) and not
+                self.dry_run)
 
-    def __init__(self, owner, dry_run=False, kmods=[], services=[]):
+    def __init__(self, owner, dry_run=False, kmods=[], services=[],
+                 required={}):
         """Initialise a new SoSPredicate object.
         """
         self._owner = owner
         self.kmods = list(kmods)
         self.services = list(services)
         self.dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
+        self.required = {'kmods': 'any', 'services': 'any'}
+        self.required.update({
+            k: v for k, v in required.items() if
+            required[k] != self.required[k]
+        })
 
 
 class SoSCommand(object):
