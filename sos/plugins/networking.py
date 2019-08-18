@@ -157,7 +157,7 @@ class Networking(Plugin):
         ss_pred = SoSPredicate(self, kmods=[
             'tcp_diag', 'udp_diag', 'inet_diag', 'unix_diag', 'netlink_diag',
             'af_packet_diag'
-        ])
+        ], required={'kmods': 'all'})
         self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
 
         # When iptables is called it will load the modules
@@ -222,18 +222,10 @@ class Networking(Plugin):
                 ])
 
                 ss_cmd = ns_cmd_prefix + "ss -peaonmi"
-                ss_pred = SoSPredicate(self, kmods=['tcp_diag', 'udp_diag',
-                                                    'inet_diag', 'unix_diag',
-                                                    'netlink_diag',
-                                                    'af_packet_diag'])
-                if self.test_predicate(self, pred=ss_pred) or \
-                        self.get_option("allow_system_changes"):
-                    self.add_cmd_output(ss_cmd)
-                else:
-                    self._log_warn("skipped command '%s' as it requires some "
-                                   "*_diag kernel module that is unloaded; "
-                                   "use --allow-system-changes to collect it"
-                                   % ss_cmd)
+                # --allow-system-changes is handled directly in predicate
+                # evaluation, so plugin code does not need to separately
+                # check for it
+                self.add_cmd_output(ss_cmd, pred=ss_pred)
 
             # Devices that exist in a namespace use less ethtool
             # parameters. Run this per namespace.
