@@ -46,10 +46,12 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         ])
 
         if not self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/libvirt/libvirtd.log", sizelimit=5)
-            self.add_copy_spec("/var/log/libvirt/qemu/*.log", sizelimit=5)
-            self.add_copy_spec("/var/log/libvirt/lxc/*.log", sizelimit=5)
-            self.add_copy_spec("/var/log/libvirt/uml/*.log", sizelimit=5)
+            self.add_copy_spec([
+                "/var/log/libvirt/libvirtd.log",
+                "/var/log/libvirt/qemu/*.log*",
+                "/var/log/libvirt/lxc/*.log",
+                "/var/log/libvirt/uml/*.log"
+            ])
         else:
             self.add_copy_spec("/var/log/libvirt")
 
