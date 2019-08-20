@@ -25,6 +25,7 @@ CONTAINERIZED_DEPLOY = [
         '/home/stack/undercloud-install-*.tar.bzip2',
         '/var/lib/mistral/config-download-latest/ansible.log',
         '/home/stack/.tripleo/history',
+        '/var/lib/tripleo-config/',
 ]
 
 
