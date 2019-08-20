@@ -50,13 +50,13 @@ _sos = _default
 
 #: Names of all arguments
 _arg_names = [
-    'add_preset', 'alloptions', 'all_logs', 'batch', 'build', 'case_id',
-    'chroot', 'compression_type', 'config_file', 'desc', 'debug', 'del_preset',
-    'dry_run', 'enableplugins', 'encrypt_key', 'encrypt_pass', 'experimental',
-    'label', 'list_plugins', 'list_presets', 'list_profiles', 'log_size',
-    'noplugins', 'noreport', 'no_env_vars', 'note', 'onlyplugins',
-    'plugin_timeout', 'plugopts', 'preset', 'profiles', 'quiet', 'sysroot',
-    'threads', 'tmp_dir', 'verbosity', 'verify', 'since'
+    'add_preset', 'alloptions', 'allow_system_changes', 'all_logs', 'batch',
+    'build', 'case_id', 'chroot', 'compression_type', 'config_file', 'desc',
+    'debug', 'del_preset', 'dry_run', 'enableplugins', 'encrypt_key',
+    'encrypt_pass', 'experimental', 'label', 'list_plugins', 'list_presets',
+    'list_profiles', 'log_size', 'noplugins', 'noreport', 'no_env_vars',
+    'note', 'onlyplugins', 'plugin_timeout', 'plugopts', 'preset', 'profiles',
+    'quiet', 'sysroot', 'threads', 'tmp_dir', 'verbosity', 'verify', 'since'
 ]
 
 #: Arguments with non-zero default values
@@ -180,6 +180,7 @@ class SoSOptions(object):
         self.log_size = _arg_defaults["log_size"]
         self.noplugins = []
         self.noreport = False
+        self.allow_system_changes = False
         self.no_env_vars = False
         self.note = ""
         self.onlyplugins = []
@@ -220,9 +221,9 @@ class SoSOptions(object):
             and verbose).
         """
         no_value = (
-            "alloptions", "all-logs", "batch", "build", "debug",
-            "experimental", "list-plugins", "list-presets", "list-profiles",
-            "noreport", "no-env-vars", "quiet", "verify"
+            "alloptions", "allow-system-changes", "all-logs", "batch", "build",
+            "debug", "experimental", "list-plugins", "list-presets",
+            "list-profiles", "noreport", "no-env-vars", "quiet", "verify"
         )
         count = ("verbose",)
         if opt in no_value:

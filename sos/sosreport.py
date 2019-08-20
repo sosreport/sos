@@ -236,6 +236,10 @@ def _get_parser():
     parser.add_argument("-t", "--threads", action="store", dest="threads",
                         help="specify number of concurrent plugins to run"
                         " (default=4)", default=4, type=int)
+    parser.add_argument("--allow-system-changes", action="store_true",
+                        dest="allow_system_changes", default=False,
+                        help="Run commands even if they can change the "
+                             "system (e.g. load kernel modules)")
 
     # Group to make add/del preset exclusive
     preset_grp = parser.add_mutually_exclusive_group()
@@ -395,12 +399,12 @@ class SoSReport(object):
             auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir,
                                         self.policy, self.opts.threads,
-                                        enc_opts)
+                                        enc_opts, self.sysroot)
 
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir,
                                           self.policy, self.opts.threads,
-                                          enc_opts)
+                                          enc_opts, self.sysroot)
 
         self.archive.set_debug(True if self.opts.debug else False)
 
@@ -469,7 +473,7 @@ class SoSReport(object):
         self.soslog.addHandler(flog)
 
         if not self.opts.quiet:
-            console = logging.StreamHandler(sys.stderr)
+            console = logging.StreamHandler(sys.stdout)
             console.setFormatter(logging.Formatter('%(message)s'))
             if self.opts.verbosity and self.opts.verbosity > 1:
                 console.setLevel(logging.DEBUG)
@@ -480,6 +484,11 @@ class SoSReport(object):
             else:
                 console.setLevel(logging.WARNING)
             self.soslog.addHandler(console)
+            # log ERROR or higher logs to stderr instead
+            console_err = logging.StreamHandler(sys.stderr)
+            console_err.setFormatter(logging.Formatter('%(message)s'))
+            console_err.setLevel(logging.ERROR)
+            self.soslog.addHandler(console_err)
 
         # ui log
         self.ui_log = logging.getLogger('sos_ui')

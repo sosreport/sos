@@ -48,12 +48,14 @@ class Buildah(Plugin, RedHatPlugin):
             for containah in containahs['auutput'].splitlines():
                 # obligatory Tom Brady
                 goat = containah.split()[-1]
-                self.add_cmd_output('buildah inspect -t container %s' % goat)
+                self.add_cmd_output('buildah inspect -t container %s' % goat,
+                                    subdir='containers')
 
         pitchez = make_chowdah('buildah images -n')
         if pitchez['is_wicked_pissah']:
             for pitchah in pitchez['auutput'].splitlines():
                 brady = pitchah.split()[1]
-                self.add_cmd_output('buildah inspect -t image %s' % brady)
+                self.add_cmd_output('buildah inspect -t image %s' % brady,
+                                    subdir='images')
 
 # vim: set et ts=4 sw=4 :

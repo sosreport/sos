@@ -95,6 +95,7 @@ class MockOptions(object):
     dry_run = False
     since = None
     log_size = 25
+    allow_system_changes = False
 
 
 class PluginToolTests(unittest.TestCase):

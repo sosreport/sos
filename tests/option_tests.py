@@ -10,6 +10,7 @@ class MockOptions(object):
     all_logs = False
     dry_run = False
     log_size = 25
+    allow_system_changes = False
 
 
 class GlobalOptionTest(unittest.TestCase):

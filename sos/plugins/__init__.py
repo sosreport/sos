@@ -107,26 +107,26 @@ class SoSPredicate(object):
     _owner = None
 
     #: Skip all collection?
-    _dry_run = False
+    dry_run = False
 
     #: Kernel module enablement list
-    _kmods = []
+    kmods = []
 
     #: Services enablement list
-    _services = []
+    services = []
 
     def __str(self, quote=False, prefix="", suffix=""):
         """Return a string representation of this SoSPredicate with
             optional prefix, suffix and value quoting.
         """
         quotes = '"%s"'
-        pstr = "dry_run=%s, " % self._dry_run
+        pstr = "dry_run=%s, " % self.dry_run
 
-        kmods = self._kmods
+        kmods = self.kmods
         kmods = [quotes % k for k in kmods] if quote else kmods
         pstr += "kmods=[%s], " % (",".join(kmods))
 
-        services = self._services
+        services = self.services
         services = [quotes % s for s in services] if quote else services
         pstr += "services=[%s]" % (",".join(services))
 
@@ -151,25 +151,30 @@ class SoSPredicate(object):
         """Predicate evaluation hook.
         """
         pvalue = False
-        for k in self._kmods:
+
+        # Allow loading kernel modules?
+        pvalue |= self._owner.get_option("allow_system_changes")
+
+        # Are kernel modules loaded?
+        for k in self.kmods:
             pvalue |= self._owner.is_module_loaded(k)
 
-        for s in self._services:
+        for s in self.services:
             pvalue |= self._owner.service_is_running(s)
 
         # Null predicate?
-        if not any([self._kmods, self._services, self._dry_run]):
+        if not any([self.kmods, self.services, self.dry_run]):
             return True
 
-        return pvalue and not self._dry_run
+        return pvalue and not self.dry_run
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[]):
         """Initialise a new SoSPredicate object.
         """
         self._owner = owner
-        self._kmods = list(kmods)
-        self._services = list(services)
-        self._dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
+        self.kmods = list(kmods)
+        self.services = list(services)
+        self.dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
 
 
 class SoSCommand(object):
@@ -422,6 +427,27 @@ class Plugin(object):
             return bool(pred)
         return False
 
+    def log_skipped_cmd(self, pred, cmd, kmods=False, services=False,
+                        changes=False):
+        """Log that a command was skipped due to predicate evaluation.
+
+            Emit a warning message indicating that a command was skipped due
+            to predicate evaluation. If ``kmods`` or ``services`` are ``True``
+            then the list of expected kernel modules or services will be
+            included in the log message. If ``allow_changes`` is ``True`` a
+            message indicating that the missing data can be collected by using
+            the "--allow-system-changes" command line option will be included.
+        """
+        msg = ("skipped command '%s': required kernel modules or"
+               " services not present (%s).")
+
+        needs = "kmods=[%s] services=[%s]" % (",".join(pred.kmods),
+                                              ",".join(pred.services))
+        if changes:
+            msg += " Use '--allow-system-changes' to enable collection."
+
+        self._log_warn(msg % (cmd, needs))
+
     def do_cmd_private_sub(self, cmd):
         '''Remove certificate and key output archived by sosreport. cmd
         is the command name from which output is collected (i.e. exlcuding
@@ -653,6 +679,9 @@ class Plugin(object):
         everything below it is recursively copied. A list of copied files are
         saved for use later in preparing a report.
         '''
+        if self._timeout_hit:
+            return
+
         if self._is_forbidden_path(srcpath):
             self._log_debug("skipping forbidden path '%s'" % srcpath)
             return ''
@@ -748,8 +777,10 @@ class Plugin(object):
         matches any of the option names is returned.
         """
 
-        global_options = ('verify', 'all_logs', 'log_size', 'since',
-                          'plugin_timeout')
+        global_options = (
+            'all_logs', 'allow_system_changes', 'log_size', 'plugin_timeout',
+            'verify', 'since'
+        )
 
         if optionname in global_options:
             return getattr(self.commons['cmdlineopts'], optionname)
@@ -882,6 +913,9 @@ class Plugin(object):
     def get_command_output(self, prog, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None):
+        if self._timeout_hit:
+            return
+
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
@@ -936,14 +970,15 @@ class Plugin(object):
             self.collect_cmds.append(soscmd)
             self._log_info("added cmd output '%s'" % soscmd.cmd)
         else:
-            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (soscmd.cmd,
-                            self.get_predicate(cmd=True, pred=pred)))
+            self.log_skipped_cmd(pred, soscmd.cmd, kmods=bool(pred.kmods),
+                                 services=bool(pred.services),
+                                 changes=soscmd.changes)
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=300, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
-                       sizelimit=None, pred=None):
+                       sizelimit=None, pred=None, subdir=None,
+                       changes=False):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -956,7 +991,8 @@ class Plugin(object):
                                  root_symlink=root_symlink, timeout=timeout,
                                  stderr=stderr, chroot=chroot, runat=runat,
                                  env=env, binary=binary, sizelimit=sizelimit,
-                                 pred=pred)
+                                 pred=pred, subdir=subdir,
+                                 changes=changes)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -982,23 +1018,34 @@ class Plugin(object):
         name_max = self.archive.name_max()
         return _mangle_command(exe, name_max)
 
-    def _make_command_filename(self, exe):
+    def _make_command_filename(self, exe, subdir=None):
         """The internal function to build up a filename based on a command."""
 
-        outfn = os.path.join(self.commons['cmddir'], self.name(),
-                             self._mangle_command(exe))
+        plugin_dir = self.name()
+        if subdir:
+            # only allow a single level of subdir to be created
+            plugin_dir += "/%s" % subdir.split('/')[0]
+        outdir = os.path.join(self.commons['cmddir'], plugin_dir)
+        outfn = self._mangle_command(exe)
 
         # check for collisions
-        if os.path.exists(outfn):
-            inc = 2
+        if os.path.exists(os.path.join(self.archive.get_tmp_dir(),
+                                       outdir, outfn)):
+            inc = 1
+            name_max = self.archive.name_max()
             while True:
-                newfn = "%s_%d" % (outfn, inc)
-                if not os.path.exists(newfn):
+                suffix = ".%d" % inc
+                newfn = outfn
+                if name_max < len(newfn)+len(suffix):
+                    newfn = newfn[:(name_max-len(newfn)-len(suffix))]
+                newfn = newfn + suffix
+                if not os.path.exists(os.path.join(self.archive.get_tmp_dir(),
+                                                   outdir, newfn)):
                     outfn = newfn
                     break
                 inc += 1
 
-        return outfn
+        return os.path.join(outdir, outfn)
 
     def add_env_var(self, name):
         """Add an environment variable to the list of to-be-collected env vars.
@@ -1034,23 +1081,27 @@ class Plugin(object):
     def _get_cmd_output_now(self, cmd, suggest_filename=None,
                             root_symlink=False, timeout=300, stderr=True,
                             chroot=True, runat=None, env=None,
-                            binary=False, sizelimit=None):
+                            binary=False, sizelimit=None, subdir=None,
+                            changes=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
+        if self._timeout_hit:
+            return
+
         start = time()
 
         result = self.get_command_output(cmd, timeout=timeout, stderr=stderr,
                                          chroot=chroot, runat=runat,
                                          env=env, binary=binary,
                                          sizelimit=sizelimit)
-        self._log_debug("collected output of '%s' in %s"
-                        % (cmd.split()[0], time() - start))
+        self._log_debug("collected output of '%s' in %s (changes=%s)"
+                        % (cmd.split()[0], time() - start, changes))
 
         if suggest_filename:
-            outfn = self._make_command_filename(suggest_filename)
+            outfn = self._make_command_filename(suggest_filename, subdir)
         else:
-            outfn = self._make_command_filename(cmd)
+            outfn = self._make_command_filename(cmd, subdir)
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
         if binary:
@@ -1227,6 +1278,8 @@ class Plugin(object):
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:
+            if self._timeout_hit:
+                return
             content = ''
             if string:
                 content = string.splitlines()[0]

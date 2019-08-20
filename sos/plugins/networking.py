@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin,
+                         SoSPredicate)
 from os import listdir
 import re
 
@@ -130,7 +131,6 @@ class Networking(Plugin):
         self.add_cmd_output([
             "netstat -s",
             "netstat %s -agn" % self.ns_wide,
-            "ss -peaonmi",
             "ip route show table all",
             "ip -6 route show table all",
             "ip -4 rule",
@@ -144,8 +144,21 @@ class Networking(Plugin):
             "ip neigh show nud noarp",
             "biosdevname -d",
             "tc -s qdisc show",
-            "ip -s macsec show",
         ])
+
+        # below commands require some kernel module(s) to be loaded
+        # run them only if the modules are loaded, or if explicitly requested
+        # via --allow-system-changes option
+        ip_macsec_show_cmd = "ip -s macsec show"
+        macsec_pred = SoSPredicate(self, kmods=['macsec'])
+        self.add_cmd_output(ip_macsec_show_cmd, pred=macsec_pred, changes=True)
+
+        ss_cmd = "ss -peaonmi"
+        ss_pred = SoSPredicate(self, kmods=[
+            'tcp_diag', 'udp_diag', 'inet_diag', 'unix_diag', 'netlink_diag',
+            'af_packet_diag'
+        ])
+        self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
 
         # When iptables is called it will load the modules
         # iptables and iptables_filter if they are not loaded.
@@ -203,11 +216,24 @@ class Networking(Plugin):
                     ns_cmd_prefix + "ip address show",
                     ns_cmd_prefix + "ip route show table all",
                     ns_cmd_prefix + "iptables-save",
-                    ns_cmd_prefix + "ss -peaonmi",
                     ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
                     ns_cmd_prefix + "netstat -s",
                     ns_cmd_prefix + "netstat %s -agn" % self.ns_wide
                 ])
+
+                ss_cmd = ns_cmd_prefix + "ss -peaonmi"
+                ss_pred = SoSPredicate(self, kmods=['tcp_diag', 'udp_diag',
+                                                    'inet_diag', 'unix_diag',
+                                                    'netlink_diag',
+                                                    'af_packet_diag'])
+                if self.test_predicate(self, pred=ss_pred) or \
+                        self.get_option("allow_system_changes"):
+                    self.add_cmd_output(ss_cmd)
+                else:
+                    self._log_warn("skipped command '%s' as it requires some "
+                                   "*_diag kernel module that is unloaded; "
+                                   "use --allow-system-changes to collect it"
+                                   % ss_cmd)
 
             # Devices that exist in a namespace use less ethtool
             # parameters. Run this per namespace.
