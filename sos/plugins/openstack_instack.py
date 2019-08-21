@@ -23,7 +23,8 @@ CONTAINERIZED_DEPLOY = [
         '/var/log/heat-launcher/',
         '/home/stack/install-undercloud.log',
         '/home/stack/undercloud-install-*.tar.bzip2',
-        '/var/lib/mistral/config-download-latest/ansible.log'
+        '/var/lib/mistral/config-download-latest/ansible.log',
+        '/home/stack/.tripleo/history',
 ]
 
 
@@ -127,6 +128,9 @@ class OpenStackInstack(Plugin):
         json_regexp = r'((?m)"(%s)": )(".*?")' % "|".join(protected_json_keys)
         self.do_file_sub("/home/stack/instackenv.json", json_regexp,
                          r"\1*********")
+        self.do_file_sub('/home/stack/.tripleo/history',
+                         r'(password=)\w+',
+                         r'\1*********')
 
 
 class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
