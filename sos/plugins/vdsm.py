@@ -92,8 +92,8 @@ class Vdsm(Plugin, RedHatPlugin):
             ])
         self.add_cmd_output([
             "ls -ldZ /etc/vdsm",
-            "su vdsm -s sh -c 'tree -l /rhev/data-center'",
-            "su vdsm -s sh -c 'ls -lR /rhev/data-center'"
+            "su vdsm -s /bin/sh -c 'tree -l /rhev/data-center'",
+            "su vdsm -s /bin/sh -c 'ls -lR /rhev/data-center'"
         ])
         self.add_cmd_output([
             "lvm vgs -v -o +tags --config \'%s\'" % LVM_CONFIG,
