@@ -1417,59 +1417,6 @@ class Plugin(object):
         """
         pass
 
-    def report(self):
-        """ Present all information that was gathered in an html file that
-        allows browsing the results.
-        """
-        # make this prettier
-        html = u'<hr/><a name="%s"></a>\n' % self.name()
-
-        # Intro
-        html = html + "<h2> Plugin <em>" + self.name() + "</em></h2>\n"
-
-        # Files
-        if len(self.copied_files):
-            html = html + "<p>Files copied:<br><ul>\n"
-            for afile in self.copied_files:
-                html = html + '<li><a href="%s">%s</a>' % \
-                    (u'..' + _to_u(afile['dstpath']), _to_u(afile['srcpath']))
-                if afile['symlink'] == "yes":
-                    html = html + " (symlink to %s)" % _to_u(afile['pointsto'])
-                html = html + '</li>\n'
-            html = html + "</ul></p>\n"
-
-        # Command Output
-        if len(self.executed_commands):
-            html = html + "<p>Commands Executed:<br><ul>\n"
-            # convert file name to relative path from our root
-            # don't use relpath - these are HTML paths not OS paths.
-            for cmd in self.executed_commands:
-                if cmd["file"] and len(cmd["file"]):
-                    cmd_rel_path = u"../" + _to_u(self.commons['cmddir']) \
-                        + "/" + _to_u(cmd['file'])
-                    html = html + '<li><a href="%s">%s</a></li>\n' % \
-                        (cmd_rel_path, _to_u(cmd['exe']))
-                else:
-                    html = html + '<li>%s</li>\n' % (_to_u(cmd['exe']))
-            html = html + "</ul></p>\n"
-
-        # Alerts
-        if len(self.alerts):
-            html = html + "<p>Alerts:<br><ul>\n"
-            for alert in self.alerts:
-                html = html + '<li>%s</li>\n' % _to_u(alert)
-            html = html + "</ul></p>\n"
-
-        # Custom Text
-        if self.custom_text != "":
-            html = html + "<p>Additional Information:<br>\n"
-            html = html + _to_u(self.custom_text) + "</p>\n"
-
-        if six.PY2:
-            return html.encode('utf8')
-        else:
-            return html
-
     def check_process_by_name(self, process):
         """Checks if a named process is found in /proc/[0-9]*/cmdline.
         Returns either True or False."""

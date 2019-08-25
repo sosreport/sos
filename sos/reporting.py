@@ -51,12 +51,17 @@ class Report(Node):
                 self.data[node.name] = node.data
 
 
+def _decode(s):
+    """returns a string text for a given unicode/str input"""
+    return (s if isinstance(s, six.text_type) else s.decode('utf8', 'ignore'))
+
+
 class Section(Node):
     """A section is a container for leaf elements. Sections may be nested
     inside of Report objects only."""
 
     def __init__(self, name):
-        self.name = name
+        self.name = _decode(name)
         self.data = {}
 
     def can_add(self, node):
@@ -73,9 +78,9 @@ class Command(Leaf):
     ADDS_TO = "commands"
 
     def __init__(self, name, return_code, href):
-        self.data = {"name": name,
+        self.data = {"name": _decode(name),
                      "return_code": return_code,
-                     "href": href}
+                     "href": _decode(href)}
 
 
 class CopiedFile(Leaf):
@@ -83,16 +88,17 @@ class CopiedFile(Leaf):
     ADDS_TO = "copied_files"
 
     def __init__(self, name, href):
-        self.data = {"name": name,
-                     "href": href}
+        self.data = {"name": _decode(name),
+                     "href": _decode(href)}
 
 
 class CreatedFile(Leaf):
 
     ADDS_TO = "created_files"
 
-    def __init__(self, name):
-        self.data = {"name": name}
+    def __init__(self, name, href):
+        self.data = {"name": _decode(name),
+                     "href": _decode(href)}
 
 
 class Alert(Leaf):
@@ -100,7 +106,7 @@ class Alert(Leaf):
     ADDS_TO = "alerts"
 
     def __init__(self, content):
-        self.data = content
+        self.data = _decode(content)
 
 
 class Note(Leaf):
@@ -108,7 +114,7 @@ class Note(Leaf):
     ADDS_TO = "notes"
 
     def __init__(self, content):
-        self.data = content
+        self.data = _decode(content)
 
 
 def ends_bs(string):
@@ -125,32 +131,60 @@ def ends_bs(string):
 class PlainTextReport(object):
     """Will generate a plain text report from a top_level Report object"""
 
+    HEADER = ""
+    FOOTER = ""
     LEAF = "  * %(name)s"
     ALERT = "  ! %s"
     NOTE = "  * %s"
-    DIVIDER = "=" * 72
+    PLUGLISTHEADER = "Loaded Plugins:"
+    PLUGLISTITEM = "  {name}"
+    PLUGLISTSEP = "\n"
+    PLUGLISTMAXITEMS = 5
+    PLUGLISTFOOTER = ""
+    PLUGINFORMAT = "{name}"
+    PLUGDIVIDER = "=" * 72
 
     subsections = (
-        (Command, LEAF,      "-  commands executed:"),
-        (CopiedFile, LEAF,   "-  files copied:"),
-        (CreatedFile, LEAF,  "-  files created:"),
-        (Alert, ALERT,       "-  alerts:"),
-        (Note, NOTE,         "-  notes:"),
+        (Command, LEAF,      "-  commands executed:", ""),
+        (CopiedFile, LEAF,   "-  files copied:",      ""),
+        (CreatedFile, LEAF,  "-  files created:",     ""),
+        (Alert, ALERT,       "-  alerts:",            ""),
+        (Note, NOTE,         "-  notes:",             ""),
     )
 
     line_buf = []
 
     def __init__(self, report_node):
-        self.report_node = report_node
+        self.report_data = sorted(six.iteritems(report_node.data))
 
     def unicode(self):
         self.line_buf = line_buf = []
-        for section_name, section_contents in sorted(six.iteritems(
-                self.report_node.data)):
-            line_buf.append(section_name + "\n" + self.DIVIDER)
-            for type_, format_, header in self.subsections:
+
+        if (len(self.HEADER) > 0):
+            line_buf.append(self.HEADER)
+
+        # generate section/plugin list, split long list to multiple lines
+        line_buf.append(self.PLUGLISTHEADER)
+        line = ""
+        i = 0
+        plugcount = len(self.report_data)
+        for section_name, _ in self.report_data:
+            line += self.PLUGLISTITEM.format(name=section_name)
+            i += 1
+            if (i % self.PLUGLISTMAXITEMS == 0) and (i < plugcount):
+                line += self.PLUGLISTSEP
+        line += self.PLUGLISTFOOTER
+        line_buf.append(line)
+
+        for section_name, section_contents in self.report_data:
+            line_buf.append(self.PLUGDIVIDER)
+            line_buf.append(self.PLUGINFORMAT.format(name=section_name))
+            for type_, format_, header, footer in self.subsections:
                 self.process_subsection(section_contents, type_.ADDS_TO,
-                                        header, format_)
+                                        header, format_, footer)
+
+        if (len(self.FOOTER) > 0):
+            line_buf.append(self.FOOTER)
 
         # Workaround python.six mishandling of strings ending in '/' by
         # adding a single space following any '\' at end-of-line.
@@ -158,16 +192,70 @@ class PlainTextReport(object):
         line_buf = [line + " " if ends_bs(line) else line for line in line_buf]
 
         output = u'\n'.join(map(lambda i: (i if isinstance(i, six.text_type)
-                                           else six.u(i)), line_buf))
+                                           else i.decode('utf8', 'ignore')),
+                                line_buf))
         if six.PY3:
             return output
         else:
             return output.encode('utf8')
 
-    def process_subsection(self, section, key, header, format_):
+    def process_subsection(self, section, key, header, format_, footer):
         if key in section:
             self.line_buf.append(header)
             for item in section.get(key):
                 self.line_buf.append(format_ % item)
+            if (len(footer) > 0):
+                self.line_buf.append(footer)
+
+
+class HTMLReport(PlainTextReport):
+    """Will generate a HTML report from a top_level Report object"""
+
+    HEADER = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+        <head>
+            <link rel="stylesheet" type="text/css" media="screen"
+                  href="donot.css" />
+            <meta http-equiv="Content-Type" content="text/html;
+                  charset=utf-8" />
+            <title>Sos System Report</title>
+            <style>
+                td {
+                    padding: 0 5px;
+                   }
+            </style>
+        </head>
+        <body>\n"""
+    FOOTER = "</body></html>"
+    LEAF = '<li><a href="%(href)s">%(name)s</a></li>'
+    ALERT = "<li>%s</li>"
+    NOTE = "<li>%s</li>"
+    PLUGLISTHEADER = "<h3>Loaded Plugins:</h3><table><tr>"
+    PLUGLISTITEM = '<td><a href="#{name}">{name}</a></td>\n'
+    PLUGLISTSEP = "</tr>\n<tr>"
+    PLUGLISTMAXITEMS = 5
+    PLUGLISTFOOTER = "</tr></table>"
+    PLUGINFORMAT = '<a name="{name}"></a><h2>Plugin <em>{name}</em></h2>'
+    PLUGDIVIDER = "<hr/>\n"
+
+    subsections = (
+        (Command, LEAF,      "<p>Commands executed:<br><ul>", "</ul></p>"),
+        (CopiedFile, LEAF,   "<p>Files copied:<br><ul>",      "</ul></p>"),
+        (CreatedFile, LEAF,  "<p>Files created:<br><ul>",     "</ul></p>"),
+        (Alert, ALERT,       "<p>Alerts:<br><ul>",            "</ul></p>"),
+        (Note, NOTE,         "<p>Notes:<br><ul>",             "</ul></p>"),
+    )
+
+
+class JSONReport(PlainTextReport):
+    """Will generate a JSON report from a top_level Report object"""
+
+    def unicode(self):
+        output = json.dumps(self.report_data, indent=4, ensure_ascii=False)
+        if six.PY3:
+            return output
+        else:
+            return output.encode('utf8')
 
 # vim: set et ts=4 sw=4 :
