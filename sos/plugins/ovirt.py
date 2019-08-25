@@ -132,6 +132,14 @@ class Ovirt(Plugin, RedHatPlugin):
             "/var/lib/ovirt-engine-reports/jboss_runtime/config"
         ])
 
+        # Copying host certs.
+        self.add_forbidden_path([
+            "/etc/pki/ovirt-engine/keys",
+            "/etc/pki/ovirt-engine/private",
+            "/etc/pki/ovirt-engine/.truststore"
+        ])
+        self.add_copy_spec("/etc/pki/ovirt-engine/")
+
     def postproc(self):
         """
         Obfuscate sensitive keys.
