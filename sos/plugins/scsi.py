@@ -29,10 +29,8 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/sys/class/scsi_generic"
         ])
 
-        self.add_cmd_output([
-            "lsscsi",
-            "sg_map -x"
-        ])
+        self.add_cmd_output("lsscsi -i", suggest_filename="lsscsi")
+        self.add_cmd_output("sg_map -x")
 
         scsi_hosts = glob("/sys/class/scsi_host/*")
         self.add_udev_info(scsi_hosts, attrs=True)
