@@ -24,6 +24,7 @@ sosreport \- Collect and package diagnostic and support data
           [--verify]\fR
           [--log-size]\fR
           [--all-logs]\fR
+          [--since YYYYMMDD[HHMMSS]]\fR
           [-z|--compression-type method]\fR
           [--encrypt-key KEY]\fR
           [--encrypt-pass PASS]\fR
@@ -152,6 +153,10 @@ plugin.
 Tell plugins to collect all possible log data ignoring any size limits
 and including logs in non-default locations. This option may significantly
 increase the size of reports.
+.TP
+.B \--since YYYYMMDD[HHMMSS]
+Limits the collection to logs newer than this date.
+This also affects \--all-logs. Will pad with 0s if HHMMSS isn't specified.
 .TP
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.

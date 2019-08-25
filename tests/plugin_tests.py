@@ -93,6 +93,7 @@ class EnablerPlugin(Plugin):
 class MockOptions(object):
     all_logs = False
     dry_run = False
+    since = None
     log_size = 25
     allow_system_changes = False
 
