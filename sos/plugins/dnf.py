@@ -40,18 +40,14 @@ class DNFPlugin(Plugin, RedHatPlugin):
                         self.add_cmd_output("dnf module info " + module)
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/dnf/dnf.conf",
-            "/etc/dnf/plugins/*",
-            "/etc/dnf/protected.d/*",
-        ])
+        self.add_copy_spec("/etc/dnf/")
 
         if self.get_option("all_logs"):
             self.add_copy_spec("/var/log/dnf.*")
         else:
-            self.add_copy_spec("/var/log/dnf.log")
-            self.add_copy_spec("/var/log/dnf.librepo.log")
-            self.add_copy_spec("/var/log/dnf.rpm.log")
+            self.add_copy_spec("/var/log/dnf.log*")
+            self.add_copy_spec("/var/log/dnf.librepo.log*")
+            self.add_copy_spec("/var/log/dnf.rpm.log*")
 
         self.add_cmd_output([
             "dnf --version",
