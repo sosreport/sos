@@ -21,26 +21,12 @@ class OpenStackManila(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/manila"
 
     def setup(self):
-        manila_config_opt = "--config-dir %s/etc/manila/"
 
-        # check eventlet-based service on the baremetal
-        in_ps = self.check_process_by_name("manila-api")
-
-        # check if manila-api is running inside a container
-        # (doesn't matter if running via httpd or as a eventlet based service)
-        in_container = self.running_in_container()
-
-        if in_container:
-            manila_config = manila_config_opt % self.var_puppet_gen
-        else:
-            manila_config = manila_config_opt % ''
-
-        # gather DB version
-        if in_ps or in_container:
-            self.add_cmd_output(
-                "manila-manage " + manila_config + " db version",
-                suggest_filename="manila_db_version"
-            )
+        config_dir = "%s/etc/manila" % (
+            self.var_puppet_gen if self.running_in_container() else ''
+        )
+        manila_cmd = "manila-manage --config-dir %s db version" % config_dir
+        self.add_cmd_output(manila_cmd, suggest_filename="manila_db_version")
 
         self.add_copy_spec([
             "/etc/manila/",
@@ -63,9 +49,6 @@ class OpenStackManila(Plugin):
                 "/var/log/containers/manila/*.log",
                 "/var/log/containers/httpd/manila-api/*log"
             ])
-
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def running_in_container(self):
         for runtime in ["docker", "podman"]:
