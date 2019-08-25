@@ -20,8 +20,6 @@ class Satellite(Plugin, RedHatPlugin):
     satellite = False
     proxy = False
 
-    option_list = [("log", 'gathers all apache logs', 'slow', False)]
-
     def rhn_package_check(self):
         self.satellite = self.is_installed("rhns-satellite-tools") \
             or self.is_installed("spacewalk-java") \
@@ -38,13 +36,9 @@ class Satellite(Plugin, RedHatPlugin):
     def setup(self):
         self.rhn_package_check()
         self.add_copy_spec([
-            "/etc/httpd/conf*",
             "/etc/rhn",
             "/var/log/rhn*"
         ])
-
-        if self.get_option("log"):
-            self.add_copy_spec("/var/log/httpd")
 
         # all these used to go in $DIR/mon-logs/
         self.add_copy_spec([
@@ -79,8 +73,5 @@ class Satellite(Plugin, RedHatPlugin):
                 "spacewalk-debug --dir %s"
                 % self.get_cmd_output_path(name="spacewalk-debug"),
                 timeout=900)
-
-        if self.proxy:
-            self.add_copy_spec(["/etc/squid", "/var/log/squid"])
 
 # vim: set et ts=4 sw=4 :
