@@ -21,7 +21,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/NetworkManager/NetworkManager.conf",
-            "/etc/NetworkManager/system-connections"
+            "/etc/NetworkManager/system-connections",
+            "/etc/NetworkManager/dispatcher.d"
         ])
 
         # There are some incompatible changes in nmcli since
