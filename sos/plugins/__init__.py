@@ -923,8 +923,11 @@ class Plugin(object):
                         file_name = _file
                         if file_name[0] == os.sep:
                             file_name = file_name.lstrip(os.sep)
-                        strfile = file_name.replace(os.path.sep, ".") + ".tailed"
-                        self.add_string_as_file(tail(_file, sizelimit), strfile)
+                        strfile = (
+                            file_name.replace(os.path.sep, ".") + ".tailed"
+                        )
+                        self.add_string_as_file(tail(_file, sizelimit),
+                                                strfile)
                         rel_path = os.path.relpath('/', os.path.dirname(_file))
                         link_path = os.path.join(rel_path, 'sos_strings',
                                                  self.name(), strfile)
