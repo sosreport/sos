@@ -12,6 +12,7 @@
 from __future__ import print_function
 
 from sos.policies.redhat import RedHatPolicy, OS_RELEASE
+import os
 
 
 class AmazonPolicy(RedHatPolicy):
@@ -25,6 +26,9 @@ class AmazonPolicy(RedHatPolicy):
 
     @classmethod
     def check(cls):
+        if not os.path.exists(OS_RELEASE):
+            return False
+
         with open(OS_RELEASE, 'r') as f:
             for line in f:
                 if line.startswith('NAME'):
