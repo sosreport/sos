@@ -21,7 +21,11 @@ class Last(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "last reboot",
             "last shutdown",
-            "lastlog"
+            "lastlog",
+            "lastlog -u 0-999",
+            "lastlog -u 1000-60000",
+            "lastlog -u 60001-65536",
+            "lastlog -u 65537-4294967295"
         ])
 
 # vim: et ts=4 sw=4
