@@ -8,16 +8,16 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Grafana(Plugin, RedHatPlugin):
+class Grafana(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """Fetch Grafana configuration, logs and CLI output
     """
     plugin_name = "grafana"
     profiles = ('services', 'openstack', 'openstack_controller')
 
-    packages = ('graphana',)
+    packages = ('grafana')
 
     def setup(self):
         if self.get_option("all_logs"):
