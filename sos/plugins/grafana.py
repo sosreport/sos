@@ -17,7 +17,7 @@ class Grafana(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "grafana"
     profiles = ('services', 'openstack', 'openstack_controller')
 
-    packages = ('graphana', 'grafana')
+    packages = ('grafana')
 
     def setup(self):
         if self.get_option("all_logs"):
