@@ -20,7 +20,7 @@ class Gluster(Plugin, RedHatPlugin):
     plugin_name = 'gluster'
     profiles = ('storage', 'virt')
 
-    statedump_dir = '/var/run/gluster'
+    statedump_dir = '/run/gluster'
     packages = ["glusterfs", "glusterfs-core"]
     files = ["/etc/glusterd", "/var/lib/glusterd"]
 
