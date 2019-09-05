@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from socket import gethostname
 
 
 class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -15,6 +16,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'ceph'
     profiles = ('storage', 'virt')
+    ceph_hostname = gethostname()
 
     packages = (
         'ceph',
@@ -24,6 +26,13 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         'ceph-fs-common',
         'calamari-server',
         'librados2'
+    )
+
+    services = (
+        'ceph-nfs@pacemaker',
+        'ceph-mds@%s' % ceph_hostname,
+        'ceph-mon@%s' % ceph_hostname,
+        'ceph-mgr@%s' % ceph_hostname
     )
 
     def setup(self):
@@ -71,6 +80,9 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph versions",
             "ceph osd crush dump"
         ])
+
+        for service in self.services:
+            self.add_journal(units=service)
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
