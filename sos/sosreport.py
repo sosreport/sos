@@ -1180,10 +1180,13 @@ class SoSReport(object):
         if not archive:
             return False
 
-        archive_fp = open(archive, 'rb')
-        digest = hashlib.new(hash_name)
-        digest.update(archive_fp.read())
-        archive_fp.close()
+        try:
+            archive_fp = open(archive, 'rb')
+            digest = hashlib.new(hash_name)
+            digest.update(archive_fp.read())
+            archive_fp.close()
+        except Exception:
+            self.handle_exception()
         return digest.hexdigest()
 
     def _write_checksum(self, archive, hash_name, checksum):
