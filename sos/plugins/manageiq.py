@@ -57,10 +57,20 @@ class ManageIQ(Plugin, RedHatPlugin):
 
     # Log files to collect from miq_dir/log/
     miq_log_dir = os.path.join(miq_dir, "log")
+
+    miq_main_log_files = [
+        'ansible_tower.log',
+        'top_output.log',
+        'evm.log',
+        'production.log',
+        'automation.log',
+    ]
+
     miq_log_files = [
         '*.log',
         'apache/*.log',
         '*.txt',
+        '*.yml',
     ]
 
     def setup(self):
@@ -73,6 +83,11 @@ class ManageIQ(Plugin, RedHatPlugin):
         self.add_copy_spec([
             os.path.join(self.miq_conf_dir, x) for x in self.miq_conf_files
         ])
+
+        # Collect main log files without size limit.
+        self.add_copy_spec([
+            os.path.join(self.miq_log_dir, x) for x in self.miq_main_log_files
+        ], sizelimit=0)
 
         self.add_copy_spec([
             os.path.join(self.miq_log_dir, x) for x in self.miq_log_files
