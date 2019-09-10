@@ -78,6 +78,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.add_cmd_output([
             "dmesg",
+            "dmesg -H",
             "sysctl -a",
             "dkms status"
         ])
