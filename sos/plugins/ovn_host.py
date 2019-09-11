@@ -35,7 +35,7 @@ class OVNHost(Plugin):
         self.add_cmd_output([
             'ovs-ofctl -O OpenFlow13 dump-flows br-int',
             'ovs-vsctl list-br',
-            'ovs-vsctl list OpenVswitch',
+            'ovs-vsctl list Open_vSwitch',
         ])
 
         self.add_journal(units="ovn-controller")
