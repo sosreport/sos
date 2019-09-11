@@ -24,6 +24,7 @@ class Zfs(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "zfs get all",
             "zfs list -t all -o space",
             "zpool list",
+            "zpool events -v",
             "zpool status -vx"
         ])
 
