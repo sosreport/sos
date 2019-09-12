@@ -50,4 +50,19 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "%s %s" % (ps_axo, ps_sched_opts)
         ])
 
+        self.add_cmd_output("""sh -c '
+for pgm in /proc/*/comm; do
+    [ "$pgm" != "/proc/self/comm" ] || continue;
+    pid=${pgm##/proc/};
+    pid=${pid%%/comm};
+    for thread in ${pgm%%/comm}/task/*/comm; do
+        tid=${thread##${pgm%%/comm}/task/};
+        tid=${tid%%/comm};
+        affinity=$(taskset -p $tid 2>/dev/null);
+        printf "%s,%s,%s,%s,%s\n" "$pid" "$(cat $pgm 2>/dev/null)" \
+            "$tid" "$(cat $thread 2>/dev/null)" "${affinity##*: }";
+    done;
+done'
+""")
+
 # vim: set et ts=4 sw=4 :
