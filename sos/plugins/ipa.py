@@ -116,7 +116,8 @@ class Ipa(Plugin, RedHatPlugin):
             "/var/lib/certmonger/cas/[0-9]*",
             "/var/lib/ipa/ra-agent.pem",
             "/var/kerberos/krb5kdc/kdc.crt",
-            "/var/lib/ipa/sysrestore/sysrestore.state"
+            "/var/lib/ipa/sysrestore/sysrestore.state",
+            "/var/log/ipa/healthcheck/healthcheck.log*"
         ])
 
         #  Make sure to use the right PKI config and NSS DB folders
