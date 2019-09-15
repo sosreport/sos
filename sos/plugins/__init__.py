@@ -115,6 +115,9 @@ class SoSPredicate(object):
     #: Services enablement list
     services = []
 
+    #: Package presence list
+    packages = []
+
     def __str(self, quote=False, prefix="", suffix=""):
         """Return a string representation of this SoSPredicate with
             optional prefix, suffix and value quoting.
@@ -128,7 +131,11 @@ class SoSPredicate(object):
 
         services = self.services
         services = [quotes % s for s in services] if quote else services
-        pstr += "services=[%s]" % (",".join(services))
+        pstr += "services=[%s] " % (",".join(services))
+
+        pkgs = self.packages
+        pkgs = [quotes % p for p in pkgs] if quote else pkgs
+        pstr += "packages=[%s]" % (",".join(pkgs))
 
         return prefix + pstr + suffix
 
@@ -170,26 +177,38 @@ class SoSPredicate(object):
         else:
             return all(_svcs)
 
+    def _eval_packages(self):
+        if not self.packages:
+            return True
+
+        _pkgs = [self._owner.is_installed(p) for p in self.packages]
+
+        if self.required['packages'] == 'any':
+            return any(_pkgs)
+        else:
+            return all(_pkgs)
+
     def __nonzero__(self):
         """Predicate evaluation hook.
         """
 
         # Null predicate?
-        if not any([self.kmods, self.services, self.dry_run]):
+        if not any([self.kmods, self.services, self.packages, self.dry_run]):
             return True
 
-        return ((self._eval_kmods() and self._eval_services()) and not
-                self.dry_run)
+        return ((self._eval_kmods() and self._eval_services() and
+                 self._eval_packages()) and not self.dry_run)
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[],
-                 required={}):
+                 packages=[], required={}):
         """Initialise a new SoSPredicate object.
         """
         self._owner = owner
         self.kmods = list(kmods)
         self.services = list(services)
+        self.packages = list(packages)
         self.dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
-        self.required = {'kmods': 'any', 'services': 'any'}
+        self.required = {'kmods': 'any', 'services': 'any', 'packages': 'any'}
         self.required.update({
             k: v for k, v in required.items() if
             required[k] != self.required[k]
