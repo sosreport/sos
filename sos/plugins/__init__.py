@@ -208,7 +208,7 @@ class SoSPredicate(object):
         '''Does 'cmd' output contain string 'output'?'''
         if 'cmd' not in cmd_output or 'output' not in cmd_output:
             return False
-        result = self._owner.get_command_output(cmd_output['cmd'])
+        result = sos_get_command_output(cmd_output['cmd'])
         if result['status'] != 0:
             return False
         for line in result['output'].splitlines():
