@@ -34,6 +34,7 @@ class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
             "%s sel list" % cmd,
             "%s sensor list" % cmd,
             "%s chassis status" % cmd,
+            "%s lan print" % cmd,
             "%s fru print" % cmd,
             "%s mc info" % cmd,
             "%s sdr info" % cmd
