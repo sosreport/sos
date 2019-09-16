@@ -122,6 +122,9 @@ class SoSPredicate(object):
     #: Package presence list
     packages = []
 
+    # Command output inclusion pairs {'cmd': 'foo --help', 'output': 'bar'}
+    cmd_outputs = []
+
     def __str(self, quote=False, prefix="", suffix=""):
         """Return a string representation of this SoSPredicate with
             optional prefix, suffix and value quoting.
@@ -135,18 +138,27 @@ class SoSPredicate(object):
 
         services = self.services
         services = [quotes % s for s in services] if quote else services
-        pstr += "services=[%s] " % (",".join(services))
+        pstr += "services=[%s], " % (",".join(services))
 
         pkgs = self.packages
         pkgs = [quotes % p for p in pkgs] if quote else pkgs
-        pstr += "packages=[%s]" % (",".join(pkgs))
+        pstr += "packages=[%s], " % (",".join(pkgs))
+
+        cmdoutputs = [
+            "{ %s: %s, %s: %s }" % (quotes % "cmd",
+                                    quotes % cmdoutput['cmd'],
+                                    quotes % "output",
+                                    quotes % cmdoutput['output'])
+            for cmdoutput in self.cmd_outputs
+        ]
+        pstr += "cmdoutputs=[%s]" % (",".join(cmdoutputs))
 
         return prefix + pstr + suffix
 
     def __str__(self):
         """Return a string representation of this SoSPredicate.
 
-            "dry_run=False, kmods=[], services=[]"
+            "dry_run=False, kmods=[], services=[], cmdoutputs=[]"
         """
         return self.__str()
 
@@ -154,7 +166,7 @@ class SoSPredicate(object):
         """Return a machine readable string representation of this
             SoSPredicate.
 
-            "SoSPredicate(dry_run=False, kmods=[], services=[])"
+            "SoSPredicate(dry_run=False, kmods=[], services=[], cmdoutputs=[])"
         """
         return self.__str(quote=True, prefix="SoSPredicate(", suffix=")")
 
@@ -192,27 +204,56 @@ class SoSPredicate(object):
         else:
             return all(_pkgs)
 
+    def _eval_cmd_output(self, cmd_output):
+        '''Does 'cmd' output contain string 'output'?'''
+        if 'cmd' not in cmd_output or 'output' not in cmd_output:
+            return False
+        result = self._owner.get_command_output(cmd_output['cmd'])
+        if result['status'] != 0:
+            return False
+        for line in result['output'].splitlines():
+            if cmd_output['output'] in line:
+                return True
+        return False
+
+    def _eval_cmd_outputs(self):
+        if not self.cmd_outputs:
+            return True
+
+        _cmds = [self._eval_cmd_output(c) for c in self.cmd_outputs]
+
+        if self.required['commands'] == 'any':
+            return any(_cmds)
+        else:
+            return all(_cmds)
+
     def __nonzero__(self):
         """Predicate evaluation hook.
         """
 
         # Null predicate?
-        if not any([self.kmods, self.services, self.packages, self.dry_run]):
+        if not any([self.kmods, self.services, self.packages, self.cmd_outputs,
+                    self.dry_run]):
             return True
 
         return ((self._eval_kmods() and self._eval_services() and
-                 self._eval_packages()) and not self.dry_run)
+                 self._eval_packages() and self._eval_cmd_outputs())
+                and not self.dry_run)
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[],
-                 packages=[], required={}):
+                 packages=[], cmd_outputs=[], required={}):
         """Initialise a new SoSPredicate object.
         """
         self._owner = owner
         self.kmods = list(kmods)
         self.services = list(services)
         self.packages = list(packages)
+        if not isinstance(cmd_outputs, list):
+            cmd_outputs = [cmd_outputs]
+        self.cmd_outputs = cmd_outputs
         self.dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
-        self.required = {'kmods': 'any', 'services': 'any', 'packages': 'any'}
+        self.required = {'kmods': 'any', 'services': 'any', 'packages': 'any',
+                         'commands': 'any'}
         self.required.update({
             k: v for k, v in required.items() if
             required[k] != self.required[k]
