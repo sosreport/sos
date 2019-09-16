@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import (Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
+                         SoSPredicate)
 
 
 class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -32,9 +33,16 @@ class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("ls -lanR /boot")
         # call grub2-mkconfig with GRUB_DISABLE_OS_PROBER=true to prevent
         # possible unwanted loading of some kernel modules
+        # further, check if the command supports --no-grubenv-update option
+        # to prevent removing of extra args in $kernel_opts, and (only) if so,
+        # call the command with this argument
         env = {}
         env['GRUB_DISABLE_OS_PROBER'] = 'true'
-        self.add_cmd_output("grub2-mkconfig", env=env)
+        grub_cmd = 'grub2-mkconfig'
+        co = {'cmd': 'grub2-mkconfig --help', 'output': '--no-grubenv-update'}
+        if self.test_predicate(self, pred=SoSPredicate(self, cmd_outputs=co)):
+            grub_cmd += ' --no-grubenv-update'
+        self.add_cmd_output(grub_cmd, env=env)
 
     def postproc(self):
         # the trailing space is required; python treats '_' as whitespace
