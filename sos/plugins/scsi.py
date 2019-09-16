@@ -32,6 +32,7 @@ class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_cmd_output("sg_map -x")
 
         scsi_hosts = glob("/sys/class/scsi_host/*")
-        self.add_udev_info(scsi_hosts, attrs=True)
+        self.add_blockdev_cmd("udevadm info -a %(dev)s", devices=scsi_hosts,
+                              prepend_path='/sys/class/scsi_host')
 
 # vim: set et ts=4 sw=4 :
