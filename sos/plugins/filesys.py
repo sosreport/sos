@@ -31,6 +31,7 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin):
             "/proc/self/mountinfo",
             "/proc/self/mountstats",
             "/proc/[0-9]*/mountinfo",
+            "/etc/mtab",
             "/etc/fstab"
         ])
         self.add_cmd_output("mount -l", root_symlink="mount")
