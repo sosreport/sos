@@ -134,20 +134,21 @@ class Foreman(Plugin):
         ])
 
         # collect tables sizes, ordered
-        _cmd = self.build_query_cmd("\
-            SELECT schema_name, relname, \
-                   pg_size_pretty(table_size) AS size, table_size \
-            FROM ( \
-              SELECT \
-                pg_catalog.pg_namespace.nspname AS schema_name, \
-                relname, \
-                pg_relation_size(pg_catalog.pg_class.oid) AS table_size \
-              FROM pg_catalog.pg_class \
-              JOIN pg_catalog.pg_namespace \
-                ON relnamespace = pg_catalog.pg_namespace.oid \
-            ) t \
-            WHERE schema_name NOT LIKE 'pg_%' \
-            ORDER BY table_size DESC;")
+        _cmd = self.build_query_cmd(
+            "SELECT table_name, pg_size_pretty(total_bytes) AS total, "
+            "pg_size_pretty(index_bytes) AS INDEX , "
+            "pg_size_pretty(toast_bytes) AS toast, pg_size_pretty(table_bytes)"
+            " AS TABLE FROM ( SELECT *, "
+            "total_bytes-index_bytes-COALESCE(toast_bytes,0) AS table_bytes "
+            "FROM (SELECT c.oid,nspname AS table_schema, relname AS "
+            "TABLE_NAME, c.reltuples AS row_estimate, "
+            "pg_total_relation_size(c.oid) AS total_bytes, "
+            "pg_indexes_size(c.oid) AS index_bytes, "
+            "pg_total_relation_size(reltoastrelid) AS toast_bytes "
+            "FROM pg_class c LEFT JOIN pg_namespace n ON "
+            "n.oid = c.relnamespace WHERE relkind = 'r') a) a order by "
+            "total_bytes DESC"
+        )
         self.add_cmd_output(_cmd, suggest_filename='foreman_db_tables_sizes',
                             env=self.env)
 
