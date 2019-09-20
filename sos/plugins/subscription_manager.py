@@ -29,6 +29,8 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "/var/log/rhsm/rhsmcertd.log"])
         self.add_cmd_output([
             "subscription-manager list --installed",
+            "subscription-manager list --available",
+            "subscription-manager list --all --available",
             "subscription-manager list --consumed",
             "subscription-manager identity",
             "syspurpose show"
