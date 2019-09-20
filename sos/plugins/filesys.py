@@ -58,7 +58,7 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         self.do_file_sub(
             "/etc/fstab",
-            r"(password=)[^\s]*",
+            r"(password=)[^,\s]*",
             r"\1********"
         )
 
