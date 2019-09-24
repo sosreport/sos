@@ -188,11 +188,6 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
 
     files = ('/root/cdk/kubeproxyconfig',)
 
-    def setup(self):
-        if path.exists('/root/cdk/kubeproxyconfig'):
-            kube_cmd = "/snap/bin/kubectl"
-            kube_cmd += " --kubeconfig=/root/cdk/kubeproxyconfig"
-
-        return super(UbuntuKubernetes, self).setup()
+    kube_cmd = "/snap/bin/kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
 
 # vim: et ts=5 sw=4
