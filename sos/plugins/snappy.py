@@ -20,11 +20,11 @@ class Snappy(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output([
-            "systemctl status snapd.service",
             "snap list --all",
             "snap --version",
             "snap changes"
         ])
+        self.add_service_status("snapd")
         self.add_journal(units="snapd")
 
 # vim: set et ts=4 sw=4 :
