@@ -15,22 +15,11 @@ from os import path
 import re
 
 
-class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
-
+class Kubernetes(Plugin):
     """Kubernetes plugin
     """
 
-    # OpenShift Container Platform uses the atomic-openshift-master package
-    # to provide kubernetes
-    packages = ('kubernetes', 'kubernetes-master', 'atomic-openshift-master')
     profiles = ('container',)
-    # use files only for masters, rely on package list for nodes
-    files = (
-        "/var/run/kubernetes/apiserver.key",
-        "/etc/origin/master/",
-        "/etc/origin/node/pods/master-config.yaml",
-        "/root/cdk/kubeproxyconfig"
-    )
 
     option_list = [
         ("all", "also collect all namespaces output separately",
@@ -41,6 +30,8 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
         ("podlogs-filter", "only capture logs for pods matching this string",
             'fast', '')
     ]
+
+    kube_cmd = "kubectl"
 
     def check_is_master(self):
         return any([path.exists(f) for f in self.files])
@@ -71,22 +62,12 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
         if not self.check_is_master():
             return
 
-        # Red Hat
-        kube_cmd = "kubectl "
-        if path.exists('/etc/origin/master/admin.kubeconfig'):
-            kube_cmd += "--kubeconfig=/etc/origin/master/admin.kubeconfig"
-
-        # Ubuntu Charmed Distribution of Kubernetes
-        if path.exists('/root/cdk/kubeproxyconfig'):
-            kube_cmd = "/snap/bin/kubectl "
-            kube_cmd += "--kubeconfig=/root/cdk/kubeproxyconfig"
-
         kube_get_cmd = "get -o json "
         for subcmd in ['version', 'config view']:
-            self.add_cmd_output('%s %s' % (kube_cmd, subcmd))
+            self.add_cmd_output('%s %s' % (self.kube_cmd, subcmd))
 
         # get all namespaces in use
-        kn = self.get_command_output('%s get namespaces' % kube_cmd)
+        kn = self.get_command_output('%s get namespaces' % self.kube_cmd)
         # namespace is the 1st word on line, until the line has spaces only
         kn_output = kn['output'].splitlines()[1:]
         knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
@@ -112,10 +93,10 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
             'pvs'
         ]
         self.add_cmd_output([
-            "%s get %s" % (kube_cmd, res) for res in global_resources
+            "%s get %s" % (self.kube_cmd, res) for res in global_resources
         ])
         # Also collect master metrics
-        self.add_cmd_output("%s get --raw /metrics" % kube_cmd)
+        self.add_cmd_output("%s get --raw /metrics" % self.kube_cmd)
 
         # CNV is not part of the base installation, but can be added
         if self.is_installed('kubevirt-virtctl'):
@@ -125,7 +106,7 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
         for n in knsps:
             knsp = '--namespace=%s' % n
             if self.get_option('all'):
-                k_cmd = '%s %s %s' % (kube_cmd, kube_get_cmd, knsp)
+                k_cmd = '%s %s %s' % (self.kube_cmd, kube_get_cmd, knsp)
 
                 self.add_cmd_output('%s events' % k_cmd)
 
@@ -134,7 +115,7 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
 
             if self.get_option('describe'):
                 # need to drop json formatting for this
-                k_cmd = '%s %s' % (kube_cmd, knsp)
+                k_cmd = '%s %s' % (self.kube_cmd, knsp)
                 for res in resources:
                     r = self.get_command_output(
                         '%s get %s' % (k_cmd, res))
@@ -142,14 +123,14 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
                         k_list = [k.split()[0] for k in
                                   r['output'].splitlines()[1:]]
                         for k in k_list:
-                            k_cmd = '%s %s' % (kube_cmd, knsp)
+                            k_cmd = '%s %s' % (self.kube_cmd, knsp)
                             self.add_cmd_output(
                                 '%s describe %s %s' % (k_cmd, res, k),
                                 subdir=res
                             )
 
             if self.get_option('podlogs'):
-                k_cmd = '%s %s' % (kube_cmd, knsp)
+                k_cmd = '%s %s' % (self.kube_cmd, knsp)
                 r = self.get_command_output('%s get pods' % k_cmd)
                 if r['status'] == 0:
                     pods = [p.split()[0] for p in
@@ -164,7 +145,7 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
                                             subdir='pods')
 
         if not self.get_option('all'):
-            k_cmd = '%s get --all-namespaces=true' % kube_cmd
+            k_cmd = '%s get --all-namespaces=true' % self.kube_cmd
             for res in resources:
                 self.add_cmd_output('%s %s' % (k_cmd, res), subdir=res)
 
@@ -181,5 +162,37 @@ class kubernetes(Plugin, RedHatPlugin, UbuntuPlugin):
         # Next, we need to handle the private keys and certs in some
         # output that is not hit by the previous iteration.
         self.do_cmd_private_sub('kubectl')
+
+
+class RedHatKubernetes(Kubernetes, RedHatPlugin):
+    """Red Hat Kubernetes plugin
+    """
+
+    # OpenShift Container Platform uses the atomic-openshift-master package
+    # to provide kubernetes
+    packages = ('kubernetes', 'kubernetes-master', 'atomic-openshift-master')
+
+    files = (
+        '/etc/origin/master/admin.kubeconfig',
+        '/etc/origin/node/pods/master-config.yaml',
+    )
+
+    kube_cmd = "kubectl --kubeconfig=/etc/origin/master/admin.kubeconfig"
+
+
+class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
+    """Ubuntu Kubernetes plugin
+    """
+
+    packages = ('kubernetes',)
+
+    files = ('/root/cdk/kubeproxyconfig',)
+
+    def setup(self):
+        if path.exists('/root/cdk/kubeproxyconfig'):
+            kube_cmd = "/snap/bin/kubectl"
+            kube_cmd += " --kubeconfig=/root/cdk/kubeproxyconfig"
+
+        return super(UbuntuKubernetes, self).setup()
 
 # vim: et ts=5 sw=4
