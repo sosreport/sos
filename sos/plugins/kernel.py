@@ -110,6 +110,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/sys/module/*/version",
             "/sys/firmware/acpi/*",
             "/sys/kernel/debug/tracing/*",
+            "/sys/kernel/livepatch/*",
             "/proc/kallsyms",
             "/proc/buddyinfo",
             "/proc/slabinfo",
