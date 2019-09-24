@@ -24,7 +24,13 @@ class ManageIQ(Plugin, RedHatPlugin):
 
     miq_dir = '/var/www/miq/vmdb'
 
-    packages = ('cfme',)
+    packages = (
+        'cfme',
+        'cfme-appliance',
+        'cfme-gemset',
+        'cfme-appliance-tools',
+        'cfme-appliance-common'
+    )
     files = (
         os.path.join(miq_dir, 'BUILD'),
         os.path.join(miq_dir, 'GUID'),
