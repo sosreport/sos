@@ -60,7 +60,7 @@ class RedHatApache(Apache, RedHatPlugin):
 
         self.add_forbidden_path("/etc/httpd/conf/password.conf")
 
-        self.add_cmd_output('systemctl status httpd')
+        self.add_service_status('httpd')
 
         # collect only the current log set by default
         self.add_copy_spec([
@@ -100,7 +100,7 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
             "/etc/default/apache2"
         ])
 
-        self.add_cmd_output('systemctl status apache2')
+        self.add_service_status('apache2')
 
         # collect only the current log set by default
         self.add_copy_spec([
