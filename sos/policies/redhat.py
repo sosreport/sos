@@ -300,6 +300,9 @@ support representative.
             return self.find_preset(RH_SATELLITE)
         if self.pkg_by_name("rhosp-release") is not None:
             return self.find_preset(RHOSP)
+        if self.pkg_by_name("ovirt-engine") is not None or \
+                self.pkg_by_name("vdsm") is not None:
+            return self.find_preset(RHV)
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
