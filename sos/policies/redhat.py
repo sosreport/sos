@@ -194,6 +194,9 @@ RHOSP_DESC = "Red Hat OpenStack Platform"
 RHOCP = "ocp"
 RHOCP_DESC = "OpenShift Container Platform by Red Hat"
 
+RH_CFME = "cfme"
+RH_CFME_DESC = "Red Hat CloudForms"
+
 RH_SATELLITE = "satellite"
 RH_SATELLITE_DESC = "Red Hat Satellite"
 SAT_OPTS = SoSOptions(verify=True, plugopts=['apache.log=on'])
@@ -215,6 +218,8 @@ rhel_presets = {
                           opts=_opts_all_logs_no_lsof),
     RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
                           opts=_opts_all_logs_verify),
+    RH_CFME: PresetDefaults(name=RH_CFME, desc=RH_CFME_DESC, note=NOTE_TIME,
+                            opts=_opts_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
                                  note=NOTE_TIME, opts=SAT_OPTS),
     CB: PresetDefaults(name=CB, desc=CB_DESC, note=CB_NOTE, opts=CB_OPTS)
@@ -300,6 +305,8 @@ support representative.
             return self.find_preset(RH_SATELLITE)
         if self.pkg_by_name("rhosp-release") is not None:
             return self.find_preset(RHOSP)
+        if self.pkg_by_name("cfme") is not None:
+            return self.find_preset(RH_CFME)
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
