@@ -24,6 +24,7 @@ class Snappy(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):
             "snap --version",
             "snap changes"
         ])
+        self.add_cmd_output("snap debug connectivity", timeout=10)
         self.add_service_status("snapd")
         self.add_journal(units="snapd")
 
