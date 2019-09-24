@@ -307,6 +307,9 @@ support representative.
             return self.find_preset(RHOSP)
         if self.pkg_by_name("cfme") is not None:
             return self.find_preset(RH_CFME)
+        if self.pkg_by_name("ovirt-engine") is not None or \
+                self.pkg_by_name("vdsm") is not None:
+            return self.find_preset(RHV)
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
