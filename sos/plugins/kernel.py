@@ -23,7 +23,8 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     sys_module = '/sys/module'
 
     option_list = [
-        ("with-timer", "gather /proc/timer* statistics", "slow", False)
+        ("with-timer", "gather /proc/timer* statistics", "slow", False),
+        ("trace", "gather /sys/kernel/debug/tracing/trace file", "slow", False)
     ]
 
     def get_bpftool_prog_ids(self, prog_file):
@@ -137,6 +138,9 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             # This can be very slow, depending on the number of timers,
             # and may also cause softlockups
             self.add_copy_spec("/proc/timer*")
+
+        if not self.get_option("trace"):
+            self.add_forbidden_path("/sys/kernel/debug/tracing/trace")
 
         # collect list of bpf program attachments in the kernel
         # networking subsystem
