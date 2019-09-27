@@ -52,8 +52,20 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
 
 class RedHatMongoDb(MongoDb, RedHatPlugin):
 
+    packages = (
+        'mongodb-server',
+        'rh-mongodb32-mongodb-server',
+        'rh-mongodb34-mongodb-server',
+        'rh-mongodb36-mongodb-server'
+    )
+
     def setup(self):
         super(RedHatMongoDb, self).setup()
-        self.add_copy_spec("/etc/sysconfig/mongodb")
+        self.add_copy_spec([
+            "/etc/sysconfig/mongodb",
+            "/etc/rh-mongodb*-mongo*.conf",
+            "/etc/opt/rh/rh-mongodb*/mongo*.conf",
+            "/var/opt/rh/rh-mongodb*/log/mongodb/mongod.log"
+        ])
 
 # vim: set et ts=4 sw=4 :
