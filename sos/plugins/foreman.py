@@ -216,6 +216,9 @@ class Foreman(Plugin):
             self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
                                 env=self.env)
 
+        # collect http[|s]_proxy env.variables
+        self.add_env_var(["http_proxy", "https_proxy"])
+
     def build_query_cmd(self, query, csv=False):
         """
         Builds the command needed to invoke the pgsql query as the postgres
