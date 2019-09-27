@@ -912,6 +912,9 @@ class Plugin(object):
             limit_reached = False
 
             for _file in files:
+                if _file in self.copy_paths:
+                    self._log_debug("skipping redundant file '%s'" % _file)
+                    continue
                 if self._is_forbidden_path(_file):
                     self._log_debug("skipping forbidden path '%s'" % _file)
                     continue
