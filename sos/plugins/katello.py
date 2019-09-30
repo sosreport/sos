@@ -10,7 +10,6 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 from pipes import quote
-import os.path
 
 
 class Katello(Plugin, RedHatPlugin):
@@ -23,17 +22,6 @@ class Katello(Plugin, RedHatPlugin):
         self.add_copy_spec([
             "/var/log/httpd/katello-reverse-proxy_access_ssl.log*",
             "/var/log/httpd/katello-reverse-proxy_error_ssl.log*"
-        ])
-
-        # certificate file location relies on katello version, it can be either
-        # /etc/pki/katello/qpid_client_striped.crt (for older versions) or
-        # /etc/pki/pulp/qpid/client.crt (for newer versions)
-        cert = "/etc/pki/pulp/qpid/client.crt"
-        if not os.path.isfile(cert):
-            cert = "/etc/pki/katello/qpid_client_striped.crt"
-        self.add_cmd_output([
-            "qpid-stat -%s --ssl-certificate=%s -b amqps://localhost:5671" %
-            (opt, cert) for opt in "quc"
         ])
 
         kat_db = self.build_query_cmd(
