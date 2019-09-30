@@ -31,10 +31,16 @@ class Pulp(Plugin, RedHatPlugin):
         # further, take optional user credentials - here we assume the
         # credentials dont contain a whitespace character (that would
         # make the parsing more difficult)
+        #
+        # further, collect location of CA file for contacting qpid in section
+        # [messaging]
+        # certfile: /etc/pki/katello/qpid_client_striped.crt
         self.dbhost = "localhost"
         self.dbport = "27017"
         self.dbuser = ""
         self.dbpassword = ""
+        self.messaging_cert_file = ""
+        in_messaging_section = False
         try:
             for line in open("/etc/pulp/server.conf").read().splitlines():
                 if match(r"^\s*seeds:\s+\S+:\S+", line):
@@ -45,6 +51,11 @@ class Pulp(Plugin, RedHatPlugin):
                     self.dbuser = "-u %s" % line.split()[1]
                 if match(r"\s*password:\s+\S+", line):
                     self.dbpassword = "-p %s" % line.split()[1]
+                if line.startswith("[messaging]"):
+                    in_messaging_section = True
+                if in_messaging_section and line.startswith("certfile:"):
+                    self.messaging_cert_file = line.split()[1]
+                    in_messaging_section = False
         except IOError:
             # fallback when the cfg file is not accessible
             pass
@@ -112,6 +123,10 @@ class Pulp(Plugin, RedHatPlugin):
         self.add_cmd_output(prun, suggest_filename="pulp-running_tasks")
         self.add_cmd_output(csizes, suggest_filename="mongo-collection_sizes")
         self.add_cmd_output(dbstats, suggest_filename="mongo-db_stats")
+        self.add_cmd_output([
+            "qpid-stat -%s --ssl-certificate=%s -b amqps://localhost:5671" %
+            (opt, self.messaging_cert_file) for opt in "quc"
+        ])
 
     def build_mongo_cmd(self, query):
         _cmd = "bash -c %s"
