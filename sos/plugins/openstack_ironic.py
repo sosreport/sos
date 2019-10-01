@@ -119,8 +119,9 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
     ]
 
     def collect_introspection_data(self):
-        uuids_result = self.call_ext_prog('openstack baremetal node list '
-                                          '-f value -c UUID')
+        uuids_result = self.collect_cmd_output(
+            'openstack baremetal node list -f value -c UUID'
+        )
         if uuids_result['status']:
             self.soslog.warning('Failed to fetch list of ironic node UUIDs, '
                                 'introspection data won\'t be collected')

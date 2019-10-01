@@ -127,7 +127,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             files_collected = 0
             path = os.path.join(self.pcp_log_dir, 'pmlogger',
                                 self.pcp_hostname, '*')
-            pmlogger_ls = self.get_cmd_output_now("ls -t1 %s" % path)
+            pmlogger_ls = self.exec_cmd("ls -t1 %s" % path)
             if pmlogger_ls:
                 for line in open(pmlogger_ls).read().splitlines():
                     self.add_copy_spec(line, sizelimit=0)
@@ -148,10 +148,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             os.path.join(self.pcp_log_dir, '*/*/config*')
         ])
 
-        # Need to get the current status of the PCP infrastructure
-        self.add_cmd_output("pcp")
         # Collect a summary for the current day
-        res = self.get_command_output('pcp')
+        res = self.collect_cmd_output('pcp')
         if res['status'] == 0:
             for line in res['output'].splitlines():
                 if line.startswith(' pmlogger:'):

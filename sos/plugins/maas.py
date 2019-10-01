@@ -32,10 +32,13 @@ class Maas(Plugin, UbuntuPlugin):
             and self.get_option("profile-name")
 
     def _remote_api_login(self):
-        ret = self.call_ext_prog("maas login %s %s %s" % (
-            self.get_option("profile-name"),
-            self.get_option("url"),
-            self.get_option("credentials")))
+        ret = self.exec_cmd(
+            "maas login %s %s %s" % (
+                self.get_option("profile-name"),
+                self.get_option("url"),
+                self.get_option("credentials")
+            )
+        )
 
         return ret['status'] == 0
 

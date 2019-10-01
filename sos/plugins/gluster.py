@@ -26,20 +26,6 @@ class Gluster(Plugin, RedHatPlugin):
 
     option_list = [("dump", "enable glusterdump support", "slow", False)]
 
-    def get_volume_names(self, volume_file):
-        """Return a dictionary for which key are volume names according to the
-        output of gluster volume info stored in volume_file.
-        """
-        out = []
-        fp = open(volume_file, 'r')
-        for line in fp.readlines():
-            if not line.startswith("Volume Name:"):
-                continue
-            volname = line[12:-1]
-            out.append(volname)
-        fp.close()
-        return out
-
     def wait_for_statedump(self, name_dir):
         statedumps_present = 0
         statedump_entries = [
@@ -97,7 +83,7 @@ class Gluster(Plugin, RedHatPlugin):
 
         if self.get_option("dump"):
             if os.path.exists(self.statedump_dir):
-                if self.check_ext_prog(
+                if self.exec_cmd(
                         "killall -USR1 glusterfs glusterfsd glusterd"):
                     # let all the processes catch the signal and create
                     # statedump file entries.
@@ -110,14 +96,17 @@ class Gluster(Plugin, RedHatPlugin):
             else:
                 self.soslog.warn("Unable to generate statedumps, no such "
                                  "directory: %s" % self.statedump_dir)
-            state = self.get_command_output("gluster get-state")
+            state = self.exec_cmd("gluster get-state")
             if state['status'] == 0:
                 state_file = state['output'].split()[-1]
                 self.add_copy_spec(state_file)
 
-        volume_file = self.get_cmd_output_now("gluster volume info")
-        if volume_file:
-            for volname in self.get_volume_names(volume_file):
+        volume_cmd = self.collect_cmd_output("gluster volume info")
+        if volume_cmd['status'] == 0:
+            for line in volume_cmd['output']:
+                if not line.startswith("Volume Name:"):
+                    continue
+                volname = line[12:-1]
                 self.add_cmd_output([
                     "gluster volume get %s all" % volname,
                     "gluster volume geo-replication %s status" % volname,

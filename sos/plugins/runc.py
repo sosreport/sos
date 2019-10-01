@@ -22,7 +22,7 @@ class Runc(Plugin):
 
         self.add_cmd_output('runc list')
 
-        cons = self.get_command_output('runc list -q')
+        cons = self.exec_cmd('runc list -q')
         conlist = [c for c in cons['output'].splitlines()]
         for con in conlist:
             self.add_cmd_output('runc ps %s' % con)

@@ -12,11 +12,10 @@ class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def _get_entries(self, cmd):
         entries = []
-        ent_file = self.get_cmd_output_now(cmd)
-        if ent_file:
-            with open(ent_file, "r") as ents:
-                for line in ents.read().splitlines():
-                    entries.append(line)
+        ent_file = self.collect_cmd_output(cmd)
+        if ent_file['status'] == 0:
+            for line in ent_file['output'].splitlines():
+                entries.append(line)
         return entries
 
     def setup(self):

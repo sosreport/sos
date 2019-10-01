@@ -79,9 +79,9 @@ class Yum(Plugin, RedHatPlugin):
 
         # packages installed/erased/updated per transaction
         if self.get_option("yum-history-info"):
-            history = self.call_ext_prog("yum history")
+            history = self.exec_cmd("yum history")
             transactions = None
-            if history['output']:
+            if history['status'] == 0:
                 for line in history['output'].splitlines():
                     try:
                         transactions = int(line.split('|')[0].strip())
@@ -99,7 +99,7 @@ class Yum(Plugin, RedHatPlugin):
             # RHEL6+ alternative for this whole function:
             # self.add_cmd_output("yum-debug-dump '%s'"
             # % os.path.join(self.commons['dstroot'],"yum-debug-dump"))
-            r = self.call_ext_prog("yum-debug-dump")
+            r = self.exec_cmd("yum-debug-dump")
             try:
                 self.add_cmd_output("zcat %s" % (r['output'].split()[-1],))
             except IndexError:

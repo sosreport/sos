@@ -28,7 +28,7 @@ class sapnw(Plugin, RedHatPlugin):
 
     def collect_list_instances(self):
         # list installed instances
-        inst_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
+        inst_out = self.collect_cmd_output("/usr/sap/hostctrl/exe/saphostctrl \
                                            -function ListInstances",
                                            suggest_filename="SAPInstances")
         if not inst_out:
@@ -93,7 +93,7 @@ class sapnw(Plugin, RedHatPlugin):
 
     def collect_list_dbs(self):
         # list installed sap dbs
-        db_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
+        db_out = self.collect_cmd_output("/usr/sap/hostctrl/exe/saphostctrl \
                                          -function ListDatabases",
                                          suggest_filename="SAPDatabases")
         if not db_out:

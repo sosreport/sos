@@ -113,7 +113,7 @@ class Vdsm(Plugin, RedHatPlugin):
         ])
 
         try:
-            res = self.call_ext_prog(
+            res = self.collect_cmd_output(
                 'vdsm-client Host getConnectedStoragePools'
             )
             if res['status'] == 0:
@@ -129,7 +129,7 @@ class Vdsm(Plugin, RedHatPlugin):
             )
 
         try:
-            res = self.call_ext_prog('vdsm-client Host getStorageDomains')
+            res = self.collect_cmd_output('vdsm-client Host getStorageDomains')
             if res['status'] == 0:
                 sd_uuids = json.loads(res['output'])
                 dump_volume_chains_cmd = 'vdsm-tool dump-volume-chains %s'

@@ -67,8 +67,10 @@ class Foreman(Plugin):
             "/etc/foreman*/encryption_key.rb"
         ])
 
-        _hostname = self.get_command_output('hostname')['output'].strip()
-        _host_f = self.get_command_output('hostname -f')['output'].strip()
+        _hostname = self.exec_cmd('hostname')['output']
+        _hostname = _hostname.strip()
+        _host_f = self.exec_cmd('hostname -f')['output']
+        _host_f = _host_f.strip()
 
         # Collect these completely everytime
         self.add_copy_spec([

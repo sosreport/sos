@@ -36,7 +36,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "iprconfig -c show-slots",
         ])
 
-        show_ioas = self.call_ext_prog("iprconfig -c show-ioas")
+        show_ioas = self.collect_cmd_output("iprconfig -c show-ioas")
         if not show_ioas['status'] == 0:
             return
 
@@ -55,7 +55,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("iprconfig -c show-perf %s" % device)
 
         # Look for IBM Power RAID enclosures (iprconfig lists them)
-        show_config = self.call_ext_prog("iprconfig -c show-config")
+        show_config = self.collect_cmd_output("iprconfig -c show-config")
         if not show_config['status'] == 0:
             return
 
@@ -76,7 +76,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 #        0005:60:00.0/0:8:1:0       Enclosure                 Active
 
         show_alt_config = "iprconfig -c show-alt-config"
-        altconfig = self.call_ext_prog(show_alt_config)
+        altconfig = self.collect_cmd_output(show_alt_config)
         if not (altconfig['status'] == 0):
             return
 

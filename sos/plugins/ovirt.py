@@ -62,8 +62,8 @@ class Ovirt(Plugin, RedHatPlugin):
         if self.get_option('jbosstrace') and self.is_installed('ovirt-engine'):
             engine_pattern = r"^ovirt-engine\ -server.*jboss-modules.jar"
             pgrep = "pgrep -f '%s'" % engine_pattern
-            lines = self.call_ext_prog(pgrep)['output'].splitlines()
-            engine_pids = [int(x) for x in lines]
+            lines = self.exec_cmd(pgrep)
+            engine_pids = [int(x) for x in lines['output'].splitlines()]
             if not engine_pids:
                 self.soslog.error('Unable to get ovirt-engine pid')
                 self.add_alert('Unable to get ovirt-engine pid')

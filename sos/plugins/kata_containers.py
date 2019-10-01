@@ -37,7 +37,7 @@ class KataContainers(Plugin, RedHatPlugin, DebianPlugin,
 
         # obtain a list of config files by asking the runtime
         cmd = 'kata-runtime --kata-show-default-config-paths'
-        configs = self.get_command_output(cmd)
+        configs = self.collect_cmd_output(cmd)
         if configs and configs['status']:
             for config in configs['output'].splitlines():
                 if config != "":
