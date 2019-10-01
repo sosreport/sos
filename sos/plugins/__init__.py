@@ -519,7 +519,7 @@ class Plugin(object):
                     self._log_warn("Cannot apply regex substitution to binary"
                                    " output: '%s'" % called['exe'])
                     continue
-                if fnmatch.fnmatch(called['exe'], globstr):
+                if fnmatch.fnmatch(called['cmd'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
                     self._log_debug("applying substitution to '%s'" % path)
                     readable = self.archive.open_file(path)
@@ -957,57 +957,6 @@ class Plugin(object):
                     # size limit not hit, copy the file
                     self._add_copy_paths([_file])
 
-    def get_command_output(self, prog, timeout=300, stderr=True,
-                           chroot=True, runat=None, env=None,
-                           binary=False, sizelimit=None):
-        if self._timeout_hit:
-            return
-
-        if chroot or self.commons['cmdlineopts'].chroot == 'always':
-            root = self.sysroot
-        else:
-            root = None
-
-        result = sos_get_command_output(prog, timeout=timeout, stderr=stderr,
-                                        chroot=root, chdir=runat,
-                                        env=env, binary=binary,
-                                        sizelimit=sizelimit,
-                                        poller=self.check_timeout)
-
-        if result['status'] == 124:
-            self._log_warn("command '%s' timed out after %ds"
-                           % (prog, timeout))
-
-        # command not found or not runnable
-        if result['status'] == 126 or result['status'] == 127:
-            # automatically retry chroot'ed commands in the host namespace
-            if root and root != '/':
-                if self.commons['cmdlineopts'].chroot != 'always':
-                    self._log_info("command '%s' not found in %s - "
-                                   "re-trying in host root"
-                                   % (prog.split()[0], root))
-                    return self.get_command_output(prog, timeout=timeout,
-                                                   chroot=False, runat=runat,
-                                                   env=env,
-                                                   binary=binary)
-            self._log_debug("could not run '%s': command not found" % prog)
-        return result
-
-    def call_ext_prog(self, prog, timeout=300, stderr=True,
-                      chroot=True, runat=None):
-        """Execute a command independantly of the output gathering part of
-        sosreport.
-        """
-        return self.get_command_output(prog, timeout=timeout, stderr=stderr,
-                                       chroot=chroot, runat=runat)
-
-    def check_ext_prog(self, prog):
-        """Execute a command independently of the output gathering part of
-        sosreport and check the return code. Return True for a return code of 0
-        and False otherwise.
-        """
-        return self.call_ext_prog(prog)['status'] == 0
-
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
         pred = kwargs.pop('pred') if 'pred' in kwargs else None
@@ -1127,23 +1076,73 @@ class Plugin(object):
         self.copy_strings.append((content, filename))
         self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
 
-    def _get_cmd_output_now(self, cmd, suggest_filename=None,
-                            root_symlink=False, timeout=300, stderr=True,
-                            chroot=True, runat=None, env=None,
-                            binary=False, sizelimit=None, subdir=None,
-                            changes=False):
+    def _collect_cmd_output_now(self, cmd, suggest_filename=None,
+                                root_symlink=False, timeout=300, stderr=True,
+                                chroot=True, runat=None, env=None,
+                                binary=False, sizelimit=None, subdir=None,
+                                changes=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
+
+        Positional Arguments:
+            :param cmd:                 The command to run
+
+        Keyword Arguments:
+            :param suggest_filename:    Filename to use when writing to the
+                                        archive
+            :param root_symlink:        Create a symlink in the archive root
+            :param timeout:             Time in seconds to allow a cmd to run
+            :param stderr:              Write stderr to stdout?
+            :param chroot:              Perform chroot before running cmd?
+            :param runat:               Run the command from this location,
+                                        overriding chroot
+            :param env:                 Dict of env vars to set for the cmd
+            :param binary:              Is the output in binary?
+            :param sizelimit:           Maximum size in MB of output to save
+            :param subdir:              Subdir in plugin directory to save to
+            :param changes:             Does this cmd potentially make a change
+                                        on the system?
+
+        :returns:       dict containing status, output, and filename in the
+                        archive for the executed cmd
+
         """
         if self._timeout_hit:
             return
 
+        if chroot or self.commons['cmdlineopts'].chroot == 'always':
+            root = self.sysroot
+        else:
+            root = None
+
         start = time()
 
-        result = self.get_command_output(cmd, timeout=timeout, stderr=stderr,
-                                         chroot=chroot, runat=runat,
-                                         env=env, binary=binary,
-                                         sizelimit=sizelimit)
+        result = sos_get_command_output(
+            cmd, timeout=timeout, stderr=stderr, chroot=root,
+            chdir=runat, env=env, binary=binary, sizelimit=sizelimit,
+            poller=self.check_timeout
+        )
+
+        if result['status'] == 124:
+            self._log_warn(
+                "command '%s' timed out after %ds" % (cmd, timeout)
+            )
+
+        # command not found or not runnable
+        if result['status'] == 126 or result['status'] == 127:
+            # automatically retry chroot'ed commands in the host namespace
+            if root and root != '/':
+                if self.commons['cmdlineopts'].chroot != 'always':
+                    self._log_info("command '%s' not found in %s - "
+                                   "re-trying in host root"
+                                   % (cmd.split()[0], root))
+                    result = sos_get_command_output(
+                        cmd, timeout=timeout, chroot=False, chdir=runat,
+                        env=env, binary=binary, sizelimit=sizelimit,
+                        poller=self.check_timeout
+                    )
+            self._log_debug("could not run '%s': command not found" % cmd)
+
         self._log_debug("collected output of '%s' in %s (changes=%s)"
                         % (cmd.split()[0], time() - start, changes))
 
@@ -1153,6 +1152,7 @@ class Plugin(object):
             outfn = self._make_command_filename(cmd, subdir)
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
+
         if binary:
             self.archive.add_binary(result['output'], outfn)
         else:
@@ -1161,29 +1161,59 @@ class Plugin(object):
             self.archive.add_link(outfn, root_symlink)
 
         # save info for later
-        self.executed_commands.append({'exe': cmd, 'file': outfn_strip,
+        self.executed_commands.append({'cmd': cmd, 'file': outfn_strip,
                                        'binary': 'yes' if binary else 'no'})
 
-        return os.path.join(self.archive.get_archive_path(), outfn)
+        result['filename'] = (
+            os.path.join(self.archive.get_archive_path(), outfn) if outfn else
+            ''
+        )
+        return result
 
-    def get_cmd_output_now(self, exe, suggest_filename=None,
+    def collect_cmd_output(self, cmd, suggest_filename=None,
                            root_symlink=False, timeout=300, stderr=True,
                            chroot=True, runat=None, env=None,
-                           binary=False, sizelimit=None, pred=None):
+                           binary=False, sizelimit=None, pred=None,
+                           subdir=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
         if not self.test_predicate(cmd=True, pred=pred):
             self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (exe, self.get_predicate(cmd=True, pred=pred)))
-            return None
+                           (cmd, self.get_predicate(cmd=True, pred=pred)))
+            return {
+                'status': None,  # don't match on if result['status'] checks
+                'output': '',
+                'filename': ''
+            }
 
-        return self._get_cmd_output_now(exe, suggest_filename=suggest_filename,
-                                        root_symlink=root_symlink,
-                                        timeout=timeout, stderr=stderr,
-                                        chroot=chroot, runat=runat,
-                                        env=env, binary=binary,
-                                        sizelimit=sizelimit)
+        return self._collect_cmd_output_now(
+            cmd, suggest_filename=suggest_filename, root_symlink=root_symlink,
+            timeout=timeout, stderr=stderr, chroot=chroot, runat=runat,
+            env=env, binary=binary, sizelimit=sizelimit, subdir=subdir
+        )
+
+    def exec_cmd(self, cmd, timeout=300, stderr=True, chroot=True, runat=None,
+                 env=None, binary=False, pred=None):
+        """Execute a command right now and return the output and status, but
+        do not save the output within the archive.
+
+        Use this method in a plugin's setup() if command output is needed to
+        build subsequent commands added to a report via add_cmd_output().
+        """
+        if not self.test_predicate(cmd=True, pred=pred):
+            return {
+                'status': None,
+                'output': ''
+            }
+
+        if chroot or self.commons['cmdlineopts'].chroot == 'always':
+            root = self.sysroot
+        else:
+            root = None
+
+        return sos_get_command_output(cmd, timeout=timeout, chroot=root,
+                                      chdir=runat, binary=binary, env=env)
 
     def is_module_loaded(self, module_name):
         """Return whether specified moudle as module_name is loaded or not"""
@@ -1347,7 +1377,7 @@ class Plugin(object):
         for soscmd in self.collect_cmds:
             self._log_debug("unpacked command: " + soscmd.__str__())
             self._log_info("collecting output of '%s'" % soscmd.cmd)
-            self._get_cmd_output_now(**soscmd.__dict__)
+            self._collect_cmd_output_now(**soscmd.__dict__)
 
     def _collect_strings(self):
         for string, file_name in self.copy_strings:

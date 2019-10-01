@@ -1122,7 +1122,7 @@ class SoSReport(object):
                                        href=".." + f['dstpath']))
 
             for cmd in plug.executed_commands:
-                section.add(Command(name=cmd['exe'], return_code=0,
+                section.add(Command(name=cmd['cmd'], return_code=0,
                                     href=os.path.join(
                                         "..",
                                         self.get_commons()['cmddir'],
