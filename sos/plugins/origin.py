@@ -148,8 +148,7 @@ class OpenShiftOrigin(Plugin):
             ])
 
             if self.get_option('all-namespaces'):
-                ocn = self.get_command_output('%s get namespaces'
-                                              % oc_cmd_admin)
+                ocn = self.exec_cmd('%s get namespaces' % oc_cmd_admin)
                 ns_output = ocn['output'].splitlines()[1:]
                 nmsps = [n.split()[0] for n in ns_output if n]
             else:
@@ -173,8 +172,8 @@ class OpenShiftOrigin(Plugin):
                                     "atomic-openshift-master-controllers"])
 
             # get logs from the infrastruture pods running in the default ns
-            pods = self.get_command_output("%s get pod -o name -n default"
-                                           % oc_cmd_admin)
+            pods = self.exec_cmd("%s get pod -o name -n default"
+                                 % oc_cmd_admin)
             for pod in pods['output'].splitlines():
                 self.add_cmd_output("%s logs -n default %s"
                                     % (oc_cmd_admin, pod))

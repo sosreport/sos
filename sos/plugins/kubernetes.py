@@ -67,7 +67,7 @@ class Kubernetes(Plugin):
             self.add_cmd_output('%s %s' % (self.kube_cmd, subcmd))
 
         # get all namespaces in use
-        kn = self.get_command_output('%s get namespaces' % self.kube_cmd)
+        kn = self.collect_cmd_output('%s get namespaces' % self.kube_cmd)
         # namespace is the 1st word on line, until the line has spaces only
         kn_output = kn['output'].splitlines()[1:]
         knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
@@ -117,8 +117,7 @@ class Kubernetes(Plugin):
                 # need to drop json formatting for this
                 k_cmd = '%s %s' % (self.kube_cmd, knsp)
                 for res in resources:
-                    r = self.get_command_output(
-                        '%s get %s' % (k_cmd, res))
+                    r = self.exec_cmd('%s get %s' % (k_cmd, res))
                     if r['status'] == 0:
                         k_list = [k.split()[0] for k in
                                   r['output'].splitlines()[1:]]
@@ -131,7 +130,7 @@ class Kubernetes(Plugin):
 
             if self.get_option('podlogs'):
                 k_cmd = '%s %s' % (self.kube_cmd, knsp)
-                r = self.get_command_output('%s get pods' % k_cmd)
+                r = self.exec_cmd('%s get pods' % k_cmd)
                 if r['status'] == 0:
                     pods = [p.split()[0] for p in
                             r['output'].splitlines()[1:]]

@@ -68,7 +68,7 @@ class Navicli(Plugin, RedHatPlugin):
                 ans = input("CLARiiON SP IP Address or [Enter] to exit: ")
             except Exception:
                 return
-            if self.check_ext_prog("navicli -h %s getsptime" % (ans,)):
+            if self.exec_cmd("navicli -h %s getsptime" % (ans,))['status']:
                 CLARiiON_IP_address_list.append(ans)
             else:
                 if ans != "":

@@ -20,7 +20,7 @@ class vhostmd(Plugin, RedHatPlugin):
     packages = ['virt-what']
 
     def setup(self):
-        vw = self.get_command_output("virt-what")['output'].splitlines()
+        vw = self.exec_cmd("virt-what")['output'].splitlines()
 
         if not vw:
             return
@@ -38,12 +38,11 @@ class vhostmd(Plugin, RedHatPlugin):
                 for disk in os.listdir(sysblock):
                     if "256K" in disk:
                         dev = disk.split()[0]
-                        check = self.get_command_output(
-                            "dd if=/dev/%s bs=25 count=1" % dev)
-                        if 'metric' in check['output']:
-                            self.add_cmd_output("dd if=/dev/%s bs=256k count=1"
-                                                % dev,
-                                                suggest_filename="virt_\
-                                                        metrics")
+                        r = self.exec_cmd("dd if=/dev/%s bs=25 count=1" % dev)
+                        if 'metric' in r['output']:
+                            self.add_cmd_output(
+                                "dd if=/dev/%s bs=256k count=1" % dev,
+                                suggest_filename="virt_metrics"
+                            )
 
 # vim: et ts=4 sw=4

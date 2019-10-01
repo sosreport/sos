@@ -48,7 +48,7 @@ class OpenStackManila(Plugin):
 
     def running_in_container(self):
         for runtime in ["docker", "podman"]:
-            container_status = self.get_command_output(runtime + " ps")
+            container_status = self.exec_cmd(runtime + " ps")
             if container_status['status'] == 0:
                 for line in container_status['output'].splitlines():
                     if line.endswith("manila_api"):

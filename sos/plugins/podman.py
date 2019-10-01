@@ -96,7 +96,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
     def _get_podman_list(self, cmd):
         ret = []
-        result = self.get_command_output(cmd)
+        result = self.exec_cmd(cmd)
         if result['status'] == 0:
             for ent in result['output'].splitlines():
                 ret.append(ent)

@@ -57,11 +57,11 @@ class DNFPlugin(Plugin, RedHatPlugin):
             "package-cleanup --problems"
         ])
 
-        if self.get_option("history"):
+        if self.get_option("history") and not self.get_option("history-info"):
             self.add_cmd_output("dnf history")
 
         if self.get_option("history-info"):
-            history = self.call_ext_prog("dnf history")
+            history = self.collect_cmd_output("dnf history")
             transactions = -1
             if history['output']:
                 for line in history['output'].splitlines():
@@ -74,7 +74,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
                 self.add_cmd_output("dnf history info %d" % tr_id)
 
         # Get list of dnf installed modules and their details.
-        module_file = self.get_cmd_output_now("dnf module list --installed")
-        self.get_modules_info(module_file)
+        module_file = self.collect_cmd_output("dnf module list --installed")
+        self.get_modules_info(module_file['filename'])
 
 # vim: set et ts=4 sw=4 :

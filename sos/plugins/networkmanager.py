@@ -42,7 +42,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 "nm",        # <  0.9.9
                 "general"    # >= 0.9.9
             ]
-            status = self.call_ext_prog(status_template % obj_table[version])
+            status = self.exec_cmd(status_template % obj_table[version])
             return status['output'].lower().startswith("running")
 
         # NetworkManager >= 0.9.9 (Use short name of objects for nmcli)
@@ -71,8 +71,9 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
             nmcli_dev_details_cmd = ""
 
         if len(nmcli_con_details_cmd) > 0:
-            nmcli_con_show_result = self.call_ext_prog(
-                "nmcli --terse --fields NAME con")
+            nmcli_con_show_result = self.exec_cmd(
+                "nmcli --terse --fields NAME con"
+            )
             if nmcli_con_show_result['status'] == 0:
                 for con in nmcli_con_show_result['output'].splitlines():
                     if con[0:7] == 'Warning':
@@ -90,8 +91,9 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     self.add_cmd_output('%s "%s"' %
                                         (nmcli_con_details_cmd, con))
 
-            nmcli_dev_status_result = self.call_ext_prog(
-                "nmcli --terse --fields DEVICE dev")
+            nmcli_dev_status_result = self.exec_cmd(
+                "nmcli --terse --fields DEVICE dev"
+            )
             if nmcli_dev_status_result['status'] == 0:
                 for dev in nmcli_dev_status_result['output'].splitlines():
                     if dev[0:7] == 'Warning':

@@ -31,22 +31,19 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
             'LD_PRELOAD'
         ])
 
-        ldconfig_file = self.get_cmd_output_now("ldconfig -p -N -X")
+        ldconfig = self.collect_cmd_output("ldconfig -p -N -X")
 
-        if not ldconfig_file:
-            return
-
-        # Collect library directories from ldconfig's cache
-        dirs = set()
-        with open(ldconfig_file) as f:
-            for l in f.read().splitlines():
+        if ldconfig['status'] == 0:
+            # Collect library directories from ldconfig's cache
+            dirs = set()
+            for l in ldconfig['output'].splitlines():
                 s = l.split(" => ", 2)
                 if len(s) != 2:
                     continue
                 dirs.add(s[1].rsplit('/', 1)[0])
 
-        if dirs:
-            self.add_cmd_output("ls -lanH %s" % " ".join(dirs),
-                                suggest_filename="ld_so_cache")
+            if dirs:
+                self.add_cmd_output("ls -lanH %s" % " ".join(dirs),
+                                    suggest_filename="ld_so_cache")
 
 # vim: set et ts=4 sw=4 :

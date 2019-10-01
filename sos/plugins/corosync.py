@@ -34,7 +34,7 @@ class Corosync(Plugin):
             "corosync-objctl -a",
             "corosync-cmapctl"
         ])
-        self.call_ext_prog("killall -USR2 corosync")
+        self.exec_cmd("killall -USR2 corosync")
 
         corosync_conf = "/etc/corosync/corosync.conf"
         if not os.path.exists(corosync_conf):

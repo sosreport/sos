@@ -26,11 +26,10 @@ class Ntp(Plugin):
         ])
         self.add_cmd_output([
             "ntptime",
-            "ntpq -pn",
-            "ntpq -c as"
+            "ntpq -pn"
         ])
 
-        ids = self.get_command_output('ntpq -c as')
+        ids = self.exec_cmd('ntpq -c as')
         if ids['status'] == 0:
             for asid in [i.split()[1] for i in ids['output'].splitlines()[3:]]:
                 self.add_cmd_output("ntpq -c 'rv %s'" % asid)

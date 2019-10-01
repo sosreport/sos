@@ -27,7 +27,7 @@ class SELinux(Plugin, RedHatPlugin):
         ])
         self.add_cmd_output('sestatus')
 
-        state = self.get_command_output('getenforce')['output']
+        state = self.exec_cmd('getenforce')['output']
         if state != 'Disabled':
             self.add_cmd_output([
                 'ps auxZww',

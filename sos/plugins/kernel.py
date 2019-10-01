@@ -148,12 +148,12 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("bpftool net list")
 
         # collect list of eBPF programs and maps and their dumps
-        prog_file = self.get_cmd_output_now("bpftool -j prog list")
+        prog_file = self.exec_cmd("bpftool -j prog list")
         for prog_id in self.get_bpftool_prog_ids(prog_file):
             for dumpcmd in ["xlated", "jited"]:
                 self.add_cmd_output("bpftool prog dump %s id %s" %
                                     (dumpcmd, prog_id))
-        map_file = self.get_cmd_output_now("bpftool -j map list")
+        map_file = self.exec_cmd("bpftool -j map list")
         for map_id in self.get_bpftool_map_ids(map_file):
             self.add_cmd_output("bpftool map dump id %s" % map_id)
 

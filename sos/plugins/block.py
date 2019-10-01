@@ -19,22 +19,6 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     verify_packages = ('util-linux',)
     files = ('/sys/block',)
 
-    def get_luks_devices(self, lsblk_file):
-        out = []
-        try:
-            lsblk_out = open(lsblk_file).read()
-        except IOError:
-            return out
-        for line in lsblk_out.splitlines():
-            # find in output lines like
-            # sda2      crypto_LUKS    <uuid>
-            # loop0     crypto_LUKS    <uuid>
-            # and separate device name - it will be the 1st string on the line
-            if 'crypto_LUKS' in line:
-                dev = line.split()[0]
-                out.append(dev)
-        return out
-
     def setup(self):
         self.add_cmd_output([
             "lsblk",
@@ -69,10 +53,12 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                     "fdisk -l %s" % disk_path
                 ])
 
-        lsblk_file = self.get_cmd_output_now("lsblk -f -a -l")
+        lsblk = self.exec_cmd("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump
-        if lsblk_file:
-            for dev in self.get_luks_devices(lsblk_file):
-                self.add_cmd_output('cryptsetup luksDump /dev/%s' % dev)
+        if lsblk['status'] == 0:
+            for line in lsblk['output'].splitlines():
+                if 'crypto LUKS' in line:
+                    dev = line.split()[0]
+                    self.add_cmd_output('cryptsetup luksDump /dev/%s' % dev)
 
 # vim: set et ts=4 sw=4 :

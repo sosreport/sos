@@ -38,7 +38,7 @@ class Buildah(Plugin, RedHatPlugin):
         self.add_cmd_output(["buildah %s" % sub for sub in subcmds])
 
         def make_chowdah(aurdah):
-            chowdah = self.get_command_output(aurdah)
+            chowdah = self.exec_cmd(aurdah)
             chowdah['auutput'] = chowdah.pop('output')
             chowdah['is_wicked_pissah'] = chowdah.pop('status') == 0
             return chowdah

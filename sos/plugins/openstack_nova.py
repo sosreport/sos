@@ -29,13 +29,9 @@ class OpenStackNova(Plugin):
 
         # collect commands output only if the openstack-nova-api service
         # is running
-        service_status = self.get_command_output(
-            "systemctl status openstack-nova-api.service"
-        )
-
         in_container = self.running_in_container()
 
-        if (service_status['status'] == 0) or in_container:
+        if self.service_is_running('openstack-nova-api') or in_container:
             nova_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -78,7 +74,7 @@ class OpenStackNova(Plugin):
                 self.add_cmd_output("openstack hypervisor stats show")
                 # get details for each nova instance
                 cmd = "openstack server list -f value"
-                nova_instances = self.call_ext_prog(cmd)['output']
+                nova_instances = self.exec_cmd(cmd)['output']
                 for instance in nova_instances.splitlines():
                     instance = instance.split()[0]
                     cmd = "openstack server show %s" % (instance)
@@ -127,7 +123,7 @@ class OpenStackNova(Plugin):
 
     def running_in_container(self):
         for runtime in ["docker", "podman"]:
-            container_status = self.get_command_output(runtime + " ps")
+            container_status = self.exec_cmd(runtime + " ps")
             if container_status['status'] == 0:
                 for line in container_status['output'].splitlines():
                     if line.endswith("nova_api"):

@@ -26,24 +26,6 @@ class Networking(Plugin):
     # switch to enable netstat "wide" (non-truncated) output mode
     ns_wide = "-W"
 
-    def get_ip_netns(self, ip_netns_file):
-        """Returns a list for which items are namespaces in the output of
-        ip netns stored in the ip_netns_file.
-        """
-        out = []
-        try:
-            ip_netns_out = open(ip_netns_file).read()
-        except IOError:
-            return out
-        for line in ip_netns_out.splitlines():
-            # If there's no namespaces, no need to continue
-            if line.startswith("Object \"netns\" is unknown") \
-               or line.isspace() \
-               or line[:1].isspace():
-                return out
-            out.append(line.partition(' ')[0])
-        return out
-
     def collect_iptable(self, tablename):
         """ When running the iptables command, it unfortunately auto-loads
         the modules before trying to get output.  Some people explicitly
@@ -51,25 +33,25 @@ class Networking(Plugin):
         the command.  If they aren't loaded, there can't possibly be any
         relevant rules in that table """
 
-        modname = "iptable_"+tablename
-        if self.check_ext_prog("grep -q %s /proc/modules" % modname):
-            cmd = "iptables -t "+tablename+" -nvL"
-            self.add_cmd_output(cmd)
+        modname = "iptable_" + tablename
+        cmd = "iptables -t " + tablename + " -nvL"
+        self.add_cmd_output(cmd, pred=SoSPredicate(self, kmods=[modname]))
 
     def collect_ip6table(self, tablename):
         """ Same as function above, but for ipv6 """
 
-        modname = "ip6table_"+tablename
-        if self.check_ext_prog("grep -q %s /proc/modules" % modname):
-            cmd = "ip6tables -t "+tablename+" -nvL"
-            self.add_cmd_output(cmd)
+        modname = "ip6table_" + tablename
+        cmd = "ip6tables -t " + tablename + " -nvL"
+        self.add_cmd_output(cmd, pred=SoSPredicate(self, kmods=[modname]))
 
     def collect_nftables(self):
         """ Collects nftables rulesets with 'nft' commands if the modules
         are present """
 
-        if self.check_ext_prog("grep -q nf_tables /proc/modules"):
-            self.add_cmd_output("nft list ruleset")
+        self.add_cmd_output(
+            "nft list ruleset",
+            pred=SoSPredicate(self, kmods=['nf_tables'])
+        )
 
     def setup(self):
         super(Networking, self).setup()
@@ -163,10 +145,15 @@ class Networking(Plugin):
         # When iptables is called it will load the modules
         # iptables and iptables_filter if they are not loaded.
         # The same goes for ipv6.
-        if self.check_ext_prog("grep -q iptable_filter /proc/modules"):
-            self.add_cmd_output("iptables -vnxL")
-        if self.check_ext_prog("grep -q ip6table_filter /proc/modules"):
-            self.add_cmd_output("ip6tables -vnxL")
+        self.add_cmd_output(
+            "iptables -vnxL",
+            pred=SoSPredicate(self, kmods=['iptable_filter'])
+        )
+
+        self.add_cmd_output(
+            "ip6tables -vnxL",
+            pred=SoSPredicate(self, kmods=['ip6table_filter'])
+        )
 
         # Get ethtool output for every device that does not exist in a
         # namespace.
@@ -207,10 +194,18 @@ class Networking(Plugin):
 
         # Capture additional data from namespaces; each command is run
         # per-namespace.
-        ip_netns_file = self.get_cmd_output_now("ip netns")
+        ip_netns = self.exec_cmd("ip netns")
         cmd_prefix = "ip netns exec "
-        if ip_netns_file:
-            for namespace in self.get_ip_netns(ip_netns_file):
+        if ip_netns['status'] == 0:
+            out_ns = []
+            for line in ip_netns['output'].splitlines():
+                # If there's no namespaces, no need to continue
+                if line.startswith("Object \"netns\" is unknown") \
+                        or line.isspace() \
+                        or line[:1].isspace():
+                    continue
+                out_ns.append(line.partition(' ')[0])
+            for namespace in out_ns:
                 ns_cmd_prefix = cmd_prefix + namespace + " "
                 self.add_cmd_output([
                     ns_cmd_prefix + "ip address show",
@@ -229,10 +224,11 @@ class Networking(Plugin):
 
             # Devices that exist in a namespace use less ethtool
             # parameters. Run this per namespace.
-            for namespace in self.get_ip_netns(ip_netns_file):
+            for namespace in out_ns:
                 ns_cmd_prefix = cmd_prefix + namespace + " "
-                netns_netdev_list = self.call_ext_prog(ns_cmd_prefix +
-                                                       "ls -1 /sys/class/net/")
+                netns_netdev_list = self.exec_cmd(
+                    ns_cmd_prefix + "ls -1 /sys/class/net/"
+                )
                 for eth in netns_netdev_list['output'].splitlines():
                     # skip 'bonding_masters' file created when loading the
                     # bonding module but the file does not correspond to

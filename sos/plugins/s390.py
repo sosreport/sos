@@ -59,7 +59,7 @@ class S390(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "icainfo",
             "icastats"
         ])
-        r = self.call_ext_prog("ls /dev/dasd?")
+        r = self.exec_cmd("ls /dev/dasd?")
         dasd_dev = r['output']
         for x in dasd_dev.split('\n'):
             self.add_cmd_output([

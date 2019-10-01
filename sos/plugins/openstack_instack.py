@@ -63,7 +63,7 @@ class OpenStackInstack(Plugin):
         else:
             # capture all the possible stack uuids
             get_stacks = "openstack stack list"
-            stacks = self.call_ext_prog(get_stacks)['output']
+            stacks = self.collect_cmd_output(get_stacks)['output']
             stack_ids = re.findall(r'(\s(\w+-\w+)+\s)', stacks)
             # get status of overcloud stack and resources
             for sid in stack_ids:
@@ -74,8 +74,8 @@ class OpenStackInstack(Plugin):
 
                 # get details on failed deployments
                 cmd = "openstack stack resource list -f value -n 5 %s" % sid[0]
-                deployments = self.call_ext_prog(cmd)['output']
-                for deployment in deployments.splitlines():
+                deployments = self.exec_cmd(cmd)
+                for deployment in deployments['output'].splitlines():
                     if 'FAILED' in deployment:
                         check = [
                             "OS::Heat::StructuredDeployment",

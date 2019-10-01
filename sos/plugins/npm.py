@@ -59,7 +59,7 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
         """
         output = {}
         # with chroot=True (default) the command fails when run as non-root
-        user_cache = self.get_command_output("npm cache ls", chroot=False)
+        user_cache = self.collect_cmd_output("npm cache ls", chroot=False)
         if user_cache['status'] == 0:
             # filter out dirs with .cache.json ('registry.npmjs.org')
             for package in [l for l in user_cache['output'].splitlines()
