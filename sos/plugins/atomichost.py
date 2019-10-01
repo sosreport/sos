@@ -31,8 +31,8 @@ class AtomicHost(Plugin, RedHatPlugin):
             # output (repeated "IMAGE ID" values). Use a set to filter
             # these out and only obtain 'docker info' data once per image
             # identifier.
-            images = self.get_command_output("docker images -q")['output']
-            for image in set(images.splitlines()):
+            images = self.exec_cmd("docker images -q")
+            for image in set(images['output'].splitlines()):
                 self.add_cmd_output("atomic info {0}".format(image))
 
 # vim: set et ts=4 sw=4 :

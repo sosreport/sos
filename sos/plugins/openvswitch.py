@@ -105,7 +105,7 @@ class OpenVSwitch(Plugin):
         self.add_journal(units="ovsdb-server")
 
         # Gather additional output for each OVS bridge on the host.
-        br_list_result = self.call_ext_prog("ovs-vsctl list-br")
+        br_list_result = self.collect_cmd_output("ovs-vsctl list-br")
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
                 self.add_cmd_output([
@@ -129,10 +129,9 @@ class OpenVSwitch(Plugin):
 
                 # List protocols currently in use, if any
                 ovs_list_bridge_cmd = "ovs-vsctl list bridge %s" % br
-                br_info_file = self.get_cmd_output_now(ovs_list_bridge_cmd)
+                br_info = self.collect_cmd_output(ovs_list_bridge_cmd)
 
-                br_info = open(br_info_file).read()
-                for line in br_info.splitlines():
+                for line in br_info['output'].splitlines():
                     if "protocols" in line:
                         br_protos_ln = line[line.find("[")+1:line.find("]")]
                         br_protos = br_protos_ln.replace('"', '').split(", ")
@@ -149,11 +148,12 @@ class OpenVSwitch(Plugin):
                         ])
 
         # Gather info on the DPDK mempools associated with each DPDK port
-        br_list_result = self.call_ext_prog("ovs-vsctl -t 5 list-br")
+        br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
-                port_list_result = self.call_ext_prog("ovs-vsctl -t 5 "
-                                                      "list-ports %s" % br)
+                port_list_result = self.exec_cmd(
+                    "ovs-vsctl -t 5 list-ports %s" % br
+                )
                 if port_list_result['status'] == 0:
                     for port in port_list_result['output'].splitlines():
                         self.add_cmd_output(

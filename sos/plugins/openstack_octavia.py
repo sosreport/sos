@@ -55,7 +55,7 @@ class OpenStackOctavia(Plugin):
 
         # get details from each loadbalancer
         cmd = "openstack loadbalancer list -f value -c id"
-        loadbalancers = self.call_ext_prog(cmd)['output']
+        loadbalancers = self.exec_cmd(cmd)['output']
         for loadbalancer in loadbalancers.splitlines():
             loadbalancer = loadbalancer.split()[0]
             self.add_cmd_output(
@@ -64,7 +64,7 @@ class OpenStackOctavia(Plugin):
 
         # get details from each l7policy
         cmd = "openstack loadbalancer l7policy list -f value -c id"
-        l7policies = self.call_ext_prog(cmd)['output']
+        l7policies = self.exec_cmd(cmd)['output']
         for l7policy in l7policies.splitlines():
             l7policy = l7policy.split()[0]
             self.add_cmd_output(
@@ -73,7 +73,7 @@ class OpenStackOctavia(Plugin):
 
         # get details from each pool
         cmd = "openstack loadbalancer pool list -f value -c id"
-        pools = self.call_ext_prog(cmd)['output']
+        pools = self.exec_cmd(cmd)['output']
         for pool in pools.splitlines():
             pool = pool.split()[0]
             self.add_cmd_output(

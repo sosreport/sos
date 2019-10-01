@@ -26,13 +26,9 @@ class OpenStackHeat(Plugin):
 
         # collect commands output only if the openstack-heat-api service
         # is running
-        service_status = self.get_command_output(
-            "systemctl status openstack-heat-api.service"
-        )
-
         in_container = self.running_in_container()
 
-        if (service_status['status'] == 0) or in_container:
+        if self.service_is_running('openstack-heat-api') or in_container:
             heat_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -85,7 +81,7 @@ class OpenStackHeat(Plugin):
 
     def running_in_container(self):
         for runtime in ["docker", "podman"]:
-            container_status = self.get_command_output(runtime + " ps")
+            container_status = self.exec_cmd(runtime + " ps")
             if container_status['status'] == 0:
                 for line in container_status['output'].splitlines():
                     if line.endswith("heat_api"):

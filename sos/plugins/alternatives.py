@@ -19,10 +19,7 @@ class Alternatives(Plugin, RedHatPlugin):
     commands = ('alternatives',)
 
     def setup(self):
-        self.add_cmd_output([
-            'alternatives --list',
-            'alternatives --version'
-        ])
+        self.add_cmd_output('alternatives --version')
 
         alts = []
         ignore = [
@@ -33,7 +30,7 @@ class Alternatives(Plugin, RedHatPlugin):
             'xinputrc'
         ]
 
-        res = self.get_command_output('alternatives --list')
+        res = self.collect_cmd_output('alternatives --list')
         if res['status'] == 0:
             for line in res['output'].splitlines():
                 alt = line.split()[0]

@@ -26,7 +26,7 @@ class OVNCentral(Plugin):
         if self._container_name:
             cmd = "%s exec %s cat %s" % (
                 self._container_runtime, self._container_name, filename)
-            res = self.get_command_output(cmd)
+            res = self.exec_cmd(cmd)
             if res['status'] != 0:
                 self._log_error("Could not retrieve DB schema file from "
                                 "container %s" % self._container_name)
@@ -63,7 +63,7 @@ class OVNCentral(Plugin):
 
     def running_in_container(self):
         for runtime in ["podman", "docker"]:
-            container_status = self.get_command_output(runtime + " ps")
+            container_status = self.exec_cmd(runtime + " ps")
             if container_status['status'] == 0:
                 for line in container_status['output'].splitlines():
                     if "ovn-dbs-bundle" in line:

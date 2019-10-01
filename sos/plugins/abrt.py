@@ -24,20 +24,19 @@ class Abrt(Plugin, RedHatPlugin):
         ("detailed", 'collect detailed info for every report', 'slow', False)
     ]
 
-    def info_detailed(self, list_file):
-        for line in open(list_file).read().splitlines():
-            if line.startswith("Directory:"):
-                self.add_cmd_output("abrt-cli info -d '%s'" % line.split()[1])
-
     def setup(self):
         self.add_cmd_output("abrt-cli status")
-        list_file = self.get_cmd_output_now("abrt-cli list")
-        if self.get_option('detailed') and list_file:
-            self.info_detailed(list_file)
+        abrt_list = self.collect_cmd_output("abrt-cli list")
+        if self.get_option("detailed") and abrt_list['status'] == 0:
+            for line in abrt_list["output"].splitlines():
+                if line.startswith("Directory"):
+                    self.add_cmd_output("abrt-cli info -d '%s'"
+                                        % line.split()[1])
 
         self.add_copy_spec([
             "/etc/abrt/abrt.conf",
             "/etc/abrt/abrt-action-save-package-data.conf",
             "/etc/abrt/plugins"
         ])
+
 # vim: set et ts=4 sw=4 :

@@ -28,7 +28,7 @@ class Zfs(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "zpool status -vx"
         ])
 
-        zpools = self.call_ext_prog("zpool list -H -o name")
+        zpools = self.collect_cmd_output("zpool list -H -o name")
         if zpools['status'] == 0:
             zpools_list = zpools['output'].splitlines()
             for zpool in zpools_list:

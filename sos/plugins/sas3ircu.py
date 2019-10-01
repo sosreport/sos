@@ -23,11 +23,9 @@ class SAS3ircu(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
 
         # get list of adapters
-        result = self.call_ext_prog("sas3ircu list", timeout=5)
+        result = self.collect_cmd_output("sas3ircu list", timeout=5)
 
         if (result["status"] == 0):
-            self.add_cmd_output("sas3ircu list", timeout=5)
-
             # only want devices
             sas_lst = result["output"].splitlines()[10:-1]
 
