@@ -48,6 +48,13 @@ class Autofs(Plugin):
         if self.checkdebug():
             self.add_copy_spec(self.getdaemondebug())
 
+    def postproc(self):
+        self.do_path_regex_sub(
+            "/etc/auto*",
+            r"(password=)[^,\s]*",
+            r"\1********"
+        )
+
 
 class RedHatAutofs(Autofs, RedHatPlugin):
 
