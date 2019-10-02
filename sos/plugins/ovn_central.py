@@ -56,6 +56,8 @@ class OVNCentral(Plugin):
             self._log_error("DB schema %s has no 'tables' key" % filename)
 
     def add_database_output(self, tables, cmds, ovn_cmd):
+        if not tables:
+            return
         for table in tables:
             cmds.append('%s list %s' % (ovn_cmd, table))
 
