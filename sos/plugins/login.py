@@ -9,12 +9,12 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Last(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Login(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """login information
     """
 
-    plugin_name = 'last'
-    profiles = ('system',)
+    plugin_name = 'login'
+    profiles = ('system', 'identity')
 
     def setup(self):
         self.add_cmd_output("last", root_symlink="last")
@@ -26,6 +26,11 @@ class Last(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "lastlog -u 1000-60000",
             "lastlog -u 60001-65536",
             "lastlog -u 65537-4294967295"
+        ])
+
+        self.add_copy_spec([
+            "/etc/login.defs",
+            "/etc/default/useradd",
         ])
 
 # vim: et ts=4 sw=4
