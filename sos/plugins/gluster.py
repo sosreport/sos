@@ -42,7 +42,9 @@ class Gluster(Plugin, RedHatPlugin):
 
     def wait_for_statedump(self, name_dir):
         statedumps_present = 0
-        statedump_entries = os.listdir(name_dir)
+        statedump_entries = [
+                f for f in os.listdir(name_dir) if os.path.isfile(f)
+        ]
         for statedump_file in statedump_entries:
             statedumps_present = statedumps_present+1
             ret = -1
