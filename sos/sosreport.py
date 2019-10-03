@@ -1181,9 +1181,14 @@ class SoSReport(object):
             return False
 
         try:
+            hash_size = 1024**2  # Hash 1MiB of content at a time.
             archive_fp = open(archive, 'rb')
             digest = hashlib.new(hash_name)
-            digest.update(archive_fp.read())
+            while True:
+                hashdata = archive_fp.read(hash_size)
+                if not hashdata:
+                    break
+                digest.update(hashdata)
             archive_fp.close()
         except Exception:
             self.handle_exception()
