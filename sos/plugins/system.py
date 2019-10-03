@@ -23,6 +23,7 @@ class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/sysconfig",
             "/etc/default",
             "/etc/environment",
+            "/etc/login.defs",
         ])
 
         # FIXME: provide a a long-term solution for #1299
