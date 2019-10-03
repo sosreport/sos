@@ -734,6 +734,10 @@ class Plugin(object):
             return
         else:
             if stat.S_ISDIR(st.st_mode) and os.access(srcpath, os.R_OK):
+                # copy empty directory
+                if not os.listdir(srcpath):
+                    self.archive.add_dir(srcpath)
+                    return
                 self._copy_dir(srcpath)
                 return
 
