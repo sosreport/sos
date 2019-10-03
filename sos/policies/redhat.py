@@ -176,9 +176,14 @@ _opts_all_logs = SoSOptions(all_logs=True)
 _opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
 _opts_all_logs_no_lsof = SoSOptions(all_logs=True,
                                     plugopts=['process.lsof=off'])
-_cb_plugs = ['abrt', 'block', 'boot', 'dnf', 'dracut', 'filesys', 'grub2',
-             'hardware', 'host', 'kernel', 'logs', 'lvm2', 'memory', 'rpm',
-             'process', 'systemd', 'yum', 'xfs']
+_cb_plugs = ['anaconda', 'abrt', 'auditd', 'block', 'boot', 'date',
+             'devicemapper', 'dnf', 'dracut', 'filesys', 'grub2',
+             'hardware', 'host', 'iscsi', 'kernel', 'libraries',
+             'logs', 'lvm2', 'md', 'memory', 'multipath', 'networking',
+             'networkmanager', 'pci', 'process', 'processor',
+             'release', 'rpm', 'scsi', 'selinux', 'ssh', 'stratis',
+             'subscription_manager', 'system', 'systemd', 'tuned',
+             'udev', 'yum', 'xfs']
 
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
 
@@ -200,7 +205,9 @@ SAT_OPTS = SoSOptions(verify=True, plugopts=['apache.log=on'])
 
 CB = "cantboot"
 CB_DESC = "For use when normal system startup fails"
-CB_OPTS = SoSOptions(verify=True, all_logs=True, onlyplugins=_cb_plugs)
+CB_OPTS = SoSOptions(verify=True, all_logs=True, onlyplugins=_cb_plugs,
+                     plugopts=['boot.all-images=on', 'rpm.rpmva=on',
+                               'rpm.rpmdb=on'])
 CB_NOTE = ("Data collection will be limited to a boot-affecting scope")
 
 NOTE_SIZE = "This preset may increase report size"
