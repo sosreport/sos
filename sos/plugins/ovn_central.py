@@ -139,7 +139,7 @@ class OVNCentral(Plugin):
 
 class RedHatOVNCentral(OVNCentral, RedHatPlugin):
 
-    packages = ('openvswitch-ovn-central', )
+    packages = ('openvswitch-ovn-central', 'ovn2.*-central', )
 
 
 class DebianOVNCentral(OVNCentral, DebianPlugin, UbuntuPlugin):
