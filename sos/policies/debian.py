@@ -12,6 +12,7 @@ class DebianPolicy(LinuxPolicy):
     _debq_cmd = "dpkg-query -W -f='${Package}|${Version}\\n'"
     _debv_cmd = "dpkg --verify"
     _debv_filter = ""
+    name_pattern = 'friendly'
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
            + ":/usr/local/sbin:/usr/local/bin"
