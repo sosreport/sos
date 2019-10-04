@@ -49,7 +49,7 @@ class OVNHost(Plugin):
 
 class RedHatOVNHost(OVNHost, RedHatPlugin):
 
-    packages = ('openvswitch-ovn-host', )
+    packages = ('openvswitch-ovn-host', 'ovn2.*-host', )
 
 
 class DebianOVNHost(OVNHost, DebianPlugin, UbuntuPlugin):
