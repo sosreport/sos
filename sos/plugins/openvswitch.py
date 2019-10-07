@@ -95,7 +95,13 @@ class OpenVSwitch(Plugin):
             # Capture DPDK pmd stats
             "ovs-appctl dpif-netdev/pmd-stats-show",
             # Capture DPDK pmd performance counters
-            "ovs-appctl dpif-netdev/pmd-perf-show"
+            "ovs-appctl dpif-netdev/pmd-perf-show",
+            # Capture OVS offload enabled flows
+            "ovs-dpctl dump-flows --name -m type=offloaded",
+            # Capture OVS slowdatapth flows
+            "ovs-dpctl dump-flows --name -m type=ovs",
+            # Capture Userspace Datapath flows
+            "ovs-appctl dpctl/dump-flows -m netdev@ovs-netdev"
         ])
 
         # Gather systemd services logs
