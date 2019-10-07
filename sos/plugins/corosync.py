@@ -52,7 +52,7 @@ class Corosync(Plugin):
                     if re.match(pattern, line):
                         self.add_copy_spec(re.search(pattern, line).group(2))
         except IOError as e:
-            self._log_warn("could not read from %s: %s", corosync_conf, e)
+            self._log_warn("could not read from %s: %s" % (corosync_conf, e))
 
     def postproc(self):
         self.do_cmd_output_sub(
