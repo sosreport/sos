@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from glob import glob
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 

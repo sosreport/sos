@@ -9,7 +9,6 @@
 from sos.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin,
                          SoSPredicate)
 from os import listdir
-import re
 
 
 class Networking(Plugin):
