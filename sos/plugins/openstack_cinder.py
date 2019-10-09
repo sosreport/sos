@@ -24,6 +24,7 @@ class OpenStackCinder(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/cinder"
 
     def setup(self):
+        self.add_forbidden_path('/etc/cinder/volumes')
         cinder_config = ""
         cinder_config_opt = "--config-dir %s/etc/cinder/"
 
