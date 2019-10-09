@@ -177,7 +177,9 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
         '/etc/origin/node/pods/master-config.yaml',
     )
 
-    kube_cmd = "kubectl --kubeconfig=/etc/origin/master/admin.kubeconfig"
+    kube_cmd = "kubectl"
+    if path.exists('/etc/origin/master/admin.kubeconfig'):
+        kube_cmd += ' --kubeconfig=/etc/origin/master/admin.kubeconfig'
 
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
