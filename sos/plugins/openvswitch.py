@@ -38,8 +38,8 @@ class OpenVSwitch(Plugin):
             self.add_copy_spec(log_dirs)
 
         self.add_copy_spec([
-            "/var/run/openvswitch/ovsdb-server.pid",
-            "/var/run/openvswitch/ovs-vswitchd.pid"
+            "/run/openvswitch/ovsdb-server.pid",
+            "/run/openvswitch/ovs-vswitchd.pid"
         ])
 
         self.add_cmd_output([
@@ -56,7 +56,7 @@ class OpenVSwitch(Plugin):
             # Gather the database.
             "ovsdb-client -f list dump",
             # List the contents of runtime directory
-            "ls -laZ /var/run/openvswitch",
+            "ls -laZ /run/openvswitch",
             # List devices and their drivers
             "dpdk_nic_bind --status",
             "dpdk_devbind.py --status",

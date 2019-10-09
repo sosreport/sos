@@ -38,7 +38,7 @@ class Kubernetes(Plugin):
 
     def setup(self):
         self.add_copy_spec("/etc/kubernetes")
-        self.add_copy_spec("/var/run/flannel")
+        self.add_copy_spec("/run/flannel")
 
         self.add_env_var([
             'KUBECONFIG',

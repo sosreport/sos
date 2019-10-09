@@ -20,7 +20,7 @@ class NfsGanesha(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/ganesha",
             "/etc/sysconfig/ganesha",
-            "/var/run/sysconfig/ganesha",
+            "/run/sysconfig/ganesha",
             "/var/log/ganesha/*.log"
         ])
 

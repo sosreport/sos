@@ -77,7 +77,7 @@ class Vdsm(Plugin, RedHatPlugin):
 
         self._add_vdsm_forbidden_paths()
         self.add_copy_spec([
-            '/var/run/vdsm/*',
+            '/run/vdsm/*',
             '/usr/libexec/vdsm/hooks',
             '/var/lib/vdsm',
         ])
@@ -142,9 +142,9 @@ class Vdsm(Plugin, RedHatPlugin):
             )
 
     def _add_vdsm_forbidden_paths(self):
-        """Add confidential sysprep vfds under /var/run/vdsm to
+        """Add confidential sysprep vfds under /run/vdsm to
          forbidden paths """
 
-        for file_path in glob.glob("/var/run/vdsm/*"):
+        for file_path in glob.glob("/run/vdsm/*"):
             if file_path.endswith(('.vfd', '/isoUploader', '/storage')):
                 self.add_forbidden_path(file_path)

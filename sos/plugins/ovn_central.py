@@ -84,7 +84,6 @@ class OVNCentral(Plugin):
             self.add_copy_spec([
                 os.path.join('/var/lib/openvswitch/ovn', pidfile),
                 os.path.join('/usr/local/var/run/openvswitch', pidfile),
-                os.path.join('/var/run/openvswitch/', pidfile),
                 os.path.join('/run/openvswitch/', pidfile),
             ])
 
