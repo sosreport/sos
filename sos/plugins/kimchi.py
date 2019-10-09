@@ -19,7 +19,6 @@ class Kimchi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     packages = ('kimchi',)
 
     def setup(self):
-        log_limit = self.get_option('log_size')
         self.add_copy_spec('/etc/kimchi/')
         if not self.get_option('all_logs'):
             self.add_copy_spec('/var/log/kimchi/*.log')
