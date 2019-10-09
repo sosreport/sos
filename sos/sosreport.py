@@ -561,7 +561,7 @@ class SoSReport(object):
 
     def load_plugins(self):
 
-        import sos.plugins
+        import sos.plugins  # lgtm [py/import-and-import-from]
         helper = ImporterHelper(sos.plugins)
         plugins = helper.get_modules()
         self.plugin_names = []
