@@ -24,6 +24,10 @@ class NfsGanesha(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/var/log/ganesha/*.log"
         ])
 
+        if self.get_option("all_logs"):
+            # Grab rotated logs as well
+            self.add_copy_spec("/var/log/ganesha/*.log*")
+
         self.add_cmd_output([
             "dbus-send --type=method_call --print-reply"
             " --system --dest=org.ganesha.nfsd "
