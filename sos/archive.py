@@ -19,9 +19,6 @@ import errno
 import stat
 from threading import Lock
 
-# required for compression callout (FIXME: move to policy?)
-from subprocess import Popen
-
 from sos.utilities import sos_get_command_output, is_executable
 
 try:
