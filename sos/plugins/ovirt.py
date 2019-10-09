@@ -38,12 +38,10 @@ class Ovirt(Plugin, RedHatPlugin):
 
     DB_PASS_FILES = re.compile(
         flags=re.VERBOSE,
-        pattern=r"""
-        ^/etc/
+        pattern=r"""^/etc/
         (rhevm|ovirt-engine|ovirt-engine-dwh)/
         (engine.conf|ovirt-engine-dwhd.conf)
-        (\.d/.+.conf.*?)?$
-        """
+        (\.d/.+.conf.*?)?$"""
     )
 
     DEFAULT_SENSITIVE_KEYS = (
