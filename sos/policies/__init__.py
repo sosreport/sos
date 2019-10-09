@@ -65,8 +65,6 @@ class InitSystem(object):
         self.list_cmd = "%s %s" % (self.init_cmd, list_cmd) or None
         self.query_cmd = "%s %s" % (self.init_cmd, query_cmd) or None
 
-        self.load_all_services()
-
     def is_enabled(self, name):
         """Check if given service name is enabled """
         if self.services and name in self.services:
@@ -150,6 +148,7 @@ class SystemdInit(InitSystem):
             list_cmd='list-unit-files --type=service',
             query_cmd='status'
         )
+        self.load_all_services()
 
     def parse_query(self, output):
         for line in output.splitlines():
