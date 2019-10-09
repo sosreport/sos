@@ -16,7 +16,6 @@ pidfile = 'ovn-controller.pid'
 pid_paths = [
         '/var/lib/openvswitch/ovn',
         '/usr/local/var/run/openvswitch',
-        '/var/run/openvswitch',
         '/run/openvswitch'
 ]
 

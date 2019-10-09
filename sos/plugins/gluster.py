@@ -69,8 +69,8 @@ class Gluster(Plugin, RedHatPlugin):
             "/etc/glusterfs",
             "/var/lib/glusterd/",
             # collect nfs-ganesha related configuration
-            "/var/run/gluster/shared_storage/nfs-ganesha/"
-        ] + glob.glob('/var/run/gluster/*tier-dht/*'))
+            "/run/gluster/shared_storage/nfs-ganesha/"
+        ] + glob.glob('/run/gluster/*tier-dht/*'))
 
         if not self.get_option("all_logs"):
             self.add_copy_spec([

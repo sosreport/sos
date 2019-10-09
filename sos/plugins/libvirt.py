@@ -36,7 +36,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/etc/libvirt/nwfilter/*.xml",
             "/etc/libvirt/qemu/*.xml",
             "/etc/libvirt/qemu.conf",
-            "/var/run/libvirt/",
+            "/run/libvirt/",
             "/etc/libvirt/qemu/networks/*.xml",
             "/etc/libvirt/qemu/networks/autostart/*.xml",
             "/etc/libvirt/storage/*.xml",
@@ -61,7 +61,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
 
         # get details of processes of KVM hosts
-        for pidfile in glob.glob("/var/run/libvirt/*/*.pid"):
+        for pidfile in glob.glob("/run/libvirt/*/*.pid"):
             pid = open(pidfile).read().splitlines()[0]
             for pf in ["environ", "cgroup", "maps", "numa_maps", "limits"]:
                 self.add_copy_spec("/proc/%s/%s" % (pid, pf))
@@ -70,7 +70,7 @@ class Libvirt(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
         match_exp = r"(\s*passwd=\s*')([^']*)('.*)"
         libvirt_path_exps = [
             r"/etc/libvirt/qemu/.*\.xml",
-            r"/var/run/libvirt/qemu/.*\.xml",
+            r"/run/libvirt/qemu/.*\.xml",
             r"/etc/libvirt/.*\.conf"
         ]
         for path_exp in libvirt_path_exps:

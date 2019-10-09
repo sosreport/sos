@@ -149,7 +149,7 @@ class UbuntuDocker(Docker, UbuntuPlugin):
         super(UbuntuDocker, self).setup()
         self.add_copy_spec([
             "/etc/default/docker",
-            "/var/run/docker/libcontainerd/containerd/events.log"
+            "/run/docker/libcontainerd/containerd/events.log"
         ])
 
 # vim: set et ts=4 sw=4 :
