@@ -215,12 +215,10 @@ class HTMLReport(PlainTextReport):
          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
         <head>
-            <link rel="stylesheet" type="text/css" media="screen"
-                  href="donot.css" />
             <meta http-equiv="Content-Type" content="text/html;
                   charset=utf-8" />
             <title>Sos System Report</title>
-            <style>
+            <style type="text/css">
                 td {
                     padding: 0 5px;
                    }
@@ -236,15 +234,15 @@ class HTMLReport(PlainTextReport):
     PLUGLISTSEP = "</tr>\n<tr>"
     PLUGLISTMAXITEMS = 5
     PLUGLISTFOOTER = "</tr></table>"
-    PLUGINFORMAT = '<a name="{name}"></a><h2>Plugin <em>{name}</em></h2>'
+    PLUGINFORMAT = '<h2 id="{name}">Plugin <em>{name}</em></h2>'
     PLUGDIVIDER = "<hr/>\n"
 
     subsections = (
-        (Command, LEAF,      "<p>Commands executed:<br><ul>", "</ul></p>"),
-        (CopiedFile, LEAF,   "<p>Files copied:<br><ul>",      "</ul></p>"),
-        (CreatedFile, LEAF,  "<p>Files created:<br><ul>",     "</ul></p>"),
-        (Alert, ALERT,       "<p>Alerts:<br><ul>",            "</ul></p>"),
-        (Note, NOTE,         "<p>Notes:<br><ul>",             "</ul></p>"),
+        (Command, LEAF,      "<p>Commands executed:</p><ul>", "</ul>"),
+        (CopiedFile, LEAF,   "<p>Files copied:</p><ul>",      "</ul>"),
+        (CreatedFile, LEAF,  "<p>Files created:</p><ul>",     "</ul>"),
+        (Alert, ALERT,       "<p>Alerts:</p><ul>",            "</ul>"),
+        (Note, NOTE,         "<p>Notes:</p><ul>",             "</ul>"),
     )
 
 
