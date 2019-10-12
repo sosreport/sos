@@ -21,7 +21,7 @@ import os
 class PowerKVMPolicy(RedHatPolicy):
     distro = "PowerKVM"
     vendor = "IBM"
-    vendor_url = "http://www-03.ibm.com/systems/power/software/linux/powerkvm"
+    vendor_url = "https://www.ibm.com/us-en/marketplace/ibm-powervm"
 
     def __init__(self, sysroot=None):
         super(PowerKVMPolicy, self).__init__(sysroot=sysroot)
@@ -45,7 +45,7 @@ class PowerKVMPolicy(RedHatPolicy):
 class ZKVMPolicy(RedHatPolicy):
     distro = "IBM Hypervisor"
     vendor = "IBM Hypervisor"
-    vendor_url = "http://www.ibm.com/systems/z/linux/IBMHypervisor/support/"
+    vendor_url = "https://www.ibm.com/support/knowledgecenter/linuxonibm/liaaf/lnz_r_kvm_base.html"  # noqa
 
     def __init__(self, sysroot=None):
         super(ZKVMPolicy, self).__init__(sysroot=sysroot)

@@ -9,7 +9,7 @@ Source0: https://github.com/sosreport/sos/archive/%{version}.tar.gz
 License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: http://fedorahosted.org/sos
+Url: https://github.com/sosreport/sos/
 BuildRequires: python-devel
 BuildRequires: gettext
 BuildRequires: python-six

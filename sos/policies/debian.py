@@ -7,7 +7,7 @@ import os
 class DebianPolicy(LinuxPolicy):
     distro = "Debian"
     vendor = "the Debian project"
-    vendor_url = "http://www.debian.org/"
+    vendor_url = "https://www.debian.org/"
     ticket_number = ""
     _debq_cmd = "dpkg-query -W -f='${Package}|${Version}\\n'"
     _debv_cmd = "dpkg --verify"
