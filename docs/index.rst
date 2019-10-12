@@ -9,7 +9,7 @@ https://github.com/sosreport/sos/wiki
 
 This project is hosted at:
 
-http://github.com/sosreport/sos
+https://github.com/sosreport/sos
 
 For the latest version, to contribute, and for more information, please visit the project pages or join the mailing list.
 
@@ -37,7 +37,7 @@ Patches can be submitted via the mailing list or as GitHub pull requests. If usi
 Documentation
 =============
 
-User and API `documentation <http://sos.readthedocs.org/en/latest/index.html#>`_ is automatically generated using `Sphinx <http://sphinx-doc.org/>`_ and `Read the Docs <https://www.readthedocs.org/>`_.
+User and API `documentation <https://sos.readthedocs.org/en/latest/index.html>`_ is automatically generated using `Sphinx <https://www.sphinx-doc.org/>`_ and `Read the Docs <https://readthedocs.org/>`_.
 
 Wiki
 ^^^^
@@ -69,13 +69,13 @@ Fedora/RHEL users install via yum:
 
 ``yum install sos``
 
-Debian(Sid) users install via apt:
+Debian users install via apt:
 
-``apt-get install sosreport``
+``apt install sosreport``
 
-Ubuntu(Saucy 13.10 and above) users install via apt:
+Ubuntu (14.04 LTS and above) users install via apt:
 
-``sudo apt-get install sosreport``
+``sudo apt install sosreport``
 
 API
 ===
