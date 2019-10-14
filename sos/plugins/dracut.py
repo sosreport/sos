@@ -16,6 +16,7 @@ class Dracut(Plugin, RedHatPlugin):
 
     plugin_name = "dracut"
     packages = ("dracut",)
+    profiles = ("boot",)
 
     def setup(self):
         self.add_copy_spec([
