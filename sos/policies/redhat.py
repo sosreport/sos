@@ -300,6 +300,10 @@ support representative.
         return False
 
     def probe_preset(self):
+        # Emergency or rescue mode?
+        for target in ["rescue", "emergency"]:
+            if self.init_system.is_running("%s.target" % target):
+                return self.find_preset(CB)
         # Package based checks
         if self.pkg_by_name("satellite-common") is not None:
             return self.find_preset(RH_SATELLITE)
