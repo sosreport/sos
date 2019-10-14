@@ -6,8 +6,8 @@ from sos.policies.debian import DebianPolicy
 
 class UbuntuPolicy(DebianPolicy):
     distro = "Ubuntu"
-    vendor = "Ubuntu"
-    vendor_url = "http://www.ubuntu.com/"
+    vendor = "Canonical"
+    vendor_url = "https://www.ubuntu.com/"
 
     def __init__(self, sysroot=None):
         super(UbuntuPolicy, self).__init__(sysroot=sysroot)
