@@ -25,7 +25,7 @@ OS_RELEASE = "/etc/os-release"
 class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
     vendor = "Red Hat"
-    vendor_url = "http://www.redhat.com/"
+    vendor_url = "https://www.redhat.com/"
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}|%{RELEASE}\\n"'
@@ -318,7 +318,7 @@ support representative.
 class CentOsPolicy(RHELPolicy):
     distro = "CentOS"
     vendor = "CentOS"
-    vendor_url = "http://www.centos.org/"
+    vendor_url = "https://www.centos.org/"
 
 
 ATOMIC = "atomic"
@@ -404,7 +404,7 @@ support representative.
 class CentOsAtomicPolicy(RedHatAtomicPolicy):
     distro = "CentOS Atomic Host"
     vendor = "CentOS"
-    vendor_url = "http://www.centos.org/"
+    vendor_url = "https://www.centos.org/"
 
 
 class FedoraPolicy(RedHatPolicy):
