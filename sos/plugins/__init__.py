@@ -818,8 +818,7 @@ class Plugin(object):
                     value = (defaulttype)(value)
                 parms['enabled'] = value
                 return True
-            else:
-                return False
+        return False
 
     def get_option(self, optionname, default=0):
         """Returns the first value that matches 'optionname' in parameters
