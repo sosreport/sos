@@ -42,4 +42,9 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         certs = glob.glob('/etc/pki/product-default/*.pem')
         self.add_cmd_output(["rct cat-cert %s" % cert for cert in certs])
 
+    def postproc(self):
+        passwdreg = r"(proxy_password(\s)*=(\s)*)(.*)"
+        repl = r"\1 ********"
+        self.do_path_regex_sub("/etc/rhsm/rhsm.conf", passwdreg, repl)
+
 # vim: et ts=4 sw=4
