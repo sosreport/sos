@@ -14,7 +14,6 @@ import tarfile
 import shutil
 import logging
 import codecs
-import sys
 import errno
 import stat
 from threading import Lock
@@ -604,77 +603,6 @@ class FileCacheArchive(Archive):
         raise Exception(msg)
 
 
-# Compatibility version of the tarfile.TarFile class. This exists to allow
-# compatibility with PY2 runtimes that lack the 'filter' parameter to the
-# TarFile.add() method. The wrapper class is used on python2.6 and earlier
-# only; all later versions include 'filter' and the native TarFile class is
-# used directly.
-class _TarFile(tarfile.TarFile):
-
-    # Taken from the python 2.7.5 tarfile.py
-    def add(self, name, arcname=None, recursive=True,
-            exclude=None, filter=None):
-        """Add the file `name' to the archive. `name' may be any type of file
-           (directory, fifo, symbolic link, etc.). If given, `arcname'
-           specifies an alternative name for the file in the archive.
-           Directories are added recursively by default. This can be avoided by
-           setting `recursive' to False. `exclude' is a function that should
-           return True for each filename to be excluded. `filter' is a function
-           that expects a TarInfo object argument and returns the changed
-           TarInfo object, if it returns None the TarInfo object will be
-           excluded from the archive.
-        """
-        self._check("aw")
-
-        if arcname is None:
-            arcname = name
-
-        # Exclude pathnames.
-        if exclude is not None:
-            import warnings
-            warnings.warn("use the filter argument instead",
-                          DeprecationWarning, 2)
-            if exclude(name):
-                self._dbg(2, "tarfile: Excluded %r" % name)
-                return
-
-        # Skip if somebody tries to archive the archive...
-        if self.name is not None and os.path.abspath(name) == self.name:
-            self._dbg(2, "tarfile: Skipped %r" % name)
-            return
-
-        self._dbg(1, name)
-
-        # Create a TarInfo object from the file.
-        tarinfo = self.gettarinfo(name, arcname)
-
-        if tarinfo is None:
-            self._dbg(1, "tarfile: Unsupported type %r" % name)
-            return
-
-        # Change or exclude the TarInfo object.
-        if filter is not None:
-            tarinfo = filter(tarinfo)
-            if tarinfo is None:
-                self._dbg(2, "tarfile: Excluded %r" % name)
-                return
-
-        # Append the tar header and data to the archive.
-        if tarinfo.isreg():
-            with tarfile.bltn_open(name, "rb") as f:
-                self.addfile(tarinfo, f)
-
-        elif tarinfo.isdir():
-            self.addfile(tarinfo)
-            if recursive:
-                for f in os.listdir(name):
-                    self.add(os.path.join(name, f), os.path.join(arcname, f),
-                             recursive, exclude, filter)
-
-        else:
-            self.addfile(tarinfo)
-
-
 class TarFileArchive(FileCacheArchive):
     """ archive class using python TarFile to create tar archives"""
 
@@ -731,11 +659,7 @@ class TarFileArchive(FileCacheArchive):
         return super(TarFileArchive, self).name_max()
 
     def _build_archive(self):
-        # python2.6 TarFile lacks the filter parameter
-        if not six.PY3 and sys.version_info[1] < 7:
-            tar = _TarFile.open(self._archive_name, mode="w")
-        else:
-            tar = tarfile.open(self._archive_name, mode="w")
+        tar = tarfile.open(self._archive_name, mode="w")
         # we need to pass the absolute path to the archive root but we
         # want the names used in the archive to be relative.
         tar.add(self._archive_root, arcname=os.path.split(self._name)[1],
