@@ -501,7 +501,6 @@ class Plugin(object):
         if not self.executed_commands:
             return 0
 
-        globstr = '*' + cmd + '*'
         self._log_debug("Scrubbing certs and keys for commands matching %s"
                         % (cmd))
 
