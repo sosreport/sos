@@ -174,8 +174,7 @@ ENV_HOST_SYSROOT = 'HOST'
 _opts_verify = SoSOptions(verify=True)
 _opts_all_logs = SoSOptions(all_logs=True)
 _opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
-_opts_all_logs_no_lsof = SoSOptions(all_logs=True,
-                                    plugopts=['process.lsof=off'])
+_opts_no_lsof = SoSOptions(plugopts=['process.lsof=off'])
 _cb_plugs = ['abrt', 'block', 'boot', 'dnf', 'dracut', 'filesys', 'grub2',
              'hardware', 'host', 'kernel', 'logs', 'lvm2', 'memory', 'rpm',
              'process', 'systemd', 'yum', 'xfs']
@@ -214,8 +213,7 @@ rhel_presets = {
     RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
                         opts=_opts_verify),
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
-    RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, note=NOTE_SIZE,
-                          opts=_opts_all_logs_no_lsof),
+    RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, opts=_opts_no_lsof),
     RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
                           opts=_opts_all_logs_verify),
     RH_CFME: PresetDefaults(name=RH_CFME, desc=RH_CFME_DESC, note=NOTE_TIME,
