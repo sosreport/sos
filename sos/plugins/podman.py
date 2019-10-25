@@ -62,7 +62,17 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
         if self.get_option('size'):
             self.add_cmd_output('podman ps -as')
 
-        self.add_cmd_output("ls -alhR /etc/cni")
+        self.add_cmd_output([
+            "ls -alhR /etc/cni",
+            "ls -alhR /etc/containers"
+        ])
+
+        pnets = self.collect_cmd_output('podman network ls')
+        if pnets['status'] == 0:
+            nets = [pn.split()[0] for pn in pnets['output'].splitlines()[1:]]
+            self.add_cmd_output([
+                "podman network inspect %s" % net for net in nets
+            ], subdir='networks')
 
         ps_cmd = 'podman ps -q'
         if self.get_option('all'):
