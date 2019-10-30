@@ -758,7 +758,7 @@ class Plugin(object):
         return None
 
     def _is_forbidden_path(self, path):
-        if self.use_sysroot():
+        if self.use_sysroot() and not path.startswith(self.sysroot):
             path = self.join_sysroot(path)
         return _path_in_path_list(path, self.forbidden_paths)
 
