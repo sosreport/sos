@@ -22,7 +22,7 @@ class Kpatch(Plugin, RedHatPlugin):
 
     def setup(self):
         kpatch_list = self.collect_cmd_output("kpatch list")
-        if not kpatch_list['stauts'] == 0:
+        if not kpatch_list['status'] == 0:
             return
         kpatches = kpatch_list['output'].splitlines()
         for patch in kpatches:
