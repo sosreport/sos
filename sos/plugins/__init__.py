@@ -731,7 +731,7 @@ class Plugin(object):
 
         # skip recursive copying of symlink pointing to itself.
         if (absdest != srcpath):
-            self._do_copy_path(self.strip_sysroot(absdest))
+            self._do_copy_path(absdest)
         else:
             self._log_debug("link '%s' points to itself, skipping target..."
                             % linkdest)
@@ -758,8 +758,6 @@ class Plugin(object):
         return None
 
     def _is_forbidden_path(self, path):
-        if self.use_sysroot():
-            path = self.join_sysroot(path)
         return _path_in_path_list(path, self.forbidden_paths)
 
     def _copy_node(self, path, st):
