@@ -81,6 +81,7 @@ class ForbiddenMockPlugin(Plugin):
     plugin_name = "forbidden"
 
     def setup(self):
+        self.add_copy_spec("tests")
         self.add_forbidden_path("tests")
 
 
@@ -235,7 +236,7 @@ class PluginTests(unittest.TestCase):
         })
         p.archive = MockArchive()
         p.setup()
-        p._do_copy_path("tests")
+        p.collect()
         self.assertEquals(p.archive.m, {})
 
 
