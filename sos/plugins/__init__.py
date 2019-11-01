@@ -798,9 +798,9 @@ class Plugin(object):
             if stat.S_ISDIR(st.st_mode) and os.access(srcpath, os.R_OK):
                 # copy empty directory
                 if not os.listdir(srcpath):
-                    self.archive.add_dir(srcpath)
+                    self.archive.add_dir(dest)
                     return
-                self._copy_dir(srcpath)
+                self._copy_dir(dest)
                 return
 
         # handle special nodes (block, char, fifo, socket)
@@ -808,7 +808,7 @@ class Plugin(object):
             ntype = _node_type(st)
             self._log_debug("creating %s node at archive:'%s'"
                             % (ntype, dest))
-            self._copy_node(srcpath, st)
+            self._copy_node(dest, st)
             return
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
