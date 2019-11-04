@@ -60,9 +60,9 @@ class Vdsm(Plugin, RedHatPlugin):
     plugin_name = 'vdsm'
 
     def setup(self):
-        self.add_forbidden_path('/etc/pki/vdsm/keys/*')
+        self.add_forbidden_path('/etc/pki/vdsm/keys')
         self.add_forbidden_path('/etc/pki/vdsm/libvirt-spice/*-key.*')
-        self.add_forbidden_path('/etc/pki/libvirt/private/*')
+        self.add_forbidden_path('/etc/pki/libvirt/private')
 
         self.add_service_status(['vdsmd', 'supervdsmd'])
 
