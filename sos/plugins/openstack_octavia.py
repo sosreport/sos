@@ -30,7 +30,7 @@ class OpenStackOctavia(Plugin):
         ])
 
         # don't collect certificates
-        self.add_forbidden_path("/etc/octavia/certs/")
+        self.add_forbidden_path("/etc/octavia/certs")
 
         # logs
         if self.get_option("all_logs"):
