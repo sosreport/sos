@@ -49,7 +49,7 @@ class Libreswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.add_forbidden_path([
             '/etc/ipsec.secrets',
-            '/etc/ipsec.secrets.d/*',
+            '/etc/ipsec.secrets.d',
             '/etc/ipsec.d/*.db',
             '/etc/ipsec.d/*.secrets'
         ])
