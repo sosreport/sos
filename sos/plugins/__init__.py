@@ -738,10 +738,11 @@ class Plugin(object):
 
     def _copy_dir(self, srcpath):
         try:
-            for afile in os.listdir(srcpath):
+            for name in os.listdir(srcpath):
                 self._log_debug("recursively adding '%s' from '%s'"
-                                % (afile, srcpath))
-                self._do_copy_path(os.path.join(srcpath, afile), dest=None)
+                                % (name, srcpath))
+                path = os.path.join(srcpath, name)
+                self._do_copy_path(path)
         except OSError as e:
             if e.errno == errno.ELOOP:
                 msg = "Too many levels of symbolic links copying"
