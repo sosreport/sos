@@ -800,7 +800,7 @@ class Plugin(object):
                 if not os.listdir(srcpath):
                     self.archive.add_dir(dest)
                     return
-                self._copy_dir(dest)
+                self._copy_dir(srcpath)
                 return
 
         # handle special nodes (block, char, fifo, socket)
