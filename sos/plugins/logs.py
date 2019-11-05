@@ -51,8 +51,7 @@ class Logs(Plugin):
                 self.add_copy_spec(i)
 
         if self.get_option('all_logs'):
-            self.add_journal(boot="this", since=self.get_option("since"),
-                             allfields=True, output="verbose")
+            self.add_journal(boot="this", allfields=True, output="verbose")
             self.add_journal(boot="last", allfields=True, output="verbose")
 
     def postproc(self):

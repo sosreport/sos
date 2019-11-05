@@ -1366,6 +1366,7 @@ class Plugin(object):
 
         journal_size = 100
         all_logs = self.get_option("all_logs")
+        since = since or self.get_option("since")
         log_size = sizelimit or self.get_option("log_size")
         log_size = max(log_size, journal_size) if not all_logs else 0
 
