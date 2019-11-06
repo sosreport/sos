@@ -155,6 +155,54 @@ class Networking(Plugin):
             pred=SoSPredicate(self, kmods=['ip6table_filter'])
         )
 
+        # Get devlink output
+        self.add_cmd_output([
+                    "devlink dev",
+                    "devlink dev param show",
+                    "devlink dev info",
+                    "devlink port",
+                    "devlink sb show",
+                    "devlink sb pool show",
+                    "devlink sb port pool show",
+                    "devlink sb tc bind show",
+                    "devlink -s -v trap show"
+        ])
+
+        # Collect information about devlink devices and dpipe tables
+        devlink_dev = self.exec_cmd("devlink dev")
+        if devlink_dev['status'] == 0:
+            devices = []
+            dev_tables = []
+            for line_dev in devlink_dev['output'].splitlines():
+                devices.append(line_dev)
+                # Collect information about devlink dpipe tables
+                devlink_dev_tables = self.exec_cmd(
+                    "devlink dpipe table show %s" % line_dev
+                    )
+                if devlink_dev_tables['status'] != 0:
+                    continue
+                for line_tables in devlink_dev_tables['output'].splitlines():
+                    line_tables = line_tables.strip()
+                    if line_tables.startswith("name "):
+                        dev_tables.append((line_dev, line_tables.split()[1]))
+
+            # Capture per-device output from devlink
+            devlink_cmds = [
+                "devlink sb occupancy snapshot %s",
+                "devlink sb occupancy show %s",
+                "devlink -v resource show %s",
+                "devlink dpipe table show %s"
+            ]
+            self.add_cmd_output([
+                cmd % dev for cmd in devlink_cmds for dev in devices
+            ])
+
+            # Capture per-device per-table output from devlink dpipe
+            devlink_dpipe_cmd = "devlink dpipe table dump %s name %s"
+            self.add_cmd_output([
+                devlink_dpipe_cmd % (dev, table) for dev, table in dev_tables
+            ])
+
         # Get ethtool output for every device that does not exist in a
         # namespace.
         for eth in listdir("/sys/class/net/"):
