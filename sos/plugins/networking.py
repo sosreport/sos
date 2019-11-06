@@ -174,6 +174,7 @@ class Networking(Plugin):
                 "ethtool -e " + eth,
                 "ethtool -P " + eth,
                 "ethtool -l " + eth,
+                "ethtool -m " + eth,
                 "ethtool --phy-statistics " + eth,
                 "ethtool --show-priv-flags " + eth,
                 "ethtool --show-eee " + eth
@@ -238,6 +239,7 @@ class Networking(Plugin):
                         ns_cmd_prefix + "ethtool " + eth,
                         ns_cmd_prefix + "ethtool -i " + eth,
                         ns_cmd_prefix + "ethtool -k " + eth,
+                        ns_cmd_prefix + "ethtool -m " + eth,
                         ns_cmd_prefix + "ethtool -S " + eth
                     ])
 
