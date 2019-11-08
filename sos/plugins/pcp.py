@@ -129,7 +129,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
                                 self.pcp_hostname, '*')
             pmlogger_ls = self.exec_cmd("ls -t1 %s" % path)
             if pmlogger_ls['status'] == 0:
-                for line in open(pmlogger_ls['output']).read().splitlines():
+                for line in pmlogger_ls['output'].splitlines():
                     self.add_copy_spec(line, sizelimit=0)
                     files_collected = files_collected + 1
                     if self.countlimit and files_collected == self.countlimit:
