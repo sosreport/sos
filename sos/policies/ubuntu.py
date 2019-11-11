@@ -8,6 +8,8 @@ class UbuntuPolicy(DebianPolicy):
     distro = "Ubuntu"
     vendor = "Canonical"
     vendor_url = "https://www.ubuntu.com/"
+    PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
+           + ":/usr/local/sbin:/usr/local/bin:/snap/bin"
 
     def __init__(self, sysroot=None):
         super(UbuntuPolicy, self).__init__(sysroot=sysroot)
