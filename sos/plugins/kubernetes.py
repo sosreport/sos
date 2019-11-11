@@ -190,6 +190,6 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
 
     files = ('/root/cdk/kubeproxyconfig',)
 
-    kube_cmd = "/snap/bin/kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
+    kube_cmd = "kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
 
 # vim: et ts=5 sw=4
