@@ -20,10 +20,10 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     def setup(self):
         # virt-manager logs
-        if not self.get_option("all_logs"):
-            self.add_copy_spec("/root/.virt-manager/*", sizelimit=5)
-        else:
-            self.add_copy_spec("/root/.virt-manager/*")
+        self.add_copy_spec([
+            "/root/.cache/virt-manager/*.log",
+            "/root/.virt-manager/*.log"
+        ])
 
         cmd = 'virsh -r'
 
