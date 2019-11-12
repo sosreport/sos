@@ -25,6 +25,7 @@ sosreport \- Collect and package diagnostic and support data
           [--log-size]\fR
           [--all-logs]\fR
           [--since YYYYMMDD[HHMMSS]]\fR
+          [--allow-system-changes]\fR
           [-z|--compression-type method]\fR
           [--encrypt-key KEY]\fR
           [--encrypt-pass PASS]\fR
@@ -159,6 +160,9 @@ increase the size of reports.
 .B \--since YYYYMMDD[HHMMSS]
 Limits the collection to logs newer than this date.
 This also affects \--all-logs. Will pad with 0s if HHMMSS isn't specified.
+.TP
+.B \--allow-system-changes
+Run commands even if they can change the system (e.g. load kernel modules).
 .TP
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.
