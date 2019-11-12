@@ -822,6 +822,7 @@ class LinuxPolicy(Policy):
 
     def __init__(self, sysroot=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot)
+        self.init_kernel_modules()
         if self.init == 'systemd':
             self.init_system = SystemdInit()
         else:
@@ -874,11 +875,12 @@ class LinuxPolicy(Policy):
     def sanitize_filename(self, name):
         return re.sub(r"[^-a-z,A-Z.0-9]", "", name)
 
-    def lsmod(self):
-        """Return a list of kernel module names as strings.
+    def init_kernel_modules(self):
+        """Obtain a list of loaded kernel modules to reference later for plugin
+        enablement and SoSPredicate checks
         """
         lines = shell_out("lsmod", timeout=0).splitlines()
-        return [line.split()[0].strip() for line in lines]
+        self.kernel_mods = [line.split()[0].strip() for line in lines]
 
     def pre_work(self):
         # this method will be called before the gathering begins
