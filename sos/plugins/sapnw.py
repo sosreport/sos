@@ -32,14 +32,13 @@ class sapnw(Plugin, RedHatPlugin):
             "/usr/sap/hostctrl/exe/saphostctrl -function ListInstances",
             suggest_filename="SAPInstances"
         )
-        if not inst_out:
+        if inst_out['status'] != 0:
             return
 
         sidsunique = set()
         # Cycle through all the instances, get 'sid', 'instance_number'
         # and 'vhost' to determine the proper profile
-        p = open(inst_out, "r").read().splitlines()
-        for inst_line in p:
+        for inst_line in inst_out['output'].splitlines():
             if "DAA" not in inst_line:
                 fields = inst_line.strip().split()
                 sid = fields[3]
@@ -99,11 +98,10 @@ class sapnw(Plugin, RedHatPlugin):
             suggest_filename="SAPDatabases"
         )
 
-        if not db_out:
+        if db_out['status'] != 0:
             return
 
-        dbl = open(db_out, "r").read().splitlines()
-        for line in dbl:
+        for line in db_out['output'].splitlines():
             if "Instance name" in line:
                 fields = line.strip().split()
                 dbadm = fields[2][:-1]
