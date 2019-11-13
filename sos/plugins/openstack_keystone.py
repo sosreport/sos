@@ -48,10 +48,11 @@ class OpenStackKeystone(Plugin):
 
         # collect domain config directory, if specified
         # if not, collect default /etc/keystone/domains
-        self.domain_config_dir = self.exec_cmd(
+        exec_out = self.exec_cmd(
                 "crudini --get /etc/keystone/keystone.conf "
                 "identity domain_config_dir")
-        if self.domain_config_dir is None or \
+        self.domain_config_dir = exec_out['output']
+        if exec_out['status'] != 0 or \
                 not(os.path.isdir(self.domain_config_dir)):
             self.domain_config_dir = "/etc/keystone/domains"
         self.add_copy_spec(self.domain_config_dir)
