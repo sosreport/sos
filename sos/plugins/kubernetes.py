@@ -19,6 +19,7 @@ class Kubernetes(Plugin):
     """Kubernetes plugin
     """
 
+    plugin_name = "kubernetes"
     profiles = ('container',)
 
     option_list = [
