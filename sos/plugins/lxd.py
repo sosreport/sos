@@ -17,6 +17,7 @@ class LXD(Plugin, UbuntuPlugin):
     plugin_name = 'lxd'
     profiles = ('container',)
     packages = ('lxd',)
+    commands = ('lxd',)
 
     # Version 2.0.X:
     # - /etc/default/lxd-bridge
