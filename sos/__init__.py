@@ -55,8 +55,9 @@ _arg_names = [
     'debug', 'del_preset', 'dry_run', 'enableplugins', 'encrypt_key',
     'encrypt_pass', 'experimental', 'label', 'list_plugins', 'list_presets',
     'list_profiles', 'log_size', 'noplugins', 'noreport', 'no_env_vars',
-    'note', 'onlyplugins', 'plugin_timeout', 'plugopts', 'preset', 'profiles',
-    'quiet', 'since', 'sysroot', 'threads', 'tmp_dir', 'verbosity', 'verify'
+    'no_postproc', 'note', 'onlyplugins', 'plugin_timeout', 'plugopts',
+    'preset', 'profiles', 'quiet', 'since', 'sysroot', 'threads', 'tmp_dir',
+    'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -182,6 +183,7 @@ class SoSOptions(object):
         self.noreport = False
         self.allow_system_changes = False
         self.no_env_vars = False
+        self.no_postproc = False
         self.note = ""
         self.onlyplugins = []
         self.plugin_timeout = None

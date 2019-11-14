@@ -75,6 +75,18 @@ class NamedMockPlugin(Plugin):
         pass
 
 
+class PostprocMockPlugin(Plugin):
+
+    did_postproc = False
+
+    def setup(self):
+        pass
+
+    def postproc(self):
+        if self.get_option('postproc'):
+            self.did_postproc = True
+
+
 class ForbiddenMockPlugin(Plugin):
     """This plugin has a description."""
 
@@ -97,6 +109,7 @@ class MockOptions(object):
     since = None
     log_size = 25
     allow_system_changes = False
+    no_postproc = False
 
 
 class PluginToolTests(unittest.TestCase):
@@ -238,6 +251,15 @@ class PluginTests(unittest.TestCase):
         p.setup()
         p.collect()
         self.assertEquals(p.archive.m, {})
+
+    def test_postproc_default_on(self):
+        p = PostprocMockPlugin({
+            'cmdlineopts': MockOptions(),
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy()
+        })
+        p.postproc()
+        self.assertTrue(p.did_postproc)
 
 
 class AddCopySpecTests(unittest.TestCase):
