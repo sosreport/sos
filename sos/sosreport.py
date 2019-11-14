@@ -199,6 +199,9 @@ def _get_parser():
     parser.add_argument("--no-env-vars", action="store_true", default=False,
                         dest="no_env_vars",
                         help="Do not collect environment variables")
+    parser.add_argument("--no-postproc", default=False, dest="no_postproc",
+                        action="store_true",
+                        help="Disable all post-processing")
     parser.add_argument("--note", type=str, action="store", default="",
                         help="Behaviour notes for new preset")
     parser.add_argument("-o", "--only-plugins", action="extend",
@@ -754,12 +757,15 @@ class SoSReport(object):
         self.ui_log.info("")
 
         if self.all_options:
+            self.ui_log.info(_("The following options are available for ALL "
+                               "plugins:"))
+            for opt in self.all_options[0][0]._default_plug_opts:
+                self.ui_log.info(" %-25s %-15s %s" % (opt[0], opt[3], opt[1]))
+            self.ui_log.info("")
+
             self.ui_log.info(_("The following plugin options are available:"))
-            self.ui_log.info(_("\n Option 'timeout' available to all plugins -"
-                               " time in seconds to allow plugin to run, use 0"
-                               " for no timeout\n"))
             for (plug, plugname, optname, optparm) in self.all_options:
-                if optname == 'timeout':
+                if optname in ('timeout', 'postproc'):
                     continue
                 # format option value based on its type (int or bool)
                 if type(optparm["enabled"]) == bool:
@@ -1163,7 +1169,11 @@ class SoSReport(object):
     def postproc(self):
         for plugname, plug in self.loaded_plugins:
             try:
-                plug.postproc()
+                if plug.get_option('postproc'):
+                    plug.postproc()
+                else:
+                    self.soslog.info("Skipping postproc for plugin %s"
+                                     % plugname)
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
@@ -1361,7 +1371,10 @@ class SoSReport(object):
                 self.collect_env_vars()
             if not self.opts.noreport:
                 self.generate_reports()
-            self.postproc()
+            if not self.opts.no_postproc:
+                self.postproc()
+            else:
+                self.ui_log.info("Skipping postprocessing of collected data")
             self.version()
             return self.final_work()
 
