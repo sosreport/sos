@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, SoSPredicate
 
 
 class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -18,7 +18,7 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'crio'
     profiles = ('container',)
-    packages = ('cri-o', "cri-tools")
+    packages = ('cri-o', 'cri-tools')
 
     option_list = [
         ("all", "enable capture for all containers, even containers "
@@ -44,6 +44,13 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
             'ALL_PROXY'
         ])
 
+        self.add_journal(units="crio")
+        self.add_cmd_output("ls -alhR /etc/cni")
+
+        # base cri-o installation does not require cri-tools, which is what
+        # supplies the crictl utility
+        self.set_cmd_predicate(SoSPredicate(self, packages=['cri-tools']))
+
         subcmds = [
             'info',
             'images',
@@ -56,8 +63,6 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
         ]
 
         self.add_cmd_output(["crictl %s" % s for s in subcmds])
-        self.add_journal(units="crio")
-        self.add_cmd_output("ls -alhR /etc/cni")
 
         ps_cmd = 'crictl ps --quiet'
         if self.get_option('all'):
