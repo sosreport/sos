@@ -12,6 +12,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import json
 import os
 import six
+from subprocess import PIPE
 
 
 class OVNCentral(Plugin):
@@ -21,6 +22,12 @@ class OVNCentral(Plugin):
     profiles = ('network', 'virt')
     _container_runtime = None
     _container_name = None
+    _container_stdin = None
+
+    def exec_cmd(self, *args, **kwargs):
+        return super().get_command_output(*args,
+                                          stdin=self._container_stdin,
+                                          **kwargs)
 
     def get_tables_from_schema(self, filename, skip=[]):
         if self._container_name:
@@ -69,6 +76,8 @@ class OVNCentral(Plugin):
                     if "ovn-dbs-bundle" in line:
                         self._container_name = line.split()[-1]
                         self._container_runtime = runtime
+                        if self._container_name == 'podman':
+                            self._container_stdin = PIPE
                         return True
         return False
 

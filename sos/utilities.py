@@ -107,7 +107,8 @@ def is_executable(command):
 
 def sos_get_command_output(command, timeout=300, stderr=False,
                            chroot=None, chdir=None, env=None,
-                           binary=False, sizelimit=None, poller=None):
+                           binary=False, sizelimit=None, poller=None,
+                           stdin=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -148,7 +149,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
         else:
             expanded_args.append(arg)
     try:
-        p = Popen(expanded_args, shell=False, stdout=PIPE,
+        p = Popen(expanded_args, shell=False, stdout=PIPE, stdin=stdin,
                   stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)

@@ -1256,7 +1256,7 @@ class Plugin(object):
         )
 
     def exec_cmd(self, cmd, timeout=300, stderr=True, chroot=True, runat=None,
-                 env=None, binary=False, pred=None):
+                 env=None, binary=False, pred=None, stdin=None):
         """Execute a command right now and return the output and status, but
         do not save the output within the archive.
 
@@ -1275,7 +1275,8 @@ class Plugin(object):
             root = None
 
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
-                                      chdir=runat, binary=binary, env=env)
+                                      chdir=runat, binary=binary, env=env,
+                                      stdin=stdin)
 
     def is_module_loaded(self, module_name):
         """Return whether specified module as module_name is loaded or not"""
