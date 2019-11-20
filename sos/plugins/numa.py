@@ -39,7 +39,8 @@ class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             os.path.join(numa_path, "node*/meminfo"),
             os.path.join(numa_path, "node*/cpulist"),
-            os.path.join(numa_path, "node*/distance")
+            os.path.join(numa_path, "node*/distance"),
+            os.path.join(numa_path, "node*/hugepages/hugepages-*/*")
         ])
 
 # vim: set et ts=4 sw=4 :
