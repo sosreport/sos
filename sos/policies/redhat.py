@@ -47,6 +47,7 @@ class RedHatPolicy(LinuxPolicy):
     upload_url = 'dropbox.redhat.com'
     upload_user = 'anonymous'
     upload_directory = '/incoming'
+    default_container_runtime = 'podman'
 
     def __init__(self, sysroot=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot)
