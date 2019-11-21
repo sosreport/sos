@@ -151,60 +151,86 @@ class PluginTests(unittest.TestCase):
 
     def setUp(self):
         self.mp = MockPlugin({
-            'cmdlineopts': MockOptions(),
-            'policy': LinuxPolicy(init=InitSystem()),
             'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
             'cmdlineopts': MockOptions()
         })
         self.mp.archive = MockArchive()
 
     def test_plugin_default_name(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.name(), "mockplugin")
 
     def test_plugin_set_name(self):
-        p = NamedMockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                             'cmdlineopts': MockOptions()})
+        p = NamedMockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.name(), "testing")
 
     def test_plugin_no_descrip(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.get_description(), "<no description available>")
 
     def test_plugin_no_descrip(self):
-        p = NamedMockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                             'cmdlineopts': MockOptions()})
+        p = NamedMockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.get_description(), "This plugin has a description.")
 
     def test_set_plugin_option(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         p.set_option("opt", "testing")
         self.assertEquals(p.get_option("opt"), "testing")
 
     def test_set_nonexistant_plugin_option(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertFalse(p.set_option("badopt", "testing"))
 
     def test_get_nonexistant_plugin_option(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.get_option("badopt"), 0)
 
     def test_get_unset_plugin_option(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.get_option("opt"), 0)
 
     def test_get_unset_plugin_option_with_default(self):
         # this shows that even when we pass in a default to get,
         # we'll get the option's default as set in the plugin
         # this might not be what we really want
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.get_option("opt", True), True)
 
     def test_get_unset_plugin_option_with_default_not_none(self):
@@ -212,24 +238,36 @@ class PluginTests(unittest.TestCase):
         # if the plugin default is not None
         # we'll get the option's default as set in the plugin
         # this might not be what we really want
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.get_option("opt2", True), False)
 
     def test_get_option_as_list_plugin_option(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         p.set_option("opt", "one,two,three")
         self.assertEquals(p.get_option_as_list("opt"), ['one', 'two', 'three'])
 
     def test_get_option_as_list_plugin_option_default(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         self.assertEquals(p.get_option_as_list("opt", default=[]), [])
 
     def test_get_option_as_list_plugin_option_not_list(self):
-        p = MockPlugin({'sysroot': self.sysroot, 'policy': LinuxPolicy(init=InitSystem()),
-                        'cmdlineopts': MockOptions()})
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions()
+        })
         p.set_option("opt", "testing")
         self.assertEquals(p.get_option_as_list("opt"), ['testing'])
 
@@ -245,7 +283,7 @@ class PluginTests(unittest.TestCase):
         p = ForbiddenMockPlugin({
             'cmdlineopts': MockOptions(),
             'sysroot': self.sysroot,
-            'policy': LinuxPolicy(init=InitSystem())
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False)
         })
         p.archive = MockArchive()
         p.setup()
@@ -269,7 +307,7 @@ class AddCopySpecTests(unittest.TestCase):
     def setUp(self):
         self.mp = MockPlugin({
             'cmdlineopts': MockOptions(),
-            'policy': LinuxPolicy(init=InitSystem()),
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
             'sysroot': os.getcwd(),
             'cmdlineopts': MockOptions()
         })
@@ -346,7 +384,7 @@ class CheckEnabledTests(unittest.TestCase):
 
     def setUp(self):
         self.mp = EnablerPlugin({
-            'policy': sos.policies.load(),
+            'policy': LinuxPolicy(probe_runtime=False),
             'sysroot': os.getcwd(),
             'cmdlineopts': MockOptions()
         })
@@ -375,7 +413,7 @@ class RegexSubTests(unittest.TestCase):
     def setUp(self):
         self.mp = MockPlugin({
             'cmdlineopts': MockOptions(),
-            'policy': LinuxPolicy(init=InitSystem()),
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
             'sysroot': os.getcwd()
         })
         self.mp.archive = MockArchive()
