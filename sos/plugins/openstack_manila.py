@@ -23,7 +23,8 @@ class OpenStackManila(Plugin):
     def setup(self):
 
         config_dir = "%s/etc/manila" % (
-            self.var_puppet_gen if self.running_in_container() else ''
+            self.var_puppet_gen if self.container_exists('.*manila_api') else
+            ''
         )
         manila_cmd = "manila-manage --config-dir %s db version" % config_dir
         self.add_cmd_output(manila_cmd, suggest_filename="manila_db_version")
@@ -45,15 +46,6 @@ class OpenStackManila(Plugin):
             self.add_copy_spec([
                 "/var/log/manila/*.log",
             ])
-
-    def running_in_container(self):
-        for runtime in ["docker", "podman"]:
-            container_status = self.exec_cmd(runtime + " ps")
-            if container_status['status'] == 0:
-                for line in container_status['output'].splitlines():
-                    if line.endswith("manila_api"):
-                        return True
-        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/manila/*", regexp, subst)
