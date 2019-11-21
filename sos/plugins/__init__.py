@@ -1379,27 +1379,119 @@ class Plugin(object):
 
     def exec_cmd(self, cmd, timeout=cmd_timeout, stderr=True, chroot=True,
                  runat=None, env=None, binary=False, pred=None,
-                 foreground=False):
+                 foreground=False, container=False):
         """Execute a command right now and return the output and status, but
         do not save the output within the archive.
 
         Use this method in a plugin's setup() if command output is needed to
         build subsequent commands added to a report via add_cmd_output().
         """
+        _default = {'status': None, 'output': ''}
         if not self.test_predicate(cmd=True, pred=pred):
-            return {
-                'status': None,
-                'output': ''
-            }
+            return _default
 
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
             root = None
 
+        if container:
+            if self._get_container_runtime() is None:
+                self._log_info("Cannot run cmd '%s' in container %s: no "
+                               "runtime detected on host." % (cmd, container))
+                return _default
+            if self.container_exists(container):
+                cmd = self.fmt_container_cmd(container, cmd)
+            else:
+                self._log_info("Cannot run cmd '%s' in container %s: no such "
+                               "container is running." % (cmd, container))
+
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
                                       chdir=runat, binary=binary, env=env,
                                       foreground=foreground)
+
+    def _get_container_runtime(self, runtime=None):
+        """Based on policy and request by the plugin, return a usable
+        ContainerRuntime if one exists
+        """
+        if runtime is None:
+            if 'default' in self.policy.runtimes.keys():
+                return self.policy.runtimes['default']
+        else:
+            for pol_runtime in list(self.policy.runtimes.keys()):
+                if runtime == pol_runtime:
+                    return self.policy.runtimes[pol_runtime]
+        return None
+
+    def container_exists(self, name):
+        """If a container runtime is present, check to see if a container with
+        a given name is currently running
+        """
+        _runtime = self._get_container_runtime()
+        if _runtime is not None:
+            con = _runtime.get_container_by_name(name)
+            return con is not None
+        return False
+
+    def get_container_by_name(self, name):
+        _runtime = self._get_container_runtime()
+        if _runtime is not None:
+            return _runtime.get_container_by_name(name)
+        return None
+
+    def get_containers(self, runtime=None, get_all=False):
+        """Return a list of all container IDs from the Policy's
+        ContainerRuntime.
+
+        If `runtime` is not provided, use the Policy default. If the specified
+        `runtime is not loaded, return empty.
+        """
+        _runtime = self._get_container_runtime(runtime=runtime)
+        if _runtime is not None:
+            if get_all:
+                return _runtime.get_containers(get_all=True)
+            else:
+                return _runtime.containers
+        return []
+
+    def get_container_images(self, runtime=None):
+        """Return a list of all image names from the Policy's
+        ContainerRuntime
+
+        If `runtime` is not provided, use the Policy default. If the specified
+        `runtime is not loaded, return empty.
+        """
+        _runtime = self._get_container_runtime(runtime=runtime)
+        if _runtime is not None:
+            return _runtime.images
+        return []
+
+    def get_container_volumes(self, runtime=None):
+        """Return a list of all volume names from the Policy's
+        ContainerRuntime
+
+        If `runtime` is not provided, use the Policy default. If the specified
+        `runtime is not loaded, return empty.
+        """
+        _runtime = self._get_container_runtime(runtime=runtime)
+        if _runtime is not None:
+            return _runtime.volumes
+        return []
+
+    def get_container_logs(self, container, **kwargs):
+        """Helper to get the `logs` output for a given container
+
+        Supports passthru of add_cmd_output() options
+        """
+        _runtime = self._get_container_runtime()
+        if _runtime is not None:
+            self.add_cmd_output(_runtime.get_logs_command(container), **kwargs)
+
+    def fmt_container_cmd(self, container, cmd):
+        if self.container_exists(container):
+            _runtime = self._get_container_runtime()
+            return _runtime.fmt_container_cmd(container, cmd)
+        return cmd
 
     def is_module_loaded(self, module_name):
         """Return whether specified module as module_name is loaded or not"""
