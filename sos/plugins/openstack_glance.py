@@ -42,7 +42,7 @@ class OpenStackGlance(Plugin):
 
         # collect commands output only if the openstack-glance-api service
         # is running
-        in_container = self.running_in_container()
+        in_container = self.container_exists('glance_api')
 
         if self.is_service_running('openstack-glance-api') or in_container:
             glance_config = ""
@@ -69,15 +69,6 @@ class OpenStackGlance(Plugin):
                                     "environment.")
             else:
                 self.add_cmd_output("openstack image list --long")
-
-    def running_in_container(self):
-        for runtime in ["docker", "podman"]:
-            container_status = self.exec_cmd(runtime + " ps")
-            if container_status['status'] == 0:
-                for line in container_status['output'].splitlines():
-                    if line.endswith("glance_api"):
-                        return True
-        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)

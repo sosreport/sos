@@ -37,7 +37,7 @@ class OpenStackCinder(Plugin):
             if in_ps:
                 break
 
-        in_container = self.running_in_container()
+        in_container = self.container_exists('cinder_api')
         if in_container:
             cinder_config = cinder_config_opt % self.var_puppet_gen
 
@@ -68,15 +68,6 @@ class OpenStackCinder(Plugin):
                 "/var/log/cinder/*.log",
                 "/var/log/httpd/cinder*.log",
             ])
-
-    def running_in_container(self):
-        for runtime in ["docker", "podman"]:
-            container_status = self.exec_cmd(runtime + " ps")
-            if container_status['status'] == 0:
-                for line in container_status['output'].splitlines():
-                    if line.endswith("cinder_api"):
-                        return True
-        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/cinder/*", regexp, subst)

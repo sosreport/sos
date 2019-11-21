@@ -26,7 +26,7 @@ class OpenStackHeat(Plugin):
 
         # collect commands output only if the openstack-heat-api service
         # is running
-        in_container = self.running_in_container()
+        in_container = self.container_exists('heat_api')
 
         if self.is_service_running('openstack-heat-api') or in_container:
             heat_config = ""
@@ -78,15 +78,6 @@ class OpenStackHeat(Plugin):
             self.var_puppet_gen + "_api_cfn/etc/httpd/conf.modules.d/*.conf",
             self.var_puppet_gen + "_api_cfn/var/spool/cron/heat",
         ])
-
-    def running_in_container(self):
-        for runtime in ["docker", "podman"]:
-            container_status = self.exec_cmd(runtime + " ps")
-            if container_status['status'] == 0:
-                for line in container_status['output'].splitlines():
-                    if line.endswith("heat_api"):
-                        return True
-        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub(
