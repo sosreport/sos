@@ -29,7 +29,7 @@ class OpenStackNova(Plugin):
 
         # collect commands output only if the openstack-nova-api service
         # is running
-        in_container = self.running_in_container()
+        in_container = self.container_exists('.*nova_api')
 
         if self.is_service_running('openstack-nova-api') or in_container:
             nova_config = ""
@@ -120,15 +120,6 @@ class OpenStackNova(Plugin):
             "authorized_keys",
             self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config",
         ])
-
-    def running_in_container(self):
-        for runtime in ["docker", "podman"]:
-            container_status = self.exec_cmd(runtime + " ps")
-            if container_status['status'] == 0:
-                for line in container_status['output'].splitlines():
-                    if line.endswith("nova_api"):
-                        return True
-        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
