@@ -24,7 +24,8 @@ class Sar(Plugin,):
 
     def setup(self):
         self.add_copy_spec(self.sa_path,
-                           sizelimit=0 if self.get_option("all_sar") else None)
+                           sizelimit=0 if self.get_option("all_sar") else None,
+                           tailit=False)
 
         try:
             dir_list = os.listdir(self.sa_path)
