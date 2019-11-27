@@ -1425,7 +1425,14 @@ class Plugin(object):
             self._add_cmd_output(cmd='%s %s' % (udev_cmd, dev))
 
     def _expand_copy_spec(self, copyspec):
-        return glob.glob(copyspec)
+        if os.path.isdir(copyspec):
+            paths = []
+            for root, dirs, files in os.walk(copyspec):
+                for _file in files:
+                    paths.append(os.path.join(root, _file))
+            return paths
+        else:
+            return glob.glob(copyspec)
 
     def _collect_copy_specs(self):
         for path in self.copy_paths:
