@@ -73,17 +73,12 @@ class Docker(Plugin):
             for net in n:
                 self.add_cmd_output("docker network inspect %s" % net)
 
-        ps_cmd = 'docker ps -q'
-        if self.get_option('all'):
-            ps_cmd = "%s -a" % ps_cmd
-
-        fmt = '{{lower .Repository}}:{{lower .Tag}} {{lower .ID}}'
-        img_cmd = "docker images --format='%s'" % fmt
-        vol_cmd = 'docker volume ls -q'
-
-        containers = self._get_docker_list(ps_cmd)
-        images = self._get_docker_list(img_cmd)
-        volumes = self._get_docker_list(vol_cmd)
+        containers = [
+            c[0] for c in self.get_containers(runtime='docker',
+                                              get_all=self.get_option('all'))
+        ]
+        images = self.get_container_images(runtime='docker')
+        volumes = self.get_container_volumes(runtime='docker')
 
         for container in containers:
             self.add_cmd_output("docker inspect %s" % container,
@@ -93,21 +88,13 @@ class Docker(Plugin):
                                     subdir='containers')
 
         for img in images:
-            name, img_id = img.strip().split()
+            name, img_id = img
             insp = name if 'none' not in name else img_id
             self.add_cmd_output("docker inspect %s" % insp, subdir='images')
 
         for vol in volumes:
             self.add_cmd_output("docker volume inspect %s" % vol,
                                 subdir='volumes')
-
-    def _get_docker_list(self, cmd):
-        ret = []
-        result = self.exec_cmd(cmd)
-        if result['status'] == 0:
-            for ent in result['output'].splitlines():
-                ret.append(ent)
-        return ret
 
     def postproc(self):
         # Attempts to match key=value pairs inside container inspect output
