@@ -21,7 +21,7 @@ class ContainerLog(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         if self.get_option('all_logs'):
-            self.add_copy_spec(logdir)
+            self.add_copy_spec(self.logdir)
         else:
             self.collect_subdirs()
 
