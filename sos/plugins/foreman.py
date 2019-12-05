@@ -259,8 +259,13 @@ class Foreman(Plugin):
             "/var/log/foreman-installer/foreman-proxy*",
             r"(\s*proxy_password\s=) (.*)",
             r"\1 ********")
+        # yaml values should be alphanumeric
         self.do_path_regex_sub(
-            "/etc/foreman(.*)((yaml|yml|conf)(.*)?)",
+            "/etc/foreman(.*)((yaml|yml)(.*)?)",
+            r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
+            r'\1"********"')
+        self.do_path_regex_sub(
+            "/etc/foreman(.*)((conf)(.*)?)",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r"\1********")
         self.do_path_regex_sub(
