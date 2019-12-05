@@ -136,10 +136,20 @@ class Pulp(Plugin, RedHatPlugin):
         return _cmd % quote(_moncmd % (_mondb, query))
 
     def postproc(self):
+
+        # Handle all ".conf" files under /etc/pulp - note that this includes
+        # files nested at several distinct directory levels. For this reason we
+        # use a regex that matches all these path components with ".*", and
+        # ensure that the path ends with ".conf".
         etcreg = r"(([a-z].*(passw|token|cred|secret).*)\:(\s))(.*)"
         repl = r"\1 ********"
-        self.do_path_regex_sub("/etc/pulp/(.*).conf", etcreg, repl)
-        jreg = r"(\s*\".*(passw|cred|token|secret).*\:)(.*)"
+        self.do_path_regex_sub(r"/etc/pulp/(.*)\.conf$", etcreg, repl)
+
+        # Now handle JSON-formatted data in the same /etc/pulp directory
+        # structure. We use a different substitution string here to preserve
+        # the file's JSON syntax.
+        jreg = r"(\s*\".*(passw|cred|token|secret).*\"\s*:\s*\")(.*)(\")"
+        repl = r"\1********\4"
         self.do_path_regex_sub("/etc/pulp(.*)(.json$)", jreg, repl)
 
 # vim: set et ts=4 sw=4 :
