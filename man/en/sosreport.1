@@ -158,8 +158,11 @@ and including logs in non-default locations. This option may significantly
 increase the size of reports.
 .TP
 .B \--since YYYYMMDD[HHMMSS]
-Limits the collection to logs newer than this date.
-This also affects \--all-logs. Will pad with 0s if HHMMSS isn't specified.
+Limits the collection of log archives to those newer than this date. A log
+archive is any file not found in /etc, that has either a numeric or a
+compression-type file extension for example ".zip". ".1", ".gz" etc.).
+This also affects \--all-logs. The date string will be padded with zeros
+if HHMMSS is not specified.
 .TP
 .B \--allow-system-changes
 Run commands even if they can change the system (e.g. load kernel modules).
