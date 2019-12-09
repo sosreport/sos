@@ -176,22 +176,24 @@ class Foreman(Plugin):
         dyncmd = (
             'select dynflow_execution_plans.* from foreman_tasks_tasks join '
             'dynflow_execution_plans on (foreman_tasks_tasks.external_id = '
-            'dynflow_execution_plans.uuid) where foreman_tasks_tasks.'
+            'dynflow_execution_plans.uuid::varchar) where foreman_tasks_tasks.'
             'started_at > NOW() - interval %s' % quote(months)
         )
 
         dactioncmd = (
              'select dynflow_actions.* from foreman_tasks_tasks join '
              'dynflow_actions on (foreman_tasks_tasks.external_id = '
-             'dynflow_actions.execution_plan_uuid) where foreman_tasks_tasks.'
-             'started_at > NOW() - interval %s' % quote(months)
+             'dynflow_actions.execution_plan_uuid::varchar) where '
+             'foreman_tasks_tasks.started_at > NOW() - interval %s'
+             % quote(months)
         )
 
         dstepscmd = (
             'select dynflow_steps.* from foreman_tasks_tasks join '
             'dynflow_steps on (foreman_tasks_tasks.external_id = '
-            'dynflow_steps.execution_plan_uuid) where foreman_tasks_tasks.'
-            'started_at > NOW() - interval %s' % quote(months)
+            'dynflow_steps.execution_plan_uuid::varchar) where '
+            'foreman_tasks_tasks.started_at > NOW() - interval %s'
+            % quote(months)
         )
 
         # Populate this dict with DB queries that should be saved directly as
