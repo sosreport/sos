@@ -707,6 +707,7 @@ any third party.
         _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
                            'vendor_url': self.vendor_url,
                            'vendor_text': self.vendor_text,
+                           'tmpdir': self.commons['tmpdir'],
                            'changes_text': changes_text}
         _fmt = ""
         for line in _msg.splitlines():
