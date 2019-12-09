@@ -25,14 +25,14 @@ from six.moves import input
 PRESETS_PATH = "/var/lib/sos/presets"
 
 
-def GetHumanReadable(size, precision=2):
+def get_human_readable(size, precision=2):
     # Credit to Pavan Gupta https://stackoverflow.com/questions/5194057/
-    suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
-    suffixIndex = 0
-    while size > 1024 and suffixIndex < 4:
-        suffixIndex += 1
+    suffixes = ['B', 'KiB', 'MiB', 'GiB', 'TiB']
+    suffixindex = 0
+    while size > 1024 and suffixindex < 4:
+        suffixindex += 1
         size = size/1024.0
-    return "%.*f%s" % (precision, size, suffixes[suffixIndex])
+    return "%.*f%s" % (precision, size, suffixes[suffixindex])
 
 
 def import_policy(name):
@@ -672,7 +672,7 @@ any third party.
             self._print(_("Your sosreport has been generated and saved "
                           "in:\n  %s\n") % archive, always=True)
             self._print(_(" Size\t%s") %
-                        GetHumanReadable(archivestat.st_size))
+                        get_human_readable(archivestat.st_size))
             self._print(_(" Owner\t%s") %
                         getpwuid(archivestat.st_uid).pw_name)
         else:
