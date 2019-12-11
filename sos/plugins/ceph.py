@@ -68,7 +68,8 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph-disk list",
             "ceph versions",
             "ceph osd crush dump",
-            "ceph -v"
+            "ceph -v",
+            "ceph-volume lvm list"
         ])
 
         ceph_cmds = [
