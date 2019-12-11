@@ -49,6 +49,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
             "dnf --version",
             "dnf list installed *dnf*",
             "dnf list extras",
+            "dnf module list",
             "package-cleanup --dupes",
             "package-cleanup --problems"
         ])
