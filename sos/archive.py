@@ -348,6 +348,9 @@ class FileCacheArchive(Archive):
                         pass
                     else:
                         self.log_info("caught '%s' copying '%s'" % (e, src))
+                except OSError as e:
+                    self.log_info("File not collected: '%s'" % e)
+
                 # copy file attributes, skip SELinux xattrs for /sys and /proc
                 try:
                     stat = os.stat(src)
