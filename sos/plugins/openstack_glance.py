@@ -44,7 +44,7 @@ class OpenStackGlance(Plugin):
         # is running
         in_container = self.running_in_container()
 
-        if self.service_is_running('openstack-glance-api') or in_container:
+        if self.is_service_running('openstack-glance-api') or in_container:
             glance_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:

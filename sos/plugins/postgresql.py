@@ -95,7 +95,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
             # The scl name, package name, and service name all differ slightly
             # but is at least consistent in doing so across versions, so we
             # need to do some mangling here
-            if self.service_is_running(pkg.replace('-server', '')):
+            if self.is_service_running(pkg.replace('-server', '')):
                 scl = pkg.split('-postgresql-')[0]
 
         # Copy PostgreSQL log files.
