@@ -26,7 +26,7 @@ class OpenStackPlacement(Plugin):
 
         in_container = self.running_in_container()
 
-        if self.service_is_running('openstack-placement-api') or in_container:
+        if self.is_service_running('openstack-placement-api') or in_container:
             placement_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:

@@ -186,7 +186,7 @@ class SoSPredicate(object):
         if not self.services:
             return True
 
-        _svcs = [self._owner.service_is_running(s) for s in self.services]
+        _svcs = [self._owner.is_service_running(s) for s in self.services]
 
         if self.required['services'] == 'any':
             return any(_svcs)
@@ -458,15 +458,15 @@ class Plugin(object):
         '''Does the service $name exist on the system?'''
         return self.policy.init_system.is_service(name)
 
-    def service_is_enabled(self, name):
+    def is_service_enabled(self, name):
         '''Is the service $name enabled?'''
         return self.policy.init_system.is_enabled(name)
 
-    def service_is_disabled(self, name):
+    def is_service_disabled(self, name):
         '''Is the service $name disabled?'''
         return self.policy.init_system.is_disabled(name)
 
-    def service_is_running(self, name):
+    def is_service_running(self, name):
         '''Is the service $name currently running?'''
         return self.policy.init_system.is_running(name)
 
