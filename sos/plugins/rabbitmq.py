@@ -22,24 +22,19 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('rabbitmq-server',)
 
     def setup(self):
-        container_status = self.exec_cmd(
-            "docker ps -a --format='{{ .Names }}'"
-        )
-
         in_container = False
         container_names = []
-        if container_status['status'] == 0:
-            for line in container_status['output'].splitlines():
-                if line.startswith("rabbitmq"):
-                    in_container = True
-                    container_names.append(line)
+        _containers = self.get_containers()
+        for _con in _containers:
+            if _con[1].startswith('rabbitmq'):
+                in_container = True
+                container_names.append(_con[1])
 
         if in_container:
             for container in container_names:
-                self.add_cmd_output('docker logs {0}'.format(container))
+                self.get_container_logs(container)
                 self.add_cmd_output(
-                    'docker exec -t {0} rabbitmqctl report'
-                    .format(container)
+                    self.fmt_container_cmd(container, 'rabbitmqctl report')
                 )
         else:
             self.add_cmd_output("rabbitmqctl report")
