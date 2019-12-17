@@ -74,24 +74,19 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
                 "podman network inspect %s" % net for net in nets
             ], subdir='networks')
 
-        ps_cmd = 'podman ps -q'
-        if self.get_option('all'):
-            ps_cmd = "%s -a" % ps_cmd
-
-        fmt = '{{lower .Repository}}:{{lower .Tag}} {{lower .ID}}'
-        img_cmd = "podman images --format='%s'" % fmt
-        vol_cmd = 'podman volume ls -q'
-
-        containers = self._get_podman_list(ps_cmd)
-        images = self._get_podman_list(img_cmd)
-        volumes = self._get_podman_list(vol_cmd)
+        containers = [
+            c[0] for c in self.get_containers(runtime='podman',
+                                              get_all=self.get_option('all'))
+        ]
+        images = self.get_container_images(runtime='podman')
+        volumes = self.get_container_volumes(runtime='podman')
 
         for container in containers:
             self.add_cmd_output("podman inspect %s" % container,
                                 subdir='containers')
 
         for img in images:
-            name, img_id = img.strip().split()
+            name, img_id = img
             insp = name if 'none' not in name else img_id
             self.add_cmd_output("podman inspect %s" % insp, subdir='images')
 
@@ -103,14 +98,6 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             for con in containers:
                 self.add_cmd_output("podman logs -t %s" % con,
                                     subdir='containers')
-
-    def _get_podman_list(self, cmd):
-        ret = []
-        result = self.exec_cmd(cmd)
-        if result['status'] == 0:
-            for ent in result['output'].splitlines():
-                ret.append(ent)
-        return ret
 
     def postproc(self):
         # Attempts to match key=value pairs inside container inspect output
