@@ -41,7 +41,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         if os.path.isdir("/sys/block"):
             for disk in os.listdir("/sys/block"):
-                if disk.startswith("ram"):
+                if disk.startswith("ram") or disk.startswith("loop"):
                     continue
                 disk_path = os.path.join('/dev/', disk)
                 queue_path = os.path.join('/sys/block/', disk, 'queue')
