@@ -218,12 +218,12 @@ class Foreman(Plugin):
         for table in foremandb:
             _cmd = self.build_query_cmd(foremandb[table])
             self.add_cmd_output(_cmd, suggest_filename=table, timeout=600,
-                                env=self.env)
+                                sizelimit=100, env=self.env)
 
         for dyn in foremancsv:
             _cmd = self.build_query_cmd(foremancsv[dyn], csv=True)
             self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
-                                env=self.env)
+                                sizelimit=100, env=self.env)
 
         # collect http[|s]_proxy env.variables
         self.add_env_var(["http_proxy", "https_proxy"])
