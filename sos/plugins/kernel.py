@@ -143,10 +143,6 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if not self.get_option("trace"):
             self.add_forbidden_path("/sys/kernel/debug/tracing/trace")
 
-        # collect list of bpf program attachments in the kernel
-        # networking subsystem
-        self.add_cmd_output("bpftool net list")
-
         # collect list of eBPF programs and maps and their dumps
         prog_file = self.exec_cmd("bpftool -j prog list")
         for prog_id in self.get_bpftool_prog_ids(prog_file):
