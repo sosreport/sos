@@ -241,8 +241,8 @@ class Foreman(Plugin):
         return _dbcmd % (self.dbhost, csvformat, quote(query))
 
     def postproc(self):
-        satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?(::(.*)::.*" \
-              r"(passw|cred|token|secret|key).*(\")?:))(.*)"
+        satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
+              r"(passw|cred|token|secret|key).*(\")?:)|(storepass )))(.*)"
         self.do_path_regex_sub(
             "/var/log/foreman-installer/sat*",
             satreg,
@@ -270,7 +270,7 @@ class Foreman(Plugin):
             r"\1********")
         self.do_path_regex_sub(
             "/var/log/foreman-maintain/foreman-maintain.log*",
-            r"((passw|cred|token|secret)=)(.*)",
+            r"(((passw|cred|token|secret)=)|(password ))(.*)",
             r"\1********")
         self.do_path_regex_sub(
             "/var/log/%s*/foreman-ssl_access_ssl.log*" % self.apachepkg,
