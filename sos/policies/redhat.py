@@ -37,6 +37,9 @@ class RedHatPolicy(LinuxPolicy):
     default_scl_prefix = '/opt/rh'
     name_pattern = 'friendly'
     init = 'systemd'
+    upload_url = 'dropbox.redhat.com'
+    upload_user = 'anonymous'
+    upload_directory = '/incoming'
 
     def __init__(self, sysroot=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot)
