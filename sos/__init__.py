@@ -57,6 +57,7 @@ _arg_names = [
     'list_profiles', 'log_size', 'noplugins', 'noreport', 'no_env_vars',
     'no_postproc', 'note', 'onlyplugins', 'plugin_timeout', 'plugopts',
     'preset', 'profiles', 'quiet', 'since', 'sysroot', 'threads', 'tmp_dir',
+    'upload', 'upload_url', 'upload_directory', 'upload_user', 'upload_pass',
     'verbosity', 'verify'
 ]
 
@@ -194,6 +195,11 @@ class SoSOptions(object):
         self.sysroot = None
         self.threads = 4
         self.tmp_dir = ""
+        self.upload = False
+        self.upload_url = ""
+        self.upload_directory = ""
+        self.upload_user = ""
+        self.upload_pass = ""
         self.verbosity = _arg_defaults["verbosity"]
         self.verify = False
         self._nondefault = set()

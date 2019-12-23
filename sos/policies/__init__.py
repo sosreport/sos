@@ -24,6 +24,12 @@ from six.moves import input
 
 PRESETS_PATH = "/var/lib/sos/presets"
 
+try:
+    import requests
+    REQUESTS_LOADED = True
+except ImportError:
+    REQUESTS_LOADED = False
+
 
 def get_human_readable(size, precision=2):
     # Credit to Pavan Gupta https://stackoverflow.com/questions/5194057/
@@ -843,8 +849,21 @@ class LinuxPolicy(Policy):
     vendor = "None"
     PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
     init = None
-
+    # _ prefixed class attrs are used for storing any vendor-defined defaults
+    # the non-prefixed attrs are used by the upload methods, and will be set
+    # to the cmdline/config file values, if provided. If not provided, then
+    # those attrs will be set to the _ prefixed values as a fallback.
+    # TL;DR Use _upload_* for policy default values, use upload_* when wanting
+    # to actual use the value in a method/override
+    _upload_url = None
+    _upload_directory = '/'
+    _upload_user = None
+    _upload_password = None
+    _use_https_streaming = False
     _preferred_hash_name = None
+    upload_url = None
+    upload_user = None
+    upload_password = None
 
     def __init__(self, sysroot=None, init=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot)
@@ -917,12 +936,25 @@ class LinuxPolicy(Policy):
         cmdline_opts = self.commons['cmdlineopts']
         caseid = cmdline_opts.case_id if cmdline_opts.case_id else ""
 
+        # Set the cmdline settings to the class attrs that are referenced later
+        # The policy default '_' prefixed versions of these are untouched to
+        # allow fallback
+        self.upload_url = cmdline_opts.upload_url
+        self.upload_user = cmdline_opts.upload_user
+        self.upload_directory = cmdline_opts.upload_directory
+        self.upload_password = cmdline_opts.upload_pass
+
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
             try:
                 self.case_id = input(_("Please enter the case id "
                                        "that you are generating this "
                                        "report for [%s]: ") % caseid)
+                # Policies will need to handle the prompts for user information
+                if cmdline_opts.upload or self.upload_url:
+                    self.prompt_for_upload_user()
+                    self.prompt_for_upload_password()
+
                 self._print()
             except KeyboardInterrupt:
                 self._print()
@@ -933,5 +965,249 @@ class LinuxPolicy(Policy):
 
         return
 
+    def prompt_for_upload_user(self):
+        """Should be overridden by policies to determine if a user needs to
+        be provided or not
+        """
+        if not self.upload_user and not self._upload_user:
+            msg = "Please provide upload user for %s: " % self.get_upload_url()
+            self.upload_user = input(_(msg))
+
+    def prompt_for_upload_password(self):
+        """Should be overridden by policies to determine if a password needs to
+        be provided for upload or not
+        """
+        if ((not self.upload_password and not self._upload_password) and
+                self.upload_user):
+            msg = (
+                "Please provide the upload password for %s: "
+                % self.upload_user
+            )
+            self.upload_password = getpass(msg)
+
+    def upload_archive(self, archive):
+        """Entry point for sos attempts to upload the generated archive to a
+        policy or user specified location.
+
+        Curerntly there is support for HTTPS, SFTP, and FTP. HTTPS uploads are
+        preferred for policy-defined defaults.
+
+        Policies that need to override uploading methods should override the
+        respective upload_https(), upload_sftp(), and/or upload_ftp() methods
+        and should NOT override this method.
+
+        In order to enable this for a policy, that policy needs to implement
+        the following:
+
+        Required:
+            Class Attrs:
+                _upload_url                 The default location to use. Note
+                                            these MUST include protocol header
+                _upload_user                Default username, if any else None
+                _upload_password            Default password, if any else None
+                _use_https_streaming        Set to True if the HTTPS endpoint
+                                            supports streaming data
+
+        Optional:
+            Class Attrs:
+                _upload_directory   Default FTP server directory, if any
+
+            Methods:
+                prompt_for_upload_user()    Determines if sos should prompt
+                                            for a username or not.
+                get_upload_user()           Determines if the default or a
+                                            different username should be used
+                get_upload_https_auth()     Format authentication data for
+                                            HTTPS uploads
+                get_upload_url_string()     If you want your policy to print
+                                            a string other than the default URL
+                                            for your vendor/distro, override
+                                            this method
+
+        """
+        self.upload_archive = archive
+        self.upload_url = self.get_upload_url()
+        if not self.upload_url:
+            raise Exception("No upload destination provided by policy or by "
+                            "--upload-url")
+        upload_func = self._determine_upload_type()
+        print(_("Attempting upload to %s" % self.get_upload_url_string()))
+        return upload_func()
+
+    def _determine_upload_type(self):
+        """Based on the url provided, determine what type of upload to attempt.
+
+        Note that this requires users to provide a FQDN address, such as
+        https://myvendor.com/api or ftp://myvendor.com instead of
+        myvendor.com/api or myvendor.com
+        """
+        prots = {
+            'ftp': self.upload_ftp,
+            'sftp': self.upload_sftp,
+            'https': self.upload_https
+        }
+        if '://' not in self.upload_url:
+            raise Exception("Must provide protocol in upload URL")
+        prot, url = self.upload_url.split('://')
+        if prot not in prots.keys():
+            raise Exception("Unsupported or unrecognized protocol: %s" % prot)
+        return prots[prot]
+
+    def get_upload_https_auth(self, user=None, password=None):
+        """Formats the user/password credentials using basic auth
+        """
+        if not user:
+            user = self.get_upload_user()
+        if not password:
+            password = self.get_upload_password()
+
+        return requests.auth.HTTPBasicAuth(user, password)
+
+    def get_upload_url(self):
+        """Helper function to determine if we should use the policy default
+        upload url or one provided by the user
+        """
+        return self.upload_url or self._upload_url
+
+    def get_upload_url_string(self):
+        """Used by distro policies to potentially change the string used to
+        report upload location from the URL to a more human-friendly string
+        """
+        return self.get_upload_url()
+
+    def get_upload_user(self):
+        """Helper function to determine if we should use the policy default
+        upload user or one provided by the user
+        """
+        return self.upload_user or self._upload_user
+
+    def get_upload_password(self):
+        """Helper function to determine if we should use the policy default
+        upload password or one provided by the user
+        """
+        return self.upload_password or self._upload_password
+
+    def upload_sftp(self):
+        """Attempts to upload the archive to an SFTP location.
+
+        Due to the lack of well maintained, secure, and generally widespread
+        python libraries for SFTP, sos will shell-out to the system's local ssh
+        installation in order to handle these uploads.
+
+        Do not override this method with one that uses python-paramiko, as the
+        upstream sos team will reject any PR that includes that dependency.
+        """
+        raise NotImplementedError("SFTP support is not yet implemented")
+
+    def _upload_https_streaming(self, archive):
+        """If upload_https() needs to use requests.put(), this method is used
+        to provide streaming functionality
+
+        Policies should override this method instead of the base upload_https()
+
+        Positional arguments:
+            :param archive:     The open archive file object
+        """
+        return requests.put(self.get_upload_url(), data=archive,
+                            auth=self.get_upload_https_auth())
+
+    def _get_upload_headers(self):
+        """Define any needed headers to be passed with the POST request here
+        """
+        return {}
+
+    def _upload_https_no_stream(self, archive):
+        """If upload_https() needs to use requests.post(), this method is used
+        to provide non-streaming functionality
+
+        Policies should override this method instead of the base upload_https()
+
+        Positional arguments:
+            :param archive:     The open archive file object
+        """
+        files = {
+            'file': (archive.name.split('/')[-1], archive,
+                     self._get_upload_headers())
+        }
+        return requests.post(self.get_upload_url(), files=files,
+                             auth=self.get_upload_https_auth())
+
+    def upload_https(self):
+        """Attempts to upload the archive to an HTTPS location.
+
+        Policies may define whether this upload attempt should use streaming
+        or non-streaming data by setting the `use_https_streaming` class
+        attr to True
+        """
+        if not REQUESTS_LOADED:
+            raise Exception("Unable to upload due to missing python requests "
+                            "library")
+
+        with open(self.upload_archive, 'rb') as arc:
+            if not self._use_https_streaming:
+                r = self._upload_https_no_stream(arc)
+            else:
+                r = self._upload_https_streaming(arc)
+            if r.status_code != 201:
+                if r.status_code == 401:
+                    raise Exception(
+                        "Authentication failed: invalid user credentials"
+                    )
+                raise Exception("POST request returned %s: %s"
+                                % (r.status_code, r.reason))
+            return True
+
+    def upload_ftp(self, url=None, directory=None, user=None, password=None):
+        """Attempts to upload the archive to either the policy defined or user
+        provided FTP location.
+        """
+        try:
+            import ftplib
+            import socket
+        except ImportError:
+            # socket is part of the standard library, should only fail here on
+            # ftplib
+            raise Exception("missing python ftplib library")
+
+        if not url:
+            url = self.get_upload_url()
+        if url is None:
+            raise Exception("no FTP server specified by policy, use --upload-"
+                            "url to specify a location")
+
+        url = url.replace('ftp://', '')
+
+        if not user:
+            user = self.get_upload_user()
+
+        if not password:
+            password = self.get_upload_password()
+
+        if not directory:
+            directory = self._upload_directory
+
+        try:
+            session = ftplib.FTP(url, user, password)
+            session.cwd(directory)
+        except socket.gaierror:
+            raise Exception("unable to connect to %s" % url)
+        except ftplib.error_perm as err:
+            errno = err.split()[0]
+            if errno == 503:
+                raise Exception("could not login as '%s'" % user)
+            if errno == 550:
+                raise Exception("could not set upload directory to %s"
+                                % directory)
+
+        try:
+            with open(self.upload_archive, 'rb') as _arcfile:
+                session.storbinary(
+                    "STOR %s" % self.upload_archive.split('/')[-1],
+                    _arcfile
+                )
+            session.quit()
+            return True
+        except IOError:
+            raise Exception("could not open archive file")
 
 # vim: set et ts=4 sw=4 :
