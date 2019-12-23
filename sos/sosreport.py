@@ -245,6 +245,17 @@ def _get_parser():
                         help="Run commands even if they can change the "
                              "system (e.g. load kernel modules)")
 
+    parser.add_argument("--upload", action="store_true", default=False,
+                        help="Upload the archive to a policy-default location")
+    parser.add_argument("--upload-url", default=None,
+                        help="Upload the archive to the specified server")
+    parser.add_argument("--upload-directory", default=None,
+                        help="Specify the directory to upload the archive to")
+    parser.add_argument("--upload-user", default=None,
+                        help="Username to authenticate to upload server with")
+    parser.add_argument("--upload-pass", default=None,
+                        help="Password to authenticate to upload server with")
+
     # Group to make add/del preset exclusive
     preset_grp = parser.add_mutually_exclusive_group()
     preset_grp.add_argument("--add-preset", type=str, action="store",
@@ -1311,6 +1322,18 @@ class SoSReport(object):
                                         archivestat)
         else:
             self.policy.display_results(archive, directory, checksum)
+
+        if self.opts.upload or self.opts.upload_url:
+            if not self.opts.build:
+                try:
+                    self.policy.upload_archive(archive)
+                    self.ui_log.info(_("Uploaded archive successfully"))
+                except Exception as err:
+                    self.ui_log.error("Upload attempt failed: %s" % err)
+            else:
+                msg = ("Unable to upload archive when using --build as no "
+                       "archive is created.")
+                self.ui_log.error(msg)
 
         # clean up
         logging.shutdown()
