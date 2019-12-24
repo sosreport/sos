@@ -45,6 +45,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/var/lib/lsvpd/"
             ])
             self.add_cmd_output([
+                "ppc64_cpu --info",
                 "ppc64_cpu --smt",
                 "ppc64_cpu --cores-present",
                 "ppc64_cpu --cores-on",
