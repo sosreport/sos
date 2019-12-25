@@ -223,7 +223,7 @@ class SoSOptions(object):
         no_value = (
             "alloptions", "allow-system-changes", "all-logs", "batch", "build",
             "debug", "experimental", "list-plugins", "list-presets",
-            "list-profiles", "noreport", "no-env-vars", "quiet", "verify"
+            "list-profiles", "no-report", "no-env-vars", "quiet", "verify"
         )
         count = ("verbose",)
         if opt in no_value:
