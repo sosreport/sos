@@ -22,8 +22,6 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
     plugin_name = 'ovirt_hosted_engine'
     profiles = ('virt',)
 
-    HA_LOG_GLOB = '/var/log/ovirt-hosted-engine-ha/*.log'
-
     def setup(self):
         # Add configuration files
         # Collecting the whole directory since it may contain branding
@@ -45,18 +43,14 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
 
         self.add_copy_spec([
             '/var/log/ovirt-hosted-engine-setup',
-            '/var/log/ovirt-hosted-engine-ha/agent.log',
-            '/var/log/ovirt-hosted-engine-ha/broker.log',
+            '/var/log/ovirt-hosted-engine-ha/agent.log*',
+            '/var/log/ovirt-hosted-engine-ha/broker.log*',
         ])
 
         # Add gluster deployment and cleanup log
         self.add_copy_spec([
             '/var/log/cockpit/ovirt-dashboard'
         ])
-
-        # Add older ovirt-hosted-engine-ha log files only if requested
-        if self.get_option('all_logs'):
-            self.add_copy_spec(self.HA_LOG_GLOB)
 
         # Add run-time status
         self.add_cmd_output([
