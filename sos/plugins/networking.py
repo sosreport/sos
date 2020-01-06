@@ -199,10 +199,6 @@ class Networking(Plugin):
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
 
-        # collect list of bpf program attachments in the kernel
-        # networking subsystem
-        self.add_cmd_output("bpftool net list")
-
         # Capture additional data from namespaces; each command is run
         # per-namespace.
         ip_netns = self.exec_cmd("ip netns")
@@ -246,7 +242,6 @@ class Networking(Plugin):
                     ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
                     ns_cmd_prefix + "netstat -s",
                     ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
-                    ns_cmd_prefix + "bpftool net list",
                 ])
 
                 ss_cmd = ns_cmd_prefix + "ss -peaonmi"
