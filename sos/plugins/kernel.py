@@ -9,7 +9,6 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import glob
-import json
 
 
 class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -26,30 +25,6 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ("with-timer", "gather /proc/timer* statistics", "slow", False),
         ("trace", "gather /sys/kernel/debug/tracing/trace file", "slow", False)
     ]
-
-    def get_bpftool_prog_ids(self, prog_file):
-        out = []
-        try:
-            prog_data = json.load(open(prog_file))
-        except Exception as e:
-            self._log_info("Could not parse bpftool prog list as JSON: %s" % e)
-            return out
-        for item in range(len(prog_data)):
-            if "id" in prog_data[item]:
-                out.append(prog_data[item]["id"])
-        return out
-
-    def get_bpftool_map_ids(self, map_file):
-        out = []
-        try:
-            map_data = json.load(open(map_file))
-        except Exception as e:
-            self._log_info("Could not parse bpftool map list as JSON: %s" % e)
-            return out
-        for item in range(len(map_data)):
-            if "id" in map_data[item]:
-                out.append(map_data[item]["id"])
-        return out
 
     def setup(self):
         # compat
@@ -142,15 +117,5 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         if not self.get_option("trace"):
             self.add_forbidden_path("/sys/kernel/debug/tracing/trace")
-
-        # collect list of eBPF programs and maps and their dumps
-        prog_file = self.exec_cmd("bpftool -j prog list")
-        for prog_id in self.get_bpftool_prog_ids(prog_file):
-            for dumpcmd in ["xlated", "jited"]:
-                self.add_cmd_output("bpftool prog dump %s id %s" %
-                                    (dumpcmd, prog_id))
-        map_file = self.exec_cmd("bpftool -j map list")
-        for map_id in self.get_bpftool_map_ids(map_file):
-            self.add_cmd_output("bpftool map dump id %s" % map_id)
 
 # vim: set et ts=4 sw=4 :
