@@ -21,6 +21,14 @@ from sos import SoSOptions
 
 OS_RELEASE = "/etc/os-release"
 
+# In python2.7, input() will not properly return strings, and on python3.x
+# raw_input() was renamed to input(). So, if we're running on python2.7, map
+# input() to raw_input() to match the behavior
+try:
+    input = raw_input
+except NameError:
+    pass
+
 
 class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
@@ -243,6 +251,9 @@ organization before being passed to any third party.
 No changes will be made to system configuration.
 """
 
+RH_API_HOST = "https://access.redhat.com"
+RH_FTP_HOST = "ftp://dropbox.redhat.com"
+
 
 class RHELPolicy(RedHatPolicy):
     distro = RHEL_RELEASE_STR
@@ -257,6 +268,9 @@ An archive containing the collected information will be \
 generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
+    _upload_url = RH_FTP_HOST
+    _upload_user = 'anonymous'
+    _upload_directory = '/incoming'
 
     def __init__(self, sysroot=None):
         super(RHELPolicy, self).__init__(sysroot=sysroot)
@@ -285,6 +299,49 @@ support representative.
                     if value.startswith(cls.distro):
                         return True
         return False
+
+    def prompt_for_upload_user(self):
+        if self.commons['cmdlineopts'].upload_user:
+            return
+        # Not using the default, so don't call this prompt for RHCP
+        if self.commons['cmdlineopts'].upload_url:
+            super(RHELPolicy, self).prompt_for_upload_user()
+            return
+        if self.case_id:
+            self.upload_user = input(_(
+                "Enter your Red Hat Customer Portal username (empty to use "
+                "public dropbox): ")
+            )
+
+    def get_upload_url(self):
+        if self.commons['cmdlineopts'].upload_url:
+            return self.commons['cmdlineopts'].upload_url
+        if (not self.case_id or not self.upload_user or not
+                self.upload_password):
+            # Cannot use the RHCP. Use anonymous dropbox
+            self.upload_user = self._upload_user
+            self.upload_directory = self._upload_directory
+            self.upload_password = None
+            return RH_FTP_HOST
+        else:
+            rh_case_api = "/hydra/rest/cases/%s/attachments"
+            return RH_API_HOST + rh_case_api % self.case_id
+
+    def _get_upload_headers(self):
+        if self.get_upload_url().startswith(RH_API_HOST):
+            return {'isPrivate': 'false', 'cache-control': 'no-cache'}
+        return {}
+
+    def get_upload_url_string(self):
+        if self.get_upload_url().startswith(RH_API_HOST):
+            return "Red Hat Customer Portal"
+        return self.upload_url or RH_FTP_HOST
+
+    def get_upload_user(self):
+        # if this is anything other than dropbox, annonymous won't work
+        if self.upload_url != RH_FTP_HOST:
+            return self.upload_user
+        return self._upload_user
 
     def dist_version(self):
         try:
