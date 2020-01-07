@@ -106,7 +106,7 @@ def is_executable(command):
 
 
 def sos_get_command_output(command, timeout=300, stderr=False,
-                           chroot=None, chdir=None, env=None,
+                           chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
@@ -133,7 +133,11 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                 cmd_env.pop(key, None)
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
-        command = "timeout %ds %s" % (timeout, command)
+        command = "timeout %s %ds %s" % (
+            '--foreground' if foreground else '',
+            timeout,
+            command
+        )
 
     # shlex.split() reacts badly to unicode on older python runtimes.
     if not six.PY3:
