@@ -9,8 +9,9 @@ import fnmatch
 import tempfile
 import random
 import string
-from pwd import getpwuid
 
+from getpass import getpass
+from pwd import getpwuid
 from sos.utilities import (ImporterHelper,
                            import_module,
                            shell_out,
@@ -1182,7 +1183,7 @@ class LinuxPolicy(Policy):
         except socket.gaierror:
             raise Exception("unable to connect to %s" % url)
         except ftplib.error_perm as err:
-            errno = err.split()[0]
+            errno = str(err).split()[0]
             if errno == 503:
                 raise Exception("could not login as '%s'" % user)
             if errno == 550:
