@@ -948,14 +948,16 @@ class LinuxPolicy(Policy):
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
             try:
-                self.case_id = input(_("Please enter the case id "
-                                       "that you are generating this "
-                                       "report for [%s]: ") % caseid)
+                if caseid:
+                    self.case_id = caseid
+                else:
+                    self.case_id = input(_("Please enter the case id "
+                                           "that you are generating this "
+                                           "report for [%s]: ") % caseid)
                 # Policies will need to handle the prompts for user information
                 if cmdline_opts.upload or self.upload_url:
                     self.prompt_for_upload_user()
                     self.prompt_for_upload_password()
-
                 self._print()
             except KeyboardInterrupt:
                 self._print()
