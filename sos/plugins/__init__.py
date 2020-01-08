@@ -174,8 +174,13 @@ class SoSPredicate(object):
         if not self.kmods or self._owner.get_option('allow_system_changes'):
             return True
 
+        _kmods = []
         # Are kernel modules loaded?
-        _kmods = [self._owner.is_module_loaded(k) for k in self.kmods]
+        for kmod in self.kmods:
+            res = self._owner.is_module_loaded(kmod)
+            _kmods.append(res)
+            if not res:
+                self._failed['kmods'].append(kmod)
 
         if self.required['kmods'] == 'any':
             return any(_kmods)
@@ -186,7 +191,12 @@ class SoSPredicate(object):
         if not self.services:
             return True
 
-        _svcs = [self._owner.is_service_running(s) for s in self.services]
+        _svcs = []
+        for svc in self.services:
+            res = self._owner.is_service_running(svc)
+            _svcs.append(res)
+            if not res:
+                self._failed['services'].append(svc)
 
         if self.required['services'] == 'any':
             return any(_svcs)
@@ -197,7 +207,12 @@ class SoSPredicate(object):
         if not self.packages:
             return True
 
-        _pkgs = [self._owner.is_installed(p) for p in self.packages]
+        _pkgs = []
+        for pkg in self.packages:
+            res = self._owner.is_installed(pkg)
+            _pkgs.append(res)
+            if not res:
+                self._failed['packages'].append(pkg)
 
         if self.required['packages'] == 'any':
             return any(_pkgs)
@@ -220,12 +235,32 @@ class SoSPredicate(object):
         if not self.cmd_outputs:
             return True
 
-        _cmds = [self._eval_cmd_output(c) for c in self.cmd_outputs]
+        _cmds = []
+        for cmd in self.cmd_outputs:
+            res = self._eval_cmd_output(cmd)
+            _cmds.append(res)
+            if not res:
+                self._failed['cmd_output'].append(
+                    "%s: %s" % (cmd['cmd'], cmd['output'])
+                )
 
         if self.required['commands'] == 'any':
             return any(_cmds)
         else:
             return all(_cmds)
+
+    def report_failed(self):
+        """Return a string informing user what caused the predicate to fail
+        evaluation
+        """
+        msg = ''
+        _substr = "required %s missing: %s."
+        for key, val in self._failed.items():
+            if not val:
+                continue
+            val = set(val)
+            msg += _substr % (key, ', '.join(v for v in val))
+        return msg
 
     def __nonzero__(self):
         """Predicate evaluation hook.
@@ -263,6 +298,10 @@ class SoSPredicate(object):
             k: v for k, v in required.items() if
             required[k] != self.required[k]
         })
+        #: Dict holding failed evaluations
+        self._failed = {
+            'kmods': [], 'services': [], 'packages': [], 'cmd_output': []
+        }
 
 
 class SoSCommand(object):
@@ -526,15 +565,12 @@ class Plugin(object):
             message indicating that the missing data can be collected by using
             the "--allow-system-changes" command line option will be included.
         """
-        msg = ("skipped command '%s': required kernel modules or"
-               " services not present (%s).")
+        msg = "skipped command '%s': %s" % (cmd, pred.report_failed())
 
-        needs = "kmods=[%s] services=[%s]" % (",".join(pred.kmods),
-                                              ",".join(pred.services))
         if changes:
             msg += " Use '--allow-system-changes' to enable collection."
 
-        self._log_warn(msg % (cmd, needs))
+        self._log_warn(msg)
 
     def do_cmd_private_sub(self, cmd, desc=""):
         '''Remove certificate and key output archived by sosreport. cmd
