@@ -30,6 +30,8 @@ sosreport \- Collect and package diagnostic and support data
           [-z|--compression-type method]\fR
           [--encrypt-key KEY]\fR
           [--encrypt-pass PASS]\fR
+          [--upload] [--upload-url url] [--upload-user user]\fR
+          [--upload-directory dir] [--upload-pass pass]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -257,6 +259,60 @@ Execute plugins as normal, but do not collect any file content, command
 output, or string data from the system. The resulting logs may be used
 to understand the actions that sos would have taken without the dry run
 option.
+.TP
+.B \--upload
+If specified, attempt to upload the resulting archive to a vendor defined location.
+
+This option is implied if --upload-url is used.
+
+You may be prompted for a username and password if these are not defined by the vendor
+as well. If these credentials are not provided, sos will still run and create an archive
+but will not attempt an automatic upload, instead relying on the end user to upload it
+as needed.
+
+The sosreport archive will still remain on the local filesystem even after a successful
+upload.
+
+Note that depending on the distribution sos is being run on, or the vendor policy detected during
+execution, there may be dependencies that are not strictly required by the package
+at installation time.
+
+For example, for HTTPS uploads the python-requests library must be available. If this
+library is not available, HTTPS uploads will not be attempted.
+.TP
+.B \--upload-url URL
+If a vendor does not provide a default upload location, or if you would like to upload
+the archive to a different location, specify the address here.
+
+A support protocol MUST be specified in this URL. Currently uploading is supported
+for HTTPS, SFTP, and FTP protocols.
+
+If your destination server listens on a non-standard port, specify the listening
+port in the URL.
+.TP
+.B \-\-upload-user USER
+If a vendor does not provide a default user for uploading, specify the username here.
+
+If this option is unused and upload is request, and a vendor default is not set, you
+will be prompted for one. If --batch is used and this option is omitted, no username will
+be collected and thus uploads will fail if no vendor default is set.
+.TP
+.B \-\-upload-pass PASS
+Specify the password to use for authentication with the destination server.
+
+If this option is omitted and upload is requested, you will be prompted for one.
+
+If --batch is used, this prompt will not occur, so any uploads are likely to fail unless
+this option is used.
+
+Note that this will result in the plaintext string appearing in `ps` output that may
+be collected by sos and be in the archive. If a password must be provided by you
+for uploading, it is strongly recommended to not use --batch and enter the password
+when prompted rather than using this option.
+.TP
+.B \--upload-directory DIR
+Specify a directory to upload to, if one is not specified by a vendor default location
+or if your destination server does not allow writes to '/'.
 .TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
