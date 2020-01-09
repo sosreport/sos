@@ -14,7 +14,7 @@ import glob
 
 
 class Peripety(Plugin, RedHatPlugin):
-    '''Peripety Storage Event Monitor'''
+    """Peripety Storage Event Monitor"""
 
     packages = ('peripety',)
     services = ('peripetyd',)

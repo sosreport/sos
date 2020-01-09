@@ -204,12 +204,12 @@ def shell_out(cmd, timeout=30, chroot=None, runat=None):
 
 
 class AsyncReader(threading.Thread):
-    '''Used to limit command output to a given size without deadlocking
+    """Used to limit command output to a given size without deadlocking
     sos.
 
     Takes a sizelimit value in MB, and will compile stdout from Popen into a
     string that is limited to the given sizelimit.
-    '''
+    """
 
     def __init__(self, channel, sizelimit, binary):
         super(AsyncReader, self).__init__()
@@ -225,14 +225,14 @@ class AsyncReader(threading.Thread):
         self.start()
 
     def run(self):
-        '''Reads from the channel (pipe) that is the output pipe for a
+        """Reads from the channel (pipe) that is the output pipe for a
         called Popen. As we are reading from the pipe, the output is added
         to a deque. After the size of the deque exceeds the sizelimit
         earlier (older) entries are removed.
 
         This means the returned output is chunksize-sensitive, but is not
         really byte-sensitive.
-        '''
+        """
         try:
             while True:
                 line = self.chan.read(self.chunksize)
@@ -246,7 +246,7 @@ class AsyncReader(threading.Thread):
         self.running = False
 
     def get_contents(self):
-        '''Returns the contents of the deque as a string'''
+        """Returns the contents of the deque as a string"""
         # block until command completes or timesout (separate from the plugin
         # hitting a timeout)
         while self.running:

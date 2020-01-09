@@ -12,8 +12,8 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class Date(Plugin, RedHatPlugin, DebianPlugin):
-    '''Basic system time information
-    '''
+    """Basic system time information
+    """
 
     plugin_name = 'date'
 

@@ -13,8 +13,8 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class KernelRT(Plugin, RedHatPlugin):
-    '''Realtime kernel variant
-    '''
+    """Realtime kernel variant
+    """
 
     plugin_name = 'kernelrt'
     profiles = ('system', 'hardware', 'kernel', 'mrg')

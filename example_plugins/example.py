@@ -12,7 +12,7 @@ from sos.plugins import Plugin, RedHatPlugin
 # if you want to override it simply provide a @classmethod name()
 # that returns the name you want
 class example(Plugin, RedHatPlugin):
-    '''This is the description for the example plugin'''
+    """This is the description for the example plugin"""
     # Plugin developers want to override setup() from which they will call
     # add_copy_spec() to collect files and collectExtOutput() to collect programs
     # output.
@@ -27,13 +27,13 @@ class example(Plugin, RedHatPlugin):
                   ('color', 'Gathers toenail polish color', 'fast', 0)]
 
     def setup(self):
-        ''' First phase - Collect all the information we need.
+        """ First phase - Collect all the information we need.
         Directories are copied recursively. arbitrary commands may be
         executed using the collectExtOutput() method. Information is
         automatically saved, and links are presented in the report to each
         file or directory which has been copied to the saved tree. Also, links
         are provided to the output from each command.
-        '''
+        """
         # Here's how to copy files and directory trees
         self.add_copy_spec("/etc/hosts")
 

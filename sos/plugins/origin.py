@@ -33,7 +33,7 @@ import os.path
 
 
 class OpenShiftOrigin(Plugin):
-    ''' OpenShift Origin '''
+    """ OpenShift Origin """
 
     plugin_name = "origin"
     files = None  # file lists assigned after path setup below
@@ -68,19 +68,19 @@ class OpenShiftOrigin(Plugin):
     # single instance (at least one must evaluate True if this is an OpenShift
     # installation)
     def is_master(self):
-        '''Determine if we are on a master'''
+        """Determine if we are on a master"""
         return os.path.exists(self.master_cfg)
 
     def is_node(self):
-        '''Determine if we are on a node'''
+        """Determine if we are on a node"""
         return os.path.exists(self.node_cfg)
 
     def is_static_etcd(self):
-        '''Determine if we are on a node running etcd'''
+        """Determine if we are on a node running etcd"""
         return os.path.exists(os.path.join(self.static_pod_dir, "etcd.yaml"))
 
     def is_static_pod_compatible(self):
-        '''Determine if a node is running static pods'''
+        """Determine if a node is running static pods"""
         return os.path.exists(self.static_pod_dir)
 
     def setup(self):
@@ -224,8 +224,8 @@ class OpenShiftOrigin(Plugin):
 
 
 class AtomicOpenShift(OpenShiftOrigin, RedHatPlugin):
-    ''' OpenShift Enterprise / OpenShift Container Platform
-    '''
+    """ OpenShift Enterprise / OpenShift Container Platform
+    """
 
     packages = ('atomic-openshift',)
 
