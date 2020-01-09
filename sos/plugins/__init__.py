@@ -47,7 +47,7 @@ def _to_u(s):
 
 
 def regex_findall(regex, fname):
-    '''Return a list of all non overlapping matches in the string(s)'''
+    """Return a list of all non overlapping matches in the string(s)"""
     try:
         with fileobj(fname) as f:
             return re.findall(regex, f.read(), re.MULTILINE)
@@ -205,7 +205,7 @@ class SoSPredicate(object):
             return all(_pkgs)
 
     def _eval_cmd_output(self, cmd_output):
-        '''Does 'cmd' output contain string 'output'?'''
+        """Does 'cmd' output contain string 'output'?"""
         if 'cmd' not in cmd_output or 'output' not in cmd_output:
             return False
         result = sos_get_command_output(cmd_output['cmd'])
@@ -367,10 +367,10 @@ class Plugin(object):
 
     @property
     def timeout(self):
-        '''Returns either the default plugin timeout value, the value as
+        """Returns either the default plugin timeout value, the value as
         provided on the commandline via -k plugin.timeout=value, or the value
         of the global --plugin-timeout option.
-        '''
+        """
         _timeout = None
         try:
             opt_timeout = self.get_option('plugin_timeout')
@@ -390,7 +390,7 @@ class Plugin(object):
         return self.plugin_timeout
 
     def check_timeout(self):
-        '''
+        """
         Checks to see if the plugin has hit its timeout.
 
         This is set when the sos.collect_plugin() method hits a timeout and
@@ -404,7 +404,7 @@ class Plugin(object):
 
         Returns True if timeout has been hit, else False.
 
-        '''
+        """
         return self._timeout_hit
 
     @classmethod
@@ -451,27 +451,27 @@ class Plugin(object):
         return os.path.commonprefix(paths) == self.sysroot
 
     def is_installed(self, package_name):
-        '''Is the package $package_name installed?'''
+        """Is the package $package_name installed?"""
         return self.policy.pkg_by_name(package_name) is not None
 
     def is_service(self, name):
-        '''Does the service $name exist on the system?'''
+        """Does the service $name exist on the system?"""
         return self.policy.init_system.is_service(name)
 
     def is_service_enabled(self, name):
-        '''Is the service $name enabled?'''
+        """Is the service $name enabled?"""
         return self.policy.init_system.is_enabled(name)
 
     def is_service_disabled(self, name):
-        '''Is the service $name disabled?'''
+        """Is the service $name disabled?"""
         return self.policy.init_system.is_disabled(name)
 
     def is_service_running(self, name):
-        '''Is the service $name currently running?'''
+        """Is the service $name currently running?"""
         return self.policy.init_system.is_running(name)
 
     def get_service_status(self, name):
-        '''Return the reported status for service $name'''
+        """Return the reported status for service $name"""
         return self.policy.init_system.get_service_status(name)['status']
 
     def set_predicate(self, pred):
@@ -537,13 +537,13 @@ class Plugin(object):
         self._log_warn(msg % (cmd, needs))
 
     def do_cmd_private_sub(self, cmd, desc=""):
-        '''Remove certificate and key output archived by sosreport. cmd
+        """Remove certificate and key output archived by sosreport. cmd
         is the command name from which output is collected (i.e. exlcuding
         parameters). Any matching instances are replaced with: '-----SCRUBBED'
         and this function does not take a regexp or substituting string.
 
         This function returns the number of replacements made.
-        '''
+        """
         if not self.executed_commands:
             return 0
 
@@ -555,7 +555,7 @@ class Plugin(object):
         return self.do_cmd_output_sub(cmd, _certmatch, replace)
 
     def do_cmd_output_sub(self, cmd, regexp, subst):
-        '''Apply a regexp substitution to command output archived by sosreport.
+        """Apply a regexp substitution to command output archived by sosreport.
         cmd is the command name from which output is collected (i.e. excluding
         parameters). The regexp can be a string or a compiled re object. The
         substitution string, subst, is a string that replaces each occurrence
@@ -564,7 +564,7 @@ class Plugin(object):
         the current module's command list is subjected to the replacement.
 
         This function returns the number of replacements made.
-        '''
+        """
         globstr = '*' + cmd + '*'
         pattern = regexp.pattern if hasattr(regexp, "pattern") else regexp
         self._log_debug("substituting '%s' for '%s' in commands matching '%s'"
@@ -599,7 +599,7 @@ class Plugin(object):
         return replacements
 
     def do_file_private_sub(self, pathregex, desc=""):
-        '''Scrub certificate/key/etc information from files collected by sos.
+        """Scrub certificate/key/etc information from files collected by sos.
 
         Files matching the provided pathregex are searched for content that
         resembles certificate, ssh keys, or similar information. Any matches
@@ -611,7 +611,7 @@ class Plugin(object):
         Positional arguments:
             :param pathregex: A string or regex of a filename to match against
             :param desc: A description of the replaced content
-        '''
+        """
         self._log_debug("Scrubbing certs and keys for paths matching %s"
                         % pathregex)
         match = re.compile(pathregex).match
@@ -624,13 +624,13 @@ class Plugin(object):
             self.do_file_sub(path, _certmatch, replace)
 
     def do_file_sub(self, srcpath, regexp, subst):
-        '''Apply a regexp substitution to a file archived by sosreport.
+        """Apply a regexp substitution to a file archived by sosreport.
         srcpath is the path in the archive where the file can be found.  regexp
         can be a regexp string or a compiled re object.  subst is a string to
         replace each occurance of regexp in the content of srcpath.
 
         This function returns the number of replacements made.
-        '''
+        """
         try:
             path = self._get_dest_for_srcpath(srcpath)
             pattern = regexp.pattern if hasattr(regexp, "pattern") else regexp
@@ -661,12 +661,12 @@ class Plugin(object):
         return replacements
 
     def do_path_regex_sub(self, pathexp, regexp, subst):
-        '''Apply a regexp substituation to a set of files archived by
+        """Apply a regexp substituation to a set of files archived by
         sos. The set of files to be substituted is generated by matching
         collected file pathnames against pathexp which may be a regular
         expression string or compiled re object. The portion of the file
         to be replaced is specified via regexp and the replacement string
-        is passed in subst.'''
+        is passed in subst."""
         if not hasattr(pathexp, "match"):
             pathexp = re.compile(pathexp)
         match = pathexp.match
@@ -773,10 +773,10 @@ class Plugin(object):
 
     # Methods for copying files and shelling out
     def _do_copy_path(self, srcpath, dest=None):
-        '''Copy file or directory to the destination tree. If a directory, then
+        """Copy file or directory to the destination tree. If a directory, then
         everything below it is recursively copied. A list of copied files are
         saved for use later in preparing a report.
-        '''
+        """
         if self._timeout_hit:
             return
 
@@ -895,9 +895,9 @@ class Plugin(object):
         return default
 
     def get_option_as_list(self, optionname, delimiter=",", default=None):
-        '''Will try to return the option as a list separated by the
+        """Will try to return the option as a list separated by the
         delimiter.
-        '''
+        """
         option = self.get_option(optionname)
         try:
             opt_list = [opt.strip() for opt in option.split(delimiter)]
@@ -1302,13 +1302,13 @@ class Plugin(object):
         self.custom_text += text
 
     def add_service_status(self, services, timeout=None, pred=None):
-        '''Collect service status information based on the InitSystem used.
+        """Collect service status information based on the InitSystem used.
 
         :param services: A string, or list of strings, specifying the services
                           to collect
         :param timeout:  Optional timeout in seconds
         :param pred:     An optional predicate to gate collection
-        '''
+        """
         if isinstance(services, six.string_types):
             services = [services]
 

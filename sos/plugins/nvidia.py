@@ -13,7 +13,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nvidia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    '''Nvidia GPU information'''
+    """Nvidia GPU information"""
 
     commands = ('nvidia-smi',)
 

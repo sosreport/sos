@@ -12,7 +12,7 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Qt(Plugin, RedHatPlugin):
-    '''QT widget toolkit'''
+    """QT widget toolkit"""
 
     plugin_name = 'qt'
     packages = ('qt', )

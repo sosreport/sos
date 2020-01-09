@@ -12,9 +12,9 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    '''
+    """
     Collectd config collector
-    '''
+    """
     plugin_name = "collectd"
     profiles = ('services', 'webserver')
 

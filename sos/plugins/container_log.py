@@ -13,8 +13,8 @@ import os
 
 
 class ContainerLog(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    '''All container logs
-    '''
+    """All container logs
+    """
     plugin_name = 'container_log'
     logdir = '/var/log/containers/'
     files = (logdir, )
@@ -26,8 +26,8 @@ class ContainerLog(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.collect_subdirs()
 
     def collect_subdirs(self, root=logdir):
-        '''Collect *.log files from subdirs of passed root path
-        '''
+        """Collect *.log files from subdirs of passed root path
+        """
         for dirName, _, _ in os.walk(root):
             self.add_copy_spec(os.path.join(dirName, '*.log'))
 
