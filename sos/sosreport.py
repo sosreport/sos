@@ -1017,8 +1017,8 @@ class SoSReport(object):
             os._exit(1)
 
     def _collect_plugin(self, plugin):
-        '''Wraps the collect_plugin() method so we can apply a timeout
-        against the plugin as a whole'''
+        """Wraps the collect_plugin() method so we can apply a timeout
+        against the plugin as a whole"""
         with ThreadPoolExecutor(1) as pool:
             try:
                 t = pool.submit(self.collect_plugin, plugin)

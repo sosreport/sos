@@ -12,7 +12,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cockpit(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    '''Cockpit Web Service'''
+    """Cockpit Web Service"""
 
     plugin_name = 'cockpit'
     packages = ('cockpit-ws', 'cockpit-system')

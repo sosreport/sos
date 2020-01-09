@@ -15,7 +15,7 @@ from os.path import isdir, join
 
 
 class Fibrechannel(Plugin, RedHatPlugin):
-    '''Collects information on fibrechannel devices, if present'''
+    """Collects information on fibrechannel devices, if present"""
 
     plugin_name = 'fibrechannel'
     profiles = ('hardware', 'storage', 'system')
