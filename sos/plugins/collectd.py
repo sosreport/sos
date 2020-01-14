@@ -18,12 +18,18 @@ class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = "collectd"
     profiles = ('services', 'webserver')
 
+    # enable the plugin either when collectd package is installed
+    # or being inside Super Proviledged Container that does not have
+    # the package but logs to the host's logfile
     packages = ('collectd',)
+    files = ('/var/log/containers/collectd/collectd.log')
 
     def setup(self):
         self.add_copy_spec([
             '/etc/collectd.conf',
             '/etc/collectd.d/*.conf',
+            '/var/log/containers/collectd/collectd.log',
+            '/var/lib/config-data/collectd',
         ])
 
         p = re.compile('^LoadPlugin.*')
