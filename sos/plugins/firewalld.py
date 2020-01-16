@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, SoSPredicate
 
 
 class FirewallD(Plugin, RedHatPlugin):
@@ -33,7 +33,10 @@ class FirewallD(Plugin, RedHatPlugin):
         ])
 
         # collect nftables ruleset
-        self.add_cmd_output("nft list ruleset")
+        nft_pred = SoSPredicate(self,
+                                kmods=['nf_tables', 'nfnetlink'],
+                                required={'kmods': 'all'})
+        self.add_cmd_output("nft list ruleset", pred=nft_pred, changes=True)
 
         # use a 10s timeout to workaround dbus problems in
         # docker containers.
