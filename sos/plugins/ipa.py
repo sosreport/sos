@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, SoSPredicate
 from glob import glob
 from os.path import exists
 
@@ -152,7 +152,6 @@ class Ipa(Plugin, RedHatPlugin):
 
         self.add_cmd_output([
             "ls -la /etc/dirsrv/slapd-*/schema/",
-            "getcert list",
             "certutil -L -d /etc/httpd/alias/",
             "pki-server cert-find --show-all",
             "pki-server subsystem-cert-validate ca",
@@ -160,6 +159,11 @@ class Ipa(Plugin, RedHatPlugin):
             "klist -ket /etc/httpd/conf/ipa.keytab",
             "klist -ket /var/lib/ipa/gssproxy/http.keytab"
         ])
+
+        getcert_pred = SoSPredicate(self,
+                                    services=['certmonger'])
+
+        self.add_cmd_output("getcert list", pred=getcert_pred)
 
         for certdb_directory in glob("/etc/dirsrv/slapd-*/"):
             self.add_cmd_output("certutil -L -d %s" % certdb_directory)
