@@ -16,7 +16,7 @@ class Snappy(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):
 
     plugin_name = 'snappy'
     profiles = ('system', 'sysmgmt', 'packagemanager')
-    files = ('/usr/bin/snap')
+    packages = ('snapd',)
 
     def setup(self):
         self.add_cmd_output([
