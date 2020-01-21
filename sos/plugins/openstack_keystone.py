@@ -48,7 +48,7 @@ class OpenStackKeystone(Plugin):
 
         # collect domain config directory, if specified
         # if not, collect default /etc/keystone/domains
-        exec_out = self.exec_cmd(
+        exec_out = self.collect_cmd_output(
                 "crudini --get /etc/keystone/keystone.conf "
                 "identity domain_config_dir")
         self.domain_config_dir = exec_out['output']
