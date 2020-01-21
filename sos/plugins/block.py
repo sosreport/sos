@@ -53,7 +53,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                     "fdisk -l %s" % disk_path
                 ])
 
-        lsblk = self.exec_cmd("lsblk -f -a -l")
+        lsblk = self.collect_cmd_output("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump
         if lsblk['status'] == 0:
             for line in lsblk['output'].splitlines():
