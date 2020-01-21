@@ -143,14 +143,21 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if not self.get_option("trace"):
             self.add_forbidden_path("/sys/kernel/debug/tracing/trace")
 
-        # collect list of eBPF programs and maps and their dumps
-        prog_file = self.exec_cmd("bpftool -j prog list")
-        for prog_id in self.get_bpftool_prog_ids(prog_file):
-            for dumpcmd in ["xlated", "jited"]:
-                self.add_cmd_output("bpftool prog dump %s id %s" %
-                                    (dumpcmd, prog_id))
-        map_file = self.exec_cmd("bpftool -j map list")
-        for map_id in self.get_bpftool_map_ids(map_file):
-            self.add_cmd_output("bpftool map dump id %s" % map_id)
+        # collect list of eBPF programs and maps and their dumps in both
+        # human readable format and as JSON (used for further sos parsing)
+        self.add_cmd_output([
+            "bpftool prog list",
+            "bpftool map list",
+        ])
+        progs = self.collect_cmd_output("bpftool -j prog list")
+        if progs['status'] == 0:
+            for prog_id in self.get_bpftool_prog_ids(progs['filename']):
+                for dumpcmd in ["xlated", "jited"]:
+                    self.add_cmd_output("bpftool prog dump %s id %s" %
+                                        (dumpcmd, prog_id))
+        maps = self.collect_cmd_output("bpftool -j map list")
+        if maps['status'] == 0:
+            for map_id in self.get_bpftool_map_ids(maps['filename']):
+                self.add_cmd_output("bpftool map dump id %s" % map_id)
 
 # vim: set et ts=4 sw=4 :
