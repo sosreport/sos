@@ -43,7 +43,7 @@ class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
         # get network, pool and nwfilter elements
         for k in ['net', 'nwfilter', 'pool']:
-            k_list = self.exec_cmd('%s %s-list' % (cmd, k))
+            k_list = self.collect_cmd_output('%s %s-list' % (cmd, k))
             if k_list['status'] == 0:
                 k_lines = k_list['output'].splitlines()
                 # the 'Name' column position changes between virsh cmds

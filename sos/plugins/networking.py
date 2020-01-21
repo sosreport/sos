@@ -201,7 +201,7 @@ class Networking(Plugin):
 
         # Capture additional data from namespaces; each command is run
         # per-namespace.
-        ip_netns = self.exec_cmd("ip netns")
+        ip_netns = self.collect_cmd_output("ip netns")
         cmd_prefix = "ip netns exec "
         if ip_netns['status'] == 0:
             out_ns = []

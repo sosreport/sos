@@ -29,7 +29,7 @@ class Ntp(Plugin):
             "ntpq -pn"
         ])
 
-        ids = self.exec_cmd('ntpq -c as')
+        ids = self.collect_cmd_output('ntpq -c as')
         if ids['status'] == 0:
             for asid in [i.split()[1] for i in ids['output'].splitlines()[3:]]:
                 self.add_cmd_output("ntpq -c 'rv %s'" % asid)
