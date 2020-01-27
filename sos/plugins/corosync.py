@@ -32,7 +32,8 @@ class Corosync(Plugin):
             "corosync-cfgtool -s",
             "corosync-blackbox",
             "corosync-objctl -a",
-            "corosync-cmapctl"
+            "corosync-cmapctl",
+            "corosync-cmapctl -m stats"
         ])
         self.exec_cmd("killall -USR2 corosync")
 
