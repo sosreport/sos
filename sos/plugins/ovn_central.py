@@ -26,8 +26,7 @@ class OVNCentral(Plugin):
         if self._container_name:
             cmd = "%s exec %s cat %s" % (
                 self._container_runtime, self._container_name, filename)
-            # the timeout=None is just a workaround for "podman ps" hung bug
-            res = self.exec_cmd(cmd, timeout=None)
+            res = self.exec_cmd(cmd, foreground=True)
             if res['status'] != 0:
                 self._log_error("Could not retrieve DB schema file from "
                                 "container %s" % self._container_name)
@@ -119,8 +118,7 @@ class OVNCentral(Plugin):
                                        self._container_name,
                                        cmd) for cmd in cmds]
 
-        # the timeout=None is just a workaround for "podman ps" hung bug
-        self.add_cmd_output(cmds, timeout=None)
+        self.add_cmd_output(cmds, foreground=True)
 
         self.add_copy_spec("/etc/sysconfig/ovn-northd")
 
