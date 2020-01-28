@@ -41,17 +41,22 @@ class S390(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/sys/bus/ccw/drivers/zfcp/0.*/*",
             "/sys/bus/ccw/drivers/zfcp/0.*/0x*/*",
             "/sys/bus/ccw/drivers/zfcp/0.*/0x*/0x*/*",
+            "/sys/kernel/debug/s390dbf",
             "/etc/zipl.conf",
             "/etc/zfcp.conf",
             "/etc/sysconfig/dumpconf",
             "/etc/src_vipa.conf",
             "/etc/ccwgroup.conf",
-            "/etc/chandev.conf"])
+            "/etc/chandev.conf"
+        ])
+
+        # skip flush as it is useless for sos collection
+        self.add_forbidden_path("/sys/kernel/debug/s390dbf/*/flush")
+
         self.add_cmd_output([
             "lscss",
             "lsdasd",
             "lstape",
-            "find /proc/s390dbf -type f",
             "qethconf list_all",
             "lsqeth",
             "lszfcp",
@@ -59,6 +64,7 @@ class S390(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "icainfo",
             "icastats"
         ])
+
         r = self.exec_cmd("ls /dev/dasd?")
         dasd_dev = r['output']
         for x in dasd_dev.split('\n'):
