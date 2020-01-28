@@ -768,10 +768,11 @@ any third party.
         for preset_path in os.listdir(presets_path):
             preset_path = os.path.join(presets_path, preset_path)
 
-            try:
-                preset_data = json.load(open(preset_path))
-            except ValueError:
-                continue
+            with open(preset_path) as pf:
+                try:
+                    preset_data = json.load(pf)
+                except ValueError:
+                    continue
 
             for preset in preset_data.keys():
                 pd = PresetDefaults(preset, opts=SoSOptions())
