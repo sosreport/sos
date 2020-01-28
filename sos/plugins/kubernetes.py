@@ -188,8 +188,11 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
     )
 
     kube_cmd = "kubectl"
+    # Rather than loading the config file, use the OCP command directly that
+    # wraps kubectl, so we don't have to manually account for any other changes
+    # the `oc` binary may implement
     if path.exists('/etc/origin/master/admin.kubeconfig'):
-        kube_cmd += ' --kubeconfig=/etc/origin/master/admin.kubeconfig'
+        kube_cmd = 'oc'
 
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
