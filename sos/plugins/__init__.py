@@ -368,6 +368,11 @@ class Plugin(object):
     # Default predicates
     predicate = None
     cmd_predicate = None
+    _default_plug_opts = [
+        ('timeout', 'Timeout in seconds for plugin', 'fast', -1),
+        ('postproc', 'Enable post-processing collected plugin data', 'fast',
+         True)
+    ]
 
     def __init__(self, commons):
         if not getattr(self, "option_list", False):
@@ -391,9 +396,8 @@ class Plugin(object):
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
 
-        # add the 'timeout' plugin option automatically
-        self.option_list.append(('timeout', 'timeout in seconds for plugin',
-                                 'fast', -1))
+        # add the default plugin opts
+        self.option_list.extend(self._default_plug_opts)
 
         # get the option list into a dictionary
         for opt in self.option_list:

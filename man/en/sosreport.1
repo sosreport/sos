@@ -10,6 +10,7 @@ sosreport \- Collect and package diagnostic and support data
           [-a|--alloptions] [-v|--verbose]\fR
           [-k plug.opt|--plugin-option plug.opt]\fR
           [--no-report] [--config-file conf]\fR
+          [--no-postproc]\fR
           [--preset preset] [--add-preset add_preset]\fR
           [--del-preset del_preset] [--desc description]\fR
           [--batch] [--build] [--debug] [--dry-run]\fR
@@ -81,6 +82,16 @@ Disable HTML report writing.
 .TP
 .B \--config-file CONFIG
 Specify alternate configuration file.
+.TP
+.B \-\-no-postproc
+Disable postprocessing globally for all plugins. This will mean data is not
+obfuscated/sanitized from the archive during collection.
+
+Note that this means data such as password, SSH keys, certificates, etc...
+will be collected in plain text.
+
+To selectively disable postprocessing on a per-plugin basis, use the 'postproc'
+plugin option available to all plugins, e.g. '-k podman.postproc=off'.
 .TP
 .B \--preset PRESET
 Specify an existing preset to use for sos options.
