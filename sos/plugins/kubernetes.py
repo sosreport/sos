@@ -89,13 +89,23 @@ class Kubernetes(Plugin):
         # these are not namespaced, must pull separately.
         global_resources = [
             'namespaces',
-            'nodes',
             'projects',
             'pvs'
         ]
         self.add_cmd_output([
             "%s get %s" % (self.kube_cmd, res) for res in global_resources
         ])
+
+        # Get detailed node information
+        nodes = self.collect_cmd_output("%s get nodes" % self.kube_cmd)
+        if nodes['status'] == 0:
+            for line in nodes['output'].splitlines()[1:]:
+                node = line.split()[0]
+                self.add_cmd_output(
+                    "%s describe node %s" % (self.kube_cmd, node),
+                    subdir='nodes'
+                )
+
         # Also collect master metrics
         self.add_cmd_output("%s get --raw /metrics" % self.kube_cmd)
 
