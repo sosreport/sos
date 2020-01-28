@@ -1043,7 +1043,7 @@ class Plugin(object):
                        root_symlink=None, timeout=300, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
-                       changes=False):
+                       changes=False, foreground=False):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, six.string_types):
             cmds = [cmds]
@@ -1059,7 +1059,7 @@ class Plugin(object):
                                  stderr=stderr, chroot=chroot, runat=runat,
                                  env=env, binary=binary, sizelimit=sizelimit,
                                  pred=pred, subdir=subdir,
-                                 changes=changes)
+                                 changes=changes, foreground=foreground)
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -1149,7 +1149,7 @@ class Plugin(object):
                             root_symlink=False, timeout=300, stderr=True,
                             chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
-                            changes=False):
+                            changes=False, foreground=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -1189,7 +1189,7 @@ class Plugin(object):
         result = sos_get_command_output(
             cmd, timeout=timeout, stderr=stderr, chroot=root,
             chdir=runat, env=env, binary=binary, sizelimit=sizelimit,
-            poller=self.check_timeout
+            poller=self.check_timeout, foreground=foreground
         )
 
         if result['status'] == 124:
@@ -1263,7 +1263,7 @@ class Plugin(object):
         )
 
     def exec_cmd(self, cmd, timeout=300, stderr=True, chroot=True, runat=None,
-                 env=None, binary=False, pred=None):
+                 env=None, binary=False, pred=None, foreground=False):
         """Execute a command right now and return the output and status, but
         do not save the output within the archive.
 
@@ -1282,7 +1282,8 @@ class Plugin(object):
             root = None
 
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
-                                      chdir=runat, binary=binary, env=env)
+                                      chdir=runat, binary=binary, env=env,
+                                      foreground=foreground)
 
     def is_module_loaded(self, module_name):
         """Return whether specified module as module_name is loaded or not"""
