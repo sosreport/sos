@@ -71,7 +71,8 @@ class Networking(Plugin):
             "/sys/class/net/*/device/numa_node",
             "/sys/class/net/*/flags",
             "/sys/class/net/*/statistics/",
-            "/etc/iproute2"
+            "/etc/iproute2",
+            "/sys/class/net/*/bonding/active_slave"
         ])
 
         self.add_forbidden_path([
