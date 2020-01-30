@@ -139,6 +139,13 @@ class Foreman(Plugin):
             'ping -c1 -W1 localhost'
         ])
 
+        # Dynflow Sidekiq
+        self.add_cmd_output('systemctl list-units dynflow*',
+                            suggest_filename='dynflow_units')
+        self.add_service_status('"system-dynflow\\x2dsidekiq.slice"',
+                                suggest_filename='dynflow_sidekiq_status')
+        self.add_journal(units="dynflow-sidekiq@*")
+
         # collect tables sizes, ordered
         _cmd = self.build_query_cmd(
             "SELECT table_name, pg_size_pretty(total_bytes) AS total, "
