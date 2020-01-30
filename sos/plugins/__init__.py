@@ -1342,13 +1342,13 @@ class Plugin(object):
         """
         self.custom_text += text
 
-    def add_service_status(self, services, timeout=None, pred=None):
+    def add_service_status(self, services, **kwargs):
         """Collect service status information based on the InitSystem used.
 
         :param services: A string, or list of strings, specifying the services
                           to collect
-        :param timeout:  Optional timeout in seconds
-        :param pred:     An optional predicate to gate collection
+        :param kwargs    Optional arguments to pass to _add_cmd_output
+                         (timeout, predicate, suggest_filename,..)
         """
         if isinstance(services, six.string_types):
             services = [services]
@@ -1361,8 +1361,7 @@ class Plugin(object):
             return
 
         for service in services:
-            self._add_cmd_output(cmd="%s %s" % (query, service), pred=pred,
-                                 timeout=timeout)
+            self._add_cmd_output(cmd="%s %s" % (query, service), **kwargs)
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None, timeout=None,
