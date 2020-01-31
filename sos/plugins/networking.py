@@ -9,6 +9,7 @@
 from sos.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin,
                          SoSPredicate)
 from os import listdir
+from re import match
 
 
 class Networking(Plugin):
@@ -17,10 +18,17 @@ class Networking(Plugin):
     plugin_name = "networking"
     profiles = ('network', 'hardware', 'system')
     trace_host = "www.example.com"
-    option_list = [(
+    option_list = [
         ("traceroute", "collect a traceroute to %s" % trace_host, "slow",
-         False)
-    )]
+         False),
+        ("namespace_regex", "Specific namespaces regex to be " +
+         "collected, namespaces regex should be separated by whitespace " +
+         "as for example \"eth* ens2\"", "fast", ""),
+        ("namespaces", "Number of namespaces to collect, 0 for unlimited. " +
+         "Incompatible with the namespace_regex plugin option", "slow", 0),
+        ("ethtool_namespaces", "Define if ethtool commands should be " +
+         "collected for namespaces", "slow", True)
+    ]
 
     # switch to enable netstat "wide" (non-truncated) output mode
     ns_wide = "-W"
@@ -201,13 +209,34 @@ class Networking(Plugin):
         cmd_prefix = "ip netns exec "
         if ip_netns['status'] == 0:
             out_ns = []
+            # Regex initialization outside of for loop
+            if self.get_option("namespace_regex"):
+                regex = '(?:%s)' % '|'.join(
+                        self.get_option("namespace_regex").split())
             for line in ip_netns['output'].splitlines():
                 # If there's no namespaces, no need to continue
                 if line.startswith("Object \"netns\" is unknown") \
                         or line.isspace() \
                         or line[:1].isspace():
                     continue
-                out_ns.append(line.partition(' ')[0])
+                # if namespace_regex defined, append only namespaces
+                # matching with regex
+                if self.get_option("namespace_regex"):
+                    if bool(match(regex, line)):
+                        out_ns.append(line.partition(' ')[0])
+
+                # if namespaces is defined and namespace_regex is not defined
+                # remove from out_ns namespaces with higher index than defined
+                elif self.get_option("namespaces") != 0:
+                    out_ns.append(line.partition(' ')[0])
+                    if len(out_ns) == self.get_option("namespaces"):
+                        self._log_warn("Limiting namespace iteration " +
+                                       "to first %s namespaces found"
+                                       % self.get_option("namespaces"))
+                        break
+                else:
+                    out_ns.append(line.partition(' ')[0])
+
             for namespace in out_ns:
                 ns_cmd_prefix = cmd_prefix + namespace + " "
                 self.add_cmd_output([
@@ -226,25 +255,28 @@ class Networking(Plugin):
                 # check for it
                 self.add_cmd_output(ss_cmd, pred=ss_pred)
 
-            # Devices that exist in a namespace use less ethtool
-            # parameters. Run this per namespace.
-            for namespace in out_ns:
-                ns_cmd_prefix = cmd_prefix + namespace + " "
-                netns_netdev_list = self.exec_cmd(
-                    ns_cmd_prefix + "ls -1 /sys/class/net/"
-                )
-                for eth in netns_netdev_list['output'].splitlines():
-                    # skip 'bonding_masters' file created when loading the
-                    # bonding module but the file does not correspond to
-                    # a device
-                    if eth == "bonding_masters":
-                        continue
-                    self.add_cmd_output([
-                        ns_cmd_prefix + "ethtool " + eth,
-                        ns_cmd_prefix + "ethtool -i " + eth,
-                        ns_cmd_prefix + "ethtool -k " + eth,
-                        ns_cmd_prefix + "ethtool -S " + eth
-                    ])
+            # Collect ethtool commands only when ethtool_namespaces
+            # is set to true.
+            if self.get_option("ethtool_namespaces"):
+                # Devices that exist in a namespace use less ethtool
+                # parameters. Run this per namespace.
+                for namespace in out_ns:
+                    ns_cmd_prefix = cmd_prefix + namespace + " "
+                    netns_netdev_list = self.exec_cmd(
+                        ns_cmd_prefix + "ls -1 /sys/class/net/"
+                    )
+                    for eth in netns_netdev_list['output'].splitlines():
+                        # skip 'bonding_masters' file created when loading the
+                        # bonding module but the file does not correspond to
+                        # a device
+                        if eth == "bonding_masters":
+                            continue
+                        self.add_cmd_output([
+                            ns_cmd_prefix + "ethtool " + eth,
+                            ns_cmd_prefix + "ethtool -i " + eth,
+                            ns_cmd_prefix + "ethtool -k " + eth,
+                            ns_cmd_prefix + "ethtool -S " + eth
+                        ])
 
         return
 
