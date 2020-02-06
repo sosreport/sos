@@ -163,12 +163,13 @@ class OpenVSwitch(Plugin):
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
-    packages = ('openvswitch', 'openvswitch2.*', 'openvswitch-dpdk')
+    packages = ('openvswitch', 'openvswitch2.*',
+                'openvswitch-dpdk', 'nuage-openvswitch')
 
 
 class DebianOpenVSwitch(OpenVSwitch, DebianPlugin, UbuntuPlugin):
 
-    packages = ('openvswitch-switch',)
+    packages = ('openvswitch-switch', 'nuage-openvswitch')
 
 
 # vim: set et ts=4 sw=4 :
