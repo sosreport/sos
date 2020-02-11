@@ -842,7 +842,8 @@ class LinuxPolicy(Policy):
     def __init__(self, sysroot=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot)
         self.init_kernel_modules()
-        if self.init == 'systemd':
+
+        if os.path.isdir("/run/systemd/system/"):
             self.init_system = SystemdInit()
         else:
             self.init_system = InitSystem()
