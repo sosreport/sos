@@ -246,6 +246,7 @@ class RHELPolicy(RedHatPolicy):
     distro = RHEL_RELEASE_STR
     vendor = "Red Hat"
     vendor_url = "https://access.redhat.com/support/"
+    id = "rhel"
     msg = _("""\
 This command will collect diagnostic and configuration \
 information from this %(distro)s system and installed \
@@ -268,6 +269,8 @@ support representative.
             release string at the beginning of the NAME field in the
             `/etc/os-release` file and returns ``True`` if it is
             found, and ``False`` otherwise.
+            In case the NAME field has been modified, check against
+            the ID field for "rhel".
 
             :returns: ``True`` if the host is running RHEL or ``False``
                       otherwise.
@@ -281,6 +284,11 @@ support representative.
                     (name, value) = line.split("=")
                     value = value.strip("\"'")
                     if value.startswith(cls.distro):
+                        return True
+                elif line.startswith("ID="):
+                    (name, value) = line.split("=")
+                    value = value.strip("\"'")
+                    if value.startswith(cls.id):
                         return True
         return False
 
@@ -326,6 +334,7 @@ class CentOsPolicy(RHELPolicy):
     distro = "CentOS"
     vendor = "CentOS"
     vendor_url = "https://www.centos.org/"
+    id = "centos"
 
 
 ATOMIC = "atomic"
