@@ -517,6 +517,10 @@ class Plugin(object):
         """Return the reported status for service $name"""
         return self.policy.init_system.get_service_status(name)['status']
 
+    def get_service_names(self, regex):
+        """Get all service names matching regex"""
+        return self.policy.init_system.get_service_names(regex)
+
     def set_predicate(self, pred):
         """Set or clear the default predicate for this plugin.
         """
