@@ -129,6 +129,13 @@ class InitSystem(object):
         """
         return output
 
+    def get_service_names(self, regex):
+        """Get a list of all services discovered on the system that match the
+        given regex.
+        """
+        reg = re.compile(regex, re.I)
+        return [s for s in self.services.keys() if reg.match(s)]
+
     def get_service_status(self, name):
         """Returns the status for the given service name along with the output
         of the query command
@@ -168,7 +175,7 @@ class SystemdInit(InitSystem):
         return 'unknown'
 
     def load_all_services(self):
-        svcs = shell_out(self.list_cmd).splitlines()
+        svcs = shell_out(self.list_cmd).splitlines()[1:]
         for line in svcs:
             try:
                 name = line.split('.service')[0]
