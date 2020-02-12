@@ -34,7 +34,9 @@ class LXD(Plugin, UbuntuPlugin):
             "/var/lib/lxd/lxd.db",
             "/var/lib/lxd/database/local.db",
             "/var/lib/lxd/database/global/*",
-            "/var/log/lxd/*"
+            "/var/log/lxd/*",
+            "/var/snap/lxd/common/lxd/database/local.db",
+            "/var/snap/lxd/common/lxd/database/global/*"
         ])
 
         self.add_cmd_output([
@@ -48,5 +50,9 @@ class LXD(Plugin, UbuntuPlugin):
         self.add_cmd_output([
             "find /var/lib/lxd -maxdepth 2 -type d -ls",
         ], suggest_filename='var-lxd-dirs.txt')
+
+        self.add_cmd_output([
+            "find /var/snap/lxd/common -maxdepth 2 -type d -ls",
+        ], suggest_filename='snap-var-lxd-dirs.txt')
 
 # vim: set et ts=4 sw=4 :
