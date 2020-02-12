@@ -32,7 +32,9 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         'ceph-nfs@pacemaker',
         'ceph-mds@%s' % ceph_hostname,
         'ceph-mon@%s' % ceph_hostname,
-        'ceph-mgr@%s' % ceph_hostname
+        'ceph-mgr@%s' % ceph_hostname,
+        'ceph-radosgw@*',
+        'ceph-osd@*'
     )
 
     def setup(self):
@@ -62,15 +64,24 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph mon stat",
             "ceph mon_status",
             "ceph quorum_status",
+            "ceph mgr module ls",
+            "ceph mgr metadata",
+            "ceph osd metadata",
             "ceph osd erasure-code-profile ls",
             "ceph report",
             "ceph osd crush show-tunables",
             "ceph-disk list",
             "ceph versions",
+            "ceph features",
             "ceph insights",
             "ceph osd crush dump",
             "ceph -v",
-            "ceph-volume lvm list"
+            "ceph-volume lvm list",
+            "ceph crash stat",
+            "ceph crash ls",
+            "ceph config log",
+            "ceph config generate-minimal-conf",
+            "ceph config-key dump",
         ])
 
         ceph_cmds = [
@@ -81,12 +92,20 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "osd df tree",
             "osd dump",
             "osd df",
+            "osd perf",
+            "osd blocked-by",
+            "osd pool ls detail",
+            "osd numa-status",
+            "device ls",
             "mon dump",
+            "mgr dump",
+            "mds stat",
             "df",
             "df detail",
             "fs ls",
             "fs dump",
             "pg dump",
+            "pg stat",
         ]
 
         self.add_cmd_output([
@@ -97,6 +116,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph %s --format json-pretty" % s for s in ceph_cmds
         ], subdir="json_output")
 
+        self.add_service_status(self.services)
         for service in self.services:
             self.add_journal(units=service)
 
