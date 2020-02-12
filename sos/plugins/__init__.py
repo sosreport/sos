@@ -363,6 +363,7 @@ class Plugin(object):
     profiles = ()
     sysroot = '/'
     plugin_timeout = 300
+    cmd_timeout = 300
     _timeout_hit = False
 
     # Default predicates
@@ -1084,7 +1085,7 @@ class Plugin(object):
                                  changes=soscmd.changes)
 
     def add_cmd_output(self, cmds, suggest_filename=None,
-                       root_symlink=None, timeout=300, stderr=True,
+                       root_symlink=None, timeout=cmd_timeout, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False):
@@ -1190,8 +1191,8 @@ class Plugin(object):
         self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
 
     def _collect_cmd_output(self, cmd, suggest_filename=None,
-                            root_symlink=False, timeout=300, stderr=True,
-                            chroot=True, runat=None, env=None,
+                            root_symlink=False, timeout=cmd_timeout,
+                            stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False):
         """Execute a command and save the output to a file for inclusion in the
@@ -1284,8 +1285,8 @@ class Plugin(object):
         return result
 
     def collect_cmd_output(self, cmd, suggest_filename=None,
-                           root_symlink=False, timeout=300, stderr=True,
-                           chroot=True, runat=None, env=None,
+                           root_symlink=False, timeout=cmd_timeout,
+                           stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
                            subdir=None):
         """Execute a command and save the output to a file for inclusion in the
@@ -1306,8 +1307,9 @@ class Plugin(object):
             env=env, binary=binary, sizelimit=sizelimit, subdir=subdir
         )
 
-    def exec_cmd(self, cmd, timeout=300, stderr=True, chroot=True, runat=None,
-                 env=None, binary=False, pred=None, foreground=False):
+    def exec_cmd(self, cmd, timeout=cmd_timeout, stderr=True, chroot=True,
+                 runat=None, env=None, binary=False, pred=None,
+                 foreground=False):
         """Execute a command right now and return the output and status, but
         do not save the output within the archive.
 
@@ -1368,8 +1370,9 @@ class Plugin(object):
             self._add_cmd_output(cmd="%s %s" % (query, service), **kwargs)
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
-                    lines=None, allfields=False, output=None, timeout=None,
-                    identifier=None, catalog=None, sizelimit=None, pred=None):
+                    lines=None, allfields=False, output=None,
+                    timeout=cmd_timeout, identifier=None, catalog=None,
+                    sizelimit=None, pred=None):
         """Collect journald logs from one of more units.
 
         :param units: A string, or list of strings specifying the
