@@ -85,6 +85,8 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
         if os.path.exists(initramfs_img):
             self.add_cmd_output("lsinitrd %s" % initramfs_img)
 
+        self.add_cmd_output("kdump-config show")
+
         self.add_copy_spec([
             "/etc/default/kdump-tools"
         ])
