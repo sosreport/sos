@@ -19,6 +19,16 @@ class Maas(Plugin, UbuntuPlugin):
     profiles = ('sysmgmt',)
     packages = ('maas', 'maas-common')
 
+    services = (
+        'maas-dhcpd',
+        'maas-dhcpd6',
+        'maas-http',
+        'maas-proxy',
+        'maas-rackd',
+        'maas-regiond',
+        'maas-syslog'
+    )
+
     option_list = [
         ('profile-name',
          'The name with which you will later refer to this remote', '', ''),
@@ -55,6 +65,11 @@ class Maas(Plugin, UbuntuPlugin):
             "apt-cache policy maas-*",
             "apt-cache policy python-django-*",
         ])
+
+        self.add_service_status(self.services)
+
+        for service in self.services:
+            self.add_journal(units=service)
 
         if self.is_installed("maas-region-controller"):
             self.add_cmd_output([
