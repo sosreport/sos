@@ -41,6 +41,10 @@ class Yum(Plugin, RedHatPlugin):
         # Get a list of channels the machine is subscribed to.
         self.add_cmd_output("yum -C repolist")
 
+        # Get the same list, but with various statistics related to its
+        # contents such as package count.
+        self.add_cmd_output("yum -C repolist --verbose")
+
         # Get list of available plugins and their configuration files.
         if os.path.exists(YUM_PLUGIN_PATH) and os.path.isdir(YUM_PLUGIN_PATH):
             plugins = ""
