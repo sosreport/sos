@@ -3,7 +3,7 @@
 import unittest
 
 from sos.plugins import Plugin
-from sos.policies import LinuxPolicy
+from sos.policies import LinuxPolicy, InitSystem
 
 
 class MockOptions(object):
@@ -18,7 +18,7 @@ class GlobalOptionTest(unittest.TestCase):
     def setUp(self):
         self.commons = {
             'sysroot': '/',
-            'policy': LinuxPolicy(),
+            'policy': LinuxPolicy(init=InitSystem()),
             'cmdlineopts': MockOptions()
         }
         self.plugin = Plugin(self.commons)

@@ -846,11 +846,13 @@ class LinuxPolicy(Policy):
 
     _preferred_hash_name = None
 
-    def __init__(self, sysroot=None):
+    def __init__(self, sysroot=None, init=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot)
         self.init_kernel_modules()
 
-        if os.path.isdir("/run/systemd/system/"):
+        if init is not None:
+            self.init_system = init
+        elif os.path.isdir("/run/systemd/system/"):
             self.init_system = SystemdInit()
         else:
             self.init_system = InitSystem()
