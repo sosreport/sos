@@ -53,6 +53,10 @@ class Ebpf(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.add_cmd_output("bpftool map dump id %s" % map_id)
 
         self.add_cmd_output([
+            # collect list of eBPF programs and maps and their dumps
+            # in human readable form
+            "bpftool prog list",
+            "bpftool map list",
             # Iterate over all cgroups and list all attached programs
             "bpftool cgroup tree",
             # collect list of bpf program attachments in the kernel
