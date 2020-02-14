@@ -1386,9 +1386,9 @@ class SoSReport(object):
             self.ui_log.error("\nExiting on user cancel")
             self._cleanup()
             self._exit(130)
-        except (SystemExit):
+        except (SystemExit) as e:
             self._cleanup()
-            self._exit(0)
+            sys.exit(e.code)
 
         self._exit(1)
 
