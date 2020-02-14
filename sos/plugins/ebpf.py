@@ -10,7 +10,7 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import json
 
 
-class eBPF(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Ebpf(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'ebpf'
     profiles = ('system', 'kernel', 'network')
@@ -46,16 +46,18 @@ class eBPF(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             for dumpcmd in ["xlated", "jited"]:
                 self.add_cmd_output("bpftool prog dump %s id %s" %
                                     (dumpcmd, prog_id))
+
         maps = self.collect_cmd_output("bpftool -j map list")
         for map_id in self.get_bpftool_map_ids(maps['output']):
             self.add_cmd_output("bpftool map dump id %s" % map_id)
 
-        # Iterate over all cgroups and list all attached programs
-        self.add_cmd_output("bpftool cgroup tree")
-
-        # collect list of bpf program attachments in the kernel
-        # networking subsystem
-        self.add_cmd_output("bpftool net list")
+        self.add_cmd_output([
+            # Iterate over all cgroups and list all attached programs
+            "bpftool cgroup tree",
+            # collect list of bpf program attachments in the kernel
+            # networking subsystem
+            "bpftool net list"
+        ])
 
         # Capture list of bpf program attachments from namespaces
         ip_netns = self.exec_cmd("ip netns")
@@ -71,8 +73,6 @@ class eBPF(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 out_ns.append(line.partition(' ')[0])
             for namespace in out_ns:
                 ns_cmd_prefix = cmd_prefix + namespace + " "
-                self.add_cmd_output([
-                    ns_cmd_prefix + "bpftool net list",
-                ])
+                self.add_cmd_output(ns_cmd_prefix + "bpftool net list")
 
 # vim: set et ts=4 sw=4 :
