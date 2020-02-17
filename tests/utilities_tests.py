@@ -56,8 +56,7 @@ class ExecutableTest(unittest.TestCase):
         self.assertTrue(is_executable("/usr/bin/timeout"))
 
     def test_output(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
-        result = sos_get_command_output(path)
+        result = sos_get_command_output("echo executed")
         self.assertEquals(result['status'], 0)
         self.assertEquals(result['output'], "executed\n")
 
@@ -75,8 +74,7 @@ class ExecutableTest(unittest.TestCase):
         self.assertEquals(result['output'].strip(), TEST_DIR)
 
     def test_shell_out(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
-        self.assertEquals("executed\n", shell_out(path))
+        self.assertEquals("executed\n", shell_out('echo executed'))
 
 
 class FindTest(unittest.TestCase):
