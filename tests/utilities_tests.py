@@ -50,8 +50,7 @@ class ExecutableTest(unittest.TestCase):
         self.assertFalse(is_executable(path))
 
     def test_exe_file(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
-        self.assertTrue(is_executable(path))
+        self.assertTrue(is_executable('true'))
 
     def test_exe_file_abs_path(self):
         self.assertTrue(is_executable("/usr/bin/timeout"))
