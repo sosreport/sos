@@ -456,7 +456,7 @@ any third party.
     vendor = "Unknown"
     vendor_url = "http://www.example.com/"
     vendor_text = ""
-    PATH = ""
+    PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     default_scl_prefix = ""
     name_pattern = 'legacy'
     presets = {"": PresetDefaults()}
