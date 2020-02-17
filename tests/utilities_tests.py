@@ -65,7 +65,7 @@ class ExecutableTest(unittest.TestCase):
         path = os.path.join(TEST_DIR, 'utility_tests.py')
         result = sos_get_command_output(path)
         self.assertEquals(result['status'], 127)
-        self.assertEquals(result['output'], "")
+        self.assertEquals(result['output'], b"")
 
     def test_output_chdir(self):
         cmd = "/bin/bash -c 'echo $PWD'"
