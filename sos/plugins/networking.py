@@ -21,11 +21,11 @@ class Networking(Plugin):
     option_list = [
         ("traceroute", "collect a traceroute to %s" % trace_host, "slow",
          False),
-        ("namespace_regex", "Specific namespaces regex to be " +
-         "collected, namespaces regex should be separated by whitespace " +
+        ("namespace_pattern", "Specific namespaces pattern to be " +
+         "collected, namespaces pattern should be separated by whitespace " +
          "as for example \"eth* ens2\"", "fast", ""),
         ("namespaces", "Number of namespaces to collect, 0 for unlimited. " +
-         "Incompatible with the namespace_regex plugin option", "slow", 0),
+         "Incompatible with the namespace_pattern plugin option", "slow", 0),
         ("ethtool_namespaces", "Define if ethtool commands should be " +
          "collected for namespaces", "slow", True)
     ]
@@ -206,22 +206,23 @@ class Networking(Plugin):
         if ip_netns['status'] == 0:
             out_ns = []
             # Regex initialization outside of for loop
-            if self.get_option("namespace_regex"):
-                regex = '(?:%s)' % '|'.join(
-                        self.get_option("namespace_regex").split())
+            if self.get_option("namespace_pattern"):
+                pattern = '(?:%s$)' % '$|'.join(
+                        self.get_option("namespace_pattern").split()
+                        ).replace('*', '.*')
             for line in ip_netns['output'].splitlines():
                 # If there's no namespaces, no need to continue
                 if line.startswith("Object \"netns\" is unknown") \
                         or line.isspace() \
                         or line[:1].isspace():
                     continue
-                # if namespace_regex defined, append only namespaces
-                # matching with regex
-                if self.get_option("namespace_regex"):
-                    if bool(match(regex, line)):
+                # if namespace_pattern defined, append only namespaces
+                # matching with pattern
+                if self.get_option("namespace_pattern"):
+                    if bool(match(pattern, line)):
                         out_ns.append(line.partition(' ')[0])
 
-                # if namespaces is defined and namespace_regex is not defined
+                # if namespaces is defined and namespace_pattern is not defined
                 # remove from out_ns namespaces with higher index than defined
                 elif self.get_option("namespaces") != 0:
                     out_ns.append(line.partition(' ')[0])
