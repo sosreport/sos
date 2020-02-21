@@ -20,13 +20,16 @@ class Maas(Plugin, UbuntuPlugin):
     packages = ('maas', 'maas-common')
 
     services = (
+        # For the deb:
         'maas-dhcpd',
         'maas-dhcpd6',
         'maas-http',
         'maas-proxy',
         'maas-rackd',
         'maas-regiond',
-        'maas-syslog'
+        'maas-syslog',
+        # For the snap:
+        'snap.maas.supervisor',
     )
 
     option_list = [
@@ -52,19 +55,49 @@ class Maas(Plugin, UbuntuPlugin):
 
         return ret['status'] == 0
 
+    def _is_snap_installed(self):
+        return self.exec_cmd('snap list maas')["status"] == 0
+
+    def check_enabled(self):
+        if super().check_enabled():
+            # deb-based MAAS and existing triggers
+            return True
+        # Do we have the snap installed?
+        return self._is_snap_installed()
+
     def setup(self):
-        self.add_copy_spec([
-            "/etc/squid-deb-proxy",
-            "/etc/maas",
-            "/var/lib/maas/dhcp*",
-            "/var/log/apache2*",
-            "/var/log/maas*",
-            "/var/log/upstart/maas-*",
-        ])
-        self.add_cmd_output([
-            "apt-cache policy maas-*",
-            "apt-cache policy python-django-*",
-        ])
+        self._is_snap = self._is_snap_installed()
+        if self._is_snap:
+            self.add_cmd_output([
+                'snap info maas',
+                'maas status'
+            ])
+            # Don't send secrets
+            self.add_forbidden_path("/var/snap/maas/current/bind/session.key")
+            self.add_copy_spec([
+                "/var/snap/maas/common/log",
+                "/var/snap/maas/common/snap_mode",
+                "/var/snap/maas/current/*.conf",
+                "/var/snap/maas/current/bind",
+                "/var/snap/maas/current/http",
+                "/var/snap/maas/current/supervisord",
+                "/var/snap/maas/current/preseeds",
+                "/var/snap/maas/current/proxy",
+                "/var/snap/maas/current/rsyslog",
+            ])
+        else:
+            self.add_copy_spec([
+                "/etc/squid-deb-proxy",
+                "/etc/maas",
+                "/var/lib/maas/dhcp*",
+                "/var/log/apache2*",
+                "/var/log/maas*",
+                "/var/log/upstart/maas-*",
+            ])
+            self.add_cmd_output([
+                "apt-cache policy maas-*",
+                "apt-cache policy python-django-*",
+            ])
 
         for service in self.services:
             self.add_journal(units=service)
@@ -83,7 +116,11 @@ class Maas(Plugin, UbuntuPlugin):
                     "Cannot login into MAAS remote API with provided creds.")
 
     def postproc(self):
-        self.do_file_sub("/etc/maas/regiond.conf",
+        if self._is_snap:
+            regiond_path = "/var/snap/maas/current/maas/regiond.conf"
+        else:
+            regiond_path = "/etc/maas/regiond.conf"
+        self.do_file_sub(regiond_path,
                          r"(database_pass\s*:\s*)(.*)",
                          r"\1********")
 
