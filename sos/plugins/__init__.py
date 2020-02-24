@@ -1604,6 +1604,17 @@ class Plugin(object):
         only if manually specified in the command line."""
         return True
 
+    def add_default_collections(self):
+        """Based on the class attrs defined for plugin enablement, add a
+        standardized set of collections before we call the plugin's own setup()
+        method.
+        """
+        # For any service used for enablement checks, collect its current
+        # status if it exists
+        for service in self.services:
+            if self.is_service(service):
+                self.add_service_status(service)
+
     def setup(self):
         """Collect the list of files declared by the plugin. This method
         may be overridden to add further copy_specs, forbidden_paths, and

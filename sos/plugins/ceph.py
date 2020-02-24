@@ -116,7 +116,6 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph %s --format json-pretty" % s for s in ceph_cmds
         ], subdir="json_output")
 
-        self.add_service_status(self.services)
         for service in self.services:
             self.add_journal(units=service)
 

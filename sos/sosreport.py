@@ -977,6 +977,7 @@ class SoSReport(object):
         for plugname, plug in self.loaded_plugins:
             try:
                 plug.archive = self.archive
+                plug.add_default_collections()
                 plug.setup()
                 self.env_vars.update(plug._env_vars)
                 if self.opts.verify:
