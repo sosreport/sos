@@ -83,6 +83,7 @@ class Foreman(Plugin):
             "/etc/foreman/",
             "/etc/foreman-proxy/",
             "/etc/sysconfig/foreman",
+            "/etc/sysconfig/dynflowd",
             "/etc/default/foreman",
             "/etc/foreman-installer/",
             "/var/log/foreman/dynflow_executor*log*",
