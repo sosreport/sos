@@ -66,8 +66,6 @@ class Maas(Plugin, UbuntuPlugin):
             "apt-cache policy python-django-*",
         ])
 
-        self.add_service_status(self.services)
-
         for service in self.services:
             self.add_journal(units=service)
 
