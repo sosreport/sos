@@ -45,14 +45,16 @@ class OpenVSwitch(Plugin):
         # Collect ovs-vswitchd's pmd thread details in procfs.
         proc_files = ["environ", "cgroup", "maps", "numa_maps", "limits",
                       "status"]
-        try:
-            pid = open("/var/run/openvswitch/ovs-vswitchd.pid").read()\
-                    .splitlines()[0]
+        with open("/var/run/openvswitch/ovs-vswitchd.pid", 'r') as pidfile:
+            pid = pidfile.readline().splitlines()[0]
             # List TID & thread command name.
             self.add_copy_spec(["/proc/%s/task/*/%s"
                                 % (pid, pf) for pf in proc_files])
-        except IOError:
-            self._log_error("Could not read ovs-vswitchd PID file")
+
+        ps_Lo = "ps -p %s -Lo" % pid
+        ps_sched_opts = "pid,tid,user,pcpu,psr,trs,rss,size,sz,drs,vsz,"
+        ps_sched_opts += "maj_flt,min_flt,class,rtprio,ni,pri,stat,wchan:20,"
+        ps_sched_opts += "flags,comm"
 
         self.add_cmd_output([
             # The '-s' option enables dumping of packet counters on the
@@ -109,8 +111,7 @@ class OpenVSwitch(Plugin):
             # Capture DPDK pmd performance counters
             "ovs-appctl dpif-netdev/pmd-perf-show",
             # Collect ovs-vswitchd thread details in ps command.
-            "ps -p %s -Lo pid,tid,user,pcpu,psr,trs,rss,size,sz,drs,vsz,\
-maj_flt,min_flt,class,rtprio,ni,pri,s,stat,wchan,flags,comm" % pid
+            "%s %s" % (ps_Lo, ps_sched_opts)
         ])
 
         # Gather systemd services logs
