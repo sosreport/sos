@@ -212,7 +212,11 @@ class Foreman(Plugin):
             'foreman_settings_table': scmd,
             'foreman_auth_table': authcmd,
             'dynflow_schema_info': 'select * from dynflow_schema_info',
-            'foreman_tasks_tasks': 'select * from foreman_tasks_tasks'
+            'foreman_tasks_tasks': 'select * from foreman_tasks_tasks',
+            'smart_proxies': 'select sp.name, sp.url, ' +
+                             'sp.download_policy,n.ip from smart_proxies ' +
+                             'as sp left join hosts as h on h.name=sp.name ' +
+                             'left join nics as n on n.host_id=h.id'
         }
 
         # Same as above, but for CSV output
