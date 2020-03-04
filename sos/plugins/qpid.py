@@ -58,7 +58,8 @@ class Qpid(Plugin, RedHatPlugin):
             "qpid-route route list" + options,
             "qpid-cluster" + options,  # applies to pre-0.22 versions
             "qpid-ha query" + options,  # applies since 0.22 version
-            "ls -lanR /var/lib/qpidd"
+            "ls -lanR /var/lib/qpidd",
+            "du -sh /var/lib/qpidd/.qpidd/*"
         ])
 
         self.add_copy_spec([
