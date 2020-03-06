@@ -1256,6 +1256,10 @@ class Plugin(object):
                         poller=self.check_timeout
                     )
             self._log_debug("could not run '%s': command not found" % cmd)
+            # Exit here if the command was not found in the chroot check above
+            # as otherwise we will create a blank file in the archive
+            if result['status'] in [126, 127]:
+                return result
 
         self._log_debug("collected output of '%s' in %s (changes=%s)"
                         % (cmd.split()[0], time() - start, changes))
