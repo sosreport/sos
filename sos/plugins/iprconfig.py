@@ -10,7 +10,6 @@
 
 import re
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
-from sos.utilities import is_executable
 
 
 class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
@@ -18,12 +17,11 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
 
     plugin_name = 'iprconfig'
-
-    def check_enabled(self):
-        arch = self.policy.get_arch()
-        return "ppc64" in arch and is_executable("iprconfig")
+    packages = ('iprutils',)
+    architectures = ('ppc64.*',)
 
     def setup(self):
+
         self.add_cmd_output([
             "iprconfig -c show-config",
             "iprconfig -c show-alt-config",
