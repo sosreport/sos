@@ -177,6 +177,30 @@ class SoSPredicate(object):
         """
         return self.__str(quote=True, prefix="SoSPredicate(", suffix=")")
 
+    def _check_required_state(self, items, required):
+        """Helper to simplify checking the state of the predicate's evaluations
+        against the setting of the required state of that evaluation
+        """
+        if required == 'any':
+            return any(items)
+        elif required == 'all':
+            return all(items)
+        elif required == 'none':
+            return not any(items)
+
+    def _failed_or_forbidden(self, test, item):
+        """Helper to direct failed predicates to provide the proper messaging
+        based on the required check type
+
+            :param test:      The type of check we're doing, e.g. kmods, arch
+            :param item:      The string of what failed
+        """
+        _req = self.required[test]
+        if _req != 'none':
+            self._failed[test].append(item)
+        else:
+            self._forbidden[test].append(item)
+
     def _eval_kmods(self):
         if not self.kmods or self._owner.get_option('allow_system_changes'):
             return True
@@ -187,12 +211,9 @@ class SoSPredicate(object):
             res = self._owner.is_module_loaded(kmod)
             _kmods.append(res)
             if not res:
-                self._failed['kmods'].append(kmod)
+                self._failed_or_forbidden('kmods', kmod)
 
-        if self.required['kmods'] == 'any':
-            return any(_kmods)
-        else:
-            return all(_kmods)
+        return self._check_required_state(_kmods, self.required['kmods'])
 
     def _eval_services(self):
         if not self.services:
@@ -203,12 +224,9 @@ class SoSPredicate(object):
             res = self._owner.is_service_running(svc)
             _svcs.append(res)
             if not res:
-                self._failed['services'].append(svc)
+                self._failed_or_forbidden('services', svc)
 
-        if self.required['services'] == 'any':
-            return any(_svcs)
-        else:
-            return all(_svcs)
+        return self._check_required_state(_svcs, self.required['services'])
 
     def _eval_packages(self):
         if not self.packages:
@@ -219,12 +237,9 @@ class SoSPredicate(object):
             res = self._owner.is_installed(pkg)
             _pkgs.append(res)
             if not res:
-                self._failed['packages'].append(pkg)
+                self._failed_or_forbidden('packages', pkg)
 
-        if self.required['packages'] == 'any':
-            return any(_pkgs)
-        else:
-            return all(_pkgs)
+        return self._check_required_state(_pkgs, self.required['packages'])
 
     def _eval_cmd_output(self, cmd_output):
         """Does 'cmd' output contain string 'output'?"""
@@ -247,14 +262,11 @@ class SoSPredicate(object):
             res = self._eval_cmd_output(cmd)
             _cmds.append(res)
             if not res:
-                self._failed['cmd_output'].append(
+                self._failed_or_forbidden(
+                    'cmd_outputs',
                     "%s: %s" % (cmd['cmd'], cmd['output'])
                 )
-
-        if self.required['commands'] == 'any':
-            return any(_cmds)
-        else:
-            return all(_cmds)
+        return self._check_required_state(_cmds, self.required['cmd_outputs'])
 
     def _eval_arch(self):
         if not self.arch:
@@ -263,12 +275,19 @@ class SoSPredicate(object):
         # a test for 'all' against arch does not make sense, so only test to
         # see if the system's reported architecture is in the last of 'allowed'
         # arches requested by the predicate
-        if self._owner.policy.get_arch() in self.arch:
+        _arch = self._owner.policy.get_arch()
+        regex = '(?:%s)' % '|'.join(self.arch)
+        if self.required['arch'] == 'none':
+            if re.match(regex, _arch):
+                self._forbidden['architecture'].append(_arch)
+                return False
             return True
-        self._failed['architecture'].extend([a for a in self.arch])
+        if re.match(regex, _arch):
+            return True
+        self._failed['architecture'].append(_arch)
         return False
 
-    def report_failed(self):
+    def _report_failed(self):
         """Return a string informing user what caused the predicate to fail
         evaluation
         """
@@ -280,6 +299,26 @@ class SoSPredicate(object):
             val = set(val)
             msg += _substr % (key, ', '.join(v for v in val))
         return msg
+
+    def _report_forbidden(self):
+        """Return a string informing the user that a forbidden condition exists
+        which caused the predicate to fail
+        """
+        msg = ''
+        _substr = "forbidden %s '%s' found."
+        for key, val in self._forbidden.items():
+            if not val:
+                continue
+            val = set(val)
+            msg += _substr % (key, ', '.join(v for v in val))
+        return msg
+
+    def report_failure(self):
+        """Used by `Plugin()` to obtain the error string based on if the reason
+        was a failed check or a forbidden check
+        """
+        msg = [self._report_failed(), self._report_forbidden()]
+        return " ".join(msg).lstrip()
 
     def __nonzero__(self):
         """Predicate evaluation hook.
@@ -314,14 +353,18 @@ class SoSPredicate(object):
         self.cmd_outputs = cmd_outputs
         self.dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
         self.required = {'kmods': 'any', 'services': 'any', 'packages': 'any',
-                         'commands': 'any', 'arch': 'any'}
+                         'cmd_outputs': 'any', 'arch': 'any'}
         self.required.update({
             k: v for k, v in required.items() if
             required[k] != self.required[k]
         })
         #: Dict holding failed evaluations
         self._failed = {
-            'kmods': [], 'services': [], 'packages': [], 'cmd_output': [],
+            'kmods': [], 'services': [], 'packages': [], 'cmd_outputs': [],
+            'architecture': []
+        }
+        self._forbidden = {
+            'kmods': [], 'services': [], 'packages': [], 'cmd_outputs': [],
             'architecture': []
         }
 
@@ -596,7 +639,7 @@ class Plugin(object):
             message indicating that the missing data can be collected by using
             the "--allow-system-changes" command line option will be included.
         """
-        msg = "skipped command '%s': %s" % (cmd, pred.report_failed())
+        msg = "skipped command '%s': %s" % (cmd, pred.report_failure())
 
         if changes:
             msg += " Use '--allow-system-changes' to enable collection."
