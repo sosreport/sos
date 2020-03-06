@@ -125,6 +125,9 @@ class SoSPredicate(object):
     # Command output inclusion pairs {'cmd': 'foo --help', 'output': 'bar'}
     cmd_outputs = []
 
+    #: Allowed architecture(s) of the system
+    arch = []
+
     def __str(self, quote=False, prefix="", suffix=""):
         """Return a string representation of this SoSPredicate with
             optional prefix, suffix and value quoting.
@@ -151,7 +154,11 @@ class SoSPredicate(object):
                                     quotes % cmdoutput['output'])
             for cmdoutput in self.cmd_outputs
         ]
-        pstr += "cmdoutputs=[%s]" % (",".join(cmdoutputs))
+        pstr += "cmdoutputs=[%s], " % (",".join(cmdoutputs))
+
+        arches = self.arch
+        arches = [quotes % a for a in arches] if quote else arches
+        pstr += "arches=[%s]" % (",".join(arches))
 
         return prefix + pstr + suffix
 
@@ -249,6 +256,18 @@ class SoSPredicate(object):
         else:
             return all(_cmds)
 
+    def _eval_arch(self):
+        if not self.arch:
+            return True
+
+        # a test for 'all' against arch does not make sense, so only test to
+        # see if the system's reported architecture is in the last of 'allowed'
+        # arches requested by the predicate
+        if self._owner.policy.get_arch() in self.arch:
+            return True
+        self._failed['architecture'].extend([a for a in self.arch])
+        return False
+
     def report_failed(self):
         """Return a string informing user what caused the predicate to fail
         evaluation
@@ -268,11 +287,12 @@ class SoSPredicate(object):
 
         # Null predicate?
         if not any([self.kmods, self.services, self.packages, self.cmd_outputs,
-                    self.dry_run]):
+                    self.arch, self.dry_run]):
             return True
 
         return ((self._eval_kmods() and self._eval_services() and
-                 self._eval_packages() and self._eval_cmd_outputs())
+                 self._eval_packages() and self._eval_cmd_outputs() and
+                 self._eval_arch())
                 and not self.dry_run)
 
     def __bool__(self):
@@ -281,26 +301,28 @@ class SoSPredicate(object):
         return self.__nonzero__()
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[],
-                 packages=[], cmd_outputs=[], required={}):
+                 packages=[], cmd_outputs=[], arch=[], required={}):
         """Initialise a new SoSPredicate object.
         """
         self._owner = owner
         self.kmods = list(kmods)
         self.services = list(services)
         self.packages = list(packages)
+        self.arch = list(arch)
         if not isinstance(cmd_outputs, list):
             cmd_outputs = [cmd_outputs]
         self.cmd_outputs = cmd_outputs
         self.dry_run = dry_run | self._owner.commons['cmdlineopts'].dry_run
         self.required = {'kmods': 'any', 'services': 'any', 'packages': 'any',
-                         'commands': 'any'}
+                         'commands': 'any', 'arch': 'any'}
         self.required.update({
             k: v for k, v in required.items() if
             required[k] != self.required[k]
         })
         #: Dict holding failed evaluations
         self._failed = {
-            'kmods': [], 'services': [], 'packages': [], 'cmd_output': []
+            'kmods': [], 'services': [], 'packages': [], 'cmd_output': [],
+            'architecture': []
         }
 
 
