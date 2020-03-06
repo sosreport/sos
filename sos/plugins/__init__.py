@@ -424,6 +424,7 @@ class Plugin(object):
     commands = ()
     kernel_mods = ()
     services = ()
+    architectures = None
     archive = None
     profiles = ()
     sysroot = '/'
@@ -1618,7 +1619,7 @@ class Plugin(object):
         """
         # some files or packages have been specified for this package
         if any([self.files, self.packages, self.commands, self.kernel_mods,
-                self.services]):
+                self.services, self.architectures]):
             if isinstance(self.files, six.string_types):
                 self.files = [self.files]
 
@@ -1661,12 +1662,22 @@ class Plugin(object):
         return True
 
     def _check_plugin_triggers(self, files, packages, commands, services):
-
-        return (any(os.path.exists(fname) for fname in files) or
+        return ((any(os.path.exists(fname) for fname in files) or
                 any(self.is_installed(pkg) for pkg in packages) or
                 any(is_executable(cmd) for cmd in commands) or
                 any(self.is_module_loaded(mod) for mod in self.kernel_mods) or
-                any(self.is_service(svc) for svc in services))
+                any(self.is_service(svc) for svc in services)) and
+                self.check_is_architecture())
+
+    def check_is_architecture(self):
+        """Checks whether or not the system is running on an architecture that
+        the plugin allows. If not architecture is set, assume plugin can run
+        on all arches.
+        """
+        if self.architectures is None:
+            return True
+        regex = '(?:%s)' % '|'.join(self.architectures)
+        return re.match(regex, self.policy.get_arch())
 
     def default_enabled(self):
         """This decides whether a plugin should be automatically loaded or
