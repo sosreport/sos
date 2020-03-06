@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+import os
 
 
 class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
@@ -23,7 +24,8 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/proc/bus/pci"
         ])
 
-        self.add_cmd_output("lspci -nnvv", root_symlink="lspci")
-        self.add_cmd_output("lspci -tv")
+        if os.path.isdir("/proc/bus/pci/00"):
+            self.add_cmd_output("lspci -nnvv", root_symlink="lspci")
+            self.add_cmd_output("lspci -tv")
 
 # vim: set et ts=4 sw=4 :
