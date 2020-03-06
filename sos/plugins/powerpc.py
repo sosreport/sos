@@ -19,9 +19,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     plugin_name = 'powerpc'
     profiles = ('system', 'hardware')
-
-    def check_enabled(self):
-        return "ppc64" in self.policy.get_arch()
+    architectures = ('ppc.*',)
 
     def setup(self):
         try:
