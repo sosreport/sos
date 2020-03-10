@@ -23,7 +23,8 @@ class SELinux(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec([
             '/etc/sestatus.conf',
-            '/etc/selinux'
+            '/etc/selinux',
+            '/var/lib/selinux'
         ])
         self.add_cmd_output('sestatus')
 
