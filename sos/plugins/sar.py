@@ -18,12 +18,12 @@ class Sar(Plugin,):
     profiles = ('system', 'performance')
 
     packages = ('sysstat',)
-    sa_path = '/var/log/sa/*'
+    sa_path = '/var/log/sa'
     option_list = [("all_sar", "gather all system activity records",
                     "", False)]
 
     def setup(self):
-        self.add_copy_spec(self.sa_path,
+        self.add_copy_spec(os.path.join(self.sa_path, '*'),
                            sizelimit=0 if self.get_option("all_sar") else None,
                            tailit=False)
 
@@ -56,11 +56,11 @@ class Sar(Plugin,):
 
 class RedHatSar(Sar, RedHatPlugin):
 
-    sa_path = '/var/log/sa/*'
+    sa_path = '/var/log/sa'
 
 
 class DebianSar(Sar, DebianPlugin, UbuntuPlugin):
 
-    sa_path = '/var/log/sysstat/*'
+    sa_path = '/var/log/sysstat'
 
 # vim: set et ts=4 sw=4 :
