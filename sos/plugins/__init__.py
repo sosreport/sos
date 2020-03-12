@@ -731,6 +731,7 @@ class Plugin(object):
         """
         start = time()
         result = self.get_command_output(exe, timeout=timeout, stderr=stderr,
+                                         suggest_filename=suggest_filename,
                                          chroot=chroot, runat=runat,
                                          env=env, binary=binary)
         self._log_debug("collected output of '%s' in %s"
