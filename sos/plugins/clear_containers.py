@@ -33,7 +33,7 @@ class ClearContainers(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
 
         # obtain a list of config files by asking the runtime
         cmd = '{} --cc-show-default-config-paths'.format(self.runtime)
-        configs = self.get_command_output(cmd)['output']
+        configs = self.exec_cmd(cmd)['output']
 
         for config in configs.splitlines():
             if config != "":
@@ -52,7 +52,7 @@ class ClearContainers(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
 
         # query the runtime to find the configured global log file
         cmd = '{} cc-env'.format(self.runtime)
-        output = self.get_command_output(cmd)['output']
+        output = self.exec_cmd(cmd)['output']
         for line in output.splitlines():
             result = re.search(r'\bGlobalLogPath\b\s+=\s+"(.+)"', line)
             if result:

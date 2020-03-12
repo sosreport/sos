@@ -19,12 +19,22 @@ class Maas(Plugin, UbuntuPlugin):
     profiles = ('sysmgmt',)
     packages = ('maas', 'maas-common')
 
+    services = (
+        'maas-dhcpd',
+        'maas-dhcpd6',
+        'maas-http',
+        'maas-proxy',
+        'maas-rackd',
+        'maas-regiond',
+        'maas-syslog'
+    )
+
     option_list = [
         ('profile-name',
-         'The name with which you will later refer to this remote', '', False),
-        ('url', 'The URL of the remote API', '', False),
+         'The name with which you will later refer to this remote', '', ''),
+        ('url', 'The URL of the remote API', '', ''),
         ('credentials',
-         'The credentials, also known as the API key', '', False)
+         'The credentials, also known as the API key', '', '')
     ]
 
     def _has_login_options(self):
@@ -32,10 +42,13 @@ class Maas(Plugin, UbuntuPlugin):
             and self.get_option("profile-name")
 
     def _remote_api_login(self):
-        ret = self.call_ext_prog("maas login %s %s %s" % (
-            self.get_option("profile-name"),
-            self.get_option("url"),
-            self.get_option("credentials")))
+        ret = self.exec_cmd(
+            "maas login %s %s %s" % (
+                self.get_option("profile-name"),
+                self.get_option("url"),
+                self.get_option("credentials")
+            )
+        )
 
         return ret['status'] == 0
 
@@ -53,6 +66,11 @@ class Maas(Plugin, UbuntuPlugin):
             "apt-cache policy python-django-*",
         ])
 
+        self.add_service_status(self.services)
+
+        for service in self.services:
+            self.add_journal(units=service)
+
         if self.is_installed("maas-region-controller"):
             self.add_cmd_output([
                 "maas-region-admin dumpdata",
@@ -65,5 +83,10 @@ class Maas(Plugin, UbuntuPlugin):
             else:
                 self._log_error(
                     "Cannot login into MAAS remote API with provided creds.")
+
+    def postproc(self):
+        self.do_file_sub("/etc/maas/regiond.conf",
+                         r"(database_pass\s*:\s*)(.*)",
+                         r"\1********")
 
 # vim: set et ts=4 sw=4 :

@@ -1,14 +1,64 @@
-language: python
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7-dev"
-  - "nightly"
-matrix:
-  allow_failures:
-    - python: "nightly"
+jobs:
+  include:
+    - name: "18.04 pycodestyle and native run (py3.6)"
+      os: linux
+      dist: bionic
+      language: shell
+      install: sudo apt-get update; sudo apt install pycodestyle;
+      script:
+        - "pycodestyle sos"
+        - "sudo ./tests/simple.sh"
+    - name: "16.04 native run (py3.5)"
+      os: linux
+      dist: xenial
+      language: shell
+      script: "sudo ./tests/simple.sh"
+    - name: "nosetests and travis Python 2.7"
+      os: linux
+      dist: bionic
+      language: python
+      python: "2.7"
+      install: pip install -r requirements.txt; python setup.py install;
+      script:
+        - "nosetests -v --with-cover --cover-package=sos --cover-html"
+        - "sudo ./tests/simple.sh ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python"
+    - name: "nosetests and travis Python 3.5"
+      os: linux
+      dist: bionic
+      language: python
+      python: "3.5"
+      install: pip install -r requirements.txt; python setup.py install;
+      script:
+        - "nosetests -v --with-cover --cover-package=sos --cover-html"
+        - "sudo ./tests/simple.sh ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python"
+    - name: "nosetests and travis Python 3.6"
+      os: linux
+      dist: bionic
+      language: python
+      python: "3.6"
+      install: pip install -r requirements.txt; python setup.py install;
+      script:
+        - "nosetests -v --with-cover --cover-package=sos --cover-html"
+        - "sudo ./tests/simple.sh ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python"
+    - name: "nosetests and travis Python 3.7"
+      os: linux
+      dist: bionic
+      language: python
+      python: "3.7"
+      install: pip install -r requirements.txt; python setup.py install;
+      script:
+        - "nosetests -v --with-cover --cover-package=sos --cover-html"
+        - "sudo ./tests/simple.sh ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python"
+    - name: "nosetests and travis Python 3.8"
+      os: linux
+      dist: bionic
+      language: python
+      python: "3.8"
+      install: pip install -r requirements.txt; python setup.py install;
+      script:
+        - "nosetests -v --with-cover --cover-package=sos --cover-html"
+        - "sudo ./tests/simple.sh ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python"
+
 notifications:
   email:
     sos-devel@redhat.com
@@ -16,16 +66,5 @@ notifications:
     channels:
       - "us.freenode.net#sosreport"
     on_success: change
-dist: trusty
-sudo: true
-install:
-  - "pip install -r requirements.txt"
-  - "python setup.py install"
-script:
-  - "pep8 sos"
-  - "nosetests -v --with-cover --cover-package=sos --cover-html"
-  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport --help"
-  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport -l --config-file=sos.conf"
-  - "sudo ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python ./sosreport -n kernel --batch --config-file=sos.conf | tee batch_output"
 git:
   depth: 5

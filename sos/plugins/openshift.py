@@ -17,7 +17,7 @@ import os.path
 # For later of OpenShift Origin based on: https://github.com/openshift/origin
 # like OpenShift Enterprise 3.x see the origin.py plugin
 class Openshift(Plugin, RedHatPlugin):
-    '''Openshift 2.x node and broker'''
+    """Openshift 2.x node and broker"""
 
     plugin_name = "openshift"
     profiles = ('virt', 'openshift')

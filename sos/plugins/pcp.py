@@ -26,7 +26,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
     # size-limit of PCP logger and manager data collected by default (MB)
     option_list = [
-        ("pcplogs", "size-limit in MB of pmlogger and pmmgr logs", "", 100),
+        ("pmmgrlogs", "size-limit in MB of pmmgr logs", "", 100),
+        ("pmloggerfiles", "number of newest pmlogger files to grab", "", 12),
     ]
 
     pcp_sysconf_dir = None
@@ -48,7 +49,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             pcpconf = open(self.pcp_conffile, "r")
             lines = pcpconf.readlines()
             pcpconf.close()
-        except:
+        except IOError:
             return False
         env_vars = {}
         for line in lines:
@@ -57,22 +58,24 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             try:
                 (key, value) = line.strip().split('=')
                 env_vars[key] = value
-            except:
+            except (ValueError, KeyError):
                 pass
 
         try:
             self.pcp_sysconf_dir = env_vars['PCP_SYSCONF_DIR']
             self.pcp_var_dir = env_vars['PCP_VAR_DIR']
             self.pcp_log_dir = env_vars['PCP_LOG_DIR']
-        except:
+        except Exception:
             # Fail if all three env variables are not found
             return False
 
         return True
 
     def setup(self):
-        self.limit = (None if self.get_option("all_logs")
-                      else self.get_option("pcplogs"))
+        self.sizelimit = (None if self.get_option("all_logs")
+                          else self.get_option("pmmgrlogs"))
+        self.countlimit = (None if self.get_option("all_logs")
+                           else self.get_option("pmloggerfiles"))
 
         if not self.pcp_parse_conffile():
             self._log_warn("could not parse %s" % self.pcp_conffile)
@@ -116,10 +119,21 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # Make sure we only add the two dirs if hostname is set, otherwise
         # we would collect everything
         if self.pcp_hostname != '':
-            for pmdir in ('pmlogger', 'pmmgr'):
-                path = os.path.join(self.pcp_log_dir, pmdir,
-                                    self.pcp_hostname, '*')
-                self.add_copy_spec(path, sizelimit=self.limit)
+            # collect pmmgr logs up to 'pmmgrlogs' size limit
+            path = os.path.join(self.pcp_log_dir, 'pmmgr',
+                                self.pcp_hostname, '*')
+            self.add_copy_spec(path, sizelimit=self.sizelimit, tailit=False)
+            # collect newest pmlogger logs up to 'pmloggerfiles' count
+            files_collected = 0
+            path = os.path.join(self.pcp_log_dir, 'pmlogger',
+                                self.pcp_hostname, '*')
+            pmlogger_ls = self.exec_cmd("ls -t1 %s" % path)
+            if pmlogger_ls['status'] == 0:
+                for line in pmlogger_ls['output'].splitlines():
+                    self.add_copy_spec(line, sizelimit=0)
+                    files_collected = files_collected + 1
+                    if self.countlimit and files_collected == self.countlimit:
+                        break
 
         self.add_copy_spec([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
@@ -134,8 +148,16 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             os.path.join(self.pcp_log_dir, '*/*/config*')
         ])
 
-        # Need to get the current status of the PCP infrastructure
-        self.add_cmd_output("pcp")
-
+        # Collect a summary for the current day
+        res = self.collect_cmd_output('pcp')
+        if res['status'] == 0:
+            for line in res['output'].splitlines():
+                if line.startswith(' pmlogger:'):
+                    arc = line.split()[-1]
+                    self.add_cmd_output(
+                        "pmstat -S 00:00 -T 23:59 -t 5m -x -a %s" % arc,
+                        root_symlink="pmstat"
+                    )
+                    break
 
 # vim: set et ts=4 sw=4 :

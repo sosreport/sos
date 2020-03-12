@@ -26,17 +26,23 @@ class OpenDaylight(Plugin, RedHatPlugin):
             self.var_puppet_gen + "/opt/opendaylight/etc/",
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
+
+            # Oxygen-SR3 and earlier versions, and may be removed in a future
+            # update.
+
             self.add_copy_spec([
                 "/opt/opendaylight/data/log/",
-                "/var/log/containers/opendaylight/",
-            ], sizelimit=self.limit)
+            ])
+
         else:
+
+            # Oxygen-SR3 and earlier versions, and may be removed in a future
+            # update.
+
             self.add_copy_spec([
                 "/opt/opendaylight/data/log/*.log*",
-                "/var/log/containers/opendaylight/*.log*",
-            ], sizelimit=self.limit)
+            ])
 
         self.add_cmd_output("docker logs opendaylight_api")
 

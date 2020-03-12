@@ -21,7 +21,7 @@ class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('ipmitool',)
 
     def setup(self):
-        result = self.get_command_output("ipmitool -I usb mc info")
+        result = self.collect_cmd_output("ipmitool -I usb mc info")
         have_usbintf = result['status']
 
         if not have_usbintf:

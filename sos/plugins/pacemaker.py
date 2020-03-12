@@ -25,7 +25,7 @@ class Pacemaker(Plugin):
     )
 
     option_list = [
-        ("crm_from", "specify the start time for crm_report", "fast", False),
+        ("crm_from", "specify the start time for crm_report", "fast", ''),
         ("crm_scrub", "enable password scrubbing for crm_report", "", True),
     ]
 
@@ -44,7 +44,11 @@ class Pacemaker(Plugin):
         self.add_copy_spec("/var/log/pcsd/pcsd.log")
         self.add_cmd_output([
             "pcs config",
-            "pcs status",
+            "pcs status --full",
+            "pcs stonith sbd status --full",
+            "pcs stonith sbd watchdog list",
+            "pcs stonith history show",
+            "pcs quorum status",
             "pcs property list --all"
         ])
 
@@ -64,9 +68,6 @@ class Pacemaker(Plugin):
 
     def setup(self):
         self.add_copy_spec([
-            # Pacemaker cluster configuration file
-            "/var/lib/pacemaker/cib/cib.xml",
-
             # Pacemaker 2.x default log locations
             "/var/log/pacemaker/pacemaker.log",
             "/var/log/pacemaker/bundles/*/",
@@ -86,7 +87,7 @@ class Pacemaker(Plugin):
         # time in order to collect data.
         crm_from = (datetime.today() -
                     timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
-        if self.get_option("crm_from") is not False:
+        if self.get_option("crm_from"):
             if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',
                         str(self.get_option("crm_from"))):
                 crm_from = self.get_option("crm_from")
@@ -111,7 +112,7 @@ class Pacemaker(Plugin):
         # collect user-defined logfiles, matching a shell-style syntax:
         #   PCMK_logfile=filename
         # specified in the pacemaker start-up environment file.
-        pattern = '^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
+        pattern = r'^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
         if os.path.isfile(self.envfile):
             self.add_copy_spec(self.envfile)
             with open(self.envfile) as f:
@@ -141,6 +142,7 @@ class RedHatPacemaker(Pacemaker, RedHatPlugin):
     def setup(self):
         self.envfile = "/etc/sysconfig/pacemaker"
         self.setup_pcs()
+        self.add_copy_spec("/etc/sysconfig/sbd")
         super(RedHatPacemaker, self).setup()
 
     def postproc(self):

@@ -1,3 +1,10 @@
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
 import os.path
 import unittest
 
@@ -50,15 +57,13 @@ class ExecutableTest(unittest.TestCase):
         self.assertFalse(is_executable(path))
 
     def test_exe_file(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
-        self.assertTrue(is_executable(path))
+        self.assertTrue(is_executable('true'))
 
     def test_exe_file_abs_path(self):
         self.assertTrue(is_executable("/usr/bin/timeout"))
 
     def test_output(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
-        result = sos_get_command_output(path)
+        result = sos_get_command_output("echo executed")
         self.assertEquals(result['status'], 0)
         self.assertEquals(result['output'], "executed\n")
 
@@ -66,7 +71,7 @@ class ExecutableTest(unittest.TestCase):
         path = os.path.join(TEST_DIR, 'utility_tests.py')
         result = sos_get_command_output(path)
         self.assertEquals(result['status'], 127)
-        self.assertEquals(result['output'], "")
+        self.assertEquals(result['output'], b"")
 
     def test_output_chdir(self):
         cmd = "/bin/bash -c 'echo $PWD'"
@@ -76,8 +81,7 @@ class ExecutableTest(unittest.TestCase):
         self.assertEquals(result['output'].strip(), TEST_DIR)
 
     def test_shell_out(self):
-        path = os.path.join(TEST_DIR, 'test_exe.py')
-        self.assertEquals("executed\n", shell_out(path))
+        self.assertEquals("executed\n", shell_out('echo executed'))
 
 
 class FindTest(unittest.TestCase):

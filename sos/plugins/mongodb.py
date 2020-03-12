@@ -32,9 +32,9 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
             self.var_puppet_gen + "/etc/",
             self.var_puppet_gen + "/etc/systemd/system/mongod.service.d/",
             "/var/log/mongodb/mongodb.log",
-            "/var/log/containers/mongodb/mongodb.log"
+            "/var/lib/mongodb/mongodb.log*"
         ])
-        self.add_cmd_output("du -s /var/lib/mongodb/")
+        self.add_cmd_output("du -sh /var/lib/mongodb/")
 
     def postproc(self):
         self.do_file_sub(
@@ -52,8 +52,20 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
 
 class RedHatMongoDb(MongoDb, RedHatPlugin):
 
+    packages = (
+        'mongodb-server',
+        'rh-mongodb32-mongodb-server',
+        'rh-mongodb34-mongodb-server',
+        'rh-mongodb36-mongodb-server'
+    )
+
     def setup(self):
         super(RedHatMongoDb, self).setup()
-        self.add_copy_spec("/etc/sysconfig/mongodb")
+        self.add_copy_spec([
+            "/etc/sysconfig/mongodb",
+            "/etc/rh-mongodb*-mongo*.conf",
+            "/etc/opt/rh/rh-mongodb*/mongo*.conf",
+            "/var/opt/rh/rh-mongodb*/log/mongodb/mongod.log"
+        ])
 
 # vim: set et ts=4 sw=4 :

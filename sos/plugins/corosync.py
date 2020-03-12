@@ -32,9 +32,10 @@ class Corosync(Plugin):
             "corosync-cfgtool -s",
             "corosync-blackbox",
             "corosync-objctl -a",
-            "corosync-cmapctl"
+            "corosync-cmapctl",
+            "corosync-cmapctl -m stats"
         ])
-        self.call_ext_prog("killall -USR2 corosync")
+        self.exec_cmd("killall -USR2 corosync")
 
         corosync_conf = "/etc/corosync/corosync.conf"
         if not os.path.exists(corosync_conf):
@@ -45,14 +46,14 @@ class Corosync(Plugin):
         # or
         # logging.log_size: filename
         # (it isnt precise but sufficient)
-        pattern = '^\s*(logging.)?logfile:\s*(\S+)$'
+        pattern = r'^\s*(logging.)?logfile:\s*(\S+)$'
         try:
             with open("/etc/corosync/corosync.conf") as f:
                 for line in f:
                     if re.match(pattern, line):
                         self.add_copy_spec(re.search(pattern, line).group(2))
         except IOError as e:
-            self._log_warn("could not read from %s: %s", corosync_conf, e)
+            self._log_warn("could not read from %s: %s" % (corosync_conf, e))
 
     def postproc(self):
         self.do_cmd_output_sub(

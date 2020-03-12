@@ -9,7 +9,6 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import glob
-import json
 
 
 class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -23,30 +22,9 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     sys_module = '/sys/module'
 
     option_list = [
-        ("with-timer", "gather /proc/timer* statistics", "slow", False)
+        ("with-timer", "gather /proc/timer* statistics", "slow", False),
+        ("trace", "gather /sys/kernel/debug/tracing/trace file", "slow", False)
     ]
-
-    def get_bpftool_prog_ids(self, prog_file):
-        out = []
-        try:
-            prog_data = json.load(open(prog_file))
-        except Exception, e:
-            self._log_info("Could not parse bpftool prog list as JSON: %s" % e)
-            return out
-        for item in range(len(prog_data)):
-            out.append(prog_data[item]["id"])
-        return out
-
-    def get_bpftool_map_ids(self, map_file):
-        out = []
-        try:
-            map_data = json.load(open(map_file))
-        except Exception, e:
-            self._log_info("Could not parse bpftool map list as JSON: %s" % e)
-            return out
-        for item in range(len(map_data)):
-            out.append(map_data[item]["id"])
-        return out
 
     def setup(self):
         # compat
@@ -71,11 +49,13 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         for pattern in extra_mod_patterns:
             extra_mod_paths.extend(glob.glob(pattern))
 
+        if extra_mod_paths:
+            self.add_cmd_output("find %s -ls" % " ".join(extra_mod_paths))
+
         self.add_cmd_output([
             "dmesg",
             "sysctl -a",
-            "dkms status",
-            "find %s -ls" % " ".join(extra_mod_paths)
+            "dkms status"
         ])
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
@@ -84,12 +64,15 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_forbidden_path([
             '/sys/kernel/debug/tracing/trace_pipe',
             '/sys/kernel/debug/tracing/README',
-            '/sys/kernel/debug/tracing/trace_stat/*',
-            '/sys/kernel/debug/tracing/per_cpu/*',
-            '/sys/kernel/debug/tracing/events/*',
+            '/sys/kernel/debug/tracing/trace_stat',
+            '/sys/kernel/debug/tracing/per_cpu',
+            '/sys/kernel/debug/tracing/events',
             '/sys/kernel/debug/tracing/free_buffer',
             '/sys/kernel/debug/tracing/trace_marker',
-            '/sys/kernel/debug/tracing/trace_marker_raw'
+            '/sys/kernel/debug/tracing/trace_marker_raw',
+            '/sys/kernel/debug/tracing/instances/*/per_cpu/*/snapshot_raw',
+            '/sys/kernel/debug/tracing/instances/*/per_cpu/*/trace_pipe*',
+            '/sys/kernel/debug/tracing/instances/*/trace_pipe'
         ])
 
         self.add_copy_spec([
@@ -102,6 +85,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/sys/module/*/version",
             "/sys/firmware/acpi/*",
             "/sys/kernel/debug/tracing/*",
+            "/sys/kernel/livepatch/*",
             "/proc/kallsyms",
             "/proc/buddyinfo",
             "/proc/slabinfo",
@@ -131,14 +115,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             # and may also cause softlockups
             self.add_copy_spec("/proc/timer*")
 
-        # collect list of eBPF programs and maps and their dumps
-        prog_file = self.get_cmd_output_now("bpftool -j prog list")
-        for prog_id in self.get_bpftool_prog_ids(prog_file):
-            for dumpcmd in ["xlated", "jited"]:
-                self.add_cmd_output("bpftool prog dump %s id %s" %
-                                    (dumpcmd, prog_id))
-        map_file = self.get_cmd_output_now("bpftool -j map list")
-        for map_id in self.get_bpftool_map_ids(map_file):
-            self.add_cmd_output("bpftool map dump id %s" % map_id)
+        if not self.get_option("trace"):
+            self.add_forbidden_path("/sys/kernel/debug/tracing/trace")
 
 # vim: set et ts=4 sw=4 :

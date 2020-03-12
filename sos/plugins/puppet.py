@@ -16,13 +16,31 @@ class Puppet(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'puppet'
     profiles = ('services',)
+    packages = ('puppet', 'puppet-common', 'puppet-server',
+                'puppetserver', 'puppetmaster', 'puppet-master')
 
     def setup(self):
         self.add_copy_spec([
             "/etc/puppet/*.conf",
             "/etc/puppet/rack/*",
             "/etc/puppet/manifests/*",
-            "/var/log/puppet/*.log",
+            "/etc/puppet/ssl/ca/inventory.txt",
+            "/var/log/puppet/*.log*",
+            "/etc/puppetlabs/puppet/*.conf",
+            "/etc/puppetlabs/puppetserver/conf.d/*.conf",
+            "/etc/puppetlabs/puppet/rack/*",
+            "/etc/puppetlabs/puppet/manifests/*",
+            "/etc/puppetlabs/puppet/ssl/ca/inventory.txt",
+            "/var/log/puppetlabs/puppetserver/*.log*",
+            "/var/lib/puppetlabs/puppet/ssl/ca/inventory.txt",
+            "/var/lib/puppet/ssl/ca/inventory.txt"
+        ])
+
+        self.add_cmd_output([
+            'facter',
+            'puppet --version',
+            'ls -lanR /etc/puppet/modules',
+            'ls -lanR /etc/puppetlabs/code/modules'
         ])
 
     def postproc(self):

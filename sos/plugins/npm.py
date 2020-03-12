@@ -19,13 +19,12 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
     Get info about available npm modules
     """
 
-    requires_root = False
     plugin_name = 'npm'
     profiles = ('system',)
     option_list = [("project_path",
                     'List npm modules of a project specified by path',
                     'fast',
-                    0)]
+                    '')]
 
     # in Fedora, Debian, Ubuntu and Suse the package is called npm
     packages = ('npm',)
@@ -60,7 +59,7 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
         """
         output = {}
         # with chroot=True (default) the command fails when run as non-root
-        user_cache = self.get_command_output("npm cache ls", chroot=False)
+        user_cache = self.collect_cmd_output("npm cache ls", chroot=False)
         if user_cache['status'] == 0:
             # filter out dirs with .cache.json ('registry.npmjs.org')
             for package in [l for l in user_cache['output'].splitlines()
@@ -76,10 +75,10 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
         self._log_debug("modules in cache: %s" % output)
 
         outfn = self._make_command_filename("npm_cache_modules")
-        self.archive.add_string(json.dumps(output), outfn)
+        self.add_string_as_file(json.dumps(output), outfn)
 
     def setup(self):
-        if self.get_option("project_path") != 0:
+        if self.get_option("project_path"):
             project_path = os.path.abspath(os.path.expanduser(
                 self.get_option("project_path")))
             self._get_npm_output("npm ls --json", "npm_ls_project",

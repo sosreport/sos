@@ -11,6 +11,23 @@
 
 from sos.plugins import Plugin, RedHatPlugin
 import os
+import re
+
+
+NON_CONTAINERIZED_DEPLOY = [
+        '/home/stack/.instack/install-undercloud.log',
+        '/home/stack/instackenv.json',
+        '/home/stack/undercloud.conf'
+]
+CONTAINERIZED_DEPLOY = [
+        '/var/log/heat-launcher/',
+        '/home/stack/install-undercloud.log',
+        '/home/stack/undercloud-install-*.tar.bzip2',
+        '/var/lib/mistral/config-download-latest/ansible.log',
+        '/home/stack/.tripleo/history',
+        '/var/lib/tripleo-config/',
+        '/var/log/tripleo-container-image-prepare.log',
+]
 
 
 class OpenStackInstack(Plugin):
@@ -20,27 +37,18 @@ class OpenStackInstack(Plugin):
     profiles = ('openstack', 'openstack_undercloud')
 
     def setup(self):
-        self.add_copy_spec("/home/stack/.instack/install-undercloud.log")
-        self.add_copy_spec("/home/stack/instackenv.json")
-        self.add_copy_spec("/home/stack/undercloud.conf")
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
+        self.add_copy_spec(NON_CONTAINERIZED_DEPLOY + CONTAINERIZED_DEPLOY)
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec(["/var/log/mistral/",
-                                "/var/log/containers/mistral/"],
-                               sizelimit=self.limit)
-            self.add_copy_spec(["/var/log/zaqar/",
-                                "/var/log/containers/zaqar/"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/mistral/",
+                "/var/log/zaqar/",
+            ])
         else:
-            self.add_copy_spec(["/var/log/mistral/*.log",
-                                "/var/log/containers/mistral/*.log"],
-                               sizelimit=self.limit)
-            self.add_copy_spec(["/var/log/zaqar/*.log",
-                                "/var/log/containers/zaqar/*.log"],
-                               sizelimit=self.limit)
+            self.add_copy_spec([
+                "/var/log/mistral/*.log",
+                "/var/log/zaqar/*.log",
+            ])
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
@@ -53,29 +61,33 @@ class OpenStackInstack(Plugin):
                                 "the environment file for the user intended "
                                 "to connect to the OpenStack environment.")
         else:
+            # capture all the possible stack uuids
+            get_stacks = "openstack stack list"
+            stacks = self.collect_cmd_output(get_stacks)['output']
+            stack_ids = re.findall(r'(\s(\w+-\w+)+\s)', stacks)
             # get status of overcloud stack and resources
-            self.add_cmd_output("openstack stack show overcloud")
-            self.add_cmd_output(
-                "openstack stack resource list -n 10 overcloud",
-                timeout=600)
+            for sid in stack_ids:
+                self.add_cmd_output([
+                    "openstack stack show %s" % sid[0],
+                    "openstack stack resource list -n 10 %s" % sid[0]
+                ])
 
-            # get details on failed deployments
-            cmd = "openstack stack resource list -f value -n 5 overcloud"
-            deployments = self.call_ext_prog(cmd, timeout=600)['output']
-            for deployment in deployments.splitlines():
-                if 'FAILED' in deployment:
-                    check = [
-                        "OS::Heat::StructuredDeployment",
-                        "OS::Heat::SoftwareDeployment"]
-                    if any(x in deployment for x in check):
-                        deployment = deployment.split()[1]
-                        cmd = "openstack software deployment show " \
-                            "--long %s" % (deployment)
-                        self.add_cmd_output(
-                            cmd,
-                            suggest_filename="failed-deployment-" +
-                            deployment + ".log",
-                            timeout=600)
+                # get details on failed deployments
+                cmd = "openstack stack resource list -f value -n 5 %s" % sid[0]
+                deployments = self.exec_cmd(cmd)
+                for deployment in deployments['output'].splitlines():
+                    if 'FAILED' in deployment:
+                        check = [
+                            "OS::Heat::StructuredDeployment",
+                            "OS::Heat::SoftwareDeployment"
+                        ]
+                        if not any(x in deployment for x in check):
+                            continue
+                        deploy = deployment.split()[1]
+                        cmd = ("openstack software deployment "
+                               "show --long %s" % (deployment))
+                        fname = "failed-deployment-%s.log" % deploy
+                        self.add_cmd_output(cmd, suggest_filename=fname)
 
             self.add_cmd_output("openstack object save "
                                 "tripleo-ui-logs tripleo-ui.logs --file -")
@@ -112,23 +124,14 @@ class OpenStackInstack(Plugin):
         json_regexp = r'((?m)"(%s)": )(".*?")' % "|".join(protected_json_keys)
         self.do_file_sub("/home/stack/instackenv.json", json_regexp,
                          r"\1*********")
+        self.do_file_sub('/home/stack/.tripleo/history',
+                         r'(password=)\w+',
+                         r'\1*********')
 
 
 class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
 
-    packages = [
-        'instack',
-        'instack-undercloud',
-        'openstack-tripleo',
-        'openstack-tripleo-common',
-        'openstack-tripleo-heat-templates',
-        'openstack-tripleo-image-elements',
-        'openstack-tripleo-puppet-elements',
-        'openstack-tripleo-ui',
-        'openstack-tripleo-validations',
-        'puppet-tripleo',
-        'python-tripleoclient'
-    ]
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatRDOManager, self).setup()

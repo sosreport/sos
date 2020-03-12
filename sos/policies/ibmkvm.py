@@ -38,8 +38,7 @@ class PowerKVMPolicy(RedHatPolicy):
             with open('/etc/ibm_powerkvm-release', 'r') as fp:
                 version_string = fp.read()
                 return version_string[2][0]
-            return False
-        except:
+        except IOError:
             return False
 
 
@@ -63,8 +62,7 @@ class ZKVMPolicy(RedHatPolicy):
             with open('/etc/base-release', 'r') as fp:
                 version_string = fp.read()
                 return version_string.split(' ', 4)[3][0]
-            return False
-        except:
+        except IOError:
             return False
 
 

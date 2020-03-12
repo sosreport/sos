@@ -17,13 +17,14 @@ class CanonicaLivepatch(Plugin, UbuntuPlugin):
 
     plugin_name = 'canonical_livepatch'
     profiles = ('system', 'kernel')
-    files = ('/snap/bin/canonical-livepatch')
+    commands = ('canonical-livepatch',)
 
     def setup(self):
         self.add_cmd_output([
-            "systemctl status snap.canonical-livepatch.canonical-livepatchd",
-            "snap run canonical-livepatch status --verbose",
-            "snap run canonical-livepatch --version"
+            "canonical-livepatch status --verbose",
+            "canonical-livepatch --version"
         ])
+        self.add_service_status(
+            "snap.canonical-livepatch.canonical-livepatchd")
 
 # vim: set et ts=4 sw=4 :

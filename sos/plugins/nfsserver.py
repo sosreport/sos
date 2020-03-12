@@ -31,7 +31,7 @@ class NfsServer(Plugin, RedHatPlugin):
             xtab = os.stat("/var/lib/nfs/xtab")[ST_SIZE]
             if exports or xtab:
                 return True
-        except:
+        except OSError:
             pass
 
         return False

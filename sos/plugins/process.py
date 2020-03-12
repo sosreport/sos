@@ -17,8 +17,10 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system',)
 
     option_list = [
+        ("lsof", "gathers information on all open files", "slow", True),
         ("lsof-threads", "gathers threads' open file info if supported",
-         "slow", False)
+         "slow", False),
+        ("smaps", "gathers all /proc/*/smaps files", "", False)
     ]
 
     def setup(self):
@@ -26,18 +28,22 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # process group and thread options
         ps_group_opts = "pid,ppid,user,group,lwp,nlwp,start_time,comm,cgroup"
         ps_sched_opts = "flags,state,uid,pid,ppid,pgid,sid,cls,pri,addr,sz,"
-        ps_sched_opts += "wchan,lstart,tty,time,cmd"
+        ps_sched_opts += "wchan:20,lstart,tty,time,cmd"
 
         self.add_copy_spec([
             "/proc/sched_debug",
             "/proc/stat"
         ])
 
-        self.add_cmd_output("ps auxwww", root_symlink="ps")
-        self.add_cmd_output("pstree", root_symlink="pstree")
-        self.add_cmd_output("lsof -b +M -n -l -c ''", root_symlink="lsof")
+        if self.get_option("smaps"):
+            self.add_copy_spec("/proc/[0-9]*/smaps")
 
-        if self.get_option("lsof-threads") or self.get_option("all_logs"):
+        self.add_cmd_output("ps auxwww", root_symlink="ps")
+        self.add_cmd_output("pstree -lp", root_symlink="pstree")
+        if self.get_option("lsof"):
+            self.add_cmd_output("lsof -b +M -n -l -c ''", root_symlink="lsof")
+
+        if self.get_option("lsof-threads"):
             self.add_cmd_output("lsof -b +M -n -l")
 
         self.add_cmd_output([

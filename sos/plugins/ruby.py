@@ -1,3 +1,5 @@
+# Copyright (C) 2018 Red Hat, Inc., Jake Hunsaker <jhunsake@redhat.com>
+
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
 # This copyrighted material is made available to anyone wishing to use,
@@ -9,19 +11,18 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Last(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """login information
-    """
+class Ruby(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Ruby runtime"""
 
-    plugin_name = 'last'
-    profiles = ('system',)
+    plugin_name = 'ruby'
+    packages = ('ruby', 'ruby-irb')
 
     def setup(self):
-        self.add_cmd_output("last", root_symlink="last")
         self.add_cmd_output([
-            "last reboot",
-            "last shutdown",
-            "lastlog"
+            'ruby --version',
+            'irb --version',
+            'gem --version',
+            'gem list'
         ])
 
-# vim: et ts=4 sw=4
+# vim: set et ts=4 sw=4 :

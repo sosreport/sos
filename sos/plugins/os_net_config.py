@@ -14,7 +14,7 @@ class OsNetConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     plugin_name = "os_net_config"
     profiles = ('openstack')
-    packages = ('os-net-config')
+    packages = ('os-net-config',)
 
     def setup(self):
         self.add_copy_spec("/etc/os-net-config")

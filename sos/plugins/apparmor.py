@@ -26,7 +26,7 @@ class Apparmor(Plugin, UbuntuPlugin):
         self.add_forbidden_path([
             "/etc/apparmor.d/cache",
             "/etc/apparmor.d/libvirt/libvirt*",
-            "etc/apparmor.d/abstractions"
+            "/etc/apparmor.d/abstractions"
         ])
 
         self.add_cmd_output([

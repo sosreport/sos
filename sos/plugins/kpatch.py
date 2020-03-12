@@ -21,12 +21,12 @@ class Kpatch(Plugin, RedHatPlugin):
     packages = ('kpatch',)
 
     def setup(self):
-        kpatch_list = self.get_cmd_output_now("kpatch list")
-        if not kpatch_list:
+        kpatch_list = self.collect_cmd_output("kpatch list")
+        if not kpatch_list['status'] == 0:
             return
-        kpatches = open(kpatch_list, "r").read().splitlines()
+        kpatches = kpatch_list['output'].splitlines()
         for patch in kpatches:
-            if not re.match("^kpatch-.*\(.*\)", patch):
+            if not re.match(r"^kpatch-.*\(.*\)", patch):
                 continue
             (module, version) = patch.split()
             self.add_cmd_output("kpatch info " + module)

@@ -2,14 +2,14 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 3.5
+Version: 3.9
 Release: 1%{?dist}
 Group: Applications/System
-Source0: http://people.redhat.com/breeves/sos/releases/sos-%{version}.tar.gz
+Source0: https://github.com/sosreport/sos/archive/%{version}.tar.gz
 License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: http://fedorahosted.org/sos
+Url: https://github.com/sosreport/sos/
 BuildRequires: python-devel
 BuildRequires: gettext
 BuildRequires: python-six
@@ -19,6 +19,7 @@ Requires: tar
 Requires: bzip2
 Requires: xz
 Requires: python-six
+Requires: python-futures
 
 %description
 Sos is a set of tools that gathers information about system
@@ -52,6 +53,18 @@ rm -rf ${RPM_BUILD_ROOT}
 %config(noreplace) %{_sysconfdir}/sos.conf
 
 %changelog
+* Fri Feb 14 2020 Bryn M. Reeves <bmr@redhat.com> = 3.9
+- New upstream release
+
+* Tue Aug 27 2019 Pavel Moravec <pmoravec@redhat.com> = 3.8
+- New upstream release
+
+* Wed Mar 27 2019 Bryn M. Reeves <bmr@redhat.com> = 3.7
+- New upstream release
+
+* Mon Jun 25 2018 Bryn M. Reeves <bmr@redhat.com> = 3.6
+- New upstream release
+
 * Thu Nov 02 2017 Bryn M. Reeves <bmr@redhat.com> = 3.5
 - New upstream release
 

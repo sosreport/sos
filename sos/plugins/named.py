@@ -20,6 +20,10 @@ class Named(Plugin):
     config_files = named_conf
 
     def setup(self):
+        self.add_copy_spec([
+            "/etc/default/bind",
+            "/var/log/named*.log"
+        ])
         for cfg in self.config_files:
             if exists(cfg):
                 self.add_copy_spec([
@@ -34,7 +38,7 @@ class Named(Plugin):
     def get_dns_dir(self, config_file):
         """ grab directory path from named{conf,boot}
         """
-        directory_list = self.do_regex_find_all("directory\s+\"(.*)\"",
+        directory_list = self.do_regex_find_all(r"directory\s+\"(.*)\"",
                                                 config_file)
         if directory_list:
             return normpath(directory_list[0])

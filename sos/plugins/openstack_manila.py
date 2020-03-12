@@ -21,6 +21,13 @@ class OpenStackManila(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/manila"
 
     def setup(self):
+
+        config_dir = "%s/etc/manila" % (
+            self.var_puppet_gen if self.running_in_container() else ''
+        )
+        manila_cmd = "manila-manage --config-dir %s db version" % config_dir
+        self.add_cmd_output(manila_cmd, suggest_filename="manila_db_version")
+
         self.add_copy_spec([
             "/etc/manila/",
             self.var_puppet_gen + "/etc/manila/",
@@ -30,19 +37,23 @@ class OpenStackManila(Plugin):
             self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/manila/*",
-                "/var/log/containers/manila/*",
-                "/var/log/containers/httpd/manila-api/*"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/manila/*.log",
-                "/var/log/containers/manila/*.log",
-                "/var/log/containers/httpd/manila-api/*log"
-            ], sizelimit=self.limit)
+            ])
+
+    def running_in_container(self):
+        for runtime in ["docker", "podman"]:
+            container_status = self.exec_cmd(runtime + " ps")
+            if container_status['status'] == 0:
+                for line in container_status['output'].splitlines():
+                    if line.endswith("manila_api"):
+                        return True
+        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/manila/*", regexp, subst)
@@ -52,11 +63,8 @@ class OpenStackManila(Plugin):
         )
 
     def postproc(self):
-        protect_keys = [
-            "nova_admin_password",  "rabbit_password",  "qpid_password",
-            "password", "netapp_nas_password", "cinder_admin_password",
-            "neutron_admin_password", "service_instance_password"
-        ]
+        protect_keys = [".*password.*", "transport_url",
+                        "hdfs_ssh_pw", "maprfs_ssh_pw"]
         connection_keys = ["connection", "sql_connection"]
 
         self.apply_regex_sub(
@@ -85,14 +93,7 @@ class DebianManila(OpenStackManila, DebianPlugin, UbuntuPlugin):
 class RedHatManila(OpenStackManila, RedHatPlugin):
     """OpenStackManila related information for Red Hat distributions."""
 
-    packages = (
-        'puppet-manila',
-        'openstack-manila',
-        'openstack-manila-share',
-        'python-manila',
-        'python-manilaclient',
-        'python-manila-tests'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatManila, self).setup()

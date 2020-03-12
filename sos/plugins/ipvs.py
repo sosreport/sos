@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, SoSPredicate
 
 
 class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
@@ -23,7 +23,12 @@ class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
     def setup(self):
         self.add_cmd_output([
             "ipvsadm -Ln",
-            "ipvsadm -Lc"
-        ])
+            "ipvsadm -Ln --connection",
+            "ipvsadm -Ln --persistent-conn",
+            "ipvsadm -Ln --rate",
+            "ipvsadm -Ln --stats",
+            "ipvsadm -Ln --thresholds",
+            "ipvsadm -Ln --timeout"
+        ], pred=SoSPredicate(self, kmods=['ip_vs']))
 
 # vim: set et ts=4 sw=4 :

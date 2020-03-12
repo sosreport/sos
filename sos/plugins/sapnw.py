@@ -13,7 +13,7 @@ from sos.plugins import Plugin, RedHatPlugin
 def get_directory_listing(path):
     try:
         dir_list = os.listdir(path)
-    except:
+    except OSError:
         dir_list = []
     return dir_list
 
@@ -28,19 +28,19 @@ class sapnw(Plugin, RedHatPlugin):
 
     def collect_list_instances(self):
         # list installed instances
-        inst_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
-                                           -function ListInstances",
-                                           suggest_filename="SAPInstances")
-        if not inst_out:
+        inst_out = self.collect_cmd_output(
+            "/usr/sap/hostctrl/exe/saphostctrl -function ListInstances",
+            suggest_filename="SAPInstances"
+        )
+        if inst_out['status'] != 0:
             return
 
         sidsunique = set()
         # Cycle through all the instances, get 'sid', 'instance_number'
         # and 'vhost' to determine the proper profile
-        p = open(inst_out, "r").read().splitlines()
-        for line in p:
-            if "DAA" not in line:
-                fields = line.strip().split()
+        for inst_line in inst_out['output'].splitlines():
+            if "DAA" not in inst_line:
+                fields = inst_line.strip().split()
                 sid = fields[3]
                 inst = fields[5]
                 vhost = fields[7]
@@ -93,14 +93,15 @@ class sapnw(Plugin, RedHatPlugin):
 
     def collect_list_dbs(self):
         # list installed sap dbs
-        db_out = self.get_cmd_output_now("/usr/sap/hostctrl/exe/saphostctrl \
-                                         -function ListDatabases",
-                                         suggest_filename="SAPDatabases")
-        if not db_out:
+        db_out = self.collect_cmd_output(
+            "/usr/sap/hostctrl/exe/saphostctrl -function ListDatabases",
+            suggest_filename="SAPDatabases"
+        )
+
+        if db_out['status'] != 0:
             return
 
-        dbl = open(db_out, "r").read().splitlines()
-        for line in dbl:
+        for line in db_out['output'].splitlines():
             if "Instance name" in line:
                 fields = line.strip().split()
                 dbadm = fields[2][:-1]

@@ -15,11 +15,14 @@ class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'gdm'
     profiles = ('desktop',)
-    packages = ('gdm',)
+    packages = ('gdm', 'gdm3',)
 
     def setup(self):
-        self.add_copy_spec("/etc/gdm/*")
+        self.add_copy_spec([
+            "/etc/gdm/*",
+            "/etc/gdm3/*"
+        ])
         self.add_journal(units="gdm")
-        self.add_cmd_output("systemctl status gdm.service")
+        self.add_service_status("gdm")
 
 # vim: set et ts=4 sw=4 :

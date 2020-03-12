@@ -20,43 +20,19 @@ class Gluster(Plugin, RedHatPlugin):
     plugin_name = 'gluster'
     profiles = ('storage', 'virt')
 
-    statedump_dir = '/tmp/glusterfs-statedumps'
+    statedump_dir = '/run/gluster'
     packages = ["glusterfs", "glusterfs-core"]
     files = ["/etc/glusterd", "/var/lib/glusterd"]
 
     option_list = [("dump", "enable glusterdump support", "slow", False)]
 
-    def get_volume_names(self, volume_file):
-        """Return a dictionary for which key are volume names according to the
-        output of gluster volume info stored in volume_file.
-        """
-        out = []
-        fp = open(volume_file, 'r')
-        for line in fp.readlines():
-            if not line.startswith("Volume Name:"):
-                continue
-            volname = line[12:-1]
-            out.append(volname)
-        fp.close()
-        return out
-
-    def make_preparations(self, name_dir):
-        try:
-            os.mkdir(name_dir)
-        except:
-            pass
-        fp = open('/tmp/glusterdump.options', 'w')
-        data = 'path=' + name_dir + '\n'
-        fp.write(data)
-        fp.write('all=yes')
-        fp.close()
-
     def wait_for_statedump(self, name_dir):
         statedumps_present = 0
-        statedump_entries = os.listdir(name_dir)
+        statedump_entries = [
+                f for f in os.listdir(name_dir) if os.path.isfile(f)
+        ]
         for statedump_file in statedump_entries:
             statedumps_present = statedumps_present+1
-            last_line = 'tmp'
             ret = -1
             while ret == -1:
                 last_line = file(
@@ -71,13 +47,17 @@ class Gluster(Plugin, RedHatPlugin):
                 os.remove(os.path.join(self.statedump_dir, dirs))
             os.rmdir(self.statedump_dir)
             os.unlink('/tmp/glusterdump.options')
-        except:
+        except OSError:
             pass
 
     def setup(self):
         self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
 
-        self.add_cmd_output("gluster peer status")
+        self.add_cmd_output([
+            "gluster peer status",
+            "gluster pool list",
+            "gluster volume status"
+        ])
 
         self.add_copy_spec([
             "/etc/redhat-storage-release",
@@ -89,52 +69,55 @@ class Gluster(Plugin, RedHatPlugin):
             "/etc/glusterfs",
             "/var/lib/glusterd/",
             # collect nfs-ganesha related configuration
-            "/var/run/gluster/shared_storage/nfs-ganesha/"
-        ] + glob.glob('/var/run/gluster/*tier-dht/*'))
+            "/run/gluster/shared_storage/nfs-ganesha/"
+        ] + glob.glob('/run/gluster/*tier-dht/*'))
 
-        # collect logs - apply log_size for any individual file
-        # all_logs takes precedence over logsize
         if not self.get_option("all_logs"):
-            limit = self.get_option("log_size")
-        else:
-            limit = 0
-
-        if limit:
-            for f in (glob.glob("/var/log/glusterfs/*log") +
-                      glob.glob("/var/log/glusterfs/*/*log") +
-                      glob.glob("/var/log/glusterfs/geo-replication/*/*log")):
-                self.add_copy_spec(f, limit)
+            self.add_copy_spec([
+                "/var/log/glusterfs/*log",
+                "/var/log/glusterfs/*/*log",
+                "/var/log/glusterfs/geo-replication/*/*log"
+            ])
         else:
             self.add_copy_spec("/var/log/glusterfs")
 
         if self.get_option("dump"):
-            self.make_preparations(self.statedump_dir)
-            if self.check_ext_prog("killall -USR1 glusterfs glusterfsd"):
-                # let all the processes catch the signal and create
-                # statedump file entries.
-                time.sleep(1)
-                self.wait_for_statedump(self.statedump_dir)
-                self.add_copy_spec('/tmp/glusterdump.options')
-                self.add_copy_spec(self.statedump_dir)
+            if os.path.exists(self.statedump_dir):
+                statedump_cmd = "killall -USR1 glusterfs glusterfsd glusterd"
+                if self.exec_cmd(statedump_cmd)['status'] == 0:
+                    # let all the processes catch the signal and create
+                    # statedump file entries.
+                    time.sleep(1)
+                    self.wait_for_statedump(self.statedump_dir)
+                    self.add_copy_spec(self.statedump_dir)
+                else:
+                    self.soslog.info("could not send SIGUSR1 to glusterfs/"
+                                     "glusterd processes")
             else:
-                self.soslog.info("could not send SIGUSR1 to glusterfs \
-                processes")
+                self.soslog.warn("Unable to generate statedumps, no such "
+                                 "directory: %s" % self.statedump_dir)
+            state = self.exec_cmd("gluster get-state")
+            if state['status'] == 0:
+                state_file = state['output'].split()[-1]
+                self.add_copy_spec(state_file)
 
-        volume_file = self.get_cmd_output_now("gluster volume info")
-        if volume_file:
-            for volname in self.get_volume_names(volume_file):
+        volume_cmd = self.collect_cmd_output("gluster volume info")
+        if volume_cmd['status'] == 0:
+            for line in volume_cmd['output']:
+                if not line.startswith("Volume Name:"):
+                    continue
+                volname = line[12:-1]
                 self.add_cmd_output([
+                    "gluster volume get %s all" % volname,
                     "gluster volume geo-replication %s status" % volname,
                     "gluster volume heal %s info" % volname,
                     "gluster volume heal %s info split-brain" % volname,
+                    "gluster volume status %s clients" % volname,
                     "gluster snapshot list %s" % volname,
                     "gluster volume quota %s list" % volname,
                     "gluster volume rebalance %s status" % volname,
                     "gluster snapshot info %s" % volname,
                     "gluster snapshot status %s" % volname
                 ])
-
-        self.add_cmd_output("gluster pool list")
-        self.add_cmd_output("gluster volume status")
 
 # vim: set et ts=4 sw=4 :

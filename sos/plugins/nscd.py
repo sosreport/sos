@@ -24,12 +24,10 @@ class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec("/etc/nscd.conf")
 
-        self.limit = (None if self.get_option("all_logs")
-                      else self.get_option("log_size"))
         opt = self.file_grep(r"^\s*logfile", "/etc/nscd.conf")
         if (len(opt) > 0):
             for o in opt:
                 f = o.split()
-                self.add_copy_spec(f[1], sizelimit=self.limit)
+                self.add_copy_spec(f[1])
 
 # vim: set et ts=4 sw=4 :

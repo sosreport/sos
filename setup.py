@@ -4,7 +4,7 @@ from distutils.core import setup
 from distutils.command.build import build
 from distutils.command.install_data import install_data
 from distutils.dep_util import newer
-from distutils.log import warn, info, error
+from distutils.log import error
 
 import glob
 import os
@@ -73,7 +73,7 @@ setup(name='sos',
         ],
       packages=['sos', 'sos.plugins', 'sos.policies'],
       cmdclass={'build': BuildData, 'install_data': InstallData},
-      requires=['six'],
+      requires=['six', 'futures'],
      )
 
 

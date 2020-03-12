@@ -9,17 +9,20 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 
-class MrgGrid(Plugin, RedHatPlugin):
-    """MRG GRID engine
+class convert2rhel(Plugin, RedHatPlugin):
+    """Convert2RHEL
     """
-
-    plugin_name = 'mrggrid'
-    profiles = ('mrg',)
+    plugin_name = 'convert2rhel'
+    profiles = ('system')
+    packages = ('convert2rhel')
+    verify_packages = ('convert2rhel$',)
 
     def setup(self):
+
         self.add_copy_spec([
-            "/etc/condor/condor_config",
-            "condor_status"
+            "/var/log/convert2rhel/convert2rhel.log",
+            "/var/log/convert2rhel/rpm_va.log"
         ])
+
 
 # vim: set et ts=4 sw=4 :

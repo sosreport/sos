@@ -13,10 +13,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-import tempfile
 
-from sos.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin,
-                         SCLPlugin)
+from sos.plugins import (Plugin, UbuntuPlugin, DebianPlugin, SCLPlugin)
 from sos.utilities import find
 
 
@@ -33,7 +31,7 @@ class PostgreSQL(Plugin):
     option_list = [
         ('pghome', 'PostgreSQL server home directory.', '', '/var/lib/pgsql'),
         ('username', 'username for pg_dump', '', 'postgres'),
-        ('password', 'password for pg_dump' + password_warn_text, '', False),
+        ('password', 'password for pg_dump' + password_warn_text, '', ''),
         ('dbname', 'database name to dump for pg_dump', '', ''),
         ('dbhost', 'database hostname/IP (do not use unix socket)', '', ''),
         ('dbport', 'database server port number', '', '5432')
@@ -45,8 +43,8 @@ class PostgreSQL(Plugin):
                 # We're only modifying this for ourself and our children so
                 # there is no need to save and restore environment variables if
                 # the user decided to pass the password on the command line.
-                if self.get_option("password") is not False:
-                    os.environ["PGPASSWORD"] = str(self.get_option("password"))
+                if self.get_option("password"):
+                    os.environ["PGPASSWORD"] = self.get_option("password")
 
                 if self.get_option("dbhost"):
                     cmd = "pg_dump -U %s -h %s -p %s -w -F t %s" % (
@@ -64,7 +62,7 @@ class PostgreSQL(Plugin):
                 if scl is not None:
                     cmd = self.convert_cmd_scl(scl, cmd)
                 self.add_cmd_output(cmd, suggest_filename=filename,
-                                    binary=True)
+                                    binary=True, sizelimit=0)
 
             else:  # no password in env or options
                 self.soslog.warning(
@@ -76,17 +74,29 @@ class PostgreSQL(Plugin):
 
     def setup(self):
         self.do_pg_dump()
+        self.add_cmd_output("du -sh %s" % self.get_option('pghome'))
 
 
 class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
 
-    packages = ('postgresql', 'rh-postgresql95-postgresql-server', )
+    packages = (
+        'postgresql',
+        'rh-postgresql95-postgresql-server',
+        'rh-postgresql10-postgresql-server'
+    )
 
     def setup(self):
         super(RedHatPostgreSQL, self).setup()
 
-        scl = "rh-postgresql95"
         pghome = self.get_option("pghome")
+
+        scl = None
+        for pkg in self.packages[1:]:
+            # The scl name, package name, and service name all differ slightly
+            # but is at least consistent in doing so across versions, so we
+            # need to do some mangling here
+            if self.is_service_running(pkg.replace('-server', '')):
+                scl = pkg.split('-postgresql-')[0]
 
         # Copy PostgreSQL log files.
         for filename in find("*.log", pghome):
@@ -111,7 +121,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
             )
         )
 
-        if scl in self.scls_matched:
+        if scl and scl in self.scls_matched:
             self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
 
 

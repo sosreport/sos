@@ -35,14 +35,24 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "systemctl list-units",
             "systemctl list-units --failed",
             "systemctl list-unit-files",
+            "systemctl list-jobs",
+            "systemctl list-dependencies",
+            "systemctl list-timers --all",
+            "systemctl list-machines",
             "systemctl show-environment",
             "systemd-delta",
             "systemd-analyze",
             "systemd-analyze blame",
+            "systemd-analyze dump",
+            "systemd-resolve --status",
+            "systemd-resolve --statistics",
             "journalctl --list-boots",
             "ls -lR /lib/systemd",
             "timedatectl"
         ])
+
+        self.add_cmd_output("systemd-analyze plot",
+                            suggest_filename="systemd-analyze_plot.svg")
 
         if self.get_option("verify"):
             self.add_cmd_output("journalctl --verify")
@@ -52,7 +62,14 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/lib/systemd/system",
             "/lib/systemd/user",
             "/etc/vconsole.conf",
+            "/run/systemd/generator*",
+            "/run/systemd/seats",
+            "/run/systemd/sessions",
+            "/run/systemd/system",
+            "/run/systemd/users",
+            "/etc/modules-load.d/*.conf",
             "/etc/yum/protected.d/systemd.conf"
         ])
+        self.add_forbidden_path('/dev/null')
 
 # vim: set et ts=4 sw=4 :

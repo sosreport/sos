@@ -10,50 +10,32 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class GnocchiPlugin(Plugin, RedHatPlugin):
+class Gnocchi(Plugin):
     """Gnocchi - Metric as a service"""
     plugin_name = "gnocchi"
 
     profiles = ('openstack', 'openstack_controller')
 
-    packages = (
-        'openstack-gnocchi-metricd', 'openstack-gnocchi-common',
-        'openstack-gnocchi-statsd', 'openstack-gnocchi-api',
-        'openstack-gnocchi-carbonara'
-    )
-
     requires_root = False
-
-    var_puppet_gen = "/var/lib/config-data/puppet-generated/gnocchi"
 
     def setup(self):
         self.add_copy_spec([
             "/etc/gnocchi/*",
-            self.var_puppet_gen + "/etc/gnocchi/*",
-            self.var_puppet_gen + "/etc/httpd/conf/*",
-            self.var_puppet_gen + "/etc/httpd/conf.d/*",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/wsgi.conf",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/gnocchi/*",
-                "/var/log/httpd/gnocchi*",
-                "/var/log/containers/gnocchi/*",
-                "/var/log/containers/httpd/gnocchi-api/*"
-            ], sizelimit=self.limit)
+                "/var/log/{}*/gnocchi*".format(self.apachepkg)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/gnocchi/*.log",
-                "/var/log/httpd/gnocchi*.log",
-                "/var/log/containers/gnocchi/*.log",
-                "/var/log/containers/httpd/gnocchi-api/*log"
-            ], sizelimit=self.limit)
+                "/var/log/{}*/gnocchi*.log".format(self.apachepkg)
+            ])
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
@@ -78,9 +60,39 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
     def postproc(self):
         self.do_file_sub(
             "/etc/gnocchi/gnocchi.conf",
-            r"password=(.*)",
+            r"ceph_secret\s?=(.*)",
+            r"ceph_secret=*****",
+        )
+        self.do_file_sub(
+            "/etc/gnocchi/gnocchi.conf",
+            r"password\s?=(.*)",
             r"password=*****",
         )
+
+
+class RedHatGnocchi(Gnocchi, RedHatPlugin):
+
+    apachepkg = 'httpd'
+    var_puppet_gen = "/var/lib/config-data/puppet-generated/gnocchi"
+
+    packages = (
+        'openstack-gnocchi-metricd', 'openstack-gnocchi-common',
+        'openstack-gnocchi-statsd', 'openstack-gnocchi-api',
+        'openstack-gnocchi-carbonara'
+    )
+
+    def setup(self):
+        super(RedHatGnocchi, self).setup()
+        self.add_copy_spec([
+            self.var_puppet_gen + "/etc/gnocchi/*",
+            self.var_puppet_gen + "/etc/httpd/conf/*",
+            self.var_puppet_gen + "/etc/httpd/conf.d/*",
+            self.var_puppet_gen + "/etc/httpd/conf.modules.d/wsgi.conf",
+            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
+        ])
+
+    def postproc(self):
+        super(RedHatGnocchi, self).postproc()
         self.do_file_sub(
             self.var_puppet_gen + "/etc/gnocchi/"
             "gnocchi.conf",
@@ -88,5 +100,14 @@ class GnocchiPlugin(Plugin, RedHatPlugin):
             r"password=*****",
         )
 
+
+class DebianGnocchi(Gnocchi, DebianPlugin, UbuntuPlugin):
+
+    apachepkg = 'apache'
+
+    packages = (
+        'gnocchi-api', 'gnocchi-metricd', 'gnocchi-common'
+        'gnocchi-statsd', 'python3-gnocchiclient'
+    )
 
 # vim: set et ts=4 sw=4 :

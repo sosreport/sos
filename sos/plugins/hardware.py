@@ -24,7 +24,8 @@ class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/devices",
             "/proc/rtc",
             "/var/log/mcelog",
-            "/sys/class/dmi/id/*"
+            "/sys/class/dmi/id/*",
+            "/sys/class/drm/*/edid"
         ])
 
         self.add_cmd_output("dmidecode", root_symlink="dmidecode")

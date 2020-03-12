@@ -18,13 +18,7 @@ class OpenStackAodh(Plugin, RedHatPlugin):
     plugin_name = "openstack_aodh"
     profiles = ('openstack', 'openstack_controller')
 
-    packages = (
-        'openstack-aodh-api',
-        'openstack-aodh-listener',
-        'openstack-aodh-notifier',
-        'openstack-aodh-evaluator,'
-        'openstack-aodh-common'
-    )
+    packages = ('openstack-selinux',)
 
     requires_root = False
 
@@ -40,21 +34,16 @@ class OpenStackAodh(Plugin, RedHatPlugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/aodh/*",
                 "/var/log/httpd/aodh*",
-                "/var/log/containers/aodh/*",
-                "/var/log/containers/httpd/aodh-api/*"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/aodh/*.log",
                 "/var/log/httpd/aodh*.log",
-                "/var/log/containers/aodh/*.log",
-                "/var/log/containers/httpd/aodh-api/*log"
-            ], sizelimit=self.limit)
+            ])
 
         vars_all = [p in os.environ for p in [
             'OS_USERNAME', 'OS_PASSWORD', 'OS_AUTH_TYPE'

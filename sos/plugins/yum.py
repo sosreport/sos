@@ -41,6 +41,10 @@ class Yum(Plugin, RedHatPlugin):
         # Get a list of channels the machine is subscribed to.
         self.add_cmd_output("yum -C repolist")
 
+        # Get the same list, but with various statistics related to its
+        # contents such as package count.
+        self.add_cmd_output("yum -C repolist --verbose")
+
         # Get list of available plugins and their configuration files.
         if os.path.exists(YUM_PLUGIN_PATH) and os.path.isdir(YUM_PLUGIN_PATH):
             plugins = ""
@@ -79,9 +83,9 @@ class Yum(Plugin, RedHatPlugin):
 
         # packages installed/erased/updated per transaction
         if self.get_option("yum-history-info"):
-            history = self.call_ext_prog("yum history")
+            history = self.exec_cmd("yum history")
             transactions = None
-            if history['output']:
+            if history['status'] == 0:
                 for line in history['output'].splitlines():
                     try:
                         transactions = int(line.split('|')[0].strip())
@@ -99,7 +103,7 @@ class Yum(Plugin, RedHatPlugin):
             # RHEL6+ alternative for this whole function:
             # self.add_cmd_output("yum-debug-dump '%s'"
             # % os.path.join(self.commons['dstroot'],"yum-debug-dump"))
-            r = self.call_ext_prog("yum-debug-dump")
+            r = self.exec_cmd("yum-debug-dump")
             try:
                 self.add_cmd_output("zcat %s" % (r['output'].split()[-1],))
             except IndexError:

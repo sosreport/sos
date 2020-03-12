@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, os
+from sos.plugins import Plugin, RedHatPlugin
 from sos.utilities import is_executable
 
 
@@ -66,9 +66,9 @@ class Navicli(Plugin, RedHatPlugin):
         while CLARiiON_IP_loop == "stay_in":
             try:
                 ans = input("CLARiiON SP IP Address or [Enter] to exit: ")
-            except:
+            except Exception:
                 return
-            if self.check_ext_prog("navicli -h %s getsptime" % (ans,)):
+            if self.exec_cmd("navicli -h %s getsptime" % (ans,))['status']:
                 CLARiiON_IP_address_list.append(ans)
             else:
                 if ans != "":

@@ -20,14 +20,25 @@ class Buildah(Plugin, RedHatPlugin):
     profiles = ('container',)
 
     def setup(self):
-        self.add_cmd_output([
-            'buildah containers',
-            'buildah images',
-            'buildah version'
+        self.add_copy_spec([
+            "/etc/containers/registries.conf",
+            "/etc/containers/storage.conf",
+            "/etc/containers/mounts.conf",
+            "/etc/containers/policy.json",
         ])
 
+        subcmds = [
+            'containers',
+            'containers --all',
+            'images',
+            'images --all',
+            'version'
+        ]
+
+        self.add_cmd_output(["buildah %s" % sub for sub in subcmds])
+
         def make_chowdah(aurdah):
-            chowdah = self.get_command_output(aurdah)
+            chowdah = self.exec_cmd(aurdah)
             chowdah['auutput'] = chowdah.pop('output')
             chowdah['is_wicked_pissah'] = chowdah.pop('status') == 0
             return chowdah
@@ -36,13 +47,15 @@ class Buildah(Plugin, RedHatPlugin):
         if containahs['is_wicked_pissah']:
             for containah in containahs['auutput'].splitlines():
                 # obligatory Tom Brady
-                brady = containah.split()[4]
-                self.add_cmd_output('buildah inspect -t container %s' % brady)
+                goat = containah.split()[-1]
+                self.add_cmd_output('buildah inspect -t container %s' % goat,
+                                    subdir='containers')
 
         pitchez = make_chowdah('buildah images -n')
         if pitchez['is_wicked_pissah']:
             for pitchah in pitchez['auutput'].splitlines():
                 brady = pitchah.split()[1]
-                self.add_cmd_output('buildah inspect -t image %s' % brady)
+                self.add_cmd_output('buildah inspect -t image %s' % brady,
+                                    subdir='images')
 
 # vim: set et ts=4 sw=4 :

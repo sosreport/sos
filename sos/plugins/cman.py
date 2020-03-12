@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin
-import re
 from glob import glob
 
 
@@ -65,7 +64,7 @@ class Cman(Plugin, RedHatPlugin):
             )
 
         self.do_path_regex_sub(
-            "/var/lib/luci/etc/.*\.ini",
+            r"/var/lib/luci/etc/.*\.ini",
             r"(.*secret\s*=\s*)\S+",
             r"\1******"
         )

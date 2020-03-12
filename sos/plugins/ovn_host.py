@@ -12,6 +12,14 @@ import os
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
+pidfile = 'ovn-controller.pid'
+pid_paths = [
+        '/var/lib/openvswitch/ovn',
+        '/usr/local/var/run/openvswitch',
+        '/run/openvswitch'
+]
+
+
 class OVNHost(Plugin):
     """ OVN Controller
     """
@@ -19,13 +27,6 @@ class OVNHost(Plugin):
     profiles = ('network', 'virt')
 
     def setup(self):
-        pidfile = 'ovn-controller.pid'
-        pid_paths = [
-                '/var/lib/openvswitch/ovn',
-                '/usr/local/var/run/openvswitch',
-                '/var/run/openvswitch',
-                '/run/openvswitch'
-        ]
         if os.environ.get('OVS_RUNDIR'):
             pid_paths.append(os.environ.get('OVS_RUNDIR'))
         self.add_copy_spec([os.path.join(pp, pidfile) for pp in pid_paths])
@@ -35,15 +36,20 @@ class OVNHost(Plugin):
         self.add_cmd_output([
             'ovs-ofctl -O OpenFlow13 dump-flows br-int',
             'ovs-vsctl list-br',
-            'ovs-vsctl list OpenVswitch',
+            'ovs-vsctl list Open_vSwitch',
         ])
 
         self.add_journal(units="ovn-controller")
 
+    def check_enabled(self):
+        return (any([os.path.isfile(
+            os.path.join(pp, pidfile)) for pp in pid_paths]) or
+            super(OVNHost, self).check_enabled())
+
 
 class RedHatOVNHost(OVNHost, RedHatPlugin):
 
-    packages = ('openvswitch-ovn-host', )
+    packages = ('openvswitch-ovn-host', 'ovn2.*-host', )
 
 
 class DebianOVNHost(OVNHost, DebianPlugin, UbuntuPlugin):

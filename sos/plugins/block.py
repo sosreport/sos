@@ -44,10 +44,21 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                 if disk.startswith("ram"):
                     continue
                 disk_path = os.path.join('/dev/', disk)
+                queue_path = os.path.join('/sys/block/', disk, 'queue')
+                self.add_udev_info(disk_path)
+                self.add_udev_info(disk_path, attrs=True)
+                self.add_udev_info(queue_path, attrs=True)
                 self.add_cmd_output([
-                    "udevadm info -ap /sys/block/%s" % (disk),
                     "parted -s %s unit s print" % (disk_path),
                     "fdisk -l %s" % disk_path
                 ])
+
+        lsblk = self.collect_cmd_output("lsblk -f -a -l")
+        # for LUKS devices, collect cryptsetup luksDump
+        if lsblk['status'] == 0:
+            for line in lsblk['output'].splitlines():
+                if 'crypto LUKS' in line:
+                    dev = line.split()[0]
+                    self.add_cmd_output('cryptsetup luksDump /dev/%s' % dev)
 
 # vim: set et ts=4 sw=4 :

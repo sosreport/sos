@@ -7,7 +7,7 @@ aimed at Linux distributions and other UNIX-like operating systems.
 
 This project is hosted at:
 
-  * http://github.com/sosreport/sos
+  * https://github.com/sosreport/sos
 
 For the latest version, to contribute, and for more information, please visit
 the project pages or join the mailing list.
@@ -126,6 +126,6 @@ sudo apt install sosreport
  [3]: https://github.com/sosreport/sos/wiki/Plugin-options
  [4]: https://www.redhat.com/mailman/listinfo/sos-devel
  [5]: https://github.com/sosreport/sos/issues?state=open
- [6]: http://sos.readthedocs.org/en/latest/index.html#
- [7]: http://sphinx-doc.org/
+ [6]: https://sos.readthedocs.org/en/latest/index.html
+ [7]: https://www.sphinx-doc.org/
  [8]: https://www.readthedocs.org/

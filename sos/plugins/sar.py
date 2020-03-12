@@ -18,32 +18,18 @@ class Sar(Plugin,):
     profiles = ('system', 'performance')
 
     packages = ('sysstat',)
-    sa_path = '/var/log/sa'
+    sa_path = '/var/log/sa/*'
     option_list = [("all_sar", "gather all system activity records",
                     "", False)]
 
-    # size-limit SAR data collected by default (MB)
-    sa_size = 20
-
     def setup(self):
-        if self.get_option("all_sar"):
-            self.sa_size = 0
-
-        # Copy all sa??, sar??, sa??.* and sar??.* files, which will net
-        # compressed and uncompressed versions, typically.
-        for suffix in ('', '.*'):
-            self.add_copy_spec(
-                os.path.join(self.sa_path, "sa[0-3][0-9]" + suffix),
-                sizelimit=self.sa_size, tailit=False
-            )
-            self.add_copy_spec(
-                os.path.join(self.sa_path, "sar[0-3][0-9]" + suffix),
-                sizelimit=self.sa_size, tailit=False
-            )
+        self.add_copy_spec(self.sa_path,
+                           sizelimit=0 if self.get_option("all_sar") else None,
+                           tailit=False)
 
         try:
             dir_list = os.listdir(self.sa_path)
-        except:
+        except OSError:
             self._log_warn("sar: could not list %s" % self.sa_path)
             return
         # find all the sa files that don't have an existing sar file
@@ -70,11 +56,11 @@ class Sar(Plugin,):
 
 class RedHatSar(Sar, RedHatPlugin):
 
-    sa_path = '/var/log/sa'
+    sa_path = '/var/log/sa/*'
 
 
 class DebianSar(Sar, DebianPlugin, UbuntuPlugin):
 
-    sa_path = '/var/log/sysstat'
+    sa_path = '/var/log/sysstat/*'
 
 # vim: set et ts=4 sw=4 :

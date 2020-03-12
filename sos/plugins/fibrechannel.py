@@ -8,12 +8,14 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.plugins import Plugin, RedHatPlugin
+
+from os import listdir
+from os.path import isdir, join
 
 
 class Fibrechannel(Plugin, RedHatPlugin):
-    '''Collects information on fibrechannel devices, if present'''
+    """Collects information on fibrechannel devices, if present"""
 
     plugin_name = 'fibrechannel'
     profiles = ('hardware', 'storage', 'system')
@@ -21,16 +23,14 @@ class Fibrechannel(Plugin, RedHatPlugin):
 
     def setup(self):
 
-        devs = []
         dirs = [
             '/sys/class/fc_host/',
             '/sys/class/fc_remote_ports/',
-            '/sys/class/fc_transport/'
+            '/sys/class/fc_transport/',
+            '/sys/class/fc_vports/'
         ]
 
-        for loc in dirs:
-            devs.extend([loc + device for device in os.listdir(loc)])
-
+        devs = [join(d, dev) for d in dirs if isdir(d) for dev in listdir(d)]
         if devs:
             self.add_udev_info(devs, attrs=True)
 

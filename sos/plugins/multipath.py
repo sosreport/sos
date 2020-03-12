@@ -22,8 +22,9 @@ class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/etc/multipath.conf"
         ])
         self.add_cmd_output([
-            "multipath -l",
+            "multipath -ll",
             "multipath -v4 -ll",
+            "multipath -t",
             "multipathd show config"
         ])
 

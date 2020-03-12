@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, SoSPredicate
 
 
 class FirewallD(Plugin, RedHatPlugin):
@@ -32,11 +32,25 @@ class FirewallD(Plugin, RedHatPlugin):
             "/var/log/firewalld",
         ])
 
+        # collect nftables ruleset
+        nft_pred = SoSPredicate(self,
+                                kmods=['nf_tables', 'nfnetlink'],
+                                required={'kmods': 'all'})
+        self.add_cmd_output("nft list ruleset", pred=nft_pred, changes=True)
+
         # use a 10s timeout to workaround dbus problems in
         # docker containers.
         self.add_cmd_output([
             "firewall-cmd --list-all-zones",
-            "firewall-cmd --permanent --list-all-zones"
+            "firewall-cmd --direct --get-all-chains",
+            "firewall-cmd --direct --get-all-rules",
+            "firewall-cmd --direct --get-all-passthroughs",
+            "firewall-cmd --permanent --list-all-zones",
+            "firewall-cmd --permanent --direct --get-all-chains",
+            "firewall-cmd --permanent --direct --get-all-rules",
+            "firewall-cmd --permanent --direct --get-all-passthroughs",
+            "firewall-cmd --state",
+            "firewall-cmd --get-log-denied"
         ], timeout=10)
 
 # vim: set et ts=4 sw=4 :

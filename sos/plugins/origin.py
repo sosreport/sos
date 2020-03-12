@@ -33,7 +33,7 @@ import os.path
 
 
 class OpenShiftOrigin(Plugin):
-    ''' OpenShift Origin '''
+    """ OpenShift Origin """
 
     plugin_name = "origin"
     files = None  # file lists assigned after path setup below
@@ -43,7 +43,9 @@ class OpenShiftOrigin(Plugin):
         ("diag", "run 'oc adm diagnostics' to collect its output",
          'fast', True),
         ("diag-prevent", "set --prevent-modification on 'oc adm diagnostics'",
-         'fast', False),
+         'fast', True),
+        ("all-namespaces", "collect dc output for all namespaces", "fast",
+         False)
     ]
 
     master_base_dir = "/etc/origin/master"
@@ -66,19 +68,19 @@ class OpenShiftOrigin(Plugin):
     # single instance (at least one must evaluate True if this is an OpenShift
     # installation)
     def is_master(self):
-        '''Determine if we are on a master'''
+        """Determine if we are on a master"""
         return os.path.exists(self.master_cfg)
 
     def is_node(self):
-        '''Determine if we are on a node'''
+        """Determine if we are on a node"""
         return os.path.exists(self.node_cfg)
 
     def is_static_etcd(self):
-        '''Determine if we are on a node running etcd'''
+        """Determine if we are on a node running etcd"""
         return os.path.exists(os.path.join(self.static_pod_dir, "etcd.yaml"))
 
     def is_static_pod_compatible(self):
-        '''Determine if a node is running static pods'''
+        """Determine if a node is running static pods"""
         return os.path.exists(self.static_pod_dir)
 
     def setup(self):
@@ -124,14 +126,42 @@ class OpenShiftOrigin(Plugin):
             #
             # Note: Information about nodes, events, pods, and services
             # is already collected by the Kubernetes plugin
+
+            subcmds = [
+                "describe projects",
+                "adm top images",
+                "adm top imagestreams"
+            ]
+
             self.add_cmd_output([
-                "%s describe projects" % oc_cmd_admin,
-                "%s get -o json hostsubnet" % oc_cmd_admin,
-                "%s get -o json clusternetwork" % oc_cmd_admin,
-                "%s get -o json netnamespaces" % oc_cmd_admin,
-                # Registry and router configs are typically here
-                "%s get -o json dc -n default" % oc_cmd_admin,
+                '%s %s' % (oc_cmd_admin, subcmd) for subcmd in subcmds
             ])
+
+            jcmds = [
+                "hostsubnet",
+                "clusternetwork",
+                "netnamespaces"
+            ]
+
+            self.add_cmd_output([
+                '%s get -o json %s' % (oc_cmd_admin, jcmd) for jcmd in jcmds
+            ])
+
+            if self.get_option('all-namespaces'):
+                ocn = self.exec_cmd('%s get namespaces' % oc_cmd_admin)
+                ns_output = ocn['output'].splitlines()[1:]
+                nmsps = [n.split()[0] for n in ns_output if n]
+            else:
+                nmsps = [
+                    'default',
+                    'openshift-web-console',
+                    'openshift-ansible-service-broker'
+                ]
+
+            self.add_cmd_output([
+                '%s get -o json dc -n %s' % (oc_cmd_admin, n) for n in nmsps
+            ])
+
             if self.get_option('diag'):
                 diag_cmd = "%s adm diagnostics -l 0" % oc_cmd_admin
                 if self.get_option('diag-prevent'):
@@ -142,8 +172,8 @@ class OpenShiftOrigin(Plugin):
                                     "atomic-openshift-master-controllers"])
 
             # get logs from the infrastruture pods running in the default ns
-            pods = self.get_command_output("%s get pod -o name -n default"
-                                           % oc_cmd_admin)
+            pods = self.exec_cmd("%s get pod -o name -n default"
+                                 % oc_cmd_admin)
             for pod in pods['output'].splitlines():
                 self.add_cmd_output("%s logs -n default %s"
                                     % (oc_cmd_admin, pod))
@@ -159,6 +189,8 @@ class OpenShiftOrigin(Plugin):
                 bstrap_node_cfg,
                 bstrap_kubeconfig,
                 os.path.join(self.node_base_dir, "*.crt"),
+                os.path.join(self.node_base_dir, "resolv.conf"),
+                os.path.join(self.node_base_dir, "node-dnsmasq.conf"),
             ])
 
             self.add_journal(units="atomic-openshift-node")
@@ -192,8 +224,8 @@ class OpenShiftOrigin(Plugin):
 
 
 class AtomicOpenShift(OpenShiftOrigin, RedHatPlugin):
-    ''' OpenShift Enterprise / OpenShift Container Platform
-    '''
+    """ OpenShift Enterprise / OpenShift Container Platform
+    """
 
     packages = ('atomic-openshift',)
 

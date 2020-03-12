@@ -28,20 +28,14 @@ class OpenStackSahara(Plugin):
         self.add_journal(units="openstack-sahara-api")
         self.add_journal(units="openstack-sahara-engine")
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/sahara/",
-                "/var/log/containers/sahara/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/sahara/*.log",
-                "/var/log/containers/sahara/*.log"
-            ], sizelimit=self.limit)
-
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
+            ])
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/sahara/*", regexp, subst)
@@ -54,7 +48,7 @@ class OpenStackSahara(Plugin):
         protect_keys = [
             "admin_password", "memcache_secret_key", "password",
             "qpid_password", "rabbit_password", "ssl_key_password",
-            "xenapi_connection_password"
+            "xenapi_connection_password", "transport_url"
         ]
         connection_keys = ["connection"]
 
@@ -87,12 +81,7 @@ class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
 class RedHatSahara(OpenStackSahara, RedHatPlugin):
     """OpenStack sahara related information for Red Hat distributions."""
 
-    packages = (
-        'openstack-sahara',
-        'openstack-sahara-api',
-        'openstack-sahara-engine',
-        'python-saharaclient'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatSahara, self).setup()

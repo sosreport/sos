@@ -18,7 +18,7 @@ class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     files = ('/var/yp', '/etc/ypserv.conf')
 
-    packages = ('ypserv')
+    packages = ('ypserv',)
 
     def setup(self):
         self.add_copy_spec([

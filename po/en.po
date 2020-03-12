@@ -1,0 +1,166 @@
+# English translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
+# Automatically generated, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-27 09:41+0100\n"
+"PO-Revision-Date: 2007-10-24 08:45\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../sos/sosreport.py:390
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (version %s)"
+
+#: ../sos/sosreport.py:619
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "plugin %s does not validate, skipping"
+
+#: ../sos/sosreport.py:621
+#, fuzzy
+msgid "does not validate"
+msgstr "plugin %s does not validate, skipping"
+
+#: ../sos/sosreport.py:625
+#, fuzzy, python-format
+msgid "plugin %s requires root permissionsto execute, skipping"
+msgstr "plugin %s does not install, skipping"
+
+#: ../sos/sosreport.py:627
+msgid "requires root"
+msgstr ""
+
+#: ../sos/sosreport.py:635
+msgid "excluded"
+msgstr ""
+
+#: ../sos/sosreport.py:639
+msgid "skipped"
+msgstr ""
+
+#: ../sos/sosreport.py:643
+msgid "inactive"
+msgstr ""
+
+#: ../sos/sosreport.py:647
+msgid "optional"
+msgstr ""
+
+#: ../sos/sosreport.py:657
+msgid "not specified"
+msgstr ""
+
+#: ../sos/sosreport.py:665
+#, fuzzy, python-format
+msgid "plugin %s does not install, skipping: %s"
+msgstr "plugin %s does not install, skipping"
+
+#: ../sos/sosreport.py:669
+#, python-format
+msgid "Unknown or inactive profile(s) provided: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:762
+msgid "no valid plugins found"
+msgstr "no valid plugins found"
+
+#: ../sos/sosreport.py:766
+msgid "The following plugins are currently enabled:"
+msgstr "The following plugins are currently enabled:"
+
+#: ../sos/sosreport.py:772
+msgid "No plugin enabled."
+msgstr "No plugin enabled."
+
+#: ../sos/sosreport.py:776
+msgid "The following plugins are currently disabled:"
+msgstr "The following plugins are currently disabled:"
+
+#: ../sos/sosreport.py:787
+msgid "The following plugin options are available:"
+msgstr "The following plugin options are available:"
+
+#: ../sos/sosreport.py:802
+msgid "No plugin options available."
+msgstr "No plugin options available."
+
+#: ../sos/sosreport.py:814
+#, fuzzy
+msgid "no valid profiles found"
+msgstr "no valid plugins found"
+
+#: ../sos/sosreport.py:816
+#, fuzzy
+msgid "The following profiles are available:"
+msgstr "The following plugin options are available:"
+
+#: ../sos/sosreport.py:836
+#, fuzzy
+msgid "no valid presets found"
+msgstr "no valid plugins found"
+
+#: ../sos/sosreport.py:838
+#, fuzzy
+msgid "The following presets are available:"
+msgstr "The following plugin options are available:"
+
+#: ../sos/sosreport.py:859
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "Press ENTER to continue, or CTRL-C to quit.\n"
+
+#: ../sos/sosreport.py:882
+#, fuzzy
+msgid " Setting up archive ..."
+msgstr "Encrypting archive..."
+
+#: ../sos/sosreport.py:927
+msgid " Setting up plugins ..."
+msgstr ""
+
+#: ../sos/sosreport.py:961
+msgid " Running plugins. Please wait ..."
+msgstr ""
+
+#: ../sos/sosreport.py:1169
+msgid "Creating compressed archive..."
+msgstr "Creating compressed archive..."
+
+#: ../sos/sosreport.py:1177
+#, python-format
+msgid " %s while finalizing archive"
+msgstr ""
+
+#: ../sos/sosreport.py:1196
+#, python-format
+msgid "Error moving directory: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1208
+#, python-format
+msgid "Error writing checksum for file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1222
+#, python-format
+msgid "Error moving archive file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1240
+#, python-format
+msgid "Error moving checksum file: %s"
+msgstr ""
+
+#: ../sos/sosreport.py:1255
+msgid "no valid plugins were enabled"
+msgstr "no valid plugins were enabled"

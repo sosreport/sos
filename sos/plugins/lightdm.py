@@ -19,18 +19,16 @@ class LightDm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'lightdm'
 
     def setup(self):
-        self.add_cmd_output("systemctl status lightdm.service")
+        self.add_service_status("lightdm")
         self.add_journal(units="lightdm")
         self.add_copy_spec([
             "/etc/lightdm/lightdm.conf",
             "/etc/lightdm/users.conf"
         ])
         if not self.get_option("all_logs"):
-            limit = self.get_option("log_size")
-            self.add_copy_spec("/var/log/lightdm/lightdm.log", sizelimit=limit)
-            self.add_copy_spec("/var/log/lightdm/x-0-greeter.log",
-                               sizelimit=limit)
-            self.add_copy_spec("/var/log/lightdm/x-0.log", sizelimit=limit)
+            self.add_copy_spec("/var/log/lightdm/lightdm.log")
+            self.add_copy_spec("/var/log/lightdm/x-0-greeter.log")
+            self.add_copy_spec("/var/log/lightdm/x-0.log")
         else:
             self.add_copy_spec("/var/log/lightdm")
 

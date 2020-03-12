@@ -40,7 +40,7 @@ class Rpm(Plugin, RedHatPlugin):
             query_fmt = query_fmt + '%{INSTALLTIME:date}\n"'
 
             filter_cmd = 'awk -F "~~" ' \
-                '"{printf \\"%-59s %s\\n\\",\$1,\$2}"|sort -V'
+                r'"{printf \"%-59s %s\n\",\$1,\$2}"|sort -V'
 
             add_rpm_cmd(query_fmt, filter_cmd, "installed-rpms", None)
 

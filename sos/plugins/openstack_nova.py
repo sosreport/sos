@@ -29,18 +29,9 @@ class OpenStackNova(Plugin):
 
         # collect commands output only if the openstack-nova-api service
         # is running
-        service_status = self.get_command_output(
-            "systemctl status openstack-nova-api.service"
-        )
+        in_container = self.running_in_container()
 
-        container_status = self.get_command_output("docker ps")
-        in_container = False
-        if container_status['status'] == 0:
-            for line in container_status['output'].splitlines():
-                if line.endswith("nova_api"):
-                    in_container = True
-
-        if (service_status['status'] == 0) or in_container:
+        if self.is_service_running('openstack-nova-api') or in_container:
             nova_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -75,7 +66,7 @@ class OpenStackNova(Plugin):
                 self.add_cmd_output("nova service-list")
                 self.add_cmd_output("openstack flavor list --long")
                 self.add_cmd_output("nova network-list")
-                self.add_cmd_output("nova list")
+                self.add_cmd_output("nova list --all-tenants")
                 self.add_cmd_output("nova agent-list")
                 self.add_cmd_output("nova version-list")
                 self.add_cmd_output("nova hypervisor-list")
@@ -83,7 +74,7 @@ class OpenStackNova(Plugin):
                 self.add_cmd_output("openstack hypervisor stats show")
                 # get details for each nova instance
                 cmd = "openstack server list -f value"
-                nova_instances = self.call_ext_prog(cmd)['output']
+                nova_instances = self.exec_cmd(cmd)['output']
                 for instance in nova_instances.splitlines():
                     instance = instance.split()[0]
                     cmd = "openstack server show %s" % (instance)
@@ -91,21 +82,22 @@ class OpenStackNova(Plugin):
                         cmd,
                         suggest_filename="instance-" + instance + ".log")
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/nova/",
-                "/var/log/containers/nova/",
-                "/var/log/containers/httpd/nova-api/",
-                "/var/log/containers/httpd/nova-placement/"
-            ], sizelimit=self.limit)
+            ])
         else:
-            self.add_copy_spec([
-                "/var/log/nova/*.log",
-                "/var/log/containers/nova/*.log",
-                "/var/log/containers/httpd/nova-api/*log",
-                "/var/log/containers/httpd/nova-placement/*log"
-            ], sizelimit=self.limit)
+            novadir = '/var/log/nova/'
+            novalogs = [
+                "nova-api.log*",
+                "nova-compute.log*",
+                "nova-conductor.log*",
+                "nova-manage.log*",
+                "nova-placement-api.log*",
+                "nova-scheduler.log*"
+            ]
+            for novalog in novalogs:
+                self.add_copy_spec(os.path.join(novadir, novalog))
 
         self.add_copy_spec([
             "/etc/nova/",
@@ -129,8 +121,14 @@ class OpenStackNova(Plugin):
             self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config",
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
+    def running_in_container(self):
+        for runtime in ["docker", "podman"]:
+            container_status = self.exec_cmd(runtime + " ps")
+            if container_status['status'] == 0:
+                for line in container_status['output'].splitlines():
+                    if line.endswith("nova_api"):
+                        return True
+        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
@@ -154,7 +152,7 @@ class OpenStackNova(Plugin):
             "xenapi_connection_password", "password", "host_password",
             "vnc_password", "admin_password", "connection_password",
             "memcache_secret_key", "s3_secret_key",
-            "metadata_proxy_shared_secret", "fixed_key"
+            "metadata_proxy_shared_secret", "fixed_key", "transport_url"
         ]
         connection_keys = ["connection", "sql_connection"]
 
@@ -196,10 +194,6 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         'python-novnc'
     )
 
-    def check_enabled(self):
-        self.nova = self.is_installed("nova-common")
-        return self.nova
-
     def setup(self):
         super(DebianNova, self).setup()
         self.add_copy_spec([
@@ -211,27 +205,7 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
 class RedHatNova(OpenStackNova, RedHatPlugin):
 
     nova = False
-    packages = (
-        'openstack-nova-common',
-        'openstack-nova-network',
-        'openstack-nova-conductor',
-        'openstack-nova-conductor',
-        'openstack-nova-scheduler',
-        'openstack-nova-console',
-        'openstack-nova-novncproxy',
-        'openstack-nova-compute',
-        'openstack-nova-api',
-        'openstack-nova-cert',
-        'openstack-nova-cells',
-        'openstack-nova-objectstore',
-        'python-nova',
-        'python-novaclient',
-        'novnc'
-    )
-
-    def check_enabled(self):
-        self.nova = self.is_installed("openstack-nova-common")
-        return self.nova
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatNova, self).setup()
@@ -242,5 +216,15 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
             "/etc/security/limits.d/91-nova.conf",
             "/etc/sysconfig/openstack-nova-novncproxy"
         ])
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/httpd/nova_api*",
+                "/var/log/httpd/placement*",
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/httpd/nova_api*.log",
+                "/var/log/httpd/placement*.log",
+            ])
 
 # vim: set et ts=4 sw=4 :

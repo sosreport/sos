@@ -9,7 +9,6 @@
 from sos.plugins import Plugin, RedHatPlugin
 import os
 import re
-from stat import *
 
 
 class Xen(Plugin, RedHatPlugin):
@@ -21,13 +20,12 @@ class Xen(Plugin, RedHatPlugin):
 
     def determine_xen_host(self):
         if os.access("/proc/acpi/dsdt", os.R_OK):
-            result = self.call_ext_prog("grep -qi xen /proc/acpi/dsdt")
+            result = self.exec_cmd("grep -qi xen /proc/acpi/dsdt")
             if result['status'] == 0:
                 return "hvm"
 
         if os.access("/proc/xen/capabilities", os.R_OK):
-            result = self.call_ext_prog(
-                "grep -q control_d /proc/xen/capabilities")
+            result = self.exec_cmd("grep -q control_d /proc/xen/capabilities")
             if result['status'] == 0:
                 return "dom0"
             else:
@@ -38,7 +36,7 @@ class Xen(Plugin, RedHatPlugin):
         return (self.determine_xen_host() == "baremetal")
 
     def is_running_xenstored(self):
-        xs_pid = self.call_ext_prog("pidof xenstored")['output']
+        xs_pid = self.exec_cmd("pidof xenstored")['output']
         xs_pidnum = re.split('\n$', xs_pid)[0]
         return xs_pidnum.isdigit()
 
@@ -78,7 +76,7 @@ class Xen(Plugin, RedHatPlugin):
                 "xm info",
                 "xm list",
                 "xm list --long",
-                "brctl show"
+                "bridge link show"
             ])
             self.dom_collect_proc()
             if self.is_running_xenstored():

@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from socket import gethostname
 
 
 class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -15,6 +16,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'ceph'
     profiles = ('storage', 'virt')
+    ceph_hostname = gethostname()
 
     packages = (
         'ceph',
@@ -26,59 +28,108 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         'librados2'
     )
 
+    services = (
+        'ceph-nfs@pacemaker',
+        'ceph-mds@%s' % ceph_hostname,
+        'ceph-mon@%s' % ceph_hostname,
+        'ceph-mgr@%s' % ceph_hostname,
+        'ceph-radosgw@*',
+        'ceph-osd@*'
+    )
+
     def setup(self):
         all_logs = self.get_option("all_logs")
-        limit = self.get_option("log_size")
 
         if not all_logs:
             self.add_copy_spec([
                 "/var/log/ceph/*.log",
                 "/var/log/radosgw/*.log",
                 "/var/log/calamari/*.log"
-            ], sizelimit=limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/ceph/",
                 "/var/log/calamari",
                 "/var/log/radosgw"
-            ], sizelimit=limit)
+            ])
 
         self.add_copy_spec([
             "/etc/ceph/",
             "/etc/calamari/",
             "/var/lib/ceph/",
-            "/var/run/ceph/"
+            "/run/ceph/"
         ])
 
         self.add_cmd_output([
-            "ceph status",
-            "ceph health detail",
-            "ceph osd tree",
-            "ceph osd stat",
-            "ceph osd dump",
             "ceph mon stat",
-            "ceph mon dump",
-            "ceph df",
+            "ceph mon_status",
+            "ceph quorum_status",
+            "ceph mgr module ls",
+            "ceph mgr metadata",
+            "ceph osd metadata",
+            "ceph osd erasure-code-profile ls",
             "ceph report",
-            "ceph osd df tree",
-            "ceph fs dump --format json-pretty",
-            "ceph fs ls",
-            "ceph pg dump",
-            "ceph health detail --format json-pretty",
             "ceph osd crush show-tunables",
-            "ceph-disk list"
+            "ceph-disk list",
+            "ceph versions",
+            "ceph features",
+            "ceph insights",
+            "ceph osd crush dump",
+            "ceph -v",
+            "ceph-volume lvm list",
+            "ceph crash stat",
+            "ceph crash ls",
+            "ceph config log",
+            "ceph config generate-minimal-conf",
+            "ceph config-key dump",
         ])
+
+        ceph_cmds = [
+            "status",
+            "health detail",
+            "osd tree",
+            "osd stat",
+            "osd df tree",
+            "osd dump",
+            "osd df",
+            "osd perf",
+            "osd blocked-by",
+            "osd pool ls detail",
+            "osd numa-status",
+            "device ls",
+            "mon dump",
+            "mgr dump",
+            "mds stat",
+            "df",
+            "df detail",
+            "fs ls",
+            "fs dump",
+            "pg dump",
+            "pg stat",
+        ]
+
+        self.add_cmd_output([
+            "ceph %s" % s for s in ceph_cmds
+        ])
+
+        self.add_cmd_output([
+            "ceph %s --format json-pretty" % s for s in ceph_cmds
+        ], subdir="json_output")
+
+        self.add_service_status(self.services)
+        for service in self.services:
+            self.add_journal(units=service)
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
             "/var/lib/ceph/*keyring*",
             "/var/lib/ceph/*/*keyring*",
             "/var/lib/ceph/*/*/*keyring*",
-            "/var/lib/ceph/osd/*",
-            "/var/lib/ceph/mon/*",
+            "/var/lib/ceph/osd",
+            "/var/lib/ceph/mon",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            "var/lib/ceph/tmp/*mnt*",
+            "/var/lib/ceph/tmp/*mnt*",
             "/etc/ceph/*bindpass*"
         ])
 

@@ -43,26 +43,18 @@ class OpenStackIronic(Plugin):
             self.var_puppet_gen + "_api/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/ironic/",
-                "/var/log/containers/ironic/",
-                "/var/log/containers/httpd/ironic-api/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/ironic/*.log",
-                "/var/log/containers/ironic/*.log",
-                "/var/log/containers/httpd/ironic-api/*log"
-            ], sizelimit=self.limit)
+            ])
 
         for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
             self.add_cmd_output('ls -laRt %s' % path)
             self.add_cmd_output('ls -laRt %s' % (self.var_puppet_gen + path))
-
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
@@ -90,7 +82,7 @@ class OpenStackIronic(Plugin):
         protect_keys = [
             "dns_passkey", "memcache_secret_key", "rabbit_password",
             "password", "qpid_password", "admin_password", "ssl_key_password",
-            "os_password"
+            "os_password", "transport_url"
         ]
         connection_keys = ["connection", "sql_connection"]
 
@@ -119,11 +111,7 @@ class DebianIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):
 
 class RedHatIronic(OpenStackIronic, RedHatPlugin):
 
-    packages = [
-        'openstack-ironic-api',
-        'openstack-ironic-common',
-        'openstack-ironic-conductor',
-    ]
+    packages = ('openstack-selinux',)
 
     discoverd_packages = [
         'openstack-ironic-discoverd',
@@ -131,8 +119,9 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
     ]
 
     def collect_introspection_data(self):
-        uuids_result = self.call_ext_prog('openstack baremetal node list '
-                                          '-f value -c UUID')
+        uuids_result = self.collect_cmd_output(
+            'openstack baremetal node list -f value -c UUID'
+        )
         if uuids_result['status']:
             self.soslog.warning('Failed to fetch list of ironic node UUIDs, '
                                 'introspection data won\'t be collected')
@@ -165,12 +154,9 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
         self.add_copy_spec('/var/lib/ironic-inspector/')
         if self.get_option("all_logs"):
             self.add_copy_spec('/var/log/ironic-inspector/')
-            self.add_copy_spec('/var/log/containers/ironic-inspector/')
         else:
             self.add_copy_spec('/var/log/ironic-inspector/*.log')
             self.add_copy_spec('/var/log/ironic-inspector/ramdisk/')
-            self.add_copy_spec('/var/log/containers/ironic-inspector/*.log')
-            self.add_copy_spec('/var/log/containers/ironic-inspector/ramdisk/')
 
         self.add_journal(units="openstack-ironic-inspector-dnsmasq")
 

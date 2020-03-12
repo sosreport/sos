@@ -22,7 +22,7 @@ class Mysql(Plugin):
 
     option_list = [
         ("dbuser", "username for database dumps", "", "mysql"),
-        ("dbpass", "password for database dumps" + pw_warn_text, "", False),
+        ("dbpass", "password for database dumps" + pw_warn_text, "", ""),
         ("dbdump", "collect a database dump", "", False)
     ]
 
@@ -34,14 +34,13 @@ class Mysql(Plugin):
             # Required for MariaDB under pacemaker (MariaDB-Galera)
             "/var/log/mysqld.log",
             "/var/log/mysql/mysqld.log",
-            "/var/log/containers/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
+            "/var/lib/mysql/grastate.dat"
         ])
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/mysql*",
-                "/var/log/containers/mysql*",
                 "/var/log/mariadb*"
             ])
 
@@ -82,7 +81,8 @@ class RedHatMysql(Mysql, RedHatPlugin):
         'mysql-server',
         'mysql',
         'mariadb-server',
-        'mariadb'
+        'mariadb',
+        'openstack-selinux'
     )
 
     def setup(self):

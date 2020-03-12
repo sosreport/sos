@@ -12,8 +12,8 @@ from sos.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class Host(Plugin, RedHatPlugin, DebianPlugin):
-    '''Host information
-    '''
+    """Host information
+    """
 
     plugin_name = 'host'
     profiles = ('system',)
@@ -32,4 +32,10 @@ class Host(Plugin, RedHatPlugin, DebianPlugin):
         self.add_copy_spec([
             '/etc/sos.conf',
             '/etc/hostid',
+        ])
+
+        self.add_env_var([
+            'REMOTEHOST',
+            'TERM',
+            'COLORTERM'
         ])

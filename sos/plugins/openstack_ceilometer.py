@@ -25,23 +25,18 @@ class OpenStackCeilometer(Plugin):
 
     def setup(self):
         # Ceilometer
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/ceilometer/*",
-                "/var/log/containers/ceilometer/*"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/ceilometer/*.log",
-                "/var/log/containers/ceilometer/*.log"
-            ], sizelimit=self.limit)
+            ])
         self.add_copy_spec([
             "/etc/ceilometer/*",
             self.var_puppet_gen + "/etc/ceilometer/*"
         ])
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/ceilometer/*", regexp, subst)
@@ -55,7 +50,8 @@ class OpenStackCeilometer(Plugin):
             "admin_password", "connection_password", "host_password",
             "memcache_secret_key", "os_password", "password", "qpid_password",
             "rabbit_password", "readonly_user_password", "secret_key",
-            "ssl_key_password", "telemetry_secret", "metering_secret"
+            "ssl_key_password", "telemetry_secret", "metering_secret",
+            "transport_url"
         ]
         connection_keys = ["connection"]
 
@@ -86,25 +82,17 @@ class DebianCeilometer(OpenStackCeilometer, DebianPlugin,
 
 class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
 
-    packages = (
-        'openstack-ceilometer',
-        'openstack-ceilometer-api',
-        'openstack-ceilometer-central',
-        'openstack-ceilometer-collector',
-        'openstack-ceilometer-common',
-        'openstack-ceilometer-compute',
-        'python-ceilometerclient'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatCeilometer, self).setup()
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/httpd/ceilometer*",
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/httpd/ceilometer*.log",
-            ], sizelimit=self.limit)
+            ])
 
 # vim: set et ts=4 sw=4 :

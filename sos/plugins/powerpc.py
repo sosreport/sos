@@ -29,7 +29,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 contents = fp.read()
                 ispSeries = "pSeries" in contents
                 isPowerNV = "PowerNV" in contents
-        except:
+        except IOError:
             ispSeries = False
             isPowerNV = False
 
@@ -45,6 +45,7 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/var/lib/lsvpd/"
             ])
             self.add_cmd_output([
+                "ppc64_cpu --info",
                 "ppc64_cpu --smt",
                 "ppc64_cpu --cores-present",
                 "ppc64_cpu --cores-on",
@@ -59,8 +60,11 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/proc/ppc64/lparcfg",
                 "/proc/ppc64/eeh",
                 "/proc/ppc64/systemcfg",
-                "/var/log/platform"
+                "/var/log/platform",
+                "/var/log/drmgr",
+                "/var/log/drmgr.0"
             ])
+            ctsnap_path = self.get_cmd_output_path(name="ctsnap", make=True)
             self.add_cmd_output([
                 "servicelog --dump",
                 "servicelog_notify --list",
@@ -68,7 +72,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "usysident",
                 "serv_config -l",
                 "bootlist -m both -r",
-                "lparstat -i"
+                "lparstat -i",
+                "ctsnap -xrunrpttr -d %s" % (ctsnap_path)
             ])
 
         if isPowerNV:
@@ -77,7 +82,8 @@ class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
                 "/proc/ppc64/systemcfg",
                 "/proc/ppc64/topology_updates",
                 "/sys/firmware/opal/msglog",
-                "/var/log/opal-elog/"
+                "/var/log/opal-elog/",
+                "/var/log/opal-prd"
             ])
             if os.path.isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")

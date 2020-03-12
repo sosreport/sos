@@ -20,6 +20,8 @@ class Ctdb(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
+            "/etc/ctdb/ctdb.conf",
+            "/etc/ctdb/*.options",
             "/etc/ctdb/nodes",
             "/etc/ctdb/public_addresses",
             "/etc/ctdb/static-routes",
@@ -35,7 +37,8 @@ class Ctdb(Plugin, DebianPlugin, UbuntuPlugin):
             "ctdb listnodes",
             "ctdb listvars",
             "ctdb statistics",
-            "ctdb getdbmap"
+            "ctdb getdbmap",
+            "ctdb event script list legacy"
         ])
 
 

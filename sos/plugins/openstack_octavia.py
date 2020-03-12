@@ -9,12 +9,11 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class OpenStackOctavia(Plugin):
     """Openstack Octavia"""
 
     plugin_name = "openstack_octavia"
     profiles = ('openstack', 'openstack_controller')
-    packages = ('openstack-octavia-common',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/octavia"
 
@@ -31,22 +30,17 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         # don't collect certificates
-        self.add_forbidden_path("/etc/octavia/certs/")
+        self.add_forbidden_path("/etc/octavia/certs")
 
         # logs
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
-                "/var/log/containers/httpd/octavia-api/*",
-                "/var/log/containers/octavia/*",
                 "/var/log/octavia/*",
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
-                "/var/log/containers/httpd/octavia-api/*.log",
-                "/var/log/containers/octavia/*.log",
                 "/var/log/octavia/*.log",
-            ], sizelimit=self.limit)
+            ])
 
         # commands
         self.add_cmd_output([
@@ -61,7 +55,7 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         # get details from each loadbalancer
         cmd = "openstack loadbalancer list -f value -c id"
-        loadbalancers = self.call_ext_prog(cmd)['output']
+        loadbalancers = self.exec_cmd(cmd)['output']
         for loadbalancer in loadbalancers.splitlines():
             loadbalancer = loadbalancer.split()[0]
             self.add_cmd_output(
@@ -70,7 +64,7 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         # get details from each l7policy
         cmd = "openstack loadbalancer l7policy list -f value -c id"
-        l7policies = self.call_ext_prog(cmd)['output']
+        l7policies = self.exec_cmd(cmd)['output']
         for l7policy in l7policies.splitlines():
             l7policy = l7policy.split()[0]
             self.add_cmd_output(
@@ -79,20 +73,17 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         # get details from each pool
         cmd = "openstack loadbalancer pool list -f value -c id"
-        pools = self.call_ext_prog(cmd)['output']
+        pools = self.exec_cmd(cmd)['output']
         for pool in pools.splitlines():
             pool = pool.split()[0]
             self.add_cmd_output(
                 "openstack loadbalancer member list %s" % (pool)
             )
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
     def postproc(self):
         protect_keys = [
             "ca_private_key_passphrase", "heartbeat_key", "password",
-            "connection"
+            "connection", "transport_url"
         ]
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
@@ -101,5 +92,15 @@ class OpenStackOctavia(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             self.var_puppet_gen + "/etc/octavia/*",
             regexp, r"\1*********"
         )
+
+
+class DebianOctavia(OpenStackOctavia, DebianPlugin, UbuntuPlugin):
+
+    packages = ('octavia-common',)
+
+
+class RedHatOctavia(OpenStackOctavia, RedHatPlugin):
+
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

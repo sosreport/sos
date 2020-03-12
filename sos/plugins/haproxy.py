@@ -48,8 +48,8 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
                 if matched:
                     provision_ip = line.split()[1]
                     break
-                matched = match(".*haproxy\.stats.*", line)
-        except:
+                matched = match(r".*haproxy\.stats.*", line)
+        except IOError:
             # fallback when the cfg file is not accessible
             pass
 
@@ -60,7 +60,7 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
         if urlparse("http://"+provision_ip).port is None:
             provision_ip = provision_ip + ":1993"
 
-        self.add_cmd_output("curl http://"+provision_ip+"/\;csv",
+        self.add_cmd_output("curl http://"+provision_ip+r"/\;csv",
                             suggest_filename="haproxy_overview.txt")
 
 # vim: set et ts=4 sw=4 :

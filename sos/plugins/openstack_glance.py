@@ -25,19 +25,14 @@ class OpenStackGlance(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/glance_api"
 
     def setup(self):
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/glance/",
-                "/var/log/containers/glance/",
-                "/var/log/containers/httpd/glance-api/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/glance/*.log",
-                "/var/log/containers/glance/*.log",
-                "/var/log/containers/httpd/glance-api/*log"
-            ], sizelimit=self.limit)
+            ])
 
         self.add_copy_spec([
             "/etc/glance/",
@@ -45,23 +40,11 @@ class OpenStackGlance(Plugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
         # collect commands output only if the openstack-glance-api service
         # is running
-        service_status = self.get_command_output(
-            "systemctl status openstack-glance-api.service"
-        )
+        in_container = self.running_in_container()
 
-        container_status = self.get_command_output("docker ps")
-        in_container = False
-        if container_status['status'] == 0:
-            for line in container_status['output'].splitlines():
-                if line.endswith("glance_api"):
-                    in_container = True
-
-        if (service_status['status'] == 0) or in_container:
+        if self.is_service_running('openstack-glance-api') or in_container:
             glance_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -87,6 +70,15 @@ class OpenStackGlance(Plugin):
             else:
                 self.add_cmd_output("openstack image list --long")
 
+    def running_in_container(self):
+        for runtime in ["docker", "podman"]:
+            container_status = self.exec_cmd(runtime + " ps")
+            if container_status['status'] == 0:
+                for line in container_status['output'].splitlines():
+                    if line.endswith("glance_api"):
+                        return True
+        return False
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)
         self.do_path_regex_sub(
@@ -97,7 +89,8 @@ class OpenStackGlance(Plugin):
     def postproc(self):
         protect_keys = [
             "admin_password", "password", "qpid_password", "rabbit_password",
-            "s3_store_secret_key", "ssl_key_password", "vmware_server_password"
+            "s3_store_secret_key", "ssl_key_password",
+            "vmware_server_password", "transport_url"
         ]
         connection_keys = ["connection"]
 
@@ -126,9 +119,6 @@ class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
 
 class RedHatGlance(OpenStackGlance, RedHatPlugin):
 
-    packages = (
-        'openstack-glance',
-        'python-glanceclient'
-    )
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

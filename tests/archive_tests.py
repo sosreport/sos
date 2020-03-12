@@ -1,5 +1,10 @@
-#!/usr/bin/env python
-
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
 import unittest
 import os
 import tarfile
@@ -9,6 +14,7 @@ import shutil
 
 from sos.archive import TarFileArchive
 from sos.utilities import tail
+from sos.policies import Policy
 
 # PYCOMPAT
 import six
@@ -18,7 +24,8 @@ class TarFileArchiveTest(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-        self.tf = TarFileArchive('test', self.tmpdir)
+        enc = {'encrypt': False}
+        self.tf = TarFileArchive('test', self.tmpdir, Policy(), 1, enc, '/')
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -92,7 +99,9 @@ class TarFileArchiveTest(unittest.TestCase):
         afp = self.tf.open_file('tests/string_test.txt')
         self.assertEquals('this is my content', afp.read())
 
-    def test_overwrite_file(self):
+    def test_rewrite_file(self):
+        """Test that re-writing a file with add_string() modifies the content.
+        """
         self.tf.add_string('this is my content', 'tests/string_test.txt')
         self.tf.add_string('this is my new content', 'tests/string_test.txt')
 
@@ -108,6 +117,7 @@ class TarFileArchiveTest(unittest.TestCase):
 
     def test_compress(self):
         self.tf.finalize("auto")
+
 
 if __name__ == "__main__":
     unittest.main()

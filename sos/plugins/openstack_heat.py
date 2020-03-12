@@ -26,18 +26,9 @@ class OpenStackHeat(Plugin):
 
         # collect commands output only if the openstack-heat-api service
         # is running
-        service_status = self.get_command_output(
-            "systemctl status openstack-heat-api.service"
-        )
+        in_container = self.running_in_container()
 
-        container_status = self.get_command_output("docker ps")
-        in_container = False
-        if container_status['status'] == 0:
-            for line in container_status['output'].splitlines():
-                if line.endswith("heat_api"):
-                    in_container = True
-
-        if (service_status['status'] == 0) or in_container:
+        if self.is_service_running('openstack-heat-api') or in_container:
             heat_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -63,21 +54,14 @@ class OpenStackHeat(Plugin):
             else:
                 self.add_cmd_output("openstack stack list")
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/heat/",
-                "/var/log/containers/heat/",
-                "/var/log/containers/httpd/heat-api/",
-                "/var/log/containers/httpd/heat-api-cfn"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/heat/*.log",
-                "/var/log/containers/heat/*.log",
-                "/var/log/containers/httpd/heat-api/*log",
-                "/var/log/containers/httpd/heat-api-cfn/*log"
-            ], sizelimit=self.limit)
+            ])
 
         self.add_copy_spec([
             "/etc/heat/",
@@ -95,8 +79,14 @@ class OpenStackHeat(Plugin):
             self.var_puppet_gen + "_api_cfn/var/spool/cron/heat",
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
+    def running_in_container(self):
+        for runtime in ["docker", "podman"]:
+            container_status = self.exec_cmd(runtime + " ps")
+            if container_status['status'] == 0:
+                for line in container_status['output'].splitlines():
+                    if line.endswith("heat_api"):
+                        return True
+        return False
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub(
@@ -119,6 +109,7 @@ class OpenStackHeat(Plugin):
         protect_keys = [
             "admin_password", "memcache_secret_key", "password",
             "qpid_password", "rabbit_password", "stack_domain_admin_password",
+            "transport_url"
         ]
         connection_keys = ["connection"]
 
@@ -148,14 +139,6 @@ class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
 
 class RedHatHeat(OpenStackHeat, RedHatPlugin):
 
-    packages = (
-        'openstack-heat-api',
-        'openstack-heat-api-cfn',
-        'openstack-heat-api-cloudwatch',
-        'openstack-heat-cli',
-        'openstack-heat-common',
-        'openstack-heat-engine',
-        'python-heatclient'
-    )
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

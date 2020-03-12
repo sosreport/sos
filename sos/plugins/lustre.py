@@ -10,17 +10,17 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class Lustre(Plugin, RedHatPlugin):
-    '''Lustre filesystem'''
+    """Lustre filesystem"""
 
     plugin_name = 'lustre'
     profiles = ('storage', 'network', 'cluster', )
     packages = ('lustre', 'lustre-client', )
 
     def get_params(self, name, param_list):
-        '''Use lctl get_param to collect a selection of parameters into a
+        """Use lctl get_param to collect a selection of parameters into a
             file.
 
-        '''
+        """
         self.add_cmd_output("lctl get_param %s" % " ".join(param_list),
                             suggest_filename="params-%s" % name,
                             stderr=False)
@@ -50,5 +50,9 @@ class Lustre(Plugin, RedHatPlugin):
                                 "kbytes*,blocksize,brw_stats}"])
         self.get_params("quota", ["osd-*.*.quota_slave." +
                                   "{info,limit_*,acct_*}"])
+
+        # Grab emergency ring buffer dumps
+        if self.get_option("all_logs"):
+            self.add_copy_spec("/tmp/lustre-log.*")
 
 # vim: set et ts=4 sw=4 :

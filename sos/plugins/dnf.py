@@ -24,50 +24,41 @@ class DNFPlugin(Plugin, RedHatPlugin):
         ("history-info", "detailed transaction history", "slow", False),
     ]
 
-    def get_modules_info(self, module_file):
-        if module_file:
-            try:
-                module_out = open(module_file).read()
-            except:
-                self._log_warn("could not read module list file")
-                return
-            # take just lines with the module names, i.e. containing "[i]" and
-            # not the "Hint: [d]efault, [e]nabled, [i]nstalled,.."
-            for line in module_out.splitlines():
-                if "[i]" in line:
-                    module = line.split()[0]
-                    if module != "Hint:":
-                        self.add_cmd_output("dnf module info " + module)
+    def get_modules_info(self, modules):
+        if not modules:
+            return
+        # take just lines with the module names, i.e. containing "[i]" and
+        # not the "Hint: [d]efault, [e]nabled, [i]nstalled,.."
+        for line in modules.splitlines():
+            if "[i]" in line:
+                module = line.split()[0]
+                if module != "Hint:":
+                    self.add_cmd_output("dnf module info " + module)
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/dnf/dnf.conf",
-            "/etc/dnf/plugins/*",
-            "/etc/dnf/protected.d/*",
-        ])
+        self.add_copy_spec("/etc/dnf/")
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/dnf.*", sizelimit=self.limit)
+            self.add_copy_spec("/var/log/dnf.*")
         else:
-            self.add_copy_spec("/var/log/dnf.log", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/dnf.librepo.log",
-                               sizelimit=self.limit)
-            self.add_copy_spec("/var/log/dnf.rpm.log", sizelimit=self.limit)
+            self.add_copy_spec("/var/log/dnf.log*")
+            self.add_copy_spec("/var/log/dnf.librepo.log*")
+            self.add_copy_spec("/var/log/dnf.rpm.log*")
 
         self.add_cmd_output([
             "dnf --version",
             "dnf list installed *dnf*",
             "dnf list extras",
+            "dnf module list",
             "package-cleanup --dupes",
             "package-cleanup --problems"
         ])
 
-        if self.get_option("history"):
+        if self.get_option("history") and not self.get_option("history-info"):
             self.add_cmd_output("dnf history")
 
         if self.get_option("history-info"):
-            history = self.call_ext_prog("dnf history")
+            history = self.collect_cmd_output("dnf history")
             transactions = -1
             if history['output']:
                 for line in history['output'].splitlines():
@@ -80,7 +71,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
                 self.add_cmd_output("dnf history info %d" % tr_id)
 
         # Get list of dnf installed modules and their details.
-        module_file = self.get_cmd_output_now("dnf module list --installed")
-        self.get_modules_info(module_file)
+        modules = self.collect_cmd_output("dnf module list --installed")
+        self.get_modules_info(modules['output'])
 
 # vim: set et ts=4 sw=4 :

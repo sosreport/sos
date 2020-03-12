@@ -27,7 +27,7 @@ class Veritas(Plugin, RedHatPlugin):
 
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
-        r = self.call_ext_prog(self.get_option("script"))
+        r = self.exec_cmd(self.get_option("script"))
         if r['status'] == 0:
             tarfile = ""
             for line in r['output']:

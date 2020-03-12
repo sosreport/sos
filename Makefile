@@ -34,10 +34,12 @@ PO_DIR = $(SRC_BUILD)/sos/po
 docs:
 	make -C docs html man
 
+.PHONY: build
 build:
 	for d in $(SUBDIRS); do make -C $$d; [ $$? = 0 ] || exit 1 ; done
 
-install: updateversion
+.PHONY: install
+install:
 	mkdir -p $(DESTDIR)/usr/sbin
 	mkdir -p $(DESTDIR)/usr/share/man/man1
 	mkdir -p $(DESTDIR)/usr/share/man/man5
@@ -51,9 +53,6 @@ install: updateversion
 	install -m644 AUTHORS README.md $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
 	for d in $(SUBDIRS); do make DESTDIR=`cd $(DESTDIR); pwd` -C $$d install; [ $$? = 0 ] || exit 1; done
-
-updateversion:
-	sed 's/@SOSVERSION@/$(VERSION)/g' sos/__init__.py.in > sos/__init__.py
 
 $(NAME)-$(VERSION).tar.gz: clean
 	@mkdir -p $(ARCHIVE_DIR)

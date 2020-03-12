@@ -22,8 +22,9 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     packages = ('rabbitmq-server',)
 
     def setup(self):
-        container_status = self.get_command_output(
-            "docker ps -a --format='{{ .Names }}'")
+        container_status = self.exec_cmd(
+            "docker ps -a --format='{{ .Names }}'"
+        )
 
         in_container = False
         container_names = []
@@ -51,8 +52,7 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
         self.add_copy_spec([
             "/var/log/rabbitmq/*",
-            "/var/log/containers/rabbitmq/*"
-        ], sizelimit=self.get_option('log_size'))
+        ])
 
     def postproc(self):
         self.do_file_sub("/etc/rabbitmq/rabbitmq.conf",

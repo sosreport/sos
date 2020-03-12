@@ -23,10 +23,8 @@ class OpenVSwitch(Plugin):
     def setup(self):
 
         all_logs = self.get_option("all_logs")
-        limit = self.get_option("log_size")
 
         log_dirs = [
-            '/var/log/containers/openvswitch/',
             '/var/log/openvswitch/',
             '/usr/local/var/log/openvswitch/',
         ]
@@ -35,16 +33,13 @@ class OpenVSwitch(Plugin):
             log_dirs.append(environ.get('OVS_LOGDIR'))
 
         if not all_logs:
-            self.add_copy_spec([path_join(ld, '*.log') for ld in log_dirs],
-                               sizelimit=limit)
-            self.add_copy_spec([path_join(ld, '*.log') for ld in log_dirs],
-                               sizelimit=limit)
+            self.add_copy_spec([path_join(ld, '*.log') for ld in log_dirs])
         else:
-            self.add_copy_spec(log_dirs, sizelimit=limit)
+            self.add_copy_spec(log_dirs)
 
         self.add_copy_spec([
-            "/var/run/openvswitch/ovsdb-server.pid",
-            "/var/run/openvswitch/ovs-vswitchd.pid"
+            "/run/openvswitch/ovsdb-server.pid",
+            "/run/openvswitch/ovs-vswitchd.pid"
         ])
 
         self.add_cmd_output([
@@ -53,13 +48,15 @@ class OpenVSwitch(Plugin):
             "ovs-dpctl -s show",
             # Capture the in-kernel flow information if it exists
             "ovs-dpctl dump-flows -m",
+            # Capture the flow information also for offloaded rules
+            "ovs-dpctl dump-flows type=offloaded -m",
             # The '-t 5' adds an upper bound on how long to wait to connect
             # to the Open vSwitch server, avoiding hangs when running sos.
             "ovs-vsctl -t 5 show",
             # Gather the database.
             "ovsdb-client -f list dump",
             # List the contents of runtime directory
-            "ls -laZ /var/run/openvswitch",
+            "ls -laZ /run/openvswitch",
             # List devices and their drivers
             "dpdk_nic_bind --status",
             "dpdk_devbind.py --status",
@@ -85,12 +82,20 @@ class OpenVSwitch(Plugin):
             "ovs-vsctl -t 5 get Open_vSwitch . other_config",
             # Capture OVS list
             "ovs-vsctl list Open_vSwitch",
+            # Capture OVS interface list
+            "ovs-vsctl list interface",
+            # Capture OVS detailed information from all the bridges
+            "ovs-vsctl list bridge",
             # Capture DPDK datapath packet counters and config
             "ovs-appctl dpctl/show -s",
+            # Capture DPDK datapath flows
+            "ovs-appctl dpctl/dump-flows",
             # Capture DPDK queue to pmd mapping
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
-            "ovs-appctl dpif-netdev/pmd-stats-show"
+            "ovs-appctl dpif-netdev/pmd-stats-show",
+            # Capture DPDK pmd performance counters
+            "ovs-appctl dpif-netdev/pmd-perf-show"
         ])
 
         # Gather systemd services logs
@@ -100,7 +105,7 @@ class OpenVSwitch(Plugin):
         self.add_journal(units="ovsdb-server")
 
         # Gather additional output for each OVS bridge on the host.
-        br_list_result = self.call_ext_prog("ovs-vsctl list-br")
+        br_list_result = self.collect_cmd_output("ovs-vsctl list-br")
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
                 self.add_cmd_output([
@@ -110,7 +115,8 @@ class OpenVSwitch(Plugin):
                     "ovs-ofctl dump-ports %s" % br,
                     "ovs-ofctl queue-get-config %s" % br,
                     "ovs-ofctl queue-stats %s" % br,
-                    "ovs-ofctl show %s" % br
+                    "ovs-ofctl show %s" % br,
+                    "ovs-appctl fdb/stats-show %s" % br
                 ])
 
                 # Flow protocols currently supported
@@ -123,10 +129,9 @@ class OpenVSwitch(Plugin):
 
                 # List protocols currently in use, if any
                 ovs_list_bridge_cmd = "ovs-vsctl list bridge %s" % br
-                br_info_file = self.get_cmd_output_now(ovs_list_bridge_cmd)
+                br_info = self.collect_cmd_output(ovs_list_bridge_cmd)
 
-                br_info = open(br_info_file).read()
-                for line in br_info.splitlines():
+                for line in br_info['output'].splitlines():
                     if "protocols" in line:
                         br_protos_ln = line[line.find("[")+1:line.find("]")]
                         br_protos = br_protos_ln.replace('"', '').split(", ")
@@ -143,11 +148,12 @@ class OpenVSwitch(Plugin):
                         ])
 
         # Gather info on the DPDK mempools associated with each DPDK port
-        br_list_result = self.call_ext_prog("ovs-vsctl -t 5 list-br")
+        br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
-                port_list_result = self.call_ext_prog("ovs-vsctl -t 5 "
-                                                      "list-ports %s" % br)
+                port_list_result = self.exec_cmd(
+                    "ovs-vsctl -t 5 list-ports %s" % br
+                )
                 if port_list_result['status'] == 0:
                     for port in port_list_result['output'].splitlines():
                         self.add_cmd_output(
@@ -157,12 +163,13 @@ class OpenVSwitch(Plugin):
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
-    packages = ('openvswitch', 'openvswitch-dpdk')
+    packages = ('openvswitch', 'openvswitch2.*',
+                'openvswitch-dpdk', 'nuage-openvswitch')
 
 
 class DebianOpenVSwitch(OpenVSwitch, DebianPlugin, UbuntuPlugin):
 
-    packages = ('openvswitch-switch',)
+    packages = ('openvswitch-switch', 'nuage-openvswitch')
 
 
 # vim: set et ts=4 sw=4 :

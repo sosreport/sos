@@ -23,12 +23,12 @@ class RedHatSquid(Squid, RedHatPlugin):
     packages = ('squid',)
 
     def setup(self):
-        log_size = self.get_option('log_size')
-        log_path = "/var/log/squid/"
-        self.add_copy_spec("/etc/squid/squid.conf")
-        self.add_copy_spec(log_path + "access.log", sizelimit=log_size)
-        self.add_copy_spec(log_path + "cache.log", sizelimit=log_size)
-        self.add_copy_spec(log_path + "squid.out", sizelimit=log_size)
+        self.add_copy_spec([
+            "/etc/squid/squid.conf",
+            "/var/log/squid/access.log*",
+            "/var/log/squid/cache.log*",
+            "/var/log/squid/squid.out*"
+        ])
 
 
 class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
@@ -38,11 +38,9 @@ class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
     packages = ('squid3',)
 
     def setup(self):
-        self.add_copy_spec("/etc/squid3/squid.conf",
-                           sizelimit=self.get_option('log_size'))
-        self.add_copy_spec("/var/log/squid3/*",
-                           sizelimit=self.get_option('log_size'))
-        self.add_copy_spec(['/etc/squid-deb-proxy'])
-        self.add_copy_spec("/var/log/squid-deb-proxy/*",
-                           sizelimit=self.get_option('log_size'))
+        self.add_copy_spec("/etc/squid3/squid.conf")
+        self.add_copy_spec("/var/log/squid3/*")
+        self.add_copy_spec('/etc/squid-deb-proxy')
+        self.add_copy_spec("/var/log/squid-deb-proxy/*")
+
 # vim: set et ts=4 sw=4 :

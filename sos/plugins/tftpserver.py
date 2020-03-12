@@ -8,10 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class TftpServer(Plugin, RedHatPlugin):
+class TftpServer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """TFTP server
     """
 
@@ -23,5 +23,7 @@ class TftpServer(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output("ls -lanR /tftpboot")
+        self.add_cmd_output('ls -lanR /srv/tftp')
+
 
 # vim: set et ts=4 sw=4 :

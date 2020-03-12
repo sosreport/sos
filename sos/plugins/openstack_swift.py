@@ -24,20 +24,14 @@ class OpenStackSwift(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated"
 
     def setup(self):
-
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/swift/",
-                "/var/log/containers/swift/",
-                "/var/log/containers/httpd/swift-proxy/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/swift/*.log",
-                "/var/log/containers/swift/*.log",
-                "/var/log/containers/httpd/swift-proxy/*log"
-            ], sizelimit=self.limit)
+            ])
 
         self.add_copy_spec([
             "/etc/swift/",
@@ -47,13 +41,10 @@ class OpenStackSwift(Plugin):
             self.var_puppet_gen + "/memcached/etc/sysconfig/memcached"
         ])
 
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
-
     def apply_regex_sub(self, regexp, subst):
-        self.do_path_regex_sub("/etc/swift/.*\.conf.*", regexp, subst)
+        self.do_path_regex_sub(r"/etc/swift/.*\.conf.*", regexp, subst)
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/swift/etc/swift/.*\.conf.*",
+            self.var_puppet_gen + r"/swift/etc/swift/.*\.conf.*",
             regexp, subst
         )
 
@@ -62,7 +53,7 @@ class OpenStackSwift(Plugin):
             "ldap_dns_password", "neutron_admin_password", "rabbit_password",
             "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
             "xenapi_connection_password", "password", "host_password",
-            "vnc_password", "admin_password"
+            "vnc_password", "admin_password", "transport_url"
         ]
         connection_keys = ["connection", "sql_connection"]
 
@@ -93,14 +84,6 @@ class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
 
 class RedHatSwift(OpenStackSwift, RedHatPlugin):
 
-    packages = (
-        'openstack-swift',
-        'openstack-swift-account',
-        'openstack-swift-container',
-        'openstack-swift-object',
-        'openstack-swift-proxy',
-        'swift',
-        'python-swiftclient'
-    )
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :

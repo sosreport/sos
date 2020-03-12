@@ -43,10 +43,17 @@ class Autofs(Plugin):
 
     def setup(self):
         self.add_copy_spec("/etc/auto*")
-        self.add_cmd_output("service autofs status")
+        self.add_service_status("autofs")
         self.add_cmd_output("automount -m")
         if self.checkdebug():
             self.add_copy_spec(self.getdaemondebug())
+
+    def postproc(self):
+        self.do_path_regex_sub(
+            "/etc/auto*",
+            r"(password=)[^,\s]*",
+            r"\1********"
+        )
 
 
 class RedHatAutofs(Autofs, RedHatPlugin):

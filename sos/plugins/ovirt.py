@@ -38,14 +38,10 @@ class Ovirt(Plugin, RedHatPlugin):
 
     DB_PASS_FILES = re.compile(
         flags=re.VERBOSE,
-        pattern=r"""
-        ^
-        /etc/
+        pattern=r"""^/etc/
         (rhevm|ovirt-engine|ovirt-engine-dwh)/
         (engine.conf|ovirt-engine-dwhd.conf)
-        (\.d/.+.conf.*?)?
-        $
-        """
+        (\.d/.+.conf.*?)?$"""
     )
 
     DEFAULT_SENSITIVE_KEYS = (
@@ -57,15 +53,17 @@ class Ovirt(Plugin, RedHatPlugin):
         ('jbosstrace', 'Enable oVirt Engine JBoss stack trace collection',
          '', True),
         ('sensitive_keys', 'Sensitive keys to be masked',
-         '', DEFAULT_SENSITIVE_KEYS)
+         '', DEFAULT_SENSITIVE_KEYS),
+        ('heapdump', 'Collect heap dumps from /var/log/ovirt-engine/dump/',
+         '', False)
     ]
 
     def setup(self):
         if self.get_option('jbosstrace') and self.is_installed('ovirt-engine'):
-            engine_pattern = "^ovirt-engine\ -server.*jboss-modules.jar"
+            engine_pattern = r"^ovirt-engine\ -server.*jboss-modules.jar"
             pgrep = "pgrep -f '%s'" % engine_pattern
-            lines = self.call_ext_prog(pgrep)['output'].splitlines()
-            engine_pids = [int(x) for x in lines]
+            r = self.exec_cmd(pgrep)
+            engine_pids = [int(x) for x in r['output'].splitlines()]
             if not engine_pids:
                 self.soslog.error('Unable to get ovirt-engine pid')
                 self.add_alert('Unable to get ovirt-engine pid')
@@ -81,8 +79,16 @@ class Ovirt(Plugin, RedHatPlugin):
             '/etc/rhevm/.pgpass'
         ])
 
-        # Copy all engine tunables and domain information
-        self.add_cmd_output("engine-config --all")
+        if not self.get_option('heapdump'):
+            self.add_forbidden_path('/var/log/ovirt-engine/dump')
+            self.add_cmd_output('ls -l /var/log/ovirt-engine/dump/')
+
+        self.add_cmd_output([
+            # Copy all engine tunables and domain information
+            "engine-config --all",
+            # clearer diff from factory defaults (only on ovirt>=4.2.8)
+            "engine-config -d"
+        ])
 
         # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
         manage_domains = 'engine-manage-domains'
@@ -123,6 +129,14 @@ class Ovirt(Plugin, RedHatPlugin):
             "/var/lib/ovirt-engine/jboss_runtime/config",
             "/var/lib/ovirt-engine-reports/jboss_runtime/config"
         ])
+
+        # Copying host certs.
+        self.add_forbidden_path([
+            "/etc/pki/ovirt-engine/keys",
+            "/etc/pki/ovirt-engine/private",
+            "/etc/pki/ovirt-engine/.truststore"
+        ])
+        self.add_copy_spec("/etc/pki/ovirt-engine/")
 
     def postproc(self):
         """
@@ -214,7 +228,7 @@ class Ovirt(Plugin, RedHatPlugin):
         ]
         regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
-        self.do_path_regex_sub("/etc/ovirt-engine/aaa/.*\.properties", regexp,
+        self.do_path_regex_sub(r"/etc/ovirt-engine/aaa/.*\.properties", regexp,
                                r"\1*********")
 
 # vim: expandtab tabstop=4 shiftwidth=4

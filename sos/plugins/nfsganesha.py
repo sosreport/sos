@@ -14,16 +14,19 @@ class NfsGanesha(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     plugin_name = 'nfsganesha'
     profiles = ('storage', 'network', 'nfs')
-    packages = ('nfs-ganesha')
+    packages = ('nfs-ganesha',)
 
     def setup(self):
         self.add_copy_spec([
             "/etc/ganesha",
             "/etc/sysconfig/ganesha",
-            "/var/run/sysconfig/ganesha",
-            "/var/log/ganesha.log",
-            "/var/log/ganesha-gfapi.log"
+            "/run/sysconfig/ganesha",
+            "/var/log/ganesha/*.log"
         ])
+
+        if self.get_option("all_logs"):
+            # Grab rotated logs as well
+            self.add_copy_spec("/var/log/ganesha/*.log*")
 
         self.add_cmd_output([
             "dbus-send --type=method_call --print-reply"

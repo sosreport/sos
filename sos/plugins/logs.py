@@ -11,29 +11,17 @@ import glob
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Logs(Plugin):
+class Logs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """System logs"""
 
     plugin_name = "logs"
     profiles = ('system', 'hardware', 'storage')
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/syslog.conf",
-            "/etc/rsyslog.conf",
-            "/etc/rsyslog.d"
-        ])
-
-        self.limit = (None if self.get_option("all_logs")
-                      else self.get_option("log_size"))
-        self.add_copy_spec("/var/log/boot.log", sizelimit=self.limit)
-        self.add_copy_spec("/var/log/cloud-init*", sizelimit=self.limit)
-        self.add_journal(boot="this", catalog=True)
-        self.add_journal(boot="last", catalog=True)
-        self.add_cmd_output("journalctl --disk-usage")
-
         confs = ['/etc/syslog.conf', '/etc/rsyslog.conf']
         logs = []
+
+        since = self.get_option("since")
 
         if os.path.exists('/etc/rsyslog.conf'):
             with open('/etc/rsyslog.conf', 'r') as conf:
@@ -45,17 +33,56 @@ class Logs(Plugin):
             if not os.path.exists(conf):
                 continue
             config = self.join_sysroot(conf)
-            logs += self.do_regex_find_all("^\S+\s+(-?\/.*$)\s+", config)
+            logs += self.do_regex_find_all(r"^\S+\s+(-?\/.*$)\s+", config)
 
         for i in logs:
             if i.startswith("-"):
                 i = i[1:]
             if os.path.isfile(i):
-                self.add_copy_spec(i, sizelimit=self.limit)
+                self.add_copy_spec(i)
 
-        if self.get_option('all_logs'):
-            self.add_journal(boot="this", allfields=True, output="verbose")
-            self.add_journal(boot="last", allfields=True, output="verbose")
+        self.add_copy_spec([
+            "/etc/syslog.conf",
+            "/etc/rsyslog.conf",
+            "/etc/rsyslog.d",
+            "/var/log/boot.log",
+            "/var/log/installer",
+            "/var/log/unattended-upgrades",
+            "/var/log/messages*",
+            "/var/log/secure*",
+            "/var/log/udev",
+            "/var/log/dist-upgrade",
+        ])
+
+        self.add_cmd_output("journalctl --disk-usage")
+        self.add_cmd_output('ls -alRh /var/log/')
+
+        journal = os.path.exists("/var/log/journal/")
+        if journal and self.is_installed("systemd"):
+            self.add_journal(since=since)
+            self.add_journal(boot="this", catalog=True)
+            self.add_journal(boot="last", catalog=True)
+            if self.get_option("all_logs"):
+                self.add_copy_spec("/var/log/journal/*")
+        else:  # If not using journal
+            if not self.get_option("all_logs"):
+                self.add_copy_spec([
+                    "/var/log/syslog",
+                    "/var/log/syslog.1",
+                    "/var/log/syslog.2*",
+                    "/var/log/kern.log",
+                    "/var/log/kern.log.1",
+                    "/var/log/kern.log.2*",
+                    "/var/log/auth.log",
+                    "/var/log/auth.log.1",
+                    "/var/log/auth.log.2*",
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/log/syslog*",
+                    "/var/log/kern.log*",
+                    "/var/log/auth.log*",
+                ])
 
     def postproc(self):
         self.do_path_regex_sub(
@@ -68,56 +95,5 @@ class Logs(Plugin):
             r"pwd=.*",
             r"pwd=[******]"
         )
-
-
-class RedHatLogs(Logs, RedHatPlugin):
-
-    option_list = [
-        ("log_days", "the number of days logs to collect", "", 3)
-    ]
-
-    def setup(self):
-        super(RedHatLogs, self).setup()
-        messages = "/var/log/messages"
-        secure = "/var/log/secure"
-
-        if self.get_option("all_logs"):
-            messages += "*"
-            secure += "*"
-
-        self.add_copy_spec(secure, sizelimit=self.limit)
-        self.add_copy_spec(messages, sizelimit=self.limit)
-
-        # collect three days worth of logs by default if the system is
-        # configured to use the journal and not /var/log/messages
-        if not os.path.exists(messages) and self.is_installed("systemd"):
-            try:
-                days = int(self.get_option("log_days"))
-            except:
-                days = 3
-            if self.get_option("all_logs"):
-                since = ""
-            else:
-                since = "-%ddays" % days
-            self.add_journal(since=since)
-
-
-class DebianLogs(Logs, DebianPlugin, UbuntuPlugin):
-
-    def setup(self):
-        super(DebianLogs, self).setup()
-        if not self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/syslog", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/syslog.1", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/kern.log", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/kern.log.1", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/udev", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/dist-upgrade", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/installer", sizelimit=self.limit)
-            self.add_copy_spec("/var/log/unattended-upgrades",
-                               sizelimit=self.limit)
-            self.add_cmd_output('ls -alRh /var/log/')
-        else:
-            self.add_copy_spec("/var/log/")
 
 # vim: set et ts=4 sw=4 :

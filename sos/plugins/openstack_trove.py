@@ -23,26 +23,19 @@ class OpenStackTrove(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/trove"
 
     def setup(self):
-
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/trove/",
-                "/var/log/containers/trove/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/trove/*.log",
-                "/var/log/containers/trove/*.log"
-            ], sizelimit=self.limit)
+            ])
 
         self.add_copy_spec([
             '/etc/trove/',
             self.var_puppet_gen + '/etc/trove/'
         ])
-
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/trove/*", regexp, subst)
@@ -55,7 +48,7 @@ class OpenStackTrove(Plugin):
         protect_keys = [
             "default_password_length", "notifier_queue_password",
             "rabbit_password", "replication_password", "admin_password",
-            "dns_passkey"
+            "dns_passkey", "transport_url"
         ]
         connection_keys = ["connection"]
 
@@ -85,7 +78,7 @@ class DebianTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
 
 class RedHatTrove(OpenStackTrove, RedHatPlugin):
 
-    packages = ['openstack-trove']
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatTrove, self).setup()

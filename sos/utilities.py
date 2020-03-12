@@ -17,12 +17,14 @@ import fnmatch
 import errno
 import shlex
 import glob
+import threading
+import time
 
 from contextlib import closing
+from collections import deque
 
 # PYCOMPAT
 import six
-from six import StringIO
 
 
 def tail(filename, number_of_bytes):
@@ -38,10 +40,10 @@ def fileobj(path_or_file, mode='r'):
     if isinstance(path_or_file, six.string_types):
         try:
             return open(path_or_file, mode)
-        except:
+        except IOError:
             log = logging.getLogger('sos')
             log.debug("fileobj: %s could not be opened" % path_or_file)
-            return closing(StringIO())
+            return closing(six.StringIO())
     else:
         return closing(path_or_file)
 
@@ -104,8 +106,8 @@ def is_executable(command):
 
 
 def sos_get_command_output(command, timeout=300, stderr=False,
-                           chroot=None, chdir=None, env=None,
-                           binary=False):
+                           chroot=None, chdir=None, env=None, foreground=False,
+                           binary=False, sizelimit=None, poller=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -115,20 +117,27 @@ def sos_get_command_output(command, timeout=300, stderr=False,
     # the enclosing scope).
     def _child_prep_fn():
         if (chroot):
-                os.chroot(chroot)
+            os.chroot(chroot)
         if (chdir):
-                os.chdir(chdir)
+            os.chdir(chdir)
 
-    cmd_env = os.environ
+    cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C'
     # optionally add an environment change for the command
     if env:
         for key, value in env.items():
-            cmd_env[key] = value
+            if value:
+                cmd_env[key] = value
+            else:
+                cmd_env.pop(key, None)
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
-        command = "timeout %ds %s" % (timeout, command)
+        command = "timeout %s %ds %s" % (
+            '--foreground' if foreground else '',
+            timeout,
+            command
+        )
 
     # shlex.split() reacts badly to unicode on older python runtimes.
     if not six.PY3:
@@ -147,7 +156,18 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                   stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)
-        stdout, stderr = p.communicate()
+
+        reader = AsyncReader(p.stdout, sizelimit, binary)
+        if poller:
+            while reader.running:
+                if poller():
+                    p.terminate()
+                    raise SoSTimeoutError
+                time.sleep(0.01)
+        stdout = reader.get_contents()
+        while p.poll() is None:
+            pass
+
     except OSError as e:
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': ""}
@@ -159,7 +179,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
 
     return {
         'status': p.returncode,
-        'output': stdout if binary else stdout.decode('utf-8', 'ignore')
+        'output': stdout
     }
 
 
@@ -185,6 +205,60 @@ def shell_out(cmd, timeout=30, chroot=None, runat=None):
     """
     return sos_get_command_output(cmd, timeout=timeout,
                                   chroot=chroot, chdir=runat)['output']
+
+
+class AsyncReader(threading.Thread):
+    """Used to limit command output to a given size without deadlocking
+    sos.
+
+    Takes a sizelimit value in MB, and will compile stdout from Popen into a
+    string that is limited to the given sizelimit.
+    """
+
+    def __init__(self, channel, sizelimit, binary):
+        super(AsyncReader, self).__init__()
+        self.chan = channel
+        self.binary = binary
+        self.chunksize = 2048
+        slots = None
+        if sizelimit:
+            sizelimit = sizelimit * 1048576  # convert to bytes
+            slots = int(sizelimit / self.chunksize)
+        self.deque = deque(maxlen=slots)
+        self.running = True
+        self.start()
+
+    def run(self):
+        """Reads from the channel (pipe) that is the output pipe for a
+        called Popen. As we are reading from the pipe, the output is added
+        to a deque. After the size of the deque exceeds the sizelimit
+        earlier (older) entries are removed.
+
+        This means the returned output is chunksize-sensitive, but is not
+        really byte-sensitive.
+        """
+        try:
+            while True:
+                line = self.chan.read(self.chunksize)
+                if not line:
+                    # Pipe can remain open after output has completed
+                    break
+                self.deque.append(line)
+        except (ValueError, IOError):
+            # pipe has closed, meaning command output is done
+            pass
+        self.running = False
+
+    def get_contents(self):
+        """Returns the contents of the deque as a string"""
+        # block until command completes or timesout (separate from the plugin
+        # hitting a timeout)
+        while self.running:
+            time.sleep(0.01)
+        if not self.binary:
+            return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
+        else:
+            return b''.join(ln for ln in self.deque)
 
 
 class ImporterHelper(object):
@@ -226,9 +300,13 @@ class ImporterHelper(object):
         package. """
         plugins = []
         for path in self.package.__path__:
-            if os.path.isdir(path) or path == '':
+            if os.path.isdir(path):
                 plugins.extend(self._find_plugins_in_dir(path))
 
         return plugins
+
+
+class SoSTimeoutError(OSError):
+    pass
 
 # vim: set et ts=4 sw=4 :

@@ -8,10 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-
-import glob
-
-
 from sos.plugins import Plugin, RedHatPlugin
 
 
@@ -26,11 +22,7 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
     plugin_name = 'ovirt_hosted_engine'
     profiles = ('virt',)
 
-    HA_LOG_GLOB = '/var/log/ovirt-hosted-engine-ha/*.log'
-
     def setup(self):
-        self.limit = self.get_option('log_size')
-
         # Add configuration files
         # Collecting the whole directory since it may contain branding
         # configuration files or third party plugins configuration files
@@ -45,21 +37,20 @@ class OvirtHostedEngine(Plugin, RedHatPlugin):
             '/etc/ovirt-hosted-engine-ha/broker.conf',
             '/etc/ovirt-hosted-engine-ha/broker-log.conf',
             '/etc/ovirt-hosted-engine-ha/notifications/state_transition.txt',
-            '/var/run/ovirt-hosted-engine-ha/vm.conf',
+            '/run/ovirt-hosted-engine-ha/vm.conf',
             '/var/lib/ovirt-hosted-engine-ha/broker.conf',
         ])
 
         self.add_copy_spec([
             '/var/log/ovirt-hosted-engine-setup',
-            '/var/log/ovirt-hosted-engine-ha/agent.log',
-            '/var/log/ovirt-hosted-engine-ha/broker.log',
+            '/var/log/ovirt-hosted-engine-ha/agent.log*',
+            '/var/log/ovirt-hosted-engine-ha/broker.log*',
         ])
-        # Add older ovirt-hosted-engine-ha log files only if requested
-        if self.get_option('all_logs'):
-            self.add_copy_spec(
-                self.HA_LOG_GLOB,
-                sizelimit=self.limit,
-            )
+
+        # Add gluster deployment and cleanup log
+        self.add_copy_spec([
+            '/var/log/cockpit/ovirt-dashboard'
+        ])
 
         # Add run-time status
         self.add_cmd_output([

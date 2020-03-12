@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.plugins import Plugin, RedHatPlugin
+import glob
 
 
 class SubscriptionManager(Plugin, RedHatPlugin):
@@ -28,11 +29,24 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "/var/log/rhsm/rhsmcertd.log"])
         self.add_cmd_output([
             "subscription-manager list --installed",
+            "subscription-manager list --available",
+            "subscription-manager list --all --available",
             "subscription-manager list --consumed",
-            "subscription-manager identity"
+            "subscription-manager identity",
+            "subscription-manager release --show",
+            "subscription-manager release --list",
+            "syspurpose show"
         ])
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
                             "--no-subscriptions --destination %s"
                             % self.get_cmd_output_path())
+
+        certs = glob.glob('/etc/pki/product-default/*.pem')
+        self.add_cmd_output(["rct cat-cert %s" % cert for cert in certs])
+
+    def postproc(self):
+        passwdreg = r"(proxy_password(\s)*=(\s)*)(.*)"
+        repl = r"\1 ********"
+        self.do_path_regex_sub("/etc/rhsm/rhsm.conf", passwdreg, repl)
 
 # vim: et ts=4 sw=4

@@ -37,32 +37,25 @@ class OpenStackKeystone(Plugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
-        self.limit = self.get_option("log_size")
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/keystone/",
-                "/var/log/containers/keystone/",
-                "/var/log/containers/httpd/keystone/"
-            ], sizelimit=self.limit)
+            ])
         else:
             self.add_copy_spec([
                 "/var/log/keystone/*.log",
-                "/var/log/containers/keystone/*.log",
-                "/var/log/containers/httpd/keystone/*log"
-            ], sizelimit=self.limit)
+            ])
 
         # collect domain config directory, if specified
         # if not, collect default /etc/keystone/domains
-        self.domain_config_dir = self.get_cmd_output_now(
+        exec_out = self.collect_cmd_output(
                 "crudini --get /etc/keystone/keystone.conf "
                 "identity domain_config_dir")
-        if self.domain_config_dir is None or \
+        self.domain_config_dir = exec_out['output']
+        if exec_out['status'] != 0 or \
                 not(os.path.isdir(self.domain_config_dir)):
             self.domain_config_dir = "/etc/keystone/domains"
         self.add_copy_spec(self.domain_config_dir)
-
-        if self.get_option("verify"):
-            self.add_cmd_output("rpm -V %s" % ' '.join(self.packages))
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
@@ -89,7 +82,7 @@ class OpenStackKeystone(Plugin):
         protect_keys = [
             "password", "qpid_password", "rabbit_password", "ssl_key_password",
             "ldap_dns_password", "neutron_admin_password", "host_password",
-            "admin_password", "admin_token", "ca_password"
+            "admin_password", "admin_token", "ca_password", "transport_url"
         ]
         connection_keys = ["connection"]
 
@@ -119,23 +112,14 @@ class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
 
 class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
 
-    packages = (
-        'openstack-keystone',
-        'python-keystone',
-        'python-django-openstack-auth',
-        'python-keystoneclient'
-    )
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatKeystone, self).setup()
         if self.get_option("all_logs"):
-            self.add_copy_spec([
-                "/var/log/httpd/keystone*",
-            ], sizelimit=self.limit)
+            self.add_copy_spec("/var/log/httpd/keystone*")
         else:
-            self.add_copy_spec([
-                "/var/log/httpd/keystone*.log",
-            ], sizelimit=self.limit)
+            self.add_copy_spec("/var/log/httpd/keystone*.log")
 
 
 # vim: set et ts=4 sw=4 :

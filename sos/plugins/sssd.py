@@ -8,7 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.plugins import (Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
+                         SoSPredicate)
 
 
 class Sssd(Plugin):
@@ -28,12 +29,17 @@ class Sssd(Plugin):
             "/etc/sssd/conf.d/*.conf"
         ])
 
-        self.add_cmd_output("sssctl config-check")
+        # call sssctl commands only when sssd service is running,
+        # otherwise the command timeouts
+        sssd_pred = SoSPredicate(self, services=["sssd"])
+        self.add_cmd_output("sssctl config-check", pred=sssd_pred)
 
-        domain_file = self.get_cmd_output_now("sssctl domain-list")
-        if domain_file:
-            for domain_name in open(domain_file).read().splitlines():
-                self.add_cmd_output("sssctl domain-status -o "+domain_name)
+        # if predicate fails, domain["status"] = None and thus we skip parsing
+        # missing output
+        domain = self.collect_cmd_output("sssctl domain-list", pred=sssd_pred)
+        if domain['status'] == 0:
+            for domain_name in domain['output'].splitlines():
+                self.add_cmd_output("sssctl domain-status -o " + domain_name)
 
     def postproc(self):
         regexp = r"(\s*ldap_default_authtok\s*=\s*)\S+"

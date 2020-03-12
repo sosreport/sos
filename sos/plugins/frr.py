@@ -9,18 +9,17 @@
 from sos.plugins import Plugin, RedHatPlugin
 
 
-class MrgMessg(Plugin, RedHatPlugin):
-    """MRG Messaging subsystem
+class Frr(Plugin, RedHatPlugin):
+    """Frr routing service
     """
 
-    plugin_name = 'mrgmessg'
-    profiles = ('mrg',)
+    plugin_name = 'frr'
+    profiles = ('network',)
+
+    files = ('/etc/frr/zebra.conf',)
+    packages = ('frr',)
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/qpidd.conf",
-            "/etc/sasl2/qpidd.conf",
-            "/var/rhm"
-        ])
+        self.add_copy_spec("/etc/frr/")
 
 # vim: set et ts=4 sw=4 :

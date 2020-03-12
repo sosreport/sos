@@ -32,7 +32,11 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "free -m",
             "swapon --bytes --show",
-            "swapon --summary --verbose"
+            "swapon --summary --verbose",
+            "lsmem -a -o RANGE,SIZE,STATE,REMOVABLE,ZONES,NODE,BLOCK"
         ])
+
+        # slabtop -o will hang if not handed a tty via stdin
+        self.add_cmd_output("slabtop -o", foreground=True)
 
 # vim: set et ts=4 sw=4 :

@@ -16,15 +16,16 @@ class Snappy(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):
 
     plugin_name = 'snappy'
     profiles = ('system', 'sysmgmt', 'packagemanager')
-    files = ('/usr/bin/snap')
+    packages = ('snapd',)
 
     def setup(self):
         self.add_cmd_output([
-            "systemctl status snapd.service",
             "snap list --all",
             "snap --version",
             "snap changes"
         ])
+        self.add_cmd_output("snap debug connectivity", timeout=10)
+        self.add_service_status("snapd")
         self.add_journal(units="snapd")
 
 # vim: set et ts=4 sw=4 :

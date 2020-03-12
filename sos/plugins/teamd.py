@@ -21,7 +21,7 @@ class Teamd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def _get_team_interfaces(self):
         teams = []
-        ip_result = self.get_command_output("ip -o link")
+        ip_result = self.exec_cmd("ip -o link")
         if ip_result['status'] != 0:
             return teams
         for line in ip_result['output'].splitlines():

@@ -10,32 +10,33 @@ from sos.plugins import Plugin, RedHatPlugin
 
 
 class RedHatInsights(Plugin, RedHatPlugin):
-    '''Collect config and log for Red Hat Insights
-    '''
+    """Collect config and log for Red Hat Insights
+    """
     plugin_name = 'insights'
-    packages = ['redhat-access-insights']
+    packages = ['redhat-access-insights', 'insights-client']
     profiles = ('system', 'sysmgmt')
-    conf_file = '/etc/redhat-access-insights/redhat-access-insights.conf'
+    config = (
+        '/etc/insights-client/insights-client.conf',
+        '/etc/redhat-access-insights/redhat-access-insights.conf'
+    )
 
     def setup(self):
-        self.add_copy_spec(self.conf_file)
-        self.limit = self.get_option("log_size")
+        self.add_copy_spec(self.config)
+
+        # Legacy log file location
+        self.add_copy_spec("/var/log/redhat-access-insights/*.log")
+
         if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/redhat-access-insights/*.log*",
-                               sizelimit=self.limit)
+            self.add_copy_spec("/var/log/insights-client/*.log*")
         else:
-            self.add_copy_spec("/var/log/redhat-access-insights/*.log",
-                               sizelimit=self.limit)
+            self.add_copy_spec("/var/log/insights-client/insights-client.log")
 
     def postproc(self):
-        self.do_file_sub(
-            self.conf_file,
-            r'(password[\t\ ]*=[\t\ ]*)(.+)',
-            r'\1********'
-        )
+        for conf in self.config:
+            self.do_file_sub(
+                conf, r'(password[\t\ ]*=[\t\ ]*)(.+)', r'\1********'
+            )
 
-        self.do_file_sub(
-            self.conf_file,
-            r'(proxy[\t\ ]*=.*)(:)(.*)(@.*)',
-            r'\1\2********\4'
-        )
+            self.do_file_sub(
+                conf, r'(proxy[\t\ ]*=.*)(:)(.*)(@.*)', r'\1\2********\4'
+            )

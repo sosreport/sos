@@ -16,21 +16,33 @@ class LXD(Plugin, UbuntuPlugin):
     """
     plugin_name = 'lxd'
     profiles = ('container',)
+    packages = ('lxd',)
+    commands = ('lxd',)
 
+    # Version 2.0.X:
+    # - /etc/default/lxd-bridge
+    # - /var/lib/lxd/lxd.db
+    #
+    # Version 3.0.X:
+    # - /var/lib/lxd/database/local.db
+    # - /var/lib/lxd/database/global/*
+    # - lxd-bridge no longer exist.
+    #
     def setup(self):
         self.add_copy_spec([
+            "/etc/default/lxd-bridge",
             "/var/lib/lxd/lxd.db",
-            "/etc/default/lxc-bridge",
+            "/var/lib/lxd/database/local.db",
+            "/var/lib/lxd/database/global/*",
+            "/var/log/lxd/*"
         ])
 
-        self.add_copy_spec("/var/log/lxd*",
-                           sizelimit=self.get_option("log_size"))
-
-        # List of containers available on the machine
         self.add_cmd_output([
-            "lxc list",
-            "lxc profile list",
             "lxc image list",
+            "lxc list",
+            "lxc network list",
+            "lxc profile list",
+            "lxc storage list"
         ])
 
         self.add_cmd_output([

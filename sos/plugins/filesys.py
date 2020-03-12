@@ -9,7 +9,7 @@
 from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Filesys(Plugin, DebianPlugin, UbuntuPlugin):
     """Local file systems
     """
 
@@ -25,12 +25,13 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/proc/fs/",
-            "/proc/mounts"
+            "/proc/mounts",
             "/proc/filesystems",
             "/proc/self/mounts",
             "/proc/self/mountinfo",
             "/proc/self/mountstats",
             "/proc/[0-9]*/mountinfo",
+            "/etc/mtab",
             "/etc/fstab"
         ])
         self.add_cmd_output("mount -l", root_symlink="mount")
@@ -48,17 +49,17 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if self.get_option('dumpe2fs'):
             dumpe2fs_opts = ''
         mounts = '/proc/mounts'
-        ext_fs_regex = r"^(/dev/.+).+ext[234]\s+"
+        ext_fs_regex = r"^(/dev/\S+).+ext[234]\s+"
         for dev in self.do_regex_find_all(ext_fs_regex, mounts):
-                self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev))
+            self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev))
 
-                if self.get_option('frag'):
-                    self.add_cmd_output("e2freefrag %s" % (dev))
+            if self.get_option('frag'):
+                self.add_cmd_output("e2freefrag %s" % (dev))
 
     def postproc(self):
         self.do_file_sub(
             "/etc/fstab",
-            r"(password=)[^\s]*",
+            r"(password=)[^,\s]*",
             r"\1********"
         )
 
@@ -68,5 +69,12 @@ class Filesys(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                  "Output information may be incomplete.)\n")
 
         self.do_cmd_output_sub("lsof", regex, '')
+
+
+class RedHatFilesys(Filesys, RedHatPlugin):
+
+    def setup(self):
+        super(RedHatFilesys, self).setup()
+        self.add_cmd_output("ls -ltradZ /tmp")
 
 # vim: set et ts=4 sw=4 :
