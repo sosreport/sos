@@ -1232,7 +1232,8 @@ class Plugin(object):
         start = time()
 
         result = sos_get_command_output(
-            cmd, timeout=timeout, stderr=stderr, chroot=root,
+            cmd, suggest_filename=suggest_filename,
+            timeout=timeout, stderr=stderr, chroot=root,
             chdir=runat, env=env, binary=binary, sizelimit=sizelimit,
             poller=self.check_timeout, foreground=foreground
         )
