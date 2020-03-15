@@ -19,34 +19,26 @@ class LXD(Plugin, UbuntuPlugin):
     packages = ('lxd',)
     commands = ('lxd',)
 
-    # Version 2.0.X:
-    # - /etc/default/lxd-bridge
-    # - /var/lib/lxd/lxd.db
-    #
-    # Version 3.0.X:
-    # - /var/lib/lxd/database/local.db
-    # - /var/lib/lxd/database/global/*
-    # - lxd-bridge no longer exist.
-    #
     def setup(self):
-        self.add_copy_spec([
-            "/etc/default/lxd-bridge",
-            "/var/lib/lxd/lxd.db",
-            "/var/lib/lxd/database/local.db",
-            "/var/lib/lxd/database/global/*",
-            "/var/log/lxd/*"
-        ])
+        snap_list = self.exec_cmd('snap list lxd')
+        if snap_list["status"] == 0:
+            self.add_cmd_output("lxd.buginfo")
+        else:
+            self.add_copy_spec([
+                "/etc/default/lxd-bridge",
+                "/var/log/lxd/*"
+            ])
 
-        self.add_cmd_output([
-            "lxc image list",
-            "lxc list",
-            "lxc network list",
-            "lxc profile list",
-            "lxc storage list"
-        ])
+            self.add_cmd_output([
+                "lxc image list",
+                "lxc list",
+                "lxc network list",
+                "lxc profile list",
+                "lxc storage list"
+            ])
 
-        self.add_cmd_output([
-            "find /var/lib/lxd -maxdepth 2 -type d -ls",
-        ], suggest_filename='var-lxd-dirs.txt')
+            self.add_cmd_output([
+                "find /var/lib/lxd -maxdepth 2 -type d -ls",
+            ], suggest_filename='var-lxd-dirs.txt')
 
 # vim: set et ts=4 sw=4 :
