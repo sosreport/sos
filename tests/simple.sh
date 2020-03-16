@@ -11,7 +11,6 @@
 # * look into using a framework..
 # * why --dry-run fails?
 # * why --experimental fails?
-# * https://github.com/sosreport/sos/issues/1921
 # * make it better validate archives and contents
 
 PYTHON=${1:-/usr/bin/python3}
@@ -93,14 +92,7 @@ run_expecting_sucess " --batch   --build   --no-env-vars "  # Only --build test
 run_expecting_sucess " --batch   --no-report   -o hardware " extract
 run_expecting_sucess " --batch   --label TEST   -a  -c never" extract
 run_expecting_sucess " --batch   --debug  --log-size 0  -c always" extract
-
-# Workaround Travis bug (requires -n lxd)
-if [ $TRAVIS = true ]; then
-    run_expecting_sucess " --batch   -z xz   --log-size 1 -n lxd" extract
-else
-    run_expecting_sucess " --batch   -z xz   --log-size 1" extract
-fi
-
+run_expecting_sucess " --batch   -z xz   --log-size 1" extract
 run_expecting_sucess " --batch   -z gzip" extract
 run_expecting_sucess " --batch   -z bzip2   -t 1 -n hardware" extract
 run_expecting_sucess " --batch   --quiet    -e opencl -k kernel.with-timer" extract
