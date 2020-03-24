@@ -10,7 +10,7 @@
 # This sosreport plugin is meant for sas adapters.
 # This plugin logs inforamtion on each adapter it finds.
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class SAS3ircu(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):

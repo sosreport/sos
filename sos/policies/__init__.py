@@ -17,7 +17,7 @@ from sos.utilities import (ImporterHelper,
                            is_executable,
                            shell_out,
                            sos_get_command_output)
-from sos.plugins import IndependentPlugin, ExperimentalPlugin
+from sos.report.plugins import IndependentPlugin, ExperimentalPlugin
 from sos import _sos as _
 from sos import SoSOptions, _arg_names
 from textwrap import fill

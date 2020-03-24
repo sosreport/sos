@@ -10,8 +10,8 @@
 import os
 import json
 
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, \
-    SuSEPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, SuSEPlugin)
 
 
 class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):

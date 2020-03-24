@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 pidfile = 'ovn-controller.pid'

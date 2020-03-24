@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.plugins import Plugin, UbuntuPlugin, RedHatPlugin
+from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 
 
 class Azure(Plugin, UbuntuPlugin):

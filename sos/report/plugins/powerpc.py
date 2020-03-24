@@ -10,7 +10,7 @@
 # specific logs for Pseries, PowerNV platforms.
 
 import os
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):

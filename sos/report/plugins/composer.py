@@ -1,4 +1,4 @@
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):

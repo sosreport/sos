@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin
+from sos.report.plugins import Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin
 
 
 class Snappy(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):

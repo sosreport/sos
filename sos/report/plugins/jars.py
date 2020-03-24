@@ -14,7 +14,7 @@ import os
 import re
 import zipfile
 from functools import partial
-from sos.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Jars(Plugin, RedHatPlugin):

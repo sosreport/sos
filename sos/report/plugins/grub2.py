@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import (Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
-                         SoSPredicate)
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, SoSPredicate)
 
 
 class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):

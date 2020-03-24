@@ -14,7 +14,7 @@
 
 import os
 
-from sos.plugins import (Plugin, UbuntuPlugin, DebianPlugin, SCLPlugin)
+from sos.report.plugins import (Plugin, UbuntuPlugin, DebianPlugin, SCLPlugin)
 from sos.utilities import find
 
 

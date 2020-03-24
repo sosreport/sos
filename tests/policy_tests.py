@@ -8,7 +8,7 @@
 import unittest
 
 from sos.policies import Policy, PackageManager, import_policy
-from sos.plugins import Plugin, IndependentPlugin, RedHatPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, RedHatPlugin, DebianPlugin
 
 class FauxPolicy(Policy):
     distro = "Faux"

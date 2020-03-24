@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 import unittest
 
-from sos.plugins import Plugin
+from sos.report.plugins import Plugin
 from sos.policies import LinuxPolicy, InitSystem
 
 
