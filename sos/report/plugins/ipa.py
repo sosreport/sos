@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin, SoSPredicate
+from sos.report.plugins import Plugin, RedHatPlugin, SoSPredicate
 from glob import glob
 from os.path import exists
 

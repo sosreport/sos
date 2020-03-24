@@ -15,7 +15,7 @@ import re
 import signal
 
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin
 from sos.utilities import is_executable
 
 

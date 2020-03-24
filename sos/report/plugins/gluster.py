@@ -11,7 +11,7 @@ import os.path
 import os
 import glob
 import string
-from sos.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Gluster(Plugin, RedHatPlugin):

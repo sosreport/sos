@@ -12,7 +12,7 @@ from __future__ import print_function
 import os
 import sys
 
-from sos.plugins import RedHatPlugin, SuSEPlugin
+from sos.report.plugins import RedHatPlugin, SuSEPlugin
 from sos.policies import LinuxPolicy, PackageManager
 from sos import _sos as _
 

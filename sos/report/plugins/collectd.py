@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import re
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):

@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Zfs(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):

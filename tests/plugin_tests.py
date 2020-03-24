@@ -17,7 +17,7 @@ try:
 except:
     from io import StringIO
 
-from sos.plugins import Plugin, regex_findall, _mangle_command
+from sos.report.plugins import Plugin, regex_findall, _mangle_command
 from sos.archive import TarFileArchive
 from sos.policies import LinuxPolicy, InitSystem
 import sos.policies

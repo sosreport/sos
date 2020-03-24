@@ -8,8 +8,8 @@
 
 import re
 
-from sos.plugins import (Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
-                         SuSEPlugin)
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, SuSEPlugin)
 
 
 class ClearContainers(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,

@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin
 from os.path import join
 
 

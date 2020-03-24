@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):

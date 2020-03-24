@@ -23,7 +23,7 @@ import logging
 
 from datetime import datetime
 from argparse import ArgumentParser, Action
-import sos.plugins
+import sos.report.plugins
 from sos.utilities import ImporterHelper, SoSTimeoutError
 from shutil import rmtree
 import tempfile
@@ -617,8 +617,8 @@ class SoSReport(object):
         ))
 
     def load_plugins(self):
-        import_plugin = sos.plugins.import_plugin
-        helper = ImporterHelper(sos.plugins)
+        import_plugin = sos.report.plugins.import_plugin
+        helper = ImporterHelper(sos.report.plugins)
         plugins = helper.get_modules()
         self.plugin_names = []
         self.profiles = set()
@@ -627,7 +627,7 @@ class SoSReport(object):
         extra_classes = []
 
         if self.opts.experimental:
-            extra_classes.append(sos.plugins.ExperimentalPlugin)
+            extra_classes.append(sos.report.plugins.ExperimentalPlugin)
         valid_plugin_classes = tuple(policy_classes + extra_classes)
         validate_plugin = self.policy.validate_plugin
         remaining_profiles = list(self.opts.profiles)

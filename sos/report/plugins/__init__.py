@@ -2034,7 +2034,7 @@ def import_plugin(name, superclasses=None):
     module. superclasses should be a tuple of valid superclasses to import,
     this defaults to (Plugin,).
     """
-    plugin_fqname = "sos.plugins.%s" % name
+    plugin_fqname = "sos.report.plugins.%s" % name
     if not superclasses:
         superclasses = (Plugin,)
     return import_module(plugin_fqname, superclasses)

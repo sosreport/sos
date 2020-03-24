@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class saphana(Plugin, RedHatPlugin):

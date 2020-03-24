@@ -8,7 +8,7 @@
 
 import os
 import glob
-from sos.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Logs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):

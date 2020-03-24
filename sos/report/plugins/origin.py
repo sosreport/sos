@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin
 import os.path
 
 # This plugin collects static configuration and runtime information

@@ -9,7 +9,7 @@
 # This plugin enables collection of logs for Power systems
 
 import re
-from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
