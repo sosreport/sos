@@ -18,8 +18,8 @@ from sos.utilities import (ImporterHelper,
                            shell_out,
                            sos_get_command_output)
 from sos.report.plugins import IndependentPlugin, ExperimentalPlugin
-from sos import _sos as _
-from sos import SoSOptions, _arg_names
+from sos.utilities import _sos as _
+from sos.options import SoSOptions, _arg_names
 from textwrap import fill
 from six import print_
 from six.moves import input
