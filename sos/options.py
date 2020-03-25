@@ -8,39 +8,6 @@
 
 from argparse import ArgumentParser, Action
 
-# Global option definitions
-# These must be in the module itself in order to be available to both
-# the sosreport and policy module (and to avoid recursive import errors).
-#
-# FIXME: these definitions make our main module a bit more bulky: the
-# alternative is to place these in a new sos.options module. This may
-# prove to be the best route long-term (as it could also contain an
-# exported parsing routine, and all the command-line definitions).
-
-#: Names of all arguments
-_arg_names = [
-    'add_preset', 'alloptions', 'allow_system_changes', 'all_logs', 'batch',
-    'build', 'case_id', 'chroot', 'compression_type', 'config_file', 'desc',
-    'debug', 'del_preset', 'dry_run', 'enableplugins', 'encrypt_key',
-    'encrypt_pass', 'experimental', 'label', 'list_plugins', 'list_presets',
-    'list_profiles', 'log_size', 'noplugins', 'noreport', 'no_env_vars',
-    'no_postproc', 'note', 'onlyplugins', 'plugin_timeout', 'plugopts',
-    'preset', 'profiles', 'quiet', 'since', 'sysroot', 'threads', 'tmp_dir',
-    'upload', 'upload_url', 'upload_directory', 'upload_user', 'upload_pass',
-    'verbosity', 'verify'
-]
-
-#: Arguments with non-zero default values
-_arg_defaults = {
-    "chroot": "auto",
-    "compression_type": "auto",
-    "log_size": 25,
-    "preset": "auto",
-    # Verbosity has an explicit zero default since the ArgumentParser
-    # count action default is None.
-    "verbosity": 0
-}
-
 
 def _is_seq(val):
     """Return true if val is an instance of a known sequence type.
@@ -76,7 +43,7 @@ class SoSOptions(object):
                 setattr(self, opt, newvalue + oldvalue)
 
     def _merge_opts(self, src, is_default):
-        for arg in _arg_names:
+        for arg in self.arg_names:
             self._merge_opt(arg, src, is_default)
 
     def __str(self, quote=False, sep=" ", prefix="", suffix=""):
@@ -90,11 +57,11 @@ class SoSOptions(object):
         """
         args = prefix
         arg_fmt = "=%s"
-        for arg in _arg_names:
+        for arg in self.arg_names:
             args += arg + arg_fmt + sep
         args.strip(sep)
 
-        vals = [getattr(self, arg) for arg in _arg_names]
+        vals = [getattr(self, arg) for arg in self.arg_names]
         if not quote:
             # Convert Python source notation for sequences into plain strings
             vals = [",".join(v) if _is_seq(v) else v for v in vals]
@@ -113,7 +80,7 @@ class SoSOptions(object):
         return self.__str(quote=True, sep=", ", prefix="SoSOptions(",
                           suffix=")")
 
-    def __init__(self, **kwargs):
+    def __init__(self, arg_defaults={}, **kwargs):
         """Initialise a new ``SoSOptions`` object from keyword arguments.
 
             Initialises the new object with values taken from keyword
@@ -126,55 +93,15 @@ class SoSOptions(object):
             :param *kwargs: a list of ``SoSOptions`` keyword args.
             :returns: the new ``SoSOptions`` object.
         """
-        self.add_preset = ""
-        self.alloptions = False
-        self.all_logs = False
-        self.since = None
-        self.batch = False
-        self.build = False
-        self.case_id = ""
-        self.chroot = _arg_defaults["chroot"]
-        self.compression_type = _arg_defaults["compression_type"]
-        self.config_file = ""
-        self.debug = False
-        self.del_preset = ""
-        self.desc = ""
-        self.dry_run = False
-        self.enableplugins = []
-        self.encrypt_key = None
-        self.encrypt_pass = None
-        self.experimental = False
-        self.label = ""
-        self.list_plugins = False
-        self.list_presets = False
-        self.list_profiles = False
-        self.log_size = _arg_defaults["log_size"]
-        self.noplugins = []
-        self.noreport = False
-        self.allow_system_changes = False
-        self.no_env_vars = False
-        self.no_postproc = False
-        self.note = ""
-        self.onlyplugins = []
-        self.plugin_timeout = None
-        self.plugopts = []
-        self.preset = _arg_defaults["preset"]
-        self.profiles = []
-        self.quiet = False
-        self.sysroot = None
-        self.threads = 4
-        self.tmp_dir = ""
-        self.upload = False
-        self.upload_url = ""
-        self.upload_directory = ""
-        self.upload_user = ""
-        self.upload_pass = ""
-        self.verbosity = _arg_defaults["verbosity"]
-        self.verify = False
+        self.arg_defaults = arg_defaults
+        self.arg_names =  arg_defaults.keys()
         self._nondefault = set()
+        # first load the defaults, if supplied
+        for arg in self.arg_defaults:
+            setattr(self, arg, self.arg_defaults[arg])
+        # next, load any kwargs
         for arg in kwargs.keys():
-            if arg not in _arg_names:
-                raise ValueError("Unknown SoSOptions attribute: %s" % arg)
+            self.arg_names.append(arg)
             setattr(self, arg, kwargs[arg])
 
     @classmethod
@@ -186,7 +113,7 @@ class SoSOptions(object):
             :returns: an initialised SoSOptions object
             :returntype: SoSOptions
         """
-        opts = SoSOptions()
+        opts = SoSOptions(**vars(args))
         opts._merge_opts(args, True)
         return opts
 
@@ -258,7 +185,7 @@ class SoSOptions(object):
             :param src: the ``SoSOptions`` object to copy from
             :param is_default: ``True`` if new default values are to be set.
         """
-        for arg in _arg_names:
+        for arg in self.arg_names:
             if not hasattr(src, arg):
                 continue
             if getattr(src, arg) is not None or not skip_default:
@@ -271,7 +198,7 @@ class SoSOptions(object):
             :returns: a name:value dictionary of option values.
         """
         odict = {}
-        for arg in _arg_names:
+        for arg in self.arg_names:
             value = getattr(self, arg)
             # Do not attempt to store preset option values in presets
             if arg in ('add_preset', 'del_preset', 'desc', 'note'):
@@ -294,8 +221,8 @@ class SoSOptions(object):
             null_values = ("False", "None", "[]", '""', "''", "0")
             if not value or value in null_values:
                 return False
-            if name in _arg_defaults:
-                if str(value) == str(_arg_defaults[name]):
+            if name in self.arg_defaults:
+                if str(value) == str(self.arg_defaults[name]):
                     return False
             return True
 
