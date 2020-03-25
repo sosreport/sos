@@ -25,8 +25,7 @@ if six.PY3:
 else:
     from ConfigParser import ConfigParser, ParsingError, Error
 
-from sos.report import SoSReport
-from sos.options import SoSListOption
+from sos.options import SosListOption
 
 
 class SoSComponent():
@@ -66,10 +65,11 @@ class SoS():
         self.cmdline = args
         usage_string = "%(prog)s component [options]\n\n"
         # define the local subcommands that exist on the system
-        self._components = {'report': SoSReport}
+        import sos.report
+        self._components = {'report': sos.report.SoSReport}
         # build the top-level parser
         self.parser = ArgumentParser(usage=usage_string)
-        self.parser.register('action', 'extend', SoSListOption)
+        self.parser.register('action', 'extend', SosListOption)
         # set the component subparsers
         self.subparsers = self.parser.add_subparsers(
             dest='component',
@@ -81,7 +81,7 @@ class SoS():
         # for the component subparsers
         for comp in self._components:
             _com_subparser = self.subparsers.add_parser(comp)
-            _com_subparser.register('action', 'extend', SoSListOption)
+            _com_subparser.register('action', 'extend', SosListOption)
             self._add_common_options(_com_subparser)
             self._components[comp].add_parser_options(_com_subparser)
         self.args = self.parser.parse_args()
