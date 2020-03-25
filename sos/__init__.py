@@ -16,8 +16,10 @@ gettext to internationalize messages.
 """
 __version__ = "3.9"
 
+import logging
 import six
 import sys
+import tempfile
 
 from argparse import ArgumentParser
 
@@ -27,6 +29,7 @@ else:
     from ConfigParser import ConfigParser, ParsingError, Error
 
 from sos.options import SoSOptions, SosListOption
+from sos.utilities import TempFileUtil
 
 
 class SoSComponent():
@@ -51,6 +54,7 @@ class SoSComponent():
     desc = 'unset'
 
     arg_defaults = {}
+    configure_logging = True
 
     _arg_defaults = {
         "quiet": False,
@@ -66,6 +70,11 @@ class SoSComponent():
         # update args from component's arg_defaults defintion
         self._arg_defaults.update(self.arg_defaults)
         self.opts = self.load_options()
+        if self.configure_logging:
+            tmpdir = self.opts.tmp_dir or tempfile.gettempdir()
+            self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=tmpdir)
+            self.tempfile_util = TempFileUtil(self.tmpdir)
+            self._setup_logging()
 
     @classmethod
     def add_parser_options(cls, parser):
@@ -82,6 +91,58 @@ class SoSComponent():
         cmdopts = SoSOptions().from_args(self.args)
         opts.merge(cmdopts)
         return opts
+
+    def _setup_logging(self):
+        """Creates the log handler that shall be used by all components and any
+        and all related bits to those components that need to log either to the
+        console or to the log file for that run of sos.
+        """
+        # main soslog
+        self.soslog = logging.getLogger('sos')
+        self.soslog.setLevel(logging.DEBUG)
+        self.sos_log_file = self.get_temp_file()
+        flog = logging.StreamHandler(self.sos_log_file)
+        flog.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s'))
+        flog.setLevel(logging.INFO)
+        self.soslog.addHandler(flog)
+
+        if not self.opts.quiet:
+            console = logging.StreamHandler(sys.stdout)
+            console.setFormatter(logging.Formatter('%(message)s'))
+            if self.opts.verbosity and self.opts.verbosity > 1:
+                console.setLevel(logging.DEBUG)
+                flog.setLevel(logging.DEBUG)
+            elif self.opts.verbosity and self.opts.verbosity > 0:
+                console.setLevel(logging.INFO)
+                flog.setLevel(logging.DEBUG)
+            else:
+                console.setLevel(logging.WARNING)
+            self.soslog.addHandler(console)
+            # log ERROR or higher logs to stderr instead
+            console_err = logging.StreamHandler(sys.stderr)
+            console_err.setFormatter(logging.Formatter('%(message)s'))
+            console_err.setLevel(logging.ERROR)
+            self.soslog.addHandler(console_err)
+
+        # ui log
+        self.ui_log = logging.getLogger('sos_ui')
+        self.ui_log.setLevel(logging.INFO)
+        self.sos_ui_log_file = self.get_temp_file()
+        ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
+        ui_fhandler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s'))
+
+        self.ui_log.addHandler(ui_fhandler)
+
+        if not self.opts.quiet:
+            ui_console = logging.StreamHandler(sys.stdout)
+            ui_console.setFormatter(logging.Formatter('%(message)s'))
+            ui_console.setLevel(logging.INFO)
+            self.ui_log.addHandler(ui_console)
+
+    def get_temp_file(self):
+        return self.tempfile_util.new()
 
 
 class SoS():

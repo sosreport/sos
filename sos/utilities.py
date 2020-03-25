@@ -17,6 +17,7 @@ import fnmatch
 import errno
 import shlex
 import glob
+import tempfile
 import threading
 import time
 import gettext
@@ -316,6 +317,33 @@ class ImporterHelper(object):
                 plugins.extend(self._find_plugins_in_dir(path))
 
         return plugins
+
+
+class TempFileUtil():
+
+    def __init__(self, tmp_dir):
+        self.tmp_dir = tmp_dir
+        self.files = []
+
+    def new(self):
+        fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
+        # avoid TOCTOU race by using os.fdopen()
+        fobj = os.fdopen(fd, 'w+')
+        self.files.append((fname, fobj))
+        return fobj
+
+    def clean(self):
+        for fname, f in self.files:
+            try:
+                f.flush()
+                f.close()
+            except Exception:
+                pass
+            try:
+                os.unlink(fname)
+            except Exception:
+                pass
+        self.files = []
 
 
 class SoSTimeoutError(OSError):
