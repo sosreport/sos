@@ -17,6 +17,7 @@ gettext to internationalize messages.
 __version__ = "3.9"
 
 import six
+import sys
 
 from argparse import ArgumentParser
 
@@ -25,7 +26,7 @@ if six.PY3:
 else:
     from ConfigParser import ConfigParser, ParsingError, Error
 
-from sos.options import SosListOption
+from sos.options import SoSOptions, SosListOption
 
 
 class SoSComponent():
@@ -49,10 +50,22 @@ class SoSComponent():
 
     desc = 'unset'
 
+    arg_defaults = {}
+
+    _arg_defaults = {
+        "quiet": False,
+        "tmp_dir": '',
+        "sysroot": None,
+        "verbosity": 0
+    }
+
     def __init__(self, parser, parsed_args, cmdline_args):
         self.parser = parser
         self.args = parsed_args
         self.cmdline = cmdline_args
+        # update args from component's arg_defaults defintion
+        self._arg_defaults.update(self.arg_defaults)
+        self.opts = self.load_options()
 
     @classmethod
     def add_parser_options(cls, parser):
@@ -61,6 +74,14 @@ class SoSComponent():
         """
         pass
 
+    def load_options(self):
+        """Compile arguments loaded from defaults, config files, and the command
+        line into a usable set of options
+        """
+        opts = SoSOptions(arg_defaults=self._arg_defaults)
+        cmdopts = SoSOptions().from_args(self.args)
+        opts.merge(cmdopts)
+        return opts
 
 
 class SoS():
