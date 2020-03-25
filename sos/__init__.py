@@ -47,10 +47,21 @@ class SoSComponent():
     Added in 4.0
     """
 
+    desc = 'unset'
+
     def __init__(self, parser, parsed_args, cmdline_args):
         self.parser = parser
         self.args = parsed_args
         self.cmdline = cmdline_args
+
+    @classmethod
+    def add_parser_options(cls, parser):
+        """This should be overridden by each subcommand to add its own unique
+        options to the parser
+        """
+        pass
+
+
 
 class SoS():
     """Main entrypoint for sos from the command line
@@ -63,12 +74,18 @@ class SoS():
 
     def __init__(self, args):
         self.cmdline = args
-        usage_string = "%(prog)s component [options]\n\n"
         # define the local subcommands that exist on the system
         import sos.report
         self._components = {'report': sos.report.SoSReport}
         # build the top-level parser
-        self.parser = ArgumentParser(usage=usage_string)
+        _com_string = ''
+        for com in self._components:
+            _com_string += "\t%s\t\t\t%s\n" % (com, self._components[com].desc)
+        usage_string = ("%(prog)s <component> [options]\n\n"
+                        "Available components:\n")
+        usage_string = usage_string + _com_string
+        epilog = ("See `sos <component> --help` for more information")
+        self.parser = ArgumentParser(usage=usage_string, epilog=epilog)
         self.parser.register('action', 'extend', SosListOption)
         # set the component subparsers
         self.subparsers = self.parser.add_subparsers(
@@ -81,6 +98,7 @@ class SoS():
         # for the component subparsers
         for comp in self._components:
             _com_subparser = self.subparsers.add_parser(comp)
+            _com_subparser.usage = "sos %s [options]" % comp
             _com_subparser.register('action', 'extend', SosListOption)
             self._add_common_options(_com_subparser)
             self._components[comp].add_parser_options(_com_subparser)
@@ -117,5 +135,8 @@ class SoS():
         except Exception as err:
             print("Could not initialize '%s': %s" % (_com, err))
             sys.exit(1)
+
+    def execute(self):
+        self._component.execute()
 
 # vim: set et ts=4 sw=4 :
