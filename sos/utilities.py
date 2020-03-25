@@ -19,6 +19,7 @@ import shlex
 import glob
 import threading
 import time
+import gettext
 
 from contextlib import closing
 from collections import deque
@@ -26,6 +27,17 @@ from collections import deque
 # PYCOMPAT
 import six
 
+gettext_dir = "/usr/share/locale"
+gettext_app = "sos"
+
+gettext.bindtextdomain(gettext_app, gettext_dir)
+
+
+def _default(msg):
+    return gettext.dgettext(gettext_app, msg)
+
+
+_sos = _default
 
 def tail(filename, number_of_bytes):
     """Returns the last number_of_bytes of filename"""
