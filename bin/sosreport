@@ -15,7 +15,7 @@ try:
     # allow running from the git checkout, even though as of 4.0 we are moving
     # binaries into a bin/ top-level directory.
     sys.path.append(os.getcwd())
-    from sos.report.sosreport import main
+    from sos.report import main
 except KeyboardInterrupt:
     raise SystemExit()
 
