@@ -62,6 +62,14 @@ class SoSComponent():
         self.parser = parser
         self.args = parsed_args
         self.cmdline = cmdline_args
+        self.exit_process = False
+
+        try:
+            import signal
+            signal.signal(signal.SIGTERM, self.get_exit_handler())
+        except Exception:
+            pass
+
         # update args from component's arg_defaults defintion
         self._arg_defaults.update(self.arg_defaults)
         self.opts = self.load_options()
@@ -70,6 +78,15 @@ class SoSComponent():
             self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=tmpdir)
             self.tempfile_util = TempFileUtil(self.tmpdir)
             self._setup_logging()
+
+    def get_exit_handler(self):
+        def exit_handler(signum, frame):
+            self.exit_process = True
+            self._exit()
+        return exit_handler
+
+    def _exit(self, error=0):
+        raise SystemExit(error)
 
     @classmethod
     def add_parser_options(cls, parser):
