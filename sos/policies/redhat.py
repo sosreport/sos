@@ -17,7 +17,7 @@ import re
 from sos.report.plugins import RedHatPlugin
 from sos.policies import LinuxPolicy, PackageManager, PresetDefaults
 from sos import _sos as _
-from sos import SoSOptions
+from sos.options import SoSOptions
 
 OS_RELEASE = "/etc/os-release"
 
