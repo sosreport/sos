@@ -22,12 +22,6 @@ import sys
 import tempfile
 
 from argparse import ArgumentParser
-
-if six.PY3:
-    from configparser import ConfigParser, ParsingError, Error
-else:
-    from ConfigParser import ConfigParser, ParsingError, Error
-
 from sos.options import SoSOptions, SosListOption
 from sos.utilities import TempFileUtil
 
@@ -57,6 +51,7 @@ class SoSComponent():
     configure_logging = True
 
     _arg_defaults = {
+        "config_file": '/etc/sos.conf',
         "quiet": False,
         "tmp_dir": '',
         "sysroot": None,
@@ -87,9 +82,20 @@ class SoSComponent():
         """Compile arguments loaded from defaults, config files, and the command
         line into a usable set of options
         """
+        # load the defaults defined by the component and the shared options
         opts = SoSOptions(arg_defaults=self._arg_defaults)
-        cmdopts = SoSOptions().from_args(self.args)
+
+        for option in self.parser._actions:
+            if option.default != '==SUPPRESS==':
+                option.default = None
+
+        # load values from cmdline
+        cmdopts = SoSOptions().from_args(self.parser.parse_args())
         opts.merge(cmdopts)
+
+        # load values from config file
+        opts.update_from_conf(opts.config_file)
+
         return opts
 
     def _setup_logging(self):
@@ -190,6 +196,9 @@ class SoS():
     def _add_common_options(self, parser):
         """Adds the options shared across components to the parser
         """
+        parser.add_argument("--config-file", type=str, action="store",
+                            dest="config_file", default="/etc/sos.conf",
+                            help="specify alternate configuration file")
         parser.add_argument("-q", "--quiet", action="store_true",
                             dest="quiet", default=False,
                             help="only print fatal errors")
