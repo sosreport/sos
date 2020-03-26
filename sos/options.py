@@ -16,7 +16,7 @@ def _is_seq(val):
     return val_type is list or val_type is tuple
 
 
-class SoSOptions(object):
+class SoSOptions():
 
     def _merge_opt(self, opt, src, is_default):
         def _unset(val):
