@@ -24,6 +24,16 @@ import tempfile
 from argparse import ArgumentParser
 from sos.options import SosListOption
 
+import gettext
+gettext_dir = "/usr/share/locale"
+gettext_app = "sos"
+gettext.bindtextdomain(gettext_app, gettext_dir)
+
+def _default(msg):
+    return gettext.dgettext(gettext_app, msg)
+
+_sos = _default
+
 
 class SoS():
     """Main entrypoint for sos from the command line
