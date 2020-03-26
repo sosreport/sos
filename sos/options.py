@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from argparse import ArgumentParser, Action
-
+from configparser import ConfigParser, ParsingError, Error
 
 def _is_seq(val):
     """Return true if val is an instance of a known sequence type.
@@ -43,6 +43,8 @@ class SoSOptions(object):
                 setattr(self, opt, newvalue + oldvalue)
 
     def _merge_opts(self, src, is_default):
+        if not isinstance(src, dict):
+            src = vars(src)
         for arg in self.arg_names:
             self._merge_opt(arg, src, is_default)
 
@@ -136,45 +138,88 @@ class SoSOptions(object):
             return ["--%s" % opt for d in range(0, int(val))]
         return ["--" + opt + "=" + val]
 
-    @classmethod
-    def from_file(cls, argparser, config_file, is_default=True):
-        opts = SoSOptions()
+    def _convert_to_type(self, key, val, conf):
+        """Ensure that the value read from a config file is the proper type
+        for consumption by the component, as defined by arg_defaults.
+
+        Params:
+            :param key:         The key in arg_defaults we need to match the
+                                type of
+            :param val:         The value to be converted to a particular type
+            :param conf:        File values are being loaded from
+        """
+        if isinstance(self.arg_defaults[key], type(val)):
+            return val
+        if isinstance(self.arg_defaults[key], bool):
+            _val = val.lower()
+            if _val in ['true', 'on', 'yes']:
+                return True
+            elif _val in ['false', 'off', 'no']:
+                return False
+            else:
+                raise Exception(
+                    "Value of '%s' in %s must be True or False or analagous"
+                    % (key, conf))
+        if isinstance(self.arg_defaults[key], int):
+            try:
+                return int(val)
+            except ValueError:
+                raise Exception("Value of '%s' in %s must be integer"
+                                % (key, conf))
+        return val
+
+    def update_from_conf(self, config_file):
         config = ConfigParser()
         try:
             try:
                 with open(config_file) as f:
                     config.readfp(f)
             except (ParsingError, Error) as e:
-                raise exit('Failed to parse configuration '
-                           'file %s' % config_file)
+                raise exit('Failed to parse configuration file %s'
+                           % config_file)
         except (OSError, IOError) as e:
-            raise exit('Unable to read configuration file %s '
-                       ': %s' % (config_file, e.args[1]))
+            raise exit('Unable to read configuration file %s : %s'
+                       % (config_file, e.args[1]))
 
         if config.has_section("general"):
-            optlist = []
-            for opt, val in config.items("general"):
-                optlist.extend(SoSOptions._opt_to_args(opt, val))
-            opts._merge_opts(argparser.parse_args(optlist), is_default)
+            odict = dict(config.items("general"))
+            # handle verbose explicitly
+            if 'verbose' in odict.keys():
+                odict['verbosity'] = odict.pop('verbose')
+            # convert options names
+            for key in odict.keys():
+                if '-' in key:
+                    odict[key.replace('-', '_')] = odict.pop(key)
+            # set the values according to the config file
+            for key, val in odict.items():
+                if key not in self.arg_defaults:
+                    # read an option that is not loaded by the current
+                    # SoSComponent
+                    continue
+                val = self._convert_to_type(key, val, config_file)
+                setattr(self, key, val)
 
-        opts.noplugins = []
-        if config.has_option("plugins", "disable"):
-            opts.noplugins.extend([plugin.strip() for plugin in
-                                  config.get("plugins", "disable").split(',')])
+        # report specific checks
 
-        if config.has_option("plugins", "enable"):
-            opts.enableplugins = []
-            opts.enableplugins.extend(
-                    [plugin.strip() for plugin in
-                     config.get("plugins", "enable").split(',')])
+        if hasattr(self, 'noplugins'):
+            if config.has_option("plugins", "disable"):
+                self.noplugins.extend([
+                    plugin.strip() for plugin in
+                    config.get("plugins", "disable").split(',')
+                ])
 
-        if config.has_section("tunables"):
-            opts.plugopts = []
-            for opt, val in config.items("tunables"):
-                if not opt.split('.')[0] in opts.noplugins:
-                    opts.plugopts.append(opt + "=" + val)
+        if hasattr(self, 'enableplugins'):
+            if config.has_option("plugins", "enable"):
+                self.enableplugins.extend([
+                    plugin.strip() for plugin in
+                    config.get("plugins", "enable").split(',')
+                ])
 
-        return opts
+        if hasattr(self, 'plugopts'):
+            if config.has_section("tunables"):
+                for opt, val in config.items("tunables"):
+                    if not opt.split('.')[0] in opts.noplugins:
+                        self.plugopts.append(opt + "=" + val)
 
     def merge(self, src, skip_default=True):
         """Merge another set of ``SoSOptions`` into this object.
