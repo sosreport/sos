@@ -73,7 +73,7 @@ class SoS():
             _com_subparser.usage = "sos %s [options]" % comp
             _com_subparser.register('action', 'extend', SosListOption)
             self._add_common_options(_com_subparser)
-            self._components[comp].add_parser_options(_com_subparser)
+            self._components[comp].add_parser_options(parser=_com_subparser)
         self.args = self.parser.parse_args()
         self._init_component()
 
@@ -83,6 +83,9 @@ class SoS():
         parser.add_argument("--config-file", type=str, action="store",
                             dest="config_file", default="/etc/sos.conf",
                             help="specify alternate configuration file")
+        parser.add_argument("--debug", action="store_true", dest="debug",
+                    help="enable interactive debugging using the "
+                         "python debugger")
         parser.add_argument("-q", "--quiet", action="store_true",
                             dest="quiet", default=False,
                             help="only print fatal errors")
@@ -93,6 +96,9 @@ class SoS():
                             dest="tmp_dir",
                             help="specify alternate temporary directory",
                             default=None)
+        parser.add_argument("-t", "--threads", action="store", dest="threads",
+                            default=4, type=int,
+                            help="Number of threads to use")
         parser.add_argument("-v", "--verbose", action="count",
                             dest="verbosity", default=0,
                             help="increase verbosity")

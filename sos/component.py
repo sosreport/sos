@@ -10,6 +10,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import logging
+import os
 import tempfile
 import sys
 import sos.policies
@@ -46,7 +47,9 @@ class SoSComponent():
 
     _arg_defaults = {
         "config_file": '/etc/sos.conf',
+        "debug": False,
         "quiet": False,
+        "threads": 4,
         "tmp_dir": '',
         "sysroot": None,
         "verbosity": 0
@@ -67,9 +70,22 @@ class SoSComponent():
         # update args from component's arg_defaults defintion
         self._arg_defaults.update(self.arg_defaults)
         self.opts = self.load_options()
+
         if self.configure_logging:
-            tmpdir = self.opts.tmp_dir or tempfile.gettempdir()
-            self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=tmpdir)
+            tmpdir = self.opts.tmp_dir or '/var/tmp'
+
+            if not os.path.isdir(tmpdir) \
+                    or not os.access(tmpdir, os.W_OK):
+                msg = "temporary directory %s " % tmpdir
+                msg += "does not exist or is not writable\n"
+                # write directly to stderr as logging is not initialised yet
+                sys.stderr.write(msg)
+                self._exit(1)
+
+            self.sys_tmp = tmpdir
+
+
+            self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=self.sys_tmp)
             self.tempfile_util = TempFileUtil(self.tmpdir)
             self._setup_logging()
 
