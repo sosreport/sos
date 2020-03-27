@@ -13,7 +13,7 @@ try:
 except ImportError:
     import simplejson as json
 
-from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
+from sos.report.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
                            Alert, PlainTextReport)
 
 
