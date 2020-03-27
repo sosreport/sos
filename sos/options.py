@@ -96,7 +96,7 @@ class SoSOptions():
             :returns: the new ``SoSOptions`` object.
         """
         self.arg_defaults = arg_defaults
-        self.arg_names =  arg_defaults.keys()
+        self.arg_names =  list(arg_defaults.keys())
         self._nondefault = set()
         # first load the defaults, if supplied
         for arg in self.arg_defaults:
