@@ -1,10 +1,3 @@
-"""
-Gather information about a system and report it using plugins
-supplied for application-specific information
-"""
-# sosreport.py
-# gather information about a system and report it
-
 # Copyright (C) 2006 Steve Conklin <sconklin@redhat.com>
 
 # This file is part of the sos project: https://github.com/sosreport/sos
@@ -78,8 +71,12 @@ chroot_modes = ["auto", "always", "never"]
 
 
 class SoSReport(SoSComponent):
-    """Collect files and command output to save to an archive for analysis"""
+    """Run a set of commands and file collections and save them to a report for
+    future analysis
+    """
 
+
+    desc = "Collect files and command output in an archive"
 
     arg_defaults = {
         'alloptions': False,
