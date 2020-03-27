@@ -47,12 +47,19 @@ class SoS():
     def __init__(self, args):
         self.cmdline = args
         # define the local subcommands that exist on the system
+        # first import the necessary module, then add an entry to the dict that
+        # follows the tuple format (class, [aliases]), where aliases is a list
+        # of shorthand names to accept in place of the full subcommand
+        # if no aliases are desired, pass an empty list
         import sos.report
-        self._components = {'report': sos.report.SoSReport}
+        self._components = {
+            'report': (sos.report.SoSReport, ['rep'])
+        }
         # build the top-level parser
         _com_string = ''
         for com in self._components:
-            _com_string += "\t%s\t\t\t%s\n" % (com, self._components[com].desc)
+            _com_string += ("\t%s\t\t\t%s\n"
+                            % (com, self._components[com][0].desc))
         usage_string = ("%(prog)s <component> [options]\n\n"
                         "Available components:\n")
         usage_string = usage_string + _com_string
@@ -69,11 +76,15 @@ class SoS():
         # this needs to be done here, as otherwise --help will be unavailable
         # for the component subparsers
         for comp in self._components:
-            _com_subparser = self.subparsers.add_parser(comp)
+            _com_subparser = self.subparsers.add_parser(
+                comp,
+                aliases=self._components[comp][1]
+            )
             _com_subparser.usage = "sos %s [options]" % comp
             _com_subparser.register('action', 'extend', SosListOption)
             self._add_common_options(_com_subparser)
-            self._components[comp].add_parser_options(parser=_com_subparser)
+            self._components[comp][0].add_parser_options(parser=_com_subparser)
+            _com_subparser.set_defaults(component=comp)
         self.args = self.parser.parse_args(self.cmdline)
         self._init_component()
 
@@ -111,8 +122,8 @@ class SoS():
         if not _com in self._components.keys():
             print("Unknown subcommand '%s' specified" % _com)
         try:
-            self._component = self._components[_com](self.parser, self.args,
-                                                     self.cmdline)
+            self._component = self._components[_com][0](self.parser, self.args,
+                                                        self.cmdline)
         except Exception as err:
             print("Could not initialize '%s': %s" % (_com, err))
             sys.exit(1)
