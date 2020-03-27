@@ -29,7 +29,7 @@ from sos import __version__
 from sos.component import SoSComponent
 import sos.policies
 from sos.archive import TarFileArchive
-from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
+from sos.report.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
                            Alert, Note, PlainTextReport, JSONReport,
                            HTMLReport)
 
