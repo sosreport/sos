@@ -74,7 +74,7 @@ class SoS():
             _com_subparser.register('action', 'extend', SosListOption)
             self._add_common_options(_com_subparser)
             self._components[comp].add_parser_options(parser=_com_subparser)
-        self.args = self.parser.parse_args()
+        self.args = self.parser.parse_args(self.cmdline)
         self._init_component()
 
     def _add_common_options(self, parser):
