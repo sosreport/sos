@@ -185,7 +185,7 @@ class SoSOptions():
             odict = dict(config.items("general"))
             # handle verbose explicitly
             if 'verbose' in odict.keys():
-                odict['verbosity'] = odict.pop('verbose')
+                odict['verbosity'] = int(odict.pop('verbose'))
             # convert options names
             for key in odict.keys():
                 if '-' in key:
