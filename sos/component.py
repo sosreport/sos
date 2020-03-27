@@ -124,7 +124,7 @@ class SoSComponent():
                 option.default = None
 
         # load values from cmdline
-        cmdopts = SoSOptions().from_args(self.parser.parse_args())
+        cmdopts = SoSOptions().from_args(self.parser.parse_args(self.cmdline))
         opts.merge(cmdopts)
 
         # load values from config file
