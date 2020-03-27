@@ -29,8 +29,10 @@ gettext_dir = "/usr/share/locale"
 gettext_app = "sos"
 gettext.bindtextdomain(gettext_app, gettext_dir)
 
+
 def _default(msg):
     return gettext.dgettext(gettext_app, msg)
+
 
 _sos = _default
 
@@ -95,8 +97,8 @@ class SoS():
                             dest="config_file", default="/etc/sos.conf",
                             help="specify alternate configuration file")
         parser.add_argument("--debug", action="store_true", dest="debug",
-                    help="enable interactive debugging using the "
-                         "python debugger")
+                            help="enable interactive debugging using the "
+                            "python debugger")
         parser.add_argument("-q", "--quiet", action="store_true",
                             dest="quiet", default=False,
                             help="only print fatal errors")
@@ -119,7 +121,7 @@ class SoS():
         initialize that component.
         """
         _com = self.args.component
-        if not _com in self._components.keys():
+        if _com not in self._components.keys():
             print("Unknown subcommand '%s' specified" % _com)
         try:
             self._component = self._components[_com][0](self.parser, self.args,

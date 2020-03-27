@@ -29,9 +29,9 @@ from sos import __version__
 from sos.component import SoSComponent
 import sos.policies
 from sos.archive import TarFileArchive
-from sos.report.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
-                           Alert, Note, PlainTextReport, JSONReport,
-                           HTMLReport)
+from sos.report.reporting import (Report, Section, Command, CopiedFile,
+                                  CreatedFile, Alert, Note, PlainTextReport,
+                                  JSONReport, HTMLReport)
 
 # PYCOMPAT
 import six
@@ -66,6 +66,7 @@ def _format_since(date):
     date parsing (like '2 days ago') in the future """
     return datetime.strptime('{:<014s}'.format(date), '%Y%m%d%H%M%S')
 
+
 # valid modes for --chroot
 chroot_modes = ["auto", "always", "never"]
 
@@ -74,7 +75,6 @@ class SoSReport(SoSComponent):
     """Run a set of commands and file collections and save them to a report for
     future analysis
     """
-
 
     desc = "Collect files and command output in an archive"
 

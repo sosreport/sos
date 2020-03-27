@@ -84,7 +84,6 @@ class SoSComponent():
 
             self.sys_tmp = tmpdir
 
-
             self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=self.sys_tmp)
             self.tempfile_util = TempFileUtil(self.tmpdir)
             self._setup_logging()
@@ -113,8 +112,8 @@ class SoSComponent():
         pass
 
     def load_options(self):
-        """Compile arguments loaded from defaults, config files, and the command
-        line into a usable set of options
+        """Compile arguments loaded from defaults, config files, and the
+        command line into a usable set of options
         """
         # load the defaults defined by the component and the shared options
         opts = SoSOptions(arg_defaults=self._arg_defaults)
