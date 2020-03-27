@@ -24,7 +24,7 @@ import logging
 from datetime import datetime
 from argparse import ArgumentParser, Action
 import sos.report.plugins
-from sos.utilities import ImporterHelper, SoSTimeoutError
+from sos.utilities import ImporterHelper, SoSTimeoutError, TempFileUtil
 from shutil import rmtree
 import tempfile
 import hashlib
@@ -33,7 +33,7 @@ import pdb
 
 from sos import _sos as _
 from sos import __version__
-from sos import _arg_defaults, SoSOptions
+from sos.component import SoSComponent
 import sos.policies
 from sos.archive import TarFileArchive
 from sos.reporting import (Report, Section, Command, CopiedFile, CreatedFile,
@@ -73,264 +73,74 @@ def _format_since(date):
     date parsing (like '2 days ago') in the future """
     return datetime.strptime('{:<014s}'.format(date), '%Y%m%d%H%M%S')
 
-
-class TempFileUtil(object):
-
-    def __init__(self, tmp_dir):
-        self.tmp_dir = tmp_dir
-        self.files = []
-
-    def new(self):
-        fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
-        # avoid TOCTOU race by using os.fdopen()
-        fobj = os.fdopen(fd, 'w+')
-        self.files.append((fname, fobj))
-        return fobj
-
-    def clean(self):
-        for fname, f in self.files:
-            try:
-                f.flush()
-                f.close()
-            except Exception:
-                pass
-            try:
-                os.unlink(fname)
-            except Exception:
-                pass
-        self.files = []
-
-
-class SosListOption(Action):
-
-    """Allow to specify comma delimited list of plugins"""
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        items = [opt for opt in values.split(',')]
-        if getattr(namespace, self.dest):
-            items += getattr(namespace, self.dest)
-        setattr(namespace, self.dest, items)
-
-
 # valid modes for --chroot
 chroot_modes = ["auto", "always", "never"]
 
 
-def _get_parser():
-    """ Build ArgumentParser content"""
-
-    usage_string = ("%(prog)s [options]\n\n"
-                    "Some examples:\n\n"
-                    "enable dlm plugin only and collect dlm lockdumps:\n"
-                    "  # sosreport -o dlm -k dlm.lockdump\n\n"
-                    "disable memory and samba plugins, turn off rpm "
-                    "-Va collection:\n"
-                    "  # sosreport -n memory,samba -k rpm.rpmva=off")
-
-    parser = ArgumentParser(usage=usage_string)
-    parser.register('action', 'extend', SosListOption)
-    parser.add_argument("-a", "--alloptions", action="store_true",
-                        dest="alloptions", default=False,
-                        help="enable all options for loaded plugins")
-    parser.add_argument("--all-logs", action="store_true",
-                        dest="all_logs", default=False,
-                        help="collect all available logs regardless "
-                             "of size")
-    parser.add_argument("--since", action="store",
-                        dest="since", default=None,
-                        type=_format_since,
-                        help="Escapes archived files older than date. "
-                             "This will also affect --all-logs. "
-                             "Format: YYYYMMDD[HHMMSS]")
-    parser.add_argument("--batch", action="store_true",
-                        dest="batch", default=False,
-                        help="batch mode - do not prompt interactively")
-    parser.add_argument("--build", action="store_true",
-                        dest="build", default=False,
-                        help="preserve the temporary directory and do not "
-                             "package results")
-    parser.add_argument("--case-id", action="store",
-                        dest="case_id",
-                        help="specify case identifier")
-    parser.add_argument("-c", "--chroot", action="store", dest="chroot",
-                        help="chroot executed commands to SYSROOT "
-                             "[auto, always, never] (default=auto)",
-                        default=_arg_defaults["chroot"])
-    parser.add_argument("--config-file", type=str, action="store",
-                        dest="config_file", default="/etc/sos.conf",
-                        help="specify alternate configuration file")
-    parser.add_argument("--debug", action="store_true", dest="debug",
-                        help="enable interactive debugging using the "
-                             "python debugger")
-    parser.add_argument("--desc", "--description", type=str, action="store",
-                        help="Description for a new preset", default="")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Run plugins but do not collect data")
-    parser.add_argument("--experimental", action="store_true",
-                        dest="experimental", default=False,
-                        help="enable experimental plugins")
-    parser.add_argument("-e", "--enable-plugins", action="extend",
-                        dest="enableplugins", type=str,
-                        help="enable these plugins", default=[])
-    parser.add_argument("-k", "--plugin-option", action="extend",
-                        dest="plugopts", type=str,
-                        help="plugin options in plugname.option=value "
-                             "format (see -l)", default=[])
-    parser.add_argument("--label", "--name", action="store", dest="label",
-                        help="specify an additional report label")
-    parser.add_argument("-l", "--list-plugins", action="store_true",
-                        dest="list_plugins", default=False,
-                        help="list plugins and available plugin options")
-    parser.add_argument("--list-presets", action="store_true",
-                        help="display a list of available presets")
-    parser.add_argument("--list-profiles", action="store_true",
-                        dest="list_profiles", default=False,
-                        help="display a list of available profiles and "
-                             "plugins that they include")
-    parser.add_argument("--log-size", action="store", dest="log_size",
-                        type=int, default=_arg_defaults["log_size"],
-                        help="limit the size of collected logs (in MiB)")
-    parser.add_argument("-n", "--skip-plugins", action="extend",
-                        dest="noplugins", type=str,
-                        help="disable these plugins", default=[])
-    parser.add_argument("--no-report", action="store_true",
-                        dest="noreport",
-                        help="disable plaintext/HTML reporting", default=False)
-    parser.add_argument("--no-env-vars", action="store_true", default=False,
-                        dest="no_env_vars",
-                        help="Do not collect environment variables")
-    parser.add_argument("--no-postproc", default=False, dest="no_postproc",
-                        action="store_true",
-                        help="Disable all post-processing")
-    parser.add_argument("--note", type=str, action="store", default="",
-                        help="Behaviour notes for new preset")
-    parser.add_argument("-o", "--only-plugins", action="extend",
-                        dest="onlyplugins", type=str,
-                        help="enable these plugins only", default=[])
-    parser.add_argument("--preset", action="store", type=str,
-                        help="A preset identifier", default="auto")
-    parser.add_argument("--plugin-timeout", default=None,
-                        help="set a timeout for all plugins")
-    parser.add_argument("-p", "--profile", action="extend",
-                        dest="profiles", type=str, default=[],
-                        help="enable plugins used by the given profiles")
-    parser.add_argument("-q", "--quiet", action="store_true",
-                        dest="quiet", default=False,
-                        help="only print fatal errors")
-    parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
-                        help="system root directory path (default='/')",
-                        default=None)
-    parser.add_argument("--ticket-number", action="store",
-                        dest="case_id",
-                        help="specify ticket number")
-    parser.add_argument("--tmp-dir", action="store",
-                        dest="tmp_dir",
-                        help="specify alternate temporary directory",
-                        default=None)
-    parser.add_argument("-v", "--verbose", action="count", dest="verbosity",
-                        default=_arg_defaults["verbosity"],
-                        help="increase verbosity"),
-    parser.add_argument("--verify", action="store_true",
-                        dest="verify", default=False,
-                        help="perform data verification during collection")
-    parser.add_argument("-z", "--compression-type", dest="compression_type",
-                        default=_arg_defaults["compression_type"],
-                        help="compression technology to use [auto, "
-                             "gzip, bzip2, xz] (default=auto)")
-    parser.add_argument("-t", "--threads", action="store", dest="threads",
-                        help="specify number of concurrent plugins to run"
-                        " (default=4)", default=4, type=int)
-    parser.add_argument("--allow-system-changes", action="store_true",
-                        dest="allow_system_changes", default=False,
-                        help="Run commands even if they can change the "
-                             "system (e.g. load kernel modules)")
-
-    parser.add_argument("--upload", action="store_true", default=False,
-                        help="Upload the archive to a policy-default location")
-    parser.add_argument("--upload-url", default=None,
-                        help="Upload the archive to the specified server")
-    parser.add_argument("--upload-directory", default=None,
-                        help="Specify the directory to upload the archive to")
-    parser.add_argument("--upload-user", default=None,
-                        help="Username to authenticate to upload server with")
-    parser.add_argument("--upload-pass", default=None,
-                        help="Password to authenticate to upload server with")
-
-    # Group to make add/del preset exclusive
-    preset_grp = parser.add_mutually_exclusive_group()
-    preset_grp.add_argument("--add-preset", type=str, action="store",
-                            help="Add a new named command line preset")
-    preset_grp.add_argument("--del-preset", type=str, action="store",
-                            help="Delete the named command line preset")
-
-    # Group to make tarball encryption (via GPG/password) exclusive
-    encrypt_grp = parser.add_mutually_exclusive_group()
-    encrypt_grp.add_argument("--encrypt-key",
-                             help="Encrypt the final archive using a GPG "
-                                  "key-pair")
-    encrypt_grp.add_argument("--encrypt-pass",
-                             help="Encrypt the final archive using a password")
-
-    return parser
+class SoSReport(SoSComponent):
+    """Collect files and command output to save to an archive for analysis"""
 
 
-class SoSReport(object):
+    arg_defaults = {
+        'alloptions': False,
+        'all_logs': False,
+        'batch': False,
+        'build': False,
+        'case_id': '',
+        'chroot': 'auto',
+        'desc': '',
+        'dry_run': False,
+        'experimental': False,
+        'enableplugins': [],
+        'plugopts': [],
+        'label': '',
+        'list_plugins': False,
+        'list_presets': False,
+        'list_profiles': False,
+        'log_size': 25,
+        'noplugins': [],
+        'noreport': False,
+        'no_env_vars': False,
+        'no_postproc': False,
+        'note': '',
+        'onlyplugins': [],
+        'preset': 'auto',
+        'plugin_timeout': 300,
+        'profiles': [],
+        'since': None,
+        'verify': False,
+        'compression_type': 'auto',
+        'allow_system_changes': False,
+        'upload': False,
+        'upload_url': None,
+        'upload_directory': None,
+        'upload_user': None,
+        'upload_pass': None,
+        'add_preset': '',
+        'del_preset': '',
+        'encrypt_key': None,
+        'encrypt_pass': None
+    }
 
-    """The main sosreport class"""
-
-    def __init__(self, args):
+    def __init__(self, parser, args, cmdline):
+        super(SoSReport, self).__init__(parser, args, cmdline)
         self.loaded_plugins = []
         self.skipped_plugins = []
         self.all_options = []
         self.env_vars = set()
         self.archive = None
-        self.tempfile_util = None
         self._args = args
         self.sysroot = "/"
         self.sys_tmp = None
-        self.exit_process = False
         self.preset = None
 
-        try:
-            import signal
-            signal.signal(signal.SIGTERM, self.get_exit_handler())
-        except Exception:
-            pass  # not available in java, but we don't care
-
         self.print_header()
-
-        # load default options and store them in self.opts
-        parser = _get_parser()
-        self.opts = SoSOptions().from_args(parser.parse_args([]))
-
-        # remove default options now, such that by processing cmdline options
-        # we know what exact options were provided there and should not be
-        # overwritten any time further
-        # then merge these options on top of self.opts
-        # this approach is required since:
-        # - we process the more priority options first (cmdline, then config
-        #   file, then presets) - required to know cfgfile or preset
-        # - we have to apply lower prio options only on top of non-default
-        for option in parser._actions:
-            if option.default != '==SUPPRESS==':
-                option.default = None
-        cmd_opts = SoSOptions().from_args(parser.parse_args(args))
-        self.opts.merge(cmd_opts)
-
-        # load options from config.file and merge them to self.opts
-        self.fileopts = SoSOptions().from_file(parser, self.opts.config_file)
-        self.opts.merge(self.fileopts)
         self._set_debug()
 
-        # load preset and options from it - first, identify policy for that
-        try:
-            self.policy = sos.policies.load(sysroot=self.opts.sysroot)
-        except KeyboardInterrupt:
-            self._exit(0)
         self._is_root = self.policy.is_root()
 
         # user specified command line preset
-        if self.opts.preset != _arg_defaults["preset"]:
+        if self.opts.preset != self.arg_defaults["preset"]:
             self.preset = self.policy.find_preset(self.opts.preset)
             if not self.preset:
                 sys.stderr.write("Unknown preset: '%s'\n" % self.opts.preset)
@@ -343,26 +153,7 @@ class SoSReport(object):
         # now merge preset options to self.opts
         self.opts.merge(self.preset.opts)
 
-        # system temporary directory to use
-        tmp = os.path.abspath(self.policy.get_tmp_dir(self.opts.tmp_dir))
-
-        if not os.path.isdir(tmp) \
-                or not os.access(tmp, os.W_OK):
-            msg = "temporary directory %s " % tmp
-            msg += "does not exist or is not writable\n"
-            # write directly to stderr as logging is not initialised yet
-            sys.stderr.write(msg)
-            self._exit(1)
-
-        self.sys_tmp = tmp
-
-        # our (private) temporary directory
-        self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=self.sys_tmp)
-        self.tempfile_util = TempFileUtil(self.tmpdir)
-
         self._set_directories()
-
-        self._setup_logging()
 
         msg = "default"
         host_sysroot = self.policy.host_sysroot()
@@ -382,6 +173,126 @@ class SoSReport(object):
             self._exit(1)
 
         self._get_hardware_devices()
+
+    @classmethod
+    def add_parser_options(cls, parser):
+        parser.add_argument("-a", "--alloptions", action="store_true",
+                            dest="alloptions", default=False,
+                            help="enable all options for loaded plugins")
+        parser.add_argument("--all-logs", action="store_true",
+                            dest="all_logs", default=False,
+                            help="collect all available logs regardless "
+                                 "of size")
+        parser.add_argument("--since", action="store",
+                            dest="since", default=None,
+                            type=_format_since,
+                            help="Escapes archived files older than date. "
+                                 "This will also affect --all-logs. "
+                                 "Format: YYYYMMDD[HHMMSS]")
+        parser.add_argument("--batch", action="store_true",
+                            dest="batch", default=False,
+                            help="batch mode - do not prompt interactively")
+        parser.add_argument("--build", action="store_true",
+                            dest="build", default=False,
+                            help="preserve the temporary directory and do not "
+                                 "package results")
+        parser.add_argument("--case-id", action="store",
+                            dest="case_id",
+                            help="specify case identifier")
+        parser.add_argument("-c", "--chroot", action="store", dest="chroot",
+                            help="chroot executed commands to SYSROOT "
+                                 "[auto, always, never] (default=auto)",
+                            default='auto')
+        parser.add_argument("--desc", "--description", type=str,
+                            action="store", default="",
+                            help="Description for a new preset",)
+        parser.add_argument("--dry-run", action="store_true",
+                            help="Run plugins but do not collect data")
+        parser.add_argument("--experimental", action="store_true",
+                            dest="experimental", default=False,
+                            help="enable experimental plugins")
+        parser.add_argument("-e", "--enable-plugins", action="extend",
+                            dest="enableplugins", type=str,
+                            help="enable these plugins", default=[])
+        parser.add_argument("-k", "--plugin-option", action="extend",
+                            dest="plugopts", type=str,
+                            help="plugin options in plugname.option=value "
+                                 "format (see -l)", default=[])
+        parser.add_argument("--label", "--name", action="store", dest="label",
+                            help="specify an additional report label")
+        parser.add_argument("-l", "--list-plugins", action="store_true",
+                            dest="list_plugins", default=False,
+                            help="list plugins and available plugin options")
+        parser.add_argument("--list-presets", action="store_true",
+                            help="display a list of available presets")
+        parser.add_argument("--list-profiles", action="store_true",
+                            dest="list_profiles", default=False,
+                            help="display a list of available profiles and "
+                                 "plugins that they include")
+        parser.add_argument("--log-size", action="store", dest="log_size",
+                            type=int, default=25,
+                            help="limit the size of collected logs (in MiB)")
+        parser.add_argument("-n", "--skip-plugins", action="extend",
+                            dest="noplugins", type=str,
+                            help="disable these plugins", default=[])
+        parser.add_argument("--no-report", action="store_true",
+                            dest="noreport", default=False,
+                            help="disable plaintext/HTML reporting")
+        parser.add_argument("--no-env-vars", action="store_true",
+                            dest="no_env_vars", default=False,
+                            help="Do not collect environment variables")
+        parser.add_argument("--no-postproc", default=False, dest="no_postproc",
+                            action="store_true",
+                            help="Disable all post-processing")
+        parser.add_argument("--note", type=str, action="store", default="",
+                            help="Behaviour notes for new preset")
+        parser.add_argument("-o", "--only-plugins", action="extend",
+                            dest="onlyplugins", type=str,
+                            help="enable these plugins only", default=[])
+        parser.add_argument("--preset", action="store", type=str,
+                            help="A preset identifier", default="auto")
+        parser.add_argument("--plugin-timeout", default=None,
+                            help="set a timeout for all plugins")
+        parser.add_argument("-p", "--profile", action="extend",
+                            dest="profiles", type=str, default=[],
+                            help="enable plugins used by the given profiles")
+        parser.add_argument("--verify", action="store_true",
+                            dest="verify", default=False,
+                            help="perform data verification during collection")
+        parser.add_argument("-z", "--compression-type",
+                            dest="compression_type",
+                            default='auto',
+                            help="compression technology to use [auto, "
+                                 "gzip, bzip2, xz] (default=auto)")
+        parser.add_argument("--allow-system-changes", action="store_true",
+                            dest="allow_system_changes", default=False,
+                            help="Run commands even if they can change the "
+                                 "system (e.g. load kernel modules)")
+        parser.add_argument("--upload", action="store_true", default=False,
+                            help="Upload archive to a policy-default location")
+        parser.add_argument("--upload-url", default=None,
+                            help="Upload the archive to the specified server")
+        parser.add_argument("--upload-directory", default=None,
+                            help="Specify directory to upload the archive to")
+        parser.add_argument("--upload-user", default=None,
+                            help="Username to authenticate to server with")
+        parser.add_argument("--upload-pass", default=None,
+                            help="Password to authenticate to server with")
+
+        # Group to make add/del preset exclusive
+        preset_grp = parser.add_mutually_exclusive_group()
+        preset_grp.add_argument("--add-preset", type=str, action="store",
+                                help="Add a new named command line preset")
+        preset_grp.add_argument("--del-preset", type=str, action="store",
+                                help="Delete the named command line preset")
+
+        # Group to make tarball encryption (via GPG/password) exclusive
+        encrypt_grp = parser.add_mutually_exclusive_group()
+        encrypt_grp.add_argument("--encrypt-key",
+                                 help="Encrypt the archive using a GPG "
+                                      "key-pair")
+        encrypt_grp.add_argument("--encrypt-pass",
+                                 help="Encrypt the archive using a password")
 
     def print_header(self):
         print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))
@@ -498,15 +409,6 @@ class SoSReport(object):
             # ...then start the debugger in post-mortem mode.
             pdb.pm()
 
-    def _exit(self, error=0):
-        raise SystemExit(error)
-
-    def get_exit_handler(self):
-        def exit_handler(signum, frame):
-            self.exit_process = True
-            self._exit()
-        return exit_handler
-
     def handle_exception(self, plugname=None, func=None):
         if self.raise_plugins or self.exit_process:
             # retrieve exception info for the current thread and stack.
@@ -518,51 +420,6 @@ class SoSReport(object):
             pdb.post_mortem(tb)
         if plugname and func:
             self._log_plugin_exception(plugname, func)
-
-    def _setup_logging(self):
-        # main soslog
-        self.soslog = logging.getLogger('sos')
-        self.soslog.setLevel(logging.DEBUG)
-        self.sos_log_file = self.get_temp_file()
-        flog = logging.StreamHandler(self.sos_log_file)
-        flog.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s'))
-        flog.setLevel(logging.INFO)
-        self.soslog.addHandler(flog)
-
-        if not self.opts.quiet:
-            console = logging.StreamHandler(sys.stdout)
-            console.setFormatter(logging.Formatter('%(message)s'))
-            if self.opts.verbosity and self.opts.verbosity > 1:
-                console.setLevel(logging.DEBUG)
-                flog.setLevel(logging.DEBUG)
-            elif self.opts.verbosity and self.opts.verbosity > 0:
-                console.setLevel(logging.INFO)
-                flog.setLevel(logging.DEBUG)
-            else:
-                console.setLevel(logging.WARNING)
-            self.soslog.addHandler(console)
-            # log ERROR or higher logs to stderr instead
-            console_err = logging.StreamHandler(sys.stderr)
-            console_err.setFormatter(logging.Formatter('%(message)s'))
-            console_err.setLevel(logging.ERROR)
-            self.soslog.addHandler(console_err)
-
-        # ui log
-        self.ui_log = logging.getLogger('sos_ui')
-        self.ui_log.setLevel(logging.INFO)
-        self.sos_ui_log_file = self.get_temp_file()
-        ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
-        ui_fhandler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s'))
-
-        self.ui_log.addHandler(ui_fhandler)
-
-        if not self.opts.quiet:
-            ui_console = logging.StreamHandler(sys.stdout)
-            ui_console.setFormatter(logging.Formatter('%(message)s'))
-            ui_console.setLevel(logging.INFO)
-            self.ui_log.addHandler(ui_console)
 
     def _add_sos_logs(self):
         # Make sure the log files are added before we remove the log
@@ -999,12 +856,8 @@ class SoSReport(object):
 
     def setup(self):
         # Log command line options
-        msg = "[%s:%s] executing 'sosreport %s'"
-        self.soslog.info(msg % (__name__, "setup", " ".join(self._args)))
-
-        msg = "[%s:%s] loaded options from config file: %s'"
-        self.soslog.info(msg % (__name__, "setup",
-                         " ".join(self.fileopts.to_args())))
+        msg = "[%s:%s] executing 'sos report %s'"
+        self.soslog.info(msg % (__name__, "setup", " ".join(self.cmdline)))
 
         # Log active preset defaults
         preset_args = self.preset.opts.to_args()
@@ -1458,11 +1311,5 @@ class SoSReport(object):
             sys.exit(e.code)
 
         self._exit(1)
-
-
-def main(args):
-    """The main entry point"""
-    sos = SoSReport(args)
-    sos.execute()
 
 # vim: set et ts=4 sw=4 :
