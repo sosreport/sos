@@ -131,7 +131,6 @@ class SoSReport(SoSComponent):
         self.archive = None
         self._args = args
         self.sysroot = "/"
-        self.sys_tmp = None
         self.preset = None
 
         self.print_header()
