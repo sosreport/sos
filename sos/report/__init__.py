@@ -855,7 +855,7 @@ class SoSReport(SoSComponent):
 
     def setup(self):
         # Log command line options
-        msg = "[%s:%s] executing 'sos report %s'"
+        msg = "[%s:%s] executing 'sos %s'"
         self.soslog.info(msg % (__name__, "setup", " ".join(self.cmdline)))
 
         # Log active preset defaults
