@@ -14,7 +14,7 @@
 # * make it better validate archives and contents
 
 PYTHON=${1:-/usr/bin/python3}
-SOSPATH=${2:-./sosreport}
+SOSPATH=${2:-./bin/sos report}
 
 NUMOFFAILURES=0
 
@@ -23,8 +23,8 @@ run_expecting_sucess () {
     #$2 - kind of check to do, so far only extract
     FAIL=false
     # Make sure clean
-    rm -f stderr stdout /tmp/sosreport*.tar.*
-    rm -rf /tmp/sosreport_test/
+    rm -f stderr stdout /var/tmp/sosreport*.tar.*
+    rm -rf /var/tmp/sosreport_test/
 
     echo "######### RUNNING $1 #########"
     $PYTHON $SOSPATH $1 2> stderr 1> stdout
@@ -50,15 +50,15 @@ run_expecting_sucess () {
 
     if [ "extract" = "$2" ]; then
         echo "### start extraction"
-        rm -f /tmp/sosreport*md5
-        mkdir /tmp/sosreport_test/
-        tar xfa /tmp/sosreport*.tar* -C /tmp/sosreport_test --strip-components=1
-        if [ -s /tmp/sosreport_test/sos_logs/*errors.txt ]; then
+        rm -f /var/tmp/sosreport*md5
+        mkdir /var/tmp/sosreport_test/
+        tar xfa /var/tmp/sosreport*.tar* -C /var/tmp/sosreport_test --strip-components=1
+        if [ -s /var/tmp/sosreport_test/sos_logs/*errors.txt ]; then
             FAIL=true
             echo "!!! FAILED !!!"
             echo "#### *errors.txt output"
-            ls -alh /tmp/sosreport_test/sos_logs/
-            cat /tmp/sosreport_test/sos_logs/*errors.txt
+            ls -alh /var/tmp/sosreport_test/sos_logs/
+            cat /var/tmp/sosreport_test/sos_logs/*errors.txt
         fi
         echo "### stop extraction"
     fi
