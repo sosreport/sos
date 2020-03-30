@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from argparse import ArgumentParser, Action
+from argparse import Action
 from configparser import ConfigParser, ParsingError, Error
 
 
