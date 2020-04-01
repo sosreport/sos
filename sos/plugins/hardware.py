@@ -29,6 +29,7 @@ class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         ])
 
         self.add_cmd_output("dmidecode", root_symlink="dmidecode")
+        self.add_cmd_output("lshw")
 
 
 # vim: set et ts=4 sw=4 :
