@@ -23,7 +23,7 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         container_status = self.exec_cmd(
-            "docker ps -a --format='{{ .Names }}'"
+            "docker ps --format='{{ .Names }}'"
         )
 
         in_container = False
