@@ -8,18 +8,22 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
+import os
 
-from sos.plugins import Plugin, RedHatPlugin
+from sos.plugins import Plugin, SCLPlugin
 
 
-class Redis(Plugin, RedHatPlugin):
+class Redis(Plugin, SCLPlugin):
     """Redis, in-memory data structure store
     """
 
     plugin_name = 'redis'
-    profiles = ('services',)
+    profiles = ('services')
 
-    packages = ('redis',)
+    packages = ('redis',
+                'rh-redis32',
+                'rh-redis5')
+
     var_puppet_gen = "/var/lib/config-data/puppet-generated/redis"
     files = (
         '/etc/redis.conf',
@@ -35,6 +39,17 @@ class Redis(Plugin, RedHatPlugin):
             self.var_puppet_gen + "/etc/security/limits.d/"
         ])
 
+        for pkg in self.packages[1:]:
+            scl = pkg.split('rh-redis*-')[0]
+            self.add_copy_spec_scl(scl, [
+                '/etc/redis.conf',
+                '/etc/redis.conf.puppet',
+                '/etc/redis-sentinel.conf',
+                '/etc/redis-sentinel.conf.puppet',
+                '/var/log/redis/sentinel.log',
+                '/var/log/redis/redis.log'
+            ])
+
         self.add_cmd_output("redis-cli info")
         if self.get_option("all_logs"):
             self.add_copy_spec([
@@ -46,26 +61,18 @@ class Redis(Plugin, RedHatPlugin):
             ])
 
     def postproc(self):
-        self.do_file_sub(
-            "/etc/redis.conf",
-            r"(masterauth\s).*",
-            r"\1********"
-        )
-        self.do_file_sub(
-            "/etc/redis.conf",
-            r"(requirepass\s).*",
-            r"\1********"
-        )
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/redis.conf*",
-            r"(masterauth\s).*",
-            r"\1*********"
-        )
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/redis.conf*",
-            r"(requirepass\s).*",
-            r"\1*********"
-        )
-
-
+        for path in ["/etc/",
+                     self.var_puppet_gen + "/etc/",
+                     "/etc/opt/rh/rh-redis32/",
+                     "/etc/opt/rh/rh-redis5"]:
+            self.do_file_sub(
+                path + "redis.conf",
+                r"(masterauth\s).*",
+                r"\1********"
+            )
+            self.do_file_sub(
+                path + "redis.conf",
+                r"(requirepass\s).*",
+                r"\1********"
+            )
 # vim: set et ts=4 sw=4 :
