@@ -33,10 +33,6 @@ from sos.report.reporting import (Report, Section, Command, CopiedFile,
                                   CreatedFile, Alert, Note, PlainTextReport,
                                   JSONReport, HTMLReport)
 
-# PYCOMPAT
-import six
-from six.moves import zip, input
-
 # file system errors that should terminate a run
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
 
@@ -401,7 +397,7 @@ class SoSReport(SoSComponent):
             # we are NOT in interactive mode, print the exception...
             traceback.print_exception(etype, eval_, etrace, limit=2,
                                       file=sys.stdout)
-            six.print_()
+            print()
             # ...then start the debugger in post-mortem mode.
             pdb.pm()
 
@@ -411,7 +407,7 @@ class SoSReport(SoSComponent):
             (etype, val, tb) = sys.exc_info()
             # we are NOT in interactive mode, print the exception...
             traceback.print_exception(etype, val, tb, file=sys.stdout)
-            six.print_()
+            print()
             # ...then start the debugger in post-mortem mode.
             pdb.post_mortem(tb)
         if plugname and func:

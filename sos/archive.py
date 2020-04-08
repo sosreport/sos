@@ -25,11 +25,6 @@ try:
 except ImportError:
     pass
 
-# PYCOMPAT
-import six
-if six.PY3:
-    long = int
-
 P_FILE = "file"
 P_LINK = "link"
 P_NODE = "node"

@@ -11,7 +11,6 @@
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import json
 import os
-import six
 
 
 class OVNCentral(Plugin):
@@ -48,7 +47,7 @@ class OVNCentral(Plugin):
                     "Could not open DB schema file %s: %s" % (filename, ex))
                 return
         try:
-            return [table for table in six.iterkeys(
+            return [table for table in dict.keys(
                 db['tables']) if table not in skip]
         except AttributeError:
             self._log_error("DB schema %s has no 'tables' key" % filename)

@@ -17,7 +17,6 @@ gettext to internationalize messages.
 __version__ = "3.9"
 
 import logging
-import six
 import sys
 import tempfile
 

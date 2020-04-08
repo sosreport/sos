@@ -75,7 +75,6 @@ setup(name='sos',
         ],
       packages=['sos', 'sos.report.plugins', 'sos.policies', 'sos.report'],
       cmdclass={'build': BuildData, 'install_data': InstallData},
-      requires=['six', 'futures'],
      )
 
 

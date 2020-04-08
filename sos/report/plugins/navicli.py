@@ -13,10 +13,6 @@ from sos.report.plugins import Plugin, RedHatPlugin
 from sos.utilities import is_executable
 
 
-# Just for completeness sake.
-from six.moves import input
-
-
 class Navicli(Plugin, RedHatPlugin):
     """ EMC Navicli
     """

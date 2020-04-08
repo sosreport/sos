@@ -18,12 +18,10 @@ import glob
 import tempfile
 import threading
 import time
+import io
 
 from contextlib import closing
 from collections import deque
-
-# PYCOMPAT
-import six
 
 
 def tail(filename, number_of_bytes):
@@ -36,13 +34,13 @@ def tail(filename, number_of_bytes):
 
 def fileobj(path_or_file, mode='r'):
     """Returns a file-like object that can be used as a context manager"""
-    if isinstance(path_or_file, six.string_types):
+    if isinstance(path_or_file, str):
         try:
             return open(path_or_file, mode)
         except IOError:
             log = logging.getLogger('sos')
             log.debug("fileobj: %s could not be opened" % path_or_file)
-            return closing(six.StringIO())
+            return closing(io.StringIO())
     else:
         return closing(path_or_file)
 
@@ -138,9 +136,6 @@ def sos_get_command_output(command, timeout=300, stderr=False,
             command
         )
 
-    # shlex.split() reacts badly to unicode on older python runtimes.
-    if not six.PY3:
-        command = command.encode('utf-8', 'ignore')
     args = shlex.split(command)
     # Expand arguments that are wildcard paths.
     expanded_args = []
@@ -174,7 +169,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
             raise e
 
     if p.returncode == 126 or p.returncode == 127:
-        stdout = six.binary_type(b"")
+        stdout = b""
 
     return {
         'status': p.returncode,
