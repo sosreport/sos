@@ -18,9 +18,6 @@ try:
 except ImportError:
     import simplejson as json
 
-# PYCOMPAT
-import six
-
 
 class Node(object):
 
@@ -53,7 +50,7 @@ class Report(Node):
 
 def _decode(s):
     """returns a string text for a given unicode/str input"""
-    return (s if isinstance(s, six.text_type) else s.decode('utf8', 'ignore'))
+    return (s if isinstance(s, str) else s.decode('utf8', 'ignore'))
 
 
 class Section(Node):
@@ -155,7 +152,7 @@ class PlainTextReport(object):
     line_buf = []
 
     def __init__(self, report_node):
-        self.report_data = sorted(six.iteritems(report_node.data))
+        self.report_data = sorted(dict.items(report_node.data))
 
     def unicode(self):
         self.line_buf = line_buf = []
@@ -186,18 +183,10 @@ class PlainTextReport(object):
         if (len(self.FOOTER) > 0):
             line_buf.append(self.FOOTER)
 
-        # Workaround python.six mishandling of strings ending in '/' by
-        # adding a single space following any '\' at end-of-line.
-        # See Six issue #60.
-        line_buf = [line + " " if ends_bs(line) else line for line in line_buf]
-
-        output = u'\n'.join(map(lambda i: (i if isinstance(i, six.text_type)
+        output = u'\n'.join(map(lambda i: (i if isinstance(i, str)
                                            else i.decode('utf8', 'ignore')),
                                 line_buf))
-        if six.PY3:
-            return output
-        else:
-            return output.encode('utf8')
+        return output
 
     def process_subsection(self, section, key, header, format_, footer):
         if key in section:
@@ -251,9 +240,6 @@ class JSONReport(PlainTextReport):
 
     def unicode(self):
         output = json.dumps(self.report_data, indent=4, ensure_ascii=False)
-        if six.PY3:
-            return output
-        else:
-            return output.encode('utf8')
+        return output
 
 # vim: set et ts=4 sw=4 :

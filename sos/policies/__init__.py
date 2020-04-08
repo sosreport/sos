@@ -19,8 +19,6 @@ from sos.report.plugins import IndependentPlugin, ExperimentalPlugin
 from sos.options import SoSOptions
 from sos import _sos as _
 from textwrap import fill
-from six import print_
-from six.moves import input
 from pipes import quote
 
 PRESETS_PATH = "/var/lib/sos/presets"
@@ -825,9 +823,9 @@ any third party.
         quiet mode"""
         if always or not self.commons['cmdlineopts'].quiet:
             if msg:
-                print_(msg)
+                print(msg)
             else:
-                print_()
+                print()
 
     def get_msg(self):
         """This method is used to prepare the preamble text to display to

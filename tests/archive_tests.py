@@ -16,9 +16,6 @@ from sos.archive import TarFileArchive
 from sos.utilities import tail
 from sos.policies import Policy
 
-# PYCOMPAT
-import six
-
 
 class TarFileArchiveTest(unittest.TestCase):
 
@@ -56,7 +53,7 @@ class TarFileArchiveTest(unittest.TestCase):
     def test_add_string_from_file(self):
         self.copy_strings = []
         testfile = tempfile.NamedTemporaryFile(dir=self.tmpdir, delete=False)
-        testfile.write(six.b("*" * 1000))
+        testfile.write(b"*" * 1000)
         testfile.flush()
         testfile.close()
 

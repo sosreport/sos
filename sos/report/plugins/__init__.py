@@ -21,27 +21,7 @@ import logging
 import fnmatch
 import errno
 
-# PYCOMPAT
-import six
-from six.moves import zip, filter
 from datetime import datetime
-
-# FileNotFoundError does not exist in 2.7, so map it to IOError
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
-
-def _to_u(s):
-    if not isinstance(s, six.text_type):
-        # Workaround python.six mishandling of strings ending in '\' by
-        # adding a single space following any '\' at end-of-line.
-        # See Six issue #60.
-        if s.endswith('\\'):
-            s += " "
-        s = six.u(s)
-    return s
 
 
 def regex_findall(regex, fname):
@@ -751,7 +731,7 @@ class Plugin(object):
                 return 0
             readable = self.archive.open_file(path)
             content = readable.read()
-            if not isinstance(content, six.string_types):
+            if not isinstance(content, str):
                 content = content.decode('utf8', 'ignore')
             result, replacements = re.subn(regexp, subst, content)
             if replacements:
@@ -946,7 +926,7 @@ class Plugin(object):
         """Specify a path, or list of paths, to not copy, even if it's
             part of a copy_specs[] entry.
         """
-        if isinstance(forbidden, six.string_types):
+        if isinstance(forbidden, str):
             forbidden = [forbidden]
 
         if self.use_sysroot():
@@ -1050,7 +1030,7 @@ class Plugin(object):
         if not copyspecs:
             return False
 
-        if isinstance(copyspecs, six.string_types):
+        if isinstance(copyspecs, str):
             copyspecs = [copyspecs]
 
         for copyspec in copyspecs:
@@ -1172,13 +1152,13 @@ class Plugin(object):
                         prepend_path=None, whitelist=[], blacklist=[]):
         """Run a command against all specified devices on the system.
         """
-        if isinstance(cmds, six.string_types):
+        if isinstance(cmds, str):
             cmds = [cmds]
-        if isinstance(devices, six.string_types):
+        if isinstance(devices, str):
             devices = [devices]
-        if isinstance(whitelist, six.string_types):
+        if isinstance(whitelist, str):
             whitelist = [whitelist]
-        if isinstance(blacklist, six.string_types):
+        if isinstance(blacklist, str):
             blacklist = [blacklist]
         sizelimit = sizelimit or self.get_option('log_size')
         for cmd in cmds:
@@ -1218,7 +1198,7 @@ class Plugin(object):
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False):
         """Run a program or a list of programs and collect the output"""
-        if isinstance(cmds, six.string_types):
+        if isinstance(cmds, str):
             cmds = [cmds]
         if len(cmds) > 1 and (suggest_filename or root_symlink):
             self._log_warn("ambiguous filename or symlink for command list")
@@ -1307,7 +1287,7 @@ class Plugin(object):
 
         # Generate summary string for logging
         summary = content.splitlines()[0] if content else ''
-        if not isinstance(summary, six.string_types):
+        if not isinstance(summary, str):
             summary = content.decode('utf8', 'ignore')
 
         if not self.test_predicate(cmd=False, pred=pred):
@@ -1580,7 +1560,7 @@ class Plugin(object):
         :param kwargs    Optional arguments to pass to _add_cmd_output
                          (timeout, predicate, suggest_filename,..)
         """
-        if isinstance(services, six.string_types):
+        if isinstance(services, str):
             services = [services]
 
         query = self.policy.init_system.query_cmd
@@ -1644,7 +1624,7 @@ class Plugin(object):
         log_size = sizelimit or self.get_option("log_size")
         log_size = max(log_size, journal_size) if not all_logs else 0
 
-        if isinstance(units, six.string_types):
+        if isinstance(units, str):
             units = [units]
 
         if units:
@@ -1704,7 +1684,7 @@ class Plugin(object):
             content = ''
             if string:
                 content = string.splitlines()[0]
-                if not isinstance(content, six.string_types):
+                if not isinstance(content, str):
                     content = content.decode('utf8', 'ignore')
             self._log_info("collecting string ...'%s' as '%s'"
                            % (content, file_name))
@@ -1755,19 +1735,19 @@ class Plugin(object):
         # some files or packages have been specified for this package
         if any([self.files, self.packages, self.commands, self.kernel_mods,
                 self.services, self.architectures]):
-            if isinstance(self.files, six.string_types):
+            if isinstance(self.files, str):
                 self.files = [self.files]
 
-            if isinstance(self.packages, six.string_types):
+            if isinstance(self.packages, str):
                 self.packages = [self.packages]
 
-            if isinstance(self.commands, six.string_types):
+            if isinstance(self.commands, str):
                 self.commands = [self.commands]
 
-            if isinstance(self.kernel_mods, six.string_types):
+            if isinstance(self.kernel_mods, str):
                 self.kernel_mods = [self.kernel_mods]
 
-            if isinstance(self.services, six.string_types):
+            if isinstance(self.services, str):
                 self.services = [self.services]
 
             if isinstance(self, SCLPlugin):
@@ -1952,7 +1932,7 @@ class SCLPlugin(RedHatPlugin):
         """Same as add_cmd_output, except that it wraps command in
         "scl enable" call and sets proper PATH.
         """
-        if isinstance(cmds, six.string_types):
+        if isinstance(cmds, str):
             cmds = [cmds]
         scl_cmds = []
         for cmd in cmds:
@@ -1975,7 +1955,7 @@ class SCLPlugin(RedHatPlugin):
         """Same as add_copy_spec, except that it prepends path to SCL root
         to "copyspecs".
         """
-        if isinstance(copyspecs, six.string_types):
+        if isinstance(copyspecs, str):
             copyspecs = [copyspecs]
         scl_copyspecs = []
         for copyspec in copyspecs:

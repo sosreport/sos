@@ -69,10 +69,8 @@ class SoSOptions():
             # Convert Python source notation for sequences into plain strings
             vals = [",".join(v) if _is_seq(v) else v for v in vals]
         else:
-            def is_string(val):
-                return isinstance(val, six.string_types)
             # Only quote strings if quote=False
-            vals = ["'%s'" % v if is_string(v) else v for v in vals]
+            vals = ["'%s'" % v if isinstance(val, str) else v for v in vals]
 
         return (args % tuple(vals)).strip(sep) + suffix
 

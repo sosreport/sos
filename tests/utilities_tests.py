@@ -9,8 +9,7 @@ import os.path
 import unittest
 
 # PYCOMPAT
-import six
-from six import StringIO
+from io import StringIO
 
 from sos.utilities import grep, is_executable, sos_get_command_output, find, tail, shell_out
 import sos
@@ -42,12 +41,12 @@ class TailTest(unittest.TestCase):
 
     def test_tail(self):
         t = tail("tests/tail_test.txt", 10)
-        self.assertEquals(t, six.b("last line\n"))
+        self.assertEquals(t, b"last line\n")
 
     def test_tail_too_many(self):
         t = tail("tests/tail_test.txt", 200)
         expected = open("tests/tail_test.txt", "r").read()
-        self.assertEquals(t, six.b(expected))
+        self.assertEquals(t, str.encode(expected))
 
 
 class ExecutableTest(unittest.TestCase):

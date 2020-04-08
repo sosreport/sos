@@ -10,12 +10,7 @@ import os
 import tempfile
 import shutil
 
-# PYCOMPAT
-import six
-try:
-    from StringIO import StringIO
-except:
-    from io import StringIO
+from io import StringIO
 
 from sos.report.plugins import Plugin, regex_findall, _mangle_command
 from sos.archive import TarFileArchive
@@ -29,7 +24,7 @@ def j(filename):
 
 def create_file(size, dir=None):
    f = tempfile.NamedTemporaryFile(delete=False, dir=dir)
-   f.write(six.b("*" * size * 1024 * 1024))
+   f.write(b"*" * size * 1024 * 1024)
    f.flush()
    f.close()
    return f.name

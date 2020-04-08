@@ -19,14 +19,6 @@ from sos.options import SoSOptions
 
 OS_RELEASE = "/etc/os-release"
 
-# In python2.7, input() will not properly return strings, and on python3.x
-# raw_input() was renamed to input(). So, if we're running on python2.7, map
-# input() to raw_input() to match the behavior
-try:
-    input = raw_input
-except NameError:
-    pass
-
 
 class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
