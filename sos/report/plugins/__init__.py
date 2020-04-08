@@ -10,8 +10,6 @@
 
 """ This exports methods available for use by plugins for sos """
 
-from __future__ import with_statement
-
 from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable)
 import os

@@ -6,8 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from __future__ import with_statement
-
 import os
 import re
 import inspect

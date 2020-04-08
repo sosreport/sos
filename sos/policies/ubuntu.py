@@ -1,5 +1,3 @@
-from __future__ import with_statement
-
 from sos.report.plugins import UbuntuPlugin, DebianPlugin
 from sos.policies.debian import DebianPolicy
 
