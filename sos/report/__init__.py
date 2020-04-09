@@ -345,29 +345,6 @@ class SoSReport(SoSComponent):
     def get_temp_file(self):
         return self.tempfile_util.new()
 
-    def _set_archive(self):
-        enc_opts = {
-            'encrypt': True if (self.opts.encrypt_pass or
-                                self.opts.encrypt_key) else False,
-            'key': self.opts.encrypt_key,
-            'password': self.opts.encrypt_pass
-        }
-
-        archive_name = os.path.join(self.tmpdir,
-                                    self.policy.get_archive_name())
-        if self.opts.compression_type == 'auto':
-            auto_archive = self.policy.get_preferred_archive()
-            self.archive = auto_archive(archive_name, self.tmpdir,
-                                        self.policy, self.opts.threads,
-                                        enc_opts, self.sysroot)
-
-        else:
-            self.archive = TarFileArchive(archive_name, self.tmpdir,
-                                          self.policy, self.opts.threads,
-                                          enc_opts, self.sysroot)
-
-        self.archive.set_debug(True if self.opts.debug else False)
-
     def _make_archive_paths(self):
         self.archive.makedirs(self.cmddir, 0o755)
         self.archive.makedirs(self.logdir, 0o755)
@@ -824,7 +801,7 @@ class SoSReport(SoSComponent):
                 self.ui_log.error("Valid types are: " + compression_list)
                 self.ui_log.error("")
                 self._exit(1)
-            self._set_archive()
+            self.setup_archive()
             self._make_archive_paths()
             return
         except (OSError, IOError) as e:
@@ -1238,16 +1215,6 @@ class SoSReport(SoSComponent):
             return False
         return True
 
-    def _cleanup(self):
-        # archive and tempfile cleanup may fail due to a fatal
-        # OSError exception (ENOSPC, EROFS etc.).
-        if self.archive:
-            self.archive.cleanup()
-        if self.tempfile_util:
-            self.tempfile_util.clean()
-        if self.tmpdir:
-            rmtree(self.tmpdir)
-
     def execute(self):
         try:
             self.policy.set_commons(self.get_commons())
@@ -1292,13 +1259,13 @@ class SoSReport(SoSComponent):
         except (OSError):
             if self.opts.debug:
                 raise
-            self._cleanup()
+            self.cleanup()
         except (KeyboardInterrupt):
             self.ui_log.error("\nExiting on user cancel")
-            self._cleanup()
+            self.cleanup()
             self._exit(130)
         except (SystemExit) as e:
-            self._cleanup()
+            self.cleanup()
             sys.exit(e.code)
 
         self._exit(1)

@@ -51,6 +51,8 @@ class SoSCollector(SoSComponent):
         'cluster_options': [],
         'chroot': 'auto',
         'enable_plugins': [],
+        'encrypt_pass': '',
+        'encrypt_key': '',
         'group': None,
         'save_group': '',
         'image': '',
@@ -74,7 +76,7 @@ class SoSCollector(SoSComponent):
         'ssh_user': 'root',
         'timeout': 600,
         'verify': False,
-        'compression': 'auto'
+        'compression_type': 'auto'
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
@@ -112,6 +114,7 @@ class SoSCollector(SoSComponent):
                 self.log_debug("Found supported host types: %s"
                                % self.host_types.keys())
                 self.verify_cluster_options()
+
             except KeyboardInterrupt:
                 self._exit('Exiting on user cancel', 130)
             except Exception:
@@ -294,6 +297,14 @@ class SoSCollector(SoSComponent):
         parser.add_argument('-z', '--compression-type', dest="compression",
                             choices=['auto', 'gzip', 'bzip2', 'xz'],
                             help="compression technology to use")
+
+        # Group to make tarball encryption (via GPG/password) exclusive
+        encrypt_grp = parser.add_mutually_exclusive_group()
+        encrypt_grp.add_argument("--encrypt-key",
+                                 help="Encrypt the archive using a GPG "
+                                      "key-pair")
+        encrypt_grp.add_argument("--encrypt-pass",
+                                 help="Encrypt the archive using a password")
 
     def _check_for_control_persist(self):
         '''Checks to see if the local system supported SSH ControlPersist.
@@ -495,7 +506,7 @@ class SoSCollector(SoSComponent):
         '''
         self.arc_name = self._get_archive_name()
         compr = 'gz'
-        return self.tmpdir + self.arc_name + '.tar.' + compr
+        return self.tmpdir + '/' + self.arc_name + '.tar.' + compr
 
     def _fmt_msg(self, msg):
         width = 80
@@ -576,7 +587,7 @@ No configuration changes will be made to the system running \
 this utility or remote systems that it connects to.
 """)
         self.ui_log.info("\nsos-collector (version %s)\n" % __version__)
-        intro_msg = self._fmt_msg(disclaimer % self.opts.tmp_dir)
+        intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
         self.ui_log.info(intro_msg)
         prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
         if not self.opts.batch:
@@ -720,7 +731,7 @@ this utility or remote systems that it connects to.
             self.sos_cmd += ' -s %s' % quote(self.opts.sysroot)
         if self.opts.chroot:
             self.sos_cmd += ' -c %s' % quote(self.opts.chroot)
-        if self.opts.compression:
+        if self.opts.compression_type != 'auto':
             self.sos_cmd += ' -z %s' % (quote(self.opts.compression))
         self.log_debug('Initial sos cmd set to %s' % self.sos_cmd)
         self.commons['sos_cmd'] = self.sos_cmd
@@ -881,7 +892,14 @@ this utility or remote systems that it connects to.
         self.configure_sos_cmd()
         self.prep()
         self.intro()
+
+        self.archive_name = self._get_archive_name()
+        self.setup_archive(name=self.archive_name)
+        self.archive_path = self.archive.get_archive_path()
+        self.archive.makedirs('logs', 0o755)
+
         self.collect()
+        self.cleanup()
 
     def collect(self):
         ''' For each node, start a collection thread and then tar all
@@ -964,57 +982,27 @@ this utility or remote systems that it connects to.
         '''Calls for creation of tar archive then cleans up the temporary
         files created by sos-collector'''
         self.log_info('Creating archive of sosreports...')
-        self.create_sos_archive()
-        if self.archive:
-            self.soslog.info('Archive created as %s' % self.archive)
-            self.cleanup()
+        try:
+            for host in self.client_list:
+                for fname in host.file_list:
+                    dest = fname
+                    # place checksums in a different directory
+                    if fname.endswith(('.md5', )):
+                        dest = os.path.join('checksums', fname)
+                    name = os.path.join(self.tmpdir, fname)
+                    self.archive.add_file(name, dest=dest)
+            self.archive.add_file(self.sos_log_file, dest=os.path.join('logs', 'sos.log'))
+            self.archive.add_file(self.sos_ui_log_file, dest=os.path.join('logs', 'ui.log'))
+
+            arc_name = self.archive.finalize(self.opts.compression_type)
+            final_name = os.path.join(self.sys_tmp, os.path.basename(arc_name))
+            os.rename(arc_name, final_name)
+
+            self.soslog.info('Archive created as %s' % final_name)
             self.ui_log.info('\nThe following archive has been created. '
                               'Please provide it to your support team.')
-            self.ui_log.info('    %s' % self.archive)
-
-    def create_sos_archive(self):
-        '''Creates a tar archive containing all collected sosreports'''
-        try:
-            self.archive = self._get_archive_path()
-            with tarfile.open(self.archive, "w:gz") as tar:
-                for host in self.client_list:
-                    for fname in host.file_list:
-                        try:
-                            if '.md5' in fname:
-                                arc_name = (self.arc_name + '/md5/' +
-                                            fname.split('/')[-1])
-                            else:
-                                arc_name = (self.arc_name + '/' +
-                                            fname.split('/')[-1])
-                            tar.add(
-                                os.path.join(self.tmpdir, fname),
-                                arcname=arc_name
-                            )
-                        except Exception as err:
-                            self.log_error("Could not add %s to archive: %s"
-                                           % (arc_name, err))
-                tar.add(
-                    self.sos_log_file,
-                    arcname=self.arc_name + '/logs/sos-collector.log'
-                )
-                tar.add(
-                    self.sos_ui_log_file,
-                    arcname=self.arc_name + '/logs/ui.log'
-                )
-                tar.close()
-        except Exception as e:
-            msg = 'Could not create archive: %s' % e
+            self.ui_log.info('    %s' % final_name)
+        except Exception as err:
+            msg = ("Could not finalize archive: %s\n\nData may still be "
+                   "available uncompressed at %s" % (err, self.archive_path))
             self._exit(msg, 2)
-
-    def cleanup(self):
-        ''' Removes the tmp dir and all sosarchives therein.
-
-            If tmp dir was supplied by user, only the sos archives within
-            that dir are removed.
-        '''
-        if self.tmpdir_created:
-            self.delete_tmp_dir()
-        else:
-            for f in os.listdir(self.tmpdir):
-                if re.search('sosreport-*tar*', f):
-                    os.remove(os.path.join(self.tmpdir, f))
