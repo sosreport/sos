@@ -33,7 +33,6 @@ class SosNode():
         self.need_sudo = commons['need_sudo']
         self.local = False
         self.hostname = None
-        self.cluster = None
         self._password = password or self.opts.password
         self.sos_path = None
         self.retrieved = False
@@ -45,7 +44,7 @@ class SosNode():
             'disabled': [],
             'options': [],
             'presets': [],
-            'sos_cmd': 'sosreport --batch'
+            'sos_cmd': commons['sos_cmd']
         }
         filt = ['localhost', '127.0.0.1']
         self.soslog = logging.getLogger('sos')
@@ -543,7 +542,7 @@ class SosNode():
     def finalize_sos_cmd(self):
         '''Use host facts and compare to the cluster type to modify the sos
         command if needed'''
-        self.sos_cmd = self.sosinfo['sos_cmd']
+        self.sos_cmd = self.sos_info['sos_cmd']
         label = self.determine_sos_label()
         if label:
             self.sos_cmd = ' %s %s' % (self.sos_cmd, quote(label))

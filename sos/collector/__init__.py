@@ -30,6 +30,7 @@ from pipes import quote
 from textwrap import fill
 from sos.collector.sosnode import SosNode
 from sos.collector.exceptions import ControlPersistUnsupportedException
+from sos.collector.clusters import ClusterOption
 from sos.component import SoSComponent
 from sos import __version__
 
@@ -111,7 +112,6 @@ class SoSCollector(SoSComponent):
                 self.log_debug("Found supported host types: %s"
                                % self.host_types.keys())
                 self.verify_cluster_options()
-                self.prep()
             except KeyboardInterrupt:
                 self._exit('Exiting on user cancel', 130)
             except Exception:
@@ -666,8 +666,6 @@ this utility or remote systems that it connects to.
                 self.log_info("Wrote group '%s' to %s" % (gname, fname))
             except Exception as err:
                 self.log_error("Could not save group %s: %s" % (gname, err))
-        self.intro()
-        self.configure_sos_cmd()
 
     def intro(self):
         '''Prints initial messages and collects user and case if not
@@ -725,6 +723,7 @@ this utility or remote systems that it connects to.
         if self.opts.compression:
             self.sos_cmd += ' -z %s' % (quote(self.opts.compression))
         self.log_debug('Initial sos cmd set to %s' % self.sos_cmd)
+        self.commons['sos_cmd'] = self.sos_cmd
 
     def connect_to_master(self):
         '''If run with --master, we will run cluster checks again that
@@ -772,6 +771,7 @@ this utility or remote systems that it connects to.
                             break
                 self.cluster = cluster
                 self.cluster_type = cluster.name()
+                self.commons['cluster'] = self.cluster
                 self.ui_log.info(
                     'Cluster type set to %s' % self.cluster_type)
                 break
@@ -869,12 +869,19 @@ this utility or remote systems that it connects to.
         '''
         try:
             client = SosNode(node[0], self.commons, password=node[1])
+            client.cluster = self.cluster
             if client.connected:
                 self.client_list.append(client)
             else:
                 client.close_ssh_session()
         except Exception:
             pass
+
+    def execute(self):
+        self.configure_sos_cmd()
+        self.prep()
+        self.intro()
+        self.collect()
 
     def collect(self):
         ''' For each node, start a collection thread and then tar all
