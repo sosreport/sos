@@ -51,8 +51,10 @@ class SoS():
         # of shorthand names to accept in place of the full subcommand
         # if no aliases are desired, pass an empty list
         import sos.report
+        import sos.collector
         self._components = {
-            'report': (sos.report.SoSReport, ['rep'])
+            'report': (sos.report.SoSReport, ['rep']),
+            'collect': (sos.collector.SoSCollector, ['collector'])
         }
         # build the top-level parser
         _com_string = ''
