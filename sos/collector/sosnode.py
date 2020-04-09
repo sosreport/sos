@@ -23,13 +23,18 @@ from sos.collector.exceptions import *
 
 class SosNode():
 
-    def __init__(self, address, config, password=None, force=False,
-                 load_facts=True):
+    def __init__(self, address, commons, password=None,
+                 force=False, load_facts=True):
         self.address = address.strip()
+        self.opts = commons['opts']
+        self.tmpdir = commons['tmpdir']
+        self.host_types = commons['host_types']
+        self.hostlen = commons['hostlen']
+        self.need_sudo = commons['need_sudo']
         self.local = False
         self.hostname = None
-        self.config = config
-        self._password = password or self.config['password']
+        self.cluster = None
+        self._password = password or self.opts.password
         self.sos_path = None
         self.retrieved = False
         self.hash_retrieved = False
@@ -39,13 +44,14 @@ class SosNode():
             'enabled': [],
             'disabled': [],
             'options': [],
-            'presets': []
+            'presets': [],
+            'sos_cmd': 'sosreport --batch'
         }
-        filt = ['localhost', '127.0.0.1', self.config['hostname']]
+        filt = ['localhost', '127.0.0.1']
         self.soslog = logging.getLogger('sos')
         self.ui_log = logging.getLogger('sos_ui')
         self.control_path = ("%s/.sos-collector-%s"
-                             % (self.config['tmp_dir'], self.address))
+                             % (self.tmpdir, self.address))
         self.ssh_cmd = self._create_ssh_command()
         if self.address not in filt or force:
             try:
@@ -75,12 +81,11 @@ class SosNode():
     def _create_ssh_command(self):
         '''Build the complete ssh command for this node'''
         cmd = "ssh -oControlPath=%s " % self.control_path
-        cmd += "%s@%s " % (self.config['ssh_user'], self.address)
+        cmd += "%s@%s " % (self.opts.ssh_user, self.address)
         return cmd
 
     def _fmt_msg(self, msg):
-        return '{:<{}} : {}'.format(self._hostname, self.config['hostlen'] + 1,
-                                    msg)
+        return '{:<{}} : {}'.format(self._hostname, self.hostlen + 1, msg)
 
     def check_in_container(self):
         '''
@@ -173,8 +178,6 @@ class SosNode():
         caller = inspect.stack()[1][3]
         msg = '[%s:%s] %s' % (self._hostname, caller, msg)
         self.soslog.debug(msg)
-        if self.config['verbose']:
-            self.ui_log.debug(msg)
 
     def get_hostname(self):
         '''Get the node's hostname'''
@@ -187,9 +190,9 @@ class SosNode():
         '''If we need to provide a sudo or root password to a command, then
         here we prefix the command with the correct bits
         '''
-        if self.config['become_root']:
+        if self.opts.become_root:
             return "su -c %s" % quote(cmd)
-        if self.config['need_sudo']:
+        if self.need_sudo:
             return "sudo -S %s" % cmd
         return cmd
 
@@ -292,8 +295,8 @@ class SosNode():
         '''Attempts to identify the host installation against supported
         distributions
         '''
-        for host_type in self.config['host_types']:
-            host = self.config['host_types'][host_type](self.address)
+        for host_type in self.host_types:
+            host = self.host_types[host_type](self.address)
             rel_string = self.read_file(host.release_file)
             if host._check_enabled(rel_string):
                 self.log_debug("Host installation found to be %s" %
@@ -365,10 +368,10 @@ class SosNode():
                 cmd = "/bin/bash -c %s" % quote(cmd)
         res = pexpect.spawn(cmd, encoding='utf-8')
         if need_root:
-            if self.config['need_sudo']:
-                res.sendline(self.config['sudo_pw'])
-            if self.config['become_root']:
-                res.sendline(self.config['root_password'])
+            if self.need_sudo:
+                res.sendline(self.opts.sudo_pw)
+            if self.opts.become_root:
+                res.sendline(self.opts.root_password)
         output = res.expect([pexpect.EOF, pexpect.TIMEOUT],
                             timeout=timeout)
         if output == 0:
@@ -420,16 +423,16 @@ class SosNode():
         connected = False
         ssh_key = ''
         ssh_port = ''
-        if self.config['ssh_port'] != 22:
-            ssh_port = "-p%s " % self.config['ssh_port']
-        if self.config['ssh_key']:
-            ssh_key = "-i%s" % self.config['ssh_key']
+        if self.opts.ssh_port != 22:
+            ssh_port = "-p%s " % self.opts.ssh_port
+        if self.opts.ssh_key:
+            ssh_key = "-i%s" % self.opts.ssh_key
         cmd = ("ssh %s %s -oControlPersist=600 -oControlMaster=auto "
                "-oStrictHostKeyChecking=no -oControlPath=%s %s@%s "
                "\"echo Connected\"" % (ssh_key,
                                        ssh_port,
                                        self.control_path,
-                                       self.config['ssh_user'],
+                                       self.opts.ssh_user,
                                        self.address))
         res = pexpect.spawn(cmd, encoding='utf-8')
 
@@ -443,6 +446,7 @@ class SosNode():
         ]
 
         index = res.expect(connect_expects, timeout=15)
+
         if index == 0:
             connected = True
         elif index == 1:
@@ -468,7 +472,7 @@ class SosNode():
         elif index == 2:
             raise AuthPermissionDeniedException
         elif index == 3:
-            raise ConnectionException(self.address, self.config['ssh_port'])
+            raise ConnectionException(self.address, self.opts.ssh_port)
         elif index == 4:
             raise ConnectionException(self.address)
         elif index == 5:
@@ -523,7 +527,7 @@ class SosNode():
         if not self._plugin_exists(plug):
             return False
         if (self._check_disabled(plug) and
-                plug not in self.config['enable_plugins']):
+                plug not in self.opts.enable_plugins):
             return False
         if self._check_enabled(plug):
             return opt in self.sos_info['options']
@@ -539,73 +543,73 @@ class SosNode():
     def finalize_sos_cmd(self):
         '''Use host facts and compare to the cluster type to modify the sos
         command if needed'''
-        self.sos_cmd = self.config['sos_cmd']
+        self.sos_cmd = self.sosinfo['sos_cmd']
         label = self.determine_sos_label()
         if label:
             self.sos_cmd = ' %s %s' % (self.sos_cmd, quote(label))
 
-        if self.config['sos_opt_line']:
+        if self.opts.sos_opt_line:
             return True
 
-        if self.config['only_plugins']:
-            plugs = [o for o in self.config['only_plugins']
+        if self.opts.only_plugins:
+            plugs = [o for o in self.opts.only_plugins
                      if self._plugin_exists(o)]
-            if len(plugs) != len(self.config['only_plugins']):
-                not_only = list(set(self.config['only_plugins']) - set(plugs))
+            if len(plugs) != len(self.opts.only_plugins):
+                not_only = list(set(self.opts.only_plugins) - set(plugs))
                 self.log_debug('Requested plugins %s were requested to be '
                                'enabled but do not exist' % not_only)
-            only = self._fmt_sos_opt_list(self.config['only_plugins'])
+            only = self._fmt_sos_opt_list(self.opts.only_plugins)
             if only:
                 self.sos_cmd += ' --only-plugins=%s' % quote(only)
             return True
 
-        if self.config['skip_plugins']:
+        if self.opts.skip_plugins:
             # only run skip-plugins for plugins that are enabled
-            skip = [o for o in self.config['skip_plugins']
+            skip = [o for o in self.opts.skip_plugins
                     if self._check_enabled(o)]
-            if len(skip) != len(self.config['skip_plugins']):
-                not_skip = list(set(self.config['skip_plugins']) - set(skip))
+            if len(skip) != len(self.opts.skip_plugins):
+                not_skip = list(set(self.opts.skip_plugins) - set(skip))
                 self.log_debug('Requested to skip plugins %s, but plugins are '
                                'already not enabled' % not_skip)
             skipln = self._fmt_sos_opt_list(skip)
             if skipln:
                 self.sos_cmd += ' --skip-plugins=%s' % quote(skipln)
 
-        if self.config['enable_plugins']:
+        if self.opts.enable_plugins:
             # only run enable for plugins that are disabled
-            opts = [o for o in self.config['enable_plugins']
-                    if o not in self.config['skip_plugins']
+            opts = [o for o in self.opts.enable_plugins
+                    if o not in self.opts.skip_plugins
                     and self._check_disabled(o) and self._plugin_exists(o)]
-            if len(opts) != len(self.config['enable_plugins']):
-                not_on = list(set(self.config['enable_plugins']) - set(opts))
+            if len(opts) != len(self.opts.enable_plugins):
+                not_on = list(set(self.opts.enable_plugins) - set(opts))
                 self.log_debug('Requested to enable plugins %s, but plugins '
                                'are already enabled or do not exist' % not_on)
             enable = self._fmt_sos_opt_list(opts)
             if enable:
                 self.sos_cmd += ' --enable-plugins=%s' % quote(enable)
 
-        if self.config['plugin_options']:
-            opts = [o for o in self.config['plugin_options']
+        if self.opts.plugin_options:
+            opts = [o for o in self.opts.plugin_options
                     if self._plugin_exists(o.split('.')[0])
                     and self._plugin_option_exists(o.split('=')[0])]
             if opts:
                 self.sos_cmd += ' -k %s' % quote(','.join(o for o in opts))
 
-        if self.config['preset']:
-            if self._preset_exists(self.config['preset']):
-                self.sos_cmd += ' --preset=%s' % quote(self.config['preset'])
+        if self.opts.preset:
+            if self._preset_exists(self.opts.preset):
+                self.sos_cmd += ' --preset=%s' % quote(self.opts.preset)
             else:
                 self.log_debug('Requested to enable preset %s but preset does '
-                               'not exist on node' % self.config['preset'])
+                               'not exist on node' % self.opts.preset)
 
     def determine_sos_label(self):
         '''Determine what, if any, label should be added to the sosreport'''
         label = ''
-        label += self.config['cluster'].get_node_label(self)
+        label += self.cluster.get_node_label(self)
 
-        if self.config['label']:
-            label += ('%s' % self.config['label'] if not label
-                      else '-%s' % self.config['label'])
+        if self.opts.label:
+            label += ('%s' % self.opts.label if not label
+                      else '-%s' % self.opts.label)
 
         if not label:
             return None
@@ -648,7 +652,7 @@ class SosNode():
         try:
             path = False
             res = self.run_command(self.sos_cmd,
-                                   timeout=self.config['timeout'],
+                                   timeout=self.opts.timeout,
                                    get_pty=True, need_root=True,
                                    use_container=True)
             if res['status'] == 0:
@@ -671,7 +675,7 @@ class SosNode():
 
     def retrieve_file(self, path):
         '''Copies the specified file from the host to our temp dir'''
-        destdir = self.config['tmp_dir'] + '/'
+        destdir = self.tmpdir + '/'
         dest = destdir + path.split('/')[-1]
         try:
             if not self.local:
@@ -680,7 +684,7 @@ class SosNode():
                                    (path, destdir))
                     cmd = "/usr/bin/scp -oControlPath=%s %s@%s:%s %s" % (
                         self.control_path,
-                        self.config['ssh_user'],
+                        self.opts.ssh_user,
                         self.address,
                         path,
                         destdir
@@ -725,7 +729,7 @@ class SosNode():
     def retrieve_sosreport(self):
         '''Collect the sosreport archive from the node'''
         if self.sos_path:
-            if self.config['need_sudo'] or self.config['become_root']:
+            if self.need_sudo or self.opts.become_root:
                 try:
                     self.make_archive_readable(self.sos_path)
                 except Exception:
@@ -785,7 +789,7 @@ class SosNode():
         '''Collect the file created by a cluster outside of sos'''
         for filename in filenames:
             try:
-                if self.config['need_sudo'] or self.config['become_root']:
+                if self.need_sudo or self.opts.become_root:
                     try:
                         self.make_archive_readable(filename)
                     except Exception as err:

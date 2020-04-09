@@ -11,10 +11,8 @@
 import logging
 import subprocess
 
-from sos.collector.configuration import ClusterOption
 
-
-class Cluster(object):
+class Cluster():
 
     option_list = []
     packages = ('',)
@@ -23,7 +21,7 @@ class Cluster(object):
     sos_preset = ''
     cluster_name = None
 
-    def __init__(self, config):
+    def __init__(self, commons):
         '''This is the class that cluster profile should subclass in order to
         add support for different clustering technologies and environments to
         sos-collector.
@@ -35,7 +33,8 @@ class Cluster(object):
         '''
 
         self.master = None
-        self.config = config
+        self.tmpdir = commons['tmpdir']
+        self.opts = commons['opts']
         self.cluster_type = [self.__class__.__name__]
         for cls in self.__class__.__bases__:
             if cls.__name__ != 'Cluster':
@@ -86,7 +85,7 @@ class Cluster(object):
         supplied to sos-collector.
         '''
         # check CLI before defaults
-        for opt in self.config['cluster_options']:
+        for opt in self.opts.cluster_options:
             if opt.name == option and opt.cluster in self.cluster_type:
                 return opt.value
         # provide defaults otherwise
@@ -160,21 +159,21 @@ class Cluster(object):
         This will NOT override user supplied options.
         '''
         if self.sos_preset:
-            if not self.config['preset']:
-                self.config['preset'] = self.sos_preset
+            if not self.opts.preset:
+                self.opts.preset = self.sos_preset
             else:
                 self.log_debug('Cluster specified preset %s but user has also '
                                'defined a preset. Using user specification.'
                                % self.sos_preset)
         if self.sos_plugins:
             for plug in self.sos_plugins:
-                if plug not in self.config['sos_cmd']:
-                    self.config['enable_plugins'].append(plug)
+                if plug not in sos.opts.enable_plugins:
+                    self.opts.enable_plugins.append(plug)
         if self.sos_plugin_options:
             for opt in self.sos_plugin_options:
-                if not any(opt in o for o in self.config['plugin_options']):
+                if not any(opt in o for o in self.opts.plugin_options):
                     option = '%s=%s' % (opt, self.sos_plugin_options[opt])
-                    self.config['plugin_options'].append(option)
+                    self.opts.plugin_options.append(option)
 
     def format_node_list(self):
         '''Format the returned list of nodes from a cluster into a known
@@ -216,3 +215,14 @@ class Cluster(object):
         except AttributeError:
             pass
         return files
+
+
+class ClusterOption():
+    '''Used to store/manipulate options for cluster profiles.'''
+
+    def __init__(self, name, value, opt_type, cluster, description=None):
+        self.name = name
+        self.value = value
+        self.opt_type = opt_type
+        self.cluster = cluster
+        self.description = description
