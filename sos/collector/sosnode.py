@@ -42,8 +42,8 @@ class SosNode():
             'presets': []
         }
         filt = ['localhost', '127.0.0.1', self.config['hostname']]
-        self.logger = logging.getLogger('sos_collector')
-        self.console = logging.getLogger('sos_collector_console')
+        self.soslog = logging.getLogger('sos')
+        self.ui_log = logging.getLogger('sos_ui')
         self.control_path = ("%s/.sos-collector-%s"
                              % (self.config['tmp_dir'], self.address))
         self.ssh_cmd = self._create_ssh_command()
@@ -157,24 +157,24 @@ class SosNode():
         '''Used to print and log info messages'''
         caller = inspect.stack()[1][3]
         lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
-        self.logger.info(lmsg)
-        self.console.info(self._fmt_msg(msg))
+        self.soslog.info(lmsg)
+        self.ui_log.info(self._fmt_msg(msg))
 
     def log_error(self, msg):
         '''Used to print and log error messages'''
         caller = inspect.stack()[1][3]
         lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
-        self.logger.error(lmsg)
-        self.console.error(self._fmt_msg(msg))
+        self.soslog.error(lmsg)
+        self.ui_log.error(self._fmt_msg(msg))
 
     def log_debug(self, msg):
         '''Used to print and log debug messages'''
         msg = self._sanitize_log_msg(msg)
         caller = inspect.stack()[1][3]
         msg = '[%s:%s] %s' % (self._hostname, caller, msg)
-        self.logger.debug(msg)
+        self.soslog.debug(msg)
         if self.config['verbose']:
-            self.console.debug(msg)
+            self.ui_log.debug(msg)
 
     def get_hostname(self):
         '''Get the node's hostname'''
@@ -735,7 +735,7 @@ class SosNode():
                     self.make_archive_readable(self.sos_path + '.md5')
                 except Exception:
                     self.log_debug('Failed to make md5 readable')
-            self.logger.info('Retrieving sosreport from %s' % self.address)
+            self.soslog.info('Retrieving sosreport from %s' % self.address)
             self.log_info('Retrieving sosreport...')
             ret = self.retrieve_file(self.sos_path)
             if ret:
@@ -754,7 +754,7 @@ class SosNode():
                 e = self.stderr.read()
             else:
                 e = [x.strip() for x in self.stdout.readlines() if x.strip][-1]
-            self.logger.error(
+            self.soslog.error(
                 'Failed to run sosreport on %s: %s' % (self.address, e))
             self.log_error('Failed to run sosreport. %s' % e)
             return False

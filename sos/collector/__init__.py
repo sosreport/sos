@@ -94,7 +94,7 @@ class SoSCollector(SoSComponent):
                 self.log_debug("Found cluster profiles: %s"
                                % self.clusters.keys())
                 self.log_debug("Found supported host types: %s"
-                               % self.config['host_types'].keys())
+                               % self.host_types.keys())
                 self._parse_options()
                 self.prep()
             except KeyboardInterrupt:
@@ -319,8 +319,8 @@ class SoSCollector(SoSComponent):
     def _parse_options(self):
         '''If there are cluster options set on the CLI, override the defaults
         '''
-        if self.config['cluster_options']:
-            for opt in self.config['cluster_options']:
+        if self.opts.cluster_options:
+            for opt in self.opts.cluster_options:
                 match = False
                 for clust in self.clusters:
                     for option in self.clusters[clust].options:
@@ -358,26 +358,21 @@ class SoSCollector(SoSComponent):
 
     def log_info(self, msg):
         '''Log info messages to both console and log file'''
-        self.logger.info(msg)
-        self.console.info(msg)
+        self.soslog.info(msg)
 
     def log_warn(self, msg):
         '''Log warn messages to both console and log file'''
-        self.logger.warn(msg)
-        self.console.warn('WARNING: %s' % msg)
+        self.soslog.warn(msg)
 
     def log_error(self, msg):
         '''Log error messages to both console and log file'''
-        self.logger.error(msg)
-        self.console.error(msg)
+        self.soslog.error(msg)
 
     def log_debug(self, msg):
         '''Log debug message to both console and log file'''
         caller = inspect.stack()[1][3]
         msg = '[sos_collector:%s] %s' % (caller, msg)
-        self.logger.debug(msg)
-        if self.config['verbose']:
-            self.console.debug(msg)
+        self.soslog.debug(msg)
 
     def create_tmp_dir(self, location='/var/tmp'):
         '''Creates a temp directory to transfer sosreports to'''
@@ -537,9 +532,9 @@ organization before being passed to any third party.
 No configuration changes will be made to the system running \
 this utility or remote systems that it connects to.
 """)
-        self.console.info("\nsos-collector (version %s)\n" % __version__)
+        self.ui_log.info("\nsos-collector (version %s)\n" % __version__)
         intro_msg = self._fmt_msg(disclaimer % self.config['tmp_dir'])
-        self.console.info(intro_msg)
+        self.ui_log.info(intro_msg)
         prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
         if not self.config['batch']:
             input(prompt)
@@ -549,7 +544,7 @@ this utility or remote systems that it connects to.
             self.log_debug('password not specified, assuming SSH keys')
             msg = ('sos-collector ASSUMES that SSH keys are installed on all '
                    'nodes unless the --password option is provided.\n')
-            self.console.info(self._fmt_msg(msg))
+            self.ui_log.info(self._fmt_msg(msg))
 
         if self.config['password'] or self.config['password_per_node']:
             self.log_debug('password specified, not using SSH keys')
@@ -633,21 +628,21 @@ this utility or remote systems that it connects to.
         '''Prints initial messages and collects user and case if not
         provided already.
         '''
-        self.console.info('')
+        self.ui_log.info('')
 
         if not self.node_list and not self.master.connected:
             self._exit('No nodes were detected, or nodes do not have sos '
                        'installed.\nAborting...')
 
-        self.console.info('The following is a list of nodes to collect from:')
+        self.ui_log.info('The following is a list of nodes to collect from:')
         if self.master.connected:
-            self.console.info('\t%-*s' % (self.config['hostlen'],
+            self.ui_log.info('\t%-*s' % (self.config['hostlen'],
                                           self.config['master']))
 
         for node in sorted(self.node_list):
-            self.console.info("\t%-*s" % (self.config['hostlen'], node))
+            self.ui_log.info("\t%-*s" % (self.config['hostlen'], node))
 
-        self.console.info('')
+        self.ui_log.info('')
 
         if not self.config['case_id'] and not self.config['batch']:
             msg = 'Please enter the case id you are collecting reports for: '
@@ -843,7 +838,7 @@ this utility or remote systems that it connects to.
         if self.master.connected:
             self.client_list.append(self.master)
 
-        self.console.info("\nConnecting to nodes...")
+        self.ui_log.info("\nConnecting to nodes...")
         filters = [self.master.address, self.master.hostname]
         nodes = [(n, None) for n in self.node_list if n not in filters]
 
@@ -865,7 +860,7 @@ this utility or remote systems that it connects to.
             if self.config['no_local'] and self.master.address == 'localhost':
                 self.report_num -= 1
 
-            self.console.info("\nBeginning collection of sosreports from %s "
+            self.ui_log.info("\nBeginning collection of sosreports from %s "
                               "nodes, collecting a maximum of %s "
                               "concurrently\n"
                               % (self.report_num, self.config['threads'])
@@ -882,7 +877,7 @@ this utility or remote systems that it connects to.
             os._exit(1)
 
         if hasattr(self.config['cluster'], 'run_extra_cmd'):
-            self.console.info('Collecting additional data from master node...')
+            self.ui_log.info('Collecting additional data from master node...')
             files = self.config['cluster']._run_extra_cmd()
             if files:
                 self.master.collect_extra_cmd(files)
@@ -920,11 +915,11 @@ this utility or remote systems that it connects to.
         self.log_info('Creating archive of sosreports...')
         self.create_sos_archive()
         if self.archive:
-            self.logger.info('Archive created as %s' % self.archive)
+            self.soslog.info('Archive created as %s' % self.archive)
             self.cleanup()
-            self.console.info('\nThe following archive has been created. '
+            self.ui_log.info('\nThe following archive has been created. '
                               'Please provide it to your support team.')
-            self.console.info('    %s' % self.archive)
+            self.ui_log.info('    %s' % self.archive)
 
     def create_sos_archive(self):
         '''Creates a tar archive containing all collected sosreports'''
@@ -948,11 +943,11 @@ this utility or remote systems that it connects to.
                             self.log_error("Could not add %s to archive: %s"
                                            % (arc_name, err))
                 tar.add(
-                    self.logfile.name,
+                    self.sos_log_file,
                     arcname=self.arc_name + '/logs/sos-collector.log'
                 )
                 tar.add(
-                    self.console_log_file.name,
+                    self.sos_ui_log_file,
                     arcname=self.arc_name + '/logs/ui.log'
                 )
                 tar.close()

@@ -41,8 +41,8 @@ class Cluster(object):
             if cls.__name__ != 'Cluster':
                 self.cluster_type.append(cls.__name__)
         self.node_list = None
-        self.logger = logging.getLogger('sos_collector')
-        self.console = logging.getLogger('sos_collector_console')
+        self.soslog = logging.getLogger('sos')
+        self.ui_log = logging.getLogger('sos_ui')
         self.options = []
         self._get_options()
 
@@ -67,24 +67,19 @@ class Cluster(object):
 
     def log_info(self, msg):
         '''Used to print info messages'''
-        self.logger.info(self._fmt_msg(msg))
-        self.console.info(msg)
+        self.soslog.info(self._fmt_msg(msg))
 
     def log_error(self, msg):
         '''Used to print error messages'''
-        self.logger.error(self._fmt_msg(msg))
-        self.console.error(msg)
+        self.soslog.error(self._fmt_msg(msg))
 
     def log_debug(self, msg):
         '''Used to print debug messages'''
-        self.logger.debug(self._fmt_msg(msg))
-        if self.config['verbose']:
-            self.console.debug(self._fmt_msg(msg))
+        self.soslog.debug(self._fmt_msg(msg))
 
     def log_warn(self, msg):
         '''Used to print warning messages'''
-        self.logger.warn(self._fmt_msg(msg))
-        self.console.warn(msg)
+        self.soslog.warn(self._fmt_msg(msg))
 
     def get_option(self, option):
         '''This is used to by clusters to check if a cluster option was
