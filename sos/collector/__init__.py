@@ -84,10 +84,12 @@ class SoSCollector(SoSComponent):
         self.master = False
         self.retrieved = 0
         self.need_local_sudo = False
-        self.config = Configuration(parsed_args)
-        if not self.config['list_options']:
+        if not self.opts.list_options:
             try:
                 self._check_for_control_persist()
+                self.clusters = self.load_clusters()
+                self.host_types = self.load_host_types()
+                self.parse_node_strings()
                 self.log_debug('Executing %s' % ' '.join(s for s in sys.argv))
                 self.log_debug("Found cluster profiles: %s"
                                % self.clusters.keys())
@@ -99,6 +101,101 @@ class SoSCollector(SoSComponent):
                 self._exit('Exiting on user cancel', 130)
             except Exception:
                 raise        
+
+    def load_clusters(self):
+        """Loads all cluster types supported by the local installation for
+        future comparison and/or use
+        """
+        import sos.collector.clusters
+        package = sos.collector.clusters
+        supported_clusters = {}
+        clusters = self._load_modules(package, 'clusters')
+        for cluster in clusters:
+            supported_clusters[cluster[0]] = cluster[1](self)
+        return supported_clusters
+
+    def load_host_types(self):
+        """Loads all host types supported by the local installation"""
+        import sos.collector.hosts
+        package = sos.collector.hosts
+        supported_hosts = {}
+        hosts = self._load_modules(package, 'hosts')
+        for host in hosts:
+            supported_hosts[host[0]] = host[1]
+        return supported_hosts
+
+    def _load_modules(self, package, submod):
+        """Helper to import cluster and host types"""
+        modules = []
+        for path in package.__path__:
+            if os.path.isdir(path):
+                modules.extend(self._find_modules_in_path(path, submod))
+        return modules
+
+    def _find_modules_in_path(self, path, modulename):
+        """Given a path and a module name, find everything that can be imported
+        and then import it
+
+            path - the filesystem path of the package
+            modulename - the name of the module in the package
+
+        E.G. a path of 'clusters', and a modulename of 'ovirt' equates to
+        importing sos.collector.clusters.ovirt
+        """
+        modules = []
+        if os.path.exists(path):
+            for pyfile in sorted(os.listdir(path)):
+                if not pyfile.endswith('.py'):
+                    continue
+                if '__' in pyfile:
+                    continue
+                fname, ext = os.path.splitext(pyfile)
+                modname = 'sos.collector.%s.%s' % (modulename, fname)
+                modules.extend(self._import_modules(modname))
+        return modules
+
+    def _import_modules(self, modname):
+        """Import and return all found classes in a module"""
+        mod_short_name = modname.split('.')[2]
+        module = __import__(modname, globals(), locals(), [mod_short_name])
+        modules = inspect.getmembers(module, inspect.isclass)
+        for mod in modules:
+            if mod[0] in ('SosHost', 'Cluster'):
+                modules.remove(mod)
+        return modules
+
+    def parse_node_strings(self):
+        """Parses the given --nodes option(s) to properly format the regex
+        list that we use. We cannot blindly split on ',' chars since it is a
+        valid regex character, so we need to scan along the given strings and
+        check at each comma if we should use the preceeding string by itself
+        or not, based on if there is a valid regex at that index.
+        """
+        if not self.opts.nodes:
+            return
+        nodes = []
+        if not isinstance(self.opts.nodes, list):
+            self.opts.nodes = [self.opts.nodes]
+        for node in self.opts.nodes:
+            idxs = [i for i, m in enumerate(node) if m == ',']
+            idxs.append(len(node))
+            start = 0
+            pos = 0
+            for idx in idxs:
+                try:
+                    pos = idx
+                    reg = node[start:idx]
+                    re.compile(re.escape(reg))
+                    # make sure we aren't splitting a regex value
+                    if '[' in reg and ']' not in reg:
+                        continue
+                    nodes.append(reg.lstrip(','))
+                    start = idx
+                except re.error:
+                    continue
+            if pos != len(node):
+                nodes.append(node[pos+1:])
+        self.opts.nodes = nodes
 
     @classmethod
     def add_parser_options(cls, parser):
