@@ -136,7 +136,7 @@ class FileCacheArchive(Archive):
         self._policy = policy
         self._threads = threads
         self.enc_opts = enc_opts
-        self.sysroot = sysroot
+        self.sysroot = sysroot or '/'
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)

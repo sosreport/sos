@@ -16,6 +16,8 @@ import sys
 import sos.policies
 
 from argparse import SUPPRESS
+from shutil import rmtree
+from sos.archive import TarFileArchive
 from sos.options import SoSOptions
 from sos.utilities import TempFileUtil
 
@@ -60,6 +62,9 @@ class SoSComponent():
         self.args = parsed_args
         self.cmdline = cmdline_args
         self.exit_process = False
+        self.archive = None
+        self.tmpdir = None
+        self.tempfile_util = None
 
         try:
             import signal
@@ -130,6 +135,39 @@ class SoSComponent():
         opts.update_from_conf(opts.config_file)
 
         return opts
+
+    def cleanup(self):
+        # archive and tempfile cleanup may fail due to a fatal
+        # OSError exception (ENOSPC, EROFS etc.).
+        if self.archive:
+            self.archive.cleanup()
+        if self.tempfile_util:
+            self.tempfile_util.clean()
+        if self.tmpdir:
+            rmtree(self.tmpdir)
+
+    def setup_archive(self, name=''):
+        enc_opts = {
+            'encrypt': True if (self.opts.encrypt_pass or
+                                self.opts.encrypt_key) else False,
+            'key': self.opts.encrypt_key,
+            'password': self.opts.encrypt_pass
+        }
+        if not name:
+            name = self.policy.get_archive_name()
+        archive_name = os.path.join(self.tmpdir, name)
+        if self.opts.compression_type == 'auto':
+            auto_archive = self.policy.get_preferred_archive()
+            self.archive = auto_archive(archive_name, self.tmpdir,
+                                        self.policy, self.opts.threads,
+                                        enc_opts, self.opts.sysroot)
+
+        else:
+            self.archive = TarFileArchive(archive_name, self.tmpdir,
+                                          self.policy, self.opts.threads,
+                                          enc_opts, self.opts.sysroot)
+
+        self.archive.set_debug(True if self.opts.debug else False)
 
     def _setup_logging(self):
         """Creates the log handler that shall be used by all components and any
