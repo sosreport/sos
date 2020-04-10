@@ -33,6 +33,7 @@ class Cluster():
         '''
 
         self.master = None
+        self.cluster_ssh_key = None
         self.tmpdir = commons['tmpdir']
         self.opts = commons['opts']
         self.cluster_type = [self.__class__.__name__]
@@ -93,6 +94,17 @@ class Cluster():
             if opt.name == option:
                 return opt.value
         return False
+
+    def add_default_ssh_key(self, key):
+        """Some clusters generate and/or deploy well-known and consistent
+        SSH keys across environments. If this is the case, the cluster profile
+        may call this command so that subsequent node connections will use that
+        key rather than prompting the user for one or a password.
+
+        Note this will only function if collector is being run locally on the
+        master node.
+        """
+        self.cluster_ssh_key = key
 
     def exec_master_cmd(self, cmd, need_root=False):
         '''Used to retrieve output from a (master) node in a cluster'''
