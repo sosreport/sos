@@ -15,11 +15,10 @@ import errno
 import logging
 
 from datetime import datetime
-from argparse import ArgumentParser, Action
+import glob
 import sos.report.plugins
-from sos.utilities import ImporterHelper, SoSTimeoutError, TempFileUtil
+from sos.utilities import ImporterHelper, SoSTimeoutError
 from shutil import rmtree
-import tempfile
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 import pdb
