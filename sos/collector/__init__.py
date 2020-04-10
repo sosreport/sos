@@ -570,29 +570,6 @@ class SoSCollector(SoSComponent):
         return fname
 
     def prep(self):
-        disclaimer = ("""\
-This utility is used to collect sosreports from multiple \
-nodes simultaneously. It uses OpenSSH's ControlPersist feature \
-to connect to nodes and run commands remotely. If your system \
-installation of OpenSSH is older than 5.6, please upgrade.
-
-An archive of sosreport tarballs collected from the nodes will be \
-generated in %s and may be provided to an appropriate support representative.
-
-The generated archive may contain data considered sensitive \
-and its content should be reviewed by the originating \
-organization before being passed to any third party.
-
-No configuration changes will be made to the system running \
-this utility or remote systems that it connects to.
-""")
-        self.ui_log.info("\nsos-collector (version %s)\n" % __version__)
-        intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
-        self.ui_log.info(intro_msg)
-        prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
-        if not self.opts.batch:
-            input(prompt)
-
         if (not self.opts.password and not
                 self.opts.password_per_node):
             self.log_debug('password not specified, assuming SSH keys')
@@ -669,6 +646,7 @@ this utility or remote systems that it connects to.
             self.master.cluster = self.cluster
             self.cluster.setup()
             self.cluster.modify_sos_cmd()
+
         self.get_nodes()
         if self.opts.save_group:
             gname = self.opts.save_group
@@ -678,10 +656,10 @@ this utility or remote systems that it connects to.
             except Exception as err:
                 self.log_error("Could not save group %s: %s" % (gname, err))
 
-    def intro(self):
-        '''Prints initial messages and collects user and case if not
-        provided already.
-        '''
+    def display_nodes(self):
+        """Prints a list of nodes to collect from, if available. If no nodes
+        are discovered or provided, abort.
+        """
         self.ui_log.info('')
 
         if not self.node_list and not self.master.connected:
@@ -696,10 +674,6 @@ this utility or remote systems that it connects to.
             self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
 
         self.ui_log.info('')
-
-        if not self.opts.case_id and not self.opts.batch:
-            msg = 'Please enter the case id you are collecting reports for: '
-            self.opts.case_id = input(msg)
 
     def configure_sos_cmd(self):
         '''Configures the sosreport command that is run on the nodes'''
@@ -733,7 +707,7 @@ this utility or remote systems that it connects to.
             self.sos_cmd += ' -c %s' % quote(self.opts.chroot)
         if self.opts.compression_type != 'auto':
             self.sos_cmd += ' -z %s' % (quote(self.opts.compression))
-        self.log_debug('Initial sos cmd set to %s' % self.sos_cmd)
+        self.log_debug("Initial sos cmd set to %s" % self.sos_cmd)
         self.commons['sos_cmd'] = self.sos_cmd
 
     def connect_to_master(self):
@@ -888,10 +862,43 @@ this utility or remote systems that it connects to.
         except Exception:
             pass
 
+    def intro(self):
+        """Print the intro message and prompts for a case ID if one is not
+        provided on the command line
+        """
+        disclaimer = ("""\
+This utility is used to collect sosreports from multiple \
+nodes simultaneously. It uses OpenSSH's ControlPersist feature \
+to connect to nodes and run commands remotely. If your system \
+installation of OpenSSH is older than 5.6, please upgrade.
+
+An archive of sosreport tarballs collected from the nodes will be \
+generated in %s and may be provided to an appropriate support representative.
+
+The generated archive may contain data considered sensitive \
+and its content should be reviewed by the originating \
+organization before being passed to any third party.
+
+No configuration changes will be made to the system running \
+this utility or remote systems that it connects to.
+""")
+        self.ui_log.info("\nsos-collector (version %s)\n" % __version__)
+        intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
+        self.ui_log.info(intro_msg)
+        prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
+        if not self.opts.batch:
+            input(prompt)
+            self.ui_log.info("")
+
+        if not self.opts.case_id and not self.opts.batch:
+            msg = 'Please enter the case id you are collecting reports for: '
+            self.opts.case_id = input(msg)
+
     def execute(self):
+        self.intro()
         self.configure_sos_cmd()
         self.prep()
-        self.intro()
+        self.display_nodes()
 
         self.archive_name = self._get_archive_name()
         self.setup_archive(name=self.archive_name)

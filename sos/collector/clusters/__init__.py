@@ -167,7 +167,7 @@ class Cluster():
                                % self.sos_preset)
         if self.sos_plugins:
             for plug in self.sos_plugins:
-                if plug not in sos.opts.enable_plugins:
+                if plug not in self.opts.enable_plugins:
                     self.opts.enable_plugins.append(plug)
         if self.sos_plugin_options:
             for opt in self.sos_plugin_options:
