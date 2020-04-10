@@ -66,7 +66,7 @@ class ovirt(Cluster):
             if not any([self.opts.ssh_key, self.opts.password,
                         self.opts.password_per_node]):
                 if self.master.file_exists(ENGINE_KEY):
-                    self.opts.ssh_key = ENGINE_KEY
+                    self.add_default_ssh_key(ENGINE_KEY)
                     self.log_debug("Found engine SSH key. User command line"
                                    " does not specify a key or password, using"
                                    " engine key.")

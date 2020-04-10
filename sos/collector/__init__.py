@@ -621,7 +621,6 @@ class SoSCollector(SoSComponent):
             try:
                 self.master = SosNode('localhost', self.commons)
             except Exception as err:
-                print(err)
                 self.log_debug("Unable to determine local installation: %s" %
                                err)
                 self._exit('Unable to determine local installation. Use the '
@@ -645,6 +644,11 @@ class SoSCollector(SoSComponent):
         if self.cluster:
             self.master.cluster = self.cluster
             self.cluster.setup()
+            if self.cluster.cluster_ssh_key:
+                if not self.opts.ssh_key:
+                    self.log_debug("Updating SSH key to %s per cluster"
+                                   % self.cluster.cluster_ssh_key)
+                    self.opts.ssh_key = self.cluster.cluster_ssh_key
 
         self.get_nodes()
         if self.opts.save_group:
