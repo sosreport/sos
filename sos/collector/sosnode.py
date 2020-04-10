@@ -32,6 +32,7 @@ class SosNode():
         self.hostlen = commons['hostlen']
         self.need_sudo = commons['need_sudo']
         self.local = False
+        self.cluster = None
         self.hostname = None
         self._password = password or self.opts.password
         self.sos_path = None
@@ -538,6 +539,39 @@ class SosNode():
         '''Returns a comma delimited list for sos plugins that are confirmed
         to exist on the node'''
         return ','.join(o for o in opts if self._plugin_exists(o))
+
+    def set_cluster(self, cluster):
+        """Expose the node to the cluster profile determined for the
+        environment
+        """
+        self.cluster = cluster
+
+    def update_cmd_from_cluster(self):
+        '''This is used to modify the sosreport command run on the nodes.
+        By default, sosreport is run without any options, using this will
+        allow the profile to specify what plugins to run or not and what
+        options to use.
+
+        This will NOT override user supplied options.
+        '''
+        if self.cluster.sos_preset:
+            if not self.opts.preset:
+                self.opts.preset = self.cluster.sos_preset
+            else:
+                self.log_debug('Cluster specified preset %s but user has also '
+                               'defined a preset. Using user specification.'
+                               % self.cluster.sos_preset)
+        if self.cluster.sos_plugins:
+            for plug in self.cluster.sos_plugins:
+                if plug not in self.opts.enable_plugins:
+                    self.opts.enable_plugins.append(plug)
+
+        if self.cluster.sos_plugin_options:
+            for opt in self.cluster.sos_plugin_options:
+                if not any(opt in o for o in self.opts.plugin_options):
+                    option = '%s=%s' % (opt,
+                                        self.cluster.sos_plugin_options[opt])
+                    self.opts.plugin_options.append(option)
 
     def finalize_sos_cmd(self):
         '''Use host facts and compare to the cluster type to modify the sos

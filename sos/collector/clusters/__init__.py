@@ -150,31 +150,6 @@ class Cluster():
         '''
         return ''
 
-    def modify_sos_cmd(self):
-        '''This is used to modify the sosreport command run on the nodes.
-        By default, sosreport is run without any options, using this will
-        allow the profile to specify what plugins to run or not and what
-        options to use.
-
-        This will NOT override user supplied options.
-        '''
-        if self.sos_preset:
-            if not self.opts.preset:
-                self.opts.preset = self.sos_preset
-            else:
-                self.log_debug('Cluster specified preset %s but user has also '
-                               'defined a preset. Using user specification.'
-                               % self.sos_preset)
-        if self.sos_plugins:
-            for plug in self.sos_plugins:
-                if plug not in self.opts.enable_plugins:
-                    self.opts.enable_plugins.append(plug)
-        if self.sos_plugin_options:
-            for opt in self.sos_plugin_options:
-                if not any(opt in o for o in self.opts.plugin_options):
-                    option = '%s=%s' % (opt, self.sos_plugin_options[opt])
-                    self.opts.plugin_options.append(option)
-
     def format_node_list(self):
         '''Format the returned list of nodes from a cluster into a known
         format. This being a list that contains no duplicates

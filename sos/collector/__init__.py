@@ -645,7 +645,6 @@ class SoSCollector(SoSComponent):
         if self.cluster:
             self.master.cluster = self.cluster
             self.cluster.setup()
-            self.cluster.modify_sos_cmd()
 
         self.get_nodes()
         if self.opts.save_group:
@@ -854,7 +853,7 @@ class SoSCollector(SoSComponent):
         '''
         try:
             client = SosNode(node[0], self.commons, password=node[1])
-            client.cluster = self.cluster
+            client.set_cluster(self.cluster)
             if client.connected:
                 self.client_list.append(client)
             else:
