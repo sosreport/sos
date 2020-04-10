@@ -70,7 +70,7 @@ class SoSOptions():
             vals = [",".join(v) if _is_seq(v) else v for v in vals]
         else:
             # Only quote strings if quote=False
-            vals = ["'%s'" % v if isinstance(val, str) else v for v in vals]
+            vals = ["'%s'" % v if isinstance(v, str) else v for v in vals]
 
         return (args % tuple(vals)).strip(sep) + suffix
 

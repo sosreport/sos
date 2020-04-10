@@ -16,9 +16,7 @@ gettext to internationalize messages.
 """
 __version__ = "3.9"
 
-import logging
 import sys
-import tempfile
 
 from argparse import ArgumentParser
 from sos.options import SosListOption

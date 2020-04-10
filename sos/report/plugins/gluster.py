@@ -35,9 +35,9 @@ class Gluster(Plugin, RedHatPlugin):
             statedumps_present = statedumps_present+1
             ret = -1
             while ret == -1:
-                last_line = file(
-                    name_dir + '/' + statedump_file, "r").readlines()[-1]
-                ret = string.count(last_line, 'DUMP_END_TIME')
+                with open(name_dir + '/' + statedump_file, 'r') as sfile:
+                    last_line = sfile.readlines()[-1]
+                    ret = string.count(last_line, 'DUMP_END_TIME')
 
     def postproc(self):
         if not os.path.exists(self.statedump_dir):
