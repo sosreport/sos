@@ -19,21 +19,25 @@ class Landscape(Plugin, UbuntuPlugin):
     packages = ('landscape-client', 'landscape-server')
 
     def setup(self):
-        self.add_copy_spec("/etc/landscape/client.conf")
-        self.add_copy_spec("/etc/default/landscape-client")
-        self.add_copy_spec("/etc/landscape/service.conf")
-        self.add_copy_spec("/etc/landscape/service.conf.old")
-        self.add_copy_spec("/etc/default/landscape-server")
-        self.add_copy_spec("/var/lib/landscape/landscape-oops/*/OOPS-*")
+        self.add_copy_spec([
+            "/etc/default/landscape-client",
+            "/etc/default/landscape-server",
+            "/etc/landscape/client.conf",
+            "/etc/landscape/service.conf",
+            "/etc/landscape/service.conf.old",
+            "/var/lib/landscape/landscape-oops/*/OOPS-*"
+        ])
+
         if not self.get_option("all_logs"):
             self.add_copy_spec("/var/log/landscape/*.log")
-            self.add_copy_spec("/var/log/landscape-server/*.log")
         else:
             self.add_copy_spec("/var/log/landscape")
-            self.add_copy_spec("/var/log/landscape-server")
-        self.add_cmd_output("gpg --verify /etc/landscape/license.txt")
-        self.add_cmd_output("head -n 5 /etc/landscape/license.txt")
-        self.add_cmd_output("lsctl status")
+
+        self.add_cmd_output([
+            "gpg --verify /etc/landscape/license.txt",
+            "head -n 5 /etc/landscape/license.txt",
+            "lsctl status"
+        ])
 
     def postproc(self):
         self.do_file_sub(
