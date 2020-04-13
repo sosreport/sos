@@ -1,0 +1,38 @@
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
+
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+
+
+class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+    """Collect config and system information about NVMe devices"""
+
+    plugin_name = "nvme"
+    packages = ('nvme-cli',)
+
+    def setup(self):
+        self.add_copy_spec("/etc/nvme/discovery.conf")
+        self.add_cmd_output([
+            "nvme list",
+            "nvme list-subsys",
+        ])
+
+        cmds = [
+            "smartctl --all %(dev)s",
+            "nvme list-ns %(dev)s",
+            "nvme fw-log %(dev)s",
+            "nvme list-ctrl %(dev)s",
+            "nvme id-ctrl -H %(dev)s",
+            "nvme id-ns -H %(dev)s",
+            "nvme smart-log %(dev)s",
+            "nvme error-log %(dev)s",
+            "nvme show-regs %(dev)s"
+        ]
+        self.add_blockdev_cmd(cmds, whitelist='nvme.*')
+
+# vim: set et ts=4 sw=4 :

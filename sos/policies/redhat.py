@@ -8,26 +8,16 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-# This enables the use of with syntax in python 2.5 (e.g. jython)
-from __future__ import print_function
 import os
 import sys
 import re
 
-from sos.plugins import RedHatPlugin
+from sos.report.plugins import RedHatPlugin
 from sos.policies import LinuxPolicy, PackageManager, PresetDefaults
 from sos import _sos as _
-from sos import SoSOptions
+from sos.options import SoSOptions
 
 OS_RELEASE = "/etc/os-release"
-
-# In python2.7, input() will not properly return strings, and on python3.x
-# raw_input() was renamed to input(). So, if we're running on python2.7, map
-# input() to raw_input() to match the behavior
-try:
-    input = raw_input
-except NameError:
-    pass
 
 
 class RedHatPolicy(LinuxPolicy):
@@ -47,6 +37,7 @@ class RedHatPolicy(LinuxPolicy):
     upload_url = 'dropbox.redhat.com'
     upload_user = 'anonymous'
     upload_directory = '/incoming'
+    default_container_runtime = 'podman'
 
     def __init__(self, sysroot=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot)

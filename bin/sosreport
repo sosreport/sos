@@ -1,0 +1,35 @@
+#!/usr/bin/python3
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
+
+""" sos entry point. """
+
+import sys
+import os
+import time
+
+try:
+    # allow running from the git checkout, even though as of 4.0 we are moving
+    # binaries into a bin/ top-level directory.
+    sys.path.insert(0, os.getcwd())
+    from sos import SoS
+except KeyboardInterrupt:
+    raise SystemExit()
+
+if __name__ == '__main__':
+    msg = ("Please note the 'sosreport' command has been deprecated in favor "
+           "of the new 'sos' command, E.G. 'sos report'.\n"
+           "Redirecting to 'sos report %s'" % (' '.join(sys.argv[1:]) or ''))
+    print(msg)
+    time.sleep(0.5)
+    args = sys.argv[1:]
+    args.insert(0, 'report')
+    sos = SoS(args)
+    sos.execute()
+
+# vim:ts=4 et sw=4

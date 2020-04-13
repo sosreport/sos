@@ -12,14 +12,11 @@ BuildArch: noarch
 Url: https://github.com/sosreport/sos/
 BuildRequires: python-devel
 BuildRequires: gettext
-BuildRequires: python-six
 Requires: libxml2-python
 Requires: rpm-python
 Requires: tar
 Requires: bzip2
 Requires: xz
-Requires: python-six
-Requires: python-futures
 
 %description
 Sos is a set of tools that gathers information about system

@@ -8,9 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-# This enables the use of with syntax in python 2.5 (e.g. jython)
-from __future__ import print_function
-
 from sos.policies.redhat import RedHatPolicy, OS_RELEASE
 import os
 

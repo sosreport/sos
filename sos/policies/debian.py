@@ -1,4 +1,4 @@
-from sos.plugins import DebianPlugin
+from sos.report.plugins import DebianPlugin
 from sos.policies import PackageManager, LinuxPolicy
 
 import os

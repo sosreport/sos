@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 import unittest
 
-from sos.plugins import Plugin
+from sos.report.plugins import Plugin
 from sos.policies import LinuxPolicy, InitSystem
 
 
@@ -24,7 +24,8 @@ class GlobalOptionTest(unittest.TestCase):
         self.commons = {
             'sysroot': '/',
             'policy': LinuxPolicy(init=InitSystem()),
-            'cmdlineopts': MockOptions()
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         }
         self.plugin = Plugin(self.commons)
         self.plugin.opt_names = ['baz', 'empty', 'test_option']

@@ -10,9 +10,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from __future__ import print_function
-
-from sos.plugins import PowerKVMPlugin, ZKVMPlugin, RedHatPlugin
+from sos.report.plugins import PowerKVMPlugin, ZKVMPlugin, RedHatPlugin
 from sos.policies.redhat import RedHatPolicy
 
 import os
