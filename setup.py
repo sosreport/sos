@@ -70,11 +70,15 @@ setup(name='sos',
       license="GPLv2+",
       scripts=['bin/sos', 'bin/sosreport'],
       data_files=[
-        ('share/man/man1', ['man/en/sosreport.1']),
+        ('share/man/man1', ['man/en/sosreport.1', 'man/en/sos-report.1',
+                            'man/en/sos.1', 'man/en/sos-collect.1',
+                            'man/en/sos-collector.1']),
         ('share/man/man5', ['man/en/sos.conf.5']),
         ],
-      packages=['sos', 'sos.report.plugins', 'sos.policies', 'sos.report'],
+      packages=['sos', 'sos.policies', 'sos.report', 'sos.report.plugins',
+                'sos.collector', 'sos.collector.clusters'],
       cmdclass={'build': BuildData, 'install_data': InstallData},
+      requires=['pexpect']
      )
 
 

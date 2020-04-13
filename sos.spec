@@ -17,6 +17,7 @@ Requires: rpm-python
 Requires: tar
 Requires: bzip2
 Requires: xz
+Requires: python3-pexpect
 
 %description
 Sos is a set of tools that gathers information about system
