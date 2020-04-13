@@ -77,10 +77,15 @@ class RedHatPolicy(LinuxPolicy):
         self.load_presets()
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """This method checks to see if we are running on Red Hat. It must be
         overriden by concrete subclasses to return True when running on a
-        Fedora, RHEL or other Red Hat distribution or False otherwise."""
+        Fedora, RHEL or other Red Hat distribution or False otherwise.
+
+        If `remote` is provided, it should be the contents of a remote host's
+        os-release, or comparable, file to be used in place of the locally
+        available one.
+        """
         return False
 
     def check_usrmove(self, pkgs):
@@ -268,7 +273,7 @@ support representative.
         self.register_presets(rhel_presets)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """Test to see if the running host is a RHEL installation.
 
             Checks for the presence of the "Red Hat Enterprise Linux"
@@ -279,6 +284,10 @@ support representative.
             :returns: ``True`` if the host is running RHEL or ``False``
                       otherwise.
         """
+
+        if remote:
+            return cls.distro in remote
+
         if not os.path.exists(OS_RELEASE):
             return False
 
@@ -404,7 +413,11 @@ support representative.
         self.register_presets(atomic_presets)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
+
+        if remote:
+            return cls.distro in remote
+
         atomic = False
         if ENV_HOST_SYSROOT not in os.environ:
             return atomic
@@ -440,7 +453,11 @@ support representative.
         super(RedHatCoreOSPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
+
+        if remote:
+            return cls.distro in remote
+
         coreos = False
         if ENV_HOST_SYSROOT not in os.environ:
             return coreos
@@ -474,9 +491,13 @@ class FedoraPolicy(RedHatPolicy):
         super(FedoraPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """This method checks to see if we are running on Fedora. It returns
         True or False."""
+
+        if remote:
+            return cls.distro in remote
+
         return os.path.isfile('/etc/fedora-release')
 
     def fedora_version(self):

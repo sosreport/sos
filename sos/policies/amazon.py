@@ -22,7 +22,11 @@ class AmazonPolicy(RedHatPolicy):
         super(AmazonPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
+
+        if remote:
+            return cls.distro in remote
+
         if not os.path.exists(OS_RELEASE):
             return False
 

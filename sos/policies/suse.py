@@ -41,7 +41,7 @@ class SuSEPolicy(LinuxPolicy):
         self.set_exec_path()
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """This method checks to see if we are running on SuSE. It must be
         overriden by concrete subclasses to return True when running on an
         OpenSuSE, SLES or other Suse distribution and False otherwise."""
@@ -99,7 +99,11 @@ No changes will be made to system configuration.
         super(OpenSuSEPolicy, self).__init__(sysroot=sysroot)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote):
         """This method checks to see if we are running on SuSE.
         """
+
+        if remote:
+            return cls.distro in remote
+
         return (os.path.isfile('/etc/SuSE-release'))
