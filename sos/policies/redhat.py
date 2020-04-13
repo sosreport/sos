@@ -62,7 +62,7 @@ class RedHatPolicy(LinuxPolicy):
 
         # If rpm query failed, exit
         if not self.pkgs:
-            print("Could not obtain installed package list", file=sys.stderr)
+            sys.stderr.write("Could not obtain installed package list")
             sys.exit(1)
 
         self.usrmove = self.check_usrmove(self.pkgs)
