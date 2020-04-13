@@ -39,7 +39,8 @@ class RedHatPolicy(LinuxPolicy):
     upload_directory = '/incoming'
     default_container_runtime = 'podman'
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime)
         self.ticket_number = ""
@@ -55,7 +56,8 @@ class RedHatPolicy(LinuxPolicy):
                                               verify_command=self._rpmv_cmd,
                                               verify_filter=self._rpmv_filter,
                                               files_command=self._rpmql_cmd,
-                                              chroot=sysroot)
+                                              chroot=sysroot,
+                                              remote_exec=remote_exec)
 
         self.valid_subclasses = [RedHatPlugin]
 
@@ -269,9 +271,11 @@ support representative.
     _upload_user = 'anonymous'
     _upload_directory = '/incoming'
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(RHELPolicy, self).__init__(sysroot=sysroot, init=init,
-                                         probe_runtime=probe_runtime)
+                                         probe_runtime=probe_runtime,
+                                         remote_exec=remote_exec)
         self.register_presets(rhel_presets)
 
     @classmethod
@@ -410,9 +414,11 @@ generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot, init=init,
-                                                 probe_runtime=probe_runtime)
+                                                 probe_runtime=probe_runtime,
+                                                 remote_exec=remote_exec)
         self.register_presets(atomic_presets)
 
     @classmethod
@@ -452,9 +458,11 @@ generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(RedHatCoreOSPolicy, self).__init__(sysroot=sysroot, init=init,
-                                                 probe_runtime=probe_runtime)
+                                                 probe_runtime=probe_runtime,
+                                                 remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote=''):
@@ -491,9 +499,11 @@ class FedoraPolicy(RedHatPolicy):
     vendor = "the Fedora Project"
     vendor_url = "https://fedoraproject.org/"
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=probe_runtime):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(FedoraPolicy, self).__init__(sysroot=sysroot, init=init,
-                                           probe_runtime=probe_runtime)
+                                           probe_runtime=probe_runtime,
+                                           remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote=''):

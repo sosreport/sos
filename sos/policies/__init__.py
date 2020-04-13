@@ -336,7 +336,7 @@ class PackageManager(object):
 
     def __init__(self, chroot=None, query_command=None,
                  verify_command=None, verify_filter=None,
-                 files_command=None):
+                 files_command=None, remote_exec=None):
         self.packages = {}
         self.files = []
 
@@ -344,6 +344,15 @@ class PackageManager(object):
         self.verify_command = verify_command if verify_command else None
         self.verify_filter = verify_filter if verify_filter else None
         self.files_command = files_command if files_command else None
+
+
+        # if needed, append the remote command to these so that this returns
+        # the remote package details, not local
+        if remote_exec:
+            for cmd in ['query_command', 'verify_command', 'files_command']:
+                if getattr(self, cmd) is not None:
+                    _cmd = getattr(self, cmd)
+                    setattr(self, cmd, "%s %s" % (remote_exec, quote(_cmd)))
 
         if chroot:
             self.chroot = chroot

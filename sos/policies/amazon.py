@@ -18,9 +18,11 @@ class AmazonPolicy(RedHatPolicy):
     vendor = "Amazon"
     vendor_url = "https://aws.amazon.com"
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(AmazonPolicy, self).__init__(sysroot=sysroot, init=init,
-                                           probe_runtime=probe_runtime)
+                                           probe_runtime=probe_runtime,
+                                           remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote=''):
