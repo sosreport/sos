@@ -11,13 +11,10 @@
 import fnmatch
 import inspect
 import json
-import logging
 import os
 import random
 import re
 import string
-import tarfile
-import tempfile
 import socket
 import shutil
 import subprocess
@@ -296,7 +293,7 @@ class SoSCollector(SoSComponent):
                                  help="Encrypt the archive using a password")
 
     def _check_for_control_persist(self):
-        '''Checks to see if the local system supported SSH ControlPersist.
+        """Checks to see if the local system supported SSH ControlPersist.
 
         ControlPersist allows OpenSSH to keep a single open connection to a
         remote host rather than building a new session each time. This is the
@@ -312,7 +309,7 @@ class SoSCollector(SoSComponent):
 
         Returns
             True if ControlPersist is supported, else raise Exception.
-        '''
+        """
         ssh_cmd = ['ssh', '-o', 'ControlPersist']
         cmd = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -323,7 +320,7 @@ class SoSCollector(SoSComponent):
         return True
 
     def _exit(self, msg, error=1):
-        '''Used to safely terminate if sos-collector encounters an error'''
+        """Used to safely terminate if sos-collector encounters an error"""
         self.log_error(msg)
         try:
             self.close_all_connections()
@@ -378,13 +375,13 @@ class SoSCollector(SoSComponent):
                            % (opt.cluster, opt.name))
 
     def _validate_option(self, default, cli):
-        '''Checks to make sure that the option given on the CLI is valid.
+        """Checks to make sure that the option given on the CLI is valid.
         Valid in this sense means that the type of value given matches what a
         cluster profile expects (str for str, bool for bool, etc).
 
         For bool options, this will also convert the string equivalent to an
         actual boolean value
-        '''
+        """
         if not default.opt_type == bool:
             if not default.opt_type == cli.opt_type:
                 msg = "Invalid option type for %s. Expected %s got %s"
@@ -403,25 +400,25 @@ class SoSCollector(SoSComponent):
                     return False
 
     def log_info(self, msg):
-        '''Log info messages to both console and log file'''
+        """Log info messages to both console and log file"""
         self.soslog.info(msg)
 
     def log_warn(self, msg):
-        '''Log warn messages to both console and log file'''
+        """Log warn messages to both console and log file"""
         self.soslog.warn(msg)
 
     def log_error(self, msg):
-        '''Log error messages to both console and log file'''
+        """Log error messages to both console and log file"""
         self.soslog.error(msg)
 
     def log_debug(self, msg):
-        '''Log debug message to both console and log file'''
+        """Log debug message to both console and log file"""
         caller = inspect.stack()[1][3]
         msg = '[sos_collector:%s] %s' % (caller, msg)
         self.soslog.debug(msg)
 
     def list_options(self):
-        '''Display options for available clusters'''
+        """Display options for available clusters"""
 
         sys.stdout.write('\nThe following clusters are supported by this '
                          'installation\n')
@@ -465,11 +462,11 @@ class SoSCollector(SoSComponent):
                          '"pacemaker.offline=False"\n')
 
     def delete_tmp_dir(self):
-        '''Removes the temp directory and all collected sosreports'''
+        """Removes the temp directory and all collected sosreports"""
         shutil.rmtree(self.tmpdir)
 
     def _get_archive_name(self):
-        '''Generates a name for the tarball archive'''
+        """Generates a name for the tarball archive"""
         nstr = 'sos-collector'
         if self.opts.label:
             nstr += '-%s' % self.opts.label
@@ -486,9 +483,9 @@ class SoSCollector(SoSComponent):
         return '%s-%s-%s' % (nstr, dt, rand)
 
     def _get_archive_path(self):
-        '''Returns the path, including filename, of the tarball we build
+        """Returns the path, including filename, of the tarball we build
         that contains the collected sosreports
-        '''
+        """
         self.arc_name = self._get_archive_name()
         compr = 'gz'
         return self.tmpdir + '/' + self.arc_name + '.tar.' + compr
@@ -501,7 +498,7 @@ class SoSCollector(SoSComponent):
         return _fmt
 
     def _load_group_config(self):
-        '''
+        """
         Attempts to load the host group specified on the command line.
         Host groups are defined via JSON files, typically saved under
         /var/lib/sos-collector/, although users can specify a full filepath
@@ -509,7 +506,7 @@ class SoSCollector(SoSComponent):
 
         Host groups define a list of nodes and/or regexes and optionally the
         master and cluster-type options.
-        '''
+        """
         if os.path.exists(self.opts.group):
             fname = self.opts.group
         elif os.path.exists(
@@ -533,13 +530,13 @@ class SoSCollector(SoSComponent):
                 self.opts.nodes.extend(_group['nodes'])
 
     def write_host_group(self):
-        '''
+        """
         Saves the results of this run of sos-collector to a host group file
         on the system so it can be used later on.
 
         The host group will save the options master, cluster_type, and nodes
         as determined by sos-collector prior to execution of sosreports.
-        '''
+        """
         cfg = {
             'name': self.opts.save_group,
             'master': self.opts.master,
@@ -671,7 +668,7 @@ class SoSCollector(SoSComponent):
         self.ui_log.info('')
 
     def configure_sos_cmd(self):
-        '''Configures the sosreport command that is run on the nodes'''
+        """Configures the sosreport command that is run on the nodes"""
         self.sos_cmd = 'sosreport --batch'
         if self.opts.sos_opt_line:
             filt = ['&', '|', '>', '<', ';']
@@ -706,9 +703,9 @@ class SoSCollector(SoSComponent):
         self.commons['sos_cmd'] = self.sos_cmd
 
     def connect_to_master(self):
-        '''If run with --master, we will run cluster checks again that
+        """If run with --master, we will run cluster checks again that
         instead of the localhost.
-        '''
+        """
         try:
             self.master = SosNode(self.opts.master, self.commons)
             self.ui_log.info('Connected to %s, determining cluster type...'
@@ -718,14 +715,14 @@ class SoSCollector(SoSComponent):
             self._exit('Could not connect to master node. Aborting...', 1)
 
     def determine_cluster(self):
-        '''This sets the cluster type and loads that cluster's cluster.
+        """This sets the cluster type and loads that cluster's cluster.
 
         If no cluster type is matched and no list of nodes is provided by
         the user, then we abort.
 
         If a list of nodes is given, this is not run, however the cluster
         can still be run if the user sets a --cluster-type manually
-        '''
+        """
         self.cluster = None
         checks = list(self.clusters.values())
         for cluster in self.clusters.values():
@@ -757,15 +754,15 @@ class SoSCollector(SoSComponent):
                 break
 
     def get_nodes_from_cluster(self):
-        '''Collects the list of nodes from the determined cluster cluster'''
+        """Collects the list of nodes from the determined cluster cluster"""
         if self.cluster_type:
             nodes = self.cluster._get_nodes()
             self.log_debug('Node list: %s' % nodes)
             return nodes
 
     def reduce_node_list(self):
-        '''Reduce duplicate entries of the localhost and/or master node
-        if applicable'''
+        """Reduce duplicate entries of the localhost and/or master node
+        if applicable"""
         if (self.hostname in self.node_list and self.opts.no_local):
             self.node_list.remove(self.hostname)
         for i in self.ip_addrs:
@@ -781,8 +778,8 @@ class SoSCollector(SoSComponent):
         self.log_debug('Node list reduced to %s' % self.node_list)
 
     def compare_node_to_regex(self, node):
-        '''Compares a discovered node name to a provided list of nodes from
-        the user. If there is not a match, the node is removed from the list'''
+        """Compares a discovered node name to a provided list of nodes from
+        the user. If there is not a match, the node is removed from the list"""
         for regex in self.opts.nodes:
             try:
                 regex = fnmatch.translate(regex)
@@ -794,7 +791,7 @@ class SoSCollector(SoSComponent):
         return False
 
     def get_nodes(self):
-        ''' Sets the list of nodes to collect sosreports from '''
+        """ Sets the list of nodes to collect sosreports from """
         if not self.master and not self.cluster:
             msg = ('Could not determine a cluster type and no list of '
                    'nodes or master node was provided.\nAborting...'
@@ -840,13 +837,13 @@ class SoSCollector(SoSComponent):
             self.commons['hostlen'] = len(self.opts.master)
 
     def _connect_to_node(self, node):
-        '''Try to connect to the node, and if we can add to the client list to
+        """Try to connect to the node, and if we can add to the client list to
         run sosreport on
 
         Positional arguments
             node - a tuple specifying (address, password). If no password, set
                    to None
-        '''
+        """
         try:
             client = SosNode(node[0], self.commons, password=node[1])
             client.set_cluster(self.cluster)
@@ -909,8 +906,8 @@ this utility or remote systems that it connects to.
         self.cleanup()
 
     def collect(self):
-        ''' For each node, start a collection thread and then tar all
-        collected sosreports '''
+        """ For each node, start a collection thread and then tar all
+        collected sosreports """
         if self.master.connected:
             self.client_list.append(self.master)
 
@@ -966,7 +963,7 @@ this utility or remote systems that it connects to.
             self._exit(msg, 1)
 
     def _collect(self, client):
-        '''Runs sosreport on each node'''
+        """Runs sosreport on each node"""
         try:
             if not client.local:
                 client.sosreport()
@@ -979,14 +976,14 @@ this utility or remote systems that it connects to.
             self.log_error("Error running sosreport: %s" % err)
 
     def close_all_connections(self):
-        '''Close all ssh sessions for nodes'''
+        """Close all ssh sessions for nodes"""
         for client in self.client_list:
             self.log_debug('Closing SSH connection to %s' % client.address)
             client.close_ssh_session()
 
     def create_cluster_archive(self):
-        '''Calls for creation of tar archive then cleans up the temporary
-        files created by sos-collector'''
+        """Calls for creation of tar archive then cleans up the temporary
+        files created by sos-collector"""
         self.log_info('Creating archive of sosreports...')
         try:
             for host in self.client_list:

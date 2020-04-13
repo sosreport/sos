@@ -296,11 +296,11 @@ class SoSReport(SoSComponent):
         # TODO: enumerate network devices, preferably with devtype info
 
     def get_fibre_devs(self):
-        '''Enumerate a list of fibrechannel devices on this system so that
+        """Enumerate a list of fibrechannel devices on this system so that
         plugins can iterate over them
 
         These devices are used by add_fibredev_cmd() in the Plugin class.
-        '''
+        """
         try:
             devs = []
             devdirs = [
@@ -317,11 +317,11 @@ class SoSReport(SoSComponent):
             return []
 
     def get_block_devs(self):
-        '''Enumerate a list of block devices on this system so that plugins
+        """Enumerate a list of block devices on this system so that plugins
         can iterate over them
 
         These devices are used by add_blockdev_cmd() in the Plugin class.
-        '''
+        """
         try:
             return os.listdir('/sys/block/')
         except Exception as err:
