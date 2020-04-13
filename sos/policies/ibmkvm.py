@@ -21,9 +21,11 @@ class PowerKVMPolicy(RedHatPolicy):
     vendor = "IBM"
     vendor_url = "http://www-03.ibm.com/systems/power/software/linux/powerkvm"
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(PowerKVMPolicy, self).__init__(sysroot=sysroot, init=init,
-                                             probe_runtime=probe_runtime)
+                                             probe_runtime=probe_runtime,
+                                             remote_exec=remote_exec)
         self.valid_subclasses = [PowerKVMPlugin, RedHatPlugin]
 
     @classmethod

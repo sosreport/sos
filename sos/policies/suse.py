@@ -21,12 +21,14 @@ class SuSEPolicy(LinuxPolicy):
     vendor_url = "https://www.suse.com/"
     _tmp_dir = "/var/tmp"
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime)
         self.ticket_number = ""
         self.package_manager = PackageManager(
-            'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
+            'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"',
+            remote_exec=remote_exec)
         self.valid_subclasses = [SuSEPlugin, RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()
