@@ -1,0 +1,82 @@
+.TH sos 1 "April 2020"
+
+.SH NAME
+sos \- A unified tool for collecting system logs and other debug information
+.SH SYNOPSIS
+\fBsos\fR component [options]
+
+.SH DESCRIPTION
+\fBsos\fR is a diagnostic data collection utility, used by system administrators,
+support representatives, and the like to assist in troubleshooting issues with
+a system or group of systems.
+
+The most well known function is \fB sos report\fR or \fBsosreport\fR as it was
+previously known.
+
+An sos archive is typically requested by support organizations to collect baseline
+configuration and system data from which to begin the troubleshooting process.
+
+
+.SH COMPONENTS
+
+sos supports several subcommands or components. Each provides a different set
+of information for the user. Supported components are as follows
+
+.TP
+.B report
+Report generates an archive of system information including configuration files
+and command output. Information included in the report is based upon plugins that
+are activated automatically when certain criteria, such as installed packages, files,
+services, or system architecture is detected.
+
+See \fBsos report --help\fR and \fBman sos-report\fR for more information.
+
+May also be invoked via the alias \fBrep\fR or the deprecated command \fBsosreport\fR.
+
+.TP
+.B collect
+Collect is used to capture reports on multiple systems simultaneously. These
+systems can either be defined by the user at the command line and/or defined by
+clustering software that exists either on the local system or on a "master" system
+that is able to inform about other nodes in the cluster.
+
+When running collect, sos report will be run on the remote nodes, and then the
+resulting archives will be copied from those nodes to the local system running
+sos collect. Archives are then removed from the remote systems.
+
+See \fBsos collect --help\fR and \fBman sos-collect\fR for more information.
+
+May also be invoked via the alias \fBsos collector\fR or the deprecated command
+\fBsos-collector\fR.
+
+.SH GLOBAL OPTIONS
+sos components provide their own set of options, however the following are available
+to be set across all components.
+
+.B \--config-file CONFIG
+Specify alternate configuration file.
+.TP
+.B \-s, \--sysroot SYSROOT
+Specify an alternate root file system path.
+.TP
+.B \--tmp-dir DIRECTORY
+Specify alternate temporary directory to copy data during execution.
+.TP
+.B \--threads THREADS
+Specify the number of threads sosreport will use for concurrency. Defaults to 4. 
+.TP
+.B \-v, \--verbose
+Increase logging verbosity. May be specified multiple times to enable
+additional debugging messages.
+.TP
+.B \-q, \--quiet
+Only log fatal errors to stderr.
+.TP
+.B \--help
+Display usage message.
+.SH MAINTAINER
+.nf
+Jake Hunsaker <jhunsake@redhat.com>
+.fi
+.SH AUTHORS & CONTRIBUTORS
+See \fBAUTHORS\fR file in the package documentation.
