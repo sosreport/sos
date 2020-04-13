@@ -21,8 +21,9 @@ class SuSEPolicy(LinuxPolicy):
     vendor_url = "https://www.suse.com/"
     _tmp_dir = "/var/tmp"
 
-    def __init__(self, sysroot=None):
-        super(SuSEPolicy, self).__init__()
+    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+        super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
+                                         probe_runtime=probe_runtime)
         self.ticket_number = ""
         self.package_manager = PackageManager(
             'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"')
@@ -95,8 +96,9 @@ No changes will be made to system configuration.
 %(vendor_text)s
 """)
 
-    def __init__(self, sysroot=None):
-        super(OpenSuSEPolicy, self).__init__(sysroot=sysroot)
+    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+        super(OpenSuSEPolicy, self).__init__(sysroot=sysroot, init=init,
+                                             probe_runtime=probe_runtime)
 
     @classmethod
     def check(cls, remote):

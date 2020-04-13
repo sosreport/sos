@@ -15,8 +15,9 @@ class UbuntuPolicy(DebianPolicy):
     _upload_password = "ubuntu"
     _use_https_streaming = True
 
-    def __init__(self, sysroot=None):
-        super(UbuntuPolicy, self).__init__(sysroot=sysroot)
+    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+        super(UbuntuPolicy, self).__init__(sysroot=sysroot, init=init,
+                                           probe_runtime=probe_runtime)
         self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
 
     @classmethod
