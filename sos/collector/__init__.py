@@ -227,7 +227,7 @@ class SoSCollector(SoSComponent):
                             dest='become_root',
                             help='Become root on the remote nodes')
         parser.add_argument('--batch', action='store_true',
-                            help='Do not prompt interactively (except passwords)')
+                            help='Do not prompt interactively')
         parser.add_argument('--case-id', help='Specify case number')
         parser.add_argument('--cluster-type',
                             help='Specify a type of cluster profile')
@@ -576,13 +576,15 @@ class SoSCollector(SoSComponent):
                    'nodes unless the --password option is provided.\n')
             self.ui_log.info(self._fmt_msg(msg))
 
-        if self.opts.password or self.opts.password_per_node:
+        if ((self.opts.password or self.opts.password_per_node) and not
+                self.opts.batch):
             self.log_debug('password specified, not using SSH keys')
             msg = ('Provide the SSH password for user %s: '
                    % self.opts.ssh_user)
             self.opts.password = getpass(prompt=msg)
 
-        if self.commons['need_sudo'] and not self.opts.insecure_sudo:
+        if ((self.commons['need_sudo'] and not self.opts.insecure_sudo)
+                and not self.opts.batch):
             if not self.opts.password:
                 self.log_debug('non-root user specified, will request '
                                'sudo password')
@@ -596,6 +598,11 @@ class SoSCollector(SoSComponent):
 
         if self.opts.become_root:
             if not self.opts.ssh_user == 'root':
+                if self.opts.batch:
+                    msg = ("Cannot become root without obtaining root "
+                           "password. Do not use --batch if you need "
+                           "to become root remotely.")
+                    self._exit(msg, 1)
                 self.log_debug('non-root user asking to become root remotely')
                 msg = ('User %s will attempt to become root. '
                        'Provide root password: ' % self.opts.ssh_user)
