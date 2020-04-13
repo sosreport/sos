@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 import logging
-import subprocess
 
 
 class Cluster():
@@ -22,7 +21,7 @@ class Cluster():
     cluster_name = None
 
     def __init__(self, commons):
-        '''This is the class that cluster profile should subclass in order to
+        """This is the class that cluster profile should subclass in order to
         add support for different clustering technologies and environments to
         sos-collector.
 
@@ -30,7 +29,7 @@ class Cluster():
         configured for the type of cluster the profile is intended to serve and
         then additionall be able to return a list of enumerated nodes via the
         get_nodes() method
-        '''
+        """
 
         self.master = None
         self.cluster_ssh_key = None
@@ -48,14 +47,14 @@ class Cluster():
 
     @classmethod
     def name(cls):
-        '''Returns the cluster's name as a string.
-        '''
+        """Returns the cluster's name as a string.
+        """
         if cls.cluster_name:
             return cls.cluster_name
         return cls.__name__.lower()
 
     def _get_options(self):
-        '''Loads the options defined by a cluster and sets the default value'''
+        """Loads the options defined by a cluster and sets the default value"""
         for opt in self.option_list:
             option = ClusterOption(name=opt[0], opt_type=opt[1].__class__,
                                    value=opt[1], cluster=self.cluster_type,
@@ -66,25 +65,25 @@ class Cluster():
         return '[%s] %s' % (self.cluster_type, msg)
 
     def log_info(self, msg):
-        '''Used to print info messages'''
+        """Used to print info messages"""
         self.soslog.info(self._fmt_msg(msg))
 
     def log_error(self, msg):
-        '''Used to print error messages'''
+        """Used to print error messages"""
         self.soslog.error(self._fmt_msg(msg))
 
     def log_debug(self, msg):
-        '''Used to print debug messages'''
+        """Used to print debug messages"""
         self.soslog.debug(self._fmt_msg(msg))
 
     def log_warn(self, msg):
-        '''Used to print warning messages'''
+        """Used to print warning messages"""
         self.soslog.warn(self._fmt_msg(msg))
 
     def get_option(self, option):
-        '''This is used to by clusters to check if a cluster option was
+        """This is used to by clusters to check if a cluster option was
         supplied to sos-collector.
-        '''
+        """
         # check CLI before defaults
         for opt in self.opts.cluster_options:
             if opt.name == option and opt.cluster in self.cluster_type:
@@ -107,38 +106,38 @@ class Cluster():
         self.cluster_ssh_key = key
 
     def exec_master_cmd(self, cmd, need_root=False):
-        '''Used to retrieve output from a (master) node in a cluster'''
+        """Used to retrieve output from a (master) node in a cluster"""
         res = self.master.run_command(cmd, get_pty=True, need_root=need_root)
         if res['stdout']:
             res['stdout'] = res['stdout'].replace('Password:', '')
         return res
 
     def setup(self):
-        '''This MAY be used by a cluster to do prep work in case there are
+        """This MAY be used by a cluster to do prep work in case there are
         extra commands to be run even if a node list is given by the user, and
         thus get_nodes() would not be called
-        '''
+        """
         pass
 
     def check_enabled(self):
-        '''This may be overridden by clusters
+        """This may be overridden by clusters
 
         This is called by sos-collector on each cluster type that exists, and
         is meant to return True when the cluster type matches a criteria
         that indicates that is the cluster type is in use.
 
         Only the first cluster type to determine a match is run
-        '''
+        """
         for pkg in self.packages:
             if self.master.is_installed(pkg):
                 return True
         return False
 
     def get_nodes(self):
-        '''This MUST be overridden by a cluster.
+        """This MUST be overridden by a cluster.
         A cluster should use this method to return a list or string that
         contains all the nodes that a report should be collected from
-        '''
+        """
         pass
 
     def _get_nodes(self):
@@ -149,23 +148,23 @@ class Cluster():
             return []
 
     def get_node_label(self, node):
-        '''Used by SosNode() to retrieve the appropriate label from the cluster
+        """Used by SosNode() to retrieve the appropriate label from the cluster
         as set by set_node_label() in the cluster profile.
-        '''
+        """
         return self.set_node_label(node)
 
     def set_node_label(self, node):
-        '''This may be overridden by clusters.
+        """This may be overridden by clusters.
 
         If there is a distinction between masters and nodes, or types of nodes,
         then this can be used to label the sosreport archive differently.
-        '''
+        """
         return ''
 
     def format_node_list(self):
-        '''Format the returned list of nodes from a cluster into a known
+        """Format the returned list of nodes from a cluster into a known
         format. This being a list that contains no duplicates
-        '''
+        """
         try:
             nodes = self.get_nodes()
         except Exception as e:
@@ -183,11 +182,11 @@ class Cluster():
         return node_list
 
     def _run_extra_cmd(self):
-        '''Ensures that any files returned by a cluster's run_extra_cmd()
+        """Ensures that any files returned by a cluster's run_extra_cmd()
         method are properly typed as a list for iterative collection. If any
         of the files are an additional sosreport (e.g. the ovirt db dump) then
         the md5 sum file is automatically added to the list
-        '''
+        """
         files = []
         try:
             res = self.run_extra_cmd()
@@ -205,7 +204,7 @@ class Cluster():
 
 
 class ClusterOption():
-    '''Used to store/manipulate options for cluster profiles.'''
+    """Used to store/manipulate options for cluster profiles."""
 
     def __init__(self, name, value, opt_type, cluster, description=None):
         self.name = name

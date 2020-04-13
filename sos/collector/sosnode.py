@@ -77,7 +77,7 @@ class SosNode():
             self._load_sos_info()
 
     def _create_ssh_command(self):
-        '''Build the complete ssh command for this node'''
+        """Build the complete ssh command for this node"""
         cmd = "ssh -oControlPath=%s " % self.control_path
         cmd += "%s@%s " % (self.opts.ssh_user, self.address)
         return cmd
@@ -86,9 +86,9 @@ class SosNode():
         return '{:<{}} : {}'.format(self._hostname, self.hostlen + 1, msg)
 
     def check_in_container(self):
-        '''
+        """
         Tries to identify if we are currently running in a container or not.
-        '''
+        """
         if os.path.exists('/run/.containerenv'):
             self.log_debug('Found /run/.containerenv. Running in container.')
             return True
@@ -98,8 +98,8 @@ class SosNode():
         return False
 
     def create_sos_container(self):
-        '''If the host is containerized, create the container we'll be using
-        '''
+        """If the host is containerized, create the container we'll be using
+        """
         if self.host.containerized:
             res = self.run_command(self.host.create_sos_container())
             if res['status'] in [0, 125]:  # 125 means container exists
@@ -118,12 +118,12 @@ class SosNode():
                 raise Exception
 
     def file_exists(self, fname):
-        '''Checks for the presence of fname on the remote node'''
+        """Checks for the presence of fname on the remote node"""
         if not self.local:
             try:
                 res = self.run_command("stat %s" % fname)
                 return res['status'] == 0
-            except Exception as err:
+            except Exception:
                 return False
         else:
             try:
@@ -140,54 +140,54 @@ class SosNode():
 
     @property
     def control_socket_exists(self):
-        '''Check if the SSH control socket exists
+        """Check if the SSH control socket exists
 
         The control socket is automatically removed by the SSH daemon in the
         event that the last connection to the node was greater than the timeout
         set by the ControlPersist option. This can happen for us if we are
         collecting from a large number of nodes, and the timeout expires before
         we start collection.
-        '''
+        """
         return os.path.exists(self.control_path)
 
     def _sanitize_log_msg(self, msg):
-        '''Attempts to obfuscate sensitive information in log messages such as
-        passwords'''
+        """Attempts to obfuscate sensitive information in log messages such as
+        passwords"""
         reg = r'(?P<var>(pass|key|secret|PASS|KEY|SECRET).*?=)(?P<value>.*?\s)'
         return re.sub(reg, r'\g<var>****** ', msg)
 
     def log_info(self, msg):
-        '''Used to print and log info messages'''
+        """Used to print and log info messages"""
         caller = inspect.stack()[1][3]
         lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
         self.soslog.info(lmsg)
         self.ui_log.info(self._fmt_msg(msg))
 
     def log_error(self, msg):
-        '''Used to print and log error messages'''
+        """Used to print and log error messages"""
         caller = inspect.stack()[1][3]
         lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
         self.soslog.error(lmsg)
         self.ui_log.error(self._fmt_msg(msg))
 
     def log_debug(self, msg):
-        '''Used to print and log debug messages'''
+        """Used to print and log debug messages"""
         msg = self._sanitize_log_msg(msg)
         caller = inspect.stack()[1][3]
         msg = '[%s:%s] %s' % (self._hostname, caller, msg)
         self.soslog.debug(msg)
 
     def get_hostname(self):
-        '''Get the node's hostname'''
+        """Get the node's hostname"""
         sout = self.run_command('hostname')
         self.hostname = sout['stdout'].strip()
         self.log_debug(
             'Hostname set to %s' % self.hostname)
 
     def _format_cmd(self, cmd):
-        '''If we need to provide a sudo or root password to a command, then
+        """If we need to provide a sudo or root password to a command, then
         here we prefix the command with the correct bits
-        '''
+        """
         if self.opts.become_root:
             return "su -c %s" % quote(cmd)
         if self.need_sudo:
@@ -195,7 +195,7 @@ class SosNode():
         return cmd
 
     def _fmt_output(self, output=None, rc=0):
-        '''Formats the returned output from a command into a dict'''
+        """Formats the returned output from a command into a dict"""
         if rc == 0:
             stdout = output
             stderr = ''
@@ -208,8 +208,8 @@ class SosNode():
         return res
 
     def _load_sos_info(self):
-        '''Queries the node for information about the installed version of sos
-        '''
+        """Queries the node for information about the installed version of sos
+        """
         pkg = self.host.package_manager.pkg_version(self.host.sos_pkg_name)
         if pkg:
             ver = '.'.join(pkg['version'])
@@ -266,7 +266,7 @@ class SosNode():
         return res
 
     def read_file(self, to_read):
-        '''Reads the specified file and returns the contents'''
+        """Reads the specified file and returns the contents"""
         try:
             self.log_debug("Reading file %s" % to_read)
             if not self.local:
@@ -289,9 +289,9 @@ class SosNode():
             return ''
 
     def determine_host_policy(self):
-        '''Attempts to identify the host installation against supported
+        """Attempts to identify the host installation against supported
         distributions
-        '''
+        """
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=False, remote_exec=self.ssh_cmd,
                     remote_check=self.read_file('/etc/os-release'))
@@ -302,19 +302,19 @@ class SosNode():
         raise UnsupportedHostException
 
     def check_sos_version(self, ver):
-        '''Checks to see if the sos installation on the node is AT LEAST the
+        """Checks to see if the sos installation on the node is AT LEAST the
         given ver. This means that if the installed version is greater than
         ver, this will still return True
-        '''
+        """
         return LooseVersion(self.sos_info['version']) >= ver
 
     def is_installed(self, pkg):
-        '''Checks if a given package is installed on the node'''
+        """Checks if a given package is installed on the node"""
         return self.host.package_manager.pkg_by_name(pkg) is not None
 
     def run_command(self, cmd, timeout=180, get_pty=False, need_root=False,
                     force_local=False, use_container=False):
-        '''Runs a given cmd, either via the SSH session or locally
+        """Runs a given cmd, either via the SSH session or locally
 
         Arguments:
             cmd - the full command to be run
@@ -327,7 +327,7 @@ class SosNode():
             force_local - force a command to run locally. Mainly used for scp.
             use_container - Run this command in a container *IF* the host is
                             containerized
-        '''
+        """
         if not self.control_socket_exists and not self.local:
             self.log_debug('Control socket does not exist, attempting to '
                            're-create')
@@ -375,7 +375,7 @@ class SosNode():
             raise CommandTimeoutException(cmd)
 
     def sosreport(self):
-        '''Run a sosreport on the node, then collect it'''
+        """Run a sosreport on the node, then collect it"""
         self.finalize_sos_cmd()
         self.log_debug('Final sos command set to %s' % self.sos_cmd)
         try:
@@ -391,7 +391,7 @@ class SosNode():
         self.cleanup()
 
     def _create_ssh_session(self):
-        '''
+        """
         Using ControlPersist, create the initial connection to the node.
 
         This will generate an OpenSSH ControlPersist socket within the tmp
@@ -408,7 +408,7 @@ class SosNode():
 
         Returns
             True if session is successfully opened, else raise Exception
-        '''
+        """
         # Don't use self.ssh_cmd here as we need to add a few additional
         # parameters to establish the initial connection
         self.log_debug('Opening SSH session to create control socket')
@@ -478,7 +478,7 @@ class SosNode():
         return False
 
     def close_ssh_session(self):
-        '''Remove the control socket to effectively terminate the session'''
+        """Remove the control socket to effectively terminate the session"""
         if self.local:
             return True
         try:
@@ -494,27 +494,27 @@ class SosNode():
             return False
 
     def _preset_exists(self, preset):
-        '''Verifies if the given preset exists on the node'''
+        """Verifies if the given preset exists on the node"""
         return preset in self.sos_info['presets']
 
     def _plugin_exists(self, plugin):
-        '''Verifies if the given plugin exists on the node'''
+        """Verifies if the given plugin exists on the node"""
         return any(plugin in s for s in [self.sos_info['enabled'],
                                          self.sos_info['disabled']])
 
     def _check_enabled(self, plugin):
-        '''Checks to see if the plugin is default enabled on node'''
+        """Checks to see if the plugin is default enabled on node"""
         return plugin in self.sos_info['enabled']
 
     def _check_disabled(self, plugin):
-        '''Checks to see if the plugin is default disabled on node'''
+        """Checks to see if the plugin is default disabled on node"""
         return plugin in self.sos_info['disabled']
 
     def _plugin_option_exists(self, opt):
-        '''Attempts to verify that the given option is available on the node.
+        """Attempts to verify that the given option is available on the node.
         Note that we only get available options for enabled plugins, so if a
         plugin has been force-enabled we cannot validate if the plugin option
-        is correct or not'''
+        is correct or not"""
         plug = opt.split('.')[0]
         if not self._plugin_exists(plug):
             return False
@@ -528,8 +528,8 @@ class SosNode():
         return True
 
     def _fmt_sos_opt_list(self, opts):
-        '''Returns a comma delimited list for sos plugins that are confirmed
-        to exist on the node'''
+        """Returns a comma delimited list for sos plugins that are confirmed
+        to exist on the node"""
         return ','.join(o for o in opts if self._plugin_exists(o))
 
     def set_cluster(self, cluster):
@@ -539,13 +539,13 @@ class SosNode():
         self.cluster = cluster
 
     def update_cmd_from_cluster(self):
-        '''This is used to modify the sosreport command run on the nodes.
+        """This is used to modify the sosreport command run on the nodes.
         By default, sosreport is run without any options, using this will
         allow the profile to specify what plugins to run or not and what
         options to use.
 
         This will NOT override user supplied options.
-        '''
+        """
         if self.cluster.sos_preset:
             if not self.opts.preset:
                 self.opts.preset = self.cluster.sos_preset
@@ -566,8 +566,8 @@ class SosNode():
                     self.opts.plugin_options.append(option)
 
     def finalize_sos_cmd(self):
-        '''Use host facts and compare to the cluster type to modify the sos
-        command if needed'''
+        """Use host facts and compare to the cluster type to modify the sos
+        command if needed"""
         self.sos_cmd = self.sos_info['sos_cmd']
         label = self.determine_sos_label()
         if label:
@@ -628,7 +628,7 @@ class SosNode():
                                'not exist on node' % self.opts.preset)
 
     def determine_sos_label(self):
-        '''Determine what, if any, label should be added to the sosreport'''
+        """Determine what, if any, label should be added to the sosreport"""
         label = ''
         label += self.cluster.get_node_label(self)
 
@@ -648,8 +648,8 @@ class SosNode():
         return '%s=%s' % (lcmd, label)
 
     def finalize_sos_path(self, path):
-        '''Use host facts to determine if we need to change the sos path
-        we are retrieving from'''
+        """Use host facts to determine if we need to change the sos path
+        we are retrieving from"""
         pstrip = self.host.sos_path_strip
         if pstrip:
             path = path.replace(pstrip, '')
@@ -672,7 +672,7 @@ class SosNode():
             return 'sos exited with code %s' % rc
 
     def execute_sos_command(self):
-        '''Run sosreport and capture the resulting file path'''
+        """Run sosreport and capture the resulting file path"""
         self.log_info("Generating sosreport...")
         try:
             path = False
@@ -699,7 +699,7 @@ class SosNode():
             raise
 
     def retrieve_file(self, path):
-        '''Copies the specified file from the host to our temp dir'''
+        """Copies the specified file from the host to our temp dir"""
         destdir = self.tmpdir + '/'
         dest = destdir + path.split('/')[-1]
         try:
@@ -729,9 +729,9 @@ class SosNode():
             return False
 
     def remove_file(self, path):
-        '''Removes the spciefied file from the host. This should only be used
+        """Removes the spciefied file from the host. This should only be used
         after we have retrieved the file already
-        '''
+        """
         path = ''.join(path.split())
         try:
             if len(path) <= 2:  # ensure we have a non '/' path
@@ -752,7 +752,7 @@ class SosNode():
             return False
 
     def retrieve_sosreport(self):
-        '''Collect the sosreport archive from the node'''
+        """Collect the sosreport archive from the node"""
         if self.sos_path:
             if self.need_sudo or self.opts.become_root:
                 try:
@@ -789,8 +789,8 @@ class SosNode():
             return False
 
     def remove_sos_archive(self):
-        '''Remove the sosreport archive from the node, since we have
-        collected it and it would be wasted space otherwise'''
+        """Remove the sosreport archive from the node, since we have
+        collected it and it would be wasted space otherwise"""
         if self.sos_path is None:
             return
         if 'sosreport' not in self.sos_path:
@@ -802,7 +802,7 @@ class SosNode():
             self.log_error('Failed to remove sosreport')
 
     def cleanup(self):
-        '''Remove the sos archive from the node once we have it locally'''
+        """Remove the sos archive from the node once we have it locally"""
         self.remove_sos_archive()
         if self.hash_retrieved:
             self.remove_file(self.sos_path + '.md5')
@@ -811,7 +811,7 @@ class SosNode():
             self.run_command(cleanup)
 
     def collect_extra_cmd(self, filenames):
-        '''Collect the file created by a cluster outside of sos'''
+        """Collect the file created by a cluster outside of sos"""
         for filename in filenames:
             try:
                 if self.need_sudo or self.opts.become_root:
@@ -833,11 +833,11 @@ class SosNode():
                 self.log_error(msg)
 
     def make_archive_readable(self, filepath):
-        '''Used to make the given archive world-readable, which is slightly
+        """Used to make the given archive world-readable, which is slightly
         better than changing the ownership outright.
 
         This is only used when we're not connecting as root.
-        '''
+        """
         cmd = 'chmod o+r %s' % filepath
         res = self.run_command(cmd, timeout=10, need_root=True)
         if res['status'] == 0:
