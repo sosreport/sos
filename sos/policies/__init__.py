@@ -348,7 +348,6 @@ class PackageManager(object):
         self.verify_filter = verify_filter if verify_filter else None
         self.files_command = files_command if files_command else None
 
-
         # if needed, append the remote command to these so that this returns
         # the remote package details, not local
         if remote_exec:
@@ -413,6 +412,14 @@ class PackageManager(object):
                 self.packages[name]['release'] = release
 
         return self.packages
+
+    def pkg_version(self, pkg):
+        """Returns the entry in self.packages for pkg if it exists
+        """
+        pkgs = self.all_pkgs()
+        if pkg in pkgs:
+            return pkgs[pkg]
+        return None
 
     def all_pkgs(self):
         """
@@ -1001,6 +1008,13 @@ class LinuxPolicy(Policy):
     upload_url = None
     upload_user = None
     upload_password = None
+    # collector-focused class attrs
+    containerized = False
+    container_image = None
+    sos_path_strip = None
+    sos_pkg_name = None
+    sos_bin_path = None
+    sos_container_name = 'sos-collector-tmp'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True):
         super(LinuxPolicy, self).__init__(sysroot=sysroot,
@@ -1368,5 +1382,54 @@ class LinuxPolicy(Policy):
             return True
         except IOError:
             raise Exception("could not open archive file")
+
+    def set_sos_prefix(self):
+        '''If sosreport commands need to always be prefixed with something,
+        for example running in a specific container image, then it should be
+        defined here.
+
+        If no prefix should be set, return an empty string instead of None.
+        '''
+        return ''
+
+    def set_cleanup_cmd(self):
+        '''If a host requires additional cleanup, the command should be set and
+        returned here
+        '''
+        return ''
+
+    def create_sos_container(self):
+        '''Returns the command that will create the container that will be
+        used for running commands inside a container on hosts that require it.
+
+        This will use the container runtime defined for the host type to
+        launch a container. From there, we use the defined runtime to exec into
+        the container's namespace.
+        '''
+        return ''
+
+    def restart_sos_container(self):
+        '''Restarts the container created for sos-collector if it has stopped.
+
+        This is called immediately after create_sos_container() as the command
+        to create the container will exit and the container will stop. For
+        current container runtimes, subsequently starting the container will
+        default to opening a bash shell in the container to keep it running,
+        thus allowing us to exec into it again.
+        '''
+        return "%s start %s" % (self.container_runtime,
+                                self.sos_container_name)
+
+    def format_container_command(self, cmd):
+        '''Returns the command that allows us to exec into the created
+        container for sos-collector.
+        '''
+        if self.container_runtime:
+            return '%s exec %s %s' % (self.container_runtime,
+                                      self.sos_container_name,
+                                      cmd)
+        else:
+            return cmd
+
 
 # vim: set et ts=4 sw=4 :

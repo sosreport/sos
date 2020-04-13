@@ -29,7 +29,6 @@ class SosNode():
         self.address = address.strip()
         self.opts = commons['opts']
         self.tmpdir = commons['tmpdir']
-        self.host_types = commons['host_types']
         self.hostlen = commons['hostlen']
         self.need_sudo = commons['need_sudo']
         self.local = False
@@ -211,10 +210,9 @@ class SosNode():
     def _load_sos_info(self):
         '''Queries the node for information about the installed version of sos
         '''
-        cmd = self.host.pkg_query(self.host.sos_pkg_name)
-        res = self.run_command(cmd, use_container=True)
-        if res['status'] == 0:
-            ver = res['stdout'].splitlines()[-1].split('-')[1]
+        pkg = self.host.package_manager.pkg_version(self.host.sos_pkg_name)
+        if pkg:
+            ver = '.'.join(pkg['version'])
             self.sos_info['version'] = ver
             self.log_debug('sos version is %s' % self.sos_info['version'])
         else:
@@ -312,11 +310,7 @@ class SosNode():
 
     def is_installed(self, pkg):
         '''Checks if a given package is installed on the node'''
-        cmd = self.host.pkg_query(pkg)
-        res = self.run_command(cmd)
-        if res['status'] == 0:
-            return True
-        return False
+        return self.host.package_manager.pkg_by_name(pkg) is not None
 
     def run_command(self, cmd, timeout=180, get_pty=False, need_root=False,
                     force_local=False, use_container=False):

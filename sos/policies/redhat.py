@@ -38,6 +38,8 @@ class RedHatPolicy(LinuxPolicy):
     upload_user = 'anonymous'
     upload_directory = '/incoming'
     default_container_runtime = 'podman'
+    sos_pkg_name = 'sos'
+    sos_bin_path = '/usr/sbin/sosreport'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -414,6 +416,11 @@ generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
 
+    containerzed = True
+    container_runtime = 'docker'
+    container_image = 'registry.access.redhat.com/rhel7/support-tools'
+    sos_path_strip = '/host'
+
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot, init=init,
@@ -446,6 +453,19 @@ support representative.
 
         return self.find_preset(ATOMIC)
 
+    def create_sos_container(self):
+        _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
+                " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
+                "IMAGE={image} -v /run:/run -v /var/log:/var/log -v "
+                "/etc/machine-id:/etc/machine-id -v "
+                "/etc/localtime:/etc/localtime -v /:/host {image}")
+        return _cmd.format(runtime=self.container_runtime,
+                           name=self.sos_container_name,
+                           image=self.container_image)
+
+    def set_cleanup_cmd(self):
+        return 'docker rm --force sos-collector-tmp'
+
 
 class RedHatCoreOSPolicy(RHELPolicy):
     distro = "Red Hat CoreOS"
@@ -457,6 +477,11 @@ An archive containing the collected information will be \
 generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
+
+    containerized = True
+    container_runtime = 'podman'
+    container_image = 'registry.redhat.io/rhel8/support-tools'
+    sos_path_strip = '/host'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -485,6 +510,19 @@ support representative.
         # As of the creation of this policy, RHCOS is only available for
         # RH OCP environments.
         return self.find_preset(RHOCP)
+
+    def create_sos_container(self):
+        _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
+                " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
+                "IMAGE={image} -v /run:/run -v /var/log:/var/log -v "
+                "/etc/machine-id:/etc/machine-id -v "
+                "/etc/localtime:/etc/localtime -v /:/host {image}")
+        return _cmd.format(runtime=self.container_runtime,
+                           name=self.sos_container_name,
+                           image=self.container_image)
+
+    def set_cleanup_cmd(self):
+        return 'podman rm --force %s' % self.sos_container_name
 
 
 class CentOsAtomicPolicy(RedHatAtomicPolicy):

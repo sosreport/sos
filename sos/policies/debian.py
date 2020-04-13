@@ -16,6 +16,8 @@ class DebianPolicy(LinuxPolicy):
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
            + ":/usr/local/sbin:/usr/local/bin"
+    sos_pkg_name = 'sosreport'
+    sos_bin_path = '/usr/bin/sosreport'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):

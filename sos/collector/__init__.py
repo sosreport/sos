@@ -113,8 +113,6 @@ class SoSCollector(SoSComponent):
                 self.log_debug('Executing %s' % ' '.join(s for s in sys.argv))
                 self.log_debug("Found cluster profiles: %s"
                                % self.clusters.keys())
-                self.log_debug("Found supported host types: %s"
-                               % self.host_types.keys())
                 self.verify_cluster_options()
 
             except KeyboardInterrupt:
@@ -133,16 +131,6 @@ class SoSCollector(SoSComponent):
         for cluster in clusters:
             supported_clusters[cluster[0]] = cluster[1](self.commons)
         return supported_clusters
-
-    def load_host_types(self):
-        """Loads all host types supported by the local installation"""
-        import sos.collector.hosts
-        package = sos.collector.hosts
-        supported_hosts = {}
-        hosts = self._load_modules(package, 'hosts')
-        for host in hosts:
-            supported_hosts[host[0]] = host[1]
-        return supported_hosts
 
     def _load_modules(self, package, submod):
         """Helper to import cluster and host types"""
@@ -347,10 +335,8 @@ class SoSCollector(SoSComponent):
         """From commandline options, defaults, etc... build a set of commons
         to hand to other collector mechanisms
         """
-        self.host_types = self.load_host_types()
         self.commons = {
             'need_sudo': True if self.opts.ssh_user != 'root' else False,
-            'host_types': self.host_types,
             'opts': self.opts,
             'tmpdir': self.tmpdir,
             'hostlen': len(self.opts.master) or len(self.hostname)
