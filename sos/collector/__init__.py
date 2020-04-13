@@ -120,7 +120,7 @@ class SoSCollector(SoSComponent):
             except KeyboardInterrupt:
                 self._exit('Exiting on user cancel', 130)
             except Exception:
-                raise        
+                raise
 
     def load_clusters(self):
         """Loads all cluster types supported by the local installation for
@@ -250,7 +250,7 @@ class SoSCollector(SoSComponent):
                             help=('Specify the container image to use for '
                                   'containerized hosts. Defaults to the '
                                   'rhel7/support-tools image'))
-        parser.add_argument('-i', '--ssh-key', help='Specify an ssh key to use')
+        parser.add_argument('-i', '--ssh-key', help='Specify an ssh key')
         parser.add_argument('--insecure-sudo', action='store_true',
                             help='Use when passwordless sudo is configured')
         parser.add_argument('-k', '--plugin-options', action="append",
@@ -263,8 +263,8 @@ class SoSCollector(SoSComponent):
         parser.add_argument('-n', '--skip-plugins', action="append",
                             help='Skip these plugins')
         parser.add_argument('--nodes', action="append",
-                            help='Provide a comma delimited list of nodes, or a '
-                                 'regex to match against')
+                            help='Provide a comma delimited list of nodes, or '
+                                 'a regex to match against')
         parser.add_argument('--no-pkg-check', action='store_true',
                             help=('Do not run package checks. Use this '
                                   'with --cluster-type if there are rpm '
@@ -282,18 +282,17 @@ class SoSCollector(SoSComponent):
                             help='Prompt for user password for nodes')
         parser.add_argument('--password-per-node', action='store_true',
                             default=False,
-                            help='Prompt for password separately for each node')
+                            help='Prompt for password for each node')
         parser.add_argument('--preset', default='', required=False,
                             help='Specify a sos preset to use')
         parser.add_argument('--sos-cmd', dest='sos_opt_line',
-                            help=("Manually specify the commandline options for "
-                                  "sosreport on remote nodes")
+                            help=("Manually specify the commandline options "
+                                  "for sosreport on remote nodes")
                             )
         parser.add_argument('--ssh-user',
                             help='Specify an SSH user. Default root')
         parser.add_argument('--timeout', type=int, required=False,
-                            help='Timeout for sosreport on each node. Default 300.'
-                            )
+                            help='Timeout for sosreport on each node.')
         parser.add_argument('--verify', action="store_true",
                             help="perform data verification during collection")
         parser.add_argument('-z', '--compression-type', dest="compression",
@@ -357,7 +356,6 @@ class SoSCollector(SoSComponent):
             'hostlen': len(self.opts.master) or len(self.hostname)
         }
 
-
     def parse_cluster_options(self):
         opts = []
         if not isinstance(self.opts.cluster_options, list):
@@ -378,7 +376,6 @@ class SoSCollector(SoSComponent):
                     ClusterOption(name, value, value.__class__, cluster)
                 )
         self.opts.cluster_options = opts
-
 
     def verify_cluster_options(self):
         """Verify that requested cluster options exist"""
@@ -633,8 +630,7 @@ class SoSCollector(SoSComponent):
             if self.opts.cluster_type == 'none':
                 self.cluster = self.clusters['jbon']
             else:
-                self.cluster = self.clusters[self.opts.cluster_type
-                                        ]
+                self.cluster = self.clusters[self.opts.cluster_type]
             self.cluster.master = self.master
 
         else:
@@ -673,7 +669,8 @@ class SoSCollector(SoSComponent):
 
         self.ui_log.info('The following is a list of nodes to collect from:')
         if self.master.connected:
-            self.ui_log.info('\t%-*s' % (self.commons['hostlen'], self.opts.master))
+            self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
+                                         self.opts.master))
 
         for node in sorted(self.node_list):
             self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
@@ -947,10 +944,9 @@ this utility or remote systems that it connects to.
                 self.report_num -= 1
 
             self.ui_log.info("\nBeginning collection of sosreports from %s "
-                              "nodes, collecting a maximum of %s "
-                              "concurrently\n"
-                              % (self.report_num, self.opts.threads)
-                              )
+                             "nodes, collecting a maximum of %s "
+                             "concurrently\n"
+                             % (self.report_num, self.opts.threads))
 
             pool = ThreadPoolExecutor(self.opts.threads)
             pool.map(self._collect, self.client_list, chunksize=1)
@@ -1008,8 +1004,10 @@ this utility or remote systems that it connects to.
                         dest = os.path.join('checksums', fname)
                     name = os.path.join(self.tmpdir, fname)
                     self.archive.add_file(name, dest=dest)
-            self.archive.add_file(self.sos_log_file, dest=os.path.join('logs', 'sos.log'))
-            self.archive.add_file(self.sos_ui_log_file, dest=os.path.join('logs', 'ui.log'))
+            self.archive.add_file(self.sos_log_file,
+                                  dest=os.path.join('logs', 'sos.log'))
+            self.archive.add_file(self.sos_ui_log_file,
+                                  dest=os.path.join('logs', 'ui.log'))
 
             arc_name = self.archive.finalize(self.opts.compression_type)
             final_name = os.path.join(self.sys_tmp, os.path.basename(arc_name))
@@ -1017,7 +1015,7 @@ this utility or remote systems that it connects to.
 
             self.soslog.info('Archive created as %s' % final_name)
             self.ui_log.info('\nThe following archive has been created. '
-                              'Please provide it to your support team.')
+                             'Please provide it to your support team.')
             self.ui_log.info('    %s' % final_name)
         except Exception as err:
             msg = ("Could not finalize archive: %s\n\nData may still be "
