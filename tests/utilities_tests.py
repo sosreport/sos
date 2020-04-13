@@ -19,7 +19,7 @@ TEST_DIR = os.path.dirname(__file__)
 class GrepTest(unittest.TestCase):
 
     def test_file_obj(self):
-        test_s = "\n".join(['this is only a test', 'there are only two lines'])
+        test_s = u"\n".join(['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = grep(".*test$", test_fo)
         self.assertEquals(matches, ['this is only a test\n'])
