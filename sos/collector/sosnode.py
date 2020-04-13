@@ -18,6 +18,7 @@ import shutil
 
 from distutils.version import LooseVersion
 from pipes import quote
+from sos.policies import load, InitSystem
 from sos.collector.exceptions import *
 
 
@@ -63,7 +64,7 @@ class SosNode():
             self.connected = True
             self.local = True
         if self.connected and load_facts:
-            self.host = self.determine_host()
+            self.host = self.determine_host_policy()
             if not self.host:
                 self.connected = False
                 self.close_ssh_session()
@@ -71,8 +72,6 @@ class SosNode():
             if self.local:
                 if self.check_in_container():
                     self.host.containerized = False
-            self.log_debug("Host facts found to be %s" %
-                           self.host.report_facts())
             self.get_hostname()
             if self.host.containerized:
                 self.create_sos_container()
@@ -291,17 +290,16 @@ class SosNode():
             self.log_error("Exception while reading %s: %s" % (to_read, err))
             return ''
 
-    def determine_host(self):
+    def determine_host_policy(self):
         '''Attempts to identify the host installation against supported
         distributions
         '''
-        for host_type in self.host_types:
-            host = self.host_types[host_type](self.address)
-            rel_string = self.read_file(host.release_file)
-            if host._check_enabled(rel_string):
-                self.log_debug("Host installation found to be %s" %
-                               host.distribution)
-                return host
+        host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
+                    probe_runtime=False, remote_exec=self.ssh_cmd,
+                    remote_check=self.read_file('/etc/os-release'))
+        if host:
+            self.log_debug("loaded policy %s for host" % host.distro)
+            return host
         self.log_error('Unable to determine host installation. Ignoring node')
         raise UnsupportedHostException
 
