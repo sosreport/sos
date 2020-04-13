@@ -105,8 +105,8 @@ class SosNode():
             if res['status'] in [0, 125]:  # 125 means container exists
                 ret = self.run_command(self.host.restart_sos_container())
                 if ret['status'] == 0:
-                    self.log_debug("Temporary container %s created"
-                                   % self.host.sos_container_name)
+                    self.log_info("Temporary container %s created"
+                                  % self.host.sos_container_name)
                     return True
                 else:
                     self.log_error("Could not start container after create: %s"
@@ -156,19 +156,21 @@ class SosNode():
         reg = r'(?P<var>(pass|key|secret|PASS|KEY|SECRET).*?=)(?P<value>.*?\s)'
         return re.sub(reg, r'\g<var>****** ', msg)
 
+    def ui_msg(self, msg):
+        """Format a ui message that includes host name and formatting"""
+        self.ui_log.info(self._fmt_msg(msg))
+
     def log_info(self, msg):
         """Used to print and log info messages"""
         caller = inspect.stack()[1][3]
         lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
         self.soslog.info(lmsg)
-        self.ui_log.info(self._fmt_msg(msg))
 
     def log_error(self, msg):
         """Used to print and log error messages"""
         caller = inspect.stack()[1][3]
         lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
         self.soslog.error(lmsg)
-        self.ui_log.error(self._fmt_msg(msg))
 
     def log_debug(self, msg):
         """Used to print and log debug messages"""
@@ -181,8 +183,7 @@ class SosNode():
         """Get the node's hostname"""
         sout = self.run_command('hostname')
         self.hostname = sout['stdout'].strip()
-        self.log_debug(
-            'Hostname set to %s' % self.hostname)
+        self.log_info('Hostname set to %s' % self.hostname)
 
     def _format_cmd(self, cmd):
         """If we need to provide a sudo or root password to a command, then
@@ -214,7 +215,7 @@ class SosNode():
         if pkg:
             ver = '.'.join(pkg['version'])
             self.sos_info['version'] = ver
-            self.log_debug('sos version is %s' % self.sos_info['version'])
+            self.log_info('sos version is %s' % self.sos_info['version'])
         else:
             self.log_error('sos is not installed on this node')
             self.connected = False
@@ -268,7 +269,7 @@ class SosNode():
     def read_file(self, to_read):
         """Reads the specified file and returns the contents"""
         try:
-            self.log_debug("Reading file %s" % to_read)
+            self.log_info("Reading file %s" % to_read)
             if not self.local:
                 res = self.run_command("cat %s" % to_read, timeout=5)
                 if res['status'] == 0:
@@ -296,7 +297,7 @@ class SosNode():
                     probe_runtime=False, remote_exec=self.ssh_cmd,
                     remote_check=self.read_file('/etc/os-release'))
         if host:
-            self.log_debug("loaded policy %s for host" % host.distro)
+            self.log_info("loaded policy %s for host" % host.distro)
             return host
         self.log_error('Unable to determine host installation. Ignoring node')
         raise UnsupportedHostException
@@ -377,7 +378,7 @@ class SosNode():
     def sosreport(self):
         """Run a sosreport on the node, then collect it"""
         self.finalize_sos_cmd()
-        self.log_debug('Final sos command set to %s' % self.sos_cmd)
+        self.log_info('Final sos command set to %s' % self.sos_cmd)
         try:
             path = self.execute_sos_command()
             if path:
@@ -411,7 +412,7 @@ class SosNode():
         """
         # Don't use self.ssh_cmd here as we need to add a few additional
         # parameters to establish the initial connection
-        self.log_debug('Opening SSH session to create control socket')
+        self.log_info('Opening SSH session to create control socket')
         connected = False
         ssh_key = ''
         ssh_port = ''
@@ -550,9 +551,9 @@ class SosNode():
             if not self.opts.preset:
                 self.opts.preset = self.cluster.sos_preset
             else:
-                self.log_debug('Cluster specified preset %s but user has also '
-                               'defined a preset. Using user specification.'
-                               % self.cluster.sos_preset)
+                self.log_info('Cluster specified preset %s but user has also '
+                              'defined a preset. Using user specification.'
+                              % self.cluster.sos_preset)
         if self.cluster.sos_plugins:
             for plug in self.cluster.sos_plugins:
                 if plug not in self.opts.enable_plugins:
@@ -654,7 +655,7 @@ class SosNode():
         if pstrip:
             path = path.replace(pstrip, '')
         path = path.split()[0]
-        self.log_debug('Final sos path: %s' % path)
+        self.log_info('Final sos path: %s' % path)
         self.sos_path = path
         self.archive = path.split('/')[-1]
 
@@ -673,7 +674,7 @@ class SosNode():
 
     def execute_sos_command(self):
         """Run sosreport and capture the resulting file path"""
-        self.log_info("Generating sosreport...")
+        self.ui_msg('Generating sosreport...')
         try:
             path = False
             res = self.run_command(self.sos_cmd,
@@ -705,8 +706,8 @@ class SosNode():
         try:
             if not self.local:
                 if self.file_exists(path):
-                    self.log_debug("Copying remote %s to local %s" %
-                                   (path, destdir))
+                    self.log_info("Copying remote %s to local %s" %
+                                  (path, destdir))
                     cmd = "/usr/bin/scp -oControlPath=%s %s@%s:%s %s" % (
                         self.control_path,
                         self.opts.ssh_user,
@@ -739,7 +740,7 @@ class SosNode():
                                "incorrect and possibly dangerous" % path)
                 return False
             if self.file_exists(path):
-                self.log_debug("Removing file %s" % path)
+                self.log_info("Removing file %s" % path)
                 cmd = "rm -f %s" % path
                 res = self.run_command(cmd, need_root=True)
                 return res['status'] == 0
@@ -765,10 +766,10 @@ class SosNode():
                 except Exception:
                     self.log_debug('Failed to make md5 readable')
             self.soslog.info('Retrieving sosreport from %s' % self.address)
-            self.log_info('Retrieving sosreport...')
+            self.ui_msg('Retrieving sosreport...')
             ret = self.retrieve_file(self.sos_path)
             if ret:
-                self.log_info('Successfully collected sosreport')
+                self.ui_msg('Successfully collected sosreport')
                 self.file_list.append(self.sos_path.split('/')[-1])
             else:
                 self.log_error('Failed to retrieve sosreport')
