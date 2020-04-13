@@ -1,0 +1,312 @@
+.TH sos collect 1 "April 2020"
+
+.SH NAME
+sos collect \- Collect sosreports from multiple (cluster) nodes
+.SH SYNOPSIS
+.B sos collect
+    [\-a|\-\-all\-options]
+    [\-b|\-\-become]
+    [\-\-batch]
+    [\-c CLUSTER_OPTIONS]
+    [\-\-chroot CHROOT]
+    [\-\-case\-id CASE_ID]
+    [\-\-cluster\-type CLUSTER_TYPE]
+    [\-e ENABLE_PLUGINS]
+    [--encrypt-key KEY]\fR
+    [--encrypt-pass PASS]\fR
+    [\-\-group GROUP]
+    [\-\-save\-group GROUP]
+    [\-\-insecure-sudo]
+    [\-k PLUGIN_OPTION]
+    [\-\-label LABEL]
+    [\-n SKIP_PLUGINS]
+    [\-\-nodes NODES]
+    [\-\-no\-pkg\-check]
+    [\-\-no\-local]
+    [\-\-master MASTER]
+    [\-o ONLY_PLUGINS]
+    [\-p SSH_PORT]
+    [\-\-password]
+    [\-\-password\-per\-node]
+    [\-\-preset PRESET]
+    [\-s|\-\-sysroot SYSROOT]
+    [\-\-ssh\-user SSH_USER]
+    [\-\-sos-cmd SOS_CMD]
+    [\-t|\-\-threads THREADS]
+    [\-\-timeout TIMEOUT]
+    [\-\-tmp\-dir TMP_DIR]
+    [\-v|\-\-verbose]
+    [\-\-verify]
+    [\-z|\-\-compression-type COMPRESSION_TYPE]
+
+.PP
+.SH DESCRIPTION
+collect is an sos subcommand to collect sosreports from multiple nodes and package
+them in a single useful tar archive. 
+
+sos collect can be run either on a workstation that has SSH key authentication setup
+for the nodes in a given cluster, or from a "master" node in a cluster that has SSH
+keys configured for the other nodes.
+
+Some sosreport options are supported by sos-collect and are passed directly to 
+the sosreport command run on each node.
+
+.SH OPTIONS
+.TP
+\fB\-a\fR, \fB\-\-alloptions\fR
+Enables all sosreport options. 
+
+This does NOT enable all sos collect options.
+.TP
+\fB\-b\fR, \fB\-\-become\fR
+Become the root user on the remote node when connecting as a non-root user.
+.TP
+\fB\-\-batch\fR
+Run in non-interactive mode. This will skip prompts for user input, with the
+exception of a prompt for the SSH password.
+.TP
+\fB\-\-all\-logs\fR
+Sosreport option. Collects all logs regardless of size. 
+
+Default: no
+.TP
+\fB\-c\fR CLUSTER_OPTIONS
+Specify options used by cluster profiles. The format is 'profile.option_name=value'.
+
+For example, for the ovirt plugin if you wanted to restrict node enumeration to
+a specific cluster you would use \fB'-c ovirt.cluster=example_cluster'\fR.
+
+Available cluster options can be listed by running \fB'sos collect -l'\fR.
+.TP
+\fB\-\-chroot\fR CHROOT
+Sosreport option. Set the chroot mode. When \fB\-\-sysroot\fR is used commands default
+to executing with SYSROOT as the root directory. This can be overridden by setting
+\fB\-\-chroot\fR to "always" (always chroot) or "never" (always run in the host
+namespace).
+.TP
+\fB\-\-case\-id\fR CASE_ID
+Sosreport option. Specifies a case number identifier.
+.TP
+\fB\-\-cluster\-type\fR CLUSTER_TYPE
+When run by itself, sos collect will attempt to identify the type of cluster at play.
+This is done by checking package or configuration information against the localhost, or
+the master node if  \fB"--master"\fR is supplied.
+
+Setting \fB--cluster-type\fR skips this step and forcibly sets a particular profile.
+
+Using a value of \fBnone\fR or \fBjbon\fR (just a bunch of nodes) will effectively
+disable all cluster-specific checks, and cause sos collect to only use the nodes
+specified by the \fB--nodes\fR option. Note that in this scenario, regex string(s)
+for node names will be ignored.
+
+Example: \fBsos collect --cluster-type=kubernetes\fR will force the kubernetes profile
+to be run, and thus set sosreport options and attempt to determine a list of nodes using
+that profile. 
+.TP
+\fB\-e\fR ENABLE_PLUGINS, \fB\-\-enable\-plugins\fR ENABLE_PLUGINS
+Sosreport option. Use this to enable a plugin that would otherwise not be run.
+
+This option supports providing a comma-delimited list of plugins.
+.TP
+.B \--encrypt-key KEY
+Encrypts the resulting archive that sos collect produces using GPG. KEY must be
+an existing key in the user's keyring as GPG does not allow for keyfiles.
+KEY can be any value accepted by gpg's 'recipient' option.
+
+Note that the user running sos collect must match the user owning the keyring
+from which keys will be obtained. In particular this means that if sudo is
+used to run sos collect, the keyring must also be set up using sudo
+(or direct shell access to the account).
+
+Users should be aware that encrypting the final archive will result in sos
+using double the amount of temporary disk space - the encrypted archive must be
+written as a separate, rather than replacement, file within the temp directory
+that sos writes the archive to. However, since the encrypted archive will be
+the same size as the original archive, there is no additional space consumption
+once the temporary directory is removed at the end of execution.
+
+This means that only the encrypted archive is present on disk after sos
+finishes running.
+
+If encryption fails for any reason, the original unencrypted archive is
+preserved instead.
+
+IMPORTANT: As of this version of sos collect, only the final archive on the
+local machine running sos collect will be encrypted. The individual sos reports
+that are collected on the nodes will be collected unencrypted.
+.TP
+.B \--encrypt-pass PASS
+The same as \--encrypt-key, but use the provided PASS for symmetric encryption
+rather than key-pair encryption.
+.TP
+
+\fB\-\-group\fR GROUP
+Specify an existing host group definition to use.
+
+Host groups are pre-defined settings for the cluster-type, master, and nodes options
+saved in JSON-formatted files under /var/lib/sos collect/<GROUP>.
+
+If cluster_type and/or master are set in the group, sos collect behaves as if
+these values were specified on the command-line.
+
+If nodes is defined, sos collect \fBextends\fR the \fB\-\-nodes\fR option, if set,
+with the nodes or regexes listed in the group.
+
+Note that sos collect will only write group definitions to /var/lib/sos collect/
+however the GROUP value may be a filename for any group definitions that exist outside
+of the default location. If you are manually writing these files, use the value \fBnull\fR
+when a python NoneType is expected. Caveat: use \fBstring\fR 'none' if setting cluster_type
+to none.
+.TP
+\fB\-\-save\-group\fR GROUP
+Save the results of this run of sos collect to a host group definition.
+
+sos-colllector will write a JSON-formatted file with name GROUP to /var/lib/sos collect/
+with the settings for cluster-type, master, and the node list as discovered by cluster enumeration.
+Note that this means regexes are not directly saved to host groups, but the results of matching against
+those regexes are.
+.TP
+\fB\-\-insecure-sudo\fR
+Use this option when connecting as a non-root user that has passwordless sudo
+configured.
+
+If this option is omitted and a bogus sudo password is supplied, collection of
+sosreports may exhibit unexpected behavior and/or fail entirely.
+.TP
+\fB\-k\fR PLUGIN_OPTION, \fB\-\-plugin\-option\fR PLUGIN_OPTION
+Sosreport option. Set a plugin option to a particular value. This takes the form of
+plugin_name.option_name=value.
+
+Example: To enable the kubernetes "all" option in sosreport use \fB-k kubernetes.all=on\fR.
+.TP
+\fB\-\-label\fR LABEL
+Specify a label to be added to the archive names. This label will be applied to
+both the sos collect archive and the sosreport archives.
+
+If a cluster sets a default label, the user-provided label will be appended to
+that cluster default.
+.TP
+\fB\-n\fR SKIP_PLUGINS, \fB\-\-skip\-plugins\fR SKIP_PLUGINS
+Sosreport option. Disable (skip) a particular plugin that would otherwise run.
+This is useful if a particular plugin is prone to hanging for one reason or another.
+
+This option supports providing a comma-delimited list of plugins.
+.TP
+\fB\-\-nodes\fR NODES
+Provide a comma-delimited list of nodes to collect sosreports from, or a regex string to
+be used to compare discovered node names against. If using a regex, only nodes matching the regex
+will be used - i.e. it can be used as a whitelist but not a blacklist.
+
+This option can be handed multiple regex strings separated by commas. Additionally, both whole node
+names/addresses and regex strings may be provided at the same time.
+.TP
+\fB\-\-no\-pkg\-check\fR
+Do not perform package checks. Most cluster profiles check against installed packages to determine
+if the cluster profile should be applied or not.
+
+Use this with \fB\-\-cluster-type\fR if there are rpm or apt issues on the master/local node.
+.TP
+\fB\-\-no\-local\fR
+Do not collect a sosreport from the local system. 
+
+If \fB--master\fR is not supplied, it is assumed that the host running sosreport is part of
+the cluster that is to be collected. Use this option to skip collection of a local sosreport.
+
+This option is NOT needed if \fB--master\fR is provided.
+.TP
+\fB\-\-master\fR MASTER
+Specify a master node for the cluster.
+
+If provided, then sos collect will check the master node, not localhost, for determining
+the type of cluster in use.
+.TP
+\fB\-o\fR ONLY_PLUGINS, \fB\-\-only\-plugins\fR ONLY_PLUGINS
+Sosreport option. Run ONLY the plugins listed.
+
+Note that a cluster profile will NOT override this option. This may cause the sosreports
+generated to not contain the relevant output for a given type of cluster.
+
+This option supports providing a comma-delimited list of plugins.
+.TP
+\fB\-\-password\fR
+Specifying this option will cause sos collect to prompt the user for an SSH password
+that will be used to connect to all nodes.
+
+If you have differing passwords for the same user across cluster nodes, you should
+ideally deploy SSH keys, but the \-\-password\-per\-node option is also available.
+.TP
+\fB\-\-password\-per\-node\fR
+When using this option, sos collect will prompt the user for the SSH password for
+each node that will have an sosreport collected from it individually before attempting
+to connect to the nodes.
+.TP
+\fB\-\-preset\fR PRESET
+Specify a sos preset to use, note that this requires sos-3.6 or later to be installed
+on the node. The given preset must also exist on the remote node - local presets
+are not used.
+
+If \fB\-\-preset\fR is specified and a given node either does not have that preset
+defined, or has a version of sos prior to 3.6, this option is ignored for that node.
+.TP
+\fB\-p\fR SSH_PORT, \fB\-\-ssh\-port\fR SSH_PORT
+Specify SSH port for all nodes. Use this if SSH runs on any port other than 22.
+.TP
+\fB\-\-ssh\-user\fR SSH_USER
+Specify an SSH user for sos collect to connect to nodes with. Default is root.
+
+sos collect will prompt for a sudo password for non-root users.
+.TP
+\fB\-s\fR SYSROOT, \fB\-\-sysroot\fR SYSROOT
+Sosreport option. Specify an alternate root file system path.
+.TP
+\fB\-\-sos-cmd\fR SOS_CMD
+Define all options that sosreport should be run with on the nodes. This will
+override any other commandline options as well as any options specified by a 
+cluster profile.
+
+The sosreport command will execute as 'sosreport --batch SOS_CMD'. The BATCH 
+option cannot be removed from the sosreport command as it is required to run 
+sosreport non-interactively for sos collect to function.
+.TP
+\fB\-t\fR THREADS \fB\-\-threads\fR THREADS
+Specify the number of threads to use for concurrent collection of sosreports.
+
+If the number of nodes enumerated exceeds the number of threads, then sos collect
+will start collecting from the first X number of nodes and then continue to iterate
+through the remaining nodes as sosreport collection finishes.
+
+Defaults to 4.
+.TP
+\fB\-\-timeout\fR TIMEOUT
+Timeout for sosreport generation on each node, in seconds.
+
+Note that sosreports are collected in parallel, so this can also be considered to be
+approximately the same as a timeout for the entire collection process. 
+
+Default is 180 seconds.
+.TP
+\fB\-\-tmp\-dir\fR TMP_DIR
+Specify a temporary directory to save sos archives to. By default one will be created in
+/tmp and then removed after sos collect has finished running.
+
+This is NOT the same as specifying a temporary directory for sosreport on the remote nodes.
+.TP
+\fB\-v\fR \fB\-\-verbose\fR
+Print debug information to screen.
+.TP
+\fB\-\-verfiy\fR
+Sosreport option. Passes the "--verify" option to sosreport on the nodes which 
+causes sosreport to validate plugin-specific data during collection.
+
+Note that this option may considerably extend the time it takes sosreport to run on
+the nodes. Consider increasing \fB\-\-timeout\fR when using this option.
+.TP
+\fB\-z\fR COMPRESSION, \fB\-\-compression-type\fR COMPRESSION
+Sosreport option. Override the default compression type.
+
+.SH SEE ALSO
+.BR sos (1)
+.BR sos-report (1)
+
+.SH MAINTAINER
+    Jake Hunsaker <jhunsake@redhat.com>
