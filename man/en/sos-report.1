@@ -1,0 +1,334 @@
+.TH SOSREPORT 1 "Mon Mar 25 2013"
+.SH NAME
+sosreport \- Collect and package diagnostic and support data
+.SH SYNOPSIS
+.B sosreport
+          [-l|--list-plugins]\fR
+          [-n|--skip-plugins plugin-names]\fR
+          [-e|--enable-plugins plugin-names]\fR
+          [-o|--only-plugins plugin-names]\fR
+          [-a|--alloptions] [-v|--verbose]\fR
+          [-k plug.opt|--plugin-option plug.opt]\fR
+          [--no-report] [--config-file conf]\fR
+          [--no-postproc]\fR
+          [--preset preset] [--add-preset add_preset]\fR
+          [--del-preset del_preset] [--desc description]\fR
+          [--batch] [--build] [--debug] [--dry-run]\fR
+          [--label label] [--case-id id] [--ticket-number nr]\fR
+          [--threads threads]\fR
+          [--plugin-timeout TIMEOUT]\fR
+          [-s|--sysroot SYSROOT]\fR
+          [-c|--chroot {auto|always|never}\fR
+          [--tmp-dir directory]\fR
+          [-p|--profile profile-name]\fR
+          [--list-profiles]\fR
+          [--verify]\fR
+          [--log-size]\fR
+          [--all-logs]\fR
+          [--since YYYYMMDD[HHMMSS]]\fR
+          [--allow-system-changes]\fR
+          [-z|--compression-type method]\fR
+          [--encrypt-key KEY]\fR
+          [--encrypt-pass PASS]\fR
+          [--upload] [--upload-url url] [--upload-user user]\fR
+          [--upload-directory dir] [--upload-pass pass]\fR
+          [--experimental]\fR
+          [-h|--help]\fR
+
+.SH DESCRIPTION
+\fBsosreport\fR generates an archive of configuration and diagnostic
+information from the running system. The archive may be stored locally
+or centrally for recording or tracking purposes or may be sent to
+technical support representatives, developers or system administrators
+to assist with technical fault-finding and debugging.
+.LP
+Sos is modular in design and is able to collect data from a wide
+range of subsystems and packages that may be installed. An
+HTML report summarizing the collected information is optionally
+generated and stored within the archive.
+.SH OPTIONS
+.TP
+.B \-l, \--list-plugins
+List all available plugins and their options. Plug-ins that would
+not be enabled by the current configuration are listed separately.
+.TP
+.B \-n, --skip-plugins PLUGNAME[,PLUGNAME]
+Disable the specified plugin(s). Multiple plug-ins may be specified
+by repeating the option or as a comma-separated list.
+.TP
+.B \-e, --enable-plugins PLUGNAME[,PLUGNAME]
+Enable the specified plugin(s). Multiple plug-ins may be specified
+by repeating the option or as a comma-separated list.
+.TP
+.B \-o, --only-plugins PLUGNAME[,PLUGNAME]
+Enable the specified plugin(s) only (all other plugins should be
+disabled). Multiple plugins may be specified by repeating the option
+or as a comma-separated list.
+.TP
+.B \-k PLUGNAME.PLUGOPT[=VALUE], \--plugin-option=PLUGNAME.PLUGOPT[=VALUE]
+Specify plug-in options. The option PLUGOPT is enabled, or set to the
+specified value in the plug-in PLUGNAME.
+.TP
+.B \-a, \--alloptions
+Set all boolean options to True for all enabled plug-ins.
+.TP
+.B \-v, \--verbose
+Increase logging verbosity. May be specified multiple times to enable
+additional debugging messages.
+.TP
+.B \-q, \--quiet
+Only log fatal errors to stderr.
+.TP
+.B \--no-report
+Disable HTML report writing.
+.TP
+.B \--config-file CONFIG
+Specify alternate configuration file.
+.TP
+.B \-\-no-postproc
+Disable postprocessing globally for all plugins. This will mean data is not
+obfuscated/sanitized from the archive during collection.
+
+Note that this means data such as password, SSH keys, certificates, etc...
+will be collected in plain text.
+
+To selectively disable postprocessing on a per-plugin basis, use the 'postproc'
+plugin option available to all plugins, e.g. '-k podman.postproc=off'.
+.TP
+.B \--preset PRESET
+Specify an existing preset to use for sos options.
+
+Presets are pre-configured sets of options for both sos and sos plugins. For
+example a preset may enable a certain set of plugins, disable others, or enable
+specific plugin options. They may also specify sos options such as log-size or
+package verification.
+
+User defined presets are saved under /var/lib/sos/presets as JSON-formatted files.
+.TP
+.B \--add-preset ADD_PRESET [options]
+Add a preset with name ADD_PRESET that enables [options] when called.
+
+For example, 'sosreport --add-preset mypreset --log-size=50 -n logs' will enable
+a user to run 'sosreport --preset mypreset' that sets the maximum log size to
+50 and disables the logs plugin.
+
+Note: to set a description for the preset that is displayed with \fB--list-presets\fR,
+use the \fB--desc\fR option.
+
+Note: to set a behaviour note of the preset, use --note option.
+.TP
+.B \--del-preset DEL_PRESET
+Deletes the preset with name DEL_PRESET from the filesystem so that it can no
+longer be used.
+.TP
+.B \--list-presets
+Display a list of available presets and what options they carry.
+.TP
+.B \--desc DESCRIPTION
+When using \fB--add-preset\fR use this option to add a description of the preset
+that will be displayed when using \fB--list-presets\fR.
+.TP
+.B \-s, \--sysroot SYSROOT
+Specify an alternate root file system path. Useful for collecting
+reports from containers and images.
+.TP
+.B \-c, \--chroot {auto|always|never}
+Set the chroot mode. When \--sysroot is used commands default to
+executing with SYSROOT as the root directory (unless disabled by
+a specific plugin). This can be overriden by setting \--chroot to
+"always" (always chroot) or "never" (always run in the host
+namespace).
+.TP
+.B \--tmp-dir DIRECTORY
+Specify alternate temporary directory to copy data as well as the
+compressed report.
+.TP
+.B \--list-profiles
+Display a list of available profiles and the plugins that they enable.
+.TP
+.B \-p, \--profile NAME
+Only run plugins that correspond to the given profile. Multple profiles
+may be specified as a comma-separated list; the set of plugins executed
+is the union of each of the profile's plugin sets. Currently defined
+profiles include: boot, cluster, desktop, debug, hardware, identity,
+network, openstack, packagemanager, security, services, storage,
+sysmgmt, system, performance, virt, and webserver.
+.TP
+.B \--verify
+Instructs plugins to perform plugin-specific verification during data
+collection. This may include package manager verification, log integrity
+testing or other plugin defined behaviour. Use of \--verify may cause
+the time taken to generate a report to be considerably longer.
+.TP
+.B \--log-size
+Places a global limit on the size (in MiB) of any collected set of logs. The
+limit is applied separately for each set of logs collected by any
+plugin.
+.TP
+.B \--all-logs
+Tell plugins to collect all possible log data ignoring any size limits
+and including logs in non-default locations. This option may significantly
+increase the size of reports.
+.TP
+.B \--since YYYYMMDD[HHMMSS]
+Limits the collection of log archives to those newer than this date. A log
+archive is any file not found in /etc, that has either a numeric or a
+compression-type file extension for example ".zip". ".1", ".gz" etc.).
+This also affects \--all-logs. The date string will be padded with zeros
+if HHMMSS is not specified.
+.TP
+.B \--allow-system-changes
+Run commands even if they can change the system (e.g. load kernel modules).
+.TP
+.B \-z, \--compression-type METHOD
+Override the default compression type specified by the active policy.
+.TP
+.B \--encrypt-key KEY
+Encrypts the resulting archive that sosreport produces using GPG. KEY must be
+an existing key in the user's keyring as GPG does not allow for keyfiles.
+KEY can be any value accepted by gpg's 'recipient' option.
+
+Note that the user running sosreport must match the user owning the keyring
+from which keys will be obtained. In particular this means that if sudo is
+used to run sosreport, the keyring must also be set up using sudo
+(or direct shell access to the account).
+
+Users should be aware that encrypting the final archive will result in sos
+using double the amount of temporary disk space - the encrypted archive must be
+written as a separate, rather than replacement, file within the temp directory
+that sos writes the archive to. However, since the encrypted archive will be
+the same size as the original archive, there is no additional space consumption
+once the temporary directory is removed at the end of execution.
+
+This means that only the encrypted archive is present on disk after sos
+finishes running.
+
+If encryption fails for any reason, the original unencrypted archive is
+preserved instead.
+.TP
+.B \--encrypt-pass PASS
+The same as \--encrypt-key, but use the provided PASS for symmetric encryption
+rather than key-pair encryption.
+.TP
+.B \--batch
+Generate archive without prompting for interactive input.
+.TP
+.B \--name NAME
+Deprecated. See \--label
+.TP
+.B \--label LABEL
+Specify an arbitrary identifier to associate with the archive.
+Labels will be appended after the system's short hostname and may contain
+alphanumeric characters.
+.TP
+.B \--threads THREADS
+Specify the number of threads sosreport will use for concurrency. Defaults to 4.
+.TP
+.B \--plugin-timeout TIMEOUT
+Specify a timeout in seconds to allow each plugin to run for. A value of 0
+means no timeout will be set.
+
+Note that this options sets the timeout for all plugins. If you want to set
+a timeout for a specific plugin, use the 'timeout' plugin option available to
+all plugins - e.g. '-k logs.timeout=600'.
+
+The plugin-specific timeout option will override this option. For example, using
+\'--plugin-timeout=60 -k logs.timeout=600\' will set a timeout of 600 seconds for
+the logs plugin and 60 seconds for all other enabled plugins.
+.TP
+.B \--case-id NUMBER
+Specify a case identifier to associate with the archive.
+Identifiers may include alphanumeric characters, commas and periods ('.').
+Synonymous with \--ticket-number.
+.TP
+.B \--ticket-number NUMBER
+Specify a ticket number or other identifier to associate with the archive.
+Identifiers may include alphanumeric characters, commas and periods ('.').
+Synonymous with \--case-id.
+.TP
+.B \--build
+Do not archive copied data. Causes sosreport to leave an uncompressed
+archive as a temporary file or directory tree.
+.TP
+.B \--debug
+Enable interactive debugging using the python debugger. Exceptions in
+sos or plug-in code will cause a trap to the pdb shell.
+.TP
+.B \--dry-run
+Execute plugins as normal, but do not collect any file content, command
+output, or string data from the system. The resulting logs may be used
+to understand the actions that sos would have taken without the dry run
+option.
+.TP
+.B \--upload
+If specified, attempt to upload the resulting archive to a vendor defined location.
+
+This option is implied if --upload-url is used.
+
+You may be prompted for a username and password if these are not defined by the vendor
+as well. If these credentials are not provided, sos will still run and create an archive
+but will not attempt an automatic upload, instead relying on the end user to upload it
+as needed.
+
+The sosreport archive will still remain on the local filesystem even after a successful
+upload.
+
+Note that depending on the distribution sos is being run on, or the vendor policy detected during
+execution, there may be dependencies that are not strictly required by the package
+at installation time.
+
+For example, for HTTPS uploads the python-requests library must be available. If this
+library is not available, HTTPS uploads will not be attempted.
+.TP
+.B \--upload-url URL
+If a vendor does not provide a default upload location, or if you would like to upload
+the archive to a different location, specify the address here.
+
+A support protocol MUST be specified in this URL. Currently uploading is supported
+for HTTPS, SFTP, and FTP protocols.
+
+If your destination server listens on a non-standard port, specify the listening
+port in the URL.
+.TP
+.B \-\-upload-user USER
+If a vendor does not provide a default user for uploading, specify the username here.
+
+If this option is unused and upload is request, and a vendor default is not set, you
+will be prompted for one. If --batch is used and this option is omitted, no username will
+be collected and thus uploads will fail if no vendor default is set.
+.TP
+.B \-\-upload-pass PASS
+Specify the password to use for authentication with the destination server.
+
+If this option is omitted and upload is requested, you will be prompted for one.
+
+If --batch is used, this prompt will not occur, so any uploads are likely to fail unless
+this option is used.
+
+Note that this will result in the plaintext string appearing in `ps` output that may
+be collected by sos and be in the archive. If a password must be provided by you
+for uploading, it is strongly recommended to not use --batch and enter the password
+when prompted rather than using this option.
+.TP
+.B \--upload-directory DIR
+Specify a directory to upload to, if one is not specified by a vendor default location
+or if your destination server does not allow writes to '/'.
+.TP
+.B \--experimental
+Enable plugins marked as experimental. Experimental plugins may not have
+been tested for this port or may still be under active development.
+.TP
+.B \--help
+Display usage message.
+.SH MAINTAINER
+.nf
+Bryn M. Reeves <bmr@redhat.com>
+.fi
+.SH AUTHORS & CONTRIBUTORS
+See \fBAUTHORS\fR file in the package documentation.
+.nf
+.SH TRANSLATIONS
+.nf
+Translations are handled by transifex (https://fedorahosted.org/transifex/)
+.fi
+.fi
