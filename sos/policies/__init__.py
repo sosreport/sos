@@ -612,10 +612,14 @@ any third party.
                                 "list of subclasses that this policy can "
                                 "process")
 
-    def check(self):
+    def check(self, remote=''):
         """
         This function is responsible for determining if the underlying system
         is supported by this policy.
+
+        If `remote` is provided, it should be the contents of os-release from
+        a remote host, or a similar vendor-specific file that can be used in
+        place of a locally available file.
         """
         return False
 

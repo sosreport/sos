@@ -7,7 +7,11 @@ class OSXPolicy(Policy):
     distro = "Mac OS X"
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
+
+        if remote:
+            return cls.distro in remote
+
         try:
             return "Mac OS X" in shell_out("sw_vers")
         except Exception:
