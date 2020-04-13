@@ -120,7 +120,7 @@ class SoSCollector(SoSComponent):
                 self.verify_cluster_options()
 
             except KeyboardInterrupt:
-                self._exit('Exiting on user cancel', 130)
+                self.exit('Exiting on user cancel', 130)
             except Exception:
                 raise
 
@@ -326,7 +326,7 @@ class SoSCollector(SoSComponent):
             raise ControlPersistUnsupportedException
         return True
 
-    def _exit(self, msg, error=1):
+    def exit(self, msg, error=1):
         """Used to safely terminate if sos-collector encounters an error"""
         self.log_error(msg)
         try:
@@ -378,7 +378,7 @@ class SoSCollector(SoSComponent):
                             match = True
                             break
             if not match:
-                self._exit('Unknown cluster option provided: %s.%s'
+                self.exit('Unknown cluster option provided: %s.%s'
                            % (opt.cluster, opt.name))
 
     def _validate_option(self, default, cli):
@@ -392,14 +392,14 @@ class SoSCollector(SoSComponent):
         if not default.opt_type == bool:
             if not default.opt_type == cli.opt_type:
                 msg = "Invalid option type for %s. Expected %s got %s"
-                self._exit(msg % (cli.name, default.opt_type, cli.opt_type))
+                self.exit(msg % (cli.name, default.opt_type, cli.opt_type))
             return cli.value
         else:
             val = cli.value.lower()
             if val not in ['true', 'on', 'false', 'off']:
                 msg = ("Invalid value for %s. Accepted values are: 'true', "
                        "'false', 'on', 'off'")
-                self._exit(msg % cli.name)
+                self.exit(msg % cli.name)
             else:
                 if val in ['true', 'on']:
                     return True
@@ -592,7 +592,7 @@ class SoSCollector(SoSComponent):
                     msg = ("Cannot become root without obtaining root "
                            "password. Do not use --batch if you need "
                            "to become root remotely.")
-                    self._exit(msg, 1)
+                    self.exit(msg, 1)
                 self.log_debug('non-root user asking to become root remotely')
                 msg = ('User %s will attempt to become root. '
                        'Provide root password: ' % self.opts.ssh_user)
@@ -619,7 +619,7 @@ class SoSCollector(SoSComponent):
             except Exception as err:
                 self.log_debug("Unable to determine local installation: %s" %
                                err)
-                self._exit('Unable to determine local installation. Use the '
+                self.exit('Unable to determine local installation. Use the '
                            '--no-local option if localhost should not be '
                            'included.\nAborting...\n', 1)
 
@@ -635,7 +635,7 @@ class SoSCollector(SoSComponent):
         if self.cluster is None and not self.opts.nodes:
             msg = ('Cluster type could not be determined and no nodes provided'
                    '\nAborting...')
-            self._exit(msg, 1)
+            self.exit(msg, 1)
         if self.cluster:
             self.master.cluster = self.cluster
             self.cluster.setup()
@@ -661,7 +661,7 @@ class SoSCollector(SoSComponent):
         self.ui_log.info('')
 
         if not self.node_list and not self.master.connected:
-            self._exit('No nodes were detected, or nodes do not have sos '
+            self.exit('No nodes were detected, or nodes do not have sos '
                        'installed.\nAborting...')
 
         self.ui_log.info('The following is a list of nodes to collect from:')
@@ -719,7 +719,7 @@ class SoSCollector(SoSComponent):
                              % self.opts.master)
         except Exception as e:
             self.log_debug('Failed to connect to master: %s' % e)
-            self._exit('Could not connect to master node. Aborting...', 1)
+            self.exit('Could not connect to master node. Aborting...', 1)
 
     def determine_cluster(self):
         """This sets the cluster type and loads that cluster's cluster.
@@ -803,7 +803,7 @@ class SoSCollector(SoSComponent):
             msg = ('Could not determine a cluster type and no list of '
                    'nodes or master node was provided.\nAborting...'
                    )
-            self._exit(msg)
+            self.exit(msg)
 
         try:
             nodes = self.get_nodes_from_cluster()
@@ -967,7 +967,7 @@ this utility or remote systems that it connects to.
             self.create_cluster_archive()
         else:
             msg = 'No sosreports were collected, nothing to archive...'
-            self._exit(msg, 1)
+            self.exit(msg, 1)
 
     def _collect(self, client):
         """Runs sosreport on each node"""
@@ -1017,4 +1017,4 @@ this utility or remote systems that it connects to.
         except Exception as err:
             msg = ("Could not finalize archive: %s\n\nData may still be "
                    "available uncompressed at %s" % (err, self.archive_path))
-            self._exit(msg, 2)
+            self.exit(msg, 2)
