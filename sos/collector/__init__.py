@@ -101,13 +101,15 @@ class SoSCollector(SoSComponent):
                 "This may indicate a DNS issue in your environment"
             )
             self.ip_addrs = ['127.0.0.1']
+
+        self._parse_options()
+        self.clusters = self.load_clusters()
+
         if not self.opts.list_options:
             try:
                 self.parse_node_strings()
                 self.parse_cluster_options()
-                self._parse_options()
                 self._check_for_control_persist()
-                self.clusters = self.load_clusters()
                 self.log_debug('Executing %s' % ' '.join(s for s in sys.argv))
                 self.log_debug("Found cluster profiles: %s"
                                % self.clusters.keys())
@@ -898,6 +900,11 @@ this utility or remote systems that it connects to.
             self.opts.case_id = input(msg)
 
     def execute(self):
+        if self.opts.list_options:
+            self.list_options()
+            self.cleanup()
+            raise SystemExit
+
         self.intro()
         self.configure_sos_cmd()
         self.prep()

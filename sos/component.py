@@ -109,6 +109,11 @@ class SoSComponent():
     def _exit(self, error=0):
         raise SystemExit(error)
 
+    def check_listing_options(self):
+        opts = [o for o in self.opts.dict().keys() if o.startswith('list')]
+        if opts:
+            return any([getattr(self.opts, opt) for opt in opts])
+
     @classmethod
     def add_parser_options(cls, parser):
         """This should be overridden by each subcommand to add its own unique
@@ -177,12 +182,13 @@ class SoSComponent():
         # main soslog
         self.soslog = logging.getLogger('sos')
         self.soslog.setLevel(logging.DEBUG)
-        self.sos_log_file = self.get_temp_file()
-        flog = logging.StreamHandler(self.sos_log_file)
-        flog.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s'))
-        flog.setLevel(logging.INFO)
-        self.soslog.addHandler(flog)
+        if not self.check_listing_options():
+            self.sos_log_file = self.get_temp_file()
+            flog = logging.StreamHandler(self.sos_log_file)
+            flog.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s'))
+            flog.setLevel(logging.INFO)
+            self.soslog.addHandler(flog)
 
         if not self.opts.quiet:
             console = logging.StreamHandler(sys.stdout)
@@ -205,12 +211,13 @@ class SoSComponent():
         # ui log
         self.ui_log = logging.getLogger('sos_ui')
         self.ui_log.setLevel(logging.INFO)
-        self.sos_ui_log_file = self.get_temp_file()
-        ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
-        ui_fhandler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s'))
+        if not self.check_listing_options():
+            self.sos_ui_log_file = self.get_temp_file()
+            ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
+            ui_fhandler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s'))
 
-        self.ui_log.addHandler(ui_fhandler)
+            self.ui_log.addHandler(ui_fhandler)
 
         if not self.opts.quiet:
             ui_console = logging.StreamHandler(sys.stdout)
