@@ -35,8 +35,15 @@ COLLECTOR_LIB_DIR = '/var/lib/sos-collector'
 
 
 class SoSCollector(SoSComponent):
-    """Collect an sos report from multiple nodes simultaneously
+    """Collector is the formerly standalone sos-collector project, brought into
+    sos natively in 4.0
+
+    It is meant to collect reports from an arbitrary number of remote nodes,
+    as well as the localhost, at the same time. These nodes may be either user
+    defined, defined by some clustering software, or both.
     """
+
+    desc = 'Collect an sos report from multiple nodes simultaneously'
 
     arg_defaults = {
         'alloptions': False,
