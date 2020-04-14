@@ -33,6 +33,12 @@ def _default(msg):
 
 _sos = _default
 
+# py3 < 3.6 compat
+try:
+    ModuleNotFoundError
+except NameError:
+    ModuleNotFoundError = ImportError
+
 
 class SoS():
     """Main entrypoint for sos from the command line
@@ -51,11 +57,27 @@ class SoS():
         # of shorthand names to accept in place of the full subcommand
         # if no aliases are desired, pass an empty list
         import sos.report
-        import sos.collector
         self._components = {
-            'report': (sos.report.SoSReport, ['rep']),
-            'collect': (sos.collector.SoSCollector, ['collector'])
+            'report': (sos.report.SoSReport, ['rep'])
         }
+        # some distros do not want pexpect as a default dep, so try to load
+        # collector here, and if it fails add an entry that implies it is at
+        # least present on this installation
+        try:
+            import sos.collector
+            self._components['collect'] = (sos.collector.SoSCollector,
+                                           ['collector'])
+        except ModuleNotFoundError as err:
+            import sos.missing
+            if 'sos.collector' in err.msg:
+                # is not locally installed - packaged separately
+                self._components['collect'] = (sos.missing.MissingCollect, [])
+            elif 'pexpect' in err.msg:
+                # cannot be imported due to missing the pexpect dep
+                self._components['collect'] = (sos.missing.MissingPexpect, [])
+            else:
+                # we failed elsewhere, re-raise the exception
+                raise
         # build the top-level parser
         _com_string = ''
         for com in self._components:
