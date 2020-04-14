@@ -4,7 +4,7 @@ jobs:
       os: linux
       dist: bionic
       language: shell
-      install: sudo apt-get update; sudo apt install pycodestyle;
+      install: sudo apt-get update; sudo apt install pycodestyle python3-pexpect;
       script:
         - "pycodestyle sos"
         - "sudo ./tests/simple.sh"
