@@ -27,7 +27,7 @@ from pipes import quote
 from textwrap import fill
 from sos.collector.sosnode import SosNode
 from sos.collector.exceptions import ControlPersistUnsupportedException
-from sos.collector.clusters import ClusterOption
+from sos.options import ClusterOption
 from sos.component import SoSComponent
 from sos import __version__
 

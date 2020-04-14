@@ -10,6 +10,8 @@
 
 import logging
 
+from sos.options import ClusterOption
+
 
 class Cluster():
 
@@ -201,14 +203,3 @@ class Cluster():
         except AttributeError:
             pass
         return files
-
-
-class ClusterOption():
-    """Used to store/manipulate options for cluster profiles."""
-
-    def __init__(self, name, value, opt_type, cluster, description=None):
-        self.name = name
-        self.value = value
-        self.opt_type = opt_type
-        self.cluster = cluster
-        self.description = description
