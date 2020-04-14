@@ -310,3 +310,14 @@ class SosListOption(Action):
         if getattr(namespace, self.dest):
             items += getattr(namespace, self.dest)
         setattr(namespace, self.dest, items)
+
+
+class ClusterOption():
+    """Used to store/manipulate options for cluster profiles."""
+
+    def __init__(self, name, value, opt_type, cluster, description=None):
+        self.name = name
+        self.value = value
+        self.opt_type = opt_type
+        self.cluster = cluster
+        self.description = description
