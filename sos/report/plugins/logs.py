@@ -8,10 +8,10 @@
 
 import os
 import glob
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, LinuxPlugin
 
 
-class Logs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Logs(Plugin, LinuxPlugin):
     """System logs"""
 
     plugin_name = "logs"

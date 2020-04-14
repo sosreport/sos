@@ -12,7 +12,7 @@ import os
 import sys
 import re
 
-from sos.report.plugins import RedHatPlugin
+from sos.report.plugins import RedHatPlugin, LinuxPlugin
 from sos.policies import LinuxPolicy, PackageManager, PresetDefaults
 from sos import _sos as _
 from sos.options import SoSOptions
@@ -56,7 +56,7 @@ class RedHatPolicy(LinuxPolicy):
                                               files_command=self._rpmql_cmd,
                                               chroot=sysroot)
 
-        self.valid_subclasses = [RedHatPlugin]
+        self.valid_subclasses = [RedHatPlugin, LinuxPlugin]
 
         self.pkgs = self.package_manager.all_pkgs()
 

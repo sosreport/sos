@@ -1987,6 +1987,11 @@ class UbuntuPlugin(object):
     pass
 
 
+class LinuxPlugin(object):
+    """Tagging class for Ubuntu Linux"""
+    pass
+
+
 class DebianPlugin(object):
     """Tagging class for Debian Linux"""
     pass

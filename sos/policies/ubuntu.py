@@ -1,4 +1,4 @@
-from sos.report.plugins import UbuntuPlugin, DebianPlugin
+from sos.report.plugins import UbuntuPlugin, DebianPlugin, LinuxPlugin
 from sos.policies.debian import DebianPolicy
 
 import os
@@ -17,7 +17,7 @@ class UbuntuPolicy(DebianPolicy):
 
     def __init__(self, sysroot=None):
         super(UbuntuPolicy, self).__init__(sysroot=sysroot)
-        self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
+        self.valid_subclasses = [UbuntuPlugin, DebianPlugin, LinuxPlugin]
 
     @classmethod
     def check(cls):
