@@ -374,12 +374,13 @@ class SoSCollector(SoSComponent):
                 match = False
                 for clust in self.clusters:
                     for option in self.clusters[clust].options:
-                        if opt.name == option.name:
+                        if opt.name == option.name and opt.cluster == clust:
                             match = True
+                            opt.value = self._validate_option(option, opt)
                             break
             if not match:
                 self.exit('Unknown cluster option provided: %s.%s'
-                           % (opt.cluster, opt.name))
+                          % (opt.cluster, opt.name))
 
     def _validate_option(self, default, cli):
         """Checks to make sure that the option given on the CLI is valid.
@@ -396,12 +397,12 @@ class SoSCollector(SoSComponent):
             return cli.value
         else:
             val = cli.value.lower()
-            if val not in ['true', 'on', 'false', 'off']:
+            if val not in ['true', 'on', 'yes', 'false', 'off', 'no']:
                 msg = ("Invalid value for %s. Accepted values are: 'true', "
-                       "'false', 'on', 'off'")
+                       "'false', 'on', 'off', 'yes', 'no'.")
                 self.exit(msg % cli.name)
             else:
-                if val in ['true', 'on']:
+                if val in ['true', 'on', 'yes']:
                     return True
                 else:
                     return False
@@ -620,8 +621,8 @@ class SoSCollector(SoSComponent):
                 self.log_debug("Unable to determine local installation: %s" %
                                err)
                 self.exit('Unable to determine local installation. Use the '
-                           '--no-local option if localhost should not be '
-                           'included.\nAborting...\n', 1)
+                          '--no-local option if localhost should not be '
+                          'included.\nAborting...\n', 1)
 
         if self.opts.cluster_type:
             if self.opts.cluster_type == 'none':
@@ -662,7 +663,7 @@ class SoSCollector(SoSComponent):
 
         if not self.node_list and not self.master.connected:
             self.exit('No nodes were detected, or nodes do not have sos '
-                       'installed.\nAborting...')
+                      'installed.\nAborting...')
 
         self.ui_log.info('The following is a list of nodes to collect from:')
         if self.master.connected:
