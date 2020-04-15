@@ -90,7 +90,11 @@ class SoSCollector(SoSComponent):
         self.node_list = []
         self.master = False
         self.retrieved = 0
-        self.need_local_sudo = False
+        self.cluster = None
+        self.cluster_type = None
+        # add a place to set/get the sudo password, but do not expose it via
+        # the CLI, because security is a thing
+        setattr(self.opts, 'sudo_pw', '')
         # get the local hostname and addresses to filter from results later
         self.hostname = socket.gethostname()
         try:
@@ -343,7 +347,8 @@ class SoSCollector(SoSComponent):
             'need_sudo': True if self.opts.ssh_user != 'root' else False,
             'opts': self.opts,
             'tmpdir': self.tmpdir,
-            'hostlen': len(self.opts.master) or len(self.hostname)
+            'hostlen': len(self.opts.master) or len(self.hostname),
+            'policy': self.policy
         }
 
     def parse_cluster_options(self):
@@ -616,7 +621,32 @@ class SoSCollector(SoSComponent):
             self.opts.no_local = True
         else:
             try:
-                self.master = SosNode('localhost', self.commons)
+                can_run_local = True
+                local_sudo = None
+                skip_local_msg = (
+                    "Local sos report generation forcibly skipped due "
+                    "to lack of root privileges.\nEither use --insecure-sudo, "
+                    "run as root, or do not use --batch so that you will be "
+                    "prompted for a password\n"
+                )
+                if (not self.opts.no_local and (os.getuid() != 0 and not
+                                                self.opts.insecure_sudo)):
+                    if not self.opts.batch:
+                        msg = ("Enter local sudo password to generate local "
+                               "sos report: ")
+                        local_sudo = getpass(msg)
+                        if local_sudo == '':
+                            self.ui_log.info(skip_local_msg)
+                            can_run_local = False
+                            self.opts.no_local = True
+                            local_sudo = None
+                    else:
+                        self.ui_log.info(skip_local_msg)
+                        can_run_local = False
+                        self.opts.no_local = True
+                self.master = SosNode('localhost', self.commons,
+                                      local_sudo=local_sudo,
+                                      load_facts=can_run_local)
             except Exception as err:
                 self.log_debug("Unable to determine local installation: %s" %
                                err)
@@ -666,9 +696,9 @@ class SoSCollector(SoSComponent):
                       'installed.\nAborting...')
 
         self.ui_log.info('The following is a list of nodes to collect from:')
-        if self.master.connected:
+        if self.master.connected and self.master.hostname is not None:
             self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
-                                         self.opts.master))
+                                         self.master.hostname))
 
         for node in sorted(self.node_list):
             self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
@@ -731,7 +761,6 @@ class SoSCollector(SoSComponent):
         If a list of nodes is given, this is not run, however the cluster
         can still be run if the user sets a --cluster-type manually
         """
-        self.cluster = None
         checks = list(self.clusters.values())
         for cluster in self.clusters.values():
             checks.remove(cluster)
@@ -767,6 +796,7 @@ class SoSCollector(SoSComponent):
             nodes = self.cluster._get_nodes()
             self.log_debug('Node list: %s' % nodes)
             return nodes
+        return []
 
     def reduce_node_list(self):
         """Reduce duplicate entries of the localhost and/or master node

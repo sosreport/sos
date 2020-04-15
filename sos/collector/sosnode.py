@@ -24,17 +24,22 @@ from sos.collector.exceptions import *
 
 class SosNode():
 
-    def __init__(self, address, commons, password=None,
-                 force=False, load_facts=True):
+    def __init__(self, address, commons, password=None, local_sudo=None,
+                 load_facts=True):
         self.address = address.strip()
+        self.commons = commons
         self.opts = commons['opts']
         self.tmpdir = commons['tmpdir']
         self.hostlen = commons['hostlen']
         self.need_sudo = commons['need_sudo']
         self.local = False
+        self.host = None
         self.cluster = None
         self.hostname = None
         self._password = password or self.opts.password
+        # override local sudo from any other source
+        if local_sudo:
+            self.opts.sudo_pw = local_sudo
         self.sos_path = None
         self.retrieved = False
         self.hash_retrieved = False
@@ -53,7 +58,7 @@ class SosNode():
         self.control_path = ("%s/.sos-collector-%s"
                              % (self.tmpdir, self.address))
         self.ssh_cmd = self._create_ssh_command()
-        if self.address not in filt or force:
+        if self.address not in filt:
             try:
                 self.connected = self._create_ssh_session()
             except Exception as err:
@@ -62,6 +67,7 @@ class SosNode():
         else:
             self.connected = True
             self.local = True
+            self.need_sudo = os.getuid() != 0
         if self.connected and load_facts:
             self.host = self.determine_host_policy()
             if not self.host:
@@ -293,6 +299,8 @@ class SosNode():
         """Attempts to identify the host installation against supported
         distributions
         """
+        if self.local:
+            return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=False, remote_exec=self.ssh_cmd,
                     remote_check=self.read_file('/etc/os-release'))
@@ -311,6 +319,8 @@ class SosNode():
 
     def is_installed(self, pkg):
         """Checks if a given package is installed on the node"""
+        if not self.host:
+            return False
         return self.host.package_manager.pkg_by_name(pkg) is not None
 
     def run_command(self, cmd, timeout=180, get_pty=False, need_root=False,
