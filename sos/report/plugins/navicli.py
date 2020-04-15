@@ -19,6 +19,8 @@ class Navicli(Plugin, RedHatPlugin):
 
     plugin_name = 'navicli'
     profiles = ('storage', 'hardware')
+    option_list = [("ipaddrs", "list of space separated CLARiiON IP addresses",
+                    '', "")]
 
     def check_enabled(self):
         return is_executable("navicli")
@@ -57,30 +59,8 @@ class Navicli(Plugin, RedHatPlugin):
 
     def setup(self):
         self.get_navicli_config()
-        CLARiiON_IP_address_list = []
-        CLARiiON_IP_loop = "stay_in"
-        while CLARiiON_IP_loop == "stay_in":
-            try:
-                ans = input("CLARiiON SP IP Address or [Enter] to exit: ")
-            except Exception:
-                return
-            if self.exec_cmd("navicli -h %s getsptime" % (ans,))['status']:
-                CLARiiON_IP_address_list.append(ans)
-            else:
-                if ans != "":
-                    print("The IP address you entered, %s, is not to an "
-                          "active CLARiiON SP." % ans)
-                if ans == "":
-                    CLARiiON_IP_loop = "get_out"
-        # Sort and dedup the list of CLARiiON IP Addresses
-        CLARiiON_IP_address_list.sort()
-        for SP_address in CLARiiON_IP_address_list:
-            if CLARiiON_IP_address_list.count(SP_address) > 1:
-                CLARiiON_IP_address_list.remove(SP_address)
-        for SP_address in CLARiiON_IP_address_list:
-            if SP_address != "":
-                print(" Gathering NAVICLI information for %s..." %
-                      SP_address)
-                self.get_navicli_SP_info(SP_address)
+        for ip in set(self.get_option("ipaddrs").split()):
+            if self.exec_cmd("navicli -h %s getsptime" % (ip))['status'] == 0:
+                self.get_navicli_SP_info(ip)
 
 # vim: set et ts=4 sw=4 :
