@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OpenDaylight(Plugin, RedHatPlugin):
-    """OpenDaylight network manager
-    """
+
+    short_desc = 'OpenDaylight network manager'
 
     plugin_name = 'opendaylight'
     profiles = ('openstack', 'openstack_controller')

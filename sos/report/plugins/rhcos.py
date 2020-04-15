@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class RHCoreOS(Plugin, RedHatPlugin):
-    """Red Hat CoreOS"""
+
+    short_desc = 'Red Hat CoreOS'
 
     plugin_name = 'rhcos'
     packages = ('redhat-release-coreos', 'coreos-metadata')

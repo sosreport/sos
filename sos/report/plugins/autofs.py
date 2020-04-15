@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Autofs(Plugin):
-    """Autofs on-demand automounter
-    """
+
+    short_desc = 'Autofs on-demand automounter'
 
     plugin_name = "autofs"
     profiles = ('storage', 'nfs')

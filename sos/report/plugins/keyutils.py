@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Keyutils(Plugin, RedHatPlugin):
-    """Kernel key ring
-    """
+
+    short_desc = 'Kernel key ring'
 
     plugin_name = 'keyutils'
     profiles = ('system', 'kernel', 'security', 'storage')

@@ -13,8 +13,8 @@ from socket import gethostname
 
 
 class QpidDispatch(Plugin, RedHatPlugin):
-    """Qpid dispatch router
-    """
+
+    short_desc = 'Qpid dispatch router'
 
     plugin_name = 'qpid_dispatch'
     profiles = ('services',)

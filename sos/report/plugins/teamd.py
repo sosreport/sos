@@ -11,9 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Teamd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Network interface teaming
-    """
 
+    short_desc = 'Network Interface Teaming'
     plugin_name = 'teamd'
     profiles = ('network', 'hardware', )
 

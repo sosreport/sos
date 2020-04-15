@@ -13,8 +13,7 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 class Runc(Plugin):
 
-    """runC container runtime"""
-
+    short_desc = 'runC container runtime'
     plugin_name = 'runc'
     profiles = ('container',)
 

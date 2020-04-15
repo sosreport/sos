@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Alternatives(Plugin, RedHatPlugin):
-    """System alternatives
-    """
+
+    short_desc = 'System alternatives'
 
     packages = ('chkconfig',)
     commands = ('alternatives',)

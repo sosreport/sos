@@ -13,9 +13,7 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, SoSPredicate
 
 class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
 
-    """CRI-O containers
-    """
-
+    short_desc = 'CRI-O containers'
     plugin_name = 'crio'
     profiles = ('container',)
     packages = ('cri-o', 'cri-tools')

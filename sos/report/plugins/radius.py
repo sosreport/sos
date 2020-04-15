@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Radius(Plugin):
-    """RADIUS service information
-    """
+
+    short_desc = 'RADIUS service information'
 
     plugin_name = "radius"
     profiles = ('network', 'identity')

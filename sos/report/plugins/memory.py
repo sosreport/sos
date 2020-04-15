@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Memory configuration and use
-    """
+
+    short_desc = 'Memory configuration and use'
 
     plugin_name = 'memory'
     profiles = ('system', 'hardware', 'memory')

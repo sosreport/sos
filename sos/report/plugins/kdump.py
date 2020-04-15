@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class KDump(Plugin):
-    """Kdump crash dumps
-    """
+
+    short_desc = 'Kdump crash dumps'
 
     plugin_name = "kdump"
     profiles = ('system', 'debug')

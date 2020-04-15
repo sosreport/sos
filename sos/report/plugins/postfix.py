@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Postfix(Plugin):
-    """Postfix smtp server
-    """
+
+    short_desc = 'Postfix smtp server'
     plugin_name = "postfix"
     profiles = ('mail', 'services')
 

@@ -11,8 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Boom(Plugin, RedHatPlugin):
-    """Configuration data for the boom boot manager.
-    """
+
+    short_desc = 'Configuration data for the boom boot manager.'
 
     plugin_name = 'boom'
     profiles = ('boot', 'system')

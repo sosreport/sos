@@ -21,8 +21,8 @@ pid_paths = [
 
 
 class OVNHost(Plugin):
-    """ OVN Controller
-    """
+
+    short_desc = 'OVN Controller'
     plugin_name = "ovn_host"
     profiles = ('network', 'virt')
 

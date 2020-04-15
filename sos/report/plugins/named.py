@@ -11,8 +11,8 @@ from os.path import exists, join, normpath
 
 
 class Named(Plugin):
-    """BIND named server
-    """
+
+    short_desc = 'BIND named server'
 
     plugin_name = "named"
     profiles = ('system', 'services', 'network')

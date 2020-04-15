@@ -14,7 +14,8 @@ from re import match
 
 
 class Pulp(Plugin, RedHatPlugin):
-    """Pulp platform"""
+
+    short_desc = 'Pulp platform'
 
     plugin_name = "pulp"
     packages = ("pulp-server", "pulp-katello")

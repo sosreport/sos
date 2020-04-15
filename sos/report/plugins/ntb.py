@@ -10,9 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Ntb(Plugin, RedHatPlugin):
-    """Linux PCI-Express Non-Transparent Bridge
-    """
 
+    short_desc = 'Linux PCI-Express Non-Transparent Bridge'
     plugin_name = 'ntb'
     profiles = ('hardware', )
 

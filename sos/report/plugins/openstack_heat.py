@@ -14,8 +14,8 @@ import os
 
 
 class OpenStackHeat(Plugin):
-    """OpenStack Heat
-    """
+
+    short_desc = 'OpenStack Heat'
     plugin_name = "openstack_heat"
     profiles = ('openstack', 'openstack_controller')
 

@@ -16,8 +16,8 @@ import hashlib
 
 
 class Python(Plugin, DebianPlugin, UbuntuPlugin):
-    """Python runtime
-    """
+
+    short_desc = 'Python runtime'
 
     plugin_name = 'python'
     profiles = ('system',)

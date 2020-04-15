@@ -14,9 +14,8 @@ from stat import ST_SIZE
 
 
 class NfsServer(Plugin, RedHatPlugin):
-    """NFS server information
-    """
 
+    short_desc = 'NFS Server information'
     plugin_name = 'nfsserver'
     profiles = ('storage', 'network', 'services', 'nfs')
 

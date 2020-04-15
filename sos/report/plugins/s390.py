@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class S390(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """IBM S/390
-    """
+
+    short_desc = 'IBM S/390'
 
     plugin_name = 's390'
     profiles = ('system', 'hardware')

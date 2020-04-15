@@ -12,9 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class TftpServer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """TFTP server
-    """
 
+    short_desc = 'TFTP Server information'
     plugin_name = 'tftpserver'
     profiles = ('sysmgmt', 'network')
 

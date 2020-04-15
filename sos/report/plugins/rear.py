@@ -13,9 +13,7 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 class Rear(Plugin, RedHatPlugin):
 
-    """Relax and Recover
-    """
-
+    short_desc = 'Relax and Recover'
     plugin_name = "rear"
     packages = ('rear',)
 

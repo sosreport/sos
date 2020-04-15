@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class VirtWho(Plugin, RedHatPlugin):
-    """Virt-Who agent
-    """
+
+    short_desc = 'Virt-Who agent'
 
     plugin_name = 'virtwho'
     profiles = ('virt', 'system')

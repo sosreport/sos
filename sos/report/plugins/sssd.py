@@ -13,8 +13,8 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 
 class Sssd(Plugin):
-    """System security service daemon
-    """
+
+    short_desc = 'System security service daemon'
 
     plugin_name = "sssd"
     profiles = ('services', 'security', 'identity')

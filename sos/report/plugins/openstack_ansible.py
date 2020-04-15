@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackAnsible(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """OpenStack-Ansible sos plugin."""
+
+    short_desc = 'OpenStack-Ansible'
 
     plugin_name = "openstack_ansible"
     profiles = ('openstack',)

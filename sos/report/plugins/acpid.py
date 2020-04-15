@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Acpid(Plugin):
-    """ACPI daemon information"""
+
+    short_desc = 'ACPI daemon information'
     plugin_name = "acpid"
     profiles = ('hardware',)
     packages = ('acpid',)

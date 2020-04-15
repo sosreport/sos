@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class AtomicHost(Plugin, RedHatPlugin):
-    """ Atomic Host """
+
+    short_desc = 'Atomic Host'
 
     plugin_name = "atomichost"
     profiles = ('container',)

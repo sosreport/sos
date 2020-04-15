@@ -13,8 +13,9 @@ from re import match
 
 
 class Networking(Plugin):
-    """network and device configuration
-    """
+
+    short_desc = 'Network and networking devices configuration'
+
     plugin_name = "networking"
     profiles = ('network', 'hardware', 'system')
     trace_host = "www.example.com"

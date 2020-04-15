@@ -11,8 +11,8 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 
 class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """GRUB2 bootloader
-    """
+
+    short_desc = 'GRUB2 bootloader'
 
     plugin_name = 'grub2'
     profiles = ('boot',)

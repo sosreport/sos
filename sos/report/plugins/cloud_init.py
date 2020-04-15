@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class CloudInit(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """cloud-init instance configurations
-    """
+
+    short_desc = 'cloud-init instance configurations'
 
     plugin_name = 'cloud_init'
     packages = ('cloud-init',)

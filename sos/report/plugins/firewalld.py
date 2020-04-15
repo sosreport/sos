@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, SoSPredicate
 
 
 class FirewallD(Plugin, RedHatPlugin):
-    """Firewall daemon
-    """
+
+    short_desc = 'Firewall daemon'
 
     plugin_name = 'firewalld'
     profiles = ('network',)

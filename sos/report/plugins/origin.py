@@ -33,7 +33,8 @@ import os.path
 
 
 class OpenShiftOrigin(Plugin):
-    """ OpenShift Origin """
+
+    short_desc = 'OpenShift Origin'
 
     plugin_name = "origin"
     files = None  # file lists assigned after path setup below
@@ -224,8 +225,8 @@ class OpenShiftOrigin(Plugin):
 
 
 class AtomicOpenShift(OpenShiftOrigin, RedHatPlugin):
-    """ OpenShift Enterprise / OpenShift Container Platform
-    """
+
+    short_desc = 'OpenShift Enterprise / OpenShift Container Platform'
 
     packages = ('atomic-openshift',)
 

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class SANLock(Plugin):
-    """SANlock daemon
-    """
+
+    short_desc = 'SANlock daemon'
     plugin_name = "sanlock"
     profiles = ('cluster', 'virt')
     packages = ["sanlock"]

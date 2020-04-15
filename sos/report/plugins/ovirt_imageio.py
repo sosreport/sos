@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OvirtImageIO(Plugin, RedHatPlugin):
-    """oVirt Image I/O Daemon / Proxy"""
+
+    short_desc = 'oVirt Image I/O Daemon / Proxy'
 
     packages = (
         'ovirt-imageio-daemon',

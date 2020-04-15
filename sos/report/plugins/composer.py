@@ -2,8 +2,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Composer(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Lorax Composer
-    """
+
+    short_desc = 'Lorax Composer'
 
     plugin_name = 'composer'
     profiles = ('sysmgmt', 'virt', )

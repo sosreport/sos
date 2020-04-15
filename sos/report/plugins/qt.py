@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Qt(Plugin, RedHatPlugin):
-    """QT widget toolkit"""
+
+    short_desc = 'QT widget toolkit'
 
     plugin_name = 'qt'
     packages = ('qt', )

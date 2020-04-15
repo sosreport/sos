@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Upstart(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Upstart init system
-    """
+
+    short_desc = 'Upstart init system'
 
     plugin_name = 'upstart'
     profiles = ('system', 'services', 'boot')

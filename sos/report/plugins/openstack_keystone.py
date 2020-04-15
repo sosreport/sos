@@ -14,8 +14,8 @@ import os
 
 
 class OpenStackKeystone(Plugin):
-    """OpenStack Keystone
-    """
+
+    short_desc = 'OpenStack Keystone'
     plugin_name = "openstack_keystone"
     profiles = ('openstack', 'openstack_controller')
 

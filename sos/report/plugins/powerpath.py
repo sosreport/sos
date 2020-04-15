@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, os
 
 
 class PowerPath(Plugin, RedHatPlugin):
-    """ EMC PowerPath
-    """
+
+    short_desc = 'EMC PowerPath'
 
     plugin_name = 'powerpath'
     profiles = ('storage', 'hardware')

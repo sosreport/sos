@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ldap(Plugin):
-    """LDAP configuration
-    """
+
+    short_desc = 'LDAP configuration'
 
     plugin_name = "ldap"
     profiles = ('identity', 'sysmgmt', 'system')

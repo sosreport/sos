@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, SoSPredicate
 
 
 class Ipvs(Plugin, RedHatPlugin, DebianPlugin):
-    """Linux IP virtual server
-    """
+
+    short_desc = 'Linux IP virtual server'
 
     plugin_name = 'ipvs'
     profiles = ('cluster', 'network')

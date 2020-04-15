@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OvirtProviderOvn(Plugin, RedHatPlugin):
-    """oVirt OVN Provider
-    """
+
+    short_desc = 'oVirt OVN Provider'
 
     packages = ('ovirt-provider-ovn',)
     plugin_name = 'ovirt_provider_ovn'

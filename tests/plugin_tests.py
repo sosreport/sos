@@ -69,8 +69,8 @@ class MockPlugin(Plugin):
 
 
 class NamedMockPlugin(Plugin):
-    """This plugin has a description."""
 
+    short_desc = "This plugin has a description."
     plugin_name = "testing"
 
     def setup(self):

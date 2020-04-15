@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Hardware(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """General hardware information
-    """
+
+    short_desc = 'General hardware information'
 
     plugin_name = "hardware"
     profiles = ('system', 'hardware')

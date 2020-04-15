@@ -18,7 +18,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Jars(Plugin, RedHatPlugin):
-    """Collect information about available Java archives."""
+
+    short_desc = 'Collect information about available Java archives'
 
     plugin_name = "jars"
     version = "1.0.0"

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cgroups(Plugin, DebianPlugin, UbuntuPlugin):
-    """Control groups subsystem
-    """
+
+    short_desc = 'Control groups subsystem'
 
     plugin_name = "cgroups"
     profiles = ('container', 'system')

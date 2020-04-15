@@ -12,9 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Leapp(Plugin, RedHatPlugin):
-    """
-    Leapp upgrade handling tool
-    """
+
+    short_desc = 'Leapp upgrade handling tool'
 
     plugin_name = 'leapp'
     packages = ('leapp', 'leapp-repository')

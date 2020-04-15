@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class I18n(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Internationalization
-    """
+
+    short_desc = 'Internationalization'
 
     plugin_name = 'i18n'
     profiles = ('system',)

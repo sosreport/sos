@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin, DebianPlugin
 
 
 class Apt(Plugin, DebianPlugin, UbuntuPlugin):
-    """ APT - advanced packaging tool
-    """
+
+    short_desc = 'APT - advanced packaging tool'
 
     plugin_name = 'apt'
     profiles = ('system', 'sysmgmt', 'packagemanager')

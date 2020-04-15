@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Dracut(Plugin, RedHatPlugin):
-    """ Dracut initramfs generator """
+
+    short_desc = 'Dracut initramfs generator'
 
     plugin_name = "dracut"
     packages = ("dracut",)

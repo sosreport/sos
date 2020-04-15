@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Dbus(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """D-Bus message bus"""
+
+    short_desc = 'D-Bus message bus'
 
     plugin_name = "dbus"
     profiles = ('system',)

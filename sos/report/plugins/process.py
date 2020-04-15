@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """process information
-    """
+
+    short_desc = 'process information'
 
     plugin_name = 'process'
     profiles = ('system',)

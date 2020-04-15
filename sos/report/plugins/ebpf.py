@@ -11,8 +11,8 @@ import json
 
 
 class Ebpf(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """eBPF tool
-    """
+
+    short_desc = 'eBPF tool'
     plugin_name = 'ebpf'
     profiles = ('system', 'kernel', 'network')
 

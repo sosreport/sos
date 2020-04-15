@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Sendmail(Plugin):
-    """sendmail service
-    """
+
+    short_desc = 'sendmail service'
 
     plugin_name = "sendmail"
     profiles = ('services', 'mail')

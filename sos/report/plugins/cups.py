@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """CUPS IPP print service
-    """
+
+    short_desc = 'CUPS IPP print service'
 
     plugin_name = 'cups'
     profiles = ('hardware',)

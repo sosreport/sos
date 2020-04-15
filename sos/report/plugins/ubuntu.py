@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class Ubuntu(Plugin, UbuntuPlugin):
-    """ Ubuntu specific information
-    """
+
+    short_desc = 'Ubuntu specific information'
 
     plugin_name = 'ubuntu'
     profiles = ('system',)

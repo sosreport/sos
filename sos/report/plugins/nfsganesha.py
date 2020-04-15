@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class NfsGanesha(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """NFS-Ganesha file server information
-    """
+
+    short_desc = 'NFS-Ganesha file server information'
     plugin_name = 'nfsganesha'
     profiles = ('storage', 'network', 'nfs')
     packages = ('nfs-ganesha',)

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Psacct(Plugin):
-    """Process accounting information
-    """
+
+    short_desc = 'Process accounting information'
     plugin_name = "psacct"
     profiles = ('system',)
 

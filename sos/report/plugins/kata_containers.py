@@ -12,8 +12,8 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 class KataContainers(Plugin, RedHatPlugin, DebianPlugin,
                      UbuntuPlugin, SuSEPlugin):
-    """Kata Containers configuration
-    """
+
+    short_desc = 'Kata Containers configuration'
 
     plugin_name = 'kata_containers'
     profiles = ('system', 'virt', 'container')

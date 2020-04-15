@@ -11,7 +11,8 @@ import re
 
 
 class Dlm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """DLM (Distributed lock manager)"""
+
+    short_desc = 'DLM (Distributed lock manager)'
 
     plugin_name = "dlm"
     profiles = ("cluster", )

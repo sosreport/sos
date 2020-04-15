@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class MegaCLI(Plugin, RedHatPlugin):
-    """LSI MegaRAID devices
-    """
+
+    short_desc = 'LSI MegaRAID devices'
 
     plugin_name = 'megacli'
     profiles = ('system', 'storage', 'hardware')

@@ -14,7 +14,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Gnocchi(Plugin):
-    """Gnocchi - Metric as a service"""
+
+    short_desc = 'Gnocchi - Metric as a service'
     plugin_name = "gnocchi"
 
     profiles = ('openstack', 'openstack_controller')

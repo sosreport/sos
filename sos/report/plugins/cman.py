@@ -11,8 +11,8 @@ from glob import glob
 
 
 class Cman(Plugin, RedHatPlugin):
-    """cman based Red Hat Cluster High Availability
-    """
+
+    short_desc = 'cman based Red Hat Cluster High Availability'
 
     plugin_name = "cman"
     profiles = ("cluster",)

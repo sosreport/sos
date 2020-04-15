@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class omsa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Dell OpenManage Server Administrator (OMSA)
-    """
+
+    short_desc = 'Dell OpenManage Server Administrator (OMSA)'
 
     plugin_name = 'omsa'
     profiles = ('hardware', 'debug')

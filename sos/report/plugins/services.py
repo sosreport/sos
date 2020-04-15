@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Services(Plugin):
-    """System services
-    """
+
+    short_desc = 'System services'
 
     plugin_name = "services"
     profiles = ('system', 'boot')

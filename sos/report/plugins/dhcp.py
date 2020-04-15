@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Dhcp(Plugin):
-    """DHCP daemon
-    """
+
+    short_desc = 'DHCP daemon'
 
     plugin_name = "dhcp"
     profiles = ('network',)

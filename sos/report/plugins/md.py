@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Md(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """MD RAID subsystem
-    """
+
+    short_desc = 'MD RAID subsystem'
 
     plugin_name = 'md'
     profiles = ('storage',)

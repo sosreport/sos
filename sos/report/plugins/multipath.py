@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Multipath(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Device-mapper multipath tools
-    """
+
+    short_desc = 'Device-mapper multipath tools'
 
     plugin_name = 'multipath'
     profiles = ('system', 'storage', 'hardware')

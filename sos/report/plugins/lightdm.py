@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class LightDm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Light Display Manager
-    """
+
+    short_desc = 'Light Display Manager'
     packages = ('lightdm', )
     profiles = ('desktop', )
     plugin_name = 'lightdm'

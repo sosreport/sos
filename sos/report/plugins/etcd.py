@@ -14,8 +14,8 @@ from os import path
 
 
 class etcd(Plugin, RedHatPlugin):
-    """etcd plugin
-    """
+
+    short_desc = 'etcd plugin'
 
     plugin_name = 'etcd'
     packages = ('etcd',)

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class X11(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """X windowing system
-    """
+
+    short_desc = 'X windowing system'
 
     plugin_name = 'x11'
     profiles = ('hardware', 'desktop')

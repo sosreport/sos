@@ -14,7 +14,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OpenStackAodh(Plugin, RedHatPlugin):
-    """OpenStack Alarm service"""
+
+    short_desc = 'OpenStack Alarm service'
     plugin_name = "openstack_aodh"
     profiles = ('openstack', 'openstack_controller')
 

@@ -12,9 +12,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class Freeipmi(Plugin, UbuntuPlugin):
-    """Freeipmi hardware information.
-    """
 
+    short_desc = 'Freeipmi hardware information'
     plugin_name = 'freeipmi'
     profiles = ('hardware', 'system', )
 

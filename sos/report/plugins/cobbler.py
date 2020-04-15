@@ -14,8 +14,8 @@ class Cobbler(Plugin):
 
 
 class RedHatCobbler(Cobbler, RedHatPlugin):
-    """Cobbler installation server
-    """
+
+    short_desc = 'Cobbler installation server'
 
     packages = ('cobbler',)
     profiles = ('cluster', 'sysmgmt')

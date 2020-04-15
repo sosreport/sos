@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """RabbitMQ messaging service
-    """
+
+    short_desc = 'RabbitMQ messaging service'
     plugin_name = 'rabbitmq'
     profiles = ('services',)
     var_puppet_gen = "/var/lib/config-data/puppet-generated/rabbitmq"

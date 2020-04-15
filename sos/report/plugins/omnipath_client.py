@@ -19,8 +19,8 @@ from os.path import join
 
 
 class OmnipathClient(Plugin, RedHatPlugin):
-    """OmniPath Tools and Fast Fabric Client
-    """
+
+    short_desc = 'OmniPath Tools and Fast Fabric Client'
 
     plugin_name = 'omnipath_client'
     profiles = ('hardware',)

@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Snmp(Plugin):
-    """Simple network management protocol
-    """
+
+    short_desc = 'Simple network management protocol'
     plugin_name = "snmp"
     profiles = ('system', 'sysmgmt')
 

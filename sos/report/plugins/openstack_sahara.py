@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackSahara(Plugin):
-    """OpenStack Sahara"""
+
+    short_desc = 'OpenStack Sahara'
     plugin_name = 'openstack_sahara'
     profiles = ('openstack', 'openstack_controller')
 
@@ -64,8 +65,8 @@ class OpenStackSahara(Plugin):
 
 
 class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
-    """OpenStackSahara related information for Debian based distributions."""
 
+    short_desc = 'OpenStack Sahara information for Debian based distributions'
     packages = (
         'sahara-api',
         'sahara-common',
@@ -79,8 +80,8 @@ class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatSahara(OpenStackSahara, RedHatPlugin):
-    """OpenStack sahara related information for Red Hat distributions."""
 
+    short_desc = 'OpenStack Sahara information for Red Hat distributions'
     packages = ('openstack-selinux',)
 
     def setup(self):

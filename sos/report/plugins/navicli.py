@@ -14,8 +14,8 @@ from sos.utilities import is_executable
 
 
 class Navicli(Plugin, RedHatPlugin):
-    """ EMC Navicli
-    """
+
+    short_desc = 'EMC Navicli'
 
     plugin_name = 'navicli'
     profiles = ('storage', 'hardware')

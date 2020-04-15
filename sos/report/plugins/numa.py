@@ -13,8 +13,8 @@ import os.path
 
 
 class Numa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """NUMA state and configuration
-    """
+
+    short_desc = 'NUMA state and configuration'
 
     plugin_name = 'numa'
     profiles = ('hardware', 'system', 'memory', 'performance')

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class VMWare(Plugin, RedHatPlugin):
-    """VMWare client information
-    """
+
+    short_desc = 'VMWare client information'
 
     plugin_name = 'vmware'
     profiles = ('virt',)

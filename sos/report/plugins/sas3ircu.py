@@ -14,8 +14,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class SAS3ircu(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """SAS-3 Integrated RAID adapter information
-    """
+
+    short_desc = 'SAS-3 Integrated RAID adapter information'
 
     plugin_name = "sas3ircu"
     commands = ("sas3ircu",)

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Audit daemon information
-    """
+
+    short_desc = 'Audit daemon information'
 
     plugin_name = 'auditd'
     profiles = ('system', 'security')

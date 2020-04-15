@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Grub(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """GRUB bootloader
-    """
+
+    short_desc = 'GRUB bootloader'
 
     plugin_name = 'grub'
     profiles = ('boot',)

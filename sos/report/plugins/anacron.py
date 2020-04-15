@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Anacron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Anacron job scheduling service"""
+
+    short_desc = 'Anacron job scheduling service'
 
     plugin_name = 'anacron'
     profiles = ('system',)

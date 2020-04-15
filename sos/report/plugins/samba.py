@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Samba Windows interoperability
-    """
+
+    short_desc = 'Samba Windows interoperability'
     packages = ('samba-common',)
     plugin_name = "samba"
     profiles = ('services',)

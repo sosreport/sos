@@ -18,8 +18,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OmnipathManager(Plugin, RedHatPlugin):
-    """OmniPath Fabric Manager
-    """
+
+    short_desc = 'OmniPath Fabric Manager'
 
     plugin_name = 'omnipath_manager'
     profiles = ('hardware',)

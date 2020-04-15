@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cifs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """SMB file system information
-    """
+
+    short_desc = 'SMB file system information'
     plugin_name = 'cifs'
     profiles = ('storage', 'network', 'cifs')
     packages = ['cifs-utils']

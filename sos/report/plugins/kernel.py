@@ -12,8 +12,8 @@ import glob
 
 
 class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Linux kernel
-    """
+
+    short_desc = 'Linux kernel'
 
     plugin_name = 'kernel'
     profiles = ('system', 'hardware', 'kernel')

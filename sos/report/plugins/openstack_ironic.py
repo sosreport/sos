@@ -14,8 +14,8 @@ import os
 
 
 class OpenStackIronic(Plugin):
-    """OpenStack Ironic
-    """
+
+    short_desc = 'OpenStack Ironic'
     plugin_name = "openstack_ironic"
     profiles = ('openstack', 'openstack_undercloud')
 

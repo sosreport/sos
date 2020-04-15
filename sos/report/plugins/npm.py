@@ -15,10 +15,8 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 
 class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
-    """
-    Get info about available npm modules
-    """
 
+    short_desc = 'Information from available npm modules'
     plugin_name = 'npm'
     profiles = ('system',)
     option_list = [("project_path",

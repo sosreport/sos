@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class fcoe(Plugin, RedHatPlugin):
-    """Fibre Channel over Ethernet
-    """
+
+    short_desc = 'Fibre Channel over Ethernet'
 
     plugin_name = 'fcoe'
     profiles = ('storage', 'hardware')

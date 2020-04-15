@@ -11,8 +11,8 @@ from glob import glob
 
 
 class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Bootloader information
-    """
+
+    short_desc = 'Bootloader information'
 
     plugin_name = 'boot'
     profiles = ('system', 'boot')

@@ -14,8 +14,8 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 class ClearContainers(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
                       SuSEPlugin):
-    """Intel(R) Clear Containers configuration
-    """
+
+    short_desc = 'Intel(R) Clear Containers configuration'
 
     plugin_name = 'clear_containers'
     profiles = ('system', 'virt', 'container')

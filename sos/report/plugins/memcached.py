@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Memcached(Plugin):
-    """memcached distributed memory caching system"""
+
+    short_desc = 'memcached distributed memory caching system'
 
     plugin_name = 'memcached'
     profiles = ('webserver',)

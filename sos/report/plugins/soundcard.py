@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Soundcard(Plugin):
-    """ Sound devices
-    """
+
+    short_desc = 'Sound devices'
 
     plugin_name = "soundcard"
     profiles = ('desktop', 'hardware')
