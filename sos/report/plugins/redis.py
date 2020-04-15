@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Redis(Plugin, RedHatPlugin):
-    """Redis, in-memory data structure store
-    """
+
+    short_desc = 'Redis, in-memory data structure store'
 
     plugin_name = 'redis'
     profiles = ('services',)

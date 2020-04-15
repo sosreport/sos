@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cockpit(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Cockpit Web Service"""
+
+    short_desc = 'Cockpit Web Service'
 
     plugin_name = 'cockpit'
     packages = ('cockpit-ws', 'cockpit-system')

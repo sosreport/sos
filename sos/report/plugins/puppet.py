@@ -11,8 +11,8 @@ from glob import glob
 
 
 class Puppet(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Puppet service
-    """
+
+    short_desc = 'Puppet service'
 
     plugin_name = 'puppet'
     profiles = ('services',)

@@ -16,8 +16,8 @@ from glob import glob
 
 
 class CertificateSystem(Plugin, RedHatPlugin):
-    """Certificate System and Dogtag
-    """
+
+    short_desc = 'Certificate System and Dogtag'
 
     plugin_name = 'cs'
     profiles = ('identity', 'security')

@@ -15,8 +15,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackHorizon(Plugin):
-    """OpenStack Horizon
-    """
+
+    short_desc = 'OpenStack Horizon'
 
     plugin_name = "openstack_horizon"
     profiles = ('openstack', 'openstack_controller')

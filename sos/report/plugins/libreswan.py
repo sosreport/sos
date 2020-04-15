@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Libreswan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Libreswan IPsec
-    """
+
+    short_desc = 'Libreswan IPsec'
 
     plugin_name = 'libreswan'
     profiles = ('network', 'security', 'openshift')

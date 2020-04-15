@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Lustre(Plugin, RedHatPlugin):
-    """Lustre filesystem"""
+
+    short_desc = 'Lustre filesystem'
 
     plugin_name = 'lustre'
     profiles = ('storage', 'network', 'cluster', )

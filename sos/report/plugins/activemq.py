@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class ActiveMq(Plugin, DebianPlugin):
-    """ActiveMQ message broker
-    """
+
+    short_desc = 'ActiveMQ message broker'
 
     plugin_name = 'activemq'
     profiles = ('openshift',)

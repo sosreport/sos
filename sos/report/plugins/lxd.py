@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class LXD(Plugin, UbuntuPlugin):
-    """LXD is a containers hypervisor.
-    """
+
+    short_desc = 'LXD container hypervisor'
     plugin_name = 'lxd'
     profiles = ('container',)
     packages = ('lxd',)

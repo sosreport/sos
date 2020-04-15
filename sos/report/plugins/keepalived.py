@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Keepalived(Plugin, RedHatPlugin):
-    """Keepalived routing server
-    """
+
+    short_desc = 'Keepalived routing server'
 
     plugin_name = 'keepalived'
     profiles = ('webserver', 'network', 'cluster')

@@ -12,8 +12,8 @@ import stat
 
 
 class SosExtras(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """Collect extra data defined in /etc/sos.extras.d/ .
-    """
+
+    short_desc = 'Collect extra data defined in /etc/sos.extras.d'
 
     """The plugin traverses 'extras_dir' directory and for each file there,
     it executes commands or collects files optionally with sizelimit. Expected

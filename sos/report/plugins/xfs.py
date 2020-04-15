@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Xfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """XFS filesystem
-    """
+
+    short_desc = 'XFS filesystem'
 
     plugin_name = 'xfs'
     profiles = ('storage',)

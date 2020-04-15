@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nginx(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """nginx http daemon
-    """
+
+    short_desc = 'nginx http daemon'
     plugin_name = "nginx"
     profiles = ('webserver',)
     packages = ('nginx',)

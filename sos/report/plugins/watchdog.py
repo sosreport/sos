@@ -15,7 +15,8 @@ import os
 
 
 class Watchdog(Plugin, RedHatPlugin):
-    """Watchdog information."""
+
+    short_desc = 'Watchdog information.'
     plugin_name = 'watchdog'
     profiles = ('system',)
     packages = ('watchdog',)

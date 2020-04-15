@@ -11,8 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Ssmtp(Plugin, RedHatPlugin):
-    """sSMTP information
-    """
+
+    short_desc = 'sSMTP information'
 
     plugin_name = 'ssmtp'
     profiles = ('mail', 'system')

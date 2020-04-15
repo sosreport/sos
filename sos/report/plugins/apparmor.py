@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class Apparmor(Plugin, UbuntuPlugin):
-    """Apparmor mandatory access control
-    """
+
+    short_desc = 'Apparmor mandatory access control'
 
     plugin_name = 'apparmor'
     profiles = ('security',)

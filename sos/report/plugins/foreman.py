@@ -16,8 +16,8 @@ from re import match
 
 
 class Foreman(Plugin):
-    """Foreman/Satellite 6 systems management
-    """
+
+    short_desc = 'Foreman/Satellite 6 systems management'
 
     plugin_name = 'foreman'
     plugin_timeout = 1800

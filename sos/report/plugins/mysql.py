@@ -11,8 +11,8 @@ import os
 
 
 class Mysql(Plugin):
-    """MySQL and MariaDB RDBMS
-    """
+
+    short_desc = 'MySQL and MariaDB RDBMS'
 
     plugin_name = "mysql"
     profiles = ('services',)

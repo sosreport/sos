@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Network file system information
-    """
+
+    short_desc = 'Network file system information'
     plugin_name = 'nfs'
     profiles = ('storage', 'network', 'nfs')
     packages = ['nfs-utils']

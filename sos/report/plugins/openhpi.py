@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OpenHPI(Plugin, RedHatPlugin):
-    """Open Hardware Platform Interface
-    """
+
+    short_desc = 'Open Hardware Platform Interface'
 
     plugin_name = 'openhpi'
     profiles = ('system', 'hardware')

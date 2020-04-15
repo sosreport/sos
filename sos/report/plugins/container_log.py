@@ -13,8 +13,8 @@ import os
 
 
 class ContainerLog(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """All container logs
-    """
+
+    short_desc = 'All logs under /var/log/containers'
     plugin_name = 'container_log'
     logdir = '/var/log/containers/'
     files = (logdir, )

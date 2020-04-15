@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class NSS(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Network Security Services configuration
-    """
+
+    short_desc = 'Network Security Services configuration'
 
     plugin_name = "nss"
     profiles = ('network', 'security')

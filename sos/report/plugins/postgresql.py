@@ -19,7 +19,8 @@ from sos.utilities import find
 
 
 class PostgreSQL(Plugin):
-    """PostgreSQL RDBMS"""
+
+    short_desc = 'PostgreSQL RDBMS'
 
     plugin_name = "postgresql"
     profiles = ('services',)

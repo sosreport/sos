@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ptp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Precision time protocol
-    """
+
+    short_desc = 'Precision time protocol'
 
     plugin_name = "ptp"
     profiles = ('system', 'services')

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Btrfs(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """Btrfs filesystem
-    """
+
+    short_desc = 'Btrfs filesystem'
 
     plugin_name = 'btrfs'
     profiles = ('storage',)

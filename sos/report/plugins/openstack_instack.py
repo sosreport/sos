@@ -31,8 +31,8 @@ CONTAINERIZED_DEPLOY = [
 
 
 class OpenStackInstack(Plugin):
-    """OpenStack Instack
-    """
+
+    short_desc = 'OpenStack Instack'
     plugin_name = "openstack_instack"
     profiles = ('openstack', 'openstack_undercloud')
 

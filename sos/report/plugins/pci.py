@@ -11,8 +11,8 @@ import os
 
 
 class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """PCI devices
-    """
+
+    short_desc = 'PCI devices'
 
     plugin_name = "pci"
     profiles = ('hardware', 'system')

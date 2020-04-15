@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Vdo(Plugin, RedHatPlugin):
-    """Virtual Data Optimizer
-    """
+
+    short_desc = 'Virtual Data Optimizer'
 
     plugin_name = 'vdo'
     profiles = ('storage',)

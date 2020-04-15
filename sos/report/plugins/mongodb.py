@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
-    """MongoDB document database
-    """
+
+    short_desc = 'MongoDB document database'
 
     plugin_name = 'mongodb'
     profiles = ('services',)

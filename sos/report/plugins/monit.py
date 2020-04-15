@@ -14,8 +14,8 @@ from glob import glob
 
 
 class Monit(Plugin, RedHatPlugin):
-    """Monit monitoring daemon
-    """
+
+    short_desc = 'Monit monitoring daemon'
     packages = ('monit',)
     profiles = ('system',)
     plugin_name = 'monit'

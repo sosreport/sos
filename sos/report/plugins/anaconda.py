@@ -11,8 +11,8 @@ import os
 
 
 class Anaconda(Plugin, RedHatPlugin):
-    """Anaconda installer
-    """
+
+    short_desc = 'Anaconda installer'
 
     plugin_name = 'anaconda'
     profiles = ('system',)

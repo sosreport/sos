@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Cron(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Cron job scheduler
-    """
+
+    short_desc = 'Cron job scheduler'
 
     plugin_name = "cron"
     profiles = ('system',)

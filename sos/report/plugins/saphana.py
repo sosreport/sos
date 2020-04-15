@@ -11,7 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class saphana(Plugin, RedHatPlugin):
-    """SAP HANA"""
+
+    short_desc = 'SAP HANA'
 
     plugin_name = 'saphana'
     profiles = ['sap']

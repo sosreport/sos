@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class SELinux(Plugin, RedHatPlugin):
-    """SELinux access control
-    """
+
+    short_desc = 'SELinux access control'
 
     plugin_name = 'selinux'
     profiles = ('container', 'system', 'security', 'openshift')

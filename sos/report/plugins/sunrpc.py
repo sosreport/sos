@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class SunRPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Sun RPC service
-    """
+
+    short_desc = 'Sun RPC service'
 
     plugin_name = "sunrpc"
     profiles = ('system', 'storage', 'network', 'nfs')

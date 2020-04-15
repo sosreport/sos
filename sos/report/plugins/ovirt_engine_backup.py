@@ -14,7 +14,8 @@ from datetime import datetime
 
 
 class oVirtEngineBackup(Plugin, RedHatPlugin):
-    """oVirt Engine database backup"""
+
+    short_desc = 'oVirt Engine database backup'
 
     packages = ("ovirt-engine-tools-backup",)
     plugin_name = "ovirt_engine_backup"

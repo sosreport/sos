@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Rasdaemon(Plugin, RedHatPlugin):
-    """rasdaemon kernel trace event monitor
-    """
+
+    short_desc = 'rasdaemon kernel trace event monitor'
 
     plugin_name = 'rasdaemon'
     packages = ('rasdaemon', )

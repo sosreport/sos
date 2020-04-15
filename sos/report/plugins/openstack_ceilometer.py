@@ -16,7 +16,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackCeilometer(Plugin):
-    """Openstack Ceilometer"""
+
+    short_desc = 'Openstack Ceilometer'
     plugin_name = "openstack_ceilometer"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 

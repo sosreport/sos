@@ -13,10 +13,9 @@ import stat
 
 
 class Unpackaged(Plugin, RedHatPlugin):
-    """
-    Collects a list of files that are not handled by the package
-    manager
-    """
+
+    short_desc = ('Collects a list of files that are not handled by the '
+                  'package manager')
 
     def setup(self):
 

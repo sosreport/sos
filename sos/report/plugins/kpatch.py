@@ -13,8 +13,8 @@ import re
 
 
 class Kpatch(Plugin, RedHatPlugin):
-    """Kpatch information
-    """
+
+    short_desc = 'Kpatch information'
 
     plugin_name = 'kpatch'
 

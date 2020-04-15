@@ -11,8 +11,8 @@ from socket import gethostname
 
 
 class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
-    """CEPH distributed storage
-    """
+
+    short_desc = 'CEPH distributed storage'
 
     plugin_name = 'ceph'
     profiles = ('storage', 'virt')

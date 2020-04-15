@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nvme(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Collect config and system information about NVMe devices"""
+
+    short_desc = 'Collect config and system information about NVMe devices'
 
     plugin_name = "nvme"
     packages = ('nvme-cli',)

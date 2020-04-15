@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):
-    """Debian Package Management
-    """
+
+    short_desc = 'Debian Package Management'
 
     plugin_name = 'dpkg'
     profiles = ('sysmgmt', 'packagemanager')

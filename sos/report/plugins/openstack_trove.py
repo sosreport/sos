@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackTrove(Plugin):
-    """OpenStack Trove
-    """
+
+    short_desc = 'OpenStack Trove'
 
     plugin_name = "openstack_trove"
     profiles = ('openstack', 'openstack_controller')

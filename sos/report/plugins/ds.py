@@ -14,8 +14,8 @@ import os
 
 
 class DirectoryServer(Plugin, RedHatPlugin):
-    """Directory Server
-    """
+
+    short_desc = 'Directory Server'
 
     plugin_name = 'ds'
     profiles = ('identity',)

@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OpenStackNovajoin(Plugin):
-    """OpenStack Novajoin
-    """
+
+    short_desc = 'OpenStack Novajoin'
     plugin_name = "openstack_novajoin"
     profiles = ('openstack', 'openstack_undercloud')
 

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Usb(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """USB devices
-    """
+
+    short_desc = 'USB devices'
 
     plugin_name = "usb"
     profiles = ('hardware',)

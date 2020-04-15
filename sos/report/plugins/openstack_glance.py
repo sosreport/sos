@@ -17,7 +17,8 @@ import os
 
 
 class OpenStackGlance(Plugin):
-    """OpenStack Glance"""
+
+    short_desc = 'OpenStack Glance'
     plugin_name = "openstack_glance"
     profiles = ('openstack', 'openstack_controller')
 

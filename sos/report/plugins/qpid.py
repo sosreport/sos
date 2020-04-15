@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Qpid(Plugin, RedHatPlugin):
-    """Qpid messaging
-    """
+
+    short_desc = 'Qpid messaging'
 
     plugin_name = 'qpid'
     profiles = ('services',)

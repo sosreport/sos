@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """LogRotate service
-    """
+
+    short_desc = 'LogRotate service'
 
     plugin_name = 'logrotate'
     profiles = ('system',)

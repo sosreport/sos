@@ -10,9 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ntp(Plugin):
-    """Network time protocol
-    """
 
+    short_desc = 'Network Time Protocol'
     plugin_name = "ntp"
     profiles = ('system', 'services')
 

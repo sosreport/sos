@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackOctavia(Plugin):
-    """Openstack Octavia"""
+
+    short_desc = 'Openstack Octavia'
 
     plugin_name = "openstack_octavia"
     profiles = ('openstack', 'openstack_controller')

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Dynamic shared libraries
-    """
+
+    short_desc = 'Dynamic shared libraries'
 
     plugin_name = 'libraries'
     profiles = ('system',)

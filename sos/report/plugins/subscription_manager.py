@@ -11,8 +11,8 @@ import glob
 
 
 class SubscriptionManager(Plugin, RedHatPlugin):
-    """subscription-manager information
-    """
+
+    short_desc = 'subscription-manager information'
 
     plugin_name = 'subscription_manager'
     profiles = ('system', 'packagemanager', 'sysmgmt')

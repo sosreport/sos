@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class DeviceMapper(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """device-mapper framework
-    """
+
+    short_desc = 'device-mapper framework'
 
     plugin_name = 'devicemapper'
     profiles = ('storage',)

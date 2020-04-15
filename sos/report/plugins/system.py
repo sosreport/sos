@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class System(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """core system information
-    """
+
+    short_desc = 'core system information'
 
     plugin_name = "system"
     profiles = ('system', 'kernel')

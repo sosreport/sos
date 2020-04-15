@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Pam(Plugin):
-    """Pluggable Authentication Modules
-    """
+
+    short_desc = 'Pluggable Authentication Modules'
 
     plugin_name = "pam"
     profiles = ('security', 'identity', 'system')

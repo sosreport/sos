@@ -11,7 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OvirtNode(Plugin, RedHatPlugin):
-    """oVirt Node specific information"""
+
+    short_desc = 'oVirt Node specific information'
 
     packages = (
         'imgbased',

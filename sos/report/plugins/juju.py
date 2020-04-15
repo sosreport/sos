@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class Juju(Plugin, UbuntuPlugin):
-    """ Juju orchestration tool
-    """
+
+    short_desc = 'Juju orchestration tool'
 
     plugin_name = 'juju'
     profiles = ('virt', 'sysmgmt')

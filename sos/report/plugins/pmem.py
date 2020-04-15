@@ -10,12 +10,11 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class pmem(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """Persistent Memory Devices
+    """This plugin collects data from Persistent Memory devices,
+    commonly referred to as NVDIMM's or Storage Class Memory (SCM)
     """
 
-    # This plugin collects data from Persistent Memory devices,
-    # commonly referred to as NVDIMM's or Storage Class Memory (SCM).
-
+    short_desc = 'Persistent Memory Devices'
     plugin_name = 'pmem'
     profiles = ('storage', 'hardware', 'memory')
     # Utilities can be installed by package or self compiled

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Vulkan(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Vulkan
-    """
+
+    short_desc = 'Vulkan'
 
     plugin_name = 'vulkan'
     profiles = ('hardware', 'desktop', 'gpu')

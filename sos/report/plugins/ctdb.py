@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ctdb(Plugin, DebianPlugin, UbuntuPlugin):
-    """Samba Clustered TDB
-    """
+
+    short_desc = 'Samba Clustered TDB'
     packages = ('ctdb',)
     profiles = ('cluster', 'storage')
     plugin_name = "ctdb"

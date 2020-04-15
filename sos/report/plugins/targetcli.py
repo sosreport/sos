@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class TargetCli(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """TargetCLI TCM/LIO configuration
-    """
+
+    short_desc = 'TargetCLI TCM/LIO configuration'
     packages = ('targetcli', 'python-rtslib')
     profiles = ('storage', )
     plugin_name = 'targetcli'

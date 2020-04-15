@@ -21,7 +21,8 @@ from sos.utilities import is_executable
 
 # Class name must be the same as file name and method names must not change
 class Ovirt(Plugin, RedHatPlugin):
-    """oVirt Engine"""
+
+    short_desc = 'oVirt Engine'
 
     plugin_name = "ovirt"
     profiles = ('virt',)

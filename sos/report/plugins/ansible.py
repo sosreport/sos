@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Ansible(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Ansible configuration management
-    """
+
+    short_desc = 'Ansible configuration management'
 
     plugin_name = 'ansible'
     profiles = ('system',)

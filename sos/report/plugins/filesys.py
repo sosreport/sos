@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Filesys(Plugin, DebianPlugin, UbuntuPlugin):
-    """Local file systems
-    """
+
+    short_desc = 'Local file systems'
 
     plugin_name = 'filesys'
     profiles = ('storage',)

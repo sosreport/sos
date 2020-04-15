@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Rhui(Plugin, RedHatPlugin):
-    """Red Hat Update Infrastructure
-    """
+
+    short_desc = 'Red Hat Update Infrastructure'
 
     plugin_name = 'rhui'
     profiles = ('sysmgmt',)

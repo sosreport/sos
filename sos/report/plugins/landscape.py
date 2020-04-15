@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class Landscape(Plugin, UbuntuPlugin):
-    """Ubuntu Landscape client
-    """
+
+    short_desc = 'Ubuntu Landscape client'
 
     plugin_name = 'landscape'
     profiles = ('sysmgmt',)

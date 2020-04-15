@@ -13,7 +13,8 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 
 class NodeJS(Plugin, RedHatPlugin, SuSEPlugin):
-    """ Get runtime version of NodeJS """
+
+    short_desc = 'NodeJS runtime version'
 
     plugin_name = 'nodejs'
     profiles = ('system',)

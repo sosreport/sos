@@ -12,8 +12,8 @@ import re
 
 
 class Xen(Plugin, RedHatPlugin):
-    """Xen virtualization
-    """
+
+    short_desc = 'Xen virtualization'
 
     plugin_name = 'xen'
     profiles = ('virt',)

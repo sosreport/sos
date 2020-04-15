@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """IBM Power RAID storage adapter configuration information
-    """
+
+    short_desc = 'IBM Power RAID storage adapter configuration information'
 
     plugin_name = 'iprconfig'
     packages = ('iprutils',)

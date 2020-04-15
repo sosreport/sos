@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackManila(Plugin):
-    """OpenStack Manila
-    """
+
+    short_desc = 'OpenStack Manila'
     plugin_name = "openstack_manila"
     profiles = ('openstack', 'openstack_controller')
     option_list = []
@@ -71,8 +71,8 @@ class OpenStackManila(Plugin):
 
 
 class DebianManila(OpenStackManila, DebianPlugin, UbuntuPlugin):
-    """OpenStackManila related information for Debian based distributions."""
 
+    short_desc = 'OpenStack Manila information for Debian based distributions'
     packages = (
         'python-manila',
         'manila-common',
@@ -83,8 +83,8 @@ class DebianManila(OpenStackManila, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatManila(OpenStackManila, RedHatPlugin):
-    """OpenStackManila related information for Red Hat distributions."""
 
+    short_desc = 'OpenStack Manila information for Red Hat distributions'
     packages = ('openstack-selinux',)
 
     def setup(self):

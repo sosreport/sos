@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Apache(Plugin):
-    """Apache http daemon
-    """
+
+    short_desc = 'Apache http daemon'
     plugin_name = "apache"
     profiles = ('webserver', 'openshift')
     packages = ('httpd',)

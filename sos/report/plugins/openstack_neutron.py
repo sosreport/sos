@@ -14,8 +14,8 @@ import os
 
 
 class OpenStackNeutron(Plugin):
-    """OpenStack Networking
-    """
+
+    short_desc = 'OpenStack Networking'
     plugin_name = "openstack_neutron"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 

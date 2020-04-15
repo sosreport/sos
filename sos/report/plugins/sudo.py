@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Sudo(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Sudo command execution
-    """
+
+    short_desc = 'Sudo command execution'
     plugin_name = 'sudo'
     profiles = ('identity', 'system')
     packages = ('sudo')

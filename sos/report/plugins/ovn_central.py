@@ -14,8 +14,8 @@ import os
 
 
 class OVNCentral(Plugin):
-    """ OVN Northd
-    """
+
+    short_desc = 'OVN Northd'
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
 

@@ -12,9 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Collectd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """
-    Collectd config collector
-    """
+
+    short_desc = 'Collectd config collector'
     plugin_name = "collectd"
     profiles = ('services', 'webserver')
 

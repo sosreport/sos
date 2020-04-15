@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ppp(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Point-to-point protocol
-    """
+
+    short_desc = 'Point-to-point protocol'
 
     plugin_name = 'ppp'
     profiles = ('system', 'network')

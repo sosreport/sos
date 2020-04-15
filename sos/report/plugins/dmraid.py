@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Dmraid(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """dmraid software RAID
-    """
+
+    short_desc = 'dmraid software RAID'
 
     plugin_name = 'dmraid'
     profiles = ('hardware', 'storage')

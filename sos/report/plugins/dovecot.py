@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Dovecot(Plugin):
-    """Dovecot IMAP and POP3
-    """
+
+    short_desc = 'Dovecot IMAP and POP3'
 
     plugin_name = "dovecot"
     profiles = ('mail',)
@@ -22,8 +22,7 @@ class Dovecot(Plugin):
 
 
 class RedHatDovecot(Dovecot, RedHatPlugin):
-    """dovecot server related information
-    """
+
     def setup(self):
         super(RedHatDovecot, self).setup()
 
@@ -32,8 +31,7 @@ class RedHatDovecot(Dovecot, RedHatPlugin):
 
 
 class DebianDovecot(Dovecot, DebianPlugin, UbuntuPlugin):
-    """dovecot server related information for Debian based distribution
-    """
+
     def setup(self):
         super(DebianDovecot, self).setup()
 

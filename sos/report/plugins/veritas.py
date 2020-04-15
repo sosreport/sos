@@ -11,8 +11,8 @@ import os
 
 
 class Veritas(Plugin, RedHatPlugin):
-    """Veritas software
-    """
+
+    short_desc = 'Veritas software'
 
     plugin_name = 'veritas'
     profiles = ('cluster', 'storage')
