@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class GSSProxy(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """GSSAPI Proxy
-    """
+
+    short_desc = 'GSSAPI Proxy'
 
     plugin_name = "gssproxy"
     profiles = ('services', 'security', 'identity')

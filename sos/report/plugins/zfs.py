@@ -11,8 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Zfs(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """ZFS filesystem
-    """
+
+    short_desc = 'ZFS filesystem'
 
     plugin_name = 'zfs'
     profiles = ('storage',)

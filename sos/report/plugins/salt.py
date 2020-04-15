@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class Salt(Plugin, RedHatPlugin, DebianPlugin):
-    """Salt
-    """
+
+    short_desc = 'Salt'
 
     plugin_name = 'salt'
     profiles = ('sysmgmt',)

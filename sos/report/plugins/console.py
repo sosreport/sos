@@ -11,8 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Console(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Console and keyboard information
-    """
+
+    short_desc = 'Console and keyboard information'
 
     plugin_name = 'console'
     profiles = ('system',)

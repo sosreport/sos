@@ -11,9 +11,8 @@ from datetime import datetime
 
 
 class Tomcat(Plugin, RedHatPlugin):
-    """Apache Tomcat server
-    """
 
+    short_desc = 'Apache Tomcat Server'
     plugin_name = 'tomcat'
     profiles = ('webserver', 'java', 'services', 'sysmgmt')
 

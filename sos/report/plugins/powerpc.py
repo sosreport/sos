@@ -14,8 +14,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """IBM Power systems
-    """
+
+    short_desc = 'IBM Power systems'
 
     plugin_name = 'powerpc'
     profiles = ('system', 'hardware')

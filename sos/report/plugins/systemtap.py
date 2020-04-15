@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class SystemTap(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """SystemTap dynamic instrumentation
-    """
+
+    short_desc = 'SystemTap dynamic instrumentation'
 
     plugin_name = 'systemtap'
     profiles = ('debug', 'performance')

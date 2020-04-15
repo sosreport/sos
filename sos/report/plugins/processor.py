@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Processor(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """CPU information
-    """
+
+    short_desc = 'CPU information'
 
     plugin_name = 'processor'
     profiles = ('system', 'hardware', 'memory')

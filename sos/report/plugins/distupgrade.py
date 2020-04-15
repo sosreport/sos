@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class DistUpgrade(Plugin):
-    """ Distribution upgrade data """
+
+    short_desc = 'Distribution upgrade data'
 
     plugin_name = "distupgrade"
     profiles = ('system', 'sysmgmt')

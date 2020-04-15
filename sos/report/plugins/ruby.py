@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ruby(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Ruby runtime"""
+
+    short_desc = 'Ruby runtime'
 
     plugin_name = 'ruby'
     packages = ('ruby', 'ruby-irb')

@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """client for libvirt virtualization API
-    """
+
+    short_desc = 'client for libvirt virtualization API'
 
     plugin_name = 'virsh'
     profiles = ('system', 'virt')

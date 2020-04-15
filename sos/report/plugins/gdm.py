@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Gdm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """GNOME display manager
-    """
+
+    short_desc = 'GNOME display manager'
 
     plugin_name = 'gdm'
     profiles = ('desktop',)

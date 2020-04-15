@@ -18,8 +18,8 @@ except ImportError:
 
 
 class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
-    """HAProxy load balancer
-    """
+
+    short_desc = 'HAProxy load balancer'
 
     plugin_name = 'haproxy'
     profiles = ('webserver',)

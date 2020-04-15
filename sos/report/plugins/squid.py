@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Squid(Plugin):
-    """Squid caching proxy
-    """
+
+    short_desc = 'Squid caching proxy'
 
     plugin_name = 'squid'
     profiles = ('webserver', 'services', 'sysmgmt')

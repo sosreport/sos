@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class StorageConsole(Plugin, RedHatPlugin, DebianPlugin):
-    """Red Hat Storage Console
-    """
+
+    short_desc = 'Red Hat Storage Console'
 
     plugin_name = 'storageconsole'
     profiles = ('storage',)

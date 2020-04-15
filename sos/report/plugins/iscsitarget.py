@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class IscsiTarget(Plugin):
-    """iSCSI target
-    """
+
+    short_desc = 'iSCSI target'
 
     plugin_name = "iscsitarget"
     profiles = ('storage',)

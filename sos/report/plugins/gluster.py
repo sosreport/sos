@@ -15,7 +15,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Gluster(Plugin, RedHatPlugin):
-    """GlusterFS storage"""
+
+    short_desc = 'GlusterFS storage'
 
     plugin_name = 'gluster'
     profiles = ('storage', 'virt')

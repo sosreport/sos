@@ -11,8 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """SCSI devices
-    """
+
+    short_desc = 'SCSI devices'
 
     plugin_name = 'scsi'
     profiles = ('storage', 'hardware')

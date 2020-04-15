@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Gfs2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """GFS2 (Global Filesystem 2)"""
+
+    short_desc = 'GFS2 (Global Filesystem 2)'
 
     plugin_name = "gfs2"
     profiles = ("cluster", )

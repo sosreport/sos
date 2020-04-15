@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Logs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """System logs"""
+
+    short_desc = 'System logs'
 
     plugin_name = "logs"
     profiles = ('system', 'hardware', 'storage')

@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
-    """IpmiTool hardware information.
-    """
+
+    short_desc = 'IpmiTool hardware information'
 
     plugin_name = 'ipmitool'
     profiles = ('hardware', 'system', )

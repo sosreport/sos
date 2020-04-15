@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class RedHatInsights(Plugin, RedHatPlugin):
-    """Collect config and log for Red Hat Insights
-    """
+
+    short_desc = 'Collect config and logs for Red Hat Insights'
     plugin_name = 'insights'
     packages = ['redhat-access-insights', 'insights-client']
     profiles = ('system', 'sysmgmt')

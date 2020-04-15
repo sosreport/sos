@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class unity(Plugin, UbuntuPlugin):
-    """Unity
-    """
+
+    short_desc = 'Unity'
 
     plugin_name = 'unity'
     profiles = ('hardware', 'desktop')

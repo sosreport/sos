@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Frr(Plugin, RedHatPlugin):
-    """Frr routing service
-    """
+
+    short_desc = 'Frr routing service'
 
     plugin_name = 'frr'
     profiles = ('network',)

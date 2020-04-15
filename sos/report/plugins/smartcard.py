@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Smartcard(Plugin, RedHatPlugin):
-    """PKCS#11 smart cards
-    """
+
+    short_desc = 'PKCS#11 smart cards'
 
     plugin_name = 'smartcard'
     profiles = ('security', 'identity', 'hardware')

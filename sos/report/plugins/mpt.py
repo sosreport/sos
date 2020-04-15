@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Mpt(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ LSI Message Passing Technology
-    """
+
+    short_desc = 'LSI Message Passing Technology'
     files = ('/proc/mpt',)
     profiles = ('storage', )
     plugin_name = 'mpt'

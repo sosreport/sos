@@ -11,8 +11,8 @@ import os
 
 
 class vhostmd(Plugin, RedHatPlugin):
-    """vhostmd virtualization metrics collection
-    """
+
+    short_desc = 'vhostmd virtualization metrics collection'
 
     plugin_name = 'vhostmd'
     profiles = ['sap', 'virt', 'system']

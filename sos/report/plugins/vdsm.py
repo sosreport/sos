@@ -50,8 +50,8 @@ LVM_CONFIG = re.sub(r"\s+", " ", LVM_CONFIG).strip()
 
 
 class Vdsm(Plugin, RedHatPlugin):
-    """vdsm plugin"""
 
+    short_desc = 'VDSM - Virtual Desktop and Server Manager'
     packages = (
         'vdsm',
         'vdsm-client',

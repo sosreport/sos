@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Rpm(Plugin, RedHatPlugin):
-    """RPM Package Manager
-    """
+
+    short_desc = 'RPM Package Manager'
 
     plugin_name = 'rpm'
     profiles = ('system', 'packagemanager')

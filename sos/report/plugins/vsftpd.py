@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Vsftpd(Plugin, RedHatPlugin):
-    """Vsftpd server
-    """
+
+    short_desc = 'Vsftpd server'
 
     plugin_name = 'vsftpd'
     profiles = ('services',)

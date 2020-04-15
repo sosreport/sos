@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenCL(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """OpenCL
-    """
+
+    short_desc = 'OpenCL'
 
     plugin_name = 'opencl'
     profiles = ('hardware', 'desktop', 'gpu')

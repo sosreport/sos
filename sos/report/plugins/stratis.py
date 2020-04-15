@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Stratis(Plugin, RedHatPlugin):
-    """Stratis Storage"""
+
+    short_desc = 'Stratis Storage'
 
     packages = ('stratis-cli', 'stratisd')
     services = ('stratisd',)

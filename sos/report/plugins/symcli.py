@@ -14,8 +14,8 @@ from sos.utilities import is_executable
 
 
 class Symcli(Plugin, RedHatPlugin):
-    """ EMC Symcli
-    """
+
+    short_desc = 'EMC Symcli'
 
     plugin_name = 'symcli'
     profiles = ('storage', 'hardware')

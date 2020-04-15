@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenSSL(Plugin):
-    """OpenSSL configuration
-    """
+
+    short_desc = 'OpenSSL configuration'
 
     plugin_name = "openssl"
     profiles = ('network', 'security')
@@ -37,8 +37,6 @@ class OpenSSL(Plugin):
 
 
 class RedHatOpenSSL(OpenSSL, RedHatPlugin):
-    """openssl related information
-    """
 
     files = ('/etc/pki/tls/openssl.cnf',)
 
@@ -48,8 +46,6 @@ class RedHatOpenSSL(OpenSSL, RedHatPlugin):
 
 
 class DebianOpenSSL(OpenSSL, DebianPlugin, UbuntuPlugin):
-    """openssl related information for Debian distributions
-    """
 
     files = ('/etc/ssl/openssl.cnf',)
 

@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Fibrechannel(Plugin, RedHatPlugin):
-    """Collects information on fibrechannel devices, if present"""
+
+    short_desc = 'Collect information on fibrechannel devices'
 
     plugin_name = 'fibrechannel'
     profiles = ('hardware', 'storage', 'system')

@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackPlacement(Plugin):
-    """OpenStack Placement
-    """
+
+    short_desc = 'OpenStack Placement'
     plugin_name = "openstack_placement"
     profiles = ('openstack', 'openstack_controller')
 

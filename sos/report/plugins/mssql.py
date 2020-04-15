@@ -13,8 +13,8 @@ import os
 
 
 class MsSQL(Plugin, RedHatPlugin):
-    """Microsoft SQL Server on Linux
-    """
+
+    short_desc = 'Microsoft SQL Server on Linux'
 
     plugin_name = "mssql"
     profiles = ('services',)

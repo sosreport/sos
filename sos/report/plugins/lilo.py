@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class Lilo(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Lilo bootloader
-    """
+
+    short_desc = 'Lilo bootloader'
 
     plugin_name = 'lilo'
     profiles = ('system', 'boot')

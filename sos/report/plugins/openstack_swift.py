@@ -15,7 +15,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackSwift(Plugin):
-    """OpenStack Swift"""
+
+    short_desc = 'OpenStack Swift'
     plugin_name = "openstack_swift"
     profiles = ('openstack', 'openstack_controller')
 

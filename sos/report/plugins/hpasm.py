@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Hpasm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """HP Advanced Server Management
-    """
+
+    short_desc = 'HP Advanced Server Management'
 
     plugin_name = 'hpasm'
     profiles = ('system', 'hardware')

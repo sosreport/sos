@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ System management daemon
-    """
+
+    short_desc = 'System management daemon'
 
     plugin_name = "systemd"
     profiles = ('system', 'services', 'boot')

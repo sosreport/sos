@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Java(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """Java runtime"""
+
+    short_desc = 'Java runtime'
 
     plugin_name = "java"
     profiles = ('webserver', 'java')

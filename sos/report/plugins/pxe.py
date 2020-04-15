@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Pxe(Plugin):
-    """PXE service
-    """
+
+    short_desc = 'PXE service'
     plugin_name = "pxe"
     profiles = ('sysmgmt', 'network')
     option_list = [("tftpboot", 'gathers content from the tftpboot path',

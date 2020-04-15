@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Oddjob(Plugin, RedHatPlugin):
-    """OddJob task scheduler
-    """
+
+    short_desc = 'OddJob task scheduler'
 
     plugin_name = 'oddjob'
     profiles = ('services', 'sysmgmt')

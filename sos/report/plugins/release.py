@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Release(Plugin, RedHatPlugin, UbuntuPlugin):
-    """Linux release information
-    """
+
+    short_desc = 'Linux release information'
 
     plugin_name = 'release'
     profiles = ('system',)

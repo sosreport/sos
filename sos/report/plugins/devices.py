@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Devices(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ devices specific commands
-    """
+
+    short_desc = 'devices specific commands'
 
     plugin_name = 'devices'
     profiles = ('system', 'hardware', 'boot')

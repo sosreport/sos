@@ -11,8 +11,8 @@ import os
 
 
 class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
-    """NetworkManager service configuration
-    """
+
+    short_desc = 'NetworkManager service configuration'
 
     plugin_name = 'networkmanager'
     profiles = ('network', 'hardware', 'system')

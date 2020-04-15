@@ -11,8 +11,8 @@ from sos.utilities import is_executable
 
 
 class Lstopo(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """lstopo / machine topology/numa node information
-    """
+
+    short_desc = 'Machine topology information'
 
     plugin_name = "lstopo"
     profiles = ("system", "hardware")

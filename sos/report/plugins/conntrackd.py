@@ -12,8 +12,8 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 
 class Conntrackd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
-    """conntrackd - netfilter connection tracking user-space daemon
-    """
+
+    short_desc = 'conntrackd - netfilter connection tracking user-space daemon'
 
     plugin_name = 'conntrackd'
     profiles = ('network', 'cluster')

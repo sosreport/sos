@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class Apport(Plugin, DebianPlugin, UbuntuPlugin):
-    """Apport crash reporting tool
-    """
+
+    short_desc = 'Apport crash reporting tool'
 
     plugin_name = 'apport'
     profiles = ('debug',)

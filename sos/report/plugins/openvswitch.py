@@ -15,8 +15,8 @@ from os import environ
 
 
 class OpenVSwitch(Plugin):
-    """ OpenVSwitch networking
-    """
+
+    short_desc = 'OpenVSwitch networking'
     plugin_name = "openvswitch"
     profiles = ('network', 'virt')
 

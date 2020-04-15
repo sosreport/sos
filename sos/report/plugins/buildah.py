@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Buildah(Plugin, RedHatPlugin):
-    """Buildah container and image builder
-    """
+
+    short_desc = 'Buildah container and image builder'
 
     plugin_name = 'buildah'
     packages = ('buildah',)

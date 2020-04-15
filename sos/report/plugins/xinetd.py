@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Xinetd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """xinetd information
-    """
+
+    short_desc = 'xinetd information'
 
     plugin_name = 'xinetd'
     profiles = ('services', 'network', 'boot')

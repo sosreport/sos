@@ -1709,9 +1709,7 @@ class Plugin(object):
     def get_description(self):
         """ This function will return the description for the plugin"""
         try:
-            if hasattr(self, '__doc__') and self.__doc__:
-                return self.__doc__.strip()
-            return super(self.__class__, self).__doc__.strip()
+            return self.short_desc
         except Exception:
             return "<no description available>"
 

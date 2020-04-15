@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Grafana(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Fetch Grafana configuration, logs and CLI output
-    """
+
+    short_desc = 'Fetch Grafana configuration, logs and CLI output'
     plugin_name = "grafana"
     profiles = ('services', 'openstack', 'openstack_controller')
 

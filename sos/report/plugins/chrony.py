@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Chrony(Plugin):
-    """Chrony clock (for Network time protocol)
-    """
+
+    short_desc = 'Chrony clock (for Network time protocol)'
 
     plugin_name = "chrony"
     profiles = ('system', 'services')

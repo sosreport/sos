@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class OvirtHostedEngine(Plugin, RedHatPlugin):
-    """oVirt Hosted Engine"""
+
+    short_desc = 'oVirt Hosted Engine'
 
     packages = (
         'ovirt-hosted-engine-setup',

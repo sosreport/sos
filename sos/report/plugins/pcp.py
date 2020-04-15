@@ -15,8 +15,8 @@ from socket import gethostname
 
 
 class Pcp(Plugin, RedHatPlugin, DebianPlugin):
-    """Performance Co-Pilot data
-    """
+
+    short_desc = 'Performance Co-Pilot data'
 
     plugin_name = 'pcp'
     profiles = ('system', 'performance')

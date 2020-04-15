@@ -14,8 +14,8 @@ import os
 
 
 class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Kernel virtual machine
-    """
+
+    short_desc = 'Kernel virtual machine'
 
     plugin_name = 'kvm'
     profiles = ('system', 'virt')

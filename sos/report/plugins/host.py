@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class Host(Plugin, RedHatPlugin, DebianPlugin):
-    """Host information
-    """
+
+    short_desc = 'Host information'
 
     plugin_name = 'host'
     profiles = ('system',)

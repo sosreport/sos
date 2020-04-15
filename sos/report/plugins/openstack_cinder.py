@@ -16,8 +16,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackCinder(Plugin):
-    """OpenStack cinder
-    """
+
+    short_desc = 'OpenStack cinder'
     plugin_name = "openstack_cinder"
     profiles = ('openstack', 'openstack_controller')
 

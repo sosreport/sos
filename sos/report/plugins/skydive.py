@@ -13,8 +13,8 @@ import os
 
 
 class Skydive(Plugin, RedHatPlugin):
-    """Skydive, a network topology and protocols analyzer
-    """
+
+    short_desc = 'Skydive network topology and protocol analyzer'
 
     plugin_name = "skydive"
     profiles = ('network', )

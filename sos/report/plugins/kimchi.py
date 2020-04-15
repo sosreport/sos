@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Kimchi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """kimchi-related information
-    """
+
+    short_desc = 'kimchi-related information'
 
     plugin_name = 'kimchi'
     packages = ('kimchi',)

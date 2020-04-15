@@ -14,8 +14,8 @@ from os.path import exists
 
 
 class Ipa(Plugin, RedHatPlugin):
-    """ Identity, policy, audit
-    """
+
+    short_desc = 'Identity, policy, audit'
 
     plugin_name = 'ipa'
     profiles = ('identity', 'apache')

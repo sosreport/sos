@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class Perl(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """Perl runtime"""
+
+    short_desc = 'Perl runtime'
 
     plugin_name = "perl"
     profiles = ('webserver', 'perl')

@@ -11,8 +11,8 @@ import os
 
 
 class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """ ATA and IDE information
-    """
+
+    short_desc = 'ATA and IDE information'
 
     plugin_name = "ata"
     profiles = ('storage', 'hardware')

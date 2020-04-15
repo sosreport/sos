@@ -12,8 +12,8 @@ import re
 
 
 class Corosync(Plugin):
-    """ Corosync cluster engine
-    """
+
+    short_desc = 'Corosync cluster engine'
 
     plugin_name = "corosync"
     profiles = ('cluster',)

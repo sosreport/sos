@@ -13,9 +13,7 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, SoSPredicate
 
 class Docker(Plugin):
 
-    """Docker containers
-    """
-
+    short_desc = 'Docker containers'
     plugin_name = 'docker'
     profiles = ('container',)
 

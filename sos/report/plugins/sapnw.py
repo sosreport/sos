@@ -19,7 +19,8 @@ def get_directory_listing(path):
 
 
 class sapnw(Plugin, RedHatPlugin):
-    """SAP NetWeaver"""
+
+    short_desc = 'SAP NetWeaver'
 
     plugin_name = 'sapnw'
     profiles = ['sap']

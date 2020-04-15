@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class CanonicaLivepatch(Plugin, UbuntuPlugin):
-    """Canonical Livepatch Service
-    """
+
+    short_desc = 'Canonical Livepatch Service'
 
     plugin_name = 'canonical_livepatch'
     profiles = ('system', 'kernel')

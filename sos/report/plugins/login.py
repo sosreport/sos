@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Login(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """login information
-    """
+
+    short_desc = 'login information'
 
     plugin_name = 'login'
     profiles = ('system', 'identity')

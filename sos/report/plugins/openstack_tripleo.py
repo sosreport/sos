@@ -13,8 +13,8 @@ import re
 
 
 class OpenStackTripleO(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Fetch installation informations from OpenStack Installer
-    """
+
+    short_desc = 'Installation information from OpenStack Installer'
 
     plugin_name = 'openstack_tripleo'
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')

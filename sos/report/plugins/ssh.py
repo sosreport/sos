@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Ssh(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Secure shell service
-    """
+
+    short_desc = 'Secure shell service'
 
     plugin_name = 'ssh'
     profiles = ('services', 'security', 'system', 'identity')

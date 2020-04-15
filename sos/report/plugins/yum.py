@@ -13,8 +13,8 @@ YUM_PLUGIN_PATH = "/usr/lib/yum-plugins/"
 
 
 class Yum(Plugin, RedHatPlugin):
-    """yum information
-    """
+
+    short_desc = 'yum information'
 
     plugin_name = 'yum'
     profiles = ('system', 'packagemanager', 'sysmgmt')

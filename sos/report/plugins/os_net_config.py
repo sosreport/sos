@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
 
 
 class OsNetConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
-    """OpenStack Net Config"""
+
+    short_desc = 'OpenStack Net Config'
 
     plugin_name = "os_net_config"
     profiles = ('openstack')

@@ -17,8 +17,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 #   this plugin has a generic name.
 # - The Framework is targeted at Red Hat products, at least for now.
 class ValidationFramework(Plugin, RedHatPlugin):
-    """Fetch run logs provided by the Validation Framework
-    """
+
+    short_desc = 'Logs provided by the Validation Framework'
 
     plugin_name = 'validation_framework'
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')

@@ -12,9 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Name service caching daemon
-    """
 
+    short_desc = 'Name service caching daemon'
     plugin_name = 'nscd'
     profiles = ('services', 'identity', 'system')
 

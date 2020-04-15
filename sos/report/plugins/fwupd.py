@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Fwupd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """fwupd information
-    """
+
+    short_desc = 'fwupd information'
 
     plugin_name = 'fwupd'
     profiles = ('system', )

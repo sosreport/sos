@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Infiniband data
-    """
+
+    short_desc = 'Infiniband information'
 
     plugin_name = 'infiniband'
     profiles = ('hardware',)

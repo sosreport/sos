@@ -10,9 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Nis(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Network information service
-    """
 
+    short_desc = 'Network Information Service'
     plugin_name = 'nis'
     profiles = ('identity', 'services')
 

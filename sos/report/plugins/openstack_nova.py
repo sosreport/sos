@@ -18,8 +18,8 @@ import os
 
 
 class OpenStackNova(Plugin):
-    """OpenStack Nova
-    """
+
+    short_desc = 'OpenStack Nova'
     plugin_name = "openstack_nova"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 

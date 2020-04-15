@@ -13,9 +13,8 @@ import re
 
 
 class Elastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """
-    ElasticSearch service
-    """
+
+    short_desc = 'ElasticSearch service'
     plugin_name = 'elastic'
     profiles = ('services', )
 

@@ -14,7 +14,8 @@ from re import match
 
 
 class Candlepin(Plugin, RedHatPlugin):
-    """Candlepin entitlement management"""
+
+    short_desc = 'Candlepin entitlement management'
 
     plugin_name = 'candlepin'
     packages = ('candlepin',)

@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Iscsi(Plugin):
-    """iSCSI initiator
-    """
+
+    short_desc = 'iSCSI initiator'
 
     plugin_name = "iscsi"
     profiles = ('storage',)

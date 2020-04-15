@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class DNFPlugin(Plugin, RedHatPlugin):
-    """dnf package manager"""
+
+    short_desc = 'dnf package manager'
     plugin_name = "dnf"
     profiles = ('system', 'packagemanager', 'sysmgmt')
 

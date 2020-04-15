@@ -13,9 +13,7 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
-    """Podman containers
-    """
-
+    short_desc = 'Podman containers'
     plugin_name = 'podman'
     profiles = ('container',)
     packages = ('podman')

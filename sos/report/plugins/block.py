@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """Block device information
-    """
+
+    short_desc = 'Block device information'
 
     plugin_name = 'block'
     profiles = ('storage', 'hardware')

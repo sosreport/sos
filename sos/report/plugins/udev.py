@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Udev(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """udev dynamic device management
-    """
+
+    short_desc = 'udev dynamic device management'
 
     plugin_name = 'udev'
     profiles = ('system', 'hardware', 'boot')

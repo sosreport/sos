@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Wireless(Plugin, DebianPlugin, UbuntuPlugin):
-    """Wireless
-    """
+
+    short_desc = 'Wireless'
 
     plugin_name = 'wireless'
     profiles = ('hardware', 'desktop', 'network')
@@ -27,8 +27,8 @@ class Wireless(Plugin, DebianPlugin, UbuntuPlugin):
 
 
 class RedHatWireless(Wireless, RedHatPlugin):
-    """Wireless
-    """
+
+    short_desc = 'Wireless'
 
     files = ('/usr/sbin/iw', '/usr/sbin/iwlist')
     packages = ('iw', 'wireless-tools')

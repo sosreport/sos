@@ -11,8 +11,8 @@ from sos.report.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class Procenv(Plugin, DebianPlugin, UbuntuPlugin):
-    """Process environment
-    """
+
+    short_desc = 'Process environment'
 
     plugin_name = 'procenv'
     profiles = ('system',)

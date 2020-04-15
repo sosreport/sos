@@ -13,8 +13,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 
 
 class Azure(Plugin, UbuntuPlugin):
-    """ Microsoft Azure client
-    """
+
+    short_desc = 'Microsoft Azure client'
 
     plugin_name = 'azure'
     profiles = ('virt',)

@@ -17,8 +17,8 @@ import os.path
 
 
 class ManageIQ(Plugin, RedHatPlugin):
-    """ManageIQ/CloudForms related information
-    """
+
+    short_desc = 'ManageIQ/CloudForms related information'
 
     plugin_name = 'manageiq'
 

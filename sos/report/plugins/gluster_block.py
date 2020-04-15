@@ -10,7 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class GlusterBlock(Plugin, RedHatPlugin):
-    """Gluster Block"""
+
+    short_desc = 'Gluster Block'
 
     plugin_name = 'gluster_block'
     profiles = ('storage',)

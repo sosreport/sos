@@ -11,8 +11,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class SysVIPC(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """SysV IPC
-    """
+
+    short_desc = 'SysV IPC'
 
     plugin_name = "sysvipc"
     profiles = ('system', 'services')

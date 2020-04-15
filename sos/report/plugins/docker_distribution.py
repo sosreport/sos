@@ -13,8 +13,7 @@ import os
 
 class DockerDistribution(Plugin):
 
-    """Docker Distribution"""
-
+    short_desc = 'Docker Distribution'
     plugin_name = "docker_distribution"
     profiles = ('container',)
 

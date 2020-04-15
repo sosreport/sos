@@ -11,8 +11,8 @@ import os
 
 
 class Sar(Plugin,):
-    """System Activity Reporter
-    """
+
+    short_desc = 'System Activity Reporter'
 
     plugin_name = 'sar'
     profiles = ('system', 'performance')

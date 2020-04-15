@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Crypto(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """ System crypto services information
-    """
+
+    short_desc = 'System crypto services information'
 
     plugin_name = 'crypto'
     profiles = ('system', 'hardware')

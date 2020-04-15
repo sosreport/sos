@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Quagga(Plugin, RedHatPlugin):
-    """Quagga routing service
-    """
+
+    short_desc = 'Quagga routing service'
 
     plugin_name = 'quagga'
     profiles = ('network',)

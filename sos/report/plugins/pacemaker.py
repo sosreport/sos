@@ -13,8 +13,8 @@ import os.path
 
 
 class Pacemaker(Plugin):
-    """Pacemaker high-availability cluster resource manager
-    """
+
+    short_desc = 'Pacemaker high-availability cluster resource manager'
 
     plugin_name = "pacemaker"
     version = "1.0"

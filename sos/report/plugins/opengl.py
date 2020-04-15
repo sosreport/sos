@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenGL(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """OpenGL
-    """
+
+    short_desc = 'OpenGL'
 
     plugin_name = 'opengl'
     profiles = ('hardware', 'desktop', 'gpu')

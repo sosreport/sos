@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class HardwareTestSuite(Plugin, RedHatPlugin):
-    """Red Hat Hardware Test Suite
-    """
+
+    short_desc = 'Red Hat Hardware Test Suite'
 
     plugin_name = 'hts'
     profiles = ('debug',)

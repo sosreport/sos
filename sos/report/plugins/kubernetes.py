@@ -16,8 +16,8 @@ import re
 
 
 class Kubernetes(Plugin):
-    """Kubernetes plugin
-    """
+
+    short_desc = 'Kubernetes container orchestration platform'
 
     plugin_name = "kubernetes"
     profiles = ('container',)
@@ -175,8 +175,6 @@ class Kubernetes(Plugin):
 
 
 class RedHatKubernetes(Kubernetes, RedHatPlugin):
-    """Red Hat Kubernetes plugin
-    """
 
     # OpenShift Container Platform uses the atomic-openshift-master package
     # to provide kubernetes
@@ -196,13 +194,9 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
 
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
-    """Ubuntu Kubernetes plugin
-    """
 
     packages = ('kubernetes',)
-
     files = ('/root/cdk/kubeproxyconfig',)
-
     kube_cmd = "kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
 
 # vim: et ts=5 sw=4

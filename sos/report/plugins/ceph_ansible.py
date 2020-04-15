@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 
 class CephAnsible(Plugin, RedHatPlugin, DebianPlugin):
-    """CEPH distributed storage - Ansible installer
-    """
+
+    short_desc = 'CEPH distributed storage - Ansible installer'
 
     plugin_name = 'ceph_ansible'
     profiles = ('storage',)

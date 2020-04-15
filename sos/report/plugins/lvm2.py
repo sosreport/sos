@@ -10,8 +10,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
-    """LVM2 volume manager
-    """
+
+    short_desc = 'Logical Volume Manager 2'
 
     plugin_name = 'lvm2'
     profiles = ('storage',)

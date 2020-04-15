@@ -12,8 +12,8 @@ from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class Maas(Plugin, UbuntuPlugin):
-    """Ubuntu Metal-As-A-Service
-    """
+
+    short_desc = 'Ubuntu Metal-As-A-Service'
 
     plugin_name = 'maas'
     profiles = ('sysmgmt',)

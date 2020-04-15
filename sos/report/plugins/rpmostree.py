@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Rpmostree(Plugin, RedHatPlugin):
-    """rpm-ostree image/package system"""
+
+    short_desc = 'rpm-ostree image/package system'
 
     plugin_name = 'rpmostree'
     packages = ('rpm-ostree',)
