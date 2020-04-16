@@ -977,6 +977,18 @@ this utility or remote systems that it connects to.
             if self.opts.no_local and self.master.address == 'localhost':
                 self.report_num -= 1
 
+            if self.report_num == 0:
+                self.exit("No nodes connected. Aborting...")
+            elif self.report_num == 1:
+                if self.client_list[0].address == 'localhost':
+                    self.exit(
+                        "Collection would only gather from localhost due to "
+                        "failure to either enumerate or connect to cluster "
+                        "nodes. Assuming single collection from localhost is "
+                        "not desired.\n"
+                        "Aborting..."
+                    )
+
             self.ui_log.info("\nBeginning collection of sosreports from %s "
                              "nodes, collecting a maximum of %s "
                              "concurrently\n"
