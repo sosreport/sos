@@ -61,6 +61,16 @@ class Landscape(Plugin, UbuntuPlugin):
             r"secret-token = [********]"
         )
         self.do_file_sub(
+            "/etc/landscape/service.conf",
+            r"oidc-client-secret = (.*)",
+            r"oidc-client-secret = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf",
+            r"oidc-client-id = (.*)",
+            r"oidc-client-id = [********]"
+        )
+        self.do_file_sub(
             "/etc/landscape/service.conf.old",
             r"password = (.*)",
             r"password = [********]"
@@ -74,6 +84,16 @@ class Landscape(Plugin, UbuntuPlugin):
             "/etc/landscape/service.conf.old",
             r"secret-token = (.*)",
             r"secret-token = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf.old",
+            r"oidc-client-secret = (.*)",
+            r"oidc-client-secret = [********]"
+        )
+        self.do_file_sub(
+            "/etc/landscape/service.conf.old",
+            r"oidc-client-id = (.*)",
+            r"oidc-client-id = [********]"
         )
 
 # vim: set et ts=4 sw=4 :
