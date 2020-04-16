@@ -62,7 +62,7 @@ class SoSCollector(SoSComponent):
         'save_group': '',
         'image': '',
         'ssh_key': '',
-        'insecure_sudo': False,
+        'nopasswd_sudo': False,
         'plugin_options': [],
         'plugin_timeout': None,
         'list_options': False,
@@ -256,7 +256,7 @@ class SoSCollector(SoSComponent):
                                   'containerized hosts. Defaults to the '
                                   'rhel7/support-tools image'))
         parser.add_argument('-i', '--ssh-key', help='Specify an ssh key')
-        parser.add_argument('--insecure-sudo', action='store_true',
+        parser.add_argument('--nopasswd-sudo', action='store_true',
                             help='Use when passwordless sudo is configured')
         parser.add_argument('-k', '--plugin-options', action="append",
                             help='Plugin option as plugname.option=value')
@@ -598,7 +598,7 @@ class SoSCollector(SoSComponent):
                    % self.opts.ssh_user)
             self.opts.password = getpass(prompt=msg)
 
-        if ((self.commons['need_sudo'] and not self.opts.insecure_sudo)
+        if ((self.commons['need_sudo'] and not self.opts.nopasswd_sudo)
                 and not self.opts.batch):
             if not self.opts.password:
                 self.log_debug('non-root user specified, will request '
@@ -608,7 +608,7 @@ class SoSCollector(SoSComponent):
                        % self.opts.ssh_user)
                 self.opts.sudo_pw = getpass(prompt=msg)
             else:
-                if not self.opts.insecure_sudo:
+                if not self.opts.nopasswd_sudo:
                     self.opts.sudo_pw = self.opts.password
 
         if self.opts.become_root:
@@ -644,12 +644,12 @@ class SoSCollector(SoSComponent):
                 local_sudo = None
                 skip_local_msg = (
                     "Local sos report generation forcibly skipped due "
-                    "to lack of root privileges.\nEither use --insecure-sudo, "
+                    "to lack of root privileges.\nEither use --nopasswd-sudo, "
                     "run as root, or do not use --batch so that you will be "
                     "prompted for a password\n"
                 )
                 if (not self.opts.no_local and (os.getuid() != 0 and not
-                                                self.opts.insecure_sudo)):
+                                                self.opts.nopasswd_sudo)):
                     if not self.opts.batch:
                         msg = ("Enter local sudo password to generate local "
                                "sos report: ")

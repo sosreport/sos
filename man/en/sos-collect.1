@@ -16,7 +16,7 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [--encrypt-pass PASS]\fR
     [\-\-group GROUP]
     [\-\-save\-group GROUP]
-    [\-\-insecure-sudo]
+    [\-\-nopasswd-sudo]
     [\-k PLUGIN_OPTION]
     [\-\-label LABEL]
     [\-n SKIP_PLUGINS]
@@ -166,7 +166,7 @@ with the settings for cluster-type, master, and the node list as discovered by c
 Note that this means regexes are not directly saved to host groups, but the results of matching against
 those regexes are.
 .TP
-\fB\-\-insecure-sudo\fR
+\fB\-\-nopasswd-sudo\fR
 Use this option when connecting as a non-root user that has passwordless sudo
 configured.
 
