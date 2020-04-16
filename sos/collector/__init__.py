@@ -591,8 +591,9 @@ class SoSCollector(SoSComponent):
                    'nodes unless the --password option is provided.\n')
             self.ui_log.info(self._fmt_msg(msg))
 
-        if ((self.opts.password or self.opts.password_per_node) and not
-                self.opts.batch):
+        if ((self.opts.password or (self.opts.password_per_node and
+                                    self.opts.master))
+                and not self.opts.batch):
             self.log_debug('password specified, not using SSH keys')
             msg = ('Provide the SSH password for user %s: '
                    % self.opts.ssh_user)
@@ -600,7 +601,7 @@ class SoSCollector(SoSComponent):
 
         if ((self.commons['need_sudo'] and not self.opts.nopasswd_sudo)
                 and not self.opts.batch):
-            if not self.opts.password:
+            if not self.opts.password and not self.opts.password_per_node:
                 self.log_debug('non-root user specified, will request '
                                'sudo password')
                 msg = ('A non-root user has been provided. Provide sudo '
