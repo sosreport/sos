@@ -48,6 +48,7 @@ class SoSCollector(SoSComponent):
     arg_defaults = {
         'alloptions': False,
         'all_logs': False,
+        'allow_system_changes': False,
         'become_root': False,
         'batch': False,
         'case_id': False,
@@ -63,15 +64,18 @@ class SoSCollector(SoSComponent):
         'ssh_key': '',
         'insecure_sudo': False,
         'plugin_options': [],
+        'plugin_timeout': None,
         'list_options': False,
         'label': '',
         'log_size': 0,
         'skip_plugins': [],
         'nodes': [],
+        'no_env_vars': False,
         'no_pkg_check': False,
         'no_local': False,
         'master': '',
         'only_plugins': [],
+        'since': '',
         'ssh_port': 22,
         'password': False,
         'password_per_node': False,
@@ -219,6 +223,11 @@ class SoSCollector(SoSComponent):
                             help='Enable all sos options')
         parser.add_argument('--all-logs', action='store_true',
                             help='Collect logs regardless of size')
+        parser.add_argument('--allow-system-changes', action='store_true',
+                            default=False,
+                            help=('Allow sosreport to run commands that may '
+                                  'alter system state')
+                            )
         parser.add_argument('-b', '--become', action='store_true',
                             dest='become_root',
                             help='Become root on the remote nodes')
@@ -251,6 +260,8 @@ class SoSCollector(SoSComponent):
                             help='Use when passwordless sudo is configured')
         parser.add_argument('-k', '--plugin-options', action="append",
                             help='Plugin option as plugname.option=value')
+        parser.add_argument('--plugin-timeout', type=int, default=None,
+                            help='Set the global plugin timeout value')
         parser.add_argument('-l', '--list-options', action="store_true",
                             help='List options available for profiles')
         parser.add_argument('--label', help='Assign a label to the archives')
@@ -261,6 +272,9 @@ class SoSCollector(SoSComponent):
         parser.add_argument('--nodes', action="append",
                             help='Provide a comma delimited list of nodes, or '
                                  'a regex to match against')
+        parser.add_argument('--no-env-vars', action='store_true',
+                            default=False,
+                            help='Do not collect env vars in sosreports')
         parser.add_argument('--no-pkg-check', action='store_true',
                             help=('Do not run package checks. Use this '
                                   'with --cluster-type if there are rpm '
@@ -281,6 +295,11 @@ class SoSCollector(SoSComponent):
                             help='Prompt for password for each node')
         parser.add_argument('--preset', default='', required=False,
                             help='Specify a sos preset to use')
+        parser.add_argument('--since', default=None,
+                            help=('Escapes archived files older than date. '
+                                  'This will also affect --all-logs. '
+                                  'Format: YYYYMMDD[HHMMSS]')
+                            )
         parser.add_argument('--sos-cmd', dest='sos_opt_line',
                             help=("Manually specify the commandline options "
                                   "for sosreport on remote nodes")
@@ -713,7 +732,7 @@ class SoSCollector(SoSComponent):
 
     def configure_sos_cmd(self):
         """Configures the sosreport command that is run on the nodes"""
-        self.sos_cmd = 'sosreport --batch'
+        self.sos_cmd = 'sosreport --batch '
         if self.opts.sos_opt_line:
             filt = ['&', '|', '>', '<', ';']
             if any(f in self.opts.sos_opt_line for f in filt):
@@ -726,23 +745,26 @@ class SoSCollector(SoSComponent):
                 self.log_debug("User specified manual sosreport command. "
                                "Command set to %s" % self.sos_cmd)
                 return True
+
+        sos_opts = []
+
         if self.opts.case_id:
-            self.sos_cmd += ' --case-id=%s' % (
-                quote(self.opts.case_id))
+            sos_opts.append('--case-id=%s' % (quote(self.opts.case_id)))
         if self.opts.alloptions:
-            self.sos_cmd += ' --alloptions'
+            sos_opts.append('--alloptions')
         if self.opts.all_logs:
-            self.sos_cmd += ' --all-logs'
+            sos_opts.append('--all-logs')
         if self.opts.verify:
-            self.sos_cmd += ' --verify'
+            sos_opts.append('--verify')
         if self.opts.log_size:
-            self.sos_cmd += (' --log-size=%s' % quote(self.opts.log_size))
+            sos_opts.append(('--log-size=%s' % quote(str(self.opts.log_size))))
         if self.opts.sysroot:
-            self.sos_cmd += ' -s %s' % quote(self.opts.sysroot)
+            sos_opts.append('-s %s' % quote(self.opts.sysroot))
         if self.opts.chroot:
-            self.sos_cmd += ' -c %s' % quote(self.opts.chroot)
+            sos_opts.append('-c %s' % quote(self.opts.chroot))
         if self.opts.compression_type != 'auto':
-            self.sos_cmd += ' -z %s' % (quote(self.opts.compression))
+            sos_opts.append('-z %s' % (quote(self.opts.compression)))
+        self.sos_cmd = self.sos_cmd + ' '.join(sos_opts)
         self.log_debug("Initial sos cmd set to %s" % self.sos_cmd)
         self.commons['sos_cmd'] = self.sos_cmd
 
