@@ -667,6 +667,12 @@ class SoSCollector(SoSComponent):
             msg = ('Cluster type could not be determined and no nodes provided'
                    '\nAborting...')
             self.exit(msg, 1)
+        elif self.cluster is None and self.opts.nodes:
+            self.log_info("Cluster type could not be determined, but --nodes "
+                          "is provided. Attempting to continue using JBON "
+                          "cluster type and the node list")
+            self.cluster = self.clusters['jbon']
+            self.cluster_type = 'none'
         if self.cluster:
             self.master.cluster = self.cluster
             self.cluster.setup()
