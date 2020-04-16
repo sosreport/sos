@@ -973,9 +973,11 @@ this utility or remote systems that it connects to.
             pool.map(self._connect_to_node, nodes, chunksize=1)
             pool.shutdown(wait=True)
 
+            if (self.opts.no_local and
+                    self.client_list[0].address == 'localhost'):
+                self.client_list.pop(0)
+
             self.report_num = len(self.client_list)
-            if self.opts.no_local and self.master.address == 'localhost':
-                self.report_num -= 1
 
             if self.report_num == 0:
                 self.exit("No nodes connected. Aborting...")
