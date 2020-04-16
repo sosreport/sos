@@ -387,7 +387,7 @@ class SosNode():
 
     def sosreport(self):
         """Run a sosreport on the node, then collect it"""
-        self.finalize_sos_cmd()
+        self.sos_cmd = self.finalize_sos_cmd()
         self.log_info('Final sos command set to %s' % self.sos_cmd)
         try:
             path = self.execute_sos_command()
@@ -579,13 +579,32 @@ class SosNode():
     def finalize_sos_cmd(self):
         """Use host facts and compare to the cluster type to modify the sos
         command if needed"""
-        self.sos_cmd = self.sos_info['sos_cmd']
+        sos_cmd = self.sos_info['sos_cmd']
         label = self.determine_sos_label()
         if label:
-            self.sos_cmd = ' %s %s' % (self.sos_cmd, quote(label))
+            self.sos_cmd = '%s %s ' % (sos_cmd, quote(label))
 
         if self.opts.sos_opt_line:
-            return True
+            return '%s %s' % (sos_cmd, self.opts.sos_opt_line)
+
+        sos_opts = []
+
+        # sos-3.7 added options
+        if self.check_sos_version('3.7'):
+            if self.opts.plugin_timeout:
+                sos_opts.append('--plugin-timeout=%s'
+                                % quote(str(self.opts.plugin_timeout)))
+
+        # sos-3.8 added options
+        if self.check_sos_version('3.8'):
+            if self.opts.allow_system_changes:
+                sos_opts.append('--allow-system-changes')
+
+            if self.opts.no_env_vars:
+                sos_opts.append('--no-env-vars')
+
+            if self.opts.since:
+                sos_opts.append('--since=%s' % quote(self.opts.since))
 
         if self.opts.only_plugins:
             plugs = [o for o in self.opts.only_plugins
@@ -596,8 +615,8 @@ class SosNode():
                                'enabled but do not exist' % not_only)
             only = self._fmt_sos_opt_list(self.opts.only_plugins)
             if only:
-                self.sos_cmd += ' --only-plugins=%s' % quote(only)
-            return True
+                sos_opts.append('--only-plugins=%s' % quote(only))
+            return "%s %s" % (sos_cmd, ' '.join(sos_opts))
 
         if self.opts.skip_plugins:
             # only run skip-plugins for plugins that are enabled
@@ -609,7 +628,7 @@ class SosNode():
                                'already not enabled' % not_skip)
             skipln = self._fmt_sos_opt_list(skip)
             if skipln:
-                self.sos_cmd += ' --skip-plugins=%s' % quote(skipln)
+                sos_opts.append('--skip-plugins=%s' % quote(skipln))
 
         if self.opts.enable_plugins:
             # only run enable for plugins that are disabled
@@ -622,21 +641,23 @@ class SosNode():
                                'are already enabled or do not exist' % not_on)
             enable = self._fmt_sos_opt_list(opts)
             if enable:
-                self.sos_cmd += ' --enable-plugins=%s' % quote(enable)
+                sos_opts.append('--enable-plugins=%s' % quote(enable))
 
         if self.opts.plugin_options:
             opts = [o for o in self.opts.plugin_options
                     if self._plugin_exists(o.split('.')[0])
                     and self._plugin_option_exists(o.split('=')[0])]
             if opts:
-                self.sos_cmd += ' -k %s' % quote(','.join(o for o in opts))
+                sos_opts.append('-k %s' % quote(','.join(o for o in opts)))
 
         if self.opts.preset:
             if self._preset_exists(self.opts.preset):
-                self.sos_cmd += ' --preset=%s' % quote(self.opts.preset)
+                sos_opts.append('--preset=%s' % quote(self.opts.preset))
             else:
                 self.log_debug('Requested to enable preset %s but preset does '
                                'not exist on node' % self.opts.preset)
+
+        return "%s %s" % (sos_cmd, ' '.join(sos_opts))
 
     def determine_sos_label(self):
         """Determine what, if any, label should be added to the sosreport"""
