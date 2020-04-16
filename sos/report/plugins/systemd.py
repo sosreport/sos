@@ -19,10 +19,7 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     profiles = ('system', 'services', 'boot')
 
     packages = ('systemd',)
-    files = (
-        '/usr/lib/systemd/systemd',
-        '/lib/systemd/systemd'
-    )
+    files = ('/run/systemd/system',)
 
     def setup(self):
         self.add_cmd_output([
