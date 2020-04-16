@@ -37,6 +37,8 @@ class SosNode():
         self.cluster = None
         self.hostname = None
         self._password = password or self.opts.password
+        if not self.opts.nopasswd_sudo and not self.opts.sudo_pw:
+            self.opts.sudo_pw = self._password
         # override local sudo from any other source
         if local_sudo:
             self.opts.sudo_pw = local_sudo
