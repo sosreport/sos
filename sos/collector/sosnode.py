@@ -19,7 +19,15 @@ import shutil
 from distutils.version import LooseVersion
 from pipes import quote
 from sos.policies import load, InitSystem
-from sos.collector.exceptions import *
+from sos.collector.exceptions import (InvalidPasswordException,
+                                      TimeoutPasswordAuthException,
+                                      PasswordRequestException,
+                                      AuthPermissionDeniedException,
+                                      ConnectionException,
+                                      CommandTimeoutException,
+                                      ConnectionTimeoutException,
+                                      ControlSocketMissingException,
+                                      UnsupportedHostException)
 
 
 class SosNode():
