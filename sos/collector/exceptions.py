@@ -10,7 +10,7 @@
 
 
 class InvalidPasswordException(Exception):
-    '''Raised when the provided password is rejected by the remote host'''
+    """Raised when the provided password is rejected by the remote host"""
 
     def __init__(self):
         message = 'Invalid password provided'
@@ -18,8 +18,8 @@ class InvalidPasswordException(Exception):
 
 
 class TimeoutPasswordAuthException(Exception):
-    '''Raised when a timeout is hit waiting for an auth reply using a password
-    '''
+    """Raised when a timeout is hit waiting for an auth reply using a password
+    """
 
     def __init__(self):
         message = 'Timeout hit while waiting for password validation'
@@ -27,8 +27,8 @@ class TimeoutPasswordAuthException(Exception):
 
 
 class PasswordRequestException(Exception):
-    '''Raised when the remote host requests a password that was not anticipated
-    '''
+    """Raised when the remote host requests a password that was not anticipated
+    """
 
     def __init__(self):
         message = 'Host requested password, but none provided'
@@ -36,7 +36,7 @@ class PasswordRequestException(Exception):
 
 
 class AuthPermissionDeniedException(Exception):
-    '''Raised when authentication attempts return a permission error'''
+    """Raised when authentication attempts return a permission error"""
 
     def __init__(self):
         message = 'Permission denied while trying to authenticate'
@@ -44,7 +44,7 @@ class AuthPermissionDeniedException(Exception):
 
 
 class ConnectionException(Exception):
-    '''Raised when an attempt to connect fails'''
+    """Raised when an attempt to connect fails"""
 
     def __init__(self, address='', port=''):
         message = ("Could not connect to host %s on specified port %s"
@@ -53,7 +53,7 @@ class ConnectionException(Exception):
 
 
 class CommandTimeoutException(Exception):
-    '''Raised when a timeout expires'''
+    """Raised when a timeout expires"""
 
     def __init__(self, command=None):
         message = 'Timeout expired'
@@ -63,7 +63,7 @@ class CommandTimeoutException(Exception):
 
 
 class ConnectionTimeoutException(Exception):
-    '''Raised when a timeout expires while trying to connect to the host'''
+    """Raised when a timeout expires while trying to connect to the host"""
 
     def __init__(self):
         message = 'Timeout expires while trying to connect'
@@ -71,7 +71,7 @@ class ConnectionTimeoutException(Exception):
 
 
 class ControlSocketMissingException(Exception):
-    '''Raised when the SSH control socket is missing'''
+    """Raised when the SSH control socket is missing"""
 
     def __init__(self, path=''):
         message = "SSH control socket %s does not exist" % path
@@ -79,7 +79,7 @@ class ControlSocketMissingException(Exception):
 
 
 class ControlPersistUnsupportedException(Exception):
-    '''Raised when SSH ControlPersist is unsupported locally'''
+    """Raised when SSH ControlPersist is unsupported locally"""
 
     def __init__(self):
         message = 'ControlPersist unsupported by local SSH installation'
@@ -87,7 +87,7 @@ class ControlPersistUnsupportedException(Exception):
 
 
 class UnsupportedHostException(Exception):
-    '''Raised when the host type is unsupported or undetermined'''
+    """Raised when the host type is unsupported or undetermined"""
 
     def __init__(self):
         message = 'Host did not match any supported distributions'
