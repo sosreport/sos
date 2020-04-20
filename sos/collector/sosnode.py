@@ -123,9 +123,11 @@ class SosNode():
         """If the host is containerized, create the container we'll be using
         """
         if self.host.containerized:
-            res = self.run_command(self.host.create_sos_container())
+            res = self.run_command(self.host.create_sos_container(),
+                                   need_root=True)
             if res['status'] in [0, 125]:  # 125 means container exists
-                ret = self.run_command(self.host.restart_sos_container())
+                ret = self.run_command(self.host.restart_sos_container(),
+                                       need_root=True)
                 if ret['status'] == 0:
                     self.log_info("Temporary container %s created"
                                   % self.host.sos_container_name)
@@ -233,10 +235,19 @@ class SosNode():
     def _load_sos_info(self):
         """Queries the node for information about the installed version of sos
         """
-        pkg = self.host.package_manager.pkg_version(self.host.sos_pkg_name)
-        if pkg:
-            ver = '.'.join(pkg['version'])
-            self.sos_info['version'] = ver
+        if self.host.container_version_command is None:
+            pkg = self.host.package_manager.pkg_version(self.host.sos_pkg_name)
+            if pkg is not None:
+                ver = '.'.join(pkg['version'])
+                self.sos_info['version'] = ver
+        else:
+            # use the containerized policy's command
+            pkgs = self.run_command(self.host.container_version_command,
+                                    use_container=True, need_root=True)
+            ver = pkgs['stdout'].strip().split('-')[1]
+            if ver:
+                self.sos_info['version'] = ver
+        if 'version' in self.sos_info:
             self.log_info('sos version is %s' % self.sos_info['version'])
         else:
             self.log_error('sos is not installed on this node')
@@ -374,11 +385,11 @@ class SosNode():
         if cmd.startswith('sosreport'):
             cmd = cmd.replace('sosreport', self.host.sos_bin_path)
             need_root = True
+        if use_container and self.host.containerized:
+            cmd = self.host.format_container_command(cmd)
         if need_root:
             get_pty = True
             cmd = self._format_cmd(cmd)
-        if use_container and self.host.containerized:
-            cmd = self.host.format_container_command(cmd)
         self.log_debug('Running command %s' % cmd)
         if 'atomic' in cmd:
             get_pty = True
