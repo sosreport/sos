@@ -114,28 +114,28 @@ class SoS():
     def _add_common_options(self, parser):
         """Adds the options shared across components to the parser
         """
-        parser.add_argument("--config-file", type=str, action="store",
-                            dest="config_file", default="/etc/sos.conf",
-                            help="specify alternate configuration file")
-        parser.add_argument("--debug", action="store_true", dest="debug",
-                            help="enable interactive debugging using the "
-                            "python debugger")
-        parser.add_argument("-q", "--quiet", action="store_true",
-                            dest="quiet", default=False,
-                            help="only print fatal errors")
-        parser.add_argument("-s", "--sysroot", action="store", dest="sysroot",
-                            help="system root directory path (default='/')",
-                            default=None)
-        parser.add_argument("--tmp-dir", action="store",
-                            dest="tmp_dir",
-                            help="specify alternate temporary directory",
-                            default=None)
-        parser.add_argument("-t", "--threads", action="store", dest="threads",
-                            default=4, type=int,
-                            help="Number of threads to use")
-        parser.add_argument("-v", "--verbose", action="count",
-                            dest="verbosity", default=0,
-                            help="increase verbosity")
+        global_grp = parser.add_argument_group('Global Options')
+        global_grp.add_argument("--config-file", type=str, action="store",
+                                dest="config_file", default="/etc/sos.conf",
+                                help="specify alternate configuration file")
+        global_grp.add_argument("--debug", action="store_true", dest="debug",
+                                help="enable interactive debugging using the "
+                                     "python debugger")
+        global_grp.add_argument("-q", "--quiet", action="store_true",
+                                dest="quiet", default=False,
+                                help="only print fatal errors")
+        global_grp.add_argument("-s", "--sysroot", action="store",
+                                dest="sysroot", default=None,
+                                help="system rootdir path (default='/')")
+        global_grp.add_argument("--tmp-dir", action="store", dest="tmp_dir",
+                                default=None,
+                                help="specify alternate temporary directory")
+        global_grp.add_argument("-t", "--threads", action="store",
+                                dest="threads", default=4, type=int,
+                                help="Number of threads to use")
+        global_grp.add_argument("-v", "--verbose", action="count",
+                                dest="verbosity", default=0,
+                                help="increase verbosity")
 
     def _init_component(self):
         """Determine which component has been requested by the user, and then

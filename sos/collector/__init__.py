@@ -219,106 +219,116 @@ class SoSCollector(SoSComponent):
 
     @classmethod
     def add_parser_options(cls, parser):
-        parser.add_argument('-a', '--alloptions', action='store_true',
-                            help='Enable all sos options')
-        parser.add_argument('--all-logs', action='store_true',
-                            help='Collect logs regardless of size')
-        parser.add_argument('--allow-system-changes', action='store_true',
-                            default=False,
-                            help=('Allow sosreport to run commands that may '
-                                  'alter system state')
-                            )
-        parser.add_argument('-b', '--become', action='store_true',
-                            dest='become_root',
-                            help='Become root on the remote nodes')
-        parser.add_argument('--batch', action='store_true',
-                            help='Do not prompt interactively')
-        parser.add_argument('--case-id', help='Specify case number')
-        parser.add_argument('--cluster-type',
-                            help='Specify a type of cluster profile')
-        parser.add_argument('-c', '--cluster-option', dest='cluster_options',
-                            action='append',
-                            help=('Specify a cluster options used by a profile'
-                                  ' and takes the form of cluster.option=value'
-                                  )
-                            )
-        parser.add_argument('--chroot', default='',
-                            choices=['auto', 'always', 'never'],
-                            help="chroot executed commands to SYSROOT")
-        parser.add_argument('-e', '--enable-plugins', action="append",
-                            help='Enable specific plugins for sosreport')
-        parser.add_argument('--group', default=None,
-                            help='Use a predefined group JSON file')
-        parser.add_argument('--save-group', default='',
-                            help='Save the resulting node list to a group')
-        parser.add_argument('--image',
-                            help=('Specify the container image to use for '
-                                  'containerized hosts. Defaults to the '
-                                  'rhel7/support-tools image'))
-        parser.add_argument('-i', '--ssh-key', help='Specify an ssh key')
-        parser.add_argument('--nopasswd-sudo', action='store_true',
-                            help='Use when passwordless sudo is configured')
-        parser.add_argument('-k', '--plugin-options', action="append",
-                            help='Plugin option as plugname.option=value')
-        parser.add_argument('--plugin-timeout', type=int, default=None,
-                            help='Set the global plugin timeout value')
-        parser.add_argument('-l', '--list-options', action="store_true",
-                            help='List options available for profiles')
-        parser.add_argument('--label', help='Assign a label to the archives')
-        parser.add_argument('--log-size', default=0, type=int,
-                            help='Limit the size of individual logs (in MiB)')
-        parser.add_argument('-n', '--skip-plugins', action="append",
-                            help='Skip these plugins')
-        parser.add_argument('--nodes', action="append",
-                            help='Provide a comma delimited list of nodes, or '
-                                 'a regex to match against')
-        parser.add_argument('--no-env-vars', action='store_true',
-                            default=False,
-                            help='Do not collect env vars in sosreports')
-        parser.add_argument('--no-pkg-check', action='store_true',
-                            help=('Do not run package checks. Use this '
-                                  'with --cluster-type if there are rpm '
-                                  'or apt issues on node'
-                                  )
-                            )
-        parser.add_argument('--no-local', action='store_true',
-                            help='Do not collect a sosreport from localhost')
-        parser.add_argument('--master', help='Specify a remote master node')
-        parser.add_argument('-o', '--only-plugins', action="append",
-                            help='Run these plugins only')
-        parser.add_argument('-p', '--ssh-port', type=int,
-                            help='Specify SSH port for all nodes')
-        parser.add_argument('--password', action='store_true', default=False,
-                            help='Prompt for user password for nodes')
-        parser.add_argument('--password-per-node', action='store_true',
-                            default=False,
-                            help='Prompt for password for each node')
-        parser.add_argument('--preset', default='', required=False,
-                            help='Specify a sos preset to use')
-        parser.add_argument('--since', default=None,
-                            help=('Escapes archived files older than date. '
-                                  'This will also affect --all-logs. '
-                                  'Format: YYYYMMDD[HHMMSS]')
-                            )
-        parser.add_argument('--sos-cmd', dest='sos_opt_line',
-                            help=("Manually specify the commandline options "
-                                  "for sosreport on remote nodes")
-                            )
-        parser.add_argument('--ssh-user',
-                            help='Specify an SSH user. Default root')
-        parser.add_argument('--timeout', type=int, required=False,
-                            help='Timeout for sosreport on each node.')
-        parser.add_argument('--verify', action="store_true",
-                            help="perform data verification during collection")
-        parser.add_argument('-z', '--compression-type', dest="compression",
-                            choices=['auto', 'gzip', 'bzip2', 'xz'],
-                            help="compression technology to use")
+
+        # Add the supported report passthru options to a group for logical
+        # grouping in --help display
+        sos_grp = parser.add_argument_group(
+            'Report Passthru Options',
+            'These options control how report is run on nodes'
+        )
+        sos_grp.add_argument('-a', '--alloptions', action='store_true',
+                             help='Enable all sos report options')
+        sos_grp.add_argument('--all-logs', action='store_true',
+                             help='Collect logs regardless of size')
+        sos_grp.add_argument('--allow-system-changes', action='store_true',
+                             default=False,
+                             help=('Allow sosreport to run commands that may '
+                                   'alter system state'))
+        sos_grp.add_argument('--chroot', default='',
+                             choices=['auto', 'always', 'never'],
+                             help="chroot executed commands to SYSROOT")
+        sos_grp.add_argument('-e', '--enable-plugins', action="append",
+                             help='Enable specific plugins for sosreport')
+        sos_grp.add_argument('-k', '--plugin-options', action="append",
+                             help='Plugin option as plugname.option=value')
+        sos_grp.add_argument('--log-size', default=0, type=int,
+                             help='Limit the size of individual logs (in MiB)')
+        sos_grp.add_argument('-n', '--skip-plugins', action="append",
+                             help='Skip these plugins')
+        sos_grp.add_argument('-o', '--only-plugins', action="append",
+                             help='Run these plugins only')
+        sos_grp.add_argument('--no-env-vars', action='store_true',
+                             default=False,
+                             help='Do not collect env vars in sosreports')
+        sos_grp.add_argument('--plugin-timeout', type=int, default=None,
+                             help='Set the global plugin timeout value')
+        sos_grp.add_argument('--since', default=None,
+                             help=('Escapes archived files older than date. '
+                                   'This will also affect --all-logs. '
+                                   'Format: YYYYMMDD[HHMMSS]'))
+        sos_grp.add_argument('--verify', action="store_true",
+                             help='perform pkg verification during collection')
+
+        # Add the collector specific options to a separate group to keep
+        # everything organized
+        collect_grp = parser.add_argument_group(
+            'Collector Options',
+            'These options control how collect runs locally'
+        )
+        collect_grp.add_argument('-b', '--become', action='store_true',
+                                 dest='become_root',
+                                 help='Become root on the remote nodes')
+        collect_grp.add_argument('--batch', action='store_true',
+                                 help='Do not prompt interactively')
+        collect_grp.add_argument('--case-id', help='Specify case number')
+        collect_grp.add_argument('--cluster-type',
+                                 help='Specify a type of cluster profile')
+        collect_grp.add_argument('-c', '--cluster-option',
+                                 dest='cluster_options', action='append',
+                                 help=('Specify a cluster options used by a '
+                                       'profile and takes the form of '
+                                       'cluster.option=value'))
+        collect_grp.add_argument('--group', default=None,
+                                 help='Use a predefined group JSON file')
+        collect_grp.add_argument('--save-group', default='',
+                                 help='Save a resulting node list to a group')
+        collect_grp.add_argument('--image',
+                                 help=('Specify the container image to use for'
+                                       ' containerized hosts.'))
+        collect_grp.add_argument('-i', '--ssh-key', help='Specify an ssh key')
+        collect_grp.add_argument('-l', '--list-options', action="store_true",
+                                 help='List options available for profiles')
+        collect_grp.add_argument('--label',
+                                 help='Assign a label to the archives')
+        collect_grp.add_argument('--master', help='Specify a master node')
+        collect_grp.add_argument('--nopasswd-sudo', action='store_true',
+                                 help='Use passwordless sudo on nodes')
+        collect_grp.add_argument('--nodes', action="append",
+                                 help=('Provide a comma delimited list of '
+                                       'nodes, or a regex to match against'))
+        collect_grp.add_argument('--no-pkg-check', action='store_true',
+                                 help=('Do not run package checks. Use this '
+                                       'with --cluster-type if there are rpm '
+                                       'or apt issues on node'))
+        collect_grp.add_argument('--no-local', action='store_true',
+                                 help='Do not collect a report from localhost')
+        collect_grp.add_argument('-p', '--ssh-port', type=int,
+                                 help='Specify SSH port for all nodes')
+        collect_grp.add_argument('--password', action='store_true',
+                                 default=False,
+                                 help='Prompt for user password for nodes')
+        collect_grp.add_argument('--password-per-node', action='store_true',
+                                 default=False,
+                                 help='Prompt for password for each node')
+        collect_grp.add_argument('--preset', default='', required=False,
+                                 help='Specify a sos preset to use')
+        collect_grp.add_argument('--sos-cmd', dest='sos_opt_line',
+                                 help=('Manually specify the commandline '
+                                       'for sos report on nodes'))
+        collect_grp.add_argument('--ssh-user',
+                                 help='Specify an SSH user. Default root')
+        collect_grp.add_argument('--timeout', type=int, required=False,
+                                 help='Timeout for sosreport on each node.')
+        collect_grp.add_argument('-z', '--compression-type',
+                                 dest="compression",
+                                 choices=['auto', 'gzip', 'bzip2', 'xz'],
+                                 help="compression technology to use")
 
         # Group to make tarball encryption (via GPG/password) exclusive
-        encrypt_grp = parser.add_mutually_exclusive_group()
+        encrypt_grp = collect_grp.add_mutually_exclusive_group()
         encrypt_grp.add_argument("--encrypt-key",
-                                 help="Encrypt the archive using a GPG "
-                                      "key-pair")
+                                 help=("Encrypt the archive using a GPG "
+                                       "key-pair"))
         encrypt_grp.add_argument("--encrypt-pass",
                                  help="Encrypt the archive using a password")
 
