@@ -738,8 +738,9 @@ class SoSCollector(SoSComponent):
 
         self.ui_log.info('The following is a list of nodes to collect from:')
         if self.master.connected and self.master.hostname is not None:
-            self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
-                                         self.master.hostname))
+            if not (self.master.local and self.opts.no_local):
+                self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
+                                             self.master.hostname))
 
         for node in sorted(self.node_list):
             self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
