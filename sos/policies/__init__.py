@@ -1015,6 +1015,7 @@ class LinuxPolicy(Policy):
     sos_pkg_name = None
     sos_bin_path = None
     sos_container_name = 'sos-collector-tmp'
+    container_version_command = None
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True):
         super(LinuxPolicy, self).__init__(sysroot=sysroot,

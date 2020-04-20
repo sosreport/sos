@@ -420,6 +420,7 @@ support representative.
     container_runtime = 'docker'
     container_image = 'registry.access.redhat.com/rhel7/support-tools'
     sos_path_strip = '/host'
+    container_version_command = 'rpm -q sos'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -482,6 +483,7 @@ support representative.
     container_runtime = 'podman'
     container_image = 'registry.redhat.io/rhel8/support-tools'
     sos_path_strip = '/host'
+    container_version_command = 'rpm -q sos'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -493,7 +495,7 @@ support representative.
     def check(cls, remote=''):
 
         if remote:
-            return cls.distro in remote
+            return 'CoreOS' in remote
 
         coreos = False
         if ENV_HOST_SYSROOT not in os.environ:
