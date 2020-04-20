@@ -78,8 +78,15 @@ class SosNode():
             self.connected = True
             self.local = True
             self.need_sudo = os.getuid() != 0
+        # load the host policy now, even if we don't want to load further
+        # host information. This is necessary if we're running locally on the
+        # cluster master but do not want a local report as we still need to do
+        # package checks in that instance
+        self.host = self.determine_host_policy()
+        self.get_hostname()
+        if self.local and self.opts.no_local:
+            load_facts = False
         if self.connected and load_facts:
-            self.host = self.determine_host_policy()
             if not self.host:
                 self.connected = False
                 self.close_ssh_session()
@@ -87,7 +94,6 @@ class SosNode():
             if self.local:
                 if self.check_in_container():
                     self.host.containerized = False
-            self.get_hostname()
             if self.host.containerized:
                 self.create_sos_container()
             self._load_sos_info()
@@ -310,6 +316,8 @@ class SosNode():
         distributions
         """
         if self.local:
+            self.log_info("using local policy %s"
+                          % self.commons['policy'].distro)
             return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=False, remote_exec=self.ssh_cmd,
