@@ -237,15 +237,16 @@ class SoSCollector(SoSComponent):
         sos_grp.add_argument('--chroot', default='',
                              choices=['auto', 'always', 'never'],
                              help="chroot executed commands to SYSROOT")
-        sos_grp.add_argument('-e', '--enable-plugins', action="append",
+        sos_grp.add_argument('-e', '--enable-plugins', action="extend",
                              help='Enable specific plugins for sosreport')
-        sos_grp.add_argument('-k', '--plugin-options', action="append",
+        sos_grp.add_argument('-k', '--plugin-options', action="extend",
                              help='Plugin option as plugname.option=value')
         sos_grp.add_argument('--log-size', default=0, type=int,
                              help='Limit the size of individual logs (in MiB)')
-        sos_grp.add_argument('-n', '--skip-plugins', action="append",
+        sos_grp.add_argument('-n', '--skip-plugins', action="extend",
                              help='Skip these plugins')
-        sos_grp.add_argument('-o', '--only-plugins', action="append",
+        sos_grp.add_argument('-o', '--only-plugins', action="extend",
+                             default=[],
                              help='Run these plugins only')
         sos_grp.add_argument('--no-env-vars', action='store_true',
                              default=False,

@@ -149,6 +149,8 @@ class SoSOptions():
         """
         if isinstance(self.arg_defaults[key], type(val)):
             return val
+        if isinstance(self.arg_defaults[key], list):
+            return [v for v in val.split(',')]
         if isinstance(self.arg_defaults[key], bool):
             _val = val.lower()
             if _val in ['true', 'on', 'yes']:
