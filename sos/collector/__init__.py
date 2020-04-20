@@ -366,6 +366,7 @@ class SoSCollector(SoSComponent):
             self.close_all_connections()
         except Exception:
             pass
+        self.cleanup()
         sys.exit(error)
 
     def _parse_options(self):
