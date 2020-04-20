@@ -64,7 +64,7 @@ class Cluster():
             self.options.append(option)
 
     def _fmt_msg(self, msg):
-        return '[%s] %s' % (self.cluster_type, msg)
+        return '[%s] %s' % (self.cluster_type[0], msg)
 
     def log_info(self, msg):
         """Used to print info messages"""
@@ -72,7 +72,7 @@ class Cluster():
 
     def log_error(self, msg):
         """Used to print error messages"""
-        self.soslog.error(self._fmt_msg(msg))
+        self.soslog.error(msg)
 
     def log_debug(self, msg):
         """Used to print debug messages"""
@@ -170,8 +170,7 @@ class Cluster():
         try:
             nodes = self.get_nodes()
         except Exception as e:
-            self.log_error('\n%s failed to enumerate nodes: %s'
-                           % (self.cluster_type, e))
+            self.log_error('Cluster failed to enumerate nodes: %s' % e)
             raise
         if isinstance(nodes, list):
             node_list = [n.strip() for n in nodes if n]
