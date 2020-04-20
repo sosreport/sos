@@ -599,6 +599,12 @@ class SosNode():
 
         sos_opts = []
 
+        # sos-3.6 added --threads
+        if self.check_sos_version('3.6'):
+            # 4 threads is the project's default
+            if self.opts.threads != 4:
+                sos_opts.append('--threads=%s' % quote(str(self.opts.threads)))
+
         # sos-3.7 added options
         if self.check_sos_version('3.7'):
             if self.opts.plugin_timeout:

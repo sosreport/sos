@@ -61,6 +61,7 @@ class SoSCollector(SoSComponent):
         'group': None,
         'save_group': '',
         'image': '',
+        'jobs': 4,
         'ssh_key': '',
         'nopasswd_sudo': False,
         'plugin_options': [],
@@ -287,6 +288,8 @@ class SoSCollector(SoSComponent):
                                  help=('Specify the container image to use for'
                                        ' containerized hosts.'))
         collect_grp.add_argument('-i', '--ssh-key', help='Specify an ssh key')
+        collect_grp.add_argument('-j', '--jobs', default=4, type=int,
+                                 help='Number of concurrent nodes to collect')
         collect_grp.add_argument('-l', '--list-options', action="store_true",
                                  help='List options available for profiles')
         collect_grp.add_argument('--label',
@@ -1004,7 +1007,7 @@ this utility or remote systems that it connects to.
             nodes = _nodes
 
         try:
-            pool = ThreadPoolExecutor(self.opts.threads)
+            pool = ThreadPoolExecutor(self.opts.jobs)
             pool.map(self._connect_to_node, nodes, chunksize=1)
             pool.shutdown(wait=True)
 
@@ -1029,9 +1032,9 @@ this utility or remote systems that it connects to.
             self.ui_log.info("\nBeginning collection of sosreports from %s "
                              "nodes, collecting a maximum of %s "
                              "concurrently\n"
-                             % (self.report_num, self.opts.threads))
+                             % (self.report_num, self.opts.jobs))
 
-            pool = ThreadPoolExecutor(self.opts.threads)
+            pool = ThreadPoolExecutor(self.opts.jobs)
             pool.map(self._collect, self.client_list, chunksize=1)
             pool.shutdown(wait=True)
         except KeyboardInterrupt:

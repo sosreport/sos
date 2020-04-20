@@ -15,6 +15,7 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [--encrypt-key KEY]\fR
     [--encrypt-pass PASS]\fR
     [\-\-group GROUP]
+    [\-j|\-\-jobs JOBS]
     [\-\-save\-group GROUP]
     [\-\-nopasswd-sudo]
     [\-k PLUGIN_OPTION]
@@ -166,6 +167,15 @@ with the settings for cluster-type, master, and the node list as discovered by c
 Note that this means regexes are not directly saved to host groups, but the results of matching against
 those regexes are.
 .TP
+\fB\-j\fR JOBS \fB\-\-jobs\fR JOBS
+Specify the number of concurrent node collections that should be run.
+
+If the number of nodes enumerated exceeds the number of JOBS, then sos collect
+will start collecting from the first X number of nodes and then continue to iterate
+through the remaining nodes as sosreport collection finishes.
+
+Defaults to 4.
+.TP
 \fB\-\-nopasswd-sudo\fR
 Use this option when connecting as a non-root user that has passwordless sudo
 configured.
@@ -269,19 +279,18 @@ option cannot be removed from the sosreport command as it is required to run
 sosreport non-interactively for sos collect to function.
 .TP
 \fB\-t\fR THREADS \fB\-\-threads\fR THREADS
-Specify the number of threads to use for concurrent collection of sosreports.
+Report option. Specify the number of collection threads to run.
 
-If the number of nodes enumerated exceeds the number of threads, then sos collect
-will start collecting from the first X number of nodes and then continue to iterate
-through the remaining nodes as sosreport collection finishes.
+The report process on each node will run THREADS number of plugins concurrently
+during the collection process.
 
 Defaults to 4.
 .TP
 \fB\-\-timeout\fR TIMEOUT
 Timeout for sosreport generation on each node, in seconds.
 
-Note that sosreports are collected in parallel, so this can also be considered to be
-approximately the same as a timeout for the entire collection process. 
+Note that sosreports are collected in parallel, so you can approximate the total
+runtime of sos collect via timeout*(number of nodes/jobs).
 
 Default is 180 seconds.
 .TP
