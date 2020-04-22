@@ -962,8 +962,11 @@ this utility or remote systems that it connects to.
         self.ui_log.info(intro_msg)
         prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
         if not self.opts.batch:
-            input(prompt)
-            self.ui_log.info("")
+            try:
+                input(prompt)
+                self.ui_log.info("")
+            except KeyboardInterrupt:
+                self.exit("Exiting on user cancel", 130)
 
         if not self.opts.case_id and not self.opts.batch:
             msg = 'Please enter the case id you are collecting reports for: '
