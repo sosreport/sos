@@ -8,6 +8,24 @@ jobs:
       script:
         - "pycodestyle sos"
         - "sudo ./tests/simple.sh"
+    - name: "18.04 native run for arm64"
+      os: linux
+      dist: bionic
+      arch: arm64
+      language: shell
+      script: "sudo ./tests/simple.sh"
+    - name: "18.04 native s390x"
+      os: linux
+      dist: bionic
+      arch: s390x
+      language: shell
+      script: "sudo ./tests/simple.sh"
+    - name: "18.04 native ppc64le"
+      os: linux
+      dist: bionic
+      arch: ppc64le
+      language: shell
+      script: "sudo ./tests/simple.sh"
     - name: "16.04 native run (py3.5)"
       os: linux
       dist: xenial
