@@ -108,7 +108,7 @@ class SoS():
             self._add_common_options(_com_subparser)
             self._components[comp][0].add_parser_options(parser=_com_subparser)
             _com_subparser.set_defaults(component=comp)
-        self.args = self.parser.parse_args(self.cmdline)
+        self.args, _unknown = self.parser.parse_known_args(self.cmdline)
         self._init_component()
 
     def _add_common_options(self, parser):
