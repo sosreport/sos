@@ -22,6 +22,14 @@ class MissingCollect(SoSComponent):
             "sos-collector package to enable this functionality.\n"
         )
 
+    def load_options(self):
+        """Override the normal component method to basically ignore all options
+        given, so that we always print the error message that collect is
+        unavailable, rather than failing on the parser when collect is called
+        with options.
+        """
+        return []
+
 
 class MissingPexpect(MissingCollect):
     """This is used as a placeholder for when the collect component is locally
