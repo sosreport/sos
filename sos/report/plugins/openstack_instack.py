@@ -21,9 +21,10 @@ NON_CONTAINERIZED_DEPLOY = [
 ]
 CONTAINERIZED_DEPLOY = [
         '/var/log/heat-launcher/',
+        '/home/stack/ansible.log',
+        '/home/stack/config-download/',
         '/home/stack/install-undercloud.log',
         '/home/stack/undercloud-install-*.tar.bzip2',
-        '/var/lib/mistral/config-download-latest/ansible.log',
         '/home/stack/.tripleo/history',
         '/var/lib/tripleo-config/',
         '/var/log/tripleo-container-image-prepare.log',
