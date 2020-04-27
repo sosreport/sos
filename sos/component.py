@@ -9,6 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 import logging
 import os
 import tempfile
@@ -16,7 +17,9 @@ import sys
 import sos.policies
 
 from argparse import SUPPRESS
+from datetime import datetime
 from shutil import rmtree
+from sos import __version__
 from sos.archive import TarFileArchive
 from sos.options import SoSOptions
 from sos.utilities import TempFileUtil
@@ -65,6 +68,7 @@ class SoSComponent():
         self.archive = None
         self.tmpdir = None
         self.tempfile_util = None
+        self.manifest = None
 
         try:
             import signal
@@ -78,6 +82,8 @@ class SoSComponent():
 
         if self.configure_logging:
             tmpdir = self.get_tmpdir_default()
+            # only setup metadata if we are logging
+            self.manifest = SoSMetadata()
 
             if not os.path.isdir(tmpdir) \
                     or not os.access(tmpdir, os.W_OK):
@@ -99,6 +105,17 @@ class SoSComponent():
             except KeyboardInterrupt:
                 self._exit(0)
             self._is_root = self.policy.is_root()
+
+        if self.manifest is not None:
+            self.manifest.add_field('version', __version__)
+            self.manifest.add_field('cmdline', ' '.join(self.cmdline))
+            self.manifest.add_field('start_time', datetime.now())
+            # these three will be set later, add here for organization
+            self.manifest.add_field('end_time', '')
+            self.manifest.add_field('run_time', '')
+            self.manifest.add_field('compression', '')
+            self.manifest.add_field('policy', self.policy.distro)
+            self.manifest.add_section('components')
 
     def get_exit_handler(self):
         def exit_handler(signum, frame):
@@ -180,12 +197,14 @@ class SoSComponent():
             auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir,
                                         self.policy, self.opts.threads,
-                                        enc_opts, self.opts.sysroot)
+                                        enc_opts, self.opts.sysroot,
+                                        self.manifest)
 
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir,
                                           self.policy, self.opts.threads,
-                                          enc_opts, self.opts.sysroot)
+                                          enc_opts, self.opts.sysroot,
+                                          self.manifest)
 
         self.archive.set_debug(True if self.opts.debug else False)
 
@@ -247,5 +266,43 @@ class SoSComponent():
 
     def get_temp_file(self):
         return self.tempfile_util.new()
+
+
+class SoSMetadata():
+    """This class is used to record metadata from a sos execution that will
+    then be stored as a JSON-formatted manifest within the final tarball.
+
+    It can be extended by adding further instances of SoSMetadata to represent
+    dict-like structures throughout the various sos bits that record to
+    metadata
+    """
+
+    def add_field(self, field_name, content):
+        """Add a key, value entry to the current metadata instance
+        """
+        setattr(self, field_name, content)
+
+    def add_section(self, section_name):
+        """Adds a new instance of SoSMetadata to the current instance
+        """
+        setattr(self, section_name, SoSMetadata())
+
+    def add_list(self, list_name, content=[]):
+        """Add a named list element to the current instance. If content is not
+        supplied, then add an empty list that can alter be appended to
+        """
+        if not isinstance(content, list):
+            raise TypeError('content added must be list')
+        setattr(self, list_name, content)
+
+    def get_json(self, indent=None):
+        """Convert contents of this SoSMetdata instance, and all other nested
+        instances (sections), into a json-formatted output.
+
+        Used to write manifest.json to the final archives.
+        """
+        return json.dumps(self,
+                          default=lambda o: getattr(o, '__dict__', str(o)),
+                          indent=indent)
 
 # vim: set et ts=4 sw=4 :

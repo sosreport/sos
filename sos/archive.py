@@ -16,6 +16,7 @@ import logging
 import codecs
 import errno
 import stat
+from datetime import datetime
 from threading import Lock
 
 from sos.utilities import sos_get_command_output, is_executable
@@ -130,13 +131,15 @@ class FileCacheArchive(Archive):
     _archive_root = ""
     _archive_name = ""
 
-    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot):
+    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
+                 manifest=None):
         self._name = name
         self._tmp_dir = tmpdir
         self._policy = policy
         self._threads = threads
         self.enc_opts = enc_opts
         self.sysroot = sysroot or '/'
+        self.manifest = manifest
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)
@@ -532,6 +535,19 @@ class FileCacheArchive(Archive):
         if os.path.isdir(self._archive_root):
             shutil.rmtree(self._archive_root)
 
+    def add_final_manifest_data(self, method):
+        """Adds component-agnostic data to the manifest so that individual
+        SoSComponents do not need to redundantly add these manually
+        """
+        end = datetime.now()
+        start = self.manifest.start_time
+        run_time = end - start
+        self.manifest.add_field('end_time', end)
+        self.manifest.add_field('run_time', run_time)
+        self.manifest.add_field('compression', method)
+        self.add_string(self.manifest.get_json(indent=4),
+                        os.path.join('sos_reports', 'manifest.json'))
+
     def finalize(self, method):
         self.log_info("finalizing archive '%s' using method '%s'"
                       % (self._archive_root, method))
@@ -607,9 +623,10 @@ class TarFileArchive(FileCacheArchive):
     method = None
     _with_selinux_context = False
 
-    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot):
+    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
+                 manifest=None):
         super(TarFileArchive, self).__init__(name, tmpdir, policy, threads,
-                                             enc_opts, sysroot)
+                                             enc_opts, sysroot, manifest)
         self._suffix = "tar"
         self._archive_name = os.path.join(tmpdir, self.name())
 

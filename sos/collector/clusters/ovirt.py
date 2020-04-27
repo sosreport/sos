@@ -143,7 +143,10 @@ class ovirt(Cluster):
         db_sos = self.exec_master_cmd(cmd, need_root=True)
         for line in db_sos['stdout'].splitlines():
             if fnmatch.fnmatch(line, '*sosreport-*tar*'):
-                return line.strip()
+                _pg_dump = line.strip()
+                self.master.manifest.add_field('postgresql_dump',
+                                               _pg_dump.split('/')[-1])
+                return _pg_dump
         self.log_error('Failed to gather database dump')
         return False
 

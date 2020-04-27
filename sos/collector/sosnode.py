@@ -107,6 +107,14 @@ class SosNode():
     def _fmt_msg(self, msg):
         return '{:<{}} : {}'.format(self._hostname, self.hostlen + 1, msg)
 
+    def set_node_manifest(self, manifest):
+        """Set the manifest section that this node will write to
+        """
+        self.manifest = manifest
+        self.manifest.add_field('hostname', self._hostname)
+        self.manifest.add_field('policy', self.host.distro)
+        self.manifest.add_field('sos_version', self.sos_info['version'])
+
     def check_in_container(self):
         """
         Tries to identify if we are currently running in a container or not.
@@ -692,7 +700,9 @@ class SosNode():
                 self.log_debug('Requested to enable preset %s but preset does '
                                'not exist on node' % self.opts.preset)
 
-        return "%s %s" % (sos_cmd, ' '.join(sos_opts))
+        _sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
+        self.manifest.add_field('final_sos_command', _sos_cmd)
+        return _sos_cmd
 
     def determine_sos_label(self):
         """Determine what, if any, label should be added to the sosreport"""
@@ -724,6 +734,7 @@ class SosNode():
         self.log_info('Final sos path: %s' % path)
         self.sos_path = path
         self.archive = path.split('/')[-1]
+        self.manifest.add_field('collected_archive', self.archive)
 
     def determine_sos_error(self, rc, stdout):
         if rc == -1:

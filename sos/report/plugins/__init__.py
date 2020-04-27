@@ -439,6 +439,7 @@ class Plugin(object):
         self.sysroot = commons['sysroot']
         self.policy = commons['policy']
         self.devices = commons['devices']
+        self.manifest = None
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -454,6 +455,21 @@ class Plugin(object):
 
         # Initialise the default --dry-run predicate
         self.set_predicate(SoSPredicate(self))
+
+    def set_plugin_manifest(self, manifest):
+        """Pass in a manifest object to the plugin to write to
+        """
+        self.manifest = manifest
+        # add these here for organization when they actually get set later
+        self.manifest.add_field('start_time', '')
+        self.manifest.add_field('end_time', '')
+        self.manifest.add_field('run_time', '')
+        self.manifest.add_field('setup_start', '')
+        self.manifest.add_field('setup_end', '')
+        self.manifest.add_field('setup_time', '')
+        self.manifest.add_field('timeout_hit', False)
+        self.manifest.add_list('commands', [])
+        self.manifest.add_list('files', [])
 
     @property
     def timeout(self):
@@ -478,6 +494,11 @@ class Plugin(object):
         if _timeout is not None and _timeout > -1:
             return _timeout
         return self.plugin_timeout
+
+    def set_timeout_hit(self):
+        self._timeout_hit = True
+        self.manifest.add_field('end_time', datetime.now())
+        self.manifest.add_field('timeout_hit', True)
 
     def check_timeout(self):
         """
@@ -1000,7 +1021,7 @@ class Plugin(object):
         self.copy_paths.update(copy_paths)
 
     def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
-                      tailit=True, pred=None):
+                      tailit=True, pred=None, tags=None):
         """Add a file or glob but limit it to sizelimit megabytes. Collect
         files with mtime not older than maxage hours.
         If fname is a single file the file will be tailed to meet sizelimit.
@@ -1033,6 +1054,9 @@ class Plugin(object):
 
         if isinstance(copyspecs, str):
             copyspecs = [copyspecs]
+
+        if isinstance(tags, str):
+            tags = [tags]
 
         for copyspec in copyspecs:
             if not (copyspec and len(copyspec)):
@@ -1075,6 +1099,8 @@ class Plugin(object):
             current_size = 0
             limit_reached = False
 
+            _manifest_files = []
+
             for _file in files:
                 if _file in self.copy_paths:
                     self._log_debug("skipping redundant file '%s'" % _file)
@@ -1111,16 +1137,24 @@ class Plugin(object):
                         link_path = os.path.join(rel_path, 'sos_strings',
                                                  self.name(), strfile)
                         self.archive.add_link(link_path, _file)
+                        _manifest_files.append(_file.lstrip('/'))
                     else:
                         self._log_info("skipping '%s' over size limit" % _file)
                 else:
                     # size limit not hit, copy the file
+                    _manifest_files.append(_file.lstrip('/'))
                     self._add_copy_paths([_file])
+            if self.manifest:
+                self.manifest.files.append({
+                    'specification': copyspec,
+                    'files_copied': _manifest_files,
+                    'tags': tags
+                })
 
     def add_blockdev_cmd(self, cmds, devices='block', timeout=300,
                          sizelimit=None, chroot=True, runat=None, env=None,
                          binary=False, prepend_path=None, whitelist=[],
-                         blacklist=[]):
+                         blacklist=[], tags=None):
         """Run a command or list of commands against storage-related devices.
 
         Any commands specified by cmd will be iterated over the list of the
@@ -1146,11 +1180,13 @@ class Plugin(object):
         self._add_device_cmd(cmds, devices, timeout=timeout,
                              sizelimit=sizelimit, chroot=chroot, runat=runat,
                              env=env, binary=binary, prepend_path=prepend_path,
-                             whitelist=whitelist, blacklist=blacklist)
+                             whitelist=whitelist, blacklist=blacklist,
+                             tags=tags)
 
     def _add_device_cmd(self, cmds, devices, timeout=300, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
-                        prepend_path=None, whitelist=[], blacklist=[]):
+                        prepend_path=None, whitelist=[], blacklist=[],
+                        tags=None):
         """Run a command against all specified devices on the system.
         """
         if isinstance(cmds, str):
@@ -1178,7 +1214,8 @@ class Plugin(object):
                 _cmd = cmd % {'dev': device}
                 self._add_cmd_output(cmd=_cmd, timeout=timeout,
                                      sizelimit=sizelimit, chroot=chroot,
-                                     runat=runat, env=env, binary=binary)
+                                     runat=runat, env=env, binary=binary,
+                                     tags=tags)
 
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
@@ -1197,7 +1234,7 @@ class Plugin(object):
                        root_symlink=None, timeout=cmd_timeout, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
-                       changes=False, foreground=False):
+                       changes=False, foreground=False, tags=None):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -1212,7 +1249,7 @@ class Plugin(object):
                                  root_symlink=root_symlink, timeout=timeout,
                                  stderr=stderr, chroot=chroot, runat=runat,
                                  env=env, binary=binary, sizelimit=sizelimit,
-                                 pred=pred, subdir=subdir,
+                                 pred=pred, subdir=subdir, tags=tags,
                                  changes=changes, foreground=foreground)
 
     def get_cmd_output_path(self, name=None, make=True):
@@ -1303,7 +1340,7 @@ class Plugin(object):
                             root_symlink=False, timeout=cmd_timeout,
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
-                            changes=False, foreground=False):
+                            changes=False, foreground=False, tags=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -1325,6 +1362,7 @@ class Plugin(object):
             :param subdir:              Subdir in plugin directory to save to
             :param changes:             Does this cmd potentially make a change
                                         on the system?
+            :param tags:                Add tags in the archive manifest
 
         :returns:       dict containing status, output, and filename in the
                         archive for the executed cmd
@@ -1338,6 +1376,9 @@ class Plugin(object):
         else:
             root = None
 
+        if isinstance(tags, str):
+            tags = [tags]
+
         start = time()
 
         result = sos_get_command_output(
@@ -1350,6 +1391,16 @@ class Plugin(object):
             self._log_warn(
                 "command '%s' timed out after %ds" % (cmd, timeout)
             )
+
+        manifest_cmd = {
+            'command': cmd.split(' ')[0],
+            'parameters': cmd.split(' ')[1:],
+            'exec': cmd,
+            'filepath': None,
+            'return_code': result['status'],
+            'run_time': time() - start,
+            'tags': tags
+        }
 
         # command not found or not runnable
         if result['status'] == 126 or result['status'] == 127:
@@ -1368,10 +1419,14 @@ class Plugin(object):
             # Exit here if the command was not found in the chroot check above
             # as otherwise we will create a blank file in the archive
             if result['status'] in [126, 127]:
-                return result
+                if self.manifest:
+                    self.manifest.commands.append(manifest_cmd)
+                    return result
+
+        run_time = time() - start
 
         self._log_debug("collected output of '%s' in %s (changes=%s)"
-                        % (cmd.split()[0], time() - start, changes))
+                        % (cmd.split()[0], run_time, changes))
 
         if suggest_filename:
             outfn = self._make_command_filename(suggest_filename, subdir)
@@ -1395,13 +1450,17 @@ class Plugin(object):
             os.path.join(self.archive.get_archive_path(), outfn) if outfn else
             ''
         )
+        if self.manifest:
+            manifest_cmd['filepath'] = outfn
+            manifest_cmd['run_time'] = run_time
+            self.manifest.commands.append(manifest_cmd)
         return result
 
     def collect_cmd_output(self, cmd, suggest_filename=None,
                            root_symlink=False, timeout=cmd_timeout,
                            stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
-                           subdir=None):
+                           subdir=None, tags=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
@@ -1417,7 +1476,8 @@ class Plugin(object):
         return self._collect_cmd_output(
             cmd, suggest_filename=suggest_filename, root_symlink=root_symlink,
             timeout=timeout, stderr=stderr, chroot=chroot, runat=runat,
-            env=env, binary=binary, sizelimit=sizelimit, subdir=subdir
+            env=env, binary=binary, sizelimit=sizelimit, subdir=subdir,
+            tags=tags
         )
 
     def exec_cmd(self, cmd, timeout=cmd_timeout, stderr=True, chroot=True,

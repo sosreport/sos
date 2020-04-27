@@ -97,6 +97,14 @@ class SoSCollector(SoSComponent):
         self.retrieved = 0
         self.cluster = None
         self.cluster_type = None
+
+        # add manifest section for collect
+        self.manifest.components.add_section('collect')
+        # shorthand reference
+        self.collect_md = self.manifest.components.collect
+        # placeholders in manifest organization
+        self.collect_md.add_field('cluster_type', 'none')
+        self.collect_md.add_list('node_list')
         # add a place to set/get the sudo password, but do not expose it via
         # the CLI, because security is a thing
         setattr(self.opts, 'sudo_pw', '')
@@ -689,6 +697,12 @@ class SoSCollector(SoSComponent):
                           '--no-local option if localhost should not be '
                           'included.\nAborting...\n', 1)
 
+        self.collect_md.add_field('master', self.master.address)
+        self.collect_md.add_section('nodes')
+        self.collect_md.nodes.add_section(self.master.address)
+        self.master.set_node_manifest(getattr(self.collect_md.nodes,
+                                              self.master.address))
+
         if self.opts.cluster_type:
             if self.opts.cluster_type == 'none':
                 self.cluster = self.clusters['jbon']
@@ -708,6 +722,7 @@ class SoSCollector(SoSComponent):
                           "cluster type and the node list")
             self.cluster = self.clusters['jbon']
             self.cluster_type = 'none'
+        self.collect_md.add_field('cluster_type', self.cluster_type)
         if self.cluster:
             self.master.cluster = self.cluster
             self.cluster.setup()
@@ -784,6 +799,7 @@ class SoSCollector(SoSComponent):
         self.sos_cmd = self.sos_cmd + ' '.join(sos_opts)
         self.log_debug("Initial sos cmd set to %s" % self.sos_cmd)
         self.commons['sos_cmd'] = self.sos_cmd
+        self.collect_md.add_field('initial_sos_cmd', self.sos_cmd)
 
     def connect_to_master(self):
         """If run with --master, we will run cluster checks again that
@@ -859,6 +875,7 @@ class SoSCollector(SoSComponent):
                     self.node_list.remove(n)
         self.node_list = list(set(n for n in self.node_list if n))
         self.log_debug('Node list reduced to %s' % self.node_list)
+        self.collect_md.add_list('node_list', self.node_list)
 
     def compare_node_to_regex(self, node):
         """Compares a discovered node name to a provided list of nodes from
@@ -932,6 +949,9 @@ class SoSCollector(SoSComponent):
             client.set_cluster(self.cluster)
             if client.connected:
                 self.client_list.append(client)
+                self.collect_md.nodes.add_section(node[0])
+                client.set_node_manifest(getattr(self.collect_md.nodes,
+                                                 node[0]))
             else:
                 client.close_ssh_session()
         except Exception:
@@ -986,7 +1006,7 @@ this utility or remote systems that it connects to.
         self.archive_name = self._get_archive_name()
         self.setup_archive(name=self.archive_name)
         self.archive_path = self.archive.get_archive_path()
-        self.archive.makedirs('logs', 0o755)
+        self.archive.makedirs('sos_logs', 0o755)
 
         self.collect()
         self.cleanup()
@@ -1095,9 +1115,14 @@ this utility or remote systems that it connects to.
                     name = os.path.join(self.tmpdir, fname)
                     self.archive.add_file(name, dest=dest)
             self.archive.add_file(self.sos_log_file,
-                                  dest=os.path.join('logs', 'sos.log'))
+                                  dest=os.path.join('sos_logs', 'sos.log'))
             self.archive.add_file(self.sos_ui_log_file,
-                                  dest=os.path.join('logs', 'ui.log'))
+                                  dest=os.path.join('sos_logs', 'ui.log'))
+
+            if self.manifest is not None:
+                self.archive.add_final_manifest_data(
+                    self.opts.compression_type
+                )
 
             arc_name = self.archive.finalize(self.opts.compression_type)
             final_name = os.path.join(self.sys_tmp, os.path.basename(arc_name))
