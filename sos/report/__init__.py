@@ -129,6 +129,11 @@ class SoSReport(SoSComponent):
 
         self._is_root = self.policy.is_root()
 
+        # add a manifest section for report
+        self.manifest.components.add_section('report')
+        # shorthand reference for ease of maintenance
+        self.report_md = self.manifest.components.report
+
         # user specified command line preset
         if self.opts.preset != self.arg_defaults["preset"]:
             self.preset = self.policy.find_preset(self.opts.preset)
@@ -839,12 +844,20 @@ class SoSReport(SoSComponent):
         self.ui_log.info(_(" Setting up plugins ..."))
         for plugname, plug in self.loaded_plugins:
             try:
+                self.report_md.plugins.add_section(plugname)
+                plug.set_plugin_manifest(getattr(self.report_md.plugins,
+                                                 plugname))
+                start = datetime.now()
+                plug.manifest.add_field('setup_start', start)
                 plug.archive = self.archive
                 plug.add_default_collections()
                 plug.setup()
                 self.env_vars.update(plug._env_vars)
                 if self.opts.verify:
                     plug.setup_verify()
+                end = datetime.now()
+                plug.manifest.add_field('setup_end', end)
+                plug.manifest.add_field('setup_time', end - start)
             except KeyboardInterrupt:
                 raise
             except (OSError, IOError) as e:
@@ -902,15 +915,21 @@ class SoSReport(SoSComponent):
         against the plugin as a whole"""
         with ThreadPoolExecutor(1) as pool:
             try:
+                _plug = self.loaded_plugins[plugin[0]-1][1]
                 t = pool.submit(self.collect_plugin, plugin)
                 # Re-type int 0 to NoneType, as otherwise result() will treat
                 # it as a literal 0-second timeout
-                timeout = self.loaded_plugins[plugin[0]-1][1].timeout or None
+                timeout = _plug.timeout or None
+                start = datetime.now()
+                _plug.manifest.add_field('start_time', start)
                 t.result(timeout=timeout)
+                end = datetime.now()
+                _plug.manifest.add_field('end_time', end)
+                _plug.manifest.add_field('run_time', end - start)
             except TimeoutError:
                 self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])
                 self.running_plugs.remove(plugin[1])
-                self.loaded_plugins[plugin[0]-1][1]._timeout_hit = True
+                self.loaded_plugins[plugin[0]-1][1].set_timeout_hit()
                 pool._threads.clear()
         return True
 
@@ -1092,6 +1111,9 @@ class SoSReport(SoSComponent):
         # All subsequent terminal output must use print().
         self._add_sos_logs()
 
+        if self.manifest is not None:
+            self.archive.add_final_manifest_data(self.opts.compression_type)
+
         archive = None    # archive path
         directory = None  # report directory path (--build)
 
@@ -1214,6 +1236,21 @@ class SoSReport(SoSComponent):
             return False
         return True
 
+    def add_manifest_data(self):
+        """Add 'global' data to the manifest, that is any information that is
+        not plugin-specific
+        """
+        self.report_md.add_field('sysroot', self.sysroot)
+        self.report_md.add_field('preset', self.preset.name if self.preset else
+                                 'unset')
+        self.report_md.add_list('profiles', self.opts.profiles)
+        self.report_md.add_section('devices')
+        for key, value in self.devices.items():
+            self.report_md.devices.add_list(key, value)
+        self.report_md.add_list('enabled_plugins', self.opts.enableplugins)
+        self.report_md.add_list('disabled_plugins', self.opts.noplugins)
+        self.report_md.add_section('plugins')
+
     def execute(self):
         try:
             self.policy.set_commons(self.get_commons())
@@ -1240,6 +1277,7 @@ class SoSReport(SoSComponent):
             if not self.verify_plugins():
                 return False
 
+            self.add_manifest_data()
             self.batch()
             self.prework()
             self.setup()

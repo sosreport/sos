@@ -153,7 +153,9 @@ class Cluster():
         """Used by SosNode() to retrieve the appropriate label from the cluster
         as set by set_node_label() in the cluster profile.
         """
-        return self.set_node_label(node)
+        label = self.set_node_label(node)
+        node.manifest.add_field('label', label)
+        return label
 
     def set_node_label(self, node):
         """This may be overridden by clusters.
