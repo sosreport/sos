@@ -202,7 +202,9 @@ class SoSComponent():
             else:
                 console.setLevel(logging.WARNING)
             self.soslog.addHandler(console)
-            # log ERROR or higher logs to stderr instead
+        # still log ERROR level message to console, but only setup this handler
+        # when --quiet is used, as otherwise we'll double log
+        else:
             console_err = logging.StreamHandler(sys.stderr)
             console_err.setFormatter(logging.Formatter('%(message)s'))
             console_err.setLevel(logging.ERROR)
