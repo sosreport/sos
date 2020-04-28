@@ -42,7 +42,8 @@ def _mangle_command(command, name_max):
 
 
 def _path_in_path_list(path, path_list):
-    return any(p == path for p in path_list)
+    return any((p == path or path.startswith(os.path.abspath(p)+os.sep)
+                for p in path_list))
 
 
 def _node_type(st):
@@ -1664,7 +1665,39 @@ class Plugin(object):
                              sizelimit=log_size, pred=pred)
 
     def _expand_copy_spec(self, copyspec):
-        return glob.glob(copyspec)
+        def __expand(paths):
+            found_paths = []
+            paths = glob.glob(paths)
+            for path in paths:
+                try:
+                    # avoid recursive symlink dirs
+                    if os.path.isfile(path) or os.path.islink(path):
+                        found_paths.append(path)
+                    elif os.path.isdir(path) and os.listdir(path):
+                        found_paths.extend(__expand(os.path.join(path, '*')))
+                    else:
+                        found_paths.append(path)
+                except PermissionError:
+                    # when running in LXD, we've seen os.access return True for
+                    # some /sys or /proc paths yet still get a PermissionError
+                    # when calling os.listdir(), so rather than rely on that,
+                    # just catch and ignore permissions errors resulting from
+                    # security modules like apparmor/selinux
+                    # Ref: https://github.com/lxc/lxd/issues/5688
+                    pass
+            return list(set(found_paths))
+
+        if (os.access(copyspec, os.R_OK) and os.path.isdir(copyspec) and
+                os.listdir(copyspec)):
+            # the directory exists and is non-empty, recurse through it
+            copyspec = os.path.join(copyspec, '*')
+        expanded = set(glob.glob(copyspec, recursive=True))
+        recursed_files = []
+        for _path in expanded:
+            if os.path.isdir(_path):
+                recursed_files.extend(__expand(os.path.join(_path, '*')))
+        expanded.update(recursed_files)
+        return list(expanded)
 
     def _collect_copy_specs(self):
         for path in self.copy_paths:
