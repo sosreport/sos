@@ -2000,6 +2000,11 @@ class SuSEPlugin(object):
     pass
 
 
+class CosPlugin(object):
+    """Tagging class for Container-Optimized OS"""
+    pass
+
+
 class IndependentPlugin(object):
     """Tagging class for plugins that can run on any platform"""
     pass

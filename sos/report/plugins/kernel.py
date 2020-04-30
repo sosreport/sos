@@ -6,12 +6,13 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, CosPlugin)
 import os
 import glob
 
 
-class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
 
     short_desc = 'Linux kernel'
 
