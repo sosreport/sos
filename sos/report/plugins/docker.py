@@ -8,10 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, SoSPredicate
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                SoSPredicate, CosPlugin)
 
 
-class Docker(Plugin):
+class Docker(Plugin, CosPlugin):
 
     short_desc = 'Docker containers'
     plugin_name = 'docker'
