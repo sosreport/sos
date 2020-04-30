@@ -8,10 +8,11 @@
 
 import os
 import glob
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, CosPlugin)
 
 
-class Logs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Logs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
 
     short_desc = 'System logs'
 
