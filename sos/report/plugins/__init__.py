@@ -1775,6 +1775,11 @@ class Plugin(object):
         return True
 
     def _check_plugin_triggers(self, files, packages, commands, services):
+
+        if not any([files, packages, commands, services]):
+            # no checks beyond architecture restrictions
+            return self.check_is_architecture()
+
         return ((any(os.path.exists(fname) for fname in files) or
                 any(self.is_installed(pkg) for pkg in packages) or
                 any(is_executable(cmd) for cmd in commands) or
