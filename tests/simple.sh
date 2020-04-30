@@ -17,18 +17,20 @@ PYTHON=${1:-/usr/bin/python3}
 SOSPATH=${2:-./bin/sos report}
 
 NUMOFFAILURES=0
+summary="Summary\n"
 
 run_expecting_sucess () {
     #$1 - is command options
     #$2 - kind of check to do, so far only extract
     FAIL=false
     # Make sure clean
-    rm -f stderr stdout /var/tmp/sosreport*.tar.*
+    rm -f /dev/shm/stderr /dev/shm/stdout /var/tmp/sosreport*.tar.*
     rm -rf /var/tmp/sosreport_test/
-
+    
+    start=`date +%s`
     echo "######### RUNNING $1 #########"
-    $PYTHON $SOSPATH $1 2> stderr 1> stdout
-
+    $PYTHON $SOSPATH $1 2> /dev/shm/stderr 1> /dev/shm/stdout
+    
     if [ $? -eq 0 ]; then
       echo "### Success"
     else
@@ -36,16 +38,20 @@ run_expecting_sucess () {
       FAIL=true
     fi
 
-    if [ -s stderr ]; then
+    end=`date +%s`
+    runtime=$((end-start))
+    echo "#### Sos Total time (seconds):" $runtime
+
+    if [ -s /dev/shm/stderr ]; then
        FAIL=true
        echo "!!! FAILED !!!"
        echo "### start stderr"
-       cat stderr
+       cat /dev/shm/stderr
        echo "### end stderr"
     fi
-
+    
     echo "### start stdout"
-    cat stdout
+    cat /dev/shm/stdout
     echo "### end stdout"
 
     if [ "extract" = "$2" ]; then
@@ -62,6 +68,9 @@ run_expecting_sucess () {
         fi
         echo "### stop extraction"
     fi
+    
+    size="$(grep Size /dev/shm/stdout)"
+    summary="${summary} \n failures ${FAIL} \t time ${runtime} \t ${size} \t ${1} "
 
     echo "######### DONE WITH $1 #########"
 
@@ -96,8 +105,10 @@ run_expecting_sucess " --batch   -z xz   --log-size 1" extract
 run_expecting_sucess " --batch   -z gzip" extract
 run_expecting_sucess " --batch   -z bzip2   -t 1 -n hardware" extract
 run_expecting_sucess " --batch   --quiet    -e opencl -k kernel.with-timer" extract
-run_expecting_sucess " --batch   --case-id 10101   --all-logs --since=20191007" extract
+run_expecting_sucess " --batch   --case-id 10101   --all-logs --since=$(date -d "yesterday 13:00" '+%Y%m%d') " extract
 run_expecting_sucess " --batch   --verbose   --no-postproc" extract
+
+echo $summary
 
 if [ $NUMOFFAILURES -gt 0 ]; then
   echo "FAILED $NUMOFFAILURES"
