@@ -17,13 +17,7 @@ class S390(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 's390'
     profiles = ('system', 'hardware')
-
-    # Check for s390 arch goes here
-
-    def check_enabled(self):
-        return ("s390" in self.policy.get_arch())
-
-    # Gather s390 specific information
+    architectures = ('s390.*',)
 
     def setup(self):
         self.add_copy_spec([
