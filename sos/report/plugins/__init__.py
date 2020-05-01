@@ -1243,8 +1243,7 @@ class Plugin(object):
 
         plugin_dir = self.name()
         if subdir:
-            # only allow a single level of subdir to be created
-            plugin_dir += "/%s" % subdir.split('/')[0]
+            plugin_dir += "/%s" % subdir
         outdir = os.path.join(self.commons['cmddir'], plugin_dir)
         outfn = self._mangle_command(exe)
 
