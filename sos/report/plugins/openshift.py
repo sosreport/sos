@@ -49,7 +49,7 @@ class Openshift(Plugin, RedHatPlugin):
     short_desc = 'Openshift Container Platform 4.x'
 
     plugin_name = "openshift"
-    plugin_timeout = 600
+    plugin_timeout = 900
     profiles = ('openshift',)
     packages = ('openshift-hyperkube',)
 
@@ -79,8 +79,8 @@ class Openshift(Plugin, RedHatPlugin):
             return True
 
         # Not logged in currently, attempt to do so
-        if self.get_option('token') or os.getenv('SOSOCPTOKEN', None):
-            token = self.get_option('token') or os.getenv('SOSOCPTOKEN', None)
+        token = self.get_option('token') or os.getenv('SOSOCPTOKEN', None)
+        if token:
             oc_res = self.exec_cmd("oc login %s --token=%s "
                                    "--insecure-skip-tls-verify=True"
                                    % (self.get_option('host'), token))
@@ -316,10 +316,9 @@ class Openshift(Plugin, RedHatPlugin):
                     )
                 # check for podlogs here as a slight optimization to re-running
                 # 'oc get pods' on all namespaces
-                if res == 'pods' and _instances:
-                    if self.get_option('podlogs'):
-                        pod_list = [p.split()[0] for p in _instances]
-                        self.collect_podlogs(namespace, pod_list)
+                if res == 'pods' and _instances and self.get_option('podlogs'):
+                    pod_list = [p.split()[0] for p in _instances]
+                    self.collect_podlogs(namespace, pod_list)
 
     def collect_podlogs(self, namespace, pod_list):
         """For any namespace that has active pods in it, collect the current
@@ -348,21 +347,26 @@ class Openshift(Plugin, RedHatPlugin):
     def postproc(self):
 
         # clear any certificate output
-        self.do_cmd_private_sub('oc')
+        self.do_cmd_private_sub('oc ')
         self.do_file_private_sub('/etc/kubernetes/*')
 
         # clear the certificate data from /etc/kubernetes that does not have
         # the certificate banners that the _private_sub() methods look for
         _fields = [
+            '.*.crt',
             'client-certificate-data',
             'client-key-data',
             'certificate-authority-data',
-            'token'
+            '.*.key',
+            'token',
+            '.*token.*.value'  # don't blind match `.*token.*` and lose names
         ]
 
         regex = r'(\s*(%s):)(.*)' % '|'.join(_fields)
 
         self.do_path_regex_sub('/etc/kubernetes/*', regex, r'\1 *******')
+        # scrub secret content
+        self.do_cmd_output_sub('secrets', regex, r'\1 *******')
 
         # `oc describe` output can include url-encoded file content. For the
         # most part this is not important as the majority of these instances
@@ -370,6 +374,6 @@ class Openshift(Plugin, RedHatPlugin):
         # actual data, so just scrub everything that matches the describe
         # format for this content
         regex = r'(?P<var>(.*\\n)?Source:\s(.*),)((.*?))\n'
-        self.do_cmd_output_sub('oc', regex, r'\g<var> *******\n')
+        self.do_cmd_output_sub('oc describe', regex, r'\g<var> *******\n')
 
 # vim: set et ts=4 sw=4 :
