@@ -27,13 +27,6 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
     ]
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/containers/registries.conf",
-            "/etc/containers/storage.conf",
-            "/etc/containers/mounts.conf",
-            "/etc/containers/policy.json",
-        ])
-
         self.add_env_var([
             'HTTP_PROXY',
             'HTTPS_PROXY',
