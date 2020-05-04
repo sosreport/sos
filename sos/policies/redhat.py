@@ -503,7 +503,7 @@ support representative.
         host_release = os.environ[ENV_HOST_SYSROOT] + cls._redhat_release
         try:
             for line in open(host_release, 'r').read().splitlines():
-                coreos |= 'Red Hat CoreOS' in line
+                coreos |= 'Red Hat Enterprise Linux CoreOS' in line
         except IOError:
             pass
         return coreos
