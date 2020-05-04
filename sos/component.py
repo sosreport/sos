@@ -77,7 +77,7 @@ class SoSComponent():
         self.opts = self.load_options()
 
         if self.configure_logging:
-            tmpdir = self.opts.tmp_dir or '/var/tmp'
+            tmpdir = self.get_tmpdir_default()
 
             if not os.path.isdir(tmpdir) \
                     or not os.access(tmpdir, os.W_OK):
@@ -108,6 +108,21 @@ class SoSComponent():
 
     def _exit(self, error=0):
         raise SystemExit(error)
+
+    def get_tmpdir_default(self):
+        """If --tmp-dir is not specified, provide a default location.
+        Normally this is /var/tmp, but if we detect we are in a container, then
+        use a standardized env var to redirect to the host's filesystem instead
+        """
+        if self.opts.tmp_dir:
+            return self.opts.tmp_dir
+
+        tmpdir = '/var/tmp'
+
+        if os.getenv('HOST', None) and os.getenv('container', None):
+            tmpdir = os.path.join(os.getenv('HOST'), tmpdir.lstrip('/'))
+
+        return tmpdir
 
     def check_listing_options(self):
         opts = [o for o in self.opts.dict().keys() if o.startswith('list')]
