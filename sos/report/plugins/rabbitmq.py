@@ -34,7 +34,8 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             for container in container_names:
                 self.get_container_logs(container)
                 self.add_cmd_output(
-                    self.fmt_container_cmd(container, 'rabbitmqctl report')
+                    self.fmt_container_cmd(container, 'rabbitmqctl report'),
+                    foreground=True
                 )
         else:
             self.add_cmd_output("rabbitmqctl report")
