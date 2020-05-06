@@ -27,7 +27,8 @@ class CosPolicy(LinuxPolicy):
 
         try:
             with open('/etc/os-release', 'r') as fp:
-                os_release = dict(line.strip().split('=') for line in fp)
+                os_release = dict(line.strip().split('=') for line in fp
+                                  if line.strip())
                 id = os_release.get('ID')
                 return id == 'cos'
         except IOError:
