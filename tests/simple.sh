@@ -103,7 +103,7 @@ run_expecting_sucess " --batch   --label TEST   -a  -c never" extract
 run_expecting_sucess " --batch   --debug  --log-size 0  -c always" extract
 run_expecting_sucess " --batch   -z xz   --log-size 1" extract
 run_expecting_sucess " --batch   -z gzip" extract
-run_expecting_sucess " --batch   -z bzip2   -t 1 -n hardware" extract
+run_expecting_sucess " --batch   -t 1 -n hardware" extract
 run_expecting_sucess " --batch   --quiet    -e opencl -k kernel.with-timer" extract
 run_expecting_sucess " --batch   --case-id 10101   --all-logs --since=$(date -d "yesterday 13:00" '+%Y%m%d') " extract
 run_expecting_sucess " --batch   --verbose   --no-postproc" extract
