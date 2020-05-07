@@ -41,8 +41,8 @@ class Azure(Plugin, UbuntuPlugin):
 
         self.add_cmd_output((
             'curl -s -H Metadata:true '
-            '"http://169.254.169.254/metadata/instance?'
-            'api-version=2017-08-01"'
+            '"http://169.254.169.254/metadata/instance/compute?'
+            'api-version=2019-11-01"'
         ), suggest_filename='instance_metadata.json')
 
 
