@@ -15,7 +15,6 @@ BuildRequires: gettext
 Requires: libxml2-python
 Requires: rpm-python
 Requires: tar
-Requires: bzip2
 Requires: xz
 Requires: python3-pexpect
 

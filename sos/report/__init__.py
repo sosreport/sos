@@ -27,7 +27,6 @@ from sos import _sos as _
 from sos import __version__
 from sos.component import SoSComponent
 import sos.policies
-from sos.archive import TarFileArchive
 from sos.report.reporting import (Report, Section, Command, CopiedFile,
                                   CreatedFile, Alert, Note, PlainTextReport,
                                   JSONReport, HTMLReport)
@@ -254,7 +253,7 @@ class SoSReport(SoSComponent):
                             dest="compression_type",
                             default='auto',
                             help="compression technology to use [auto, "
-                                 "gzip, bzip2, xz] (default=auto)")
+                                 "gzip, xz] (default=auto)")
         parser.add_argument("--allow-system-changes", action="store_true",
                             dest="allow_system_changes", default=False,
                             help="Run commands even if they can change the "

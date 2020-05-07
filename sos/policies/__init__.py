@@ -725,12 +725,10 @@ any third party.
 
     def get_cmd_for_compress_method(self, method, threads):
         cmd = method
-        # use fast compression if using xz or bz2
-        if cmd != "gzip":
-            cmd = "%s -2" % cmd
-        # determine number of threads to use for compressing - applicable
-        # only for xz and of version 5.2 or higher
         if cmd.startswith("xz"):
+            # XZ only determine number of threads to use (for 5.2 only) and
+            # set compression to -2
+            cmd = "%s -2" % cmd
             try:
                 xz_package = self._get_pkg_name_for_binary(method)
                 xz_version = self.package_manager\
