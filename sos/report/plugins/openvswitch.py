@@ -69,6 +69,7 @@ class OpenVSwitch(Plugin):
             "ovs-appctl bond/show",
             # Capture LACP details
             "ovs-appctl lacp/show",
+            "ovs-appctl lacp/show-stats",
             # Capture coverage stats"
             "ovs-appctl coverage/show",
             # Capture cached routes
