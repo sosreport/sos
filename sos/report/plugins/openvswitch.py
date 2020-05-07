@@ -183,6 +183,16 @@ class OpenVSwitch(Plugin):
                                 port
                             )
 
+                if check_dpdk:
+                    iface_list_result = self.exec_cmd(
+                        "ovs-vsctl -t 5 list-ifaces %s" % br
+                    )
+                    if iface_list_result['status'] == 0:
+                        for iface in iface_list_result['output'].splitlines():
+                            self.add_cmd_output(
+                                "ovs-appctl netdev-dpdk/get-mempool-info %s" %
+                                iface)
+
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
