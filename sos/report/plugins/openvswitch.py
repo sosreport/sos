@@ -48,13 +48,6 @@ class OpenVSwitch(Plugin):
         ])
 
         self.add_cmd_output([
-            # The '-s' option enables dumping of packet counters on the
-            # ports.
-            "ovs-dpctl -s show",
-            # Capture the in-kernel flow information if it exists
-            "ovs-dpctl dump-flows -m",
-            # Capture the flow information also for offloaded rules
-            "ovs-dpctl dump-flows type=offloaded -m",
             # The '-t 5' adds an upper bound on how long to wait to connect
             # to the Open vSwitch server, avoiding hangs when running sos.
             "ovs-vsctl -t 5 show",
@@ -91,16 +84,14 @@ class OpenVSwitch(Plugin):
             "ovs-vsctl list interface",
             # Capture OVS detailed information from all the bridges
             "ovs-vsctl list bridge",
-            # Capture DPDK datapath packet counters and config
-            "ovs-appctl dpctl/show -s",
-            # Capture DPDK datapath flows
-            "ovs-appctl dpctl/dump-flows",
             # Capture DPDK queue to pmd mapping
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
             "ovs-appctl dpif-netdev/pmd-stats-show",
             # Capture DPDK pmd performance counters
-            "ovs-appctl dpif-netdev/pmd-perf-show"
+            "ovs-appctl dpif-netdev/pmd-perf-show",
+            # Capture ofproto tunnel configs
+            "ovs-appctl ofproto/list-tunnels"
         ])
 
         # Gather systemd services logs
@@ -108,6 +99,18 @@ class OpenVSwitch(Plugin):
         self.add_journal(units="openvswitch-nonetwork")
         self.add_journal(units="ovs-vswitchd")
         self.add_journal(units="ovsdb-server")
+
+        # Gather the datapath information for each datapath
+        dp_list_result = self.collect_cmd_output('ovs-appctl dpctl/dump-dps')
+        if dp_list_result['status'] == 0:
+            for dp in dp_list_result['output'].splitlines():
+                self.add_cmd_output([
+                    "ovs-appctl dpctl/show -s %s" % dp,
+                    "ovs-appctl dpctl/dump-flows -m %s" % dp,
+                    "ovs-appctl dpctl/dump-conntrack -m %s" % dp,
+                    "ovs-appctl dpctl/ct-stats-show -m %s" % dp,
+                    "ovs-appctl dpctl/ipf-get-status %s" % dp,
+                ])
 
         # Gather additional output for each OVS bridge on the host.
         br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
