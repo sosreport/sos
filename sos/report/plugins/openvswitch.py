@@ -29,6 +29,11 @@ class OpenVSwitch(Plugin):
             '/usr/local/var/log/openvswitch/',
         ]
 
+        dpdk_enabled = self.collect_cmd_output(
+            "ovs-vsctl -t 5 get Open_vSwitch . other_config:dpdk-init")
+        check_dpdk = (dpdk_enabled["status"] == 0 and
+                      dpdk_enabled["output"].startswith('"true"'))
+
         if environ.get('OVS_LOGDIR'):
             log_dirs.append(environ.get('OVS_LOGDIR'))
 
@@ -105,7 +110,7 @@ class OpenVSwitch(Plugin):
         self.add_journal(units="ovsdb-server")
 
         # Gather additional output for each OVS bridge on the host.
-        br_list_result = self.collect_cmd_output("ovs-vsctl list-br")
+        br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
                 self.add_cmd_output([
@@ -147,18 +152,16 @@ class OpenVSwitch(Plugin):
                             "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
                         ])
 
-        # Gather info on the DPDK mempools associated with each DPDK port
-        br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
-        if br_list_result['status'] == 0:
-            for br in br_list_result['output'].splitlines():
                 port_list_result = self.exec_cmd(
                     "ovs-vsctl -t 5 list-ports %s" % br
                 )
                 if port_list_result['status'] == 0:
                     for port in port_list_result['output'].splitlines():
-                        self.add_cmd_output(
-                            "ovs-appctl netdev-dpdk/get-mempool-info %s" % port
-                        )
+                        if check_dpdk:
+                            self.add_cmd_output(
+                                "ovs-appctl netdev-dpdk/get-mempool-info %s" %
+                                port
+                            )
 
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
