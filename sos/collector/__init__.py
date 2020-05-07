@@ -325,7 +325,7 @@ class SoSCollector(SoSComponent):
                                  help='Timeout for sosreport on each node.')
         collect_grp.add_argument('-z', '--compression-type',
                                  dest="compression",
-                                 choices=['auto', 'gzip', 'bzip2', 'xz'],
+                                 choices=['auto', 'gzip', 'xz'],
                                  help="compression technology to use")
 
         # Group to make tarball encryption (via GPG/password) exclusive

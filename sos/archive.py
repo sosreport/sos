@@ -117,7 +117,7 @@ class Archive(object):
         """Finalize an archive object via method. This may involve creating
         An archive that is subsequently compressed or simply closing an
         archive that supports in-line handling. If method is automatic then
-        the following methods are tried in order: xz, bz2 and gzip"""
+        the following methods are tried in order: xz, gzip"""
 
         self.close()
 
@@ -667,7 +667,7 @@ class TarFileArchive(FileCacheArchive):
     def _compress(self):
         methods = []
         # Make sure that valid compression commands exist.
-        for method in ['xz', 'bzip2', 'gzip']:
+        for method in ['xz', 'gzip']:
             if is_executable(method):
                 methods.append(method)
             else:
