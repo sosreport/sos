@@ -79,11 +79,11 @@ class OpenVSwitch(Plugin):
             # Capture DPDK and other parameters
             "ovs-vsctl -t 5 get Open_vSwitch . other_config",
             # Capture OVS list
-            "ovs-vsctl list Open_vSwitch",
+            "ovs-vsctl -t 5 list Open_vSwitch",
             # Capture OVS interface list
-            "ovs-vsctl list interface",
+            "ovs-vsctl -t 5 list interface",
             # Capture OVS detailed information from all the bridges
-            "ovs-vsctl list bridge",
+            "ovs-vsctl -t 5 list bridge",
             # Capture DPDK queue to pmd mapping
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
@@ -141,7 +141,7 @@ class OpenVSwitch(Plugin):
                 ]
 
                 # List protocols currently in use, if any
-                ovs_list_bridge_cmd = "ovs-vsctl list bridge %s" % br
+                ovs_list_bridge_cmd = "ovs-vsctl -t 5 list bridge %s" % br
                 br_info = self.collect_cmd_output(ovs_list_bridge_cmd)
 
                 for line in br_info['output'].splitlines():
