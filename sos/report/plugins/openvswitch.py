@@ -129,7 +129,9 @@ class OpenVSwitch(Plugin):
                     "OpenFlow10",
                     "OpenFlow11",
                     "OpenFlow12",
-                    "OpenFlow13"
+                    "OpenFlow13",
+                    "OpenFlow14",
+                    "OpenFlow15"
                 ]
 
                 # List protocols currently in use, if any
