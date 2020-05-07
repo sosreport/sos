@@ -169,6 +169,14 @@ class OpenVSwitch(Plugin):
                 )
                 if port_list_result['status'] == 0:
                     for port in port_list_result['output'].splitlines():
+                        self.add_cmd_output([
+                            "ovs-appctl cfm/show %s" % port,
+                            "ovs-appctl qos/show %s" % port,
+                            # Not all ports are "bond"s, but all "bond"s are
+                            # a single port
+                            "ovs-appctl bond/show %s" % port,
+                        ])
+
                         if check_dpdk:
                             self.add_cmd_output(
                                 "ovs-appctl netdev-dpdk/get-mempool-info %s" %
