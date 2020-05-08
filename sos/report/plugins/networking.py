@@ -35,22 +35,24 @@ class Networking(Plugin):
     ns_wide = "-W"
 
     def collect_iptable(self, tablename):
-        """ When running the iptables command, it unfortunately auto-loads
-        the modules before trying to get output.  Some people explicitly
-        don't want this, so check if the modules are loaded before running
-        the command.  If they aren't loaded, there can't possibly be any
-        relevant rules in that table """
+        """ Collecting iptables rules for a table loads either kernel module
+        of the table name (for kernel <= 3), or nf_tables (for kernel >= 4).
+        If neither module is present, the rules must be empty."""
 
         modname = "iptable_" + tablename
         cmd = "iptables -t " + tablename + " -nvL"
-        self.add_cmd_output(cmd, pred=SoSPredicate(self, kmods=[modname]))
+        self.add_cmd_output(
+            cmd,
+            pred=SoSPredicate(self, kmods=[modname, 'nf_tables']))
 
     def collect_ip6table(self, tablename):
         """ Same as function above, but for ipv6 """
 
         modname = "ip6table_" + tablename
         cmd = "ip6tables -t " + tablename + " -nvL"
-        self.add_cmd_output(cmd, pred=SoSPredicate(self, kmods=[modname]))
+        self.add_cmd_output(
+            cmd,
+            pred=SoSPredicate(self, kmods=[modname, 'nf_tables']))
 
     def collect_nftables(self):
         """ Collects nftables rulesets with 'nft' commands if the modules
@@ -151,16 +153,17 @@ class Networking(Plugin):
         self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
 
         # When iptables is called it will load the modules
-        # iptables and iptables_filter if they are not loaded.
+        # iptables_filter (for kernel <= 3) or
+        # nf_tables (for kernel >= 4) if they are not loaded.
         # The same goes for ipv6.
         self.add_cmd_output(
             "iptables -vnxL",
-            pred=SoSPredicate(self, kmods=['iptable_filter'])
+            pred=SoSPredicate(self, kmods=['iptable_filter', 'nf_tables'])
         )
 
         self.add_cmd_output(
             "ip6tables -vnxL",
-            pred=SoSPredicate(self, kmods=['ip6table_filter'])
+            pred=SoSPredicate(self, kmods=['ip6table_filter', 'nf_tables'])
         )
 
         # Get ethtool output for every device that does not exist in a
