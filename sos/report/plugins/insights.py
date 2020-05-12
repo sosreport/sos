@@ -33,7 +33,8 @@ class RedHatInsights(Plugin, RedHatPlugin):
 
         # Collect insights-client report data into given dump dir
         path = self.get_cmd_output_path(name="insights-client-dump")
-        self.add_cmd_output("insights-client --offline --output-dir %s" % path)
+        self.add_cmd_output("insights-client --offline --output-dir %s" % path,
+                            suggest_filename="insights-client-dump.log")
 
     def postproc(self):
         for conf in self.config:
@@ -44,3 +45,5 @@ class RedHatInsights(Plugin, RedHatPlugin):
             self.do_file_sub(
                 conf, r'(proxy[\t\ ]*=.*)(:)(.*)(@.*)', r'\1\2********\4'
             )
+
+# vim: set et ts=4 sw=4 :
