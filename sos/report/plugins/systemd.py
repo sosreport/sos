@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, CosPlugin)
+                                UbuntuPlugin, CosPlugin, SoSPredicate)
 
 
 class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
@@ -42,12 +42,17 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "systemd-analyze",
             "systemd-analyze blame",
             "systemd-analyze dump",
-            "systemd-resolve --status",
-            "systemd-resolve --statistics",
             "journalctl --list-boots",
             "ls -lR /lib/systemd",
             "timedatectl"
         ])
+
+        # systemd-resolve command starts systemd-resolved service if that
+        # is not running, so gate the commands by this predicate
+        self.add_cmd_output([
+            "systemd-resolve --status",
+            "systemd-resolve --statistics",
+        ], pred=SoSPredicate(self, services=["systemd-resolved"]))
 
         self.add_cmd_output("systemd-analyze plot",
                             suggest_filename="systemd-analyze_plot.svg")
