@@ -182,6 +182,7 @@ class SoSComponent():
         # main soslog
         self.soslog = logging.getLogger('sos')
         self.soslog.setLevel(logging.DEBUG)
+        flog = None
         if not self.check_listing_options():
             self.sos_log_file = self.get_temp_file()
             flog = logging.StreamHandler(self.sos_log_file)
@@ -195,10 +196,12 @@ class SoSComponent():
             console.setFormatter(logging.Formatter('%(message)s'))
             if self.opts.verbosity and self.opts.verbosity > 1:
                 console.setLevel(logging.DEBUG)
-                flog.setLevel(logging.DEBUG)
+                if flog:
+                    flog.setLevel(logging.DEBUG)
             elif self.opts.verbosity and self.opts.verbosity > 0:
                 console.setLevel(logging.INFO)
-                flog.setLevel(logging.DEBUG)
+                if flog:
+                    flog.setLevel(logging.DEBUG)
             else:
                 console.setLevel(logging.WARNING)
             self.soslog.addHandler(console)
