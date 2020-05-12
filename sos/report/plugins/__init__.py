@@ -1983,8 +1983,9 @@ class SCLPlugin(RedHatPlugin):
         scl_prefix = self.policy.get_default_scl_prefix()
         for rootdir in ['etc', 'var']:
             p = re.compile('^/%s/' % rootdir)
-            copyspec = p.sub('/%s/%s/%s/' % (rootdir, scl_prefix, scl),
-                             copyspec)
+            copyspec = os.path.abspath(p.sub('/%s/%s/%s/' %
+                                       (rootdir, scl_prefix, scl),
+                                       copyspec))
         return copyspec
 
     def add_copy_spec_scl(self, scl, copyspecs):
