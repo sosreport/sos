@@ -74,19 +74,19 @@ pull requests.
 
 You can simply run from the git checkout now:
 ```
-$ sudo ./sosreport -a
+$ sudo ./bin/sos report -a
 ```
-
-Or, if you only have python3 installed:
+The command `sosreport` is still available, as a legacy rediretor,
+and can be used like this:
 ```
-$ sudo python3 ./sosreport -a
+$ sudo ./bin/sosreport -a
 ```
 
 * Note: the `sosreport` command requires a configuration file: if no `sos.conf`
 is present in the `/etc` directory (i.e. no system installation of sos exists),
 use the `--config` option to provide one:
 ```
-$ sudo python ./sosreport -a --config ./sos.conf
+$ sudo python ./bin/sos report -a --config ./sos.conf
 ```
 
 To install locally (as root):
