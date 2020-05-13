@@ -10,7 +10,6 @@
 
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-import os
 
 
 class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -19,9 +18,7 @@ class Kvm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'kvm'
     profiles = ('system', 'virt')
-
-    def check_enabled(self):
-        return os.access("/sys/module/kvm", os.R_OK)
+    files = ('/dev/kvm',)
 
     def setup(self):
         self.add_copy_spec([
