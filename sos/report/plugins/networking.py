@@ -314,8 +314,8 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             "/run/systemd/network"
         ])
         self.add_cmd_output([
-            "/usr/sbin/ufw status",
-            "/usr/sbin/ufw app list"
+            "ufw status numbered",
+            "ufw app list"
         ])
         if self.get_option("traceroute"):
             self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host)
