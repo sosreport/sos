@@ -51,8 +51,12 @@ class SoSComponent():
     load_policy = True
 
     _arg_defaults = {
+        "batch": False,
+        "compression_type": 'auto',
         "config_file": '/etc/sos.conf',
         "debug": False,
+        "encrypt_key": None,
+        "encrypt_pass": None,
         "quiet": False,
         "threads": 4,
         "tmp_dir": '',

@@ -75,7 +75,6 @@ class SoSReport(SoSComponent):
     arg_defaults = {
         'alloptions': False,
         'all_logs': False,
-        'batch': False,
         'build': False,
         'case_id': '',
         'chroot': 'auto',
@@ -100,7 +99,6 @@ class SoSReport(SoSComponent):
         'profiles': [],
         'since': None,
         'verify': False,
-        'compression_type': 'auto',
         'allow_system_changes': False,
         'upload': False,
         'upload_url': None,
@@ -108,9 +106,7 @@ class SoSReport(SoSComponent):
         'upload_user': None,
         'upload_pass': None,
         'add_preset': '',
-        'del_preset': '',
-        'encrypt_key': None,
-        'encrypt_pass': None
+        'del_preset': ''
     }
 
     def __init__(self, parser, args, cmdline):
@@ -184,9 +180,6 @@ class SoSReport(SoSComponent):
                             help="Escapes archived files older than date. "
                                  "This will also affect --all-logs. "
                                  "Format: YYYYMMDD[HHMMSS]")
-        parser.add_argument("--batch", action="store_true",
-                            dest="batch", default=False,
-                            help="batch mode - do not prompt interactively")
         parser.add_argument("--build", action="store_true",
                             dest="build", default=False,
                             help="preserve the temporary directory and do not "
@@ -254,11 +247,6 @@ class SoSReport(SoSComponent):
         parser.add_argument("--verify", action="store_true",
                             dest="verify", default=False,
                             help="perform data verification during collection")
-        parser.add_argument("-z", "--compression-type",
-                            dest="compression_type",
-                            default='auto',
-                            help="compression technology to use [auto, "
-                                 "gzip, xz] (default=auto)")
         parser.add_argument("--allow-system-changes", action="store_true",
                             dest="allow_system_changes", default=False,
                             help="Run commands even if they can change the "
@@ -280,14 +268,6 @@ class SoSReport(SoSComponent):
                                 help="Add a new named command line preset")
         preset_grp.add_argument("--del-preset", type=str, action="store",
                                 help="Delete the named command line preset")
-
-        # Group to make tarball encryption (via GPG/password) exclusive
-        encrypt_grp = parser.add_mutually_exclusive_group()
-        encrypt_grp.add_argument("--encrypt-key",
-                                 help="Encrypt the archive using a GPG "
-                                      "key-pair")
-        encrypt_grp.add_argument("--encrypt-pass",
-                                 help="Encrypt the archive using a password")
 
     def print_header(self):
         print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))
