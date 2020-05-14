@@ -57,8 +57,10 @@ class SoS():
         # of shorthand names to accept in place of the full subcommand
         # if no aliases are desired, pass an empty list
         import sos.report
+        import sos.cleaner
         self._components = {
-            'report': (sos.report.SoSReport, ['rep'])
+            'report': (sos.report.SoSReport, ['rep']),
+            'clean': (sos.cleaner.SoSCleaner, ['cleaner', 'mask'])
         }
         # some distros do not want pexpect as a default dep, so try to load
         # collector here, and if it fails add an entry that implies it is at
@@ -81,8 +83,13 @@ class SoS():
         # build the top-level parser
         _com_string = ''
         for com in self._components:
-            _com_string += ("\t%s\t\t\t%s\n"
-                            % (com, self._components[com][0].desc))
+            aliases = self._components[com][1]
+            aliases.insert(0, com)
+            _com = ', '.join(aliases)
+            desc = self._components[com][0].desc
+            _com_string += (
+                "\t{com:<30}{desc}\n".format(com=_com, desc=desc)
+            )
         usage_string = ("%(prog)s <component> [options]\n\n"
                         "Available components:\n")
         usage_string = usage_string + _com_string
@@ -92,6 +99,7 @@ class SoS():
         # set the component subparsers
         self.subparsers = self.parser.add_subparsers(
             dest='component',
+            metavar='component',
             help='sos component to run'
         )
         self.subparsers.required = True
@@ -115,6 +123,8 @@ class SoS():
         """Adds the options shared across components to the parser
         """
         global_grp = parser.add_argument_group('Global Options')
+        global_grp.add_argument("--batch", default=False, action="store_true",
+                                help="Do not prompt interactively")
         global_grp.add_argument("--config-file", type=str, action="store",
                                 dest="config_file", default="/etc/sos.conf",
                                 help="specify alternate configuration file")
@@ -136,6 +146,19 @@ class SoS():
         global_grp.add_argument("-v", "--verbose", action="count",
                                 dest="verbosity", default=0,
                                 help="increase verbosity")
+
+        global_grp.add_argument('-z', '--compression-type',
+                                dest="compression_type",
+                                choices=['auto', 'gzip', 'xz'],
+                                help="compression technology to use")
+
+        # Group to make tarball encryption (via GPG/password) exclusive
+        encrypt_grp = global_grp.add_mutually_exclusive_group()
+        encrypt_grp.add_argument("--encrypt-key",
+                                 help="Encrypt the archive using a GPG "
+                                      "key-pair")
+        encrypt_grp.add_argument("--encrypt-pass",
+                                 help="Encrypt the archive using a password")
 
     def _init_component(self):
         """Determine which component has been requested by the user, and then

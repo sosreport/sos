@@ -14,7 +14,8 @@ from sos.utilities import (ImporterHelper,
                            import_module,
                            is_executable,
                            shell_out,
-                           sos_get_command_output)
+                           sos_get_command_output,
+                           get_human_readable)
 from sos.report.plugins import IndependentPlugin, ExperimentalPlugin
 from sos.options import SoSOptions
 from sos import _sos as _
@@ -28,17 +29,6 @@ try:
     REQUESTS_LOADED = True
 except ImportError:
     REQUESTS_LOADED = False
-
-
-def get_human_readable(size, precision=2):
-    # Credit to Pavan Gupta https://stackoverflow.com/questions/5194057/
-    suffixes = ['B', 'KiB', 'MiB', 'GiB', 'TiB']
-    suffixindex = 0
-    while size > 1024 and suffixindex < 4:
-        suffixindex += 1
-        size = size/1024.0
-    return "%.*f%s" % (precision, size, suffixes[suffixindex])
-
 
 def import_policy(name):
     policy_fqname = "sos.policies.%s" % name

@@ -50,7 +50,6 @@ class SoSCollector(SoSComponent):
         'all_logs': False,
         'allow_system_changes': False,
         'become_root': False,
-        'batch': False,
         'case_id': False,
         'cluster_type': None,
         'cluster_options': [],
@@ -84,8 +83,7 @@ class SoSCollector(SoSComponent):
         'sos_opt_line': '',
         'ssh_user': 'root',
         'timeout': 600,
-        'verify': False,
-        'compression_type': 'auto'
+        'verify': False
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
@@ -278,8 +276,6 @@ class SoSCollector(SoSComponent):
         collect_grp.add_argument('-b', '--become', action='store_true',
                                  dest='become_root',
                                  help='Become root on the remote nodes')
-        collect_grp.add_argument('--batch', action='store_true',
-                                 help='Do not prompt interactively')
         collect_grp.add_argument('--case-id', help='Specify case number')
         collect_grp.add_argument('--cluster-type',
                                  help='Specify a type of cluster profile')
@@ -331,18 +327,6 @@ class SoSCollector(SoSComponent):
                                  help='Specify an SSH user. Default root')
         collect_grp.add_argument('--timeout', type=int, required=False,
                                  help='Timeout for sosreport on each node.')
-        collect_grp.add_argument('-z', '--compression-type',
-                                 dest="compression",
-                                 choices=['auto', 'gzip', 'xz'],
-                                 help="compression technology to use")
-
-        # Group to make tarball encryption (via GPG/password) exclusive
-        encrypt_grp = collect_grp.add_mutually_exclusive_group()
-        encrypt_grp.add_argument("--encrypt-key",
-                                 help=("Encrypt the archive using a GPG "
-                                       "key-pair"))
-        encrypt_grp.add_argument("--encrypt-pass",
-                                 help="Encrypt the archive using a password")
 
     def _check_for_control_persist(self):
         """Checks to see if the local system supported SSH ControlPersist.
@@ -795,7 +779,7 @@ class SoSCollector(SoSComponent):
         if self.opts.chroot:
             sos_opts.append('-c %s' % quote(self.opts.chroot))
         if self.opts.compression_type != 'auto':
-            sos_opts.append('-z %s' % (quote(self.opts.compression)))
+            sos_opts.append('-z %s' % (quote(self.opts.compression_type)))
         self.sos_cmd = self.sos_cmd + ' '.join(sos_opts)
         self.log_debug("Initial sos cmd set to %s" % self.sos_cmd)
         self.commons['sos_cmd'] = self.sos_cmd

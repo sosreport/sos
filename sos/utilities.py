@@ -201,6 +201,16 @@ def shell_out(cmd, timeout=30, chroot=None, runat=None):
                                   chroot=chroot, chdir=runat)['output']
 
 
+def get_human_readable(size, precision=2):
+    # Credit to Pavan Gupta https://stackoverflow.com/questions/5194057/
+    suffixes = ['B', 'KiB', 'MiB', 'GiB', 'TiB']
+    suffixindex = 0
+    while size > 1024 and suffixindex < 4:
+        suffixindex += 1
+        size = size/1024.0
+    return "%.*f%s" % (precision, size, suffixes[suffixindex])
+
+
 class AsyncReader(threading.Thread):
     """Used to limit command output to a given size without deadlocking
     sos.
