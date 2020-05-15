@@ -21,7 +21,9 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         ("lsof", "gathers information on all open files", "slow", True),
         ("lsof-threads", "gathers threads' open file info if supported",
          "slow", False),
-        ("smaps", "gathers all /proc/*/smaps files", "", False)
+        ("smaps", "gathers all /proc/*/smaps files", "", False),
+        ("samples", "specify the number of samples that iotop will capture, "
+            "with an interval of 0.5 seconds between samples", "", "20")
     ]
 
     def setup(self):
@@ -55,4 +57,7 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "%s %s" % (ps_axo, ps_sched_opts)
         ])
 
+        if self.get_option("samples"):
+            self.add_cmd_output("iotop -b -o -d 0.5 -t -n %s"
+                                % self.get_option("samples"))
 # vim: set et ts=4 sw=4 :
