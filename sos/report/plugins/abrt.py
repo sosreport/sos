@@ -36,7 +36,8 @@ class Abrt(Plugin, RedHatPlugin):
         self.add_copy_spec([
             "/etc/abrt/abrt.conf",
             "/etc/abrt/abrt-action-save-package-data.conf",
-            "/etc/abrt/plugins"
+            "/etc/abrt/plugins",
+            "/var/tmp/abrt"
         ])
 
 # vim: set et ts=4 sw=4 :
