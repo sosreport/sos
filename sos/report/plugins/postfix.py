@@ -19,12 +19,17 @@ class Postfix(Plugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/postfix/main.cf",
-            "/etc/postfix/master.cf"
+            "/etc/postfix/",
         ])
         self.add_cmd_output([
             'postconf',
             'mailq'
+        ])
+        # don't collect SSL keys or certs or ssl dir
+        self.add_forbidden_path([
+            "/etc/postfix/*.key",
+            "/etc/postfix/*.crt",
+            "/etc/postfix/ssl/",
         ])
 
 
@@ -44,6 +49,5 @@ class DebianPostfix(Postfix, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianPostfix, self).setup()
-        self.add_copy_spec("/etc/postfix/dynamicmaps.cf")
 
 # vim: set et ts=4 sw=4 :
