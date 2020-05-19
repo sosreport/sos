@@ -14,7 +14,7 @@ class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     """
     plugin_name = 'nfs'
     profiles = ('storage', 'network', 'nfs')
-    packages = ['nfs-utils']
+    packages = ('nfs-utils', )
 
     def setup(self):
         self.add_copy_spec([
@@ -24,6 +24,17 @@ class Nfs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "/proc/fs/nfsfs/servers",
             "/proc/fs/nfsfs/volumes",
             "/run/sysconfig/nfs-utils",
+            "/etc/exports",
+            "/etc/exports.d",
+            "/var/lib/nfs/etab",
+            "/var/lib/nfs/xtab",
+            "/var/lib/nfs/rmtab",
+        ])
+
+        self.add_cmd_output([
+            "rpcinfo -p localhost",
+            "nfsstat -o all",
+            "exportfs -v",
         ])
         return
 
