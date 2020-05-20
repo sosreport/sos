@@ -33,7 +33,8 @@ class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "ibv_devices",
             "ibv_devinfo -v",
             "ibstat",
-            "ibstatus"
+            "ibstatus",
+            "ibswitches"
         ])
 
         # run below commands for every IB device and its active port
