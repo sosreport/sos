@@ -30,6 +30,7 @@ import sos.policies
 from sos.report.reporting import (Report, Section, Command, CopiedFile,
                                   CreatedFile, Alert, Note, PlainTextReport,
                                   JSONReport, HTMLReport)
+from sos.cleaner import SoSCleaner
 
 # file system errors that should terminate a run
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
@@ -78,6 +79,7 @@ class SoSReport(SoSComponent):
         'build': False,
         'case_id': '',
         'chroot': 'auto',
+        'clean': False,
         'desc': '',
         'dry_run': False,
         'experimental': False,
@@ -174,6 +176,9 @@ class SoSReport(SoSComponent):
                             dest="all_logs", default=False,
                             help="collect all available logs regardless "
                                  "of size")
+        parser.add_argument('--clean', '--mask', dest='clean', default=False,
+                            action='store_true',
+                            help='Obfuscate sensistive network information')
         parser.add_argument("--since", action="store",
                             dest="since", default=None,
                             type=_format_since,
@@ -1096,6 +1101,21 @@ class SoSReport(SoSComponent):
 
         archive = None    # archive path
         directory = None  # report directory path (--build)
+        map_file = None  # path of the map file generated for the report
+
+        if self.opts.clean:
+            try:
+                hook_commons = {
+                    'policy': self.policy,
+                    'tmpdir': self.tmpdir,
+                    'sys_tmp': self.sys_tmp,
+                    'options': self.opts
+                }
+                cleaner = SoSCleaner(in_place=True, hook_commons=hook_commons)
+                cleaner.set_target_path(self.archive.get_archive_path())
+                map_file = cleaner.execute()
+            except Exception as err:
+                print(_("ERROR: Unable to obfuscate report: %s" % err))
 
         # package up and compress the results
         if not self.opts.build:
@@ -1152,6 +1172,10 @@ class SoSReport(SoSComponent):
                 # containing directory.
                 final_name = os.path.join(self.sys_tmp,
                                           os.path.basename(archive))
+                if self.opts.clean:
+                    final_name = cleaner.obfuscate_string(
+                        final_name.replace('.tar', '-obfuscated.tar')
+                    )
                 # Get stat on the archive
                 archivestat = os.stat(archive)
 
@@ -1185,9 +1209,10 @@ class SoSReport(SoSComponent):
 
         if not self.opts.build:
             self.policy.display_results(archive, directory, checksum,
-                                        archivestat)
+                                        archivestat, map_file=map_file)
         else:
-            self.policy.display_results(archive, directory, checksum)
+            self.policy.display_results(archive, directory, checksum,
+                                        map_file=map_file)
 
         if self.opts.upload or self.opts.upload_url:
             if not self.opts.build:

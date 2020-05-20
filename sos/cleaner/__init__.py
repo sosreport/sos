@@ -42,17 +42,26 @@ class SoSCleaner(SoSComponent):
         'target': ''
     }
 
-    def __init__(self, parser=None, args=None, cmdline=None, in_place=False):
-        if parser is not None and args is not None and cmdline is not None:
+    def __init__(self, parser=None, args=None, cmdline=None, in_place=False,
+                 hook_commons=None):
+        if not in_place:
             # we are running `sos clean` directly
             super(SoSCleaner, self).__init__(parser, args, cmdline)
             self.from_cmdline = True
         else:
             # we are being hooked by either SoSReport or SoSCollector, don't
-            # re-init everything
+            # re-init everything as that will cause issues, but instead load
+            # the needed bits from the calling component
+            self.opts = hook_commons['options']
+            self.tmpdir = hook_commons['tmpdir']
+            self.sys_tmp = hook_commons['sys_tmp']
+            self.policy = hook_commons['policy']
+            self.from_cmdline = False
+            self.opts.map_file = '/etc/sos/cleaner/default_mapping'
+            self.opts.jobs = 4
+            self.opts.no_update = False
             self.soslog = logging.getLogger('sos')
             self.ui_log = logging.getLogger('sos_ui')
-            self.from_cmdline = False
 
         self.validate_map_file()
         os.umask(0o77)
@@ -92,16 +101,14 @@ class SoSCleaner(SoSComponent):
         a warning and continue on with cleaning building a fresh map
         """
         default_map = '/etc/sos/cleaner/default_mapping'
+        if os.path.isdir(self.opts.map_file):
+            raise Exception("Requested map file %s is a directory"
+                            % self.opts.map_file)
         if not os.path.exists(self.opts.map_file):
             if self.opts.map_file != default_map:
                 self.log_error(
-                    "Map file %s does not exist, will not load any obfuscation"
-                    " matches" % self.opts.map_file)
-        if os.path.isdir(self.opts.map_file):
-            self.log_error(
-                "Requested map file %s is a directory. Ignoring `--map` option"
-                " and using %s" % default_map)
-            self.opts.map_file = default_map
+                    "ERROR: map file %s does not exist, will not load any "
+                    "obfuscation matches" % self.opts.map_file)
 
     def print_disclaimer(self):
         """When we are directly running `sos clean`, rather than hooking into
@@ -234,6 +241,7 @@ third party.
                               % self.opts.target)
             self._exit(1)
         if os.path.isdir(self.opts.target):
+            self.arc_name = self.opts.target.split('/')[-1]
             for _file in os.listdir(self.opts.target):
                 if _file == 'sos_logs':
                     self.report_paths.append(self.opts.target)

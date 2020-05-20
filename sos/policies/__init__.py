@@ -30,6 +30,7 @@ try:
 except ImportError:
     REQUESTS_LOADED = False
 
+
 def import_policy(name):
     policy_fqname = "sos.policies.%s" % name
     try:
@@ -800,7 +801,8 @@ any third party.
         to use"""
         return "md5"
 
-    def display_results(self, archive, directory, checksum, archivestat=None):
+    def display_results(self, archive, directory, checksum, archivestat=None,
+                        map_file=None):
         # Display results is called from the tail of SoSReport.final_work()
         #
         # Logging is already shutdown and all terminal output must use the
@@ -812,16 +814,20 @@ any third party.
 
         self._print()
 
+        if map_file:
+            self._print(_("A mapping of obfuscated elements is available at"
+                          "\n\t%s\n" % map_file))
+
         if archive:
             self._print(_("Your sosreport has been generated and saved "
-                          "in:\n  %s\n") % archive, always=True)
+                          "in:\n\t%s\n") % archive, always=True)
             self._print(_(" Size\t%s") %
                         get_human_readable(archivestat.st_size))
             self._print(_(" Owner\t%s") %
                         getpwuid(archivestat.st_uid).pw_name)
         else:
             self._print(_("Your sosreport build tree has been generated "
-                          "in:\n  %s\n") % directory, always=True)
+                          "in:\n\t%s\n") % directory, always=True)
         if checksum:
             self._print(" " + self.get_preferred_hash_name() + "\t" + checksum)
             self._print()
