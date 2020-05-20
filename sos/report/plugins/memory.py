@@ -27,7 +27,8 @@ class Memory(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "/proc/pagetypeinfo",
             "/proc/vmallocinfo",
             "/sys/kernel/mm/ksm",
-            "/sys/kernel/mm/transparent_hugepage/enabled"
+            "/sys/kernel/mm/transparent_hugepage/enabled",
+            "/sys/kernel/mm/hugepages"
         ])
         self.add_cmd_output("free", root_symlink="free")
         self.add_cmd_output([
