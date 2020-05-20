@@ -61,13 +61,6 @@ jobs:
       script:
         - "nosetests -v --with-cover --cover-package=sos --cover-html"
         - "sudo ./tests/simple.sh ~/virtualenv/python$TRAVIS_PYTHON_VERSION/bin/python"
-   allow_failures:
-    - name: "18.04 native ppc64le"
-      os: linux
-      dist: bionic
-      arch: ppc64le
-      language: shell
-      script: "sudo ./tests/simple.sh"
 
 notifications:
   email:
