@@ -1,0 +1,64 @@
+.TH SOS CLEAN 1 "Thu May 21 2020"
+.SH NAME
+sos clean - Obfuscate sensitive data from one or more sosreports
+.SH SYNOPSIS
+.B sos clean TARGET [options]
+    [\-\-map]
+    [\-\-jobs]
+    [\-\-no-update]
+
+.SH DESCRIPTION
+\fBsos clean\fR or \fBsos mask\fR is an sos subcommand used to obfuscate sensitive information from
+previously generated sosreports that is not covered by the standard plugin-based post
+processing executed during report generation, for example IP addresses.
+.LP
+Data obfuscated via this utility is done so consistently, meaning for example an IP address of
+192.168.1.1 in an unprocessed sosreport that gets obfuscated to, for example, 100.0.0.1, will be
+changed to 100.0.0.1 in all occurences found in the report.
+
+Additionally, by default all such obfuscations are stored in "maps" that will be persistently
+saved to /etc/sos/cleaner/default_mappings and be re-used on subsequent runs.
+.LP
+This utility may also be used in-line with \fBsos report\fR and \fB sos collect\fR by specifying the
+\fB\-\-clean\fR or \fB\-\-mask\fR option.
+.LP
+When called directly via \fBsos clean\fR, the obfuscated archive is written as an additional file,
+meaning the original unprocessed report still remains on the filesystem. When called via \fBreport\fR or
+\fBcollect\fR, the changes are done in-line and thus only an obfuscated archive is written and available.
+In either case, a mapping file containing the relationships between unprocessed and obfuscated elements will
+be written in the same location as the resulting archive. This mapping file should be kept private
+by system administrators.
+
+.SH REQUIRED ARGUMENTS
+.B TARGET
+.TP
+The path to the archive that is to be obfuscated. This may be an archive or an unbuilt sos temporary
+directory. If an archive, it will first be extracted and then after obfuscation is complete re-compressed
+using the same compression method as the original.
+
+.SH OPTIONS
+
+.TP
+.B \-\-map FILE
+Provide a location to a valid mapping file to use as a reference for existing obfuscation pairs.
+If one is found, the contents are loaded before parsing is started. This allows consistency between
+runs of this command for obfuscated pairs. By default, sos will write the generated private map file
+to /etc/sos/cleaner/default_mapping so that consistency is maintained by default. Users may use this
+option to reference a map file from a different run (perhaps one that was done on another system).
+
+Default: /etc/sos/cleaner/default_mapping
+.TP
+.B \-\-jobs JOBS
+The number of concurrent archives to process, if more than one. If this utility is called by
+\fBsos collect\fR then the value of the jobs option for that utility will be used here.
+
+Default: 4
+.TP
+.B \-\-no-update
+Do not write the mapping file contents to /etc/sos/cleaner/default_mapping
+.SH MAINTAINER
+.nf
+Jake Hunsaker <jhunsake@redhat.com>
+.fi
+.SH AUTHORS & CONTRIBUTORS
+See \fBAUTHORS\fR file in the package documentation.
