@@ -14,7 +14,6 @@ import logging
 import os
 import tempfile
 import sys
-import sos.policies
 
 from argparse import SUPPRESS
 from datetime import datetime
@@ -105,6 +104,7 @@ class SoSComponent():
 
         if self.load_policy:
             try:
+                import sos.policies
                 self.policy = sos.policies.load(sysroot=self.opts.sysroot)
             except KeyboardInterrupt:
                 self._exit(0)
