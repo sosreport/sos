@@ -1115,7 +1115,8 @@ class SoSReport(SoSComponent):
                 }
                 cleaner = SoSCleaner(in_place=True, hook_commons=hook_commons)
                 cleaner.set_target_path(self.archive.get_archive_path())
-                map_file = cleaner.execute()
+                # ignore the returned paths here
+                map_file, _paths = cleaner.execute()
             except Exception as err:
                 print(_("ERROR: Unable to obfuscate report: %s" % err))
 

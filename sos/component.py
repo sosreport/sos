@@ -180,12 +180,16 @@ class SoSComponent():
     def cleanup(self):
         # archive and tempfile cleanup may fail due to a fatal
         # OSError exception (ENOSPC, EROFS etc.).
-        if self.archive:
-            self.archive.cleanup()
-        if self.tempfile_util:
-            self.tempfile_util.clean()
-        if self.tmpdir:
-            rmtree(self.tmpdir)
+        try:
+            if self.archive:
+                self.archive.cleanup()
+            if self.tempfile_util:
+                self.tempfile_util.clean()
+            if self.tmpdir:
+                rmtree(self.tmpdir)
+        except Exception as err:
+            print("Failed to finish cleanup: %s\nContents may remain in %s"
+                  % (err, self.tmpdir))
 
     def setup_archive(self, name=''):
         enc_opts = {

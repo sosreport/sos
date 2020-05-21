@@ -8,9 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import hashlib
 import logging
 import os
+import shutil
+import stat
 import tarfile
 import re
 
@@ -104,7 +105,22 @@ class SoSObfuscationArchive():
         """Pack the extracted archive as a tarfile to then be re-compressed
         """
         self.tarpath = self.extracted_path + '-obfuscated.tar'
-        self.log_debug("building tar file %s" % self.tarpath)
+        # if we're running as non-root (e.g. collector), then we can have a
+        # situation where a particular path only has 0200 permissions, thus
+        # preventing it from being added via tarfile.add().
+        # Unfortunately our only choice here is to change the permissions
+        # that were preserved during report collection
+        if os.getuid() != 0:
+            self.log_debug('Verifying read permissions of archive contents')
+            for dirname, dirs, files in os.walk(self.extracted_path):
+                for filename in files:
+                    fname = os.path.join(dirname, filename)
+                    if not os.access(fname, os.R_OK):
+                        self.log_debug("Adding owner read permissions to %s"
+                                       % fname.split(self.archive_path)[-1])
+                        _perms = os.stat(fname).st_mode
+                        os.chmod(fname, _perms | stat.S_IRUSR)
+        self.log_debug("Building tar file %s" % self.tarpath)
         tar = tarfile.open(self.tarpath, mode="w")
         tar.add(self.extracted_path,
                 arcname=os.path.split(self.archive_name)[1])
@@ -119,29 +135,32 @@ class SoSObfuscationArchive():
         res = sos_get_command_output(exec_cmd, timeout=0, stderr=True)
         if res['status'] == 0:
             self.final_archive_path = self.tarpath + '.' + exec_cmd[0:2]
+            self.log_debug("Compressed to %s" % self.final_archive_path)
+            try:
+                self.remove_extracted_path()
+            except Exception as err:
+                self.log_debug("Failed to remove extraction directory: %s"
+                               % err)
+                self.report_msg('Failed to remove temporary extraction '
+                                'directory')
         else:
             err = res['output'].split(':')[-1]
             self.log_debug("Exception while compressing archive: %s" % err)
             raise Exception(err)
 
-    def generate_checksum(self, hash_name):
-        """Calculate a new checksum for the obfuscated archive, as the previous
-        checksum will no longer be valid
+    def remove_extracted_path(self):
+        """After the tarball has been re-compressed, remove the extracted path
+        so that we don't take up that duplicate space any longer during
+        execution
         """
-        try:
-            hash_size = 1024**2  # Hash 1MiB of content at a time.
-            archive_fp = open(self.final_archive_path, 'rb')
-            digest = hashlib.new(hash_name)
-            while True:
-                hashdata = archive_fp.read(hash_size)
-                if not hashdata:
-                    break
-                digest.update(hashdata)
-            archive_fp.close()
-            return digest.hexdigest()
-        except Exception as err:
-            self.log_debug("Could not generate new checksum: %s" % err)
-        return None
+        def force_delete_file(action, name, exc):
+            os.chmod(name, stat.S_IWUSR)
+            if os.path.isfile(name):
+                os.remove(name)
+            else:
+                shutil.rmtree(name)
+        self.log_debug("Removing %s" % self.extracted_path)
+        shutil.rmtree(self.extracted_path, onerror=force_delete_file)
 
     def extract_self(self):
         """Extract an archive into our tmpdir so that we may inspect it or

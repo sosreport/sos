@@ -25,6 +25,7 @@ from concurrent.futures import ThreadPoolExecutor
 from getpass import getpass
 from pipes import quote
 from textwrap import fill
+from sos.cleaner import SoSCleaner
 from sos.collector.sosnode import SosNode
 from sos.collector.exceptions import ControlPersistUnsupportedException
 from sos.options import ClusterOption
@@ -51,6 +52,7 @@ class SoSCollector(SoSComponent):
         'allow_system_changes': False,
         'become_root': False,
         'case_id': False,
+        'clean': False,
         'cluster_type': None,
         'cluster_options': [],
         'chroot': 'auto',
@@ -277,6 +279,9 @@ class SoSCollector(SoSComponent):
                                  dest='become_root',
                                  help='Become root on the remote nodes')
         collect_grp.add_argument('--case-id', help='Specify case number')
+        collect_grp.add_argument('--clean', '--mask', action='store_true',
+                                 default=False, dest='clean',
+                                 help='Locally obfuscate reports gathered')
         collect_grp.add_argument('--cluster-type',
                                  help='Specify a type of cluster profile')
         collect_grp.add_argument('-c', '--cluster-option',
@@ -1088,16 +1093,46 @@ this utility or remote systems that it connects to.
     def create_cluster_archive(self):
         """Calls for creation of tar archive then cleans up the temporary
         files created by sos-collector"""
-        self.log_info('Creating archive of sosreports...')
+        map_file = None
+        arc_paths = []
+        for host in self.client_list:
+            for fname in host.file_list:
+                arc_paths.append(fname)
+
+        if self.opts.clean:
+            hook_commons = {
+                'policy': self.policy,
+                'tmpdir': self.tmpdir,
+                'sys_tmp': self.sys_tmp,
+                'options': self.opts
+            }
+            try:
+                self.ui_log.info('')
+                cleaner = SoSCleaner(in_place=True,
+                                     hook_commons=hook_commons)
+                cleaner.set_target_path(self.tmpdir)
+                map_file, arc_paths = cleaner.execute()
+            except Exception as err:
+                self.ui_log.error("ERROR: unable to obfuscate reports: %s"
+                                  % err)
+
         try:
-            for host in self.client_list:
-                for fname in host.file_list:
-                    dest = fname
-                    # place checksums in a different directory
-                    if fname.endswith(('.md5', )):
-                        dest = os.path.join('checksums', fname)
-                    name = os.path.join(self.tmpdir, fname)
-                    self.archive.add_file(name, dest=dest)
+            self.log_info('Creating archive of sosreports...')
+            for fname in arc_paths:
+                dest = fname.split('/')[-1]
+                if fname.endswith(('.md5',)):
+                    dest = os.path.join('checksums', fname.split('/')[-1])
+                if self.opts.clean:
+                    dest = cleaner.obfuscate_string(dest)
+                name = os.path.join(self.tmpdir, fname)
+                self.archive.add_file(name, dest=dest)
+                if map_file:
+                    # regenerate the checksum for the obfuscated archive
+                    checksum = cleaner.get_new_checksum(fname)
+                    if checksum:
+                        name = os.path.join('checksums', fname.split('/')[-1])
+                        name += '.md5'
+                        self.archive.add_string(checksum, name)
             self.archive.add_file(self.sos_log_file,
                                   dest=os.path.join('sos_logs', 'sos.log'))
             self.archive.add_file(self.sos_ui_log_file,
@@ -1110,12 +1145,27 @@ this utility or remote systems that it connects to.
 
             arc_name = self.archive.finalize(self.opts.compression_type)
             final_name = os.path.join(self.sys_tmp, os.path.basename(arc_name))
+            if self.opts.clean:
+                final_name = cleaner.obfuscate_string(
+                    final_name.replace('.tar', '-obfuscated.tar')
+                )
             os.rename(arc_name, final_name)
+
+            if map_file:
+                # rename the map file to match the collector archive name, not
+                # the temp dir it was constructed in
+                map_name = cleaner.obfuscate_string(
+                    os.path.join(self.sys_tmp,
+                                 "%s_private_map" % self.archive_name)
+                )
+                os.rename(map_file, map_name)
+                self.ui_log.info("A mapping of obfuscated elements is "
+                                 "available at\n\t%s" % map_name)
 
             self.soslog.info('Archive created as %s' % final_name)
             self.ui_log.info('\nThe following archive has been created. '
                              'Please provide it to your support team.')
-            self.ui_log.info('    %s' % final_name)
+            self.ui_log.info('\t%s\n' % final_name)
         except Exception as err:
             msg = ("Could not finalize archive: %s\n\nData may still be "
                    "available uncompressed at %s" % (err, self.archive_path))
