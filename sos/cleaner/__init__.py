@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import hashlib
 import json
 import logging
 import os
@@ -58,14 +59,19 @@ class SoSCleaner(SoSComponent):
             self.policy = hook_commons['policy']
             self.from_cmdline = False
             self.opts.map_file = '/etc/sos/cleaner/default_mapping'
-            self.opts.jobs = 4
             self.opts.no_update = False
+            if not hasattr(self.opts, 'jobs'):
+                self.opts.jobs = 4
             self.soslog = logging.getLogger('sos')
             self.ui_log = logging.getLogger('sos_ui')
+            # create the tmp subdir here to avoid a potential race condition
+            # when obfuscating a SoSCollector run during archive extraction
+            os.makedirs(os.path.join(self.tmpdir, 'cleaner'), exist_ok=True)
 
         self.validate_map_file()
         os.umask(0o77)
         self.in_place = in_place
+        self.hash_name = self.policy.get_preferred_hash_name()
 
         self.parsers = [
             SoSIPParser(self.opts.map_file),
@@ -180,9 +186,9 @@ third party.
         self.arc_name = self.opts.target.split('/')[-1].split('.')[:-2][0]
 
         try:
-            archive.getmember(os.path.join(self.arc_name, 'logs'))
+            archive.getmember(os.path.join(self.arc_name, 'sos_logs'))
         except Exception:
-            # this is not a sos archive
+            # this is not an sos archive
             self.ui_log.error("Invalid target: not an sos archive")
             self._exit(1)
 
@@ -245,13 +251,17 @@ third party.
             for _file in os.listdir(self.opts.target):
                 if _file == 'sos_logs':
                     self.report_paths.append(self.opts.target)
-                if re.match('sosreport.*.tar.*', _file):
-                    self.report_paths.append(_file)
+                if re.match('sosreport.*.tar.*[^md5]', _file):
+                    self.report_paths.append(os.path.join(self.opts.target,
+                                                          _file))
             if not self.report_paths:
                 self.ui_log.error("Invalid target: not an sos directory")
                 self._exit(1)
         else:
             self.inspect_target_archive()
+
+        # remove any lingering md5 files
+        self.report_paths = [p for p in self.report_paths if '.md5' not in p]
 
         if not self.report_paths:
             self.ui_log.error("No valid sos archives or directories found\n")
@@ -275,10 +285,10 @@ third party.
         self.write_map_for_config(_map)
 
         if self.in_place:
-            return map_path
+            arc_paths = [a.final_archive_path for a in self.completed_reports]
+            return map_path, arc_paths
 
         final_path = None
-        self.hash_name = self.policy.get_preferred_hash_name()
         if len(self.completed_reports) > 1:
             # we have an archive of archives, so repack the obfuscated tarball
             arc_name = self.arc_name + '-obfuscated'
@@ -288,7 +298,7 @@ third party.
                     arc_dest = arc.final_archive_path.split('/')[-1]
                     self.archive.add_file(arc.final_archive_path,
                                           dest=arc_dest)
-                    checksum = self.get_new_checksum(arc)
+                    checksum = self.get_new_checksum(arc.final_archive_path)
                     if checksum is not None:
                         dname = "checksums/%s.%s" % (arc_dest, self.hash_name)
                         self.archive.add_string(checksum, dest=dname)
@@ -304,7 +314,7 @@ third party.
         else:
             arc = self.completed_reports[0]
             arc_path = arc.final_archive_path
-            checksum = self.get_new_checksum(arc)
+            checksum = self.get_new_checksum(arc.final_archive_path)
             if checksum is not None:
                 chksum_name = "%s.%s" % (arc_path.split('/')[-1],
                                          self.hash_name)
@@ -371,11 +381,23 @@ third party.
                 self.log_error("Could not update mapping config file: %s"
                                % err)
 
-    def get_new_checksum(self, archive):
-        """Get a new checksum for each archive"""
-        checksum = archive.generate_checksum(self.hash_name)
-        if checksum:
-            return checksum + '\n'
+    def get_new_checksum(self, archive_path):
+        """Calculate a new checksum for the obfuscated archive, as the previous
+        checksum will no longer be valid
+        """
+        try:
+            hash_size = 1024**2  # Hash 1MiB of content at a time.
+            archive_fp = open(archive_path, 'rb')
+            digest = hashlib.new(self.hash_name)
+            while True:
+                hashdata = archive_fp.read(hash_size)
+                if not hashdata:
+                    break
+                digest.update(hashdata)
+            archive_fp.close()
+            return digest.hexdigest() + '\n'
+        except Exception as err:
+            self.log_debug("Could not generate new checksum: %s" % err)
         return None
 
     def obfuscate_report_paths(self):
@@ -386,6 +408,11 @@ third party.
         be obfuscated concurrently.
         """
         try:
+            if len(self.report_paths) > 1:
+                msg = ("Found %s total reports to obfuscate, processing up to "
+                       "%s concurrently\n"
+                       % (len(self.report_paths), self.opts.jobs))
+                self.ui_log.info(msg)
             pool = ThreadPoolExecutor(self.opts.jobs)
             pool.map(self.obfuscate_report, self.report_paths, chunksize=1)
             pool.shutdown(wait=True)
@@ -403,8 +430,9 @@ third party.
         """
         try:
             if not os.access(report, os.W_OK):
-                self.log_info("Insufficient permissions on %s" % report)
-                self.report_msg(report, "Insufficient permissions")
+                msg = "Insufficient permissions on %s" % report
+                self.log_info(msg)
+                self.ui_log.error(msg)
                 return
 
             archive = SoSObfuscationArchive(report, self.tmpdir)
@@ -448,7 +476,6 @@ third party.
         except Exception as err:
             self.ui_log.info("Exception while processing %s: %s"
                              % (report, err))
-            os._exit(1)
 
     def prep_maps_from_archive(self, archive):
         """Open specific files from an archive and try to load those values
