@@ -42,9 +42,8 @@ class CosPolicy(LinuxPolicy):
             with open('/etc/os-release', 'r') as fp:
                 os_release = dict(line.strip().split('=') for line in fp
                                   if not _blank_or_comment(line))
-                id = os_release.get('ID')
-                return id == 'cos'
-        except IOError:
+                return os_release['ID'] == 'cos'
+        except (IOError, KeyError):
             return False
 
 # vim: set et ts=4 sw=4 :
