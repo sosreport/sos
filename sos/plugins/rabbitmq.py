@@ -38,8 +38,8 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             for container in container_names:
                 self.add_cmd_output('docker logs {0}'.format(container))
                 self.add_cmd_output(
-                    'docker exec -t {0} rabbitmqctl report'
-                    .format(container)
+                    'docker exec {0} rabbitmqctl report'
+                    .format(container), foreground=True
                 )
         else:
             self.add_cmd_output("rabbitmqctl report")
