@@ -415,7 +415,8 @@ class Plugin(object):
     predicate = None
     cmd_predicate = None
     _default_plug_opts = [
-        ('timeout', 'Timeout in seconds for plugin', 'fast', -1),
+        ('timeout', 'Timeout in seconds for plugin. The default value (-1) ' +
+            'defers to the general plugin timeout, 300 seconds', 'fast', -1),
         ('postproc', 'Enable post-processing collected plugin data', 'fast',
          True)
     ]

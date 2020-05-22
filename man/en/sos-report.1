@@ -226,7 +226,8 @@ Specify the number of threads sosreport will use for concurrency. Defaults to 4.
 .TP
 .B \--plugin-timeout TIMEOUT
 Specify a timeout in seconds to allow each plugin to run for. A value of 0
-means no timeout will be set.
+means no timeout will be set. A value of -1 is used to indicate the default
+timeout of 300 seconds.
 
 Note that this options sets the timeout for all plugins. If you want to set
 a timeout for a specific plugin, use the 'timeout' plugin option available to
