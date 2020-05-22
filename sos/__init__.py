@@ -149,6 +149,8 @@ class SoS():
                                                         self.cmdline)
         except Exception as err:
             print("Could not initialize '%s': %s" % (_com, err))
+            if self.args.debug:
+                raise err
             sys.exit(1)
 
     def execute(self):
