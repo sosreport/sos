@@ -45,7 +45,7 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
         for user in users_list:
             # collect user's containers' config
             self.add_copy_spec(
-                '%s/.config/containers/' % (os.path.expanduser('~%s') % user))
+                '%s/.config/containers/' % (os.path.expanduser('~%s' % user)))
             # collect the user's podman/buildah info and uid/guid maps
             for binary in ['/usr/bin/podman', '/usr/bin/buildah']:
                 for cmd in user_subcmds:
