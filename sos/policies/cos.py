@@ -12,6 +12,20 @@ from sos.report.plugins import CosPlugin
 from sos.policies import LinuxPolicy
 
 
+def _blank_or_comment(line):
+    """Test whether line is empty of contains a comment.
+
+        Test whether the ``line`` argument is either blank, or a
+        whole-line comment.
+
+        :param line: the line of text to be checked.
+        :returns: ``True`` if the line is blank or a comment,
+                  and ``False`` otherwise.
+        :rtype: bool
+    """
+    return not line.strip() or line.lstrip().startswith('#')
+
+
 class CosPolicy(LinuxPolicy):
     distro = "Container-Optimized OS"
     vendor = "Google Cloud Platform"
@@ -21,14 +35,13 @@ class CosPolicy(LinuxPolicy):
 
     @classmethod
     def check(cls, remote=''):
-
         if remote:
             return cls.distro in remote
 
         try:
             with open('/etc/os-release', 'r') as fp:
                 os_release = dict(line.strip().split('=') for line in fp
-                                  if line.strip())
+                                  if not _blank_or_comment(line))
                 id = os_release.get('ID')
                 return id == 'cos'
         except IOError:
