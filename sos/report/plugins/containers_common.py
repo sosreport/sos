@@ -51,6 +51,6 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
                 for cmd in user_subcmds:
                     self.add_cmd_output([
                         'machinectl -q shell %s@ %s %s' % (user, binary, cmd)
-                    ])
+                    ], foreground=True)
 
 # vim: set et ts=4 sw=4 :
