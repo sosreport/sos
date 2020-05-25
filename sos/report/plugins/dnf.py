@@ -34,7 +34,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
             if "[i]" in line:
                 module = line.split()[0]
                 if module != "Hint:":
-                    self.add_cmd_output("dnf module info " + module)
+                    self.add_cmd_output("dnf -y module info " + module)
 
     def setup(self):
         self.add_copy_spec("/etc/dnf/")
@@ -48,9 +48,9 @@ class DNFPlugin(Plugin, RedHatPlugin):
 
         self.add_cmd_output([
             "dnf --version",
-            "dnf list installed *dnf*",
-            "dnf list extras",
-            "dnf module list",
+            "dnf -y list installed *dnf*",
+            "dnf -y list extras",
+            "dnf -y module list",
             "package-cleanup --dupes",
             "package-cleanup --problems"
         ])
@@ -72,7 +72,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
                 self.add_cmd_output("dnf history info %d" % tr_id)
 
         # Get list of dnf installed modules and their details.
-        modules = self.collect_cmd_output("dnf module list --installed")
+        modules = self.collect_cmd_output("dnf -y module list --installed")
         self.get_modules_info(modules['output'])
 
 # vim: set et ts=4 sw=4 :
