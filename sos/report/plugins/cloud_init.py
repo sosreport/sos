@@ -18,10 +18,12 @@ class CloudInit(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = 'cloud_init'
     packages = ('cloud-init',)
     services = ('cloud-init',)
+    commands = ('cloud-init',)
 
     def setup(self):
+        self.add_cmd_output('cloud-init --version')
+
         self.add_copy_spec([
-            '/var/lib/cloud/',
             '/etc/cloud/',
             '/run/cloud-init/cloud-init-generator.log',
             '/var/log/cloud-init*'
