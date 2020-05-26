@@ -1691,13 +1691,22 @@ class Plugin(object):
                 os.listdir(copyspec)):
             # the directory exists and is non-empty, recurse through it
             copyspec = os.path.join(copyspec, '*')
-        expanded = set(glob.glob(copyspec, recursive=True))
+        expanded = glob.glob(copyspec, recursive=True)
         recursed_files = []
         for _path in expanded:
-            if os.path.isdir(_path):
-                recursed_files.extend(__expand(os.path.join(_path, '*')))
-        expanded.update(recursed_files)
-        return list(expanded)
+            try:
+                if os.path.isdir(_path) and os.listdir(_path):
+                    # remove the top level dir to avoid duplicate attempts to
+                    # copy the dir and its contents
+                    expanded.remove(_path)
+                    recursed_files.extend(__expand(os.path.join(_path, '*')))
+            except PermissionError:
+                # same as the above in __expand(), but this time remove the
+                # path so we don't hit another PermissionError during the
+                # actual copy
+                expanded.remove(_path)
+        expanded.extend(recursed_files)
+        return list(set(expanded))
 
     def _collect_copy_specs(self):
         for path in self.copy_paths:
