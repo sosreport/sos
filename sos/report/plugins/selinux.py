@@ -23,9 +23,11 @@ class SELinux(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec([
             '/etc/sestatus.conf',
-            '/etc/selinux',
-            '/var/lib/selinux'
+            '/etc/selinux'
         ])
+        # capture this with a higher log limit since #2035 may limit this
+        # collection
+        self.add_copy_spec('/var/lib/selinux', sizelimit=50)
         self.add_cmd_output('sestatus')
 
         state = self.exec_cmd('getenforce')['output']
