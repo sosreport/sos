@@ -47,42 +47,45 @@ class SoSCollector(SoSComponent):
     desc = 'Collect an sos report from multiple nodes simultaneously'
 
     arg_defaults = {
-        'alloptions': False,
         'all_logs': False,
+        'alloptions': False,
         'allow_system_changes': False,
         'become_root': False,
         'case_id': False,
-        'clean': False,
-        'cluster_type': None,
-        'cluster_options': [],
         'chroot': 'auto',
+        'clean': False,
+        'cluster_options': [],
+        'cluster_type': None,
+        'domains': [],
         'enable_plugins': [],
-        'encrypt_pass': '',
         'encrypt_key': '',
+        'encrypt_pass': '',
         'group': None,
-        'save_group': '',
         'image': '',
         'jobs': 4,
-        'ssh_key': '',
-        'nopasswd_sudo': False,
-        'plugin_options': [],
-        'plugin_timeout': None,
-        'list_options': False,
         'label': '',
+        'list_options': False,
         'log_size': 0,
-        'skip_plugins': [],
+        'map_file': '/etc/sos/cleaner/default_mapping',
+        'master': '',
         'nodes': [],
         'no_env_vars': False,
-        'no_pkg_check': False,
         'no_local': False,
-        'master': '',
+        'nopasswd_sudo': False,
+        'no_pkg_check': False,
+        'no_update': False,
         'only_plugins': [],
-        'since': '',
-        'ssh_port': 22,
         'password': False,
         'password_per_node': False,
+        'plugin_options': [],
+        'plugin_timeout': None,
         'preset': '',
+        'save_group': '',
+        'since': '',
+        'skip_plugins': [],
         'sos_opt_line': '',
+        'ssh_key': '',
+        'ssh_port': 22,
         'ssh_user': 'root',
         'timeout': 600,
         'verify': False
@@ -279,9 +282,6 @@ class SoSCollector(SoSComponent):
                                  dest='become_root',
                                  help='Become root on the remote nodes')
         collect_grp.add_argument('--case-id', help='Specify case number')
-        collect_grp.add_argument('--clean', '--mask', action='store_true',
-                                 default=False, dest='clean',
-                                 help='Locally obfuscate reports gathered')
         collect_grp.add_argument('--cluster-type',
                                  help='Specify a type of cluster profile')
         collect_grp.add_argument('-c', '--cluster-option',
@@ -332,6 +332,25 @@ class SoSCollector(SoSComponent):
                                  help='Specify an SSH user. Default root')
         collect_grp.add_argument('--timeout', type=int, required=False,
                                  help='Timeout for sosreport on each node.')
+
+        # Group the cleaner options together
+        cleaner_grp = parser.add_argument_group(
+            'Cleaner/Masking Options',
+            'These options control how data obfuscation is performed'
+        )
+        cleaner_grp.add_argument('--clean', '--mask', dest='clean',
+                                 default=False, action='store_true',
+                                 help='Obfuscate sensistive information')
+        cleaner_grp.add_argument('--domains', dest='domains', default=[],
+                                 action='extend',
+                                 help='Additional domain names to obfuscate')
+        cleaner_grp.add_argument('--no-update', action='store_true',
+                                 default=False, dest='no_update',
+                                 help='Do not update the default cleaner map')
+        cleaner_grp.add_argument('--map', dest='map_file',
+                                 default='/etc/sos/cleaner/default_mapping',
+                                 help=('Provide a previously generated mapping'
+                                       ' file for obfuscation'))
 
     def _check_for_control_persist(self):
         """Checks to see if the local system supported SSH ControlPersist.
