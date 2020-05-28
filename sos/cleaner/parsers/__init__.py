@@ -37,6 +37,7 @@ class SoSCleanerParser():
 
     name = 'Undefined Parser'
     regex_patterns = []
+    skip_files = []
     map_file_key = 'unset'
     prep_map_file = 'unset'
 

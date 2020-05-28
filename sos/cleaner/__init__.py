@@ -23,6 +23,7 @@ from sos import __version__
 from sos.component import SoSComponent
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
+from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.obfuscation_archive import SoSObfuscationArchive
 from sos.utilities import get_human_readable
 from textwrap import fill
@@ -37,6 +38,7 @@ class SoSCleaner(SoSComponent):
     desc = "Obfuscate sensitive networking information in a report"
 
     arg_defaults = {
+        'domains': [],
         'jobs': 4,
         'map_file': '/etc/sos/cleaner/mapping',
         'no_update': False,
@@ -74,6 +76,7 @@ class SoSCleaner(SoSComponent):
         self.hash_name = self.policy.get_preferred_hash_name()
 
         self.parsers = [
+            SoSHostnameParser(self.opts.map_file, self.opts.domains),
             SoSIPParser(self.opts.map_file),
             SoSMacParser(self.opts.map_file)
         ]
@@ -150,8 +153,10 @@ third party.
             'Cleaner/Masking Options',
             'These options control how data obfuscation is performed'
         )
-        clean_grp.add_argument('target',
+        clean_grp.add_argument('target', metavar='TARGET',
                                help='The directory or archive to obfuscate')
+        clean_grp.add_argument('--domains', action='extend', default=[],
+                               help='List of domain names to obfuscate')
         clean_grp.add_argument('-j', '--jobs', default=4, type=int,
                                help='Number of concurrent archives to clean')
         clean_grp.add_argument('--map', dest='map_file',
@@ -446,7 +451,7 @@ third party.
                 if archive.should_skip_file(short_name):
                     continue
                 try:
-                    count = self.obfuscate_file(fname)
+                    count = self.obfuscate_file(fname, short_name)
                     if count:
                         archive.update_sub_count(short_name, count)
                 except Exception as err:
@@ -486,7 +491,21 @@ third party.
             :param archive SoSObfuscationArchive:   An open archive object
         """
         for parser in self.parsers:
-            self.obfuscate_file(archive.get_file_path(parser.prep_map_file))
+            # this is a bit clunky, but we need to load this particular
+            # parser in a different way due to how hostnames are validated for
+            # obfuscation
+            prep_file = archive.get_file_path(parser.prep_map_file)
+            if not prep_file:
+                self.log_debug("Could not prepare %s: %s does not exist"
+                               % (parser.name, parser.prep_map_file),
+                               caller=archive.archive_name)
+                continue
+            if isinstance(parser, SoSHostnameParser):
+                with open(prep_file, 'r') as host_file:
+                    hostname = host_file.readline().strip()
+                    parser.load_hostname_into_map(hostname)
+            else:
+                self.obfuscate_file(prep_file)
 
     def obfuscate_file(self, filename, short_name=None, arc_name=None):
         """Obfuscate and individual file, line by line.
@@ -513,7 +532,7 @@ third party.
                 if not line.strip() or line.startswith('#'):
                     continue
                 try:
-                    line, count = self.obfuscate_line(line)
+                    line, count = self.obfuscate_line(line, short_name)
                     subs += count
                     tfile.write(line)
                 except Exception as err:
@@ -525,7 +544,7 @@ third party.
         tfile.close()
         return subs
 
-    def obfuscate_line(self, line):
+    def obfuscate_line(self, line, filename):
         """Run a line through each of the obfuscation parsers, keeping a
         cumulative total of substitutions done on that particular line.
 
@@ -533,11 +552,16 @@ third party.
 
             :param line str:        The raw line as read from the file being
                                     processed
+            :param filename str:    Filename the line was read from
 
         Returns the fully obfuscated line and the number of substitutions made
         """
         count = 0
         for parser in self.parsers:
+            if filename and any([
+                re.match(_s, filename) for _s in parser.skip_files
+            ]):
+                continue
             try:
                 line, _count = parser.parse_line(line)
                 count += _count
