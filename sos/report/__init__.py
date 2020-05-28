@@ -81,6 +81,7 @@ class SoSReport(SoSComponent):
         'chroot': 'auto',
         'clean': False,
         'desc': '',
+        'domains': [],
         'dry_run': False,
         'experimental': False,
         'enableplugins': [],
@@ -90,10 +91,12 @@ class SoSReport(SoSComponent):
         'list_presets': False,
         'list_profiles': False,
         'log_size': 25,
+        'map_file': '/etc/sos/cleaner/default_mapping',
         'noplugins': [],
         'noreport': False,
         'no_env_vars': False,
         'no_postproc': False,
+        'no_update': False,
         'note': '',
         'onlyplugins': [],
         'preset': 'auto',
@@ -169,110 +172,134 @@ class SoSReport(SoSComponent):
 
     @classmethod
     def add_parser_options(cls, parser):
-        parser.add_argument("-a", "--alloptions", action="store_true",
-                            dest="alloptions", default=False,
-                            help="enable all options for loaded plugins")
-        parser.add_argument("--all-logs", action="store_true",
-                            dest="all_logs", default=False,
-                            help="collect all available logs regardless "
-                                 "of size")
-        parser.add_argument('--clean', '--mask', dest='clean', default=False,
-                            action='store_true',
-                            help='Obfuscate sensistive network information')
-        parser.add_argument("--since", action="store",
-                            dest="since", default=None,
-                            type=_format_since,
-                            help="Escapes archived files older than date. "
-                                 "This will also affect --all-logs. "
-                                 "Format: YYYYMMDD[HHMMSS]")
-        parser.add_argument("--build", action="store_true",
-                            dest="build", default=False,
-                            help="preserve the temporary directory and do not "
-                                 "package results")
-        parser.add_argument("--case-id", action="store",
-                            dest="case_id",
-                            help="specify case identifier")
-        parser.add_argument("-c", "--chroot", action="store", dest="chroot",
-                            help="chroot executed commands to SYSROOT "
-                                 "[auto, always, never] (default=auto)",
-                            default='auto')
-        parser.add_argument("--desc", "--description", type=str,
-                            action="store", default="",
-                            help="Description for a new preset",)
-        parser.add_argument("--dry-run", action="store_true",
-                            help="Run plugins but do not collect data")
-        parser.add_argument("--experimental", action="store_true",
-                            dest="experimental", default=False,
-                            help="enable experimental plugins")
-        parser.add_argument("-e", "--enable-plugins", action="extend",
-                            dest="enableplugins", type=str,
-                            help="enable these plugins", default=[])
-        parser.add_argument("-k", "--plugin-option", action="extend",
-                            dest="plugopts", type=str,
-                            help="plugin options in plugname.option=value "
-                                 "format (see -l)", default=[])
-        parser.add_argument("--label", "--name", action="store", dest="label",
-                            help="specify an additional report label")
-        parser.add_argument("-l", "--list-plugins", action="store_true",
-                            dest="list_plugins", default=False,
-                            help="list plugins and available plugin options")
-        parser.add_argument("--list-presets", action="store_true",
-                            help="display a list of available presets")
-        parser.add_argument("--list-profiles", action="store_true",
-                            dest="list_profiles", default=False,
-                            help="display a list of available profiles and "
-                                 "plugins that they include")
-        parser.add_argument("--log-size", action="store", dest="log_size",
-                            type=int, default=25,
-                            help="limit the size of collected logs (in MiB)")
-        parser.add_argument("-n", "--skip-plugins", action="extend",
-                            dest="noplugins", type=str,
-                            help="disable these plugins", default=[])
-        parser.add_argument("--no-report", action="store_true",
-                            dest="noreport", default=False,
-                            help="disable plaintext/HTML reporting")
-        parser.add_argument("--no-env-vars", action="store_true",
-                            dest="no_env_vars", default=False,
-                            help="Do not collect environment variables")
-        parser.add_argument("--no-postproc", default=False, dest="no_postproc",
-                            action="store_true",
-                            help="Disable all post-processing")
-        parser.add_argument("--note", type=str, action="store", default="",
-                            help="Behaviour notes for new preset")
-        parser.add_argument("-o", "--only-plugins", action="extend",
-                            dest="onlyplugins", type=str,
-                            help="enable these plugins only", default=[])
-        parser.add_argument("--preset", action="store", type=str,
-                            help="A preset identifier", default="auto")
-        parser.add_argument("--plugin-timeout", default=None,
-                            help="set a timeout for all plugins")
-        parser.add_argument("-p", "--profile", action="extend",
-                            dest="profiles", type=str, default=[],
-                            help="enable plugins used by the given profiles")
-        parser.add_argument("--verify", action="store_true",
-                            dest="verify", default=False,
-                            help="perform data verification during collection")
-        parser.add_argument("--allow-system-changes", action="store_true",
-                            dest="allow_system_changes", default=False,
-                            help="Run commands even if they can change the "
-                                 "system (e.g. load kernel modules)")
-        parser.add_argument("--upload", action="store_true", default=False,
-                            help="Upload archive to a policy-default location")
-        parser.add_argument("--upload-url", default=None,
-                            help="Upload the archive to the specified server")
-        parser.add_argument("--upload-directory", default=None,
-                            help="Specify directory to upload the archive to")
-        parser.add_argument("--upload-user", default=None,
-                            help="Username to authenticate to server with")
-        parser.add_argument("--upload-pass", default=None,
-                            help="Password to authenticate to server with")
+        report_grp = parser.add_argument_group(
+            'Report Options',
+            'These options control how report collects data'
+            )
+        report_grp.add_argument("-a", "--alloptions", action="store_true",
+                                dest="alloptions", default=False,
+                                help="enable all options for loaded plugins")
+        report_grp.add_argument("--all-logs", action="store_true",
+                                dest="all_logs", default=False,
+                                help="collect all available logs regardless "
+                                     "of size")
+        report_grp.add_argument("--since", action="store",
+                                dest="since", default=None, type=_format_since,
+                                help="Escapes archived files older than date. "
+                                     "This will also affect --all-logs. "
+                                     "Format: YYYYMMDD[HHMMSS]")
+        report_grp.add_argument("--build", action="store_true",
+                                dest="build", default=False,
+                                help="preserve the temporary directory and do "
+                                     "not package results")
+        report_grp.add_argument("--case-id", action="store", dest="case_id",
+                                help="specify case identifier")
+        report_grp.add_argument("-c", "--chroot", action="store",
+                                dest="chroot", default='auto',
+                                help="chroot executed commands to SYSROOT "
+                                     "[auto, always, never] (default=auto)")
+        report_grp.add_argument("--desc", "--description", type=str,
+                                action="store", default="",
+                                help="Description for a new preset",)
+        report_grp.add_argument("--dry-run", action="store_true",
+                                help="Run plugins but do not collect data")
+        report_grp.add_argument("--experimental", action="store_true",
+                                dest="experimental", default=False,
+                                help="enable experimental plugins")
+        report_grp.add_argument("-e", "--enable-plugins", action="extend",
+                                dest="enableplugins", type=str,
+                                help="enable these plugins", default=[])
+        report_grp.add_argument("-k", "--plugin-option", action="extend",
+                                dest="plugopts", type=str,
+                                help="plugin options in plugname.option=value "
+                                     "format (see -l)", default=[])
+        report_grp.add_argument("--label", "--name", action="store",
+                                dest="label",
+                                help="specify an additional report label")
+        report_grp.add_argument("-l", "--list-plugins", action="store_true",
+                                dest="list_plugins", default=False,
+                                help="list plugins and available plugin "
+                                     "options")
+        report_grp.add_argument("--list-presets", action="store_true",
+                                help="display a list of available presets")
+        report_grp.add_argument("--list-profiles", action="store_true",
+                                dest="list_profiles", default=False,
+                                help="display a list of available profiles and"
+                                     " plugins that they include")
+        report_grp.add_argument("--log-size", action="store", dest="log_size",
+                                type=int, default=25,
+                                help="limit the size of collected logs "
+                                     "(in MiB)")
+        report_grp.add_argument("-n", "--skip-plugins", action="extend",
+                                dest="noplugins", type=str,
+                                help="disable these plugins", default=[])
+        report_grp.add_argument("--no-report", action="store_true",
+                                dest="noreport", default=False,
+                                help="disable plaintext/HTML reporting")
+        report_grp.add_argument("--no-env-vars", action="store_true",
+                                dest="no_env_vars", default=False,
+                                help="Do not collect environment variables")
+        report_grp.add_argument("--no-postproc", default=False,
+                                dest="no_postproc", action="store_true",
+                                help="Disable all post-processing")
+        report_grp.add_argument("--note", type=str, action="store", default="",
+                                help="Behaviour notes for new preset")
+        report_grp.add_argument("-o", "--only-plugins", action="extend",
+                                dest="onlyplugins", type=str,
+                                help="enable these plugins only", default=[])
+        report_grp.add_argument("--preset", action="store", type=str,
+                                help="A preset identifier", default="auto")
+        report_grp.add_argument("--plugin-timeout", default=None,
+                                help="set a timeout for all plugins")
+        report_grp.add_argument("-p", "--profile", action="extend",
+                                dest="profiles", type=str, default=[],
+                                help="enable plugins used by the given "
+                                     "profiles")
+        report_grp.add_argument("--verify", action="store_true",
+                                dest="verify", default=False,
+                                help="perform data verification during "
+                                     "collection")
+        report_grp.add_argument("--allow-system-changes", action="store_true",
+                                dest="allow_system_changes", default=False,
+                                help="Run commands even if they can change the"
+                                     " system (e.g. load kernel modules)")
+        report_grp.add_argument("--upload", action="store_true", default=False,
+                                help="Upload archive to a policy-default "
+                                     "location")
+        report_grp.add_argument("--upload-url", default=None,
+                                help="Upload the archive to specified server")
+        report_grp.add_argument("--upload-directory", default=None,
+                                help="Specify upload directory for archive")
+        report_grp.add_argument("--upload-user", default=None,
+                                help="Username to authenticate to server with")
+        report_grp.add_argument("--upload-pass", default=None,
+                                help="Password to authenticate to server with")
 
         # Group to make add/del preset exclusive
-        preset_grp = parser.add_mutually_exclusive_group()
+        preset_grp = report_grp.add_mutually_exclusive_group()
         preset_grp.add_argument("--add-preset", type=str, action="store",
                                 help="Add a new named command line preset")
         preset_grp.add_argument("--del-preset", type=str, action="store",
                                 help="Delete the named command line preset")
+
+        # Group the cleaner options together
+        cleaner_grp = parser.add_argument_group(
+            'Cleaner/Masking Options',
+            'These options control how data obfuscation is performed'
+        )
+        cleaner_grp.add_argument('--clean', '--mask', dest='clean',
+                                 default=False, action='store_true',
+                                 help='Obfuscate sensistive information')
+        cleaner_grp.add_argument('--domains', dest='domains', default=[],
+                                 action='extend',
+                                 help='Additional domain names to obfuscate')
+        cleaner_grp.add_argument('--no-update', action='store_true',
+                                 default=False, dest='no_update',
+                                 help='Do not update the default cleaner map')
+        cleaner_grp.add_argument('--map', dest='map_file',
+                                 default='/etc/sos/cleaner/default_mapping',
+                                 help=('Provide a previously generated mapping'
+                                       ' file for obfuscation'))
 
     def print_header(self):
         print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))

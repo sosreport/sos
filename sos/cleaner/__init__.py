@@ -40,7 +40,7 @@ class SoSCleaner(SoSComponent):
     arg_defaults = {
         'domains': [],
         'jobs': 4,
-        'map_file': '/etc/sos/cleaner/mapping',
+        'map_file': '/etc/sos/cleaner/default_mapping',
         'no_update': False,
         'target': ''
     }
@@ -60,8 +60,6 @@ class SoSCleaner(SoSComponent):
             self.sys_tmp = hook_commons['sys_tmp']
             self.policy = hook_commons['policy']
             self.from_cmdline = False
-            self.opts.map_file = '/etc/sos/cleaner/default_mapping'
-            self.opts.no_update = False
             if not hasattr(self.opts, 'jobs'):
                 self.opts.jobs = 4
             self.soslog = logging.getLogger('sos')
