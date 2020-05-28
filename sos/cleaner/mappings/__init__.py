@@ -10,7 +10,6 @@
 
 import re
 
-from collections import OrderedDict
 from threading import Lock
 
 
@@ -25,7 +24,7 @@ class SoSMap():
     ignore_list = []
 
     def __init__(self):
-        self.dataset = OrderedDict()
+        self.dataset = {}
         self.lock = Lock()
 
     def ignore_item(self, item):

@@ -89,6 +89,7 @@ class SoSObfuscationArchive():
             self.extracted_path = self.extract_self()
         else:
             self.extracted_path = self.archive_path
+        self.log_debug("Extracted path is %s" % self.extracted_path)
 
     def get_compression(self):
         """Return the compression type used by the archive, if any. This is

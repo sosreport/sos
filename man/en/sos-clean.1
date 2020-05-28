@@ -3,6 +3,7 @@
 sos clean - Obfuscate sensitive data from one or more sosreports
 .SH SYNOPSIS
 .B sos clean TARGET [options]
+    [\-\-domains]
     [\-\-map]
     [\-\-jobs]
     [\-\-no-update]
@@ -37,7 +38,14 @@ directory. If an archive, it will first be extracted and then after obfuscation 
 using the same compression method as the original.
 
 .SH OPTIONS
+.TP
+.B \-\-domains DOMAINS
+Provide a comma-delimited list of domain names to obfuscate, in addition to those
+matching the hostname of the system that created the sosreport. Subdomains that
+match a domain given via this option will also be obfuscated.
 
+For example, if \fB\-\-domains redhat.com\fR is specified, then 'redhat.com' will
+be obfuscated, as will 'www.redhat.com' and subdomains such as 'foo.redhat.com'.
 .TP
 .B \-\-map FILE
 Provide a location to a valid mapping file to use as a reference for existing obfuscation pairs.
