@@ -25,4 +25,9 @@ class Date(Plugin, RedHatPlugin, DebianPlugin):
             'hwclock'
         ])
 
-        self.add_copy_spec('/etc/localtime')
+        self.add_copy_spec([
+            '/etc/localtime',
+            '/etc/adjtime',
+        ])
+
+# vim: set et ts=4 sw=4 :
