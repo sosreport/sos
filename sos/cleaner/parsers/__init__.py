@@ -37,6 +37,7 @@ class SoSCleanerParser():
 
     name = 'Undefined Parser'
     regex_patterns = []
+    skip_line_patterns = []
     skip_files = []
     map_file_key = 'unset'
     prep_map_file = 'unset'
@@ -59,6 +60,9 @@ class SoSCleanerParser():
         every parser has a chance to scrub everything.
         """
         count = 0
+        for skip_pattern in self.skip_line_patterns:
+            if re.match(skip_pattern, line, re.I):
+                return line, count
         for pattern in self.regex_patterns:
             matches = [m[0] for m in re.findall(pattern, line, re.I)]
             if matches:

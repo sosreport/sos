@@ -20,6 +20,10 @@ class SoSIPParser(SoSCleanerParser):
         # IPv4 with or without CIDR
         r'((?<!(-|\.|\d))([0-9]{1,3}\.){3}([0-9]){1,3}(\/([0-9]{1,2}))?)'
     ]
+    skip_line_patterns = [
+        # don't match package versions recorded in journals
+        r'.*dnf\[.*\]:'
+    ]
     map_file_key = 'ip_map'
     prep_map_file = 'sos_commands/networking/ip_-o_addr'
 
