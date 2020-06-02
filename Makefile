@@ -9,7 +9,7 @@ MINOR   := $(shell echo $(VERSION) | cut -f 2 -d '.')
 RELEASE := $(shell echo `awk '/^Release:/ {gsub(/\%.*/,""); print $2}' sos.spec`)
 REPO = https://github.com/sosreport/sos
 
-SUBDIRS = po sos sos/plugins sos/policies docs
+SUBDIRS = po sos sos/policies sos/report sos/report/plugins sos/collector sos/collector/clusters docs
 PYFILES = $(wildcard *.py)
 # OS X via brew
 # MSGCAT = /usr/local/Cellar/gettext/0.18.1.1/bin/msgcat
@@ -44,11 +44,21 @@ install:
 	mkdir -p $(DESTDIR)/usr/share/man/man1
 	mkdir -p $(DESTDIR)/usr/share/man/man5
 	mkdir -p $(DESTDIR)/usr/share/$(NAME)/extras
-	@gzip -c man/en/sosreport.1 > sosreport.1.gz
+	@gzip -c man/en/sos.1 > sos.1.gz
+	@gzip -c man/en/sos-report.1 > sos-report.1.gz
+	@gzip -c man/en/sos-collect.1 > sos-collect.1.gz
 	@gzip -c man/en/sos.conf.5 > sos.conf.5.gz
+	@rm -f sosreport.1.gz sos-collector.1.gz
+	@ln -s sos-report.1.gz sosreport.1.gz
+	@ln -s sos-collect.1.gz sos-collector.1.gz
 	mkdir -p $(DESTDIR)/etc
-	install -m755 sosreport $(DESTDIR)/usr/sbin/sosreport
+	install -m755 bin/sosreport $(DESTDIR)/usr/sbin/sosreport
+	install -m755 bin/sos $(DESTDIR)/usr/sbin/sos
+	install -m644 sos.1.gz $(DESTDIR)/usr/share/man/man1/.
+	install -m644 sos-report.1.gz $(DESTDIR)/usr/share/man/man1/.
 	install -m644 sosreport.1.gz $(DESTDIR)/usr/share/man/man1/.
+	install -m644 sos-collect.1.gz $(DESTDIR)/usr/share/man/man1/.
+	install -m644 sos-collector.1.gz $(DESTDIR)/usr/share/man/man1/.
 	install -m644 sos.conf.5.gz $(DESTDIR)/usr/share/man/man5/.
 	install -m644 AUTHORS README.md $(DESTDIR)/usr/share/$(NAME)/.
 	install -m644 $(NAME).conf $(DESTDIR)/etc/$(NAME).conf
@@ -56,7 +66,7 @@ install:
 
 $(NAME)-$(VERSION).tar.gz: clean
 	@mkdir -p $(ARCHIVE_DIR)
-	@tar -cv sosreport sos docs man po sos.conf AUTHORS LICENSE README.md sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
+	@tar -cv bin sos docs man po sos.conf AUTHORS LICENSE README.md sos.spec Makefile | tar -x -C $(ARCHIVE_DIR)
 	@tar Ccvzf $(DIST_BUILD_DIR) $(DIST_BUILD_DIR)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION) --exclude-vcs
 
 $(NAME)report_$(VERSION).orig.tar.gz: clean
@@ -70,7 +80,7 @@ $(NAME)report_$(VERSION).orig.tar.gz: clean
 	@rm -Rf $(DIST_BUILD_DIR)
 
 clean:
-	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sosreport.1.gz sos.conf.5.gz
+	@rm -fv *~ .*~ changenew ChangeLog.old $(NAME)-$(VERSION).tar.gz sos.1.gz sos-report.1.gz sos-collect.1.gz sos.conf.5.gz
 	@rm -rf rpm-build
 	@for i in `find . -iname *.pyc`; do \
 		rm -f $$i; \
