@@ -445,11 +445,12 @@ third party.
 
             file_list = archive.get_file_list()
             for fname in file_list:
-                short_name = fname.split(archive.archive_name)[1]
+                short_name = fname.split(archive.archive_name)[1].lstrip('/')
                 if archive.should_skip_file(short_name):
                     continue
                 try:
-                    count = self.obfuscate_file(fname, short_name)
+                    count = self.obfuscate_file(fname, short_name,
+                                                archive.archive_name)
                     if count:
                         archive.update_sub_count(short_name, count)
                 except Exception as err:
@@ -522,12 +523,13 @@ third party.
         if not filename:
             # the requested file doesn't exist in the archive
             return
-        self.log_debug("Obfuscating %s" % filename)
+        self.log_debug("Obfuscating %s" % short_name or filename,
+                       caller=arc_name)
         subs = 0
         tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
         with open(filename, 'r') as fname:
             for line in fname:
-                if not line.strip() or line.startswith('#'):
+                if not line.strip():
                     continue
                 try:
                     line, count = self.obfuscate_line(line, short_name)
@@ -535,7 +537,7 @@ third party.
                     tfile.write(line)
                 except Exception as err:
                     self.log_debug("Unable to obfuscate %s: %s"
-                                   % (filename, err))
+                                   % (short_name, err), caller=arc_name)
         tfile.seek(0)
         if subs:
             shutil.copy(tfile.name, filename)
