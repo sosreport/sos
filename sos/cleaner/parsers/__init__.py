@@ -72,6 +72,19 @@ class SoSCleanerParser():
                     line = line.replace(match.strip(), new_match)
         return line, count
 
+    def parse_string_for_keys(self, string_data):
+        """Parse a given string for instances of any obfuscated items, without
+        applying the normal regex comparisons first. This is mainly used to
+        obfuscate filenames that have, for example, hostnames in them.
+
+        Rather than try to regex match the string_data, just use the builtin
+        checks for substrings matching known obfuscated keys
+        """
+        for key, val in self.mapping.dataset.items():
+            if key in string_data:
+                return string_data.replace(key, val)
+        return string_data
+
     def get_map_contents(self):
         """Return the contents of the mapping used by the parser
         """

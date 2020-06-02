@@ -1154,6 +1154,8 @@ class SoSReport(SoSComponent):
                 print(_("Creating compressed archive..."))
             # compression could fail for a number of reasons
             try:
+                if self.opts.clean:
+                    self.archive.rename_archive_root(cleaner)
                 archive = self.archive.finalize(
                     self.opts.compression_type)
             except (OSError, IOError) as e:
@@ -1176,6 +1178,8 @@ class SoSReport(SoSComponent):
             dir_name = os.path.basename(directory)
             try:
                 final_dir = os.path.join(self.sys_tmp, dir_name)
+                if self.opts.clean:
+                    final_dir = cleaner.obfuscate_string(final_dir)
                 os.rename(directory, final_dir)
                 directory = final_dir
             except (OSError, IOError):

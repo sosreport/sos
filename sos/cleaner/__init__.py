@@ -298,12 +298,16 @@ third party.
             self.setup_archive(name=arc_name)
             for arc in self.completed_reports:
                 if arc.is_tarfile:
-                    arc_dest = arc.final_archive_path.split('/')[-1]
+                    arc_dest = self.obfuscate_string(
+                        arc.final_archive_path.split('/')[-1]
+                    )
                     self.archive.add_file(arc.final_archive_path,
                                           dest=arc_dest)
                     checksum = self.get_new_checksum(arc.final_archive_path)
                     if checksum is not None:
-                        dname = "checksums/%s.%s" % (arc_dest, self.hash_name)
+                        dname = self.obfuscate_string(
+                            "checksums/%s.%s" % (arc_dest, self.hash_name)
+                        )
                         self.archive.add_string(checksum, dest=dname)
                 else:
                     for dirname, dirs, files in os.walk(arc.archive_path):
@@ -311,7 +315,9 @@ third party.
                             if filename.startswith('sosreport'):
                                 continue
                             fname = os.path.join(dirname, filename)
-                            dnm = fname.split(arc.archive_name)[-1].lstrip('/')
+                            dnm = self.obfuscate_string(
+                                fname.split(arc.archive_name)[-1].lstrip('/')
+                            )
                             self.archive.add_file(fname, dest=dnm)
             arc_path = self.archive.finalize(self.opts.compression_type)
         else:
@@ -319,12 +325,15 @@ third party.
             arc_path = arc.final_archive_path
             checksum = self.get_new_checksum(arc.final_archive_path)
             if checksum is not None:
-                chksum_name = "%s.%s" % (arc_path.split('/')[-1],
-                                         self.hash_name)
+                chksum_name = self.obfuscate_string(
+                    "%s.%s" % (arc_path.split('/')[-1], self.hash_name)
+                )
                 with open(os.path.join(self.sys_tmp, chksum_name), 'w') as cf:
                     cf.write(checksum)
 
-        final_path = os.path.join(self.sys_tmp, arc_path.split('/')[-1])
+        final_path = self.obfuscate_string(
+            os.path.join(self.sys_tmp, arc_path.split('/')[-1])
+        )
         shutil.move(arc_path, final_path)
         arcstat = os.stat(final_path)
 
@@ -462,6 +471,9 @@ third party.
             if method:
                 archive.report_msg("Re-compressing...")
                 try:
+                    archive.rename_top_dir(
+                        self.obfuscate_string(archive.archive_name)
+                    )
                     cmd = self.policy.get_cmd_for_compress_method(
                         method,
                         self.opts.threads
@@ -503,8 +515,8 @@ third party.
                 with open(prep_file, 'r') as host_file:
                     hostname = host_file.readline().strip()
                     parser.load_hostname_into_map(hostname)
-            else:
-                self.obfuscate_file(prep_file)
+            self.obfuscate_file(prep_file, parser.prep_map_file,
+                                archive.archive_name)
 
     def obfuscate_file(self, filename, short_name=None, arc_name=None):
         """Obfuscate and individual file, line by line.
@@ -542,7 +554,20 @@ third party.
         if subs:
             shutil.copy(tfile.name, filename)
         tfile.close()
+        _ob_filename = self.obfuscate_string(short_name)
+        if _ob_filename != short_name:
+            arc_path = filename.split(short_name)[0]
+            _ob_path = os.path.join(arc_path, _ob_filename)
+            os.rename(filename, _ob_path)
         return subs
+
+    def obfuscate_string(self, string_data):
+        for parser in self.parsers:
+            try:
+                string_data = parser.parse_string_for_keys(string_data)
+            except Exception:
+                pass
+        return string_data
 
     def obfuscate_line(self, line, filename):
         """Run a line through each of the obfuscation parsers, keeping a

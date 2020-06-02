@@ -34,6 +34,7 @@ class SoSObfuscationArchive():
         self.final_archive_path = self.archive_path
         self.tmpdir = tmpdir
         self.archive_name = self.archive_path.split('/')[-1].split('.tar')[0]
+        self.ui_name = self.archive_name
         self.soslog = logging.getLogger('sos')
         self.ui_log = logging.getLogger('sos_ui')
         self.skip_list = self._load_skip_list()
@@ -41,7 +42,7 @@ class SoSObfuscationArchive():
 
     def report_msg(self, msg):
         """Helper to easily format ui messages on a per-report basis"""
-        self.ui_log.info("{:<50} {}".format(self.archive_name + ' :', msg))
+        self.ui_log.info("{:<50} {}".format(self.ui_name + ' :', msg))
 
     def _fmt_log_msg(self, msg):
         return "[cleaner:%s] %s" % (self.archive_name, msg)
@@ -89,7 +90,44 @@ class SoSObfuscationArchive():
             self.extracted_path = self.extract_self()
         else:
             self.extracted_path = self.archive_path
+        # if we're running as non-root (e.g. collector), then we can have a
+        # situation where a particular path has insufficient permissions for
+        # us to rewrite the contents and/or add it to the ending tarfile.
+        # Unfortunately our only choice here is to change the permissions
+        # that were preserved during report collection
+        if os.getuid() != 0:
+            self.log_debug('Verifying permissions of archive contents')
+            for dirname, dirs, files in os.walk(self.extracted_path):
+                try:
+                    for _dir in dirs:
+                        _dirname = os.path.join(dirname, _dir)
+                        _dir_perms = os.stat(_dirname).st_mode
+                        os.chmod(_dirname, _dir_perms | stat.S_IRWXU)
+                    for filename in files:
+                        fname = os.path.join(dirname, filename)
+                        # protect against symlink race conditions
+                        if not os.path.exists(fname) or os.path.islink(fname):
+                            continue
+                        if (not os.access(fname, os.R_OK) or not
+                                os.access(fname, os.W_OK)):
+                            self.log_debug(
+                                "Adding owner rw permissions to %s"
+                                % fname.split(self.archive_path)[-1]
+                            )
+                            os.chmod(fname, stat.S_IRUSR | stat.S_IWUSR)
+                except Exception as err:
+                    self.log_debug("Error while trying to set perms: %s" % err)
         self.log_debug("Extracted path is %s" % self.extracted_path)
+
+    def rename_top_dir(self, new_name):
+        """Rename the top-level directory to new_name, which should be an
+        obfuscated string that scrubs the hostname from the top-level dir
+        which would be named after the unobfuscated sos report
+        """
+        _path = self.extracted_path.replace(self.archive_name, new_name)
+        self.archive_name = new_name
+        os.rename(self.extracted_path, _path)
+        self.extracted_path = _path
 
     def get_compression(self):
         """Return the compression type used by the archive, if any. This is
@@ -106,21 +144,6 @@ class SoSObfuscationArchive():
         """Pack the extracted archive as a tarfile to then be re-compressed
         """
         self.tarpath = self.extracted_path + '-obfuscated.tar'
-        # if we're running as non-root (e.g. collector), then we can have a
-        # situation where a particular path only has 0200 permissions, thus
-        # preventing it from being added via tarfile.add().
-        # Unfortunately our only choice here is to change the permissions
-        # that were preserved during report collection
-        if os.getuid() != 0:
-            self.log_debug('Verifying read permissions of archive contents')
-            for dirname, dirs, files in os.walk(self.extracted_path):
-                for filename in files:
-                    fname = os.path.join(dirname, filename)
-                    if not os.access(fname, os.R_OK):
-                        self.log_debug("Adding owner read permissions to %s"
-                                       % fname.split(self.archive_path)[-1])
-                        _perms = os.stat(fname).st_mode
-                        os.chmod(fname, _perms | stat.S_IRUSR)
         self.log_debug("Building tar file %s" % self.tarpath)
         tar = tarfile.open(self.tarpath, mode="w")
         tar.add(self.extracted_path,
