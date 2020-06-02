@@ -548,6 +548,16 @@ class FileCacheArchive(Archive):
         self.add_string(self.manifest.get_json(indent=4),
                         os.path.join('sos_reports', 'manifest.json'))
 
+    def rename_archive_root(self, cleaner):
+        """Rename the archive to an obfuscated version using an initialized
+        SoSCleaner instance
+        """
+        self._name = cleaner.obfuscate_string(self._name)
+        _new_root = os.path.join(self._tmp_dir, self._name)
+        os.rename(self._archive_root, _new_root)
+        self._archive_root = _new_root
+        self._archive_name = os.path.join(self._tmp_dir, self.name())
+
     def finalize(self, method):
         self.log_info("finalizing archive '%s' using method '%s'"
                       % (self._archive_root, method))
