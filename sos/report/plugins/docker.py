@@ -129,11 +129,12 @@ class RedHatDocker(Docker, RedHatPlugin):
 
 class UbuntuDocker(Docker, UbuntuPlugin):
 
-    packages = ('docker.io', 'docker-engine')
+    packages = ('docker.io', 'docker-engine', 'docker-ce', 'docker-ee')
 
     def setup(self):
         super(UbuntuDocker, self).setup()
         self.add_copy_spec([
+            "/etc/containerd/",
             "/etc/default/docker",
             "/run/docker/libcontainerd/containerd/events.log"
         ])
