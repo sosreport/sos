@@ -53,7 +53,12 @@ class Kubernetes(Plugin):
             'kube-apiserver',
             'kube-proxy',
             'kube-scheduler',
-            'kube-controller-manager'
+            'kube-controller-manager',
+            'snap.kubelet.daemon',
+            'snap.kube-apiserver.daemon',
+            'snap.kube-proxy.daemon',
+            'snap.kube-scheduler.daemon',
+            'snap.kube-controller-manager.daemon'
         ]
 
         for svc in svcs:
@@ -196,7 +201,10 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
 
     packages = ('kubernetes',)
-    files = ('/root/cdk/kubeproxyconfig',)
-    kube_cmd = "kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
+    files = ('/root/cdk/kubeproxyconfig', '/etc/kubernetes')
+    if path.exists('/root/cdk/kubeproxyconfig'):
+        kube_cmd = "kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
+    elif path.exists('/etc/kubernetes/admin.conf'):
+        kube_cmd = "kubectl --kubeconfig=/etc/kubernetes/admin.conf"
 
 # vim: et ts=5 sw=4
