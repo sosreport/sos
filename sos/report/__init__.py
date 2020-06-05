@@ -131,9 +131,7 @@ class SoSReport(SoSComponent):
         self._is_root = self.policy.is_root()
 
         # add a manifest section for report
-        self.manifest.components.add_section('report')
-        # shorthand reference for ease of maintenance
-        self.report_md = self.manifest.components.report
+        self.report_md = self.manifest.components.add_section('report')
 
         # user specified command line preset
         if self.opts.preset != self.arg_defaults["preset"]:
@@ -1119,9 +1117,6 @@ class SoSReport(SoSComponent):
         fp.close()
 
     def final_work(self):
-        if self.manifest is not None:
-            self.archive.add_final_manifest_data(self.opts.compression_type)
-
         archive = None    # archive path
         directory = None  # report directory path (--build)
         map_file = None  # path of the map file generated for the report
@@ -1132,7 +1127,8 @@ class SoSReport(SoSComponent):
                     'policy': self.policy,
                     'tmpdir': self.tmpdir,
                     'sys_tmp': self.sys_tmp,
-                    'options': self.opts
+                    'options': self.opts,
+                    'manifest': self.manifest
                 }
                 cleaner = SoSCleaner(in_place=True, hook_commons=hook_commons)
                 cleaner.set_target_path(self.archive.get_archive_path())
@@ -1142,13 +1138,19 @@ class SoSReport(SoSComponent):
                 print(_("ERROR: Unable to obfuscate report: %s" % err))
 
         self._add_sos_logs()
+        if self.manifest is not None:
+            self.archive.add_final_manifest_data(self.opts.compression_type)
         # Now, separately clean the log files that cleaner also wrote to
         if self.opts.clean:
-            _dir = os.path.join(self.tmpdir, self.archive._name, 'sos_logs')
-            cleaner.obfuscate_file(os.path.join(_dir, 'sos.log'),
+            _dir = os.path.join(self.tmpdir, self.archive._name)
+            cleaner.obfuscate_file(os.path.join(_dir, 'sos_logs', 'sos.log'),
                                    short_name='sos.log')
-            cleaner.obfuscate_file(os.path.join(_dir, 'ui.log'),
+            cleaner.obfuscate_file(os.path.join(_dir, 'sos_logs', 'ui.log'),
                                    short_name='ui.log')
+            cleaner.obfuscate_file(
+                os.path.join(_dir, 'sos_reports', 'manifest.json'),
+                short_name='manifest.json'
+            )
 
         # package up and compress the results
         if not self.opts.build:

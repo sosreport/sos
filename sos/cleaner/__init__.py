@@ -18,6 +18,7 @@ import tarfile
 import tempfile
 
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from pwd import getpwuid
 from sos import __version__
 from sos.component import SoSComponent
@@ -59,6 +60,7 @@ class SoSCleaner(SoSComponent):
             self.tmpdir = hook_commons['tmpdir']
             self.sys_tmp = hook_commons['sys_tmp']
             self.policy = hook_commons['policy']
+            self.manifest = hook_commons['manifest']
             self.from_cmdline = False
             if not hasattr(self.opts, 'jobs'):
                 self.opts.jobs = 4
@@ -72,6 +74,8 @@ class SoSCleaner(SoSComponent):
         os.umask(0o77)
         self.in_place = in_place
         self.hash_name = self.policy.get_preferred_hash_name()
+
+        self.cleaner_md = self.manifest.components.add_section('cleaner')
 
         self.parsers = [
             SoSHostnameParser(self.opts.map_file, self.opts.domains),
@@ -286,6 +290,7 @@ third party.
         _map = self.compile_mapping_dict()
         map_path = self.write_map_for_archive(_map)
         self.write_map_for_config(_map)
+        self.write_stats_to_manifest()
 
         if self.in_place:
             arc_paths = [a.final_archive_path for a in self.completed_reports]
@@ -463,6 +468,9 @@ third party.
                 return
 
             archive = SoSObfuscationArchive(report, self.tmpdir)
+            arc_md = self.cleaner_md.add_section(archive.archive_name)
+            start_time = datetime.now()
+            arc_md.add_field('start_time', start_time)
             archive.extract()
             self.prep_maps_from_archive(archive)
             archive.report_msg("Beginning obfuscation...")
@@ -501,6 +509,11 @@ third party.
                                        % err)
                     return
 
+            end_time = datetime.now()
+            arc_md.add_field('end_time', end_time)
+            arc_md.add_field('run_time', end_time - start_time)
+            arc_md.add_field('files_obfuscated', len(archive.file_sub_list))
+            arc_md.add_field('total_substitutions', archive.total_sub_count)
             self.completed_reports.append(archive)
             archive.report_msg("Obfuscation completed")
 
@@ -608,3 +621,11 @@ third party.
             except Exception as err:
                 self.log_debug("failed to parse line: %s" % err, parser.name)
         return line, count
+
+    def write_stats_to_manifest(self):
+        """Write some cleaner-level, non-report-specific stats to the manifest
+        """
+        parse_sec = self.cleaner_md.add_section('parsers')
+        for parser in self.parsers:
+            _sec = parse_sec.add_section(parser.name.replace(' ', '_').lower())
+            _sec.add_field('entries', len(parser.mapping.dataset.keys()))

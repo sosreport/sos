@@ -294,6 +294,7 @@ class SoSMetadata():
         """Adds a new instance of SoSMetadata to the current instance
         """
         setattr(self, section_name, SoSMetadata())
+        return getattr(self, section_name)
 
     def add_list(self, list_name, content=[]):
         """Add a named list element to the current instance. If content is not
