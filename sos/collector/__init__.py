@@ -1123,7 +1123,8 @@ this utility or remote systems that it connects to.
                 'policy': self.policy,
                 'tmpdir': self.tmpdir,
                 'sys_tmp': self.sys_tmp,
-                'options': self.opts
+                'options': self.opts,
+                'manifest': self.manifest
             }
             try:
                 self.ui_log.info('')
@@ -1160,6 +1161,20 @@ this utility or remote systems that it connects to.
             if self.manifest is not None:
                 self.archive.add_final_manifest_data(
                     self.opts.compression_type
+                )
+            if self.opts.clean:
+                _dir = os.path.join(self.tmpdir, self.archive._name)
+                cleaner.obfuscate_file(
+                    os.path.join(_dir, 'sos_logs', 'sos.log'),
+                    short_name='sos.log'
+                )
+                cleaner.obfuscate_file(
+                    os.path.join(_dir, 'sos_logs', 'ui.log'),
+                    short_name='ui.log'
+                )
+                cleaner.obfuscate_file(
+                    os.path.join(_dir, 'sos_reports', 'manifest.json'),
+                    short_name='manifest.json'
                 )
 
             arc_name = self.archive.finalize(self.opts.compression_type)
