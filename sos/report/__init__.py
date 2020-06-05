@@ -1117,12 +1117,6 @@ class SoSReport(SoSComponent):
         fp.close()
 
     def final_work(self):
-        # This must come before archive creation to ensure that log
-        # files are closed and cleaned up at exit.
-        #
-        # All subsequent terminal output must use print().
-        self._add_sos_logs()
-
         if self.manifest is not None:
             self.archive.add_final_manifest_data(self.opts.compression_type)
 
@@ -1144,6 +1138,15 @@ class SoSReport(SoSComponent):
                 map_file, _paths = cleaner.execute()
             except Exception as err:
                 print(_("ERROR: Unable to obfuscate report: %s" % err))
+
+        self._add_sos_logs()
+        # Now, separately clean the log files that cleaner also wrote to
+        if self.opts.clean:
+            _dir = os.path.join(self.tmpdir, self.archive._name, 'sos_logs')
+            cleaner.obfuscate_file(os.path.join(_dir, 'sos.log'),
+                                   short_name='sos.log')
+            cleaner.obfuscate_file(os.path.join(_dir, 'ui.log'),
+                                   short_name='ui.log')
 
         # package up and compress the results
         if not self.opts.build:

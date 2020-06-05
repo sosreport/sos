@@ -331,6 +331,8 @@ third party.
                 with open(os.path.join(self.sys_tmp, chksum_name), 'w') as cf:
                     cf.write(checksum)
 
+        self.write_cleaner_log()
+
         final_path = self.obfuscate_string(
             os.path.join(self.sys_tmp, arc_path.split('/')[-1])
         )
@@ -374,7 +376,7 @@ third party.
     def write_map_for_archive(self, _map):
         try:
             map_path = self.obfuscate_string(
-                os.path.join(self.sys_tmp, "%s_private_map" % self.arc_name)
+                os.path.join(self.sys_tmp, "%s-private_map" % self.arc_name)
             )
             return self.write_map_to_file(_map, map_path)
         except Exception as err:
@@ -392,6 +394,19 @@ third party.
             except Exception as err:
                 self.log_error("Could not update mapping config file: %s"
                                % err)
+
+    def write_cleaner_log(self):
+        """When invoked via the command line, the logging from SoSCleaner will
+        not be added to the archive(s) it processes, so we need to write it
+        separately to disk
+        """
+        log_name = os.path.join(
+            self.sys_tmp, "%s-obfuscation.log" % self.arc_name
+        )
+        with open(log_name, 'w') as logfile:
+            self.sos_log_file.seek(0)
+            for line in self.sos_log_file.readlines():
+                logfile.write(line)
 
     def get_new_checksum(self, archive_path):
         """Calculate a new checksum for the obfuscated archive, as the previous
