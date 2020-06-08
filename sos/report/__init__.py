@@ -977,9 +977,11 @@ class SoSReport(SoSComponent):
             pass
         except (OSError, IOError) as e:
             if e.errno in fatal_fs_errors:
-                self.ui_log.error("\n %s while collecting plugin data\n"
+                self.ui_log.error("\n %s while collecting plugin data"
                                   % e.strerror)
-                self._exit(1)
+                self.ui_log.error(" Data collected still available at %s\n"
+                                  % self.tmpdir)
+                os._exit(1)
             self.handle_exception(plugname, "collect")
         except Exception:
             self.handle_exception(plugname, "collect")
