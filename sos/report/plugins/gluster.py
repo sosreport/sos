@@ -104,10 +104,10 @@ class Gluster(Plugin, RedHatPlugin):
 
         volume_cmd = self.collect_cmd_output("gluster volume info")
         if volume_cmd['status'] == 0:
-            for line in volume_cmd['output']:
+            for line in volume_cmd['output'].splitlines():
                 if not line.startswith("Volume Name:"):
                     continue
-                volname = line[12:-1]
+                volname = line[12:]
                 self.add_cmd_output([
                     "gluster volume get %s all" % volname,
                     "gluster volume geo-replication %s status" % volname,
