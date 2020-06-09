@@ -12,9 +12,11 @@ from ipaddress import ip_interface
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
+from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
 from sos.cleaner.mappings.ip_map import SoSIPMap
 from sos.cleaner.mappings.mac_map import SoSMacMap
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
+from sos.cleaner.mappings.keyword_map import SoSKeywordMap
 
 
 class CleanerMapTests(unittest.TestCase):
@@ -23,6 +25,7 @@ class CleanerMapTests(unittest.TestCase):
         self.mac_map = SoSMacMap()
         self.ip_map = SoSIPMap()
         self.host_map = SoSHostnameMap(['redhat.com'])
+        self.kw_map = SoSKeywordMap()
 
     def test_mac_map_obfuscate_valid_v4(self):
         _test = self.mac_map.get('12:34:56:78:90:ab')
@@ -89,12 +92,19 @@ class CleanerMapTests(unittest.TestCase):
         _test = self.host_map.get('example.foobar.com')
         self.assertEqual(_test, 'example.foobar.com')
 
+    def test_keyword_single(self):
+        _test = self.kw_map.get('foobar')
+        self.assertEqual(_test, 'obfuscatedword0')
+
+
 class CleanerParserTests(unittest.TestCase):
 
     def setUp(self):
         self.ip_parser = SoSIPParser()
         self.mac_parser = SoSMacParser()
         self.host_parser = SoSHostnameParser(opt_domains='foobar.com')
+        self.kw_parser = SoSKeywordParser(keywords=['foobar'])
+        self.kw_parser_none = SoSKeywordParser()
 
     def test_ip_parser_valid_ipv4_line(self):
         line = 'foobar foo 10.0.0.1/24 barfoo bar'
@@ -135,3 +145,13 @@ class CleanerParserTests(unittest.TestCase):
         line = 'testing just myhost in a line'
         _test = self.host_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
+
+    def test_keyword_parser_valid_line(self):
+        line = 'this is my foobar test line'
+        _test = self.kw_parser.parse_line(line)[0]
+        self.assertNotEqual(line, _test)
+
+    def test_keyword_parser_no_change_by_default(self):
+        line = 'this is my foobar test line'
+        _test = self.kw_parser_none.parse_line(line)[0]
+        self.assertEqual(line, _test)
