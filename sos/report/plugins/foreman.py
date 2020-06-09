@@ -84,6 +84,7 @@ class Foreman(Plugin):
             "/etc/foreman-proxy/",
             "/etc/sysconfig/foreman",
             "/etc/sysconfig/dynflowd",
+            "/etc/smart_proxy_dynflow_core/settings.yml",
             "/etc/default/foreman",
             "/etc/foreman-installer/",
             "/var/log/foreman/dynflow_executor*log*",
