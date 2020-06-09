@@ -1121,6 +1121,9 @@ class SoSReport(SoSComponent):
         directory = None  # report directory path (--build)
         map_file = None  # path of the map file generated for the report
 
+        # use this instead of self.opts.clean beyond the initial check if
+        # cleaning was requested in case SoSCleaner fails for some reason
+        do_clean = False
         if self.opts.clean:
             try:
                 hook_commons = {
@@ -1134,6 +1137,7 @@ class SoSReport(SoSComponent):
                 cleaner.set_target_path(self.archive.get_archive_path())
                 # ignore the returned paths here
                 map_file, _paths = cleaner.execute()
+                do_clean = True
             except Exception as err:
                 print(_("ERROR: Unable to obfuscate report: %s" % err))
 
@@ -1141,7 +1145,7 @@ class SoSReport(SoSComponent):
         if self.manifest is not None:
             self.archive.add_final_manifest_data(self.opts.compression_type)
         # Now, separately clean the log files that cleaner also wrote to
-        if self.opts.clean:
+        if do_clean:
             _dir = os.path.join(self.tmpdir, self.archive._name)
             cleaner.obfuscate_file(os.path.join(_dir, 'sos_logs', 'sos.log'),
                                    short_name='sos.log')
@@ -1159,7 +1163,7 @@ class SoSReport(SoSComponent):
                 print(_("Creating compressed archive..."))
             # compression could fail for a number of reasons
             try:
-                if self.opts.clean:
+                if do_clean:
                     self.archive.rename_archive_root(cleaner)
                 archive = self.archive.finalize(
                     self.opts.compression_type)
@@ -1183,7 +1187,7 @@ class SoSReport(SoSComponent):
             dir_name = os.path.basename(directory)
             try:
                 final_dir = os.path.join(self.sys_tmp, dir_name)
-                if self.opts.clean:
+                if do_clean:
                     final_dir = cleaner.obfuscate_string(final_dir)
                 os.rename(directory, final_dir)
                 directory = final_dir
@@ -1211,7 +1215,7 @@ class SoSReport(SoSComponent):
                 # containing directory.
                 final_name = os.path.join(self.sys_tmp,
                                           os.path.basename(archive))
-                if self.opts.clean:
+                if do_clean:
                     final_name = cleaner.obfuscate_string(
                         final_name.replace('.tar', '-obfuscated.tar')
                     )
