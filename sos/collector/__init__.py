@@ -1118,6 +1118,7 @@ this utility or remote systems that it connects to.
             for fname in host.file_list:
                 arc_paths.append(fname)
 
+        do_clean = False
         if self.opts.clean:
             hook_commons = {
                 'policy': self.policy,
@@ -1132,6 +1133,7 @@ this utility or remote systems that it connects to.
                                      hook_commons=hook_commons)
                 cleaner.set_target_path(self.tmpdir)
                 map_file, arc_paths = cleaner.execute()
+                do_clean = True
             except Exception as err:
                 self.ui_log.error("ERROR: unable to obfuscate reports: %s"
                                   % err)
@@ -1142,7 +1144,7 @@ this utility or remote systems that it connects to.
                 dest = fname.split('/')[-1]
                 if fname.endswith(('.md5',)):
                     dest = os.path.join('checksums', fname.split('/')[-1])
-                if self.opts.clean:
+                if do_clean:
                     dest = cleaner.obfuscate_string(dest)
                 name = os.path.join(self.tmpdir, fname)
                 self.archive.add_file(name, dest=dest)
@@ -1162,7 +1164,7 @@ this utility or remote systems that it connects to.
                 self.archive.add_final_manifest_data(
                     self.opts.compression_type
                 )
-            if self.opts.clean:
+            if do_clean:
                 _dir = os.path.join(self.tmpdir, self.archive._name)
                 cleaner.obfuscate_file(
                     os.path.join(_dir, 'sos_logs', 'sos.log'),
@@ -1179,7 +1181,7 @@ this utility or remote systems that it connects to.
 
             arc_name = self.archive.finalize(self.opts.compression_type)
             final_name = os.path.join(self.sys_tmp, os.path.basename(arc_name))
-            if self.opts.clean:
+            if do_clean:
                 final_name = cleaner.obfuscate_string(
                     final_name.replace('.tar', '-obfuscated.tar')
                 )
