@@ -25,6 +25,7 @@ from sos.component import SoSComponent
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
+from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
 from sos.cleaner.obfuscation_archive import SoSObfuscationArchive
 from sos.utilities import get_human_readable
 from textwrap import fill
@@ -41,6 +42,7 @@ class SoSCleaner(SoSComponent):
     arg_defaults = {
         'domains': [],
         'jobs': 4,
+        'keywords': [],
         'map_file': '/etc/sos/cleaner/default_mapping',
         'no_update': False,
         'target': ''
@@ -80,7 +82,8 @@ class SoSCleaner(SoSComponent):
         self.parsers = [
             SoSHostnameParser(self.opts.map_file, self.opts.domains),
             SoSIPParser(self.opts.map_file),
-            SoSMacParser(self.opts.map_file)
+            SoSMacParser(self.opts.map_file),
+            SoSKeywordParser(self.opts.map_file, self.opts.keywords)
         ]
 
         self.log_info("Cleaner initialized. From cmdline: %s"
@@ -161,6 +164,9 @@ third party.
                                help='List of domain names to obfuscate')
         clean_grp.add_argument('-j', '--jobs', default=4, type=int,
                                help='Number of concurrent archives to clean')
+        clean_grp.add_argument('--keywords', action='extend', default=[],
+                               dest='keywords',
+                               help='List of keywords to obfuscate')
         clean_grp.add_argument('--map', dest='map_file',
                                default='/etc/sos/cleaner/default_mapping',
                                help=('Provide a previously generated mapping '
@@ -530,15 +536,17 @@ third party.
             :param archive SoSObfuscationArchive:   An open archive object
         """
         for parser in self.parsers:
-            # this is a bit clunky, but we need to load this particular
-            # parser in a different way due to how hostnames are validated for
-            # obfuscation
+            if not parser.prep_map_file:
+                continue
             prep_file = archive.get_file_path(parser.prep_map_file)
             if not prep_file:
                 self.log_debug("Could not prepare %s: %s does not exist"
                                % (parser.name, parser.prep_map_file),
                                caller=archive.archive_name)
                 continue
+            # this is a bit clunky, but we need to load this particular
+            # parser in a different way due to how hostnames are validated for
+            # obfuscation
             if isinstance(parser, SoSHostnameParser):
                 with open(prep_file, 'r') as host_file:
                     hostname = host_file.readline().strip()

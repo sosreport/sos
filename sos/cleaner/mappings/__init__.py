@@ -21,7 +21,7 @@ class SoSMap():
     items.
     """
 
-    ignore_list = []
+    ignore_matches = []
 
     def __init__(self):
         self.dataset = {}

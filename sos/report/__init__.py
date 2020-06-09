@@ -85,6 +85,7 @@ class SoSReport(SoSComponent):
         'dry_run': False,
         'experimental': False,
         'enableplugins': [],
+        'keywords': [],
         'plugopts': [],
         'label': '',
         'list_plugins': False,
@@ -291,6 +292,9 @@ class SoSReport(SoSComponent):
         cleaner_grp.add_argument('--domains', dest='domains', default=[],
                                  action='extend',
                                  help='Additional domain names to obfuscate')
+        cleaner_grp.add_argument('--keywords', action='extend', default=[],
+                                 dest='keywords',
+                                 help='List of keywords to obfuscate')
         cleaner_grp.add_argument('--no-update', action='store_true',
                                  default=False, dest='no_update',
                                  help='Do not update the default cleaner map')
