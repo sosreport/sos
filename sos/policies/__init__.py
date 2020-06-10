@@ -49,7 +49,7 @@ def import_policy(name):
 
 
 def load(cache={}, sysroot=None, init=None, probe_runtime=True,
-         remote_exec=None, remote_check=''):
+         remote_exec=None, remote_node=None):
     if 'policy' in cache:
         return cache.get('policy')
 
@@ -57,7 +57,7 @@ def load(cache={}, sysroot=None, init=None, probe_runtime=True,
     helper = ImporterHelper(sos.policies)
     for module in helper.get_modules():
         for policy in import_policy(module):
-            if policy.check(remote=remote_check):
+            if policy.check(remote=remote_node):
                 cache['policy'] = policy(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime,
                                          remote_exec=remote_exec)

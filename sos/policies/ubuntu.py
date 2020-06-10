@@ -23,12 +23,12 @@ class UbuntuPolicy(DebianPolicy):
         self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         """This method checks to see if we are running on Ubuntu.
            It returns True or False."""
 
         if remote:
-            return cls.distro in remote
+            return cls.distro in remote.read_file('/etc/lsb-release')
 
         try:
             with open('/etc/lsb-release', 'r') as fp:

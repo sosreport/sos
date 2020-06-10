@@ -82,14 +82,13 @@ class RedHatPolicy(LinuxPolicy):
         self.load_presets()
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         """This method checks to see if we are running on Red Hat. It must be
         overriden by concrete subclasses to return True when running on a
         Fedora, RHEL or other Red Hat distribution or False otherwise.
 
-        If `remote` is provided, it should be the contents of a remote host's
-        os-release, or comparable, file to be used in place of the locally
-        available one.
+        If `remote` is provided, it should be the SoSNode() instance for the
+        remote system that we are collecting from, provided by SoSCollector().
         """
         return False
 
@@ -281,7 +280,7 @@ support representative.
         self.register_presets(rhel_presets)
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         """Test to see if the running host is a RHEL installation.
 
             Checks for the presence of the "Red Hat Enterprise Linux"
@@ -294,7 +293,9 @@ support representative.
         """
 
         if remote:
-            return cls.distro in remote
+            if not remote.file_exists(OS_RELEASE):
+                return False
+            return cls.distro in remote.read_file(OS_RELEASE)
 
         if not os.path.exists(OS_RELEASE):
             return False
@@ -430,10 +431,9 @@ support representative.
         self.register_presets(atomic_presets)
 
     @classmethod
-    def check(cls, remote=''):
-
+    def check(cls, remote=None):
         if remote:
-            return cls.distro in remote
+            return ATOMIC_RELEASE_STR in remote.read_file('/etc/os-release')
 
         atomic = False
         if ENV_HOST_SYSROOT not in os.environ:
@@ -492,10 +492,9 @@ support representative.
                                                  remote_exec=remote_exec)
 
     @classmethod
-    def check(cls, remote=''):
-
+    def check(cls, remote=None):
         if remote:
-            return 'CoreOS' in remote
+            return 'CoreOS' in remote.read_file('/etc/os-release')
 
         coreos = False
         if ENV_HOST_SYSROOT not in os.environ:
@@ -546,12 +545,11 @@ class FedoraPolicy(RedHatPolicy):
                                            remote_exec=remote_exec)
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         """This method checks to see if we are running on Fedora. It returns
         True or False."""
-
         if remote:
-            return cls.distro in remote
+            return remote.file_exists('/etc/fedora-release')
 
         return os.path.isfile('/etc/fedora-release')
 

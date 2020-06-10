@@ -39,12 +39,12 @@ class DebianPolicy(LinuxPolicy):
         }.get(binary, binary)
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         """This method checks to see if we are running on Debian.
            It returns True or False."""
 
         if remote:
-            return cls.distro in remote
+            return remote.file_exists('/etc/debian_version')
 
         return os.path.isfile('/etc/debian_version')
 

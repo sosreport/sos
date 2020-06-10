@@ -34,9 +34,9 @@ class CosPolicy(LinuxPolicy):
     PATH = "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         if remote:
-            return cls.distro in remote
+            return cls.distro in remote.read_file('/etc/os-release')
 
         try:
             with open('/etc/os-release', 'r') as fp:

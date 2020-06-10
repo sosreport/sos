@@ -25,10 +25,9 @@ class AmazonPolicy(RedHatPolicy):
                                            remote_exec=remote_exec)
 
     @classmethod
-    def check(cls, remote=''):
-
+    def check(cls, remote=None):
         if remote:
-            return cls.distro in remote
+            return cls.distro in remote.read_file(OS_RELEASE)
 
         if not os.path.exists(OS_RELEASE):
             return False

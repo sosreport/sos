@@ -340,7 +340,7 @@ class SosNode():
             return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=False, remote_exec=self.ssh_cmd,
-                    remote_check=self.read_file('/etc/os-release'))
+                    remote_node=self)
         if host:
             self.log_info("loaded policy %s for host" % host.distro)
             return host

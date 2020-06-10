@@ -29,12 +29,12 @@ class PowerKVMPolicy(RedHatPolicy):
         self.valid_subclasses = [PowerKVMPlugin, RedHatPlugin]
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         """This method checks to see if we are running on PowerKVM.
            It returns True or False."""
 
         if remote:
-            return cls.distro in remote
+            return remote.file_exists('/etc/ibm_powerkvm-release')
 
         return os.path.isfile('/etc/ibm_powerkvm-release')
 
@@ -57,12 +57,12 @@ class ZKVMPolicy(RedHatPolicy):
         self.valid_subclasses = [ZKVMPlugin, RedHatPlugin]
 
     @classmethod
-    def check(cls, remote=''):
+    def check(cls, remote=None):
         """This method checks to see if we are running on IBM Z KVM. It
         returns True or False."""
 
         if remote:
-            return cls.distro in remote
+            return remote.file_exists('/etc/base-release')
 
         return os.path.isfile('/etc/base-release')
 
