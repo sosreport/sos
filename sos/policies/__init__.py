@@ -43,18 +43,39 @@ def load(cache={}, sysroot=None, init=None, probe_runtime=True,
          remote_exec=None, remote_check=''):
     if 'policy' in cache:
         return cache.get('policy')
+        
+    try:
+        with open('/etc/os-release', 'r') as fp:
+            os_release = dict(line.strip().split('=') for line in fp)
+    except (IOError, KeyError):
+        return False
 
     import sos.policies
-    helper = ImporterHelper(sos.policies)
-    for module in helper.get_modules():
-        for policy in import_policy(module):
-            if policy.check(remote=remote_check):
-                cache['policy'] = policy(sysroot=sysroot, init=init,
-                                         probe_runtime=probe_runtime,
-                                         remote_exec=remote_exec)
+    modules = ImporterHelper(sos.policies).get_modules();
+    os_id = os_release['ID']
+    
+    best_match = ""
+    
+    if os_id in modules:
+        best_match = os_id
+        if "VARIANT_ID" in os_release:
+            os_and_variant_id = os_id + "_" + os_release['VARIANT_ID']
+            if os_and_variant_id in modules:
+                best_match = os_and_variant_id
+    elif "ID_LIKE" in os_release:
+        os_id_like = os_release['ID_LIKE'].split()
+        os_id_like_intersect = list(set(os_id_like).intersection(modules))
+        if os_id_like_intersect:
+            best_match = os_id_like_intersect.pop(0)
 
-    if 'policy' not in cache:
+    if best_match:
+        for policy in import_policy(best_match):
+                cache['policy'] = policy(sysroot=sysroot, init=init,
+                                             probe_runtime=probe_runtime,
+                                             remote_exec=remote_exec)
+    else:
         cache['policy'] = GenericPolicy()
+
 
     return cache['policy']
 
@@ -621,17 +642,6 @@ any third party.
                                 del_valid_subclasses,
                                 "list of subclasses that this policy can "
                                 "process")
-
-    def check(self, remote=''):
-        """
-        This function is responsible for determining if the underlying system
-        is supported by this policy.
-
-        If `remote` is provided, it should be the contents of os-release from
-        a remote host, or a similar vendor-specific file that can be used in
-        place of a locally available file.
-        """
-        return False
 
     def in_container(self):
         """ Returns True if sos is running inside a container environment.
@@ -1428,3 +1438,4 @@ class LinuxPolicy(Policy):
 
 
 # vim: set et ts=4 sw=4 :
+

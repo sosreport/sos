@@ -22,20 +22,6 @@ class UbuntuPolicy(DebianPolicy):
                                            remote_exec=remote_exec)
         self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
 
-    @classmethod
-    def check(cls, remote=''):
-        """This method checks to see if we are running on Ubuntu.
-           It returns True or False."""
-
-        if remote:
-            return cls.distro in remote
-
-        try:
-            with open('/etc/lsb-release', 'r') as fp:
-                return "Ubuntu" in fp.read()
-        except IOError:
-            return False
-
     def dist_version(self):
         """ Returns the version stated in DISTRIB_RELEASE
         """

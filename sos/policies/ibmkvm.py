@@ -13,8 +13,6 @@
 from sos.report.plugins import PowerKVMPlugin, ZKVMPlugin, RedHatPlugin
 from sos.policies.redhat import RedHatPolicy
 
-import os
-
 
 class PowerKVMPolicy(RedHatPolicy):
     distro = "PowerKVM"
@@ -28,24 +26,6 @@ class PowerKVMPolicy(RedHatPolicy):
                                              remote_exec=remote_exec)
         self.valid_subclasses = [PowerKVMPlugin, RedHatPlugin]
 
-    @classmethod
-    def check(cls, remote=''):
-        """This method checks to see if we are running on PowerKVM.
-           It returns True or False."""
-
-        if remote:
-            return cls.distro in remote
-
-        return os.path.isfile('/etc/ibm_powerkvm-release')
-
-    def dist_version(self):
-        try:
-            with open('/etc/ibm_powerkvm-release', 'r') as fp:
-                version_string = fp.read()
-                return version_string[2][0]
-        except IOError:
-            return False
-
 
 class ZKVMPolicy(RedHatPolicy):
     distro = "IBM Hypervisor"
@@ -55,16 +35,6 @@ class ZKVMPolicy(RedHatPolicy):
     def __init__(self, sysroot=None):
         super(ZKVMPolicy, self).__init__(sysroot=sysroot)
         self.valid_subclasses = [ZKVMPlugin, RedHatPlugin]
-
-    @classmethod
-    def check(cls, remote=''):
-        """This method checks to see if we are running on IBM Z KVM. It
-        returns True or False."""
-
-        if remote:
-            return cls.distro in remote
-
-        return os.path.isfile('/etc/base-release')
 
     def dist_version(self):
         try:

@@ -1,8 +1,6 @@
 from sos.report.plugins import DebianPlugin
 from sos.policies import PackageManager, LinuxPolicy
 
-import os
-
 
 class DebianPolicy(LinuxPolicy):
     distro = "Debian"
@@ -37,27 +35,5 @@ class DebianPolicy(LinuxPolicy):
         return {
             "xz": "xz-utils"
         }.get(binary, binary)
-
-    @classmethod
-    def check(cls, remote=''):
-        """This method checks to see if we are running on Debian.
-           It returns True or False."""
-
-        if remote:
-            return cls.distro in remote
-
-        return os.path.isfile('/etc/debian_version')
-
-    def dist_version(self):
-        try:
-            with open('/etc/lsb-release', 'r') as fp:
-                rel_string = fp.read()
-                if "wheezy/sid" in rel_string:
-                    return 6
-                elif "jessie/sid" in rel_string:
-                    return 7
-            return False
-        except IOError:
-            return False
 
 # vim: set et ts=4 sw=4 :

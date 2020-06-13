@@ -12,8 +12,6 @@ import sys
 
 from sos.report.plugins import RedHatPlugin, SuSEPlugin
 from sos.policies import LinuxPolicy, PackageManager
-from sos import _sos as _
-
 
 class SuSEPolicy(LinuxPolicy):
     distro = "SuSE"
@@ -42,13 +40,6 @@ class SuSEPolicy(LinuxPolicy):
         self.PATH += os.pathsep + "/usr/local/bin"
         self.PATH += os.pathsep + "/usr/local/sbin"
         self.set_exec_path()
-
-    @classmethod
-    def check(cls, remote=''):
-        """This method checks to see if we are running on SuSE. It must be
-        overriden by concrete subclasses to return True when running on an
-        OpenSuSE, SLES or other Suse distribution and False otherwise."""
-        return False
 
     def runlevel_by_service(self, name):
         from subprocess import Popen, PIPE
@@ -80,34 +71,4 @@ class SuSEPolicy(LinuxPolicy):
     def get_local_name(self):
         return self.host_name()
 
-
-class OpenSuSEPolicy(SuSEPolicy):
-    distro = "OpenSuSE"
-    vendor = "SuSE"
-    vendor_url = "https://www.opensuse.org/"
-    msg = _("""\
-This command will collect diagnostic and configuration \
-information from this %(distro)s system and installed \
-applications.
-
-An archive containing the collected information will be \
-generated in %(tmpdir)s and may be provided to a %(vendor)s \
-support representative.
-
-No changes will be made to system configuration.
-%(vendor_text)s
-""")
-
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
-        super(OpenSuSEPolicy, self).__init__(sysroot=sysroot, init=init,
-                                             probe_runtime=probe_runtime)
-
-    @classmethod
-    def check(cls, remote):
-        """This method checks to see if we are running on SuSE.
-        """
-
-        if remote:
-            return cls.distro in remote
-
-        return (os.path.isfile('/etc/SuSE-release'))
+# vim: set et ts=4 sw=4 :

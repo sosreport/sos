@@ -1,5 +1,3 @@
-# Copyright (C) Red Hat, Inc. 2019
-
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
 # This copyrighted material is made available to anyone wishing to use,
@@ -8,20 +6,23 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.policies.redhat import RedHatPolicy
+from sos.policies import RedHatPolicy
 
 
-class AmazonPolicy(RedHatPolicy):
-
-    distro = "Amazon Linux"
-    vendor = "Amazon"
-    vendor_url = "https://aws.amazon.com"
+class FedoraPolicy(RedHatPolicy):
+    distro = "Fedora"
+    vendor = "the Fedora Project"
+    vendor_url = "https://fedoraproject.org/"
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(AmazonPolicy, self).__init__(sysroot=sysroot, init=init,
+        super(FedoraPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime,
                                            remote_exec=remote_exec)
 
+    def fedora_version(self):
+        pkg = self.pkg_by_name("fedora-release") or \
+            self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
+        return int(pkg["version"])
 
 # vim: set et ts=4 sw=4 :
