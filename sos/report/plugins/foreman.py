@@ -205,6 +205,15 @@ class Foreman(Plugin):
             % quote(months)
         )
 
+        # counts of fact_names prefixes/types: much of one type suggests
+        # performance issues
+        factnamescmd = (
+            'WITH prefix_counts AS (SELECT split_part(name,\'::\',1) FROM '
+            'fact_names) SELECT COUNT(*), split_part AS "fact_name_prefix" '
+            'FROM prefix_counts GROUP BY split_part ORDER BY count DESC '
+            'LIMIT 100'
+        )
+
         # Populate this dict with DB queries that should be saved directly as
         # postgres formats them. The key will be the filename in the foreman
         # plugin directory, with the value being the DB query to run
@@ -214,6 +223,9 @@ class Foreman(Plugin):
             'foreman_auth_table': authcmd,
             'dynflow_schema_info': 'select * from dynflow_schema_info',
             'foreman_tasks_tasks': 'select * from foreman_tasks_tasks',
+            'audits_table_count': 'select count(*) from audits',
+            'logs_table_count': 'select count(*) from logs',
+            'fact_names_prefixes': factnamescmd,
             'smart_proxies': 'select sp.name, sp.url, ' +
                              'sp.download_policy,n.ip from smart_proxies ' +
                              'as sp left join hosts as h on h.name=sp.name ' +
