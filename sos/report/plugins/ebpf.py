@@ -61,7 +61,9 @@ class Ebpf(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "bpftool cgroup tree",
             # collect list of bpf program attachments in the kernel
             # networking subsystem
-            "bpftool net list"
+            "bpftool net list",
+            # collect all struct_ops currently existing in the system
+            "bpftool struct_ops dump"
         ])
 
         # Capture list of bpf program attachments from namespaces
