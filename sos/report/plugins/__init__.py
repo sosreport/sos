@@ -379,9 +379,6 @@ class Plugin(object):
     this if you are defining multiple plugins that do the same thing on
     different platforms.
 
-    requires_root is a boolean that specifies whether or not sosreport should
-    execute this plugin as a super user.
-
     version is a string representing the version of the plugin. This can be
     useful for post-collection tooling.
 
@@ -396,7 +393,6 @@ class Plugin(object):
     """
 
     plugin_name = None
-    requires_root = True
     version = 'unversioned'
     packages = ()
     files = ()

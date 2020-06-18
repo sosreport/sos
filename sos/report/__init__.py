@@ -72,6 +72,7 @@ class SoSReport(SoSComponent):
     """
 
     desc = "Collect files and command output in an archive"
+    root_required = True
 
     arg_defaults = {
         'alloptions': False,
@@ -493,12 +494,6 @@ class SoSReport(SoSComponent):
                     if self.opts.verbosity > 0:
                         self._skip(plugin_class, _("does not validate"))
                         continue
-
-                if plugin_class.requires_root and not self._is_root:
-                    self.soslog.info(_("plugin %s requires root permissions"
-                                       "to execute, skipping") % plug)
-                    self._skip(plugin_class, _("requires root"))
-                    continue
 
                 # plug-in is valid, let's decide whether run it or not
                 self.plugin_names.append(plugbase)

@@ -20,8 +20,6 @@ class Gnocchi(Plugin):
 
     profiles = ('openstack', 'openstack_controller')
 
-    requires_root = False
-
     def setup(self):
         self.add_copy_spec([
             "/etc/gnocchi/*",

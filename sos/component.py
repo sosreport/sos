@@ -48,6 +48,7 @@ class SoSComponent():
     arg_defaults = {}
     configure_logging = True
     load_policy = True
+    root_required = False
 
     _arg_defaults = {
         "batch": False,
