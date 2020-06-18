@@ -61,7 +61,7 @@ class Vdsm(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_forbidden_path('/etc/pki/vdsm/keys')
-        self.add_forbidden_path('/etc/pki/vdsm/libvirt-spice/*-key.*')
+        self.add_forbidden_path('/etc/pki/vdsm/libvirt-*/*-key.*')
         self.add_forbidden_path('/etc/pki/libvirt/private')
 
         self.add_service_status(['vdsmd', 'supervdsmd'])
@@ -70,7 +70,7 @@ class Vdsm(Plugin, RedHatPlugin):
             '/tmp/vds_installer*',
             '/tmp/vds_bootstrap*',
             '/etc/vdsm/*',
-            '/etc/pki/vdsm/certs/'
+            '/etc/pki/vdsm/'
         ])
 
         self.add_copy_spec('/var/log/vdsm/*')
