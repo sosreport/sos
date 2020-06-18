@@ -140,8 +140,7 @@ class Ovirt(Plugin, RedHatPlugin):
         # Copying host certs.
         self.add_forbidden_path([
             "/etc/pki/ovirt-engine/keys",
-            "/etc/pki/ovirt-engine/private",
-            "/etc/pki/ovirt-engine/.truststore"
+            "/etc/pki/ovirt-engine/private"
         ])
         self.add_copy_spec("/etc/pki/ovirt-engine/")
 
