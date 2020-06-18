@@ -20,9 +20,6 @@ class OpenStackAodh(Plugin, RedHatPlugin):
     profiles = ('openstack', 'openstack_controller')
 
     packages = ('openstack-selinux',)
-
-    requires_root = False
-
     var_puppet_gen = "/var/lib/config-data/puppet-generated/aodh"
 
     def setup(self):

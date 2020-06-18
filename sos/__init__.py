@@ -16,6 +16,7 @@ gettext to internationalize messages.
 """
 __version__ = "3.9"
 
+import os
 import sys
 
 from argparse import ArgumentParser
@@ -168,8 +169,10 @@ class SoS():
         if _com not in self._components.keys():
             print("Unknown subcommand '%s' specified" % _com)
         try:
-            self._component = self._components[_com][0](self.parser, self.args,
-                                                        self.cmdline)
+            _to_load = self._components[_com][0]
+            if _to_load.root_required and not os.getuid() == 0:
+                raise Exception("Component must be run with root privileges")
+            self._component = _to_load(self.parser, self.args, self.cmdline)
         except Exception as err:
             print("Could not initialize '%s': %s" % (_com, err))
             if self.args.debug:
