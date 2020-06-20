@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, SoSPredicate)
 
 
 class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
@@ -38,17 +39,22 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         # When running LVM2 comamnds:
-        # - use locking_type 0 (no locks) from lvm.conf: Turn locking
-        #   off by setting to 0 (dangerous: risks metadata corruption if
-        #   LVM2 commands get run concurrently).  This avoids the
-        #   possibility of hanging lvm commands when another process or
-        #   node holds a conflicting lock.
+        # - use nolocking if supported, else locking_type 0 (no locks)
+        #   from lvm.conf: Turn locking off by setting to 0 (dangerous:
+        #   risks metadata corruption if LVM2 commands get run
+        #   concurrently).  This avoids the possibility of hanging lvm
+        #   commands when another process or node holds a conflicting
+        #   lock.
         # - use metadata_read_only 1 (forbid on-disk changes). Although
         #   all LVM2 commands we use should be read-only, any LVM2
         #   command may attempt to recover on-disk data in some cases.
         #   This option prevents such changes, allowing safe use of
         #   locking_type=0.
-        lvm_opts = '--config="global{locking_type=0 metadata_read_only=1}"'
+        nolock = {'cmd': 'vgdisplay -h', 'output': '--nolocking'}
+        if bool(SoSPredicate(self, cmd_outputs=nolock)):
+            lvm_opts = '--config="global{metadata_read_only=1}" --nolocking'
+        else:
+            lvm_opts = '--config="global{locking_type=0 metadata_read_only=1}"'
 
         self.add_cmd_output(
             "vgdisplay -vv %s" % lvm_opts,
