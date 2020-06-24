@@ -52,7 +52,7 @@ class Block(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         # for LUKS devices, collect cryptsetup luksDump
         if lsblk['status'] == 0:
             for line in lsblk['output'].splitlines():
-                if 'crypto LUKS' in line:
+                if 'crypto_LUKS' in line:
                     dev = line.split()[0]
                     self.add_cmd_output('cryptsetup luksDump /dev/%s' % dev)
 
