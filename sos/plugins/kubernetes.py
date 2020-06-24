@@ -194,6 +194,9 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
     if path.exists('/etc/origin/master/admin.kubeconfig'):
         kube_cmd = 'oc'
 
+    def setup(self):
+        super(RedHatKubernetes, self).setup()
+
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
     """Ubuntu Kubernetes plugin
@@ -204,5 +207,8 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
     files = ('/root/cdk/kubeproxyconfig',)
 
     kube_cmd = "kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
+
+    def setup(self):
+        super(UbuntuKubernetes, self).setup()
 
 # vim: et ts=5 sw=4
