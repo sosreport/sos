@@ -53,7 +53,7 @@ class SoSComponent():
     _arg_defaults = {
         "batch": False,
         "compression_type": 'auto',
-        "config_file": '/etc/sos.conf',
+        "config_file": '/etc/sos/sos.conf',
         "debug": False,
         "encrypt_key": None,
         "encrypt_pass": None,
@@ -158,6 +158,41 @@ class SoSComponent():
         """
         pass
 
+    def apply_options_from_cmdline(self, opts):
+        """(Re-)apply options specified via the cmdline to an options instance
+
+        There are several cases where we may need to re-apply the options from
+        the cmdline over previously loaded options - for instance when an
+        option is specified in both a config file and cmdline, or a preset and
+        the cmdline, or all three.
+
+        Use this to re-apply cmdline option overrides to anything that may
+        change the default values of options
+
+        Positional arguments:
+
+            :param opts:        SoSOptions object to update
+
+        """
+        # override the values from config files with the values from the
+        # cmdline iff that value was explicitly specified, and compare it to
+        # the _current_ set of opts from the config files as a default
+        cmdopts = SoSOptions().from_args(
+            self.parser.parse_args(self.cmdline),
+            arg_defaults=opts.dict(preset_filter=False)
+        )
+        # we can't use merge() here, as argparse will pass default values for
+        # unset options which would effectively negate config file settings and
+        # set all values back to their normal default
+        codict = cmdopts.dict(preset_filter=False)
+        for opt, val in codict.items():
+            if opt not in cmdopts.arg_defaults.keys():
+                continue
+            if val and val != opts.arg_defaults[opt]:
+                setattr(opts, opt, val)
+
+        return opts
+
     def load_options(self):
         """Compile arguments loaded from defaults, config files, and the
         command line into a usable set of options
@@ -169,12 +204,13 @@ class SoSComponent():
             if option.default != SUPPRESS:
                 option.default = None
 
-        # load values from cmdline
-        cmdopts = SoSOptions().from_args(self.parser.parse_args(self.cmdline))
-        opts.merge(cmdopts)
+        opts.update_from_conf(self.args.config_file, self.args.component)
+        if os.getuid() != 0:
+            userconf = os.path.join(Path.home(), '.config/sos/sos.conf')
+            if os.path.exists(userconf):
+                opts.update_from_conf(userconf, self.args.component)
 
-        # load values from config file
-        opts.update_from_conf(opts.config_file)
+        opts = self.apply_options_from_cmdline(opts)
 
         return opts
 

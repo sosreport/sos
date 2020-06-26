@@ -127,7 +127,8 @@ class SoS():
         global_grp.add_argument("--batch", default=False, action="store_true",
                                 help="Do not prompt interactively")
         global_grp.add_argument("--config-file", type=str, action="store",
-                                dest="config_file", default="/etc/sos.conf",
+                                dest="config_file",
+                                default="/etc/sos/sos.conf",
                                 help="specify alternate configuration file")
         global_grp.add_argument("--debug", action="store_true", dest="debug",
                                 help="enable interactive debugging using the "
@@ -173,6 +174,7 @@ class SoS():
             if _to_load.root_required and not os.getuid() == 0:
                 raise Exception("Component must be run with root privileges")
             self._component = _to_load(self.parser, self.args, self.cmdline)
+
         except Exception as err:
             print("Could not initialize '%s': %s" % (_com, err))
             if self.args.debug:
