@@ -20,7 +20,7 @@ class vhostmd(Plugin, RedHatPlugin):
     packages = ['virt-what']
 
     def setup(self):
-        vw = self.exec_cmd("virt-what")['output'].splitlines()
+        vw = self.collect_cmd_output("virt-what")['output'].splitlines()
 
         if not vw:
             return
