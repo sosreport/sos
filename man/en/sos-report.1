@@ -135,7 +135,7 @@ reports from containers and images.
 .B \-c, \--chroot {auto|always|never}
 Set the chroot mode. When \--sysroot is used commands default to
 executing with SYSROOT as the root directory (unless disabled by
-a specific plugin). This can be overriden by setting \--chroot to
+a specific plugin). This can be overridden by setting \--chroot to
 "always" (always chroot) or "never" (always run in the host
 namespace).
 .TP
@@ -147,7 +147,7 @@ compressed report.
 Display a list of available profiles and the plugins that they enable.
 .TP
 .B \-p, \--profile NAME
-Only run plugins that correspond to the given profile. Multple profiles
+Only run plugins that correspond to the given profile. Multiple profiles
 may be specified as a comma-separated list; the set of plugins executed
 is the union of each of the profile's plugin sets. Currently defined
 profiles include: boot, cluster, desktop, debug, hardware, identity,
