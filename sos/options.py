@@ -7,7 +7,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 from argparse import Action
-from configparser import ConfigParser, ParsingError, Error
+from configparser import (ConfigParser, ParsingError, Error,
+                          DuplicateOptionError)
 
 
 def _is_seq(val):
@@ -106,7 +107,7 @@ class SoSOptions():
             setattr(self, arg, kwargs[arg])
 
     @classmethod
-    def from_args(cls, args):
+    def from_args(cls, args, arg_defaults={}):
         """Initialise a new SoSOptions object from a ``Namespace``
             obtained by parsing command line arguments.
 
@@ -114,7 +115,7 @@ class SoSOptions():
             :returns: an initialised SoSOptions object
             :returntype: SoSOptions
         """
-        opts = SoSOptions(**vars(args))
+        opts = SoSOptions(**vars(args), arg_defaults=arg_defaults)
         opts._merge_opts(args, True)
         return opts
 
@@ -169,58 +170,59 @@ class SoSOptions():
                                 % (key, conf))
         return val
 
-    def update_from_conf(self, config_file):
+    def update_from_conf(self, config_file, component):
+        """Read the provided config_file and update options from that.
+
+        Positional arguments:
+
+            :param config_file:             Filepath to the config file
+            :param component:               Which component (section) to load
+        """
+
+        def _update_from_section(section, config):
+            if config.has_section(section):
+                odict = dict(config.items(section))
+                # handle verbose explicitly
+                if 'verbose' in odict.keys():
+                    odict['verbosity'] = int(odict.pop('verbose'))
+                # convert options names
+                for key in odict.keys():
+                    if '-' in key:
+                        odict[key.replace('-', '_')] = odict.pop(key)
+                # set the values according to the config file
+                for key, val in odict.items():
+                    if isinstance(val, str):
+                        val = val.replace(' ', '')
+                    if key not in self.arg_defaults:
+                        # read an option that is not loaded by the current
+                        # SoSComponent
+                        print("Unknown option '%s' in section '%s'"
+                              % (key, section))
+                        continue
+                    val = self._convert_to_type(key, val, config_file)
+                    setattr(self, key, val)
+
         config = ConfigParser()
         try:
             try:
                 with open(config_file) as f:
                     config.readfp(f)
-            except (ParsingError, Error) as e:
+            except DuplicateOptionError as err:
+                raise exit("Duplicate option '%s' in section '%s' in file %s"
+                           % (err.option, err.section, config_file))
+            except (ParsingError, Error):
                 raise exit('Failed to parse configuration file %s'
                            % config_file)
         except (OSError, IOError) as e:
             raise exit('Unable to read configuration file %s : %s'
                        % (config_file, e.args[1]))
 
-        if config.has_section("general"):
-            odict = dict(config.items("general"))
-            # handle verbose explicitly
-            if 'verbose' in odict.keys():
-                odict['verbosity'] = int(odict.pop('verbose'))
-            # convert options names
-            for key in odict.keys():
-                if '-' in key:
-                    odict[key.replace('-', '_')] = odict.pop(key)
-            # set the values according to the config file
-            for key, val in odict.items():
-                if key not in self.arg_defaults:
-                    # read an option that is not loaded by the current
-                    # SoSComponent
-                    continue
-                val = self._convert_to_type(key, val, config_file)
-                setattr(self, key, val)
-
-        # report specific checks
-
-        if hasattr(self, 'noplugins'):
-            if config.has_option("plugins", "disable"):
-                self.noplugins.extend([
-                    plugin.strip() for plugin in
-                    config.get("plugins", "disable").split(',')
-                ])
-
-        if hasattr(self, 'enableplugins'):
-            if config.has_option("plugins", "enable"):
-                self.enableplugins.extend([
-                    plugin.strip() for plugin in
-                    config.get("plugins", "enable").split(',')
-                ])
-
-        if hasattr(self, 'plugopts'):
-            if config.has_section("tunables"):
-                for opt, val in config.items("tunables"):
-                    if not opt.split('.')[0] in opts.noplugins:
-                        self.plugopts.append(opt + "=" + val)
+        _update_from_section("global", config)
+        _update_from_section(component, config)
+        if config.has_section("plugin_options") and hasattr(self, 'plugopts'):
+            for key, val in config.items("plugin_options"):
+                if not key.split('.')[0] in self.skip_plugins:
+                    self.plugopts.append(key + '=' + val)
 
     def merge(self, src, skip_default=True):
         """Merge another set of ``SoSOptions`` into this object.
@@ -237,7 +239,7 @@ class SoSOptions():
             if getattr(src, arg) is not None or not skip_default:
                 self._merge_opt(arg, src, False)
 
-    def dict(self):
+    def dict(self, preset_filter=True):
         """Return this ``SoSOptions`` option values as a dictionary of
             argument name to value mappings.
 
@@ -247,8 +249,9 @@ class SoSOptions():
         for arg in self.arg_names:
             value = getattr(self, arg)
             # Do not attempt to store preset option values in presets
-            if arg in ('add_preset', 'del_preset', 'desc', 'note'):
-                value = None
+            if preset_filter:
+                if arg in ('add_preset', 'del_preset', 'desc', 'note'):
+                    value = None
             odict[arg] = value
         return odict
 

@@ -3,11 +3,11 @@
 sos.conf \- sosreport configuration
 .SH DESCRIPTION
 .sp
-sosreport uses a configuration file at /etc/sos.conf.
+sosreport uses a configuration file at /etc/sos/sos.conf.
 .SH PARAMETERS
 .sp
-There are three sections in the sosreport configuration file:
-general, plugins and tunables. Options are set using 'ini'-style
+There are sections for each sos component, as well as global values and
+those for plugin options. Options are set using 'ini'-style
 \fBname = value\fP pairs. Disabling/enabling a boolean option
 is done the same way like on command line (e.g. process.lsof=off).
 
@@ -18,30 +18,30 @@ will result in enabling those options, regardless of value set.
 
 Sections are parsed in the ordering:
 .br
-- \fB[general]\fP
+- \fB[global]\fP
 .br
-- \fB[plugins]\fP (disable)
+- \fB[component]\fP
 .br
-- \fB[plugins]\fP (enable)
-.br
-- \fB[tunables]\fP
+- \fB[plugin_options]\fP
 
 .TP
-\fB[general]\fP
+\fB[global]\fP
 <option>      Sets (long) option value. Short options (i.e. z=auto)
               are not supported.
 .TP
-\fB[plugins]\fP
-disable       Comma separated list of plugins to disable.
-.br
-enable        Comma separated list of plugins to enable.
+\fB[component]\fP
+Each component will have a separate section, and it will support the options
+that particular component provides. These are readily identifiable in the
+\fB--help\fP output for each component, E.G. \fBsos report --help\fP.
 .TP
-\fB[tunables]\fP
-plugin.option Alter available options for defined plugin.
+\fB[plugin_options]\fP
+Alter available options for defined (and loaded) plugins.
+
+Takes the form plugin.option = value, for example \fBrpm.rpmva = true\fP.
 .SH EXAMPLES
 To use quiet and batch mode with 10 threads:
 .LP
-[general]
+[global]
 .br
 batch=yes
 .br
@@ -51,19 +51,21 @@ threads=10
 .sp
 To disable the 'host' and 'filesys' plugins:
 .LP
-[plugins]
+[report]
 .br
-disable = host, filesys
+noplugins = host,filesys
 .sp
 To disable rpm package verification in the RPM plugin:
 .LP
-[tunables]
+[plugin_options]
 .br
 rpm.rpmva = off
 .br
 .SH FILES
 .sp
-/etc/sos.conf
+/etc/sos/sos.conf
 .SH SEE ALSO
 .sp
-sosreport(1)
+sos-report(1)
+sos-collect(1)
+sos-clean(1)

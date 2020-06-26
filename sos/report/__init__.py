@@ -85,7 +85,7 @@ class SoSReport(SoSComponent):
         'domains': [],
         'dry_run': False,
         'experimental': False,
-        'enableplugins': [],
+        'enable_plugins': [],
         'keywords': [],
         'plugopts': [],
         'label': '',
@@ -94,13 +94,13 @@ class SoSReport(SoSComponent):
         'list_profiles': False,
         'log_size': 25,
         'map_file': '/etc/sos/cleaner/default_mapping',
-        'noplugins': [],
+        'skip_plugins': [],
         'noreport': False,
         'no_env_vars': False,
         'no_postproc': False,
         'no_update': False,
         'note': '',
-        'onlyplugins': [],
+        'only_plugins': [],
         'preset': 'auto',
         'plugin_timeout': 300,
         'profiles': [],
@@ -148,6 +148,8 @@ class SoSReport(SoSComponent):
             self.preset = self.policy.probe_preset()
         # now merge preset options to self.opts
         self.opts.merge(self.preset.opts)
+        # re-apply any cmdline overrides to the preset
+        self.opts = self.apply_options_from_cmdline(self.opts)
 
         self._set_directories()
 
@@ -207,7 +209,7 @@ class SoSReport(SoSComponent):
                                 dest="experimental", default=False,
                                 help="enable experimental plugins")
         report_grp.add_argument("-e", "--enable-plugins", action="extend",
-                                dest="enableplugins", type=str,
+                                dest="enable_plugins", type=str,
                                 help="enable these plugins", default=[])
         report_grp.add_argument("-k", "--plugin-option", action="extend",
                                 dest="plugopts", type=str,
@@ -231,7 +233,7 @@ class SoSReport(SoSComponent):
                                 help="limit the size of collected logs "
                                      "(in MiB)")
         report_grp.add_argument("-n", "--skip-plugins", action="extend",
-                                dest="noplugins", type=str,
+                                dest="skip_plugins", type=str,
                                 help="disable these plugins", default=[])
         report_grp.add_argument("--no-report", action="store_true",
                                 dest="noreport", default=False,
@@ -245,7 +247,7 @@ class SoSReport(SoSComponent):
         report_grp.add_argument("--note", type=str, action="store", default="",
                                 help="Behaviour notes for new preset")
         report_grp.add_argument("-o", "--only-plugins", action="extend",
-                                dest="onlyplugins", type=str,
+                                dest="only_plugins", type=str,
                                 help="enable these plugins only", default=[])
         report_grp.add_argument("--preset", action="store", type=str,
                                 help="A preset identifier", default="auto")
@@ -421,31 +423,31 @@ class SoSReport(SoSComponent):
                                   dest=os.path.join('sos_logs', 'ui.log'))
 
     def _is_in_profile(self, plugin_class):
-        onlyplugins = self.opts.onlyplugins
+        only_plugins = self.opts.only_plugins
         if not len(self.opts.profiles):
             return True
         if not hasattr(plugin_class, "profiles"):
             return False
-        if onlyplugins and not self._is_not_specified(plugin_class.name()):
+        if only_plugins and not self._is_not_specified(plugin_class.name()):
             return True
         return any([p in self.opts.profiles for p in plugin_class.profiles])
 
     def _is_skipped(self, plugin_name):
-        return (plugin_name in self.opts.noplugins)
+        return (plugin_name in self.opts.skip_plugins)
 
     def _is_inactive(self, plugin_name, pluginClass):
         return (not pluginClass(self.get_commons()).check_enabled() and
-                plugin_name not in self.opts.enableplugins and
-                plugin_name not in self.opts.onlyplugins)
+                plugin_name not in self.opts.enable_plugins and
+                plugin_name not in self.opts.only_plugins)
 
     def _is_not_default(self, plugin_name, pluginClass):
         return (not pluginClass(self.get_commons()).default_enabled() and
-                plugin_name not in self.opts.enableplugins and
-                plugin_name not in self.opts.onlyplugins)
+                plugin_name not in self.opts.enable_plugins and
+                plugin_name not in self.opts.only_plugins)
 
     def _is_not_specified(self, plugin_name):
-        return (self.opts.onlyplugins and
-                plugin_name not in self.opts.onlyplugins)
+        return (self.opts.only_plugins and
+                plugin_name not in self.opts.only_plugins)
 
     def _skip(self, plugin_class, reason="unknown"):
         self.skipped_plugins.append((
@@ -596,9 +598,9 @@ class SoSReport(SoSComponent):
 
     def _check_for_unknown_plugins(self):
         import itertools
-        for plugin in itertools.chain(self.opts.onlyplugins,
-                                      self.opts.noplugins,
-                                      self.opts.enableplugins):
+        for plugin in itertools.chain(self.opts.only_plugins,
+                                      self.opts.skip_plugins,
+                                      self.opts.enable_plugins):
             plugin_name = plugin.split(".")[0]
             if plugin_name not in self.plugin_names:
                 self.soslog.fatal('a non-existing plugin (%s) was specified '
@@ -1294,8 +1296,8 @@ class SoSReport(SoSComponent):
         self.report_md.add_section('devices')
         for key, value in self.devices.items():
             self.report_md.devices.add_list(key, value)
-        self.report_md.add_list('enabled_plugins', self.opts.enableplugins)
-        self.report_md.add_list('disabled_plugins', self.opts.noplugins)
+        self.report_md.add_list('enabled_plugins', self.opts.enable_plugins)
+        self.report_md.add_list('disabled_plugins', self.opts.skip_plugins)
         self.report_md.add_section('plugins')
 
     def execute(self):
