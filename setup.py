@@ -58,27 +58,35 @@ class InstallData(install_data):
       return (out+".gz", _)
     return (out, _)
 
-setup(name='sos',
-      version=VERSION,
-      description=("""A set of tools to gather troubleshooting"""
-                   """ information from a system."""),
-      author='Bryn M. Reeves',
-      author_email='bmr@redhat.com',
-      maintainer='Jake Hunsaker',
-      maintainer_email='jhunsake@redhat.com',
-      url='https://github.com/sosreport/sos',
-      license="GPLv2+",
-      scripts=['bin/sos', 'bin/sosreport'],
-      data_files=[
+setup(
+    name='sos',
+    version=VERSION,
+    description=("""A set of tools to gather troubleshooting"""
+                 """ information from a system."""),
+    author='Bryn M. Reeves',
+    author_email='bmr@redhat.com',
+    maintainer='Jake Hunsaker',
+    maintainer_email='jhunsake@redhat.com',
+    url='https://github.com/sosreport/sos',
+    license="GPLv2+",
+    scripts=['bin/sos', 'bin/sosreport', 'bin/sos-collector'],
+    data_files=[
+        ('/', ['sos.conf']),
         ('share/man/man1', ['man/en/sosreport.1', 'man/en/sos-report.1',
                             'man/en/sos.1', 'man/en/sos-collect.1',
-                            'man/en/sos-collector.1']),
+                            'man/en/sos-collector.1', 'man/en/sos-clean.1',
+                            'man/en/sos-mask.1']),
         ('share/man/man5', ['man/en/sos.conf.5']),
-        ],
-      packages=['sos', 'sos.policies', 'sos.report', 'sos.report.plugins',
-                'sos.collector', 'sos.collector.clusters'],
-      cmdclass={'build': BuildData, 'install_data': InstallData},
-      requires=['pexpect']
+        ('share/licenses/sos', ['LICENSE']),
+        ('share/doc/sos', ['AUTHORS', 'README.md'])
+    ],
+    packages=[
+        'sos', 'sos.policies', 'sos.report', 'sos.report.plugins',
+        'sos.collector', 'sos.collector.clusters', 'sos.cleaner',
+        'sos.cleaner.mappings', 'sos.cleaner.parsers'
+    ],
+    cmdclass={'build': BuildData, 'install_data': InstallData},
+    requires=['pexpect']
      )
 
 
