@@ -17,6 +17,16 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     plugin_name = "pci"
     profiles = ('hardware', 'system')
 
+    def check_for_bus_devices(self):
+        if not os.path.isdir('/proc/bus/pci'):
+            return False
+        # ensure that more than just the 'devices' file, which can be empty,
+        # exists in the pci directory. This implies actual devices are present
+        content = os.listdir('/proc/bus/pci')
+        if 'devices' in content:
+            content.remove('devices')
+        return len(content) > 0
+
     def setup(self):
         self.add_copy_spec([
             "/proc/ioports",
@@ -24,7 +34,7 @@ class Pci(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "/proc/bus/pci"
         ])
 
-        if os.path.isdir("/proc/bus/pci/00"):
+        if self.check_for_bus_devices():
             self.add_cmd_output("lspci -nnvv", root_symlink="lspci")
             self.add_cmd_output("lspci -tv")
 
