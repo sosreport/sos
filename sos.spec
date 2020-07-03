@@ -5,18 +5,19 @@ Name: sos
 Version: 3.9
 Release: 1%{?dist}
 Group: Applications/System
-Source0: https://github.com/sosreport/sos/archive/%{version}.tar.gz
+Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
 License: GPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: https://github.com/sosreport/sos/
-BuildRequires: python-devel
+BuildRequires: python3-devel
 BuildRequires: gettext
 Requires: libxml2-python
 Requires: rpm-python
 Requires: tar
 Requires: xz
 Requires: python3-pexpect
+Obsoletes: sos-collector <= 1.9
 
 %description
 Sos is a set of tools that gathers information about system
@@ -25,29 +26,39 @@ diagnostic purposes and debugging. Sos is commonly used to help
 support technicians and developers.
 
 %prep
-%setup -q
+%setup -qn %{name}-%{version}
 
 %build
-make
+%py3_build
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
-make DESTDIR=${RPM_BUILD_ROOT} install
+%py3_install '--install-scripts=%{_sbindir}'
+
+install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos
+install -d -m 700 ${RPM_BUILD_ROOT}/etc/sos/cleaner
+install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/presets.d
+install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/groups.d
+install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/extras.d
+install -m 644 %{name}.conf ${RPM_BUILD_ROOT}/etc/sos/%{name}.conf
+
+rm ${RPM_BUILD_ROOT}/sos.conf
+
 %find_lang %{name} || echo 0
 
-%clean
-rm -rf ${RPM_BUILD_ROOT}
-
-%files -f %{name}.lang
-%defattr(-,root,root,-)
+%files
+%{_sbindir}/sos
 %{_sbindir}/sosreport
-%{_datadir}/%{name}
-%{python_sitelib}/*
+%{_sbindir}/sos-collector
+%dir /etc/sos/cleaner
+%dir /etc/sos/presets.d
+%dir /etc/sos/extras.d
+%dir /etc/sos/groups.d
+%{python3_sitelib}/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
-%doc AUTHORS README.md LICENSE
-%doc /usr/share/doc/sos/html
-%config(noreplace) %{_sysconfdir}/sos.conf
+%doc AUTHORS README.md
+%license LICENSE
+%config(noreplace) %{_sysconfdir}/sos/sos.conf
 
 %changelog
 * Fri Feb 14 2020 Bryn M. Reeves <bmr@redhat.com> = 3.9
