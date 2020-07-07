@@ -57,13 +57,21 @@ class Logs(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("journalctl --disk-usage")
         self.add_cmd_output('ls -alRh /var/log/')
 
-        journal = os.path.exists("/var/log/journal/")
-        if journal and self.is_installed("systemd"):
+        # collect journal logs if:
+        # - there is some data present, either persistent or runtime only
+        # - systemd-journald service exists
+        # otherwise fallback to collecting few well known logfiles directly
+        journal = any([os.path.exists(p + "/log/journal/")
+                      for p in ["/var", "/run"]])
+        if journal and self.is_service("systemd-journald"):
             self.add_journal(since=since)
-            self.add_journal(boot="this", catalog=True)
-            self.add_journal(boot="last", catalog=True)
+            self.add_journal(boot="this", catalog=True, since=since)
+            self.add_journal(boot="last", catalog=True, since=since)
             if self.get_option("all_logs"):
-                self.add_copy_spec("/var/log/journal/*")
+                self.add_copy_spec([
+                    "/var/log/journal/*",
+                    "/run/log/journal/*"
+                ])
         else:  # If not using journal
             if not self.get_option("all_logs"):
                 self.add_copy_spec([
