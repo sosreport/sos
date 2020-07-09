@@ -50,7 +50,7 @@ class Sar(Plugin,):
             if sar_filename not in dir_list:
                 sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path
                 self.add_cmd_output(sar_cmd, sar_filename)
-            sadf_cmd = "sadf -x %s" % sa_data_path
+            sadf_cmd = "sadf -x -- -A %s" % sa_data_path
             self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
 
 
