@@ -116,6 +116,9 @@ Note: to set a description for the preset that is displayed with \fB--list-prese
 use the \fB--desc\fR option.
 
 Note: to set a behaviour note of the preset, use --note option.
+
+Note: The root filesystem, as seen by sos if running within a container, must be
+writable to save presets using this option.
 .TP
 .B \--del-preset DEL_PRESET
 Deletes the preset with name DEL_PRESET from the filesystem so that it can no
