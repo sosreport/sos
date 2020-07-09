@@ -22,7 +22,7 @@ from sos import _sos as _
 from textwrap import fill
 from pipes import quote
 
-PRESETS_PATH = "/var/lib/sos/presets"
+PRESETS_PATH = "/etc/sos/presets.d"
 
 try:
     import requests
@@ -931,9 +931,8 @@ any third party.
                 pd.note = data[NOTE] if NOTE in data else ""
 
                 if OPTS in data:
-                    for arg in _arg_names:
-                        if arg in data[OPTS]:
-                            setattr(pd.opts, arg, data[OPTS][arg])
+                    for arg in data[OPTS]:
+                        setattr(pd.opts, arg, data[OPTS][arg])
                 pd.builtin = False
                 self.presets[preset] = pd
 

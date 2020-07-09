@@ -751,8 +751,8 @@ class SoSReport(SoSComponent):
             return False
 
         # Filter --add-preset <name> from arguments list
-        arg_index = self._args.index("--add-preset")
-        args = self._args[0:arg_index] + self._args[arg_index + 2:]
+        arg_index = self.cmdline.index("--add-preset")
+        args = self.cmdline[0:arg_index] + self.cmdline[arg_index + 2:]
 
         self.ui_log.info("Added preset '%s' with options %s\n" %
                          (name, " ".join(args)))
