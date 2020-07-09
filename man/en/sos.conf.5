@@ -3,7 +3,76 @@
 sos.conf \- sosreport configuration
 .SH DESCRIPTION
 .sp
-sosreport uses a configuration file at /etc/sos/sos.conf.
+sosreport uses a configuration file at /etc/sos/sos.conf, and there are
+subdirectories under /etc/sos that are used for specific purposes.
+
+Note that non-root users may override options set in /etc/sos/sos.conf by creating
+their own sos.conf under $HOME/.config/sos.
+
+The order in which options are loaded is as follows:
+
+  1. System configuration file at /etc/sos/sos.conf
+  2. User-specific configuration file at $HOME/.config/sos/sos.conf (for sos
+     components that support non-root)
+  3. In the case of running \fBsos report\fR, presets either automatically loaded
+     due to system configuration, or specified via \fB--preset\fR
+  4. Command line values
+
+
+In other words, config files will override defaults, presets override config files,
+and command line values override presets and config files.
+
+.SH SUBDIRECTORIES
+The following subdirectories exist under /etc/sos and are used as noted below
+
+.TP
+\fBextras.d\fP
+This directory is used to store configuration files used by the sos_extras plugin.
+
+The plugin traverses this directory and for each file there it executes commands
+or collects files optionally with sizelimit.
+
+Expected content of an extras file is as follows:
+    - empty lines or those starting with '#' are ignored
+    - add_copy_spec called to lines starting by ':', optionally followed by
+      sizelimit
+    - otherwise, whole line will be executed as a command.
+    Example:
+    command1 --arg1 val1
+    command2
+    :/path/to/file
+    :/path/to/files* sizelimit
+
+    WARNING: be careful what files to collect or what commands to execute:
+    - avoid calling potentially dangerous or system altering commands, like:
+      - using multiple commands on a line (via pipes, semicolon etc.)
+      - executing commands on background
+      - setting env.variables (as those will be ignored)
+      - altering a system (not only by "rm -rf")
+    - be aware, no secret obfuscation is made
+.TP
+\fBgroups.d\fP
+This directory is used to store host group configuration files for \fBsos collect\fP.
+
+These files can specify any/all of the \fBmaster\fP, \fBnodes\fP, and \fBcluster-type\fP
+options.
+
+Users may create their own private host groups in $HOME/.config/sos/groups.d/. If
+a host group of the same name is saved in both the user's homedir and this directory,
+the homedir configuration file will have precedence. When run as non-root, \fBsos collect\fP
+will save host groups to the user's home dir, and create the necessary directory structure
+if required.
+
+Note that non-root users may load host groups defined under /etc/sos/groups.d/, but they
+may not write new groups or update existing groups saved there.
+
+.TP
+\fBpresets.d\fP
+This directory is used to store preset configuration files for \fBsos report\fP.
+
+Presets may be used to save standard sets of options. See \fBman sos-report\fP for
+more information.
+
 .SH PARAMETERS
 .sp
 There are sections for each sos component, as well as global values and
@@ -53,7 +122,7 @@ To disable the 'host' and 'filesys' plugins:
 .LP
 [report]
 .br
-noplugins = host,filesys
+skip-plugins = host,filesys
 .sp
 To disable rpm package verification in the RPM plugin:
 .LP
@@ -64,6 +133,8 @@ rpm.rpmva = off
 .SH FILES
 .sp
 /etc/sos/sos.conf
+.br
+$HOME/.config/sos/sos.conf (optional)
 .SH SEE ALSO
 .sp
 sos-report(1)
