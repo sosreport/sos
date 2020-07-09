@@ -23,6 +23,7 @@ import sys
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from getpass import getpass
+from pathlib import Path
 from pipes import quote
 from textwrap import fill
 from sos.cleaner import SoSCleaner
@@ -32,7 +33,7 @@ from sos.options import ClusterOption
 from sos.component import SoSComponent
 from sos import __version__
 
-COLLECTOR_LIB_DIR = '/var/lib/sos-collector'
+COLLECTOR_CONFIG_DIR = '/etc/sos/groups.d'
 
 
 class SoSCollector(SoSComponent):
@@ -568,20 +569,26 @@ class SoSCollector(SoSComponent):
         """
         Attempts to load the host group specified on the command line.
         Host groups are defined via JSON files, typically saved under
-        /var/lib/sos-collector/, although users can specify a full filepath
+        /etc/sos/groups.d/, although users can specify a full filepath
         on the commandline to point to one existing anywhere on the system
 
         Host groups define a list of nodes and/or regexes and optionally the
         master and cluster-type options.
         """
-        if os.path.exists(self.opts.group):
-            fname = self.opts.group
-        elif os.path.exists(
-                os.path.join(COLLECTOR_LIB_DIR, self.opts.group)
-             ):
-            fname = os.path.join(COLLECTOR_LIB_DIR, self.opts.group)
-        else:
-            raise OSError('Group not found')
+        grp = self.opts.group
+        paths = [
+            grp,
+            os.path.join(Path.home(), '.config/sos/groups.d/%s' % grp),
+            os.path.join(COLLECTOR_CONFIG_DIR, grp)
+        ]
+
+        fname = None
+        for path in paths:
+            if os.path.exists(path):
+                fname = path
+                break
+        if fname is None:
+            raise OSError("no group definition for %s" % grp)
 
         self.log_debug("Loading host group %s" % fname)
 
@@ -607,12 +614,16 @@ class SoSCollector(SoSComponent):
         cfg = {
             'name': self.opts.save_group,
             'master': self.opts.master,
-            'cluster_type': self.cluster_type,
+            'cluster_type': self.cluster.cluster_type[0],
             'nodes': [n for n in self.node_list]
         }
-        if not os.path.isdir(COLLECTOR_LIB_DIR):
-            raise OSError("%s no such directory" % COLLECTOR_LIB_DIR)
-        fname = COLLECTOR_LIB_DIR + '/' + cfg['name']
+        if os.getuid() != 0:
+            group_path = os.path.join(Path.home(), '.config/sos/groups.d')
+            # create the subdir within the user's home directory
+            os.makedirs(group_path, exist_ok=True)
+        else:
+            group_path = COLLECTOR_CONFIG_DIR
+        fname = os.path.join(group_path, cfg['name'])
         with open(fname, 'w') as hf:
             json.dump(cfg, hf)
         os.chmod(fname, 0o644)
@@ -670,6 +681,7 @@ class SoSCollector(SoSComponent):
             except Exception as err:
                 self.log_error("Could not load specified group %s: %s"
                                % (self.opts.group, err))
+                self._exit(1)
 
         if self.opts.master:
             self.connect_to_master()
