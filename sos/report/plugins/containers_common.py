@@ -30,7 +30,6 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             '/etc/subuid',
             '/etc/subgid',
         ])
-        self.add_cmd_output(['loginctl user-status'])
 
         users_opt = self.get_option('rootlessusers')
         users_list = []
@@ -38,19 +37,36 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             users_list = [x for x in users_opt.split(':') if x]
 
         user_subcmds = [
-            'info',
-            'unshare cat /proc/self/uid_map',
-            'unshare cat /proc/self/gid_map'
+            'podman info',
+            'podman unshare cat /proc/self/uid_map',
+            'podman unshare cat /proc/self/gid_map',
+            'podman images',
+            'podman pod ps',
+            'podman port --all',
+            'podman ps',
+            'podman ps -a',
+            'podman stats --no-stream --all',
+            'podman version',
+            'podman volume ls',
+            'buildah info',
+            'buildah unshare cat /proc/self/uid_map',
+            'buildah unshare cat /proc/self/gid_map',
+            'buildah containers',
+            'buildah containers --all',
+            'buildah images',
+            'buildah images --all',
+            'buildah version',
         ]
         for user in users_list:
             # collect user's containers' config
             self.add_copy_spec(
                 '%s/.config/containers/' % (os.path.expanduser('~%s' % user)))
-            # collect the user's podman/buildah info and uid/guid maps
-            for binary in ['/usr/bin/podman', '/usr/bin/buildah']:
-                for cmd in user_subcmds:
-                    self.add_cmd_output([
-                        'machinectl -q shell %s@ %s %s' % (user, binary, cmd)
-                    ], foreground=True)
+            # collect user-status
+            self.add_cmd_output('loginctl user-status %s' % user)
+            # collect the user's related commands
+            self.add_cmd_output([
+                'machinectl -q shell %s@ /usr/bin/%s' % (user, cmd)
+                for cmd in user_subcmds
+            ], foreground=True)
 
 # vim: set et ts=4 sw=4 :
