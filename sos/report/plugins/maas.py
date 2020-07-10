@@ -104,7 +104,7 @@ class Maas(Plugin, UbuntuPlugin):
 
         if self.is_installed("maas-region-controller"):
             self.add_cmd_output([
-                "maas-region-admin dumpdata",
+                "maas-region dumpdata",
             ])
 
         if self._has_login_options():
