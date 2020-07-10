@@ -222,7 +222,6 @@ class Foreman(Plugin):
             'foreman_settings_table': scmd,
             'foreman_auth_table': authcmd,
             'dynflow_schema_info': 'select * from dynflow_schema_info',
-            'foreman_tasks_tasks': 'select * from foreman_tasks_tasks',
             'audits_table_count': 'select count(*) from audits',
             'logs_table_count': 'select count(*) from logs',
             'fact_names_prefixes': factnamescmd,
@@ -232,9 +231,10 @@ class Foreman(Plugin):
                              'left join nics as n on n.host_id=h.id'
         }
 
-        # Same as above, but for CSV output
+        # Same as above, but tasks should be in CSV output
 
         foremancsv = {
+            'foreman_tasks_tasks': 'select * from foreman_tasks_tasks',
             'dynflow_execution_plans': dyncmd,
             'dynflow_actions': dactioncmd,
             'dynflow_steps': dstepscmd,
@@ -261,9 +261,11 @@ class Foreman(Plugin):
         shell and postgres parsing requirements. Note that this will generate
         a large amount of quoting in sos logs referencing the command being run
         """
-        csvformat = "-A -F , -X" if csv else ""
-        _dbcmd = "psql -h %s -p 5432 -U foreman -d foreman %s -c %s"
-        return _dbcmd % (self.dbhost, csvformat, quote(query))
+        if csv:
+            query = "COPY (%s) TO STDOUT " \
+                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
+        _dbcmd = "psql -h %s -p 5432 -U foreman -d foreman -c %s"
+        return _dbcmd % (self.dbhost, quote(query))
 
     def postproc(self):
         satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
