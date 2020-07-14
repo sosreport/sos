@@ -20,6 +20,8 @@ class Host(Plugin, RedHatPlugin, DebianPlugin):
 
     def setup(self):
 
+        self.add_forbidden_path('/etc/sos/cleaner/default_mapping')
+
         self.add_cmd_output('hostname', root_symlink='hostname')
         self.add_cmd_output('uptime', root_symlink='uptime')
 
@@ -30,7 +32,7 @@ class Host(Plugin, RedHatPlugin, DebianPlugin):
         ])
 
         self.add_copy_spec([
-            '/etc/sos.conf',
+            '/etc/sos',
             '/etc/hostid',
         ])
 
