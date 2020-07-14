@@ -82,12 +82,13 @@ run_expecting_sucess () {
     fi
 }
 
-# If /etc/sos.conf doesn't exist let's just make it..
-if [ -f /etc/sos.conf ]; then
-   echo "/etc/sos.conf already exists"
+# If /etc/sos/sos.conf doesn't exist let's just make it..
+if [ -f /etc/sos/sos.conf ]; then
+   echo "/etc/sos/sos.conf already exists"
 else
    echo "Creating /etc/sos.conf"
-   touch /etc/sos.conf
+   mkdir /etc/sos
+   touch /etc/sos/sos.conf
 fi
 
 # Runs not generating sosreports
