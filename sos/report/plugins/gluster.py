@@ -41,15 +41,14 @@ class Gluster(Plugin, RedHatPlugin):
                     ret = string.count(last_line, 'DUMP_END_TIME')
 
     def postproc(self):
-        if not os.path.exists(self.statedump_dir):
-            return
-        try:
-            for dirs in os.listdir(self.statedump_dir):
-                os.remove(os.path.join(self.statedump_dir, dirs))
-            os.rmdir(self.statedump_dir)
-            os.unlink('/tmp/glusterdump.options')
-        except OSError:
-            pass
+        if self.get_option("dump"):
+            if not os.path.exists(self.statedump_dir):
+                return
+            try:
+                for name in glob.glob(self.statedump_dir + '/*.dump.[0-9]*'):
+                    os.remove(name)
+            except OSError:
+                pass
 
     def setup(self):
         self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
