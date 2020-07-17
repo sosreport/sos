@@ -283,11 +283,11 @@ class Foreman(Plugin):
             "/var/log/foreman-installer/sat*",
             sat_debug_reg,
             r"\1 \2 ********")
-        # also hide passwords in yet different format
+        # also hide passwords in yet different formats
         self.do_path_regex_sub(
             "/var/log/foreman-installer/sat*",
-            r"--password=(\S*)",
-            r"--password=********")
+            r"(\.|_|-)password(=\'|=|\", \")(\w*)",
+            r"\1password\2********")
         self.do_path_regex_sub(
             "/var/log/foreman-installer/foreman-proxy*",
             r"(\s*proxy_password\s=) (.*)",
