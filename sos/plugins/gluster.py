@@ -44,7 +44,10 @@ class Gluster(Plugin, RedHatPlugin):
             if not os.path.exists(self.statedump_dir):
                 return
             try:
-                for name in glob.glob(self.statedump_dir + '/*.dump.[0-9]*'):
+                remove_files = glob.glob(self.statedump_dir + '/*.dump.[0-9]*')
+                remove_files.extend(glob.glob(self.statedump_dir +
+                                    '/glusterd_state_[0-9]*_[0-9]*'))
+                for name in remove_files:
                     os.remove(name)
             except OSError:
                 pass
