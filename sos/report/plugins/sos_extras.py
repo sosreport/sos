@@ -13,7 +13,7 @@ import stat
 
 class SosExtras(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
-    short_desc = 'Collect extra data defined in /etc/sos.extras.d'
+    short_desc = 'Collect extra data defined in /etc/sos/extras.d'
 
     """The plugin traverses 'extras_dir' directory and for each file there,
     it executes commands or collects files optionally with sizelimit. Expected
@@ -39,7 +39,7 @@ class SosExtras(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     plugin_name = "sos_extras"
 
-    extras_dir = '/etc/sos.extras.d/'
+    extras_dir = '/etc/sos/extras.d/'
 
     files = (extras_dir)
 
@@ -55,8 +55,6 @@ class SosExtras(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             self._log_warn("can't stat %s, skipping sos extras" %
                            self.extras_dir)
             return
-
-        self.add_copy_spec(self.extras_dir)
 
         for path, dirlist, filelist in os.walk(self.extras_dir):
             for f in filelist:
