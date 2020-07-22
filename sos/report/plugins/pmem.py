@@ -22,11 +22,12 @@ class pmem(Plugin, IndependentPlugin):
     commands = ('ndctl', 'daxctl', 'ipmctl')
 
     def setup(self):
-        # Copy the contents of the /etc/ndctl directory
-        # and /etc/ipmctl.conf file
+        # Copy the contents of the /etc/ndctl & /var/log/ipmctl
+        # directories and /etc/ipmctl.conf file
         self.add_copy_spec([
             "/etc/ndctl",
-            "/etc/ipmctl.conf"
+            "/etc/ipmctl.conf",
+            "/var/log/ipmctl"
         ])
 
         """ Use the ndctl-list(1) command to collect:
@@ -68,23 +69,27 @@ class pmem(Plugin, IndependentPlugin):
         self.add_cmd_output([
             "ipmctl version",
             "ipmctl show -cap",
+            "ipmctl show -cel",
             "ipmctl show -dimm",
             "ipmctl show -a -dimm",
             "ipmctl show -dimm -pcd",
             "ipmctl show -dimm -performance",
             "ipmctl show -error Thermal -dimm",
             "ipmctl show -error Media -dimm",
-            "ipmctl show -event",
             "ipmctl show -firmware",
+            "ipmctl show -goal",
             "ipmctl show -memoryresources",
+            "ipmctl show -performance",
             "ipmctl show -preferences",
             "ipmctl show -region",
             "ipmctl show -sensor",
+            "ipmctl show -a -sensor",
             "ipmctl show -socket",
             "ipmctl show -system",
             "ipmctl show -system -capabilities",
-            "ipmctl show -system -host",
-            "ipmctl show -topology"
+            "ipmctl show -a -system -capabilities",
+            "ipmctl show -topology",
+            "ipmctl show -a -topology"
         ])
 
 # vim: set et ts=4 sw=4 :
