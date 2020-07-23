@@ -25,12 +25,13 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
     profiles = ('webserver',)
 
     packages = ('haproxy',)
+    var_puppet_gen = '/var/lib/config-data/puppet-generated/haproxy'
+    files = (var_puppet_gen, )
 
     def setup(self):
-        var_puppet_gen = "/var/lib/config-data/puppet-generated/haproxy"
         self.add_copy_spec([
             "/etc/haproxy/haproxy.cfg",
-            var_puppet_gen + "/etc/haproxy/haproxy.cfg"
+            self.var_puppet_gen + "/etc/haproxy/haproxy.cfg"
         ])
         self.add_copy_spec("/etc/haproxy/conf.d/*")
         self.add_cmd_output("haproxy -f /etc/haproxy/haproxy.cfg -c")
