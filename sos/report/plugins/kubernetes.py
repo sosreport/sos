@@ -105,7 +105,11 @@ class Kubernetes(Plugin):
         nodes = self.collect_cmd_output("%s get nodes" % self.kube_cmd)
         if nodes['status'] == 0:
             for line in nodes['output'].splitlines()[1:]:
-                node = line.split()[0]
+                # find first word in the line and ignore empty+blank lines
+                words = line.split()
+                if not words:
+                    continue
+                node = words[0]
                 self.add_cmd_output(
                     "%s describe node %s" % (self.kube_cmd, node),
                     subdir='nodes'
