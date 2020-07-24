@@ -1,7 +1,7 @@
-``sos.report.reporting`` --- Reporting Interface
+``sos.collector.clusters`` ---  Cluster Profiles
 ================================================
 
-.. automodule:: sos.report.reporting
+.. automodule:: sos.collector.clusters
     :noindex:
     :members:
     :undoc-members:

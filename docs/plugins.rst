@@ -1,7 +1,7 @@
-``sos.plugins`` --- Plugin Interface
-====================================
+``sos.report.plugins`` --- Plugin Interface
+===========================================
 
-.. automodule:: sos.plugins
+.. automodule:: sos.report.plugins
     :noindex:
     :members:
     :undoc-members:

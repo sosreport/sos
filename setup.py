@@ -58,6 +58,22 @@ class InstallData(install_data):
       return (out+".gz", _)
     return (out, _)
 
+cmdclass = {'build': BuildData, 'install_data': InstallData}
+command_options = {}
+try:
+    from sphinx.setup_command import BuildDoc
+    cmdclass['build_sphinx'] = BuildDoc
+    command_options={
+        'build_sphinx': {
+            'project': ('setup.py', 'sos'),
+            'version': ('setup.py', VERSION),
+            'source_dir': ('setup.py', 'docs')
+        }
+    }
+except Exception:
+    print("Unable to build sphinx docs - module not present. Install sphinx "
+          "to enable documentation generation")
+
 setup(
     name='sos',
     version=VERSION,
@@ -84,9 +100,10 @@ setup(
         'sos.collector', 'sos.collector.clusters', 'sos.cleaner',
         'sos.cleaner.mappings', 'sos.cleaner.parsers'
     ],
-    cmdclass={'build': BuildData, 'install_data': InstallData},
+    cmdclass=cmdclass,
+    command_options=command_options,
     requires=['pexpect']
-     )
+    )
 
 
 # vim: set et ts=4 sw=4 :

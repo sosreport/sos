@@ -87,15 +87,17 @@ Plugin Reference
    :maxdepth: 2
 
    plugins
-
+   clusters
+   parsers
 
 Core Reference
 ^^^^^^^^^^^^^^
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    archive
    policies
+   plugins
    reporting
    utilities
