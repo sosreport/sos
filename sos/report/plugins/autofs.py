@@ -54,6 +54,11 @@ class Autofs(Plugin):
             r"(password=)[^,\s]*",
             r"\1********"
         )
+        self.do_cmd_output_sub(
+            "automount -m",
+            r"(password=)[^,\s]*",
+            r"\1********"
+        )
 
 
 class RedHatAutofs(Autofs, RedHatPlugin):
