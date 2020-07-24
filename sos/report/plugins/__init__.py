@@ -78,13 +78,42 @@ _cert_replace = "-----SCRUBBED"
 class SoSPredicate(object):
     """A class to implement collection predicates.
 
-        A predicate gates the collection of data by an sos plugin. For any
-        `add_cmd_output()`, `add_copy_spec()` or `add_journal()` call, the
-        passed predicate will be evaulated and collection will proceed if
-        the result is `True`, and not otherwise.
+    A predicate gates the collection of data by an sos plugin. For any
+    `add_cmd_output()`, `add_copy_spec()` or `add_journal()` call, the
+    passed predicate will be evaulated and collection will proceed if
+    the result is `True`, and not otherwise.
 
-        Predicates may be used to control conditional data collection
-        without the need for explicit conditional blocks in plugins.
+    Predicates may be used to control conditional data collection
+    without the need for explicit conditional blocks in plugins.
+
+    :param owner:       The ``Plugin`` object creating the predicate
+    :type owner:        ``Plugin``
+
+    :param dry_run:     Is sos running in dry_run mode?
+    :type dry_run:      ``bool``
+
+    :param kmods:       Kernel module name(s) to check presence of
+    :type kmods:        ``list``, or ``str`` of single name
+
+    :param services:    Service name(s) to check if running
+    :type services:     ``list``, or ``str`` of single name
+
+    :param packages:    Package name(s) to check presence of
+    :type packages:     ``list``, or ``str`` of single name
+
+    :param cmd_outputs: Command to run, with output string to check
+    :type cmd_outputs:  ``list`` of ``dict``s, or single ``dict`` taking form
+                        {'cmd': <command to run>,
+                        'output': <string that output should contain>}
+    :param arch:        Architecture(s) that the local system is matched
+                        against
+    :type arch:         ``list``, or ``str`` of single architecture
+
+    :param required:    For each parameter provided, should the checks
+                        require all items, no items, or any items provided
+    :type required:     ``dict``, with keys matching parameter names and values
+                        being either 'any', 'all', or 'none. Default 'any'.
+
     """
     #: The plugin that owns this predicate
     _owner = None
@@ -320,7 +349,7 @@ class SoSPredicate(object):
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[],
                  packages=[], cmd_outputs=[], arch=[], required={}):
-        """Initialise a new SoSPredicate object.
+        """Initialise a new SoSPredicate object
         """
         self._owner = owner
         self.kmods = list(kmods)
@@ -371,25 +400,53 @@ class SoSCommand(object):
 
 
 class Plugin(object):
-    """ This is the base class for sosreport plugins. Plugins should subclass
+    """This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
 
-    plugin_name is a string returned by plugin.name(). If this is set to None
-    (the default) class\\_.__name__.tolower() will be returned. Be sure to set
-    this if you are defining multiple plugins that do the same thing on
-    different platforms.
+    :param commons:     A set of information that is shared internally so that
+                        plugins may access the same dataset. This is provided
+                        automatically by sos
+    :type commons:      ``dict``
 
-    version is a string representing the version of the plugin. This can be
-    useful for post-collection tooling.
+    Each `Plugin()` subclass should also subclass at least one tagging class,
+    e.g. ``RedHatPlugin``, to support that distribution. If different
+    distributions require different collections, each distribution should have
+    its own subclass of the Plugin that also subclasses the tagging class for
+    their respective distributions.
 
-    packages (files) is an iterable of the names of packages (the paths
-    of files) to check for before running this plugin. If any of these packages
-    or files is found on the system, the default implementation of
-    check_enabled will return True.
+    :cvar plugin_name:  The name of the plugin, will be returned by `name()`
+    :vartype plugin_name: ``str``
 
-    profiles is an iterable of profile names that this plugin belongs to.
-    Whenever any of the profiles is selected on the command line the plugin
-    will be enabled (subject to normal check_enabled tests).
+    :cvar version:      The version of the plugin, defaults to 'unversioned'
+    :vartype version:   ``str``
+
+    :cvar packages:     Package name(s) that, if installed, enable this plugin
+    :vartype packages:  ``tuple``
+
+    :cvar files:        File path(s) that, if present, enable this plugin
+    :vartype files:     ``tuple``
+
+    :cvar commands:     Executables that, if present, enable this plugin
+    :vartype commands:  ``tuple``
+
+    :cvar kernel_mods:  Kernel module(s) that, if loaded, enable this plugin
+    :vartype kernel_mods: ``tuple``
+
+    :cvar services:     Service name(s) that, if running, enable this plugin
+    :vartype services:  ``tuple``
+
+    :cvar architectures: Architecture(s) this plugin is enabled for. Defaults
+                         to 'none' to enable on all arches.
+    :vartype architectures: ``tuple``, or ``None``
+
+    :cvar profiles:     Name(s) of profile(s) this plugin belongs to
+    :vartype profiles:  ``tuple``
+
+    :cvar plugin_timeout: Timeout in seconds for this plugin as a whole
+    :vartype plugin_timeout: ``int``
+
+    :cvar cmd_timeout:  Timeout in seconds for individual commands
+    :vartype cmd_timeout:   ``int``
     """
 
     plugin_name = None
@@ -456,6 +513,9 @@ class Plugin(object):
 
     def set_plugin_manifest(self, manifest):
         """Pass in a manifest object to the plugin to write to
+
+        :param manifest: The manifest that the plugin will add metadata to
+        :type manifest: ``SoSManifest``
         """
         self.manifest = manifest
         # add these here for organization when they actually get set later
@@ -511,15 +571,18 @@ class Plugin(object):
         handed to that call to use as a polling method, to avoid passing the
         entire plugin object.
 
-        Returns True if timeout has been hit, else False.
+        :returns: ``True`` if timeout has been hit, else ``False``
+        :rtype: ``bool``
 
         """
         return self._timeout_hit
 
     @classmethod
     def name(cls):
-        """Returns the plugin's name as a string. This should return a
-        lowercase string.
+        """Get the name of the plugin
+
+        :returns: The name of the plugin, in lowercase
+        :rtype: ``str``
         """
         if cls.plugin_name:
             return cls.plugin_name
@@ -541,11 +604,27 @@ class Plugin(object):
         self.soslog.debug(self._format_msg(msg))
 
     def join_sysroot(self, path):
+        """Join a given path with the configured sysroot
+
+        :param path:    The filesystem path that needs to be joined
+        :type path: ``str``
+
+        :returns: The joined filesystem path
+        :rtype: ``str``
+        """
         if path[0] == os.sep:
             path = path[1:]
         return os.path.join(self.sysroot, path)
 
     def strip_sysroot(self, path):
+        """Remove the configured sysroot from a filesystem path
+
+        :param path:    The filesystem path to strip sysroot from
+        :type path: ``str``
+
+        :returns: The stripped filesystem path
+        :rtype: ``str``
+        """
         if not self.use_sysroot():
             return path
         if path.startswith(self.sysroot):
@@ -553,61 +632,134 @@ class Plugin(object):
         return path
 
     def use_sysroot(self):
+        """Determine if the configured sysroot needs to be used
+
+        :returns: ``True`` if sysroot is not `/`, else ``False``
+        :rtype: ``bool``
+        """
         return self.sysroot != os.path.abspath(os.sep)
 
     def tmp_in_sysroot(self):
+        """Check if sysroot is within the archive's temp directory
+
+        :returns: ``True`` if sysroot is in the archive's temp directory, else
+                  ``False``
+        :rtype: ``bool``
+        """
         paths = [self.sysroot, self.archive.get_tmp_dir()]
         return os.path.commonprefix(paths) == self.sysroot
 
     def is_installed(self, package_name):
-        """Is the package $package_name installed?"""
+        """Is the package $package_name installed?
+
+        :param package_name:    The name of the package to check
+        :type package_name:     ``str``
+
+        :returns: ``True`` id the package is installed, else ``False``
+        :rtype: ``bool``
+        """
         return self.policy.pkg_by_name(package_name) is not None
 
     def is_service(self, name):
-        """Does the service $name exist on the system?"""
+        """Does the service $name exist on the system?
+
+        :param name:    The name of the service to check
+        :type name:     ``str``
+
+        :returns: ``True`` if service is present on the system, else ``False``
+        :rtype: ``bool``
+        """
         return self.policy.init_system.is_service(name)
 
     def is_service_enabled(self, name):
-        """Is the service $name enabled?"""
+        """Is the service $name enabled?
+
+        :param name:    The name of the service to check
+        :type name:     ``str``
+
+        :returns: ``True if service is enabled on the system, else ``False``
+        :rtype: ``bool``
+        """
         return self.policy.init_system.is_enabled(name)
 
     def is_service_disabled(self, name):
-        """Is the service $name disabled?"""
+        """Is the service $name disabled?
+
+        :param name:    The name of the service to check
+        :type name:     ``str``
+
+        :returns: ``True`` if service is disabled on the system, else ``False``
+        :rtype: ``bool``
+        """
         return self.policy.init_system.is_disabled(name)
 
     def is_service_running(self, name):
-        """Is the service $name currently running?"""
+        """Is the service $name currently running?
+
+        :param name:    The name of the service to check
+        :type name:     ``str``
+
+        :returns: ``True`` if the service is running on the system, else
+                  ``False``
+        :rtype: ``bool``
+        """
         return self.policy.init_system.is_running(name)
 
     def get_service_status(self, name):
-        """Return the reported status for service $name"""
+        """Return the reported status for service $name
+
+        :param name:    The name of the service to check
+        :type name:     ``str``
+
+        :returns: The state of the service according to the init system
+        :rtype: ``str``
+        """
         return self.policy.init_system.get_service_status(name)['status']
 
     def get_service_names(self, regex):
-        """Get all service names matching regex"""
+        """Get all service names matching regex
+
+        :param regex:    A regex to match service names against
+        :type regex:    ``str``
+
+        :returns: All service name(s) matching the given `regex`
+        :rtype: ``list``
+        """
         return self.policy.init_system.get_service_names(regex)
 
     def set_predicate(self, pred):
         """Set or clear the default predicate for this plugin.
+
+        :param pred:    The predicate to use as the default for this plugin
+        :type pred:     ``SoSPredicate``
         """
         self.predicate = pred
 
     def set_cmd_predicate(self, pred):
-        """Set or clear the default predicate for command collection
-            for this plugin. If set, this predecate takes precedence
-            over the `Plugin` default predicate for command and journal
-            data collection.
+        """Set or clear the default predicate for command collection for this
+        plugin. If set, this predecate takes precedence over the `Plugin`
+        default predicate for command and journal data collection.
+
+        :param pred:    The predicate to use as the default command predicate
+        :type pred:     ``SoSPredicate``
         """
         self.cmd_predicate = pred
 
     def get_predicate(self, cmd=False, pred=None):
-        """Get the current default `Plugin` or command predicate. If the
-            `cmd` argument is `True`, the current command predicate is
-            returned if set, otherwise the default `Plugin` predicate
-            will be returned (which may be `None`).
+        """Get the current default `Plugin` or command predicate.
 
-            If no default predicate is set and a `pred` value is passed
-            it will be returned.
+        :param cmd:     If a command predicate is set, should it be used.
+        :type cmd:      ``bool``
+
+        :param pred:    An optional predicate to pass if no command or plugin
+                        predicate is set
+        :type pred:     ``SoSPredicate``
+
+        :returns:   `pred` if neither a command predicate or plugin predicate
+                    is set. The command predicate if one is set and `cmd` is
+                    ``True``, else the plugin default predicate (which may be
+                    ``None``).
+        :rtype:     ``SoSPredicate`` or ``None``
         """
         if pred is not None:
             return pred
@@ -618,10 +770,14 @@ class Plugin(object):
     def test_predicate(self, cmd=False, pred=None):
         """Test the current predicate and return its value.
 
-            :param cmd: ``True`` if the predicate is gating a command or
-                        ``False`` otherwise.
-            :param pred: An optional predicate to override the current
-                         ``Plugin`` or command predicate.
+        :param cmd: ``True`` if the predicate is gating a command or
+                    ``False`` otherwise.
+        :param pred: An optional predicate to override the current
+                     ``Plugin`` or command predicate.
+
+        :returns: ``True`` or ``False`` based on predicate evaluation, or
+                  ``False`` if no predicate
+        :rtype: ``bool``
         """
         pred = self.get_predicate(cmd=cmd, pred=pred)
         if pred is not None:
@@ -632,12 +788,27 @@ class Plugin(object):
                         changes=False):
         """Log that a command was skipped due to predicate evaluation.
 
-            Emit a warning message indicating that a command was skipped due
-            to predicate evaluation. If ``kmods`` or ``services`` are ``True``
-            then the list of expected kernel modules or services will be
-            included in the log message. If ``allow_changes`` is ``True`` a
-            message indicating that the missing data can be collected by using
-            the "--allow-system-changes" command line option will be included.
+        Emit a warning message indicating that a command was skipped due
+        to predicate evaluation. If ``kmods`` or ``services`` are ``True``
+        then the list of expected kernel modules or services will be
+        included in the log message. If ``allow_changes`` is ``True`` a
+        message indicating that the missing data can be collected by using
+        the "--allow-system-changes" command line option will be included.
+
+        :param pred:    The predicate that caused the command to be skipped
+        :type pred:     ``SoSPredicate``
+
+        :param cmd:     The command that was skipped
+        :type cmd:      ``str``
+
+        :param kmods:   Did kernel modules cause the command to be skipped
+        :type kmods:    ``bool``
+
+        :param services: Did services cause the command to be skipped
+        :type services: ``bool``
+
+        :param changes: Is the `--allow-system-changes` enabled
+        :type changes:  ``bool``
         """
         msg = "skipped command '%s': %s" % (cmd, pred.report_failure())
 
@@ -647,12 +818,18 @@ class Plugin(object):
         self._log_warn(msg)
 
     def do_cmd_private_sub(self, cmd, desc=""):
-        """Remove certificate and key output archived by sosreport. cmd
-        is the command name from which output is collected (i.e. exlcuding
-        parameters). Any matching instances are replaced with: '-----SCRUBBED'
-        and this function does not take a regexp or substituting string.
+        """Remove certificate and key output archived by sos report.
+        Any matching instances are replaced with: '-----SCRUBBED' and this
+        function does not take a regexp or substituting string.
 
-        This function returns the number of replacements made.
+        :param cmd: The name of the binary to scrub certificate output from
+        :type cmd:  ``str``
+
+        :param desc: An identifier to add to the `SCRUBBED` header line
+        :type desc: ``str``
+
+        :returns: Number of replacements made
+        :rtype: ``int``
         """
         if not self.executed_commands:
             return 0
@@ -666,14 +843,25 @@ class Plugin(object):
 
     def do_cmd_output_sub(self, cmd, regexp, subst):
         """Apply a regexp substitution to command output archived by sosreport.
-        cmd is the command name from which output is collected (i.e. excluding
-        parameters). The regexp can be a string or a compiled re object. The
-        substitution string, subst, is a string that replaces each occurrence
-        of regexp in each file collected from cmd. Internally 'cmd' is treated
-        as a glob with a leading and trailing '*' and each matching file from
-        the current module's command list is subjected to the replacement.
 
-        This function returns the number of replacements made.
+        This is used to obfuscate sensitive information captured by command
+        output collection via plugins.
+
+        :param cmd: The command name/binary name for collected output that
+                    needs to be obfuscated. Internally globbed with a leading
+                    and trailing `*`
+        :type cmd:  ``str``
+
+        :param regexp: A regex to match the contents of the command output
+                       against
+        :type regexp: ``str`` or compile ``re`` object
+
+        :param subst: The substitution string used to replace matches from
+                      `regexp`
+        :type subst: ``str``
+
+        :returns: Number of replacements made
+        :rtype: ``int``
         """
         globstr = '*' + cmd + '*'
         pattern = regexp.pattern if hasattr(regexp, "pattern") else regexp
@@ -718,9 +906,11 @@ class Plugin(object):
         "-----SCRUBBED RSA PRIVATE KEY" so that support representatives can
         at least be informed of what type of content it was originally.
 
-        Positional arguments:
-            :param pathregex: A string or regex of a filename to match against
-            :param desc: A description of the replaced content
+        :param pathregex: A string or regex of a filename to match against
+        :type pathregex: ``str``
+
+        :param desc: A description of the replaced content
+        :type desc: ``str``
         """
         self._log_debug("Scrubbing certs and keys for paths matching %s"
                         % pathregex)
@@ -735,11 +925,19 @@ class Plugin(object):
 
     def do_file_sub(self, srcpath, regexp, subst):
         """Apply a regexp substitution to a file archived by sosreport.
-        srcpath is the path in the archive where the file can be found.  regexp
-        can be a regexp string or a compiled re object.  subst is a string to
-        replace each occurance of regexp in the content of srcpath.
 
-        This function returns the number of replacements made.
+        :param srcpath: Path in the archive where the file can be found
+        :type srcpath: ``str``
+
+        :param regexp:  A regex to match the contents of the file
+        :type regexp: ``str`` or compiled ``re`` object
+
+        :param subst: The substitution string to be used to replace matches
+                      within the file
+        :type subst: ``str``
+
+        :returns: Number of replacements made
+        :rtype: ``int``
         """
         try:
             path = self._get_dest_for_srcpath(srcpath)
@@ -773,10 +971,17 @@ class Plugin(object):
     def do_path_regex_sub(self, pathexp, regexp, subst):
         """Apply a regexp substituation to a set of files archived by
         sos. The set of files to be substituted is generated by matching
-        collected file pathnames against pathexp which may be a regular
-        expression string or compiled re object. The portion of the file
-        to be replaced is specified via regexp and the replacement string
-        is passed in subst."""
+        collected file pathnames against `pathexp`.
+
+        :param pathexp: A regex to match filenames within the archive
+        :type pathexp: ``str`` or compiled ``re`` object
+
+        :param regexp: A regex to match against the contents of each file
+        :type regexp: ``str`` or compiled ``re`` object
+
+        :param subst: The substituion string to be used to replace matches
+        :type subst: ``str``
+        """
         if not hasattr(pathexp, "match"):
             pathexp = re.compile(pathexp)
         match = pathexp.match
@@ -943,8 +1148,11 @@ class Plugin(object):
         })
 
     def add_forbidden_path(self, forbidden):
-        """Specify a path, or list of paths, to not copy, even if it's
-            part of a copy_specs[] entry.
+        """Specify a path, or list of paths, to not copy, even if it's part of
+        an ``add_copy_spec()`` call
+
+        :param forbidden: A filepath to forbid collection from
+        :type forbidden: ``str`` or a ``list`` of strings
         """
         if isinstance(forbidden, str):
             forbidden = [forbidden]
@@ -962,8 +1170,16 @@ class Plugin(object):
         return (self.opt_names, self.opt_parms)
 
     def set_option(self, optionname, value):
-        """Set the named option to value. Ensure the original type
-           of the option value is preserved.
+        """Set the named option to value. Ensure the original type of the
+        option value is preserved
+
+        :param optioname: The name of the option to set
+        :type optioname: ``str``
+
+        :param value: The value to set the option to
+
+        :returns: ``True`` if the option is successfully set, else ``False``
+        :rtype: ``bool``
         """
         for name, parms in zip(self.opt_names, self.opt_parms):
             if name == optionname:
@@ -980,12 +1196,20 @@ class Plugin(object):
         return False
 
     def get_option(self, optionname, default=0):
-        """Returns the first value that matches 'optionname' in parameters
-        passed in via the command line or set via set_option or via the
-        global_plugin_options dictionary, in that order.
+        """Retrieve the value of the requested option, searching in order:
+        parameters passed from the command line, set via `set_option()`, or the
+        global_plugin_options dict.
 
-        optionaname may be iterable, in which case the first option that
-        matches any of the option names is returned.
+        `optionname` may be iterable, in which case this function will return
+        the first match.
+
+        :param optionname: The name of the option to retrieve the value of
+        :type optionname: ``str``
+
+        :param default: Optionally provide a default value to return if no
+                        option matching `optionname` is found. Default 0
+
+        :returns: The value of `optionname` if found, else `default`
         """
 
         global_options = (
@@ -1070,11 +1294,39 @@ class Plugin(object):
 
     def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
                       tailit=True, pred=None, tags=[]):
-        """Add a file or glob but limit it to sizelimit megabytes. Collect
-        files with mtime not older than maxage hours.
-        If fname is a single file the file will be tailed to meet sizelimit.
-        If the first file in a glob is too large it will be tailed to meet
-        the sizelimit.
+        """Add a file, directory, or regex matching filepaths to the archive
+
+        :param copyspecs: A file, directory, or regex matching filepaths
+        :type copyspecs: ``str`` or a ``list`` of strings
+
+        :param sizelimit: Limit the total size of collections from `copyspecs`
+                          to this size in MB
+        :type sizelimit: ``int``
+
+        :param maxage: Collect files with `mtime` not older than this many
+                       hours
+        :type maxage: ``int``
+
+        :param tailit: Should a file that exceeds `sizelimit` be tail'ed to fit
+                       the remaining space to meet `sizelimit`
+        :type tailit: ``bool``
+
+        :param pred: A predicate to gate if `copyspecs` should be collected
+        :type pred: ``SoSPredicate``
+
+        :param tags: A tag or set of tags to add to the metadata information
+                     for this collection
+        :type tags: ``str`` or a ``list`` of strings
+
+        `copyspecs` will be expanded and/or globbed as appropriate. Specifying
+        a directory here will cause the plugin to attempt to collect the entire
+        directory, recursively.
+
+        Note that `sizelimit` is applied to each `copyspec`, not each file
+        individually. For example, a copyspec of
+        ``['/etc/foo', '/etc/bar.conf']`` and a `sizelimit` of 25 means that
+        sos will collect up to 25MB worth of files within `/etc/foo`, and will
+        collect the last 25MB of `/etc/bar.conf`.
         """
         since = None
         if self.get_option('since'):
@@ -1230,16 +1482,42 @@ class Plugin(object):
         specified devices. Commands passed to this should include a '%(dev)s'
         variable for substitution.
 
-            devices - Either 'block', 'fibre', or a list of device paths to
-                      run against. If set to 'block' or 'fibre', the commands
-                      will be run against the matching list of discovered
-                      devices.
-            prepend_path - the leading path for block device names, e.g.
-                        '/dev/' or '/sys/block/'.
-            whitelist - limit the devices iterated over. May be a str or list
-                        of strings (e.g. regexes)
-            blacklist - exclude the devices iterated over. May be a str or list
-                        of strings (e.g. regexes)
+        :param cmds: The command(s) to run against the list of devices
+        :type cmds: ``str`` or a ``list`` of strings
+
+        :param devices: The device paths to run `cmd` against. If set to
+                        `block` or `fibre`, the commands will be run against
+                        the matching list of discovered devices
+        :type devices: ``str`` or a ``list`` of device paths
+
+        :param timeout: Timeout in seconds to allow each `cmd` to run
+        :type timeout: ``int``
+
+        :param sizelimit: Maximum amount of output to collect, in MB
+        :type sizelimit: ``int``
+
+        :param chroot: Should sos chroot the command(s) being run
+        :type chroot: ``bool``
+
+        :param runat: Set the filesystem location to execute the command from
+        :type runat: ``str``
+
+        :param env: Set environment variables for the command(s) being run
+        :type env: ``dict``
+
+        :param binary: Is the output collected going to be binary data
+        :type binary: ``bool``
+
+        :param prepend_path: The leading path for block device names
+        :type prepend_path: ``str`` or ``None``
+
+        :param whitelist: Limit the devices the `cmds` will be run against to
+                          devices matching these item(s)
+        :type whitelist: ``list`` of ``str``
+
+        :param blacklist: Do not run `cmds` against devices matching these
+                          item(s)
+        :type blacklist: ``list`` of ``str``
         """
         _dev_tags = []
         if isinstance(tags, str):
@@ -1312,7 +1590,63 @@ class Plugin(object):
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[]):
-        """Run a program or a list of programs and collect the output"""
+        """Run a program or a list of programs and collect the output
+
+        Output will be limited to `sizelimit`, collecting the last X amount
+        of command output matching `sizelimit`. Unless `suggest_filename` is
+        set, the file that the output is saved to will match the command as
+        it was executed, and will be saved under `sos_commands/$plugin`
+
+        :param cmds: The command(s) to execute
+        :type cmds: ``str`` or a ``list`` of strings
+
+        :param suggest_filename: Override the name of the file output is saved
+                                 to within the archive
+        :type suggest_filename: ``str``
+
+        :param root_symlink: If set, create a symlink with this name in the
+                             archive root
+        :type root_symlink: ``str``
+
+        :param timeout: Timeout in seconds to allow each `cmd` to run for
+        :type timeout: ``int``
+
+        :param stderr: Should stderr output be collected
+        :type stderr: ``bool``
+
+        :param chroot: Should sos chroot the `cmds` being run
+        :type chroot: ``bool``
+
+        :param runat: Run the `cmds` from this location in the filesystem
+        :type runat: ``str``
+
+        :param env: Set environment variables for the `cmds` being run
+        :type env: ``dict``
+
+        :param binary: Is the command expected to produce binary output
+        :type binary: ``bool``
+
+        :param sizelimit: Maximum amount of output in MB to save
+        :type sizelimit: ``int``
+
+        :param pred: A predicate to gate if `cmds` should be collected or not
+        :type pred: ``SoSPredicate``
+
+        :param subdir: Save output to this subdirectory, within the plugin's
+                       directory under sos_commands
+        :type subdir: ``str``
+
+        :param changes: Do `cmds` have the potential to change system state
+        :type changes: ``int``
+
+        :param foreground: Should the `cmds` be run in the foreground, with an
+                           attached TTY
+        :type foreground: ``bool``
+
+        :param tags: A tag or set of tags to add to the metadata entries for
+                     the `cmds` being run
+        :type tags: ``str`` or a ``list`` of strings
+        """
         if isinstance(cmds, str):
             cmds = [cmds]
         if len(cmds) > 1 and (suggest_filename or root_symlink):
@@ -1360,8 +1694,18 @@ class Plugin(object):
         return []
 
     def get_cmd_output_path(self, name=None, make=True):
-        """Return a path into which this module should store collected
-        command output
+        """Get the path where this plugin will save command output
+
+        :param name: Optionally specify a filename to use as part of the
+                     command output path
+        :type name: ``str`` or ``None``
+
+        :param make: Attempt to create the command output path
+        :type make: ``bool``
+
+        :returns: The path where the plugin will write command output data
+                  within the archive
+        :rtype: ``str``
         """
         cmd_output_path = os.path.join(self.archive.get_tmp_dir(),
                                        'sos_commands', self.name())
@@ -1373,9 +1717,16 @@ class Plugin(object):
         return cmd_output_path
 
     def file_grep(self, regexp, *fnames):
-        """Returns lines matched in fnames, where fnames can either be
-        pathnames to files to grep through or open file objects to grep through
-        line by line.
+        """Grep through file(s) for a specific string or regex
+
+        :param regexp: The string or regex to search for
+        :type regexp: ``str``
+
+        :param fnames: Paths to grep through
+        :type fnames: ``str``, ``list`` of string, or open file objects
+
+        :returns: Lines matching `regexp`
+        :rtype: ``str``
         """
         return grep(regexp, *fnames)
 
@@ -1414,9 +1765,12 @@ class Plugin(object):
     def add_env_var(self, name):
         """Add an environment variable to the list of to-be-collected env vars.
 
-        Accepts either a single variable name or a list of names. Any value
-        given will be added as provided to the method, as well as an upper-
-        and lower- cased version.
+        Collected environment variables will be saved to an `environment` file
+        in the archive root, and any variable specified for collection will be
+        collected in lowercase, uppercase, and the form provided
+
+        :param name: The name of the environment variable to collect
+        :type name: ``str``
         """
         if not isinstance(name, list):
             name = [name]
@@ -1427,7 +1781,18 @@ class Plugin(object):
             self._env_vars.update([env, env.upper(), env.lower()])
 
     def add_string_as_file(self, content, filename, pred=None):
-        """Add a string to the archive as a file named `filename`"""
+        """Add a string to the archive as a file
+
+        :param content: The string to write to the archive
+        :type content: ``str``
+
+        :param filename: The name of the file to write `content` to
+        :type filename: ``str``
+
+        :param pred: A predicate to gate if the string should be added to the
+                     archive or not
+        :type pred: ``SoSPredicate``
+        """
 
         # Generate summary string for logging
         summary = content.splitlines()[0] if content else ''
@@ -1574,7 +1939,53 @@ class Plugin(object):
                            binary=False, sizelimit=None, pred=None,
                            subdir=None, tags=[]):
         """Execute a command and save the output to a file for inclusion in the
-        report.
+        report, then return the results for further use by the plugin
+
+        :param cmd:                 The command to run
+        :type cmd: ``str``
+
+        :param suggest_filename:    Filename to use when writing to the
+                                    archive
+        :param suggest_filename: ``str``
+
+        :param root_symlink:        Create a symlink in the archive root
+        :type root_symlink: ``bool``
+
+        :param timeout:             Time in seconds to allow a cmd to run
+        :type timeout: ``int``
+
+        :param stderr:              Write stderr to stdout?
+        :type stderr: ``bool``
+
+        :param chroot:              Perform chroot before running cmd?
+        :type chroot: ``bool``
+
+        :param runat:               Run the command from this location,
+                                    overriding chroot
+        :type runat: ``str``
+
+        :param env:                 Environment vars to set for the cmd
+        :type env: ``dict``
+
+        :param binary:              Is the output in binary?
+        :type binary: ``bool``
+
+        :param sizelimit:           Maximum size in MB of output to save
+        :type sizelimit: ``int``
+
+        :param subdir:              Subdir in plugin directory to save to
+        :type subdir: ``str``
+
+        :param changes:             Does this cmd potentially make a change
+                                    on the system?
+        :type changes: ``bool``
+
+        :param tags:                Add tags in the archive manifest
+        :type tags: ``str`` or a ``list`` of strings
+
+        :returns:       `cmd` exit status, output, and the filepath within the
+                        archive output was saved to
+        :rtype: ``dict``
         """
         if not self.test_predicate(cmd=True, pred=pred):
             self._log_info("skipped cmd output '%s' due to predicate (%s)" %
@@ -1600,6 +2011,41 @@ class Plugin(object):
 
         Use this method in a plugin's setup() if command output is needed to
         build subsequent commands added to a report via add_cmd_output().
+
+        :param cmd:                 The command to run
+        :type cmd: ``str``
+
+        :param timeout:             Time in seconds to allow a cmd to run
+        :type timeout: ``int``
+
+        :param stderr:              Write stderr to stdout?
+        :type stderr: ``bool``
+
+        :param chroot:              Perform chroot before running cmd?
+        :type chroot: ``bool``
+
+        :param runat:               Run the command from this location,
+                                    overriding chroot
+        :type runat: ``str``
+
+        :param env:                 Environment vars to set for the cmd
+        :type env: ``dict``
+
+        :param binary:              Is the output in binary?
+        :type binary: ``bool``
+
+        :param pred:                A predicate to gate execution of the `cmd`
+        :type pred: ``SoSPredicate``
+
+        :param foreground:          Run the `cmd` in the foreground with a TTY
+        :type foreground: ``bool``
+
+        :param container:           Execute this command in a container with
+                                    this name
+        :type container: ``str``
+
+        :returns:                   Command exit status and output
+        :rtype: ``dict``
         """
         _default = {'status': None, 'output': ''}
         if not self.test_predicate(cmd=True, pred=pred):
@@ -1641,6 +2087,12 @@ class Plugin(object):
     def container_exists(self, name):
         """If a container runtime is present, check to see if a container with
         a given name is currently running
+
+        :param name:    The name of the container to check presence of
+        :type name: ``str``
+
+        :returns: ``True`` if `name` exists, else ``False``
+        :rtype: ``bool``
         """
         _runtime = self._get_container_runtime()
         if _runtime is not None:
@@ -1649,17 +2101,35 @@ class Plugin(object):
         return False
 
     def get_container_by_name(self, name):
+        """Get the container ID for a specific container
+
+        :param name:    The name of the container
+        :type name: ``str``
+
+        :returns: The ID of the container if it exists
+        :rtype: ``str`` or ``None``
+        """
         _runtime = self._get_container_runtime()
         if _runtime is not None:
             return _runtime.get_container_by_name(name)
         return None
 
     def get_containers(self, runtime=None, get_all=False):
-        """Return a list of all container IDs from the Policy's
-        ContainerRuntime.
+        """Return a list of all container IDs from the ``Policy``
+        ``ContainerRuntime``
 
-        If `runtime` is not provided, use the Policy default. If the specified
-        `runtime is not loaded, return empty.
+        If `runtime` is not provided, use the ``Policy`` default
+
+        :param runtime:     The container runtime to use, if not the default
+                            runtime detected and loaded by the ``Policy``
+        :type runtime: ``str``
+
+        :param get_all:     Return all containers known to the `runtime`, even
+                            those that have terminated
+        :type get_all: ``bool``
+
+        :returns: All container IDs found by the ``ContainerRuntime``
+        :rtype: ``list``
         """
         _runtime = self._get_container_runtime(runtime=runtime)
         if _runtime is not None:
@@ -1674,7 +2144,14 @@ class Plugin(object):
         ContainerRuntime
 
         If `runtime` is not provided, use the Policy default. If the specified
-        `runtime is not loaded, return empty.
+        `runtime` is not loaded, return empty.
+
+        :param runtime:     The container runtime to use, if not using the
+                            default runtime detected by the ``Policy``
+        :type runtime: ``str``
+
+        :returns: A list of container images known to the `runtime`
+        :rtype: ``list``
         """
         _runtime = self._get_container_runtime(runtime=runtime)
         if _runtime is not None:
@@ -1686,7 +2163,14 @@ class Plugin(object):
         ContainerRuntime
 
         If `runtime` is not provided, use the Policy default. If the specified
-        `runtime is not loaded, return empty.
+        `runtime` is not loaded, return empty.
+
+        :param runtime:     The container runtime to use, if not using the
+                            default runtime detected by the ``Policy``
+        :type runtime: ``str``
+
+        :returns: A list of container volumes known to the `runtime`
+        :rtype: ``list``
         """
         _runtime = self._get_container_runtime(runtime=runtime)
         if _runtime is not None:
@@ -1694,44 +2178,78 @@ class Plugin(object):
         return []
 
     def get_container_logs(self, container, **kwargs):
-        """Helper to get the `logs` output for a given container
+        """Helper to get the ``logs`` output for a given container
 
         Supports passthru of add_cmd_output() options
+
+        :param container:   The name of the container to retrieve logs from
+        :type container: ``str``
+
+        :param kwargs:      Any kwargs supported by ``add_cmd_output()`` are
+                            supported here
         """
         _runtime = self._get_container_runtime()
         if _runtime is not None:
             self.add_cmd_output(_runtime.get_logs_command(container), **kwargs)
 
     def fmt_container_cmd(self, container, cmd):
+        """Format a command to be executed by the loaded ``ContainerRuntime``
+        in a specified container
+
+        :param container:   The name of the container to execute the `cmd` in
+        :type container: ``str``
+
+        :param cmd:         The command to run within the container
+        :type cmd: ``str``
+
+        :returns: The command to execute so that the specified `cmd` will run
+                  within the `container` and not on the host
+        :rtype: ``str``
+        """
         if self.container_exists(container):
             _runtime = self._get_container_runtime()
             return _runtime.fmt_container_cmd(container, cmd)
         return cmd
 
     def is_module_loaded(self, module_name):
-        """Return whether specified module as module_name is loaded or not"""
+        """Determine whether specified module is loaded or not
+
+        :param module_name: Name of kernel module to check for presence
+        :type module_name: ``str``
+
+        :returns: ``True`` if the module is loaded, else ``False``
+        :rtype: ``bool``
+        """
         return module_name in self.policy.kernel_mods
 
     # For adding output
     def add_alert(self, alertstring):
         """Add an alert to the collection of alerts for this plugin. These
         will be displayed in the report
+
+        :param alertstring: The text to add as an alert
+        :type alertstring: ``str``
         """
         self.alerts.append(alertstring)
 
     def add_custom_text(self, text):
         """Append text to the custom text that is included in the report. This
         is freeform and can include html.
+
+        :param text:    The text to include in the report
+        :type text:     ``str``
         """
         self.custom_text += text
 
     def add_service_status(self, services, **kwargs):
-        """Collect service status information based on the InitSystem used.
+        """Collect service status information based on the ``InitSystem`` used
 
-        :param services: A string, or list of strings, specifying the services
-                          to collect
-        :param kwargs    Optional arguments to pass to _add_cmd_output
+        :param services: Service name(s) to collect statuses for
+        :type services: ``str`` or a ``list`` of strings
+
+        :param kwargs:   Optional arguments to pass to _add_cmd_output
                          (timeout, predicate, suggest_filename,..)
+
         """
         if isinstance(services, str):
             services = [services]
@@ -1752,35 +2270,41 @@ class Plugin(object):
                     sizelimit=None, pred=None, tags=[]):
         """Collect journald logs from one of more units.
 
-        :param units: A string, or list of strings specifying the
-                       systemd units for which journal entries will be
-                       collected.
+        :param units:   Which journald units to collect
+        :type units: ``str`` or a ``list`` of strings
 
-        :param boot: A string selecting a boot index using the
-                      journalctl syntax. The special values 'this' and
-                      'last' are also accepted.
+        :param boot:    A boot index using the journalctl syntax. The special
+                        values 'this' and 'last' are also accepted.
+        :type boot: ``str``
 
-        :param since: A string representation of the start time for
-                       journal messages.
+        :param since:   Start time for journal messages
+        :type since: ``str``
 
-        :param until: A string representation of the end time for
-                       journal messages.
+        :param until:   End time forjournal messages
+        :type until: ``str``
 
-        :param lines: The maximum number of lines to be collected.
+        :param lines: The maximum number of lines to be collected
+        :type lines: ``int``
 
-        :param allfields: A bool. Include all journal fields
-                           regardless of size or non-printable
-                           characters.
+        :param allfields: Include all journal fields regardless of size or
+                          non-printable characters
+        :type allfields: ``bool``
 
-        :param output: A journalctl output control string, for
-                        example "verbose".
+        :param output:  Journalctl output control string, for example "verbose"
+        :type output: ``str``
 
-        :param timeout: An optional timeout in seconds.
-        :param identifier: An optional message identifier.
-        :param catalog: Bool. If True, augment lines with descriptions
-                        from the system catalog.
+        :param timeout: An optional timeout in seconds
+        :type timeout: ``int``
+
+        :param identifier: An optional message identifier
+        :type identifier: ``str``
+
+        :param catalog: Augment lines with descriptions from the system catalog
+        :type catalog: ``bool``
+
         :param sizelimit: Limit to the size of output returned in MB.
                           Defaults to the value of --log-size.
+        :type sizelimit: ``int``
         """
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
@@ -1922,7 +2446,7 @@ class Plugin(object):
         self._log_debug("collected plugin '%s' in %s" % fields)
 
     def get_description(self):
-        """ This function will return the description for the plugin"""
+        """This function will return the description for the plugin"""
         try:
             return self.short_desc
         except Exception:
@@ -1944,6 +2468,10 @@ class Plugin(object):
 
         For plugins with more complex enablement checks this method may be
         overridden.
+
+        :returns:   ``True`` if the plugin should be run for this system, else
+                    ``False``
+        :rtype: ``bool``
         """
         # some files or packages have been specified for this package
         if any([self.files, self.packages, self.commands, self.kernel_mods,
@@ -2006,6 +2534,10 @@ class Plugin(object):
         """Checks whether or not the system is running on an architecture that
         the plugin allows. If not architecture is set, assume plugin can run
         on all arches.
+
+        :returns:   ``True`` if the host's architecture allows the plugin to
+                    run, else ``False``
+        :rtype: ``bool``
         """
         if self.architectures is None:
             return True
@@ -2055,7 +2587,13 @@ class Plugin(object):
 
     def check_process_by_name(self, process):
         """Checks if a named process is found in /proc/[0-9]*/cmdline.
-        Returns either True or False."""
+
+        :param process:     The name of the process
+        :type process:      ``str``
+
+        :returns: ``True`` if the process exists, else ``False``
+        :rtype: ``bool``
+        """
         status = False
         cmd_line_glob = "/proc/[0-9]*/cmdline"
         try:
@@ -2070,8 +2608,14 @@ class Plugin(object):
         return status
 
     def get_process_pids(self, process):
-        """Returns PIDs of all processes with process name.
-        If the process doesn't exist, returns an empty list"""
+        """Get a list of all PIDs that match a specified name
+
+        :param process:     The name of the process the get PIDs for
+        :type process:  ``str``
+
+        :returns: A list of PIDs
+        :rtype: ``list``
+        """
         pids = []
         cmd_line_glob = "/proc/[0-9]*/cmdline"
         cmd_line_paths = glob.glob(cmd_line_glob)

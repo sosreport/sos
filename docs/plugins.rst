@@ -4,5 +4,4 @@
 .. automodule:: sos.report.plugins
     :noindex:
     :members:
-    :undoc-members:
     :show-inheritance:
