@@ -4,5 +4,4 @@
 .. automodule:: sos.cleaner.parsers
     :noindex:
     :members:
-    :undoc-members:
     :show-inheritance:
