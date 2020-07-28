@@ -15,7 +15,7 @@ class drbd(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'drbd'
     profiles = ('storage')
-    packages = ('drbd.*-utils',)
+    packages = ('drbd*-utils',)
 
     def setup(self):
         self.add_cmd_output([
