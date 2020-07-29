@@ -214,8 +214,10 @@ class SoSOptions():
                 raise exit('Failed to parse configuration file %s'
                            % config_file)
         except (OSError, IOError) as e:
-            raise exit('Unable to read configuration file %s : %s'
-                       % (config_file, e.args[1]))
+            print(
+                'WARNING: Unable to read configuration file %s : %s'
+                % (config_file, e.args[1])
+            )
 
         _update_from_section("global", config)
         _update_from_section(component, config)
