@@ -71,7 +71,6 @@ setup(
     license="GPLv2+",
     scripts=['bin/sos', 'bin/sosreport', 'bin/sos-collector'],
     data_files=[
-        ('/', ['sos.conf']),
         ('share/man/man1', ['man/en/sosreport.1', 'man/en/sos-report.1',
                             'man/en/sos.1', 'man/en/sos-collect.1',
                             'man/en/sos-collector.1', 'man/en/sos-clean.1',
