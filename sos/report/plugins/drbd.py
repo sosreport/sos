@@ -21,8 +21,8 @@ class drbd(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_cmd_output([
             "drbd-overview",
             "drbdadm dump-xml",
-            "drbdsetup status",
-            "drbdsetup show"
+            "drbdsetup status all",
+            "drbdsetup show all"
         ])
         self.add_copy_spec([
             "/etc/drbd.conf",
