@@ -19,6 +19,20 @@ class OpenStackOctavia(Plugin):
     var_config_data = "/var/lib/config-data"
     var_puppet_gen = var_config_data + "/puppet-generated/octavia"
 
+    resources = [
+        'amphora',
+        'availabilityzone',
+        'availabilityzoneprofile',
+        'flavor',
+        'flavorprofile',
+        'healthmonitor',
+        'l7policy',
+        'listener',
+        'pool',
+        'provider',
+        'quota'
+    ]
+
     def setup(self):
         # configs
         self.add_copy_spec([
@@ -47,42 +61,35 @@ class OpenStackOctavia(Plugin):
             ])
 
         # commands
-        self.add_cmd_output([
-            "openstack loadbalancer list",
-            "openstack loadbalancer amphora list",
-            "openstack loadbalancer healthmonitor list",
-            "openstack loadbalancer l7policy list",
-            "openstack loadbalancer listener list",
-            "openstack loadbalancer pool list",
-            "openstack loadbalancer quota list",
-        ])
+        self.add_cmd_output('openstack loadbalancer list',
+                            subdir='loadbalancer')
 
-        # get details from each loadbalancer
-        cmd = "openstack loadbalancer list -f value -c id"
-        loadbalancers = self.exec_cmd(cmd)['output']
-        for loadbalancer in loadbalancers.splitlines():
-            loadbalancer = loadbalancer.split()[0]
-            self.add_cmd_output(
-                "openstack loadbalancer show %s" % (loadbalancer)
-            )
+        for res in self.resources:
+            # get a list for each resource type
+            self.add_cmd_output('openstack loadbalancer %s list' % res,
+                                subdir=res)
 
-        # get details from each l7policy
-        cmd = "openstack loadbalancer l7policy list -f value -c id"
-        l7policies = self.exec_cmd(cmd)['output']
-        for l7policy in l7policies.splitlines():
-            l7policy = l7policy.split()[0]
-            self.add_cmd_output(
-                "openstack loadbalancer l7rule list %s" % (l7policy)
-            )
+            # get details from each resource
+            cmd = "openstack loadbalancer %s list -f value -c id" % res
+            ret = self.exec_cmd(cmd)
+            if ret['status'] == 0:
+                for ent in ret['output'].splitlines():
+                    ent = ent.split()[0]
+                    self.add_cmd_output(
+                        "openstack loadbalancer %s show %s" % (res, ent),
+                        subdir=res
+                    )
 
-        # get details from each pool
-        cmd = "openstack loadbalancer pool list -f value -c id"
-        pools = self.exec_cmd(cmd)['output']
-        for pool in pools.splitlines():
-            pool = pool.split()[0]
-            self.add_cmd_output(
-                "openstack loadbalancer member list %s" % (pool)
-            )
+        # get capability details from each provider
+        cmd = "openstack loadbalancer provider list -f value -c name"
+        ret = self.exec_cmd(cmd)
+        if ret['status'] == 0:
+            for p in ret['output'].splitlines():
+                p = p.split()[0]
+                self.add_cmd_output(
+                    "openstack loadbalancer provider capability list %s" % p,
+                    subdir='provider_capability'
+                )
 
     def postproc(self):
         protect_keys = [
