@@ -16,7 +16,8 @@ class OpenStackOctavia(Plugin):
     plugin_name = "openstack_octavia"
     profiles = ('openstack', 'openstack_controller')
 
-    var_puppet_gen = "/var/lib/config-data/puppet-generated/octavia"
+    var_config_data = "/var/lib/config-data"
+    var_puppet_gen = var_config_data + "/puppet-generated/octavia"
 
     def setup(self):
         # configs
@@ -25,13 +26,15 @@ class OpenStackOctavia(Plugin):
             "/etc/logrotate.d/openstack-octavia",
             "/etc/octavia/*",
             "/var/lib/octavia",
-            self.var_puppet_gen + "/etc/octavia/conf.d",
-            self.var_puppet_gen + "/etc/octavia/octavia.conf",
+            self.var_config_data + "/octavia/etc/octavia",
+            self.var_puppet_gen + "/etc/octavia",
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
         ])
 
         # don't collect certificates
         self.add_forbidden_path("/etc/octavia/certs")
+        self.add_forbidden_path(self.var_config_data + "/etc/octavia/certs")
+        self.add_forbidden_path(self.var_puppet_gen + "/etc/octavia/certs")
 
         # logs
         if self.get_option("all_logs"):
