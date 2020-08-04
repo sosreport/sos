@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Release(Plugin, RedHatPlugin, UbuntuPlugin):
+class Release(Plugin, UbuntuPlugin):
 
     short_desc = 'Linux release information'
 
@@ -32,5 +32,12 @@ class DebianRelease(Release, DebianPlugin):
     def setup(self):
         super(DebianRelease, self).setup()
         self.add_copy_spec('/etc/debian_version')
+
+
+class RedHatRelease(Release, RedHatPlugin):
+
+    def setup(self):
+        self.add_file_tags({'/etc/redhat-release': 'redhat_release'})
+        super(RedHatRelease, self).setup()
 
 # vim: set et ts=4 sw=4 :

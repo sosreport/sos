@@ -236,8 +236,9 @@ class Openshift(Plugin, RedHatPlugin):
 
         for resource in global_resources:
             _subdir = "cluster_resources/%s" % resource
+            _tag = ["ocp_%s" % resource]
             _res = self.collect_cmd_output("%s %s" % (self.oc_cmd, resource),
-                                           subdir=_subdir)
+                                           subdir=_subdir, tags=_tag)
             if _res['status'] == 0:
                 for _res_name in _res['output'].splitlines()[1:]:
                     self.add_cmd_output(
@@ -297,11 +298,17 @@ class Openshift(Plugin, RedHatPlugin):
 
         for res in resources:
             _subdir = "%s/%s" % (subdir, res)
+            _tags = [
+                "ocp_%s" % res,
+                "ocp_%s_%s" % (namespace, res),
+                namespace
+            ]
             _get_cmd = "%s --namespace=%s %s" % (self.oc_cmd, namespace, res)
             # get the 'normal' output first
             _res_out = self.collect_cmd_output(
                 _get_cmd,
-                subdir=_subdir
+                subdir=_subdir,
+                tags=_tags
             )
 
             # then get specific detail on each instance of the resource

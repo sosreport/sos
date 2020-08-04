@@ -39,7 +39,7 @@ class Yum(Plugin, RedHatPlugin):
         ])
 
         # Get a list of channels the machine is subscribed to.
-        self.add_cmd_output("yum -C repolist")
+        self.add_cmd_output("yum -C repolist", tags="yum_repolist")
 
         # Get the same list, but with various statistics related to its
         # contents such as package count.

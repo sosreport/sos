@@ -65,6 +65,21 @@ class Networking(Plugin):
 
     def setup(self):
         super(Networking, self).setup()
+
+        self.add_cmd_tags({
+            'ethtool -a .*': 'ethool_a',
+            'ethtool -i .*': 'ethtool_i',
+            'ethtool -k .*': 'ethtool_k',
+            'ethtool -S .*': 'ethtool_S',
+            'ethtool -g .*': 'ethtool_g',
+            'ethtool -T .*': 'ethtool_T',
+            'ethtool -c .*': 'ethtool_c'
+        })
+
+        self.add_file_tags({
+            '/proc/net/bonding/bond.*': 'bond'
+        })
+
         self.add_copy_spec([
             "/proc/net/",
             "/etc/nsswitch.conf",
@@ -189,7 +204,7 @@ class Networking(Plugin):
                 "ethtool --phy-statistics " + eth,
                 "ethtool --show-priv-flags " + eth,
                 "ethtool --show-eee " + eth
-            ])
+            ], tags=eth)
 
         # Collect information about bridges (some data already collected via
         # "ip .." commands)
