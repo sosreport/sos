@@ -1017,7 +1017,7 @@ class Plugin(object):
         self.copy_paths.update(copy_paths)
 
     def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
-                      tailit=True, pred=None, tags=None):
+                      tailit=True, pred=None, tags=[]):
         """Add a file or glob but limit it to sizelimit megabytes. Collect
         files with mtime not older than maxage hours.
         If fname is a single file the file will be tailed to meet sizelimit.
@@ -1066,6 +1066,17 @@ class Plugin(object):
             if len(files) == 0:
                 continue
 
+            def get_filename_tag(fname):
+                """Generate a tag to add for a single file copyspec
+
+                This tag will be set to the filename, minus any extensions
+                except '.conf' which will be converted to '_conf'
+                """
+                fname = fname.replace('-', '_')
+                if fname.endswith('.conf'):
+                    return fname.replace('.', '_')
+                return fname.split('.')[0]
+
             # Files hould be sorted in most-recently-modified order, so that
             # we collect the newest data first before reaching the limit.
             def getmtime(path):
@@ -1087,6 +1098,13 @@ class Plugin(object):
                    (maxage and (time()-filetime < maxage*3600))):
                     return False
                 return True
+
+            if len(files) == 1:
+                _spec_tags = [get_filename_tag(files[0].split('/')[-1])]
+            else:
+                _spec_tags = []
+
+            _spec_tags.extend(tags)
 
             if since or maxage:
                 files = list(filter(lambda f: time_filter(f), files))
@@ -1148,13 +1166,13 @@ class Plugin(object):
                 self.manifest.files.append({
                     'specification': copyspec,
                     'files_copied': _manifest_files,
-                    'tags': tags
+                    'tags': _spec_tags
                 })
 
     def add_blockdev_cmd(self, cmds, devices='block', timeout=300,
                          sizelimit=None, chroot=True, runat=None, env=None,
                          binary=False, prepend_path=None, whitelist=[],
-                         blacklist=[], tags=None):
+                         blacklist=[], tags=[]):
         """Run a command or list of commands against storage-related devices.
 
         Any commands specified by cmd will be iterated over the list of the
@@ -1172,11 +1190,15 @@ class Plugin(object):
             blacklist - exclude the devices iterated over. May be a str or list
                         of strings (e.g. regexes)
         """
+        if isinstance(tags, str):
+            tags = [tags]
         if devices == 'block':
             prepend_path = prepend_path or '/dev/'
             devices = self.devices['block']
+            tags.append('block')
         if devices == 'fibre':
             devices = self.devices['fibre']
+            tags.append('fibre')
         self._add_device_cmd(cmds, devices, timeout=timeout,
                              sizelimit=sizelimit, chroot=chroot, runat=runat,
                              env=env, binary=binary, prepend_path=prepend_path,
@@ -1186,7 +1208,7 @@ class Plugin(object):
     def _add_device_cmd(self, cmds, devices, timeout=300, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
                         prepend_path=None, whitelist=[], blacklist=[],
-                        tags=None):
+                        tags=[]):
         """Run a command against all specified devices on the system.
         """
         if isinstance(cmds, str):
@@ -1201,6 +1223,8 @@ class Plugin(object):
         for cmd in cmds:
             for device in devices:
                 _dev_ok = True
+                _dev_tags = []
+                _dev_tags.extend(tags)
                 if whitelist:
                     if not any(re.match(wl, device) for wl in whitelist):
                         _dev_ok = False
@@ -1212,10 +1236,11 @@ class Plugin(object):
                 if prepend_path:
                     device = os.path.join(prepend_path, device)
                 _cmd = cmd % {'dev': device}
+                _dev_tags.append(device)
                 self._add_cmd_output(cmd=_cmd, timeout=timeout,
                                      sizelimit=sizelimit, chroot=chroot,
                                      runat=runat, env=env, binary=binary,
-                                     tags=tags)
+                                     tags=_dev_tags)
 
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
@@ -1234,7 +1259,7 @@ class Plugin(object):
                        root_symlink=None, timeout=cmd_timeout, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
-                       changes=False, foreground=False, tags=None):
+                       changes=False, foreground=False, tags=[]):
         """Run a program or a list of programs and collect the output"""
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -1339,7 +1364,7 @@ class Plugin(object):
                             root_symlink=False, timeout=cmd_timeout,
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
-                            changes=False, foreground=False, tags=None):
+                            changes=False, foreground=False, tags=[]):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -1370,13 +1395,18 @@ class Plugin(object):
         if self._timeout_hit:
             return
 
+        _tags = []
+
+        if isinstance(tags, str):
+            tags = [tags]
+
+        _tags.extend(tags)
+        _tags.append(cmd.split(' ')[0])
+
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
             root = None
-
-        if isinstance(tags, str):
-            tags = [tags]
 
         start = time()
 
@@ -1398,7 +1428,7 @@ class Plugin(object):
             'filepath': None,
             'return_code': result['status'],
             'run_time': time() - start,
-            'tags': tags
+            'tags': _tags
         }
 
         # command not found or not runnable
@@ -1459,7 +1489,7 @@ class Plugin(object):
                            root_symlink=False, timeout=cmd_timeout,
                            stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
-                           subdir=None, tags=None):
+                           subdir=None, tags=[]):
         """Execute a command and save the output to a file for inclusion in the
         report.
         """
@@ -1636,7 +1666,7 @@ class Plugin(object):
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
                     timeout=cmd_timeout, identifier=None, catalog=None,
-                    sizelimit=None, pred=None):
+                    sizelimit=None, pred=None, tags=[]):
         """Collect journald logs from one of more units.
 
         :param units: A string, or list of strings specifying the
@@ -1721,7 +1751,7 @@ class Plugin(object):
 
         self._log_debug("collecting journal: %s" % journal_cmd)
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
-                             sizelimit=log_size, pred=pred)
+                             sizelimit=log_size, pred=pred, tags=tags)
 
     def _expand_copy_spec(self, copyspec):
         def __expand(paths):
