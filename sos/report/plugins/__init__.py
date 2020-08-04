@@ -1127,8 +1127,9 @@ class Plugin(object):
                         strfile = (
                             file_name.replace(os.path.sep, ".") + ".tailed"
                         )
-                        self.add_string_as_file(tail(_file, sizelimit),
-                                                strfile)
+                        add_size = (sizelimit + filestat[stat.ST_SIZE]
+                                    - current_size)
+                        self.add_string_as_file(tail(_file, add_size), strfile)
                         rel_path = os.path.relpath('/', os.path.dirname(_file))
                         link_path = os.path.join(rel_path, 'sos_strings',
                                                  self.name(), strfile)
@@ -1137,9 +1138,12 @@ class Plugin(object):
                     else:
                         self._log_info("skipping '%s' over size limit" % _file)
                 else:
-                    # size limit not hit, copy the file
+                    # size limit not exceeded, copy the file
                     _manifest_files.append(_file.lstrip('/'))
                     self._add_copy_paths([_file])
+                    # in the corner case we just reached the sizelimit, we
+                    # should collect the whole file and stop
+                    limit_reached = (current_size == sizelimit)
             if self.manifest:
                 self.manifest.files.append({
                     'specification': copyspec,
