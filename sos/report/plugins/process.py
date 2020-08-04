@@ -41,7 +41,8 @@ class Process(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         if self.get_option("smaps"):
             self.add_copy_spec("/proc/[0-9]*/smaps")
 
-        self.add_cmd_output("ps auxwww", root_symlink="ps")
+        self.add_cmd_output("ps auxwww", root_symlink="ps",
+                            tags=['ps_aux', 'ps_auxww', 'ps_auxwww'])
         self.add_cmd_output("pstree -lp", root_symlink="pstree")
         if self.get_option("lsof"):
             self.add_cmd_output("lsof -b +M -n -l -c ''", root_symlink="lsof")
