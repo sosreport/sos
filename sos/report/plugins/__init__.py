@@ -407,6 +407,7 @@ class Plugin(object):
     cmd_timeout = 300
     _timeout_hit = False
     cmdtags = {}
+    filetags = {}
 
     # Default predicates
     predicate = None
@@ -1017,6 +1018,56 @@ class Plugin(object):
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)
 
+    def add_file_tags(self, tagdict):
+        """Apply a tag to a file matching a given regex, for use when a file
+        is copied by a more generic copyspec.
+
+        :param tagdict: A dict containing the filepatterns to match and the
+                        tag(s) to apply to those files
+        :type tagdict: ``dict``
+
+        `tagdict` takes the form `{file_pattern: tag}`, E.G. to match all bond
+        devices from /proc/net/bonding with the tag `bond`, use
+        `{'/proc/net/bonding/bond.*': ['bond']}`
+        """
+        for fname in tagdict:
+            if isinstance(tagdict[fname], str):
+                tagdict[fname] = [tagdict[fname]]
+        self.filetags.update(tagdict)
+
+    def get_tags_for_file(self, fname):
+        """Get the tags that should be associated with a file matching a given
+        regex
+
+        :param fname:   A regex for filenames to be matched against
+        :type fname: ``str``
+
+        :returns:   The tag(s) associated with `fname`
+        :rtype: ``list`` of strings
+        """
+        for key, val in self.filetags.items():
+            if re.match(key, fname):
+                return val
+        return []
+
+    def generate_copyspec_tags(self):
+        """After file collections have completed, retroactively generate
+        manifest entries to apply tags to files copied by generic copyspecs
+        """
+        for file_regex in self.filetags:
+            manifest_data = {
+                'specification': file_regex,
+                'files_copied': [],
+                'tags': self.filetags[file_regex]
+            }
+            matched_files = []
+            for cfile in self.copied_files:
+                if re.match(file_regex, cfile['srcpath']):
+                    matched_files.append(cfile['dstpath'])
+            if matched_files:
+                manifest_data['files_copied'] = matched_files
+                self.manifest.files.append(manifest_data)
+
     def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
                       tailit=True, pred=None, tags=[]):
         """Add a file or glob but limit it to sizelimit megabytes. Collect
@@ -1100,10 +1151,9 @@ class Plugin(object):
                     return False
                 return True
 
+            _spec_tags = []
             if len(files) == 1:
                 _spec_tags = [get_filename_tag(files[0].split('/')[-1])]
-            else:
-                _spec_tags = []
 
             _spec_tags.extend(tags)
 
@@ -1279,21 +1329,21 @@ class Plugin(object):
                                  pred=pred, subdir=subdir, tags=tags,
                                  changes=changes, foreground=foreground)
 
-    def add_cmd_tags(self, cmddict):
+    def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
         plugin that match a given regex
 
-        :param cmddict: A dict containing the command regex and associated tags
-        :type cmddict: ``dict``
+        :param tagdict: A dict containing the command regex and associated tags
+        :type tagdict: ``dict``
 
-        `cmddict` takes the form of {cmd_regex: tags}, for example to tag all
+        `tagdict` takes the form of {cmd_regex: tags}, for example to tag all
         commands starting with `foo` with the tag `bar`, use
         {'foo.*': ['bar']}
         """
-        for cmd in cmddict:
-            if isinstance(cmddict[cmd], str):
-                cmddict[cmd] = [cmddict[cmd]]
-        self.cmdtags = cmddict
+        for cmd in tagdict:
+            if isinstance(tagdict[cmd], str):
+                tagdict[cmd] = [tagdict[cmd]]
+        self.cmdtags.update(tagdict)
 
     def get_tags_for_cmd(self, cmd):
         """Get the tag(s) that should be associated with the given command
@@ -1834,6 +1884,7 @@ class Plugin(object):
         for path in self.copy_paths:
             self._log_info("collecting path '%s'" % path)
             self._do_copy_path(path)
+        self.generate_copyspec_tags()
 
     def _collect_cmds(self):
         for soscmd in self.collect_cmds:
