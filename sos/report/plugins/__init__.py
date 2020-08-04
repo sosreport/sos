@@ -406,6 +406,7 @@ class Plugin(object):
     plugin_timeout = 300
     cmd_timeout = 300
     _timeout_hit = False
+    cmdtags = {}
 
     # Default predicates
     predicate = None
@@ -1190,20 +1191,22 @@ class Plugin(object):
             blacklist - exclude the devices iterated over. May be a str or list
                         of strings (e.g. regexes)
         """
+        _dev_tags = []
         if isinstance(tags, str):
             tags = [tags]
         if devices == 'block':
             prepend_path = prepend_path or '/dev/'
             devices = self.devices['block']
-            tags.append('block')
+            _dev_tags.append('block')
         if devices == 'fibre':
             devices = self.devices['fibre']
-            tags.append('fibre')
+            _dev_tags.append('fibre')
+        _dev_tags.extend(tags)
         self._add_device_cmd(cmds, devices, timeout=timeout,
                              sizelimit=sizelimit, chroot=chroot, runat=runat,
                              env=env, binary=binary, prepend_path=prepend_path,
                              whitelist=whitelist, blacklist=blacklist,
-                             tags=tags)
+                             tags=_dev_tags)
 
     def _add_device_cmd(self, cmds, devices, timeout=300, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
@@ -1223,7 +1226,7 @@ class Plugin(object):
         for cmd in cmds:
             for device in devices:
                 _dev_ok = True
-                _dev_tags = []
+                _dev_tags = [device]
                 _dev_tags.extend(tags)
                 if whitelist:
                     if not any(re.match(wl, device) for wl in whitelist):
@@ -1236,7 +1239,6 @@ class Plugin(object):
                 if prepend_path:
                     device = os.path.join(prepend_path, device)
                 _cmd = cmd % {'dev': device}
-                _dev_tags.append(device)
                 self._add_cmd_output(cmd=_cmd, timeout=timeout,
                                      sizelimit=sizelimit, chroot=chroot,
                                      runat=runat, env=env, binary=binary,
@@ -1276,6 +1278,36 @@ class Plugin(object):
                                  env=env, binary=binary, sizelimit=sizelimit,
                                  pred=pred, subdir=subdir, tags=tags,
                                  changes=changes, foreground=foreground)
+
+    def add_cmd_tags(self, cmddict):
+        """Retroactively add tags to any commands that have been run by this
+        plugin that match a given regex
+
+        :param cmddict: A dict containing the command regex and associated tags
+        :type cmddict: ``dict``
+
+        `cmddict` takes the form of {cmd_regex: tags}, for example to tag all
+        commands starting with `foo` with the tag `bar`, use
+        {'foo.*': ['bar']}
+        """
+        for cmd in cmddict:
+            if isinstance(cmddict[cmd], str):
+                cmddict[cmd] = [cmddict[cmd]]
+        self.cmdtags = cmddict
+
+    def get_tags_for_cmd(self, cmd):
+        """Get the tag(s) that should be associated with the given command
+
+        :param cmd: The command that tags should be applied to
+        :type cmd: ``str``
+
+        :returns: Any tags associated with the command
+        :rtype: ``list``
+        """
+        for key, val in self.cmdtags.items():
+            if re.match(key, cmd):
+                return val
+        return []
 
     def get_cmd_output_path(self, name=None, make=True):
         """Return a path into which this module should store collected
@@ -1402,6 +1434,7 @@ class Plugin(object):
 
         _tags.extend(tags)
         _tags.append(cmd.split(' ')[0])
+        _tags.extend(self.get_tags_for_cmd(cmd))
 
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
