@@ -183,7 +183,6 @@ class Networking(Plugin):
                 "ethtool -a " + eth,
                 "ethtool -c " + eth,
                 "ethtool -g " + eth,
-                "ethtool -e " + eth,
                 "ethtool -P " + eth,
                 "ethtool -l " + eth,
                 "ethtool --phy-statistics " + eth,
