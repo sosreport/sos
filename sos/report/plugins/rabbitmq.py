@@ -37,8 +37,16 @@ class RabbitMQ(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
                     self.fmt_container_cmd(container, 'rabbitmqctl report'),
                     foreground=True
                 )
+                self.add_cmd_output(
+                    self.fmt_container_cmd(
+                        container, "rabbitmqctl eval "
+                        "'rabbit_diagnostics:maybe_stuck().'"),
+                    foreground=True
+                )
         else:
             self.add_cmd_output("rabbitmqctl report")
+            self.add_cmd_output(
+                "rabbitmqctl eval 'rabbit_diagnostics:maybe_stuck().'")
 
         self.add_copy_spec([
             "/etc/rabbitmq/*",
