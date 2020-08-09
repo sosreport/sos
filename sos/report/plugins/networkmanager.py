@@ -43,7 +43,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 "general"    # >= 0.9.9
             ]
             status = self.exec_cmd(status_template % obj_table[version])
-            return status['output'].lower().startswith("running")
+            return (status['status'] == 0 and
+                    status['output'].lower().startswith("running"))
 
         # NetworkManager >= 0.9.9 (Use short name of objects for nmcli)
         if test_nm_status(version=1):
