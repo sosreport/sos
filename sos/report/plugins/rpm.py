@@ -53,8 +53,9 @@ class Rpm(Plugin, RedHatPlugin):
             add_rpm_cmd(query_fmt, None, None, "package-data")
 
         if self.get_option("rpmva"):
+            self.plugin_timeout = 1000
             self.add_cmd_output("rpm -Va", root_symlink="rpm-Va",
-                                timeout=180)
+                                timeout=900)
 
         if self.get_option("rpmdb"):
             self.add_cmd_output("lsof +D /var/lib/rpm",
