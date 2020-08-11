@@ -19,8 +19,8 @@ class Snappy(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):
     packages = ('snapd',)
 
     def setup(self):
+        self.add_cmd_output("snap list --all", root_symlink="installed-snaps")
         self.add_cmd_output([
-            "snap list --all",
             "snap --version",
             "snap changes"
         ])
