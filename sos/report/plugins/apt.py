@@ -24,6 +24,7 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
         ])
 
         self.add_forbidden_path("/etc/apt/auth.conf")
+        self.add_forbidden_path("/etc/apt/auth.conf.d/")
 
         self.add_cmd_output([
             "apt-get check",
