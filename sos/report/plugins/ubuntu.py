@@ -20,5 +20,15 @@ class Ubuntu(Plugin, UbuntuPlugin):
         self.add_cmd_output([
             "ubuntu-security-status --thirdparty --unavailable",
             "hwe-support-status --verbose",
-            "ubuntu-advantage status"
         ])
+
+        if self.is_installed('ubuntu-advantage-tools'):
+            self.add_cmd_output("ubuntu-advantage status")
+            if not self.get_option("all_logs"):
+                self.add_copy_spec([
+                    "/var/log/ubuntu-advantage.log",
+                    "/var/log/ubuntu-advantage.log.1",
+                    "/var/log/ubuntu-advantage.log.2*",
+                ])
+            else:
+                self.add_copy_spec("/var/log/ubuntu-advantage.log*")
