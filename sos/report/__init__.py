@@ -331,7 +331,7 @@ class SoSReport(SoSComponent):
                 'fc_vports'
             ]
             for devdir in devdirs:
-                if os.isdir("/sys/class/%s" % devdir):
+                if os.path.isdir("/sys/class/%s" % devdir):
                     devs.extend(glob.glob("/sys/class/%s/*" % devdir))
             return devs
         except Exception as err:
