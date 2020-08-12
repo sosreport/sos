@@ -4,7 +4,7 @@ jobs:
       os: linux
       dist: focal
       language: shell
-      install: sudo apt-get update; sudo apt install pycodestyle python3-pexpect;
+      install: sudo apt-get update; sudo apt install flake8 python3-pexpect;
       script:
         - "flake8 sos tests bin/*"
         - "sudo ./tests/simple.sh"
@@ -12,7 +12,7 @@ jobs:
       os: linux
       dist: bionic
       language: shell
-      install: sudo apt-get update; sudo apt install pycodestyle python3-pexpect;
+      install: sudo apt-get update; sudo apt install python3-pexpect;
       script: "sudo ./tests/simple.sh"
     - name: "18.04 native run for arm64"
       os: linux
@@ -62,4 +62,4 @@ notifications:
       - "us.freenode.net#sosreport"
     on_success: change
 git:
-  depth: 5
+  depth: 20
