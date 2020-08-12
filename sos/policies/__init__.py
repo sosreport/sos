@@ -717,17 +717,8 @@ any third party.
     def get_cmd_for_compress_method(self, method, threads):
         cmd = method
         if cmd.startswith("xz"):
-            # XZ only determine number of threads to use (for 5.2 only) and
-            # set compression to -2
-            cmd = "%s -2" % cmd
-            try:
-                xz_package = self._get_pkg_name_for_binary(method)
-                xz_version = self.package_manager\
-                                 .all_pkgs()[xz_package]["version"]
-            except Exception as e:
-                xz_version = [u'0']  # deal like xz version is really old
-            if xz_version >= [u'5', u'2']:
-                cmd = "%s -T%d" % (cmd, threads)
+            # XZ set compression to -2 and use threads
+            cmd = "%s -2 -T%d" % (cmd, threads)
         return cmd
 
     def get_tmp_dir(self, opt_tmp_dir):
