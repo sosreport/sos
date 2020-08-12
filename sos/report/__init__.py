@@ -787,7 +787,7 @@ class SoSReport(SoSComponent):
             msg += _("Press ENTER to continue, or CTRL-C to quit.\n")
             try:
                 input(msg)
-            except KeyboardInterrupt as e:
+            except KeyboardInterrupt:
                 self.ui_log.error("Exiting on user cancel")
                 self._exit(130)
             except Exception as e:

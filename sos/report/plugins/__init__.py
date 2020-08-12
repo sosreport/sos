@@ -1951,7 +1951,7 @@ class Plugin(object):
                 cmd_line = f.read().strip()
                 if process in cmd_line:
                     status = True
-        except IOError as e:
+        except IOError:
             return False
         return status
 
@@ -1967,7 +1967,7 @@ class Plugin(object):
                     cmd_line = f.read().strip()
                     if process in cmd_line:
                         pids.append(path.split("/")[2])
-            except IOError as e:
+            except IOError:
                 continue
         return pids
 
