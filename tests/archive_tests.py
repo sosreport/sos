@@ -8,7 +8,6 @@
 import unittest
 import os
 import tarfile
-import zipfile
 import tempfile
 import shutil
 

@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import unittest
-import os
 
 try:
     import json
