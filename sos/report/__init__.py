@@ -335,6 +335,7 @@ class SoSReport(SoSComponent):
                     devs.extend(glob.glob("/sys/class/%s/*" % devdir))
             return devs
         except Exception as err:
+            self.soslog.error("Could not get fibre device list: %s" % err)
             return []
 
     def get_block_devs(self):

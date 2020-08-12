@@ -2021,8 +2021,8 @@ class SCLPlugin(RedHatPlugin):
             prefix = open('/etc/scl/prefixes/%s' % scl, 'r').read()\
                      .rstrip('\n')
         except Exception as e:
-            self._log_error("Failed to find prefix for SCL %s, using %s"
-                            % (scl, prefix))
+            self._log_error("Error %s to find prefix for SCL %s, using %s"
+                            % (e, scl, prefix))
 
         # expand PATH by equivalent prefixes under the SCL tree
         path = os.environ["PATH"]
