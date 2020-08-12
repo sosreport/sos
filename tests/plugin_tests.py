@@ -19,15 +19,18 @@ import sos.policies
 
 PATH = os.path.dirname(__file__)
 
+
 def j(filename):
     return os.path.join(PATH, filename)
 
+
 def create_file(size, dir=None):
-   f = tempfile.NamedTemporaryFile(delete=False, dir=dir)
-   f.write(b"*" * size * 1024 * 1024)
-   f.flush()
-   f.close()
-   return f.name
+    f = tempfile.NamedTemporaryFile(delete=False, dir=dir)
+    f.write(b"*" * size * 1024 * 1024)
+    f.flush()
+    f.close()
+    return f.name
+
 
 class MockArchive(TarFileArchive):
 
@@ -62,7 +65,7 @@ class MockArchive(TarFileArchive):
 class MockPlugin(Plugin):
 
     option_list = [("opt", 'an option', 'fast', None),
-                  ("opt2", 'another option', 'fast', False)]
+                   ("opt2", 'another option', 'fast', False)]
 
     def setup(self):
         pass
@@ -117,13 +120,15 @@ class MockOptions(object):
 class PluginToolTests(unittest.TestCase):
 
     def test_regex_findall(self):
-        test_s = u"\n".join(['this is only a test', 'there are only two lines'])
+        test_s = u"\n".join(
+            ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = regex_findall(r".*lines$", test_fo)
         self.assertEquals(matches, ['there are only two lines'])
 
     def test_regex_findall_miss(self):
-        test_s = u"\n".join(['this is only a test', 'there are only two lines'])
+        test_s = u"\n".join(
+            ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = regex_findall(r".*not_there$", test_fo)
         self.assertEquals(matches, [])
@@ -139,10 +144,14 @@ class PluginToolTests(unittest.TestCase):
     def test_mangle_command(self):
         name_max = 255
         self.assertEquals("foo", _mangle_command("/usr/bin/foo", name_max))
-        self.assertEquals("foo_-x", _mangle_command("/usr/bin/foo -x", name_max))
-        self.assertEquals("foo_--verbose", _mangle_command("/usr/bin/foo --verbose", name_max))
-        self.assertEquals("foo_.path.to.stuff", _mangle_command("/usr/bin/foo /path/to/stuff", name_max))
-        longcmd ="foo is " + "a" * 256 + " long_command"
+        self.assertEquals(
+            "foo_-x", _mangle_command("/usr/bin/foo -x", name_max))
+        self.assertEquals(
+            "foo_--verbose", _mangle_command("/usr/bin/foo --verbose",
+                                             name_max))
+        self.assertEquals("foo_.path.to.stuff", _mangle_command(
+            "/usr/bin/foo /path/to/stuff", name_max))
+        longcmd = "foo is " + "a" * 256 + " long_command"
         expected = longcmd[0:name_max].replace(' ', '_')
         self.assertEquals(expected, _mangle_command(longcmd, name_max))
 
@@ -194,7 +203,8 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_description(), "This plugin has a description.")
+        self.assertEquals(p.get_description(),
+                          "This plugin has a description.")
 
     def test_set_plugin_option(self):
         p = MockPlugin({
@@ -289,7 +299,9 @@ class PluginTests(unittest.TestCase):
 
     def test_copy_dir(self):
         self.mp._do_copy_path("tests")
-        self.assertEquals(self.mp.archive.m["tests/plugin_tests.py"], 'tests/plugin_tests.py')
+        self.assertEquals(
+            self.mp.archive.m["tests/plugin_tests.py"],
+            'tests/plugin_tests.py')
 
     def test_copy_dir_bad_path(self):
         self.mp._do_copy_path("not_here_tests")
@@ -340,7 +352,6 @@ class AddCopySpecTests(unittest.TestCase):
         expected_paths = set(map(pathmunge, self.expect_paths))
         self.assertEquals(self.mp.copy_paths, expected_paths)
 
-
     def test_single_file_no_limit(self):
         self.mp.add_copy_spec("tests/tail_test.txt")
         self.assert_expect_paths()
@@ -351,7 +362,7 @@ class AddCopySpecTests(unittest.TestCase):
 
     def test_single_file_over_limit(self):
         self.mp.sysroot = '/'
-        fn = create_file(2) # create 2MB file, consider a context manager
+        fn = create_file(2)  # create 2MB file, consider a context manager
         self.mp.add_copy_spec(fn, 1)
         content, fname = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
@@ -440,12 +451,14 @@ class RegexSubTests(unittest.TestCase):
         self.mp.archive = MockArchive()
 
     def test_file_never_copied(self):
-        self.assertEquals(0, self.mp.do_file_sub("never_copied", r"^(.*)$", "foobar"))
+        self.assertEquals(0, self.mp.do_file_sub(
+            "never_copied", r"^(.*)$", "foobar"))
 
     def test_no_replacements(self):
         self.mp.add_copy_spec(j("tail_test.txt"))
         self.mp.collect()
-        replacements = self.mp.do_file_sub(j("tail_test.txt"), r"wont_match", "foobar")
+        replacements = self.mp.do_file_sub(
+            j("tail_test.txt"), r"wont_match", "foobar")
         self.assertEquals(0, replacements)
 
     def test_replacements(self):
@@ -453,9 +466,11 @@ class RegexSubTests(unittest.TestCase):
         self.mp.sysroot = '/'
         self.mp.add_copy_spec(j("tail_test.txt"))
         self.mp.collect()
-        replacements = self.mp.do_file_sub(j("tail_test.txt"), r"(tail)", "foobar")
+        replacements = self.mp.do_file_sub(
+            j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEquals(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
+
 
 if __name__ == "__main__":
     unittest.main()

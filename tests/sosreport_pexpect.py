@@ -12,6 +12,7 @@ from re import search, escape
 from os import kill
 from signal import SIGINT
 
+
 class PexpectTest(unittest.TestCase):
     def test_plugins_install(self):
         sos = pexpect.spawn('/usr/sbin/sosreport -l')
@@ -28,6 +29,7 @@ class PexpectTest(unittest.TestCase):
         grp = sos.expect('send this file to your support representative.', 15)
         self.assertEquals(grp, 0)
         kill(sos.pid, SIGINT)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -36,8 +36,8 @@ class Libraries(Plugin, RedHatPlugin, UbuntuPlugin):
         if ldconfig['status'] == 0:
             # Collect library directories from ldconfig's cache
             dirs = set()
-            for l in ldconfig['output'].splitlines():
-                s = l.split(" => ", 2)
+            for lib in ldconfig['output'].splitlines():
+                s = lib.split(" => ", 2)
                 if len(s) != 2:
                     continue
                 dirs.add(s[1].rsplit('/', 1)[0])
