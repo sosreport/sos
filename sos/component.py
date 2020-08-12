@@ -18,6 +18,7 @@ import sys
 from argparse import SUPPRESS
 from datetime import datetime
 from shutil import rmtree
+from pathlib import Path
 from sos import __version__
 from sos.archive import TarFileArchive
 from sos.options import SoSOptions

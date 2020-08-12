@@ -1,12 +1,12 @@
 jobs:
   include:
-    - name: "20.04 pycodestyle and native run (py3.8)"
+    - name: "20.04 flake8 and native run (py3.8)"
       os: linux
       dist: focal
       language: shell
       install: sudo apt-get update; sudo apt install pycodestyle python3-pexpect;
       script:
-        - "pycodestyle sos tests bin/*"
+        - "flake8 sos tests bin/*"
         - "sudo ./tests/simple.sh"
     - name: "18.04 pycodestyle and native run (py3.6)"
       os: linux

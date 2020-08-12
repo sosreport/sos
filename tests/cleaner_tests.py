@@ -62,7 +62,6 @@ class CleanerMapTests(unittest.TestCase):
         self.assertTrue(_test.ip in _net.network)
 
     def test_ip_map_get_same_with_or_without_cidr(self):
-        _net = self.ip_map.get('192.168.4.0/24')
         _hostwsub = self.ip_map.get('192.168.4.1/24')
         _hostnosub = self.ip_map.get('192.168.4.1')
         self.assertEqual(_hostwsub.split('/')[0], _hostnosub)

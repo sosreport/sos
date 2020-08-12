@@ -8,7 +8,6 @@
 import unittest
 import pexpect
 
-from re import search, escape
 from os import kill
 from signal import SIGINT
 

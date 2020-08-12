@@ -15,7 +15,6 @@ from io import StringIO
 from sos.report.plugins import Plugin, regex_findall, _mangle_command
 from sos.archive import TarFileArchive
 from sos.policies import LinuxPolicy, InitSystem
-import sos.policies
 
 PATH = os.path.dirname(__file__)
 
@@ -196,7 +195,7 @@ class PluginTests(unittest.TestCase):
         })
         self.assertEquals(p.get_description(), "<no description available>")
 
-    def test_plugin_no_descrip(self):
+    def test_plugin_has_descrip(self):
         p = NamedMockPlugin({
             'sysroot': self.sysroot,
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
@@ -339,7 +338,6 @@ class AddCopySpecTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
             'sysroot': os.getcwd(),
-            'cmdlineopts': MockOptions(),
             'devices': {}
         })
         self.mp.archive = MockArchive()
@@ -383,8 +381,8 @@ class AddCopySpecTests(unittest.TestCase):
     def test_glob_file_limit_no_limit(self):
         self.mp.sysroot = '/'
         tmpdir = tempfile.mkdtemp()
-        fn = create_file(2, dir=tmpdir)
-        fn2 = create_file(2, dir=tmpdir)
+        create_file(2, dir=tmpdir)
+        create_file(2, dir=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*")
         self.assertEquals(len(self.mp.copy_paths), 2)
         shutil.rmtree(tmpdir)
@@ -392,8 +390,8 @@ class AddCopySpecTests(unittest.TestCase):
     def test_glob_file_over_limit(self):
         self.mp.sysroot = '/'
         tmpdir = tempfile.mkdtemp()
-        fn = create_file(2, dir=tmpdir)
-        fn2 = create_file(2, dir=tmpdir)
+        create_file(2, dir=tmpdir)
+        create_file(2, dir=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*", 1)
         self.assertEquals(len(self.mp.copy_strings), 1)
         content, fname = self.mp.copy_strings[0]
