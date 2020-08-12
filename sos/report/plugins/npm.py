@@ -60,8 +60,8 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
         user_cache = self.collect_cmd_output("npm cache ls", chroot=False)
         if user_cache['status'] == 0:
             # filter out dirs with .cache.json ('registry.npmjs.org')
-            for package in [l for l in user_cache['output'].splitlines()
-                            if l.endswith('package.tgz')]:
+            for package in [line for line in user_cache['output'].splitlines()
+                            if line.endswith('package.tgz')]:
                 five_tuple = package.split(os.path.sep)
                 if len(five_tuple) != 5:  # sanity check
                     continue

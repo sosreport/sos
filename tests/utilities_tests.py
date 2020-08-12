@@ -11,15 +11,17 @@ import unittest
 # PYCOMPAT
 from io import StringIO
 
-from sos.utilities import grep, is_executable, sos_get_command_output, find, tail, shell_out
-import sos
+from sos.utilities import (grep, is_executable, sos_get_command_output,
+                           find, tail, shell_out)
 
 TEST_DIR = os.path.dirname(__file__)
+
 
 class GrepTest(unittest.TestCase):
 
     def test_file_obj(self):
-        test_s = u"\n".join(['this is only a test', 'there are only two lines'])
+        test_s = u"\n".join(
+            ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = grep(".*test$", test_fo)
         self.assertEquals(matches, ['this is only a test\n'])
@@ -33,7 +35,8 @@ class GrepTest(unittest.TestCase):
         self.assertEquals(matches, ['import unittest\n'])
 
     def test_grep_multiple_files(self):
-        matches = grep(".*unittest$", __file__.replace(".pyc", ".py"), "does_not_exist.txt")
+        matches = grep(".*unittest$",
+                       __file__.replace(".pyc", ".py"), "does_not_exist.txt")
         self.assertEquals(matches, ['import unittest\n'])
 
 

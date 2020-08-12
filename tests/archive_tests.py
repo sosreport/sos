@@ -61,7 +61,6 @@ class TarFileArchiveTest(unittest.TestCase):
         self.tf.add_string(self.copy_strings[0][0], 'tests/string_test.txt')
         self.tf.finalize('auto')
 
-
 # Since commit 179d9bb add_file does not support recursive directory
 # addition. Disable this test for now.
 #    def test_add_dir(self):
