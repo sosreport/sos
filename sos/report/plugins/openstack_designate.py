@@ -38,6 +38,35 @@ class OpenStackDesignate(Plugin):
                 "/var/log/containers/designate/*.log"
             ])
 
+        subcmds = [
+            'dns service list',
+            'dns quota list',
+            'ptr record list',
+            'tld list',
+            'tsigkey list --column name --column algorithm --column scope',
+            'zone blacklist list',
+            'zone export list',
+            'zone import list',
+            'zone list',
+            'zone transfer accept list',
+            'zone transfer request list'
+        ]
+
+        # commands
+        self.add_cmd_output([
+            'openstack %s --all-projects' % sub for sub in subcmds
+        ])
+
+        # get recordsets for each zone
+        cmd = "openstack zone list -f value -c id"
+        ret = self.exec_cmd(cmd)
+        if ret['status'] == 0:
+            for zone in ret['output'].splitlines():
+                zone = zone.split()[0]
+                self.add_cmd_output(
+                    "openstack recordset list --all-projects %s" % zone,
+                    subdir='recordset')
+
     def postproc(self):
         protect_keys = [
             "password", "connection", "transport_url", "admin_password",
