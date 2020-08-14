@@ -183,13 +183,23 @@ class Networking(Plugin):
                 "ethtool -a " + eth,
                 "ethtool -c " + eth,
                 "ethtool -g " + eth,
-                "ethtool -e " + eth,
                 "ethtool -P " + eth,
                 "ethtool -l " + eth,
                 "ethtool --phy-statistics " + eth,
                 "ethtool --show-priv-flags " + eth,
                 "ethtool --show-eee " + eth
             ])
+
+            # skip EEPROM collection for 'bnx2x' NICs as this command
+            # can pause the NIC and is not production safe.
+            bnx_output = {
+                "cmd": "ethtool -i %s" % eth,
+                "output": "bnx2x"
+            }
+            bnx_pred = SoSPredicate(self,
+                                    cmd_outputs=bnx_output,
+                                    required={'cmd_outputs': 'none'})
+            self.add_cmd_output("ethtool -e %s" % eth, pred=bnx_pred)
 
         # Collect information about bridges (some data already collected via
         # "ip .." commands)
