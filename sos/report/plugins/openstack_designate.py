@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class OpenStackDesignate(Plugin):
@@ -85,5 +85,10 @@ class OpenStackDesignate(Plugin):
 class RedHatdesignate(OpenStackDesignate, RedHatPlugin):
 
     packages = ('openstack-selinux',)
+
+
+class Ubuntudesignate(OpenStackDesignate, UbuntuPlugin):
+
+    packages = ('designate-common',)
 
 # vim: set et ts=4 sw=4 :
