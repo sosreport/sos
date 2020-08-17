@@ -2,7 +2,7 @@
 
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 3.9
+Version: 4.0
 Release: 1%{?dist}
 Group: Applications/System
 Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
@@ -61,6 +61,9 @@ rm ${RPM_BUILD_ROOT}/sos.conf
 %config(noreplace) %{_sysconfdir}/sos/sos.conf
 
 %changelog
+* Mon Aug 17 2020 Jake Hunsaker <jhunsake@redhat.com> = 4.0
+- New upstream release
+
 * Fri Feb 14 2020 Bryn M. Reeves <bmr@redhat.com> = 3.9
 - New upstream release
 

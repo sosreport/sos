@@ -14,7 +14,7 @@
 This module houses the i18n setup and message function. The default is to use
 gettext to internationalize messages.
 """
-__version__ = "3.9"
+__version__ = "4.0"
 
 import os
 import sys
