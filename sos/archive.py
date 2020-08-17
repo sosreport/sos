@@ -340,14 +340,14 @@ class FileCacheArchive(Archive):
                 # path case
                 try:
                     shutil.copy(src, dest)
+                except OSError as e:
+                    self.log_info("File not collected: '%s'" % e)
                 except IOError as e:
                     # Filter out IO errors on virtual file systems.
                     if src.startswith("/sys/") or src.startswith("/proc/"):
                         pass
                     else:
                         self.log_info("caught '%s' copying '%s'" % (e, src))
-                except OSError as e:
-                    self.log_info("File not collected: '%s'" % e)
 
                 # copy file attributes, skip SELinux xattrs for /sys and /proc
                 try:
