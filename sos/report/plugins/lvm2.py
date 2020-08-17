@@ -50,29 +50,32 @@ class Lvm2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         #   command may attempt to recover on-disk data in some cases.
         #   This option prevents such changes, allowing safe use of
         #   locking_type=0.
+        # - use --foreign option in pvs, lvs, vgs and vgdisplay commands
+        #   to support HA-LVM deployments
         nolock = {'cmd': 'vgdisplay -h', 'output': '--nolocking'}
         if bool(SoSPredicate(self, cmd_outputs=nolock)):
             lvm_opts = '--config="global{metadata_read_only=1}" --nolocking'
         else:
             lvm_opts = '--config="global{locking_type=0 metadata_read_only=1}"'
+        lvm_opts_foreign = lvm_opts + ' --foreign'
 
         self.add_cmd_output(
-            "vgdisplay -vv %s" % lvm_opts,
+            "vgdisplay -vv %s" % lvm_opts_foreign,
             root_symlink="vgdisplay"
         )
 
         pvs_cols = 'pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count'
         pvs_cols = pvs_cols + ',' + 'pe_start'
         vgs_cols = 'vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count'
-        vgs_cols = vgs_cols + ',' + 'vg_tags'
+        vgs_cols = vgs_cols + ',' + 'vg_tags,systemid'
         lvs_cols = ('lv_tags,devices,lv_kernel_read_ahead,lv_read_ahead,'
                     'stripes,stripesize')
         self.add_cmd_output([
             "vgscan -vvv %s" % lvm_opts,
             "pvscan -v %s" % lvm_opts,
-            "pvs -a -v -o +%s %s" % (pvs_cols, lvm_opts),
-            "vgs -v -o +%s %s" % (vgs_cols, lvm_opts),
-            "lvs -a -o +%s %s" % (lvs_cols, lvm_opts)
+            "pvs -a -v -o +%s %s" % (pvs_cols, lvm_opts_foreign),
+            "vgs -v -o +%s %s" % (vgs_cols, lvm_opts_foreign),
+            "lvs -a -o +%s %s" % (lvs_cols, lvm_opts_foreign)
         ])
 
         self.add_copy_spec("/etc/lvm")
