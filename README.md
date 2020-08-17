@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos)
+[![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/sosreport/sos.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sosreport/sos/context:python)
 
 # SoS
 
@@ -51,10 +51,10 @@ pip install -r requirements.txt
 and run
 
 ```
-make
+python3 setup.py build_sphinx -a
 ```
 
-Please run `make test` before sending a [pull request][0], or run the
+Please run `./tests/simple.sh` before sending a [pull request][0], or run the
 test suite manually using the `nosetests` command (ideally for the
 set of Python versions currently supported by `sos` upstream).
 
@@ -76,28 +76,18 @@ You can simply run from the git checkout now:
 ```
 $ sudo ./bin/sos report -a
 ```
-The command `sosreport` is still available, as a legacy rediretor,
+The command `sosreport` is still available, as a legacy redirector,
 and can be used like this:
 ```
 $ sudo ./bin/sosreport -a
 ```
 
-* Note: the `sosreport` command requires a configuration file: if no `sos.conf`
-is present in the `/etc` directory (i.e. no system installation of sos exists),
-use the `--config` option to provide one:
-```
-$ sudo python ./bin/sos report -a --config ./sos.conf
-```
 
 To install locally (as root):
 ```
-# make install
+# python3 setup.py install
 ```
 
-To build an rpm:
-```
-$ make rpm
-```
 
 ### Pre-built Packaging
 
