@@ -186,7 +186,7 @@ class SoSOptions():
                 if 'verbose' in odict.keys():
                     odict['verbosity'] = int(odict.pop('verbose'))
                 # convert options names
-                for key in odict.keys():
+                for key in list(odict):
                     if '-' in key:
                         odict[key.replace('-', '_')] = odict.pop(key)
                 # set the values according to the config file
