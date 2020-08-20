@@ -36,7 +36,7 @@ class SosNode():
                  load_facts=True):
         self.address = address.strip()
         self.commons = commons
-        self.opts = commons['opts']
+        self.opts = commons['cmdlineopts']
         self.tmpdir = commons['tmpdir']
         self.hostlen = commons['hostlen']
         self.need_sudo = commons['need_sudo']

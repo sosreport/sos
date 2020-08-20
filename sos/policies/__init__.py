@@ -1387,7 +1387,7 @@ class LinuxPolicy(Policy):
                                            "that you are generating this "
                                            "report for [%s]: ") % caseid)
                 # Policies will need to handle the prompts for user information
-                if cmdline_opts.upload or self.upload_url:
+                if cmdline_opts.upload and self.get_upload_url():
                     self.prompt_for_upload_user()
                     self.prompt_for_upload_password()
                 self._print()
