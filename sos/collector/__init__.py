@@ -90,7 +90,12 @@ class SoSCollector(SoSComponent):
         'ssh_port': 22,
         'ssh_user': 'root',
         'timeout': 600,
-        'verify': False
+        'verify': False,
+        'upload': False,
+        'upload_url': None,
+        'upload_directory': None,
+        'upload_user': None,
+        'upload_pass': None,
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
@@ -334,6 +339,18 @@ class SoSCollector(SoSComponent):
                                  help='Specify an SSH user. Default root')
         collect_grp.add_argument('--timeout', type=int, required=False,
                                  help='Timeout for sosreport on each node.')
+        collect_grp.add_argument("--upload", action="store_true",
+                                 default=False,
+                                 help="Upload archive to a policy-default "
+                                      "location")
+        collect_grp.add_argument("--upload-url", default=None,
+                                 help="Upload the archive to specified server")
+        collect_grp.add_argument("--upload-directory", default=None,
+                                 help="Specify upload directory for archive")
+        collect_grp.add_argument("--upload-user", default=None,
+                                 help="Username to authenticate with")
+        collect_grp.add_argument("--upload-pass", default=None,
+                                 help="Password to authenticate with")
 
         # Group the cleaner options together
         cleaner_grp = parser.add_argument_group(
@@ -399,8 +416,8 @@ class SoSCollector(SoSComponent):
         to hand to other collector mechanisms
         """
         self.commons = {
+            'cmdlineopts': self.opts,
             'need_sudo': True if self.opts.ssh_user != 'root' else False,
-            'opts': self.opts,
             'tmpdir': self.tmpdir,
             'hostlen': len(self.opts.master) or len(self.hostname),
             'policy': self.policy
@@ -630,6 +647,7 @@ class SoSCollector(SoSComponent):
         return fname
 
     def prep(self):
+        self.policy.set_commons(self.commons)
         if (not self.opts.password and not
                 self.opts.password_per_node):
             self.log_debug('password not specified, assuming SSH keys')
@@ -682,6 +700,8 @@ class SoSCollector(SoSComponent):
                 self.log_error("Could not load specified group %s: %s"
                                % (self.opts.group, err))
                 self._exit(1)
+
+        self.policy.pre_work()
 
         if self.opts.master:
             self.connect_to_master()
@@ -1101,10 +1121,17 @@ this utility or remote systems that it connects to.
         self.log_info(msg % (self.retrieved, self.report_num))
         self.close_all_connections()
         if self.retrieved > 0:
-            self.create_cluster_archive()
+            arc_name = self.create_cluster_archive()
         else:
             msg = 'No sosreports were collected, nothing to archive...'
             self.exit(msg, 1)
+
+        if self.opts.upload and self.get_upload_url():
+            try:
+                self.policy.upload_archive(arc_name)
+                self.ui_log.info("Uploaded archive successfully")
+            except Exception as err:
+                self.ui_log.error("Upload attempt failed: %s" % err)
 
     def _collect(self, client):
         """Runs sosreport on each node"""
@@ -1218,6 +1245,7 @@ this utility or remote systems that it connects to.
             self.ui_log.info('\nThe following archive has been created. '
                              'Please provide it to your support team.')
             self.ui_log.info('\t%s\n' % final_name)
+            return final_name
         except Exception as err:
             msg = ("Could not finalize archive: %s\n\nData may still be "
                    "available uncompressed at %s" % (err, self.archive_path))

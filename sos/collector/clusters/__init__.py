@@ -60,7 +60,7 @@ class Cluster():
         self.master = None
         self.cluster_ssh_key = None
         self.tmpdir = commons['tmpdir']
-        self.opts = commons['opts']
+        self.opts = commons['cmdlineopts']
         self.cluster_type = [self.__class__.__name__]
         for cls in self.__class__.__bases__:
             if cls.__name__ != 'Cluster':
