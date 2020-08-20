@@ -58,9 +58,7 @@ Manual Installation
 
 .. code::
 
-    to install locally (as root) ==> make install
-    to build an rpm ==> make rpm
-    to build a deb ==> make deb
+    python3 setup.py install
 
 Pre-built Packaging
 ^^^^^^^^^^^^^^^^^^^
@@ -80,16 +78,6 @@ Ubuntu (14.04 LTS and above) users install via apt:
 API
 ===
 
-Plugin Reference
-^^^^^^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-
-   plugins
-   clusters
-   parsers
-
 Core Reference
 ^^^^^^^^^^^^^^
 
@@ -97,6 +85,8 @@ Core Reference
    :maxdepth: 4
 
    archive
+   clusters
+   parsers
    policies
    plugins
    reporting

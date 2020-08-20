@@ -1,5 +1,5 @@
-``sos.collector.clusters`` ---  Cluster Profiles
-================================================
+``sos.collector.clusters`` ---  Cluster Interface
+=================================================
 
 .. automodule:: sos.collector.clusters
     :noindex:
