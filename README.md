@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/sosreport/sos.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sosreport/sos/context:python)
+[![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=master)](https://sos.readthedocs.io/en/master/?badge=master) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/sosreport/sos.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sosreport/sos/context:python)
 
 # SoS
 
@@ -116,6 +116,6 @@ sudo apt install sosreport
  [3]: https://github.com/sosreport/sos/wiki/Plugin-options
  [4]: https://www.redhat.com/mailman/listinfo/sos-devel
  [5]: https://github.com/sosreport/sos/issues?state=open
- [6]: https://sos.readthedocs.org/en/latest/index.html
+ [6]: https://sos.readthedocs.org/
  [7]: https://www.sphinx-doc.org/
  [8]: https://www.readthedocs.org/
