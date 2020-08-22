@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
+from socket import gethostname
 import re
 
 
@@ -16,17 +17,24 @@ class CephPodman(Plugin, RedHatPlugin):
     short_desc = 'Containerized Ceph distributed storage'
     plugin_name = 'ceph_podman'
     profiles = ('storage', 'container')
-    packages = ('podman',)
+    ceph_hostname = gethostname()
+    files = (
+        '/etc/ceph/ceph.conf',
+    )
+
+    services = (
+        'ceph-nfs@pacemaker',
+        'ceph-mds@%s' % ceph_hostname,
+        'ceph-mon@%s' % ceph_hostname,
+        'ceph-mgr@%s' % ceph_hostname,
+        'ceph-radosgw@*',
+        'ceph-osd@*'
+    )
 
     def setup(self):
         self._container_mon_name = self.get_container_by_name('ceph-mon-*')
         self._container_osd_name = self.get_container_by_name('ceph-osd-*')
-
-        self.add_copy_spec([
-            "/etc/ceph/",
-            "/var/lib/ceph/",
-            "/run/ceph/"
-        ])
+        self.run_cmd = "podman exec"
 
         if self._container_mon_name:
             cmds = [
@@ -70,8 +78,10 @@ class CephPodman(Plugin, RedHatPlugin):
                 "ceph pg dump",
                 "ceph pg stat",
             ]
-            container_cmds = self.to_container_cmd(cmds,
-                                                   self._container_mon_name)
+            container_cmds = [
+                self.fmt_container_cmd(self._container_mon_name,
+                                       cmd) for cmd in cmds
+            ]
             self.add_cmd_output(container_cmds, foreground=True)
 
         if self._container_osd_name:
@@ -81,8 +91,19 @@ class CephPodman(Plugin, RedHatPlugin):
             ]
             osd_containers = self.get_all_containers_by_name('ceph-osd-*')
             for c in osd_containers:
-                container_cmds = self.to_container_cmd(cmds, c)
+                container_cmds = [
+                    self.fmt_container_cmd(c[1], cmd) for cmd in cmds
+                ]
                 self.add_cmd_output(container_cmds, foreground=True)
+
+        self.add_copy_spec([
+            "/etc/ceph/",
+            "/var/lib/ceph/",
+            "/run/ceph/"
+        ])
+
+        for service in self.services:
+            self.add_journal(units=service)
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
@@ -95,16 +116,8 @@ class CephPodman(Plugin, RedHatPlugin):
             "/etc/ceph/*bindpass*"
         ])
 
-    def to_container_cmd(self, cmds, container_name):
-        container_cmds = []
-        for cmd in cmds:
-            container_cmds.append('podman exec %s %s' % (container_name, cmd))
-        return container_cmds
+    def fmt_container_cmd(self, container, cmd):
+        return "%s %s %s" % (self.run_cmd, container, cmd)
 
     def get_all_containers_by_name(self, name):
-        all_containers = self.get_containers(get_all=True)
-        containers_by_name = []
-        for c in all_containers:
-            if re.match(name, c[1]):
-                containers_by_name.append(c[1])
-        return containers_by_name
+        return [c for c in self.get_containers() if re.match(name, c[1])]
