@@ -107,6 +107,7 @@ class Kernel(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "/proc/misc",
             "/var/log/dmesg",
             "/sys/fs/pstore",
+            "/var/log/hcnmgr",
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource"
         ])
