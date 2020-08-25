@@ -106,6 +106,7 @@ class Kernel(Plugin, IndependentPlugin):
             "/proc/misc",
             "/var/log/dmesg",
             "/sys/fs/pstore",
+            "/var/log/hcnmgr",
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource"
         ])
