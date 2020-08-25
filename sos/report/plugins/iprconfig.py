@@ -32,6 +32,7 @@ class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
             "iprconfig -c show-af-disks",
             "iprconfig -c show-all-af-disks",
             "iprconfig -c show-slots",
+            "iprconfig -c dump"
         ])
 
         show_ioas = self.collect_cmd_output("iprconfig -c show-ioas")
