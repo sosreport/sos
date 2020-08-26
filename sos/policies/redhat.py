@@ -315,7 +315,7 @@ support representative.
         if self.commons['cmdlineopts'].upload_url:
             super(RHELPolicy, self).prompt_for_upload_user()
             return
-        if self.case_id:
+        if self.case_id and not self.get_upload_user():
             self.upload_user = input(_(
                 "Enter your Red Hat Customer Portal username (empty to use "
                 "public dropbox): ")
@@ -324,8 +324,8 @@ support representative.
     def get_upload_url(self):
         if self.commons['cmdlineopts'].upload_url:
             return self.commons['cmdlineopts'].upload_url
-        if (not self.case_id or not self.upload_user or not
-                self.upload_password):
+        if (not self.case_id or not self.get_upload_user() or not
+                self.get_upload_password()):
             # Cannot use the RHCP. Use anonymous dropbox
             self.upload_user = self._upload_user
             self.upload_directory = self._upload_directory
@@ -348,7 +348,7 @@ support representative.
     def get_upload_user(self):
         # if this is anything other than dropbox, annonymous won't work
         if self.upload_url != RH_FTP_HOST:
-            return self.upload_user
+            return os.getenv('SOSUPLOADUSER', None) or self.upload_user
         return self._upload_user
 
     def dist_version(self):
