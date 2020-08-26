@@ -1419,7 +1419,7 @@ class LinuxPolicy(Policy):
         """Should be overridden by policies to determine if a user needs to
         be provided or not
         """
-        if not self.upload_user and not self._upload_user:
+        if not self.get_upload_user():
             msg = "Please provide upload user for %s: " % self.get_upload_url()
             self.upload_user = input(_(msg))
 
@@ -1427,12 +1427,9 @@ class LinuxPolicy(Policy):
         """Should be overridden by policies to determine if a password needs to
         be provided for upload or not
         """
-        if ((not self.upload_password and not self._upload_password) and
-                self.upload_user):
-            msg = (
-                "Please provide the upload password for %s: "
-                % self.upload_user
-            )
+        if not self.get_upload_password() and self.get_upload_user():
+            msg = ("Please provide the upload password for %s: "
+                   % self.get_upload_user())
             self.upload_password = getpass(msg)
 
     def upload_archive(self, archive):
@@ -1550,16 +1547,23 @@ class LinuxPolicy(Policy):
         :returns: The username to use for upload
         :rtype: ``str``
         """
-        return self.upload_user or self._upload_user
+        return (os.getenv('SOSUPLOADUSER', None) or
+                self.upload_user or
+                self._upload_user)
 
     def get_upload_password(self):
         """Helper function to determine if we should use the policy default
         upload password or one provided by the user
 
+        A user provided password, either via option or the 'SOSUPLOADPASSWORD'
+        environment variable will have precendent over any policy value
+
         :returns: The password to use for upload
         :rtype: ``str``
         """
-        return self.upload_password or self._upload_password
+        return (os.getenv('SOSUPLOADPASSWORD', None) or
+                self.upload_password or
+                self._upload_password)
 
     def upload_sftp(self):
         """Attempts to upload the archive to an SFTP location.

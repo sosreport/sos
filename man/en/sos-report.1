@@ -299,6 +299,12 @@ If a vendor does not provide a default user for uploading, specify the username 
 If this option is unused and upload is request, and a vendor default is not set, you
 will be prompted for one. If --batch is used and this option is omitted, no username will
 be collected and thus uploads will fail if no vendor default is set.
+
+You also have the option of providing this value via the SOSUPLOADUSER environment
+variable. If this variable is set, then no username prompt will occur and --batch
+may be used provided all other required values (case number, upload password)
+are provided.
+
 .TP
 .B \-\-upload-pass PASS
 Specify the password to use for authentication with the destination server.
@@ -312,6 +318,11 @@ Note that this will result in the plaintext string appearing in `ps` output that
 be collected by sos and be in the archive. If a password must be provided by you
 for uploading, it is strongly recommended to not use --batch and enter the password
 when prompted rather than using this option.
+
+You also have the option of providing this value via the SOSUPLOADPASSWORD environment
+variable. If this variable is set, then no password prompt will occur and --batch may
+be used provided all other required values (case number, upload user) are provided.
+
 .TP
 .B \--upload-directory DIR
 Specify a directory to upload to, if one is not specified by a vendor default location
