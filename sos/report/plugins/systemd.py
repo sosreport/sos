@@ -42,6 +42,7 @@ class Systemd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "systemd-analyze",
             "systemd-analyze blame",
             "systemd-analyze dump",
+            "systemd-inhibit --list",
             "journalctl --list-boots",
             "ls -lR /lib/systemd",
             "timedatectl"
