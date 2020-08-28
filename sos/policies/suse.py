@@ -98,9 +98,11 @@ No changes will be made to system configuration.
 %(vendor_text)s
 """)
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(OpenSuSEPolicy, self).__init__(sysroot=sysroot, init=init,
-                                             probe_runtime=probe_runtime)
+                                             probe_runtime=probe_runtime,
+                                             remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote):
@@ -110,4 +112,4 @@ No changes will be made to system configuration.
         if remote:
             return cls.distro in remote
 
-        return (os.path.isfile('/etc/SuSE-release'))
+        return os.path.isfile('/etc/SUSE-brand')
