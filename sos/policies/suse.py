@@ -29,7 +29,7 @@ class SuSEPolicy(LinuxPolicy):
         self.package_manager = PackageManager(
             'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"',
             remote_exec=remote_exec)
-        self.valid_subclasses = [SuSEPlugin, RedHatPlugin]
+        self.valid_subclasses += [SuSEPlugin, RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()
 

@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import CosPlugin
+from sos.report.plugins import CosPlugin, IndependentPlugin
 from sos.policies import LinuxPolicy
 
 
@@ -30,7 +30,7 @@ class CosPolicy(LinuxPolicy):
     distro = "Container-Optimized OS"
     vendor = "Google Cloud Platform"
     vendor_url = "https://cloud.google.com/container-optimized-os/"
-    valid_subclasses = [CosPlugin]
+    valid_subclasses = [CosPlugin, IndependentPlugin]
     PATH = "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
 
     @classmethod

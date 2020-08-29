@@ -61,7 +61,7 @@ class RedHatPolicy(LinuxPolicy):
                                               chroot=sysroot,
                                               remote_exec=remote_exec)
 
-        self.valid_subclasses = [RedHatPlugin]
+        self.valid_subclasses += [RedHatPlugin]
 
         self.pkgs = self.package_manager.all_pkgs()
 

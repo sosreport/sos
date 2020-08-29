@@ -819,25 +819,10 @@ any third party.
         self.case_id = None
         self.probe_runtime = probe_runtime
         self.package_manager = PackageManager()
-        self._valid_subclasses = []
+        self.valid_subclasses = [IndependentPlugin]
         self.set_exec_path()
         self._host_sysroot = sysroot
         self.register_presets(GENERIC_PRESETS)
-
-    def get_valid_subclasses(self):
-        return [IndependentPlugin] + self._valid_subclasses
-
-    def set_valid_subclasses(self, subclasses):
-        self._valid_subclasses = subclasses
-
-    def del_valid_subclasses(self):
-        del self._valid_subclasses
-
-    valid_subclasses = property(get_valid_subclasses,
-                                set_valid_subclasses,
-                                del_valid_subclasses,
-                                "list of subclasses that this policy can "
-                                "process")
 
     def check(self, remote=''):
         """
