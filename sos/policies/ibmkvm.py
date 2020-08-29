@@ -10,7 +10,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import PowerKVMPlugin, ZKVMPlugin, RedHatPlugin
+from sos.report.plugins import PowerKVMPlugin, ZKVMPlugin
 from sos.policies.redhat import RedHatPolicy
 
 import os
@@ -26,7 +26,7 @@ class PowerKVMPolicy(RedHatPolicy):
         super(PowerKVMPolicy, self).__init__(sysroot=sysroot, init=init,
                                              probe_runtime=probe_runtime,
                                              remote_exec=remote_exec)
-        self.valid_subclasses = [PowerKVMPlugin, RedHatPlugin]
+        self.valid_subclasses += [PowerKVMPlugin]
 
     @classmethod
     def check(cls, remote=''):
@@ -54,7 +54,7 @@ class ZKVMPolicy(RedHatPolicy):
 
     def __init__(self, sysroot=None):
         super(ZKVMPolicy, self).__init__(sysroot=sysroot)
-        self.valid_subclasses = [ZKVMPlugin, RedHatPlugin]
+        self.valid_subclasses += [ZKVMPlugin]
 
     @classmethod
     def check(cls, remote=''):

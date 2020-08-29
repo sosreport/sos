@@ -1,4 +1,4 @@
-from sos.report.plugins import UbuntuPlugin, DebianPlugin
+from sos.report.plugins import UbuntuPlugin
 from sos.policies.debian import DebianPolicy
 
 import os
@@ -20,7 +20,7 @@ class UbuntuPolicy(DebianPolicy):
         super(UbuntuPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime,
                                            remote_exec=remote_exec)
-        self.valid_subclasses = [UbuntuPlugin, DebianPlugin]
+        self.valid_subclasses += [UbuntuPlugin]
 
     @classmethod
     def check(cls, remote=''):

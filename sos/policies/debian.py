@@ -29,8 +29,7 @@ class DebianPolicy(LinuxPolicy):
                                               verify_filter=self._debv_filter,
                                               chroot=sysroot,
                                               remote_exec=remote_exec)
-
-        self.valid_subclasses = [DebianPlugin]
+        self.valid_subclasses += [DebianPlugin]
 
     def _get_pkg_name_for_binary(self, binary):
         # for binary not specified inside {..}, return binary itself
