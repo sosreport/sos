@@ -20,41 +20,95 @@ class OpenStackIronic(Plugin):
     profiles = ('openstack', 'openstack_undercloud')
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/ironic"
+    ins_puppet_gen = var_puppet_gen + "_inspector"
 
     def setup(self):
-        self.conf_list = [
-            "/etc/ironic/*",
-            self.var_puppet_gen + "/etc/ironic/*",
-            self.var_puppet_gen + "_api/etc/ironic/*"
-        ]
-        self.add_copy_spec([
-            "/etc/ironic/",
-            self.var_puppet_gen + "/etc/xinetd.conf",
-            self.var_puppet_gen + "/etc/xinetd.d/",
-            self.var_puppet_gen + "/etc/ironic/",
-            self.var_puppet_gen + "/etc/httpd/conf/",
-            self.var_puppet_gen + "/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "_api/etc/ironic/",
-            self.var_puppet_gen + "_api/etc/httpd/conf/",
-            self.var_puppet_gen + "_api/etc/httpd/conf.d/",
-            self.var_puppet_gen + "_api/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "_api/etc/my.cnf.d/tripleo.cnf"
-        ])
 
-        if self.get_option("all_logs"):
+        in_container = self.container_exists('.*ironic_api')
+
+        if in_container:
+            self.conf_list = [
+                self.var_puppet_gen + "/etc/ironic/*",
+                self.var_puppet_gen + "/etc/ironic-inspector/*",
+                self.var_puppet_gen + "_api/etc/ironic/*",
+                self.ins_puppet_gen + "/etc/ironic-inspector/*",
+                self.ins_puppet_gen + "/var/lib/httpboot/inspector.ipxe"
+            ]
             self.add_copy_spec([
-                "/var/log/ironic/",
+                "/var/lib/ironic-inspector/",
+                "/var/log/containers/ironic-inspector/ramdisk/",
+                self.var_puppet_gen + "/etc/xinetd.conf",
+                self.var_puppet_gen + "/etc/xinetd.d/",
+                self.var_puppet_gen + "/etc/ironic/",
+                self.var_puppet_gen + "/etc/ironic-inspector/",
+                self.var_puppet_gen + "/etc/httpd/conf/",
+                self.var_puppet_gen + "/etc/httpd/conf.d/",
+                self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
+                self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
+                self.var_puppet_gen + "_api/etc/ironic/",
+                self.var_puppet_gen + "_api/etc/httpd/conf/",
+                self.var_puppet_gen + "_api/etc/httpd/conf.d/",
+                self.var_puppet_gen + "_api/etc/httpd/conf.modules.d/*.conf",
+                self.var_puppet_gen + "_api/etc/my.cnf.d/tripleo.cnf",
+                self.ins_puppet_gen + "/etc/ironic-inspector/*",
+                self.ins_puppet_gen + "/var/lib/httpboot/inspector.ipxe"
             ])
+
+            if self.get_option("all_logs"):
+                self.add_copy_spec([
+                    "/var/log/containers/ironic/",
+                    "/var/log/containers/ironic-inspector/"
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/log/containers/ironic/*.log",
+                    "/var/log/containers/ironic-inspector/*.log",
+                ])
+
+            for path in ['/var/lib/ironic', '/httpboot', '/tftpboot',
+                         self.ins_puppet_gen + '/var/lib/httpboot/',
+                         self.ins_puppet_gen + '/var/lib/tftpboot/']:
+                self.add_cmd_output('ls -laRt %s' % path)
+                self.add_cmd_output('ls -laRt %s' %
+                                    (self.var_puppet_gen + path))
+
+            # Let's get the packages from the containers, always helpful when
+            # troubleshooting.
+            for container_name in ['ironic_inspector_dnsmasq',
+                                   'ironic_inspector', 'ironic_pxe_http',
+                                   'ironic_pxe_tftp', 'ironic_neutron_agent',
+                                   'ironic_conductor', 'ironic_api']:
+                if self.container_exists('.*' + container_name):
+                    self.add_cmd_output(self.fmt_container_cmd(container_name,
+                                                               'rpm -qa'))
+
         else:
+            self.conf_list = [
+                "/etc/ironic/*",
+                "/etc/ironic-inspector/*",
+            ]
             self.add_copy_spec([
-                "/var/log/ironic/*.log",
+                "/etc/ironic/",
+                "/etc/ironic-inspector/",
+                "/var/lib/ironic-inspector/",
+                "/var/log/ironic-inspector/ramdisk/",
+                "/etc/my.cnf.d/tripleo.cnf",
+                "/var/lib/httpboot/inspector.ipxe"
             ])
 
-        for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
-            self.add_cmd_output('ls -laRt %s' % path)
-            self.add_cmd_output('ls -laRt %s' % (self.var_puppet_gen + path))
+            if self.get_option("all_logs"):
+                self.add_copy_spec([
+                    "/var/log/ironic/",
+                    "/var/log/ironic-inspector/",
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/log/ironic/*.log",
+                    "/var/log/ironic-inspector/*.log",
+                ])
+
+            for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
+                self.add_cmd_output('ls -laRt %s' % path)
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
@@ -136,6 +190,7 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
     def setup(self):
         super(RedHatIronic, self).setup()
 
+        # ironic-discoverd was renamed to ironic-inspector in Liberty
         # is the optional ironic-discoverd service installed?
         if any([self.is_installed(p) for p in self.discoverd_packages]):
             self.conf_list.append('/etc/ironic-discoverd/*')
@@ -145,18 +200,6 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
 
             self.add_journal(units="openstack-ironic-discoverd")
             self.add_journal(units="openstack-ironic-discoverd-dnsmasq")
-
-        # ironic-discoverd was renamed to ironic-inspector in Liberty
-        self.conf_list.append('/etc/ironic-inspector/*')
-        self.conf_list.append(self.var_puppet_gen + '/etc/ironic-inspector/*')
-        self.add_copy_spec('/etc/ironic-inspector/')
-        self.add_copy_spec(self.var_puppet_gen + '/etc/ironic-inspector/')
-        self.add_copy_spec('/var/lib/ironic-inspector/')
-        if self.get_option("all_logs"):
-            self.add_copy_spec('/var/log/ironic-inspector/')
-        else:
-            self.add_copy_spec('/var/log/ironic-inspector/*.log')
-            self.add_copy_spec('/var/log/ironic-inspector/ramdisk/')
 
         self.add_journal(units="openstack-ironic-inspector-dnsmasq")
 
