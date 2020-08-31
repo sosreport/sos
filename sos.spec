@@ -12,8 +12,8 @@ BuildArch: noarch
 Url: https://github.com/sosreport/sos/
 BuildRequires: python3-devel
 BuildRequires: gettext
-Requires: libxml2-python
-Requires: rpm-python
+Requires: python3-libxml2
+Requires: python3-rpm
 Requires: tar
 Requires: xz
 Requires: python3-pexpect
@@ -41,7 +41,7 @@ install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/groups.d
 install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/extras.d
 install -m 644 %{name}.conf ${RPM_BUILD_ROOT}/etc/sos/%{name}.conf
 
-rm ${RPM_BUILD_ROOT}/sos.conf
+rm -rf ${RPM_BUILD_ROOT}/usr/config/
 
 %find_lang %{name} || echo 0
 
