@@ -93,7 +93,8 @@ setup(
                             'man/en/sos-mask.1']),
         ('share/man/man5', ['man/en/sos.conf.5']),
         ('share/licenses/sos', ['LICENSE']),
-        ('share/doc/sos', ['AUTHORS', 'README.md'])
+        ('share/doc/sos', ['AUTHORS', 'README.md']),
+        ('config', ['sos.conf'])
     ],
     packages=[
         'sos', 'sos.policies', 'sos.report', 'sos.report.plugins',
