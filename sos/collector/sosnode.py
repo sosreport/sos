@@ -62,6 +62,7 @@ class SosNode():
             'presets': [],
             'sos_cmd': commons['sos_cmd']
         }
+        self.sos_bin = 'sosreport'
         filt = ['localhost', '127.0.0.1']
         self.soslog = logging.getLogger('sos')
         self.ui_log = logging.getLogger('sos_ui')
@@ -390,9 +391,6 @@ class SosNode():
                 self.log_debug("Error while trying to create new SSH control "
                                "socket: %s" % err)
                 raise
-        if cmd.startswith('sosreport'):
-            cmd = cmd.replace('sosreport', self.host.sos_bin_path)
-            need_root = True
         if use_container and self.host.containerized:
             cmd = self.host.format_container_command(cmd)
         if need_root:
@@ -648,6 +646,15 @@ class SosNode():
 
             if self.opts.since:
                 sos_opts.append('--since=%s' % quote(self.opts.since))
+
+        # sos-4.0 changes the binary
+        if self.check_sos_version('4.0'):
+            self.sos_bin = 'sos report'
+
+        sos_cmd = sos_cmd.replace(
+            'sosreport',
+            os.path.join(self.host.sos_bin_path, self.sos_bin)
+        )
 
         if self.opts.only_plugins:
             plugs = [o for o in self.opts.only_plugins

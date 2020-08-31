@@ -1289,7 +1289,7 @@ class LinuxPolicy(Policy):
     container_image = None
     sos_path_strip = None
     sos_pkg_name = None
-    sos_bin_path = None
+    sos_bin_path = '/usr/bin'
     sos_container_name = 'sos-collector-tmp'
     container_version_command = None
 

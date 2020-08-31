@@ -39,7 +39,7 @@ class RedHatPolicy(LinuxPolicy):
     upload_directory = '/incoming'
     default_container_runtime = 'podman'
     sos_pkg_name = 'sos'
-    sos_bin_path = '/usr/sbin/sosreport'
+    sos_bin_path = '/usr/sbin'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
