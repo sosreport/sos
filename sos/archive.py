@@ -341,13 +341,11 @@ class FileCacheArchive(Archive):
                 try:
                     shutil.copy(src, dest)
                 except OSError as e:
-                    self.log_info("File not collected: '%s'" % e)
-                except IOError as e:
                     # Filter out IO errors on virtual file systems.
                     if src.startswith("/sys/") or src.startswith("/proc/"):
                         pass
                     else:
-                        self.log_info("caught '%s' copying '%s'" % (e, src))
+                        self.log_info("File %s not collected: '%s'" % (src, e))
 
                 # copy file attributes, skip SELinux xattrs for /sys and /proc
                 try:
@@ -638,7 +636,9 @@ class TarFileArchive(FileCacheArchive):
         super(TarFileArchive, self).__init__(name, tmpdir, policy, threads,
                                              enc_opts, sysroot, manifest)
         self._suffix = "tar"
-        self._archive_name = os.path.join(tmpdir, self.name())
+        self._archive_name = os.path.join(
+            tmpdir, self.name()  # lgtm [py/init-calls-subclass]
+        )
 
     def set_tarinfo_from_stat(self, tar_info, fstat, mode=None):
         tar_info.mtime = fstat.st_mtime
