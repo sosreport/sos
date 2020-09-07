@@ -21,7 +21,9 @@ class Auditd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/audit/auditd.conf",
-            "/etc/audit/audit.rules"
+            "/etc/audit/audit.rules",
+            "/etc/audit/plugins.d/",
+            "/etc/audisp/",
         ])
         self.add_cmd_output([
             "ausearch --input-logs -m avc,user_avc -ts today",
