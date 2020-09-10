@@ -1,0 +1,61 @@
+name: sos
+summary: Sos is an extensible, portable, support data collection tool
+description: |
+  Sos is an extensible, portable, support data collection tool
+  primarily aimed at Linux distributions and other UNIX-like operating
+  systems.
+grade: stable
+base: core20
+confinement: strict
+adopt-info: sos
+
+plugs:
+  etc-sos-config:
+    interface: system-files
+    read:
+    - /etc/sos/sos.conf
+
+parts:
+  sos:
+    plugin: python
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version $(git describe --tags --always)
+    build-packages:
+      - git
+      - python3
+    requirements:
+      - requirements.txt
+  conf:
+    after:
+      - sos
+    plugin: dump
+    source: .
+    organize:
+      sos.conf: /etc/sos/sos.conf
+      tmpfilesd-sos.conf: /etc/tmpfiles.d/sos.conf
+    filesets:
+      conf-files:
+        - etc/sos/sos.conf
+        - etc/tmpfiles.d/sos.conf
+    stage:
+      - $conf-files
+
+apps:
+  sos:
+    command: bin/sos
+    plugs:
+      - etc-sos-config
+  sosreport:
+    command: bin/sosreport
+    plugs:
+      - etc-sos-config
+  sos-collector:
+    command: bin/sos-collector
+    plugs:
+      - etc-sos-config
+  soscleaner:
+    command: bin/sos clean
+    plugs:
+      - etc-sos-config
