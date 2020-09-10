@@ -181,7 +181,7 @@ class ContainerRuntime(object):
                     vols.append(ent[-1])
         return vols
 
-    def fmt_container_cmd(self, container, cmd):
+    def fmt_container_cmd(self, container, cmd, quotecmd):
         """Format a command to run inside a container using the runtime
 
         :param container: The name or ID of the container in which to run
@@ -190,10 +190,17 @@ class ContainerRuntime(object):
         :param cmd: The command to run inside `container`
         :type cmd: ``str``
 
+        :param quotecmd: Whether the cmd should be quoted.
+        :type quotecmd: ``bool``
+
         :returns: Formatted string to run `cmd` inside `container`
         :rtype: ``str``
         """
-        return "%s %s %s" % (self.run_cmd, container, quote(cmd))
+        if quotecmd:
+            quoted_cmd = quote(cmd)
+        else:
+            quoted_cmd = cmd
+        return "%s %s %s" % (self.run_cmd, container, quoted_cmd)
 
     def get_logs_command(self, container):
         """Get the command string used to dump container logs from the

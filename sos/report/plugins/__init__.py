@@ -2005,7 +2005,7 @@ class Plugin(object):
 
     def exec_cmd(self, cmd, timeout=cmd_timeout, stderr=True, chroot=True,
                  runat=None, env=None, binary=False, pred=None,
-                 foreground=False, container=False):
+                 foreground=False, container=False, quotecmd=False):
         """Execute a command right now and return the output and status, but
         do not save the output within the archive.
 
@@ -2044,6 +2044,9 @@ class Plugin(object):
                                     this name
         :type container: ``str``
 
+        :param quotecmd:            Whether the cmd should be quoted.
+        :type quotecmd: ``bool``
+
         :returns:                   Command exit status and output
         :rtype: ``dict``
         """
@@ -2062,7 +2065,7 @@ class Plugin(object):
                                "runtime detected on host." % (cmd, container))
                 return _default
             if self.container_exists(container):
-                cmd = self.fmt_container_cmd(container, cmd)
+                cmd = self.fmt_container_cmd(container, cmd, quotecmd)
             else:
                 self._log_info("Cannot run cmd '%s' in container %s: no such "
                                "container is running." % (cmd, container))
@@ -2192,7 +2195,7 @@ class Plugin(object):
         if _runtime is not None:
             self.add_cmd_output(_runtime.get_logs_command(container), **kwargs)
 
-    def fmt_container_cmd(self, container, cmd):
+    def fmt_container_cmd(self, container, cmd, quotecmd=False):
         """Format a command to be executed by the loaded ``ContainerRuntime``
         in a specified container
 
@@ -2202,13 +2205,16 @@ class Plugin(object):
         :param cmd:         The command to run within the container
         :type cmd: ``str``
 
+        :param quotecmd:    Whether the cmd should be quoted.
+        :type quotecmd: ``bool``
+
         :returns: The command to execute so that the specified `cmd` will run
                   within the `container` and not on the host
         :rtype: ``str``
         """
         if self.container_exists(container):
             _runtime = self._get_container_runtime()
-            return _runtime.fmt_container_cmd(container, cmd)
+            return _runtime.fmt_container_cmd(container, cmd, quotecmd)
         return cmd
 
     def is_module_loaded(self, module_name):
