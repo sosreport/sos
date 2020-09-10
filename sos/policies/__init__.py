@@ -217,7 +217,8 @@ class DockerContainerRuntime(ContainerRuntime):
     def check_is_active(self):
         # the daemon must be running
         if (is_executable('docker') and
-                self.policy.init_system.is_running('docker')):
+                (self.policy.init_system.is_running('docker') or
+                 self.policy.init_system.is_running('snap.docker.dockerd'))):
             self.active = True
             return True
         return False
@@ -740,7 +741,7 @@ NO_PRESET_NOTE = 'Use to disable automatically loaded presets'
 GENERIC_PRESETS = {
     NO_PRESET: PresetDefaults(name=NO_PRESET, desc=NO_PRESET_DESC,
                               note=NO_PRESET_NOTE, opts=SoSOptions())
-    }
+}
 
 
 class Policy(object):
@@ -1096,7 +1097,7 @@ any third party.
             self._print(" " + self.get_preferred_hash_name() + "\t" + checksum)
             self._print()
             self._print(_("Please send this file to your support "
-                        "representative."))
+                          "representative."))
         self._print()
 
     def _print(self, msg=None, always=False):
