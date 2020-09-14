@@ -805,6 +805,13 @@ class SoSCollector(SoSComponent):
             self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
 
         self.ui_log.info('')
+        if not self.opts.batch:
+            try:
+                input("\nPress ENTER to continue with these nodes, or press "
+                      "CTRL-C to quit\n")
+                self.ui_log.info("")
+            except KeyboardInterrupt:
+                self.exit("Exiting on user cancel", 130)
 
     def configure_sos_cmd(self):
         """Configures the sosreport command that is run on the nodes"""
