@@ -85,6 +85,7 @@ class OVNCentral(Plugin):
             'ovn-nbctl get-connection',
             'ovn-sbctl get-ssl',
             'ovn-sbctl get-connection',
+            'ovn-nbctl list loadbalancer',
         ]
 
         schema_dir = '/usr/share/openvswitch'
