@@ -483,7 +483,7 @@ third party.
 
             file_list = archive.get_file_list()
             for fname in file_list:
-                short_name = fname.split(archive.archive_name)[1].lstrip('/')
+                short_name = fname.split(archive.archive_name + '/')[1]
                 if archive.should_skip_file(short_name):
                     continue
                 try:
