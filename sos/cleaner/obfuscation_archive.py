@@ -73,7 +73,9 @@ class SoSObfuscationArchive():
             'sys/kernel/debug',
             'sys/module',
             'var/log/.*dnf.*',
-            '.*.tar.*',  # TODO: support archive unpacking
+            '.*\.tar$',  # TODO: support archive unpacking
+            # Be explicit with these tar matches to avoid matching commands
+            '.*\.tar\.xz',
             '.*.gz'
         ]
 
