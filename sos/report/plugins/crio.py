@@ -31,6 +31,7 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
             "/etc/crictl.yaml",
             "/etc/crio/crio.conf",
             "/etc/crio/seccomp.json",
+            "/etc/crio/crio.conf.d/",
             "/etc/systemd/system/cri-o.service",
             "/etc/sysconfig/crio-*"
         ])
