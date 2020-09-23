@@ -10,11 +10,11 @@
 from sos.report.plugins import Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin
 
 
-class Snappy(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):
+class Snap(Plugin, UbuntuPlugin, DebianPlugin, RedHatPlugin):
 
     short_desc = 'Snap packages'
 
-    plugin_name = 'snappy'
+    plugin_name = 'snap'
     profiles = ('system', 'sysmgmt', 'packagemanager')
     packages = ('snapd',)
 
