@@ -1420,7 +1420,8 @@ class LinuxPolicy(Policy):
         """Should be overridden by policies to determine if a password needs to
         be provided for upload or not
         """
-        if not self.get_upload_password() and self.get_upload_user():
+        if not self.get_upload_password() and (self.get_upload_user() !=
+                                               self._upload_user):
             msg = ("Please provide the upload password for %s: "
                    % self.get_upload_user())
             self.upload_password = getpass(msg)
@@ -1472,7 +1473,8 @@ class LinuxPolicy(Policy):
             Print a more human-friendly string than vendor URLs
         """
         self.upload_archive = archive
-        self.upload_url = self.get_upload_url()
+        if not self.upload_url:
+            self.upload_url = self.get_upload_url()
         if not self.upload_url:
             raise Exception("No upload destination provided by policy or by "
                             "--upload-url")
