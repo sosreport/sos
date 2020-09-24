@@ -1677,7 +1677,7 @@ class LinuxPolicy(Policy):
             password = self.get_upload_password()
 
         if not directory:
-            directory = self._upload_directory
+            directory = self.upload_directory or self._upload_directory
 
         try:
             session = ftplib.FTP(url, user, password)
