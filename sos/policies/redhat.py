@@ -320,12 +320,16 @@ support representative.
                 "Enter your Red Hat Customer Portal username (empty to use "
                 "public dropbox): ")
             )
+            if not self.upload_user:
+                self.upload_url = RH_FTP_HOST
+                self.upload_user = self._upload_user
 
     def get_upload_url(self):
+        if self.upload_url:
+            return self.upload_url
         if self.commons['cmdlineopts'].upload_url:
             return self.commons['cmdlineopts'].upload_url
-        if (not self.case_id or not self.get_upload_user() or not
-                self.get_upload_password()):
+        if not self.case_id:
             # Cannot use the RHCP. Use anonymous dropbox
             self.upload_user = self._upload_user
             self.upload_directory = self._upload_directory
