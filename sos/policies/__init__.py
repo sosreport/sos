@@ -1680,15 +1680,20 @@ class LinuxPolicy(Policy):
             directory = self.upload_directory or self._upload_directory
 
         try:
-            session = ftplib.FTP(url, user, password)
+            session = ftplib.FTP(url, user, password, timeout=15)
+            if not session:
+                raise Exception("connection failed, did you set a user and "
+                                "password?")
             session.cwd(directory)
+        except socket.timeout:
+            raise Exception("timeout hit while connecting to %s" % url)
         except socket.gaierror:
             raise Exception("unable to connect to %s" % url)
         except ftplib.error_perm as err:
             errno = str(err).split()[0]
-            if errno == 503:
+            if errno == '503':
                 raise Exception("could not login as '%s'" % user)
-            if errno == 550:
+            if errno == '550':
                 raise Exception("could not set upload directory to %s"
                                 % directory)
 
