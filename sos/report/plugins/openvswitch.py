@@ -13,6 +13,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from os.path import join as path_join
 from os import environ
 
+import re
+
 
 class OpenVSwitch(Plugin):
 
@@ -166,7 +168,7 @@ class OpenVSwitch(Plugin):
             port_list = self.collect_cmd_output("fp-cli fp-vswitch-ports")
             if port_list['status'] == 0:
                 for port in port_list['output'].splitlines():
-                    m = re.match('^([\d]+):[\s]+([^\s]+)', port)
+                    m = re.match(r'^([\d]+):[\s]+([^\s]+)', port)
                     if m:
                         port_name = m.group(2)
                         self.add_cmd_output([
