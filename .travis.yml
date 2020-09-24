@@ -6,6 +6,7 @@ jobs:
       language: shell
       install: sudo apt-get update; sudo apt install flake8 python3-pexpect;
       script:
+        - "python3 --version" # Added for testing
         - "flake8 sos tests bin/*"
         - "sudo ./tests/simple.sh"
     - name: "18.04 pycodestyle and native run (py3.6)"
