@@ -332,7 +332,8 @@ support representative.
         if not self.case_id:
             # Cannot use the RHCP. Use anonymous dropbox
             self.upload_user = self._upload_user
-            self.upload_directory = self._upload_directory
+            if self.upload_directory is None:
+                self.upload_directory = self._upload_directory
             self.upload_password = None
             return RH_FTP_HOST
         else:
