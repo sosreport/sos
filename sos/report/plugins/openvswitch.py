@@ -219,6 +219,7 @@ class OpenVSwitch(Plugin):
                 ovs_list_bridge_cmd = "ovs-vsctl -t 5 list bridge %s" % br
                 br_info = self.collect_cmd_output(ovs_list_bridge_cmd)
 
+                br_protos = []
                 for line in br_info['output'].splitlines():
                     if "protocols" in line:
                         br_protos_ln = line[line.find("[")+1:line.find("]")]
