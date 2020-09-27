@@ -11,16 +11,17 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, SuSEPlugin)
 
 
-class Conntrackd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
+class Conntrack(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
 
-    short_desc = 'conntrackd - netfilter connection tracking user-space daemon'
+    short_desc = 'conntrack - netfilter connection tracking'
 
-    plugin_name = 'conntrackd'
+    plugin_name = 'conntrack'
     profiles = ('network', 'cluster')
 
-    packages = ('conntrack-tools', 'conntrackd')
+    packages = ('conntrack-tools', 'conntrack', 'conntrackd')
 
     def setup(self):
+        # Collect info from conntrackd
         self.add_copy_spec("/etc/conntrackd/conntrackd.conf")
         self.add_cmd_output([
             "conntrackd -s network",
@@ -31,6 +32,12 @@ class Conntrackd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
             "conntrackd -s queue",
             "conntrackd -s ct",
             "conntrackd -s expect",
+        ])
+
+        # Collect info from conntrack
+        self.add_cmd_output([
+            "conntrack -L -o extended",
+            "conntrack -S",
         ])
 
 # vim: set et ts=4 sw=4 :
