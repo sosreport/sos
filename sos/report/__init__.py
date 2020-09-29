@@ -107,6 +107,7 @@ class SoSReport(SoSComponent):
         'since': None,
         'verify': False,
         'allow_system_changes': False,
+        'usernames': [],
         'upload': False,
         'upload_url': None,
         'upload_directory': None,
@@ -305,6 +306,9 @@ class SoSReport(SoSComponent):
                                  default='/etc/sos/cleaner/default_mapping',
                                  help=('Provide a previously generated mapping'
                                        ' file for obfuscation'))
+        cleaner_grp.add_argument('--usernames', dest='usernames', default=[],
+                                 action='extend',
+                                 help='List of usernames to obfuscate')
 
     def print_header(self):
         print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))

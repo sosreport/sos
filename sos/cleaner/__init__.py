@@ -26,6 +26,7 @@ from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
+from sos.cleaner.parsers.username_parser import SoSUsernameParser
 from sos.cleaner.obfuscation_archive import SoSObfuscationArchive
 from sos.utilities import get_human_readable
 from textwrap import fill
@@ -45,7 +46,8 @@ class SoSCleaner(SoSComponent):
         'keywords': [],
         'map_file': '/etc/sos/cleaner/default_mapping',
         'no_update': False,
-        'target': ''
+        'target': '',
+        'usernames': []
     }
 
     def __init__(self, parser=None, args=None, cmdline=None, in_place=False,
@@ -83,7 +85,8 @@ class SoSCleaner(SoSComponent):
             SoSHostnameParser(self.opts.map_file, self.opts.domains),
             SoSIPParser(self.opts.map_file),
             SoSMacParser(self.opts.map_file),
-            SoSKeywordParser(self.opts.map_file, self.opts.keywords)
+            SoSKeywordParser(self.opts.map_file, self.opts.keywords),
+            SoSUsernameParser(self.opts.map_file, self.opts.usernames)
         ]
 
         self.log_info("Cleaner initialized. From cmdline: %s"
@@ -175,6 +178,9 @@ third party.
                                action='store_true',
                                help='Do not update the --map file with new '
                                     'mappings from this run')
+        clean_grp.add_argument('--usernames', dest='usernames', default=[],
+                               action='extend',
+                               help='List of usernames to obfuscate')
 
     def set_target_path(self, path):
         """For use by report and collect to set the TARGET option appropriately
@@ -551,6 +557,8 @@ third party.
                 with open(prep_file, 'r') as host_file:
                     hostname = host_file.readline().strip()
                     parser.load_hostname_into_map(hostname)
+            if isinstance(parser, SoSUsernameParser):
+                parser.load_usernames_into_map(prep_file)
             self.obfuscate_file(prep_file, parser.prep_map_file,
                                 archive.archive_name)
 
