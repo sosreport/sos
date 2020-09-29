@@ -91,6 +91,7 @@ class SoSCollector(SoSComponent):
         'ssh_user': 'root',
         'timeout': 600,
         'verify': False,
+        'usernames': [],
         'upload': False,
         'upload_url': None,
         'upload_directory': None,
@@ -373,6 +374,9 @@ class SoSCollector(SoSComponent):
                                  default='/etc/sos/cleaner/default_mapping',
                                  help=('Provide a previously generated mapping'
                                        ' file for obfuscation'))
+        cleaner_grp.add_argument('--usernames', dest='usernames', default=[],
+                                 action='extend',
+                                 help='List of usernames to obfuscate')
 
     def _check_for_control_persist(self):
         """Checks to see if the local system supported SSH ControlPersist.
