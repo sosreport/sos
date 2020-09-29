@@ -269,6 +269,7 @@ class Networking(Plugin):
                     ns_cmd_prefix + "ip address show",
                     ns_cmd_prefix + "ip route show table all",
                     ns_cmd_prefix + "iptables-save",
+                    ns_cmd_prefix + "ip6tables-save",
                     ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
                     ns_cmd_prefix + "netstat -s",
                     ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
