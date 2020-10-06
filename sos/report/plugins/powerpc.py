@@ -10,10 +10,10 @@
 # specific logs for Pseries, PowerNV platforms.
 
 import os
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class PowerPC(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class PowerPC(Plugin, IndependentPlugin):
 
     short_desc = 'IBM Power systems'
 

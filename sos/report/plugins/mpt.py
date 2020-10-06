@@ -8,10 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Mpt(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Mpt(Plugin, IndependentPlugin):
 
     short_desc = 'LSI Message Passing Technology'
     files = ('/proc/mpt',)

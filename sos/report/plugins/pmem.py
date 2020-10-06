@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class pmem(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class pmem(Plugin, IndependentPlugin):
     """This plugin collects data from Persistent Memory devices,
     commonly referred to as NVDIMM's or Storage Class Memory (SCM)
     """

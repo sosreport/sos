@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Nginx(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Nginx(Plugin, IndependentPlugin):
 
     short_desc = 'nginx http daemon'
     plugin_name = "nginx"

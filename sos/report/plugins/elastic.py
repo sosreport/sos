@@ -8,11 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 import re
 
 
-class Elastic(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Elastic(Plugin, IndependentPlugin):
 
     short_desc = 'ElasticSearch service'
     plugin_name = 'elastic'

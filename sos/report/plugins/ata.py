@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 import os
 
 
-class Ata(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Ata(Plugin, IndependentPlugin):
 
     short_desc = 'ATA and IDE information'
 

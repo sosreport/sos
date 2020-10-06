@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Cups(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Cups(Plugin, IndependentPlugin):
 
     short_desc = 'CUPS IPP print service'
 

@@ -9,10 +9,10 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Infiniband(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Infiniband(Plugin, IndependentPlugin):
 
     short_desc = 'Infiniband information'
 

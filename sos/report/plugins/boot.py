@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 from glob import glob
 
 
-class Boot(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Boot(Plugin, IndependentPlugin):
 
     short_desc = 'Bootloader information'
 
