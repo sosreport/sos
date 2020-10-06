@@ -10,11 +10,10 @@
 import os
 import json
 
-from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, SuSEPlugin)
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
+class Npm(Plugin, IndependentPlugin):
 
     short_desc = 'Information from available npm modules'
     plugin_name = 'npm'

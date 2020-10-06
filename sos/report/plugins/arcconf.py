@@ -10,10 +10,10 @@
 # This sosreport plugin is meant for sas adapters.
 # This plugin logs inforamtion on each adapter it finds.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class arcconf(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class arcconf(Plugin, IndependentPlugin):
 
     short_desc = 'arcconf Integrated RAID adapter information'
 

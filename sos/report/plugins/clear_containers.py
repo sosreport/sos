@@ -8,12 +8,10 @@
 
 import re
 
-from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, SuSEPlugin)
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class ClearContainers(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin,
-                      SuSEPlugin):
+class ClearContainers(Plugin, IndependentPlugin):
 
     short_desc = 'Intel(R) Clear Containers configuration'
 

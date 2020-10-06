@@ -6,11 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, SoSPredicate)
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
-class Grub2(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Grub2(Plugin, IndependentPlugin):
 
     short_desc = 'GRUB2 bootloader'
 

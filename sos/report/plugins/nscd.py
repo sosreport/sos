@@ -8,10 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Nscd(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class Nscd(Plugin, IndependentPlugin):
 
     short_desc = 'Name service caching daemon'
     plugin_name = 'nscd'

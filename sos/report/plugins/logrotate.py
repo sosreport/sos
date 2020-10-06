@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class LogRotate(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class LogRotate(Plugin, IndependentPlugin):
 
     short_desc = 'LogRotate service'
 

@@ -7,10 +7,10 @@
 # See the LICENSE file in the source distribution for further information.
 
 from glob import glob
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Scsi(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Scsi(Plugin, IndependentPlugin):
 
     short_desc = 'SCSI devices'
 

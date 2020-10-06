@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class omsa(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
+class omsa(Plugin, IndependentPlugin):
 
     short_desc = 'Dell OpenManage Server Administrator (OMSA)'
 

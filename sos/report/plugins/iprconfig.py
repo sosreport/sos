@@ -9,10 +9,10 @@
 # This plugin enables collection of logs for Power systems
 
 import re
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class IprConfig(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class IprConfig(Plugin, IndependentPlugin):
 
     short_desc = 'IBM Power RAID storage adapter configuration information'
 

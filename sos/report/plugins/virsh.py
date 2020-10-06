@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class LibvirtClient(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class LibvirtClient(Plugin, IndependentPlugin):
 
     short_desc = 'client for libvirt virtualization API'
 

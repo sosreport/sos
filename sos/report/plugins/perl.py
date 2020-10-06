@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Perl(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
+class Perl(Plugin, IndependentPlugin):
 
     short_desc = 'Perl runtime'
 
