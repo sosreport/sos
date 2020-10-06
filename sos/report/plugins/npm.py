@@ -8,7 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import os
-import json
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, SuSEPlugin)
@@ -36,45 +35,6 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
             runat=working_directory
         )
 
-    def _find_modules_in_npm_cache(self):
-        """
-        Example 'npm cache ls' output
-            ~/.npm
-            ~/.npm/acorn
-            ~/.npm/acorn/1.2.2
-            ~/.npm/acorn/1.2.2/package.tgz
-            ~/.npm/acorn/1.2.2/package
-            ~/.npm/acorn/1.2.2/package/package.json
-            ~/.npm/acorn/4.0.3
-            ~/.npm/acorn/4.0.3/package.tgz
-            ~/.npm/acorn/4.0.3/package
-            ~/.npm/acorn/4.0.3/package/package.json
-            ~/.npm/registry.npmjs.org
-            ~/.npm/registry.npmjs.org/acorn
-            ~/.npm/registry.npmjs.org/acorn/.cache.json
-
-        https://docs.npmjs.com/cli/cache
-        """
-        output = {}
-        # with chroot=True (default) the command fails when run as non-root
-        user_cache = self.collect_cmd_output("npm cache ls", chroot=False)
-        if user_cache['status'] == 0:
-            # filter out dirs with .cache.json ('registry.npmjs.org')
-            for package in [line for line in user_cache['output'].splitlines()
-                            if line.endswith('package.tgz')]:
-                five_tuple = package.split(os.path.sep)
-                if len(five_tuple) != 5:  # sanity check
-                    continue
-                home, cache, name, version, package_tgz = five_tuple
-                if name not in output:
-                    output[name] = [version]
-                else:
-                    output[name].append(version)
-        self._log_debug("modules in cache: %s" % output)
-
-        outfn = self._make_command_filename("npm_cache_modules")
-        self.add_string_as_file(json.dumps(output), outfn)
-
     def setup(self):
         if self.get_option("project_path"):
             project_path = os.path.abspath(os.path.expanduser(
@@ -87,7 +47,6 @@ class Npm(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin, SuSEPlugin):
 
         self._get_npm_output("npm ls -g --json", "npm_ls_global")
         self._get_npm_output("npm config list -l", "npm_config_list_global")
-        self._find_modules_in_npm_cache()
 
 
 class NpmViaNodeJS(Npm):
