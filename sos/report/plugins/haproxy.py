@@ -38,6 +38,9 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
 
         self.add_copy_spec("/var/log/haproxy.log")
 
+        self.add_service_status('haproxy')
+        self.add_journal(units='haproxy')
+
         # collect haproxy overview - curl to IP address taken from haproxy.cfg
         # as 2nd word on line below "haproxy.stats"
         # so parse haproxy.cfg until "haproxy.stats" read, and take 2nd word
