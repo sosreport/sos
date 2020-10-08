@@ -121,6 +121,8 @@ class Ovirt(Plugin, RedHatPlugin):
             "/etc/ovirt-engine-metrics",
             "/etc/ovirt-engine-setup",
             "/etc/ovirt-vmconsole",
+            "/etc/ovirt-imageio",
+            "/etc/ovirt-imageio-proxy",
             "/var/log/ovirt-engine",
             "/var/log/ovirt-engine-dwh",
             "/var/log/ovirt-engine-reports",
