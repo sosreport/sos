@@ -312,15 +312,28 @@ support representative.
                 "Enter your Red Hat Customer Portal username (empty to use "
                 "public dropbox): ")
             )
+            if not self.upload_user:
+                self.upload_url = RH_FTP_HOST
+                self.upload_user = self._upload_user
+
+    def _upload_user_set(self):
+        user = self.get_upload_user()
+        return user and (user != 'anonymous')
 
     def get_upload_url(self):
+        if self.upload_url:
+            return self.upload_url
         if self.commons['cmdlineopts'].upload_url:
             return self.commons['cmdlineopts'].upload_url
-        if (not self.case_id or not self.upload_user or not
-                self.upload_password):
-            # Cannot use the RHCP. Use anonymous dropbox
+        # anonymous FTP server should be used as fallback when either:
+        # - case id is not set, or
+        # - upload user isn't set AND batch mode prevents to prompt for it
+        if (not self.case_id) or \
+           ((not self._upload_user_set()) and
+               self.commons['cmdlineopts'].batch):
             self.upload_user = self._upload_user
-            self.upload_directory = self._upload_directory
+            if self.upload_directory is None:
+                self.upload_directory = self._upload_directory
             self.upload_password = None
             return RH_FTP_HOST
         else:
