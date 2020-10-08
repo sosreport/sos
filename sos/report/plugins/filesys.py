@@ -43,6 +43,8 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "lslocks"
         ])
 
+        self.add_forbidden_path('/proc/fs/panfs')
+
         if self.get_option('lsof'):
             self.add_cmd_output("lsof -b +M -n -l -P", root_symlink="lsof")
 
