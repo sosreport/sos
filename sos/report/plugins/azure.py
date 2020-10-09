@@ -27,7 +27,8 @@ class Azure(Plugin, UbuntuPlugin):
             "/etc/default/kv-kvp-daemon-init",
             "/etc/waagent.conf",
             "/sys/module/hv_netvsc/parameters/ring_size",
-            "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size"
+            "/sys/module/hv_storvsc/parameters/storvsc_ringbuffer_size",
+            "/var/lib/AzureEnhancedMonitor"
         ])
 
         # Adds all files under /var/log/azure to the sosreport
