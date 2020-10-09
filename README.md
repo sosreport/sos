@@ -74,12 +74,17 @@ pull requests.
 
 You can simply run from the git checkout now:
 ```
-$ sudo ./bin/sos report -a
+$ sudo ./bin/sos report 
 ```
 The command `sosreport` is still available, as a legacy redirector,
 and can be used like this:
 ```
-$ sudo ./bin/sosreport -a
+$ sudo ./bin/sosreport 
+```
+
+If you want to run it with all the options enabled (this can take a long time)
+```
+$ sudo ./bin/sos report -a
 ```
 
 
