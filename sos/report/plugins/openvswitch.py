@@ -87,7 +87,7 @@ class OpenVSwitch(Plugin):
             "ls -laZ /var/lib/vhost_sockets",
             # List devices and their drivers
             "dpdk_nic_bind --status",
-            "dpdk_devbind.py --status",
+            "dpdk-devbind.py --status",
             "driverctl list-devices",
             "driverctl list-overrides",
             # Capture a list of all bond devices
