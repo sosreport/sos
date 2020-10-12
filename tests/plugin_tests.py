@@ -114,6 +114,8 @@ class MockOptions(object):
     log_size = 25
     allow_system_changes = False
     no_postproc = False
+    skip_files = []
+    skip_cmds = []
 
 
 class PluginToolTests(unittest.TestCase):

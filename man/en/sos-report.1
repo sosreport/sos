@@ -26,6 +26,8 @@ sosreport \- Collect and package diagnostic and support data
           [--log-size]\fR
           [--all-logs]\fR
           [--since YYYYMMDD[HHMMSS]]\fR
+          [--skip-commands commands]\fR
+          [--skip-files files]\fR
           [--allow-system-changes]\fR
           [-z|--compression-type method]\fR
           [--encrypt-key KEY]\fR
@@ -179,6 +181,18 @@ archive is any file not found in /etc, that has either a numeric or a
 compression-type file extension for example ".zip". ".1", ".gz" etc.).
 This also affects \--all-logs. The date string will be padded with zeros
 if HHMMSS is not specified.
+.TP
+.B \--skip-commands COMMANDS
+A comma delimited list of commands to skip execution of, but still allowing the
+rest of the plugin that calls the command to run. This will generally need to
+be some form of UNIX shell-style wildcard matching. For example, using a value
+of \fBhostname\fR will skip only that single command, while using \fBhostname*\fR
+will skip all commands with names that begin with the string "hostname".
+.TP
+.B \--skip-files FILES
+A comma delimited list of files or filepath wildcard matches to skip collection
+of. Values may either be exact filepaths or paths using UNIX shell-style wildcards,
+for example \fB/etc/sos/*\fR.
 .TP
 .B \--allow-system-changes
 Run commands even if they can change the system (e.g. load kernel modules).

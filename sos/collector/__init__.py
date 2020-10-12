@@ -84,6 +84,8 @@ class SoSCollector(SoSComponent):
         'preset': '',
         'save_group': '',
         'since': '',
+        'skip_cmds': [],
+        'skip_files': [],
         'skip_plugins': [],
         'sos_opt_line': '',
         'ssh_key': '',
@@ -277,6 +279,12 @@ class SoSCollector(SoSComponent):
                              help=('Escapes archived files older than date. '
                                    'This will also affect --all-logs. '
                                    'Format: YYYYMMDD[HHMMSS]'))
+        sos_grp.add_argument('--skip-commands', default=[], action='extend',
+                             dest='skip_cmds',
+                             help="do not execute these commands")
+        sos_grp.add_argument('--skip-files', default=[], action='extend',
+                             dest='skip_files',
+                             help="do not collect these files")
         sos_grp.add_argument('--verify', action="store_true",
                              help='perform pkg verification during collection')
 

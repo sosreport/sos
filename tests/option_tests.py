@@ -16,6 +16,8 @@ class MockOptions(object):
     dry_run = False
     log_size = 25
     allow_system_changes = False
+    skip_cmds = []
+    skip_files = []
 
 
 class GlobalOptionTest(unittest.TestCase):

@@ -94,6 +94,8 @@ class SoSReport(SoSComponent):
         'list_profiles': False,
         'log_size': 25,
         'map_file': '/etc/sos/cleaner/default_mapping',
+        'skip_cmds': [],
+        'skip_files': [],
         'skip_plugins': [],
         'noreport': False,
         'no_env_vars': False,
@@ -258,6 +260,12 @@ class SoSReport(SoSComponent):
                                 dest="profiles", type=str, default=[],
                                 help="enable plugins used by the given "
                                      "profiles")
+        report_grp.add_argument('--skip-commands', default=[], action='extend',
+                                dest='skip_cmds',
+                                help="do not execute these commands")
+        report_grp.add_argument('--skip-files', default=[], action='extend',
+                                dest='skip_files',
+                                help="do not collect these files")
         report_grp.add_argument("--verify", action="store_true",
                                 dest="verify", default=False,
                                 help="perform data verification during "
