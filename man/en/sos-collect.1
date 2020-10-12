@@ -30,6 +30,8 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-password]
     [\-\-password\-per\-node]
     [\-\-preset PRESET]
+    [\-\-skip-commands COMMANDS]
+    [\-\-skip-files FILES]
     [\-s|\-\-sysroot SYSROOT]
     [\-\-ssh\-user SSH_USER]
     [\-\-sos-cmd SOS_CMD]
@@ -260,6 +262,18 @@ defined, or has a version of sos prior to 3.6, this option is ignored for that n
 .TP
 \fB\-p\fR SSH_PORT, \fB\-\-ssh\-port\fR SSH_PORT
 Specify SSH port for all nodes. Use this if SSH runs on any port other than 22.
+.TP
+\fB\-\-skip-commands\fR COMMANDS
+A comma delimited list of commands to skip execution of, but still allowing the
+rest of the plugin that calls the command to run. This will generally need to
+be some form of UNIX shell-style wildcard matching. For example, using a value
+of \fBhostname\fR will skip only that single command, while using \fBhostname*\fR
+will skip all commands with names that begin with the string "hostname".
+.TP
+\fB\-\-skip-files\fR FILES
+A comma delimited list of files or filepath wildcard matches to skip collection
+of. Values may either be exact filepaths or paths using UNIX shell-style wildcards,
+for example \fB/etc/sos/*\fR.
 .TP
 \fB\-\-ssh\-user\fR SSH_USER
 Specify an SSH user for sos collect to connect to nodes with. Default is root.

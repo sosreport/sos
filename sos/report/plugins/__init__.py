@@ -495,6 +495,8 @@ class Plugin(object):
         self.policy = commons['policy']
         self.devices = commons['devices']
         self.manifest = None
+        self.skip_files = commons['cmdlineopts'].skip_files
+        self.skip_cmds = commons['cmdlineopts'].skip_cmds
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -1080,6 +1082,20 @@ class Plugin(object):
     def _is_forbidden_path(self, path):
         return _path_in_path_list(path, self.forbidden_paths)
 
+    def _is_skipped_path(self, path):
+        """Check if the given path matches a user-provided specification to
+        ignore collection of via the ``--skip-files`` option
+
+        :param path:    The filepath being collected
+        :type path: ``str``
+
+        :returns: ``True`` if file should be skipped, else ``False``
+        """
+        for _skip_path in self.skip_files:
+            if fnmatch.fnmatch(path, _skip_path):
+                return True
+        return False
+
     def _copy_node(self, path, st):
         dev_maj = os.major(st.st_rdev)
         dev_min = os.minor(st.st_rdev)
@@ -1425,6 +1441,9 @@ class Plugin(object):
                 if self._is_forbidden_path(_file):
                     self._log_debug("skipping forbidden path '%s'" % _file)
                     continue
+                if self._is_skipped_path(_file):
+                    self._log_debug("skipping excluded path '%s'" % _file)
+                    continue
                 if limit_reached:
                     self._log_info("skipping '%s' over size limit" % _file)
                     continue
@@ -1577,6 +1596,14 @@ class Plugin(object):
         pred = kwargs.pop('pred') if 'pred' in kwargs else None
         soscmd = SoSCommand(**kwargs)
         self._log_debug("packed command: " + soscmd.__str__())
+        for _skip_cmd in self.skip_cmds:
+            # This probably seems weird to be doing filename matching on the
+            # commands, however we want to remain consistent with our regex
+            # matching with file paths, which sysadmins are almost guaranteed
+            # to assume will use shell-style unix matching
+            if fnmatch.fnmatch(soscmd.cmd, _skip_cmd):
+                self._log_debug("skipping excluded command '%s'" % soscmd.cmd)
+                return
         if self.test_predicate(cmd=True, pred=pred):
             self.collect_cmds.append(soscmd)
             self._log_info("added cmd output '%s'" % soscmd.cmd)

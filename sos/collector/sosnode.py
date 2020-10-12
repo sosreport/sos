@@ -651,6 +651,16 @@ class SosNode():
         if self.check_sos_version('4.0'):
             self.sos_bin = 'sos report'
 
+        if self.check_sos_version('4.1'):
+            if self.opts.skip_cmds:
+                sos_opts.append(
+                    '--skip-commands=%s' % (quote(self.opts.skip_cmds))
+                )
+            if self.opts.skip_files:
+                sos_opts.append(
+                    '--skip-files=%s' % (quote(self.opts.skip_files))
+                )
+
         sos_cmd = sos_cmd.replace(
             'sosreport',
             os.path.join(self.host.sos_bin_path, self.sos_bin)
