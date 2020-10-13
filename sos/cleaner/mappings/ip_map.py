@@ -121,13 +121,12 @@ class SoSIPMap(SoSMap):
             # network and if it has, replace the default /32 netmask that
             # ipaddress applies to no CIDR-notated addresses
             self.set_ip_cidr_from_existing_subnet(addr)
-            return self.sanitize_ipaddr(addr)
         else:
             # we have a CIDR notation, so generate an obfuscated network
             # address and then generate an IP address within that network's
             # range
             self.sanitize_network(network)
-            return self.sanitize_ipaddr(addr)
+        return self.sanitize_ipaddr(addr)
 
     def sanitize_network(self, network):
         """Obfuscate the network address provided, and if there are host bits
