@@ -29,15 +29,19 @@ class OvirtImageIO(Plugin, RedHatPlugin):
         # Add configuration files
         self.add_copy_spec([
             '/etc/ovirt-imageio-daemon/logger.conf',
+            '/etc/ovirt-imageio-daemon/daemon.conf',
             '/etc/ovirt-imageio-proxy/ovirt-imageio-proxy.conf',
+            '/etc/ovirt-imageio/conf.d/*.conf',
         ])
 
         if all_logs:
             logs = ['/var/log/ovirt-imageio-proxy/image-proxy.log*',
-                    '/var/log/ovirt-imageio-daemon/daemon.log*']
+                    '/var/log/ovirt-imageio-daemon/daemon.log*',
+                    '/var/log/ovirt-imageio/daemon.log*']
         else:
             logs = ['/var/log/ovirt-imageio-proxy/image-proxy.log',
-                    '/var/log/ovirt-imageio-daemon/daemon.log']
+                    '/var/log/ovirt-imageio-daemon/daemon.log',
+                    '/var/log/ovirt-imageio/daemon.log']
 
         # Add log files
         self.add_copy_spec(logs)
