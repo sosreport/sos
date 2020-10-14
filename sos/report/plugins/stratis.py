@@ -24,8 +24,11 @@ class Stratis(Plugin, RedHatPlugin):
             'pool list',
             'filesystem list',
             'blockdev list',
+            'key list',
             'daemon redundancy',
-            'daemon version'
+            'daemon version',
+            'report engine_state_report',
+            '--version',
         ]
 
         self.add_cmd_output(["stratis %s" % subcmd for subcmd in subcmds])
