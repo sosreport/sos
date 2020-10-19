@@ -18,7 +18,8 @@ class Pulp(Plugin, RedHatPlugin):
     short_desc = 'Pulp platform'
 
     plugin_name = "pulp"
-    packages = ("pulp-server", "pulp-katello")
+    packages = ("pulp-server", "pulp-katello", "python3-pulpcore")
+    files = ("/etc/pulp/settings.py")
     option_list = [
         ('tasks', 'number of tasks to collect from DB queries', 'fast', 200)
     ]
@@ -63,6 +64,7 @@ class Pulp(Plugin, RedHatPlugin):
 
         self.add_copy_spec([
             "/etc/pulp/*.conf",
+            "/etc/pulp/settings.py",
             "/etc/pulp/server/plugins.conf.d/",
             "/etc/default/pulp*",
             "/var/log/httpd/pulp-http.log*",
@@ -128,6 +130,11 @@ class Pulp(Plugin, RedHatPlugin):
             "qpid-stat -%s --ssl-certificate=%s -b amqps://localhost:5671" %
             (opt, self.messaging_cert_file) for opt in "quc"
         ])
+        self.add_cmd_output(
+            "sudo -u pulp PULP_SETTINGS='/etc/pulp/settings.py' "
+            "DJANGO_SETTINGS_MODULE='pulpcore.app.settings' dynaconf list",
+            suggest_filename="dynaconf_list"
+        )
 
     def build_mongo_cmd(self, query):
         _cmd = "bash -c %s"
@@ -152,5 +159,13 @@ class Pulp(Plugin, RedHatPlugin):
         jreg = r"(\s*\".*(passw|cred|token|secret).*\"\s*:\s*\")(.*)(\")"
         repl = r"\1********\4"
         self.do_path_regex_sub("/etc/pulp(.*)(.json$)", jreg, repl)
+
+        # obfuscate SECRET_KEY = .. and 'PASSWORD': .. in dynaconf list output
+        # and also in settings.py
+        # count with option that PASSWORD is with(out) quotes or in capitals
+        key_pass_re = r"(SECRET_KEY\s*=|(password|PASSWORD)(\"|'|:)+)\s*(\S*)"
+        repl = r"\1 ********"
+        self.do_path_regex_sub("/etc/pulp/settings.py", key_pass_re, repl)
+        self.do_cmd_output_sub("dynaconf list", key_pass_re, repl)
 
 # vim: set et ts=4 sw=4 :
