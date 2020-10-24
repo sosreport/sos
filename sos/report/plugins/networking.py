@@ -268,6 +268,8 @@ class Networking(Plugin):
                 self.add_cmd_output([
                     ns_cmd_prefix + "ip address show",
                     ns_cmd_prefix + "ip route show table all",
+                    ns_cmd_prefix + "ip -s -s neigh show",
+                    ns_cmd_prefix + "ip rule list",
                     ns_cmd_prefix + "iptables-save",
                     ns_cmd_prefix + "ip6tables-save",
                     ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
