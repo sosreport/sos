@@ -138,7 +138,7 @@ class SoSComponent():
         use a standardized env var to redirect to the host's filesystem instead
         """
         if self.opts.tmp_dir:
-            return self.opts.tmp_dir
+            return os.path.abspath(self.opts.tmp_dir)
 
         tmpdir = '/var/tmp'
 
