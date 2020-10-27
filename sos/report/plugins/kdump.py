@@ -8,6 +8,8 @@
 
 import os
 import platform
+import tempfile
+import subprocess
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -67,6 +69,11 @@ class RedHatKDump(KDump, RedHatPlugin):
                         + "kdump.img"
         if os.path.exists(initramfs_img):
             self.add_cmd_output("lsinitrd %s" % initramfs_img)
+            with tempfile.NamedTemporaryFile(delete=False) as tempfp:
+                p = subprocess.Popen(['lsinitrd', '-f', 'squash/root.img', initramfs_img], stdout=tempfp)
+                out, err = p.communicate()
+                if not err:
+                    self.add_cmd_output("unsquashfs -lls %s" % tempfp.name, suggest_filename="unsquashfs_-lls_squash_root.img")
 
         self.add_copy_spec([
             "/etc/kdump.conf",
