@@ -17,7 +17,7 @@ class Fibrechannel(Plugin, RedHatPlugin):
 
     plugin_name = 'fibrechannel'
     profiles = ('hardware', 'storage', 'system')
-    files = ('/sys/class/fc_host')
+    files = ('/sys/class/fc_host', '/sys/class/fc_remote_ports')
 
     def setup(self):
         self.add_blockdev_cmd("udevadm info -a %(dev)s", devices='fibre')
