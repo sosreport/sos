@@ -10,22 +10,12 @@ import os
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-def get_directory_listing(path):
-    try:
-        dir_list = os.listdir(path)
-    except OSError:
-        dir_list = []
-    return dir_list
-
-
 class sapnw(Plugin, RedHatPlugin):
 
     short_desc = 'SAP NetWeaver'
-
     plugin_name = 'sapnw'
-    profiles = ['sap']
-
-    files = ['/usr/sap']
+    profiles = ('sap',)
+    files = ('/usr/sap',)
 
     def collect_list_instances(self):
         # list installed instances
@@ -35,6 +25,12 @@ class sapnw(Plugin, RedHatPlugin):
         )
         if inst_out['status'] != 0:
             return
+
+        # set the common strings that will be formatted later in each a_c_s
+        prof_cmd = "env -i %s %s/sappfpar all pf=/usr/sap/%s/SYS/profile/%s"
+        inst_cmd = "env -i %s %s/sapcontrol -nr %s -function GetProcessList"
+        vers_cmd = "env -i %s %s/sapcontrol -nr %s -function GetVersionInfo"
+        user_cmd = 'su - %sadm -c "sapcontrol -nr %s -function GetEnvironment"'
 
         sidsunique = set()
         # Cycle through all the instances, get 'sid', 'instance_number'
@@ -46,51 +42,46 @@ class sapnw(Plugin, RedHatPlugin):
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                for line in get_directory_listing("/usr/sap/%s/SYS/profile/"
-                                                  % sid):
-                    if sid in line and inst in line and vhost in line:
+                path = "/usr/sap/%s/SYS/profile/" % sid
+                if not os.path.exists(path):
+                    continue
+                for line in os.listdir(path):
+                    if all(f in line for f in [sid, inst, vhost]):
                         ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
                         # TODO: I am assuming unicode here
                         # nuc should be accounted
                         pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
                         profile = line.strip()
+
                         # collect profiles
                         self.add_cmd_output(
-                            "env -i %s %s/sappfpar \
-                            all pf=/usr/sap/%s/SYS/profile/%s"
-                            % (ldenv, pt, sid, profile),
-                            suggest_filename="%s_parameters" % profile)
+                            prof_cmd % (ldenv, pt, sid, profile),
+                            suggest_filename="%s_parameters" % profile
+                        )
 
                         # collect instance status
                         self.add_cmd_output(
-                            "env -i %s %s/sapcontrol -nr %s \
-                            -function GetProcessList" % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetProcList"
-                            % (sid, inst))
+                            inst_cmd % (ldenv, pt, inst),
+                            suggest_filename="%s_%s_GetProcList" % (sid, inst)
+                        )
 
                         # collect version info for the various components
                         self.add_cmd_output(
-                            "env -i %s %s/sapcontrol -nr %s \
-                            -function GetVersionInfo" % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetVersInfo"
-                            % (sid, inst))
+                            vers_cmd % (ldenv, pt, inst),
+                            suggest_filename="%s_%s_GetVersInfo" % (sid, inst)
+                        )
 
                         # collect <SID>adm user environment
                         lowsid = sid.lower()
+                        fname = "%s_%sadm_%s_userenv" % (sid, lowsid, inst)
                         self.add_cmd_output(
-                            "su - %sadm -c \"sapcontrol -nr %s -function \
-                            GetEnvironment\"" % (lowsid, inst),
-                            suggest_filename="%s_%sadm_%s_userenv"
-                            % (sid, lowsid, inst))
+                            user_cmd % (lowsid, inst),
+                            suggest_filename=fname
+                        )
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            for line in get_directory_listing("/usr/sap/%s/" % sid):
-                if 'DVEB' in line:
-                    self.add_cmd_output(
-                        "grep 'client driver' /usr/sap/%s/%s/work/dev_w0"
-                        % (sid, line), suggest_filename="%s_dbclient"
-                        % sid)
+            self.add_copy_spec("/usr/sap/%s/*DVEB*/work/dev_w0" % sid)
 
     def collect_list_dbs(self):
         # list installed sap dbs
@@ -112,22 +103,23 @@ class sapnw(Plugin, RedHatPlugin):
                 if dbtype == 'db6':
                     # IBM DB2
                     self.add_cmd_output(
-                        "su - %s -c \"db2 get dbm cfg\""
-                        % dbadm, suggest_filename="%s_%s_db2_info"
-                        % (sid, dbadm))
+                        "su - %s -c \"db2 get dbm cfg\"" % dbadm,
+                        suggest_filename="%s_%s_db2_info" % (sid, dbadm)
+                    )
 
-                if dbtype == 'sap':
+                elif dbtype == 'sap':
                     # SAP MAXDB
                     sid = fields[2][:-1]
                     self.add_copy_spec(
-                        "/sapdb/%s/data/config/%s.pah" % (sid, sid))
+                        "/sapdb/%s/data/config/%s.pah" % (sid, sid)
+                    )
 
-                if dbtype == 'ora':
+                elif dbtype == 'ora':
                     # Oracle
                     sid = fields[2][:-1]
                     self.add_copy_spec("/oracle/%s/*/dbs/init.ora" % sid)
 
-                if dbtype == 'syb':
+                elif dbtype == 'syb':
                     # Sybase
                     sid = fields[2][:-1]
                     self.add_copy_spec("/sybase/%s/ASE*/%s.cfg" % (sid, sid))
@@ -137,7 +129,6 @@ class sapnw(Plugin, RedHatPlugin):
         self.collect_list_dbs()
 
         # run sapconf in check mode
-        self.add_cmd_output("sapconf -n",
-                            suggest_filename="sapconf_checkmode")
+        self.add_cmd_output("sapconf -n", suggest_filename="sapconf_checkmode")
 
 # vim: et ts=4 sw=4
