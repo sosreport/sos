@@ -13,11 +13,9 @@ from sos.report.plugins import Plugin, RedHatPlugin
 class saphana(Plugin, RedHatPlugin):
 
     short_desc = 'SAP HANA'
-
     plugin_name = 'saphana'
-    profiles = ['sap']
-
-    files = ['/hana']
+    profiles = ('sap',)
+    files = ('/hana',)
 
     def setup(self):
 
@@ -32,7 +30,6 @@ class saphana(Plugin, RedHatPlugin):
 
             for sid in sids:
                 sidadm = '%sadm' % sid.lower()
-
                 prefix = 'su - %s -c' % sidadm
 
                 self.add_cmd_output('%s "HDB info"' % prefix,
@@ -49,31 +46,26 @@ class saphana(Plugin, RedHatPlugin):
                                     suggest_filename="%s_replicainfo" % sid)
 
                 if os.path.isdir("/hana/shared/%s/" % sid):
-                    i = os.listdir("/hana/shared/%s/" % sid)
-                    for inst in i:
+                    for inst in os.listdir("/hana/shared/%s/" % sid):
                         if "HDB" in inst:
                             inst = inst.strip()[-2:]
+                            self.get_inst_info(sid, sidadm, inst)
 
-                            # get GREEN/RED status
-                            self.add_cmd_output(
-                                'su - %s -c "sapcontrol -nr %s \
-                                -function GetProcessList"'
-                                % (sidadm, inst),
-                                suggest_filename="%s_%s_status"
-                                % (sid, inst)
-                            )
+    def get_inst_info(self, prefix, sid, sidadm, inst):
+        proc_cmd = 'su - %s -c "sapcontrol -nr %s -function GetProcessList"'
+        status_fname = "%s_%s_status" % (sid, inst)
+        self.add_cmd_output(
+            proc_cmd % (sidadm, inst),
+            suggest_filename=status_fname
+        )
 
-                            path = '/usr/sap/%s/HDB%s/exe/python_support'
-                            path %= (sid, inst)
-
-                            if os.path.isdir("%s" % path):
-                                # SCALE OUT - slow
-                                self.add_cmd_output(
-                                    'su - %s -c "python \
-                                    %s/landscapeHostConfiguration.py"'
-                                    % (sidadm, path),
-                                    suggest_filename="%s_%s_landscapeConfig"
-                                    % (sid, inst)
-                                )
+        path = "/usr/sap/%s/HDB%s/exe/python_support" % (sid, inst)
+        if os.path.isdir(path):
+            py_cmd = 'su - %s -c "python %s/landscapeHostConfiguration.py"'
+            py_fname = "%s_%s_landscapeConfig" % (sid, inst)
+            self.add_cmd_output(
+                py_cmd % (sidadm, path),
+                suggest_filename=py_fname
+            )
 
 # vim: et ts=4 sw=4
