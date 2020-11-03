@@ -820,15 +820,6 @@ class SoSReport(SoSComponent):
         self.policy.pre_work()
         try:
             self.ui_log.info(_(" Setting up archive ..."))
-            compression_methods = ('auto', 'bzip2', 'gzip', 'xz')
-            method = self.opts.compression_type
-            if method not in compression_methods:
-                compression_list = ', '.join(compression_methods)
-                self.ui_log.error("")
-                self.ui_log.error("Invalid compression specified: " + method)
-                self.ui_log.error("Valid types are: " + compression_list)
-                self.ui_log.error("")
-                self._exit(1)
             self.setup_archive()
             self._make_archive_paths()
             return
