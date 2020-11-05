@@ -910,11 +910,13 @@ class SoSReport(SoSComponent):
             plugruncount += 1
             self.pluglist.append((plugruncount, i[0]))
         try:
-            self.plugpool = ThreadPoolExecutor(self.opts.threads)
-            # Pass the plugpool its own private copy of self.pluglist
-            results = self.plugpool.map(self._collect_plugin,
-                                        list(self.pluglist))
-            self.plugpool.shutdown(wait=True)
+            results = []
+            with ThreadPoolExecutor(
+                max_workers=self.opts.threads) as executor:
+                results = executor.map(
+                    self._collect_plugin,
+                    *list(self.pluglist)
+                )
             for res in results:
                 if not res:
                     self.soslog.debug("Unexpected plugin task result: %s" %
