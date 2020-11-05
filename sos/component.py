@@ -123,6 +123,9 @@ class SoSComponent():
             self.manifest.add_field('policy', self.policy.distro)
             self.manifest.add_section('components')
 
+    def execute(self):
+        raise NotImplementedError
+
     def get_exit_handler(self):
         def exit_handler(signum, frame):
             self.exit_process = True
