@@ -137,12 +137,15 @@ class Ovirt(Plugin, RedHatPlugin):
             "/var/lib/ovirt-engine-reports/jboss_runtime/config"
         ])
 
-        # Copying host certs.
+        # Copying host certs; extra copy the hidden .truststore file
         self.add_forbidden_path([
             "/etc/pki/ovirt-engine/keys",
             "/etc/pki/ovirt-engine/private"
         ])
-        self.add_copy_spec("/etc/pki/ovirt-engine/")
+        self.add_copy_spec([
+            "/etc/pki/ovirt-engine/",
+            "/etc/pki/ovirt-engine/.truststore",
+        ])
 
     def postproc(self):
         """
