@@ -23,12 +23,14 @@ class OpenStackTripleO(Plugin, IndependentPlugin):
     def setup(self):
         # Notes: recursion is max 2 for container-puppet and tripleo-config
         # Those directories are present on all OpenStack nodes
-        self.add_copy_spec([
+        self.tripleo_log_paths = [
             '/var/log/paunch.log',
             '/var/lib/container-puppet/',
             '/var/lib/tripleo-config/',
+            '/var/lib/tripleo/',
             '/etc/puppet/hieradata/'
-        ])
+        ]
+        self.add_copy_spec(self.tripleo_log_paths)
 
     def postproc(self):
         # Ensures we do not leak passwords from the tripleo-config and
@@ -38,10 +40,7 @@ class OpenStackTripleO(Plugin, IndependentPlugin):
                   r'([":\s]+)(.*[^"])([",]+)'
         rgxp = re.compile(secrets, re.IGNORECASE)
 
-        self.do_path_regex_sub('/var/lib/tripleo-config/',
-                               rgxp, r'\1\3*********\5')
-        self.do_path_regex_sub('/etc/puppet/hieradata/',
-                               rgxp, r'\1\3*********\5')
-
+        for path in self.tripleo_log_paths:
+            self.do_path_regex_sub(path, rgxp, r'\1\3*********\5')
 
 # vim: set et ts=4 sw=4 :
