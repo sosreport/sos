@@ -1,0 +1,101 @@
+---
+
+# Main environment vars to set for all tasks
+env:
+
+    FEDORA_VER: "33"
+    FEDORA_PRIOR_VER: "32"
+    FEDORA_NAME: "fedora-${FEDORA_VER}"
+    FEDORA_PRIOR_NAME: "fedora-${FEDORA_PRIOR_VER}"
+    #RHEL_NAME: "rhel-8.3"
+
+    UBUNTU_NAME: "ubuntu-20.04"
+    UBUNTU_PRIOR_NAME: "ubuntu-18.04"
+
+    RH_PROJECT: "sos-devel-jobs"
+    UBUNTU_PROJECT: "ubuntu-os-cloud"
+
+    # These are generated images pushed to GCP from Red Hat
+    FEDORA_IMAGE_NAME: "f${FEDORA_VER}-server-sos-testing"
+    FEDORA_PRIOR_IMAGE_NAME: "f${FEDORA_PRIOR_VER}-server-sos-testing"
+    #RHEL_IMAGE_NAME: "${RHEL_NAME}-server-sos-testing"
+
+    # Images exist on GCP already
+    UBUNTU_IMAGE_NAME: "ubuntu-2004-focal-v20201111"
+    UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-1804-bionic-v20201111"
+
+# Default task timeout
+timeout_in: 30m
+
+gcp_credentials: ENCRYPTED[!77d4c8251094346c41db63cb05eba2ff98eaff04e58c5d0e2a8e2c6f159f7d601b3fe9a2a4fce1666297e371f2fc8752!]
+
+# Run a simple lint on the community cluster
+flake8_task:
+    alias: "flake8_test"
+    name: "Flake8 linting test"
+    container:
+        image: alpine/flake8:latest
+    flake_script: flake8 sos
+
+# nose tests, again on the community cluster
+nosetests_task:
+    alias: nosetests
+    name: "Nosetests"
+    container:
+        image: python:slim
+    setup_script: pip install nose
+    nose_script: nosetests -v --with-cover --cover-package=sos tests/
+
+# Run a check on newer upstream python versions to check for possible
+# breaks/changes in common modules. This is not meant to check any of the actual
+# collections or archive integrity.
+py_break_task:
+    alias: "py_break"
+    name: "Breakage test python-$PY_VERSION"
+    container:
+        image: "python:${PY_VERSION}"
+    matrix:
+        - env:
+            PY_VERSION: "latest"
+        - env:
+            PY_VERSION: "3.9"
+    setup_script: pip install -r requirements.txt
+    main_script: ./bin/sos report --batch
+
+# Run our standard test script across multiple distros on GCP
+report_function_task:
+    alias: "functional_report"
+    name: "Report functionality test - $BUILD_NAME"
+    gce_instance: &standardvm
+        image_project: "${PROJECT}"
+        image_name: "${VM_IMAGE_NAME}"
+        cpu: 2
+        memory: "2Gb"
+        # minimum disk size is 20
+        disk: 20
+    matrix:
+        - env:
+            PROJECT: ${RH_PROJECT}
+            BUILD_NAME: ${FEDORA_NAME}
+            VM_IMAGE_NAME: ${FEDORA_IMAGE_NAME}
+        - env:
+            PROJECT: ${RH_PROJECT}
+            BUILD_NAME: ${FEDORA_PRIOR_NAME}
+            VM_IMAGE_NAME: ${FEDORA_PRIOR_IMAGE_NAME}
+       # - env:
+       #     BUILD_NAME: ${RHEL_NAME}
+       #     VM_IMAGE_NAME: ${RHEL_IMAGE_NAME}
+        - env:
+            PROJECT: ${UBUNTU_PROJECT}
+            BUILD_NAME: ${UBUNTU_NAME}
+            VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
+        - env:
+            PROJECT: ${UBUNTU_PROJECT}
+            BUILD_NAME: ${UBUNTU_PRIOR_NAME}
+            VM_IMAGE_NAME: ${UBUNTU_PRIOR_IMAGE_NAME}
+    # Ubuntu has sos installed by default, so remove that to avoid any conflicts
+    setup_script: |
+        if [ $(command -v apt) ] && [ $(command -v sosreport) ]; then
+            apt -y purge sosreport
+        fi
+    main_script: ./tests/simple.sh
