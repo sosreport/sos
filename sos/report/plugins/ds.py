@@ -70,4 +70,6 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 "/opt/redhat-ds/slapd-*/logs"
             ])
 
+        self.add_cmd_output("ls -l /var/lib/dirsrv/slapd-*/db/*")
+
 # vim: set et ts=4 sw=4 :
