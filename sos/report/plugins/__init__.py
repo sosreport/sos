@@ -2099,7 +2099,7 @@ class Plugin(object):
 
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
                                       chdir=runat, binary=binary, env=env,
-                                      foreground=foreground)
+                                      foreground=foreground, stderr=stderr)
 
     def _get_container_runtime(self, runtime=None):
         """Based on policy and request by the plugin, return a usable
