@@ -229,8 +229,9 @@ class Networking(Plugin):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
 
         # Capture additional data from namespaces; each command is run
-        # per-namespace.
-        ip_netns = self.collect_cmd_output("ip netns")
+        # per-namespace. Collect error lines only into the archive.
+        self.add_cmd_output("ip netns", stderr=True)
+        ip_netns = self.exec_cmd("ip netns", stderr=False)
         cmd_prefix = "ip netns exec "
         if ip_netns['status'] == 0:
             out_ns = []
@@ -240,10 +241,7 @@ class Networking(Plugin):
                         self.get_option("namespace_pattern").split()
                         ).replace('*', '.*')
             for line in ip_netns['output'].splitlines():
-                # If there's no namespaces, no need to continue
-                if line.startswith("Object \"netns\" is unknown") \
-                        or line.isspace() \
-                        or line[:1].isspace():
+                if line.isspace() or line[:1].isspace():
                     continue
                 # if namespace_pattern defined, append only namespaces
                 # matching with pattern

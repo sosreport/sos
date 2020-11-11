@@ -67,15 +67,12 @@ class Ebpf(Plugin, IndependentPlugin):
         ])
 
         # Capture list of bpf program attachments from namespaces
-        ip_netns = self.exec_cmd("ip netns")
+        ip_netns = self.exec_cmd("ip netns", stderr=False)
         cmd_prefix = "ip netns exec "
         if ip_netns['status'] == 0:
             out_ns = []
             for line in ip_netns['output'].splitlines():
-                # If there's no namespaces, no need to continue
-                if line.startswith("Object \"netns\" is unknown") \
-                        or line.isspace() \
-                        or line[:1].isspace():
+                if line.isspace() or line[:1].isspace():
                     continue
                 out_ns.append(line.partition(' ')[0])
             for namespace in out_ns:
