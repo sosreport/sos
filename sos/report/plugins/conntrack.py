@@ -39,4 +39,22 @@ class Conntrack(Plugin, IndependentPlugin):
             "conntrack -S",
         ])
 
+        # Capture additional data from namespaces; each command is run
+        # per-namespace
+        ip_netns = self.exec_cmd("ip netns")
+        cmd_prefix = "ip netns exec "
+        if ip_netns['status'] == 0:
+            out_ns = []
+            for line in ip_netns['output'].splitlines():
+                # If there's no namespaces, no need to continue
+                if line.startswith("Object \"netns\" is unknown") \
+                        or line.isspace() \
+                        or line[:1].isspace():
+                    continue
+                out_ns.append(line.partition(' ')[0])
+            for namespace in out_ns:
+                ns_cmd_prefix = cmd_prefix + namespace + " "
+                self.add_cmd_output(ns_cmd_prefix + "conntrack -L -o extended")
+                self.add_cmd_output(ns_cmd_prefix + "conntrack -S")
+
 # vim: set et ts=4 sw=4 :
