@@ -14,12 +14,13 @@
 # * make it better validate archives and contents
 
 PYTHON=${1:-/usr/bin/python3}
-SOSPATH=${2:-./bin/sos report}
+SOSPATH=${2:-./bin/sos report --batch --tmp-dir=/var/tmp }
 
 NUMOFFAILURES=0
-summary="Summary\n"
+summary="\nSummary\n"
+FAIL_LIST=""
 
-run_expecting_sucess () {
+run_expecting_success () {
     #$1 - is command options
     #$2 - kind of check to do, so far only extract
     FAIL=false
@@ -35,7 +36,7 @@ run_expecting_sucess () {
       echo "### Success"
     else
       echo "!!! FAILED !!!"
-      FAIL=true
+      add_failure "$1 failed during execution"
     fi
 
     end=`date +%s`
@@ -43,8 +44,7 @@ run_expecting_sucess () {
     echo "#### Sos Total time (seconds):" $runtime
 
     if [ -s /dev/shm/stderr ]; then
-       FAIL=true
-       echo "!!! FAILED !!!"
+       add_failure "test generated stderr output, see above"
        echo "### start stderr"
        cat /dev/shm/stderr
        echo "### end stderr"
@@ -62,15 +62,13 @@ run_expecting_sucess () {
         if [ -s /var/tmp/sosreport_test/sos_logs/*errors.txt ]; then
             FAIL=true
             echo "!!! FAILED !!!"
+            add_failure "Test $1 generated errors"
             echo "#### *errors.txt output"
             ls -alh /var/tmp/sosreport_test/sos_logs/
             cat /var/tmp/sosreport_test/sos_logs/*errors.txt
         fi
         echo "### stop extraction"
     fi
-    
-    size="$(grep Size /dev/shm/stdout)"
-    summary="${summary} \n failures ${FAIL} \t time ${runtime} \t ${size} \t ${1} "
 
     echo "######### DONE WITH $1 #########"
 
@@ -82,7 +80,152 @@ run_expecting_sucess () {
     fi
 }
 
-# If /etc/sos/sos.conf doesn't exist let's just make it..
+update_summary () {
+    size="$(grep Size /dev/shm/stdout)"
+    size="$(echo "${size:-"Size 0.00MiB"}")"
+    summary="${summary} \n failures ${FAIL} \t time ${runtime} \t ${size} \t ${1} "
+}
+
+update_failures () {
+    if $FAIL; then
+      NUMOFFAILURES=$(($NUMOFFAILURES + 1))
+    fi
+}
+
+add_failure () {
+    FAIL=true
+    echo "!!! TEST FAILED: $1 !!!"
+    FAIL_LIST="${FAIL_LIST}\n \t ${FUNCNAME[1]}: \t\t ${1}"
+}
+
+# Test a no frills run with verbosity and make sure the expected items exist
+test_normal_report () {
+    cmd="-vvv"
+    run_expecting_success "$cmd" extract
+    if [ $? -eq 0 ]; then
+        if [ ! -f /var/tmp/sosreport_test/sos_reports/sos.html ]; then
+            add_failure "did not generate html reports"
+        fi
+        if [ ! -f /var/tmp/sosreport_test/sos_reports/manifest.json ]; then
+            add_failure "did not generate manifest.json"
+        fi
+        if [ ! -f /var/tmp/sosreport_test/free ]; then
+            add_failure "did not create free symlink in archive root"
+        fi
+        if [ ! "$(grep "DEBUG" /var/tmp/sosreport_test/sos_logs/sos.log)" ]; then
+            add_failure "did not find debug logging when using -vvv"
+        fi
+        update_failures
+    update_summary "$cmd"
+    fi
+}
+
+# Test for correctly skipping html generation, and label setting
+test_noreport_label_only () {
+    cmd="--no-report --label TEST -o hardware"
+    run_expecting_success "$cmd" extract
+    if [ $? -eq 0 ]; then
+        if [ -f /var/tmp/sosreport_test/sos_reports/sos.html ]; then
+            add_failure "html report generated when --no-report used"
+        fi
+        if [ ! $(grep /var/tmp/sosreport-*TEST* /dev/shm/stdout) ]; then
+            add_failure "no label set on archive"
+        fi
+        count=$(find /var/tmp/sosreport_test/sos_commands/* -type d | wc -l)
+        if [[ "$count" -gt 1 ]]; then
+            add_failure "more than one plugin ran when using -o hardware"
+        fi
+        update_failures
+    fi
+    update_summary "$cmd"
+}
+
+# test using mask
+test_mask () {
+    cmd="--mask"
+    run_expecting_success "$cmd" extract
+    if [ $? -eq 0 ]; then
+        if [ ! $(grep host0 /var/tmp/sosreport_test/hostname) ]; then
+            add_failure "hostname not obfuscated with --mask"
+        fi
+        # we don't yet support binary obfuscation, so skip binary matches
+        if [ "$(grep -rI `hostname` /var/tmp/sosreport_test/*)" ]; then
+            add_failure "hostname not obfuscated in all places"
+            echo "$(grep -rI `hostname` /var/tmp/sosreport_test/*)"
+        fi
+        # only tests first interface
+        mac_addr=$(cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address)
+        if [ "$(grep -rI $mac_addr /var/tmp/sosreport_test/*)" ]; then
+            add_failure "MAC address not obfuscated in all places"
+            echo "$(grep -rI $mac_addr /var/tmp/sosreport_test/*)"
+        fi
+        # only tests first interface
+        ip_addr=$(ip route show default | awk '/default/ {print $3}')
+        if [ "$(grep -rI $ip_addr /var/tmp/sosreport_test/*)" ]; then
+            add_failure "IP address not obfuscated in all places"
+            echo "$grep -rI $ip_addr /var/tmp/sosreport/_test/*)"
+        fi
+        update_failures
+    fi
+    update_summary "$cmd"
+}
+
+# test log-size, env vars, and compression type
+test_logsize_env_gzip () {
+    cmd="--log-size 0 --no-env-vars -z gzip"
+    run_expecting_success "$cmd" extract
+    if [ $? -eq 0 ]; then
+        if [ -f /var/tmp/sosreport_test/environment ]; then
+            add_failure "env vars captured when using --no-env-vars"
+        fi
+        if [ ! $(grep /var/tmp/sosreport*.gz /dev/shm/stdout) ]; then
+            add_failure "archive was not gzip compressed using -z gzip"
+        fi
+        update_failures
+    fi
+    update_summary "$cmd"
+}
+
+# test plugin enablement, plugopts and at the same time ensure our list option parsing is working
+test_enable_opts_postproc () {
+    cmd="-e opencl -v -k kernel.with-timer,libraries.ldconfigv --no-postproc"
+    run_expecting_success "$cmd" extract
+    if [ $? -eq 0 ]; then
+        if [ ! "$(grep "opencl" /dev/shm/stdout)" ]; then
+            add_failure "force enabled plugin opencl did not run"
+        fi
+        if [ ! -f /var/tmp/sosreport_test/proc/timer* ]; then
+            add_failure "/proc/timer* not captured when using -k kernel.with-timer"
+        fi
+        if [ ! -f /var/tmp/sosreport_test/sos_commands/libraries/ldconfig_-v* ]; then
+            add_failure "ldconfig -v not captured when using -k libraries.ldconfigv"
+        fi
+        if [ "$(grep "substituting" /var/tmp/sosreport_test/sos_logs/sos.log)" ]; then
+            add_failure "post-processing ran while using --no-post-proc"
+        fi
+
+        update_failures
+    update_summary "$cmd"
+    fi
+}
+
+# test if --build and --threads work properly
+test_build_threads () {
+    cmd="--build -t1 -o host,kernel,filesys,hardware,date,logs"
+    run_expecting_success "$cmd"
+    if [ $? -eq 0 ]; then
+        if [ ! "$(grep "Your sosreport build tree" /dev/shm/stdout)" ]; then
+            add_failure "did not save the build tree"
+        fi
+        if [ $(grep "Finishing plugins" /dev/shm/stdout) ]; then
+            add_failure "did not limit threads when using --threads 1"
+        fi
+        update_failures
+        update_summary "$cmd"
+    fi
+}
+
+# If /etc/sos/sos.conf doesn't exist let's just make it
 if [ -f /etc/sos/sos.conf ]; then
    echo "/etc/sos/sos.conf already exists"
 else
@@ -91,29 +234,27 @@ else
    touch /etc/sos/sos.conf
 fi
 
+
 # Runs not generating sosreports
-run_expecting_sucess " -l"
-run_expecting_sucess " --list-presets"
-run_expecting_sucess " --list-profiles"
+run_expecting_success " -l"; update_summary "List plugins"
+run_expecting_success " --list-presets"; update_summary "List presets"
+run_expecting_success " --list-profiles"; update_summary "List profiles"
 
-# Test generating sosreports, 3 (new) options at a time
-# Trying to do --batch   (1 label/archive/report/verbosity change)   (other changes)
-run_expecting_sucess " --batch   --build   --no-env-vars "  # Only --build test
-run_expecting_sucess " --batch   --no-report   -o hardware " extract
-run_expecting_sucess " --batch   --label TEST   -a  -c never" extract
-run_expecting_sucess " --batch   --debug  --log-size 0  -c always" extract
-run_expecting_sucess " --batch   -z xz   --log-size 1" extract
-run_expecting_sucess " --batch   -z gzip" extract
-run_expecting_sucess " --batch   -t 1 -n hardware" extract
-run_expecting_sucess " --batch   --quiet    -e opencl -k kernel.with-timer" extract
-run_expecting_sucess " --batch   --case-id 10101   --all-logs --since=$(date -d "yesterday 13:00" '+%Y%m%d') " extract
-run_expecting_sucess " --batch   --verbose   --no-postproc" extract
-run_expecting_sucess " --batch   --mask" extract
+# Runs generating sosreports
+# TODO:
+# - find a way to test if --since is working
+test_build_threads
+test_normal_report
+test_enable_opts_postproc
+test_noreport_label_only
+test_logsize_env_gzip
+test_mask
 
-echo $summary
+echo -e $summary
 
 if [ $NUMOFFAILURES -gt 0 ]; then
-  echo "FAILED $NUMOFFAILURES"
+  echo -e "\nTests Failed: $NUMOFFAILURES\nFailures within each test:"
+  echo -e $FAIL_LIST
   exit 1
 else
   echo "Everything worked!"
