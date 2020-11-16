@@ -60,4 +60,9 @@ class Process(Plugin, IndependentPlugin):
         if self.get_option("samples"):
             self.add_cmd_output("iotop -b -o -d 0.5 -t -n %s"
                                 % self.get_option("samples"))
+
+        self.add_cmd_output([
+            "pidstat -p ALL -rudvwsRU --human -h",
+            "pidstat -tl"
+        ])
 # vim: set et ts=4 sw=4 :
