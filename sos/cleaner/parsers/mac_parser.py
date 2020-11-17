@@ -11,6 +11,8 @@
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.mac_map import SoSMacMap
 
+import re
+
 
 class SoSMacParser(SoSCleanerParser):
     """Handles parsing for MAC addresses"""
@@ -21,7 +23,7 @@ class SoSMacParser(SoSCleanerParser):
         r'(([^:|-])([0-9a-fA-F]{2}(:|-)){7}[0-9a-fA-F]{2}(\s|$))',
         r'(([^:|-])([0-9a-fA-F]{4}(:|-)){3}[0-9a-fA-F]{4}(\s|$))',
         # IPv4, avoiding matching a substring within IPv6 addresses
-        r'(([^:|-])([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(\s|$))'
+        r'(([^:|-])([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(\.|,|!)?(\s|$))'
     ]
     map_file_key = 'mac_map'
     prep_map_file = 'sos_commands/networking/ip_-d_address'
@@ -29,3 +31,22 @@ class SoSMacParser(SoSCleanerParser):
     def __init__(self, conf_file=None):
         self.mapping = SoSMacMap()
         super(SoSMacParser, self).__init__(conf_file)
+
+    def parse_line(self, line):
+        """Override the base parse_line to account for MAC matches that end
+        a line with punctuation, which may or may not be beneficial to have in
+        other parsers
+        """
+        count = 0
+        for skip_pattern in self.skip_line_patterns:
+            if re.match(skip_pattern, line, re.I):
+                return line, count
+        for pattern in self.regex_patterns:
+            matches = [m[0] for m in re.findall(pattern, line, re.I)]
+            if matches:
+                count += len(matches)
+                for match in matches:
+                    stripped_match = match.rstrip('.,!').strip()
+                    new_match = self.mapping.get(stripped_match)
+                    line = line.replace(stripped_match, new_match)
+        return line, count
