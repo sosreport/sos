@@ -18,6 +18,7 @@ class OpenStackPlacement(Plugin):
     profiles = ('openstack', 'openstack_controller')
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/placement"
+    service_name = 'openstack-placement-api'
 
     def setup(self):
 
@@ -26,7 +27,7 @@ class OpenStackPlacement(Plugin):
 
         in_container = self.container_exists('.*placement_api')
 
-        if self.is_service_running('openstack-placement-api') or in_container:
+        if self.is_service_running(self.service_name) or in_container:
             placement_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -84,9 +85,14 @@ class OpenStackPlacement(Plugin):
 class DebianPlacement(OpenStackPlacement, DebianPlugin, UbuntuPlugin):
 
     packages = ('placement')
+    service_name = 'placement-api'
 
     def setup(self):
         super(DebianPlacement, self).setup()
+        if self.get_option("all_logs"):
+            self.add_copy_spec("/var/log/apache2/placement*")
+        else:
+            self.add_copy_spec("/var/log/apache2/placement*.log")
 
 
 class RedHatPlacement(OpenStackPlacement, RedHatPlugin):

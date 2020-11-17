@@ -10,16 +10,15 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class OpenStackAodh(Plugin, RedHatPlugin):
+class OpenStackAodh(Plugin):
 
     short_desc = 'OpenStack Alarm service'
     plugin_name = "openstack_aodh"
     profiles = ('openstack', 'openstack_controller')
 
-    packages = ('openstack-selinux',)
     var_puppet_gen = "/var/lib/config-data/puppet-generated/aodh"
 
     def setup(self):
@@ -87,5 +86,20 @@ class OpenStackAodh(Plugin, RedHatPlugin):
             r"\1********",
         )
 
+
+class DebianOpenStackAodh(OpenStackAodh, DebianPlugin, UbuntuPlugin):
+
+    packages = (
+        'aodh-api',
+        'aodh-evaluator',
+        'aodh-notifier',
+        'aodh-listener',
+        'python-aodhclient'
+    )
+
+
+class RedHatOpenStackAodh(OpenStackAodh, RedHatPlugin):
+
+    packages = ('openstack-selinux',)
 
 # vim: set et ts=4 sw=4 :
