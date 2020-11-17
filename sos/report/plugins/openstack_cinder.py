@@ -30,7 +30,7 @@ class OpenStackCinder(Plugin):
 
         # check if either standalone (cinder-api) or httpd wsgi (cinder_wsgi)
         # is up and running
-        cinder_process = ["cinder_wsgi", "cinder-api"]
+        cinder_process = ["cinder_wsgi", "cinder-wsgi", "cinder-api"]
         in_ps = False
         for process in cinder_process:
             in_ps = self.check_process_by_name(process)
@@ -48,6 +48,7 @@ class OpenStackCinder(Plugin):
                 suggest_filename="cinder_db_version"
             )
 
+        self.add_forbidden_path('/etc/cinder/volumes')
         self.add_copy_spec([
             "/etc/cinder/",
             self.var_puppet_gen + "/etc/cinder/",
@@ -117,6 +118,14 @@ class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         super(DebianCinder, self).setup()
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/apache/cinder*",
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/apache/cinder*.log",
+            ])
 
 
 class RedHatCinder(OpenStackCinder, RedHatPlugin):

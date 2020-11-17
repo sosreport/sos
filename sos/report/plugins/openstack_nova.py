@@ -24,6 +24,7 @@ class OpenStackNova(Plugin):
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/nova"
+    service_name = "openstack-nova-api.service"
 
     def setup(self):
 
@@ -31,7 +32,7 @@ class OpenStackNova(Plugin):
         # is running
         in_container = self.container_exists('.*nova_api')
 
-        if self.is_service_running('openstack-nova-api') or in_container:
+        if self.is_service_running(self.service_name) or in_container:
             nova_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -184,6 +185,7 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
         'python-novaclient',
         'python-novnc'
     )
+    service_name = "nova-api.service"
 
     def setup(self):
         super(DebianNova, self).setup()

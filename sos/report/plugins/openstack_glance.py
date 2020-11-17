@@ -24,6 +24,7 @@ class OpenStackGlance(Plugin):
 
     option_list = []
     var_puppet_gen = "/var/lib/config-data/puppet-generated/glance_api"
+    service_name = "openstack-glance-api.service"
 
     def setup(self):
         if self.get_option("all_logs"):
@@ -45,7 +46,7 @@ class OpenStackGlance(Plugin):
         # is running
         in_container = self.container_exists('glance_api')
 
-        if self.is_service_running('openstack-glance-api') or in_container:
+        if self.is_service_running(self.service_name) or in_container:
             glance_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -107,6 +108,7 @@ class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
         'glance-registry',
         'python-glance'
     )
+    service_name = 'glance-api.service'
 
 
 class RedHatGlance(OpenStackGlance, RedHatPlugin):

@@ -6,17 +6,17 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Salt(Plugin, RedHatPlugin, DebianPlugin):
+class Salt(Plugin, IndependentPlugin):
 
     short_desc = 'Salt'
 
     plugin_name = 'salt'
     profiles = ('sysmgmt',)
 
-    packages = ('salt',)
+    packages = ('salt', 'salt-minion', 'salt-common',)
 
     def setup(self):
         all_logs = self.get_option("all_logs")
@@ -28,5 +28,10 @@ class Salt(Plugin, RedHatPlugin, DebianPlugin):
 
         self.add_copy_spec("/etc/salt")
         self.add_forbidden_path("/etc/salt/pki/*/*.pem")
+
+    def postproc(self):
+        regexp = r'((?m)^\s+.*(pass|secret|(?<![A-z])key(?![A-z])).*:\ ).+$'
+        subst = r'\1******'
+        self.do_path_regex_sub("/etc/salt/*", regexp, subst)
 
 # vim: set et ts=4 sw=4 :

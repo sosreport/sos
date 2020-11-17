@@ -21,6 +21,7 @@ class OpenStackHeat(Plugin):
 
     option_list = []
     var_puppet_gen = "/var/lib/config-data/puppet-generated/heat"
+    service_name = "openstack-heat-api.service"
 
     def setup(self):
 
@@ -28,7 +29,7 @@ class OpenStackHeat(Plugin):
         # is running
         in_container = self.container_exists('.*heat_api')
 
-        if self.is_service_running('openstack-heat-api') or in_container:
+        if self.is_service_running(self.service_name) or in_container:
             heat_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
@@ -126,6 +127,7 @@ class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
         'python-heat',
         'python-heatclient'
     )
+    service_name = 'heat-api.service'
 
 
 class RedHatHeat(OpenStackHeat, RedHatPlugin):
