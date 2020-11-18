@@ -17,7 +17,8 @@ import logging
 from datetime import datetime
 import glob
 import sos.report.plugins
-from sos.utilities import ImporterHelper, SoSTimeoutError
+from sos.utilities import (ImporterHelper, SoSTimeoutError,
+                           sos_get_command_output)
 from shutil import rmtree
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
@@ -180,6 +181,7 @@ class SoSReport(SoSComponent):
             self._exit(1)
 
         self._get_hardware_devices()
+        self._get_namespaces()
 
     @classmethod
     def add_parser_options(cls, parser):
@@ -368,6 +370,27 @@ class SoSReport(SoSComponent):
             self.soslog.error("Could not get block device list: %s" % err)
             return []
 
+    def _get_namespaces(self):
+        self.namespaces = {
+            'network': self._get_network_namespaces()
+        }
+
+    def _get_network_namespaces(self):
+        """Enumerate a list of network namespaces on this system so that
+        plugins can iterate over them
+
+        Note that stderr is not collected, so no handling of error lines.
+        """
+        out_ns = []
+
+        ip_netns = sos_get_command_output("ip netns")
+        if ip_netns['status'] == 0:
+            for line in ip_netns['output'].splitlines():
+                if line.isspace() or line[:1].isspace():
+                    continue
+                out_ns.append(line.partition(' ')[0])
+        return out_ns
+
     def get_commons(self):
         return {
             'cmddir': self.cmddir,
@@ -379,7 +402,8 @@ class SoSReport(SoSComponent):
             'sysroot': self.sysroot,
             'verbosity': self.opts.verbosity,
             'cmdlineopts': self.opts,
-            'devices': self.devices
+            'devices': self.devices,
+            'namespaces': self.namespaces
         }
 
     def get_temp_file(self):
