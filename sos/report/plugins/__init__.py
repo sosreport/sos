@@ -2680,6 +2680,9 @@ class Plugin(object):
                 continue
         return pids
 
+    def get_network_namespaces(self):
+        return self.commons['namespaces']['network']
+
 
 class RedHatPlugin(object):
     """Tagging class for Red Hat's Linux distributions"""

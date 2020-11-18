@@ -231,38 +231,32 @@ class Networking(Plugin):
         # Capture additional data from namespaces; each command is run
         # per-namespace.
         self.add_cmd_output("ip netns")
-        ip_netns = self.exec_cmd("ip netns")
         cmd_prefix = "ip netns exec "
-        if ip_netns['status'] == 0:
+        if self.get_network_namespaces():
             out_ns = []
             # Regex initialization outside of for loop
             if self.get_option("namespace_pattern"):
                 pattern = '(?:%s$)' % '$|'.join(
                         self.get_option("namespace_pattern").split()
                         ).replace('*', '.*')
-            for line in ip_netns['output'].splitlines():
-                # If there's no namespaces, no need to continue
-                if line.startswith("Object \"netns\" is unknown") \
-                        or line.isspace() \
-                        or line[:1].isspace():
-                    continue
+            for ns in self.get_network_namespaces():
                 # if namespace_pattern defined, append only namespaces
                 # matching with pattern
                 if self.get_option("namespace_pattern"):
-                    if bool(match(pattern, line)):
-                        out_ns.append(line.partition(' ')[0])
+                    if bool(match(pattern, ns)):
+                        out_ns.append(ns)
 
                 # if namespaces is defined and namespace_pattern is not defined
                 # remove from out_ns namespaces with higher index than defined
                 elif self.get_option("namespaces") != 0:
-                    out_ns.append(line.partition(' ')[0])
+                    out_ns.append(ns)
                     if len(out_ns) == self.get_option("namespaces"):
                         self._log_warn("Limiting namespace iteration " +
                                        "to first %s namespaces found"
                                        % self.get_option("namespaces"))
                         break
                 else:
-                    out_ns.append(line.partition(' ')[0])
+                    out_ns.append(ns)
 
             for namespace in out_ns:
                 ns_cmd_prefix = cmd_prefix + namespace + " "

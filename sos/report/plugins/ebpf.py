@@ -67,19 +67,9 @@ class Ebpf(Plugin, IndependentPlugin):
         ])
 
         # Capture list of bpf program attachments from namespaces
-        ip_netns = self.exec_cmd("ip netns")
         cmd_prefix = "ip netns exec "
-        if ip_netns['status'] == 0:
-            out_ns = []
-            for line in ip_netns['output'].splitlines():
-                # If there's no namespaces, no need to continue
-                if line.startswith("Object \"netns\" is unknown") \
-                        or line.isspace() \
-                        or line[:1].isspace():
-                    continue
-                out_ns.append(line.partition(' ')[0])
-            for namespace in out_ns:
-                ns_cmd_prefix = cmd_prefix + namespace + " "
-                self.add_cmd_output(ns_cmd_prefix + "bpftool net list")
+        for namespace in self.get_network_namespaces():
+            ns_cmd_prefix = cmd_prefix + namespace + " "
+            self.add_cmd_output(ns_cmd_prefix + "bpftool net list")
 
 # vim: set et ts=4 sw=4 :
