@@ -82,47 +82,41 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
     packages = (
         'postgresql',
         'rh-postgresql95-postgresql-server',
-        'rh-postgresql10-postgresql-server'
+        'rh-postgresql10-postgresql-server',
+        'rh-postgresql12-postgresql-server',
     )
 
     def setup(self):
         super(RedHatPostgreSQL, self).setup()
 
         pghome = self.get_option("pghome")
+        dirs = [pghome]
 
-        scl = None
         for pkg in self.packages[1:]:
             # The scl name, package name, and service name all differ slightly
             # but is at least consistent in doing so across versions, so we
             # need to do some mangling here
-            if self.is_service_running(pkg.replace('-server', '')):
-                scl = pkg.split('-postgresql-')[0]
+            scl = pkg.split('-postgresql-')[0]
+            _dir = self.convert_copyspec_scl(scl, pghome)
+            dirs.append(_dir)
+            if os.path.isdir(_dir):
+                self.add_cmd_output("du -sh %s" % _dir)
+            if (self.is_service_running(pkg.replace('-server', '')) and
+                    scl in self.scls_matched):
+                self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
 
-        # Copy PostgreSQL log files.
-        for filename in find("*.log", pghome):
-            self.add_copy_spec(filename)
-        for filename in find("*.log", self.convert_copyspec_scl(scl, pghome)):
-            self.add_copy_spec(filename)
+        for _dir in dirs:
+            # Copy PostgreSQL log files.
+            for filename in find("*.log", _dir):
+                self.add_copy_spec(filename)
 
-        # Copy PostgreSQL config files.
-        for filename in find("*.conf", pghome):
-            self.add_copy_spec(filename)
-        for filename in find("*.conf", self.convert_copyspec_scl(scl, pghome)):
-            self.add_copy_spec(filename)
+            # Copy PostgreSQL config files.
+            for filename in find("*.conf", _dir):
+                self.add_copy_spec(filename)
 
-        self.add_copy_spec(os.path.join(pghome, "data", "PG_VERSION"))
-        self.add_copy_spec(os.path.join(pghome, "data", "postmaster.opts"))
-
-        self.add_copy_spec_scl(scl, os.path.join(pghome, "data", "PG_VERSION"))
-        self.add_copy_spec_scl(scl, os.path.join(
-                pghome,
-                "data",
-                "postmaster.opts"
-            )
-        )
-
-        if scl and scl in self.scls_matched:
-            self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
+            # copy PG_VERSION and postmaster.opts
+            for f in ["PG_VERSION", "postmaster.opts"]:
+                self.add_copy_spec(os.path.join(_dir, "data", f))
 
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
