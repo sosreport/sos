@@ -1,19 +1,32 @@
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
 import unittest
 
 from sos.policies import Policy, PackageManager, import_policy
-from sos.plugins import Plugin, IndependentPlugin, RedHatPlugin, DebianPlugin
+from sos.report.plugins import (Plugin, IndependentPlugin,
+                                RedHatPlugin, DebianPlugin)
+
 
 class FauxPolicy(Policy):
     distro = "Faux"
 
+
 class FauxPlugin(Plugin, IndependentPlugin):
     pass
+
 
 class FauxRedHatPlugin(Plugin, RedHatPlugin):
     pass
 
+
 class FauxDebianPlugin(Plugin, DebianPlugin):
     pass
+
 
 class PolicyTests(unittest.TestCase):
 
@@ -60,10 +73,12 @@ class PackageManagerTests(unittest.TestCase):
         self.assertEquals(self.pm.all_pkgs_by_name('doesntmatter'), [])
 
     def test_default_all_pkgs_by_name_regex(self):
-        self.assertEquals(self.pm.all_pkgs_by_name_regex('.*doesntmatter$'), [])
+        self.assertEquals(
+            self.pm.all_pkgs_by_name_regex('.*doesntmatter$'), [])
 
     def test_default_pkg_by_name(self):
         self.assertEquals(self.pm.pkg_by_name('foo'), None)
+
 
 if __name__ == "__main__":
     unittest.main()

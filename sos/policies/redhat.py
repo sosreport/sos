@@ -8,16 +8,14 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-# This enables the use of with syntax in python 2.5 (e.g. jython)
-from __future__ import print_function
 import os
 import sys
 import re
 
-from sos.plugins import RedHatPlugin
+from sos.report.plugins import RedHatPlugin
 from sos.policies import LinuxPolicy, PackageManager, PresetDefaults
 from sos import _sos as _
-from sos import SoSOptions
+from sos.options import SoSOptions
 
 OS_RELEASE = "/etc/os-release"
 
@@ -25,7 +23,7 @@ OS_RELEASE = "/etc/os-release"
 class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
     vendor = "Red Hat"
-    vendor_url = "http://www.redhat.com/"
+    vendor_url = "https://www.redhat.com/"
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}|%{RELEASE}\\n"'
@@ -36,10 +34,17 @@ class RedHatPolicy(LinuxPolicy):
     _host_sysroot = '/'
     default_scl_prefix = '/opt/rh'
     name_pattern = 'friendly'
-    init = 'systemd'
+    upload_url = 'dropbox.redhat.com'
+    upload_user = 'anonymous'
+    upload_directory = '/incoming'
+    default_container_runtime = 'podman'
+    sos_pkg_name = 'sos'
+    sos_bin_path = '/usr/sbin'
 
-    def __init__(self, sysroot=None):
-        super(RedHatPolicy, self).__init__(sysroot=sysroot)
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(RedHatPolicy, self).__init__(sysroot=sysroot, init=init,
+                                           probe_runtime=probe_runtime)
         self.ticket_number = ""
         self.usrmove = False
         # need to set _host_sysroot before PackageManager()
@@ -53,15 +58,16 @@ class RedHatPolicy(LinuxPolicy):
                                               verify_command=self._rpmv_cmd,
                                               verify_filter=self._rpmv_filter,
                                               files_command=self._rpmql_cmd,
-                                              chroot=sysroot)
+                                              chroot=sysroot,
+                                              remote_exec=remote_exec)
 
-        self.valid_subclasses = [RedHatPlugin]
+        self.valid_subclasses += [RedHatPlugin]
 
         self.pkgs = self.package_manager.all_pkgs()
 
         # If rpm query failed, exit
         if not self.pkgs:
-            print("Could not obtain installed package list", file=sys.stderr)
+            sys.stderr.write("Could not obtain installed package list")
             sys.exit(1)
 
         self.usrmove = self.check_usrmove(self.pkgs)
@@ -76,10 +82,15 @@ class RedHatPolicy(LinuxPolicy):
         self.load_presets()
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """This method checks to see if we are running on Red Hat. It must be
         overriden by concrete subclasses to return True when running on a
-        Fedora, RHEL or other Red Hat distribution or False otherwise."""
+        Fedora, RHEL or other Red Hat distribution or False otherwise.
+
+        If `remote` is provided, it should be the contents of a remote host's
+        os-release, or comparable, file to be used in place of the locally
+        available one.
+        """
         return False
 
     def check_usrmove(self, pkgs):
@@ -133,7 +144,7 @@ class RedHatPolicy(LinuxPolicy):
                 self._in_container = True
         if ENV_HOST_SYSROOT in os.environ:
             self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
-        use_sysroot = self._in_container and self._host_sysroot != '/'
+        use_sysroot = self._in_container and self._host_sysroot is not None
         if use_sysroot:
             host_tmp_dir = os.path.abspath(self._host_sysroot + self._tmp_dir)
             self._tmp_dir = host_tmp_dir
@@ -174,11 +185,8 @@ ENV_HOST_SYSROOT = 'HOST'
 _opts_verify = SoSOptions(verify=True)
 _opts_all_logs = SoSOptions(all_logs=True)
 _opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
-_opts_all_logs_no_lsof = SoSOptions(all_logs=True,
-                                    plugopts=['process.lsof=off'])
-_cb_plugs = ['abrt', 'block', 'boot', 'dnf', 'dracut', 'filesys', 'grub2',
-             'hardware', 'host', 'kernel', 'logs', 'lvm2', 'memory', 'rpm',
-             'process', 'systemd', 'yum', 'xfs']
+_cb_profiles = ['boot', 'storage', 'system']
+_cb_plugopts = ['boot.all-images=on', 'rpm.rpmva=on', 'rpm.rpmdb=on']
 
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
 
@@ -193,14 +201,24 @@ RHOSP_DESC = "Red Hat OpenStack Platform"
 
 RHOCP = "ocp"
 RHOCP_DESC = "OpenShift Container Platform by Red Hat"
+RHOSP_OPTS = SoSOptions(plugopts=[
+                             'process.lsof=off',
+                             'networking.ethtool_namespaces=False',
+                             'networking.namespaces=200'])
+
+RH_CFME = "cfme"
+RH_CFME_DESC = "Red Hat CloudForms"
 
 RH_SATELLITE = "satellite"
 RH_SATELLITE_DESC = "Red Hat Satellite"
-SAT_OPTS = SoSOptions(verify=True, plugopts=['apache.log=on'])
+SAT_OPTS = SoSOptions(log_size=100, plugopts=['apache.log=on'])
 
 CB = "cantboot"
 CB_DESC = "For use when normal system startup fails"
-CB_OPTS = SoSOptions(verify=True, all_logs=True, onlyplugins=_cb_plugs)
+CB_OPTS = SoSOptions(
+            verify=True, all_logs=True, profiles=_cb_profiles,
+            plugopts=_cb_plugopts
+          )
 CB_NOTE = ("Data collection will be limited to a boot-affecting scope")
 
 NOTE_SIZE = "This preset may increase report size"
@@ -211,10 +229,11 @@ rhel_presets = {
     RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
                         opts=_opts_verify),
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
-    RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, note=NOTE_SIZE,
-                          opts=_opts_all_logs_no_lsof),
+    RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, opts=RHOSP_OPTS),
     RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
                           opts=_opts_all_logs_verify),
+    RH_CFME: PresetDefaults(name=RH_CFME, desc=RH_CFME_DESC, note=NOTE_TIME,
+                            opts=_opts_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
                                  note=NOTE_TIME, opts=SAT_OPTS),
     CB: PresetDefaults(name=CB, desc=CB_DESC, note=CB_NOTE, opts=CB_OPTS)
@@ -233,6 +252,9 @@ organization before being passed to any third party.
 No changes will be made to system configuration.
 """
 
+RH_API_HOST = "https://access.redhat.com"
+RH_FTP_HOST = "ftp://dropbox.redhat.com"
+
 
 class RHELPolicy(RedHatPolicy):
     distro = RHEL_RELEASE_STR
@@ -247,13 +269,19 @@ An archive containing the collected information will be \
 generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
+    _upload_url = RH_FTP_HOST
+    _upload_user = 'anonymous'
+    _upload_directory = '/incoming'
 
-    def __init__(self, sysroot=None):
-        super(RHELPolicy, self).__init__(sysroot=sysroot)
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(RHELPolicy, self).__init__(sysroot=sysroot, init=init,
+                                         probe_runtime=probe_runtime,
+                                         remote_exec=remote_exec)
         self.register_presets(rhel_presets)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """Test to see if the running host is a RHEL installation.
 
             Checks for the presence of the "Red Hat Enterprise Linux"
@@ -264,6 +292,10 @@ support representative.
             :returns: ``True`` if the host is running RHEL or ``False``
                       otherwise.
         """
+
+        if remote:
+            return cls.distro in remote
+
         if not os.path.exists(OS_RELEASE):
             return False
 
@@ -275,6 +307,62 @@ support representative.
                     if value.startswith(cls.distro):
                         return True
         return False
+
+    def prompt_for_upload_user(self):
+        if self.commons['cmdlineopts'].upload_user:
+            return
+        # Not using the default, so don't call this prompt for RHCP
+        if self.commons['cmdlineopts'].upload_url:
+            super(RHELPolicy, self).prompt_for_upload_user()
+            return
+        if self.case_id and not self.get_upload_user():
+            self.upload_user = input(_(
+                "Enter your Red Hat Customer Portal username (empty to use "
+                "public dropbox): ")
+            )
+            if not self.upload_user:
+                self.upload_url = RH_FTP_HOST
+                self.upload_user = self._upload_user
+
+    def _upload_user_set(self):
+        user = self.get_upload_user()
+        return user and (user != 'anonymous')
+
+    def get_upload_url(self):
+        if self.upload_url:
+            return self.upload_url
+        if self.commons['cmdlineopts'].upload_url:
+            return self.commons['cmdlineopts'].upload_url
+        # anonymous FTP server should be used as fallback when either:
+        # - case id is not set, or
+        # - upload user isn't set AND batch mode prevents to prompt for it
+        if (not self.case_id) or \
+           ((not self._upload_user_set()) and
+               self.commons['cmdlineopts'].batch):
+            self.upload_user = self._upload_user
+            if self.upload_directory is None:
+                self.upload_directory = self._upload_directory
+            self.upload_password = None
+            return RH_FTP_HOST
+        else:
+            rh_case_api = "/hydra/rest/cases/%s/attachments"
+            return RH_API_HOST + rh_case_api % self.case_id
+
+    def _get_upload_headers(self):
+        if self.get_upload_url().startswith(RH_API_HOST):
+            return {'isPrivate': 'false', 'cache-control': 'no-cache'}
+        return {}
+
+    def get_upload_url_string(self):
+        if self.get_upload_url().startswith(RH_API_HOST):
+            return "Red Hat Customer Portal"
+        return self.upload_url or RH_FTP_HOST
+
+    def get_upload_user(self):
+        # if this is anything other than dropbox, annonymous won't work
+        if self.upload_url != RH_FTP_HOST:
+            return os.getenv('SOSUPLOADUSER', None) or self.upload_user
+        return self._upload_user
 
     def dist_version(self):
         try:
@@ -295,11 +383,20 @@ support representative.
         return False
 
     def probe_preset(self):
+        # Emergency or rescue mode?
+        for target in ["rescue", "emergency"]:
+            if self.init_system.is_running("%s.target" % target):
+                return self.find_preset(CB)
         # Package based checks
         if self.pkg_by_name("satellite-common") is not None:
             return self.find_preset(RH_SATELLITE)
         if self.pkg_by_name("rhosp-release") is not None:
             return self.find_preset(RHOSP)
+        if self.pkg_by_name("cfme") is not None:
+            return self.find_preset(RH_CFME)
+        if self.pkg_by_name("ovirt-engine") is not None or \
+                self.pkg_by_name("vdsm") is not None:
+            return self.find_preset(RHV)
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
@@ -308,7 +405,7 @@ support representative.
 class CentOsPolicy(RHELPolicy):
     distro = "CentOS"
     vendor = "CentOS"
-    vendor_url = "http://www.centos.org/"
+    vendor_url = "https://www.centos.org/"
 
 
 ATOMIC = "atomic"
@@ -332,12 +429,25 @@ generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
 
-    def __init__(self, sysroot=None):
-        super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot)
+    containerzed = True
+    container_runtime = 'docker'
+    container_image = 'registry.access.redhat.com/rhel7/support-tools'
+    sos_path_strip = '/host'
+    container_version_command = 'rpm -q sos'
+
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot, init=init,
+                                                 probe_runtime=probe_runtime,
+                                                 remote_exec=remote_exec)
         self.register_presets(atomic_presets)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
+
+        if remote:
+            return cls.distro in remote
+
         atomic = False
         if ENV_HOST_SYSROOT not in os.environ:
             return atomic
@@ -357,6 +467,19 @@ support representative.
 
         return self.find_preset(ATOMIC)
 
+    def create_sos_container(self):
+        _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
+                " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
+                "IMAGE={image} -v /run:/run -v /var/log:/var/log -v "
+                "/etc/machine-id:/etc/machine-id -v "
+                "/etc/localtime:/etc/localtime -v /:/host {image}")
+        return _cmd.format(runtime=self.container_runtime,
+                           name=self.sos_container_name,
+                           image=self.container_image)
+
+    def set_cleanup_cmd(self):
+        return 'docker rm --force sos-collector-tmp'
+
 
 class RedHatCoreOSPolicy(RHELPolicy):
     distro = "Red Hat CoreOS"
@@ -369,18 +492,31 @@ generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
 
-    def __init__(self, sysroot=None):
-        super(RedHatCoreOSPolicy, self).__init__(sysroot=sysroot)
+    containerized = True
+    container_runtime = 'podman'
+    container_image = 'registry.redhat.io/rhel8/support-tools'
+    sos_path_strip = '/host'
+    container_version_command = 'rpm -q sos'
+
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(RedHatCoreOSPolicy, self).__init__(sysroot=sysroot, init=init,
+                                                 probe_runtime=probe_runtime,
+                                                 remote_exec=remote_exec)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
+
+        if remote:
+            return 'CoreOS' in remote
+
         coreos = False
         if ENV_HOST_SYSROOT not in os.environ:
             return coreos
         host_release = os.environ[ENV_HOST_SYSROOT] + cls._redhat_release
         try:
             for line in open(host_release, 'r').read().splitlines():
-                coreos |= 'Red Hat CoreOS' in line
+                coreos |= 'Red Hat Enterprise Linux CoreOS' in line
         except IOError:
             pass
         return coreos
@@ -390,11 +526,24 @@ support representative.
         # RH OCP environments.
         return self.find_preset(RHOCP)
 
+    def create_sos_container(self):
+        _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
+                " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
+                "IMAGE={image} -v /run:/run -v /var/log:/var/log -v "
+                "/etc/machine-id:/etc/machine-id -v "
+                "/etc/localtime:/etc/localtime -v /:/host {image}")
+        return _cmd.format(runtime=self.container_runtime,
+                           name=self.sos_container_name,
+                           image=self.container_image)
+
+    def set_cleanup_cmd(self):
+        return 'podman rm --force %s' % self.sos_container_name
+
 
 class CentOsAtomicPolicy(RedHatAtomicPolicy):
     distro = "CentOS Atomic Host"
     vendor = "CentOS"
-    vendor_url = "http://www.centos.org/"
+    vendor_url = "https://www.centos.org/"
 
 
 class FedoraPolicy(RedHatPolicy):
@@ -403,13 +552,20 @@ class FedoraPolicy(RedHatPolicy):
     vendor = "the Fedora Project"
     vendor_url = "https://fedoraproject.org/"
 
-    def __init__(self, sysroot=None):
-        super(FedoraPolicy, self).__init__(sysroot=sysroot)
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(FedoraPolicy, self).__init__(sysroot=sysroot, init=init,
+                                           probe_runtime=probe_runtime,
+                                           remote_exec=remote_exec)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """This method checks to see if we are running on Fedora. It returns
         True or False."""
+
+        if remote:
+            return cls.distro in remote
+
         return os.path.isfile('/etc/fedora-release')
 
     def fedora_version(self):

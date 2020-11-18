@@ -58,23 +58,53 @@ class InstallData(install_data):
       return (out+".gz", _)
     return (out, _)
 
-setup(name='sos',
-      version=VERSION,
-      description=("""A set of tools to gather troubleshooting"""
-                   """ information from a system."""),
-      author='Bryn M. Reeves',
-      author_email='bmr@redhat.com',
-      url='https://github.com/sosreport/sos',
-      license="GPLv2+",
-      scripts=['sosreport'],
-      data_files=[
-        ('share/man/man1', ['man/en/sosreport.1']),
+cmdclass = {'build': BuildData, 'install_data': InstallData}
+command_options = {}
+try:
+    from sphinx.setup_command import BuildDoc
+    cmdclass['build_sphinx'] = BuildDoc
+    command_options={
+        'build_sphinx': {
+            'project': ('setup.py', 'sos'),
+            'version': ('setup.py', VERSION),
+            'source_dir': ('setup.py', 'docs')
+        }
+    }
+except Exception:
+    print("Unable to build sphinx docs - module not present. Install sphinx "
+          "to enable documentation generation")
+
+setup(
+    name='sos',
+    version=VERSION,
+    description=("""A set of tools to gather troubleshooting"""
+                 """ information from a system."""),
+    author='Bryn M. Reeves',
+    author_email='bmr@redhat.com',
+    maintainer='Jake Hunsaker',
+    maintainer_email='jhunsake@redhat.com',
+    url='https://github.com/sosreport/sos',
+    license="GPLv2+",
+    scripts=['bin/sos', 'bin/sosreport', 'bin/sos-collector'],
+    data_files=[
+        ('share/man/man1', ['man/en/sosreport.1', 'man/en/sos-report.1',
+                            'man/en/sos.1', 'man/en/sos-collect.1',
+                            'man/en/sos-collector.1', 'man/en/sos-clean.1',
+                            'man/en/sos-mask.1']),
         ('share/man/man5', ['man/en/sos.conf.5']),
-        ],
-      packages=['sos', 'sos.plugins', 'sos.policies'],
-      cmdclass={'build': BuildData, 'install_data': InstallData},
-      requires=['six', 'futures'],
-     )
+        ('share/licenses/sos', ['LICENSE']),
+        ('share/doc/sos', ['AUTHORS', 'README.md']),
+        ('config', ['sos.conf'])
+    ],
+    packages=[
+        'sos', 'sos.policies', 'sos.report', 'sos.report.plugins',
+        'sos.collector', 'sos.collector.clusters', 'sos.cleaner',
+        'sos.cleaner.mappings', 'sos.cleaner.parsers'
+    ],
+    cmdclass=cmdclass,
+    command_options=command_options,
+    requires=['pexpect']
+    )
 
 
 # vim: set et ts=4 sw=4 :

@@ -1,9 +1,14 @@
-#!/usr/bin/env python
-
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
 import unittest
 
-from sos.plugins import Plugin
-from sos.policies import LinuxPolicy
+from sos.report.plugins import Plugin
+from sos.policies import LinuxPolicy, InitSystem
 
 
 class MockOptions(object):
@@ -11,6 +16,8 @@ class MockOptions(object):
     dry_run = False
     log_size = 25
     allow_system_changes = False
+    skip_cmds = []
+    skip_files = []
 
 
 class GlobalOptionTest(unittest.TestCase):
@@ -18,8 +25,9 @@ class GlobalOptionTest(unittest.TestCase):
     def setUp(self):
         self.commons = {
             'sysroot': '/',
-            'policy': LinuxPolicy(),
-            'cmdlineopts': MockOptions()
+            'policy': LinuxPolicy(init=InitSystem()),
+            'cmdlineopts': MockOptions(),
+            'devices': {}
         }
         self.plugin = Plugin(self.commons)
         self.plugin.opt_names = ['baz', 'empty', 'test_option']

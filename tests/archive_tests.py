@@ -1,18 +1,19 @@
-#!/usr/bin/env python
-
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
 import unittest
 import os
 import tarfile
-import zipfile
 import tempfile
 import shutil
 
 from sos.archive import TarFileArchive
 from sos.utilities import tail
 from sos.policies import Policy
-
-# PYCOMPAT
-import six
 
 
 class TarFileArchiveTest(unittest.TestCase):
@@ -51,14 +52,13 @@ class TarFileArchiveTest(unittest.TestCase):
     def test_add_string_from_file(self):
         self.copy_strings = []
         testfile = tempfile.NamedTemporaryFile(dir=self.tmpdir, delete=False)
-        testfile.write(six.b("*" * 1000))
+        testfile.write(b"*" * 1000)
         testfile.flush()
         testfile.close()
 
         self.copy_strings.append((tail(testfile.name, 100), 'string_test.txt'))
         self.tf.add_string(self.copy_strings[0][0], 'tests/string_test.txt')
         self.tf.finalize('auto')
-
 
 # Since commit 179d9bb add_file does not support recursive directory
 # addition. Disable this test for now.

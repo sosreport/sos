@@ -14,13 +14,10 @@ import tarfile
 import shutil
 import logging
 import codecs
-import sys
 import errno
 import stat
+from datetime import datetime
 from threading import Lock
-
-# required for compression callout (FIXME: move to policy?)
-from subprocess import Popen
 
 from sos.utilities import sos_get_command_output, is_executable
 
@@ -28,11 +25,6 @@ try:
     import selinux
 except ImportError:
     pass
-
-# PYCOMPAT
-import six
-if six.PY3:
-    long = int
 
 P_FILE = "file"
 P_LINK = "link"
@@ -126,7 +118,7 @@ class Archive(object):
         """Finalize an archive object via method. This may involve creating
         An archive that is subsequently compressed or simply closing an
         archive that supports in-line handling. If method is automatic then
-        the following methods are tried in order: xz, bz2 and gzip"""
+        the following methods are tried in order: xz, gzip"""
 
         self.close()
 
@@ -139,13 +131,15 @@ class FileCacheArchive(Archive):
     _archive_root = ""
     _archive_name = ""
 
-    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot):
+    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
+                 manifest=None):
         self._name = name
         self._tmp_dir = tmpdir
         self._policy = policy
         self._threads = threads
         self.enc_opts = enc_opts
-        self.sysroot = sysroot
+        self.sysroot = sysroot or '/'
+        self.manifest = manifest
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)
@@ -346,12 +340,13 @@ class FileCacheArchive(Archive):
                 # path case
                 try:
                     shutil.copy(src, dest)
-                except IOError as e:
+                except OSError as e:
                     # Filter out IO errors on virtual file systems.
                     if src.startswith("/sys/") or src.startswith("/proc/"):
                         pass
                     else:
-                        self.log_info("caught '%s' copying '%s'" % (e, src))
+                        self.log_info("File %s not collected: '%s'" % (src, e))
+
                 # copy file attributes, skip SELinux xattrs for /sys and /proc
                 try:
                     stat = os.stat(src)
@@ -538,6 +533,29 @@ class FileCacheArchive(Archive):
         if os.path.isdir(self._archive_root):
             shutil.rmtree(self._archive_root)
 
+    def add_final_manifest_data(self, method):
+        """Adds component-agnostic data to the manifest so that individual
+        SoSComponents do not need to redundantly add these manually
+        """
+        end = datetime.now()
+        start = self.manifest.start_time
+        run_time = end - start
+        self.manifest.add_field('end_time', end)
+        self.manifest.add_field('run_time', run_time)
+        self.manifest.add_field('compression', method)
+        self.add_string(self.manifest.get_json(indent=4),
+                        os.path.join('sos_reports', 'manifest.json'))
+
+    def rename_archive_root(self, cleaner):
+        """Rename the archive to an obfuscated version using an initialized
+        SoSCleaner instance
+        """
+        self._name = cleaner.obfuscate_string(self._name)
+        _new_root = os.path.join(self._tmp_dir, self._name)
+        os.rename(self._archive_root, _new_root)
+        self._archive_root = _new_root
+        self._archive_name = os.path.join(self._tmp_dir, self.name())
+
     def finalize(self, method):
         self.log_info("finalizing archive '%s' using method '%s'"
                       % (self._archive_root, method))
@@ -607,88 +625,20 @@ class FileCacheArchive(Archive):
         raise Exception(msg)
 
 
-# Compatibility version of the tarfile.TarFile class. This exists to allow
-# compatibility with PY2 runtimes that lack the 'filter' parameter to the
-# TarFile.add() method. The wrapper class is used on python2.6 and earlier
-# only; all later versions include 'filter' and the native TarFile class is
-# used directly.
-class _TarFile(tarfile.TarFile):
-
-    # Taken from the python 2.7.5 tarfile.py
-    def add(self, name, arcname=None, recursive=True,
-            exclude=None, filter=None):
-        """Add the file `name' to the archive. `name' may be any type of file
-           (directory, fifo, symbolic link, etc.). If given, `arcname'
-           specifies an alternative name for the file in the archive.
-           Directories are added recursively by default. This can be avoided by
-           setting `recursive' to False. `exclude' is a function that should
-           return True for each filename to be excluded. `filter' is a function
-           that expects a TarInfo object argument and returns the changed
-           TarInfo object, if it returns None the TarInfo object will be
-           excluded from the archive.
-        """
-        self._check("aw")
-
-        if arcname is None:
-            arcname = name
-
-        # Exclude pathnames.
-        if exclude is not None:
-            import warnings
-            warnings.warn("use the filter argument instead",
-                          DeprecationWarning, 2)
-            if exclude(name):
-                self._dbg(2, "tarfile: Excluded %r" % name)
-                return
-
-        # Skip if somebody tries to archive the archive...
-        if self.name is not None and os.path.abspath(name) == self.name:
-            self._dbg(2, "tarfile: Skipped %r" % name)
-            return
-
-        self._dbg(1, name)
-
-        # Create a TarInfo object from the file.
-        tarinfo = self.gettarinfo(name, arcname)
-
-        if tarinfo is None:
-            self._dbg(1, "tarfile: Unsupported type %r" % name)
-            return
-
-        # Change or exclude the TarInfo object.
-        if filter is not None:
-            tarinfo = filter(tarinfo)
-            if tarinfo is None:
-                self._dbg(2, "tarfile: Excluded %r" % name)
-                return
-
-        # Append the tar header and data to the archive.
-        if tarinfo.isreg():
-            with tarfile.bltn_open(name, "rb") as f:
-                self.addfile(tarinfo, f)
-
-        elif tarinfo.isdir():
-            self.addfile(tarinfo)
-            if recursive:
-                for f in os.listdir(name):
-                    self.add(os.path.join(name, f), os.path.join(arcname, f),
-                             recursive, exclude, filter)
-
-        else:
-            self.addfile(tarinfo)
-
-
 class TarFileArchive(FileCacheArchive):
     """ archive class using python TarFile to create tar archives"""
 
     method = None
     _with_selinux_context = False
 
-    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot):
+    def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
+                 manifest=None):
         super(TarFileArchive, self).__init__(name, tmpdir, policy, threads,
-                                             enc_opts, sysroot)
+                                             enc_opts, sysroot, manifest)
         self._suffix = "tar"
-        self._archive_name = os.path.join(tmpdir, self.name())
+        self._archive_name = os.path.join(
+            tmpdir, self.name()  # lgtm [py/init-calls-subclass]
+        )
 
     def set_tarinfo_from_stat(self, tar_info, fstat, mode=None):
         tar_info.mtime = fstat.st_mtime
@@ -734,11 +684,7 @@ class TarFileArchive(FileCacheArchive):
         return super(TarFileArchive, self).name_max()
 
     def _build_archive(self):
-        # python2.6 TarFile lacks the filter parameter
-        if not six.PY3 and sys.version_info[1] < 7:
-            tar = _TarFile.open(self._archive_name, mode="w")
-        else:
-            tar = tarfile.open(self._archive_name, mode="w")
+        tar = tarfile.open(self._archive_name, mode="w")
         # we need to pass the absolute path to the archive root but we
         # want the names used in the archive to be relative.
         tar.add(self._archive_root, arcname=os.path.split(self._name)[1],
@@ -748,7 +694,7 @@ class TarFileArchive(FileCacheArchive):
     def _compress(self):
         methods = []
         # Make sure that valid compression commands exist.
-        for method in ['xz', 'bzip2', 'gzip']:
+        for method in ['xz', 'gzip']:
             if is_executable(method):
                 methods.append(method)
             else:

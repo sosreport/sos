@@ -6,8 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from __future__ import with_statement
-
 import os
 import re
 import inspect
@@ -17,14 +15,13 @@ import fnmatch
 import errno
 import shlex
 import glob
+import tempfile
 import threading
 import time
+import io
 
 from contextlib import closing
 from collections import deque
-
-# PYCOMPAT
-import six
 
 
 def tail(filename, number_of_bytes):
@@ -37,13 +34,13 @@ def tail(filename, number_of_bytes):
 
 def fileobj(path_or_file, mode='r'):
     """Returns a file-like object that can be used as a context manager"""
-    if isinstance(path_or_file, six.string_types):
+    if isinstance(path_or_file, str):
         try:
             return open(path_or_file, mode)
         except IOError:
             log = logging.getLogger('sos')
             log.debug("fileobj: %s could not be opened" % path_or_file)
-            return closing(six.StringIO())
+            return closing(io.StringIO())
     else:
         return closing(path_or_file)
 
@@ -106,7 +103,7 @@ def is_executable(command):
 
 
 def sos_get_command_output(command, timeout=300, stderr=False,
-                           chroot=None, chdir=None, env=None,
+                           chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
@@ -133,11 +130,12 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                 cmd_env.pop(key, None)
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
-        command = "timeout %ds %s" % (timeout, command)
+        command = "timeout %s %ds %s" % (
+            '--foreground' if foreground else '',
+            timeout,
+            command
+        )
 
-    # shlex.split() reacts badly to unicode on older python runtimes.
-    if not six.PY3:
-        command = command.encode('utf-8', 'ignore')
     args = shlex.split(command)
     # Expand arguments that are wildcard paths.
     expanded_args = []
@@ -171,7 +169,7 @@ def sos_get_command_output(command, timeout=300, stderr=False,
             raise e
 
     if p.returncode == 126 or p.returncode == 127:
-        stdout = six.binary_type(b"")
+        stdout = b""
 
     return {
         'status': p.returncode,
@@ -203,13 +201,23 @@ def shell_out(cmd, timeout=30, chroot=None, runat=None):
                                   chroot=chroot, chdir=runat)['output']
 
 
+def get_human_readable(size, precision=2):
+    # Credit to Pavan Gupta https://stackoverflow.com/questions/5194057/
+    suffixes = ['B', 'KiB', 'MiB', 'GiB', 'TiB']
+    suffixindex = 0
+    while size > 1024 and suffixindex < 4:
+        suffixindex += 1
+        size = size/1024.0
+    return "%.*f%s" % (precision, size, suffixes[suffixindex])
+
+
 class AsyncReader(threading.Thread):
-    '''Used to limit command output to a given size without deadlocking
+    """Used to limit command output to a given size without deadlocking
     sos.
 
     Takes a sizelimit value in MB, and will compile stdout from Popen into a
     string that is limited to the given sizelimit.
-    '''
+    """
 
     def __init__(self, channel, sizelimit, binary):
         super(AsyncReader, self).__init__()
@@ -225,14 +233,14 @@ class AsyncReader(threading.Thread):
         self.start()
 
     def run(self):
-        '''Reads from the channel (pipe) that is the output pipe for a
+        """Reads from the channel (pipe) that is the output pipe for a
         called Popen. As we are reading from the pipe, the output is added
         to a deque. After the size of the deque exceeds the sizelimit
         earlier (older) entries are removed.
 
         This means the returned output is chunksize-sensitive, but is not
         really byte-sensitive.
-        '''
+        """
         try:
             while True:
                 line = self.chan.read(self.chunksize)
@@ -246,7 +254,7 @@ class AsyncReader(threading.Thread):
         self.running = False
 
     def get_contents(self):
-        '''Returns the contents of the deque as a string'''
+        """Returns the contents of the deque as a string"""
         # block until command completes or timesout (separate from the plugin
         # hitting a timeout)
         while self.running:
@@ -300,6 +308,33 @@ class ImporterHelper(object):
                 plugins.extend(self._find_plugins_in_dir(path))
 
         return plugins
+
+
+class TempFileUtil():
+
+    def __init__(self, tmp_dir):
+        self.tmp_dir = tmp_dir
+        self.files = []
+
+    def new(self):
+        fd, fname = tempfile.mkstemp(dir=self.tmp_dir)
+        # avoid TOCTOU race by using os.fdopen()
+        fobj = os.fdopen(fd, 'w+')
+        self.files.append((fname, fobj))
+        return fobj
+
+    def clean(self):
+        for fname, f in self.files:
+            try:
+                f.flush()
+                f.close()
+            except Exception:
+                pass
+            try:
+                os.unlink(fname)
+            except Exception:
+                pass
+        self.files = []
 
 
 class SoSTimeoutError(OSError):

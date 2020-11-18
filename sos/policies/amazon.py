@@ -8,9 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-# This enables the use of with syntax in python 2.5 (e.g. jython)
-from __future__ import print_function
-
 from sos.policies.redhat import RedHatPolicy, OS_RELEASE
 import os
 
@@ -21,11 +18,18 @@ class AmazonPolicy(RedHatPolicy):
     vendor = "Amazon"
     vendor_url = "https://aws.amazon.com"
 
-    def __init__(self, sysroot=None):
-        super(AmazonPolicy, self).__init__(sysroot=sysroot)
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(AmazonPolicy, self).__init__(sysroot=sysroot, init=init,
+                                           probe_runtime=probe_runtime,
+                                           remote_exec=remote_exec)
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
+
+        if remote:
+            return cls.distro in remote
+
         if not os.path.exists(OS_RELEASE):
             return False
 

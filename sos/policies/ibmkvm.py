@@ -10,9 +10,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from __future__ import print_function
-
-from sos.plugins import PowerKVMPlugin, ZKVMPlugin, RedHatPlugin
+from sos.report.plugins import PowerKVMPlugin, ZKVMPlugin
 from sos.policies.redhat import RedHatPolicy
 
 import os
@@ -23,14 +21,21 @@ class PowerKVMPolicy(RedHatPolicy):
     vendor = "IBM"
     vendor_url = "http://www-03.ibm.com/systems/power/software/linux/powerkvm"
 
-    def __init__(self, sysroot=None):
-        super(PowerKVMPolicy, self).__init__(sysroot=sysroot)
-        self.valid_subclasses = [PowerKVMPlugin, RedHatPlugin]
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(PowerKVMPolicy, self).__init__(sysroot=sysroot, init=init,
+                                             probe_runtime=probe_runtime,
+                                             remote_exec=remote_exec)
+        self.valid_subclasses += [PowerKVMPlugin]
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """This method checks to see if we are running on PowerKVM.
            It returns True or False."""
+
+        if remote:
+            return cls.distro in remote
+
         return os.path.isfile('/etc/ibm_powerkvm-release')
 
     def dist_version(self):
@@ -49,12 +54,16 @@ class ZKVMPolicy(RedHatPolicy):
 
     def __init__(self, sysroot=None):
         super(ZKVMPolicy, self).__init__(sysroot=sysroot)
-        self.valid_subclasses = [ZKVMPlugin, RedHatPlugin]
+        self.valid_subclasses += [ZKVMPlugin]
 
     @classmethod
-    def check(cls):
+    def check(cls, remote=''):
         """This method checks to see if we are running on IBM Z KVM. It
         returns True or False."""
+
+        if remote:
+            return cls.distro in remote
+
         return os.path.isfile('/etc/base-release')
 
     def dist_version(self):

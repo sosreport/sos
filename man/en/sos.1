@@ -1,0 +1,132 @@
+.TH sos 1 "April 2020"
+
+.SH NAME
+sos \- A unified tool for collecting system logs and other debug information
+.SH SYNOPSIS
+\fBsos\fR component [options]
+
+.SH DESCRIPTION
+\fBsos\fR is a diagnostic data collection utility, used by system administrators,
+support representatives, and the like to assist in troubleshooting issues with
+a system or group of systems.
+
+The most well known function is \fB sos report\fR or \fBsosreport\fR as it was
+previously known.
+
+An sos archive is typically requested by support organizations to collect baseline
+configuration and system data from which to begin the troubleshooting process.
+
+
+.SH COMPONENTS
+
+sos supports several subcommands or components. Each provides a different set
+of information for the user. Supported components are as follows
+
+.TP
+.B report
+Report generates an archive of system information including configuration files
+and command output. Information included in the report is based upon plugins that
+are activated automatically when certain criteria, such as installed packages, files,
+services, or system architecture is detected.
+
+See \fBsos report --help\fR and \fBman sos-report\fR for more information.
+
+May also be invoked via the alias \fBrep\fR or the deprecated command \fBsosreport\fR.
+
+.TP
+.B collect
+Collect is used to capture reports on multiple systems simultaneously. These
+systems can either be defined by the user at the command line and/or defined by
+clustering software that exists either on the local system or on a "master" system
+that is able to inform about other nodes in the cluster.
+
+When running collect, sos report will be run on the remote nodes, and then the
+resulting archives will be copied from those nodes to the local system running
+sos collect. Archives are then removed from the remote systems.
+
+See \fBsos collect --help\fR and \fBman sos-collect\fR for more information.
+
+May also be invoked via the alias \fBsos collector\fR or the deprecated command
+\fBsos-collector\fR.
+
+.TP
+.B clean|mask
+This subcommand takes input of either 1) an sosreport tarball, 2) a collection
+of sosreport tarballs such as from \fBcollect\fR, or 3) the unpackaged
+directory of an sosreport and obfuscates potentially sensitive system information
+that is not covered by the standard postprocessing of \fBsos report\fR.
+
+Such data includes IP addresses, networks, MAC addresses, and more. Data obfuscated
+by this command will remain consistent throughout the report and across reports provided
+in the same invocation. Additionally, care is taken to maintain network topology relationships
+between matched data items.
+
+See \fB sos clean --help\fR and \fBman sos-clean\fR for more information.
+
+May be invoked via either \fBsos clean\fR, \fBsos mask\fR, or via the \fB--clean\fR or \fB --mask\fR options
+for \fBreport\fR and \fBcollect\fR.
+
+.SH GLOBAL OPTIONS
+sos components provide their own set of options, however the following are available
+to be set across all components.
+
+.B \-\-batch
+Do not prompt interactively, user will not be prompted for any data
+.TP
+.B \--encrypt-key KEY
+Encrypts the resulting archive that sosreport produces using GPG. KEY must be
+an existing key in the user's keyring as GPG does not allow for keyfiles.
+KEY can be any value accepted by gpg's 'recipient' option.
+
+Note that the user running sosreport must match the user owning the keyring
+from which keys will be obtained. In particular this means that if sudo is
+used to run sosreport, the keyring must also be set up using sudo
+(or direct shell access to the account).
+
+Users should be aware that encrypting the final archive will result in sos
+using double the amount of temporary disk space - the encrypted archive must be
+written as a separate, rather than replacement, file within the temp directory
+that sos writes the archive to. However, since the encrypted archive will be
+the same size as the original archive, there is no additional space consumption
+once the temporary directory is removed at the end of execution.
+
+This means that only the encrypted archive is present on disk after sos
+finishes running.
+
+If encryption fails for any reason, the original unencrypted archive is
+preserved instead.
+.TP
+.B \--encrypt-pass PASS
+The same as \--encrypt-key, but use the provided PASS for symmetric encryption
+rather than key-pair encryption.
+.TP
+.B \--config-file CONFIG
+Specify alternate configuration file.
+.TP
+.B \-s, \--sysroot SYSROOT
+Specify an alternate root file system path.
+.TP
+.B \--tmp-dir DIRECTORY
+Specify alternate temporary directory to copy data during execution.
+.TP
+.B \--threads THREADS
+Specify the number of threads sosreport will use for concurrency. Defaults to 4. 
+.TP
+.B \-v, \--verbose
+Increase logging verbosity. May be specified multiple times to enable
+additional debugging messages.
+.TP
+.B \-q, \--quiet
+Only log fatal errors to stderr.
+.TP
+.B \-z, \-\-compression-type {auto|xz|gzip}
+Compression type to use when compression the final archive output
+.TP
+.B \--help
+Display usage message.
+.SH MAINTAINER
+.nf
+Jake Hunsaker <jhunsake@redhat.com>
+.fi
+.SH AUTHORS & CONTRIBUTORS
+See \fBAUTHORS\fR file in the package documentation.
