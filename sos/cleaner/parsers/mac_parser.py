@@ -23,7 +23,7 @@ class SoSMacParser(SoSCleanerParser):
         r'(([^:|-])([0-9a-fA-F]{2}(:|-)){7}[0-9a-fA-F]{2}(\s|$))',
         r'(([^:|-])([0-9a-fA-F]{4}(:|-)){3}[0-9a-fA-F]{4}(\s|$))',
         # IPv4, avoiding matching a substring within IPv6 addresses
-        r'(([^:|-])([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(\.|,|!)?(\s|$))'
+        r'(([^:|-])([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(.)?(\s|$|\W))'
     ]
     map_file_key = 'mac_map'
     prep_map_file = 'sos_commands/networking/ip_-d_address'
@@ -32,11 +32,18 @@ class SoSMacParser(SoSCleanerParser):
         self.mapping = SoSMacMap()
         super(SoSMacParser, self).__init__(conf_file)
 
-    def parse_line(self, line):
-        """Override the base parse_line to account for MAC matches that end
-        a line with punctuation, which may or may not be beneficial to have in
-        other parsers
+    def reduce_mac_match(self, match):
+        """Strips away leading and trailing non-alphanum characters from any
+        matched string to leave us with just the bare MAC addr
         """
+        while not (match[0].isdigit() or match[0].isalpha()):
+            match = match[1:]
+        while not (match[-1].isdigit() or match[-1].isalpha()):
+            match = match[0:-1]
+        # just to be safe, call strip() to remove any padding
+        return match.strip()
+
+    def parse_line(self, line):
         count = 0
         for skip_pattern in self.skip_line_patterns:
             if re.match(skip_pattern, line, re.I):
@@ -46,7 +53,7 @@ class SoSMacParser(SoSCleanerParser):
             if matches:
                 count += len(matches)
                 for match in matches:
-                    stripped_match = match.rstrip('.,!').strip()
+                    stripped_match = self.reduce_mac_match(match)
                     new_match = self.mapping.get(stripped_match)
                     line = line.replace(stripped_match, new_match)
         return line, count
