@@ -9,7 +9,6 @@
 from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
                                 DebianPlugin, SoSPredicate)
 from os import listdir
-from re import match
 
 
 class Networking(Plugin):
@@ -233,30 +232,9 @@ class Networking(Plugin):
         self.add_cmd_output("ip netns")
         cmd_prefix = "ip netns exec "
         if self.get_network_namespaces():
-            out_ns = []
-            # Regex initialization outside of for loop
-            if self.get_option("namespace_pattern"):
-                pattern = '(?:%s$)' % '$|'.join(
-                        self.get_option("namespace_pattern").split()
-                        ).replace('*', '.*')
-            for ns in self.get_network_namespaces():
-                # if namespace_pattern defined, append only namespaces
-                # matching with pattern
-                if self.get_option("namespace_pattern"):
-                    if bool(match(pattern, ns)):
-                        out_ns.append(ns)
-
-                # if namespaces is defined and namespace_pattern is not defined
-                # remove from out_ns namespaces with higher index than defined
-                elif self.get_option("namespaces") != 0:
-                    out_ns.append(ns)
-                    if len(out_ns) == self.get_option("namespaces"):
-                        self._log_warn("Limiting namespace iteration " +
-                                       "to first %s namespaces found"
-                                       % self.get_option("namespaces"))
-                        break
-                else:
-                    out_ns.append(ns)
+            out_ns = self.get_network_namespaces(
+                        self.get_option("namespace_pattern"),
+                        self.get_option("namespaces"))
 
             for namespace in out_ns:
                 ns_cmd_prefix = cmd_prefix + namespace + " "

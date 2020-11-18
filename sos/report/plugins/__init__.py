@@ -2662,8 +2662,40 @@ class Plugin(object):
                 continue
         return pids
 
-    def get_network_namespaces(self):
-        return self.commons['namespaces']['network']
+    def get_network_namespaces(self, ns_pattern=None, ns_max=0):
+        return self.filter_namespaces(self.commons['namespaces']['network'],
+                                      ns_pattern, ns_max)
+
+    def filter_namespaces(self, ns_list, ns_pattern=None, ns_max=0):
+        """Filter a list of namespaces by regex pattern or max number of
+        namespaces (options originally present in the networking plugin.)
+        """
+        out_ns = []
+
+        # Regex initialization outside of for loop
+        if ns_pattern:
+            pattern = (
+                '(?:%s$)' % '$|'.join(ns_pattern.split()).replace('*', '.*')
+                )
+        for ns in ns_list:
+            # if ns_pattern defined, append only namespaces
+            # matching with pattern
+            if ns_pattern:
+                if bool(re.match(pattern, ns)):
+                    out_ns.append(ns)
+
+            # if ns_max is defined and ns_pattern is not defined
+            # remove from out_ns namespaces with higher index than defined
+            elif ns_max != 0:
+                out_ns.append(ns)
+                if len(out_ns) == ns_max:
+                    self._log_warn("Limiting namespace iteration "
+                                   "to first %s namespaces found"
+                                   % ns_max)
+                    break
+            else:
+                out_ns.append(ns)
+        return out_ns
 
 
 class RedHatPlugin(object):
