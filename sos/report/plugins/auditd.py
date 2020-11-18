@@ -26,7 +26,7 @@ class Auditd(Plugin, IndependentPlugin):
             "/etc/audisp/",
         ])
         self.add_cmd_output([
-            "ausearch --input-logs -m avc,user_avc -ts today",
+            "ausearch --input-logs -m avc,user_avc,fanotify -ts today",
             "auditctl -s",
             "auditctl -l"
         ])
