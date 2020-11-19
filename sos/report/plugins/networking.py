@@ -231,53 +231,52 @@ class Networking(Plugin):
         # per-namespace.
         self.add_cmd_output("ip netns")
         cmd_prefix = "ip netns exec "
-        if self.get_network_namespaces():
-            out_ns = self.get_network_namespaces(
-                        self.get_option("namespace_pattern"),
-                        self.get_option("namespaces"))
+        for namespace in self.get_network_namespaces(
+                            self.get_option("namespace_pattern"),
+                            self.get_option("namespaces")):
+            ns_cmd_prefix = cmd_prefix + namespace + " "
+            self.add_cmd_output([
+                ns_cmd_prefix + "ip address show",
+                ns_cmd_prefix + "ip route show table all",
+                ns_cmd_prefix + "ip -s -s neigh show",
+                ns_cmd_prefix + "ip rule list",
+                ns_cmd_prefix + "iptables-save",
+                ns_cmd_prefix + "ip6tables-save",
+                ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
+                ns_cmd_prefix + "netstat -s",
+                ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
+            ])
 
-            for namespace in out_ns:
+            ss_cmd = ns_cmd_prefix + "ss -peaonmi"
+            # --allow-system-changes is handled directly in predicate
+            # evaluation, so plugin code does not need to separately
+            # check for it
+            self.add_cmd_output(ss_cmd, pred=ss_pred)
+
+        # Collect ethtool commands only when ethtool_namespaces
+        # is set to true.
+        if self.get_option("ethtool_namespaces"):
+            # Devices that exist in a namespace use less ethtool
+            # parameters. Run this per namespace.
+            for namespace in self.get_network_namespaces(
+                                self.get_option("namespace_pattern"),
+                                self.get_option("namespaces")):
                 ns_cmd_prefix = cmd_prefix + namespace + " "
-                self.add_cmd_output([
-                    ns_cmd_prefix + "ip address show",
-                    ns_cmd_prefix + "ip route show table all",
-                    ns_cmd_prefix + "ip -s -s neigh show",
-                    ns_cmd_prefix + "ip rule list",
-                    ns_cmd_prefix + "iptables-save",
-                    ns_cmd_prefix + "ip6tables-save",
-                    ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
-                    ns_cmd_prefix + "netstat -s",
-                    ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
-                ])
-
-                ss_cmd = ns_cmd_prefix + "ss -peaonmi"
-                # --allow-system-changes is handled directly in predicate
-                # evaluation, so plugin code does not need to separately
-                # check for it
-                self.add_cmd_output(ss_cmd, pred=ss_pred)
-
-            # Collect ethtool commands only when ethtool_namespaces
-            # is set to true.
-            if self.get_option("ethtool_namespaces"):
-                # Devices that exist in a namespace use less ethtool
-                # parameters. Run this per namespace.
-                for namespace in out_ns:
-                    ns_cmd_prefix = cmd_prefix + namespace + " "
-                    netns_netdev_list = self.exec_cmd(
-                        ns_cmd_prefix + "ls -1 /sys/class/net/"
-                    )
-                    for eth in netns_netdev_list['output'].splitlines():
-                        # skip 'bonding_masters' file created when loading the
-                        # bonding module but the file does not correspond to
-                        # a device
-                        if eth == "bonding_masters":
-                            continue
-                        self.add_cmd_output([
-                            ns_cmd_prefix + "ethtool " + eth,
-                            ns_cmd_prefix + "ethtool -i " + eth,
-                            ns_cmd_prefix + "ethtool -k " + eth,
-                            ns_cmd_prefix + "ethtool -S " + eth
-                        ])
+                netns_netdev_list = self.exec_cmd(
+                    ns_cmd_prefix + "ls -1 /sys/class/net/"
+                )
+                for eth in netns_netdev_list['output'].splitlines():
+                    # skip 'bonding_masters' file created when loading the
+                    # bonding module but the file does not correspond to
+                    # a device
+                    if eth == "bonding_masters":
+                        continue
+                    self.add_cmd_output([
+                        ns_cmd_prefix + "ethtool " + eth,
+                        ns_cmd_prefix + "ethtool -i " + eth,
+                        ns_cmd_prefix + "ethtool -k " + eth,
+                        ns_cmd_prefix + "ethtool -S " + eth
+                    ])
 
         return
 
