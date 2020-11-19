@@ -63,10 +63,13 @@ class Pulp(Plugin, RedHatPlugin):
             pass
 
         self.add_copy_spec([
+            "/etc/pulp/admin",
             "/etc/pulp/*.conf",
             "/etc/pulp/settings.py",
             "/etc/pulp/server/plugins.conf.d/",
             "/etc/default/pulp*",
+            "/etc/httpd/conf.d/pulp*",
+            "/etc/pki/pulp",
             "/var/log/httpd/pulp-http.log*",
             "/var/log/httpd/pulp-https.log*",
             "/var/log/httpd/pulp-http_access_ssl.log*",
