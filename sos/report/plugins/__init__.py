@@ -2130,6 +2130,24 @@ class Plugin(object):
             return con is not None
         return False
 
+    def get_all_containers_by_regex(self, regex, get_all=False):
+        """Get a list of all container names and ID matching a regex
+
+        :param regex:   The regular expression to match
+        :type regex:    ``str``
+
+        :param get_all: Return all containers found, even terminated ones
+        :type get_all:  ``bool``
+
+        :returns:   All container IDs and names matching ``regex``
+        :rtype:     ``list`` of ``tuples`` as (id, name)
+        """
+        _runtime = self._get_container_runtime()
+        if _runtime is not None:
+            _containers = _runtime.get_containers(get_all=get_all)
+            return [c for c in _containers if re.match(regex, c[1])]
+        return []
+
     def get_container_by_name(self, name):
         """Get the container ID for a specific container
 
