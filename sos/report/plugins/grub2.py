@@ -35,13 +35,11 @@ class Grub2(Plugin, IndependentPlugin):
         # further, check if the command supports --no-grubenv-update option
         # to prevent removing of extra args in $kernel_opts, and (only) if so,
         # call the command with this argument
-        env = {}
-        env['GRUB_DISABLE_OS_PROBER'] = 'true'
         grub_cmd = 'grub2-mkconfig'
-        co = {'cmd': 'grub2-mkconfig --help', 'output': '--no-grubenv-update'}
+        co = {'cmd': '%s --help' % grub_cmd, 'output': '--no-grubenv-update'}
         if self.test_predicate(self, pred=SoSPredicate(self, cmd_outputs=co)):
             grub_cmd += ' --no-grubenv-update'
-        self.add_cmd_output(grub_cmd, env=env)
+        self.add_cmd_output(grub_cmd, env={'GRUB_DISABLE_OS_PROBER': 'true'})
 
     def postproc(self):
         # the trailing space is required; python treats '_' as whitespace
