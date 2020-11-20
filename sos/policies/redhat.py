@@ -140,7 +140,7 @@ class RedHatPolicy(LinuxPolicy):
         specific initialisation based on ENV_HOST_SYSROOT.
         """
         if ENV_CONTAINER in os.environ:
-            if os.environ[ENV_CONTAINER] in ['docker', 'oci']:
+            if os.environ[ENV_CONTAINER] in ['docker', 'oci', 'podman']:
                 self._in_container = True
         if ENV_HOST_SYSROOT in os.environ:
             self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
