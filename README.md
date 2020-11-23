@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/sosreport/sos.svg?branch=master)](https://travis-ci.org/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=master)](https://sos.readthedocs.io/en/master/?badge=master) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/sosreport/sos.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sosreport/sos/context:python)
+[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=master)](https://cirrus-ci.com/github/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=master)](https://sos.readthedocs.io/en/master/?badge=master) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/sosreport/sos.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sosreport/sos/context:python)
 
 # SoS
 
@@ -54,7 +54,7 @@ and run
 python3 setup.py build_sphinx -a
 ```
 
-Please run `./tests/simple.sh` before sending a [pull request][0], or run the
+Please run `./tests/simple.sh` before sending a [pull request][0], and run the
 test suite manually using the `nosetests` command (ideally for the
 set of Python versions currently supported by `sos` upstream).
 
