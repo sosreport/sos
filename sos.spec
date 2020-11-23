@@ -45,7 +45,7 @@ rm -rf ${RPM_BUILD_ROOT}/usr/config/
 
 %find_lang %{name} || echo 0
 
-%files
+%files -f %{name}.lang
 %{_sbindir}/sos
 %{_sbindir}/sosreport
 %{_sbindir}/sos-collector
