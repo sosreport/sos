@@ -71,7 +71,10 @@ class Systemd(Plugin, IndependentPlugin):
             "/run/systemd/system",
             "/run/systemd/users",
             "/etc/modules-load.d/*.conf",
-            "/etc/yum/protected.d/systemd.conf"
+            "/etc/yum/protected.d/systemd.conf",
+            "/etc/tmpfiles.d/*.conf",
+            "/run/tmpfiles.d/*.conf",
+            "/usr/lib/tmpfiles.d/*.conf",
         ])
         self.add_forbidden_path('/dev/null')
 
