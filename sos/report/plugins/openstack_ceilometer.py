@@ -51,10 +51,9 @@ class OpenStackCeilometer(Plugin):
             "admin_password", "connection_password", "host_password",
             "memcache_secret_key", "os_password", "password", "qpid_password",
             "rabbit_password", "readonly_user_password", "secret_key",
-            "ssl_key_password", "telemetry_secret", "metering_secret",
-            "transport_url"
+            "ssl_key_password", "telemetry_secret", "metering_secret"
         ]
-        connection_keys = ["connection"]
+        connection_keys = ["connection", "backend_url", "transport_url"]
 
         self.apply_regex_sub(
             r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
