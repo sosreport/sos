@@ -20,7 +20,9 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/apt", "/var/log/apt"
+            "/etc/apt",
+            "/var/log/apt",
+            "/var/log/unattended-upgrades"
         ])
 
         self.add_forbidden_path("/etc/apt/auth.conf")
