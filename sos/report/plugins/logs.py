@@ -48,7 +48,6 @@ class Logs(Plugin, IndependentPlugin):
             "/etc/rsyslog.d",
             "/var/log/boot.log",
             "/var/log/installer",
-            "/var/log/unattended-upgrades",
             "/var/log/messages*",
             "/var/log/secure*",
             "/var/log/udev",
