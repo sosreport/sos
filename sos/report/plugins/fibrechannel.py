@@ -18,8 +18,18 @@ class Fibrechannel(Plugin, RedHatPlugin):
     plugin_name = 'fibrechannel'
     profiles = ('hardware', 'storage', 'system')
     files = ('/sys/class/fc_host', '/sys/class/fc_remote_ports')
+    option_list = [
+        ("debug", "enable debug logs", "fast", True)
+    ]
+
+    # vendor specific debug paths
+    debug_paths = [
+        '/sys/kernel/debug/qla2*/'
+    ]
 
     def setup(self):
         self.add_blockdev_cmd("udevadm info -a %(dev)s", devices='fibre')
+        if self.get_option('debug'):
+            self.add_copy_spec(self.debug_paths)
 
 # vim: set et ts=4 sw=4 :
