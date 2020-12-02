@@ -775,8 +775,9 @@ class Policy(object):
     :cvar vendor: The name of the vendor producing the distribution
     :vartype vendor: ``str``
 
-    :cvar vendor_url: URL for the vendor's website, or support portal
-    :vartype vendor_url: ``str``
+    :cvar vendor_urls: List of URLs for the vendor's website, or support portal
+    :vartype vendor_urls: ``list`` of ``tuples`` formatted
+        ``(``description``, ``url``)``
 
     :cvar vendor_text: Additional text to add to the banner message
     :vartype vendor_text: ``str``
@@ -794,7 +795,7 @@ from this %(distro)s system.
 
 For more information on %(vendor)s visit:
 
-  %(vendor_url)s
+  %(vendor_urls)s
 
 The generated archive may contain data considered sensitive and its content \
 should be reviewed by the originating organization before being passed to \
@@ -807,7 +808,7 @@ any third party.
 
     distro = "Unknown"
     vendor = "Unknown"
-    vendor_url = "http://www.example.com/"
+    vendor_urls = [('Example URL', "http://www.example.com/")]
     vendor_text = ""
     PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     default_scl_prefix = ""
@@ -1131,7 +1132,7 @@ any third party.
             changes_text = "No changes will be made to system configuration."
         width = 72
         _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
-                           'vendor_url': self.vendor_url,
+                           'vendor_urls': self._fmt_vendor_urls(),
                            'vendor_text': self.vendor_text,
                            'tmpdir': self.commons['tmpdir'],
                            'changes_text': changes_text}
@@ -1139,6 +1140,19 @@ any third party.
         for line in _msg.splitlines():
             _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
         return _fmt
+
+    def _fmt_vendor_urls(self):
+        """Formats all items in the ``vendor_urls`` class attr into a usable
+        string for the banner message.
+
+        :returns:   Formatted string of URLS
+        :rtype:     ``str``
+        """
+        width = max([len(v[0]) for v in self.vendor_urls])
+        return "\n".join("\t{desc:<{width}} : {url}".format(
+                         desc=u[0], width=width, url=u[1])
+                         for u in self.vendor_urls
+                         )
 
     def register_presets(self, presets, replace=False):
         """Add new presets to this policy object.

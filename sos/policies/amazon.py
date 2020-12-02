@@ -16,7 +16,7 @@ class AmazonPolicy(RedHatPolicy):
 
     distro = "Amazon Linux"
     vendor = "Amazon"
-    vendor_url = "https://aws.amazon.com"
+    vendor_urls = [('Distribution Website', 'https://aws.amazon.com')]
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):

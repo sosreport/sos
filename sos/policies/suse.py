@@ -18,7 +18,7 @@ from sos import _sos as _
 class SuSEPolicy(LinuxPolicy):
     distro = "SuSE"
     vendor = "SuSE"
-    vendor_url = "https://www.suse.com/"
+    vendor_urls = [('Distribution Website', 'https://www.suse.com/')]
     _tmp_dir = "/var/tmp"
     _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
 
@@ -85,7 +85,7 @@ class SuSEPolicy(LinuxPolicy):
 class OpenSuSEPolicy(SuSEPolicy):
     distro = "OpenSuSE"
     vendor = "SuSE"
-    vendor_url = "https://www.opensuse.org/"
+    vendor_urls = [('Community Website', 'https://www.opensuse.org/')]
     msg = _("""\
 This command will collect diagnostic and configuration \
 information from this %(distro)s system and installed \
