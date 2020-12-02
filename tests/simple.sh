@@ -1,3 +1,4 @@
+#!/bin/bash
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
 # This copyrighted material is made available to anyone wishing to use,
@@ -5,7 +6,6 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
-#/bin/bash
 # A quick port of the travis tests to bash, requires root
 # TODO
 # * look into using a framework..
@@ -101,6 +101,8 @@ add_failure () {
 # Test a no frills run with verbosity and make sure the expected items exist
 test_normal_report () {
     cmd="-vvv"
+    # get a list of initial kmods loaded
+    kmods=( $(lsmod | cut -f1 -d ' ' | sort) )
     run_expecting_success "$cmd" extract
     if [ $? -eq 0 ]; then
         if [ ! -f /var/tmp/sosreport_test/sos_reports/sos.html ]; then
@@ -114,6 +116,12 @@ test_normal_report () {
         fi
         if [ ! "$(grep "DEBUG" /var/tmp/sosreport_test/sos_logs/sos.log)" ]; then
             add_failure "did not find debug logging when using -vvv"
+        fi
+        # new list, see if we added any
+        new_kmods=( $(lsmod | cut -f1 -d ' ' | sort) )
+        if [ "$(printf '%s\n' "${kmods[@]}" "${new_kmods[@]}" | sort | uniq -u)" ]; then
+            add_failure "new kernel modules loaded during execution"
+            echo "$(printf '%s\n' "${kmods[@]}" "${new_kmods[@]}" | sort | uniq -u)"
         fi
         update_failures
     update_summary "$cmd"
@@ -163,7 +171,7 @@ test_mask () {
         ip_addr=$(ip route show default | awk '/default/ {print $3}')
         if [ "$(grep -rI $ip_addr /var/tmp/sosreport_test/*)" ]; then
             add_failure "IP address not obfuscated in all places"
-            echo "$grep -rI $ip_addr /var/tmp/sosreport/_test/*)"
+            echo "$(grep -rI $ip_addr /var/tmp/sosreport/_test/*)"
         fi
         update_failures
     fi
