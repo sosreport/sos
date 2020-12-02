@@ -6,31 +6,24 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
-class Wireless(Plugin, DebianPlugin, UbuntuPlugin):
+class Wireless(Plugin, IndependentPlugin):
 
-    short_desc = 'Wireless'
+    short_desc = 'Wireless Device Information'
 
     plugin_name = 'wireless'
     profiles = ('hardware', 'desktop', 'network')
-    files = ('/sbin/iw', '/usr/sbin/iw')
+    commands = ('iw', )
 
     def setup(self):
+        wireless_pred = SoSPredicate(self, kmods=['cfg80211'])
         self.add_cmd_output([
             "iw list",
             "iw dev",
             "iwconfig",
             "iwlist scanning"
-        ])
-
-
-class RedHatWireless(Wireless, RedHatPlugin):
-
-    short_desc = 'Wireless'
-
-    files = ('/usr/sbin/iw', '/usr/sbin/iwlist')
-    packages = ('iw', 'wireless-tools')
+        ], pred=wireless_pred)
 
 # vim: set et ts=4 sw=4 :
