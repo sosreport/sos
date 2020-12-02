@@ -7,7 +7,10 @@ import os
 class UbuntuPolicy(DebianPolicy):
     distro = "Ubuntu"
     vendor = "Canonical"
-    vendor_url = "https://www.ubuntu.com/"
+    vendor_urls = [
+        ('Community Website', 'https://www.ubuntu.com/'),
+        ('Commercial Support', 'https://www.canonical.com')
+    ]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
            + ":/usr/local/sbin:/usr/local/bin:/snap/bin"
     _upload_url = "https://files.support.canonical.com/uploads/"

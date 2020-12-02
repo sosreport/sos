@@ -23,7 +23,10 @@ OS_RELEASE = "/etc/os-release"
 class RedHatPolicy(LinuxPolicy):
     distro = "Red Hat"
     vendor = "Red Hat"
-    vendor_url = "https://www.redhat.com/"
+    vendor_urls = [
+        ('Distribution Website', 'https://www.redhat.com/'),
+        ('Commercial Support', 'https://www.access.redhat.com/')
+    ]
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}|%{RELEASE}\\n"'
@@ -243,7 +246,7 @@ rhel_presets = {
 disclaimer_text = """
 Any information provided to %(vendor)s will be treated in \
 accordance with the published support policies at:\n
-  %(vendor_url)s
+  %(vendor_urls)s
 
 The generated archive may contain data considered sensitive \
 and its content should be reviewed by the originating \
@@ -259,7 +262,6 @@ RH_FTP_HOST = "ftp://dropbox.redhat.com"
 class RHELPolicy(RedHatPolicy):
     distro = RHEL_RELEASE_STR
     vendor = "Red Hat"
-    vendor_url = "https://access.redhat.com/support/"
     msg = _("""\
 This command will collect diagnostic and configuration \
 information from this %(distro)s system and installed \
@@ -420,7 +422,7 @@ support representative.
 class CentOsPolicy(RHELPolicy):
     distro = "CentOS"
     vendor = "CentOS"
-    vendor_url = "https://www.centos.org/"
+    vendor_urls = [('Community Website', 'https://www.centos.org/')]
 
 
 ATOMIC = "atomic"
@@ -558,14 +560,17 @@ support representative.
 class CentOsAtomicPolicy(RedHatAtomicPolicy):
     distro = "CentOS Atomic Host"
     vendor = "CentOS"
-    vendor_url = "https://www.centos.org/"
+    vendor_urls = [('Community Website', 'https://www.centos.org/')]
 
 
 class FedoraPolicy(RedHatPolicy):
 
     distro = "Fedora"
     vendor = "the Fedora Project"
-    vendor_url = "https://fedoraproject.org/"
+    vendor_urls = [
+        ('Community Website', 'https://fedoraproject.org/'),
+        ('Community Forums', 'https://discussion.fedoraproject.org/')
+    ]
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
