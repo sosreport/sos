@@ -1483,7 +1483,7 @@ class Plugin(object):
                     self._add_copy_paths([_file])
                     # in the corner case we just reached the sizelimit, we
                     # should collect the whole file and stop
-                    limit_reached = (current_size == sizelimit)
+                    limit_reached = (sizelimit and current_size == sizelimit)
             if self.manifest:
                 self.manifest.files.append({
                     'specification': copyspec,
