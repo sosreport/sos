@@ -764,6 +764,7 @@ class SoSCollector(SoSComponent):
                 self.cluster = self.clusters['jbon']
             else:
                 self.cluster = self.clusters[self.opts.cluster_type]
+                self.cluster_type = self.opts.cluster_type
             self.cluster.master = self.master
 
         else:
