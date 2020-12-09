@@ -282,6 +282,9 @@ class SoSOptions():
             """
             if name in ("add_preset", "del_preset", "desc", "note"):
                 return False
+            # Exception list for options that still need to be reported when 0
+            if name in ['log_size', 'plugin_timeout'] and value == 0:
+                return True
             return has_value(name, value)
 
         def argify(name, value):
