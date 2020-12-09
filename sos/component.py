@@ -192,7 +192,7 @@ class SoSComponent():
         for opt, val in codict.items():
             if opt not in cmdopts.arg_defaults.keys():
                 continue
-            if val and val != opts.arg_defaults[opt]:
+            if val is not None and val != opts.arg_defaults[opt]:
                 setattr(opts, opt, val)
 
         return opts
