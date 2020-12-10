@@ -316,10 +316,14 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             "/lib/netplan/*.yaml",
             "/run/systemd/network"
         ])
+
+        ufw_pred = SoSPredicate(self, kmods=['bpfilter', 'iptable_filter'],
+                                required={'kmods': 'all'})
         self.add_cmd_output([
             "ufw status numbered",
             "ufw app list"
-        ])
+        ], pred=ufw_pred)
+
         if self.get_option("traceroute"):
             self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host)
 
