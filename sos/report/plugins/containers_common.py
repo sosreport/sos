@@ -41,6 +41,7 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             'podman unshare cat /proc/self/uid_map',
             'podman unshare cat /proc/self/gid_map',
             'podman images',
+            'podman images --digests',
             'podman pod ps',
             'podman port --all',
             'podman ps',
