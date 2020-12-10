@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, UbuntuPlugin
+from sos.report.plugins import Plugin, UbuntuPlugin, SoSPredicate
 
 
 class LXD(Plugin, UbuntuPlugin):
@@ -20,9 +20,30 @@ class LXD(Plugin, UbuntuPlugin):
     commands = ('lxd',)
 
     def setup(self):
+
+        lxd_kmods = [
+            'bpfilter',
+            'ebtable_filter',
+            'ebtables',
+            'ip6table_filter',
+            'ip6table_mangle',
+            'ip6table_nat',
+            'ip6table_raw',
+            'ip6_tables',
+            'iptable_filter',
+            'iptable_mangle',
+            'iptable_nat',
+            'iptable_raw',
+            'nf_nat',
+            'nf_tables',
+        ]
+
+        lxd_pred = SoSPredicate(self, kmods=lxd_kmods,
+                                required={'kmods': 'all'})
+
         snap_list = self.exec_cmd('snap list lxd')
         if snap_list["status"] == 0:
-            self.add_cmd_output("lxd.buginfo")
+            self.add_cmd_output("lxd.buginfo", pred=lxd_pred)
         else:
             self.add_copy_spec([
                 "/etc/default/lxd-bridge",
@@ -35,7 +56,7 @@ class LXD(Plugin, UbuntuPlugin):
                 "lxc network list",
                 "lxc profile list",
                 "lxc storage list"
-            ])
+            ], pred=lxd_pred)
 
             self.add_cmd_output([
                 "find /var/lib/lxd -maxdepth 2 -type d -ls",
