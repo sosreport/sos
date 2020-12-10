@@ -37,6 +37,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
         subcmds = [
             'info',
             'images',
+            'images --digests',
             'pod ps',
             'port --all',
             'ps',
