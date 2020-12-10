@@ -1449,11 +1449,16 @@ class Plugin(object):
                     continue
 
                 try:
-                    filestat = os.stat(_file)
+                    file_size = os.stat(_file)[stat.ST_SIZE]
                 except OSError:
-                    self._log_info("failed to stat '%s'" % _file)
-                    continue
-                current_size += filestat[stat.ST_SIZE]
+                    # if _file is a broken symlink, we should collect it,
+                    # otherwise skip it
+                    if os.path.islink(_file):
+                        file_size = 0
+                    else:
+                        self._log_info("failed to stat '%s', skipping" % _file)
+                        continue
+                current_size += file_size
 
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
@@ -1467,8 +1472,7 @@ class Plugin(object):
                         strfile = (
                             file_name.replace(os.path.sep, ".") + ".tailed"
                         )
-                        add_size = (sizelimit + filestat[stat.ST_SIZE]
-                                    - current_size)
+                        add_size = sizelimit + file_size - current_size
                         self.add_string_as_file(tail(_file, add_size), strfile)
                         rel_path = os.path.relpath('/', os.path.dirname(_file))
                         link_path = os.path.join(rel_path, 'sos_strings',
