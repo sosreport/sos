@@ -14,6 +14,10 @@ class MissingCollect(SoSComponent):
     load_policy = False
     configure_logging = False
     desc = '(unavailable) Collect an sos report from multiple nodes'
+    missing_msg = (
+        'It appears likely that your distribution separately ships a package '
+        'called sos-collector. Please install it to enable this function'
+    )
 
     def execute(self):
         sys.stderr.write(
@@ -30,11 +34,28 @@ class MissingCollect(SoSComponent):
         """
         return []
 
+    @classmethod
+    def add_parser_options(cls, parser):
+        """Set the --help output for collect to a message that shows that
+        the functionality is unavailable
+        """
+        msg = "%s %s" % (
+            'WARNING: `collect` is not available with this installation!',
+            cls.missing_msg
+        )
+        parser.epilog = msg
+        return parser
+
 
 class MissingPexpect(MissingCollect):
     """This is used as a placeholder for when the collect component is locally
     installed, but cannot be used due to a missing pexpect dependency.
     """
+
+    missing_msg = (
+        'Please install the python3-pexpect package for your distribution in '
+        'order to enable this function'
+    )
 
     def execute(self):
         sys.stderr.write(
@@ -42,3 +63,5 @@ class MissingPexpect(MissingCollect):
             "on python3-pexpect.\n\nPlease install python3-pexpect to enable "
             "this functionality.\n"
         )
+
+# vim: set et ts=4 sw=4 :
