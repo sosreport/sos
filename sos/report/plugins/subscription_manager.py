@@ -45,8 +45,8 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         self.add_cmd_output(["rct cat-cert %s" % cert for cert in certs])
 
     def postproc(self):
-        passwdreg = r"(proxy_password(\s)*=(\s)*)(.*)"
-        repl = r"\1 ********"
+        passwdreg = r"(proxy_password(\s)*=(\s)*)(\S+)\n"
+        repl = r"\1********\n"
         self.do_path_regex_sub("/etc/rhsm/rhsm.conf", passwdreg, repl)
 
 # vim: et ts=4 sw=4
