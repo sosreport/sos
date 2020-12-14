@@ -39,7 +39,7 @@ class SuSEPolicy(LinuxPolicy):
             print("Could not obtain installed package list", file=sys.stderr)
             sys.exit(1)
 
-        self.PATH = "/usr/sbin:/usr/bin:/root/bin"
+        self.PATH = "/usr/sbin:/usr/bin:/root/bin:/sbin"
         self.PATH += os.pathsep + "/usr/local/bin"
         self.PATH += os.pathsep + "/usr/local/sbin"
         self.set_exec_path()
