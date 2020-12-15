@@ -246,13 +246,13 @@ class SoSComponent():
             auto_archive = self.policy.get_preferred_archive()
             self.archive = auto_archive(archive_name, self.tmpdir,
                                         self.policy, self.opts.threads,
-                                        enc_opts, self.opts.sysroot,
+                                        enc_opts, self.sysroot,
                                         self.manifest)
 
         else:
             self.archive = TarFileArchive(archive_name, self.tmpdir,
                                           self.policy, self.opts.threads,
-                                          enc_opts, self.opts.sysroot,
+                                          enc_opts, self.sysroot,
                                           self.manifest)
 
         self.archive.set_debug(True if self.opts.debug else False)
