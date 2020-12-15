@@ -130,6 +130,7 @@ class OpenVSwitch(Plugin):
         self.add_journal(units="openvswitch-nonetwork")
         self.add_journal(units="ovs-vswitchd")
         self.add_journal(units="ovsdb-server")
+        self.add_journal(units="ovs-configuration")
 
         if check_6wind:
             self.add_copy_spec(files_6wind)
