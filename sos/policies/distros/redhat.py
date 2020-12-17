@@ -17,7 +17,7 @@ from sos.presets.redhat import (RHEL_PRESETS, ATOMIC_PRESETS, RHV, RHEL,
                                 CB, RHOSP, RHOCP, RH_CFME, RH_SATELLITE,
                                 ATOMIC)
 from sos.policies.distros import LinuxPolicy
-from sos.policies.package_managers import PackageManager
+from sos.policies.package_managers.rpm import RpmPackageManager
 from sos import _sos as _
 
 
@@ -35,10 +35,6 @@ class RedHatPolicy(LinuxPolicy):
     ]
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
-    _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}|%{RELEASE}\\n"'
-    _rpmql_cmd = 'rpm -qal'
-    _rpmv_cmd = 'rpm -V'
-    _rpmv_filter = ["debuginfo", "-devel"]
     _in_container = False
     _host_sysroot = '/'
     default_scl_prefix = '/opt/rh'
@@ -63,12 +59,8 @@ class RedHatPolicy(LinuxPolicy):
         else:
             sysroot = self._container_init()
 
-        self.package_manager = PackageManager(query_command=self._rpmq_cmd,
-                                              verify_command=self._rpmv_cmd,
-                                              verify_filter=self._rpmv_filter,
-                                              files_command=self._rpmql_cmd,
-                                              chroot=sysroot,
-                                              remote_exec=remote_exec)
+        self.package_manager = RpmPackageManager(chroot=sysroot,
+                                                 remote_exec=remote_exec)
 
         self.valid_subclasses += [RedHatPlugin]
 
