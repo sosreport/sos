@@ -7,7 +7,8 @@
 # See the LICENSE file in the source distribution for further information.
 import unittest
 
-from sos.policies import Policy, PackageManager, import_policy
+from sos.policies import Policy, import_policy
+from sos.policies.package_managers import PackageManager
 from sos.report.plugins import (Plugin, IndependentPlugin,
                                 RedHatPlugin, DebianPlugin)
 
