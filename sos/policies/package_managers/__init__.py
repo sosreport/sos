@@ -49,6 +49,7 @@ class PackageManager():
     query_command = None
     verify_command = None
     verify_filter = None
+    files_command = None
     chroot = None
     files = None
 
@@ -58,10 +59,10 @@ class PackageManager():
         self.packages = {}
         self.files = []
 
-        self.query_command = query_command if query_command else None
-        self.verify_command = verify_command if verify_command else None
-        self.verify_filter = verify_filter if verify_filter else None
-        self.files_command = files_command if files_command else None
+        self.query_command = query_command or self.query_command
+        self.verify_command = verify_command or self.verify_command
+        self.verify_filter = verify_filter or self.verify_filter
+        self.files_command = files_command or self.files_command
 
         # if needed, append the remote command to these so that this returns
         # the remote package details, not local

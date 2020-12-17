@@ -12,7 +12,6 @@ import sys
 
 from sos.report.plugins import RedHatPlugin, SuSEPlugin
 from sos.policies.distros import LinuxPolicy
-from sos.policies.package_managers import PackageManager
 from sos import _sos as _
 
 
@@ -21,16 +20,12 @@ class SuSEPolicy(LinuxPolicy):
     vendor = "SuSE"
     vendor_url = "https://www.suse.com/"
     _tmp_dir = "/var/tmp"
-    _rpmq_cmd = 'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime)
         self.ticket_number = ""
-        self.package_manager = PackageManager(
-            query_command=self._rpmq_cmd,
-            remote_exec=remote_exec)
         self.valid_subclasses += [SuSEPlugin, RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()
