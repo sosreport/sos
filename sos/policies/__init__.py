@@ -378,7 +378,7 @@ any third party.
     def get_preferred_hash_name(self):
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""
-        return "md5"
+        return "sha256"
 
     def display_results(self, archive, directory, checksum, archivestat=None,
                         map_file=None):

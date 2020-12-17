@@ -215,7 +215,8 @@ third party.
         nested_archives = []
         for _file in archive.getmembers():
             if (re.match('sosreport-.*.tar', _file.name.split('/')[-1]) and not
-                    _file.name.endswith('.md5')):
+               (_file.name.endswith('.md5') or
+               _file.name.endswith('.sha256'))):
                 nested_archives.append(_file.name.split('/')[-1])
 
         if nested_archives:
@@ -270,7 +271,8 @@ third party.
             for _file in os.listdir(self.opts.target):
                 if _file == 'sos_logs':
                     self.report_paths.append(self.opts.target)
-                if re.match('sosreport.*.tar.*[^md5]', _file):
+                if (_file.startswith('sosreport') and
+                   (_file.endswith(".tar.gz") or _file.endswith(".tar.xz"))):
                     self.report_paths.append(os.path.join(self.opts.target,
                                                           _file))
             if not self.report_paths:
@@ -278,9 +280,6 @@ third party.
                 self._exit(1)
         else:
             self.inspect_target_archive()
-
-        # remove any lingering md5 files
-        self.report_paths = [p for p in self.report_paths if '.md5' not in p]
 
         if not self.report_paths:
             self.ui_log.error("No valid sos archives or directories found\n")

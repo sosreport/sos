@@ -101,25 +101,6 @@ class LinuxPolicy(Policy):
             '/etc/shadow'
         ]
 
-    def get_preferred_hash_name(self):
-
-        if self._preferred_hash_name:
-            return self._preferred_hash_name
-
-        checksum = "md5"
-        try:
-            fp = open("/proc/sys/crypto/fips_enabled", "r")
-        except IOError:
-            self._preferred_hash_name = checksum
-            return checksum
-
-        fips_enabled = fp.read()
-        if fips_enabled.find("1") >= 0:
-            checksum = "sha256"
-        fp.close()
-        self._preferred_hash_name = checksum
-        return checksum
-
     def default_runlevel(self):
         try:
             with open("/etc/inittab") as fp:
