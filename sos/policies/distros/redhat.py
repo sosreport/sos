@@ -13,13 +13,17 @@ import sys
 import re
 
 from sos.report.plugins import RedHatPlugin
-from sos.policies import PresetDefaults
+from sos.presets.redhat import (RHEL_PRESETS, ATOMIC_PRESETS, RHV, RHEL,
+                                CB, RHOSP, RHOCP, RH_CFME, RH_SATELLITE,
+                                ATOMIC)
 from sos.policies.distros import LinuxPolicy
 from sos.policies.package_managers import PackageManager
 from sos import _sos as _
-from sos.options import SoSOptions
+
 
 OS_RELEASE = "/etc/os-release"
+RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
+ATOMIC_RELEASE_STR = "Atomic"
 
 
 class RedHatPolicy(LinuxPolicy):
@@ -184,63 +188,6 @@ class RedHatPolicy(LinuxPolicy):
 ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
 
-_opts_verify = SoSOptions(verify=True)
-_opts_all_logs = SoSOptions(all_logs=True)
-_opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
-_cb_profiles = ['boot', 'storage', 'system']
-_cb_plugopts = ['boot.all-images=on', 'rpm.rpmva=on', 'rpm.rpmdb=on']
-
-RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
-
-RHV = "rhv"
-RHV_DESC = "Red Hat Virtualization"
-
-RHEL = "rhel"
-RHEL_DESC = RHEL_RELEASE_STR
-
-RHOSP = "rhosp"
-RHOSP_DESC = "Red Hat OpenStack Platform"
-
-RHOCP = "ocp"
-RHOCP_DESC = "OpenShift Container Platform by Red Hat"
-RHOSP_OPTS = SoSOptions(plugopts=[
-                             'process.lsof=off',
-                             'networking.ethtool_namespaces=False',
-                             'networking.namespaces=200'])
-
-RH_CFME = "cfme"
-RH_CFME_DESC = "Red Hat CloudForms"
-
-RH_SATELLITE = "satellite"
-RH_SATELLITE_DESC = "Red Hat Satellite"
-SAT_OPTS = SoSOptions(log_size=100, plugopts=['apache.log=on'])
-
-CB = "cantboot"
-CB_DESC = "For use when normal system startup fails"
-CB_OPTS = SoSOptions(
-            verify=True, all_logs=True, profiles=_cb_profiles,
-            plugopts=_cb_plugopts
-          )
-CB_NOTE = ("Data collection will be limited to a boot-affecting scope")
-
-NOTE_SIZE = "This preset may increase report size"
-NOTE_TIME = "This preset may increase report run time"
-NOTE_SIZE_TIME = "This preset may increase report size and run time"
-
-rhel_presets = {
-    RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
-                        opts=_opts_verify),
-    RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
-    RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, opts=RHOSP_OPTS),
-    RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
-                          opts=_opts_all_logs_verify),
-    RH_CFME: PresetDefaults(name=RH_CFME, desc=RH_CFME_DESC, note=NOTE_TIME,
-                            opts=_opts_verify),
-    RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
-                                 note=NOTE_TIME, opts=SAT_OPTS),
-    CB: PresetDefaults(name=CB, desc=CB_DESC, note=CB_NOTE, opts=CB_OPTS)
-}
-
 # Legal disclaimer text for Red Hat products
 disclaimer_text = """
 Any information provided to %(vendor)s will be treated in \
@@ -280,7 +227,7 @@ support representative.
         super(RHELPolicy, self).__init__(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime,
                                          remote_exec=remote_exec)
-        self.register_presets(rhel_presets)
+        self.register_presets(RHEL_PRESETS)
 
     @classmethod
     def check(cls, remote=''):
@@ -410,16 +357,6 @@ class CentOsPolicy(RHELPolicy):
     vendor_url = "https://www.centos.org/"
 
 
-ATOMIC = "atomic"
-ATOMIC_RELEASE_STR = "Atomic"
-ATOMIC_DESC = "Red Hat Enterprise Linux Atomic Host"
-
-atomic_presets = {
-    ATOMIC: PresetDefaults(name=ATOMIC, desc=ATOMIC_DESC, note=NOTE_TIME,
-                           opts=_opts_verify)
-}
-
-
 class RedHatAtomicPolicy(RHELPolicy):
     distro = "Red Hat Atomic Host"
     msg = _("""\
@@ -442,7 +379,7 @@ support representative.
         super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot, init=init,
                                                  probe_runtime=probe_runtime,
                                                  remote_exec=remote_exec)
-        self.register_presets(atomic_presets)
+        self.register_presets(ATOMIC_PRESETS)
 
     @classmethod
     def check(cls, remote=''):
