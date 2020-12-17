@@ -8,7 +8,7 @@
 
 from sos.report.plugins import DebianPlugin
 from sos.policies.distros import LinuxPolicy
-from sos.policies import PackageManager
+from sos.policies.package_managers import PackageManager
 
 import os
 
