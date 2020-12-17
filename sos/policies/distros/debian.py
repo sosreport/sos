@@ -8,7 +8,7 @@
 
 from sos.report.plugins import DebianPlugin
 from sos.policies.distros import LinuxPolicy
-from sos.policies.package_managers import PackageManager
+from sos.policies.package_managers.dpkg import DpkgPackageManager
 
 import os
 
@@ -18,9 +18,6 @@ class DebianPolicy(LinuxPolicy):
     vendor = "the Debian project"
     vendor_url = "https://www.debian.org/"
     ticket_number = ""
-    _debq_cmd = "dpkg-query -W -f='${Package}|${Version}\\n'"
-    _debv_cmd = "dpkg --verify"
-    _debv_filter = ""
     name_pattern = 'friendly'
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
@@ -32,11 +29,8 @@ class DebianPolicy(LinuxPolicy):
         super(DebianPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime)
         self.ticket_number = ""
-        self.package_manager = PackageManager(query_command=self._debq_cmd,
-                                              verify_command=self._debv_cmd,
-                                              verify_filter=self._debv_filter,
-                                              chroot=sysroot,
-                                              remote_exec=remote_exec)
+        self.package_manager = DpkgPackageManager(chroot=sysroot,
+                                                  remote_exec=remote_exec)
         self.valid_subclasses += [DebianPlugin]
 
     def _get_pkg_name_for_binary(self, binary):
