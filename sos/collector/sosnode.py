@@ -18,7 +18,8 @@ import shutil
 
 from distutils.version import LooseVersion
 from pipes import quote
-from sos.policies import load, InitSystem
+from sos.policies import load
+from sos.policies.init_systems import InitSystem
 from sos.collector.exceptions import (InvalidPasswordException,
                                       TimeoutPasswordAuthException,
                                       PasswordRequestException,
