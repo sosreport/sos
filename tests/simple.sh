@@ -56,7 +56,7 @@ run_expecting_success () {
 
     if [ "extract" = "$2" ]; then
         echo "### start extraction"
-        rm -f /var/tmp/sosreport*md5
+        rm -f /var/tmp/sosreport*sha256
         mkdir /var/tmp/sosreport_test/
         tar xfa /var/tmp/sosreport*.tar* -C /var/tmp/sosreport_test --strip-components=1
         if [ -s /var/tmp/sosreport_test/sos_logs/*errors.txt ]; then

@@ -1206,8 +1206,6 @@ this utility or remote systems that it connects to.
             self.log_info('Creating archive of sosreports...')
             for fname in arc_paths:
                 dest = fname.split('/')[-1]
-                if fname.endswith(('.md5',)):
-                    dest = os.path.join('checksums', fname.split('/')[-1])
                 if do_clean:
                     dest = cleaner.obfuscate_string(dest)
                 name = os.path.join(self.tmpdir, fname)
@@ -1217,7 +1215,7 @@ this utility or remote systems that it connects to.
                     checksum = cleaner.get_new_checksum(fname)
                     if checksum:
                         name = os.path.join('checksums', fname.split('/')[-1])
-                        name += '.md5'
+                        name += '.sha256'
                         self.archive.add_string(checksum, name)
             self.archive.add_file(self.sos_log_file,
                                   dest=os.path.join('sos_logs', 'sos.log'))
