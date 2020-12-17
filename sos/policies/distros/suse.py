@@ -11,7 +11,8 @@ import os
 import sys
 
 from sos.report.plugins import RedHatPlugin, SuSEPlugin
-from sos.policies import LinuxPolicy, PackageManager
+from sos.policies.distros import LinuxPolicy
+from sos.policies import PackageManager
 from sos import _sos as _
 
 
