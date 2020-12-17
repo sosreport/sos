@@ -364,6 +364,21 @@ support representative.
             return os.getenv('SOSUPLOADUSER', None) or self.upload_user
         return self._upload_user
 
+    def upload_archive(self, archive):
+        """Override the base upload_archive to provide for automatic failover
+        from RHCP failures to the public RH dropbox
+        """
+        try:
+            uploaded = super(RHELPolicy, self).upload_archive(archive)
+        except Exception:
+            uploaded = False
+        if not uploaded and self.upload_url.startswith(RH_API_HOST):
+            print("Upload to Red Hat Customer Portal failed. Trying %s"
+                  % RH_FTP_HOST)
+            self.upload_url = RH_FTP_HOST
+            uploaded = super(RHELPolicy, self).upload_archive(archive)
+        return uploaded
+
     def dist_version(self):
         try:
             rr = self.package_manager.all_pkgs_by_name_regex("redhat-release*")
