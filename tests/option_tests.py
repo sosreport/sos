@@ -8,7 +8,8 @@
 import unittest
 
 from sos.report.plugins import Plugin
-from sos.policies import LinuxPolicy, InitSystem
+from sos.policies.distros import LinuxPolicy
+from sos.policies.init_systems import InitSystem
 
 
 class MockOptions(object):

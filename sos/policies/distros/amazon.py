@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.policies.redhat import RedHatPolicy, OS_RELEASE
+from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
 import os
 
 

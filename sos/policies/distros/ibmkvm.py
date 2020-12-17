@@ -11,7 +11,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import PowerKVMPlugin, ZKVMPlugin
-from sos.policies.redhat import RedHatPolicy
+from sos.policies.distros.redhat import RedHatPolicy
 
 import os
 

@@ -13,7 +13,8 @@ import sys
 import re
 
 from sos.report.plugins import RedHatPlugin
-from sos.policies import LinuxPolicy, PackageManager, PresetDefaults
+from sos.policies import PackageManager, PresetDefaults
+from sos.policies.distros import LinuxPolicy
 from sos import _sos as _
 from sos.options import SoSOptions
 

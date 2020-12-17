@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import CosPlugin, IndependentPlugin
-from sos.policies import LinuxPolicy
+from sos.policies.distros import LinuxPolicy
 
 
 def _blank_or_comment(line):

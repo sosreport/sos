@@ -14,7 +14,8 @@ from io import StringIO
 
 from sos.report.plugins import Plugin, regex_findall, _mangle_command
 from sos.archive import TarFileArchive
-from sos.policies import LinuxPolicy, InitSystem
+from sos.policies.distros import LinuxPolicy
+from sos.policies.init_systems import InitSystem
 
 PATH = os.path.dirname(__file__)
 
