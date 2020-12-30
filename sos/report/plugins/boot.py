@@ -33,7 +33,8 @@ class Boot(Plugin, IndependentPlugin):
         ])
         self.add_cmd_output([
             "ls -lanR /boot",
-            "lsinitrd"
+            "lsinitrd",
+            "ls -lanR /sys/firmware",
         ])
 
         self.add_cmd_output([
