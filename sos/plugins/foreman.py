@@ -266,7 +266,8 @@ class Foreman(Plugin):
 
     def postproc(self):
         satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
-              r"(passw|cred|token|secret|key).*(\")?:)|(storepass )))(.*)"
+              r"(passw|cred|token|secret|key).*(\")?:)|(storepass )" \
+              r"|(password =)))(.*)"
         self.do_path_regex_sub(
             "/var/log/foreman-installer/sat*",
             satreg,
