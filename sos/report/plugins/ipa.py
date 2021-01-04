@@ -50,13 +50,13 @@ class Ipa(Plugin, RedHatPlugin):
     def retrieve_pki_logs(self, ipa_version):
         if ipa_version == "v4":
             self.add_copy_spec([
-               "/var/log/pki/pki-tomcat/ca/debug",
+               "/var/log/pki/pki-tomcat/ca/debug*",
                "/var/log/pki/pki-tomcat/ca/system",
                "/var/log/pki/pki-tomcat/ca/transactions",
                "/var/log/pki/pki-tomcat/ca/selftests.log",
                "/var/log/pki/pki-tomcat/catalina.*",
                "/var/log/pki/pki-ca-spawn.*",
-               "/var/log/pki/pki-tomcat/kra/debug",
+               "/var/log/pki/pki-tomcat/kra/debug*",
                "/var/log/pki/pki-tomcat/kra/system",
                "/var/log/pki/pki-tomcat/kra/transactions",
                "/var/log/pki/pki-kra-spawn.*"
