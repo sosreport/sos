@@ -108,6 +108,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "fs dump",
             "pg dump",
             "pg stat",
+            "time-sync-status",
         ]
 
         self.add_cmd_output([
