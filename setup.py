@@ -97,9 +97,11 @@ setup(
         ('config', ['sos.conf'])
     ],
     packages=[
-        'sos', 'sos.policies', 'sos.report', 'sos.report.plugins',
-        'sos.collector', 'sos.collector.clusters', 'sos.cleaner',
-        'sos.cleaner.mappings', 'sos.cleaner.parsers'
+        'sos', 'sos.policies', 'sos.policies.distros', 'sos.policies.runtimes',
+        'sos.policies.package_managers', 'sos.policies.init_systems',
+        'sos.report', 'sos.report.plugins', 'sos.collector',
+        'sos.collector.clusters', 'sos.cleaner', 'sos.cleaner.mappings',
+        'sos.cleaner.parsers'
     ],
     cmdclass=cmdclass,
     command_options=command_options,
