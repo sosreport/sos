@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-import sos.policies
+from sos.policies.distros.redhat import RHELPolicy
 import os
 import json
 import hashlib
@@ -42,7 +42,7 @@ class RedHatPython(Python, RedHatPlugin):
 
     def setup(self):
         self.add_cmd_output(['python2 -V', 'python3 -V'])
-        if isinstance(self.policy, sos.policies.redhat.RHELPolicy) and \
+        if isinstance(self.policy, RHELPolicy) and \
                 self.policy.dist_version() > 7:
             self.python_version = "/usr/libexec/platform-python -V"
         super(RedHatPython, self).setup()
