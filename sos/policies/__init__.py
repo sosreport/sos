@@ -141,6 +141,34 @@ any third party.
         """
         return False
 
+    @property
+    def forbidden_paths(self):
+        """This property is used to determine the list of forbidden paths
+        set by the policy. Note that this property will construct a
+        *cumulative* list based on all subclasses of a given policy.
+
+        :returns: All patterns of policy forbidden paths
+        :rtype: ``list``
+        """
+        if not hasattr(self, '_forbidden_paths'):
+            self._forbidden_paths = []
+            for cls in self.__class__.__mro__:
+                if hasattr(cls, 'set_forbidden_paths'):
+                    self._forbidden_paths.extend(cls.set_forbidden_paths())
+        return list(set(self._forbidden_paths))
+
+    @classmethod
+    def set_forbidden_paths(cls):
+        """Use this to *append* policy-specifc forbidden paths that apply to
+        all plugins. Setting this classmethod on an invidual policy will *not*
+        override subclass-specific paths
+        """
+        return [
+            '*.pyc',
+            '*.pyo',
+            '*.swp'
+        ]
+
     def in_container(self):
         """Are we running inside a container?
 
