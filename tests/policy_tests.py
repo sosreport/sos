@@ -8,6 +8,7 @@
 import unittest
 
 from sos.policies import Policy, import_policy
+from sos.policies.distros import LinuxPolicy
 from sos.policies.package_managers import PackageManager
 from sos.report.plugins import (Plugin, IndependentPlugin,
                                 RedHatPlugin, DebianPlugin)
@@ -15,6 +16,14 @@ from sos.report.plugins import (Plugin, IndependentPlugin,
 
 class FauxPolicy(Policy):
     distro = "Faux"
+
+
+class FauxLinuxPolicy(LinuxPolicy):
+    distro = "FauxLinux"
+
+    @classmethod
+    def set_forbidden_paths(cls):
+        return ['/etc/secret']
 
 
 class FauxPlugin(Plugin, IndependentPlugin):
@@ -31,11 +40,18 @@ class FauxDebianPlugin(Plugin, DebianPlugin):
 
 class PolicyTests(unittest.TestCase):
 
+
     def test_independent_only(self):
         p = FauxPolicy()
         p.valid_subclasses = []
 
         self.assertTrue(p.validate_plugin(FauxPlugin))
+
+    def test_forbidden_paths_building(self):
+        p = FauxLinuxPolicy(probe_runtime=False)
+        self.assertTrue('*.pyc' in p.forbidden_paths)
+        self.assertTrue('/etc/passwd' in p.forbidden_paths)
+        self.assertTrue('/etc/secret' in p.forbidden_paths)
 
     def test_redhat(self):
         p = FauxPolicy()

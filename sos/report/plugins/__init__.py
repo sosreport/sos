@@ -1082,6 +1082,11 @@ class Plugin(object):
     def _is_forbidden_path(self, path):
         return _path_in_path_list(path, self.forbidden_paths)
 
+    def _is_policy_forbidden_path(self, path):
+        return any([
+            fnmatch.fnmatch(path, fp) for fp in self.policy.forbidden_paths
+        ])
+
     def _is_skipped_path(self, path):
         """Check if the given path matches a user-provided specification to
         ignore collection of via the ``--skip-files`` option
@@ -1440,6 +1445,10 @@ class Plugin(object):
                     continue
                 if self._is_forbidden_path(_file):
                     self._log_debug("skipping forbidden path '%s'" % _file)
+                    continue
+                if self._is_policy_forbidden_path(_file):
+                    self._log_debug("skipping policy forbidden path '%s'"
+                                    % _file)
                     continue
                 if self._is_skipped_path(_file):
                     self._log_debug("skipping excluded path '%s'" % _file)

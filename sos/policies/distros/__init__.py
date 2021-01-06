@@ -94,6 +94,13 @@ class LinuxPolicy(Policy):
                 idx = list(self.runtimes.keys())
                 self.runtimes['default'] = self.runtimes[idx[0]]
 
+    @classmethod
+    def set_forbidden_paths(cls):
+        return [
+            '/etc/passwd',
+            '/etc/shadow'
+        ]
+
     def get_preferred_hash_name(self):
 
         if self._preferred_hash_name:
