@@ -116,6 +116,7 @@ class SosNode():
         self.manifest.add_field('hostname', self._hostname)
         self.manifest.add_field('policy', self.host.distro)
         self.manifest.add_field('sos_version', self.sos_info['version'])
+        self.manifest.add_field('final_sos_command', '')
 
     def check_in_container(self):
         """
@@ -425,6 +426,7 @@ class SosNode():
         """Run a sosreport on the node, then collect it"""
         self.sos_cmd = self.finalize_sos_cmd()
         self.log_info('Final sos command set to %s' % self.sos_cmd)
+        self.manifest.add_field('final_sos_command', self.sos_cmd)
         try:
             path = self.execute_sos_command()
             if path:
@@ -618,7 +620,7 @@ class SosNode():
         sos_cmd = self.sos_info['sos_cmd']
         label = self.determine_sos_label()
         if label:
-            self.sos_cmd = '%s %s ' % (sos_cmd, quote(label))
+            sos_cmd = '%s %s ' % (sos_cmd, quote(label))
 
         if self.opts.sos_opt_line:
             return '%s %s' % (sos_cmd, self.opts.sos_opt_line)
@@ -719,7 +721,6 @@ class SosNode():
                                'not exist on node' % self.opts.preset)
 
         _sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
-        self.manifest.add_field('final_sos_command', _sos_cmd)
         return _sos_cmd
 
     def determine_sos_label(self):
