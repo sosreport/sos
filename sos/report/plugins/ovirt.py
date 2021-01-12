@@ -1,3 +1,4 @@
+# Copyright (C) 2021 Red Hat, Inc., Lev Veyde <lveyde@redhat.com>
 # Copyright (C) 2014 Red Hat, Inc., Sandro Bonazzola <sbonazzo@redhat.com>
 # Copyright (C) 2014 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 # Copyright (C) 2010 Red Hat, Inc.
@@ -87,11 +88,38 @@ class Ovirt(Plugin, RedHatPlugin):
             self.add_forbidden_path('/var/log/ovirt-engine/dump')
             self.add_cmd_output('ls -l /var/log/ovirt-engine/dump/')
 
+        certificates = [
+            '/etc/pki/ovirt-engine/ca.pem',
+            '/etc/pki/ovirt-engine/apache-ca.pem',
+            '/etc/pki/ovirt-engine/certs/engine.cer',
+            '/etc/pki/ovirt-engine/certs/apache.cer',
+            '/etc/pki/ovirt-engine/certs/websocket-proxy.cer',
+            '/etc/pki/ovirt-engine/certs/jboss.cer',
+            '/etc/pki/ovirt-engine/certs/imageio-proxy.cer',
+            '/etc/pki/ovirt-engine/certs/ovirt-provider-ovn.cer',
+        ]
+
+        keystores = [
+            ('mypass', '/etc/pki/ovirt-engine/.truststore'),
+            ('changeit', '/var/lib/ovirt-engine/external_truststore'),
+        ]
+
         self.add_cmd_output([
             # Copy all engine tunables and domain information
             "engine-config --all",
             # clearer diff from factory defaults (only on ovirt>=4.2.8)
-            "engine-config -d"
+            "engine-config -d",
+        ])
+
+        self.add_cmd_output([
+            # process certificate files
+            "openssl x509 -in %s -text -noout" % c for c in certificates
+        ])
+
+        self.add_cmd_output([
+            # process TrustStore certificates
+            "keytool -list -storepass %s -rfc -keystore %s" %
+            (p, c) for (p, c) in keystores
         ])
 
         # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
