@@ -477,9 +477,13 @@ class LinuxPolicy(Policy):
             errno = str(err).split()[0]
             if errno == '503':
                 raise Exception("could not login as '%s'" % user)
+            if errno == '530':
+                raise Exception("invalid password for user '%s'" % user)
             if errno == '550':
                 raise Exception("could not set upload directory to %s"
                                 % directory)
+            raise Exception("error trying to establish session: %s"
+                            % str(err))
 
         try:
             with open(self.upload_archive, 'rb') as _arcfile:
