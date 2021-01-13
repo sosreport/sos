@@ -44,10 +44,11 @@ class Process(Plugin, IndependentPlugin):
                             tags=['ps_aux', 'ps_auxww', 'ps_auxwww'])
         self.add_cmd_output("pstree -lp", root_symlink="pstree")
         if self.get_option("lsof"):
-            self.add_cmd_output("lsof -b +M -n -l -c ''", root_symlink="lsof")
+            self.add_cmd_output("lsof +M -n -l -c ''", root_symlink="lsof",
+                                timeout=15)
 
         if self.get_option("lsof-threads"):
-            self.add_cmd_output("lsof -b +M -n -l")
+            self.add_cmd_output("lsof +M -n -l", timeout=15)
 
         self.add_cmd_output([
             "ps auxwwwm",
