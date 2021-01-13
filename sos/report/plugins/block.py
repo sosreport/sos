@@ -28,7 +28,8 @@ class Block(Plugin, IndependentPlugin):
             "blkid -c /dev/null",
             "blockdev --report",
             "ls -lanR /dev",
-            "ls -lanR /sys/block"
+            "ls -lanR /sys/block",
+            "lsblk -O -P",
         ])
 
         # legacy location for non-/run distributions
