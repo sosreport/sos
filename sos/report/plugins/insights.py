@@ -17,6 +17,7 @@ class RedHatInsights(Plugin, RedHatPlugin):
     profiles = ('system', 'sysmgmt')
     config = (
         '/etc/insights-client/insights-client.conf',
+        '/etc/insights-client/.registered',
         '/etc/redhat-access-insights/redhat-access-insights.conf'
     )
 
