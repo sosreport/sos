@@ -40,8 +40,9 @@ class Process(Plugin, IndependentPlugin):
         if self.get_option("smaps"):
             self.add_copy_spec("/proc/[0-9]*/smaps")
 
-        self.add_cmd_output("ps auxwww", root_symlink="ps",
-                            tags=['ps_aux', 'ps_auxww', 'ps_auxwww'])
+        self.add_cmd_output("ps auxwwwm", root_symlink="ps",
+                            tags=['ps_aux', 'ps_auxww', 'ps_auxwww',
+                                  'ps_auxwwwm'])
         self.add_cmd_output("pstree -lp", root_symlink="pstree")
         if self.get_option("lsof"):
             self.add_cmd_output("lsof +M -n -l -c ''", root_symlink="lsof",
@@ -51,7 +52,6 @@ class Process(Plugin, IndependentPlugin):
             self.add_cmd_output("lsof +M -n -l", timeout=15)
 
         self.add_cmd_output([
-            "ps auxwwwm",
             "ps alxwww",
             "ps -elfL",
             "%s %s" % (ps_axo, ps_group_opts),
