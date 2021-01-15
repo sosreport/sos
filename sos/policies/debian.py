@@ -8,7 +8,6 @@ class DebianPolicy(LinuxPolicy):
     distro = "Debian"
     vendor = "the Debian project"
     vendor_url = "https://www.debian.org/"
-    ticket_number = ""
     _debq_cmd = "dpkg-query -W -f='${Package}|${Version}\\n'"
     _debv_cmd = "dpkg --verify"
     _debv_filter = ""
@@ -23,7 +22,6 @@ class DebianPolicy(LinuxPolicy):
                  remote_exec=None):
         super(DebianPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime)
-        self.ticket_number = ""
         self.package_manager = PackageManager(query_command=self._debq_cmd,
                                               verify_command=self._debv_cmd,
                                               verify_filter=self._debv_filter,

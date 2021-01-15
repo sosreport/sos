@@ -25,7 +25,6 @@ class SuSEPolicy(LinuxPolicy):
                  remote_exec=None):
         super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime)
-        self.ticket_number = ""
         self.package_manager = PackageManager(
             'rpm -qa --queryformat "%{NAME}|%{VERSION}\\n"',
             remote_exec=remote_exec)
