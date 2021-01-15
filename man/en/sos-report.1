@@ -14,7 +14,7 @@ sosreport \- Collect and package diagnostic and support data
           [--preset preset] [--add-preset add_preset]\fR
           [--del-preset del_preset] [--desc description]\fR
           [--batch] [--build] [--debug] [--dry-run]\fR
-          [--label label] [--case-id id] [--ticket-number nr]\fR
+          [--label label] [--case-id id]\fR
           [--threads threads]\fR
           [--plugin-timeout TIMEOUT]\fR
           [-s|--sysroot SYSROOT]\fR
@@ -239,12 +239,6 @@ the logs plugin and 60 seconds for all other enabled plugins.
 .B \--case-id NUMBER
 Specify a case identifier to associate with the archive.
 Identifiers may include alphanumeric characters, commas and periods ('.').
-Synonymous with \--ticket-number.
-.TP
-.B \--ticket-number NUMBER
-Specify a ticket number or other identifier to associate with the archive.
-Identifiers may include alphanumeric characters, commas and periods ('.').
-Synonymous with \--case-id.
 .TP
 .B \--build
 Do not archive copied data. Causes sosreport to leave an uncompressed
