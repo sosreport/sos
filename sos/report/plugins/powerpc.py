@@ -84,7 +84,8 @@ class PowerPC(Plugin, IndependentPlugin):
                 "/proc/ppc64/topology_updates",
                 "/sys/firmware/opal/msglog",
                 "/var/log/opal-elog/",
-                "/var/log/opal-prd"
+                "/var/log/opal-prd",
+                "/var/log/opal-prd.log*"
             ])
             if os.path.isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
