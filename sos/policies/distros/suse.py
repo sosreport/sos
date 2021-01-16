@@ -25,7 +25,6 @@ class SuSEPolicy(LinuxPolicy):
                  remote_exec=None):
         super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime)
-        self.ticket_number = ""
         self.valid_subclasses += [SuSEPlugin, RedHatPlugin]
 
         pkgs = self.package_manager.all_pkgs()

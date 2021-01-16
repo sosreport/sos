@@ -50,7 +50,6 @@ class RedHatPolicy(LinuxPolicy):
                  remote_exec=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime)
-        self.ticket_number = ""
         self.usrmove = False
         # need to set _host_sysroot before PackageManager()
         if sysroot:

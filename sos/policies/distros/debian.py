@@ -17,7 +17,6 @@ class DebianPolicy(LinuxPolicy):
     distro = "Debian"
     vendor = "the Debian project"
     vendor_urls = [('Community Website', 'https://www.debian.org/')]
-    ticket_number = ""
     name_pattern = 'friendly'
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
@@ -28,7 +27,6 @@ class DebianPolicy(LinuxPolicy):
                  remote_exec=None):
         super(DebianPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime)
-        self.ticket_number = ""
         self.package_manager = DpkgPackageManager(chroot=sysroot,
                                                   remote_exec=remote_exec)
         self.valid_subclasses += [DebianPlugin]
