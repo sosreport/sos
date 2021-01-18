@@ -27,7 +27,8 @@ class Networking(Plugin):
         ("namespaces", "Number of namespaces to collect, 0 for unlimited. " +
          "Incompatible with the namespace_pattern plugin option", "slow", 0),
         ("ethtool_namespaces", "Define if ethtool commands should be " +
-         "collected for namespaces", "slow", True)
+         "collected for namespaces", "slow", True),
+        ("eepromdump", "collect 'ethtool -e' for all devices", "slow", False)
     ]
 
     # switch to enable netstat "wide" (non-truncated) output mode
@@ -141,16 +142,15 @@ class Networking(Plugin):
                 "ethtool --show-eee " + eth
             ], tags=eth)
 
-            # skip EEPROM collection for 'bnx2x' NICs as this command
-            # can pause the NIC and is not production safe.
-            bnx_output = {
-                "cmd": "ethtool -i %s" % eth,
-                "output": "bnx2x"
-            }
-            bnx_pred = SoSPredicate(self,
-                                    cmd_outputs=bnx_output,
-                                    required={'cmd_outputs': 'none'})
-            self.add_cmd_output("ethtool -e %s" % eth, pred=bnx_pred)
+            # skip EEPROM collection by default, as it might hang or
+            # negatively impact the system on some device types
+            if self.get_option("eepromdump"):
+                cmd = "ethtool -e %s" % eth
+                self._log_warn("WARNING (about to collect '%s'): collecting "
+                               "an eeprom dump is known to cause certain NIC "
+                               "drivers (e.g. bnx2x/tg3) to interrupt device "
+                               "operation" % cmd)
+                self.add_cmd_output(cmd)
 
         # Collect information about bridges (some data already collected via
         # "ip .." commands)
