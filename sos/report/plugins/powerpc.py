@@ -63,7 +63,10 @@ class PowerPC(Plugin, IndependentPlugin):
                 "/proc/ppc64/systemcfg",
                 "/var/log/platform",
                 "/var/log/drmgr",
-                "/var/log/drmgr.0"
+                "/var/log/drmgr.0",
+                "/var/log/hcnmgr",
+                "/var/ct/IBM.DRM.stderr",
+                "/var/ct/IW/log/mc/IBM.DRM/trace*"
             ])
             ctsnap_path = self.get_cmd_output_path(name="ctsnap", make=True)
             self.add_cmd_output([
@@ -74,8 +77,10 @@ class PowerPC(Plugin, IndependentPlugin):
                 "serv_config -l",
                 "bootlist -m both -r",
                 "lparstat -i",
-                "ctsnap -xrunrpttr -d %s" % (ctsnap_path)
+                "ctsnap -xrunrpttr -d %s" % (ctsnap_path),
+                "lsdevinfo"
             ])
+            self.add_service_status("hcn-init")
 
         if isPowerNV:
             self.add_copy_spec([
