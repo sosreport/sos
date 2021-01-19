@@ -29,10 +29,18 @@ class Scsi(Plugin, IndependentPlugin):
         ])
 
         self.add_cmd_output("lsscsi -i", suggest_filename="lsscsi")
-        self.add_cmd_output("sg_map -x")
-        self.add_cmd_output("lspath")
-        self.add_cmd_output("lsmap -all")
-        self.add_cmd_output("lsnports")
+
+        self.add_cmd_output([
+            "sg_map -x",
+            "lspath",
+            "lsmap -all",
+            "lsnports",
+            "lsscsi -H",
+            "lsscsi -g",
+            "lsscsi -d",
+            "lsscsi -s",
+            "lsscsi -L"
+        ])
 
         scsi_hosts = glob("/sys/class/scsi_host/*")
         self.add_blockdev_cmd("udevadm info -a %(dev)s", devices=scsi_hosts,
