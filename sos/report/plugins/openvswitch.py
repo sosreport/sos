@@ -71,7 +71,8 @@ class OpenVSwitch(Plugin):
 
         self.add_copy_spec([
             "/run/openvswitch/ovsdb-server.pid",
-            "/run/openvswitch/ovs-vswitchd.pid"
+            "/run/openvswitch/ovs-vswitchd.pid",
+            "/run/openvswitch/ovs-monitor-ipsec.pid"
         ])
 
         self.add_cmd_output([
@@ -122,7 +123,11 @@ class OpenVSwitch(Plugin):
             # Capture DPDK pmd performance counters
             "ovs-appctl dpif-netdev/pmd-perf-show",
             # Capture ofproto tunnel configs
-            "ovs-appctl ofproto/list-tunnels"
+            "ovs-appctl ofproto/list-tunnels",
+            # Capture ipsec tunnel information
+            "ovs-appctl -t ovs-monitor-ipsec tunnels/show",
+            "ovs-appctl -t ovs-monitor-ipsec xfrm/state",
+            "ovs-appctl -t ovs-monitor-ipsec xfrm/policies"
         ])
 
         # Gather systemd services logs
@@ -131,6 +136,7 @@ class OpenVSwitch(Plugin):
         self.add_journal(units="ovs-vswitchd")
         self.add_journal(units="ovsdb-server")
         self.add_journal(units="ovs-configuration")
+        self.add_journal(units="openvswitch-ipsec")
 
         if check_6wind:
             self.add_copy_spec(files_6wind)
@@ -248,6 +254,8 @@ class OpenVSwitch(Plugin):
                             # Not all ports are "bond"s, but all "bond"s are
                             # a single port
                             "ovs-appctl bond/show %s" % port,
+                            # In the case of IPSec, we should pull the config
+                            "ovs-vsctl get Interface %s options" % port,
                         ])
 
                         if check_dpdk:
