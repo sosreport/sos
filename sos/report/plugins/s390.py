@@ -25,6 +25,7 @@ class S390(Plugin, IndependentPlugin):
             "/proc/crypto",
             "/proc/dasd/devices",
             "/proc/dasd/statistics",
+            "/etc/dasd.conf",
             "/proc/qeth",
             "/proc/qeth_perf",
             "/proc/qeth_ipa_takeover",
