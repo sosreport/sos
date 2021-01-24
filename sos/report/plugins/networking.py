@@ -147,7 +147,8 @@ class Networking(Plugin):
                 "ethtool -l " + eth,
                 "ethtool --phy-statistics " + eth,
                 "ethtool --show-priv-flags " + eth,
-                "ethtool --show-eee " + eth
+                "ethtool --show-eee " + eth,
+                "tc -s filter show dev " + eth
             ], tags=eth)
 
             # skip EEPROM collection by default, as it might hang or
