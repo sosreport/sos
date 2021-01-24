@@ -102,7 +102,15 @@ class Networking(Plugin):
             "ip neigh show nud noarp",
             "biosdevname -d",
             "tc -s qdisc show",
+            "devlink dev param show",
+            "devlink dev info",
         ])
+
+        devlinks = self.collect_cmd_output("devlink dev")
+        if devlinks['status'] == 0:
+            devlinks_list = devlinks['output'].splitlines()
+            for devlink in devlinks_list:
+                self.add_cmd_output("devlink dev eswitch show %s" % devlink)
 
         # below commands require some kernel module(s) to be loaded
         # run them only if the modules are loaded, or if explicitly requested
