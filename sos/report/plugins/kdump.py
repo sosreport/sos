@@ -72,6 +72,7 @@ class RedHatKDump(KDump, RedHatPlugin):
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules",
             "/var/crash/*/vmcore-dmesg.txt",
+            "/var/crash/*/kexec-dmesg.log",
             "/var/log/kdump.log"
         ])
         try:
@@ -81,7 +82,7 @@ class RedHatKDump(KDump, RedHatPlugin):
             path = "/var/crash"
 
         self.add_copy_spec("{}/*/vmcore-dmesg.txt".format(path))
-        self.add_copy_spec("{}/*/kexec-kdump.log".format(path))
+        self.add_copy_spec("{}/*/kexec-dmesg.log".format(path))
 
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
