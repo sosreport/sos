@@ -211,4 +211,16 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
     elif path.exists('/etc/kubernetes/admin.conf'):
         kube_cmd = "kubectl --kubeconfig=/etc/kubernetes/admin.conf"
 
+    services = (
+        # CDK
+        'cdk.master.auth-webhook',
+    )
+
+    def setup(self):
+        for svc in self.services:
+            self.add_journal(units=svc)
+
+        super(UbuntuKubernetes, self).setup()
+
+
 # vim: et ts=5 sw=4
