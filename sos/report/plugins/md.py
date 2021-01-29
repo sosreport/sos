@@ -18,6 +18,8 @@ class Md(Plugin, IndependentPlugin):
 
     def setup(self):
         self.add_cmd_output("mdadm -D /dev/md*")
+        self.add_blockdev_cmd("mdadm -E %(dev)s",
+                              blacklist=['ram.*', 'zram.*'])
         self.add_copy_spec([
             "/proc/mdstat",
             "/etc/mdadm.conf",
