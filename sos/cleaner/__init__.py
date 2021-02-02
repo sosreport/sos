@@ -405,7 +405,12 @@ third party.
         able to provide the same consistent mapping
         """
         if self.opts.map_file and not self.opts.no_update:
+            cleaner_dir = os.path.dirname(self.opts.map_file)
+            """ Attempt to create the directory /etc/sos/cleaner
+            just in case it didn't exist previously
+            """
             try:
+                os.makedirs(cleaner_dir, exist_ok=True)
                 self.write_map_to_file(_map, self.opts.map_file)
                 self.log_debug("Wrote mapping to %s" % self.opts.map_file)
             except Exception as err:
