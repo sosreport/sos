@@ -9,10 +9,10 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
+from sos.utilities import is_executable
 
 
 class Systemd(Plugin, IndependentPlugin):
-
     short_desc = 'System management daemon'
 
     plugin_name = "systemd"
@@ -47,11 +47,17 @@ class Systemd(Plugin, IndependentPlugin):
             "timedatectl"
         ])
 
-        # systemd-resolve command starts systemd-resolved service if that
+        # resolvectl command starts systemd-resolved service if that
         # is not running, so gate the commands by this predicate
+        if is_executable('resolvectl'):
+            resolvectl_status = 'resolvectl status'
+            resolvectl_statistics = 'resolvectl statistics'
+        else:
+            resolvectl_status = 'systemd-resolve --status'
+            resolvectl_statistics = 'systemd-resolve --statistics'
         self.add_cmd_output([
-            "systemd-resolve --status",
-            "systemd-resolve --statistics",
+            resolvectl_status,
+            resolvectl_statistics,
         ], pred=SoSPredicate(self, services=["systemd-resolved"]))
 
         self.add_cmd_output("systemd-analyze plot",

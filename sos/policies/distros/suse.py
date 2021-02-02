@@ -12,6 +12,7 @@ import sys
 
 from sos.report.plugins import RedHatPlugin, SuSEPlugin
 from sos.policies.distros import LinuxPolicy
+from sos.policies.package_managers.rpm import RpmPackageManager
 from sos import _sos as _
 
 
@@ -26,6 +27,9 @@ class SuSEPolicy(LinuxPolicy):
         super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime)
         self.valid_subclasses += [SuSEPlugin, RedHatPlugin]
+
+        self.usrmove = False
+        self.package_manager = RpmPackageManager()
 
         pkgs = self.package_manager.all_pkgs()
 

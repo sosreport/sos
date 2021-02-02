@@ -205,10 +205,22 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
 
     packages = ('kubernetes',)
-    files = ('/root/cdk/kubeproxyconfig', '/etc/kubernetes')
-    if path.exists('/root/cdk/kubeproxyconfig'):
-        kube_cmd = "kubectl --kubeconfig=/root/cdk/kubeproxyconfig"
+    files = ('/root/cdk/cdk_addons_kubectl_config', '/etc/kubernetes')
+    if path.exists('/root/cdk/cdk_addons_kubectl_config'):
+        kube_cmd = "kubectl --kubeconfig=/root/cdk/cdk_addons_kubectl_config"
     elif path.exists('/etc/kubernetes/admin.conf'):
         kube_cmd = "kubectl --kubeconfig=/etc/kubernetes/admin.conf"
+
+    services = (
+        # CDK
+        'cdk.master.auth-webhook',
+    )
+
+    def setup(self):
+        for svc in self.services:
+            self.add_journal(units=svc)
+
+        super(UbuntuKubernetes, self).setup()
+
 
 # vim: et ts=5 sw=4
