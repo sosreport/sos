@@ -109,4 +109,9 @@ class Yum(Plugin, RedHatPlugin):
             except IndexError:
                 pass
 
+    def postproc(self):
+        regexp = r"(proxy_password(\s)*=(\s)*)(\S+)\n"
+        repl = r"\1********\n"
+        self.do_path_regex_sub("/etc/yum.repos.d/*", regexp, repl)
+
 # vim: set et ts=4 sw=4 :
