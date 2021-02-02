@@ -655,9 +655,9 @@ class SosNode():
             self.sos_bin = 'sos report'
 
         if self.check_sos_version('4.1'):
-            if self.opts.skip_cmds:
+            if self.opts.skip_commands:
                 sos_opts.append(
-                    '--skip-commands=%s' % (quote(self.opts.skip_cmds))
+                    '--skip-commands=%s' % (quote(self.opts.skip_commands))
                 )
             if self.opts.skip_files:
                 sos_opts.append(

@@ -84,7 +84,7 @@ class SoSCollector(SoSComponent):
         'preset': '',
         'save_group': '',
         'since': '',
-        'skip_cmds': [],
+        'skip_commands': [],
         'skip_files': [],
         'skip_plugins': [],
         'sos_opt_line': '',
@@ -280,7 +280,7 @@ class SoSCollector(SoSComponent):
                                    'This will also affect --all-logs. '
                                    'Format: YYYYMMDD[HHMMSS]'))
         sos_grp.add_argument('--skip-commands', default=[], action='extend',
-                             dest='skip_cmds',
+                             dest='skip_commands',
                              help="do not execute these commands")
         sos_grp.add_argument('--skip-files', default=[], action='extend',
                              dest='skip_files',

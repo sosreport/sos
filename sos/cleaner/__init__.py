@@ -170,7 +170,7 @@ third party.
         clean_grp.add_argument('--keywords', action='extend', default=[],
                                dest='keywords',
                                help='List of keywords to obfuscate')
-        clean_grp.add_argument('--map', dest='map_file',
+        clean_grp.add_argument('--map-file', dest='map_file',
                                default='/etc/sos/cleaner/default_mapping',
                                help=('Provide a previously generated mapping '
                                      'file for obfuscation'))

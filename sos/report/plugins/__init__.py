@@ -496,7 +496,7 @@ class Plugin(object):
         self.devices = commons['devices']
         self.manifest = None
         self.skip_files = commons['cmdlineopts'].skip_files
-        self.skip_cmds = commons['cmdlineopts'].skip_cmds
+        self.skip_commands = commons['cmdlineopts'].skip_commands
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -1609,7 +1609,7 @@ class Plugin(object):
         pred = kwargs.pop('pred') if 'pred' in kwargs else None
         soscmd = SoSCommand(**kwargs)
         self._log_debug("packed command: " + soscmd.__str__())
-        for _skip_cmd in self.skip_cmds:
+        for _skip_cmd in self.skip_commands:
             # This probably seems weird to be doing filename matching on the
             # commands, however we want to remain consistent with our regex
             # matching with file paths, which sysadmins are almost guaranteed
