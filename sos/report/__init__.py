@@ -95,10 +95,10 @@ class SoSReport(SoSComponent):
         'list_profiles': False,
         'log_size': 25,
         'map_file': '/etc/sos/cleaner/default_mapping',
-        'skip_cmds': [],
+        'skip_commands': [],
         'skip_files': [],
         'skip_plugins': [],
-        'noreport': False,
+        'no_report': False,
         'no_env_vars': False,
         'no_postproc': False,
         'no_update': False,
@@ -222,7 +222,8 @@ class SoSReport(SoSComponent):
         report_grp.add_argument("-e", "--enable-plugins", action="extend",
                                 dest="enable_plugins", type=str,
                                 help="enable these plugins", default=[])
-        report_grp.add_argument("-k", "--plugin-option", action="extend",
+        report_grp.add_argument("-k", "--plugin-option", "--plugopts",
+                                action="extend",
                                 dest="plugopts", type=str,
                                 help="plugin options in plugname.option=value "
                                      "format (see -l)", default=[])
@@ -247,7 +248,7 @@ class SoSReport(SoSComponent):
                                 dest="skip_plugins", type=str,
                                 help="disable these plugins", default=[])
         report_grp.add_argument("--no-report", action="store_true",
-                                dest="noreport", default=False,
+                                dest="no_report", default=False,
                                 help="disable plaintext/HTML reporting")
         report_grp.add_argument("--no-env-vars", action="store_true",
                                 dest="no_env_vars", default=False,
@@ -264,12 +265,13 @@ class SoSReport(SoSComponent):
                                 help="A preset identifier", default="auto")
         report_grp.add_argument("--plugin-timeout", default=None,
                                 help="set a timeout for all plugins")
-        report_grp.add_argument("-p", "--profile", action="extend",
-                                dest="profiles", type=str, default=[],
+        report_grp.add_argument("-p", "--profile", "--profiles",
+                                action="extend", dest="profiles", type=str,
+                                default=[],
                                 help="enable plugins used by the given "
                                      "profiles")
         report_grp.add_argument('--skip-commands', default=[], action='extend',
-                                dest='skip_cmds',
+                                dest='skip_commands',
                                 help="do not execute these commands")
         report_grp.add_argument('--skip-files', default=[], action='extend',
                                 dest='skip_files',
@@ -1367,7 +1369,7 @@ class SoSReport(SoSComponent):
             self.collect()
             if not self.opts.no_env_vars:
                 self.collect_env_vars()
-            if not self.opts.noreport:
+            if not self.opts.no_report:
                 self.generate_reports()
             if not self.opts.no_postproc:
                 self.postproc()

@@ -116,7 +116,7 @@ class MockOptions(object):
     allow_system_changes = False
     no_postproc = False
     skip_files = []
-    skip_cmds = []
+    skip_commands = []
 
 
 class PluginToolTests(unittest.TestCase):

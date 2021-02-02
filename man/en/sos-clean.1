@@ -4,7 +4,7 @@ sos clean - Obfuscate sensitive data from one or more sosreports
 .SH SYNOPSIS
 .B sos clean TARGET [options]
     [\-\-domains]
-    [\-\-map]
+    [\-\-map-file]
     [\-\-jobs]
     [\-\-no-update]
 
@@ -54,7 +54,7 @@ Keywords provided by this option will be obfuscated as "obfuscatedwordX" where X
 integer based on the keyword's index in the parser. Note that keywords will be replaced as
 both standalone words and in substring matches.
 .TP
-.B \-\-map FILE
+.B \-\-map-file FILE
 Provide a location to a valid mapping file to use as a reference for existing obfuscation pairs.
 If one is found, the contents are loaded before parsing is started. This allows consistency between
 runs of this command for obfuscated pairs. By default, sos will write the generated private map file
