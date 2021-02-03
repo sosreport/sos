@@ -1,6 +1,7 @@
 # Copyright (C) 2007 Red Hat, Inc., Kent Lamb <klamb@redhat.com>
 # Copyright (C) 2014 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
-
+# Copyright (C) 2021 Red Hat, Inc., Mark Reynolds <mreynolds@redhat.com>
+#
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
 # This copyrighted material is made available to anyone wishing to use,
@@ -48,6 +49,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 if d[0:5] == 'slapd':
                     certpath = os.path.join("/etc/dirsrv", d)
                     self.add_cmd_output("certutil -L -d %s" % certpath)
+                    self.add_cmd_output("dsctl %s healthcheck" % d)
         except OSError:
             self._log_warn("could not list /etc/dirsrv")
 
