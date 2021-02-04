@@ -40,13 +40,46 @@ class SoSHostnameMap(SoSMap):
     _domains = {}
     hosts = {}
 
-    def __init__(self, opt_domains):
-        super(SoSHostnameMap, self).__init__()
-        self.load_domains_from_options(opt_domains)
+    def load_domains_from_map(self):
+        """Because we use 'intermediary' dicts for host names and domain names
+        in this parser, we need to re-inject entries from the map_file into
+        these dicts and not just the underlying 'dataset' dict
+        """
+        for domain in self.dataset:
+            if len(domain.split('.')) == 1:
+                self.hosts[domain.split('.')[0]] = self.dataset[domain]
+            else:
+                # strip the host name and trailing top-level domain so that
+                # we in inject the domain properly for later string matching
+                _domain = '.'.join(domain.split('.')[1:-1]).strip()
+                if not _domain:
+                    continue
+                self._domains[_domain] = self.dataset[domain]
+        self.set_initial_counts()
 
     def load_domains_from_options(self, domains):
         for domain in domains:
             self.sanitize_domain(domain.split('.'))
+
+    def set_initial_counts(self):
+        """Set the initial counter for host and domain obfuscation numbers
+        based on what is already present in the mapping.
+        """
+        # hostnames/short names
+        try:
+            h = sorted(self.hosts.values(), reverse=True)[0].split('host')[1]
+            self.host_count = int(h) + 1
+        except IndexError:
+            # no hosts loaded yet
+            pass
+
+        # domain names
+        try:
+            d = sorted(self._domains.values(), reverse=True)[0].split('domain')
+            self.domain_count = int(d[1].split('.')[0]) + 1
+        except IndexError:
+            # no domains loaded yet
+            pass
 
     def domain_name_in_loaded_domains(self, domain):
         """Check if a potential domain is in one of the domains we've loaded
@@ -56,8 +89,6 @@ class SoSHostnameMap(SoSMap):
         if len(host) == 1:
             # don't block on host's shortname
             return True
-        if len(host) < 2:
-            return False
         else:
             domain = host[0:-1]
             for known_domain in self._domains:
@@ -88,6 +119,7 @@ class SoSHostnameMap(SoSMap):
             # obfuscate the short name
             ob_hostname = self.sanitize_short_name(hostname)
             ob_domain = self.sanitize_domain(domain)
+            self.dataset[item] = ob_domain
             return '.'.join([ob_hostname, ob_domain])
 
     def sanitize_short_name(self, hostname):
@@ -98,6 +130,7 @@ class SoSHostnameMap(SoSMap):
             ob_host = "host%s" % self.host_count
             self.hosts[hostname] = ob_host
             self.host_count += 1
+            self.dataset[hostname] = ob_host
         return self.hosts[hostname]
 
     def sanitize_domain(self, domain):
@@ -112,6 +145,7 @@ class SoSHostnameMap(SoSMap):
         dname = '.'.join(domain[0:-1])
         ob_domain = self._new_obfuscated_domain(dname)
         ob_domain = '.'.join([ob_domain, top_domain])
+        self.dataset['.'.join(domain)] = ob_domain
         return ob_domain
 
     def _new_obfuscated_domain(self, dname):
