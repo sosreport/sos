@@ -366,7 +366,8 @@ class SoSCollector(SoSComponent):
             'Cleaner/Masking Options',
             'These options control how data obfuscation is performed'
         )
-        cleaner_grp.add_argument('--clean', '--mask', dest='clean',
+        cleaner_grp.add_argument('--clean', '--cleaner', '--mask',
+                                 dest='clean',
                                  default=False, action='store_true',
                                  help='Obfuscate sensistive information')
         cleaner_grp.add_argument('--domains', dest='domains', default=[],

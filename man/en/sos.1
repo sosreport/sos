@@ -50,7 +50,7 @@ May also be invoked via the alias \fBsos collector\fR or the deprecated command
 \fBsos-collector\fR.
 
 .TP
-.B clean|mask
+.B clean|cleaner|mask
 This subcommand takes input of either 1) an sosreport tarball, 2) a collection
 of sosreport tarballs such as from \fBcollect\fR, or 3) the unpackaged
 directory of an sosreport and obfuscates potentially sensitive system information
@@ -63,7 +63,8 @@ between matched data items.
 
 See \fB sos clean --help\fR and \fBman sos-clean\fR for more information.
 
-May be invoked via either \fBsos clean\fR, \fBsos mask\fR, or via the \fB--clean\fR or \fB --mask\fR options
+May be invoked via either \fBsos clean\fR, \fBsos cleaner\fR, \fBsos mask\fR,
+or via the \fB--clean\fR, \fB--cleaner\fR or \fB --mask\fR options
 for \fBreport\fR and \fBcollect\fR.
 
 .SH GLOBAL OPTIONS
