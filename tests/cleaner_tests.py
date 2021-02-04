@@ -24,7 +24,8 @@ class CleanerMapTests(unittest.TestCase):
     def setUp(self):
         self.mac_map = SoSMacMap()
         self.ip_map = SoSIPMap()
-        self.host_map = SoSHostnameMap(['redhat.com'])
+        self.host_map = SoSHostnameMap()
+        self.host_map.load_domains_from_options(['redhat.com'])
         self.kw_map = SoSKeywordMap()
 
     def test_mac_map_obfuscate_valid_v4(self):

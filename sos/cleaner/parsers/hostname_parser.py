@@ -22,9 +22,25 @@ class SoSHostnameParser(SoSCleanerParser):
     ]
 
     def __init__(self, conf_file=None, opt_domains=None):
-        self.mapping = SoSHostnameMap(opt_domains)
-        self.short_names = []
+        self.mapping = SoSHostnameMap()
         super(SoSHostnameParser, self).__init__(conf_file)
+        self.mapping.load_domains_from_map()
+        self.mapping.load_domains_from_options(opt_domains)
+        self.short_names = []
+        self.load_short_names_from_mapping()
+        self.mapping.set_initial_counts()
+
+    def load_short_names_from_mapping(self):
+        """When we load the mapping file into the hostname map, we have to do
+        some dancing to get those loaded properly into the "intermediate" dicts
+        that the map uses to hold hosts and domains. Similarly, we need to also
+        extract shortnames known to the map here.
+        """
+        for hname in self.mapping.dataset.keys():
+            if len(hname.split('.')) == 1:
+                # we have a short name only with no domain
+                if hname not in self.short_names:
+                    self.short_names.append(hname)
 
     def load_hostname_into_map(self, hostname_string):
         """Force add the domainname found in /sos_commands/host/hostname into
