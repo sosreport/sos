@@ -44,6 +44,7 @@ class SoSCleaner(SoSComponent):
         'domains': [],
         'jobs': 4,
         'keywords': [],
+        'keyword_file': None,
         'map_file': '/etc/sos/cleaner/default_mapping',
         'no_update': False,
         'target': '',
@@ -85,7 +86,8 @@ class SoSCleaner(SoSComponent):
             SoSHostnameParser(self.opts.map_file, self.opts.domains),
             SoSIPParser(self.opts.map_file),
             SoSMacParser(self.opts.map_file),
-            SoSKeywordParser(self.opts.map_file, self.opts.keywords),
+            SoSKeywordParser(self.opts.map_file, self.opts.keywords,
+                             self.opts.keyword_file),
             SoSUsernameParser(self.opts.map_file, self.opts.usernames)
         ]
 
@@ -170,6 +172,9 @@ third party.
         clean_grp.add_argument('--keywords', action='extend', default=[],
                                dest='keywords',
                                help='List of keywords to obfuscate')
+        clean_grp.add_argument('--keyword-file', default=None,
+                               dest='keyword_file',
+                               help='Provide a file a keywords to obfuscate')
         clean_grp.add_argument('--map-file', dest='map_file',
                                default='/etc/sos/cleaner/default_mapping',
                                help=('Provide a previously generated mapping '

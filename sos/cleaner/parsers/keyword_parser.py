@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
+
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.keyword_map import SoSKeywordMap
 
@@ -20,7 +22,7 @@ class SoSKeywordParser(SoSCleanerParser):
     map_file_key = 'keyword_map'
     prep_map_file = ''
 
-    def __init__(self, conf_file=None, keywords=None):
+    def __init__(self, conf_file=None, keywords=None, keyword_file=None):
         self.mapping = SoSKeywordMap()
         self.user_keywords = []
         super(SoSKeywordParser, self).__init__(conf_file)
@@ -28,6 +30,9 @@ class SoSKeywordParser(SoSCleanerParser):
             self.user_keywords.append(_keyword)
         if keywords:
             self.user_keywords.extend(keywords)
+        if keyword_file and os.path.exists(keyword_file):
+            with open(keyword_file, 'r') as kwf:
+                self.user_keywords.extend(kwf.read().splitlines())
 
     def parse_line(self, line):
         count = 0
