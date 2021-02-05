@@ -65,6 +65,7 @@ class SoSCollector(SoSComponent):
         'image': '',
         'jobs': 4,
         'keywords': [],
+        'keyword_file': None,
         'label': '',
         'list_options': False,
         'log_size': 0,
@@ -376,6 +377,9 @@ class SoSCollector(SoSComponent):
         cleaner_grp.add_argument('--keywords', action='extend', default=[],
                                  dest='keywords',
                                  help='List of keywords to obfuscate')
+        cleaner_grp.add_argument('--keyword-file', default=None,
+                                 dest='keyword_file',
+                                 help='Provide a file a keywords to obfuscate')
         cleaner_grp.add_argument('--no-update', action='store_true',
                                  default=False, dest='no_update',
                                  help='Do not update the default cleaner map')

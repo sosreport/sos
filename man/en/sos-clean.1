@@ -4,6 +4,8 @@ sos clean - Obfuscate sensitive data from one or more sosreports
 .SH SYNOPSIS
 .B sos clean TARGET [options]
     [\-\-domains]
+    [\-\-keywords]
+    [\-\-keyword-file]
     [\-\-map-file]
     [\-\-jobs]
     [\-\-no-update]
@@ -53,6 +55,10 @@ Provide a comma-delimited list of keywords to scrub in addition to the default p
 Keywords provided by this option will be obfuscated as "obfuscatedwordX" where X is an
 integer based on the keyword's index in the parser. Note that keywords will be replaced as
 both standalone words and in substring matches.
+.TP
+.B \-\-keyword-file FILE
+Provide a file that contains a list of keywords that should be obfuscated. Each word must
+be specified on a newline within the file.
 .TP
 .B \-\-map-file FILE
 Provide a location to a valid mapping file to use as a reference for existing obfuscation pairs.
