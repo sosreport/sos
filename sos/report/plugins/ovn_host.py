@@ -29,6 +29,12 @@ class OVNHost(Plugin):
     def setup(self):
         if os.environ.get('OVS_RUNDIR'):
             pid_paths.append(os.environ.get('OVS_RUNDIR'))
+
+        if self.get_option("all_logs"):
+            self.add_copy_spec("/var/log/ovn/")
+        else:
+            self.add_copy_spec("/var/log/ovn/*.log")
+
         self.add_copy_spec([os.path.join(pp, pidfile) for pp in pid_paths])
 
         self.add_copy_spec('/etc/sysconfig/ovn-controller')
