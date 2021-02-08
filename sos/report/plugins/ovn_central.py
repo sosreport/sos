@@ -76,6 +76,11 @@ class OVNCentral(Plugin):
             if ovs_rundir:
                 self.add_copy_spec(os.path.join(ovs_rundir, pidfile))
 
+        if self.get_option("all_logs"):
+            self.add_copy_spec("/var/log/ovn/")
+        else:
+            self.add_copy_spec("/var/log/ovn/*.log")
+
         # Some user-friendly versions of DB output
         cmds = [
             'ovn-nbctl show',
@@ -86,6 +91,9 @@ class OVNCentral(Plugin):
             'ovn-sbctl get-ssl',
             'ovn-sbctl get-connection',
             'ovn-nbctl list loadbalancer',
+            'ovn-nbctl list Load_Balancer',
+            'ovn-nbctl list ACL',
+            'ovn-nbctl list Logical_Switch_Port',
         ]
 
         schema_dir = '/usr/share/openvswitch'
