@@ -55,6 +55,9 @@ class Gluster(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
+        self.add_forbidden_path(
+            "/var/lib/glusterd/glusterfind/glusterfind_*_secret.pem"
+        )
 
         self.add_cmd_output([
             "gluster peer status",
@@ -72,7 +75,10 @@ class Gluster(Plugin, RedHatPlugin):
             "/etc/glusterfs",
             "/var/lib/glusterd/",
             # collect nfs-ganesha related configuration
-            "/run/gluster/shared_storage/nfs-ganesha/"
+            "/run/gluster/shared_storage/nfs-ganesha/",
+            # collect status files and public ssh keys
+            "/var/lib/glusterd/.keys/",
+            "/var/lib/glusterd/glusterfind/"
         ] + glob.glob('/run/gluster/*tier-dht/*'))
 
         if not self.get_option("all_logs"):
