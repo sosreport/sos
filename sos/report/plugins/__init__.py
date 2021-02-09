@@ -2568,7 +2568,8 @@ class Plugin(object):
                                                    commands,
                                                    services):
                         type(self)._scls_matched.append(scl)
-                return len(type(self)._scls_matched) > 0
+                    if type(self)._scls_matched:
+                        return True
 
             return self._check_plugin_triggers(self.files,
                                                self.packages,
@@ -2793,6 +2794,8 @@ class SCLPlugin(RedHatPlugin):
         """Same as add_cmd_output, except that it wraps command in
         "scl enable" call and sets proper PATH.
         """
+        if scl not in self.scls_matched:
+            return
         if isinstance(cmds, str):
             cmds = [cmds]
         scl_cmds = []
@@ -2817,21 +2820,14 @@ class SCLPlugin(RedHatPlugin):
         """Same as add_copy_spec, except that it prepends path to SCL root
         to "copyspecs".
         """
+        if scl not in self.scls_matched:
+            return
         if isinstance(copyspecs, str):
             copyspecs = [copyspecs]
         scl_copyspecs = []
         for copyspec in copyspecs:
             scl_copyspecs.append(self.convert_copyspec_scl(scl, copyspec))
         self.add_copy_spec(scl_copyspecs)
-
-    def add_copy_spec_limit_scl(self, scl, copyspec, **kwargs):
-        """Same as add_copy_spec_limit, except that it prepends path to SCL
-        root to "copyspec".
-        """
-        self.add_copy_spec_limit(
-            self.convert_copyspec_scl(scl, copyspec),
-            **kwargs
-        )
 
 
 class PowerKVMPlugin(RedHatPlugin):
