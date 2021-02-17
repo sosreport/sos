@@ -1,7 +1,9 @@
 # this script generates for each plugin:
+# - its name
 # - URL to upstream code
 # - list of distros
 # - list of profiles
+# - list of packages that enable the plugin (no other enabling pieces)
 # - list of paths it collects (add_copy_spec)
 # - list of paths it forbits to collect (add_forbidden_path)
 # - list of commands it calls (add_cmd_output)
@@ -74,6 +76,7 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
             'sourcecode': 'https://github.com/sosreport/sos/blob/master/sos/report/plugins/%s.py' % plugname,
             'distros': [],
             'profiles': [],
+            'packages': [],
             'copyspecs': [],
             'forbidden': [],
             'commands': [],
@@ -84,6 +87,7 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
     plugcontent = open(os.path.join(PLUGDIR, plugfile)).read().replace('\n','')
     add_all_items("from sos.report.plugins import ", plugs_data[plugname]['distros'], wrapopen='', wrapclose='(class|from|import)')
     add_all_items("profiles = ", plugs_data[plugname]['profiles'], wrapopen='')
+    add_all_items("packages = ", plugs_data[plugname]['packages'], wrapopen='')
     add_all_items("add_copy_spec", plugs_data[plugname]['copyspecs'])
     add_all_items("add_forbidden_path", plugs_data[plugname]['forbidden'])
     add_all_items("add_cmd_output", plugs_data[plugname]['commands'])
@@ -94,7 +98,7 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
 
 # print output; if "csv" is cmdline argument, print in CSV format, else JSON
 if (len(sys.argv) > 1) and (sys.argv[1] == "csv"):
-    print("plugin;url;distros;profiles;copyspecs;forbidden;commands;service_status;journals;env_vars")
+    print("plugin;url;distros;profiles;packages;copyspecs;forbidden;commands;service_status;journals;env_vars")
     for plugname in plugs_data.keys():
         plugin = plugs_data[plugname]
         # determine max number of lines - usually "max(len(copyspec),len(commands))"
