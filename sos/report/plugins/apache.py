@@ -29,9 +29,12 @@ class Apache(Plugin):
             "apachectl -t"
         ])
 
-        # The foreman plugin collects these files with a greater size limit:
+        # The foreman and pulp plugins collect these files;
         # do not collect them here to avoid collisions in the archive paths.
-        self.add_forbidden_path("/var/log/{}*/foreman*".format(self.apachepkg))
+        self.add_forbidden_path([
+            "/var/log/{}*/foreman*".format(self.apachepkg),
+            "/var/log/{}*/pulp*".format(self.apachepkg)
+        ])
 
 
 class RedHatApache(Apache, RedHatPlugin):
