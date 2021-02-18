@@ -51,10 +51,21 @@ class SoSHostnameMap(SoSMap):
             else:
                 # strip the host name and trailing top-level domain so that
                 # we in inject the domain properly for later string matching
-                _domain = '.'.join(domain.split('.')[1:-1]).strip()
-                if not _domain:
+
+                # note: this is artificially complex due to our stance on
+                # preserving TLDs. If in the future the project decides to
+                # obfuscate TLDs as well somehow, then this will all become
+                # much simpler
+                _domain_to_inject = '.'.join(domain.split('.')[1:-1])
+                if not _domain_to_inject:
                     continue
-                self._domains[_domain] = self.dataset[domain]
+                for existing_domain in self.dataset.keys():
+                    _existing = '.'.join(existing_domain.split('.')[:-1])
+                    if _existing == _domain_to_inject:
+                        _ob_domain = '.'.join(
+                            self.dataset[existing_domain].split('.')[:-1]
+                        )
+                        self._domains[_domain_to_inject] = _ob_domain
         self.set_initial_counts()
 
     def load_domains_from_options(self, domains):
