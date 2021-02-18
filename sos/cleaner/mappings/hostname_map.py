@@ -111,12 +111,16 @@ class SoSHostnameMap(SoSMap):
         if item.startswith(('.', '_')):
             item = item.lstrip('._')
         item = item.strip()
-        if not self.domain_name_in_loaded_domains(item):
+        if not self.domain_name_in_loaded_domains(item.lower()):
             return item
         return super(SoSHostnameMap, self).get(item)
 
     def sanitize_item(self, item):
         host = item.split('.')
+        if all([h.isupper() for h in host]):
+            # by convention we have just a domain
+            _host = [h.lower() for h in host]
+            return self.sanitize_domain(_host).upper()
         if len(host) == 1:
             # we have a shortname for a host
             return self.sanitize_short_name(host[0])
