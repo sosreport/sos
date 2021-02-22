@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, UbuntuPlugin
+from sos.utilities import is_executable
 
 
 class Ubuntu(Plugin, UbuntuPlugin):
@@ -23,7 +24,12 @@ class Ubuntu(Plugin, UbuntuPlugin):
         ])
 
         if self.is_installed('ubuntu-advantage-tools'):
-            self.add_cmd_output("ubuntu-advantage status")
+            if is_executable('ua'):
+                ua_tools_status = 'ua status'
+            else:
+                ua_tools_status = 'ubuntu-advantage status'
+            self.add_cmd_output(ua_tools_status)
+
             if not self.get_option("all_logs"):
                 self.add_copy_spec([
                     "/var/log/ubuntu-advantage.log",
