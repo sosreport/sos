@@ -8,7 +8,13 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (
+    Plugin,
+    RedHatPlugin,
+    DebianPlugin,
+    UbuntuPlugin,
+    SoSPredicate,
+)
 import json
 import os
 
@@ -82,29 +88,41 @@ class OVNCentral(Plugin):
             self.add_copy_spec("/var/log/ovn/*.log")
 
         # Some user-friendly versions of DB output
-        cmds = [
+        nbctl_cmds = [
             'ovn-nbctl show',
-            'ovn-sbctl show',
-            'ovn-sbctl lflow-list',
             'ovn-nbctl get-ssl',
             'ovn-nbctl get-connection',
-            'ovn-sbctl get-ssl',
-            'ovn-sbctl get-connection',
             'ovn-nbctl list loadbalancer',
             'ovn-nbctl list Load_Balancer',
             'ovn-nbctl list ACL',
             'ovn-nbctl list Logical_Switch_Port',
         ]
 
+        sbctl_cmds = [
+            'ovn-sbctl show',
+            'ovn-sbctl lflow-list',
+            'ovn-sbctl get-ssl',
+            'ovn-sbctl get-connection',
+        ]
+
         schema_dir = '/usr/share/openvswitch'
 
         nb_tables = self.get_tables_from_schema(os.path.join(
             schema_dir, 'ovn-nb.ovsschema'))
-        sb_tables = self.get_tables_from_schema(os.path.join(
-            schema_dir, 'ovn-sb.ovsschema'), ['Logical_Flow'])
 
-        self.add_database_output(nb_tables, cmds, 'ovn-nbctl')
-        self.add_database_output(sb_tables, cmds, 'ovn-sbctl')
+        self.add_database_output(nb_tables, nbctl_cmds, 'ovn-nbctl')
+
+        cmds = nbctl_cmds
+
+        # Can only run sbdb commands if we are the leader
+        co = {'cmd': "ovs-appctl -t {} cluster/status OVN_Southbound".
+              format(self.ovn_sbdb_sock_path),
+              "output": "Leader: self"}
+        if self.test_predicate(self, pred=SoSPredicate(self, cmd_outputs=co)):
+            sb_tables = self.get_tables_from_schema(os.path.join(
+                schema_dir, 'ovn-sb.ovsschema'), ['Logical_Flow'])
+            self.add_database_output(sb_tables, sbctl_cmds, 'ovn-sbctl')
+            cmds += sbctl_cmds
 
         # If OVN is containerized, we need to run the above commands inside
         # the container.
@@ -133,8 +151,10 @@ class OVNCentral(Plugin):
 class RedHatOVNCentral(OVNCentral, RedHatPlugin):
 
     packages = ('openvswitch-ovn-central', 'ovn2.*-central', )
+    ovn_sbdb_sock_path = '/var/run/openvswitch/ovnsb_db.ctl'
 
 
 class DebianOVNCentral(OVNCentral, DebianPlugin, UbuntuPlugin):
 
     packages = ('ovn-central', )
+    ovn_sbdb_sock_path = '/var/run/ovn/ovnsb_db.ctl'
