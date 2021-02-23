@@ -20,12 +20,14 @@ class Rear(Plugin, RedHatPlugin):
     def setup(self):
         # don't collect recovery ISOs or tar archives
         self.add_forbidden_path([
-            '/var/log/rear/*.iso',
-            '/var/log/rear/*.tar.gz'
+            '/var/lib/rear/output/*'
         ])
 
         self.add_copy_spec([
             '/etc/rear/*conf',
+            '/etc/rear/mappings/*',
+            '/var/lib/rear/layout/*',
+            '/var/lib/rear/recovery/*',
             '/var/log/rear/*log*'
         ])
 
