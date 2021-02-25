@@ -264,7 +264,7 @@ class Foreman(Plugin):
         if csv:
             query = "COPY (%s) TO STDOUT " \
                     "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
-        _dbcmd = "psql -h %s -p 5432 -U foreman -d foreman -c %s"
+        _dbcmd = "psql --no-password -h %s -p 5432 -U foreman -d foreman -c %s"
         return _dbcmd % (self.dbhost, quote(query))
 
     def postproc(self):
