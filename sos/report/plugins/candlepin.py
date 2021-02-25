@@ -93,7 +93,8 @@ class Candlepin(Plugin, RedHatPlugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         csvformat = "-A -F , -X" if csv else ""
-        _dbcmd = "psql -h %s -p 5432 -U candlepin -d candlepin %s -c %s"
+        _dbcmd = "psql --no-password -h %s -p 5432 -U candlepin \
+                  -d candlepin %s -c %s"
         return _dbcmd % (self.dbhost, csvformat, quote(query))
 
     def postproc(self):
