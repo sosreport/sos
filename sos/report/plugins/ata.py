@@ -29,7 +29,8 @@ class Ata(Plugin, IndependentPlugin):
                     disk_path = os.path.join(dev_path, disk)
                     self.add_cmd_output([
                         "hdparm %s" % disk_path,
-                        "smartctl -a %s" % disk_path
+                        "smartctl -a %s" % disk_path,
+                        "smartctl -l scterc %s" % disk_path,
                     ])
 
 
