@@ -38,7 +38,9 @@ class Block(Plugin, IndependentPlugin):
             "/run/blkid/blkid.tab",
             "/proc/partitions",
             "/proc/diskstats",
-            "/sys/block/*/queue/"
+            "/sys/block/*/queue/",
+            "/sys/block/sd*/device/timeout",
+            "/sys/block/hd*/device/timeout",
         ])
 
         cmds = [
