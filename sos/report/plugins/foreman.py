@@ -24,7 +24,8 @@ class Foreman(Plugin):
     profiles = ('sysmgmt',)
     packages = ('foreman', 'foreman-proxy')
     option_list = [
-        ('months', 'number of months for dynflow output', 'fast', 1)
+        ('months', 'number of months for dynflow output', 'fast', 1),
+        ('proxyfeatures', 'collect features of smart proxies', 'slow', False),
     ]
 
     def setup(self):
@@ -225,10 +226,8 @@ class Foreman(Plugin):
             'audits_table_count': 'select count(*) from audits',
             'logs_table_count': 'select count(*) from logs',
             'fact_names_prefixes': factnamescmd,
-            'smart_proxies': 'select sp.name, sp.url, ' +
-                             'sp.download_policy,n.ip from smart_proxies ' +
-                             'as sp left join hosts as h on h.name=sp.name ' +
-                             'left join nics as n on n.host_id=h.id'
+            'smart_proxies': 'select name,url,download_policy ' +
+                             'from smart_proxies'
         }
 
         # Same as above, but tasks should be in CSV output
@@ -249,6 +248,24 @@ class Foreman(Plugin):
             _cmd = self.build_query_cmd(foremancsv[dyn], csv=True)
             self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
                                 sizelimit=100, env=self.env)
+
+        if self.get_option('proxyfeatures'):
+            # get a list of proxy names and URLs, and query for their features
+            # store results in smart_proxies_features subdirectory
+            _cmd = self.build_query_cmd('select name,url from smart_proxies',
+                                        csv=True)
+            proxies = self.exec_cmd(_cmd, env=self.env)
+            if proxies['status'] == 0:
+                # output contains header as the first line, skip it
+                for proxy in proxies['output'].splitlines()[1:]:
+                    proxy = proxy.split(',')
+                    # proxy is now tuple [name, url]
+                    _cmd = 'curl -s --key /etc/foreman/client_key.pem ' \
+                           '--cert /etc/foreman/client_cert.pem ' \
+                           '%s/v2/features' % proxy[1]
+                    self.add_cmd_output(_cmd, suggest_filename=proxy[0],
+                                        subdir='smart_proxies_features',
+                                        timeout=10)
 
         # collect http[|s]_proxy env.variables
         self.add_env_var(["http_proxy", "https_proxy"])
