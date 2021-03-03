@@ -38,11 +38,12 @@ sosreport \- Collect and package diagnostic and support data
           [-h|--help]\fR
 
 .SH DESCRIPTION
-\fBsosreport\fR generates an archive of configuration and diagnostic
-information from the running system. The archive may be stored locally
-or centrally for recording or tracking purposes or may be sent to
-technical support representatives, developers or system administrators
-to assist with technical fault-finding and debugging.
+\fBreport\fR is an sos subcommand that generates an archive of
+configuration and diagnostic information from the running system.
+The archive may be stored locally or centrally for recording or
+tracking purposes or may be sent to technical support representatives,
+developers or system administrators to assist with technical
+fault-finding and debugging.
 .LP
 Sos is modular in design and is able to collect data from a wide
 range of subsystems and packages that may be installed. An
@@ -110,8 +111,8 @@ User defined presets are saved under /var/lib/sos/presets as JSON-formatted file
 .B \--add-preset ADD_PRESET [options]
 Add a preset with name ADD_PRESET that enables [options] when called.
 
-For example, 'sosreport --add-preset mypreset --log-size=50 -n logs' will enable
-a user to run 'sosreport --preset mypreset' that sets the maximum log size to
+For example, 'sos report --add-preset mypreset --log-size=50 -n logs' will enable
+a user to run 'sos report --preset mypreset' that sets the maximum log size to
 50 and disables the logs plugin.
 
 Note: to set a description for the preset that is displayed with \fB--list-presets\fR,
@@ -343,9 +344,14 @@ been tested for this port or may still be under active development.
 .TP
 .B \--help
 Display usage message.
+.SH SEE ALSO
+.BR sos (1)
+.BR sos-clean (1)
+.BR sos-collect (1)
+
 .SH MAINTAINER
 .nf
-Bryn M. Reeves <bmr@redhat.com>
+Jake Hunsaker <jhunsake@redhat.com>
 .fi
 .SH AUTHORS & CONTRIBUTORS
 See \fBAUTHORS\fR file in the package documentation.
