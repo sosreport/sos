@@ -19,6 +19,16 @@ class OpenStackDesignate(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/designate"
 
     def setup(self):
+        # collect current pool config
+        pools_cmd = self.fmt_container_cmd(
+            self.get_container_by_name(".*designate_central"),
+            "designate-manage pool generate_file --file /dev/stdout")
+
+        self.add_cmd_output(
+            pools_cmd,
+            suggest_filename="openstack_designate_current_pools.yaml"
+        )
+
         # configs
         self.add_copy_spec([
             "/etc/designate/*",
