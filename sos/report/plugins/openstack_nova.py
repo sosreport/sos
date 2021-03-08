@@ -51,6 +51,10 @@ class OpenStackNova(Plugin):
                 "nova-manage " + nova_config + " floating list",
                 suggest_filename="nova-manage_floating_list"
             )
+            self.add_cmd_output(
+                "nova-status " + nova_config + " upgrade check",
+                suggest_filename="nova-status_upgrade_check"
+            )
 
             vars_all = [p in os.environ for p in [
                         'OS_USERNAME', 'OS_PASSWORD']]
