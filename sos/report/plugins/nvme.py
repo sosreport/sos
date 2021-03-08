@@ -14,6 +14,7 @@ class Nvme(Plugin, IndependentPlugin):
     short_desc = 'Collect config and system information about NVMe devices'
 
     plugin_name = "nvme"
+    profiles = ('storage',)
     packages = ('nvme-cli',)
 
     def setup(self):

@@ -14,7 +14,7 @@ class Devices(Plugin, IndependentPlugin):
     short_desc = 'devices specific commands'
 
     plugin_name = 'devices'
-    profiles = ('system', 'hardware', 'boot')
+    profiles = ('system', 'hardware', 'boot', 'storage')
     packages = ('udev', 'systemd-udev')
     files = ('/dev',)
 
