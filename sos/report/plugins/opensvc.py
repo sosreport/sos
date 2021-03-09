@@ -8,9 +8,10 @@
 
 from sos.report.plugins import Plugin, IndependentPlugin
 
+
 class Opensvc(Plugin, IndependentPlugin):
 
-    short_desc = 'OpenSVC cluster and services (configuration and state data collection)'
+    short_desc = 'OpenSVC cluster and services (config and state collection)'
     plugin_name = 'opensvc'
     profiles = ('cluster', 'services', 'system')
     packages = ('opensvc')
@@ -23,7 +24,6 @@ class Opensvc(Plugin, IndependentPlugin):
                 self.add_cmd_output([
                     "om %s print status --color=no" % line
                 ], subdir=dirname)
-
 
     def setup(self):
         self.add_copy_spec(["/etc/opensvc/*",
@@ -44,7 +44,7 @@ class Opensvc(Plugin, IndependentPlugin):
                             "/var/lib/opensvc/svc/*",
                             "/var/lib/opensvc/usr/*",
                             "/var/lib/opensvc/vol/*",
-                           ])
+                            ])
         self.add_cmd_output([
             "ls -laRt /var/lib/opensvc",
             "om pool status --verbose --color=no",
@@ -59,7 +59,10 @@ class Opensvc(Plugin, IndependentPlugin):
 
     def postproc(self):
         regexp = r"(\s*secret =\s*)\S+"
-        self.do_file_sub("/etc/opensvc/cluster.conf", regexp, r"\1****************************")
+        self.do_file_sub("/etc/opensvc/cluster.conf",
+                         regexp,
+                         r"\1****************************"
+                         )
 
 
 # vim: set et ts=4 sw=4 :
