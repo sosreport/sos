@@ -74,4 +74,22 @@ class DirectoryServer(Plugin, RedHatPlugin):
 
         self.add_cmd_output("ls -l /var/lib/dirsrv/slapd-*/db/*")
 
+    def postproc(self):
+        # Example for scrubbing rootpw hash
+        #
+        # nsslapd-rootpw: AAAAB3NzaC1yc2EAAAADAQABAAABAQDeXYA3juyPqaUuyfWV2HuIM
+        # v3gebb/5cvx9ehEAFF2yIKvsQN2EJGTV+hBM1DEOB4eyy/H11NqcNwm/2QsagDB3PVwYp
+        # 9VKN3BdhQjlhuoYKhLwgtYUMiGL8AX5g1qxjirIkTRJwjbXkSNuQaXig7wVjmvXnB2o7B
+        # zLtu99DiL1AizfVeZTYA+OVowYKYaXYljVmVKS+g3t29Obaom54ZLpfuoGMmyO64AJrWs
+        #
+        # to
+        #
+        # nsslapd-rootpw:********
+
+        regexppass = r"(nsslapd-rootpw(\s)*:(\s)*)(\S+)([\r\n]\s.*)*\n"
+        regexpkey = r"(nsSymmetricKey(\s)*::(\s)*)(\S+)([\r\n]\s.*)*\n"
+        repl = r"\1********\n"
+        self.do_path_regex_sub('/etc/dirsrv/*', regexppass, repl)
+        self.do_path_regex_sub('/etc/dirsrv/*', regexpkey, repl)
+
 # vim: set et ts=4 sw=4 :
