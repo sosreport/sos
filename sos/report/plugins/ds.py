@@ -74,4 +74,11 @@ class DirectoryServer(Plugin, RedHatPlugin):
 
         self.add_cmd_output("ls -l /var/lib/dirsrv/slapd-*/db/*")
 
+    def postproc(self):
+        regexppass = r"(nsslapd-rootpw(\s)*:(\s)*)(\S+)([\r\n]\s.*)*\n"
+        regexpkey = r"(nsSymmetricKey(\s)*::(\s)*)(\S+)([\r\n]\s.*)*\n"
+        repl = r"\1********\n"
+        self.do_path_regex_sub('/etc/dirsrv/*', regexppass, repl)
+        self.do_path_regex_sub('/etc/dirsrv/*', regexpkey, repl)
+
 # vim: set et ts=4 sw=4 :
