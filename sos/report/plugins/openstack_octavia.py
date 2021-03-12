@@ -42,6 +42,7 @@ class OpenStackOctavia(Plugin):
             "/var/lib/octavia",
             self.var_config_data + "/octavia/etc/octavia",
             self.var_puppet_gen + "/etc/octavia",
+            self.var_puppet_gen + "/etc/rsyslog.d",
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
         ])
 
