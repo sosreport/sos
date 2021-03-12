@@ -22,11 +22,16 @@ class Sssd(Plugin):
 
     def setup(self):
         self.add_copy_spec([
+            # Main config file
             "/etc/sssd/sssd.conf",
-            "/var/log/sssd/*",
-            "/var/lib/sss/pubconf/krb5.include.d/*",
             # SSSD 1.14
-            "/etc/sssd/conf.d/*.conf"
+            "/etc/sssd/conf.d/*.conf",
+            # Main logs directory
+            "/var/log/sssd/*",
+            # Memory cache
+            "/var/lib/sss/mc/*",
+            # Dynamic Kerberos configuration
+            "/var/lib/sss/pubconf/krb5.include.d/*"
         ])
 
         # call sssctl commands only when sssd service is running,
