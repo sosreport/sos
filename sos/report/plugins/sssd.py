@@ -10,6 +10,7 @@
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, SoSPredicate)
+from glob import glob
 
 
 class Sssd(Plugin):
@@ -23,11 +24,13 @@ class Sssd(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/sssd/sssd.conf",
-            "/var/log/sssd/*",
             "/var/lib/sss/pubconf/krb5.include.d/*",
             # SSSD 1.14
             "/etc/sssd/conf.d/*.conf"
         ])
+
+        # add individual log files
+        self.add_copy_spec(glob("/var/log/sssd/*log*"))
 
         # call sssctl commands only when sssd service is running,
         # otherwise the command timeouts
