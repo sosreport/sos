@@ -16,15 +16,23 @@ class RHCoreOS(Plugin, RedHatPlugin):
     short_desc = 'Red Hat CoreOS'
 
     plugin_name = 'rhcos'
-    packages = ('redhat-release-coreos', 'coreos-metadata')
+    packages = ('afterburn', 'redhat-release-coreos')
 
     def setup(self):
-        units = ['coreos-growpart', 'coreos-firstboot-complete']
+        units = ['coreos-boot-edit', 'coreos-copy-firstboot-network',
+                 'coreos-generate-iscsi-initiatorname',
+                 'coreos-gpt-setup', 'coreos-teardown-initramfs',
+                 'gcp-routes', 'ignition-disks', 'ignition-fetch',
+                 'ignition-fetch-offline', 'ignition-files',
+                 'ignition-firstboot-complete', 'ignition-mount',
+                 'ignition-ostree-growfs', 'ignition-ostree-populate-var',
+                 'ignition-remount-system', 'ignition-setup-user']
+
         for unit in units:
             self.add_journal(unit)
 
         self.add_cmd_output(
-            'coreos-metadata --cmdline --attributes /dev/stdout',
+            'afterburn --cmdline --attributes /dev/stdout',
             timeout=60
         )
 
