@@ -23,10 +23,14 @@ class Sssd(Plugin):
 
     def setup(self):
         self.add_copy_spec([
+            # Main config file
             "/etc/sssd/sssd.conf",
-            "/var/lib/sss/pubconf/krb5.include.d/*",
             # SSSD 1.14
-            "/etc/sssd/conf.d/*.conf"
+            "/etc/sssd/conf.d/*.conf",
+            # Memory cache
+            "/var/lib/sss/mc/*",
+            # Dynamic Kerberos configuration
+            "/var/lib/sss/pubconf/krb5.include.d/*"
         ])
 
         # add individual log files
