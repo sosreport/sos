@@ -55,14 +55,14 @@ class Pacemaker(Plugin):
     def postproc_crm_shell(self):
         self.do_cmd_output_sub(
             "crm configure show",
-            r"passw(\S*)=\S+",
+            r"passw([^\s=]*)=\S+",
             r"passw\1=********"
         )
 
     def postproc_pcs(self):
         self.do_cmd_output_sub(
             "pcs config",
-            r"passw(\S*)=\S+",
+            r"passw([^\s=]*)=\S+",
             r"passw\1=********"
         )
 
