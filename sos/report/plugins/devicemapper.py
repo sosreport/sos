@@ -24,6 +24,7 @@ class DeviceMapper(Plugin, IndependentPlugin):
             "dmsetup table",
             "dmsetup status",
             "dmsetup ls --tree",
+            "dmsetup udevcookies",
             "dmstats list",
             "dmstats print --allregions"
         ])
