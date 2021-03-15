@@ -76,9 +76,8 @@ class Gluster(Plugin, RedHatPlugin):
             "/var/lib/glusterd/",
             # collect nfs-ganesha related configuration
             "/run/gluster/shared_storage/nfs-ganesha/",
-            # collect status files and public ssh keys
-            "/var/lib/glusterd/.keys/",
-            "/var/lib/glusterd/glusterfind/"
+            # collect public ssh keys (a_s_c skips implicit hidden files)
+            "/var/lib/glusterd/glusterfind/.keys/",
         ] + glob.glob('/run/gluster/*tier-dht/*'))
 
         if not self.get_option("all_logs"):
