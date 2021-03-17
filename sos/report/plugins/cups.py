@@ -40,5 +40,6 @@ class Cups(Plugin, IndependentPlugin):
         ])
 
         self.add_journal(units="cups")
+        self.add_journal(units="cups-browsed")
 
 # vim: set et ts=4 sw=4 :
