@@ -2332,7 +2332,7 @@ class Plugin(object):
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
                     timeout=cmd_timeout, identifier=None, catalog=None,
-                    sizelimit=None, pred=None, tags=[]):
+                    sizelimit=None, otherargs=None, pred=None, tags=[]):
         """Collect journald logs from one of more units.
 
         :param units:   Which journald units to collect
@@ -2420,6 +2420,10 @@ class Plugin(object):
 
         if output:
             journal_cmd += output_opt % output
+
+        if otherargs:
+            for arg in otherargs:
+                journal_cmd += ' {}'.format(arg)
 
         self._log_debug("collecting journal: %s" % journal_cmd)
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
