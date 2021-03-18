@@ -39,6 +39,6 @@ class Cups(Plugin, IndependentPlugin):
             "lpstat -d"
         ])
 
-        self.add_journal(units="cups")
+        self.add_journal(units="cups", output="verbose")
 
 # vim: set et ts=4 sw=4 :
