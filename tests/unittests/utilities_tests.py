@@ -43,12 +43,12 @@ class GrepTest(unittest.TestCase):
 class TailTest(unittest.TestCase):
 
     def test_tail(self):
-        t = tail("tests/tail_test.txt", 10)
+        t = tail("tests/unittests/tail_test.txt", 10)
         self.assertEquals(t, b"last line\n")
 
     def test_tail_too_many(self):
-        t = tail("tests/tail_test.txt", 200)
-        expected = open("tests/tail_test.txt", "r").read()
+        t = tail("tests/unittests/tail_test.txt", 200)
+        expected = open("tests/unittests/tail_test.txt", "r").read()
         self.assertEquals(t, str.encode(expected))
 
 

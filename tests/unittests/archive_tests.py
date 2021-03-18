@@ -37,10 +37,10 @@ class TarFileArchiveTest(unittest.TestCase):
                                                     'test.tar')))
 
     def test_add_file(self):
-        self.tf.add_file('tests/ziptest')
+        self.tf.add_file('tests/unittests/ziptest')
         self.tf.finalize('auto')
 
-        self.check_for_file('test/tests/ziptest')
+        self.check_for_file('test/tests/unittests/ziptest')
 
     def test_add_node_dev_null(self):
         st = os.lstat('/dev/null')
@@ -69,10 +69,10 @@ class TarFileArchiveTest(unittest.TestCase):
 #        self.check_for_file('test/tests/ziptest')
 
     def test_add_renamed(self):
-        self.tf.add_file('tests/ziptest', dest='tests/ziptest_renamed')
+        self.tf.add_file('tests/unittests/ziptest', dest='tests/unittests/ziptest_renamed')
         self.tf.finalize('auto')
 
-        self.check_for_file('test/tests/ziptest_renamed')
+        self.check_for_file('test/tests/unittests/ziptest_renamed')
 
 # Since commit 179d9bb add_file does not support recursive directory
 # addition. Disable this test for now.

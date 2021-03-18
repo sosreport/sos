@@ -302,8 +302,8 @@ class PluginTests(unittest.TestCase):
     def test_copy_dir(self):
         self.mp._do_copy_path("tests")
         self.assertEquals(
-            self.mp.archive.m["tests/plugin_tests.py"],
-            'tests/plugin_tests.py')
+            self.mp.archive.m["tests/unittests/plugin_tests.py"],
+            'tests/unittests/plugin_tests.py')
 
     def test_copy_dir_bad_path(self):
         self.mp._do_copy_path("not_here_tests")
@@ -334,7 +334,7 @@ class PluginTests(unittest.TestCase):
 
 class AddCopySpecTests(unittest.TestCase):
 
-    expect_paths = set(['tests/tail_test.txt'])
+    expect_paths = set(['tests/unittests/tail_test.txt'])
 
     def setUp(self):
         self.mp = MockPlugin({
@@ -354,11 +354,11 @@ class AddCopySpecTests(unittest.TestCase):
         self.assertEquals(self.mp.copy_paths, expected_paths)
 
     def test_single_file_no_limit(self):
-        self.mp.add_copy_spec("tests/tail_test.txt")
+        self.mp.add_copy_spec("tests/unittests/tail_test.txt")
         self.assert_expect_paths()
 
     def test_single_file_under_limit(self):
-        self.mp.add_copy_spec("tests/tail_test.txt", 1)
+        self.mp.add_copy_spec("tests/unittests/tail_test.txt", 1)
         self.assert_expect_paths()
 
     def test_single_file_over_limit(self):
@@ -378,7 +378,7 @@ class AddCopySpecTests(unittest.TestCase):
         self.assertFalse(self.mp.add_copy_spec(None, 1))
 
     def test_glob_file(self):
-        self.mp.add_copy_spec('tests/tail_test.*')
+        self.mp.add_copy_spec('tests/unittests/tail_test.*')
         self.assert_expect_paths()
 
     def test_glob_file_limit_no_limit(self):
@@ -403,11 +403,11 @@ class AddCopySpecTests(unittest.TestCase):
         shutil.rmtree(tmpdir)
 
     def test_multiple_files_no_limit(self):
-        self.mp.add_copy_spec(['tests/tail_test.txt', 'tests/test.txt'])
+        self.mp.add_copy_spec(['tests/unittests/tail_test.txt', 'tests/unittests/test.txt'])
         self.assertEquals(len(self.mp.copy_paths), 2)
 
     def test_multiple_files_under_limit(self):
-        self.mp.add_copy_spec(['tests/tail_test.txt', 'tests/test.txt'], 1)
+        self.mp.add_copy_spec(['tests/unittests/tail_test.txt', 'tests/unittests/test.txt'], 1)
         self.assertEquals(len(self.mp.copy_paths), 2)
 
 
