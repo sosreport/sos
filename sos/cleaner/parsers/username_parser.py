@@ -30,7 +30,8 @@ class SoSUsernameParser(SoSCleanerParser):
     skip_list = [
         'nobody',
         'nfsnobody',
-        'root'
+        'root',
+        'ubuntu'
     ]
 
     def __init__(self, conf_file=None, opt_names=None):
