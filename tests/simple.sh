@@ -171,7 +171,7 @@ test_mask () {
         ip_addr=$(ip route show default | awk '/default/ {print $3}')
         if [ "$(grep -rI $ip_addr /var/tmp/sosreport_test/*)" ]; then
             add_failure "IP address not obfuscated in all places"
-            echo "$(grep -rI $ip_addr /var/tmp/sosreport/_test/*)"
+            echo "$(grep -rI $ip_addr /var/tmp/sosreport_test/*)"
         fi
         update_failures
     fi
