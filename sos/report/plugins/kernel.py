@@ -106,6 +106,7 @@ class Kernel(Plugin, IndependentPlugin):
             "/proc/misc",
             "/var/log/dmesg",
             "/sys/fs/pstore",
+            "/sys/kernel/debug/dynamic_debug/control",
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource"
         ])
