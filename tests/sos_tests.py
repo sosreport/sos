@@ -9,17 +9,21 @@
 
 from avocado.core.exceptions import TestSkipError
 from avocado import Test
-from avocado.utils import archive, process
+from avocado.utils import archive, process, distro, software_manager
 from fnmatch import fnmatch
 
 import glob
 import json
 import os
 import pickle
+import shutil
 import socket
 import re
 
 SOS_TEST_DIR = os.path.dirname(os.path.realpath(__file__))
+SOS_REPO_ROOT = os.path.realpath(os.path.join(SOS_TEST_DIR, '../'))
+SOS_PLUGIN_DIR = os.path.realpath(os.path.join(SOS_REPO_ROOT, 'sos/report/plugins'))
+SOS_TEST_DATA_DIR = os.path.realpath(os.path.join(SOS_TEST_DIR, 'test_data'))
 SOS_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 
 
@@ -97,8 +101,11 @@ class BaseSoSTest(Test):
 
     def read_file_from_tmpdir(self, fname):
         fname = os.path.join(self.tmpdir, fname)
-        with open(fname, 'r') as tfile:
-            return tfile.read()
+        try:
+            with open(fname, 'r') as tfile:
+                return tfile.read()
+        except Exception:
+            pass
         return ''
 
     def _write_sysinfo(self, fname):
@@ -225,7 +232,7 @@ class BaseSoSReportTest(BaseSoSTest):
             # setup our class-shared tmpdir
             self._setup_tmpdir()
 
-            # do our mocking called for in sos_setup
+            # do mocking called for in stage 2+ tests
             self.setup_mocking()
 
             # gather some pre-execution information
@@ -353,6 +360,16 @@ class BaseSoSReportTest(BaseSoSTest):
         """Ensure that the given content string does NOT exist in sos.log
         """
         self.assertFileNotHasContent('sos_logs/sos.log', content)
+
+    def assertSosUILogContains(self, content):
+        """Ensure that the given content string exists in ui.log
+        """
+        self.assertFileHasContent('sos_logs/ui.log', content)
+
+    def assertSosUILogNotContains(self, content):
+        """Ensure that the given content string does NOT exist in ui.log
+        """
+        self.assertFileNotHasContent('sos_logs/ui.log', content)
 
     def assertOutputContains(self, content):
         """Ensure that stdout did contain the given content string
@@ -488,3 +505,196 @@ class StageOneReportTest(BaseSoSReportTest):
         # sure this IP is still bound to the same NIC
         self.assertEqual(self.sysinfo['pre']['networking']['ip_addr'],
                          self.sysinfo['post']['networking']['ip_addr'])
+
+
+class StageTwoReportTest(BaseSoSReportTest):
+    """This is the testing class to subclass when light mocking is needed to
+    perform the test.
+
+    Light mocking for our uses is restricted to dropping files in well-known
+    locations, temporarily replacing binaries, and installing packages.
+
+    Note: Stage 2 tests should NOT be run on any system that is considered
+    either production, or is a workstation that cannot be easily re-imaged or
+    re-deployed. While efforts are taken to ensure that systems are left in
+    their original state after mocking tests are done, the assumption is that
+    these tests are being run on "throw-away" test systems where it does not
+    matter if that original state is indeed attained or not.
+
+    This kind of mocking is described in the class attributes as follows for
+    each test case that is a Stage 2 test:
+
+    files   -   a list containing the files to drop on the test system's real
+                filesystem. Mocked files should be placed in the same locations
+                under tests/test_data
+
+    packages -  a dict where the keys are the distribution names (e.g. 'rhel',
+                'ubuntu') and the values are the package names optionally with
+                version
+
+    install_plugins - a list containing the names of test plugins to be dropped
+                      inside the test repo for testing specific use cases.
+                      The list values are strings that match the test plugin's
+                      filename, and test plugins should be placed under
+                      tests/test_data/fake_plugins
+
+    :avocado: disable
+    :avocado: tags=stagetwo
+    """
+
+    sos_cmd = ''
+    files = []
+    packages = {}
+    install_plugins = []
+    _created_files = []
+
+    def setUp(self):
+        self.local_dist = distro.detect().name
+        self.end_of_test_case = False
+        # seems awkward, but check_installed() and remove() are not exposed
+        # together with install_distro_packages()
+        self.installer = software_manager
+        self.sm = self.installer.SoftwareManager()
+
+        keys = self.packages.keys()
+        # allow for single declaration of packages for the RH family
+        # for our purposes centos == rhel here
+        if 'fedora' in keys and 'rhel' not in keys:
+            self.packages['rhel'] = self.packages['fedora']
+        elif 'rhel' in keys and 'fedora' not in keys:
+            self.packages['fedora'] = self.packages['rhel']
+        if 'rhel' in keys:
+            self.packages['centos'] = self.packages['rhel']
+
+        super(StageTwoReportTest, self).setUp()
+
+    def tearDown(self):
+        if self.end_of_test_case:
+            self.teardown_mocking()
+
+    def teardown_mocking(self):
+        """Undo any and all mocked setup that we did for tests
+        """
+        self.teardown_mocked_packages()
+        self.teardown_mocked_files()
+        self.teardown_mocked_plugins()
+
+    def setup_mocking(self):
+        """Main entrypoint for setting up our mocking for the test"""
+        self.setup_mocked_packages()
+        self.setup_mocked_files()
+        self.setup_mocked_plugins()
+
+    def setup_mocked_plugins(self):
+        """Drop any plugins specified from tests/test_data/fake_plugins into
+        the test repo root (as created by CirrusCI).
+        """
+        _installed = []
+        for plug in self.install_plugins:
+            if not plug.endswith('.py'):
+                plug += '.py'
+            fake_plug = os.path.join(SOS_TEST_DATA_DIR, 'fake_plugins', plug)
+            if os.path.exists(fake_plug):
+                shutil.copy(fake_plug, SOS_PLUGIN_DIR)
+                _installed.append(os.path.realpath(os.path.join(SOS_PLUGIN_DIR, plug)))
+        self._write_file_to_tmpdir('mocked_plugins', json.dumps(_installed))
+
+    def teardown_mocked_plugins(self):
+        """Remove any test plugins dropped into the repo during setup
+        """
+        _plugins = self.read_file_from_tmpdir('mocked_plugins')
+        if not _plugins:
+            return
+        _plugins = json.loads(_plugins)
+        for plug in _plugins:
+            os.remove(plug)
+
+    def setup_mocked_packages(self):
+        """Install any required packages using avocado's software manager
+        abstraction
+        """
+        if self.local_dist in self.packages:
+            # remove any packages already locally installed, as otherwise
+            # our call to SoftwareManager will return False
+            self._strip_installed_packages()
+            if not self.packages[self.local_dist]:
+                return
+            installed = self.installer.install_distro_packages(self.packages)
+            if not installed:
+                raise("Unable to install requested packages %"
+                      % ', '.join(pkg for pkg in self.packages[self.local_dist]))
+            # save installed package list to our tmpdir to be removed later
+            self._write_file_to_tmpdir('mocked_packages', json.dumps(self.packages[self.local_dist]))
+
+    def _strip_installed_packages(self):
+        """For the list of packages given for a test, if any of the packages
+        already exist on the test system, remove them from the list of packages
+        to be installed.
+        """
+        for pkg in self.packages[self.local_dist]:
+            if self.sm.check_installed(pkg):
+                self.packages[self.local_dist].remove(pkg)
+
+    def teardown_mocked_packages(self):
+        """Uninstall any packages that we installed for this test
+        """
+        pkgs = self.read_file_from_tmpdir('mocked_packages')
+        if not pkgs:
+            return
+        pkgs = json.loads(pkgs)
+        for pkg in pkgs:
+            self.sm.remove(pkg)
+
+    def setup_mocked_files(self):
+        """Place any requested files from under tests/test_data into "proper"
+        locations on the test system's filesystem.
+
+        If any of these files already exist, rename the existing copy with a
+        '.sostesting' extension, so we can easily undo any changes after the
+        test(s) have run.
+        """
+        for mfile in self.files:
+            dir_added = False
+            if os.path.exists(mfile):
+                os.rename(mfile, mfile + '.sostesting')
+            _dir = os.path.split(mfile)[0]
+            if not os.path.exists(_dir):
+                os.makedirs(_dir)
+                self._created_files.append(_dir)
+                dir_added = True
+            _test_file = os.path.join(SOS_TEST_DIR, 'test_data', mfile.lstrip('/'))
+            shutil.copy(_test_file, mfile)
+            if not dir_added:
+                self._created_files.append(mfile)
+        if self._created_files:
+            self._write_file_to_tmpdir('mocked_files', json.dumps(self._created_files))
+
+    def teardown_mocked_files(self):
+        """Remove any mocked files from the test system's filesystem, and
+        if applicable, restore previously moved files
+        """
+        _files = self.read_file_from_tmpdir('mocked_files')
+        if not _files:
+            return
+        _files = json.loads(_files)
+        for mocked in _files:
+            if os.path.isdir(mocked):
+                shutil.rmtree(mocked)
+            else:
+                os.remove(mocked)
+            if os.path.exists(mocked + '.sostesting'):
+                os.rename(mocked + '.sostesting', mocked)
+
+    def test_archive_created(self):
+        """Ensure that the archive tarball was created and has the right owner
+
+        :avocado: tags=stagetwo
+        """
+        # kind of a hack, but since avocado test order is predicatable, we can
+        # use this to avoid calling setUp() and tearDown() at each test_ method
+        # for stagetwo like we use the tmpdir for stageone.
+        # THIS TEST MUST ALWAYS BE DEFINED LAST IN THIS CLASS FOR THIS TO WORK
+        self.end_of_test_case = True
+
+        self.assertFileExists(self.archive)
+        self.assertTrue(os.stat(self.archive).st_uid == 0)
