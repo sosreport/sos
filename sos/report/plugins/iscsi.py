@@ -33,6 +33,20 @@ class Iscsi(Plugin):
             "iscsiadm -m node --op=show"
         ])
 
+    def postproc(self):
+        # Example for scrubbing node.session.auth.password
+        #
+        # node.session.auth.password = jfaiu1nNQJcsa,sti4lho'jZia=ia
+        #
+        # to
+        #
+        # node.session.auth.password = ********
+        nodesessionpwd = r"(node\.session\.auth\.password\s+=\s+)(\S+)"
+        discoverypwd = r"(discovery\.sendtargets\.auth\.password\s+=\s+)(\S+)"
+        repl = r"\1********\n"
+        self.do_path_regex_sub('/etc/iscsi/iscsid.conf', nodesessionpwd, repl)
+        self.do_path_regex_sub('/etc/iscsi/iscsid.conf', discoverypwd, repl)
+
 
 class RedHatIscsi(Iscsi, RedHatPlugin):
 
