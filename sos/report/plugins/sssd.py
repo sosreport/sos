@@ -23,18 +23,21 @@ class Sssd(Plugin):
 
     def setup(self):
         self.add_copy_spec([
-            # Main config file
+            # main config file
             "/etc/sssd/sssd.conf",
             # SSSD 1.14
             "/etc/sssd/conf.d/*.conf",
-            # Memory cache
-            "/var/lib/sss/mc/*",
-            # Dynamic Kerberos configuration
+            # dynamic Kerberos configuration
             "/var/lib/sss/pubconf/krb5.include.d/*"
         ])
 
         # add individual log files
         self.add_copy_spec(glob("/var/log/sssd/*log*"))
+
+        # add memory cache
+        self.add_copy_spec(["/var/lib/sss/mc/passwd",
+                            "/var/lib/sss/mc/group",
+                            "/var/lib/sss/mc/initgroups"])
 
         # call sssctl commands only when sssd service is running,
         # otherwise the command timeouts
