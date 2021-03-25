@@ -1569,6 +1569,21 @@ class Plugin(object):
                              whitelist=whitelist, blacklist=blacklist,
                              tags=_dev_tags)
 
+    def add_tape_cmd(self, cmds, devices='tape', timeout=300,
+                         sizelimit=None, chroot=True, runat=None, env=None,
+                         binary=False, prepend_path=None, whitelist=[],
+                         blacklist=[], tags=[]):
+        _dev_tags = []
+        prepend_path = prepend_path or '/dev/'
+        devices = self.devices['tape']
+        _dev_tags.append('block')
+        _dev_tags.extend(tags)
+        self._add_device_cmd(cmds, devices, timeout=timeout,
+                             sizelimit=sizelimit, chroot=chroot, runat=runat,
+                             env=env, binary=binary, prepend_path=prepend_path,
+                             whitelist=whitelist, blacklist=blacklist,
+                             tags=_dev_tags)
+
     def _add_device_cmd(self, cmds, devices, timeout=300, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
                         prepend_path=None, whitelist=[], blacklist=[],
