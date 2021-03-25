@@ -340,7 +340,7 @@ class SoSReport(SoSComponent):
         self.devices = {
             'block': self.get_block_devs(),
             'fibre': self.get_fibre_devs(),
-	    'tape' : self.get_tape_devs()
+            'tape': self.get_tape_devs()
         }
         # TODO: enumerate network devices, preferably with devtype info
 
@@ -397,7 +397,6 @@ class SoSReport(SoSComponent):
         except Exception as err:
             self.soslog.error("Could not get tape device list: %s" % err)
             return []
-
 
     def _get_namespaces(self):
         self.namespaces = {

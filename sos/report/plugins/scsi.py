@@ -46,4 +46,11 @@ class Scsi(Plugin, IndependentPlugin):
         self.add_blockdev_cmd("udevadm info -a %(dev)s", devices=scsi_hosts,
                               prepend_path='/sys/class/scsi_host')
 
+        cmds = [
+            "udevadm info %(dev)s",
+            "udevadm info -a %(dev)s"
+        ]
+        self.add_tape_cmd(cmds, devices='tape',
+                          prepend_path='/dev/')
+
 # vim: set et ts=4 sw=4 :

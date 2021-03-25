@@ -1570,9 +1570,9 @@ class Plugin(object):
                              tags=_dev_tags)
 
     def add_tape_cmd(self, cmds, devices='tape', timeout=300,
-                         sizelimit=None, chroot=True, runat=None, env=None,
-                         binary=False, prepend_path=None, whitelist=[],
-                         blacklist=[], tags=[]):
+                     sizelimit=None, chroot=True, runat=None, env=None,
+                     binary=False, prepend_path=None, whitelist=[],
+                     blacklist=[], tags=[]):
         _dev_tags = []
         prepend_path = prepend_path or '/dev/'
         devices = self.devices['tape']
