@@ -29,7 +29,13 @@ class SoSKeywordParser(SoSCleanerParser):
         for _keyword in self.mapping.dataset.keys():
             self.user_keywords.append(_keyword)
         if keywords:
-            self.user_keywords.extend(keywords)
+            for keyword in keywords:
+                if keyword not in self.user_keywords:
+                    # pre-generate an obfuscation mapping for each keyword
+                    # this is necessary for cases where filenames are being
+                    # obfuscated before or instead of file content
+                    self.mapping.get(keyword)
+                    self.user_keywords.append(keyword)
         if keyword_file and os.path.exists(keyword_file):
             with open(keyword_file, 'r') as kwf:
                 self.user_keywords.extend(kwf.read().splitlines())
