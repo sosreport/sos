@@ -59,20 +59,10 @@ class SoSObfuscationArchive():
         Returns: list of files and file regexes
         """
         return [
-            'installed-debs',
-            'installed-rpms',
-            'sos_commands/dpkg',
-            'sos_commands/python/pip_list',
-            'sos_commands/rpm',
-            'sos_commands/yum/.*list.*',
-            'sos_commands/snappy/snap_list_--all',
-            'sos_commands/snappy/snap_--version',
-            'sos_commands/vulkan/vulkaninfo',
             'sys/firmware',
             'sys/fs',
             'sys/kernel/debug',
             'sys/module',
-            'var/log/.*dnf.*',
             r'.*\.tar$',  # TODO: support archive unpacking
             # Be explicit with these tar matches to avoid matching commands
             r'.*\.tar\.xz',
