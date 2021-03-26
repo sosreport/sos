@@ -24,6 +24,22 @@ class SoSIPParser(SoSCleanerParser):
         # don't match package versions recorded in journals
         r'.*dnf\[.*\]:'
     ]
+
+    skip_files = [
+        # skip these as version numbers will frequently look like IP addresses
+        # when using regex matching
+        'installed-debs',
+        'installed-rpms',
+        'sos_commands/dpkg',
+        'sos_commands/python/pip_list',
+        'sos_commands/rpm',
+        'sos_commands/yum/.*list.*',
+        'sos_commands/snappy/snap_list_--all',
+        'sos_commands/snappy/snap_--version',
+        'sos_commands/vulkan/vulkaninfo',
+        'var/log/.*dnf.*'
+    ]
+
     map_file_key = 'ip_map'
     prep_map_file = 'sos_commands/networking/ip_-o_addr'
 
