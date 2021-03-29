@@ -107,6 +107,7 @@ class SoSReport(SoSComponent):
         'only_plugins': [],
         'preset': 'auto',
         'plugin_timeout': 300,
+        'cmd_timeout': 300,
         'profiles': [],
         'since': None,
         'verify': False,
@@ -266,6 +267,8 @@ class SoSReport(SoSComponent):
                                 help="A preset identifier", default="auto")
         report_grp.add_argument("--plugin-timeout", default=None,
                                 help="set a timeout for all plugins")
+        report_grp.add_argument("--cmd-timeout", default=None,
+                                help="set a command timeout for all plugins")
         report_grp.add_argument("-p", "--profile", "--profiles",
                                 action="extend", dest="profiles", type=str,
                                 default=[],
@@ -709,7 +712,7 @@ class SoSReport(SoSComponent):
 
             self.ui_log.info(_("The following plugin options are available:"))
             for (plug, plugname, optname, optparm) in self.all_options:
-                if optname in ('timeout', 'postproc'):
+                if optname in ('timeout', 'postproc', 'cmd-timeout'):
                     continue
                 # format option value based on its type (int or bool)
                 if type(optparm["enabled"]) == bool:

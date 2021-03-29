@@ -82,6 +82,7 @@ class SoSCollector(SoSComponent):
         'password_per_node': False,
         'plugin_options': [],
         'plugin_timeout': None,
+        'cmd_timeout': None,
         'preset': '',
         'save_group': '',
         'since': '',
@@ -276,6 +277,8 @@ class SoSCollector(SoSComponent):
                              help='Do not collect env vars in sosreports')
         sos_grp.add_argument('--plugin-timeout', type=int, default=None,
                              help='Set the global plugin timeout value')
+        sos_grp.add_argument('--cmd-timeout', type=int, default=None,
+                             help='Set the global command timeout value')
         sos_grp.add_argument('--since', default=None,
                              help=('Escapes archived files older than date. '
                                    'This will also affect --all-logs. '

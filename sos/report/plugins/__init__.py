@@ -472,6 +472,9 @@ class Plugin(object):
     _default_plug_opts = [
         ('timeout', 'Timeout in seconds for plugin. The default value (-1) ' +
             'defers to the general plugin timeout, 300 seconds', 'fast', -1),
+        ('cmd-timeout', 'Timeout in seconds for a command execution. The ' +
+            'default value (-1) defers to the general cmd timeout, 300 ' +
+            'seconds', 'fast', -1),
         ('postproc', 'Enable post-processing collected plugin data', 'fast',
          True)
     ]
@@ -532,16 +535,15 @@ class Plugin(object):
         self.manifest.add_list('commands', [])
         self.manifest.add_list('files', [])
 
-    @property
-    def timeout(self):
-        """Returns either the default plugin timeout value, the value as
-        provided on the commandline via -k plugin.timeout=value, or the value
-        of the global --plugin-timeout option.
+    def timeout_from_options(self, optname, plugoptname, default_timeout):
+        """Returns either the default [plugin|cmd] timeout value, the value as
+        provided on the commandline via -k plugin.[|cmd-]timeout=value, or the
+        value of the global --[plugin|cmd]-timeout option.
         """
         _timeout = None
         try:
-            opt_timeout = self.get_option('plugin_timeout')
-            own_timeout = int(self.get_option('timeout'))
+            opt_timeout = self.get_option(optname)
+            own_timeout = int(self.get_option(plugoptname))
             if opt_timeout is None:
                 _timeout = own_timeout
             elif opt_timeout is not None and own_timeout == -1:
@@ -551,10 +553,30 @@ class Plugin(object):
             else:
                 return None
         except ValueError:
-            return self.plugin_timeout  # Default to known safe value
+            return default_timeout  # Default to known safe value
         if _timeout is not None and _timeout > -1:
             return _timeout
-        return self.plugin_timeout
+        return default_timeout
+
+    @property
+    def timeout(self):
+        """Returns either the default plugin timeout value, the value as
+        provided on the commandline via -k plugin.timeout=value, or the value
+        of the global --plugin-timeout option.
+        """
+        _timeout = self.timeout_from_options('plugin_timeout', 'timeout',
+                                             self.plugin_timeout)
+        return _timeout
+
+    @property
+    def cmdtimeout(self):
+        """Returns either the default command timeout value, the value as
+        provided on the commandline via -k plugin.cmd-timeout=value, or the
+        value of the global --cmd-timeout option.
+        """
+        _cmdtimeout = self.timeout_from_options('cmd_timeout', 'cmd-timeout',
+                                                self.cmd_timeout)
+        return _cmdtimeout
 
     def set_timeout_hit(self):
         self._timeout_hit = True
@@ -1235,8 +1257,8 @@ class Plugin(object):
         """
 
         global_options = (
-            'all_logs', 'allow_system_changes', 'log_size', 'plugin_timeout',
-            'since', 'verify'
+            'all_logs', 'allow_system_changes', 'cmd_timeout', 'log_size',
+            'plugin_timeout', 'since', 'verify'
         )
 
         if optionname in global_options:
@@ -1505,7 +1527,7 @@ class Plugin(object):
                     'tags': _spec_tags
                 })
 
-    def add_blockdev_cmd(self, cmds, devices='block', timeout=300,
+    def add_blockdev_cmd(self, cmds, devices='block', timeout=None,
                          sizelimit=None, chroot=True, runat=None, env=None,
                          binary=False, prepend_path=None, whitelist=[],
                          blacklist=[], tags=[]):
@@ -1569,7 +1591,7 @@ class Plugin(object):
                              whitelist=whitelist, blacklist=blacklist,
                              tags=_dev_tags)
 
-    def _add_device_cmd(self, cmds, devices, timeout=300, sizelimit=None,
+    def _add_device_cmd(self, cmds, devices, timeout=None, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
                         prepend_path=None, whitelist=[], blacklist=[],
                         tags=[]):
@@ -1627,7 +1649,7 @@ class Plugin(object):
                                  changes=soscmd.changes)
 
     def add_cmd_output(self, cmds, suggest_filename=None,
-                       root_symlink=None, timeout=cmd_timeout, stderr=True,
+                       root_symlink=None, timeout=None, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[]):
@@ -1849,7 +1871,7 @@ class Plugin(object):
         self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
 
     def _collect_cmd_output(self, cmd, suggest_filename=None,
-                            root_symlink=False, timeout=cmd_timeout,
+                            root_symlink=False, timeout=None,
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False, tags=[]):
@@ -1883,6 +1905,8 @@ class Plugin(object):
         if self._timeout_hit:
             return
 
+        if timeout is None:
+            timeout = self.cmdtimeout
         _tags = []
 
         if isinstance(tags, str):
@@ -1975,7 +1999,7 @@ class Plugin(object):
         return result
 
     def collect_cmd_output(self, cmd, suggest_filename=None,
-                           root_symlink=False, timeout=cmd_timeout,
+                           root_symlink=False, timeout=None,
                            stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
                            subdir=None, tags=[]):
@@ -2044,7 +2068,7 @@ class Plugin(object):
             tags=tags
         )
 
-    def exec_cmd(self, cmd, timeout=cmd_timeout, stderr=True, chroot=True,
+    def exec_cmd(self, cmd, timeout=None, stderr=True, chroot=True,
                  runat=None, env=None, binary=False, pred=None,
                  foreground=False, container=False, quotecmd=False):
         """Execute a command right now and return the output and status, but
@@ -2094,6 +2118,9 @@ class Plugin(object):
         _default = {'status': None, 'output': ''}
         if not self.test_predicate(cmd=True, pred=pred):
             return _default
+
+        if timeout is None:
+            timeout = self.cmdtimeout
 
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
@@ -2331,7 +2358,7 @@ class Plugin(object):
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
-                    timeout=cmd_timeout, identifier=None, catalog=None,
+                    timeout=None, identifier=None, catalog=None,
                     sizelimit=None, pred=None, tags=[]):
         """Collect journald logs from one of more units.
 

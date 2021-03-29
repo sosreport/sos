@@ -664,6 +664,11 @@ class SosNode():
                     '--skip-files=%s' % (quote(self.opts.skip_files))
                 )
 
+        if self.check_sos_version('4.2'):
+            if self.opts.cmd_timeout:
+                sos_opts.append('--cmd-timeout=%s'
+                                % quote(str(self.opts.cmd_timeout)))
+
         sos_cmd = sos_cmd.replace(
             'sosreport',
             os.path.join(self.host.sos_bin_path, self.sos_bin)
