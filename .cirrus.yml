@@ -62,7 +62,7 @@ py_break_task:
     setup_script: pip install -r requirements.txt
     main_script: ./bin/sos report --batch
 
-# Run our standard test script across multiple distros on GCP
+# Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
     alias: "stageone_report"
     name: "Report Stage One - $BUILD_NAME"
@@ -93,12 +93,33 @@ report_stageone_task:
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_PRIOR_NAME}
             VM_IMAGE_NAME: ${UBUNTU_PRIOR_IMAGE_NAME}
-    # Ubuntu has sos installed by default, so remove that to avoid any conflicts
-    remove_sos_script: |
+    remove_sos_script: &remove_sos |
         if [ $(command -v apt) ] && [ $(command -v sosreport) ]; then
             apt -y purge sosreport
             apt update
             apt -y install python3-pip
         fi
-    setup_script: pip3 install avocado-framework==84.0
+        if [ $(command -v dnf) ] && [ $(command -v sos) ]; then
+            dnf -y remove sos
+        fi
+    setup_script: &setup 'pip3 install avocado-framework'
     main_script: PYTHONPATH=tests/ avocado run -t stageone tests/
+
+# IFF the stage one tests all pass, then run stage two for latest distros
+report_stagetwo_task:
+    alias: "stagetwo_report"
+    name: "Report Stage Two - $BUILD_NAME"
+    depends_on: stageone_report
+    gce_instance: *standardvm
+    matrix:
+        - env:
+            PROJECT: ${RH_PROJECT}
+            BUILD_NAME: ${FEDORA_NAME}
+            VM_IMAGE_NAME: ${FEDORA_IMAGE_NAME}
+        - env:
+            PROJECT: ${UBUNTU_PROJECT}
+            BUILD_NAME: ${UBUNTU_NAME}
+            VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
+    remove_sos_script: *remove_sos
+    setup_script: *setup
+    main_script: PYTHONPATH=tests/ avocado run -t stagetwo tests/
