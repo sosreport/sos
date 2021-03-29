@@ -17,6 +17,7 @@ sosreport \- Collect and package diagnostic and support data
           [--label label] [--case-id id]\fR
           [--threads threads]\fR
           [--plugin-timeout TIMEOUT]\fR
+          [--cmd-timeout TIMEOUT]\fR
           [-s|--sysroot SYSROOT]\fR
           [-c|--chroot {auto|always|never}\fR
           [--tmp-dir directory]\fR
@@ -247,13 +248,28 @@ Specify a timeout in seconds to allow each plugin to run for. A value of 0
 means no timeout will be set. A value of -1 is used to indicate the default
 timeout of 300 seconds.
 
-Note that this options sets the timeout for all plugins. If you want to set
+Note that this option sets the timeout for all plugins. If you want to set
 a timeout for a specific plugin, use the 'timeout' plugin option available to
 all plugins - e.g. '-k logs.timeout=600'.
 
 The plugin-specific timeout option will override this option. For example, using
 \'--plugin-timeout=60 -k logs.timeout=600\' will set a timeout of 600 seconds for
 the logs plugin and 60 seconds for all other enabled plugins.
+.TP
+.B \--cmd-timeout TIMEOUT
+Specify a timeout limit in seconds for a command execution. Same defaults logic
+from --plugin-timeout applies here.
+
+This option sets the command timeout for all plugins. If you want to set a cmd
+timeout for a specific plugin, use the 'cmd-timeout' plugin option available to
+all plugins - e.g. '-k logs.cmd-timeout=600'.
+
+Again, the same plugin/global precedence logic as for --plugin-timeout applies
+here.
+
+Note that setting --cmd-timeout (or -k logs.cmd-timeout) high should be followed
+by increasing the --plugin-timeout equivalent, otherwise the plugin can easily
+timeout on slow commands execution.
 .TP
 .B \--case-id NUMBER
 Specify a case identifier to associate with the archive.
