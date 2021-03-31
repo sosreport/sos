@@ -102,7 +102,7 @@ add_failure () {
 test_normal_report () {
     cmd="-vvv"
     # get a list of initial kmods loaded
-    kmods=( $(lsmod | cut -f1 -d ' ' | sort) )
+    kmods=( $(lsmod | grep -v devlink | cut -f1 -d ' ' | sort) )
     run_expecting_success "$cmd" extract
     if [ $? -eq 0 ]; then
         if [ ! -f /var/tmp/sosreport_test/sos_reports/sos.html ]; then
@@ -118,7 +118,7 @@ test_normal_report () {
             add_failure "did not find debug logging when using -vvv"
         fi
         # new list, see if we added any
-        new_kmods=( $(lsmod | cut -f1 -d ' ' | sort) )
+        new_kmods=( $(lsmod | grep -v devlink | cut -f1 -d ' ' | sort) )
         if [ "$(printf '%s\n' "${kmods[@]}" "${new_kmods[@]}" | sort | uniq -u)" ]; then
             add_failure "new kernel modules loaded during execution"
             echo "$(printf '%s\n' "${kmods[@]}" "${new_kmods[@]}" | sort | uniq -u)"
