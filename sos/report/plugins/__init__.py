@@ -2858,16 +2858,6 @@ class SCLPlugin(RedHatPlugin):
         self.add_copy_spec(scl_copyspecs)
 
 
-class PowerKVMPlugin(RedHatPlugin):
-    """Tagging class for IBM PowerKVM Linux"""
-    pass
-
-
-class ZKVMPlugin(RedHatPlugin):
-    """Tagging class for IBM ZKVM Linux"""
-    pass
-
-
 class UbuntuPlugin(object):
     """Tagging class for Ubuntu Linux"""
     pass
