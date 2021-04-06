@@ -26,6 +26,8 @@ SOS_PLUGIN_DIR = os.path.realpath(os.path.join(SOS_REPO_ROOT, 'sos/report/plugin
 SOS_TEST_DATA_DIR = os.path.realpath(os.path.join(SOS_TEST_DIR, 'test_data'))
 SOS_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 
+RH_DIST = ['rhel', 'centos', 'fedora']
+UBUNTU_DIST = ['ubuntu', 'debian']
 
 def skipIf(cond, message=None):
     def decorator(function):
@@ -233,6 +235,7 @@ class BaseSoSReportTest(BaseSoSTest):
         """Execute and extract the sos report to our temporary location, then
         call sos_setup() for individual test case setup and/or mocking.
         """
+        self.local_distro = distro.detect().name
         # check to prevent multiple setUp() runs
         if not os.path.isdir(self.tmpdir):
             # setup our class-shared tmpdir
@@ -386,7 +389,7 @@ class BaseSoSReportTest(BaseSoSTest):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        assert content in self.cmd_output.stdout, 'Content string not in output'
+        assert content in self.cmd_output.stdout, "Content string '%s' not in output" % content
 
     def assertOutputNotContains(self, content):
         """Ensure that stdout did NOT contain the given content string
@@ -558,7 +561,6 @@ class StageTwoReportTest(BaseSoSReportTest):
     _created_files = []
 
     def setUp(self):
-        self.local_dist = distro.detect().name
         self.end_of_test_case = False
         # seems awkward, but check_installed() and remove() are not exposed
         # together with install_distro_packages()
@@ -622,27 +624,27 @@ class StageTwoReportTest(BaseSoSReportTest):
         """Install any required packages using avocado's software manager
         abstraction
         """
-        if self.local_dist in self.packages:
+        if self.local_distro in self.packages:
             # remove any packages already locally installed, as otherwise
             # our call to SoftwareManager will return False
             self._strip_installed_packages()
-            if not self.packages[self.local_dist]:
+            if not self.packages[self.local_distro]:
                 return
             installed = self.installer.install_distro_packages(self.packages)
             if not installed:
                 raise("Unable to install requested packages %"
-                      % ', '.join(pkg for pkg in self.packages[self.local_dist]))
+                      % ', '.join(pkg for pkg in self.packages[self.local_distro]))
             # save installed package list to our tmpdir to be removed later
-            self._write_file_to_tmpdir('mocked_packages', json.dumps(self.packages[self.local_dist]))
+            self._write_file_to_tmpdir('mocked_packages', json.dumps(self.packages[self.local_distro]))
 
     def _strip_installed_packages(self):
         """For the list of packages given for a test, if any of the packages
         already exist on the test system, remove them from the list of packages
         to be installed.
         """
-        for pkg in self.packages[self.local_dist]:
+        for pkg in self.packages[self.local_distro]:
             if self.sm.check_installed(pkg):
-                self.packages[self.local_dist].remove(pkg)
+                self.packages[self.local_distro].remove(pkg)
 
     def teardown_mocked_packages(self):
         """Uninstall any packages that we installed for this test
