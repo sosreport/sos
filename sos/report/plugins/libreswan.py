@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
 class Libreswan(Plugin, IndependentPlugin):
@@ -39,10 +39,16 @@ class Libreswan(Plugin, IndependentPlugin):
             'ipsec verify',
             'ipsec whack --status',
             'ipsec whack --listall',
-            'certutil -L -d sql:/etc/ipsec.d',
+            'certutil -L -d sql:/etc/ipsec.d'
+        ])
+
+        # may load xfrm kmods
+        xfrm_pred = SoSPredicate(self, kmods=['xfrm_user', 'xfrm_algo'],
+                                 required={'kmods': 'all'})
+        self.add_cmd_output([
             'ip xfrm policy',
             'ip xfrm state'
-        ])
+        ], pred=xfrm_pred)
 
         if self.get_option("ipsec-barf"):
             self.add_cmd_output("ipsec barf")
