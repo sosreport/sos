@@ -223,6 +223,12 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         pass
 
+    def pre_sos_setup(self):
+        """Do any needed non-mocking setup prior to the sos execution that is
+        called in setUp()
+        """
+        pass
+
     def setUp(self):
         """Execute and extract the sos report to our temporary location, then
         call sos_setup() for individual test case setup and/or mocking.
@@ -231,6 +237,9 @@ class BaseSoSReportTest(BaseSoSTest):
         if not os.path.isdir(self.tmpdir):
             # setup our class-shared tmpdir
             self._setup_tmpdir()
+
+            # do any pre-execution setup
+            self.pre_sos_setup()
 
             # do mocking called for in stage 2+ tests
             self.setup_mocking()
