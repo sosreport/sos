@@ -18,12 +18,12 @@ class Psacct(Plugin):
     option_list = [("all", "collect all process accounting files",
                     "slow", False)]
 
-    packages = ["psacct"]
+    packages = ("psacct", )
 
 
 class RedHatPsacct(Psacct, RedHatPlugin):
 
-    packages = ["psacct"]
+    packages = ("psacct", )
 
     def setup(self):
         super(RedHatPsacct, self).setup()
@@ -34,8 +34,7 @@ class RedHatPsacct(Psacct, RedHatPlugin):
 
 class DebianPsacct(Psacct, DebianPlugin, UbuntuPlugin):
 
-    plugin_name = "acct"
-    packages = ["acct"]
+    packages = ("acct", )
 
     def setup(self):
         super(DebianPsacct, self).setup()
