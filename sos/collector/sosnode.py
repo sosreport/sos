@@ -283,11 +283,12 @@ class SosNode():
     def _load_sos_plugins(self, sosinfo):
         ENABLED = 'The following plugins are currently enabled:'
         DISABLED = 'The following plugins are currently disabled:'
+        ALL_OPTIONS = 'The following options are available for ALL plugins:'
         OPTIONS = 'The following plugin options are available:'
         PROFILES = 'Profiles:'
 
         enablereg = ENABLED + '(.*?)' + DISABLED
-        disreg = DISABLED + '(.*?)' + OPTIONS
+        disreg = DISABLED + '(.*?)' + ALL_OPTIONS
         optreg = OPTIONS + '(.*?)' + PROFILES
         proreg = PROFILES + '(.*?)' + '\n\n'
 
