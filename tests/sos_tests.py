@@ -27,7 +27,7 @@ SOS_TEST_DATA_DIR = os.path.realpath(os.path.join(SOS_TEST_DIR, 'test_data'))
 SOS_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 
 RH_DIST = ['rhel', 'centos', 'fedora']
-UBUNTU_DIST = ['ubuntu', 'debian']
+UBUNTU_DIST = ['Ubuntu', 'debian']
 
 def skipIf(cond, message=None):
     def decorator(function):
@@ -40,6 +40,17 @@ def skipIf(cond, message=None):
         return wrapper
     return decorator
 
+def redhat_only(tst):
+    def wrapper(func):
+        if distro.detect().name not in RH_DIST:
+            raise TestSkipError('Not running on a Red Hat distro')
+    return wrapper
+
+def ubuntu_only(tst):
+    def wrapper(func):
+        if distro.detect().name not in UBUNTU_DIST:
+            raise TestSkipError('Not running on a Ubuntu or Debian distro')
+    return wrapper
 
 class BaseSoSTest(Test):
     """Base class for all our test classes to build off of.
