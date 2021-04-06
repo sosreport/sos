@@ -10,7 +10,7 @@ import re
 
 
 from avocado.utils import process
-from sos_tests import StageOneReportTest, SOS_BIN
+from sos_tests import StageOneReportTest, SOS_BIN, skipIf, RH_DIST
 
 
 # These are the header strings in --list-plugins output
@@ -44,6 +44,7 @@ class AllPluginSmokeTest(StageOneReportTest):
         for plugin in self.plugs:
             self.assertPluginIncluded(plugin)
 
+    @skipIf(lambda x: x.local_distro not in RH_DIST, "Not distro relevant")
     def test_expected_warnings_displayed(self):
         """We can expect specific plugins to always generate a warning during
         setup if they are enabled on systems that are not configured for those
