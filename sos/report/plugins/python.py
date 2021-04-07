@@ -22,7 +22,7 @@ class Python(Plugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'python'
     profiles = ('system',)
 
-    packages = ('python',)
+    packages = ('python', 'python3')
 
     python_version = "python -V"
 
@@ -35,7 +35,7 @@ class Python(Plugin, DebianPlugin, UbuntuPlugin):
 
 class RedHatPython(Python, RedHatPlugin):
 
-    packages = ('python', 'python36', 'python2', 'platform-python')
+    packages = ('python', 'python36', 'python2', 'python3', 'platform-python')
     option_list = [
         ('hashes', "gather hashes for all python files", 'slow',
          False)]
