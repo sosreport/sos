@@ -10,7 +10,7 @@ import re
 
 
 from avocado.utils import process
-from sos_tests import StageOneReportTest, SOS_BIN, redhat_only
+from sos_tests import StageOneReportTest, SOS_BIN, redhat_only, ubuntu_only
 
 
 # These are the header strings in --list-plugins output
@@ -55,3 +55,58 @@ class AllPluginSmokeTest(StageOneReportTest):
         self.assertOutputContains('Not logged in to OCP API, and no login token provided. Will not collect `oc` commands')
         self.assertOutputContains('Source the environment file for the user intended to connect to the OpenStack environment.')
         self.assertOutputContains('Some or all of the skydive params are not set properly.')
+
+
+class ExpectedDefaultPluginsTest(StageOneReportTest):
+    """Make sure that a default expected set of plugins runs on a "normal"
+    execution that does not provide any plugin-related options
+
+    :avocado: tags=stageone
+    """
+
+    sos_cmd = '-v '
+
+    def test_default_plugins_enabled(self):
+        """These plugins should run on all supported hosts by default everytime
+        """
+        self.assertPluginIncluded([
+            'boot',
+            'date',
+            'filesys',
+            'host',
+            'kernel',
+            'login',
+            'logs',
+            'pci',
+            'process',
+            'processor',
+            'python',
+            'release',
+            'services',
+            'udev',
+            'usb'
+        ])
+
+    @redhat_only
+    def test_rhel_default_plugins(self):
+        """Plugins expected to always run on a RHEL (-like) system
+        """
+        self.assertPluginIncluded([
+            'anaconda',
+            'dnf',
+            'rpm',
+            'selinux',
+            'unpackaged',
+            'yum'
+        ])
+
+    @ubuntu_only
+    def test_ubuntu_default_plugins(self):
+        """Plugins expected to always run on a Ubuntu (-like) system
+        """
+        self.assertPluginIncluded([
+            'apparmor',
+            'apt',
+            'ubuntu'
+        ])
+
