@@ -420,7 +420,10 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         if not self.manifest:
             self.error("No manifest found, cannot check for %s execution" % plugin)
-        assert plugin in self.manifest['components']['report']['plugins'].keys(), 'Plugin not recorded in manifest'
+        if isinstance(plugin, str):
+            plugin = [plugin]
+        for plug in plugin:
+            assert plug in self.manifest['components']['report']['plugins'].keys(), "Plugin '%s' not recorded in manifest" % plug
 
     def assertPluginNotIncluded(self, plugin):
         """Ensure that the specified plugin did NOT run for the sos execution
@@ -431,7 +434,10 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         if not self.manifest:
             self.error("No manifest found, cannot check for %s execution" % plugin)
-        assert plugin not in self.manifest['components']['report']['plugins'].keys(), 'Plugin is recorded in manifest'
+        if isinstance(plugin, str):
+            plugin = [plugin]
+        for plug in plugin:
+            assert plug not in self.manifest['components']['report']['plugins'].keys(), "Plugin '%s' is recorded in manifest" % plug
 
     def assertOnlyPluginsIncluded(self, plugins):
         """Ensure that only the specified plugins are in the manifest
