@@ -149,6 +149,7 @@ class LinuxPolicy(Policy):
         self.upload_user = cmdline_opts.upload_user
         self.upload_directory = cmdline_opts.upload_directory
         self.upload_password = cmdline_opts.upload_pass
+        self.upload_archive_name = ''
 
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
@@ -237,7 +238,7 @@ class LinuxPolicy(Policy):
         `get_upload_url_string()`
             Print a more human-friendly string than vendor URLs
         """
-        self.upload_archive = archive
+        self.upload_archive_name = archive
         if not self.upload_url:
             self.upload_url = self.get_upload_url()
         if not self.upload_url:
@@ -384,7 +385,7 @@ class LinuxPolicy(Policy):
             raise Exception("Unable to upload due to missing python requests "
                             "library")
 
-        with open(self.upload_archive, 'rb') as arc:
+        with open(self.upload_archive_name, 'rb') as arc:
             if not self._use_https_streaming:
                 r = self._upload_https_no_stream(arc)
             else:
@@ -467,9 +468,9 @@ class LinuxPolicy(Policy):
                             % str(err))
 
         try:
-            with open(self.upload_archive, 'rb') as _arcfile:
+            with open(self.upload_archive_name, 'rb') as _arcfile:
                 session.storbinary(
-                    "STOR %s" % self.upload_archive.split('/')[-1],
+                    "STOR %s" % self.upload_archive_name.split('/')[-1],
                     _arcfile
                 )
             session.quit()
