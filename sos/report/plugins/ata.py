@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
-import os
 
 
 class Ata(Plugin, IndependentPlugin):
@@ -20,18 +19,13 @@ class Ata(Plugin, IndependentPlugin):
     packages = ('hdparm', 'smartmontools')
 
     def setup(self):
-        dev_path = '/dev'
-        sys_block = '/sys/block'
         self.add_copy_spec('/proc/ide')
-        if os.path.isdir(sys_block):
-            for disk in os.listdir(sys_block):
-                if disk.startswith("sd") or disk.startswith("hd"):
-                    disk_path = os.path.join(dev_path, disk)
-                    self.add_cmd_output([
-                        "hdparm %s" % disk_path,
-                        "smartctl -a %s" % disk_path,
-                        "smartctl -l scterc %s" % disk_path,
-                    ])
+        cmd_list = [
+            "hdparm %(dev)s",
+            "smartctl -a %(dev)s",
+            "smartctl -l scterc %(dev)s"
+        ]
+        self.add_blockdev_cmd(cmd_list, whitelist=['sd.*', 'hd.*'])
 
 
 # vim: set et ts=4 sw=4 :
