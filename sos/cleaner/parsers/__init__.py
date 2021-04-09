@@ -104,7 +104,7 @@ class SoSCleanerParser():
         """
         for key, val in self.mapping.dataset.items():
             if key in string_data:
-                return string_data.replace(key, val)
+                string_data = string_data.replace(key, val)
         return string_data
 
     def get_map_contents(self):
