@@ -27,6 +27,7 @@ class Processor(Plugin, IndependentPlugin):
 
         self.add_cmd_output([
             "lscpu",
+            "lscpu -ae",
             "cpupower info",
             "cpupower idle-info",
             "cpupower frequency-info",

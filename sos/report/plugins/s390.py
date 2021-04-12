@@ -42,7 +42,11 @@ class S390(Plugin, IndependentPlugin):
             "/etc/sysconfig/dumpconf",
             "/etc/src_vipa.conf",
             "/etc/ccwgroup.conf",
-            "/etc/chandev.conf"
+            "/etc/chandev.conf",
+            "/var/log/IBMtape.trace",
+            "/var/log/IBMtape.errorlog",
+            "/var/log/lin_tape.trace",
+            "/var/log/lin_tape.errorlog",
         ])
 
         # skip flush as it is useless for sos collection
@@ -51,13 +55,17 @@ class S390(Plugin, IndependentPlugin):
         self.add_cmd_output([
             "lscss",
             "lsdasd",
+            "lsshut",
             "lstape",
             "qethconf list_all",
             "lsqeth",
             "lszfcp",
-            "lszcrypt",
+            "lszfcp -D",
+            "lszfcp -V",
+            "lszcrypt -VV",
             "icainfo",
-            "icastats"
+            "icastats",
+            "smc_dbg"
         ])
 
         r = self.exec_cmd("ls /dev/dasd?")
