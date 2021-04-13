@@ -20,10 +20,16 @@ class CloudInit(Plugin, IndependentPlugin):
     services = ('cloud-init',)
 
     def setup(self):
+
+        self.add_cmd_output([
+            'cloud-init --version',
+            'cloud-init features',
+            'cloud-init status'
+        ])
+
         self.add_copy_spec([
-            '/var/lib/cloud/',
             '/etc/cloud/',
-            '/run/cloud-init/cloud-init-generator.log',
+            '/run/cloud-init/',
             '/var/log/cloud-init*'
         ])
 
