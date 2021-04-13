@@ -21,19 +21,18 @@ class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
     packages = ('ipmitool',)
 
     def setup(self):
+        cmd = "ipmitool"
         result = self.collect_cmd_output("ipmitool -I usb mc info")
-        have_usbintf = result['status']
-
-        if not have_usbintf:
-            cmd = "ipmitool -I usb"
-        else:
-            cmd = "ipmitool"
+        if result['status'] == 0:
+            cmd += " -I usb"
 
         self.add_cmd_output([
             "%s sel info" % cmd,
-            "%s sel list" % cmd,
+            "%s sel elist" % cmd,
+            "%s sel list -v" % cmd,
             "%s sensor list" % cmd,
             "%s chassis status" % cmd,
+            "%s lan print" % cmd,
             "%s fru print" % cmd,
             "%s mc info" % cmd,
             "%s sdr info" % cmd
