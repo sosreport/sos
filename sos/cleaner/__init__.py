@@ -508,7 +508,7 @@ third party.
                     for line in content.splitlines():
                         if isinstance(_parser, SoSHostnameParser):
                             _parser.load_hostname_into_map(line)
-                        self.obfuscate_line(line, _parser.prep_map_file)
+                        self.obfuscate_line(line)
                 except Exception as err:
                     self.log_debug("Could not prep %s: %s" % (_arc_path, err))
 
@@ -606,7 +606,7 @@ third party.
                 if not line.strip():
                     continue
                 try:
-                    line, count = self.obfuscate_line(line, short_name)
+                    line, count = self.obfuscate_line(line)
                     subs += count
                     tfile.write(line)
                 except Exception as err:
@@ -631,7 +631,7 @@ third party.
                 pass
         return string_data
 
-    def obfuscate_line(self, line, filename):
+    def obfuscate_line(self, line):
         """Run a line through each of the obfuscation parsers, keeping a
         cumulative total of substitutions done on that particular line.
 
@@ -639,16 +639,11 @@ third party.
 
             :param line str:        The raw line as read from the file being
                                     processed
-            :param filename str:    Filename the line was read from
 
         Returns the fully obfuscated line and the number of substitutions made
         """
         count = 0
         for parser in self.parsers:
-            if filename and any([
-                re.match(_s, filename) for _s in parser.skip_files
-            ]):
-                continue
             try:
                 line, _count = parser.parse_line(line)
                 count += _count
