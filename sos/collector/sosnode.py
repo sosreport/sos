@@ -914,10 +914,10 @@ class SosNode():
     def cleanup(self):
         """Remove the sos archive from the node once we have it locally"""
         self.remove_sos_archive()
-        if os.path.isfile(self.sos_path + '.sha256'):
-            self.remove_file(self.sos_path + '.sha256')
-        elif os.path.isfile(self.sos_path + '.md5'):
-            self.remove_file(self.sos_path + '.md5')
+        if self.sos_path:
+            for ext in ['.sha256', '.md5']:
+                if os.path.isfile(self.sos_path + ext):
+                    self.remove_file(self.sos_path + ext)
         cleanup = self.host.set_cleanup_cmd()
         if cleanup:
             self.run_command(cleanup)
