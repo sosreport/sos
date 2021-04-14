@@ -219,8 +219,6 @@ class SoSObfuscationArchive():
             :param filename str:        Filename relative to the extracted
                                         archive root
         """
-        if filename in self.file_sub_list:
-            return True
 
         if not os.path.isfile(self.get_file_path(filename)):
             return True
