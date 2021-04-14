@@ -292,6 +292,7 @@ third party.
 
         # we have at least one valid target to obfuscate
         self.completed_reports = []
+        self.preload_all_archives_into_maps()
         self.obfuscate_report_paths()
 
         if not self.completed_reports:
@@ -473,6 +474,44 @@ third party.
             self.ui_log.info("Exiting on user cancel")
             os._exit(130)
 
+    def preload_all_archives_into_maps(self):
+        """Before doing the actual obfuscation, if we have multiple archives
+        to obfuscate then we need to preload each of them into the mappings
+        to ensure that node1 is obfuscated in node2 as well as node2 being
+        obfuscated in node1's archive.
+        """
+        self.log_info("Pre-loading multiple archives into obfuscation maps")
+        for _arc in self.report_paths:
+            is_dir = os.path.isdir(_arc)
+            if is_dir:
+                _arc_name = _arc
+            else:
+                archive = tarfile.open(_arc)
+                _arc_name = _arc.split('/')[-1].split('.tar')[0]
+            # for each parser, load the map_prep_file into memory, and then
+            # send that for obfuscation. We don't actually obfuscate the file
+            # here, do that in the normal archive loop
+            for _parser in self.parsers:
+                if not _parser.prep_map_file:
+                    continue
+                _arc_path = os.path.join(_arc_name, _parser.prep_map_file)
+                try:
+                    if is_dir:
+                        _pfile = open(_arc_path, 'r')
+                        content = _pfile.read()
+                    else:
+                        _pfile = archive.extractfile(_arc_path)
+                        content = _pfile.read().decode('utf-8')
+                    _pfile.close()
+                    if isinstance(_parser, SoSUsernameParser):
+                        _parser.load_usernames_into_map(content)
+                    for line in content.splitlines():
+                        if isinstance(_parser, SoSHostnameParser):
+                            _parser.load_hostname_into_map(line)
+                        self.obfuscate_line(line, _parser.prep_map_file)
+                except Exception as err:
+                    self.log_debug("Could not prep %s: %s" % (_arc_path, err))
+
     def obfuscate_report(self, report):
         """Individually handle each archive or directory we've discovered by
         running through each file therein.
@@ -493,7 +532,6 @@ third party.
             start_time = datetime.now()
             arc_md.add_field('start_time', start_time)
             archive.extract()
-            self.prep_maps_from_archive(archive)
             archive.report_msg("Beginning obfuscation...")
 
             file_list = archive.get_file_list()
@@ -541,35 +579,6 @@ third party.
         except Exception as err:
             self.ui_log.info("Exception while processing %s: %s"
                              % (report, err))
-
-    def prep_maps_from_archive(self, archive):
-        """Open specific files from an archive and try to load those values
-        into our mappings before iterating through the entire archive.
-
-        Positional arguments:
-
-            :param archive SoSObfuscationArchive:   An open archive object
-        """
-        for parser in self.parsers:
-            if not parser.prep_map_file:
-                continue
-            prep_file = archive.get_file_path(parser.prep_map_file)
-            if not prep_file:
-                self.log_debug("Could not prepare %s: %s does not exist"
-                               % (parser.name, parser.prep_map_file),
-                               caller=archive.archive_name)
-                continue
-            # this is a bit clunky, but we need to load this particular
-            # parser in a different way due to how hostnames are validated for
-            # obfuscation
-            if isinstance(parser, SoSHostnameParser):
-                with open(prep_file, 'r') as host_file:
-                    hostname = host_file.readline().strip()
-                    parser.load_hostname_into_map(hostname)
-            if isinstance(parser, SoSUsernameParser):
-                parser.load_usernames_into_map(prep_file)
-            self.obfuscate_file(prep_file, parser.prep_map_file,
-                                archive.archive_name)
 
     def obfuscate_file(self, filename, short_name=None, arc_name=None):
         """Obfuscate and individual file, line by line.

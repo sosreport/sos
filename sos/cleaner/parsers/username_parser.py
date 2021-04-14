@@ -39,16 +39,15 @@ class SoSUsernameParser(SoSCleanerParser):
         super(SoSUsernameParser, self).__init__(conf_file)
         self.mapping.load_names_from_options(opt_names)
 
-    def load_usernames_into_map(self, fname):
+    def load_usernames_into_map(self, content):
         """Since we don't get the list of usernames from a straight regex for
         this parser, we need to override the initial parser prepping here.
         """
-        with open(fname, 'r') as lastfile:
-            for line in lastfile.read().splitlines()[1:]:
-                user = line.split()[0]
-                if user in self.skip_list:
-                    continue
-                self.mapping.get(user)
+        for line in content.splitlines()[1:]:
+            user = line.split()[0]
+            if user in self.skip_list:
+                continue
+            self.mapping.get(user)
 
     def parse_line(self, line):
         count = 0
