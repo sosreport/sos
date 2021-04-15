@@ -417,9 +417,6 @@ class Plugin(object):
     :cvar plugin_name:  The name of the plugin, will be returned by `name()`
     :vartype plugin_name: ``str``
 
-    :cvar version:      The version of the plugin, defaults to 'unversioned'
-    :vartype version:   ``str``
-
     :cvar packages:     Package name(s) that, if installed, enable this plugin
     :vartype packages:  ``tuple``
 
@@ -450,7 +447,6 @@ class Plugin(object):
     """
 
     plugin_name = None
-    version = 'unversioned'
     packages = ()
     files = ()
     commands = ()
