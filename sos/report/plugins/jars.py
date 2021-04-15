@@ -22,7 +22,6 @@ class Jars(Plugin, RedHatPlugin):
     short_desc = 'Collect information about available Java archives'
 
     plugin_name = "jars"
-    version = "1.0.0"
     profiles = ("java",)
     option_list = [
         ("append_locations", "colon-separated list of additional JAR paths",

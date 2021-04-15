@@ -17,7 +17,6 @@ class Pacemaker(Plugin):
     short_desc = 'Pacemaker high-availability cluster resource manager'
 
     plugin_name = "pacemaker"
-    version = "1.0"
     profiles = ("cluster", )
     packages = (
         "pacemaker",

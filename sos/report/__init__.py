@@ -933,9 +933,6 @@ class SoSReport(SoSComponent):
         versions = []
         versions.append("sosreport: %s" % __version__)
 
-        for plugname, plug in self.loaded_plugins:
-            versions.append("%s: %s" % (plugname, plug.version))
-
         self.archive.add_string(content="\n".join(versions),
                                 dest='version.txt')
 
