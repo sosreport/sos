@@ -12,7 +12,6 @@ import os
 
 from sos_tests import StageOneReportTest, StageTwoReportTest
 from string import ascii_uppercase, digits
-from systemd import journal
 
 
 class LogsPluginTest(StageOneReportTest):
@@ -43,15 +42,15 @@ class LogsSizeLimitTest(StageTwoReportTest):
 
     sos_cmd = '-o logs'
     packages = {
-        'rhel': 'python3-systemd',
-        'ubuntu': 'python3-systemd'
+        'rhel': ['python3-systemd'],
+        'ubuntu': ['python3-systemd']
     }
 
-    # override the stage2 mocking here to inject a string into the journal
-    def setup_mocking(self):
+    def pre_sos_setup(self):
         # write 20MB at a time to side-step rate/size limiting on some distros
         # write over 100MB to ensure we will actually size limit inside sos,
         # allowing for any compression or de-dupe systemd does
+        from systemd import journal
         rsize = 20 * 1048576
         for i in range(3):
             # generate 20MB, write it, then write it in reverse.
@@ -64,8 +63,8 @@ class LogsSizeLimitTest(StageTwoReportTest):
         journ = 'sos_commands/logs/journalctl_--no-pager_--catalog_--boot'
         self.assertFileCollected(journ)
         jsize = os.stat(self.get_name_in_archive(journ)).st_size
-        assert jsize <= 105906176, "Collected journal is larger than 100MB"
-        assert jsize > 27262976, "Collected journal limited by --log-size"
+        assert jsize <= 105906176, "Collected journal is larger than 100MB (size: %s)" % jsize
+        assert jsize > 27262976, "Collected journal limited by --log-size (size: %s)" % jsize
 
     def test_journal_tailed_and_linked(self):
         self.assertFileCollected('sos_strings/logs/journalctl_--no-pager_--catalog_--boot.tailed')

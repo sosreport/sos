@@ -262,11 +262,11 @@ class BaseSoSReportTest(BaseSoSTest):
             # setup our class-shared tmpdir
             self._setup_tmpdir()
 
-            # do any pre-execution setup
-            self.pre_sos_setup()
-
             # do mocking called for in stage 2+ tests
             self.setup_mocking()
+
+            # do any pre-execution setup
+            self.pre_sos_setup()
 
             # gather some pre-execution information
             self.set_pre_sysinfo()
