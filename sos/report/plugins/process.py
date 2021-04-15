@@ -6,6 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
+import re
+
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -22,7 +25,8 @@ class Process(Plugin, IndependentPlugin):
          "slow", False),
         ("smaps", "gathers all /proc/*/smaps files", "", False),
         ("samples", "specify the number of samples that iotop will capture, "
-            "with an interval of 0.5 seconds between samples", "", "20")
+            "with an interval of 0.5 seconds between samples", "", "20"),
+        ("numprocs", "number of processes to collect /proc data of", '', 2048)
     ]
 
     def setup(self):
@@ -36,6 +40,19 @@ class Process(Plugin, IndependentPlugin):
             "/proc/sched_debug",
             "/proc/stat"
         ])
+
+        procs = [p for p in os.listdir("/proc") if re.match("[0-9]", p)]
+        if self.get_option("numprocs"):
+            procs = procs[:self.get_option("numprocs")]
+
+        for proc in procs:
+            self.add_copy_spec([
+                "/proc/%s/status" % proc,
+                "/proc/%s/cpuset" % proc,
+                "/proc/%s/oom_*" % proc,
+                "/proc/%s/stack" % proc,
+                "/proc/%s/limits" % proc
+            ])
 
         if self.get_option("smaps"):
             self.add_copy_spec("/proc/[0-9]*/smaps")
