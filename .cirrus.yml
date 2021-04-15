@@ -7,20 +7,22 @@ env:
     FEDORA_PRIOR_VER: "32"
     FEDORA_NAME: "fedora-${FEDORA_VER}"
     FEDORA_PRIOR_NAME: "fedora-${FEDORA_PRIOR_VER}"
-    #RHEL_NAME: "rhel-8.3"
 
     UBUNTU_NAME: "ubuntu-20.04"
     UBUNTU_PRIOR_NAME: "ubuntu-18.04"
 
-    RH_PROJECT: "sos-devel-jobs"
+    CENTOS_NAME: "centos-stream-8"
+
+    CENTOS_PROJECT: "centos-cloud"
+    SOS_PROJECT: "sos-devel-jobs"
     UBUNTU_PROJECT: "ubuntu-os-cloud"
 
     # These are generated images pushed to GCP from Red Hat
     FEDORA_IMAGE_NAME: "f${FEDORA_VER}-server-sos-testing"
     FEDORA_PRIOR_IMAGE_NAME: "f${FEDORA_PRIOR_VER}-server-sos-testing"
-    #RHEL_IMAGE_NAME: "${RHEL_NAME}-server-sos-testing"
 
     # Images exist on GCP already
+    CENTOS_IMAGE_NAME: "centos-stream-8-v20210316"
     UBUNTU_IMAGE_NAME: "ubuntu-2004-focal-v20201111"
     UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-1804-bionic-v20201111"
 
@@ -70,21 +72,22 @@ report_stageone_task:
         image_project: "${PROJECT}"
         image_name: "${VM_IMAGE_NAME}"
         cpu: 2
-        memory: "2Gb"
+        memory: "4Gb"
         # minimum disk size is 20
         disk: 20
     matrix:
         - env:
-            PROJECT: ${RH_PROJECT}
+            PROJECT: ${CENTOS_PROJECT}
+            BUILD_NAME: ${CENTOS_NAME}
+            VM_IMAGE_NAME: ${CENTOS_IMAGE_NAME}
+        - env:
+            PROJECT: ${SOS_PROJECT}
             BUILD_NAME: ${FEDORA_NAME}
             VM_IMAGE_NAME: ${FEDORA_IMAGE_NAME}
         - env:
-            PROJECT: ${RH_PROJECT}
+            PROJECT: ${SOS_PROJECT}
             BUILD_NAME: ${FEDORA_PRIOR_NAME}
             VM_IMAGE_NAME: ${FEDORA_PRIOR_IMAGE_NAME}
-       # - env:
-       #     BUILD_NAME: ${RHEL_NAME}
-       #     VM_IMAGE_NAME: ${RHEL_IMAGE_NAME}
         - env:
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_NAME}
@@ -113,7 +116,11 @@ report_stagetwo_task:
     gce_instance: *standardvm
     matrix:
         - env:
-            PROJECT: ${RH_PROJECT}
+            PROJECT: ${CENTOS_PROJECT}
+            BUILD_NAME: ${CENTOS_NAME}
+            VM_IMAGE_NAME: ${CENTOS_IMAGE_NAME}
+        - env:
+            PROJECT: ${SOS_PROJECT}
             BUILD_NAME: ${FEDORA_NAME}
             VM_IMAGE_NAME: ${FEDORA_IMAGE_NAME}
         - env:
