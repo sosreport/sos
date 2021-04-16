@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
 class DeviceMapper(Plugin, IndependentPlugin):
@@ -16,6 +17,7 @@ class DeviceMapper(Plugin, IndependentPlugin):
     plugin_name = 'devicemapper'
     profiles = ('storage',)
     packages = ('device-mapper',)
+    kernel_mods = ('dm_mod', )
     files = ('/dev/mapper',)
 
     def setup(self):
@@ -27,6 +29,6 @@ class DeviceMapper(Plugin, IndependentPlugin):
             "dmsetup udevcookies",
             "dmstats list",
             "dmstats print --allregions"
-        ])
+        ], pred=SoSPredicate(self, kmods=['dm_mod']))
 
 # vim: set et ts=4 sw=4 :
