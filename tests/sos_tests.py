@@ -315,7 +315,8 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         if os.path.exists(fname):
             self.assertFileExists(self.get_name_in_archive(fname))
-        assert True
+        else:
+            assert True
 
     def assertFileNotCollected(self, fname):
         """Ensure that a given fname is NOT in the extracted archive
@@ -327,13 +328,16 @@ class BaseSoSReportTest(BaseSoSTest):
 
     def assertFileGlobInArchive(self, fname):
         """Ensure that at least one file in the archive matches a given fname
-        glob
+        glob, iff it exists on the host system
 
         :param fname:  The glob to match filenames of
         :type fname:  ``str``
         """
-        files = glob.glob(os.path.join(self.archive_path, fname.lstrip('/')))
-        assert files, "No files matching %s found" % fname
+        if not glob.glob(fname):
+            assert True
+        else:
+            files = glob.glob(os.path.join(self.archive_path, fname.lstrip('/')))
+            assert files, "No files matching %s found" % fname
 
     def assertFileGlobNotInArchive(self, fname):
         """Ensure that there are NO files in the archive matching a given fname
