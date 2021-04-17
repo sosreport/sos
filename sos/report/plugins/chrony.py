@@ -45,6 +45,8 @@ class DebianChrony(Chrony, DebianPlugin, UbuntuPlugin):
         super(DebianChrony, self).setup()
         self.add_copy_spec([
             "/etc/chrony/chrony.conf",
+            "/etc/chrony/conf.d",
+            "/etc/chrony/sources.d",
             "/var/lib/chrony/chrony.drift",
             "/etc/default/chrony"
         ])
