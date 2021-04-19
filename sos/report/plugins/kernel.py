@@ -107,6 +107,8 @@ class Kernel(Plugin, IndependentPlugin):
             "/var/log/dmesg",
             "/sys/fs/pstore",
             "/sys/kernel/debug/dynamic_debug/control",
+            "/sys/kernel/debug/extfrag/unusable_index",
+            "/sys/kernel/debug/extfrag/extfrag_index",
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource"
         ])
