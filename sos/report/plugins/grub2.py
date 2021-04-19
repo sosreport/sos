@@ -39,7 +39,8 @@ class Grub2(Plugin, IndependentPlugin):
         co = {'cmd': '%s --help' % grub_cmd, 'output': '--no-grubenv-update'}
         if self.test_predicate(self, pred=SoSPredicate(self, cmd_outputs=co)):
             grub_cmd += ' --no-grubenv-update'
-        self.add_cmd_output(grub_cmd, env={'GRUB_DISABLE_OS_PROBER': 'true'})
+        self.add_cmd_output(grub_cmd, env={'GRUB_DISABLE_OS_PROBER': 'true'},
+                            pred=SoSPredicate(self, kmods=['dm_mod']))
 
     def postproc(self):
         # the trailing space is required; python treats '_' as whitespace
