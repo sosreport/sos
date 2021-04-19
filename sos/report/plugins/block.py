@@ -41,6 +41,7 @@ class Block(Plugin, IndependentPlugin):
             "/sys/block/*/queue/",
             "/sys/block/sd*/device/timeout",
             "/sys/block/hd*/device/timeout",
+            "/sys/block/sd*/device/state",
         ])
 
         cmds = [
