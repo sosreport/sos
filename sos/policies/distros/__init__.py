@@ -133,8 +133,45 @@ class LinuxPolicy(Policy):
         """Obtain a list of loaded kernel modules to reference later for plugin
         enablement and SoSPredicate checks
         """
+        self.kernel_mods = []
+
+        # first load modules from lsmod
         lines = shell_out("lsmod", timeout=0).splitlines()
-        self.kernel_mods = [line.split()[0].strip() for line in lines]
+        self.kernel_mods.extend([
+            line.split()[0].strip() for line in lines[1:]
+        ])
+
+        # next, include kernel builtins
+        builtins = "/usr/lib/modules/%s/modules.builtin" % os.uname().release
+        try:
+            with open(builtins, "r") as mfile:
+                for line in mfile:
+                    kmod = line.split('/')[-1].split('.ko')[0]
+                    self.kernel_mods.append(kmod)
+        except IOError:
+            pass
+
+        # finally, parse kconfig looking for specific kconfig strings that
+        # have been verified to not appear in either lsmod or modules.builtin
+        # regardless of how they are built
+        config_strings = {
+            'devlink': 'CONFIG_NET_DEVLINK',
+            'dm_mod': 'CONFIG_BLK_DEV_DM'
+        }
+
+        booted_config = "/boot/config-%s" % os.uname().release
+        kconfigs = []
+        try:
+            with open(booted_config, "r") as kfile:
+                for line in kfile:
+                    if '=y' in line:
+                        kconfigs.append(line.split('=y')[0])
+        except IOError:
+            pass
+
+        for builtin in config_strings:
+            if config_strings[builtin] in kconfigs:
+                self.kernel_mods.append(builtin)
 
     def pre_work(self):
         # this method will be called before the gathering begins
