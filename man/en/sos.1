@@ -116,6 +116,14 @@ Specify the number of threads sosreport will use for concurrency. Defaults to 4.
 .B \-v, \--verbose
 Increase logging verbosity. May be specified multiple times to enable
 additional debugging messages.
+
+The following table summarizes the effects of different verbosity levels:
+
+    1 (-v)   :  Enable debug messages for sos.log. Show individual plugins starting.
+    2 (-vv)  :  Also print debug messages to console.
+    3 (-vvv) :  Enable debug messages for archive file operations. Note this will dramatically
+                increase the amount of logging.
+
 .TP
 .B \-q, \--quiet
 Only log fatal errors to stderr.

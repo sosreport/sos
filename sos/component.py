@@ -256,7 +256,7 @@ class SoSComponent():
                                           enc_opts, self.sysroot,
                                           self.manifest)
 
-        self.archive.set_debug(True if self.opts.debug else False)
+        self.archive.set_debug(self.opts.verbosity > 2)
 
     def _setup_logging(self):
         """Creates the log handler that shall be used by all components and any
@@ -283,7 +283,7 @@ class SoSComponent():
                 if flog:
                     flog.setLevel(logging.DEBUG)
             elif self.opts.verbosity and self.opts.verbosity > 0:
-                console.setLevel(logging.INFO)
+                console.setLevel(logging.WARNING)
                 if flog:
                     flog.setLevel(logging.DEBUG)
             else:

@@ -15,10 +15,14 @@ class NormalSoSReport(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '-vvv --label thisismylabel'
+    sos_cmd = '-v --label thisismylabel'
 
     def test_debug_in_logs_verbose(self):
         self.assertSosLogContains('DEBUG')
+
+    def test_debug_not_printed_to_console(self):
+        self.assertOutputNotContains('added cmd output')
+        self.assertOutputNotContains('\[archive:.*\]')
 
     def test_postproc_called(self):
         self.assertSosLogContains('substituting scrpath')
@@ -28,6 +32,21 @@ class NormalSoSReport(StageOneReportTest):
 
     def test_free_symlink_created(self):
         self.assertFileCollected('free')
+
+
+class LogLevelTest(StageOneReportTest):
+    """
+    :avocado: tags=stageone
+    """
+
+    sos_cmd = '-vvv'
+
+    def test_archive_logging_enabled(self):
+        self.assertSosLogContains('DEBUG: \[archive:.*\]')
+        self.assertSosLogContains('Making leading paths for')
+
+    def test_debug_printed_to_console(self):
+        self.assertOutputContains('\[plugin:.*\]')
 
 
 class RestrictedSoSReport(StageOneReportTest):
