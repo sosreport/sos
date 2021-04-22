@@ -1935,6 +1935,7 @@ class Plugin(object):
             'parameters': cmd.split(' ')[1:],
             'exec': cmd,
             'filepath': None,
+            'truncated': result['truncated'],
             'return_code': result['status'],
             'run_time': time() - start,
             'tags': _tags
@@ -1966,6 +1967,10 @@ class Plugin(object):
         self._log_debug("collected output of '%s' in %s (changes=%s)"
                         % (cmd.split()[0], run_time, changes))
 
+        if result['truncated']:
+            self._log_info("collected output of '%s' was truncated"
+                           % cmd.split()[0])
+
         if suggest_filename:
             outfn = self._make_command_filename(suggest_filename, subdir)
         else:
@@ -1973,10 +1978,22 @@ class Plugin(object):
 
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
 
+        if result['truncated']:
+            linkfn = outfn
+            outfn = outfn.replace('sos_commands', 'sos_strings') + '.tailed'
+
         if binary:
             self.archive.add_binary(result['output'], outfn)
         else:
             self.archive.add_string(result['output'], outfn)
+        if result['truncated']:
+            # we need to manually build the relative path from the paths that
+            # exist within the build dir to properly drop these symlinks
+            _outfn_path = os.path.join(self.archive.get_archive_path(), outfn)
+            _link_path = os.path.join(self.archive.get_archive_path(), linkfn)
+            rpath = os.path.relpath(_outfn_path, _link_path)
+            rpath = rpath.replace('../', '', 1)
+            self.archive.add_link(rpath, linkfn)
         if root_symlink:
             self.archive.add_link(outfn, root_symlink)
 
