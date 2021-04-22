@@ -48,48 +48,44 @@ class RedHatApache(Apache, RedHatPlugin):
     def setup(self):
         super(RedHatApache, self).setup()
 
-        self.add_copy_spec([
-            "/etc/httpd/conf/httpd.conf",
-            "/etc/httpd/conf.d/*.conf",
-            "/etc/httpd/conf.modules.d/*.conf",
-            # JBoss Enterprise Web Server 2.x
-            "/etc/httpd22/conf/httpd.conf",
-            "/etc/httpd22/conf.d/*.conf",
-            # Red Hat JBoss Web Server 3.x
-            "/etc/httpd24/conf/httpd.conf",
-            "/etc/httpd24/conf.d/*.conf",
-            "/etc/httpd24/conf.modules.d/*.conf",
+        # httpd versions, including those used for JBoss Web Server
+        vers = ['', '22', '24']
+
+        # Extrapolate all top-level config directories for each version, and
+        # relevant config files within each
+        etcdirs = ["/etc/httpd%s" % ver for ver in vers]
+        confs = [
+            "conf/httpd.conf",
+            "conf.d/*.conf",
+            "conf.modules.d/*.conf"
+        ]
+
+        # Extrapolate top-level logging directories for each version, and the
+        # relevant log files within each
+        logdirs = ["/var/log/httpd%s" % ver for ver in vers]
+        logs = [
+            "access_log",
+            "error_log",
+            "ssl_access_log",
+            "ssl_error_log"
+        ]
+
+        self.add_forbidden_path([
+            "%s/conf/password.conf" % etc for etc in etcdirs
         ])
 
-        self.add_forbidden_path("/etc/httpd/conf/password.conf")
+        for edir in etcdirs:
+            for conf in confs:
+                self.add_copy_spec("%s/%s" % (edir, conf))
+
+        if self.get_option("log") or self.get_option("all_logs"):
+            self.add_copy_spec(logdirs)
+        else:
+            for ldir in logdirs:
+                for log in logs:
+                    self.add_copy_spec("%s/%s" % (ldir, log))
 
         self.add_service_status('httpd')
-
-        # collect only the current log set by default
-        self.add_copy_spec([
-            "/var/log/httpd/access_log",
-            "/var/log/httpd/error_log",
-            "/var/log/httpd/ssl_access_log",
-            "/var/log/httpd/ssl_error_log",
-            # JBoss Enterprise Web Server 2.x
-            "/var/log/httpd22/access_log",
-            "/var/log/httpd22/error_log",
-            "/var/log/httpd22/ssl_access_log",
-            "/var/log/httpd22/ssl_error_log",
-            # Red Hat JBoss Web Server 3.x
-            "/var/log/httpd24/access_log",
-            "/var/log/httpd24/error_log",
-            "/var/log/httpd24/ssl_access_log",
-            "/var/log/httpd24/ssl_error_log",
-        ])
-        if self.get_option("log") or self.get_option("all_logs"):
-            self.add_copy_spec([
-                "/var/log/httpd/*",
-                # JBoss Enterprise Web Server 2.x
-                "/var/log/httpd22/*",
-                # Red Hat JBoss Web Server 3.x
-                "/var/log/httpd24/*"
-            ])
 
 
 class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
