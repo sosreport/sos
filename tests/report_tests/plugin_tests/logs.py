@@ -67,3 +67,7 @@ class LogsSizeLimitTest(StageTwoReportTest):
         assert jsize <= 105906176, "Collected journal is larger than 100MB"
         assert jsize > 27262976, "Collected journal limited by --log-size"
 
+    def test_journal_tailed_and_linked(self):
+        self.assertFileCollected('sos_strings/logs/journalctl_--no-pager_--catalog_--boot.tailed')
+        journ = self.get_name_in_archive('sos_commands/logs/journalctl_--no-pager_--catalog_--boot')
+        assert os.path.islink(journ), "Journal in sos_commands/logs is not a symlink"

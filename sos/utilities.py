@@ -159,12 +159,13 @@ def sos_get_command_output(command, timeout=300, stderr=False,
                     raise SoSTimeoutError
                 time.sleep(0.01)
         stdout = reader.get_contents()
+        truncated = reader.is_full
         while p.poll() is None:
             pass
 
     except OSError as e:
         if e.errno == errno.ENOENT:
-            return {'status': 127, 'output': ""}
+            return {'status': 127, 'output': "", 'truncated': ''}
         else:
             raise e
 
@@ -173,7 +174,8 @@ def sos_get_command_output(command, timeout=300, stderr=False,
 
     return {
         'status': p.returncode,
-        'output': stdout
+        'output': stdout,
+        'truncated': truncated
     }
 
 
@@ -224,11 +226,11 @@ class AsyncReader(threading.Thread):
         self.chan = channel
         self.binary = binary
         self.chunksize = 2048
-        slots = None
+        self.slots = None
         if sizelimit:
             sizelimit = sizelimit * 1048576  # convert to bytes
-            slots = int(sizelimit / self.chunksize)
-        self.deque = deque(maxlen=slots)
+            self.slots = int(sizelimit / self.chunksize)
+        self.deque = deque(maxlen=self.slots)
         self.running = True
         self.start()
 
@@ -263,6 +265,13 @@ class AsyncReader(threading.Thread):
             return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
         else:
             return b''.join(ln for ln in self.deque)
+
+    @property
+    def is_full(self):
+        """Checks if the deque is full, implying that output was truncated"""
+        if not self.slots:
+            return False
+        return len(self.deque) == self.slots
 
 
 class ImporterHelper(object):
