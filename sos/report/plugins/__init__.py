@@ -1505,10 +1505,10 @@ class Plugin(object):
                     'tags': _spec_tags
                 })
 
-    def add_blockdev_cmd(self, cmds, devices='block', timeout=300,
-                         sizelimit=None, chroot=True, runat=None, env=None,
-                         binary=False, prepend_path=None, whitelist=[],
-                         blacklist=[], tags=[]):
+    def add_device_cmd(self, cmds, devices='block', timeout=300,
+                       sizelimit=None, chroot=True, runat=None, env=None,
+                       binary=False, prepend_path=None, whitelist=[],
+                       blacklist=[], tags=[]):
         """Run a command or list of commands against storage-related devices.
 
         Any commands specified by cmd will be iterated over the list of the
@@ -1562,21 +1562,9 @@ class Plugin(object):
         if devices == 'fibre':
             devices = self.devices['fibre']
             _dev_tags.append('fibre')
-        _dev_tags.extend(tags)
-        self._add_device_cmd(cmds, devices, timeout=timeout,
-                             sizelimit=sizelimit, chroot=chroot, runat=runat,
-                             env=env, binary=binary, prepend_path=prepend_path,
-                             whitelist=whitelist, blacklist=blacklist,
-                             tags=_dev_tags)
-
-    def add_tape_cmd(self, cmds, devices='tape', timeout=300,
-                     sizelimit=None, chroot=True, runat=None, env=None,
-                     binary=False, prepend_path=None, whitelist=[],
-                     blacklist=[], tags=[]):
-        _dev_tags = []
-        prepend_path = prepend_path or '/dev/'
-        devices = self.devices['tape']
-        _dev_tags.append('block')
+        if devices == 'tape':
+            devices = self.devices['tape']
+            _dev_tags.append('tape')
         _dev_tags.extend(tags)
         self._add_device_cmd(cmds, devices, timeout=timeout,
                              sizelimit=sizelimit, chroot=chroot, runat=runat,

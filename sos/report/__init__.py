@@ -370,7 +370,7 @@ class SoSReport(SoSComponent):
         """Enumerate a list of block devices on this system so that plugins
         can iterate over them
 
-        These devices are used by add_blockdev_cmd() in the Plugin class.
+        These devices are used by add_device_cmd() in the Plugin class.
         """
         try:
             return os.listdir('/sys/block/')
