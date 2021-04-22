@@ -400,7 +400,8 @@ class BaseSoSReportTest(BaseSoSTest):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        assert content in self.cmd_output.stdout, "Content string '%s' not in output" % content
+        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout)
+        assert found, "Content string '%s' not in output" % content
 
     def assertOutputNotContains(self, content):
         """Ensure that stdout did NOT contain the given content string
@@ -408,7 +409,8 @@ class BaseSoSReportTest(BaseSoSTest):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        assert not re.match(".*%s.*" % content, self.cmd_output.stdout), "String '%s' present in stdout" % content
+        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout)
+        assert not found, "String '%s' present in stdout" % content
 
     def assertPluginIncluded(self, plugin):
         """Ensure that the specified plugin did run for the sos execution
