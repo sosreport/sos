@@ -476,7 +476,6 @@ class FileCacheArchive(Archive):
             else:
                 self.log_debug("No link follow up: source=%s link_name=%s" %
                                (source, link_name))
-        self.log_debug("leaving add_link()")
 
     def add_dir(self, path):
         """Create a directory in the archive.
