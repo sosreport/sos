@@ -32,11 +32,6 @@ class RedHatInsights(Plugin, RedHatPlugin):
         else:
             self.add_copy_spec("/var/log/insights-client/insights-client.log")
 
-        # Collect insights-client report data into given dump dir
-        path = self.get_cmd_output_path(name="insights-client-dump")
-        self.add_cmd_output("insights-client --offline --output-dir %s" % path,
-                            suggest_filename="insights-client-dump.log")
-
     def postproc(self):
         for conf in self.config:
             self.do_file_sub(
