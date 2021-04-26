@@ -168,9 +168,17 @@ testing or other plugin defined behaviour. Use of \--verify may cause
 the time taken to generate a report to be considerably longer.
 .TP
 .B \--log-size
-Places a global limit on the size (in MiB) of any collected set of logs. The
-limit is applied separately for each set of logs collected by any
-plugin.
+Places a limit on the size of collected logs and output in MiB. Note that this
+causes sos to capture the last X amount of the file or command output collected.
+
+By default, this is set to 25 MiB and applies to all files and command output collected
+with the exception of journal collections, which are limited to 100 MiB.
+
+Setting this value to 0 removes all size limitations, and any files or commands
+collected will be collected in their entirety, which may drastically increase the
+size of the final sos report tarball and the memory usage of sos during collection
+of commands, such as very large journals that may be several GiB in size.
+
 .TP
 .B \--all-logs
 Tell plugins to collect all possible log data ignoring any size limits
