@@ -20,6 +20,7 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-nopasswd-sudo]
     [\-k PLUGIN_OPTION]
     [\-\-label LABEL]
+    [\-\-log-size SIZE]
     [\-n SKIP_PLUGINS]
     [\-\-nodes NODES]
     [\-\-no\-pkg\-check]
@@ -197,6 +198,18 @@ both the sos collect archive and the sosreport archives.
 
 If a cluster sets a default label, the user-provided label will be appended to
 that cluster default.
+.TP
+\fB \--log-size\fR SIZE
+Places a limit on the size of collected logs and output in MiB. Note that this
+causes sos to capture the last X amount of the file or command output collected.
+
+By default, this is set to 25 MiB and applies to all files and command output collected
+with the exception of journal collections, which are limited to 100 MiB.
+
+Setting this value to 0 removes all size limitations, and any files or commands
+collected will be collected in their entirety, which may drastically increase the
+size of the final sos report tarball and the memory usage of sos during collection
+of commands, such as very large journals that may be several GiB in size.
 .TP
 \fB\-n\fR SKIP_PLUGINS, \fB\-\-skip\-plugins\fR SKIP_PLUGINS
 Sosreport option. Disable (skip) a particular plugin that would otherwise run.
