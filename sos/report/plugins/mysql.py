@@ -35,7 +35,8 @@ class Mysql(Plugin):
             "/var/log/mysqld.log",
             "/var/log/mysql/mysqld.log",
             "/var/log/mariadb/mariadb.log",
-            "/var/lib/mysql/grastate.dat"
+            "/var/lib/mysql/grastate.dat",
+            "/var/lib/mysql/gvwstate.dat"
         ])
 
         if self.get_option("all_logs"):
@@ -98,14 +99,25 @@ class RedHatMysql(Mysql, RedHatPlugin):
 class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
 
     packages = (
-        'mysql-server',
+        'mysql-server.*',
         'mysql-common',
-        'mariadb-server',
-        'mariadb-common'
+        'mariadb-server.*',
+        'mariadb-common',
+        'percona-xtradb-cluster-server-.*',
     )
 
     def setup(self):
         super(DebianMysql, self).setup()
-        self.add_copy_spec("/etc/mysql/conf.d/mysql*")
+        self.add_copy_spec([
+            "/etc/mysql/",
+            "/var/log/mysql/error.log",
+            "/var/lib/mysql/*.err",
+            "/var/lib/percona-xtradb-cluster/*.err",
+            "/var/lib/percona-xtradb-cluster/grastate.dat",
+            "/var/lib/percona-xtradb-cluster/gvwstate.dat",
+            "/var/lib/percona-xtradb-cluster/innobackup.*.log",
+        ])
+        self.add_cmd_output("du -s /var/lib/percona-xtradb-cluster/*")
+
 
 # vim: set et ts=4 sw=4 :
