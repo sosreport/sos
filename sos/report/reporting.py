@@ -191,7 +191,10 @@ class PlainTextReport(object):
     def process_subsection(self, section, key, header, format_, footer):
         if key in section:
             self.line_buf.append(header)
-            for item in section.get(key):
+            for item in sorted(
+                    section.get(key),
+                    key=lambda x: x["name"] if isinstance(x, dict) else ''
+            ):
                 self.line_buf.append(format_ % item)
             if (len(footer) > 0):
                 self.line_buf.append(footer)
