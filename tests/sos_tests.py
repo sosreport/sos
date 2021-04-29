@@ -177,7 +177,7 @@ class BaseSoSReportTest(BaseSoSTest):
 
     archive = None
     _manifest = None
-
+    _exception_expected = False
 
     @property
     def manifest(self):
@@ -212,13 +212,20 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         _cmd = '%s report --batch --tmp-dir %s %s'
         exec_cmd = _cmd % (SOS_BIN, self.tmpdir, self.sos_cmd)
-        self.cmd_output = process.run(exec_cmd, timeout=300)
+        try:
+            self.cmd_output = process.run(exec_cmd, timeout=300)
+        except Exception as err:
+            if self._exception_expected:
+                self.cmd_output = err.result
+            else:
+                raise
         with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
             pickle.dump(self.cmd_output, pfile)
         self.cmd_output.stdout = self.cmd_output.stdout.decode()
         self.cmd_output.stderr = self.cmd_output.stderr.decode()
-        self.archive = re.findall('/.*sosreport-.*tar.*', self.cmd_output.stdout)[-1]
+        self.archive = re.findall('/.*sosreport-.*tar.*', self.cmd_output.stdout)
         if self.archive:
+            self.archive = self.archive[-1]
             self._extract_archive(self.archive)
         
 
@@ -227,7 +234,10 @@ class BaseSoSReportTest(BaseSoSTest):
             os.mkdir(self.tmpdir)
 
     def _get_archive_path(self):
-        return glob.glob(self._get_extracted_tarball_path() + '/sosreport*')[0]
+        path = glob.glob(self._get_extracted_tarball_path() + '/sosreport*')
+        if path:
+            return path[0]
+        return None
 
     def setup_mocking(self):
         """Since we need to use setUp() in our overrides of avocado.Test,
@@ -400,7 +410,7 @@ class BaseSoSReportTest(BaseSoSTest):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout)
+        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
         assert found, "Content string '%s' not in output" % content
 
     def assertOutputNotContains(self, content):
@@ -409,7 +419,7 @@ class BaseSoSReportTest(BaseSoSTest):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout)
+        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
         assert not found, "String '%s' present in stdout" % content
 
     def assertPluginIncluded(self, plugin):
@@ -728,3 +738,33 @@ class StageTwoReportTest(BaseSoSReportTest):
 
         self.assertFileExists(self.archive)
         self.assertTrue(os.stat(self.archive).st_uid == 0)
+
+
+class StageOneReportExceptionTest(BaseSoSReportTest):
+    """This test class should be used when we expect to generate an exception
+    with a given command invocation.
+
+    By default, this class assumes no archive will be generated and the exit
+    code from the sos command will be nonzero. If this is not the case for
+    the specific test being run, e.g. testing plugin exception handling, then
+    set the ``archive_still_expected`` class attr to ``True``
+
+    :avocado: disable
+    :avocado: tags=stageone
+    """
+
+    _exception_expected = True
+
+    # set this to True if the exception generated is not expected to halt
+    # archive generation
+    archive_still_expected = False
+
+    sos_cmd = ''
+
+    @skipIf(lambda x: x.archive_still_expected, "0 exit code still expected")
+    def test_nonzero_return_code(self):
+        self.assertFalse(self.cmd_output.exit_status == 0)
+
+    @skipIf(lambda x: x.archive_still_expected, "Output expected in test")
+    def test_no_archive_generated(self):
+        self.assertTrue(self.archive is None)
