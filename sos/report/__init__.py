@@ -651,7 +651,7 @@ class SoSReport(SoSComponent):
                     del opts[plugname]
             for plugname in opts.keys():
                 self.soslog.error('WARNING: unable to set option for disabled '
-                                  'or non-existing plugin (%s)' % (plugname))
+                                  'or non-existing plugin (%s).' % (plugname))
             # in case we printed warnings above, visually intend them from
             # subsequent header text
             if opts.keys():
@@ -660,13 +660,17 @@ class SoSReport(SoSComponent):
     def _check_for_unknown_plugins(self):
         import itertools
         for plugin in itertools.chain(self.opts.only_plugins,
-                                      self.opts.skip_plugins,
                                       self.opts.enable_plugins):
             plugin_name = plugin.split(".")[0]
             if plugin_name not in self.plugin_names:
                 self.soslog.fatal('a non-existing plugin (%s) was specified '
-                                  'in the command line' % (plugin_name))
+                                  'in the command line.' % (plugin_name))
                 self._exit(1)
+        for plugin in self.opts.skip_plugins:
+            if plugin not in self.plugin_names:
+                self.soslog.warning(
+                    "Requested to skip non-existing plugin '%s'." % plugin
+                )
 
     def _set_plugin_options(self):
         for plugin_name, plugin in self.loaded_plugins:

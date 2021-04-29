@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos_tests import StageOneReportExceptionTest
+from sos_tests import StageOneReportExceptionTest, StageOneReportTest
 
 
 class InvalidPluginEnabledTest(StageOneReportExceptionTest):
@@ -41,3 +41,14 @@ class InvalidReportOptionTest(StageOneReportExceptionTest):
     def test_caught_invalid_option(self):
         self.assertOutputContains('unrecognized arguments\: --magic')
 
+
+class InvalidPluginDisableTest(StageOneReportTest):
+    """Ensure passing an invalid plugin name for skipping does not stop the
+    execution, see PR#2517
+
+    :avocado: tags=stageone
+    """
+    sos_cmd = '-n logs,foobar,networking'
+
+    def test_caught_invalid_plugin_name(self):
+        self.assertOutputContains("Requested to skip non-existing plugin 'foobar'")
