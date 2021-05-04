@@ -274,7 +274,7 @@ class Foreman(Plugin):
             satreg,
             r"\1 ********")
         # need to do two passes here, debug output has different formatting
-        sat_debug_reg = (r"(\s)* (Found key: (\"(foreman(.*?)|katello)"
+        sat_debug_reg = (r"(\s)+(Found key: (\"(foreman(.*?)|katello)"
                          r"::(.*(token|secret|key|passw).*)\") value:) "
                          r"(.*)")
         self.do_path_regex_sub(
