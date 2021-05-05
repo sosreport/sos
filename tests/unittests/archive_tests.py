@@ -27,14 +27,14 @@ class TarFileArchiveTest(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
     def check_for_file(self, filename):
-        rtf = tarfile.open(os.path.join(self.tmpdir, 'test.tar'))
+        rtf = tarfile.open(os.path.join(self.tmpdir, 'test.tar.xz'))
         rtf.getmember(filename)
         rtf.close()
 
     def test_create(self):
         self.tf.finalize('auto')
         self.assertTrue(os.path.exists(os.path.join(self.tmpdir,
-                                                    'test.tar')))
+                                                    'test.tar.xz')))
 
     def test_add_file(self):
         self.tf.add_file('tests/unittests/ziptest')

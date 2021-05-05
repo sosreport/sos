@@ -261,24 +261,6 @@ any third party.
     def _get_pkg_name_for_binary(self, binary):
         return binary
 
-    def get_cmd_for_compress_method(self, method, threads):
-        """Determine the command to use for compressing the archive
-
-        :param method: The compression method/binary to use
-        :type method: ``str``
-
-        :param threads: Number of threads compression should use
-        :type threads: ``int``
-
-        :returns: Full command to use to compress the archive
-        :rtype: ``str``
-        """
-        cmd = method
-        if cmd.startswith("xz"):
-            # XZ set compression to -2 and use threads
-            cmd = "%s -2 -T%d" % (cmd, threads)
-        return cmd
-
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
             return tempfile.gettempdir()

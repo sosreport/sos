@@ -503,6 +503,15 @@ class StageOneReportTest(BaseSoSReportTest):
         self.assertFileExists(self.archive)
         self.assertTrue(os.stat(self.archive).st_uid == 0)
 
+    def test_checksum_is_valid(self):
+        """Ensure that a checksum was generated, reported, and is correct
+        """
+        _chk = re.findall('sha256\t.*\n', self.cmd_output.stdout)
+        _chk = _chk[0].split('sha256\t')[1].strip()
+        assert _chk, "No checksum reported"
+        _found = process.run("sha256sum %s" % self.archive).stdout.decode().split()[0]
+        self.assertEqual(_chk, _found)
+
     def test_no_new_kmods_loaded(self):
         """Ensure that no additional kernel modules have been loaded during an
         execution of a test
