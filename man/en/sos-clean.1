@@ -9,6 +9,7 @@ sos clean - Obfuscate sensitive data from one or more sosreports
     [\-\-map-file]
     [\-\-jobs]
     [\-\-no-update]
+    [\-\-keep-binary-files]
 
 .SH DESCRIPTION
 \fBsos clean\fR or \fBsos mask\fR is an sos subcommand used to obfuscate sensitive information from
@@ -77,6 +78,17 @@ Default: 4
 .TP
 .B \-\-no-update
 Do not write the mapping file contents to /etc/sos/cleaner/default_mapping
+.TP
+.B \-\-keep-binary-files
+Keep unprocessable binary files in the archive, rather than removing them.
+
+Note that binary files cannot be obfuscated, and thus keeping them in the archive
+may result in otherwise sensitive information being included in the final archive.
+Users should review any archive that keeps binary files in place before sending to
+a third party.
+
+Default: False (remove encountered binary files)
+
 .SH SEE ALSO
 .BR sos (1)
 .BR sos-report (1)

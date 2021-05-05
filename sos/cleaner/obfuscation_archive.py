@@ -28,6 +28,7 @@ class SoSObfuscationArchive():
 
     file_sub_list = []
     total_sub_count = 0
+    removed_file_count = 0
 
     def __init__(self, archive_path, tmpdir):
         self.archive_path = archive_path
@@ -62,11 +63,7 @@ class SoSObfuscationArchive():
             'sys/firmware',
             'sys/fs',
             'sys/kernel/debug',
-            'sys/module',
-            r'.*\.tar$',  # TODO: support archive unpacking
-            # Be explicit with these tar matches to avoid matching commands
-            r'.*\.tar\.xz',
-            '.*.gz'
+            'sys/module'
         ]
 
     @property
@@ -75,6 +72,17 @@ class SoSObfuscationArchive():
             return tarfile.is_tarfile(self.archive_path)
         except Exception:
             return False
+
+    def remove_file(self, fname):
+        """Remove a file from the archive. This is used when cleaner encounters
+        a binary file, which we cannot reliably obfuscate.
+        """
+        full_fname = self.get_file_path(fname)
+        # don't call a blank remove() here
+        if full_fname:
+            self.log_info("Removing binary file '%s' from archive" % fname)
+            os.remove(full_fname)
+            self.removed_file_count += 1
 
     def extract(self):
         if self.is_tarfile:
@@ -227,3 +235,52 @@ class SoSObfuscationArchive():
             if filename.startswith(_skip) or re.match(_skip, filename):
                 return True
         return False
+
+    def should_remove_file(self, fname):
+        """Determine if the file should be removed or not, due to an inability
+        to reliably obfuscate that file based on the filename.
+
+        :param fname:       Filename relative to the extracted archive root
+        :type fname:        ``str``
+
+        :returns:   ``True`` if the file cannot be reliably obfuscated
+        :rtype:     ``bool``
+        """
+        obvious_removes = [
+            r'.*\.gz',  # TODO: support flat gz/xz extraction
+            r'.*\.xz',
+            r'.*\.bzip2',
+            r'.*\.tar\..*',  # TODO: support archive unpacking
+            r'.*\.txz$',
+            r'.*\.tgz$',
+            r'.*\.bin',
+            r'.*\.journal',
+            r'.*\~$'
+        ]
+
+        # if the filename matches, it is obvious we can remove them without
+        # doing the read test
+        for _arc_reg in obvious_removes:
+            if re.match(_arc_reg, fname):
+                return True
+
+        return self.file_is_binary(fname)
+
+    def file_is_binary(self, fname):
+        """Determine if the file is a binary file or not.
+
+
+        :param fname:          Filename relative to the extracted archive root
+        :type fname:           ``str``
+
+        :returns:   ``True`` if file is binary, else ``False``
+        :rtype:     ``bool``
+        """
+        with open(self.get_file_path(fname), 'tr') as tfile:
+            try:
+                # when opened as above (tr), reading binary content will raise
+                # an exception
+                tfile.read(1)
+                return False
+            except UnicodeDecodeError:
+                return True

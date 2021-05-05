@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos_tests import StageOneReportTest
+from sos_tests import StageOneReportTest, StageTwoReportTest
 
 import re
 
@@ -67,3 +67,43 @@ class ReportWithCleanedKeywords(StageOneReportTest):
 
     def test_keyword_obfuscated_in_file(self):
         self.assertFileNotHasContent('sos_commands/kernel/uname_-a', 'Linux')
+
+
+class DefaultRemoveBinaryFilesTest(StageTwoReportTest):
+    """Testing that binary files are removed by default
+
+    :avocado: tags=stagetwo
+    """
+
+    files = ['/var/log/binary_test.tar.xz']
+    install_plugins = ['binary_test']
+    sos_cmd = '--clean -o binary_test,kernel,host'
+
+    def test_binary_removed(self):
+        self.assertFileNotCollected('var/log/binary_test.tar.xz')
+
+    def test_binaries_removed_reported(self):
+        self.assertOutputContains('\[removed .* unprocessable files\]')
+
+
+class KeepBinaryFilesTest(StageTwoReportTest):
+    """Testing that --keep-binary-files will function as expected
+
+    :avocado: tags=stagetwo
+    """
+
+    files = ['/var/log/binary_test.tar.xz']
+    install_plugins = ['binary_test']
+    sos_cmd = '--clean --keep-binary-files -o binary_test,kernel,host'
+
+    def test_warning_message_shown(self):
+        self.assertOutputContains(
+            'WARNING: binary files that potentially contain sensitive information '
+            'will NOT be removed from the final archive'
+        )
+
+    def test_binary_is_in_archive(self):
+        self.assertFileCollected('var/log/binary_test.tar.xz')
+
+    def test_no_binaries_reported_removed(self):
+        self.assertOutputNotContains('\[removed .* unprocessable files\]')

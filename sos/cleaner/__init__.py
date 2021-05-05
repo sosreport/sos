@@ -47,6 +47,7 @@ class SoSCleaner(SoSComponent):
         'keyword_file': None,
         'map_file': '/etc/sos/cleaner/default_mapping',
         'no_update': False,
+        'keep_binary_files': False,
         'target': '',
         'usernames': []
     }
@@ -183,6 +184,11 @@ third party.
                                action='store_true',
                                help='Do not update the --map file with new '
                                     'mappings from this run')
+        clean_grp.add_argument('--keep-binary-files', default=False,
+                               action='store_true',
+                               dest='keep_binary_files',
+                               help='Keep unprocessable binary files in the '
+                                    'archive instead of removing them')
         clean_grp.add_argument('--usernames', dest='usernames', default=[],
                                action='extend',
                                help='List of usernames to obfuscate')
@@ -467,6 +473,11 @@ third party.
                        "%s concurrently\n"
                        % (len(self.report_paths), self.opts.jobs))
                 self.ui_log.info(msg)
+            if self.opts.keep_binary_files:
+                self.ui_log.warning(
+                    "WARNING: binary files that potentially contain sensitive "
+                    "information will NOT be removed from the final archive\n"
+                )
             pool = ThreadPoolExecutor(self.opts.jobs)
             pool.map(self.obfuscate_report, self.report_paths, chunksize=1)
             pool.shutdown(wait=True)
@@ -539,6 +550,10 @@ third party.
                 short_name = fname.split(archive.archive_name + '/')[1]
                 if archive.should_skip_file(short_name):
                     continue
+                if (not self.opts.keep_binary_files and
+                        archive.should_remove_file(short_name)):
+                    archive.remove_file(short_name)
+                    continue
                 try:
                     count = self.obfuscate_file(fname, short_name,
                                                 archive.archive_name)
@@ -574,7 +589,11 @@ third party.
             arc_md.add_field('files_obfuscated', len(archive.file_sub_list))
             arc_md.add_field('total_substitutions', archive.total_sub_count)
             self.completed_reports.append(archive)
-            archive.report_msg("Obfuscation completed")
+            rmsg = ''
+            if archive.removed_file_count:
+                rmsg = " [removed %s unprocessable files]"
+                rmsg = rmsg % archive.removed_file_count
+            archive.report_msg("Obfuscation completed%s" % rmsg)
 
         except Exception as err:
             self.ui_log.info("Exception while processing %s: %s"
