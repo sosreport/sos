@@ -82,6 +82,7 @@ class SoSReport(SoSComponent):
         'case_id': '',
         'chroot': 'auto',
         'clean': False,
+        'keep_binary_files': False,
         'desc': '',
         'domains': [],
         'dry_run': False,
@@ -332,6 +333,11 @@ class SoSReport(SoSComponent):
                                  default='/etc/sos/cleaner/default_mapping',
                                  help=('Provide a previously generated mapping'
                                        ' file for obfuscation'))
+        cleaner_grp.add_argument('--keep-binary-files', default=False,
+                                 action='store_true',
+                                 dest='keep_binary_files',
+                                 help='Keep unprocessable binary files in the '
+                                      'archive instead of removing them')
         cleaner_grp.add_argument('--usernames', dest='usernames', default=[],
                                  action='extend',
                                  help='List of usernames to obfuscate')

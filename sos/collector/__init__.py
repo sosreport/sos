@@ -66,6 +66,7 @@ class SoSCollector(SoSComponent):
         'jobs': 4,
         'keywords': [],
         'keyword_file': None,
+        'keep_binary_files': False,
         'label': '',
         'list_options': False,
         'log_size': 0,
@@ -374,6 +375,10 @@ class SoSCollector(SoSComponent):
                                  dest='clean',
                                  default=False, action='store_true',
                                  help='Obfuscate sensistive information')
+        cleaner_grp.add_argument('--keep-binary-files', default=False,
+                                 action='store_true', dest='keep_binary_files',
+                                 help='Keep unprocessable binary files in the '
+                                      'archive instead of removing them')
         cleaner_grp.add_argument('--domains', dest='domains', default=[],
                                  action='extend',
                                  help='Additional domain names to obfuscate')
