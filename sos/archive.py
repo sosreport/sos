@@ -19,7 +19,8 @@ import stat
 from datetime import datetime
 from threading import Lock
 
-from sos.utilities import sos_get_command_output, is_executable
+from importlib.util import find_spec
+from sos.utilities import sos_get_command_output
 
 try:
     import selinux
@@ -558,17 +559,16 @@ class FileCacheArchive(Archive):
     def finalize(self, method):
         self.log_info("finalizing archive '%s' using method '%s'"
                       % (self._archive_root, method))
-        self._build_archive()
+        try:
+            res = self._build_archive(method)
+        except Exception as err:
+            self.log_error("An error occurred compressing the archive: %s"
+                           % err)
+            return self.name()
+
         self.cleanup()
         self.log_info("built archive at '%s' (size=%d)" % (self._archive_name,
                       os.stat(self._archive_name).st_size))
-        self.method = method
-        try:
-            res = self._compress()
-        except Exception as e:
-            exp_msg = "An error occurred compressing the archive: "
-            self.log_error("%s %s" % (exp_msg, e))
-            return self.name()
 
         if self.enc_opts['encrypt']:
             try:
@@ -682,44 +682,26 @@ class TarFileArchive(FileCacheArchive):
         # the limit of the underlying FileCacheArchive.
         return super(TarFileArchive, self).name_max()
 
-    def _build_archive(self):
-        tar = tarfile.open(self._archive_name, mode="w")
+    def _build_archive(self, method):
+        if method == 'auto':
+            method = 'xz' if find_spec('lzma') is not None else 'gzip'
+        _comp_mode = method.strip('ip')
+        self._archive_name = self._archive_name + ".%s" % _comp_mode
+        # tarfile does not currently have a consistent way to define comnpress
+        # level for both xz and gzip ('preset' for xz, 'compresslevel' for gz)
+        if method == 'gzip':
+            kwargs = {'compresslevel': 6}
+        else:
+            kwargs = {'preset': 3}
+        tar = tarfile.open(self._archive_name, mode="w:%s" % _comp_mode,
+                           **kwargs)
         # we need to pass the absolute path to the archive root but we
         # want the names used in the archive to be relative.
         tar.add(self._archive_root, arcname=os.path.split(self._name)[1],
                 filter=self.copy_permissions_filter)
         tar.close()
+        self._suffix += ".%s" % _comp_mode
+        return self.name()
 
-    def _compress(self):
-        methods = []
-        # Make sure that valid compression commands exist.
-        for method in ['xz', 'gzip']:
-            if is_executable(method):
-                methods.append(method)
-            else:
-                self.log_info("\"%s\" compression method unavailable" % method)
-        if self.method in methods:
-            methods = [self.method]
-
-        exp_msg = "No compression utilities found."
-        last_error = Exception(exp_msg)
-        for cmd in methods:
-            suffix = "." + cmd.replace('ip', '')
-            cmd = self._policy.get_cmd_for_compress_method(cmd, self._threads)
-            try:
-                exec_cmd = "%s %s" % (cmd, self.name())
-                r = sos_get_command_output(exec_cmd, stderr=True, timeout=0)
-
-                if r['status']:
-                    self.log_error(r['output'])
-                    raise Exception("%s exited with %s" % (exec_cmd,
-                                    r['status']))
-
-                self._suffix += suffix
-                return self.name()
-
-            except Exception as e:
-                last_error = e
-        raise last_error
 
 # vim: set et ts=4 sw=4 :
