@@ -24,7 +24,7 @@ class VirtWho(Plugin, RedHatPlugin):
     def postproc(self):
         # the regexp path catches both /etc/virt-who.d/ and /etc/virt-who.conf
         self.do_path_regex_sub(r"\/etc\/virt-who\.",
-                               r"(.*password=)(\S*)",
+                               r"(password=)(\S*)",
                                r"\1********")
 
 # vim: set et ts=4 sw=4 :
