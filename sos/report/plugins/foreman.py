@@ -104,13 +104,6 @@ class Foreman(Plugin):
             "/var/log/foreman-installer/",
             "/var/log/foreman-maintain/",
             "/var/log/syslog*",
-            # Specific to TFM, _all_ catalina logs are relevant. Adding this
-            # here rather than the tomcat plugin to ease maintenance and not
-            # pollute non-Sat sosreports that enable the tomcat plugin
-            "/var/log/tomcat*/catalina*log*",
-            "/var/log/tomcat*/host-manager*log*",
-            "/var/log/tomcat*/localhost*log*",
-            "/var/log/tomcat*/manager*log*",
             "/usr/share/foreman/Gemfile*",
             "/var/lib/puppet/ssl/certs/ca.pem",
             "/etc/puppetlabs/puppet/ssl/certs/ca.pem",
