@@ -20,6 +20,8 @@ env:
     # These are generated images pushed to GCP from Red Hat
     FEDORA_IMAGE_NAME: "f${FEDORA_VER}-server-sos-testing"
     FEDORA_PRIOR_IMAGE_NAME: "f${FEDORA_PRIOR_VER}-server-sos-testing"
+    FOREMAN_CENTOS_IMAGE_NAME: "foreman-24-centos-8-sos-testing"
+    FOREMAN_DEBIAN_IMAGE_NAME: "foreman-24-debian-sos-testing"
 
     # Images exist on GCP already
     CENTOS_IMAGE_NAME: "centos-stream-8-v20210316"
@@ -97,16 +99,16 @@ report_stageone_task:
             BUILD_NAME: ${UBUNTU_PRIOR_NAME}
             VM_IMAGE_NAME: ${UBUNTU_PRIOR_IMAGE_NAME}
     remove_sos_script: &remove_sos |
-        if [ $(command -v apt) ] && [ $(command -v sosreport) ]; then
+        if [ $(command -v apt) ]; then
             apt -y purge sosreport
             apt update
             apt -y install python3-pip
         fi
-        if [ $(command -v dnf) ] && [ $(command -v sos) ]; then
+        if [ $(command -v dnf) ]; then
             dnf -y remove sos
         fi
     setup_script: &setup 'pip3 install avocado-framework'
-    main_script: PYTHONPATH=tests/ avocado run -t stageone tests/
+    main_script: PYTHONPATH=tests/ avocado run -t stageone tests/report_tests tests/vendor_tests/
 
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
@@ -129,4 +131,25 @@ report_stagetwo_task:
             VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
     remove_sos_script: *remove_sos
     setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run -t stagetwo tests/
+    main_script: PYTHONPATH=tests/ avocado run -t stagetwo tests/report_tests tests/vendor_tests/
+
+report_foreman_task:
+    skip: "!changesInclude('.cirrus.yml', '**/{__init__,apache,foreman,foreman_tests,candlepin,pulp,pulpcore}.py')"
+    alias: "foreman_integration"
+    name: "Integration Test - Foreman ${FOREMAN_VER}"
+    depends_on: stageone_report
+    gce_instance: &bigvm
+        <<: *standardvm
+        memory: "8Gb"
+    matrix:
+        - env:
+            PROJECT: ${SOS_PROJECT}
+            VM_IMAGE_NAME: ${FOREMAN_CENTOS_IMAGE_NAME}
+            FOREMAN_VER: "2.4 - CentOS Stream 8"
+        - env:
+            PROJECT: ${SOS_PROJECT}
+            VM_IMAGE_NAME: ${FOREMAN_DEBIAN_IMAGE_NAME}
+            FOREMAN_VER: "2.4 - Debian 10"
+    remove_sos_script: *remove_sos
+    setup_script: *setup
+    main_script: PYTHONPATH=tests/ avocado run -t foreman tests/product_tests/foreman/

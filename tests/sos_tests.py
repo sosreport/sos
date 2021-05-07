@@ -313,7 +313,7 @@ class BaseSoSReportTest(BaseSoSTest):
         :param fname:  The name of the file within the archive
         :type fname:  ``str``
         """
-        if os.path.exists(fname):
+        if fname.startswith(('sos_', '/sos_')) or os.path.exists(fname):
             self.assertFileExists(self.get_name_in_archive(fname))
         else:
             assert True
@@ -333,11 +333,15 @@ class BaseSoSReportTest(BaseSoSTest):
         :param fname:  The glob to match filenames of
         :type fname:  ``str``
         """
-        if not glob.glob(fname):
-            assert True
+        if fname.startswith(('sos_', '/sos_')):
+            files = glob.glob(os.path.join(self.archive_path, fname.lstrip('/')))
+        elif not glob.glob(fname):
+            # force the test to pass since the file glob could not have been
+            # collected
+            files = True
         else:
             files = glob.glob(os.path.join(self.archive_path, fname.lstrip('/')))
-            assert files, "No files matching %s found" % fname
+        assert files, "No files matching %s found" % fname
 
     def assertFileGlobNotInArchive(self, fname):
         """Ensure that there are NO files in the archive matching a given fname
@@ -490,15 +494,13 @@ class StageOneReportTest(BaseSoSReportTest):
     ':avocado: tags=stageone' to ensure the base tests run with new test cases
 
     :avocado: disable
-    :avocado: tags=stageone
+    :avocado: tags=stageone,foreman
     """
 
     sos_cmd = ''
 
     def test_archive_created(self):
         """Ensure that the archive tarball was created and has the right owner
-
-        :avocado: tags=stageone
         """
         self.assertFileExists(self.archive)
         self.assertTrue(os.stat(self.archive).st_uid == 0)
@@ -515,8 +517,6 @@ class StageOneReportTest(BaseSoSReportTest):
     def test_no_new_kmods_loaded(self):
         """Ensure that no additional kernel modules have been loaded during an
         execution of a test
-
-        :avocado: tags=stageone
         """
         self.assertCountEqual(self.sysinfo['pre']['modules'],
                               self.sysinfo['post']['modules'])
@@ -524,36 +524,22 @@ class StageOneReportTest(BaseSoSReportTest):
     def test_archive_has_sos_dirs(self):
         """Ensure that we have the expected directory layout with in the
         archive
-
-        :avocado: tags=stageone
         """
         self.assertFileCollected('sos_commands')
         self.assertFileCollected('sos_logs')
 
     def test_manifest_created(self):
-        """
-        :avocado: tags=stageone
-        """
         self.assertFileCollected('sos_reports/manifest.json')
 
     @skipIf(lambda x: '--no-report' in x.sos_cmd, '--no-report used in command')
     def test_html_reports_created(self):
-        """
-        :avocado: tags=stageone
-        """
         self.assertFileCollected('sos_reports/sos.html')
 
     def test_no_exceptions_during_execution(self):
-        """
-        :avocado: tags=stageone
-        """
         self.assertSosLogNotContains('caught exception in plugin')
         self.assertFileGlobNotInArchive('sos_logs/*-plugin-errors.txt')
 
     def test_no_ip_changes(self):
-        """
-        :avocado: tags=stageone
-        """
         # I.E. make sure we didn't cause any NIC flaps that for some reason
         # resulted in a new primary IP address. TODO: build this out to make
         # sure this IP is still bound to the same NIC
@@ -593,7 +579,7 @@ class StageTwoReportTest(BaseSoSReportTest):
                       tests/test_data/fake_plugins
 
     :avocado: disable
-    :avocado: tags=stagetwo
+    :avocado: tags=stagetwo,foreman2
     """
 
     sos_cmd = ''
@@ -740,8 +726,6 @@ class StageTwoReportTest(BaseSoSReportTest):
 
     def test_archive_created(self):
         """Ensure that the archive tarball was created and has the right owner
-
-        :avocado: tags=stagetwo
         """
         # kind of a hack, but since avocado test order is predicatable, we can
         # use this to avoid calling setUp() and tearDown() at each test_ method
