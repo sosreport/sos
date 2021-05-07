@@ -62,7 +62,14 @@ class Candlepin(Plugin, RedHatPlugin):
             "/var/log/candlepin/candlepin.log[.-]*",
             "/var/log/candlepin/cpdb*.log*",
             "/var/log/candlepin/cpinit*.log*",
-            "/var/log/candlepin/error.log[.-]*"
+            "/var/log/candlepin/error.log[.-]*",
+            # Specific to candlepin, ALL catalina logs are relevant. Adding it
+            # here rather than the tomcat plugin to ease maintenance and not
+            # pollute non-candlepin sosreports that enable the tomcat plugin
+            "/var/log/tomcat*/catalina*log*",
+            "/var/log/tomcat*/host-manager*log*",
+            "/var/log/tomcat*/localhost*log*",
+            "/var/log/tomcat*/manager*log*",
         ])
 
         self.add_cmd_output("du -sh /var/lib/candlepin/*/*")
