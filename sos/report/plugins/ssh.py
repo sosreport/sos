@@ -19,9 +19,28 @@ class Ssh(Plugin, IndependentPlugin):
     profiles = ('services', 'security', 'system', 'identity')
 
     def setup(self):
-        self.add_copy_spec([
+        sshcfgs = [
             "/etc/ssh/ssh_config",
             "/etc/ssh/sshd_config"
-        ])
+            ]
+
+        # Include main config files
+        self.add_copy_spec(sshcfgs)
+
+        # Read configs for any includes and copy those
+        try:
+            for sshcfg in sshcfgs:
+                with open(sshcfg, 'r') as cfgfile:
+                    for line in cfgfile:
+                        # skip empty lines and comments
+                        if len(line.split()) == 0 or line.startswith('#'):
+                            continue
+                        # ssh_config keywords are allowed as case-insensitive
+                        if line.lower().startswith('include'):
+                            confarg = line.split()
+                            self.add_copy_spec(confarg[1])
+        except Exception:
+            pass
+
 
 # vim: set et ts=4 sw=4 :
