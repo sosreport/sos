@@ -30,14 +30,15 @@ class Ssh(Plugin, IndependentPlugin):
         # Read configs for any includes and copy those
         try:
             for sshcfg in sshcfgs:
-                for line in open(sshcfg, 'r').read().splitlines():
-                    # skip empty lines and comments
-                    if len(line.split()) == 0 or line.startswith('#'):
-                        continue
-                    # ssh_config keywords are allowed as case-insensitive
-                    if line.lower().startswith('include'):
-                        confarg = line.split()
-                        self.add_copy_spec(confarg[1])
+                with open(sshcfg, 'r') as cfgfile:
+                    for line in cfgfile:
+                        # skip empty lines and comments
+                        if len(line.split()) == 0 or line.startswith('#'):
+                            continue
+                        # ssh_config keywords are allowed as case-insensitive
+                        if line.lower().startswith('include'):
+                            confarg = line.split()
+                            self.add_copy_spec(confarg[1])
         except Exception:
             pass
 
