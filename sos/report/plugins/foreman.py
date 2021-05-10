@@ -285,39 +285,25 @@ class Foreman(Plugin):
         return _dbcmd % (self.dbhost, quote(query))
 
     def postproc(self):
+        install_logs = "/var/log/foreman-installer/"
         satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
-              r"(passw|cred|token|secret|key).*(\")?:)|(storepass )" \
-              r"|(password =)))(.*)"
-        self.do_path_regex_sub(
-            "/var/log/foreman-installer/sat*",
-            satreg,
-            r"\1 ********")
+                 r"(passw|cred|token|secret|key).*(\")?:)|(storepass )" \
+                 r"|(password =)))(.*)"
+        self.do_path_regex_sub(install_logs, satreg, r"\1 ********")
         # need to do two passes here, debug output has different formatting
         sat_debug_reg = (r"(\s)+(Found key: (\"(foreman(.*?)|katello)"
                          r"::(.*(token|secret|key|passw).*)\") value:) "
                          r"(.*)")
-        self.do_path_regex_sub(
-            "/var/log/foreman-installer/sat*",
-            sat_debug_reg,
-            r"\1 \2 ********")
+        self.do_path_regex_sub(install_logs, sat_debug_reg, r"\1 \2 ********")
         # also hide passwords in yet different formats
         self.do_path_regex_sub(
-            "/var/log/foreman-installer/sat*",
+            install_logs,
             r"(\.|_|-)password(=\'|=|\", \")(\w*)",
             r"\1password\2********")
         self.do_path_regex_sub(
             "/var/log/foreman-installer/foreman-proxy*",
             r"(\s*proxy_password\s=) (.*)",
             r"\1 ********")
-        # yaml values should be alphanumeric
-        self.do_path_regex_sub(
-            "/etc/foreman(.*)((yaml|yml)(.*)?)",
-            r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
-            r'\1"********"')
-        self.do_path_regex_sub(
-            "/etc/foreman(.*)((conf)(.*)?)",
-            r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
-            r"\1********")
         self.do_path_regex_sub(
             "/var/log/foreman-maintain/foreman-maintain.log*",
             r"(((passw|cred|token|secret)=)|(password ))(.*)",
@@ -326,6 +312,17 @@ class Foreman(Plugin):
             "/var/log/%s*/foreman-ssl_access_ssl.log*" % self.apachepkg,
             r"(.*\?(passw|cred|token|secret|key).*=)(.*) (HTTP.*(.*))",
             r"\1******** \4")
+        # all scrubbing applied to configs must be applied to installer logs
+        # as well, since logs contain diff of configs
+        self.do_path_regex_sub(
+            r"(/etc/foreman(.*)((conf)(.*)?))|(%s)" % install_logs,
+            r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
+            r"\1********")
+        # yaml values should be alphanumeric
+        self.do_path_regex_sub(
+            r"(/etc/foreman(.*)((yaml|yml)(.*)?))|(%s)" % install_logs,
+            r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
+            r'\1"********"')
 
 # Let the base Foreman class handle the string substitution of the apachepkg
 # attr so we can keep all log definitions centralized in the main class
