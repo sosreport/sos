@@ -1515,6 +1515,8 @@ class Plugin(object):
                     # in the corner case we just reached the sizelimit, we
                     # should collect the whole file and stop
                     limit_reached = (sizelimit and current_size == sizelimit)
+
+            _spec_tags = list(set(_spec_tags))
             if self.manifest:
                 self.manifest.files.append({
                     'specification': copyspec,
@@ -1650,7 +1652,7 @@ class Plugin(object):
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[],
-                       priority=10):
+                       priority=10, cmd_as_tag=False):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -1711,6 +1713,10 @@ class Plugin(object):
         :param priority:  The priority with which this command should be run,
                           lower values will run before higher values
         :type priority: ``int``
+
+        :param cmd_as_tag: Should the command string be automatically formatted
+                           to a tag?
+        :type cmd_as_tag: ``bool``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -1727,7 +1733,7 @@ class Plugin(object):
                                  env=env, binary=binary, sizelimit=sizelimit,
                                  pred=pred, subdir=subdir, tags=tags,
                                  changes=changes, foreground=foreground,
-                                 priority=priority)
+                                 priority=priority, cmd_as_tag=cmd_as_tag)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
@@ -1878,7 +1884,7 @@ class Plugin(object):
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False, tags=[],
-                            priority=10):
+                            priority=10, cmd_as_tag=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -1901,6 +1907,7 @@ class Plugin(object):
             :param changes:             Does this cmd potentially make a change
                                         on the system?
             :param tags:                Add tags in the archive manifest
+            :param cmd_as_tag:          Format command string to tag
 
         :returns:       dict containing status, output, and filename in the
                         archive for the executed cmd
@@ -1919,6 +1926,11 @@ class Plugin(object):
         _tags.extend(tags)
         _tags.append(cmd.split(' ')[0])
         _tags.extend(self.get_tags_for_cmd(cmd))
+
+        if cmd_as_tag:
+            _tags.append(re.sub(r"[^\w\.]+", "_", cmd))
+
+        _tags = list(set(_tags))
 
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
