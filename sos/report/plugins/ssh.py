@@ -19,6 +19,12 @@ class Ssh(Plugin, IndependentPlugin):
     profiles = ('services', 'security', 'system', 'identity')
 
     def setup(self):
+
+        self.add_file_tags({
+            '/etc/ssh/sshd_config': 'sshd_config',
+            '/etc/ssh/ssh_config': 'ssh_config'
+        })
+
         sshcfgs = [
             "/etc/ssh/ssh_config",
             "/etc/ssh/sshd_config"
@@ -30,6 +36,7 @@ class Ssh(Plugin, IndependentPlugin):
         # Read configs for any includes and copy those
         try:
             for sshcfg in sshcfgs:
+                tag = sshcfg.split('/')[-1]
                 with open(sshcfg, 'r') as cfgfile:
                     for line in cfgfile:
                         # skip empty lines and comments
@@ -38,7 +45,7 @@ class Ssh(Plugin, IndependentPlugin):
                         # ssh_config keywords are allowed as case-insensitive
                         if line.lower().startswith('include'):
                             confarg = line.split()
-                            self.add_copy_spec(confarg[1])
+                            self.add_copy_spec(confarg[1], tags=tag)
         except Exception:
             pass
 

@@ -19,6 +19,11 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
     files = ('/proc/cgroups',)
 
     def setup(self):
+
+        self.add_file_tags({
+            '/proc/1/cgroups': 'insights_init_process_cgroup'
+        })
+
         self.add_copy_spec([
             "/proc/cgroups",
             "/sys/fs/cgroup"

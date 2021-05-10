@@ -17,8 +17,10 @@ class Hardware(Plugin, IndependentPlugin):
     profiles = ('system', 'hardware')
 
     def setup(self):
+
+        self.add_copy_spec("/proc/interrupts", tags='interrupts')
+
         self.add_copy_spec([
-            "/proc/interrupts",
             "/proc/irq",
             "/proc/dma",
             "/proc/devices",

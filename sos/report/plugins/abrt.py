@@ -25,7 +25,8 @@ class Abrt(Plugin, RedHatPlugin):
     ]
 
     def setup(self):
-        self.add_cmd_output("abrt-cli status")
+        self.add_cmd_output("abrt-cli status",
+                            tags=["abrt_status", "insights_abrt_status_bare"])
         abrt_list = self.collect_cmd_output("abrt-cli list")
         if self.get_option("detailed") and abrt_list['status'] == 0:
             for line in abrt_list["output"].splitlines():

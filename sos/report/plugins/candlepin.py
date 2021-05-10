@@ -44,6 +44,13 @@ class Candlepin(Plugin, RedHatPlugin):
         except (IOError, IndexError):
             # fallback when the cfg file is not accessible or parseable
             pass
+
+        self.add_file_tags({
+            '/var/log/candlepin/candlepin.log.*': 'candlepin_log',
+            '/var/log/candlepin/err.log.*': 'candlepin_error_log',
+            '/etc/candlepin/candlepin.conf': 'candlepin_conf'
+        })
+
         # set the password to os.environ when calling psql commands to prevent
         # printing it in sos logs
         # we can't set os.environ directly now: other plugins can overwrite it

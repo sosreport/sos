@@ -62,6 +62,10 @@ class Pulp(Plugin, RedHatPlugin):
             # fallback when the cfg file is not accessible
             pass
 
+        self.add_file_tags({
+            '/etc/default/pulp_workers': 'pulp_worker_defaults'
+        })
+
         self.add_copy_spec([
             "/etc/pulp/*.conf",
             "/etc/pulp/settings.py",

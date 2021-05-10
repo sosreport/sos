@@ -32,7 +32,7 @@ class Sssd(Plugin):
         ])
 
         # add individual log files
-        self.add_copy_spec(glob("/var/log/sssd/*log*"))
+        self.add_copy_spec(glob("/var/log/sssd/*log*"), tags='sssd_logs')
 
         # add memory cache
         self.add_copy_spec([

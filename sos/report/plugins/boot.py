@@ -31,8 +31,10 @@ class Boot(Plugin, IndependentPlugin):
             "/etc/yaboot.conf",
             "/boot/yaboot.conf"
         ])
+
+        self.add_cmd_output("ls -lanR /boot", tags="insights_ls_boot")
+
         self.add_cmd_output([
-            "ls -lanR /boot",
             "lsinitrd",
             "ls -lanR /sys/firmware",
         ])

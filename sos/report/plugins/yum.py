@@ -30,6 +30,13 @@ class Yum(Plugin, RedHatPlugin):
     ]
 
     def setup(self):
+
+        self.add_file_tags({
+            '/etc/yum.repos.d/.*': 'yum_repos_d',
+            '/var/log/yum.log': 'yum_log',
+            '/etc/yum.conf': 'yum_conf'
+        })
+
         # Pull all yum related information
         self.add_copy_spec([
             "/etc/yum",
@@ -79,7 +86,7 @@ class Yum(Plugin, RedHatPlugin):
             "yum list installed",
             "package-cleanup --dupes",
             "package-cleanup --problems"
-        ])
+        ], cmd_as_tag=True)
 
         # packages installed/erased/updated per transaction
         if self.get_option("yum-history-info"):

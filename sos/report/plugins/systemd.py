@@ -22,6 +22,14 @@ class Systemd(Plugin, IndependentPlugin):
     files = ('/run/systemd/system',)
 
     def setup(self):
+
+        self.add_file_tags({
+            '/etc/systemd/journald.conf.*': 'insights_etc_journald_conf',
+            '/usr/lib/systemd/journald.conf.*': 'insights_usr_journald_conf_d',
+            '/etc/systemd/system.conf': 'insights_systemd_system_conf',
+            '/etc/systemd/logind.conf': 'insights_systemd_logind_conf'
+        })
+
         self.add_cmd_output([
             "systemctl status --all",
             "systemctl show --all",

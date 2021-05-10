@@ -66,13 +66,14 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "subscription-manager release --show",
             "subscription-manager release --list",
             "syspurpose show"
-        ])
+        ], cmd_as_tag=True)
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
                             "--no-subscriptions --destination %s"
                             % self.get_cmd_output_path())
 
         certs = glob.glob('/etc/pki/product-default/*.pem')
-        self.add_cmd_output(["rct cat-cert %s" % cert for cert in certs])
+        self.add_cmd_output(["rct cat-cert %s" % cert for cert in certs],
+                            tags='subscription_manager_installed_product_ids')
 
         # try curl to the RHSM server for potential certificate/proxy issue
         curlcmd = "curl -vv --cacert /etc/rhsm/ca/redhat-uep.pem " \

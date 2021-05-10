@@ -19,6 +19,16 @@ class Crypto(Plugin, IndependentPlugin):
     profiles = ('system', 'hardware')
 
     def setup(self):
+
+        cpth = '/etc/crypto-policies/back-ends'
+
+        self.add_file_tags({
+            "%s/bind.config" % cpth: 'crypto_policies_bind',
+            "%s/opensshserver.config" % cpth: 'crypto_policies_opensshserver',
+            '/etc/crypto-policies/.*/current': 'crypto_policies_state_current',
+            '/etc/crypto-policies/config': 'crypto_policies_config'
+        })
+
         self.add_copy_spec([
             "/proc/crypto",
             "/proc/sys/crypto/fips_enabled",

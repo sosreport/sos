@@ -45,11 +45,13 @@ class Networking(Plugin):
             'ethtool -S .*': 'ethtool_S',
             'ethtool -g .*': 'ethtool_g',
             'ethtool -T .*': 'ethtool_T',
-            'ethtool -c .*': 'ethtool_c'
+            'ethtool -c .*': 'ethtool_c',
+            'ethtool -d .*': 'ethtool_d'
         })
 
         self.add_file_tags({
-            '/proc/net/bonding/bond.*': 'bond'
+            '/proc/net/bonding/bond.*': 'bond',
+            '/etc/hosts': 'hosts'
         })
 
         self.add_copy_spec([
@@ -80,8 +82,9 @@ class Networking(Plugin):
             "/proc/net/eicon"
         ])
 
-        self.add_cmd_output("ip -o addr", root_symlink="ip_addr")
-        self.add_cmd_output("route -n", root_symlink="route")
+        self.add_cmd_output("ip -o addr", root_symlink="ip_addr",
+                            tags='ip_addr')
+        self.add_cmd_output("route -n", root_symlink="route", tags='route')
         self.add_cmd_output("plotnetcfg")
 
         self.add_cmd_output("netstat %s -neopa" % self.ns_wide,
