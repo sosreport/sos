@@ -34,9 +34,15 @@ class DNFPlugin(Plugin, RedHatPlugin):
             if "[i]" in line:
                 module = line.split()[0]
                 if module != "Hint:":
-                    self.add_cmd_output("dnf --assumeno module info " + module)
+                    self.add_cmd_output("dnf --assumeno module info " + module,
+                                        tags='dnf_module_info')
 
     def setup(self):
+
+        self.add_file_tags({
+            '/etc/dnf/modules.d/.*.modules': 'dnf_modules'
+        })
+
         self.add_copy_spec("/etc/dnf/")
 
         if self.get_option("all_logs"):
@@ -46,11 +52,13 @@ class DNFPlugin(Plugin, RedHatPlugin):
             self.add_copy_spec("/var/log/dnf.librepo.log*")
             self.add_copy_spec("/var/log/dnf.rpm.log*")
 
+        self.add_cmd_output("dnf --assumeno module list",
+                            tags='dnf_module_list')
+
         self.add_cmd_output([
             "dnf --version",
             "dnf --assumeno list installed *dnf*",
             "dnf --assumeno list extras",
-            "dnf --assumeno module list",
             "package-cleanup --dupes",
             "package-cleanup --problems"
         ])

@@ -40,6 +40,12 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     def setup(self):
         all_logs = self.get_option("all_logs")
 
+        self.add_file_tags({
+            '.*/ceph.conf': 'ceph_conf',
+            '/var/log/ceph/ceph.log.*': 'ceph_log',
+            '/var/log/ceph/ceph-osd.*.log': 'ceph_osd_log'
+        })
+
         if not all_logs:
             self.add_copy_spec([
                 "/var/log/ceph/*.log",
@@ -117,7 +123,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_cmd_output([
             "ceph %s --format json-pretty" % s for s in ceph_cmds
-        ], subdir="json_output")
+        ], subdir="json_output", tags="insights_ceph_health_detail")
 
         for service in self.services:
             self.add_journal(units=service)

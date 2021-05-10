@@ -21,6 +21,10 @@ class Block(Plugin, IndependentPlugin):
     def setup(self):
         self.add_forbidden_path("/sys/block/*/queue/iosched")
 
+        self.add_file_tags({
+            '/sys/block/.*/queue/scheduler': 'scheduler'
+        })
+
         self.add_cmd_output([
             "lsblk",
             "lsblk -t",

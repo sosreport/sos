@@ -59,7 +59,9 @@ class Process(Plugin, IndependentPlugin):
 
         self.add_cmd_output("ps auxwwwm", root_symlink="ps",
                             tags=['ps_aux', 'ps_auxww', 'ps_auxwww',
-                                  'ps_auxwwwm'], priority=1)
+                                  'ps_auxwwwm', 'insights_ps_auxcww'],
+                            priority=1)
+
         self.add_cmd_output("pstree -lp", root_symlink="pstree")
         if self.get_option("lsof"):
             self.add_cmd_output("lsof +M -n -l -c ''", root_symlink="lsof",
@@ -70,7 +72,10 @@ class Process(Plugin, IndependentPlugin):
 
         self.add_cmd_output([
             "ps alxwww",
-            "ps -elfL",
+            "ps -elfL"
+        ], cmd_as_tag=True)
+
+        self.add_cmd_output([
             "%s %s" % (ps_axo, ps_group_opts),
             "%s %s" % (ps_axo, ps_sched_opts)
         ])

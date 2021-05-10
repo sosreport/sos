@@ -35,7 +35,8 @@ class Kernel(Plugin, IndependentPlugin):
         try:
             modules = os.listdir(self.sys_module)
             self.add_cmd_output("modinfo " + " ".join(modules),
-                                suggest_filename="modinfo_ALL_MODULES")
+                                suggest_filename="modinfo_ALL_MODULES",
+                                tags='modinfo_all')
         except OSError:
             self._log_warn("could not list %s" % self.sys_module)
 
@@ -56,7 +57,7 @@ class Kernel(Plugin, IndependentPlugin):
             "dmesg",
             "sysctl -a",
             "dkms status"
-        ])
+        ], cmd_as_tag=True)
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
 

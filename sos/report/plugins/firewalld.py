@@ -22,8 +22,11 @@ class FirewallD(Plugin, RedHatPlugin):
     packages = ('firewalld',)
 
     def setup(self):
+
+        self.add_copy_spec("/etc/firewalld/firewalld.conf",
+                           tags='firewalld_conf')
+
         self.add_copy_spec([
-            "/etc/firewalld/firewalld.conf",
             "/etc/firewalld/*.xml",
             "/etc/firewalld/icmptypes/*.xml",
             "/etc/firewalld/services/*.xml",
@@ -51,6 +54,6 @@ class FirewallD(Plugin, RedHatPlugin):
             "firewall-cmd --permanent --direct --get-all-passthroughs",
             "firewall-cmd --state",
             "firewall-cmd --get-log-denied"
-        ], timeout=10)
+        ], timeout=10, cmd_as_tag=True)
 
 # vim: set et ts=4 sw=4 :

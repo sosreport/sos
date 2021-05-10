@@ -30,6 +30,7 @@ class Cron(Plugin, IndependentPlugin):
             self.add_copy_spec("/var/log/cron*")
 
         self.add_cmd_output("crontab -l -u root",
-                            suggest_filename="root_crontab")
+                            suggest_filename="root_crontab",
+                            tags="root_crontab")
 
 # vim: set et ts=4 sw=4 :

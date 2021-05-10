@@ -63,6 +63,14 @@ class Foreman(Plugin):
         # we can't set os.environ directly now: other plugins can overwrite it
         self.env = {"PGPASSWORD": self.dbpasswd}
 
+        self.add_file_tags({
+            '/var/log/foreman/production.log.*': 'foreman_production_log',
+            '/var/log/foreman-proxy/proxy.log.*': 'foreman_proxy_log',
+            '/etc/foreman-proxy/settings.yml': 'foreman_proxy_conf',
+            '/etc/sysconfig/foreman-tasks': 'foreman_tasks_config',
+            '/etc/sysconfig/dynflowd': 'foreman_tasks_config'
+        })
+
         self.add_forbidden_path([
             "/etc/foreman*/*key.pem",
             "/etc/foreman*/encryption_key.rb"
@@ -326,6 +334,13 @@ class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
     apachepkg = 'httpd'
 
     def setup(self):
+
+        self.add_file_tags({
+            '/var/log/foreman-installer/satellite.log.*':
+                ['insights_satellite_log' 'satellite_installer_log'],
+            '/usr/share/foreman/.ssh/ssh_config': 'ssh_foreman_config',
+        })
+
         super(RedHatForeman, self).setup()
         self.add_cmd_output_scl('tfm', 'gem list',
                                 suggest_filename='scl enable tfm gem list')

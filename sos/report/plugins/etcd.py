@@ -28,6 +28,10 @@ class etcd(Plugin, RedHatPlugin):
         else:
             etcd_cmd = 'etcdctl'
 
+        self.add_file_tags({
+            '/etc/etcd/etcd.conf': 'etcd_conf'
+        })
+
         etcd_url = self.get_etcd_url()
 
         self.add_forbidden_path([

@@ -22,6 +22,12 @@ class Numa(Plugin, IndependentPlugin):
     packages = ('numad', 'numactl')
 
     def setup(self):
+        numa_path = "/sys/devices/system/node"
+
+        self.add_file_tags({
+            "%s/node.*/cpulist": 'numa_cpus'
+        })
+
         self.add_copy_spec([
             "/etc/numad.conf",
             "/etc/logrotate.d/numad"
@@ -35,7 +41,6 @@ class Numa(Plugin, IndependentPlugin):
             "numactl --hardware",
         ])
 
-        numa_path = "/sys/devices/system/node"
         self.add_copy_spec([
             os.path.join(numa_path, "node*/meminfo"),
             os.path.join(numa_path, "node*/cpulist"),

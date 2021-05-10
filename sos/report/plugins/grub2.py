@@ -18,6 +18,12 @@ class Grub2(Plugin, IndependentPlugin):
     packages = ('grub2', 'grub2-efi', 'grub2-common')
 
     def setup(self):
+
+        self.add_file_tags({
+            '/boot/grub2/grub.cfg': 'grub2_cfg',
+            '/boot/efi/.*/grub.cfg': 'grub2_efi_cfg'
+        })
+
         self.add_copy_spec([
             "/boot/efi/EFI/*/grub.cfg",
             "/boot/grub2/grub.cfg",
@@ -29,7 +35,7 @@ class Grub2(Plugin, IndependentPlugin):
             "/etc/grub.d"
         ])
 
-        self.add_cmd_output("ls -lanR /boot")
+        self.add_cmd_output("ls -lanR /boot", tags="ls_boot")
         # call grub2-mkconfig with GRUB_DISABLE_OS_PROBER=true to prevent
         # possible unwanted loading of some kernel modules
         # further, check if the command supports --no-grubenv-update option

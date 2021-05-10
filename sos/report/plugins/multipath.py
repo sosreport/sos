@@ -17,10 +17,14 @@ class Multipath(Plugin, IndependentPlugin):
     profiles = ('system', 'storage', 'hardware')
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/multipath/",
-            "/etc/multipath.conf"
-        ])
+
+        self.add_cmd_tags({
+            'multipath -v4 -ll': 'insights_multipath__v4__ll'
+        })
+
+        self.add_copy_spec("/etc/multipath.conf", tags='multipath_conf')
+        self.add_copy_spec("/etc/multipath/")
+
         self.add_cmd_output([
             "multipath -ll",
             "multipath -v4 -ll",

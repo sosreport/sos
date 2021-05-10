@@ -21,12 +21,12 @@ class Md(Plugin, IndependentPlugin):
         self.add_blockdev_cmd("mdadm -E %(dev)s",
                               blacklist=['ram.*', 'zram.*'])
         self.add_copy_spec([
-            "/proc/mdstat",
             "/etc/mdadm.conf",
             "/dev/md/md-device-map",
             "/proc/sys/dev/raid/*",
             "/sys/block/md*/md*"
         ])
 
+        self.add_copy_spec("/proc/mdstat", tags='mdstat')
 
 # vim: set et ts=4 sw=4 :

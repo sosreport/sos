@@ -18,15 +18,17 @@ class Ntp(Plugin):
     packages = ('ntp',)
 
     def setup(self):
+
+        self.add_copy_spec("/etc/ntp.conf", tags="ntp_conf")
+
         self.add_copy_spec([
-            "/etc/ntp.conf",
             "/etc/ntp/step-tickers",
             "/etc/ntp/ntpservers"
         ])
         self.add_cmd_output([
             "ntptime",
             "ntpq -pn"
-        ])
+        ], cmd_as_tag=True)
 
         ids = self.collect_cmd_output('ntpq -c as')
         if ids['status'] == 0:

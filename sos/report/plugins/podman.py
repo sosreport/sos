@@ -34,6 +34,11 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             'ALL_PROXY'
         ])
 
+        self.add_cmd_tags({
+            'podman images': 'podman_list_images',
+            'podman ps.*': 'podman_list_containers'
+        })
+
         subcmds = [
             'info',
             'images',
@@ -58,12 +63,13 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             "ls -alhR /etc/containers"
         ])
 
-        pnets = self.collect_cmd_output('podman network ls')
+        pnets = self.collect_cmd_output('podman network ls',
+                                        tags='podman_list_networks')
         if pnets['status'] == 0:
             nets = [pn.split()[0] for pn in pnets['output'].splitlines()[1:]]
             self.add_cmd_output([
                 "podman network inspect %s" % net for net in nets
-            ], subdir='networks')
+            ], subdir='networks', tags='podman_network_inspect')
 
         containers = [
             c[0] for c in self.get_containers(runtime='podman',
@@ -74,16 +80,19 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
         for container in containers:
             self.add_cmd_output("podman inspect %s" % container,
-                                subdir='containers')
+                                subdir='containers',
+                                tags='podman_container_inspect')
 
         for img in images:
             name, img_id = img
             insp = name if 'none' not in name else img_id
-            self.add_cmd_output("podman inspect %s" % insp, subdir='images')
+            self.add_cmd_output("podman inspect %s" % insp, subdir='images',
+                                tags='podman_image_inspect')
 
         for vol in volumes:
             self.add_cmd_output("podman volume inspect %s" % vol,
-                                subdir='volumes')
+                                subdir='volumes',
+                                tags='podman_volume_inspect')
 
         if self.get_option('logs'):
             for con in containers:

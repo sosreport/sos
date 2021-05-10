@@ -27,7 +27,7 @@ class Apache(Plugin):
             "apachectl -M",
             "apachectl -S",
             "apachectl -t"
-        ])
+        ], cmd_as_tag=True)
 
         # Other plugins collect these files;
         # do not collect them here to avoid collisions in the archive paths.
@@ -56,6 +56,14 @@ class RedHatApache(Apache, RedHatPlugin):
     apachepkg = 'httpd'
 
     def setup(self):
+
+        self.add_file_tags({
+            ".*/access_log": 'httpd_access_log',
+            ".*/error_log": 'httpd_error_log',
+            ".*/ssl_access_log": 'httpd_ssl_access_log',
+            ".*/ssl_error_log": 'httpd_ssl_error_log'
+        })
+
         super(RedHatApache, self).setup()
 
         # httpd versions, including those used for JBoss Web Server
@@ -86,7 +94,7 @@ class RedHatApache(Apache, RedHatPlugin):
 
         for edir in etcdirs:
             for conf in confs:
-                self.add_copy_spec("%s/%s" % (edir, conf))
+                self.add_copy_spec("%s/%s" % (edir, conf), tags="httpd_conf")
 
         if self.get_option("log") or self.get_option("all_logs"):
             self.add_copy_spec(logdirs)
@@ -95,7 +103,7 @@ class RedHatApache(Apache, RedHatPlugin):
                 for log in logs:
                     self.add_copy_spec("%s/%s" % (ldir, log))
 
-        self.add_service_status('httpd')
+        self.add_service_status('httpd', tags='systemctl_httpd')
 
 
 class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
