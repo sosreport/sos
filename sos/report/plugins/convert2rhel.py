@@ -13,8 +13,8 @@ class convert2rhel(Plugin, RedHatPlugin):
 
     short_desc = 'Convert2RHEL'
     plugin_name = 'convert2rhel'
-    profiles = ('system')
-    packages = ('convert2rhel')
+    profiles = ('system',)
+    packages = ('convert2rhel',)
     verify_packages = ('convert2rhel$',)
 
     def setup(self):
