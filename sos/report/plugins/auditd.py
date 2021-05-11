@@ -22,6 +22,8 @@ class Auditd(Plugin, IndependentPlugin):
         self.add_copy_spec([
             "/etc/audit/auditd.conf",
             "/etc/audit/audit.rules",
+            "/etc/audit/audit-stop.rules",
+            "/etc/audit/rules.d/",
             "/etc/audit/plugins.d/",
             "/etc/audisp/",
         ])
