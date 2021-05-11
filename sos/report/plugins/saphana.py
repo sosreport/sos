@@ -51,7 +51,7 @@ class saphana(Plugin, RedHatPlugin):
                             inst = inst.strip()[-2:]
                             self.get_inst_info(sid, sidadm, inst)
 
-    def get_inst_info(self, prefix, sid, sidadm, inst):
+    def get_inst_info(self, sid, sidadm, inst):
         proc_cmd = 'su - %s -c "sapcontrol -nr %s -function GetProcessList"'
         status_fname = "%s_%s_status" % (sid, inst)
         self.add_cmd_output(
