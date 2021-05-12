@@ -118,6 +118,7 @@ class SoSReport(SoSComponent):
         'upload_directory': None,
         'upload_user': None,
         'upload_pass': None,
+        'upload_method': 'auto',
         'add_preset': '',
         'del_preset': ''
     }
@@ -299,6 +300,9 @@ class SoSReport(SoSComponent):
                                 help="Username to authenticate to server with")
         report_grp.add_argument("--upload-pass", default=None,
                                 help="Password to authenticate to server with")
+        report_grp.add_argument("--upload-method", default='auto',
+                                choices=['auto', 'put', 'post'],
+                                help="HTTP method to use for uploading")
 
         # Group to make add/del preset exclusive
         preset_grp = report_grp.add_mutually_exclusive_group()

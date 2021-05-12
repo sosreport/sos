@@ -24,7 +24,7 @@ class UbuntuPolicy(DebianPolicy):
     _upload_url = "https://files.support.canonical.com/uploads/"
     _upload_user = "ubuntu"
     _upload_password = "ubuntu"
-    _use_https_streaming = True
+    _upload_method = 'put'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):

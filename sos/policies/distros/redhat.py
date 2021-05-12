@@ -214,6 +214,7 @@ support representative.
     _upload_url = RH_FTP_HOST
     _upload_user = 'anonymous'
     _upload_directory = '/incoming'
+    _upload_method = 'post'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
