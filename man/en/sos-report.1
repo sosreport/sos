@@ -35,6 +35,7 @@ sosreport \- Collect and package diagnostic and support data
           [--encrypt-pass PASS]\fR
           [--upload] [--upload-url url] [--upload-user user]\fR
           [--upload-directory dir] [--upload-pass pass]\fR
+          [--upload-no-ssl-verify] [--upload-method]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -367,7 +368,14 @@ Specify the HTTP method to use for uploading to the provided --upload-url. Valid
 values are 'auto' (default), 'put', or 'post'. The use of 'auto' will default to
 the method required by the policy-default upload location, if one exists.
 
-This option has no effect on upload methods other than HTTPS.
+This option has no effect on upload protocols other than HTTPS.
+.TP
+.B \--upload-no-ssl-verify
+Disable SSL verification for HTTPS uploads. This may be used to allow uploading
+to locations that have self-signed certificates, or certificates that are otherwise
+untrusted by the local system.
+
+Default behavior is to perform SSL verification against all upload locations.
 .TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
