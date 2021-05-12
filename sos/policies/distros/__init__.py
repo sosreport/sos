@@ -373,7 +373,7 @@ class LinuxPolicy(Policy):
         """
         raise NotImplementedError("SFTP support is not yet implemented")
 
-    def _upload_https_put(self, archive):
+    def _upload_https_put(self, archive, verify=True):
         """If upload_https() needs to use requests.put(), use this method.
 
         Policies should override this method instead of the base upload_https()
@@ -381,14 +381,15 @@ class LinuxPolicy(Policy):
         :param archive:     The open archive file object
         """
         return requests.put(self.get_upload_url(), data=archive,
-                            auth=self.get_upload_https_auth())
+                            auth=self.get_upload_https_auth(),
+                            verify=verify)
 
     def _get_upload_headers(self):
         """Define any needed headers to be passed with the POST request here
         """
         return {}
 
-    def _upload_https_post(self, archive):
+    def _upload_https_post(self, archive, verify=True):
         """If upload_https() needs to use requests.post(), use this method.
 
         Policies should override this method instead of the base upload_https()
@@ -400,7 +401,8 @@ class LinuxPolicy(Policy):
                      self._get_upload_headers())
         }
         return requests.post(self.get_upload_url(), files=files,
-                             auth=self.get_upload_https_auth())
+                             auth=self.get_upload_https_auth(),
+                             verify=verify)
 
     def upload_https(self):
         """Attempts to upload the archive to an HTTPS location.
@@ -419,10 +421,11 @@ class LinuxPolicy(Policy):
                 method = self._upload_method
             else:
                 method = self.commons['cmdlineopts'].upload_method
+            verify = self.commons['cmdlineopts'].upload_no_ssl_verify is False
             if method == 'put':
-                r = self._upload_https_put(arc)
+                r = self._upload_https_put(arc, verify)
             else:
-                r = self._upload_https_post(arc)
+                r = self._upload_https_post(arc, verify)
             if r.status_code != 201:
                 if r.status_code == 401:
                     raise Exception(
