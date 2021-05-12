@@ -287,13 +287,20 @@ class SosNode():
             # use the containerized policy's command
             pkgs = self.run_command(self.host.container_version_command,
                                     use_container=True, need_root=True)
-            ver = pkgs['stdout'].strip().split('-')[1]
-            if ver:
-                self.sos_info['version'] = ver
-        if 'version' in self.sos_info:
+            if pkgs['status'] == 0:
+                ver = pkgs['stdout'].strip().split('-')[1]
+                if ver:
+                    self.sos_info['version'] = ver
+            else:
+                self.sos_info['version'] = None
+        if self.sos_info['version']:
             self.log_info('sos version is %s' % self.sos_info['version'])
         else:
-            self.log_error('sos is not installed on this node')
+            if not self.address == self.opts.master:
+                # in the case where the 'master' enumerates nodes but is not
+                # intended for collection (bastions), don't worry about sos not
+                # being present
+                self.log_error('sos is not installed on this node')
             self.connected = False
             return False
         cmd = 'sosreport -l'
