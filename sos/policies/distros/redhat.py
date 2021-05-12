@@ -452,15 +452,19 @@ support representative.
 
         return self.find_preset(ATOMIC)
 
-    def create_sos_container(self):
+    def create_sos_container(self, image=None, auth=None, force_pull=False):
         _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
                 " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
-                "IMAGE={image} -v /run:/run -v /var/log:/var/log -v "
+                "IMAGE={image} {pull} -v /run:/run -v /var/log:/var/log -v "
                 "/etc/machine-id:/etc/machine-id -v "
-                "/etc/localtime:/etc/localtime -v /:/host {image}")
+                "/etc/localtime:/etc/localtime -v /:/host {auth} {image}")
+        _image = image or self.container_image
+        _pull = '--pull=always' if force_pull else ''
         return _cmd.format(runtime=self.container_runtime,
                            name=self.sos_container_name,
-                           image=self.container_image)
+                           image=_image,
+                           pull=_pull,
+                           auth=auth or '')
 
     def set_cleanup_cmd(self):
         return 'docker rm --force sos-collector-tmp'
@@ -482,6 +486,7 @@ support representative.
     container_image = 'registry.redhat.io/rhel8/support-tools'
     sos_path_strip = '/host'
     container_version_command = 'rpm -q sos'
+    container_authfile = '/var/lib/kubelet/config.json'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -511,15 +516,19 @@ support representative.
         # RH OCP environments.
         return self.find_preset(RHOCP)
 
-    def create_sos_container(self):
+    def create_sos_container(self, image=None, auth=None, force_pull=False):
         _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
                 " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
-                "IMAGE={image} -v /run:/run -v /var/log:/var/log -v "
+                "IMAGE={image} {pull} -v /run:/run -v /var/log:/var/log -v "
                 "/etc/machine-id:/etc/machine-id -v "
-                "/etc/localtime:/etc/localtime -v /:/host {image}")
+                "/etc/localtime:/etc/localtime -v /:/host {auth} {image}")
+        _image = image or self.container_image
+        _pull = '--pull=always' if force_pull else ''
         return _cmd.format(runtime=self.container_runtime,
                            name=self.sos_container_name,
-                           image=self.container_image)
+                           image=_image,
+                           pull=_pull,
+                           auth=auth or '')
 
     def set_cleanup_cmd(self):
         return 'podman rm --force %s' % self.sos_container_name

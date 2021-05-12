@@ -63,6 +63,7 @@ class SoSCollector(SoSComponent):
         'encrypt_pass': '',
         'group': None,
         'image': '',
+        'force_pull_image': False,
         'jobs': 4,
         'keywords': [],
         'keyword_file': None,
@@ -84,6 +85,9 @@ class SoSCollector(SoSComponent):
         'plugin_timeout': None,
         'cmd_timeout': None,
         'preset': '',
+        'registry_user': None,
+        'registry_password': None,
+        'registry_authfile': None,
         'save_group': '',
         'since': '',
         'skip_commands': [],
@@ -319,6 +323,19 @@ class SoSCollector(SoSComponent):
         collect_grp.add_argument('--image',
                                  help=('Specify the container image to use for'
                                        ' containerized hosts.'))
+        collect_grp.add_argument('--force-pull-image', '--pull', default=False,
+                                 action='store_true',
+                                 help='Force pull the container image even if '
+                                      'it already exists on the host')
+        collect_grp.add_argument('--registry-user', default=None,
+                                 help='Username to authenticate to the '
+                                      'registry with for pulling an image')
+        collect_grp.add_argument('--registry-password', default=None,
+                                 help='Password to authenticate to the '
+                                      'registry with for pulling an image')
+        collect_grp.add_argument('--registry-authfile', default=None,
+                                 help='Use this authfile to provide registry '
+                                      'authentication when pulling an image')
         collect_grp.add_argument('-i', '--ssh-key', help='Specify an ssh key')
         collect_grp.add_argument('-j', '--jobs', default=4, type=int,
                                  help='Number of concurrent nodes to collect')

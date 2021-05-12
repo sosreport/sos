@@ -62,6 +62,7 @@ class LinuxPolicy(Policy):
     sos_bin_path = '/usr/bin'
     sos_container_name = 'sos-collector-tmp'
     container_version_command = None
+    container_authfile = None
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True):
         super(LinuxPolicy, self).__init__(sysroot=sysroot,
@@ -626,13 +627,26 @@ class LinuxPolicy(Policy):
         """
         return ''
 
-    def create_sos_container(self):
+    def create_sos_container(self, image=None, auth=None, force_pull=False):
         """Returns the command that will create the container that will be
         used for running commands inside a container on hosts that require it.
 
         This will use the container runtime defined for the host type to
         launch a container. From there, we use the defined runtime to exec into
         the container's namespace.
+
+        :param image:   The name of the image if not using the policy default
+        :type image:    ``str`` or ``None``
+
+        :param auth:    The auth string required by the runtime to pull an
+                        image from the registry
+        :type auth:     ``str`` or ``None``
+
+        :param force_pull:  Should the runtime forcibly pull the image
+        :type force_pull:   ``bool``
+
+        :returns:   The command to execute to launch the temp container
+        :rtype:     ``str``
         """
         return ''
 
