@@ -134,9 +134,27 @@ class SosNode():
         """If the host is containerized, create the container we'll be using
         """
         if self.host.containerized:
-            res = self.run_command(self.host.create_sos_container(),
-                                   need_root=True)
-            if res['status'] in [0, 125]:  # 125 means container exists
+            cmd = self.host.create_sos_container(
+                image=self.opts.image,
+                auth=self.get_container_auth(),
+                force_pull=self.opts.force_pull_image
+            )
+            res = self.run_command(cmd, need_root=True)
+            if res['status'] in [0, 125]:
+                if res['status'] == 125:
+                    if 'unable to retrieve auth token' in res['stdout']:
+                        self.log_error(
+                            "Could not pull image. Provide either a username "
+                            "and password or authfile"
+                        )
+                        raise Exception
+                    elif 'unknown: Not found' in res['stdout']:
+                        self.log_error('Specified image not found on registry')
+                        raise Exception
+                    # 'name exists' with code 125 means the container was
+                    # created successfully, so ignore it.
+                # initial creations leads to an exited container, restarting it
+                # here will keep it alive for us to exec through
                 ret = self.run_command(self.host.restart_sos_container(),
                                        need_root=True)
                 if ret['status'] == 0:
@@ -151,6 +169,20 @@ class SosNode():
                 self.log_error("Could not create container on host: %s"
                                % res['stdout'])
                 raise Exception
+
+    def get_container_auth(self):
+        """Determine what the auth string should be to pull the image used to
+        deploy our temporary container
+        """
+        if self.opts.registry_user:
+            return self.host.runtimes['default'].fmt_registry_credentials(
+                self.opts.registry_user,
+                self.opts.registry_password
+            )
+        else:
+            return self.host.runtimes['default'].fmt_registry_authfile(
+                self.opts.registry_authfile or self.host.container_authfile
+            )
 
     def file_exists(self, fname):
         """Checks for the presence of fname on the remote node"""
@@ -343,7 +375,7 @@ class SosNode():
                           % self.commons['policy'].distro)
             return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
-                    probe_runtime=False, remote_exec=self.ssh_cmd,
+                    probe_runtime=True, remote_exec=self.ssh_cmd,
                     remote_check=self.read_file('/etc/os-release'))
         if host:
             self.log_info("loaded policy %s for host" % host.distro)

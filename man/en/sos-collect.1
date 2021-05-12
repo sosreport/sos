@@ -26,6 +26,11 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-no\-pkg\-check]
     [\-\-no\-local]
     [\-\-master MASTER]
+    [\-\-image IMAGE]
+    [\-\-force-pull-image]
+    [\-\-registry-user USER]
+    [\-\-registry-password PASSWORD]
+    [\-\-registry-authfile FILE]
     [\-o ONLY_PLUGINS]
     [\-p SSH_PORT]
     [\-\-password]
@@ -244,6 +249,31 @@ Specify a master node for the cluster.
 
 If provided, then sos collect will check the master node, not localhost, for determining
 the type of cluster in use.
+.TP
+\fB\-\-image IMAGE\fR
+Specify an image to use for the temporary container created for collections on
+containerized host, if you do not want to use the default image specifed by the
+host's policy. Note that this should include the registry.
+.TP
+\fB\-\-force-pull-image\fR
+Use this option to force the container runtime to pull the specified image (even
+if it is the policy default image) even if the image already exists on the host.
+This may be useful to update an older container image on containerized hosts.
+.TP
+\fB\-\-registry-user USER\fR
+Specify the username to authenticate to the registry with in order to pull the container
+image
+.TP
+\fB\-\-registry-password PASSWORD\fR
+Specify the password to authenticate to the registry with in order to pull the container
+image. If no password is required, leave this blank.
+.TP
+\fB\-\-registry-authfile FILE\fR
+Specify the filename to use for providing authentication credentials to the registry
+to pull the container image.
+
+Note that this file must exist on the node(s) performing the pull operations, not the
+node from which \fBsos collect\fR was run.
 .TP
 \fB\-o\fR ONLY_PLUGINS, \fB\-\-only\-plugins\fR ONLY_PLUGINS
 Sosreport option. Run ONLY the plugins listed.

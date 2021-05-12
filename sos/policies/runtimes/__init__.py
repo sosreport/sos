@@ -157,6 +157,31 @@ class ContainerRuntime():
             quoted_cmd = cmd
         return "%s %s %s" % (self.run_cmd, container, quoted_cmd)
 
+    def fmt_registry_credentials(self, username, password):
+        """Format a string to pass to the 'run' command of the runtime to
+        enable authorization for pulling the image during `sos collect`, if
+        needed using username and optional password creds
+
+        :param username:    The name of the registry user
+        :type username:     ``str``
+
+        :param password:    The password of the registry user
+        :type password:     ``str`` or ``None``
+
+        :returns:  The string to use to enable a run command to pull the image
+        :rtype:    ``str``
+        """
+        return "--creds=%s%s" % (username, ':' + password if password else '')
+
+    def fmt_registry_authfile(self, authfile):
+        """Format a string to pass to the 'run' command of the runtime to
+        enable authorization for pulling the image during `sos collect`, if
+        needed using an authfile.
+        """
+        if authfile:
+            return "--authfile %s" % authfile
+        return ''
+
     def get_logs_command(self, container):
         """Get the command string used to dump container logs from the
         runtime
