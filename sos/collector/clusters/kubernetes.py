@@ -44,11 +44,3 @@ class kubernetes(Cluster):
             return nodes
         else:
             raise Exception('Node enumeration did not return usable output')
-
-
-class openshift(kubernetes):
-
-    cluster_name = 'OpenShift Container Platform'
-    packages = ('atomic-openshift',)
-    sos_preset = 'ocp'
-    cmd = 'oc'
