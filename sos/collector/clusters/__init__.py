@@ -137,6 +137,27 @@ class Cluster():
         """
         self.cluster_ssh_key = key
 
+    def set_master_options(self, node):
+        """If there is a need to set specific options in the sos command being
+        run on the cluster's master nodes, override this method in the cluster
+        profile and do that here.
+
+        :param node:       The master node
+        :type node:        ``SoSNode``
+        """
+        pass
+
+    def check_node_is_master(self, node):
+        """In the event there are multiple masters, or if the collect command
+        is being run from a system that is technically capable of enumerating
+        nodes but the cluster profiles needs to specify master-specific options
+        for other nodes, override this method in the cluster profile
+
+        :param node:        The node for the cluster to check
+        :type node:         ``SoSNode``
+        """
+        return node.address == self.master.address
+
     def exec_master_cmd(self, cmd, need_root=False):
         """Used to retrieve command output from a (master) node in a cluster
 

@@ -647,6 +647,10 @@ class SosNode():
                                         self.cluster.sos_plugin_options[opt])
                     self.opts.plugin_options.append(option)
 
+        # set master-only options
+        if self.cluster.check_node_is_master(self):
+            self.cluster.set_master_options(self)
+
     def finalize_sos_cmd(self):
         """Use host facts and compare to the cluster type to modify the sos
         command if needed"""
@@ -706,6 +710,8 @@ class SosNode():
             'sosreport',
             os.path.join(self.host.sos_bin_path, self.sos_bin)
         )
+
+        self.update_cmd_from_cluster()
 
         if self.opts.only_plugins:
             plugs = [o for o in self.opts.only_plugins
