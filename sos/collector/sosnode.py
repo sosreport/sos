@@ -304,7 +304,7 @@ class SosNode():
             self.connected = False
             return False
         cmd = 'sosreport -l'
-        sosinfo = self.run_command(cmd, use_container=True)
+        sosinfo = self.run_command(cmd, use_container=True, need_root=True)
         if sosinfo['status'] == 0:
             self._load_sos_plugins(sosinfo['stdout'])
         if self.check_sos_version('3.6'):
@@ -312,7 +312,7 @@ class SosNode():
 
     def _load_sos_presets(self):
         cmd = 'sosreport --list-presets'
-        res = self.run_command(cmd, use_container=True)
+        res = self.run_command(cmd, use_container=True, need_root=True)
         if res['status'] == 0:
             for line in res['stdout'].splitlines():
                 if line.strip().startswith('name:'):
@@ -965,7 +965,7 @@ class SosNode():
                     self.remove_file(self.sos_path + ext)
         cleanup = self.host.set_cleanup_cmd()
         if cleanup:
-            self.run_command(cleanup)
+            self.run_command(cleanup, need_root=True)
 
     def collect_extra_cmd(self, filenames):
         """Collect the file created by a cluster outside of sos"""
