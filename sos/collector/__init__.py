@@ -101,6 +101,7 @@ class SoSCollector(SoSComponent):
         'upload_directory': None,
         'upload_user': None,
         'upload_pass': None,
+        'upload_method': 'auto'
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
@@ -364,6 +365,9 @@ class SoSCollector(SoSComponent):
                                  help="Username to authenticate with")
         collect_grp.add_argument("--upload-pass", default=None,
                                  help="Password to authenticate with")
+        collect_grp.add_argument("--upload-method", default='auto',
+                                 choices=['auto', 'put', 'post'],
+                                 help="HTTP method to use for uploading")
 
         # Group the cleaner options together
         cleaner_grp = parser.add_argument_group(

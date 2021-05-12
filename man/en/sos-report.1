@@ -362,6 +362,13 @@ be used provided all other required values (case number, upload user) are provid
 Specify a directory to upload to, if one is not specified by a vendor default location
 or if your destination server does not allow writes to '/'.
 .TP
+.B \--upload-method METHOD
+Specify the HTTP method to use for uploading to the provided --upload-url. Valid
+values are 'auto' (default), 'put', or 'post'. The use of 'auto' will default to
+the method required by the policy-default upload location, if one exists.
+
+This option has no effect on upload methods other than HTTPS.
+.TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
 been tested for this port or may still be under active development.

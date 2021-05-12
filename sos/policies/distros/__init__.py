@@ -48,7 +48,7 @@ class LinuxPolicy(Policy):
     _upload_directory = '/'
     _upload_user = None
     _upload_password = None
-    _use_https_streaming = False
+    _upload_method = None
     default_container_runtime = 'docker'
     _preferred_hash_name = None
     upload_url = None
@@ -253,8 +253,6 @@ class LinuxPolicy(Policy):
                           protocol header
         :_upload_user:    Default username, if any else None
         :_upload_password: Default password, if any else None
-        :_use_https_streaming: Set to True if the HTTPS endpoint supports
-                               streaming data
 
         The following Class Attrs may optionally be overidden by the Policy
 
@@ -375,9 +373,8 @@ class LinuxPolicy(Policy):
         """
         raise NotImplementedError("SFTP support is not yet implemented")
 
-    def _upload_https_streaming(self, archive):
-        """If upload_https() needs to use requests.put(), this method is used
-        to provide streaming functionality
+    def _upload_https_put(self, archive):
+        """If upload_https() needs to use requests.put(), use this method.
 
         Policies should override this method instead of the base upload_https()
 
@@ -391,9 +388,8 @@ class LinuxPolicy(Policy):
         """
         return {}
 
-    def _upload_https_no_stream(self, archive):
-        """If upload_https() needs to use requests.post(), this method is used
-        to provide non-streaming functionality
+    def _upload_https_post(self, archive):
+        """If upload_https() needs to use requests.post(), use this method.
 
         Policies should override this method instead of the base upload_https()
 
@@ -409,10 +405,6 @@ class LinuxPolicy(Policy):
     def upload_https(self):
         """Attempts to upload the archive to an HTTPS location.
 
-        Policies may define whether this upload attempt should use streaming
-        or non-streaming data by setting the `use_https_streaming` class
-        attr to True
-
         :returns: ``True`` if upload is successful
         :rtype: ``bool``
 
@@ -423,10 +415,14 @@ class LinuxPolicy(Policy):
                             "library")
 
         with open(self.upload_archive_name, 'rb') as arc:
-            if not self._use_https_streaming:
-                r = self._upload_https_no_stream(arc)
+            if self.commons['cmdlineopts'].upload_method == 'auto':
+                method = self._upload_method
             else:
-                r = self._upload_https_streaming(arc)
+                method = self.commons['cmdlineopts'].upload_method
+            if method == 'put':
+                r = self._upload_https_put(arc)
+            else:
+                r = self._upload_https_post(arc)
             if r.status_code != 201:
                 if r.status_code == 401:
                     raise Exception(
