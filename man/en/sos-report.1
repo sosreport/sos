@@ -62,8 +62,13 @@ Disable the specified plugin(s). Multiple plug-ins may be specified
 by repeating the option or as a comma-separated list.
 .TP
 .B \-e, --enable-plugins PLUGNAME[,PLUGNAME]
-Enable the specified plugin(s). Multiple plug-ins may be specified
-by repeating the option or as a comma-separated list.
+Enable the specified plugin(s) that would otherwise be disabled. Multiple plugins
+may be specified by repeating the option or as a comma-separated list.
+
+Note that if using \fB-p, --profile\fR this option will \fBnot\fR enable further
+plugins. Use \fB-o, --only-plugins\fR to extend the list of plugins enabled by
+profiles.
+
 .TP
 .B \-o, --only-plugins PLUGNAME[,PLUGNAME]
 Enable the specified plugin(s) only (all other plugins should be
@@ -157,10 +162,13 @@ Display a list of available profiles and the plugins that they enable.
 .B \-p, \--profile, \--profiles NAME
 Only run plugins that correspond to the given profile. Multiple profiles
 may be specified as a comma-separated list; the set of plugins executed
-is the union of each of the profile's plugin sets. Currently defined
-profiles include: boot, cluster, desktop, debug, hardware, identity,
-network, openstack, packagemanager, security, services, storage,
-sysmgmt, system, performance, virt, and webserver.
+is the union of each of the profile's plugin sets.
+
+Note that if there are specific plugins outside of the profile(s) passed to this
+option that you would also want to enable, use \fB-o, --only-plugins\fR to add those
+plugins to the list.
+
+See \fBsos report --list-profiles\fR for a list of currently supported profiles.
 .TP
 .B \--verify
 Instructs plugins to perform plugin-specific verification during data
