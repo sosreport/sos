@@ -1061,7 +1061,8 @@ this utility or remote systems that it connects to.
                 self.exit("Exiting on user cancel", 130)
 
         if not self.opts.case_id and not self.opts.batch:
-            msg = 'Please enter the case id you are collecting reports for: '
+            msg = 'Optionally, please enter the case id you are collecting ' \
+                  'reports for: '
             self.opts.case_id = input(msg)
 
     def execute(self):
