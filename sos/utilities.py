@@ -23,6 +23,8 @@ import io
 from contextlib import closing
 from collections import deque
 
+TIMEOUT_DEFAULT = 300
+
 
 def tail(filename, number_of_bytes):
     """Returns the last number_of_bytes of filename"""
@@ -102,7 +104,7 @@ def is_executable(command):
     return any(os.access(path, os.X_OK) for path in candidates)
 
 
-def sos_get_command_output(command, timeout=300, stderr=False,
+def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None):
     """Execute a command and return a dictionary of status and output,

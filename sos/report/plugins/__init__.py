@@ -11,8 +11,10 @@
 """ This exports methods available for use by plugins for sos """
 
 from sos.utilities import (sos_get_command_output, import_module, grep,
-                           fileobj, tail, is_executable, path_exists,
-                           path_isdir, path_isfile, path_islink, listdir)
+                           fileobj, tail, is_executable, TIMEOUT_DEFAULT,
+                           path_exists, path_isdir, path_isfile, path_islink,
+                           listdir)
+
 import os
 import glob
 import re
@@ -462,8 +464,8 @@ class Plugin(object):
     archive = None
     profiles = ()
     sysroot = '/'
-    plugin_timeout = 300
-    cmd_timeout = 300
+    plugin_timeout = TIMEOUT_DEFAULT
+    cmd_timeout = TIMEOUT_DEFAULT
     _timeout_hit = False
     cmdtags = {}
     filetags = {}
@@ -473,11 +475,8 @@ class Plugin(object):
     predicate = None
     cmd_predicate = None
     _default_plug_opts = [
-        ('timeout', 'Timeout in seconds for plugin. The default value (-1) ' +
-            'defers to the general plugin timeout, 300 seconds', 'fast', -1),
-        ('cmd-timeout', 'Timeout in seconds for a command execution. The ' +
-            'default value (-1) defers to the general cmd timeout, 300 ' +
-            'seconds', 'fast', -1),
+        ('timeout', 'Timeout in seconds for plugin to finish', 'fast', -1),
+        ('cmd-timeout', 'Timeout in seconds for a command', 'fast', -1),
         ('postproc', 'Enable post-processing collected plugin data', 'fast',
          True)
     ]

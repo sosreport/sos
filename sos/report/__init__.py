@@ -18,7 +18,7 @@ from datetime import datetime
 import glob
 import sos.report.plugins
 from sos.utilities import (ImporterHelper, SoSTimeoutError,
-                           sos_get_command_output)
+                           sos_get_command_output, TIMEOUT_DEFAULT)
 from shutil import rmtree
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
@@ -108,8 +108,8 @@ class SoSReport(SoSComponent):
         'note': '',
         'only_plugins': [],
         'preset': 'auto',
-        'plugin_timeout': 300,
-        'cmd_timeout': 300,
+        'plugin_timeout': TIMEOUT_DEFAULT,
+        'cmd_timeout': TIMEOUT_DEFAULT,
         'profiles': [],
         'since': None,
         'verify': False,
@@ -733,7 +733,10 @@ class SoSReport(SoSComponent):
             self.ui_log.info(_("The following options are available for ALL "
                                "plugins:"))
             for opt in self.all_options[0][0]._default_plug_opts:
-                self.ui_log.info(" %-25s %-15s %s" % (opt[0], opt[3], opt[1]))
+                val = opt[3]
+                if val == -1:
+                    val = TIMEOUT_DEFAULT
+                self.ui_log.info(" %-25s %-15s %s" % (opt[0], val, opt[1]))
             self.ui_log.info("")
 
             self.ui_log.info(_("The following plugin options are available:"))
@@ -748,6 +751,9 @@ class SoSReport(SoSComponent):
                         tmpopt = "off"
                 else:
                     tmpopt = optparm["enabled"]
+
+                if tmpopt is None:
+                    tmpopt = 0
 
                 self.ui_log.info(" %-25s %-15s %s" % (
                     plugname + "." + optname, tmpopt, optparm["desc"]))
