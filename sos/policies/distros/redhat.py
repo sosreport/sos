@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 import os
 import sys
 import re
@@ -20,6 +21,11 @@ from sos.policies.distros import LinuxPolicy
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos import _sos as _
 
+try:
+    import requests
+    REQUESTS_LOADED = True
+except ImportError:
+    REQUESTS_LOADED = False
 
 OS_RELEASE = "/etc/os-release"
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
@@ -39,9 +45,8 @@ class RedHatPolicy(LinuxPolicy):
     _host_sysroot = '/'
     default_scl_prefix = '/opt/rh'
     name_pattern = 'friendly'
-    upload_url = 'dropbox.redhat.com'
-    upload_user = 'anonymous'
-    upload_directory = '/incoming'
+    upload_url = None
+    upload_user = None
     default_container_runtime = 'podman'
     sos_pkg_name = 'sos'
     sos_bin_path = '/usr/sbin'
@@ -196,7 +201,7 @@ No changes will be made to system configuration.
 """
 
 RH_API_HOST = "https://access.redhat.com"
-RH_FTP_HOST = "ftp://dropbox.redhat.com"
+RH_SFTP_HOST = "sftp://sftp.access.redhat.com"
 
 
 class RHELPolicy(RedHatPolicy):
@@ -211,9 +216,7 @@ An archive containing the collected information will be \
 generated in %(tmpdir)s and may be provided to a %(vendor)s \
 support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
-    _upload_url = RH_FTP_HOST
-    _upload_user = 'anonymous'
-    _upload_directory = '/incoming'
+    _upload_url = RH_SFTP_HOST
     _upload_method = 'post'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
@@ -260,33 +263,17 @@ support representative.
             return
         if self.case_id and not self.get_upload_user():
             self.upload_user = input(_(
-                "Enter your Red Hat Customer Portal username (empty to use "
-                "public dropbox): ")
+                "Enter your Red Hat Customer Portal username for uploading ["
+                "empty for anonymous SFTP]: ")
             )
-            if not self.upload_user:
-                self.upload_url = RH_FTP_HOST
-                self.upload_user = self._upload_user
-
-    def _upload_user_set(self):
-        user = self.get_upload_user()
-        return user and (user != 'anonymous')
 
     def get_upload_url(self):
         if self.upload_url:
             return self.upload_url
-        if self.commons['cmdlineopts'].upload_url:
+        elif self.commons['cmdlineopts'].upload_url:
             return self.commons['cmdlineopts'].upload_url
-        # anonymous FTP server should be used as fallback when either:
-        # - case id is not set, or
-        # - upload user isn't set AND batch mode prevents to prompt for it
-        if (not self.case_id) or \
-           ((not self._upload_user_set()) and
-               self.commons['cmdlineopts'].batch):
-            self.upload_user = self._upload_user
-            if self.upload_directory is None:
-                self.upload_directory = self._upload_directory
-            self.upload_password = None
-            return RH_FTP_HOST
+        elif self.commons['cmdlineopts'].upload_protocol == 'sftp':
+            return RH_SFTP_HOST
         else:
             rh_case_api = "/hydra/rest/cases/%s/attachments"
             return RH_API_HOST + rh_case_api % self.case_id
@@ -299,27 +286,77 @@ support representative.
     def get_upload_url_string(self):
         if self.get_upload_url().startswith(RH_API_HOST):
             return "Red Hat Customer Portal"
-        return self.upload_url or RH_FTP_HOST
+        elif self.get_upload_url().startswith(RH_SFTP_HOST):
+            return "Red Hat Secure FTP"
+        return self.upload_url
 
-    def get_upload_user(self):
-        # if this is anything other than dropbox, annonymous won't work
-        if self.upload_url != RH_FTP_HOST:
-            return os.getenv('SOSUPLOADUSER', None) or self.upload_user
-        return self._upload_user
+    def _get_sftp_upload_name(self):
+        """The RH SFTP server will only automatically connect file uploads to
+        cases if the filename _starts_ with the case number
+        """
+        if self.case_id:
+            return "%s_%s" % (self.case_id,
+                              self.upload_archive_name.split('/')[-1])
+        return self.upload_archive_name
+
+    def upload_sftp(self):
+        """Override the base upload_sftp to allow for setting an on-demand
+        generated anonymous login for the RH SFTP server if a username and
+        password are not given
+        """
+        if RH_SFTP_HOST.split('//')[1] not in self.get_upload_url():
+            return super(RHELPolicy, self).upload_sftp()
+
+        if not REQUESTS_LOADED:
+            raise Exception("python3-requests is not installed and is required"
+                            " for obtaining SFTP auth token.")
+        _token = None
+        _user = None
+        # we have a username and password, but we need to reset the password
+        # to be the token returned from the auth endpoint
+        if self.get_upload_user() and self.get_upload_password():
+            url = RH_API_HOST + '/hydra/rest/v1/sftp/token'
+            auth = self.get_upload_https_auth()
+            ret = requests.get(url, auth=auth, timeout=10)
+            if ret.status_code == 200:
+                # credentials are valid
+                _user = self.get_upload_user()
+                _token = json.loads(ret.text)['token']
+            else:
+                print("Unable to retrieve Red Hat auth token using provided "
+                      "credentials. Will try anonymous.")
+        # we either do not have a username or password/token, or both
+        if not _token:
+            aurl = RH_API_HOST + '/hydra/rest/v1/sftp/token?isAnonymous=true'
+            anon = requests.get(aurl, timeout=10)
+            if anon.status_code == 200:
+                resp = json.loads(anon.text)
+                _user = resp['username']
+                _token = resp['token']
+                print("Using anonymous user %s for upload. Please inform your "
+                      "support engineer." % _user)
+        if _user and _token:
+            return super(RHELPolicy, self).upload_sftp(user=_user,
+                                                       password=_token)
+        raise Exception("Could not retrieve valid or anonymous credentials")
 
     def upload_archive(self, archive):
         """Override the base upload_archive to provide for automatic failover
         from RHCP failures to the public RH dropbox
         """
         try:
+            if not self.get_upload_user() or not self.get_upload_password():
+                self.upload_url = RH_SFTP_HOST
             uploaded = super(RHELPolicy, self).upload_archive(archive)
         except Exception:
             uploaded = False
-        if not uploaded and self.upload_url.startswith(RH_API_HOST):
-            print("Upload to Red Hat Customer Portal failed. Trying %s"
-                  % RH_FTP_HOST)
-            self.upload_url = RH_FTP_HOST
-            uploaded = super(RHELPolicy, self).upload_archive(archive)
+            if not self.upload_url.startswith(RH_API_HOST):
+                raise
+            else:
+                print("Upload to Red Hat Customer Portal failed. Trying %s"
+                      % RH_SFTP_HOST)
+                self.upload_url = RH_SFTP_HOST
+                uploaded = super(RHELPolicy, self).upload_archive(archive)
         return uploaded
 
     def dist_version(self):
