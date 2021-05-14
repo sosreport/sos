@@ -102,7 +102,8 @@ class SoSCollector(SoSComponent):
         'upload_user': None,
         'upload_pass': None,
         'upload_method': 'auto',
-        'upload_no_ssl_verify': False
+        'upload_no_ssl_verify': False,
+        'upload_protocol': 'auto'
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
@@ -373,6 +374,10 @@ class SoSCollector(SoSComponent):
                                  action='store_true',
                                  help="Disable SSL verification for upload url"
                                  )
+        collect_grp.add_argument("--upload-protocol", default='auto',
+                                 choices=['auto', 'https', 'ftp', 'sftp'],
+                                 help="Manually specify the upload protocol")
+
         # Group the cleaner options together
         cleaner_grp = parser.add_argument_group(
             'Cleaner/Masking Options',

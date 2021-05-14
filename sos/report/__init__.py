@@ -120,6 +120,7 @@ class SoSReport(SoSComponent):
         'upload_pass': None,
         'upload_method': 'auto',
         'upload_no_ssl_verify': False,
+        'upload_protocol': 'auto',
         'add_preset': '',
         'del_preset': ''
     }
@@ -307,6 +308,9 @@ class SoSReport(SoSComponent):
         report_grp.add_argument("--upload-no-ssl-verify", default=False,
                                 action='store_true',
                                 help="Disable SSL verification for upload url")
+        report_grp.add_argument("--upload-protocol", default='auto',
+                                choices=['auto', 'https', 'ftp', 'sftp'],
+                                help="Manually specify the upload protocol")
 
         # Group to make add/del preset exclusive
         preset_grp = report_grp.add_mutually_exclusive_group()

@@ -36,6 +36,7 @@ sosreport \- Collect and package diagnostic and support data
           [--upload] [--upload-url url] [--upload-user user]\fR
           [--upload-directory dir] [--upload-pass pass]\fR
           [--upload-no-ssl-verify] [--upload-method]\fR
+          [--upload-protocol protocol]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -384,6 +385,19 @@ to locations that have self-signed certificates, or certificates that are otherw
 untrusted by the local system.
 
 Default behavior is to perform SSL verification against all upload locations.
+.TP
+.B \--upload-protocol PROTO
+Manually specify the protocol to use for uploading to the target \fBupload-url\fR.
+
+Normally this is determined via the upload address, assuming that the protocol is part
+of the address provided, e.g. 'https://example.com'. By using this option, sos will skip
+the protocol check and use the method defined for the specified PROTO.
+
+For RHEL systems, setting this option to \fBsftp\fR will skip the initial attempt to
+upload to the Red Hat Customer Portal, and only attempt an upload to Red Hat's SFTP server,
+which is typically used as a fallback target.
+
+Valid values for PROTO are: 'auto' (default), 'https', 'ftp', 'sftp'.
 .TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
