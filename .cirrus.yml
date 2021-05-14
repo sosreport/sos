@@ -3,10 +3,6 @@
 # Main environment vars to set for all tasks
 env:
 
-    # enable auto cancelling concurrent builds on master when multiple PRs are
-    # merged at once
-    auto_cancellation: true
-
     FEDORA_VER: "33"
     FEDORA_PRIOR_VER: "32"
     FEDORA_NAME: "fedora-${FEDORA_VER}"
@@ -34,6 +30,10 @@ env:
 
 # Default task timeout
 timeout_in: 30m
+
+# enable auto cancelling concurrent builds on master when multiple PRs are
+# merged at once
+auto_cancellation: true
 
 gcp_credentials: ENCRYPTED[!77d4c8251094346c41db63cb05eba2ff98eaff04e58c5d0e2a8e2c6f159f7d601b3fe9a2a4fce1666297e371f2fc8752!]
 
