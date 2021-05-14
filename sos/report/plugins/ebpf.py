@@ -16,6 +16,11 @@ class Ebpf(Plugin, IndependentPlugin):
     plugin_name = 'ebpf'
     profiles = ('system', 'kernel', 'network')
 
+    option_list = [
+        ('namespaces', 'Number of namespaces to collect, 0 for unlimited',
+            'slow', None)
+    ]
+
     def get_bpftool_prog_ids(self, prog_json):
         out = []
         try:
@@ -68,7 +73,8 @@ class Ebpf(Plugin, IndependentPlugin):
 
         # Capture list of bpf program attachments from namespaces
         cmd_prefix = "ip netns exec "
-        for namespace in self.get_network_namespaces():
+        nsps = self.get_option('namespaces')
+        for namespace in self.get_network_namespaces(ns_max=nsps):
             ns_cmd_prefix = cmd_prefix + namespace + " "
             self.add_cmd_output(ns_cmd_prefix + "bpftool net list")
 
