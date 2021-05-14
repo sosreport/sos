@@ -20,7 +20,7 @@ from sos.policies.init_systems.systemd import SystemdInit
 from sos.policies.runtimes.podman import PodmanContainerRuntime
 from sos.policies.runtimes.docker import DockerContainerRuntime
 
-from sos.utilities import shell_out
+from sos.utilities import shell_out, is_executable
 
 
 try:
@@ -295,7 +295,9 @@ class LinuxPolicy(Policy):
             'sftp': self.upload_sftp,
             'https': self.upload_https
         }
-        if '://' not in self.upload_url:
+        if self.commons['cmdlineopts'].upload_protocol in prots.keys():
+            return prots[self.commons['cmdlineopts'].upload_protocol]
+        elif '://' not in self.upload_url:
             raise Exception("Must provide protocol in upload URL")
         prot, url = self.upload_url.split('://')
         if prot not in prots.keys():
@@ -361,7 +363,7 @@ class LinuxPolicy(Policy):
                 self.upload_password or
                 self._upload_password)
 
-    def upload_sftp(self):
+    def upload_sftp(self, user=None, password=None):
         """Attempts to upload the archive to an SFTP location.
 
         Due to the lack of well maintained, secure, and generally widespread
@@ -371,7 +373,102 @@ class LinuxPolicy(Policy):
         Do not override this method with one that uses python-paramiko, as the
         upstream sos team will reject any PR that includes that dependency.
         """
-        raise NotImplementedError("SFTP support is not yet implemented")
+        # if we somehow don't have sftp available locally, fail early
+        if not is_executable('sftp'):
+            raise Exception('SFTP is not locally supported')
+
+        # soft dependency on python3-pexpect, which we need to use to control
+        # sftp login since as of this writing we don't have a viable solution
+        # via ssh python bindings commonly available among downstreams
+        try:
+            import pexpect
+        except ImportError:
+            raise Exception('SFTP upload requires python3-pexpect, which is '
+                            'not currently installed')
+
+        sftp_connected = False
+
+        if not user:
+            user = self.get_upload_user()
+        if not password:
+            password = self.get_upload_password()
+
+        # need to strip the protocol prefix here
+        sftp_url = self.get_upload_url().replace('sftp://', '')
+        sftp_cmd = "sftp -oStrictHostKeyChecking=no %s@%s" % (user, sftp_url)
+        ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
+
+        sftp_expects = [
+            u'sftp>',
+            u'password:',
+            u'Connection refused',
+            pexpect.TIMEOUT,
+            pexpect.EOF
+        ]
+
+        idx = ret.expect(sftp_expects, timeout=15)
+
+        if idx == 0:
+            sftp_connected = True
+        elif idx == 1:
+            ret.sendline(password)
+            pass_expects = [
+                u'sftp>',
+                u'Permission denied',
+                pexpect.TIMEOUT,
+                pexpect.EOF
+            ]
+            sftp_connected = ret.expect(pass_expects, timeout=10) == 0
+            if not sftp_connected:
+                ret.close()
+                raise Exception("Incorrect username or password for %s"
+                                % self.get_upload_url_string())
+        elif idx == 2:
+            raise Exception("Connection refused by %s. Incorrect port?"
+                            % self.get_upload_url_string())
+        elif idx == 3:
+            raise Exception("Timeout hit trying to connect to %s"
+                            % self.get_upload_url_string())
+        elif idx == 4:
+            raise Exception("Unexpected error trying to connect to sftp: %s"
+                            % ret.before)
+
+        if not sftp_connected:
+            ret.close()
+            raise Exception("Unable to connect via SFTP to %s"
+                            % self.get_upload_url_string())
+
+        put_cmd = 'put %s %s' % (self.upload_archive_name,
+                                 self._get_sftp_upload_name())
+        ret.sendline(put_cmd)
+
+        put_expects = [
+            u'100%',
+            pexpect.TIMEOUT,
+            pexpect.EOF
+        ]
+
+        put_success = ret.expect(put_expects, timeout=180)
+
+        if put_success == 0:
+            ret.sendline('bye')
+            return True
+        elif put_success == 1:
+            raise Exception("Timeout expired while uploading")
+        elif put_success == 2:
+            raise Exception("Unknown error during upload: %s" % ret.before)
+        else:
+            raise Exception("Unexpected response from server: %s" % ret.before)
+
+    def _get_sftp_upload_name(self):
+        """If a specific file name pattern is required by the SFTP server,
+        override this method in the relevant Policy. Otherwise the archive's
+        name on disk will be used
+
+        :returns:       Filename as it will exist on the SFTP server
+        :rtype:         ``str``
+        """
+        return self.upload_archive_name.split('/')[-1]
 
     def _upload_https_put(self, archive, verify=True):
         """If upload_https() needs to use requests.put(), use this method.
