@@ -1272,6 +1272,11 @@ class Plugin(object):
                 val = parms['enabled']
                 if val is not None:
                     return val
+                else:
+                    # if the value is `None`, use any non-zero default here,
+                    # but still return `None` if no default is given since
+                    # optionname did exist and had a `None` value
+                    return default or val
 
         return default
 
@@ -2849,11 +2854,13 @@ class Plugin(object):
                 continue
         return pids
 
-    def get_network_namespaces(self, ns_pattern=None, ns_max=0):
+    def get_network_namespaces(self, ns_pattern=None, ns_max=None):
+        if ns_max is None and self.commons['cmdlineopts'].namespaces:
+            ns_max = self.commons['cmdlineopts'].namespaces
         return self.filter_namespaces(self.commons['namespaces']['network'],
                                       ns_pattern, ns_max)
 
-    def filter_namespaces(self, ns_list, ns_pattern=None, ns_max=0):
+    def filter_namespaces(self, ns_list, ns_pattern=None, ns_max=None):
         """Filter a list of namespaces by regex pattern or max number of
         namespaces (options originally present in the networking plugin.)
         """
@@ -2865,15 +2872,14 @@ class Plugin(object):
                 '(?:%s$)' % '$|'.join(ns_pattern.split()).replace('*', '.*')
                 )
         for ns in ns_list:
-            # if ns_pattern defined, append only namespaces
-            # matching with pattern
+            # if ns_pattern defined, skip namespaces not matching the pattern
             if ns_pattern:
-                if bool(re.match(pattern, ns)):
-                    out_ns.append(ns)
+                if not bool(re.match(pattern, ns)):
+                    continue
 
-            # if ns_max is defined and ns_pattern is not defined
-            # remove from out_ns namespaces with higher index than defined
-            elif ns_max != 0:
+            # if ns_max is defined at all, limit returned list to that number
+            # this allows the use of both '0' and `None` to mean unlimited
+            elif ns_max:
                 out_ns.append(ns)
                 if len(out_ns) == ns_max:
                     self._log_warn("Limiting namespace iteration "

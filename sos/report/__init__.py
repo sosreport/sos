@@ -100,6 +100,7 @@ class SoSReport(SoSComponent):
         'skip_commands': [],
         'skip_files': [],
         'skip_plugins': [],
+        'namespaces': None,
         'no_report': False,
         'no_env_vars': False,
         'no_postproc': False,
@@ -250,6 +251,9 @@ class SoSReport(SoSComponent):
                                 type=int, default=25,
                                 help="limit the size of collected logs "
                                      "(in MiB)")
+        report_grp.add_argument("--namespaces", default=None,
+                                help="limit number of namespaces to collect "
+                                     "output for - 0 means unlimited")
         report_grp.add_argument("-n", "--skip-plugins", action="extend",
                                 dest="skip_plugins", type=str,
                                 help="disable these plugins", default=[])

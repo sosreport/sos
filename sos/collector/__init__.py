@@ -74,6 +74,7 @@ class SoSCollector(SoSComponent):
         'map_file': '/etc/sos/cleaner/default_mapping',
         'master': '',
         'primary': '',
+        'namespaces': None,
         'nodes': [],
         'no_env_vars': False,
         'no_local': False,
@@ -281,6 +282,9 @@ class SoSCollector(SoSComponent):
         sos_grp.add_argument('-o', '--only-plugins', action="extend",
                              default=[],
                              help='Run these plugins only')
+        sos_grp.add_argument('--namespaces', default=None,
+                             help='limit number of namespaces to collect '
+                                  'output for - 0 means unlimited')
         sos_grp.add_argument('--no-env-vars', action='store_true',
                              default=False,
                              help='Do not collect env vars in sosreports')
