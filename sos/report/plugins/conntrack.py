@@ -16,8 +16,12 @@ class Conntrack(Plugin, IndependentPlugin):
 
     plugin_name = 'conntrack'
     profiles = ('network', 'cluster')
-
     packages = ('conntrack-tools', 'conntrack', 'conntrackd')
+
+    option_list = [
+        ('namespaces', 'Number of namespaces to collect, 0 for unlimited',
+            'slow', None)
+    ]
 
     def setup(self):
         # Collect info from conntrackd
@@ -42,7 +46,8 @@ class Conntrack(Plugin, IndependentPlugin):
         # Capture additional data from namespaces; each command is run
         # per-namespace
         cmd_prefix = "ip netns exec "
-        for namespace in self.get_network_namespaces():
+        nsps = self.get_option('namespaces')
+        for namespace in self.get_network_namespaces(ns_max=nsps):
             ns_cmd_prefix = cmd_prefix + namespace + " "
             self.add_cmd_output(ns_cmd_prefix + "conntrack -L -o extended")
             self.add_cmd_output(ns_cmd_prefix + "conntrack -S")
