@@ -18,6 +18,7 @@ sos report \- Collect and package diagnostic and support data
           [--threads threads]\fR
           [--plugin-timeout TIMEOUT]\fR
           [--cmd-timeout TIMEOUT]\fR
+          [--namespaces NAMESPACES]\fR
           [-s|--sysroot SYSROOT]\fR
           [-c|--chroot {auto|always|never}\fR
           [--tmp-dir directory]\fR
@@ -289,6 +290,15 @@ Note that setting --cmd-timeout (or -k logs.cmd-timeout) high should be followed
 by increasing the --plugin-timeout equivalent, otherwise the plugin can easily
 timeout on slow commands execution.
 .TP
+.B \--namespaces NAMESPACES
+For plugins that iterate collections over namespaces that exist on the system,
+for example the networking plugin collecting `ip` command output for each network
+namespace, use this option to limit the number of namespaces that will be collected.
+
+Use '0' (default) for no limit - all namespaces will be used for collections.
+
+Note that specific plugins may provide a similar `namespaces` plugin option. If
+the plugin option is used, it will override this option.
 .B \--case-id NUMBER
 Specify a case identifier to associate with the archive.
 Identifiers may include alphanumeric characters, commas and periods ('.').

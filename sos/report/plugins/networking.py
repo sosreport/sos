@@ -24,7 +24,7 @@ class Networking(Plugin):
          "collected, namespaces pattern should be separated by whitespace " +
          "as for example \"eth* ens2\"", "fast", ""),
         ("namespaces", "Number of namespaces to collect, 0 for unlimited. " +
-         "Incompatible with the namespace_pattern plugin option", "slow", 0),
+         "Incompatible with the namespace_pattern option", "slow", None),
         ("ethtool_namespaces", "Define if ethtool commands should be " +
          "collected for namespaces", "slow", True),
         ("eepromdump", "collect 'ethtool -e' for all devices", "slow", False)

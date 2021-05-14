@@ -244,7 +244,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_option("opt"), 0)
+        self.assertEquals(p.get_option("opt"), None)
 
     def test_get_unset_plugin_option_with_default(self):
         # this shows that even when we pass in a default to get,
