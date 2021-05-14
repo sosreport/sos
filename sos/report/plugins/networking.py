@@ -88,6 +88,7 @@ class Networking(Plugin):
                             root_symlink="netstat")
 
         self.add_cmd_output([
+            "nstat -zas",
             "netstat -s",
             "netstat %s -agn" % self.ns_wide,
             "networkctl status -a",
@@ -198,6 +199,7 @@ class Networking(Plugin):
                 ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
                 ns_cmd_prefix + "netstat -s",
                 ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
+                ns_cmd_prefix + "nstat -zas",
             ])
 
             ss_cmd = ns_cmd_prefix + "ss -peaonmi"
