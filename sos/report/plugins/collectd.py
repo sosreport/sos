@@ -21,7 +21,7 @@ class Collectd(Plugin, IndependentPlugin):
     # or being inside Super Proviledged Container that does not have
     # the package but logs to the host's logfile
     packages = ('collectd',)
-    files = ('/var/log/containers/collectd/collectd.log')
+    files = ('/var/log/containers/collectd/collectd.log',)
 
     def setup(self):
         self.add_copy_spec([

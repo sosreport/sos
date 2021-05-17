@@ -14,7 +14,7 @@ class Cifs(Plugin, IndependentPlugin):
     short_desc = 'SMB file system information'
     plugin_name = 'cifs'
     profiles = ('storage', 'network', 'cifs')
-    packages = ['cifs-utils']
+    packages = ('cifs-utils',)
 
     def setup(self):
         self.add_copy_spec([

@@ -16,7 +16,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = 'Podman containers'
     plugin_name = 'podman'
     profiles = ('container',)
-    packages = ('podman')
+    packages = ('podman',)
 
     option_list = [
         ("all", "enable capture for all containers, even containers "

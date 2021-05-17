@@ -25,7 +25,7 @@ class OmnipathClient(Plugin, RedHatPlugin):
     plugin_name = 'omnipath_client'
     profiles = ('hardware',)
 
-    packages = ('opa-basic-tools')
+    packages = ('opa-basic-tools',)
 
     def setup(self):
 

@@ -41,7 +41,7 @@ class SosExtras(Plugin, IndependentPlugin):
 
     extras_dir = '/etc/sos/extras.d/'
 
-    files = (extras_dir)
+    files = (extras_dir,)
 
     def setup(self):
         try:

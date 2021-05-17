@@ -22,8 +22,8 @@ class Gluster(Plugin, RedHatPlugin):
     profiles = ('storage', 'virt')
 
     statedump_dir = '/run/gluster'
-    packages = ["glusterfs", "glusterfs-core"]
-    files = ["/etc/glusterd", "/var/lib/glusterd"]
+    packages = ("glusterfs", "glusterfs-core")
+    files = ("/etc/glusterd", "/var/lib/glusterd")
 
     option_list = [("dump", "enable glusterdump support", "slow", False)]
 

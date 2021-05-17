@@ -16,7 +16,7 @@ class Sudo(Plugin, IndependentPlugin):
     short_desc = 'Sudo command execution'
     plugin_name = 'sudo'
     profiles = ('identity', 'system')
-    packages = ('sudo')
+    packages = ('sudo',)
 
     def setup(self):
         self.add_copy_spec("/etc/sudo*")

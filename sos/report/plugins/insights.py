@@ -13,7 +13,7 @@ class RedHatInsights(Plugin, RedHatPlugin):
 
     short_desc = 'Collect config and logs for Red Hat Insights'
     plugin_name = 'insights'
-    packages = ['redhat-access-insights', 'insights-client']
+    packages = ('redhat-access-insights', 'insights-client')
     profiles = ('system', 'sysmgmt')
     config = (
         '/etc/insights-client/insights-client.conf',

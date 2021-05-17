@@ -16,7 +16,7 @@ class Dlm(Plugin, IndependentPlugin):
 
     plugin_name = "dlm"
     profiles = ("cluster", )
-    packages = ["cman", "dlm", "pacemaker"]
+    packages = ("cman", "dlm", "pacemaker")
     option_list = [
         ("lockdump", "capture lock dumps for DLM", "slow", False),
     ]

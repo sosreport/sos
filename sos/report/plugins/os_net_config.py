@@ -14,7 +14,7 @@ class OsNetConfig(Plugin, IndependentPlugin):
     short_desc = 'OpenStack Net Config'
 
     plugin_name = "os_net_config"
-    profiles = ('openstack')
+    profiles = ('openstack',)
     packages = ('os-net-config',)
 
     def setup(self):

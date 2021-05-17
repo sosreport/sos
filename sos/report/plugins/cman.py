@@ -17,13 +17,9 @@ class Cman(Plugin, RedHatPlugin):
     plugin_name = "cman"
     profiles = ("cluster",)
 
-    packages = [
-        "luci",
-        "cman",
-        "clusterlib",
-    ]
+    packages = ("luci", "cman", "clusterlib")
 
-    files = ["/etc/cluster/cluster.conf"]
+    files = ("/etc/cluster/cluster.conf",)
 
     debugfs_path = "/sys/kernel/debug"
     _debugfs_cleanup = False

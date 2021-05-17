@@ -24,7 +24,7 @@ class OmnipathManager(Plugin, RedHatPlugin):
     plugin_name = 'omnipath_manager'
     profiles = ('hardware',)
 
-    packages = ('opa-fm')
+    packages = ('opa-fm',)
 
     def setup(self):
 

@@ -65,12 +65,12 @@ class OpenStackTrove(Plugin):
 
 class DebianTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
 
-    packages = [
+    packages = (
         'python-trove',
         'trove-common',
         'trove-api',
         'trove-taskmanager'
-    ]
+    )
 
     def setup(self):
         super(DebianTrove, self).setup()

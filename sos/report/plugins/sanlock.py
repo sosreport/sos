@@ -14,7 +14,7 @@ class SANLock(Plugin):
     short_desc = 'SANlock daemon'
     plugin_name = "sanlock"
     profiles = ('cluster', 'virt')
-    packages = ["sanlock"]
+    packages = ("sanlock",)
 
     def setup(self):
         self.add_copy_spec("/var/log/sanlock.log*")
@@ -28,7 +28,7 @@ class SANLock(Plugin):
 
 class RedHatSANLock(SANLock, RedHatPlugin):
 
-    files = ["/etc/sysconfig/sanlock"]
+    files = ("/etc/sysconfig/sanlock",)
 
     def setup(self):
         super(RedHatSANLock, self).setup()

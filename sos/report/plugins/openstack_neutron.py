@@ -94,7 +94,7 @@ class OpenStackNeutron(Plugin):
 
 
 class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
-    packages = [
+    packages = (
         'neutron-common',
         'neutron-plugin-cisco',
         'neutron-plugin-linuxbridge-agent',
@@ -106,7 +106,7 @@ class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
         'neutron-server',
         'python-neutron',
         'python-neutronclient'
-    ]
+    )
 
     def check_enabled(self):
         return self.is_installed("neutron-common")

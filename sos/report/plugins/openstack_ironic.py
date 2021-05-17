@@ -153,11 +153,7 @@ class OpenStackIronic(Plugin):
 
 class DebianIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):
 
-    packages = [
-        'ironic-api',
-        'ironic-common',
-        'ironic-conductor',
-    ]
+    packages = ('ironic-api', 'ironic-common', 'ironic-conductor')
 
     def setup(self):
         super(DebianIronic, self).setup()

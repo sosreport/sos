@@ -70,7 +70,7 @@ class RedHatNamed(Named, RedHatPlugin):
 
 class DebianNamed(Named, DebianPlugin, UbuntuPlugin):
 
-    files = ('/etc/bind/named.conf')
+    files = ('/etc/bind/named.conf',)
     packages = ('bind9',)
     named_conf = "/etc/bind/named.conf"
     config_files = (named_conf,
