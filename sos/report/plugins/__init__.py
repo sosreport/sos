@@ -461,6 +461,7 @@ class Plugin(object):
     _timeout_hit = False
     cmdtags = {}
     filetags = {}
+    option_list = []
 
     # Default predicates
     predicate = None
@@ -476,8 +477,6 @@ class Plugin(object):
     ]
 
     def __init__(self, commons):
-        if not getattr(self, "option_list", False):
-            self.option_list = []
 
         self.copied_files = []
         self.executed_commands = []
