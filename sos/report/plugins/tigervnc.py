@@ -13,6 +13,7 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 class TigerVNC(Plugin, RedHatPlugin):
 
+    short_desc = 'TigerVNC server configuration'
     plugin_name = 'tigervnc'
     packages = ('tigervnc-server',)
 

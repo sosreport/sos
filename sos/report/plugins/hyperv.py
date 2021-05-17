@@ -12,6 +12,7 @@ from sos.report.plugins import Plugin, IndependentPlugin
 class Hyperv(Plugin, IndependentPlugin):
     """Hyper-V client information"""
 
+    short_desc = 'Microsoft Hyper-V client information'
     plugin_name = "hyperv"
     files = ('/sys/bus/vmbus/',)
 
