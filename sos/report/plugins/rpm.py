@@ -26,34 +26,25 @@ class Rpm(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec("/var/log/rpmpkgs")
 
-        def add_rpm_cmd(query_fmt, filter_cmd, symlink, suggest, tags=[]):
-            rpmq_cmd = 'rpm --nodigest -qa --qf=%s' % query_fmt
-            shell_cmd = rpmq_cmd
-            if filter_cmd:
-                shell_cmd = "sh -c '%s'" % (rpmq_cmd + "|" + filter_cmd)
-            self.add_cmd_output(shell_cmd, root_symlink=symlink,
-                                suggest_filename=suggest,
-                                tags=tags)
-
         if self.get_option("rpmq"):
+            rpmq = "rpm --nodigest -qa --qf=%s"
             # basic installed-rpms
-            query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}~~'
-            query_fmt = query_fmt + '%{INSTALLTIME:date}\n"'
+            nvra = '"%-59{NVRA} %{INSTALLTIME:date}\n"'
+            irpms = "sh -c '%s | sort -V'" % rpmq % nvra
 
-            filter_cmd = 'awk -F "~~" ' \
-                r'"{printf \"%-59s %s\n\",\$1,\$2}"|sort -V'
-
-            add_rpm_cmd(query_fmt, filter_cmd, "installed-rpms", None,
-                        ['installed_rpms'])
+            self.add_cmd_output(irpms, root_symlink='installed-rpms',
+                                tags='installed_rpms')
 
             # extended package data
-            query_fmt = '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\\t'
-            query_fmt = query_fmt + '%{INSTALLTIME:date}\\t%{INSTALLTIME}\\t'
-            query_fmt = query_fmt + '%{VENDOR}\\t%{BUILDHOST}\\t'
-            query_fmt = query_fmt + '%{SIGPGP}\\t%{SIGPGP:pgpsig}\\n"'
+            extpd = (
+                '"%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\\t'
+                '%{INSTALLTIME:date}\\t%{INSTALLTIME}\\t'
+                '%{VENDOR}\\t%{BUILDHOST}\\t'
+                '%{SIGPGP}\\t%{SIGPGP:pgpsig}\\n"'
+            )
 
-            add_rpm_cmd(query_fmt, None, None, "package-data",
-                        ['installed_rpms', 'package_data'])
+            self.add_cmd_output(rpmq % extpd, suggest_filename='package-data',
+                                tags=['installed_rpms', 'package_data'])
 
         if self.get_option("rpmva"):
             self.plugin_timeout = 1000
