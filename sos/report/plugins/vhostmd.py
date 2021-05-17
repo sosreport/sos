@@ -15,9 +15,9 @@ class vhostmd(Plugin, RedHatPlugin):
     short_desc = 'vhostmd virtualization metrics collection'
 
     plugin_name = 'vhostmd'
-    profiles = ['sap', 'virt', 'system']
+    profiles = ('sap', 'virt', 'system')
 
-    packages = ['virt-what']
+    packages = ('virt-what',)
 
     def setup(self):
         vw = self.collect_cmd_output("virt-what")['output'].splitlines()

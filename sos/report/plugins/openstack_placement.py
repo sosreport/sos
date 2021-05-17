@@ -84,7 +84,7 @@ class OpenStackPlacement(Plugin):
 
 class DebianPlacement(OpenStackPlacement, DebianPlugin, UbuntuPlugin):
 
-    packages = ('placement')
+    packages = ('placement',)
     service_name = 'placement-api'
 
     def setup(self):
@@ -97,7 +97,7 @@ class DebianPlacement(OpenStackPlacement, DebianPlugin, UbuntuPlugin):
 
 class RedHatPlacement(OpenStackPlacement, RedHatPlugin):
 
-    packages = ('openstack-selinux')
+    packages = ('openstack-selinux',)
 
     def setup(self):
         super(RedHatPlacement, self).setup()

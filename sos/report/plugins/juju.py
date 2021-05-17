@@ -20,7 +20,7 @@ class Juju(Plugin, UbuntuPlugin):
 
     # Using files instead of packages here because there is no identifying
     # package on a juju machine.
-    files = ('/var/log/juju')
+    files = ('/var/log/juju',)
 
     def setup(self):
         # Juju service names are not consistent through deployments,

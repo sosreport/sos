@@ -14,7 +14,7 @@ class drbd(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = 'Distributed Replicated Block Device (DRBD)'
 
     plugin_name = 'drbd'
-    profiles = ('storage')
+    profiles = ('storage',)
     packages = ('drbd*-utils',)
 
     def setup(self):

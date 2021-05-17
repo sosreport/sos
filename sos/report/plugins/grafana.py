@@ -17,7 +17,7 @@ class Grafana(Plugin, IndependentPlugin):
     plugin_name = "grafana"
     profiles = ('services', 'openstack', 'openstack_controller')
 
-    packages = ('grafana')
+    packages = ('grafana',)
 
     def setup(self):
         if self.get_option("all_logs"):

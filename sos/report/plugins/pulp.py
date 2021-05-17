@@ -19,7 +19,7 @@ class Pulp(Plugin, RedHatPlugin):
 
     plugin_name = "pulp"
     packages = ("pulp-server", "pulp-katello", "python3-pulpcore")
-    files = ("/etc/pulp/settings.py")
+    files = ("/etc/pulp/settings.py",)
     option_list = [
         ('tasks', 'number of tasks to collect from DB queries', 'fast', 200)
     ]

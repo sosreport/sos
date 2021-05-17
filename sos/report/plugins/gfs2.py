@@ -15,7 +15,7 @@ class Gfs2(Plugin, IndependentPlugin):
 
     plugin_name = "gfs2"
     profiles = ("cluster", )
-    packages = ["gfs2-utils"]
+    packages = ("gfs2-utils",)
 
     option_list = [
         ("lockdump",

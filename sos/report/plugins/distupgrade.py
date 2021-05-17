@@ -18,8 +18,6 @@ class DistUpgrade(Plugin):
     plugin_name = "distupgrade"
     profiles = ('system', 'sysmgmt')
 
-    files = None
-
 
 class RedHatDistUpgrade(DistUpgrade, RedHatPlugin):
 

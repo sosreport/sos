@@ -17,7 +17,7 @@ class Cron(Plugin, IndependentPlugin):
     profiles = ('system',)
     packages = ('cron', 'anacron', 'chronie')
 
-    files = ('/etc/crontab')
+    files = ('/etc/crontab',)
 
     def setup(self):
         self.add_copy_spec([
