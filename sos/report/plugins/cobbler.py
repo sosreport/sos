@@ -11,11 +11,10 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 class Cobbler(Plugin):
     plugin_name = "cobbler"
+    short_desc = 'Cobbler installation server'
 
 
 class RedHatCobbler(Cobbler, RedHatPlugin):
-
-    short_desc = 'Cobbler installation server'
 
     packages = ('cobbler',)
     profiles = ('cluster', 'sysmgmt')

@@ -12,7 +12,8 @@ from sos.report.plugins import Plugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackBarbican(Plugin, DebianPlugin, UbuntuPlugin):
-    """OpenStack Barbican Secure storage service"""
+
+    short_desc = "OpenStack Barbican Secure storage service"
     plugin_name = "openstack_barbican"
     profiles = ('openstack', 'openstack_controller')
 
