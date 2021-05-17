@@ -15,7 +15,7 @@ from sos.report.plugins import Plugin, IndependentPlugin
 class Nvidia(Plugin, IndependentPlugin):
 
     short_desc = 'Nvidia GPU information'
-
+    plugin_name = 'nvidia'
     commands = ('nvidia-smi',)
 
     def setup(self):

@@ -16,6 +16,7 @@ class Unpackaged(Plugin, RedHatPlugin):
 
     short_desc = ('Collects a list of files that are not handled by the '
                   'package manager')
+    plugin_name = 'unpackaged'
 
     def setup(self):
 
