@@ -52,7 +52,7 @@ class RedHatAzure(Azure, RedHatPlugin):
     def setup(self):
         super(RedHatAzure, self).setup()
 
-        if os.path.isfile('/etc/yum.repos.d/rh-cloud.repo'):
+        if self.path_isfile('/etc/yum.repos.d/rh-cloud.repo'):
             curl_cmd = ('curl -s -m 5 -vvv '
                         'https://rhui-%s.microsoft.com/pulp/repos/%s')
             self.add_cmd_output([
@@ -62,7 +62,7 @@ class RedHatAzure(Azure, RedHatPlugin):
             ])
 
         crt_path = '/etc/pki/rhui/product/content.crt'
-        if os.path.isfile(crt_path):
+        if self.path_isfile(crt_path):
             self.add_cmd_output([
                 'openssl x509 -noout -text -in ' + crt_path
             ])

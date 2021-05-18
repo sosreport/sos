@@ -53,9 +53,10 @@ class Yum(Plugin, RedHatPlugin):
         self.add_cmd_output("yum -C repolist --verbose")
 
         # Get list of available plugins and their configuration files.
-        if os.path.exists(YUM_PLUGIN_PATH) and os.path.isdir(YUM_PLUGIN_PATH):
+        if (self.path_exists(YUM_PLUGIN_PATH) and
+                self.path_isdir(YUM_PLUGIN_PATH)):
             plugins = ""
-            for p in os.listdir(YUM_PLUGIN_PATH):
+            for p in self.listdir(YUM_PLUGIN_PATH):
                 if not p.endswith(".py"):
                     continue
                 plugins = plugins + " " if len(plugins) else ""
@@ -63,7 +64,9 @@ class Yum(Plugin, RedHatPlugin):
             if len(plugins):
                 self.add_cmd_output("rpm -qf %s" % plugins,
                                     suggest_filename="plugin-packages")
-                plugnames = [os.path.basename(p)[:-3] for p in plugins.split()]
+                plugnames = [
+                    os.path.basename(p)[:-3] for p in plugins.split()
+                ]
                 plugnames = "%s\n" % "\n".join(plugnames)
                 self.add_string_as_file(plugnames, "plugin-names")
 

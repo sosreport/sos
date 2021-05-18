@@ -53,7 +53,7 @@ class OpenStackKeystone(Plugin):
                 "identity domain_config_dir")
         self.domain_config_dir = exec_out['output']
         if exec_out['status'] != 0 or \
-                not(os.path.isdir(self.domain_config_dir)):
+                not(self.path_isdir(self.domain_config_dir)):
             self.domain_config_dir = "/etc/keystone/domains"
         self.add_copy_spec(self.domain_config_dir)
 

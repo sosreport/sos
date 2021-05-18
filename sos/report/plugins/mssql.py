@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-import os
 
 
 class MsSQL(Plugin, RedHatPlugin):
@@ -66,7 +65,7 @@ class MsSQL(Plugin, RedHatPlugin):
         keytab_err = ('keytab file is specfieid in mssql_conf'
                       ' but not found in %s' % kerberoskeytabfile)
         if kerberoskeytabfile is not None:
-            if os.path.isfile(kerberoskeytabfile):
+            if self.path_isfile(kerberoskeytabfile):
                 self.add_cmd_output('ls -l %s' % kerberoskeytabfile)
                 self.add_cmd_output('klist -e -k %s' % kerberoskeytabfile)
             else:

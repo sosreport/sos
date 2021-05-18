@@ -26,10 +26,10 @@ class DirectoryServer(Plugin, RedHatPlugin):
 
     def check_version(self):
         if self.is_installed("redhat-ds-base") or \
-                os.path.exists("/etc/dirsrv"):
+                self.path_exists("/etc/dirsrv"):
             return "ds8"
         elif self.is_installed("redhat-ds-7") or \
-                os.path.exists("/opt/redhat-ds"):
+                self.path_exists("/opt/redhat-ds"):
             return "ds7"
         return False
 
@@ -45,7 +45,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
         ])
 
         try:
-            for d in os.listdir("/etc/dirsrv"):
+            for d in self.listdir("/etc/dirsrv"):
                 if d[0:5] == 'slapd':
                     certpath = os.path.join("/etc/dirsrv", d)
                     self.add_cmd_output("certutil -L -d %s" % certpath)

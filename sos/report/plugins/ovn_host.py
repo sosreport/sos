@@ -48,7 +48,7 @@ class OVNHost(Plugin):
         self.add_journal(units="ovn-controller")
 
     def check_enabled(self):
-        return (any([os.path.isfile(
+        return (any([self.path_isfile(
             os.path.join(pp, pidfile)) for pp in pid_paths]) or
             super(OVNHost, self).check_enabled())
 

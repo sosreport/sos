@@ -8,7 +8,6 @@
 
 from sos.report.plugins import Plugin, IndependentPlugin
 import glob
-import os
 
 
 class Libvirt(Plugin, IndependentPlugin):
@@ -56,7 +55,7 @@ class Libvirt(Plugin, IndependentPlugin):
         else:
             self.add_copy_spec("/var/log/libvirt")
 
-        if os.path.exists(self.join_sysroot(libvirt_keytab)):
+        if self.path_exists(self.join_sysroot(libvirt_keytab)):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
 
         self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")

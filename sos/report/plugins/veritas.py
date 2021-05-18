@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-import os
 
 
 class Veritas(Plugin, RedHatPlugin):
@@ -23,7 +22,7 @@ class Veritas(Plugin, RedHatPlugin):
                     "/opt/VRTSspt/VRTSexplorer")]
 
     def check_enabled(self):
-        return os.path.isfile(self.get_option("script"))
+        return self.path_isfile(self.get_option("script"))
 
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """

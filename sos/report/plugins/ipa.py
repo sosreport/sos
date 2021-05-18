@@ -10,7 +10,6 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, SoSPredicate
 from glob import glob
-from os.path import exists
 
 
 class Ipa(Plugin, RedHatPlugin):
@@ -28,18 +27,18 @@ class Ipa(Plugin, RedHatPlugin):
 
     def check_ipa_server_version(self):
         if self.is_installed("pki-server") \
-                or exists("/var/lib/pki") \
-                or exists("/usr/share/doc/ipa-server-4.2.0"):
+                or self.path_exists("/var/lib/pki") \
+                or self.path_exists("/usr/share/doc/ipa-server-4.2.0"):
             return "v4"
         elif self.is_installed("pki-common") \
-                or exists("/var/lib/pki-ca/"):
+                or self.path_exists("/var/lib/pki-ca/"):
             return "v3"
         return None
 
     def ca_installed(self):
         # Follow the same checks as IPA CA installer code
-        if exists("%s/conf/ca/CS.cfg" % self.pki_tomcat_dir_v4) \
-                or exists("%s/conf/CS.cfg" % self.pki_tomcat_dir_v3):
+        if self.path_exists("%s/conf/ca/CS.cfg" % self.pki_tomcat_dir_v4) \
+                or self.path_exists("%s/conf/CS.cfg" % self.pki_tomcat_dir_v3):
             return True
 
     def ipa_server_installed(self):

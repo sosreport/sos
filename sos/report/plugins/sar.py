@@ -28,7 +28,7 @@ class Sar(Plugin,):
                            tailit=False)
 
         try:
-            dir_list = os.listdir(self.sa_path)
+            dir_list = self.listdir(self.sa_path)
         except OSError:
             self._log_warn("sar: could not list %s" % self.sa_path)
             return

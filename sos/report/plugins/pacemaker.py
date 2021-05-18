@@ -9,7 +9,6 @@
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from datetime import datetime, timedelta
 import re
-import os.path
 
 
 class Pacemaker(Plugin):
@@ -112,7 +111,7 @@ class Pacemaker(Plugin):
         #   PCMK_logfile=filename
         # specified in the pacemaker start-up environment file.
         pattern = r'^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
-        if os.path.isfile(self.envfile):
+        if self.path_isfile(self.envfile):
             self.add_copy_spec(self.envfile)
             with open(self.envfile) as f:
                 for line in f:

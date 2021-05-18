@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-import os
 
 
 class Anaconda(Plugin, RedHatPlugin):
@@ -29,7 +28,7 @@ class Anaconda(Plugin, RedHatPlugin):
             "/root/anaconda-ks.cfg"
         ]
 
-        if os.path.isdir('/var/log/anaconda'):
+        if self.path_isdir('/var/log/anaconda'):
             # new anaconda
             paths.append('/var/log/anaconda')
         else:

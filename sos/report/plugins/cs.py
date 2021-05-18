@@ -11,7 +11,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-from os.path import exists
 from glob import glob
 
 
@@ -38,7 +37,8 @@ class CertificateSystem(Plugin, RedHatPlugin):
     )
 
     def checkversion(self):
-        if self.is_installed("redhat-cs") or exists("/opt/redhat-cs"):
+        if (self.is_installed("redhat-cs") or
+                self.path_exists("/opt/redhat-cs")):
             return 71
         elif self.is_installed("rhpki-common") or \
                 len(glob("/var/lib/rhpki-*")):

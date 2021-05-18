@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-from os.path import exists, join, normpath
+from os.path import join, normpath
 
 
 class Named(Plugin):
@@ -25,7 +25,7 @@ class Named(Plugin):
             "/var/log/named*.log"
         ])
         for cfg in self.config_files:
-            if exists(cfg):
+            if self.path_exists(cfg):
                 self.add_copy_spec([
                     cfg,
                     self.get_dns_dir(cfg)

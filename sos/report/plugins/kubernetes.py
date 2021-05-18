@@ -11,7 +11,6 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 from fnmatch import translate
-from os import path
 import re
 
 
@@ -35,7 +34,7 @@ class Kubernetes(Plugin):
     kube_cmd = "kubectl"
 
     def check_is_master(self):
-        return any([path.exists(f) for f in self.files])
+        return any([self.path_exists(f) for f in self.files])
 
     def setup(self):
         self.add_copy_spec("/etc/kubernetes")
@@ -195,21 +194,23 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
     )
 
     kube_cmd = "kubectl"
-    # Rather than loading the config file, use the OCP command directly that
-    # wraps kubectl, so we don't have to manually account for any other changes
-    # the `oc` binary may implement
-    if path.exists('/etc/origin/master/admin.kubeconfig'):
-        kube_cmd = 'oc'
+
+    def setup(self):
+        # Rather than loading the config file, use the OCP command directly
+        # that wraps kubectl, so we don't have to manually account for any
+        # other changes the `oc` binary may implement
+        if self.path_exists('/etc/origin/master/admin.kubeconfig'):
+            self.kube_cmd = 'oc'
+        super(RedHatKubernetes, self).setup()
 
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
 
     packages = ('kubernetes',)
-    files = ('/root/cdk/cdk_addons_kubectl_config', '/etc/kubernetes')
-    if path.exists('/root/cdk/cdk_addons_kubectl_config'):
-        kube_cmd = "kubectl --kubeconfig=/root/cdk/cdk_addons_kubectl_config"
-    elif path.exists('/etc/kubernetes/admin.conf'):
-        kube_cmd = "kubectl --kubeconfig=/etc/kubernetes/admin.conf"
+    files = (
+        '/root/cdk/cdk_addons_kubectl_config',
+        '/etc/kubernetes/admin.conf'
+    )
 
     services = (
         # CDK
@@ -217,6 +218,11 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
     )
 
     def setup(self):
+        for _kconf in self.files:
+            if self.path_exists(_kconf):
+                self.kube_cmd += " --kubeconfig=%s" % _kconf
+                break
+
         for svc in self.services:
             self.add_journal(units=svc)
 

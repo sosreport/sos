@@ -8,8 +8,6 @@
 
 from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
                                 DebianPlugin, SoSPredicate)
-from os import listdir
-from os import path
 
 
 class Networking(Plugin):
@@ -110,7 +108,7 @@ class Networking(Plugin):
             "tc -s qdisc show",
         ])
 
-        if path.isdir('/sys/class/devlink'):
+        if self.path_isdir('/sys/class/devlink'):
             self.add_cmd_output([
                 "devlink dev param show",
                 "devlink dev info",
@@ -139,7 +137,7 @@ class Networking(Plugin):
 
         # Get ethtool output for every device that does not exist in a
         # namespace.
-        for eth in listdir("/sys/class/net/"):
+        for eth in self.listdir("/sys/class/net/"):
             # skip 'bonding_masters' file created when loading the bonding
             # module but the file does not correspond to a device
             if eth == "bonding_masters":

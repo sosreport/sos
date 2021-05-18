@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-import os
 
 
 class vhostmd(Plugin, RedHatPlugin):
@@ -33,9 +32,9 @@ class vhostmd(Plugin, RedHatPlugin):
             else:
                 # otherwise use the raw vhostmd disk presented (256k size)
                 sysblock = "/sys/block"
-                if not os.path.isdir(sysblock):
+                if not self.path_isdir(sysblock):
                     return
-                for disk in os.listdir(sysblock):
+                for disk in self.listdir(sysblock):
                     if "256K" in disk:
                         dev = disk.split()[0]
                         r = self.exec_cmd("dd if=/dev/%s bs=25 count=1" % dev)

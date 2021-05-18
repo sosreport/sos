@@ -10,7 +10,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-from os import path
 
 
 class etcd(Plugin, RedHatPlugin):
@@ -24,7 +23,7 @@ class etcd(Plugin, RedHatPlugin):
     services = ('etcd',)
 
     def setup(self):
-        if path.exists('/etc/origin/node/pods/etcd.yaml'):
+        if self.path_exists('/etc/origin/node/pods/etcd.yaml'):
             etcd_cmd = 'master-exec etcd etcd etcdctl'
         else:
             etcd_cmd = 'etcdctl'

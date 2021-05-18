@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
-import os
 import glob
 
 
@@ -33,7 +32,7 @@ class Kernel(Plugin, IndependentPlugin):
         self.add_cmd_output("ls -lt /sys/kernel/slab")
 
         try:
-            modules = os.listdir(self.sys_module)
+            modules = self.listdir(self.sys_module)
             self.add_cmd_output("modinfo " + " ".join(modules),
                                 suggest_filename="modinfo_ALL_MODULES",
                                 tags='modinfo_all')

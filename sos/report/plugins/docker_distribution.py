@@ -8,7 +8,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-import os
 
 
 class DockerDistribution(Plugin):
@@ -20,7 +19,7 @@ class DockerDistribution(Plugin):
     def setup(self):
         self.add_copy_spec('/etc/docker-distribution/')
         self.add_journal('docker-distribution')
-        if os.path.exists('/etc/docker-distribution/registry/config.yml'):
+        if self.path_exists('/etc/docker-distribution/registry/config.yml'):
             with open('/etc/docker-distribution/registry/config.yml') as f:
                 for line in f:
                     if 'rootdirectory' in line:

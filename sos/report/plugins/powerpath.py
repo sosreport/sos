@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, os
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class PowerPath(Plugin, RedHatPlugin):
@@ -53,7 +53,7 @@ class PowerPath(Plugin, RedHatPlugin):
         self.get_pp_files()
         # If PowerPath is running collect additional PowerPath specific
         # information
-        if os.path.isdir("/proc/emcp"):
+        if self.path_isdir("/proc/emcp"):
             self.get_pp_config()
 
 # vim: set et ts=4 sw=4 :

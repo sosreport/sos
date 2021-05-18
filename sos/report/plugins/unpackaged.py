@@ -57,7 +57,7 @@ class Unpackaged(Plugin, RedHatPlugin):
             """
             expanded = []
             for f in files:
-                if os.path.islink(f):
+                if self.path_islink(f):
                     expanded.append("{} -> {}".format(f, os.readlink(f)))
                 else:
                     expanded.append(f)

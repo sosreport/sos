@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
-import os
 
 
 class Pci(Plugin, IndependentPlugin):
@@ -18,11 +17,11 @@ class Pci(Plugin, IndependentPlugin):
     profiles = ('hardware', 'system')
 
     def check_for_bus_devices(self):
-        if not os.path.isdir('/proc/bus/pci'):
+        if not self.path_isdir('/proc/bus/pci'):
             return False
         # ensure that more than just the 'devices' file, which can be empty,
         # exists in the pci directory. This implies actual devices are present
-        content = os.listdir('/proc/bus/pci')
+        content = self.listdir('/proc/bus/pci')
         if 'devices' in content:
             content.remove('devices')
         return len(content) > 0

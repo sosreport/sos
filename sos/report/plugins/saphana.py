@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
@@ -21,8 +20,8 @@ class saphana(Plugin, RedHatPlugin):
 
         sids = []
 
-        if os.path.isdir("/hana/shared"):
-            s = os.listdir("/hana/shared")
+        if self.path_isdir("/hana/shared"):
+            s = self.listdir("/hana/shared")
             for sid in s:
                 if len(sid) == 3:
                     sid = sid.strip()
@@ -45,8 +44,8 @@ class saphana(Plugin, RedHatPlugin):
                                     "replication info"\'' % prefix,
                                     suggest_filename="%s_replicainfo" % sid)
 
-                if os.path.isdir("/hana/shared/%s/" % sid):
-                    for inst in os.listdir("/hana/shared/%s/" % sid):
+                if self.path_isdir("/hana/shared/%s/" % sid):
+                    for inst in self.listdir("/hana/shared/%s/" % sid):
                         if "HDB" in inst:
                             inst = inst.strip()[-2:]
                             self.get_inst_info(sid, sidadm, inst)
@@ -60,7 +59,7 @@ class saphana(Plugin, RedHatPlugin):
         )
 
         path = "/usr/sap/%s/HDB%s/exe/python_support" % (sid, inst)
-        if os.path.isdir(path):
+        if self.path_isdir(path):
             py_cmd = 'su - %s -c "python %s/landscapeHostConfiguration.py"'
             py_fname = "%s_%s_landscapeConfig" % (sid, inst)
             self.add_cmd_output(

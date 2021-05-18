@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 import glob
 from sos.report.plugins import Plugin, IndependentPlugin
 
@@ -24,14 +23,14 @@ class Logs(Plugin, IndependentPlugin):
 
         since = self.get_option("since")
 
-        if os.path.exists('/etc/rsyslog.conf'):
+        if self.path_exists('/etc/rsyslog.conf'):
             with open('/etc/rsyslog.conf', 'r') as conf:
                 for line in conf.readlines():
                     if line.startswith('$IncludeConfig'):
                         confs += glob.glob(line.split()[1])
 
         for conf in confs:
-            if not os.path.exists(conf):
+            if not self.path_exists(conf):
                 continue
             config = self.join_sysroot(conf)
             logs += self.do_regex_find_all(r"^\S+\s+(-?\/.*$)\s+", config)
@@ -39,7 +38,7 @@ class Logs(Plugin, IndependentPlugin):
         for i in logs:
             if i.startswith("-"):
                 i = i[1:]
-            if os.path.isfile(i):
+            if self.path_isfile(i):
                 self.add_copy_spec(i)
 
         self.add_copy_spec([
@@ -61,7 +60,7 @@ class Logs(Plugin, IndependentPlugin):
         # - there is some data present, either persistent or runtime only
         # - systemd-journald service exists
         # otherwise fallback to collecting few well known logfiles directly
-        journal = any([os.path.exists(p + "/log/journal/")
+        journal = any([self.path_exists(p + "/log/journal/")
                       for p in ["/var", "/run"]])
         if journal and self.is_service("systemd-journald"):
             self.add_journal(since=since, tags='journal_full', priority=100)

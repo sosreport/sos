@@ -70,19 +70,19 @@ class OpenShiftOrigin(Plugin):
     # installation)
     def is_master(self):
         """Determine if we are on a master"""
-        return os.path.exists(self.master_cfg)
+        return self.path_exists(self.master_cfg)
 
     def is_node(self):
         """Determine if we are on a node"""
-        return os.path.exists(self.node_cfg)
+        return self.path_exists(self.node_cfg)
 
     def is_static_etcd(self):
         """Determine if we are on a node running etcd"""
-        return os.path.exists(os.path.join(self.static_pod_dir, "etcd.yaml"))
+        return self.path_exists(os.path.join(self.static_pod_dir, "etcd.yaml"))
 
     def is_static_pod_compatible(self):
         """Determine if a node is running static pods"""
-        return os.path.exists(self.static_pod_dir)
+        return self.path_exists(self.static_pod_dir)
 
     def setup(self):
         bstrap_node_cfg = os.path.join(self.node_base_dir,
