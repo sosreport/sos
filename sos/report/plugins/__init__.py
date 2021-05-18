@@ -11,7 +11,8 @@
 """ This exports methods available for use by plugins for sos """
 
 from sos.utilities import (sos_get_command_output, import_module, grep,
-                           fileobj, tail, is_executable)
+                           fileobj, tail, is_executable, path_exists,
+                           path_isdir, path_isfile, path_islink, listdir)
 import os
 import glob
 import re
@@ -1034,13 +1035,13 @@ class Plugin(object):
             reldest = linkdest
 
         self._log_debug("copying link '%s' pointing to '%s' with isdir=%s"
-                        % (srcpath, linkdest, os.path.isdir(absdest)))
+                        % (srcpath, linkdest, self.path_isdir(absdest)))
 
         dstpath = self.strip_sysroot(srcpath)
         # use the relative target path in the tarball
         self.archive.add_link(reldest, dstpath)
 
-        if os.path.isdir(absdest):
+        if self.path_isdir(absdest):
             self._log_debug("link '%s' is a directory, skipping..." % linkdest)
             return
 
@@ -1073,7 +1074,7 @@ class Plugin(object):
 
     def _copy_dir(self, srcpath):
         try:
-            for name in os.listdir(srcpath):
+            for name in self.listdir(srcpath):
                 self._log_debug("recursively adding '%s' from '%s'"
                                 % (name, srcpath))
                 path = os.path.join(srcpath, name)
@@ -1156,7 +1157,7 @@ class Plugin(object):
         else:
             if stat.S_ISDIR(st.st_mode) and os.access(srcpath, os.R_OK):
                 # copy empty directory
-                if not os.listdir(srcpath):
+                if not self.listdir(srcpath):
                     self.archive.add_dir(dest)
                     return
                 self._copy_dir(srcpath)
@@ -1480,7 +1481,7 @@ class Plugin(object):
                 except OSError:
                     # if _file is a broken symlink, we should collect it,
                     # otherwise skip it
-                    if os.path.islink(_file):
+                    if self.path_islink(_file):
                         file_size = 0
                     else:
                         self._log_info("failed to stat '%s', skipping" % _file)
@@ -2471,9 +2472,9 @@ class Plugin(object):
             for path in paths:
                 try:
                     # avoid recursive symlink dirs
-                    if os.path.isfile(path) or os.path.islink(path):
+                    if self.path_isfile(path) or self.path_islink(path):
                         found_paths.append(path)
-                    elif os.path.isdir(path) and os.listdir(path):
+                    elif self.path_isdir(path) and self.listdir(path):
                         found_paths.extend(__expand(os.path.join(path, '*')))
                     else:
                         found_paths.append(path)
@@ -2487,15 +2488,15 @@ class Plugin(object):
                     pass
             return list(set(found_paths))
 
-        if (os.access(copyspec, os.R_OK) and os.path.isdir(copyspec) and
-                os.listdir(copyspec)):
+        if (os.access(copyspec, os.R_OK) and self.path_isdir(copyspec) and
+                self.listdir(copyspec)):
             # the directory exists and is non-empty, recurse through it
             copyspec = os.path.join(copyspec, '*')
         expanded = glob.glob(copyspec, recursive=True)
         recursed_files = []
         for _path in expanded:
             try:
-                if os.path.isdir(_path) and os.listdir(_path):
+                if self.path_isdir(_path) and self.listdir(_path):
                     # remove the top level dir to avoid duplicate attempts to
                     # copy the dir and its contents
                     expanded.remove(_path)
@@ -2628,7 +2629,7 @@ class Plugin(object):
             # no checks beyond architecture restrictions
             return self.check_is_architecture()
 
-        return ((any(os.path.exists(fname) for fname in files) or
+        return ((any(self.path_exists(fname) for fname in files) or
                 any(self.is_installed(pkg) for pkg in packages) or
                 any(is_executable(cmd) for cmd in commands) or
                 any(self.is_module_loaded(mod) for mod in self.kernel_mods) or
@@ -2684,6 +2685,71 @@ class Plugin(object):
         verify_cmd = pm.build_verify_command(self.verify_packages)
         if verify_cmd:
             self.add_cmd_output(verify_cmd)
+
+    def path_exists(self, path):
+        """Helper to call the sos.utilities wrapper that allows the
+        corresponding `os` call to account for sysroot
+
+        :param path:        The canonical path for a specific file/directory
+        :type path:         ``str``
+
+
+        :returns:           True if the path exists in sysroot, else False
+        :rtype:             ``bool``
+        """
+        return path_exists(path, self.commons['cmdlineopts'].sysroot)
+
+    def path_isdir(self, path):
+        """Helper to call the sos.utilities wrapper that allows the
+        corresponding `os` call to account for sysroot
+
+        :param path:        The canonical path for a specific file/directory
+        :type path:         ``str``
+
+
+        :returns:           True if the path is a dir, else False
+        :rtype:             ``bool``
+        """
+        return path_isdir(path, self.commons['cmdlineopts'].sysroot)
+
+    def path_isfile(self, path):
+        """Helper to call the sos.utilities wrapper that allows the
+        corresponding `os` call to account for sysroot
+
+        :param path:        The canonical path for a specific file/directory
+        :type path:         ``str``
+
+
+        :returns:           True if the path is a file, else False
+        :rtype:             ``bool``
+        """
+        return path_isfile(path, self.commons['cmdlineopts'].sysroot)
+
+    def path_islink(self, path):
+        """Helper to call the sos.utilities wrapper that allows the
+        corresponding `os` call to account for sysroot
+
+        :param path:        The canonical path for a specific file/directory
+        :type path:         ``str``
+
+
+        :returns:           True if the path is a link, else False
+        :rtype:             ``bool``
+        """
+        return path_islink(path, self.commons['cmdlineopts'].sysroot)
+
+    def listdir(self, path):
+        """Helper to call the sos.utilities wrapper that allows the
+        corresponding `os` call to account for sysroot
+
+        :param path:        The canonical path for a specific file/directory
+        :type path:         ``str``
+
+
+        :returns:           Contents of path, if it is a directory
+        :rtype:             ``list``
+        """
+        return listdir(path, self.commons['cmdlineopts'].sysroot)
 
     def postproc(self):
         """Perform any postprocessing. To be replaced by a plugin if required.

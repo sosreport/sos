@@ -213,6 +213,33 @@ def get_human_readable(size, precision=2):
     return "%.*f%s" % (precision, size, suffixes[suffixindex])
 
 
+def _os_wrapper(path, sysroot, method, module=os.path):
+    if sysroot not in [None, '/']:
+        path = os.path.join(sysroot, path.lstrip('/'))
+    _meth = getattr(module, method)
+    return _meth(path)
+
+
+def path_exists(path, sysroot):
+    return _os_wrapper(path, sysroot, 'exists')
+
+
+def path_isdir(path, sysroot):
+    return _os_wrapper(path, sysroot, 'isdir')
+
+
+def path_isfile(path, sysroot):
+    return _os_wrapper(path, sysroot, 'isfile')
+
+
+def path_islink(path, sysroot):
+    return _os_wrapper(path, sysroot, 'islink')
+
+
+def listdir(path, sysroot):
+    return _os_wrapper(path, sysroot, 'listdir', os)
+
+
 class AsyncReader(threading.Thread):
     """Used to limit command output to a given size without deadlocking
     sos.
