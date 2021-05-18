@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-import os.path
 import re
 
 
@@ -38,7 +37,7 @@ class Corosync(Plugin):
         self.exec_cmd("killall -USR2 corosync")
 
         corosync_conf = "/etc/corosync/corosync.conf"
-        if not os.path.exists(corosync_conf):
+        if not self.path_exists(corosync_conf):
             return
 
         # collect user-defined logfiles, matching either of pattern:

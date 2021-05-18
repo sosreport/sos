@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 import time
-import os.path
 import os
 import glob
 import string
@@ -30,7 +29,7 @@ class Gluster(Plugin, RedHatPlugin):
     def wait_for_statedump(self, name_dir):
         statedumps_present = 0
         statedump_entries = [
-                f for f in os.listdir(name_dir) if os.path.isfile(f)
+                f for f in self.listdir(name_dir) if self.path_isfile(f)
         ]
         for statedump_file in statedump_entries:
             statedumps_present = statedumps_present+1
@@ -42,7 +41,7 @@ class Gluster(Plugin, RedHatPlugin):
 
     def postproc(self):
         if self.get_option("dump"):
-            if not os.path.exists(self.statedump_dir):
+            if not self.path_exists(self.statedump_dir):
                 return
             try:
                 remove_files = glob.glob(self.statedump_dir + '/*.dump.[0-9]*')
@@ -90,7 +89,7 @@ class Gluster(Plugin, RedHatPlugin):
             self.add_copy_spec("/var/log/glusterfs")
 
         if self.get_option("dump"):
-            if os.path.exists(self.statedump_dir):
+            if self.path_exists(self.statedump_dir):
                 statedump_cmd = "killall -USR1 glusterfs glusterfsd glusterd"
                 if self.exec_cmd(statedump_cmd)['status'] == 0:
                     # let all the processes catch the signal and create

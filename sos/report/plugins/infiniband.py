@@ -8,7 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -45,7 +44,7 @@ class Infiniband(Plugin, IndependentPlugin):
             "perfquery"
         ]
         IB_SYS_DIR = "/sys/class/infiniband/"
-        ibs = os.listdir(IB_SYS_DIR) if os.path.isdir(IB_SYS_DIR) else []
+        ibs = self.listdir(IB_SYS_DIR) if self.path_isdir(IB_SYS_DIR) else []
         for ib in ibs:
             """
             Skip OPA hardware, as infiniband-diags tools does not understand
@@ -55,7 +54,7 @@ class Infiniband(Plugin, IndependentPlugin):
             if ib.startswith("hfi"):
                 continue
 
-            for port in os.listdir(IB_SYS_DIR + ib + "/ports"):
+            for port in self.listdir(IB_SYS_DIR + ib + "/ports"):
                 # skip IWARP and RoCE devices
                 try:
                     p = open(IB_SYS_DIR + ib + "/ports/" + port +

@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
@@ -43,9 +42,9 @@ class sapnw(Plugin, RedHatPlugin):
                 vhost = fields[7]
                 sidsunique.add(sid)
                 path = "/usr/sap/%s/SYS/profile/" % sid
-                if not os.path.exists(path):
+                if not self.path_exists(path):
                     continue
-                for line in os.listdir(path):
+                for line in self.listdir(path):
                     if all(f in line for f in [sid, inst, vhost]):
                         ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
                         # TODO: I am assuming unicode here
@@ -132,7 +131,7 @@ class sapnw(Plugin, RedHatPlugin):
         #
         # since the command creates a limits.d file on its own,
         # we must predicate it by presence of the file
-        if os.path.exists('/etc/security/limits.d/99-sap-limits.conf') \
+        if self.path_exists('/etc/security/limits.d/99-sap-limits.conf') \
                 or self.get_option('allow_system_changes'):
             self.add_cmd_output("sapconf -n",
                                 suggest_filename="sapconf_checkmode")

@@ -100,7 +100,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
             scl = pkg.split('-postgresql-')[0]
             _dir = self.convert_copyspec_scl(scl, pghome)
             dirs.append(_dir)
-            if os.path.isdir(_dir):
+            if self.path_isdir(_dir):
                 self.add_cmd_output("du -sh %s" % _dir)
             if (self.is_service_running(pkg.replace('-server', '')) and
                     scl in self.scls_matched):

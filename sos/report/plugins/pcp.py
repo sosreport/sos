@@ -10,7 +10,6 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 import os
-import os.path
 from socket import gethostname
 
 

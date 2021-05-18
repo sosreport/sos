@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 import re
 
 from sos.report.plugins import Plugin, IndependentPlugin
@@ -41,7 +40,7 @@ class Process(Plugin, IndependentPlugin):
             "/proc/stat"
         ])
 
-        procs = [p for p in os.listdir("/proc") if re.match("[0-9]", p)]
+        procs = [p for p in self.listdir("/proc") if re.match("[0-9]", p)]
         if self.get_option("numprocs"):
             procs = procs[:self.get_option("numprocs")]
 

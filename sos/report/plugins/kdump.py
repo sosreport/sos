@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 import platform
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
@@ -65,7 +64,7 @@ class RedHatKDump(KDump, RedHatPlugin):
 
         initramfs_img = "/boot/initramfs-" + platform.release() \
                         + "kdump.img"
-        if os.path.exists(initramfs_img):
+        if self.path_exists(initramfs_img):
             self.add_cmd_output("lsinitrd %s" % initramfs_img)
 
         self.add_copy_spec([
@@ -94,7 +93,7 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
         super(DebianKDump, self).setup()
 
         initramfs_img = "/var/lib/kdump/initrd.img-" + platform.release()
-        if os.path.exists(initramfs_img):
+        if self.path_exists(initramfs_img):
             self.add_cmd_output("lsinitramfs -l %s" % initramfs_img)
 
         self.add_cmd_output("kdump-config show")

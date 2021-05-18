@@ -9,7 +9,6 @@
 # This plugin enables collection of logs for Power systems and more
 # specific logs for Pseries, PowerNV platforms.
 
-import os
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -92,7 +91,7 @@ class PowerPC(Plugin, IndependentPlugin):
                 "/var/log/opal-prd",
                 "/var/log/opal-prd.log*"
             ])
-            if os.path.isdir("/var/log/dump"):
+            if self.path_isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
 
 
