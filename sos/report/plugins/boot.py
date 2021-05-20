@@ -46,7 +46,7 @@ class Boot(Plugin, IndependentPlugin):
             for image in glob('/boot/initr*.img'):
                 if image[-9:] == "kdump.img":
                     continue
-                self.add_cmd_output("lsinitrd %s" % image)
+                self.add_cmd_output("lsinitrd %s" % image, priority=100)
 
 
 # vim: set et ts=4 sw=4 :

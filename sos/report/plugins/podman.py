@@ -51,7 +51,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
         # separately grab ps -s as this can take a *very* long time
         if self.get_option('size'):
-            self.add_cmd_output('podman ps -as')
+            self.add_cmd_output('podman ps -as', priority=100)
 
         self.add_cmd_output([
             "ls -alhR /etc/cni",
@@ -88,7 +88,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
         if self.get_option('logs'):
             for con in containers:
                 self.add_cmd_output("podman logs -t %s" % con,
-                                    subdir='containers')
+                                    subdir='containers', priority=50)
 
     def postproc(self):
         # Attempts to match key=value pairs inside container inspect output
