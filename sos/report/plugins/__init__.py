@@ -1525,7 +1525,7 @@ class Plugin(object):
     def add_blockdev_cmd(self, cmds, devices='block', timeout=None,
                          sizelimit=None, chroot=True, runat=None, env=None,
                          binary=False, prepend_path=None, whitelist=[],
-                         blacklist=[], tags=[]):
+                         blacklist=[], tags=[], priority=10):
         """Run a command or list of commands against storage-related devices.
 
         Any commands specified by cmd will be iterated over the list of the
@@ -1584,12 +1584,12 @@ class Plugin(object):
                              sizelimit=sizelimit, chroot=chroot, runat=runat,
                              env=env, binary=binary, prepend_path=prepend_path,
                              whitelist=whitelist, blacklist=blacklist,
-                             tags=_dev_tags)
+                             tags=_dev_tags, priority=priority)
 
     def _add_device_cmd(self, cmds, devices, timeout=None, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
                         prepend_path=None, whitelist=[], blacklist=[],
-                        tags=[]):
+                        tags=[], priority=10):
         """Run a command against all specified devices on the system.
         """
         if isinstance(cmds, str):
@@ -1620,11 +1620,13 @@ class Plugin(object):
                 self._add_cmd_output(cmd=_cmd, timeout=timeout,
                                      sizelimit=sizelimit, chroot=chroot,
                                      runat=runat, env=env, binary=binary,
-                                     tags=_dev_tags)
+                                     tags=_dev_tags, priority=priority)
 
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
         pred = kwargs.pop('pred') if 'pred' in kwargs else None
+        if 'priority' not in kwargs:
+            kwargs['priority'] = 10
         soscmd = SoSCommand(**kwargs)
         self._log_debug("packed command: " + soscmd.__str__())
         for _skip_cmd in self.skip_commands:
@@ -1647,7 +1649,8 @@ class Plugin(object):
                        root_symlink=None, timeout=None, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
-                       changes=False, foreground=False, tags=[]):
+                       changes=False, foreground=False, tags=[],
+                       priority=10):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -1704,6 +1707,10 @@ class Plugin(object):
         :param tags: A tag or set of tags to add to the metadata entries for
                      the `cmds` being run
         :type tags: ``str`` or a ``list`` of strings
+
+        :param priority:  The priority with which this command should be run,
+                          lower values will run before higher values
+        :type priority: ``int``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -1719,7 +1726,8 @@ class Plugin(object):
                                  stderr=stderr, chroot=chroot, runat=runat,
                                  env=env, binary=binary, sizelimit=sizelimit,
                                  pred=pred, subdir=subdir, tags=tags,
-                                 changes=changes, foreground=foreground)
+                                 changes=changes, foreground=foreground,
+                                 priority=priority)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
@@ -1869,7 +1877,8 @@ class Plugin(object):
                             root_symlink=False, timeout=None,
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
-                            changes=False, foreground=False, tags=[]):
+                            changes=False, foreground=False, tags=[],
+                            priority=10):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -1924,6 +1933,9 @@ class Plugin(object):
             poller=self.check_timeout, foreground=foreground
         )
 
+        end = time()
+        run_time = end - start
+
         if result['status'] == 124:
             self._log_warn(
                 "command '%s' timed out after %ds" % (cmd, timeout)
@@ -1936,7 +1948,10 @@ class Plugin(object):
             'filepath': None,
             'truncated': result['truncated'],
             'return_code': result['status'],
-            'run_time': time() - start,
+            'priority': priority,
+            'start_time': start,
+            'end_time': end,
+            'run_time': run_time,
             'tags': _tags
         }
 
@@ -1953,6 +1968,7 @@ class Plugin(object):
                         env=env, binary=binary, sizelimit=sizelimit,
                         poller=self.check_timeout
                     )
+                    run_time = time() - start
             self._log_debug("could not run '%s': command not found" % cmd)
             # Exit here if the command was not found in the chroot check above
             # as otherwise we will create a blank file in the archive
@@ -1960,8 +1976,6 @@ class Plugin(object):
                 if self.manifest:
                     self.manifest.commands.append(manifest_cmd)
                     return result
-
-        run_time = time() - start
 
         self._log_debug("collected output of '%s' in %s (changes=%s)"
                         % (cmd.split()[0], run_time, changes))
@@ -2371,7 +2385,7 @@ class Plugin(object):
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
                     timeout=None, identifier=None, catalog=None,
-                    sizelimit=None, pred=None, tags=[]):
+                    sizelimit=None, pred=None, tags=[], priority=10):
         """Collect journald logs from one of more units.
 
         :param units:   Which journald units to collect
@@ -2462,7 +2476,8 @@ class Plugin(object):
 
         self._log_debug("collecting journal: %s" % journal_cmd)
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
-                             sizelimit=log_size, pred=pred, tags=tags)
+                             sizelimit=log_size, pred=pred, tags=tags,
+                             priority=priority)
 
     def _expand_copy_spec(self, copyspec):
         def __expand(paths):
@@ -2515,6 +2530,7 @@ class Plugin(object):
         self.generate_copyspec_tags()
 
     def _collect_cmds(self):
+        self.collect_cmds.sort(key=lambda x: x.priority)
         for soscmd in self.collect_cmds:
             self._log_debug("unpacked command: " + soscmd.__str__())
             self._log_info("collecting output of '%s'" % soscmd.cmd)
