@@ -180,7 +180,8 @@ class Networking(Plugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host)
+            self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host,
+                                priority=100)
 
         # Capture additional data from namespaces; each command is run
         # per-namespace.
@@ -201,7 +202,7 @@ class Networking(Plugin):
                 ns_cmd_prefix + "netstat -s",
                 ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
                 ns_cmd_prefix + "nstat -zas",
-            ])
+            ], priority=50)
 
             ss_cmd = ns_cmd_prefix + "ss -peaonmi"
             # --allow-system-changes is handled directly in predicate
@@ -232,7 +233,7 @@ class Networking(Plugin):
                         ns_cmd_prefix + "ethtool -i " + eth,
                         ns_cmd_prefix + "ethtool -k " + eth,
                         ns_cmd_prefix + "ethtool -S " + eth
-                    ])
+                    ], priority=50)
 
         return
 
@@ -272,7 +273,8 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host)
+            self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host,
+                                priority=100)
 
 
 # vim: set et ts=4 sw=4 :

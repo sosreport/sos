@@ -81,7 +81,7 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_cmd_output("crictl inspect %s" % container)
             if self.get_option('logs'):
                 self.add_cmd_output("crictl logs -t %s" % container,
-                                    subdir="containers")
+                                    subdir="containers", priority=100)
 
         for image in images:
             self.add_cmd_output("crictl inspecti %s" % image, subdir="images")

@@ -62,8 +62,8 @@ class Docker(Plugin, CosPlugin):
 
         # separately grab these separately as they can take a *very* long time
         if self.get_option('size'):
-            self.add_cmd_output('docker ps -as')
-            self.add_cmd_output('docker system df')
+            self.add_cmd_output('docker ps -as', priority=100)
+            self.add_cmd_output('docker system df', priority=100)
 
         nets = self.collect_cmd_output('docker network ls')
 

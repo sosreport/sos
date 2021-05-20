@@ -56,6 +56,7 @@ class SELinux(Plugin, RedHatPlugin):
                 self.add_cmd_output("semanage %s -l" % subcmd)
 
             if self.get_option('fixfiles'):
-                self.add_cmd_output("restorecon -Rvn /", stderr=False)
+                self.add_cmd_output("restorecon -Rvn /", stderr=False,
+                                    priority=100)
 
 # vim: set et ts=4 sw=4 :

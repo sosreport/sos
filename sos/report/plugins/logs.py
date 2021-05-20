@@ -64,7 +64,7 @@ class Logs(Plugin, IndependentPlugin):
         journal = any([os.path.exists(p + "/log/journal/")
                       for p in ["/var", "/run"]])
         if journal and self.is_service("systemd-journald"):
-            self.add_journal(since=since, tags='journal_full')
+            self.add_journal(since=since, tags='journal_full', priority=100)
             self.add_journal(boot="this", catalog=True, since=since,
                              tags='journal_since_boot')
             self.add_journal(boot="last", catalog=True, since=since,

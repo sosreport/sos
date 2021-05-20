@@ -46,7 +46,8 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         self.add_forbidden_path('/proc/fs/panfs')
 
         if self.get_option('lsof'):
-            self.add_cmd_output("lsof -b +M -n -l -P", root_symlink="lsof")
+            self.add_cmd_output("lsof -b +M -n -l -P", root_symlink="lsof",
+                                priority=50)
 
         dumpe2fs_opts = '-h'
         if self.get_option('dumpe2fs'):
@@ -57,7 +58,7 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev))
 
             if self.get_option('frag'):
-                self.add_cmd_output("e2freefrag %s" % (dev))
+                self.add_cmd_output("e2freefrag %s" % (dev), priority=100)
 
     def postproc(self):
         self.do_file_sub(
