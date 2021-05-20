@@ -479,6 +479,20 @@ class BaseSoSReportTest(BaseSoSTest):
         for j in _executed:
             assert j in plugins, "Unrequested plugin '%s' ran as well" % j
 
+    def get_plugin_manifest(self, plugin):
+        """Get the manifest data for the specified plugin
+
+        :param plugin:  The name of the plugin
+        :type plugin:   ``str``
+
+        :returns: The section of the manifest for the plugin
+        :rtype:   ``dict``
+        """
+        if not self.manifest['components']['report']['plugins'][plugin]:
+            raise Exception("Manifest for %s not present" % plugin)
+        return self.manifest['components']['report']['plugins'][plugin]
+
+
 class StageOneReportTest(BaseSoSReportTest):
     """This is the test class to subclass for all Stage One (no mocking) tests
     within the sos test suite.
