@@ -109,7 +109,7 @@ class Foreman(Plugin):
             "/etc/puppetlabs/puppet/ssl/certs/ca.pem",
             "/etc/puppetlabs/puppet/ssl/certs/{}.pem".format(_hostname),
             "/var/lib/puppet/ssl/certs/{}.pem".format(_hostname),
-            "/var/log/{}*/foreman-ssl_*_ssl*log[.-]*".format(self.apachepkg),
+            "/var/log/{}*/foreman*".format(self.apachepkg),
             "/var/log/{}*/katello-reverse-proxy_access_ssl.log*".format(
                 self.apachepkg),
             "/var/log/{}*/katello-reverse-proxy_error_ssl.log*".format(
