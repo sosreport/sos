@@ -36,7 +36,7 @@ class ovirt(Cluster):
         query should be done _before_ passing the query to this method.
         '''
         cmd = "%s %s" % (self.db_exec, quote(query))
-        return self.exec_master_cmd(cmd, need_root=True)
+        return self.exec_primary_cmd(cmd, need_root=True)
 
     def _sql_scrub(self, val):
         '''
@@ -112,7 +112,7 @@ class ovirt(Cluster):
     def parse_db_conf(self):
         conf = {}
         engconf = '/etc/ovirt-engine/engine.conf.d/10-setup-database.conf'
-        res = self.exec_master_cmd('cat %s' % engconf, need_root=True)
+        res = self.exec_primary_cmd('cat %s' % engconf, need_root=True)
         if res['status'] == 0:
             config = res['stdout'].splitlines()
             for line in config:
@@ -140,7 +140,7 @@ class ovirt(Cluster):
         cmd = ('PGPASSWORD={} /usr/sbin/sosreport --name=postgresql '
                '--batch -o postgresql {}'
                ).format(self.conf['ENGINE_DB_PASSWORD'], sos_opt)
-        db_sos = self.exec_master_cmd(cmd, need_root=True)
+        db_sos = self.exec_primary_cmd(cmd, need_root=True)
         for line in db_sos['stdout'].splitlines():
             if fnmatch.fnmatch(line, '*sosreport-*tar*'):
                 _pg_dump = line.strip()

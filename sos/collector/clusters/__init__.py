@@ -159,7 +159,12 @@ class Cluster():
         return node.address == self.master.address
 
     def exec_master_cmd(self, cmd, need_root=False):
-        """Used to retrieve command output from a (master) node in a cluster
+        self.log_debug("Use of exec_master_cmd() is deprecated and will be "
+                       "removed. Use exec_primary_cmd() instead")
+        return self.exec_primary_cmd(cmd, need_root)
+
+    def exec_primary_cmd(self, cmd, need_root=False):
+        """Used to retrieve command output from a (primary) node in a cluster
 
         :param cmd: The command to run
         :type cmd: ``str``

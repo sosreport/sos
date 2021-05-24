@@ -25,7 +25,7 @@ class satellite(Cluster):
 
     def get_nodes(self):
         cmd = self._psql_cmd('copy (select name from smart_proxies) to stdout')
-        res = self.exec_master_cmd(cmd, need_root=True)
+        res = self.exec_primary_cmd(cmd, need_root=True)
         if res['status'] == 0:
             nodes = [
                 n.strip() for n in res['stdout'].splitlines()

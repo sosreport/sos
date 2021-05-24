@@ -22,7 +22,7 @@ class pacemaker(Cluster):
     ]
 
     def get_nodes(self):
-        self.res = self.exec_master_cmd('pcs status')
+        self.res = self.exec_primary_cmd('pcs status')
         if self.res['status'] != 0:
             self.log_error('Cluster status could not be determined. Is the '
                            'cluster running on this node?')
