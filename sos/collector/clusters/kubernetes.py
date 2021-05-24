@@ -30,7 +30,7 @@ class kubernetes(Cluster):
         self.cmd += ' get nodes'
         if self.get_option('label'):
             self.cmd += ' -l %s ' % quote(self.get_option('label'))
-        res = self.exec_master_cmd(self.cmd)
+        res = self.exec_primary_cmd(self.cmd)
         if res['status'] == 0:
             nodes = []
             roles = [x for x in self.get_option('role').split(',') if x]

@@ -71,6 +71,7 @@ class SoSCollector(SoSComponent):
         'log_size': 0,
         'map_file': '/etc/sos/cleaner/default_mapping',
         'master': '',
+        'primary': '',
         'nodes': [],
         'no_env_vars': False,
         'no_local': False,
@@ -325,7 +326,12 @@ class SoSCollector(SoSComponent):
                                  help='List options available for profiles')
         collect_grp.add_argument('--label',
                                  help='Assign a label to the archives')
-        collect_grp.add_argument('--master', help='Specify a master node')
+        collect_grp.add_argument('--master',
+                                 help='DEPRECATED: Specify a master node')
+        collect_grp.add_argument('--primary', '--manager', '--controller',
+                                 dest='primary', default='',
+                                 help='Specify a primary node for cluster '
+                                      'enumeration')
         collect_grp.add_argument('--nopasswd-sudo', action='store_true',
                                  help='Use passwordless sudo on nodes')
         collect_grp.add_argument('--nodes', action="append",
@@ -639,7 +645,7 @@ class SoSCollector(SoSComponent):
 
         with open(fname, 'r') as hf:
             _group = json.load(hf)
-            for key in ['master', 'cluster_type']:
+            for key in ['master', 'primary', 'cluster_type']:
                 if _group[key]:
                     self.log_debug("Setting option '%s' to '%s' per host group"
                                    % (key, _group[key]))
@@ -658,7 +664,7 @@ class SoSCollector(SoSComponent):
         """
         cfg = {
             'name': self.opts.save_group,
-            'master': self.opts.master,
+            'primary': self.opts.master,
             'cluster_type': self.cluster.cluster_type[0],
             'nodes': [n for n in self.node_list]
         }
@@ -769,7 +775,7 @@ class SoSCollector(SoSComponent):
                           '--no-local option if localhost should not be '
                           'included.\nAborting...\n', 1)
 
-        self.collect_md.add_field('master', self.master.address)
+        self.collect_md.add_field('primary', self.master.address)
         self.collect_md.add_section('nodes')
         self.collect_md.nodes.add_section(self.master.address)
         self.master.set_node_manifest(getattr(self.collect_md.nodes,
@@ -1060,6 +1066,13 @@ this utility or remote systems that it connects to.
         self.ui_log.info("\nsos-collector (version %s)\n" % __version__)
         intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
         self.ui_log.info(intro_msg)
+
+        if self.opts.master:
+            self.ui_log.info(
+                "NOTE: Use of '--master' is DEPRECATED and will be removed in "
+                "a future release.\nUse '--primary', '--manager', or "
+                "'--controller' instead.")
+
         prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
         if not self.opts.batch:
             try:
@@ -1080,6 +1093,13 @@ this utility or remote systems that it connects to.
             raise SystemExit
 
         self.intro()
+
+        if self.opts.primary:
+            # for now, use the new option name and simply override the existing
+            # value that the rest of the component references. Full conversion
+            # of master -> primary is a 4.3 item.
+            self.opts.master = self.opts.primary
+
         self.configure_sos_cmd()
         self.prep()
         self.display_nodes()
