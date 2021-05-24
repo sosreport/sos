@@ -8,6 +8,7 @@
 
 
 from avocado.core.exceptions import TestSkipError
+from avocado.core.output import LOG_UI
 from avocado import Test
 from avocado.utils import archive, process, distro, software_manager
 from fnmatch import fnmatch
@@ -218,7 +219,16 @@ class BaseSoSReportTest(BaseSoSTest):
             if self._exception_expected:
                 self.cmd_output = err.result
             else:
-                raise
+                msg = err.result.stderr.decode() or err.result.stdout.decode()
+                # a little hacky, but using self.log methods here will not
+                # print to console unless we ratchet up the verbosity for the
+                # entire test suite, which will become very difficult to read
+                LOG_UI.error('ERROR:\n' + msg[:8196])  # don't flood w/ super verbose logs
+                if err.result.interrupted:
+                    raise Exception("Timeout exceeded, see output above")
+                else:
+                    raise Exception("Command failed, see output above: '%s'"
+                                    % err.command.split('bin/')[1])
         with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
             pickle.dump(self.cmd_output, pfile)
         self.cmd_output.stdout = self.cmd_output.stdout.decode()

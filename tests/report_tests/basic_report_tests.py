@@ -39,7 +39,7 @@ class LogLevelTest(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '-vvv'
+    sos_cmd = '-vvv -o kernel,host,boot,filesys'
 
     def test_archive_logging_enabled(self):
         self.assertSosLogContains('DEBUG: \[archive:.*\]')
