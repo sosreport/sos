@@ -58,6 +58,7 @@ class Candlepin(Plugin, RedHatPlugin):
         # Allow limiting on logrotated logs
         self.add_copy_spec([
             "/etc/candlepin/candlepin.conf",
+            "/etc/candlepin/broker.xml",
             "/var/log/candlepin/audit*.log*",
             "/var/log/candlepin/candlepin.log[.-]*",
             "/var/log/candlepin/cpdb*.log*",
@@ -110,5 +111,9 @@ class Candlepin(Plugin, RedHatPlugin):
         self.do_file_sub("/etc/candlepin/candlepin.conf", reg, repl)
         cpdbreg = r"(--password=)([a-zA-Z0-9]*)"
         self.do_file_sub("/var/log/candlepin/cpdb.log", cpdbreg, repl)
+        for key in ["trustStorePassword", "keyStorePassword"]:
+            self.do_file_sub("/etc/candlepin/broker.xml",
+                             r"%s=(\w*)([;<])" % key,
+                             r"%s=********\2" % key)
 
 # vim: set et ts=4 sw=4 :
