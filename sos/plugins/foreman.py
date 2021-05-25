@@ -99,8 +99,8 @@ class Foreman(Plugin):
             "/var/log/foreman-proxy/smart_proxy_dynflow_core*log*",
             "/var/log/foreman-selinux-install.log",
             "/var/log/foreman-proxy-certs-generate*",
-            "/var/log/foreman-installer/",
-            "/var/log/foreman-maintain/",
+            "/var/log/foreman-installer/*",
+            "/var/log/foreman-maintain/*",
             "/var/log/syslog*",
             # Specific to TFM, _all_ catalina logs are relevant. Adding this
             # here rather than the tomcat plugin to ease maintenance and not
