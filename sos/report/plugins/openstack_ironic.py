@@ -18,6 +18,7 @@ class OpenStackIronic(Plugin):
     short_desc = 'OpenStack Ironic'
     plugin_name = "openstack_ironic"
     profiles = ('openstack', 'openstack_undercloud')
+    containers = ('.*ironic_api',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/ironic"
     ins_puppet_gen = var_puppet_gen + "_inspector"

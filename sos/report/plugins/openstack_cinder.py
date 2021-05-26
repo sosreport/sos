@@ -20,6 +20,7 @@ class OpenStackCinder(Plugin):
     short_desc = 'OpenStack cinder'
     plugin_name = "openstack_cinder"
     profiles = ('openstack', 'openstack_controller')
+    containers = ('.*cinder_api',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/cinder"
 
