@@ -603,8 +603,6 @@ third party.
         tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
         with open(filename, 'r') as fname:
             for line in fname:
-                if not line.strip():
-                    continue
                 try:
                     line, count = self.obfuscate_line(line)
                     subs += count
@@ -642,7 +640,11 @@ third party.
 
         Returns the fully obfuscated line and the number of substitutions made
         """
+        # don't iterate over blank lines, but still write them to the tempfile
+        # to maintain the same structure when we write a scrubbed file back
         count = 0
+        if not line.strip():
+            return line, count
         for parser in self.parsers:
             try:
                 line, _count = parser.parse_line(line)
