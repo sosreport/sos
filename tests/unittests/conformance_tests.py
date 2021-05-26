@@ -26,7 +26,7 @@ class PluginConformance(unittest.TestCase):
 
     def test_plugin_tuples_set_correctly(self):
         for plug in self.plug_classes:
-            for tup in ['packages', 'commands', 'files', 'profiles', 'kernel_mods']:
+            for tup in ['packages', 'commands', 'files', 'profiles', 'kernel_mods', 'containers']:
                 _attr = getattr(plug, tup)
                 self.assertIsInstance(
                     _attr, tuple,
