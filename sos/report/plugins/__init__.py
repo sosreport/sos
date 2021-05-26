@@ -452,6 +452,7 @@ class Plugin(object):
     commands = ()
     kernel_mods = ()
     services = ()
+    containers = ()
     architectures = None
     archive = None
     profiles = ()
@@ -2613,7 +2614,7 @@ class Plugin(object):
         """
         # some files or packages have been specified for this package
         if any([self.files, self.packages, self.commands, self.kernel_mods,
-                self.services, self.architectures]):
+                self.services, self.containers, self.architectures]):
             if isinstance(self.files, str):
                 self.files = [self.files]
 
@@ -2640,7 +2641,9 @@ class Plugin(object):
                     if self._check_plugin_triggers(files,
                                                    packages,
                                                    commands,
-                                                   services):
+                                                   services,
+                                                   # SCL containers don't exist
+                                                   ()):
                         type(self)._scls_matched.append(scl)
                     if type(self)._scls_matched:
                         return True
@@ -2648,7 +2651,8 @@ class Plugin(object):
             return self._check_plugin_triggers(self.files,
                                                self.packages,
                                                self.commands,
-                                               self.services)
+                                               self.services,
+                                               self.containers)
 
         if isinstance(self, SCLPlugin):
             # if files and packages weren't specified, we take all SCLs
@@ -2656,9 +2660,10 @@ class Plugin(object):
 
         return True
 
-    def _check_plugin_triggers(self, files, packages, commands, services):
+    def _check_plugin_triggers(self, files, packages, commands, services,
+                               containers):
 
-        if not any([files, packages, commands, services]):
+        if not any([files, packages, commands, services, containers]):
             # no checks beyond architecture restrictions
             return self.check_is_architecture()
 
@@ -2666,7 +2671,8 @@ class Plugin(object):
                 any(self.is_installed(pkg) for pkg in packages) or
                 any(is_executable(cmd) for cmd in commands) or
                 any(self.is_module_loaded(mod) for mod in self.kernel_mods) or
-                any(self.is_service(svc) for svc in services)) and
+                any(self.is_service(svc) for svc in services) or
+                any(self.container_exists(cntr) for cntr in containers)) and
                 self.check_is_architecture())
 
     def check_is_architecture(self):
