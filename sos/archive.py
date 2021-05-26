@@ -326,6 +326,20 @@ class FileCacheArchive(Archive):
             return None
         return dest
 
+    def _copy_attributes(self, src, dest):
+        # copy file attributes, skip SELinux xattrs for /sys and /proc
+        try:
+            stat = os.stat(src)
+            if src.startswith("/sys/") or src.startswith("/proc/"):
+                shutil.copymode(src, dest)
+                os.utime(dest, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+            else:
+                shutil.copystat(src, dest)
+            os.chown(dest, stat.st_uid, stat.st_gid)
+        except Exception as e:
+            self.log_debug("caught '%s' setting attributes of '%s'"
+                           % (e, dest))
+
     def add_file(self, src, dest=None):
         with self._path_lock:
             if not dest:
@@ -348,18 +362,7 @@ class FileCacheArchive(Archive):
                     else:
                         self.log_info("File %s not collected: '%s'" % (src, e))
 
-                # copy file attributes, skip SELinux xattrs for /sys and /proc
-                try:
-                    stat = os.stat(src)
-                    if src.startswith("/sys/") or src.startswith("/proc/"):
-                        shutil.copymode(src, dest)
-                        os.utime(dest, ns=(stat.st_atime_ns, stat.st_mtime_ns))
-                    else:
-                        shutil.copystat(src, dest)
-                    os.chown(dest, stat.st_uid, stat.st_gid)
-                except Exception as e:
-                    self.log_debug("caught '%s' setting attributes of '%s'"
-                                   % (e, dest))
+                self._copy_attributes(src, dest)
                 file_name = "'%s'" % src
             else:
                 # Open file case: first rewind the file to obtain
@@ -388,11 +391,7 @@ class FileCacheArchive(Archive):
                 content = content.decode('utf8', 'ignore')
             f.write(content)
             if os.path.exists(src):
-                try:
-                    shutil.copystat(src, dest)
-                except OSError as e:
-                    self.log_error("Unable to add '%s' to archive: %s" %
-                                   (dest, e))
+                self._copy_attributes(src, dest)
             self.log_debug("added string at '%s' to FileCacheArchive '%s'"
                            % (src, self._archive_root))
 
@@ -501,7 +500,7 @@ class FileCacheArchive(Archive):
                     self.log_info("add_node: %s - mknod '%s'" % (msg, dest))
                     return
                 raise e
-            shutil.copystat(path, dest)
+            self._copy_attributes(path, dest)
 
     def name_max(self):
         if 'PC_NAME_MAX' in os.pathconf_names:
