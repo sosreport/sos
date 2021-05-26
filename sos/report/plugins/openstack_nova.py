@@ -22,6 +22,7 @@ class OpenStackNova(Plugin):
     short_desc = 'OpenStack Nova'
     plugin_name = "openstack_nova"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
+    containers = ('.*nova_api',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/nova"
     service_name = "openstack-nova-api.service"

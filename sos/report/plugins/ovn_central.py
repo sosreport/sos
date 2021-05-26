@@ -24,6 +24,7 @@ class OVNCentral(Plugin):
     short_desc = 'OVN Northd'
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
+    containers = ('ovs-db-bundle.*',)
 
     def get_tables_from_schema(self, filename, skip=[]):
         if self._container_name:
@@ -63,10 +64,6 @@ class OVNCentral(Plugin):
             return
         for table in tables:
             cmds.append('%s list %s' % (ovn_cmd, table))
-
-    def check_enabled(self):
-        return (self.container_exists('ovs-dbs-bundle.*') or
-                super(OVNCentral, self).check_enabled())
 
     def setup(self):
         self._container_name = self.get_container_by_name('ovs-dbs-bundle.*')

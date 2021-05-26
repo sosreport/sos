@@ -16,6 +16,7 @@ class OpenStackPlacement(Plugin):
     short_desc = 'OpenStack Placement'
     plugin_name = "openstack_placement"
     profiles = ('openstack', 'openstack_controller')
+    containers = ('.*placement_api',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/placement"
     service_name = 'openstack-placement-api'
