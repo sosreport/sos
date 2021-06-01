@@ -179,6 +179,7 @@ class BaseSoSReportTest(BaseSoSTest):
     archive = None
     _manifest = None
     _exception_expected = False
+    encrypt_pass = None
 
     @property
     def manifest(self):
@@ -191,9 +192,40 @@ class BaseSoSReportTest(BaseSoSTest):
                 self.warn('Could not load manifest for test')
         return self._manifest
 
+    @property
+    def encrypted_path(self):
+        return self.get_encrypted_path()
+
+    def _decrypt_archive(self, archive):
+        _archive = archive.strip('.gpg')
+        cmd = ("gpg --batch --passphrase %s -o %s --decrypt %s"
+               % (self.encrypt_pass, _archive, archive))
+        try:
+            res = process.run(cmd, timeout=10)
+        except Exception as err:
+            if err.result.interrupted:
+                self.error("Timeout while decrypting")
+            if 'Bad session key' in err.result.stderr.decode():
+                self.fail("Decryption with well-known passphrase failed")
+            raise
+        return _archive
+
+    def get_encrypted_path(self):
+        """Since avocado re-instantiates a new object for every test_ method,
+        we need to be able to retrieve the original path for the encrypted
+        archive and cannot rely on it being set by the _extract_archive()
+        override
+        """
+        try:
+            return re.findall('/.*sosreport-.*tar.*\.gpg', self.cmd_output.stdout)[-1]
+        except:
+            return None
+
     def _extract_archive(self, arc_path):
         """Extract an archive to the temp directory
         """
+        if '--encrypt' in self.sos_cmd:
+            arc_path = self._decrypt_archive(arc_path)
         _extract_path = self._get_extracted_tarball_path()
         try:
             archive.extract(arc_path, _extract_path)
@@ -291,7 +323,7 @@ class BaseSoSReportTest(BaseSoSTest):
                 self.cmd_output.stdout = self.cmd_output.stdout.decode()
                 self.cmd_output.stderr = self.cmd_output.stderr.decode()
             for f in os.listdir(self.tmpdir):
-                if fnmatch(f, 'sosreport*.tar.??'):
+                if fnmatch(f, '*sosreport*.tar.??'):
                     self.archive = os.path.join(self.tmpdir, f)
                     break
         self.sysinfo = self.get_sysinfo()
@@ -535,7 +567,7 @@ class StageOneReportTest(BaseSoSReportTest):
         _chk = re.findall('sha256\t.*\n', self.cmd_output.stdout)
         _chk = _chk[0].split('sha256\t')[1].strip()
         assert _chk, "No checksum reported"
-        _found = process.run("sha256sum %s" % self.archive).stdout.decode().split()[0]
+        _found = process.run("sha256sum %s" % (self.encrypted_path or self.archive)).stdout.decode().split()[0]
         self.assertEqual(_chk, _found)
 
     def test_no_new_kmods_loaded(self):
