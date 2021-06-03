@@ -63,6 +63,7 @@ class BaseSoSTest(Test):
 
     _klass_name = None
     _tmpdir = None
+    _exception_expected = False
     sos_cmd = ''
 
     @property
@@ -103,6 +104,42 @@ class BaseSoSTest(Test):
         sysinfo['networking']['ip_addr'] = ip_addr
 
         return sysinfo
+
+    def _generate_sos_command(self):
+        """Based on the specific test class that is subclassing BaseSoSTest,
+        perform whatever logic is necessary to create the sos command that will
+        be executed
+        """
+        raise NotImplementedError
+
+    def _execute_sos_cmd(self):
+        """Run the sos command for this test case, and extract it
+        """
+        exec_cmd = self._generate_sos_command()
+        try:
+            self.cmd_output = process.run(exec_cmd, timeout=300)
+        except Exception as err:
+            if self._exception_expected:
+                self.cmd_output = err.result
+            else:
+                msg = err.result.stderr.decode() or err.result.stdout.decode()
+                # a little hacky, but using self.log methods here will not
+                # print to console unless we ratchet up the verbosity for the
+                # entire test suite, which will become very difficult to read
+                LOG_UI.error('ERROR:\n' + msg[:8196])  # don't flood w/ super verbose logs
+                if err.result.interrupted:
+                    raise Exception("Timeout exceeded, see output above")
+                else:
+                    raise Exception("Command failed, see output above: '%s'"
+                                    % err.command.split('bin/')[1])
+        with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
+            pickle.dump(self.cmd_output, pfile)
+        self.cmd_output.stdout = self.cmd_output.stdout.decode()
+        self.cmd_output.stderr = self.cmd_output.stderr.decode()
+
+    def _setup_tmpdir(self):
+        if not os.path.isdir(self.tmpdir):
+            os.mkdir(self.tmpdir)
 
     def _write_file_to_tmpdir(self, fname, content):
         """Write the given content to fname within the test's tmpdir
@@ -158,6 +195,54 @@ class BaseSoSTest(Test):
         }
         return sinfo
 
+    def setUp(self):
+        """Setup the tmpdir and any needed mocking for the test, then execute
+        the defined sos command. Ensure that we only run the sos command once
+        for every test case, instead of once for every test_* method defined.
+        """
+        self.local_distro = distro.detect().name
+        # check to prevent multiple setUp() runs
+        if not os.path.isdir(self.tmpdir):
+            # setup our class-shared tmpdir
+            self._setup_tmpdir()
+
+            # do mocking called for in stage 2+ tests
+            self.setup_mocking()
+
+            # do any pre-execution setup
+            self.pre_sos_setup()
+
+            # gather some pre-execution information
+            self.set_pre_sysinfo()
+
+            # run the sos command for this test case
+            self._execute_sos_cmd()
+            self.set_post_sysinfo()
+        else:
+            with open(os.path.join(self.tmpdir, 'output'), 'rb') as pfile:
+                self.cmd_output = pickle.load(pfile)
+            if isinstance(self.cmd_output.stdout, bytes):
+                self.cmd_output.stdout = self.cmd_output.stdout.decode()
+                self.cmd_output.stderr = self.cmd_output.stderr.decode()
+            for f in os.listdir(self.tmpdir):
+                if fnmatch(f, '*sosreport*.tar.??'):
+                    self.archive = os.path.join(self.tmpdir, f)
+                    break
+        self.sysinfo = self.get_sysinfo()
+
+    def setup_mocking(self):
+        """Since we need to use setUp() in our overrides of avocado.Test,
+        provide an alternate method for test cases that subclass BaseSoSTest
+        to use.
+        """
+        pass
+
+    def pre_sos_setup(self):
+        """Do any needed non-mocking setup prior to the sos execution that is
+        called in setUp()
+        """
+        pass
+
     def assertFileExists(self, fname):
         """Asserts that fname exists on the filesystem"""
         assert os.path.exists(fname), "%s does not exist" % fname
@@ -165,7 +250,25 @@ class BaseSoSTest(Test):
     def assertFileNotExists(self, fname):
         """Asserts that fname does not exist on the filesystem"""
         assert not os.path.exists(fname), "%s exists" % fname
-        
+
+    def assertOutputContains(self, content):
+        """Ensure that stdout did contain the given content string
+
+        :param content:  The string that should not be in stdout
+        :type content:  ``str``
+        """
+        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
+        assert found, "Content string '%s' not in output" % content
+
+    def assertOutputNotContains(self, content):
+        """Ensure that stdout did NOT contain the given content string
+
+        :param content:  The string that should not be in stdout
+        :type content:  ``str``
+        """
+        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
+        assert not found, "String '%s' present in stdout" % content
+
 
 class BaseSoSReportTest(BaseSoSTest):
     """This is the class to use for building sos report tests with.
@@ -239,41 +342,15 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         return os.path.join(self.tmpdir, "sosreport-%s" % self.__class__.__name__)
         
+    def _generate_sos_command(self):
+        return "%s report --batch --tmp-dir %s %s" % (SOS_BIN, self.tmpdir, self.sos_cmd)
 
     def _execute_sos_cmd(self):
-        """Run the sos command for this test case, and extract it
-        """
-        _cmd = '%s report --batch --tmp-dir %s %s'
-        exec_cmd = _cmd % (SOS_BIN, self.tmpdir, self.sos_cmd)
-        try:
-            self.cmd_output = process.run(exec_cmd, timeout=300)
-        except Exception as err:
-            if self._exception_expected:
-                self.cmd_output = err.result
-            else:
-                msg = err.result.stderr.decode() or err.result.stdout.decode()
-                # a little hacky, but using self.log methods here will not
-                # print to console unless we ratchet up the verbosity for the
-                # entire test suite, which will become very difficult to read
-                LOG_UI.error('ERROR:\n' + msg[:8196])  # don't flood w/ super verbose logs
-                if err.result.interrupted:
-                    raise Exception("Timeout exceeded, see output above")
-                else:
-                    raise Exception("Command failed, see output above: '%s'"
-                                    % err.command.split('bin/')[1])
-        with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
-            pickle.dump(self.cmd_output, pfile)
-        self.cmd_output.stdout = self.cmd_output.stdout.decode()
-        self.cmd_output.stderr = self.cmd_output.stderr.decode()
+        super(BaseSoSReportTest, self)._execute_sos_cmd()
         self.archive = re.findall('/.*sosreport-.*tar.*', self.cmd_output.stdout)
         if self.archive:
             self.archive = self.archive[-1]
             self._extract_archive(self.archive)
-        
-
-    def _setup_tmpdir(self):
-        if not os.path.isdir(self.tmpdir):
-            os.mkdir(self.tmpdir)
 
     def _get_archive_path(self):
         path = glob.glob(self._get_extracted_tarball_path() + '/sosreport*')
@@ -281,52 +358,8 @@ class BaseSoSReportTest(BaseSoSTest):
             return path[0]
         return None
 
-    def setup_mocking(self):
-        """Since we need to use setUp() in our overrides of avocado.Test,
-        provide an alternate method for test cases that subclass BaseSoSTest
-        to use.
-        """
-        pass
-
-    def pre_sos_setup(self):
-        """Do any needed non-mocking setup prior to the sos execution that is
-        called in setUp()
-        """
-        pass
-
     def setUp(self):
-        """Execute and extract the sos report to our temporary location, then
-        call sos_setup() for individual test case setup and/or mocking.
-        """
-        self.local_distro = distro.detect().name
-        # check to prevent multiple setUp() runs
-        if not os.path.isdir(self.tmpdir):
-            # setup our class-shared tmpdir
-            self._setup_tmpdir()
-
-            # do mocking called for in stage 2+ tests
-            self.setup_mocking()
-
-            # do any pre-execution setup
-            self.pre_sos_setup()
-
-            # gather some pre-execution information
-            self.set_pre_sysinfo()
-
-            # run the sos command for this test case
-            self._execute_sos_cmd()
-            self.set_post_sysinfo()
-        else:
-            with open(os.path.join(self.tmpdir, 'output'), 'rb') as pfile:
-                self.cmd_output = pickle.load(pfile)
-            if isinstance(self.cmd_output.stdout, bytes):
-                self.cmd_output.stdout = self.cmd_output.stdout.decode()
-                self.cmd_output.stderr = self.cmd_output.stderr.decode()
-            for f in os.listdir(self.tmpdir):
-                if fnmatch(f, '*sosreport*.tar.??'):
-                    self.archive = os.path.join(self.tmpdir, f)
-                    break
-        self.sysinfo = self.get_sysinfo()
+        super(BaseSoSReportTest, self).setUp()
         self.archive_path = self._get_archive_path()
 
     def get_name_in_archive(self, fname):
@@ -453,24 +486,6 @@ class BaseSoSReportTest(BaseSoSTest):
         """Ensure that the given content string does NOT exist in ui.log
         """
         self.assertFileNotHasContent('sos_logs/ui.log', content)
-
-    def assertOutputContains(self, content):
-        """Ensure that stdout did contain the given content string
-
-        :param content:  The string that should not be in stdout
-        :type content:  ``str``
-        """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
-        assert found, "Content string '%s' not in output" % content
-
-    def assertOutputNotContains(self, content):
-        """Ensure that stdout did NOT contain the given content string
-
-        :param content:  The string that should not be in stdout
-        :type content:  ``str``
-        """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
-        assert not found, "String '%s' present in stdout" % content
 
     def assertPluginIncluded(self, plugin):
         """Ensure that the specified plugin did run for the sos execution
