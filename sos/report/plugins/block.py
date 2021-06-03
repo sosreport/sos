@@ -34,6 +34,7 @@ class Block(Plugin, IndependentPlugin):
             "ls -lanR /dev",
             "ls -lanR /sys/block",
             "lsblk -O -P",
+            "losetup -a",
         ])
 
         # legacy location for non-/run distributions
@@ -46,6 +47,7 @@ class Block(Plugin, IndependentPlugin):
             "/sys/block/sd*/device/timeout",
             "/sys/block/hd*/device/timeout",
             "/sys/block/sd*/device/state",
+            "/sys/block/loop*/loop/",
         ])
 
         cmds = [
