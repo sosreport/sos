@@ -19,7 +19,7 @@ class Sssd(Plugin):
 
     plugin_name = "sssd"
     profiles = ('services', 'security', 'identity')
-    packages = ('sssd',)
+    packages = ('sssd', 'sssd-common')
 
     def setup(self):
         self.add_copy_spec([
