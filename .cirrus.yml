@@ -3,8 +3,8 @@
 # Main environment vars to set for all tasks
 env:
 
-    FEDORA_VER: "33"
-    FEDORA_PRIOR_VER: "32"
+    FEDORA_VER: "34"
+    FEDORA_PRIOR_VER: "33"
     FEDORA_NAME: "fedora-${FEDORA_VER}"
     FEDORA_PRIOR_NAME: "fedora-${FEDORA_PRIOR_VER}"
 
