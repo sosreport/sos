@@ -10,19 +10,19 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, SCLPlugin)
+                                UbuntuPlugin)
 from pipes import quote
 from re import match
 
 
 class Foreman(Plugin):
 
-    short_desc = 'Foreman/Satellite 6 systems management'
+    short_desc = 'Foreman/Satellite systems management'
 
     plugin_name = 'foreman'
     plugin_timeout = 1800
     profiles = ('sysmgmt',)
-    packages = ('foreman', 'foreman-proxy')
+    packages = ('foreman',)
     option_list = [
         ('months', 'number of months for dynflow output', 'fast', 1),
         ('proxyfeatures', 'collect features of smart proxies', 'slow', False),
@@ -65,15 +65,13 @@ class Foreman(Plugin):
 
         self.add_file_tags({
             '/var/log/foreman/production.log.*': 'foreman_production_log',
-            '/var/log/foreman-proxy/proxy.log.*': 'foreman_proxy_log',
-            '/etc/foreman-proxy/settings.yml': 'foreman_proxy_conf',
             '/etc/sysconfig/foreman-tasks': 'foreman_tasks_config',
             '/etc/sysconfig/dynflowd': 'foreman_tasks_config'
         })
 
         self.add_forbidden_path([
-            "/etc/foreman*/*key.pem",
-            "/etc/foreman*/encryption_key.rb"
+            "/etc/foreman/*key.pem",
+            "/etc/foreman/encryption_key.rb"
         ])
 
         _hostname = self.exec_cmd('hostname')['output']
@@ -90,12 +88,9 @@ class Foreman(Plugin):
         # Allow limiting these
         self.add_copy_spec([
             "/etc/foreman/",
-            "/etc/foreman-proxy/",
             "/etc/sysconfig/foreman",
             "/etc/sysconfig/dynflowd",
-            "/etc/smart_proxy_dynflow_core/settings.yml",
             "/etc/default/foreman",
-            "/etc/foreman-installer/",
             "/var/log/foreman/dynflow_executor*log*",
             "/var/log/foreman/dynflow_executor*.output*",
             "/var/log/foreman/apipie_cache*.log*",
@@ -103,20 +98,9 @@ class Foreman(Plugin):
             "/var/log/foreman/db_migrate*log*",
             "/var/log/foreman/db_seed*log*",
             "/var/log/foreman/production.log[.-]*",
-            "/var/log/foreman-proxy/cron*log*",
-            "/var/log/foreman-proxy/migrate_settings*log*",
-            "/var/log/foreman-proxy/proxy*log*",
-            "/var/log/foreman-proxy/smart_proxy_dynflow_core*log*",
             "/var/log/foreman-selinux-install.log",
             "/var/log/foreman-proxy-certs-generate*",
-            "/var/log/foreman-installer/*",
-            "/var/log/foreman-maintain/*",
-            "/var/log/syslog*",
             "/usr/share/foreman/Gemfile*",
-            "/var/lib/puppet/ssl/certs/ca.pem",
-            "/etc/puppetlabs/puppet/ssl/certs/ca.pem",
-            "/etc/puppetlabs/puppet/ssl/certs/{}.pem".format(_hostname),
-            "/var/lib/puppet/ssl/certs/{}.pem".format(_hostname),
             "/var/log/{}*/foreman*".format(self.apachepkg),
             "/var/log/{}*/katello-reverse-proxy_access_ssl.log*".format(
                 self.apachepkg),
@@ -128,10 +112,8 @@ class Foreman(Plugin):
         ])
 
         self.add_cmd_output([
-            'bundle --local --gemfile=/usr/share/foreman/Gemfile*',
             'hammer ping',
             'foreman-selinux-relabel -nv',
-            'foreman-maintain service status',
             'passenger-status --show pool',
             'passenger-status --show requests',
             'passenger-status --show backtraces',
@@ -286,42 +268,17 @@ class Foreman(Plugin):
         return _dbcmd % (self.dbhost, quote(query))
 
     def postproc(self):
-        install_logs = "/var/log/foreman-installer/"
-        satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
-                 r"(passw|cred|token|secret|key).*(\")?:)|(storepass )" \
-                 r"|(password =)))(.*)"
-        self.do_path_regex_sub(install_logs, satreg, r"\1 ********")
-        # need to do two passes here, debug output has different formatting
-        sat_debug_reg = (r"(\s)+(Found key: (\"(foreman(.*?)|katello)"
-                         r"::(.*(token|secret|key|passw).*)\") value:) "
-                         r"(.*)")
-        self.do_path_regex_sub(install_logs, sat_debug_reg, r"\1 \2 ********")
-        # also hide passwords in yet different formats
-        self.do_path_regex_sub(
-            install_logs,
-            r"(\.|_|-)password(=\'|=|\", \")(\w*)",
-            r"\1password\2********")
-        self.do_path_regex_sub(
-            "/var/log/foreman-installer/foreman-proxy*",
-            r"(\s*proxy_password\s=) (.*)",
-            r"\1 ********")
-        self.do_path_regex_sub(
-            "/var/log/foreman-maintain/foreman-maintain.log*",
-            r"(((passw|cred|token|secret)=)|(password ))(.*)",
-            r"\1********")
         self.do_path_regex_sub(
             "/var/log/%s*/foreman-ssl_access_ssl.log*" % self.apachepkg,
             r"(.*\?(passw|cred|token|secret|key).*=)(.*) (HTTP.*(.*))",
             r"\1******** \4")
-        # all scrubbing applied to configs must be applied to installer logs
-        # as well, since logs contain diff of configs
         self.do_path_regex_sub(
-            r"(/etc/foreman(.*)((conf)(.*)?))|(%s)" % install_logs,
+            r"/etc/foreman/(.*)((conf)(.*)?)",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r"\1********")
         # yaml values should be alphanumeric
         self.do_path_regex_sub(
-            r"(/etc/foreman(.*)((yaml|yml)(.*)?))|(%s)" % install_logs,
+            r"/etc/foreman/(.*)((yaml|yml)(.*)?)",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r'\1"********"')
 
@@ -329,21 +286,17 @@ class Foreman(Plugin):
 # attr so we can keep all log definitions centralized in the main class
 
 
-class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
+class RedHatForeman(Foreman, RedHatPlugin):
 
     apachepkg = 'httpd'
 
     def setup(self):
 
         self.add_file_tags({
-            '/var/log/foreman-installer/satellite.log.*':
-                ['insights_satellite_log' 'satellite_installer_log'],
             '/usr/share/foreman/.ssh/ssh_config': 'ssh_foreman_config',
         })
 
         super(RedHatForeman, self).setup()
-        self.add_cmd_output_scl('tfm', 'gem list',
-                                suggest_filename='scl enable tfm gem list')
 
 
 class DebianForeman(Foreman, DebianPlugin, UbuntuPlugin):

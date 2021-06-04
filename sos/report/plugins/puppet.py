@@ -20,6 +20,9 @@ class Puppet(Plugin, IndependentPlugin):
                 'puppetserver', 'puppetmaster', 'puppet-master')
 
     def setup(self):
+        _hostname = self.exec_cmd('hostname')['output']
+        _hostname = _hostname.strip()
+
         self.add_copy_spec([
             "/etc/puppet/*.conf",
             "/etc/puppet/rack/*",
@@ -33,7 +36,11 @@ class Puppet(Plugin, IndependentPlugin):
             "/etc/puppetlabs/puppet/ssl/ca/inventory.txt",
             "/var/log/puppetlabs/puppetserver/*.log*",
             "/var/lib/puppetlabs/puppet/ssl/ca/inventory.txt",
-            "/var/lib/puppet/ssl/ca/inventory.txt"
+            "/var/lib/puppet/ssl/ca/inventory.txt",
+            "/var/lib/puppet/ssl/certs/ca.pem",
+            "/etc/puppetlabs/puppet/ssl/certs/ca.pem",
+            "/etc/puppetlabs/puppet/ssl/certs/{}.pem".format(_hostname),
+            "/var/lib/puppet/ssl/certs/{}.pem".format(_hostname),
         ])
 
         self.add_cmd_output([
