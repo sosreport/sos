@@ -840,3 +840,30 @@ class StageOneReportExceptionTest(BaseSoSReportTest):
     @skipIf(lambda x: x.archive_still_expected, "Output expected in test")
     def test_no_archive_generated(self):
         self.assertTrue(self.archive is None)
+
+
+class StageOneOutputTest(BaseSoSTest):
+    """This test class should be used for tests that are only checking or
+    validating output from a specific command or option, such as --help or
+    --list.
+
+    :avocado: disable
+    :avocado: tags=stageone
+    """
+
+    sos_cmd = ''
+
+    def _generate_sos_command(self):
+        return "%s %s" % (SOS_BIN, self.sos_cmd)
+
+    @skipIf(lambda x: x._exception_expected, "Non-zero exit code expected")
+    def test_help_output_successful(self):
+        self.assertTrue(self.cmd_output.exit_status == 0)
+        assert self.cmd_output.stdout, "No stdout output generated"
+        assert not self.cmd_output.stderr, "stderr received, but not expected: %s" % self.cmd_output.stderr
+
+    @skipIf(lambda x: not x._exception_expected, "Not anticipating stderr output")
+    def test_help_error_reported(self):
+        self.assertTrue(self.cmd_output.exit_status != 0)
+        assert not self.cmd_output.stdout, "stdout received, but not expected: %s" % self.cmd_output.stdout
+        assert self.cmd_output.stderr, "No stderr output generated"
