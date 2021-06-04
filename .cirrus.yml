@@ -111,7 +111,7 @@ report_stageone_task:
             dnf -y remove sos
         fi
     setup_script: &setup 'pip3 install avocado-framework'
-    main_script: PYTHONPATH=tests/ avocado run -t stageone tests/report_tests tests/vendor_tests/
+    main_script: PYTHONPATH=tests/ avocado run -t stageone tests/{report,cleaner,collect,vendor}_tests
 
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
@@ -133,8 +133,15 @@ report_stagetwo_task:
             BUILD_NAME: ${UBUNTU_NAME}
             VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
     remove_sos_script: *remove_sos
+    install_pexpect_script: |
+        if [ $(command -v apt) ]; then
+            apt -y install python3-pexpect
+        fi
+        if [ $(command -v dnf) ]; then
+            dnf -y install python3-pexpect
+        fi
     setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run -t stagetwo tests/report_tests tests/vendor_tests/
+    main_script: PYTHONPATH=tests/ avocado run -t stagetwo tests/{report,cleaner,collect,vendor}_tests
 
 report_foreman_task:
     skip: "!changesInclude('.cirrus.yml', '**/{__init__,apache,foreman,foreman_tests,candlepin,pulp,pulpcore}.py')"
