@@ -15,8 +15,6 @@ import stat
 import tarfile
 import re
 
-from sos.utilities import sos_get_command_output
-
 
 class SoSObfuscationArchive():
     """A representation of an extracted archive or an sos archive build
@@ -129,40 +127,44 @@ class SoSObfuscationArchive():
         if self.is_tarfile:
             if self.archive_path.endswith('xz'):
                 return 'xz'
-            return 'gzip'
+            return 'gz'
         return None
 
-    def build_tar_file(self):
+    def build_tar_file(self, method):
         """Pack the extracted archive as a tarfile to then be re-compressed
         """
-        self.tarpath = self.extracted_path + '-obfuscated.tar'
-        self.log_debug("Building tar file %s" % self.tarpath)
-        tar = tarfile.open(self.tarpath, mode="w")
+        mode = 'w'
+        tarpath = self.extracted_path + '-obfuscated.tar'
+        compr_args = {}
+        if method:
+            mode += ":%s" % method
+            tarpath += ".%s" % method
+            if method == 'xz':
+                compr_args = {'preset': 3}
+            else:
+                compr_args = {'compresslevel': 6}
+        self.log_debug("Building tar file %s" % tarpath)
+        tar = tarfile.open(tarpath, mode=mode, **compr_args)
         tar.add(self.extracted_path,
                 arcname=os.path.split(self.archive_name)[1])
         tar.close()
+        return tarpath
 
-    def compress(self, cmd):
+    def compress(self, method):
         """Execute the compression command, and set the appropriate final
         archive path for later reference by SoSCleaner on a per-archive basis
         """
-        self.build_tar_file()
-        exec_cmd = "%s %s" % (cmd, self.tarpath)
-        res = sos_get_command_output(exec_cmd, timeout=0, stderr=True)
-        if res['status'] == 0:
-            self.final_archive_path = self.tarpath + '.' + exec_cmd[0:2]
-            self.log_debug("Compressed to %s" % self.final_archive_path)
-            try:
-                self.remove_extracted_path()
-            except Exception as err:
-                self.log_debug("Failed to remove extraction directory: %s"
-                               % err)
-                self.report_msg('Failed to remove temporary extraction '
-                                'directory')
-        else:
-            err = res['output'].split(':')[-1]
-            self.log_debug("Exception while compressing archive: %s" % err)
-            raise Exception(err)
+        try:
+            self.final_archive_path = self.build_tar_file(method)
+        except Exception as err:
+            self.log_debug("Exception while re-compressing archive: %s" % err)
+            raise
+        self.log_debug("Compressed to %s" % self.final_archive_path)
+        try:
+            self.remove_extracted_path()
+        except Exception as err:
+            self.log_debug("Failed to remove extraction directory: %s" % err)
+            self.report_msg('Failed to remove temporary extraction directory')
 
     def remove_extracted_path(self):
         """After the tarball has been re-compressed, remove the extracted path

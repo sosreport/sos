@@ -556,11 +556,7 @@ third party.
                     archive.rename_top_dir(
                         self.obfuscate_string(archive.archive_name)
                     )
-                    cmd = self.policy.get_cmd_for_compress_method(
-                        method,
-                        self.opts.threads
-                    )
-                    archive.compress(cmd)
+                    archive.compress(method)
                 except Exception as err:
                     self.log_debug("Archive %s failed to compress: %s"
                                    % (archive.archive_name, err))
