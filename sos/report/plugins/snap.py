@@ -17,6 +17,7 @@ class Snap(Plugin, IndependentPlugin):
     plugin_name = 'snap'
     profiles = ('system', 'sysmgmt', 'packagemanager')
     packages = ('snapd',)
+    services = ('snapd',)
 
     def setup(self):
         self.add_cmd_output("snap list --all", root_symlink="installed-snaps")
@@ -25,7 +26,5 @@ class Snap(Plugin, IndependentPlugin):
             "snap changes"
         ])
         self.add_cmd_output("snap debug connectivity", timeout=10)
-        self.add_service_status("snapd")
-        self.add_journal(units="snapd")
 
 # vim: set et ts=4 sw=4 :

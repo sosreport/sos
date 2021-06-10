@@ -99,9 +99,6 @@ class Maas(Plugin, UbuntuPlugin):
                 "apt-cache policy python-django-*",
             ])
 
-        for service in self.services:
-            self.add_journal(units=service)
-
         if self.is_installed("maas-region-controller"):
             self.add_cmd_output([
                 "maas-region dumpdata",

@@ -21,6 +21,7 @@ class etcd(Plugin, RedHatPlugin):
     packages = ('etcd',)
     profiles = ('container', 'system', 'services', 'cluster')
     files = ('/etc/origin/node/pods/etcd.yaml',)
+    services = ('etcd',)
 
     def setup(self):
         if path.exists('/etc/origin/node/pods/etcd.yaml'):
@@ -59,7 +60,6 @@ class etcd(Plugin, RedHatPlugin):
             self.add_cmd_output(['curl -s %s%s' % (etcd_url, u) for u in urls])
 
         self.add_cmd_output("ls -lR /var/lib/etcd/")
-        self.add_journal(units="etcd")
 
     def get_etcd_url(self):
         try:

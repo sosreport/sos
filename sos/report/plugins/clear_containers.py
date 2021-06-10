@@ -20,6 +20,7 @@ class ClearContainers(Plugin, IndependentPlugin):
 
     runtime = 'cc-runtime'
     packages = (runtime,)
+    services = ('cc-proxy',)
 
     def attach_cc_config_files(self):
 
@@ -75,7 +76,6 @@ class ClearContainers(Plugin, IndependentPlugin):
         self.attach_cc_config_files()
 
         self.attach_cc_log_files()
-        self.add_journal(units="cc-proxy")
         self.add_journal(identifier="cc-shim")
 
 # vim: set et ts=4 sw=4 :

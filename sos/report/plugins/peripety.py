@@ -38,6 +38,5 @@ class Peripety(Plugin, RedHatPlugin):
                 "prpt info %s" % disk,
                 "prpt query --blk %s" % disk
             ])
-        self.add_journal('peripetyd')
 
 # vim: set et ts=4 sw=4 :

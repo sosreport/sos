@@ -15,7 +15,7 @@ class Cups(Plugin, IndependentPlugin):
 
     plugin_name = 'cups'
     profiles = ('hardware',)
-
+    services = ('cups', 'cups-browsed')
     packages = ('cups',)
 
     def setup(self):
@@ -38,8 +38,5 @@ class Cups(Plugin, IndependentPlugin):
             "lpstat -s",
             "lpstat -d"
         ])
-
-        self.add_journal(units="cups")
-        self.add_journal(units="cups-browsed")
 
 # vim: set et ts=4 sw=4 :

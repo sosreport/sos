@@ -17,6 +17,7 @@ class Cockpit(Plugin, IndependentPlugin):
 
     plugin_name = 'cockpit'
     packages = ('cockpit-ws', 'cockpit-system')
+    services = ('cockpit',)
 
     def setup(self):
         self.add_copy_spec([
@@ -25,7 +26,5 @@ class Cockpit(Plugin, IndependentPlugin):
         ])
 
         self.add_cmd_output('remotectl certificate')
-
-        self.add_journal(units='cockpit')
 
 # vim: set et ts=4 sw=4 :

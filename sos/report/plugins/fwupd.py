@@ -15,7 +15,7 @@ class Fwupd(Plugin, IndependentPlugin):
 
     plugin_name = 'fwupd'
     profiles = ('system', )
-
+    services = ('fwupd',)
     packages = ('fwupd',)
 
     def setup(self):
@@ -30,8 +30,6 @@ class Fwupd(Plugin, IndependentPlugin):
         ])
 
         self.add_copy_spec("/etc/fwupd")
-
-        self.add_journal(units="fwupd")
 
     def postproc(self):
         self.do_path_regex_sub(

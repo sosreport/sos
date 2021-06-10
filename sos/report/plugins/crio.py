@@ -17,6 +17,7 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'crio'
     profiles = ('container',)
     packages = ('cri-o', 'cri-tools')
+    services = ('crio',)
 
     option_list = [
         ("all", "enable capture for all containers, even containers "
@@ -43,7 +44,6 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
             'ALL_PROXY'
         ])
 
-        self.add_journal(units="crio")
         self.add_cmd_output([
             "ls -alhR /etc/cni",
             "crio config"

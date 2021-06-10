@@ -651,6 +651,10 @@ class StageTwoReportTest(BaseSoSReportTest):
         self.installer = software_manager
         self.sm = self.installer.SoftwareManager()
 
+        for dist in self.packages:
+            if isinstance(self.packages[dist], str):
+                self.packages[dist] = [self.packages[dist]]
+
         keys = self.packages.keys()
         # allow for single declaration of packages for the RH family
         # for our purposes centos == rhel here
@@ -716,7 +720,7 @@ class StageTwoReportTest(BaseSoSReportTest):
                 return
             installed = self.installer.install_distro_packages(self.packages)
             if not installed:
-                raise("Unable to install requested packages %"
+                raise("Unable to install requested packages %s"
                       % ', '.join(pkg for pkg in self.packages[self.local_distro]))
             # save installed package list to our tmpdir to be removed later
             self._write_file_to_tmpdir('mocked_packages', json.dumps(self.packages[self.local_distro]))
