@@ -2397,7 +2397,7 @@ class Plugin(object):
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
                     timeout=None, identifier=None, catalog=None,
-                    sizelimit=None, pred=None, tags=[], priority=10):
+                    sizelimit=None, pred=None, tags=None, priority=10):
         """Collect journald logs from one of more units.
 
         :param units:   Which journald units to collect
@@ -2454,9 +2454,15 @@ class Plugin(object):
         if isinstance(units, str):
             units = [units]
 
+        if isinstance(tags, str):
+            tags = [tags]
+        elif not tags:
+            tags = []
+
         if units:
             for unit in units:
                 journal_cmd += unit_opt % unit
+                tags.append("journal_%s" % unit)
 
         if identifier:
             journal_cmd += identifier_opt % identifier
@@ -2692,6 +2698,7 @@ class Plugin(object):
         for service in self.services:
             if self.is_service(service):
                 self.add_service_status(service)
+                self.add_journal(service)
 
     def setup(self):
         """Collect the list of files declared by the plugin. This method

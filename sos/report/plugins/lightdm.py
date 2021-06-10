@@ -16,11 +16,10 @@ class LightDm(Plugin, IndependentPlugin):
     short_desc = 'Light Display Manager'
     packages = ('lightdm', )
     profiles = ('desktop', )
+    services = ('lightdm', )
     plugin_name = 'lightdm'
 
     def setup(self):
-        self.add_service_status("lightdm")
-        self.add_journal(units="lightdm")
         self.add_copy_spec([
             "/etc/lightdm/lightdm.conf",
             "/etc/lightdm/users.conf"

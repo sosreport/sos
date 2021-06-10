@@ -32,6 +32,5 @@ class Stratis(Plugin, RedHatPlugin):
         ]
 
         self.add_cmd_output(["stratis %s" % subcmd for subcmd in subcmds])
-        self.add_journal(units='stratisd')
 
 # vim: set et ts=4 sw=4 :

@@ -30,6 +30,5 @@ class Rasdaemon(Plugin, RedHatPlugin):
             '--summary'
         ]
         self.add_cmd_output(["ras-mc-ctl %s" % sub for sub in subcmds])
-        self.add_journal('rasdaemon')
 
 # vim: set et ts=4 sw=4 :

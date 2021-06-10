@@ -125,9 +125,6 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph %s --format json-pretty" % s for s in ceph_cmds
         ], subdir="json_output", tags="insights_ceph_health_detail")
 
-        for service in self.services:
-            self.add_journal(units=service)
-
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
             "/var/lib/ceph/*keyring*",
