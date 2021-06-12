@@ -45,6 +45,8 @@ class SosNode():
         self.host = None
         self.cluster = None
         self.hostname = None
+        self.sos_env_vars = {}
+        self._env_vars = {}
         self._password = password or self.opts.password
         if not self.opts.nopasswd_sudo and not self.opts.sudo_pw:
             self.opts.sudo_pw = self._password
@@ -108,6 +110,21 @@ class SosNode():
 
     def _fmt_msg(self, msg):
         return '{:<{}} : {}'.format(self._hostname, self.hostlen + 1, msg)
+
+    @property
+    def env_vars(self):
+        if not self._env_vars:
+            if self.local:
+                self._env_vars = os.environ.copy()
+            else:
+                ret = self.run_command("env --null")
+                if ret['status'] == 0:
+                    for ln in ret['output'].split('\x00'):
+                        if not ln:
+                            continue
+                        _val = ln.split('=')
+                        self._env_vars[_val[0]] = _val[1]
+        return self._env_vars
 
     def set_node_manifest(self, manifest):
         """Set the manifest section that this node will write to
@@ -404,7 +421,7 @@ class SosNode():
         return self.host.package_manager.pkg_by_name(pkg) is not None
 
     def run_command(self, cmd, timeout=180, get_pty=False, need_root=False,
-                    force_local=False, use_container=False):
+                    force_local=False, use_container=False, env=None):
         """Runs a given cmd, either via the SSH session or locally
 
         Arguments:
@@ -446,7 +463,10 @@ class SosNode():
         else:
             if get_pty:
                 cmd = "/bin/bash -c %s" % quote(cmd)
-        res = pexpect.spawn(cmd, encoding='utf-8')
+        if env:
+            _cmd_env = self.env_vars
+            _cmd_env.update(env)
+        res = pexpect.spawn(cmd, encoding='utf-8', env=_cmd_env)
         if need_root:
             if self.need_sudo:
                 res.sendline(self.opts.sudo_pw)
@@ -830,7 +850,8 @@ class SosNode():
             res = self.run_command(self.sos_cmd,
                                    timeout=self.opts.timeout,
                                    get_pty=True, need_root=True,
-                                   use_container=True)
+                                   use_container=True,
+                                   env=self.sos_env_vars)
             if res['status'] == 0:
                 for line in res['stdout'].splitlines():
                     if fnmatch.fnmatch(line, '*sosreport-*tar*'):
