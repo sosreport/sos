@@ -137,6 +137,16 @@ class Cluster():
         """
         self.cluster_ssh_key = key
 
+    def set_node_options(self, node):
+        """If there is a need to set specific options on ONLY the non-primary
+        nodes in a collection, override this method in the cluster profile
+        and do that here.
+
+        :param node:        The non-primary node
+        :type node:         ``SoSNode``
+        """
+        pass
+
     def set_master_options(self, node):
         """If there is a need to set specific options in the sos command being
         run on the cluster's master nodes, override this method in the cluster

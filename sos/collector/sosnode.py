@@ -657,6 +657,8 @@ class SosNode():
         # set master-only options
         if self.cluster.check_node_is_master(self):
             self.cluster.set_master_options(self)
+        else:
+            self.cluster.set_node_options(self)
 
     def finalize_sos_cmd(self):
         """Use host facts and compare to the cluster type to modify the sos
@@ -713,12 +715,12 @@ class SosNode():
                 sos_opts.append('--cmd-timeout=%s'
                                 % quote(str(self.opts.cmd_timeout)))
 
+        self.update_cmd_from_cluster()
+
         sos_cmd = sos_cmd.replace(
             'sosreport',
             os.path.join(self.host.sos_bin_path, self.sos_bin)
         )
-
-        self.update_cmd_from_cluster()
 
         if self.opts.only_plugins:
             plugs = [o for o in self.opts.only_plugins
