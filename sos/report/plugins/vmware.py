@@ -15,15 +15,35 @@ class VMWare(Plugin, RedHatPlugin):
 
     plugin_name = 'vmware'
     profiles = ('virt',)
-
-    files = ('vmware', '/usr/init.d/vmware-tools')
+    packages = ('open-vm-tools', 'VMWare-Tools')
+    files = ('/etc/vmware-tools', '/etc/vmware')
+    commands = ('vmware-toolbox-cmd',)
+    services = ('vmtoolsd',)
 
     def setup(self):
-        self.add_cmd_output("vmware -v")
         self.add_copy_spec([
+            "/etc/vmware-tools/",
             "/etc/vmware/locations",
             "/etc/vmware/config",
-            "/proc/vmmemctl"
+            "/proc/vmmemctl",
+            "/sys/kernel/debug/vmmemctl",
+            "/var/log/vmware-network.log",
+            "/var/log/vmware-vgauthsvc.log.0",
+            "/var/log/vmware-vmsvc-root.log",
+            "/var/log/vmware-vmtoolsd-root.log",
+            "/var/log/vmware-vmusr-root.log"
         ])
+
+        self.add_cmd_output([
+            "vmware-checkvm",
+            "vmware-toolbox-cmd device list",
+            "vmware-toolbox-cmd -v"
+        ])
+
+        stats = self.exec_cmd("vmware-toolbox-cmd stat raw")
+        if stats['status'] == 0:
+            for _stat in stats['output'].splitlines():
+                self.add_cmd_output("vmware-toolbox-cmd stat raw text %s"
+                                    % _stat)
 
 # vim: set et ts=4 sw=4 :
