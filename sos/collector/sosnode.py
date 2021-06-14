@@ -202,11 +202,11 @@ class SosNode():
                 self.opts.registry_authfile or self.host.container_authfile
             )
 
-    def file_exists(self, fname):
+    def file_exists(self, fname, need_root=False):
         """Checks for the presence of fname on the remote node"""
         if not self.local:
             try:
-                res = self.run_command("stat %s" % fname)
+                res = self.run_command("stat %s" % fname, need_root=need_root)
                 return res['status'] == 0
             except Exception:
                 return False
