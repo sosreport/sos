@@ -1186,6 +1186,10 @@ this utility or remote systems that it connects to.
                              "concurrently\n"
                              % (self.report_num, self.opts.jobs))
 
+            npool = ThreadPoolExecutor(self.opts.jobs)
+            npool.map(self._finalize_sos_cmd, self.client_list, chunksize=1)
+            npool.shutdown(wait=True)
+
             pool = ThreadPoolExecutor(self.opts.jobs)
             pool.map(self._collect, self.client_list, chunksize=1)
             pool.shutdown(wait=True)
@@ -1216,6 +1220,16 @@ this utility or remote systems that it connects to.
                 self.ui_log.info("Uploaded archive successfully")
             except Exception as err:
                 self.ui_log.error("Upload attempt failed: %s" % err)
+
+    def _finalize_sos_cmd(self, client):
+        """Calls finalize_sos_cmd() on each node so that we have the final
+        command before we thread out the actual execution of sos
+        """
+        try:
+            client.finalize_sos_cmd()
+        except Exception as err:
+            self.log_error("Could not finalize sos command for %s: %s"
+                           % (client.address, err))
 
     def _collect(self, client):
         """Runs sosreport on each node"""
