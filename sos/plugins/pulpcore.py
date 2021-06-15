@@ -115,6 +115,15 @@ class PulpCore(Plugin, IndependentPlugin):
             "/etc/pulp/settings.py",
             r"(PASSWORD\S*\s*:\s*)(.*)",
             r"\1********")
-
+        # apply the same for "dynaconf list" output that prints settings.py
+        # in a pythonic format
+        self.do_cmd_output_sub(
+            "dynaconf list",
+            r"(SECRET_KEY<str>\s*)'(.*)'",
+            r"\1********")
+        self.do_cmd_output_sub(
+            "dynaconf list",
+            r"(PASSWORD\S*\s*:\s*)(.*)",
+            r"\1********")
 
 # vim: set et ts=4 sw=4 :
