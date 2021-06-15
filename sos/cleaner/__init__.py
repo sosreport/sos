@@ -612,28 +612,55 @@ third party.
         if not filename:
             # the requested file doesn't exist in the archive
             return
-        self.log_debug("Obfuscating %s" % short_name or filename,
-                       caller=arc_name)
         subs = 0
-        tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
-        with open(filename, 'r') as fname:
-            for line in fname:
-                try:
-                    line, count = self.obfuscate_line(line)
-                    subs += count
-                    tfile.write(line)
-                except Exception as err:
-                    self.log_debug("Unable to obfuscate %s: %s"
-                                   % (short_name, err), caller=arc_name)
-        tfile.seek(0)
-        if subs:
-            shutil.copy(tfile.name, filename)
-        tfile.close()
-        _ob_filename = self.obfuscate_string(short_name)
-        if _ob_filename != short_name:
+        if not os.path.islink(filename):
+            # don't run the obfuscation on the link, but on the actual file
+            # at some other point.
+            self.log_debug("Obfuscating %s" % short_name or filename,
+                           caller=arc_name)
+            tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
+            with open(filename, 'r') as fname:
+                for line in fname:
+                    try:
+                        line, count = self.obfuscate_line(line)
+                        subs += count
+                        tfile.write(line)
+                    except Exception as err:
+                        self.log_debug("Unable to obfuscate %s: %s"
+                                       % (short_name, err), caller=arc_name)
+            tfile.seek(0)
+            if subs:
+                shutil.copy(tfile.name, filename)
+            tfile.close()
+
+        _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
+        _ob_filename = short_name.replace(short_name.split('/')[-1],
+                                          _ob_short_name)
+        _sym_changed = False
+        if os.path.islink(filename):
+            _link = os.readlink(filename)
+            _ob_link = self.obfuscate_string(_link)
+            if _ob_link != _link:
+                _sym_changed = True
+
+        if (_ob_filename != short_name) or _sym_changed:
             arc_path = filename.split(short_name)[0]
             _ob_path = os.path.join(arc_path, _ob_filename)
-            os.rename(filename, _ob_path)
+            # ensure that any plugin subdirs that contain obfuscated strings
+            # get created with obfuscated counterparts
+            if not os.path.islink(filename):
+                os.rename(filename, _ob_path)
+            else:
+                # generate the obfuscated name of the link target
+                _target_ob = self.obfuscate_string(os.readlink(filename))
+                # remove the unobfuscated original symlink first, in case the
+                # symlink name hasn't changed but the target has
+                os.remove(filename)
+                # create the newly obfuscated symlink, pointing to the
+                # obfuscated target name, which may not exist just yet, but
+                # when the actual file is obfuscated, will be created
+                os.symlink(_target_ob, _ob_path)
+
         return subs
 
     def obfuscate_string(self, string_data):
