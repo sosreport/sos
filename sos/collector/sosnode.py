@@ -38,6 +38,7 @@ class SosNode():
         self.address = address.strip()
         self.commons = commons
         self.opts = commons['cmdlineopts']
+        self._assign_config_opts()
         self.tmpdir = commons['tmpdir']
         self.hostlen = commons['hostlen']
         self.need_sudo = commons['need_sudo']
@@ -465,8 +466,8 @@ class SosNode():
                 cmd = "/bin/bash -c %s" % quote(cmd)
         if env:
             _cmd_env = self.env_vars
-            _cmd_env.update(env)
-        res = pexpect.spawn(cmd, encoding='utf-8', env=_cmd_env)
+            env = _cmd_env.update(env)
+        res = pexpect.spawn(cmd, encoding='utf-8', env=env)
         if need_root:
             if self.need_sudo:
                 res.sendline(self.opts.sudo_pw)
@@ -484,9 +485,6 @@ class SosNode():
 
     def sosreport(self):
         """Run a sosreport on the node, then collect it"""
-        self.sos_cmd = self.finalize_sos_cmd()
-        self.log_info('Final sos command set to %s' % self.sos_cmd)
-        self.manifest.add_field('final_sos_command', self.sos_cmd)
         try:
             path = self.execute_sos_command()
             if path:
@@ -656,29 +654,42 @@ class SosNode():
         This will NOT override user supplied options.
         """
         if self.cluster.sos_preset:
-            if not self.opts.preset:
-                self.opts.preset = self.cluster.sos_preset
+            if not self.preset:
+                self.preset = self.cluster.sos_preset
             else:
                 self.log_info('Cluster specified preset %s but user has also '
                               'defined a preset. Using user specification.'
                               % self.cluster.sos_preset)
         if self.cluster.sos_plugins:
             for plug in self.cluster.sos_plugins:
-                if plug not in self.opts.enable_plugins:
-                    self.opts.enable_plugins.append(plug)
+                if plug not in self.enable_plugins:
+                    self.enable_plugins.append(plug)
 
         if self.cluster.sos_plugin_options:
             for opt in self.cluster.sos_plugin_options:
-                if not any(opt in o for o in self.opts.plugin_options):
+                if not any(opt in o for o in self.plugin_options):
                     option = '%s=%s' % (opt,
                                         self.cluster.sos_plugin_options[opt])
-                    self.opts.plugin_options.append(option)
+                    self.plugin_options.append(option)
 
         # set master-only options
         if self.cluster.check_node_is_master(self):
-            self.cluster.set_master_options(self)
+            with self.cluster.lock:
+                self.cluster.set_master_options(self)
         else:
-            self.cluster.set_node_options(self)
+            with self.cluster.lock:
+                self.cluster.set_node_options(self)
+
+    def _assign_config_opts(self):
+        """From the global opts configuration, assign those values locally
+        to this node so that they may be acted on individually.
+        """
+        # assign these to new, private copies
+        self.only_plugins = list(self.opts.only_plugins)
+        self.skip_plugins = list(self.opts.skip_plugins)
+        self.enable_plugins = list(self.opts.enable_plugins)
+        self.plugin_options = list(self.opts.plugin_options)
+        self.preset = list(self.opts.preset)
 
     def finalize_sos_cmd(self):
         """Use host facts and compare to the cluster type to modify the sos
@@ -742,59 +753,61 @@ class SosNode():
             os.path.join(self.host.sos_bin_path, self.sos_bin)
         )
 
-        if self.opts.only_plugins:
-            plugs = [o for o in self.opts.only_plugins
-                     if self._plugin_exists(o)]
-            if len(plugs) != len(self.opts.only_plugins):
-                not_only = list(set(self.opts.only_plugins) - set(plugs))
+        if self.only_plugins:
+            plugs = [o for o in self.only_plugins if self._plugin_exists(o)]
+            if len(plugs) != len(self.only_plugins):
+                not_only = list(set(self.only_plugins) - set(plugs))
                 self.log_debug('Requested plugins %s were requested to be '
                                'enabled but do not exist' % not_only)
-            only = self._fmt_sos_opt_list(self.opts.only_plugins)
+            only = self._fmt_sos_opt_list(self.only_plugins)
             if only:
                 sos_opts.append('--only-plugins=%s' % quote(only))
-            return "%s %s" % (sos_cmd, ' '.join(sos_opts))
+            self.sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
+            self.log_info('Final sos command set to %s' % self.sos_cmd)
+            self.manifest.add_field('final_sos_command', self.sos_cmd)
+            return
 
-        if self.opts.skip_plugins:
+        if self.skip_plugins:
             # only run skip-plugins for plugins that are enabled
-            skip = [o for o in self.opts.skip_plugins
-                    if self._check_enabled(o)]
-            if len(skip) != len(self.opts.skip_plugins):
-                not_skip = list(set(self.opts.skip_plugins) - set(skip))
+            skip = [o for o in self.skip_plugins if self._check_enabled(o)]
+            if len(skip) != len(self.skip_plugins):
+                not_skip = list(set(self.skip_plugins) - set(skip))
                 self.log_debug('Requested to skip plugins %s, but plugins are '
                                'already not enabled' % not_skip)
             skipln = self._fmt_sos_opt_list(skip)
             if skipln:
                 sos_opts.append('--skip-plugins=%s' % quote(skipln))
 
-        if self.opts.enable_plugins:
+        if self.enable_plugins:
             # only run enable for plugins that are disabled
-            opts = [o for o in self.opts.enable_plugins
-                    if o not in self.opts.skip_plugins
+            opts = [o for o in self.enable_plugins
+                    if o not in self.skip_plugins
                     and self._check_disabled(o) and self._plugin_exists(o)]
-            if len(opts) != len(self.opts.enable_plugins):
-                not_on = list(set(self.opts.enable_plugins) - set(opts))
+            if len(opts) != len(self.enable_plugins):
+                not_on = list(set(self.enable_plugins) - set(opts))
                 self.log_debug('Requested to enable plugins %s, but plugins '
                                'are already enabled or do not exist' % not_on)
             enable = self._fmt_sos_opt_list(opts)
             if enable:
                 sos_opts.append('--enable-plugins=%s' % quote(enable))
 
-        if self.opts.plugin_options:
-            opts = [o for o in self.opts.plugin_options
+        if self.plugin_options:
+            opts = [o for o in self.plugin_options
                     if self._plugin_exists(o.split('.')[0])
                     and self._plugin_option_exists(o.split('=')[0])]
             if opts:
                 sos_opts.append('-k %s' % quote(','.join(o for o in opts)))
 
-        if self.opts.preset:
-            if self._preset_exists(self.opts.preset):
-                sos_opts.append('--preset=%s' % quote(self.opts.preset))
+        if self.preset:
+            if self._preset_exists(self.preset):
+                sos_opts.append('--preset=%s' % quote(self.preset))
             else:
                 self.log_debug('Requested to enable preset %s but preset does '
-                               'not exist on node' % self.opts.preset)
+                               'not exist on node' % self.preset)
 
-        _sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
-        return _sos_cmd
+        self.sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
+        self.log_info('Final sos command set to %s' % self.sos_cmd)
+        self.manifest.add_field('final_sos_command', self.sos_cmd)
 
     def determine_sos_label(self):
         """Determine what, if any, label should be added to the sosreport"""

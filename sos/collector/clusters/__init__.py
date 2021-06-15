@@ -11,6 +11,7 @@
 import logging
 
 from sos.options import ClusterOption
+from threading import Lock
 
 
 class Cluster():
@@ -66,6 +67,7 @@ class Cluster():
             if cls.__name__ != 'Cluster':
                 self.cluster_type.append(cls.__name__)
         self.node_list = None
+        self.lock = Lock()
         self.soslog = logging.getLogger('sos')
         self.ui_log = logging.getLogger('sos_ui')
         self.options = []
