@@ -20,8 +20,10 @@ class SoSMap():
     corresponding SoSMap() object, to allow for easy retrieval of obfuscated
     items.
     """
-
+    # used for regex skips in parser.parse_line()
     ignore_matches = []
+    # used for filename obfuscations in parser.parse_string_for_keys()
+    skip_keys = []
 
     def __init__(self):
         self.dataset = {}

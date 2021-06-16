@@ -107,6 +107,8 @@ class SoSCleanerParser():
         for pair in sorted(self.mapping.dataset.items(), reverse=True,
                            key=lambda x: len(x[0])):
             key, val = pair
+            if key in self.mapping.skip_keys:
+                continue
             if key in string_data:
                 string_data = string_data.replace(key, val)
         return string_data

@@ -202,9 +202,21 @@ class SoSObfuscationArchive():
         """Return a list of all files within the archive"""
         self.file_list = []
         for dirname, dirs, files in os.walk(self.extracted_path):
+            for _dir in dirs:
+                _dirpath = os.path.join(dirname, _dir)
+                # catch dir-level symlinks
+                if os.path.islink(_dirpath) and os.path.isdir(_dirpath):
+                    self.file_list.append(_dirpath)
             for filename in files:
                 self.file_list.append(os.path.join(dirname, filename))
         return self.file_list
+
+    def get_directory_list(self):
+        """Return a list of all directories within the archive"""
+        dir_list = []
+        for dirname, dirs, files in os.walk(self.extracted_path):
+            dir_list.append(dirname)
+        return dir_list
 
     def update_sub_count(self, fname, count):
         """Called when a file has finished being parsed and used to track
@@ -230,7 +242,8 @@ class SoSObfuscationArchive():
                                         archive root
         """
 
-        if not os.path.isfile(self.get_file_path(filename)):
+        if (not os.path.isfile(self.get_file_path(filename)) and not
+                os.path.islink(self.get_file_path(filename))):
             return True
 
         for _skip in self.skip_list:
@@ -266,7 +279,10 @@ class SoSObfuscationArchive():
             if re.match(_arc_reg, fname):
                 return True
 
-        return self.file_is_binary(fname)
+        if os.path.isfile(self.get_file_path(fname)):
+            return self.file_is_binary(fname)
+        # don't fail on dir-level symlinks
+        return False
 
     def file_is_binary(self, fname):
         """Determine if the file is a binary file or not.
