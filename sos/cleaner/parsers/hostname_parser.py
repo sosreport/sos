@@ -18,7 +18,7 @@ class SoSHostnameParser(SoSCleanerParser):
     map_file_key = 'hostname_map'
     prep_map_file = 'sos_commands/host/hostname'
     regex_patterns = [
-        r'(((\b|_)[a-zA-Z0-9-\.]{1,200}\.[a-zA-Z]{1,63}\b))'
+        r'(((\b|_)[a-zA-Z0-9-\.]{1,200}\.[a-zA-Z]{1,63}(\b|_)))'
     ]
 
     def __init__(self, conf_file=None, opt_domains=None):
@@ -66,10 +66,30 @@ class SoSHostnameParser(SoSCleanerParser):
         """Override the default parse_line() method to also check for the
         shortname of the host derived from the hostname.
         """
+
+        def _check_line(ln, count, search, repl=None):
+            """Perform a second manual check for substrings that may have been
+            missed by regex matching
+            """
+            if search in self.mapping.skip_keys:
+                return ln, count
+            if search in ln:
+                count += ln.count(search)
+                ln = ln.replace(search, self.mapping.get(repl or search))
+            return ln, count
+
         count = 0
         line, count = super(SoSHostnameParser, self).parse_line(line)
-        for short_name in self.short_names:
-            if short_name in line:
-                count += 1
-                line = line.replace(short_name, self.mapping.get(short_name))
+        # make an additional pass checking for '_' formatted substrings that
+        # the regex patterns won't catch
+        hosts = [h for h in self.mapping.dataset.keys() if '.' in h]
+        for host in sorted(hosts, reverse=True, key=lambda x: len(x)):
+            fqdn = host
+            for c in '.-':
+                fqdn = fqdn.replace(c, '_')
+            line, count = _check_line(line, count, fqdn, host)
+
+        for short_name in sorted(self.short_names, reverse=True):
+            line, count = _check_line(line, count, short_name)
+
         return line, count

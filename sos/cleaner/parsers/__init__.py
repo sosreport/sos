@@ -87,7 +87,8 @@ class SoSCleanerParser():
                 for match in matches:
                     match = match.strip()
                     new_match = self.mapping.get(match)
-                    line = line.replace(match, new_match)
+                    if new_match != match:
+                        line = line.replace(match, new_match)
         return line, count
 
     def parse_string_for_keys(self, string_data):
