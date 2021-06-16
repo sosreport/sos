@@ -104,7 +104,7 @@ class SoSHostnameMap(SoSMap):
         host = domain.split('.')
         if len(host) == 1:
             # don't block on host's shortname
-            return True
+            return host[0] in self.hosts.keys()
         else:
             domain = host[0:-1]
             for known_domain in self._domains:
@@ -113,12 +113,59 @@ class SoSHostnameMap(SoSMap):
         return False
 
     def get(self, item):
-        if item.startswith(('.', '_')):
-            item = item.lstrip('._')
-        item = item.strip()
+        prefix = ''
+        suffix = ''
+        final = None
+        # The regex pattern match may include a leading and/or trailing '_'
+        # character due to the need to use word boundary matching, so we need
+        # to strip these from the string during processing, but still keep them
+        # in the returned string to not mangle the string replacement in the
+        # context of the file or filename
+        while item.startswith(('.', '_')):
+            prefix += item[0]
+            item = item[1:]
+        while item.endswith(('.', '_')):
+            suffix += item[-1]
+            item = item[0:-1]
         if not self.domain_name_in_loaded_domains(item.lower()):
             return item
-        return super(SoSHostnameMap, self).get(item)
+        if item.endswith(('.yaml', '.yml', '.crt', '.key', '.pem')):
+            ext = '.' + item.split('.')[-1]
+            item = item.replace(ext, '')
+            suffix += ext
+        if item not in self.dataset.keys():
+            # try to account for use of '-' in names that include hostnames
+            # and don't create new mappings for each of these
+            for _existing in sorted(self.dataset.keys(), reverse=True,
+                                    key=lambda x: len(x)):
+                _host_substr = False
+                _test = item.split(_existing)
+                _h = _existing.split('.')
+                # avoid considering a full FQDN match as a new match off of
+                # the hostname of an existing match
+                if _h[0] and _h[0] in self.hosts.keys():
+                    _host_substr = True
+                if len(_test) == 1 or not _test[0]:
+                    # does not match existing obfuscation
+                    continue
+                elif _test[0].endswith('.') and not _host_substr:
+                    # new hostname in known domain
+                    final = super(SoSHostnameMap, self).get(item)
+                    break
+                elif item.split(_test[0]):
+                    # string that includes existing FQDN obfuscation substring
+                    # so, only obfuscate the FQDN part
+                    try:
+                        itm = item.split(_test[0])[1]
+                        final = _test[0] + super(SoSHostnameMap, self).get(itm)
+                        break
+                    except Exception:
+                        # fallback to still obfuscating the entire item
+                        pass
+
+        if not final:
+            final = super(SoSHostnameMap, self).get(item)
+        return prefix + final + suffix
 
     def sanitize_item(self, item):
         host = item.split('.')
@@ -146,6 +193,8 @@ class SoSHostnameMap(SoSMap):
         """Obfuscate the short name of the host with an incremented counter
         based on the total number of obfuscated host names
         """
+        if not hostname:
+            return hostname
         if hostname not in self.hosts:
             ob_host = "host%s" % self.host_count
             self.hosts[hostname] = ob_host
