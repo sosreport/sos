@@ -82,10 +82,12 @@ class SoSCleanerParser():
         for pattern in self.regex_patterns:
             matches = [m[0] for m in re.findall(pattern, line, re.I)]
             if matches:
+                matches.sort(reverse=True, key=lambda x: len(x))
                 count += len(matches)
                 for match in matches:
-                    new_match = self.mapping.get(match.strip())
-                    line = line.replace(match.strip(), new_match)
+                    match = match.strip()
+                    new_match = self.mapping.get(match)
+                    line = line.replace(match, new_match)
         return line, count
 
     def parse_string_for_keys(self, string_data):
@@ -102,7 +104,9 @@ class SoSCleanerParser():
         :returns: The obfuscated line
         :rtype: ``str``
         """
-        for key, val in self.mapping.dataset.items():
+        for pair in sorted(self.mapping.dataset.items(), reverse=True,
+                           key=lambda x: len(x[0])):
+            key, val = pair
             if key in string_data:
                 string_data = string_data.replace(key, val)
         return string_data

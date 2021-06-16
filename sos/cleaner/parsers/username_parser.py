@@ -51,7 +51,7 @@ class SoSUsernameParser(SoSCleanerParser):
 
     def parse_line(self, line):
         count = 0
-        for username in self.mapping.dataset.keys():
+        for username in sorted(self.mapping.dataset.keys(), reverse=True):
             if username in line:
                 count = line.count(username)
                 line = line.replace(username, self.mapping.get(username))

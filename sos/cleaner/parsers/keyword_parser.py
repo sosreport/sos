@@ -42,7 +42,7 @@ class SoSKeywordParser(SoSCleanerParser):
 
     def parse_line(self, line):
         count = 0
-        for keyword in self.user_keywords:
+        for keyword in sorted(self.user_keywords, reverse=True):
             if keyword in line:
                 line = line.replace(keyword, self.mapping.get(keyword))
                 count += 1
