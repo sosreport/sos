@@ -35,6 +35,11 @@ class SoSHostnameMap(SoSMap):
         '^com..*'
     ]
 
+    skip_keys = [
+        'www',
+        'api'
+    ]
+
     host_count = 0
     domain_count = 0
     _domains = {}

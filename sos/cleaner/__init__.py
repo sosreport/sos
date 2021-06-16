@@ -562,6 +562,11 @@ third party.
                 except Exception as err:
                     self.log_debug("Unable to parse file %s: %s"
                                    % (short_name, err))
+            try:
+                self.obfuscate_directory_names(archive)
+            except Exception as err:
+                self.log_info("Failed to obfuscate directories: %s" % err,
+                              caller=archive.archive_name)
 
             # if the archive was already a tarball, repack it
             method = archive.get_compression()
@@ -662,6 +667,27 @@ third party.
                 os.symlink(_target_ob, _ob_path)
 
         return subs
+
+    def obfuscate_directory_names(self, archive):
+        """For all directories that exist within the archive, obfuscate the
+        directory name if it contains sensitive strings found during execution
+        """
+        self.log_info("Obfuscating directory names in archive %s"
+                      % archive.archive_name)
+        for dirpath in sorted(archive.get_directory_list(), reverse=True):
+            for _name in os.listdir(dirpath):
+                _dirname = os.path.join(dirpath, _name)
+                _arc_dir = _dirname.split(archive.extracted_path)[-1]
+                if os.path.isdir(_dirname):
+                    _ob_dirname = self.obfuscate_string(_name)
+                    if _ob_dirname != _name:
+                        _ob_arc_dir = _arc_dir.rstrip(_name)
+                        _ob_arc_dir = os.path.join(
+                            archive.extracted_path,
+                            _ob_arc_dir.lstrip('/'),
+                            _ob_dirname
+                        )
+                        os.rename(_dirname, _ob_arc_dir)
 
     def obfuscate_string(self, string_data):
         for parser in self.parsers:
