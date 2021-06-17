@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-from report_tests.plugin_tests.networking import NetworkingPluginTest
+from ...report_tests.plugin_tests.networking import NetworkingPluginTest
 
 
 class rhbz1928628(NetworkingPluginTest):
