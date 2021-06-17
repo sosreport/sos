@@ -1245,6 +1245,9 @@ class SoSReport(SoSComponent):
             finally:
                 os.umask(old_umask)
         else:
+            if self.opts.encrypt_pass or self.opts.encrypt_key:
+                self.ui_log.warn("\nUnable to encrypt when using --build. "
+                                 "Encryption is only available for archives.")
             # move the archive root out of the private tmp directory.
             directory = self.archive.get_archive_path()
             dir_name = os.path.basename(directory)
