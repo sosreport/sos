@@ -28,6 +28,7 @@ class SoSUsernameParser(SoSCleanerParser):
     prep_map_file = 'sos_commands/login/lastlog_-u_1000-60000'
     regex_patterns = []
     skip_list = [
+        'core',
         'nobody',
         'nfsnobody',
         'root',
