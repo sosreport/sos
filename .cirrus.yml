@@ -110,7 +110,7 @@ report_stageone_task:
         if [ $(command -v dnf) ]; then
             dnf -y remove sos
         fi
-    setup_script: &setup 'pip3 install avocado-framework'
+    setup_script: &setup 'pip3 install https://cleber.fedorapeople.org/avocado_framework-88.1-py3-none-any.whl'
     main_script: PYTHONPATH=tests/ avocado run -t stageone tests/report_tests tests/vendor_tests/
 
 # IFF the stage one tests all pass, then run stage two for latest distros
