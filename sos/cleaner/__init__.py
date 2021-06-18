@@ -226,8 +226,7 @@ third party.
         nested_archives = []
         for _file in archive.getmembers():
             if (re.match('sosreport-.*.tar', _file.name.split('/')[-1]) and not
-               (_file.name.endswith('.md5') or
-               _file.name.endswith('.sha256'))):
+                    (_file.name.endswith(('.md5', '.sha256')))):
                 nested_archives.append(_file.name.split('/')[-1])
 
         if nested_archives:
@@ -235,6 +234,8 @@ third party.
             nested_path = self.extract_archive(archive)
             for arc_file in os.listdir(nested_path):
                 if re.match('sosreport.*.tar.*', arc_file):
+                    if arc_file.endswith(('.md5', '.sha256')):
+                        continue
                     self.report_paths.append(os.path.join(nested_path,
                                                           arc_file))
             # add the toplevel extracted archive

@@ -58,6 +58,7 @@ class SoSObfuscationArchive():
         Returns: list of files and file regexes
         """
         return [
+            'sosreport-',
             'sys/firmware',
             'sys/fs',
             'sys/kernel/debug',
