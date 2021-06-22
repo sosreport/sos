@@ -77,7 +77,12 @@ class PulpCore(Plugin, IndependentPlugin):
     def setup(self):
         self.parse_settings_config()
 
-        self.add_copy_spec("/etc/pulp/settings.py")
+        self.add_copy_spec([
+            "/etc/pulp/settings.py",
+            "/etc/pki/pulp/*"
+        ])
+        # skip collecting certificate keys
+        self.add_forbidden_path("/etc/pki/pulp/*.key")
 
         self.add_cmd_output("rq info -u redis://localhost:6379/8",
                             env={"LC_ALL": "en_US.UTF-8"},
