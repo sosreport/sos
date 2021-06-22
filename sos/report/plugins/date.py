@@ -18,9 +18,9 @@ class Date(Plugin, IndependentPlugin):
     plugin_name = 'date'
 
     def setup(self):
-        self.add_cmd_output('date', root_symlink='date')
 
         self.add_cmd_output([
+            'date',
             'date --utc',
             'hwclock'
         ])
