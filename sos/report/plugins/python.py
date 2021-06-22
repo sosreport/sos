@@ -30,7 +30,13 @@ class Python(Plugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output(
             self.python_version, suggest_filename="python-version"
         )
-        self.add_cmd_output("pip list")
+        pips = self.exec_cmd("whereis pip -b")
+        if pips['status'] == 0:
+            # output is like:
+            # pip: /usr/bin/pip2.7 /usr/bin/pip3.6
+            # where we must skip the first word
+            for pip in pips['output'].split()[1:]:
+                self.add_cmd_output("%s list installed" % pip)
 
 
 class RedHatPython(Python, RedHatPlugin):
