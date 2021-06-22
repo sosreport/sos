@@ -129,6 +129,16 @@ class SoSCleaner(SoSComponent):
                 self.log_error(
                     "ERROR: map file %s does not exist, will not load any "
                     "obfuscation matches" % self.opts.map_file)
+        else:
+            with open(self.opts.map_file, 'r') as mf:
+                try:
+                    json.load(mf)
+                except json.JSONDecodeError:
+                    self.log_error("ERROR: Unable to parse map file, json is "
+                                   "malformed. Will not load any mappings.")
+                except Exception as err:
+                    self.log_error("ERROR: Could not load '%s': %s"
+                                   % (self.opts.map_file, err))
 
     def print_disclaimer(self):
         """When we are directly running `sos clean`, rather than hooking into
