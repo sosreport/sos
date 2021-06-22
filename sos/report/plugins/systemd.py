@@ -51,9 +51,10 @@ class Systemd(Plugin, IndependentPlugin):
             "systemd-analyze dump",
             "systemd-inhibit --list",
             "journalctl --list-boots",
-            "ls -lR /lib/systemd",
-            "timedatectl"
+            "ls -lR /lib/systemd"
         ])
+
+        self.add_cmd_output('timedatectl', root_symlink='date')
 
         # resolvectl command starts systemd-resolved service if that
         # is not running, so gate the commands by this predicate
