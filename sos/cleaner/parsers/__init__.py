@@ -62,7 +62,7 @@ class SoSCleanerParser():
                     self.mapping.conf_update(
                         _default_mappings[self.map_file_key]
                     )
-            except IOError:
+            except (IOError, json.decoder.JSONDecodeError):
                 pass
 
     def parse_line(self, line):
