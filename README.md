@@ -22,6 +22,18 @@ git clone git://github.com/sosreport/sos.git
 Please report bugs via the mailing list or by opening an issue in the [GitHub
 Issue Tracker][5]
 
+## Chat
+
+The SoS project has rooms in Matrix and in Libera.Chat.
+
+Matrix Room: #sosreport:matrix.org
+Libera.Chat: #sos
+
+These rooms are bridged, so joining either is sufficient as messages from either will
+appear in both.
+
+The Freenode #sos room **is no longer used by this project**.
+
 ## Mailing list
 
 The [sos-devel][4] is the mailing list for any sos-related questions and
