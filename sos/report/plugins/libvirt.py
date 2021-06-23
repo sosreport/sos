@@ -42,7 +42,8 @@ class Libvirt(Plugin, IndependentPlugin):
             "/etc/libvirt/storage/*.xml",
             "/etc/libvirt/storage/autostart/*.xml",
             "/etc/libvirt/qemu-lockd.conf",
-            "/etc/libvirt/virtlockd.conf"
+            "/etc/libvirt/virtlockd.conf",
+            "/var/lib/libvirt/dnsmasq/*",
         ])
 
         if not self.get_option("all_logs"):
