@@ -120,6 +120,9 @@ class BaseSoSTest(Test):
         try:
             self.cmd_output = process.run(exec_cmd, timeout=self.sos_timeout)
         except Exception as err:
+            if not hasattr(err, 'result'):
+                # can't inspect the exception raised, just bail out
+                raise
             if self._exception_expected:
                 self.cmd_output = err.result
             else:
