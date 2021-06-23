@@ -65,6 +65,7 @@ class BaseSoSTest(Test):
     _tmpdir = None
     _exception_expected = False
     sos_cmd = ''
+    sos_timeout = 300
 
     @property
     def klass_name(self):
@@ -117,7 +118,7 @@ class BaseSoSTest(Test):
         """
         exec_cmd = self._generate_sos_command()
         try:
-            self.cmd_output = process.run(exec_cmd, timeout=300)
+            self.cmd_output = process.run(exec_cmd, timeout=self.sos_timeout)
         except Exception as err:
             if self._exception_expected:
                 self.cmd_output = err.result
