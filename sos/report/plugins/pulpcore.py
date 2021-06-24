@@ -28,9 +28,10 @@ class PulpCore(Plugin, IndependentPlugin):
         databases_scope = False
         self.dbhost = "localhost"
         self.dbport = 5432
+        self.dbname = "pulpcore"
         self.dbpasswd = ""
         # TODO: read also redis config (we dont expect much customisations)
-        # TODO: read also db user (pulp) and database name (pulpcore)
+        # TODO: read also db user (pulp)
         self.staticroot = "/var/lib/pulp/assets"
         self.uploaddir = "/var/lib/pulp/media/upload"
 
@@ -44,7 +45,10 @@ class PulpCore(Plugin, IndependentPlugin):
             return val
 
         try:
-            for line in open("/etc/pulp/settings.py").read().splitlines():
+            # split the lines to "one option per line" format
+            for line in open("/etc/pulp/settings.py").read() \
+                    .replace(',', ',\n').replace('{', '{\n') \
+                    .replace('}', '\n}').splitlines():
                 # skip empty lines and lines with comments
                 if not line or line[0] == '#':
                     continue
@@ -53,11 +57,14 @@ class PulpCore(Plugin, IndependentPlugin):
                     continue
                 # example HOST line to parse:
                 #         'HOST': 'localhost',
-                if databases_scope and match(r"\s+'HOST'\s*:\s+\S+", line):
+                pattern = r"\s*['|\"]%s['|\"]\s*:\s*\S+"
+                if databases_scope and match(pattern % 'HOST', line):
                     self.dbhost = separate_value(line)
-                if databases_scope and match(r"\s+'PORT'\s*:\s+\S+", line):
+                if databases_scope and match(pattern % 'PORT', line):
                     self.dbport = separate_value(line)
-                if databases_scope and match(r"\s+'PASSWORD'\s*:\s+\S+", line):
+                if databases_scope and match(pattern % 'NAME', line):
+                    self.dbname = separate_value(line)
+                if databases_scope and match(pattern % 'PASSWORD', line):
                     self.dbpasswd = separate_value(line)
                 # if line contains closing '}' database_scope end
                 if databases_scope and '}' in line:
@@ -82,7 +89,7 @@ class PulpCore(Plugin, IndependentPlugin):
             "/etc/pki/pulp/*"
         ])
         # skip collecting certificate keys
-        self.add_forbidden_path("/etc/pki/pulp/*.key")
+        self.add_forbidden_path("/etc/pki/pulp/**/*.key", recursive=True)
 
         self.add_cmd_output("rq info -u redis://localhost:6379/8",
                             env={"LC_ALL": "en_US.UTF-8"},
@@ -104,8 +111,8 @@ class PulpCore(Plugin, IndependentPlugin):
             _query = "select * from %s where pulp_last_updated > NOW() - " \
                      "interval '%s days' order by pulp_last_updated" % \
                      (table, task_days)
-            _cmd = "psql -h %s -p %s -U pulp -d pulpcore -c %s" % \
-                   (self.dbhost, self.dbport, quote(_query))
+            _cmd = "psql -h %s -p %s -U pulp -d %s -c %s" % \
+                   (self.dbhost, self.dbport, self.dbname, quote(_query))
             self.add_cmd_output(_cmd, env=self.env, suggest_filename=table)
 
     def postproc(self):
