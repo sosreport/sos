@@ -127,7 +127,11 @@ class OpenVSwitch(Plugin):
             # Capture ipsec tunnel information
             "ovs-appctl -t ovs-monitor-ipsec tunnels/show",
             "ovs-appctl -t ovs-monitor-ipsec xfrm/state",
-            "ovs-appctl -t ovs-monitor-ipsec xfrm/policies"
+            "ovs-appctl -t ovs-monitor-ipsec xfrm/policies",
+            # Capture OVS offload enabled flows
+            "ovs-dpctl dump-flows --name -m type=offloaded",
+            # Capture OVS slowdatapth flows
+            "ovs-dpctl dump-flows --name -m type=ovs"
         ])
 
         # Gather systemd services logs
