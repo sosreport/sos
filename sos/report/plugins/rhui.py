@@ -29,13 +29,16 @@ class Rhui(Plugin, RedHatPlugin):
             "/root/.rhui/*",
         ])
         # skip collecting certificate keys
-        self.add_forbidden_path("/etc/pki/rhui/*.key")
+        self.add_forbidden_path("/etc/pki/rhui/**/*.key", recursive=True)
 
+        # call rhui-manager commands with 1m timeout and
+        # with an env. variable ensuring that "RHUI Username:"
+        # even unanswered prompt gets collected
         self.add_cmd_output([
             "rhui-manager status",
             "rhui-manager cert info",
             "ls -lR /var/lib/rhui/remote_share",
-        ])
+        ], timeout=60, env={'PYTHONUNBUFFERED': '1'})
 
     def postproc(self):
         # obfuscate admin_pw and secret_key values
