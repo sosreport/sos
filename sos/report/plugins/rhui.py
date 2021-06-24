@@ -27,6 +27,7 @@ class Rhui(Plugin, RedHatPlugin):
             "/var/log/rhui-subscription-sync.log",
             "/var/cache/rhui/*",
             "/root/.rhui/*",
+            "/etc/ansible/facts.d/rhui_*.fact",
         ])
         # skip collecting certificate keys
         self.add_forbidden_path("/etc/pki/rhui/**/*.key", recursive=True)
@@ -46,6 +47,12 @@ class Rhui(Plugin, RedHatPlugin):
             self.do_path_regex_sub(
                 "/etc/ansible/facts.d/rhui_auth.fact",
                 r"(%s\s*=\s*)(.*)" % prop,
+                r"\1********")
+        # obfuscate twoo cookies for login session
+        for cookie in ["csrftoken", "sessionid"]:
+            self.do_path_regex_sub(
+                r"/root/\.rhui/.*/cookies.txt",
+                r"(%s\s+)(\S+)" % cookie,
                 r"\1********")
 
 
