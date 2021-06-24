@@ -1187,12 +1187,14 @@ class Plugin(object):
             'symlink': "no"
         })
 
-    def add_forbidden_path(self, forbidden):
+    def add_forbidden_path(self, forbidden, recursive=False):
         """Specify a path, or list of paths, to not copy, even if it's part of
         an ``add_copy_spec()`` call
 
         :param forbidden: A filepath to forbid collection from
         :type forbidden: ``str`` or a ``list`` of strings
+
+        :param recursive: Should forbidden glob be applied recursively
         """
         if isinstance(forbidden, str):
             forbidden = [forbidden]
@@ -1202,7 +1204,7 @@ class Plugin(object):
 
         for forbid in forbidden:
             self._log_info("adding forbidden path '%s'" % forbid)
-            for path in glob.glob(forbid):
+            for path in glob.glob(forbid, recursive=recursive):
                 self.forbidden_paths.append(path)
 
     def get_all_options(self):
