@@ -20,14 +20,19 @@ class Veritas(Plugin, RedHatPlugin):
     # Information about VRTSexplorer obtained from
     # http://seer.entsupport.symantec.com/docs/243150.htm
     option_list = [("script", "Define VRTSexplorer script path", "",
-                    "/opt/VRTSspt/VRTSexplorer")]
+                    "/opt/VRTSspt/VRTSexplorer/VRTSexplorer")]
 
     def check_enabled(self):
-        return os.path.isfile(self.get_option("script"))
+        return (os.path.isfile(self.get_option("script")) or
+                os.path.isfile("/opt/VRTSspt/VRTSexplorer"))
 
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
-        r = self.exec_cmd(self.get_option("script"))
+        path = self.get_option("script")
+        if not os.path.isfile(path) :
+            path = "/opt/VRTSspt/VRTSexplorer"
+
+        r = self.exec_cmd([path, '-silent'])
         if r['status'] == 0:
             tarfile = ""
             for line in r['output']:
