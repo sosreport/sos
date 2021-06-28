@@ -31,6 +31,8 @@ class ForemanBasicTest(StageOneReportTest):
         self.assertPluginIncluded([
             'apache',
             'foreman',
+            'foreman_installer',
+            'foreman_proxy',
             'postgresql',
             'puppet',
             'ruby'
@@ -104,3 +106,27 @@ class ForemanWithOptionsTest(StageOneReportTest):
     @redhat_only
     def test_proxyfeatures_collected(self):
         self.assertFileGlobInArchive("sos_commands/foreman/smart_proxies_features/*")
+
+class ForemanInstallerTest(StageOneReportTest):
+    """Check whether foreman-installer related data are properly collected
+    independently on main foreman plugin.
+
+    :avocado: tags=foreman
+    """
+
+    sos_cmd = '-v -o foreman_installer'
+
+    def test_foreman_installer_etc_collected(self):
+        self.assertFileCollected("/etc/foreman-installer/scenarios.d")
+
+class ForemanProxyTest(StageOneReportTest):
+    """Check whether foreman-proxy related data are properly collected
+    independently on main foreman plugin.
+
+    :avocado: tags=foreman
+    """
+
+    sos_cmd = '-v -o foreman_proxy'
+
+    def test_foreman_proxy_settings_collected(self):
+        self.assertFileCollected("/etc/foreman-proxy/settings.yml")
