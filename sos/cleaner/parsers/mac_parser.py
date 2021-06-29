@@ -25,6 +25,10 @@ class SoSMacParser(SoSCleanerParser):
         # IPv4, avoiding matching a substring within IPv6 addresses
         r'(([^:|-])([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(.)?(\s|$|\W))'
     ]
+    obfuscated_patterns = (
+        '53:4f:53',
+        '534f:53'
+    )
     map_file_key = 'mac_map'
     prep_map_file = 'sos_commands/networking/ip_-d_address'
 
@@ -53,6 +57,9 @@ class SoSMacParser(SoSCleanerParser):
             if matches:
                 count += len(matches)
                 for match in matches:
+                    if match.startswith(self.obfuscated_patterns):
+                        # avoid double scrubbing
+                        continue
                     stripped_match = self.reduce_mac_match(match)
                     new_match = self.mapping.get(stripped_match)
                     line = line.replace(stripped_match, new_match)
