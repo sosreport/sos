@@ -129,6 +129,11 @@ class SoSCleaner(SoSComponent):
                 self.log_error(
                     "ERROR: map file %s does not exist, will not load any "
                     "obfuscation matches" % self.opts.map_file)
+        if os.stat(self.opts.map_file).st_size == 0:
+            self.log_error(
+                "ERROR: map file %s exists, but it is empty, will not "
+                "load any obfuscation matches" % self.opts.map_file)
+            self.opts.map_file = None
 
     def print_disclaimer(self):
         """When we are directly running `sos clean`, rather than hooking into
