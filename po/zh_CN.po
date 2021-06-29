@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: sos.trunk\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-02-23 19:17+0100\n"
-"PO-Revision-Date: 2010-05-28 12:38+1000\n"
+"PO-Revision-Date: 2021-06-29 11:26+0800\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Wei Liu\n"
 "Language: zh_CN\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Poedit 1.8.11\n"
 
 #: ../sos/sosreport.py:745
 #, python-format
@@ -46,23 +46,23 @@ msgstr ""
 
 #: ../sos/sosreport.py:993
 msgid "excluded"
-msgstr ""
+msgstr "排除"
 
 #: ../sos/sosreport.py:997
 msgid "skipped"
-msgstr ""
+msgstr "跳过"
 
 #: ../sos/sosreport.py:1001
 msgid "inactive"
-msgstr ""
+msgstr "未使用的"
 
 #: ../sos/sosreport.py:1005
 msgid "optional"
-msgstr ""
+msgstr "可选的"
 
 #: ../sos/sosreport.py:1015
 msgid "not specified"
-msgstr ""
+msgstr "未指定"
 
 #: ../sos/sosreport.py:1023
 #, fuzzy, python-format
@@ -72,7 +72,7 @@ msgstr "未安装插件 %s，跳过"
 #: ../sos/sosreport.py:1027
 #, python-format
 msgid "Unknown or inactive profile(s) provided: %s"
-msgstr ""
+msgstr "未知或未使用的配置文件：%s"
 
 #: ../sos/sosreport.py:1120
 msgid "no valid plugins found"
@@ -119,7 +119,7 @@ msgstr "为归档加密......"
 
 #: ../sos/sosreport.py:1250
 msgid " Setting up plugins ..."
-msgstr ""
+msgstr "配置插件..."
 
 #: ../sos/sosreport.py:1282
 #, fuzzy
@@ -133,22 +133,22 @@ msgstr "生成压缩归档......"
 #: ../sos/sosreport.py:1498
 #, python-format
 msgid " %s while finalizing archive"
-msgstr ""
+msgstr "%s存档完成"
 
 #: ../sos/sosreport.py:1517
 #, python-format
 msgid "Error moving directory: %s"
-msgstr ""
+msgstr "从%s中移出是出错"
 
 #: ../sos/sosreport.py:1540
 #, python-format
 msgid "Error moving archive file: %s"
-msgstr ""
+msgstr "移除%s时出错"
 
 #: ../sos/sosreport.py:1558
 #, python-format
 msgid "Error moving checksum file: %s"
-msgstr ""
+msgstr "移除%s时出错"
 
 #: ../sos/sosreport.py:1574
 msgid "no valid plugins were enabled"
