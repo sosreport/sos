@@ -91,7 +91,7 @@ class Yum(Plugin, RedHatPlugin):
         # packages installed/erased/updated per transaction
         if self.get_option("yum-history-info"):
             history = self.exec_cmd("yum history")
-            transactions = None
+            transactions = -1
             if history['status'] == 0:
                 for line in history['output'].splitlines():
                     try:
