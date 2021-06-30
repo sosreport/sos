@@ -1627,7 +1627,7 @@ class Plugin(object):
 
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
-        pred = kwargs.pop('pred') if 'pred' in kwargs else None
+        pred = kwargs.pop('pred') if 'pred' in kwargs else SoSPredicate(self)
         if 'priority' not in kwargs:
             kwargs['priority'] = 10
         soscmd = SoSCommand(**kwargs)
