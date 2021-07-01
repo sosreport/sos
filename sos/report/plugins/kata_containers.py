@@ -15,7 +15,7 @@ class KataContainers(Plugin, IndependentPlugin):
 
     plugin_name = 'kata_containers'
     profiles = ('system', 'virt', 'container')
-    packages = ('kata-runtime',)
+    packages = ('kata-containers',)
 
     def setup(self):
         self.limit = self.get_option('log_size')
@@ -42,10 +42,5 @@ class KataContainers(Plugin, IndependentPlugin):
                     config_files.add(config)
 
             self.add_copy_spec(config_files)
-
-        self.add_journal(identifier='kata-proxy')
-        self.add_journal(identifier='kata-shim')
-        self.add_journal(identifier='kata-runtime')
-        self.add_journal(units='kata-ksm-throttler')
 
 # vim: set et ts=4 sw=4 :
