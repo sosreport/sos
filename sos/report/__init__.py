@@ -341,7 +341,7 @@ class SoSReport(SoSComponent):
         cleaner_grp.add_argument('--no-update', action='store_true',
                                  default=False, dest='no_update',
                                  help='Do not update the default cleaner map')
-        cleaner_grp.add_argument('--map', dest='map_file',
+        cleaner_grp.add_argument('--map-file', dest='map_file',
                                  default='/etc/sos/cleaner/default_mapping',
                                  help=('Provide a previously generated mapping'
                                        ' file for obfuscation'))
