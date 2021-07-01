@@ -192,7 +192,7 @@ third party.
                                      'file for obfuscation'))
         clean_grp.add_argument('--no-update', dest='no_update', default=False,
                                action='store_true',
-                               help='Do not update the --map file with new '
+                               help='Do not update the --map-file with new '
                                     'mappings from this run')
         clean_grp.add_argument('--keep-binary-files', default=False,
                                action='store_true',
