@@ -734,11 +734,12 @@ class SosNode():
         if self.check_sos_version('4.1'):
             if self.opts.skip_commands:
                 sos_opts.append(
-                    '--skip-commands=%s' % (quote(self.opts.skip_commands))
+                    '--skip-commands=%s' % (
+                        quote(','.join(self.opts.skip_commands)))
                 )
             if self.opts.skip_files:
                 sos_opts.append(
-                    '--skip-files=%s' % (quote(self.opts.skip_files))
+                    '--skip-files=%s' % (quote(','.join(self.opts.skip_files)))
                 )
 
         if self.check_sos_version('4.2'):
