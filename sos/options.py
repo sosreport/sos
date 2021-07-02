@@ -186,9 +186,18 @@ class SoSOptions():
                 if 'verbose' in odict.keys():
                     odict['verbosity'] = int(odict.pop('verbose'))
                 # convert options names
+                # unify some of them if multiple variants of the
+                # cmdoption exist
+                rename_opts = {
+                    'name': 'label',
+                    'plugin_option': 'plugopts',
+                    'profile': 'profiles'
+                }
                 for key in list(odict):
                     if '-' in key:
                         odict[key.replace('-', '_')] = odict.pop(key)
+                    if key in rename_opts:
+                        odict[rename_opts[key]] = odict.pop(key)
                 # set the values according to the config file
                 for key, val in odict.items():
                     if isinstance(val, str):
