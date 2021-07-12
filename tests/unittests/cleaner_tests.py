@@ -100,11 +100,11 @@ class CleanerMapTests(unittest.TestCase):
 class CleanerParserTests(unittest.TestCase):
 
     def setUp(self):
-        self.ip_parser = SoSIPParser()
-        self.mac_parser = SoSMacParser()
-        self.host_parser = SoSHostnameParser(opt_domains='foobar.com')
-        self.kw_parser = SoSKeywordParser(keywords=['foobar'])
-        self.kw_parser_none = SoSKeywordParser()
+        self.ip_parser = SoSIPParser(config={})
+        self.mac_parser = SoSMacParser(config={})
+        self.host_parser = SoSHostnameParser(config={}, opt_domains='foobar.com')
+        self.kw_parser = SoSKeywordParser(config={}, keywords=['foobar'])
+        self.kw_parser_none = SoSKeywordParser(config={})
 
     def test_ip_parser_valid_ipv4_line(self):
         line = 'foobar foo 10.0.0.1/24 barfoo bar'
