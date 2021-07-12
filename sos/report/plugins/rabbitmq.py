@@ -59,6 +59,13 @@ class RabbitMQ(Plugin, IndependentPlugin):
             "/var/log/rabbitmq/*",
         ])
 
+        # Crash dump can be large in some situation but it is useful to
+        # investigate why rabbitmq crashes. So capture the file without
+        # sizelimit
+        self.add_copy_spec([
+            "/var/log/containers/rabbitmq/erl_crash.dump"
+        ], sizelimit=0)
+
     def postproc(self):
         self.do_file_sub("/etc/rabbitmq/rabbitmq.conf",
                          r"(\s*default_pass\s*,\s*)\S+", r"\1<<***>>},")
