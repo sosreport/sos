@@ -35,9 +35,9 @@ class SoSUsernameParser(SoSCleanerParser):
         'ubuntu'
     ]
 
-    def __init__(self, conf_file=None, opt_names=None):
+    def __init__(self, config, opt_names=None):
         self.mapping = SoSUsernameMap()
-        super(SoSUsernameParser, self).__init__(conf_file)
+        super(SoSUsernameParser, self).__init__(config)
         self.mapping.load_names_from_options(opt_names)
 
     def load_usernames_into_map(self, content):

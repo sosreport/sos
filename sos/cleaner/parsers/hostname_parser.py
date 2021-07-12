@@ -21,9 +21,9 @@ class SoSHostnameParser(SoSCleanerParser):
         r'(((\b|_)[a-zA-Z0-9-\.]{1,200}\.[a-zA-Z]{1,63}(\b|_)))'
     ]
 
-    def __init__(self, conf_file=None, opt_domains=None):
+    def __init__(self, config, opt_domains=None):
         self.mapping = SoSHostnameMap()
-        super(SoSHostnameParser, self).__init__(conf_file)
+        super(SoSHostnameParser, self).__init__(config)
         self.mapping.load_domains_from_map()
         self.mapping.load_domains_from_options(opt_domains)
         self.short_names = []

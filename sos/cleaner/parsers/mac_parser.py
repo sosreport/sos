@@ -32,9 +32,9 @@ class SoSMacParser(SoSCleanerParser):
     map_file_key = 'mac_map'
     prep_map_file = 'sos_commands/networking/ip_-d_address'
 
-    def __init__(self, conf_file=None):
+    def __init__(self, config):
         self.mapping = SoSMacMap()
-        super(SoSMacParser, self).__init__(conf_file)
+        super(SoSMacParser, self).__init__(config)
 
     def reduce_mac_match(self, match):
         """Strips away leading and trailing non-alphanum characters from any

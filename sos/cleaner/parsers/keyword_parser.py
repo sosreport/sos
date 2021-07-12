@@ -22,10 +22,10 @@ class SoSKeywordParser(SoSCleanerParser):
     map_file_key = 'keyword_map'
     prep_map_file = ''
 
-    def __init__(self, conf_file=None, keywords=None, keyword_file=None):
+    def __init__(self, config, keywords=None, keyword_file=None):
         self.mapping = SoSKeywordMap()
         self.user_keywords = []
-        super(SoSKeywordParser, self).__init__(conf_file)
+        super(SoSKeywordParser, self).__init__(config)
         for _keyword in self.mapping.dataset.keys():
             self.user_keywords.append(_keyword)
         if keywords:

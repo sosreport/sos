@@ -8,7 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import json
 import re
 
 
@@ -52,18 +51,9 @@ class SoSCleanerParser():
     map_file_key = 'unset'
     prep_map_file = 'unset'
 
-    def __init__(self, conf_file=None):
-        # attempt to load previous run data into the mapping for the parser
-        if conf_file:
-            try:
-                with open(conf_file, 'r') as map_file:
-                    _default_mappings = json.load(map_file)
-                if self.map_file_key in _default_mappings:
-                    self.mapping.conf_update(
-                        _default_mappings[self.map_file_key]
-                    )
-            except (IOError, json.decoder.JSONDecodeError):
-                pass
+    def __init__(self, config={}):
+        if self.map_file_key in config:
+            self.mapping.conf_update(config[self.map_file_key])
 
     def parse_line(self, line):
         """This will be called for every line in every file we process, so that

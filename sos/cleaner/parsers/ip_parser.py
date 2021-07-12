@@ -43,6 +43,6 @@ class SoSIPParser(SoSCleanerParser):
     map_file_key = 'ip_map'
     prep_map_file = 'sos_commands/networking/ip_-o_addr'
 
-    def __init__(self, conf_file=None):
+    def __init__(self, config):
         self.mapping = SoSIPMap()
-        super(SoSIPParser, self).__init__(conf_file)
+        super(SoSIPParser, self).__init__(config)
