@@ -15,6 +15,19 @@ import stat
 import tarfile
 import re
 
+from concurrent.futures import ProcessPoolExecutor
+
+
+# python older than 3.8 will hit a pickling error when we go to spawn a new
+# process for extraction if this method is a part of the SoSObfuscationArchive
+# class. So, the simplest solution is to remove it from the class.
+def extract_archive(archive_path, tmpdir):
+    archive = tarfile.open(archive_path)
+    path = os.path.join(tmpdir, 'cleaner')
+    archive.extractall(path)
+    archive.close()
+    return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
+
 
 class SoSObfuscationArchive():
     """A representation of an extracted archive or an sos archive build
@@ -193,11 +206,12 @@ class SoSObfuscationArchive():
         """Extract an archive into our tmpdir so that we may inspect it or
         iterate through its contents for obfuscation
         """
-        archive = tarfile.open(self.archive_path)
-        path = os.path.join(self.tmpdir, 'cleaner')
-        archive.extractall(path)
-        archive.close()
-        return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
+
+        with ProcessPoolExecutor(1) as _pool:
+            _path_future = _pool.submit(extract_archive,
+                                        self.archive_path, self.tmpdir)
+            path = _path_future.result()
+            return path
 
     def get_file_list(self):
         """Return a list of all files within the archive"""
