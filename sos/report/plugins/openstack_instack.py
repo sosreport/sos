@@ -10,6 +10,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
+import configparser
 import os
 import re
 
@@ -29,6 +30,7 @@ CONTAINERIZED_DEPLOY = [
         '/var/lib/tripleo-config/',
         '/var/log/tripleo-container-image-prepare.log',
 ]
+UNDERCLOUD_CONF_PATH = '/home/stack/undercloud.conf'
 
 
 class OpenStackInstack(Plugin):
@@ -56,6 +58,20 @@ class OpenStackInstack(Plugin):
 
         vars_any = [p in os.environ for p in [
                     'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+
+        # capture yaml files to define overrides
+        uc_config = configparser.ConfigParser()
+        try:
+            uc_config.read(UNDERCLOUD_CONF_PATH)
+            override_opts = ['hieradata_override', 'net_config_override']
+            for opt in override_opts:
+                p = uc_config.get(opt)
+                if p:
+                    if not os.path.isabs(p):
+                        p = os.path.join('/home/stack', p)
+                    self.add_copy_spec(p)
+        except Exception:
+            pass
 
         if not (all(vars_all) and any(vars_any)):
             self.soslog.warning("Not all environment variables set. Source "
@@ -119,7 +135,7 @@ class OpenStackInstack(Plugin):
         regexp = r"((?m)(%s)=)(.*)" % "|".join(protected_keys)
         self.do_file_sub("/home/stack/.instack/install-undercloud.log",
                          regexp, r"\1*********")
-        self.do_file_sub("/home/stack/undercloud.conf", regexp, r"\1*********")
+        self.do_file_sub(UNDERCLOUD_CONF_PATH, regexp, r"\1*********")
 
         protected_json_keys = ["pm_password", "ssh-key", "password"]
         json_regexp = r'((?m)"(%s)": )(".*?")' % "|".join(protected_json_keys)
