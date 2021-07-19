@@ -21,7 +21,7 @@ class UnionTechPolicy(RedHatPolicy):
         with open(OS_RELEASE, 'r') as f:
             for line in f:
                 if line.startswith('NAME'):
-                    if 'UnionTech OS Server 20' in line:
+                    if 'UnionTech' in line:
                         return True
         return False
 
