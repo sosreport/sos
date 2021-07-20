@@ -26,7 +26,7 @@ class UnionTechPolicy(LinuxPolicy):
                  remote_exec=None):
         super(UnionTechPolicy, self).__init__(sysroot=sysroot, init=init,
                                         probe_runtime=probe_runtime)
-        self.valid_subclasses += [UnionTechlugin, RedHatPlugin]
+        self.valid_subclasses += [UnionTechPlugin, RedHatPlugin]
 
         self.usrmove = False
         self.package_manager = RpmPackageManager()
