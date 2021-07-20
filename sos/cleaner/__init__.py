@@ -518,23 +518,27 @@ third party.
             for _parser in self.parsers:
                 if not _parser.prep_map_file:
                     continue
-                _arc_path = os.path.join(_arc_name, _parser.prep_map_file)
-                try:
-                    if is_dir:
-                        _pfile = open(_arc_path, 'r')
-                        content = _pfile.read()
-                    else:
-                        _pfile = archive.extractfile(_arc_path)
-                        content = _pfile.read().decode('utf-8')
-                    _pfile.close()
-                    if isinstance(_parser, SoSUsernameParser):
-                        _parser.load_usernames_into_map(content)
-                    for line in content.splitlines():
-                        if isinstance(_parser, SoSHostnameParser):
-                            _parser.load_hostname_into_map(line)
-                        self.obfuscate_line(line)
-                except Exception as err:
-                    self.log_debug("Could not prep %s: %s" % (_arc_path, err))
+                if isinstance(_parser.prep_map_file, str):
+                    _parser.prep_map_file = [_parser.prep_map_file]
+                for parse_file in _parser.prep_map_file:
+                    _arc_path = os.path.join(_arc_name, parse_file)
+                    try:
+                        if is_dir:
+                            _pfile = open(_arc_path, 'r')
+                            content = _pfile.read()
+                        else:
+                            _pfile = archive.extractfile(_arc_path)
+                            content = _pfile.read().decode('utf-8')
+                        _pfile.close()
+                        if isinstance(_parser, SoSUsernameParser):
+                            _parser.load_usernames_into_map(content)
+                        for line in content.splitlines():
+                            if isinstance(_parser, SoSHostnameParser):
+                                _parser.load_hostname_into_map(line)
+                            self.obfuscate_line(line)
+                    except Exception as err:
+                        self.log_debug("Could not prep %s: %s"
+                                       % (_arc_path, err))
 
     def obfuscate_report(self, report):
         """Individually handle each archive or directory we've discovered by

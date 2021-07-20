@@ -49,7 +49,7 @@ class SoSCleanerParser():
     skip_line_patterns = []
     skip_files = []
     map_file_key = 'unset'
-    prep_map_file = 'unset'
+    prep_map_file = []
 
     def __init__(self, config={}):
         if self.map_file_key in config:
