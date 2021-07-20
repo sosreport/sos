@@ -10,7 +10,7 @@
 import os
 import sys
 
-from sos.report.plugins import RedHatPlugin, UnionTechlugin
+from sos.report.plugins import RedHatPlugin, UnionTechPlugin
 from sos.policies.distros import LinuxPolicy
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos import _sos as _
