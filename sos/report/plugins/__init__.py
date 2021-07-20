@@ -2993,6 +2993,10 @@ class SuSEPlugin(object):
     """Tagging class for SuSE Linux distributions"""
     pass
 
+class UnionTechPlugin(object):
+    """Tagging class for UnionTech Linux distributions"""
+    pass
+
 
 class CosPlugin(object):
     """Tagging class for Container-Optimized OS"""
