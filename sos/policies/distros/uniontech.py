@@ -24,7 +24,8 @@ class UnionTechPolicy(LinuxPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(UnionTechPolicy, self).__init__(sysroot=sysroot, init=init, probe_runtime=probe_runtime)
+        super(UnionTechPolicy, self).__init__(sysroot=sysroot, init=init, 
+                                              probe_runtime=probe_runtime)
         self.valid_subclasses += [UnionTechPlugin, RedHatPlugin]
 
         self.usrmove = False
