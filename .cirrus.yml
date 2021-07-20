@@ -70,6 +70,20 @@ py_break_task:
     setup_script: pip install -r requirements.txt
     main_script: ./bin/sos report --batch
 
+# Make sure a user can manually build an rpm from the checkout
+rpm_build_task:
+    alias: "rpm_build"
+    name: "RPM Build From Checkout"
+    container:
+        image: "fedora"
+    setup_script: dnf -y install rpm-build rpmdevtools gettext python3-devel
+    main_script: |
+        rpmdev-setuptree
+        python3 setup.py sdist
+        cp dist/sos*.tar.gz ~/rpmbuild/SOURCES
+        rpmbuild -bs sos.spec
+        rpmbuild -bb sos.spec
+
 # Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
     alias: "stageone_report"
