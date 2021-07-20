@@ -2997,7 +2997,6 @@ class UnionTechPlugin(object):
     """Tagging class for UnionTech Linux distributions"""
     pass
 
-
 class CosPlugin(object):
     """Tagging class for Container-Optimized OS"""
     pass
