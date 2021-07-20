@@ -19,7 +19,7 @@ from sos import _sos as _
 class UnionTechPolicy(LinuxPolicy):
     distro = "UnionTech"
     vendor = "The UnionTech Project"
-    vendor_urls = "https://www.chinauos.com/"
+    vendor_urls = [('Distribution Website', 'https://www.chinauos.com/')]
     _tmp_dir = "/var/tmp"
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
@@ -84,7 +84,7 @@ class UnionTechPolicy(LinuxPolicy):
 class UNIONTECHPolicy(UnionTechPolicy):
     distro = "UnionTech"
     vendor = "The UnionTech Project"
-    vendor_urls = "https://www.chinauos.com/"
+    vendor_urls = [('Distribution Website', 'https://www.chinauos.com/')]
     msg = _("""\
 This command will collect diagnostic and configuration \
 information from this %(distro)s system and installed \
