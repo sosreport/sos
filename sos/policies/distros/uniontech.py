@@ -100,7 +100,8 @@ No changes will be made to system configuration.
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(UNIONTECHPolicy, self).__init__(sysroot=sysroot, init=init, probe_runtime=probe_runtime,
+        super(UNIONTECHPolicy, self).__init__(sysroot=sysroot, init=init,
+                                              probe_runtime=probe_runtime,
                                               remote_exec=remote_exec)
 
     @classmethod
