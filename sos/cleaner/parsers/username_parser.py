@@ -25,14 +25,24 @@ class SoSUsernameParser(SoSCleanerParser):
 
     name = 'Username Parser'
     map_file_key = 'username_map'
-    prep_map_file = 'sos_commands/login/lastlog_-u_1000-60000'
+    prep_map_file = [
+        'sos_commands/login/lastlog_-u_1000-60000',
+        'sos_commands/login/lastlog_-u_60001-65536',
+        'sos_commands/login/lastlog_-u_65537-4294967295',
+        # AD users will be reported here, but favor the lastlog files since
+        # those will include local users who have not logged in
+        'sos_commands/login/last'
+    ]
     regex_patterns = []
     skip_list = [
         'core',
         'nobody',
         'nfsnobody',
+        'shutdown',
+        'reboot',
         'root',
-        'ubuntu'
+        'ubuntu',
+        'wtmp'
     ]
 
     def __init__(self, conf_file=None, opt_names=None):
@@ -44,11 +54,17 @@ class SoSUsernameParser(SoSCleanerParser):
         """Since we don't get the list of usernames from a straight regex for
         this parser, we need to override the initial parser prepping here.
         """
+        users = set()
         for line in content.splitlines()[1:]:
-            user = line.split()[0]
+            try:
+                user = line.split()[0]
+            except Exception:
+                continue
             if user in self.skip_list:
                 continue
-            self.mapping.get(user)
+            users.add(user)
+        for each in users:
+            self.mapping.get(each)
 
     def parse_line(self, line):
         count = 0
