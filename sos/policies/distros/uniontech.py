@@ -25,7 +25,7 @@ class UnionTechPolicy(LinuxPolicy):
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super(UnionTechPolicy, self).__init__(sysroot=sysroot, init=init,
-                                         probe_runtime=probe_runtime)
+                                        probe_runtime=probe_runtime)
         self.valid_subclasses += [UnionTechlugin, RedHatPlugin]
 
         self.usrmove = False
@@ -45,9 +45,9 @@ class UnionTechPolicy(LinuxPolicy):
 
     @classmethod
     def check(cls, remote=''):
-        """This method checks to see if we are running on SuSE. It must be
+        """This method checks to see if we are running on UnionTech. It must be
         overriden by concrete subclasses to return True when running on an
-        OpenSuSE, SLES or other Suse distribution and False otherwise."""
+        UnionTech distribution and False otherwise."""
         return False
 
     def runlevel_by_service(self, name):
@@ -101,8 +101,8 @@ No changes will be made to system configuration.
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super(UNIONTECHPolicy, self).__init__(sysroot=sysroot, init=init,
-                                             probe_runtime=probe_runtime,
-                                             remote_exec=remote_exec)
+                                            probe_runtime=probe_runtime,
+                                            remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote):
