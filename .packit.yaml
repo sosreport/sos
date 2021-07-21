@@ -3,10 +3,16 @@ jobs:
 - job: copr_build
   metadata:
     targets:
-    - fedora-rawhide-x86_64
+    - fedora-development-x86_64
+    - fedora-development-aarch64
+    - fedora-development-ppc64le
+    - fedora-development-s390x
   trigger: pull_request
 specfile_path: sos.spec
 synced_files:
 - sos.spec
 - .packit.yaml
 upstream_package_name: sos
+notifications:
+  pull_request:
+    successful_build: true
