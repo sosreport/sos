@@ -12,7 +12,6 @@ BuildArch: noarch
 Url: https://github.com/sosreport/sos/
 BuildRequires: python3-devel
 BuildRequires: gettext
-Requires: python3-libxml2
 Requires: python3-rpm
 Requires: tar
 Requires: xz
