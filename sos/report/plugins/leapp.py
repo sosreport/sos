@@ -24,7 +24,8 @@ class Leapp(Plugin, RedHatPlugin):
             '/var/log/leapp/leapp-preupgrade.log',
             '/var/log/leapp/leapp-upgrade.log',
             '/var/log/leapp/leapp-report.txt',
-            '/var/log/leapp/dnf-plugin-data.txt'
+            '/var/log/leapp/dnf-plugin-data.txt',
+            '/etc/migration-results'
         ])
 
         # capture DB without sizelimit
