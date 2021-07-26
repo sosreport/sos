@@ -326,7 +326,11 @@ class SoSPredicate(object):
         """Used by `Plugin()` to obtain the error string based on if the reason
         was a failed check or a forbidden check
         """
-        msg = [self._report_failed(), self._report_forbidden()]
+        msg = [
+            self._report_failed(),
+            self._report_forbidden(),
+            '(dry run)' if self.dry_run else ''
+        ]
         return " ".join(msg).lstrip()
 
     def __nonzero__(self):
@@ -1633,6 +1637,8 @@ class Plugin(object):
         pred = kwargs.pop('pred') if 'pred' in kwargs else SoSPredicate(self)
         if 'priority' not in kwargs:
             kwargs['priority'] = 10
+        if 'changes' not in kwargs:
+            kwargs['changes'] = False
         soscmd = SoSCommand(**kwargs)
         self._log_debug("packed command: " + soscmd.__str__())
         for _skip_cmd in self.skip_commands:
