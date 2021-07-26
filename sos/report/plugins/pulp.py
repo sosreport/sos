@@ -160,8 +160,8 @@ class Pulp(Plugin, RedHatPlugin):
         # Now handle JSON-formatted data in the same /etc/pulp directory
         # structure. We use a different substitution string here to preserve
         # the file's JSON syntax.
-        jreg = r"(\s*\".*(passw|cred|token|secret).*\"\s*:\s*\")(.*)(\")"
-        repl = r"\1********\4"
+        jreg = r"(\s*\".*(passw|cred|token|secret).*\"\s*:(\s))(.*)(\w+)"
+        repl = r"\1********"
         self.do_path_regex_sub("/etc/pulp(.*)(.json$)", jreg, repl)
 
         # obfuscate SECRET_KEY = .. and 'PASSWORD': .. in dynaconf list output
