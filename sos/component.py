@@ -83,7 +83,7 @@ class SoSComponent():
 
         # update args from component's arg_defaults defintion
         self._arg_defaults.update(self.arg_defaults)
-        self.opts = self.load_options()
+        self.opts = self.load_options()  # lgtm [py/init-calls-subclass]
 
         if self.configure_logging:
             tmpdir = self.get_tmpdir_default()
