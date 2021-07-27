@@ -333,8 +333,12 @@ support representative.
                 resp = json.loads(anon.text)
                 _user = resp['username']
                 _token = resp['token']
-                print("Using anonymous user %s for upload. Please inform your "
-                      "support engineer." % _user)
+                print(
+                    "User '%s'"  # lgtm [py/clear-text-logging-sensitive-data]
+                    "used for anonymous upload. Please inform your support "
+                    "engineer so they may retrieve the data."
+                    % _user
+                )
         if _user and _token:
             return super(RHELPolicy, self).upload_sftp(user=_user,
                                                        password=_token)
