@@ -17,7 +17,6 @@ class rhbz1928628(NetworkingPluginTest):
 
     https://bugzilla.redhat.com/show_bug.cgi?id=1928628
 
-    :avocado: enable
     :avocado: tags=stageone
     """
 
@@ -34,7 +33,6 @@ class rhbz1928628Enabled(NetworkingPluginTest):
     WARNING: it has been noted (via this rhbz) that certain NICs may pause
     during this collection
 
-    :avocado: enable
     :avocado: tags=stageone
     """
 
