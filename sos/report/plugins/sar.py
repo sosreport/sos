@@ -8,6 +8,7 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+import re
 
 
 class Sar(Plugin,):
@@ -32,26 +33,21 @@ class Sar(Plugin,):
         except OSError:
             self._log_warn("sar: could not list %s" % self.sa_path)
             return
+        sa_regex = re.compile(r"sa[\d]+")
         # find all the sa files that don't have an existing sar file
+        # there are two possible formats for sar files
+        # saDD, the default one where DD is the day of the month
+        # saYYYYMMDD, which is the format when specifying -D
+        # as option for sadc
         for fname in dir_list:
-            if fname.startswith('sar'):
-                continue
-            if not fname.startswith('sa'):
-                continue
-            if len(fname) != 4:
-                # We either have an "sa" or "sa?" file, or more likely, a
-                # compressed data file like, "sa??.xz".
-                #
-                # FIXME: We don't have a detector for the kind of compression
-                # use for this file right now, so skip these kinds of files.
-                continue
-            sa_data_path = os.path.join(self.sa_path, fname)
-            sar_filename = 'sar' + fname[2:]
-            if sar_filename not in dir_list:
-                sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path
-                self.add_cmd_output(sar_cmd, sar_filename)
-            sadf_cmd = "sadf -x -- -A %s" % sa_data_path
-            self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
+            if sa_regex.match(fname):
+                sa_data_path = os.path.join(self.sa_path, fname)
+                sar_filename = 'sar' + fname[2:]
+                if sar_filename not in dir_list:
+                    sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path
+                    self.add_cmd_output(sar_cmd, sar_filename)
+                sadf_cmd = "sadf -x -- -A %s" % sa_data_path
+                self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
 
 
 class RedHatSar(Sar, RedHatPlugin):
