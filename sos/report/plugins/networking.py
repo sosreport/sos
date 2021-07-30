@@ -33,19 +33,17 @@ class Networking(Plugin):
     # switch to enable netstat "wide" (non-truncated) output mode
     ns_wide = "-W"
 
+    # list of ethtool short options, used in add_copy_spec and add_cmd_tags
+    # do NOT add there "e" (see eepromdump plugopt)
+    ethtool_shortopts = "acdgiklmPST"
+
     def setup(self):
         super(Networking, self).setup()
 
-        self.add_cmd_tags({
-            'ethtool -a .*': 'ethool_a',
-            'ethtool -i .*': 'ethtool_i',
-            'ethtool -k .*': 'ethtool_k',
-            'ethtool -S .*': 'ethtool_S',
-            'ethtool -g .*': 'ethtool_g',
-            'ethtool -T .*': 'ethtool_T',
-            'ethtool -c .*': 'ethtool_c',
-            'ethtool -d .*': 'ethtool_d'
-        })
+        for opt in self.ethtool_shortopts:
+            self.add_cmd_tags({
+                'ethtool -%s .*' % opt: 'ethool_%s' % opt
+            })
 
         self.add_file_tags({
             '/proc/net/bonding/bond.*': 'bond',
@@ -143,17 +141,11 @@ class Networking(Plugin):
             if eth == "bonding_masters":
                 continue
             self.add_cmd_output([
+                "ethtool -%s %s" % (opt, eth) for opt in self.ethtool_shortopts
+            ])
+
+            self.add_cmd_output([
                 "ethtool " + eth,
-                "ethtool -d " + eth,
-                "ethtool -i " + eth,
-                "ethtool -k " + eth,
-                "ethtool -S " + eth,
-                "ethtool -T " + eth,
-                "ethtool -a " + eth,
-                "ethtool -c " + eth,
-                "ethtool -g " + eth,
-                "ethtool -P " + eth,
-                "ethtool -l " + eth,
                 "ethtool --phy-statistics " + eth,
                 "ethtool --show-priv-flags " + eth,
                 "ethtool --show-eee " + eth,
