@@ -17,17 +17,21 @@ class StorCLI(Plugin, IndependentPlugin):
     profiles = ('system', 'storage', 'hardware',)
     packages = ('storcli',)
 
+    option_list = [
+        ("json", "collect data in JSON format", "fast", False)
+    ]
+
     def setup(self):
         cmd = '/opt/MegaRAID/storcli/storcli64'
         subcmds = [
-            'show ctrlcount J',
+            'show ctrlcount',
             '/call show AliLog',
             '/call show all',
             '/call show events',
             '/call show termlog',
             '/call/bbu show all',
             '/call/cv show all',
-            '/call/dall show J',
+            '/call/dall show',
             '/call/eall show all',
             '/call/eall/sall show all',
             '/call/sall show all',
@@ -36,9 +40,12 @@ class StorCLI(Plugin, IndependentPlugin):
 
         logpath = self.get_cmd_output_path()
 
+        json = ' J' if self.get_option('json') else ''
+
         for subcmd in subcmds:
             self.add_cmd_output(
-                "%s %s" % (cmd, subcmd),
-                suggest_filename="storcli64_%s" % subcmd, runat=logpath)
+                "%s %s%s" % (cmd, subcmd, json),
+                suggest_filename="storcli64_%s%s" % (subcmd, json),
+                runat=logpath)
 
 # vim: set et ts=4 sw=4 :
