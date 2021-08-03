@@ -287,6 +287,7 @@ class BaseSoSReportTest(BaseSoSTest):
     _manifest = None
     _exception_expected = False
     encrypt_pass = None
+    sos_component = 'report'
 
     @property
     def manifest(self):
@@ -316,6 +317,28 @@ class BaseSoSReportTest(BaseSoSTest):
                 self.fail("Decryption with well-known passphrase failed")
             raise
         return _archive
+
+    def grep_for_content(self, search):
+        """Call out to grep for finding a specific string 'search' in any place
+        in the archive
+        """
+        cmd = "grep -ril '%s' %s" % (search, self.archive_path)
+        try:
+            out = process.run(cmd)
+            rc = out.exit_status
+        except process.CmdError as err:
+            out = err.result
+            rc = err.result.exit_status
+
+        if rc == 1:
+            # grep will return an exit code of 1 if no matches are found,
+            # which is what we want
+            return False
+        else:
+            flist = []
+            for ln in out.stdout.decode('utf-8').splitlines():
+                flist.append(ln.split(self.tmpdir)[-1])
+            return flist
 
     def get_encrypted_path(self):
         """Since avocado re-instantiates a new object for every test_ method,
@@ -347,7 +370,7 @@ class BaseSoSReportTest(BaseSoSTest):
         return os.path.join(self.tmpdir, "sosreport-%s" % self.__class__.__name__)
         
     def _generate_sos_command(self):
-        return "%s report --batch --tmp-dir %s %s" % (SOS_BIN, self.tmpdir, self.sos_cmd)
+        return "%s %s --batch --tmp-dir %s %s" % (SOS_BIN, self.sos_component, self.tmpdir, self.sos_cmd)
 
     def _execute_sos_cmd(self):
         super(BaseSoSReportTest, self)._execute_sos_cmd()
