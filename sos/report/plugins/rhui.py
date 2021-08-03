@@ -16,8 +16,8 @@ class Rhui(Plugin, RedHatPlugin):
     short_desc = 'Red Hat Update Infrastructure'
 
     plugin_name = "rhui"
-    commands = ("rhui-manager",)
-    files = ("/etc/ansible/facts.d/rhui_auth.fact", "/usr/lib/rhui/cds.py")
+    commands = ("rhui-manager", )
+    files = ("/etc/rhui/rhui-tools.conf", )
 
     def setup(self):
         self.add_copy_spec([
@@ -27,7 +27,6 @@ class Rhui(Plugin, RedHatPlugin):
             "/var/log/rhui-subscription-sync.log",
             "/var/cache/rhui/*",
             "/root/.rhui/*",
-            "/etc/ansible/facts.d/rhui_*.fact",
         ])
         # skip collecting certificate keys
         self.add_forbidden_path("/etc/pki/rhui/**/*.key", recursive=True)
@@ -42,11 +41,10 @@ class Rhui(Plugin, RedHatPlugin):
         ], timeout=60, env={'PYTHONUNBUFFERED': '1'})
 
     def postproc(self):
-        # obfuscate admin_pw and secret_key values
-        for prop in ["admin_pw", "secret_key"]:
-            self.do_path_regex_sub(
-                "/etc/ansible/facts.d/rhui_auth.fact",
-                r"(%s\s*=\s*)(.*)" % prop,
+        # hide rhui_manager_password value in (also rotated) answers file
+        self.do_path_regex_sub(
+                r"/root/\.rhui/answers.yaml.*",
+                r"(\s*rhui_manager_password\s*:)\s*(\S+)",
                 r"\1********")
         # obfuscate twoo cookies for login session
         for cookie in ["csrftoken", "sessionid"]:
