@@ -27,28 +27,6 @@ class FullCleanTest(StageTwoReportTest):
     # influenced by previous clean runs
     files = ['/etc/sos/cleaner/default_mapping']
 
-    def _grep_for_content(self, search):
-        """Call out to grep for finding a specific string 'search' in any place
-        in the archive
-        """
-        cmd = "grep -ril '%s' %s" % (search, self.archive_path)
-        try:
-            out = process.run(cmd)
-            rc = out.exit_status
-        except process.CmdError as err:
-            out = err.result
-            rc = err.result.exit_status
-
-        if rc == 1:
-            # grep will return an exit code of 1 if no matches are found,
-            # which is what we want
-            return False
-        else:
-            flist = []
-            for ln in out.stdout.decode('utf-8').splitlines():
-                flist.append(ln.split(self.tmpdir)[-1])
-            return flist
-
     def test_private_map_was_generated(self):
         self.assertOutputContains('A mapping of obfuscated elements is available at')
         map_file = re.findall('/.*sosreport-.*-private_map', self.cmd_output.stdout)[-1]
@@ -60,7 +38,7 @@ class FullCleanTest(StageTwoReportTest):
     def test_hostname_not_in_any_file(self):
         host = self.sysinfo['pre']['networking']['hostname']
         # much faster to just use grep here
-        content = self._grep_for_content(host)
+        content = self.grep_for_content(host)
         if not content:
             assert True
         else:
@@ -79,7 +57,7 @@ class FullCleanTest(StageTwoReportTest):
 
     def test_ip_not_in_any_file(self):
         ip = self.sysinfo['pre']['networking']['ip_addr']
-        content = self._grep_for_content(ip)
+        content = self.grep_for_content(ip)
         if not content:
             assert True
         else:
