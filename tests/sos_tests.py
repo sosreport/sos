@@ -66,6 +66,8 @@ class BaseSoSTest(Test):
     _exception_expected = False
     sos_cmd = ''
     sos_timeout = 300
+    redhat_only = False
+    ubuntu_only = False
 
     @property
     def klass_name(self):
@@ -199,12 +201,31 @@ class BaseSoSTest(Test):
         }
         return sinfo
 
+    def check_distro_for_enablement(self):
+        """Check if the test case is meant only for a specific distro family,
+        and if it is and we are not running on that family, skip all the tests
+        for that test case.
+
+        This allows us to define distro-specific test classes much the same way
+        we can define distro-specific tests _within_ a test class using the
+        appropriate decorators. We can't use the decorators for the class however
+        due to how avocado catches instantiation exceptions, so instead we need
+        to raise the skip exception after instantiation is done.
+        """
+        if self.redhat_only:
+            if self.local_distro not in RH_DIST:
+                raise TestSkipError('Not running on a Red Hat distro')
+        elif self.ubuntu_only:
+            if self.local_distro not in UBUNTU_DIST:
+                raise TestSkipError("Not running on a Ubuntu or Debian distro")
+
     def setUp(self):
         """Setup the tmpdir and any needed mocking for the test, then execute
         the defined sos command. Ensure that we only run the sos command once
         for every test case, instead of once for every test_* method defined.
         """
         self.local_distro = distro.detect().name
+        self.check_distro_for_enablement()
         # check to prevent multiple setUp() runs
         if not os.path.isdir(self.tmpdir):
             # setup our class-shared tmpdir
