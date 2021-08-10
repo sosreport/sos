@@ -1,0 +1,10 @@
+This is a test file for use with testing sos.
+
+The clean_config test should use this file for testing that the config section for
+[clean] is loaded when `--clean` is specified on the command line.
+
+This line contains 'shibboleth' which should be scrubbed.
+
+The domain sosexample.com should also be scrubbed. Also subdomains like foobar.sosexample.com should be removed.
+
+The domain example.com should not be removed.
