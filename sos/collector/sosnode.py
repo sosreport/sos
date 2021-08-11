@@ -667,10 +667,10 @@ class SosNode():
 
         if self.cluster.sos_plugin_options:
             for opt in self.cluster.sos_plugin_options:
-                if not any(opt in o for o in self.plugin_options):
+                if not any(opt in o for o in self.plugopts):
                     option = '%s=%s' % (opt,
                                         self.cluster.sos_plugin_options[opt])
-                    self.plugin_options.append(option)
+                    self.plugopts.append(option)
 
         # set master-only options
         if self.cluster.check_node_is_master(self):
@@ -688,7 +688,7 @@ class SosNode():
         self.only_plugins = list(self.opts.only_plugins)
         self.skip_plugins = list(self.opts.skip_plugins)
         self.enable_plugins = list(self.opts.enable_plugins)
-        self.plugin_options = list(self.opts.plugin_options)
+        self.plugopts = list(self.opts.plugopts)
         self.preset = list(self.opts.preset)
 
     def finalize_sos_cmd(self):
@@ -754,6 +754,20 @@ class SosNode():
             os.path.join(self.host.sos_bin_path, self.sos_bin)
         )
 
+        if self.plugopts:
+            opts = [o for o in self.plugopts
+                    if self._plugin_exists(o.split('.')[0])
+                    and self._plugin_option_exists(o.split('=')[0])]
+            if opts:
+                sos_opts.append('-k %s' % quote(','.join(o for o in opts)))
+
+        if self.preset:
+            if self._preset_exists(self.preset):
+                sos_opts.append('--preset=%s' % quote(self.preset))
+            else:
+                self.log_debug('Requested to enable preset %s but preset does '
+                               'not exist on node' % self.preset)
+
         if self.only_plugins:
             plugs = [o for o in self.only_plugins if self._plugin_exists(o)]
             if len(plugs) != len(self.only_plugins):
@@ -791,20 +805,6 @@ class SosNode():
             enable = self._fmt_sos_opt_list(opts)
             if enable:
                 sos_opts.append('--enable-plugins=%s' % quote(enable))
-
-        if self.plugin_options:
-            opts = [o for o in self.plugin_options
-                    if self._plugin_exists(o.split('.')[0])
-                    and self._plugin_option_exists(o.split('=')[0])]
-            if opts:
-                sos_opts.append('-k %s' % quote(','.join(o for o in opts)))
-
-        if self.preset:
-            if self._preset_exists(self.preset):
-                sos_opts.append('--preset=%s' % quote(self.preset))
-            else:
-                self.log_debug('Requested to enable preset %s but preset does '
-                               'not exist on node' % self.preset)
 
         self.sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
         self.log_info('Final sos command set to %s' % self.sos_cmd)
