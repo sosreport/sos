@@ -406,7 +406,86 @@ class SoSCommand(object):
                          sorted(self.__dict__.items()))
 
 
-class Plugin(object):
+class PluginOpt():
+    """This is used to define options available to plugins. Plugins will need
+    to define options alongside their distro-specific classes in order to add
+    support for user-controlled changes in Plugin behavior.
+
+    :param name:        The name of the plugin option
+    :type name:         ``str``
+
+    :param default:     The default value of the option
+    :type default:      Any
+
+    :param desc:        A short description of the effect of the option
+    :type desc:         ``str``
+
+    :param long_desc:   A detailed description of the option. Will be used by
+                        `sos info`
+    :type long_desc:    ``str``
+
+    :param val_type:    The type of object the option accepts for values. If
+                        not provided, auto-detect from the type of ``default``
+    :type val_type:     A single type or a ``list`` of types
+    """
+
+    name = ''
+    default = None
+    enabled = False
+    desc = ''
+    long_desc = ''
+    value = None
+    val_type = [None]
+    plugin = ''
+
+    def __init__(self, name='undefined', default=None, desc='', long_desc='',
+                 val_type=None):
+        self.name = name
+        self.default = default
+        self.desc = desc
+        self.long_desc = long_desc
+        self.value = self.default
+        if val_type is not None:
+            if not isinstance(val_type, list):
+                val_type = [val_type]
+        else:
+            val_type = [default.__class__]
+        self.val_type = val_type
+
+    def __str__(self):
+        items = [
+            'name=%s' % self.name,
+            'desc=\'%s\'' % self.desc,
+            'value=%s' % self.value,
+            'default=%s' % self.default
+        ]
+        return '(' + ', '.join(items) + ')'
+
+    def __repr__(self):
+        return self.__str__()
+
+    def set_value(self, val):
+        if not any([type(val) == _t for _t in self.val_type]):
+            valid = []
+            for t in self.val_type:
+                if t is None:
+                    continue
+                if t.__name__ == 'bool':
+                    valid.append("boolean true/false (on/off, etc)")
+                elif t.__name__ == 'str':
+                    valid.append("string (no spaces)")
+                elif t.__name__ == 'int':
+                    valid.append("integer values")
+            raise Exception(
+                "Plugin option '%s.%s' takes %s, not %s" % (
+                    self.plugin, self.name, ', '.join(valid),
+                    type(val).__name__
+                )
+            )
+        self.value = val
+
+
+class Plugin():
     """This is the base class for sosreport plugins. Plugins should subclass
     this and set the class variables where applicable.
 
@@ -474,12 +553,14 @@ class Plugin(object):
     # Default predicates
     predicate = None
     cmd_predicate = None
-    _default_plug_opts = [
-        ('timeout', 'Timeout in seconds for plugin to finish', 'fast', -1),
-        ('cmd-timeout', 'Timeout in seconds for a command', 'fast', -1),
-        ('postproc', 'Enable post-processing collected plugin data', 'fast',
-         True)
-    ]
+    _default_plug_opts = {
+        'timeout': PluginOpt('timeout', default=-1, val_type=int,
+                             desc='Timeout in seconds for plugin to finish'),
+        'cmd-timeout': PluginOpt('cmd-timeout', default=-1, val_type=int,
+                                 desc='Timeout in seconds for cmds to finish'),
+        'postproc': PluginOpt('postproc', default=True, val_type=bool,
+                              desc='Enable post-processing of collected data')
+    }
 
     def __init__(self, commons):
 
@@ -488,13 +569,12 @@ class Plugin(object):
         self._env_vars = set()
         self.alerts = []
         self.custom_text = ""
-        self.opt_names = []
-        self.opt_parms = []
         self.commons = commons
         self.forbidden_paths = []
         self.copy_paths = set()
         self.copy_strings = []
         self.collect_cmds = []
+        self.options = {}
         self.sysroot = commons['sysroot']
         self.policy = commons['policy']
         self.devices = commons['devices']
@@ -506,13 +586,12 @@ class Plugin(object):
             else logging.getLogger('sos')
 
         # add the default plugin opts
-        self.option_list.extend(self._default_plug_opts)
-
-        # get the option list into a dictionary
+        self.options.update(self._default_plug_opts)
+        for popt in self.options:
+            self.options[popt].plugin = self.name()
         for opt in self.option_list:
-            self.opt_names.append(opt[0])
-            self.opt_parms.append({'desc': opt[1], 'speed': opt[2],
-                                   'enabled': opt[3]})
+            opt.plugin = self.name()
+            self.options[opt.name] = opt
 
         # Initialise the default --dry-run predicate
         self.set_predicate(SoSPredicate(self))
@@ -1211,10 +1290,6 @@ class Plugin(object):
             for path in glob.glob(forbid, recursive=recursive):
                 self.forbidden_paths.append(path)
 
-    def get_all_options(self):
-        """return a list of all options selected"""
-        return (self.opt_names, self.opt_parms)
-
     def set_option(self, optionname, value):
         """Set the named option to value. Ensure the original type of the
         option value is preserved
@@ -1227,18 +1302,13 @@ class Plugin(object):
         :returns: ``True`` if the option is successfully set, else ``False``
         :rtype: ``bool``
         """
-        for name, parms in zip(self.opt_names, self.opt_parms):
-            if name == optionname:
-                # FIXME: ensure that the resulting type of the set option
-                # matches that of the default value. This prevents a string
-                # option from being coerced to int simply because it holds
-                # a numeric value (e.g. a password).
-                # See PR #1526 and Issue #1597
-                defaulttype = type(parms['enabled'])
-                if defaulttype != type(value) and defaulttype != type(None):
-                    value = (defaulttype)(value)
-                parms['enabled'] = value
+        if optionname in self.options:
+            try:
+                self.options[optionname].set_value(value)
                 return True
+            except Exception as err:
+                self._log_error(err)
+                raise
         return False
 
     def get_option(self, optionname, default=0):
@@ -1266,29 +1336,12 @@ class Plugin(object):
         if optionname in global_options:
             return getattr(self.commons['cmdlineopts'], optionname)
 
-        for name, parms in zip(self.opt_names, self.opt_parms):
-            if name == optionname:
-                val = parms['enabled']
-                if val is not None:
-                    return val
-                else:
-                    # if the value is `None`, use any non-zero default here,
-                    # but still return `None` if no default is given since
-                    # optionname did exist and had a `None` value
-                    return default or val
-
-        return default
-
-    def get_option_as_list(self, optionname, delimiter=",", default=None):
-        """Will try to return the option as a list separated by the
-        delimiter.
-        """
-        option = self.get_option(optionname)
-        try:
-            opt_list = [opt.strip() for opt in option.split(delimiter)]
-            return list(filter(None, opt_list))
-        except Exception:
+        if optionname in self.options:
+            opt = self.options[optionname]
+            if not default or opt.value is not None:
+                return opt.value
             return default
+        return default
 
     def _add_copy_paths(self, copy_paths):
         self.copy_paths.update(copy_paths)

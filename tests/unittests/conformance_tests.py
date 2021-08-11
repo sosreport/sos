@@ -8,7 +8,7 @@
 import unittest
 
 
-from sos.report.plugins import import_plugin
+from sos.report.plugins import import_plugin, PluginOpt
 from sos.utilities import ImporterHelper
 
 
@@ -50,7 +50,8 @@ class PluginConformance(unittest.TestCase):
         for plug in self.plug_classes:
             self.assertIsInstance(plug.option_list, list)
             for opt in plug.option_list:
-                self.assertIsInstance(opt, tuple)
+                self.assertIsInstance(opt, PluginOpt)
+                self.assertFalse(opt.name == 'undefined')
 
     def test_plugin_architectures_set_correctly(self):
         for plug in self.plug_classes:

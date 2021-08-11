@@ -12,7 +12,7 @@ import shutil
 
 from io import StringIO
 
-from sos.report.plugins import Plugin, regex_findall, _mangle_command
+from sos.report.plugins import Plugin, regex_findall, _mangle_command, PluginOpt
 from sos.archive import TarFileArchive
 from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
@@ -64,8 +64,10 @@ class MockArchive(TarFileArchive):
 
 class MockPlugin(Plugin):
 
-    option_list = [("opt", 'an option', 'fast', None),
-                   ("opt2", 'another option', 'fast', False)]
+    option_list = [
+        PluginOpt("opt", default=None, desc='an option', val_type=str),
+        PluginOpt("opt2", default=False, desc='another option')
+    ]
 
     def setup(self):
         pass
@@ -270,35 +272,6 @@ class PluginTests(unittest.TestCase):
             'devices': {}
         })
         self.assertEquals(p.get_option("opt2", True), False)
-
-    def test_get_option_as_list_plugin_option(self):
-        p = MockPlugin({
-            'sysroot': self.sysroot,
-            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions(),
-            'devices': {}
-        })
-        p.set_option("opt", "one,two,three")
-        self.assertEquals(p.get_option_as_list("opt"), ['one', 'two', 'three'])
-
-    def test_get_option_as_list_plugin_option_default(self):
-        p = MockPlugin({
-            'sysroot': self.sysroot,
-            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions(),
-            'devices': {}
-        })
-        self.assertEquals(p.get_option_as_list("opt", default=[]), [])
-
-    def test_get_option_as_list_plugin_option_not_list(self):
-        p = MockPlugin({
-            'sysroot': self.sysroot,
-            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
-            'cmdlineopts': MockOptions(),
-            'devices': {}
-        })
-        p.set_option("opt", "testing")
-        self.assertEquals(p.get_option_as_list("opt"), ['testing'])
 
     def test_copy_dir(self):
         self.mp._do_copy_path("tests")
