@@ -84,7 +84,7 @@ class SoSCollector(SoSComponent):
         'only_plugins': [],
         'password': False,
         'password_per_node': False,
-        'plugin_options': [],
+        'plugopts': [],
         'plugin_timeout': None,
         'cmd_timeout': None,
         'preset': '',
@@ -273,7 +273,8 @@ class SoSCollector(SoSComponent):
                              help="chroot executed commands to SYSROOT")
         sos_grp.add_argument('-e', '--enable-plugins', action="extend",
                              help='Enable specific plugins for sosreport')
-        sos_grp.add_argument('-k', '--plugin-option', action="extend",
+        sos_grp.add_argument('-k', '--plugin-option', '--plugopts',
+                             action="extend", dest='plugopts',
                              help='Plugin option as plugname.option=value')
         sos_grp.add_argument('--log-size', default=0, type=int,
                              help='Limit the size of individual logs (in MiB)')
