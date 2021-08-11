@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 import unittest
 
-from sos.report.plugins import Plugin
+from sos.report.plugins import Plugin, PluginOpt
 from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
 
@@ -21,6 +21,18 @@ class MockOptions(object):
     skip_files = []
 
 
+class MockPlugin(Plugin):
+
+    option_list = [
+        PluginOpt('baz', default=False),
+        PluginOpt('empty', default=None),
+        PluginOpt('test_option', default='foobar')
+    ]
+
+    def __init__(self, commons):
+        super(MockPlugin, self).__init__(commons=commons)
+
+
 class GlobalOptionTest(unittest.TestCase):
 
     def setUp(self):
@@ -30,11 +42,7 @@ class GlobalOptionTest(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         }
-        self.plugin = Plugin(self.commons)
-        self.plugin.opt_names = ['baz', 'empty', 'test_option']
-        self.plugin.opt_parms = [
-            {'enabled': False}, {'enabled': None}, {'enabled': 'foobar'}
-        ]
+        self.plugin = MockPlugin(self.commons)
 
     def test_simple_lookup(self):
         self.assertEquals(self.plugin.get_option('test_option'), 'foobar')

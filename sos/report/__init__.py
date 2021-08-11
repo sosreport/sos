@@ -619,21 +619,24 @@ class SoSReport(SoSComponent):
     def _set_all_options(self):
         if self.opts.alloptions:
             for plugname, plug in self.loaded_plugins:
-                for name, parms in zip(plug.opt_names, plug.opt_parms):
-                    if type(parms["enabled"]) == bool:
-                        parms["enabled"] = True
+                for opt in plug.options:
+                    if bool in opt.val_type:
+                        opt.value = True
 
     def _set_tunables(self):
         if self.opts.plugopts:
             opts = {}
             for opt in self.opts.plugopts:
-                # split up "general.syslogsize=5"
                 try:
                     opt, val = opt.split("=")
                 except ValueError:
                     val = True
-                else:
-                    if val.lower() in ["off", "disable", "disabled", "false"]:
+
+                if isinstance(val, str):
+                    val = val.lower()
+                    if val in ["on", "enable", "enabled", "true", "yes"]:
+                        val = True
+                    elif val in ["off", "disable", "disabled", "false", "no"]:
                         val = False
                     else:
                         # try to convert string "val" to int()
@@ -642,7 +645,6 @@ class SoSReport(SoSComponent):
                         except ValueError:
                             pass
 
-                # split up "general.syslogsize"
                 try:
                     plug, opt = opt.split(".")
                 except ValueError:
@@ -652,15 +654,24 @@ class SoSReport(SoSComponent):
                 try:
                     opts[plug]
                 except KeyError:
-                    opts[plug] = []
-                opts[plug].append((opt, val))
+                    opts[plug] = {}
+                opts[plug][opt] = val
 
             for plugname, plug in self.loaded_plugins:
                 if plugname in opts:
-                    for opt, val in opts[plugname]:
-                        if not plug.set_option(opt, val):
+                    for opt in opts[plugname]:
+                        if opt not in plug.options:
                             self.soslog.error('no such option "%s" for plugin '
                                               '(%s)' % (opt, plugname))
+                            self._exit(1)
+                        try:
+                            plug.options[opt].set_value(opts[plugname][opt])
+                            self.soslog.debug(
+                                "Set %s plugin option to %s"
+                                % (plugname, plug.options[opt])
+                            )
+                        except Exception as err:
+                            self.soslog.error(err)
                             self._exit(1)
                     del opts[plugname]
             for plugname in opts.keys():
@@ -688,10 +699,8 @@ class SoSReport(SoSComponent):
 
     def _set_plugin_options(self):
         for plugin_name, plugin in self.loaded_plugins:
-            names, parms = plugin.get_all_options()
-            for optname, optparm in zip(names, parms):
-                self.all_options.append((plugin, plugin_name, optname,
-                                         optparm))
+            for opt in plugin.options:
+                self.all_options.append(plugin.options[opt])
 
     def _report_profiles_and_plugins(self):
         self.ui_log.info("")
@@ -732,31 +741,33 @@ class SoSReport(SoSComponent):
         if self.all_options:
             self.ui_log.info(_("The following options are available for ALL "
                                "plugins:"))
-            for opt in self.all_options[0][0]._default_plug_opts:
-                val = opt[3]
-                if val == -1:
+            _defaults = self.loaded_plugins[0][1]._default_plug_opts
+            for _opt in _defaults:
+                opt = _defaults[_opt]
+                val = opt.default
+                if opt.default == -1:
                     val = TIMEOUT_DEFAULT
-                self.ui_log.info(" %-25s %-15s %s" % (opt[0], val, opt[1]))
+                self.ui_log.info(" %-25s %-15s %s" % (opt.name, val, opt.desc))
             self.ui_log.info("")
 
             self.ui_log.info(_("The following plugin options are available:"))
-            for (plug, plugname, optname, optparm) in self.all_options:
-                if optname in ('timeout', 'postproc', 'cmd-timeout'):
+            for opt in self.all_options:
+                if opt.name in ('timeout', 'postproc', 'cmd-timeout'):
                     continue
                 # format option value based on its type (int or bool)
-                if type(optparm["enabled"]) == bool:
-                    if optparm["enabled"] is True:
+                if isinstance(opt.default, bool):
+                    if opt.default is True:
                         tmpopt = "on"
                     else:
                         tmpopt = "off"
                 else:
-                    tmpopt = optparm["enabled"]
+                    tmpopt = opt.default
 
                 if tmpopt is None:
                     tmpopt = 0
 
                 self.ui_log.info(" %-25s %-15s %s" % (
-                    plugname + "." + optname, tmpopt, optparm["desc"]))
+                    opt.plugin + "." + opt.name, tmpopt, opt.desc))
         else:
             self.ui_log.info(_("No plugin options available."))
 
