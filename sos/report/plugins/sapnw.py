@@ -35,7 +35,8 @@ class sapnw(Plugin, RedHatPlugin):
         # Cycle through all the instances, get 'sid', 'instance_number'
         # and 'vhost' to determine the proper profile
         for inst_line in inst_out['output'].splitlines():
-            if "DAA" not in inst_line:
+            if ("DAA" not in inst_line and not
+                    inst_line.startswith("No instances found")):
                 fields = inst_line.strip().split()
                 sid = fields[3]
                 inst = fields[5]
