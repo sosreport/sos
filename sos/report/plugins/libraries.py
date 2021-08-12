@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Libraries(Plugin, IndependentPlugin):
@@ -17,7 +17,8 @@ class Libraries(Plugin, IndependentPlugin):
     profiles = ('system',)
 
     option_list = [
-        ('ldconfigv', 'collect verbose ldconfig output', "slow", False)
+        PluginOpt('ldconfigv', default=False,
+                  desc='collect verbose ldconfig output')
     ]
 
     def setup(self):

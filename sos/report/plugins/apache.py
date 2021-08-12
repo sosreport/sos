@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 
 
 class Apache(Plugin):
@@ -18,7 +19,7 @@ class Apache(Plugin):
     files = ('/var/www/',)
 
     option_list = [
-        ("log", "gathers all apache logs", "slow", False)
+        PluginOpt(name="log", default=False, desc="gathers all apache logs")
     ]
 
     def setup(self):

@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 import os.path
 
 # This plugin collects static configuration and runtime information
@@ -41,12 +41,12 @@ class OpenShiftOrigin(Plugin):
     profiles = ('openshift',)
 
     option_list = [
-        ("diag", "run 'oc adm diagnostics' to collect its output",
-         'fast', True),
-        ("diag-prevent", "set --prevent-modification on 'oc adm diagnostics'",
-         'fast', True),
-        ("all-namespaces", "collect dc output for all namespaces", "fast",
-         False)
+        PluginOpt('diag', default=True,
+                  desc='Collect oc adm diagnostics output'),
+        PluginOpt('diag-prevent', default=True,
+                  desc='Use --prevent-modification with oc adm diagnostics'),
+        PluginOpt('all-namespaces', default=False,
+                  desc='collect dc output for all namespaces')
     ]
 
     master_base_dir = "/etc/origin/master"

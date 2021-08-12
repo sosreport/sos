@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from fnmatch import translate
 import os
 import re
@@ -54,17 +54,19 @@ class Openshift(Plugin, RedHatPlugin):
     packages = ('openshift-hyperkube',)
 
     option_list = [
-        ('token', 'admin token to allow API queries', 'fast', None),
-        ('host', 'host address to use for oc login, including port', 'fast',
-         'https://localhost:6443'),
-        ('no-oc', 'do not collect `oc` command output', 'fast', False),
-        ('podlogs', 'collect logs from each pod', 'fast', True),
-        ('podlogs-filter', ('limit podlogs collection to pods matching this '
-         'regex'), 'fast', ''),
-        ('only-namespaces', 'colon-delimited list of namespaces to collect',
-         'fast', ''),
-        ('add-namespaces', ('colon-delimited list of namespaces to add to the '
-         'default collections'), 'fast', '')
+        PluginOpt('token', default=None, val_type=str,
+                  desc='admin token to allow API queries'),
+        PluginOpt('host', default='https://localhost:6443',
+                  desc='host address to use for oc login, including port'),
+        PluginOpt('no-oc', default=False, desc='do not collect `oc` output'),
+        PluginOpt('podlogs', default=True, desc='collect logs from each pod'),
+        PluginOpt('podlogs-filter', default='', val_type=str,
+                  desc='only collect logs from pods matching this pattern'),
+        PluginOpt('only-namespaces', default='', val_type=str,
+                  desc='colon-delimited list of namespaces to collect from'),
+        PluginOpt('add-namespaces', default='', val_type=str,
+                  desc=('colon-delimited list of namespaces to add to the '
+                        'default collection list'))
     ]
 
     def _check_oc_function(self):

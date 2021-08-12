@@ -17,8 +17,6 @@ class OpenStackManila(Plugin):
     plugin_name = "openstack_manila"
     profiles = ('openstack', 'openstack_controller')
     containers = ('.*manila_api',)
-    option_list = []
-
     var_puppet_gen = "/var/lib/config-data/puppet-generated/manila"
 
     def setup(self):

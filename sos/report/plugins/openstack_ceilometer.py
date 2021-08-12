@@ -20,8 +20,6 @@ class OpenStackCeilometer(Plugin):
     short_desc = 'Openstack Ceilometer'
     plugin_name = "openstack_ceilometer"
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
-
-    option_list = []
     var_puppet_gen = "/var/lib/config-data/puppet-generated/ceilometer"
 
     def setup(self):

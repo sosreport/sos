@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 import json
 
 
@@ -17,8 +17,8 @@ class Ebpf(Plugin, IndependentPlugin):
     profiles = ('system', 'kernel', 'network')
 
     option_list = [
-        ('namespaces', 'Number of namespaces to collect, 0 for unlimited',
-            'slow', None)
+        PluginOpt("namespaces", default=None, val_type=int,
+                  desc="Number of namespaces to collect, 0 for unlimited"),
     ]
 
     def get_bpftool_prog_ids(self, prog_json):

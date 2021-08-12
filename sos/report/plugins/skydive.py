@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 import os
 
 
@@ -26,9 +26,12 @@ class Skydive(Plugin, RedHatPlugin):
     password_warn_text = " (password visible in process listings)"
 
     option_list = [
-        ("username", "skydive user name", "", ""),
-        ("password", "skydive password" + password_warn_text, "", ""),
-        ("analyzer", "skydive analyzer address", "", "")
+        PluginOpt('username', default='', val_type=str,
+                  desc='skydive username'),
+        PluginOpt('password', default='', val_type=str,
+                  desc='skydive password' + password_warn_text),
+        PluginOpt('analyzer', default='', val_type=str,
+                  desc='skydive analyzer address')
     ]
 
     def setup(self):

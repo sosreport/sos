@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Qpid(Plugin, RedHatPlugin):
@@ -17,12 +17,15 @@ class Qpid(Plugin, RedHatPlugin):
     profiles = ('services',)
 
     packages = ('qpidd', 'qpid-cpp-server', 'qpid-tools')
-    option_list = [("port", "listening port to connect to", '', ""),
-                   ("ssl-certificate",
-                    "Path to file containing client SSL certificate", '', ""),
-                   ("ssl-key",
-                    "Path to file containing client SSL private key", '', ""),
-                   ("ssl", "enforce SSL / amqps connection", '', False)]
+    option_list = [
+        PluginOpt('port', default='', val_type=int,
+                  desc='listening port to connect to'),
+        PluginOpt('ssl-certificate', default='', val_type=str,
+                  desc='Path to file containing client SSL certificate'),
+        PluginOpt('ssl-key', default='', val_type=str,
+                  desc='Path to file containing client SSL private key'),
+        PluginOpt('ssl', default=False, desc='enforce SSL amqps connection')
+    ]
 
     def setup(self):
         """ performs data collection for qpid broker """

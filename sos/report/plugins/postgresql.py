@@ -14,7 +14,8 @@
 
 import os
 
-from sos.report.plugins import (Plugin, UbuntuPlugin, DebianPlugin, SCLPlugin)
+from sos.report.plugins import (Plugin, UbuntuPlugin, DebianPlugin, SCLPlugin,
+                                PluginOpt)
 from sos.utilities import find
 
 
@@ -30,12 +31,18 @@ class PostgreSQL(Plugin):
     password_warn_text = " (password visible in process listings)"
 
     option_list = [
-        ('pghome', 'PostgreSQL server home directory.', '', '/var/lib/pgsql'),
-        ('username', 'username for pg_dump', '', 'postgres'),
-        ('password', 'password for pg_dump' + password_warn_text, '', ''),
-        ('dbname', 'database name to dump for pg_dump', '', ''),
-        ('dbhost', 'database hostname/IP (do not use unix socket)', '', ''),
-        ('dbport', 'database server port number', '', '5432')
+        PluginOpt('pghome', default='/var/lib/pgsql',
+                  desc='psql server home directory'),
+        PluginOpt('username', default='postgres', val_type=str,
+                  desc='username for pg_dump'),
+        PluginOpt('password', default='', val_type=str,
+                  desc='password for pg_dump' + password_warn_text),
+        PluginOpt('dbname', default='', val_type=str,
+                  desc='database name to dump with pg_dump'),
+        PluginOpt('dbhost', default='', val_type=str,
+                  desc='database hostname/IP address (no unix sockets)'),
+        PluginOpt('dbport', default=5432, val_type=[int, str],
+                  desc='database server listening port')
     ]
 
     def do_pg_dump(self, scl=None, filename="pgdump.tar"):

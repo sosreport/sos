@@ -16,8 +16,6 @@ class OpenStackSahara(Plugin):
     short_desc = 'OpenStack Sahara'
     plugin_name = 'openstack_sahara'
     profiles = ('openstack', 'openstack_controller')
-
-    option_list = []
     var_puppet_gen = "/var/lib/config-data/puppet-generated/sahara"
 
     def setup(self):

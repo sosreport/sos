@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 import os
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Npm(Plugin, IndependentPlugin):
@@ -17,10 +17,10 @@ class Npm(Plugin, IndependentPlugin):
     short_desc = 'Information from available npm modules'
     plugin_name = 'npm'
     profiles = ('system',)
-    option_list = [("project_path",
-                    'List npm modules of a project specified by path',
-                    'fast',
-                    '')]
+    option_list = [
+        PluginOpt('project_path', default='', val_type=str,
+                  desc='Collect npm modules of project at this path')
+    ]
 
     # in Fedora, Debian, Ubuntu and Suse the package is called npm
     packages = ('npm',)

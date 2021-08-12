@@ -29,8 +29,6 @@ class Monit(Plugin, RedHatPlugin):
     # Define log files
     monit_log = ["/var/log/monit.log"]
 
-    option_list = []
-
     def setup(self):
         self.add_cmd_output("monit status")
         self.add_copy_spec(self.monit_log + self.monit_conf)

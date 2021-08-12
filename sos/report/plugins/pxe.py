@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 
 
 class Pxe(Plugin):
@@ -14,8 +15,10 @@ class Pxe(Plugin):
     short_desc = 'PXE service'
     plugin_name = "pxe"
     profiles = ('sysmgmt', 'network')
-    option_list = [("tftpboot", 'gathers content from the tftpboot path',
-                    'slow', False)]
+    option_list = [
+        PluginOpt('tftpboot', default=False,
+                  desc='collect content from tftpboot path')
+    ]
 
 
 class RedHatPxe(Pxe, RedHatPlugin):

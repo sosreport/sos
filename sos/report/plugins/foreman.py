@@ -10,7 +10,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin)
+                                UbuntuPlugin, PluginOpt)
 from pipes import quote
 from re import match
 
@@ -24,8 +24,10 @@ class Foreman(Plugin):
     profiles = ('sysmgmt',)
     packages = ('foreman',)
     option_list = [
-        ('months', 'number of months for dynflow output', 'fast', 1),
-        ('proxyfeatures', 'collect features of smart proxies', 'slow', False),
+        PluginOpt('months', default=1,
+                  desc='number of months for dynflow output'),
+        PluginOpt('proxyfeatures', default=False,
+                  desc='collect features of smart proxies')
     ]
 
     def setup(self):

@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-from sos.report.plugins import (Plugin, RedHatPlugin)
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from datetime import datetime
 
 
@@ -20,10 +20,10 @@ class oVirtEngineBackup(Plugin, RedHatPlugin):
     packages = ("ovirt-engine-tools-backup",)
     plugin_name = "ovirt_engine_backup"
     option_list = [
-        ("backupdir", "Directory where the backup is generated",
-         "fast", "/var/lib/ovirt-engine-backup"),
-        ("tmpdir", "Directory where the intermediate files are generated",
-         "fast", '/tmp'),
+        PluginOpt('backupdir', default='/var/lib/ovirt-engine-backup',
+                  desc='Directory where backups are generated'),
+        PluginOpt('tmpdir', default='/tmp',
+                  desc='temp dir to use for engine-backup')
     ]
     profiles = ("virt",)
 

@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Dmraid(Plugin, IndependentPlugin):
@@ -18,7 +18,7 @@ class Dmraid(Plugin, IndependentPlugin):
     packages = ('dmraid',)
 
     option_list = [
-        ("metadata", "capture dmraid device metadata", "slow", False)
+        PluginOpt('metadata', default=False, desc='collect dmraid metadata')
     ]
 
     # V - {-V/--version}

@@ -9,7 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
-                                SoSPredicate, CosPlugin)
+                                SoSPredicate, CosPlugin, PluginOpt)
 
 
 class Docker(Plugin, CosPlugin):
@@ -19,11 +19,12 @@ class Docker(Plugin, CosPlugin):
     profiles = ('container',)
 
     option_list = [
-        ("all", "enable capture for all containers, even containers "
-            "that have terminated", 'fast', False),
-        ("logs", "capture logs for running containers",
-            'fast', False),
-        ("size", "capture image sizes for docker ps", 'slow', False)
+        PluginOpt('all', default=False,
+                  desc='collect for all containers, even terminated ones'),
+        PluginOpt('logs', default=False,
+                  desc='collect stdout/stderr logs for containers'),
+        PluginOpt('size', default=False,
+                  desc='collect image sizes for docker ps')
     ]
 
     def setup(self):

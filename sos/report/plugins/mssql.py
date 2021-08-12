@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class MsSQL(Plugin, RedHatPlugin):
@@ -20,8 +20,8 @@ class MsSQL(Plugin, RedHatPlugin):
     packages = ('mssql-server',)
 
     option_list = [
-        ('mssql_conf', 'SQL Server configuration file.', '',
-         '/var/opt/mssql/mssql.conf')
+        PluginOpt('mssql_conf', default='/var/opt/mssql/mssql.conf',
+                  desc='SQL server configuration file')
     ]
 
     def setup(self):

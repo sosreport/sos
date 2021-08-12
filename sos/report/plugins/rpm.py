@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Rpm(Plugin, RedHatPlugin):
@@ -16,10 +16,12 @@ class Rpm(Plugin, RedHatPlugin):
     plugin_name = 'rpm'
     profiles = ('system', 'packagemanager')
 
-    option_list = [("rpmq", "queries for package information via rpm -q",
-                    "fast", True),
-                   ("rpmva", "runs a verify on all packages", "slow", False),
-                   ("rpmdb", "collect /var/lib/rpm", "slow", False)]
+    option_list = [
+        PluginOpt('rpmq', default=True,
+                  desc='query package information with rpm -q'),
+        PluginOpt('rpmva', default=False, desc='verify all packages'),
+        PluginOpt('rpmdb', default=False, desc='collect /var/lib/rpm')
+    ]
 
     verify_packages = ('rpm',)
 

@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 import os
 
 YUM_PLUGIN_PATH = "/usr/lib/yum-plugins/"
@@ -24,9 +24,10 @@ class Yum(Plugin, RedHatPlugin):
     verify_packages = ('yum',)
 
     option_list = [
-        ("yumlist", "list repositories and packages", "slow", False),
-        ("yumdebug", "gather yum debugging data", "slow", False),
-        ("yum-history-info", "gather yum history info", "slow", False),
+        PluginOpt('yumlist', default=False, desc='list repos and packages'),
+        PluginOpt('yumdebug', default=False, desc='collect yum debug data'),
+        PluginOpt('yum-history-info', default=False,
+                  desc='collect yum history info for all transactions')
     ]
 
     def setup(self):

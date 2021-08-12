@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class AtomicHost(Plugin, RedHatPlugin):
@@ -18,7 +18,8 @@ class AtomicHost(Plugin, RedHatPlugin):
     plugin_name = "atomichost"
     profiles = ('container',)
     option_list = [
-        ("info", "gather atomic info for each image", "fast", False)
+        PluginOpt("info", default=False,
+                  desc="gather atomic info for each image")
     ]
 
     def check_enabled(self):

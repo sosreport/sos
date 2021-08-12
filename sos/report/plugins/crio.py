@@ -8,7 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, SoSPredicate
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                SoSPredicate, PluginOpt)
 
 
 class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -20,10 +21,10 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
     services = ('crio',)
 
     option_list = [
-        ("all", "enable capture for all containers, even containers "
-            "that have terminated", 'fast', False),
-        ("logs", "capture logs for running containers",
-            'fast', False),
+        PluginOpt('all', default=False,
+                  desc='collect for all containers, even terminated ones'),
+        PluginOpt('logs', default=False,
+                  desc='collect stdout/stderr logs for containers')
     ]
 
     def setup(self):

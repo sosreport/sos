@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class SMcli(Plugin, IndependentPlugin):
@@ -19,7 +19,7 @@ class SMcli(Plugin, IndependentPlugin):
     packages = ('SMclient',)
 
     option_list = [
-        ("debug", "capture support debug data", "slow", False),
+        PluginOpt('debug', default=False, desc='capture support debug data')
     ]
 
     def setup(self):

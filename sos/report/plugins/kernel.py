@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 import glob
 
 
@@ -21,8 +21,10 @@ class Kernel(Plugin, IndependentPlugin):
     sys_module = '/sys/module'
 
     option_list = [
-        ("with-timer", "gather /proc/timer* statistics", "slow", False),
-        ("trace", "gather /sys/kernel/debug/tracing/trace file", "slow", False)
+        PluginOpt('with-timer', default=False,
+                  desc='gather /proc/timer* statistics'),
+        PluginOpt('trace', default=False,
+                  desc='gather /sys/kernel/debug/tracing/trace file')
     ]
 
     def setup(self):

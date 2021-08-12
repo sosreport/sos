@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 from pipes import quote
 from re import match
 
@@ -21,7 +21,7 @@ class PulpCore(Plugin, IndependentPlugin):
     commands = ("pulpcore-manager",)
     files = ("/etc/pulp/settings.py",)
     option_list = [
-        ('task-days', 'days of tasks history', 'fast', 7)
+        PluginOpt('task-days', default=7, desc='days of task history')
     ]
 
     def parse_settings_config(self):

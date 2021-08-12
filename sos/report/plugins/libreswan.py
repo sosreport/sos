@@ -9,7 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
+from sos.report.plugins import (Plugin, IndependentPlugin, SoSPredicate,
+                                PluginOpt)
 
 
 class Libreswan(Plugin, IndependentPlugin):
@@ -19,8 +20,8 @@ class Libreswan(Plugin, IndependentPlugin):
     plugin_name = 'libreswan'
     profiles = ('network', 'security', 'openshift')
     option_list = [
-        ("ipsec-barf", "collect the output of the ipsec barf command",
-         "slow", False)
+        PluginOpt('ipsec-barf', default=False,
+                  desc='collect ipsec barf output')
     ]
 
     files = ('/etc/ipsec.conf',)

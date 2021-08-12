@@ -20,7 +20,6 @@ class OpenStackHorizon(Plugin):
 
     plugin_name = "openstack_horizon"
     profiles = ('openstack', 'openstack_controller')
-    option_list = []
     var_puppet_gen = "/var/lib/config-data/puppet-generated"
 
     def setup(self):
