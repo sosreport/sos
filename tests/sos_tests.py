@@ -68,6 +68,7 @@ class BaseSoSTest(Test):
     sos_timeout = 300
     redhat_only = False
     ubuntu_only = False
+    end_of_test_case = False
 
     @property
     def klass_name(self):
@@ -254,6 +255,23 @@ class BaseSoSTest(Test):
                     self.archive = os.path.join(self.tmpdir, f)
                     break
         self.sysinfo = self.get_sysinfo()
+
+    def tearDown(self):
+        """If a test being run is the last one defined for a test case, then
+        we should remove the extracted tarball directory so that we can upload
+        a reasonably sized artifact to the GCE storage bucket if any tests
+        fail during the test execution.
+
+        The use of `end_of_test_case` is a bit wonky because we don't have a
+        different/more reliable way to identify that a test class has completed
+        all tests - mainly because avocado re-initializes the entire class
+        for each `test_*` method defined within it.
+        """
+        if self.end_of_test_case:
+            # remove the extracted directory only if we have the tarball
+            if self.archive and os.path.exists(self.archive):
+                if os.path.exists(self.archive_path):
+                    shutil.rmtree(self.archive_path)
 
     def setup_mocking(self):
         """Since we need to use setUp() in our overrides of avocado.Test,
@@ -654,16 +672,17 @@ class StageOneReportTest(BaseSoSReportTest):
     def test_html_reports_created(self):
         self.assertFileCollected('sos_reports/sos.html')
 
-    def test_no_exceptions_during_execution(self):
-        self.assertSosLogNotContains('caught exception in plugin')
-        self.assertFileGlobNotInArchive('sos_logs/*-plugin-errors.txt')
-
     def test_no_ip_changes(self):
         # I.E. make sure we didn't cause any NIC flaps that for some reason
         # resulted in a new primary IP address. TODO: build this out to make
         # sure this IP is still bound to the same NIC
         self.assertEqual(self.sysinfo['pre']['networking']['ip_addr'],
                          self.sysinfo['post']['networking']['ip_addr'])
+
+    def test_no_exceptions_during_execution(self):
+        self.end_of_test_case = True
+        self.assertSosLogNotContains('caught exception in plugin')
+        self.assertFileGlobNotInArchive('sos_logs/*-plugin-errors.txt')
 
 
 class StageTwoReportTest(BaseSoSReportTest):
@@ -733,6 +752,7 @@ class StageTwoReportTest(BaseSoSReportTest):
     def tearDown(self):
         if self.end_of_test_case:
             self.teardown_mocking()
+            super(StageTwoReportTest, self).tearDown()
 
     def teardown_mocking(self):
         """Undo any and all mocked setup that we did for tests

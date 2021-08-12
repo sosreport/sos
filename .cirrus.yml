@@ -124,6 +124,11 @@ report_stageone_task:
         fi
     setup_script: &setup 'pip3 install avocado-framework'
     main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+    on_failure:
+        fail_script: &faillogs |
+            tar cf sos-fail-logs.tar /var/tmp/avocado*
+        log_artifacts:
+            path: "sos-fail-logs.tar"
 
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
@@ -154,6 +159,10 @@ report_stagetwo_task:
         fi
     setup_script: *setup
     main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    on_failure:
+        fail_script: *faillogs
+        log_artifacts:
+            path: "sos-fail-logs.tar"
 
 report_foreman_task:
     skip: "!changesInclude('.cirrus.yml', '**/{__init__,apache,foreman,foreman_tests,candlepin,pulp,pulpcore}.py')"
@@ -175,3 +184,7 @@ report_foreman_task:
     remove_sos_script: *remove_sos
     setup_script: *setup
     main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t foreman tests/product_tests/foreman/
+    on_failure:
+        fail_script: *faillogs
+        log_artifacts:
+            path: "sos-fail-logs.tar"
