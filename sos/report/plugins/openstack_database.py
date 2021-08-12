@@ -11,7 +11,7 @@
 import re
 
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class OpenStackDatabase(Plugin):
@@ -21,8 +21,8 @@ class OpenStackDatabase(Plugin):
     profiles = ('openstack', 'openstack_controller')
 
     option_list = [
-        ('dump', 'Dump select databases to a SQL file', 'slow', False),
-        ('dumpall', 'Dump ALL databases to a SQL file', 'slow', False)
+        PluginOpt('dump', default=False, desc='Dump select databases'),
+        PluginOpt('dumpall', default=False, desc='Dump ALL databases')
     ]
 
     databases = [

@@ -10,7 +10,7 @@ import time
 import os
 import glob
 import string
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Gluster(Plugin, RedHatPlugin):
@@ -24,7 +24,9 @@ class Gluster(Plugin, RedHatPlugin):
     packages = ("glusterfs", "glusterfs-core")
     files = ("/etc/glusterd", "/var/lib/glusterd")
 
-    option_list = [("dump", "enable glusterdump support", "slow", False)]
+    option_list = [
+        PluginOpt("dump", default=False, desc="enable glusterdump support")
+    ]
 
     def wait_for_statedump(self, name_dir):
         statedumps_present = 0

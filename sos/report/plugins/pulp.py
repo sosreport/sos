@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from pipes import quote
 from re import match
 
@@ -21,7 +21,8 @@ class Pulp(Plugin, RedHatPlugin):
     packages = ("pulp-server", "pulp-katello", "python3-pulpcore")
     files = ("/etc/pulp/settings.py",)
     option_list = [
-        ('tasks', 'number of tasks to collect from DB queries', 'fast', 200)
+        PluginOpt('tasks', default=200,
+                  desc='number of tasks to collect from DB queries')
     ]
 
     def setup(self):

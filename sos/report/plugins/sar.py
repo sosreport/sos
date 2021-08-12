@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 import os
 import re
 
@@ -20,8 +21,10 @@ class Sar(Plugin,):
 
     packages = ('sysstat',)
     sa_path = '/var/log/sa'
-    option_list = [("all_sar", "gather all system activity records",
-                    "", False)]
+    option_list = [
+        PluginOpt('all_sar', default=False,
+                  desc="gather all system activity records")
+    ]
 
     def setup(self):
         self.add_copy_spec(os.path.join(self.sa_path, '*'),

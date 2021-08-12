@@ -23,7 +23,6 @@ class OpenStackGlance(Plugin):
     profiles = ('openstack', 'openstack_controller')
     containers = ('glance_api',)
 
-    option_list = []
     var_puppet_gen = "/var/lib/config-data/puppet-generated/glance_api"
     service_name = "openstack-glance-api.service"
 

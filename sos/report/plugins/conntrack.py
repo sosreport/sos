@@ -7,7 +7,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Conntrack(Plugin, IndependentPlugin):
@@ -19,8 +19,8 @@ class Conntrack(Plugin, IndependentPlugin):
     packages = ('conntrack-tools', 'conntrack', 'conntrackd')
 
     option_list = [
-        ('namespaces', 'Number of namespaces to collect, 0 for unlimited',
-            'slow', None)
+        PluginOpt("namespaces", default=None, val_type=int,
+                  desc="Number of namespaces to collect, 0 for unlimited"),
     ]
 
     def setup(self):

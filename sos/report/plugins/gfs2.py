@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Gfs2(Plugin, IndependentPlugin):
@@ -18,9 +18,8 @@ class Gfs2(Plugin, IndependentPlugin):
     packages = ("gfs2-utils",)
 
     option_list = [
-        ("lockdump",
-         "capture lock dumps for all GFS2 filesystems",
-         "slow", False),
+        PluginOpt('lockdump', default=False,
+                  desc='collect lock dumps for all GFS2 filesystems')
     ]
 
     def setup(self):

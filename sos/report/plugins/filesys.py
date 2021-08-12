@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, CosPlugin)
+                                UbuntuPlugin, CosPlugin, PluginOpt)
 
 
 class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
@@ -18,9 +18,11 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
     profiles = ('storage',)
 
     option_list = [
-        ("lsof", 'gathers information on all open files', 'slow', False),
-        ("dumpe2fs", 'dump filesystem information', 'slow', False),
-        ("frag", 'filesystem fragmentation status', 'slow', False)
+        PluginOpt('lsof', default=False,
+                  desc='collect information on all open files'),
+        PluginOpt('dumpe2fs', default=False, desc='dump filesystem info'),
+        PluginOpt('frag', default=False,
+                  desc='collect filesystem fragmentation status')
     ]
 
     def setup(self):

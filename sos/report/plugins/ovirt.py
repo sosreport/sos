@@ -16,7 +16,7 @@ import re
 import signal
 
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from sos.utilities import is_executable
 
 
@@ -55,12 +55,12 @@ class Ovirt(Plugin, RedHatPlugin):
     )
 
     option_list = [
-        ('jbosstrace', 'Enable oVirt Engine JBoss stack trace collection',
-         '', True),
-        ('sensitive_keys', 'Sensitive keys to be masked',
-         '', DEFAULT_SENSITIVE_KEYS),
-        ('heapdump', 'Collect heap dumps from /var/log/ovirt-engine/dump/',
-         '', False)
+        PluginOpt('jbosstrace', default=True,
+                  desc='Enable oVirt Engine JBoss stack trace collection'),
+        PluginOpt('sensitive_keys', default=DEFAULT_SENSITIVE_KEYS,
+                  desc='Sensitive keys to be masked in post-processing'),
+        PluginOpt('heapdump', default=False,
+                  desc='Collect heap dumps from /var/log/ovirt-engine/dump/')
     ]
 
     def setup(self):

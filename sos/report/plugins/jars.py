@@ -14,7 +14,7 @@ import os
 import re
 import zipfile
 from functools import partial
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Jars(Plugin, RedHatPlugin):
@@ -24,9 +24,10 @@ class Jars(Plugin, RedHatPlugin):
     plugin_name = "jars"
     profiles = ("java",)
     option_list = [
-        ("append_locations", "colon-separated list of additional JAR paths",
-         "fast", ""),
-        ("all_known_locations", "scan all known paths", "slow", False)
+        PluginOpt('append_locations', default="", val_type=str,
+                  desc='colon-delimited list of additional JAR paths'),
+        PluginOpt('all_known_locations', default=False,
+                  desc='scan all known paths')
     ]
 
     # There is no standard location for JAR files and scanning

@@ -9,7 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 import os
 
 
@@ -19,7 +20,10 @@ class OpenStackKeystone(Plugin):
     plugin_name = "openstack_keystone"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [("nopw", "dont gathers keystone passwords", "slow", True)]
+    option_list = [
+        PluginOpt('nopw', default=True,
+                  desc='do not collect keystone passwords')
+    ]
     var_puppet_gen = "/var/lib/config-data/puppet-generated/keystone"
 
     def setup(self):

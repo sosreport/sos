@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class SELinux(Plugin, RedHatPlugin):
@@ -16,8 +16,10 @@ class SELinux(Plugin, RedHatPlugin):
     plugin_name = 'selinux'
     profiles = ('container', 'system', 'security', 'openshift')
 
-    option_list = [("fixfiles", 'Print incorrect file context labels',
-                    'slow', False)]
+    option_list = [
+        PluginOpt('fixfiles', default=False,
+                  desc='collect incorrect file context labels')
+    ]
     packages = ('libselinux',)
 
     def setup(self):

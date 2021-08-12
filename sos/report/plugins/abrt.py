@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Abrt(Plugin, RedHatPlugin):
@@ -21,7 +21,8 @@ class Abrt(Plugin, RedHatPlugin):
     files = ('/var/spool/abrt',)
 
     option_list = [
-        ("detailed", 'collect detailed info for every report', 'slow', False)
+        PluginOpt("detailed", default=False,
+                  desc="collect detailed information for every report")
     ]
 
     def setup(self):

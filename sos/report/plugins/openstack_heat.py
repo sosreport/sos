@@ -19,8 +19,6 @@ class OpenStackHeat(Plugin):
     plugin_name = "openstack_heat"
     profiles = ('openstack', 'openstack_controller')
     containers = ('.*heat_api',)
-
-    option_list = []
     var_puppet_gen = "/var/lib/config-data/puppet-generated/heat"
     service_name = "openstack-heat-api.service"
 

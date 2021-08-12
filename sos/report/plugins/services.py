@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 
 
 class Services(Plugin):
@@ -16,8 +17,10 @@ class Services(Plugin):
     plugin_name = "services"
     profiles = ('system', 'boot')
 
-    option_list = [("servicestatus", "get a status of all running services",
-                    "slow", False)]
+    option_list = [
+        PluginOpt('servicestatus', default=False,
+                  desc='collect status of all running services')
+    ]
 
     def setup(self):
         self.add_copy_spec([

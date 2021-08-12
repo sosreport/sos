@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
 import os
 
 
@@ -19,8 +19,8 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
     profiles = ('container', )
     packages = ('containers-common', )
     option_list = [
-        ('rootlessusers', 'colon-separated list of users\' containers info',
-         '', ''),
+        PluginOpt('rootlessusers', default='', val_type=str,
+                  desc='colon-delimited list of users to collect for')
     ]
 
     def setup(self):

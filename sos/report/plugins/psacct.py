@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 
 
 class Psacct(Plugin):
@@ -15,8 +16,9 @@ class Psacct(Plugin):
     plugin_name = "psacct"
     profiles = ('system',)
 
-    option_list = [("all", "collect all process accounting files",
-                    "slow", False)]
+    option_list = [
+        PluginOpt('all', default=False, desc='collect all accounting files')
+    ]
 
     packages = ("psacct", )
 

@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Veritas(Plugin, RedHatPlugin):
@@ -18,8 +18,10 @@ class Veritas(Plugin, RedHatPlugin):
 
     # Information about VRTSexplorer obtained from
     # http://seer.entsupport.symantec.com/docs/243150.htm
-    option_list = [("script", "Define VRTSexplorer script path", "",
-                    "/opt/VRTSspt/VRTSexplorer")]
+    option_list = [
+        PluginOpt('script', default='/opt/VRTSspt/VRTSexplorer',
+                  desc='Path to VRTSexploer script')
+    ]
 
     def check_enabled(self):
         return self.path_isfile(self.get_option("script"))

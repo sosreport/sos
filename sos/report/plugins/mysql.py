@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 import os
 
 
@@ -21,9 +22,11 @@ class Mysql(Plugin):
     pw_warn_text = " (password visible in process listings)"
 
     option_list = [
-        ("dbuser", "username for database dumps", "", "mysql"),
-        ("dbpass", "password for database dumps" + pw_warn_text, "", ""),
-        ("dbdump", "collect a database dump", "", False)
+        PluginOpt('dbuser', default='mysql', val_type=str,
+                  desc='username for database dump collection'),
+        PluginOpt('dbpass', default='', val_type=str,
+                  desc='password for data dump collection' + pw_warn_text),
+        PluginOpt('dbdump', default=False, desc='Collect a database dump')
     ]
 
     def setup(self):

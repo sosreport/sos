@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class StorCLI(Plugin, IndependentPlugin):
@@ -18,7 +18,7 @@ class StorCLI(Plugin, IndependentPlugin):
     packages = ('storcli',)
 
     option_list = [
-        ("json", "collect data in JSON format", "fast", False)
+        PluginOpt('json', default=False, desc='collect data in JSON format')
     ]
 
     def setup(self):

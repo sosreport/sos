@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 from datetime import datetime, timedelta
 import re
 
@@ -23,8 +24,10 @@ class Pacemaker(Plugin):
     )
 
     option_list = [
-        ("crm_from", "specify the start time for crm_report", "fast", ''),
-        ("crm_scrub", "enable password scrubbing for crm_report", "", True),
+        PluginOpt('crm_from', default='', val_type=str,
+                  desc='specfiy the start time for crm_report'),
+        PluginOpt('crm_scrub', default=True,
+                  desc='enable crm_report password scrubbing')
     ]
 
     envfile = ""

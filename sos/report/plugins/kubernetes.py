@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
 from fnmatch import translate
 import re
 
@@ -22,13 +22,14 @@ class Kubernetes(Plugin):
     profiles = ('container',)
 
     option_list = [
-        ("all", "also collect all namespaces output separately",
-            'slow', False),
-        ("describe", "capture descriptions of all kube resources",
-            'fast', False),
-        ("podlogs", "capture logs for pods", 'slow', False),
-        ("podlogs-filter", "only capture logs for pods matching this string",
-            'fast', '')
+        PluginOpt('all', default=False,
+                  desc='collect all namespace output separately'),
+        PluginOpt('describe', default=False,
+                  desc='collect describe output of all resources'),
+        PluginOpt('podlogs', default=False,
+                  desc='capture stdout/stderr logs from pods'),
+        PluginOpt('podlogs-filter', default='', val_type=str,
+                  desc='only collect logs from pods matching this pattern')
     ]
 
     kube_cmd = "kubectl"

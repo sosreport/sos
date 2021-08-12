@@ -18,8 +18,6 @@ class OpenStackTrove(Plugin):
 
     plugin_name = "openstack_trove"
     profiles = ('openstack', 'openstack_controller')
-    option_list = []
-
     var_puppet_gen = "/var/lib/config-data/puppet-generated/trove"
 
     def setup(self):

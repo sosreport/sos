@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from sos.utilities import is_executable
 
 
@@ -19,8 +19,10 @@ class Navicli(Plugin, RedHatPlugin):
 
     plugin_name = 'navicli'
     profiles = ('storage', 'hardware')
-    option_list = [("ipaddrs", "list of space separated CLARiiON IP addresses",
-                    '', "")]
+    option_list = [
+        PluginOpt('ipaddrs', default='', val_type=str,
+                  desc='space-delimited list of CLARiiON IP addresses')
+    ]
 
     def check_enabled(self):
         return is_executable("navicli")

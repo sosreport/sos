@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class DNFPlugin(Plugin, RedHatPlugin):
@@ -21,8 +21,10 @@ class DNFPlugin(Plugin, RedHatPlugin):
     packages = ('dnf',)
 
     option_list = [
-        ("history", "captures transaction history", "fast", False),
-        ("history-info", "detailed transaction history", "slow", False),
+        PluginOpt('history', default=False,
+                  desc='collect transaction history'),
+        PluginOpt('history-info', default=False,
+                  desc='collect detailed transaction history')
     ]
 
     def get_modules_info(self, modules):

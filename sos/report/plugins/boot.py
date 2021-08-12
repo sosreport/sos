@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 from glob import glob
 
 
@@ -19,7 +19,8 @@ class Boot(Plugin, IndependentPlugin):
     packages = ('grub', 'grub2', 'grub-common', 'grub2-common', 'zipl')
 
     option_list = [
-        ("all-images", "collect lsinitrd for all images", "slow", False)
+        PluginOpt("all-images", default=False,
+                  desc="collect lsinitrd for all images")
     ]
 
     def setup(self):

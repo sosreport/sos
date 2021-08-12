@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
+from sos.report.plugins import (Plugin, IndependentPlugin, SoSPredicate,
+                                PluginOpt)
 
 
 class Lvm2(Plugin, IndependentPlugin):
@@ -16,10 +17,12 @@ class Lvm2(Plugin, IndependentPlugin):
     plugin_name = 'lvm2'
     profiles = ('storage',)
 
-    option_list = [("lvmdump", 'collect an lvmdump tarball', 'fast', False),
-                   ("lvmdump-am", 'attempt to collect an lvmdump with '
-                    'advanced options and raw metadata collection', 'slow',
-                    False)]
+    option_list = [
+        PluginOpt('lvmdump', default=False, desc='collect an lvmdump tarball'),
+        PluginOpt('lvmdump-am', default=False,
+                  desc=('attempt to collect lvmdump with advanced options and '
+                        'raw metadata'))
+    ]
 
     def do_lvmdump(self, metadata=False):
         """Collects an lvmdump in standard format with optional metadata

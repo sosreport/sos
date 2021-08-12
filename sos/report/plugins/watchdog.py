@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 from glob import glob
 import os
@@ -22,7 +22,8 @@ class Watchdog(Plugin, RedHatPlugin):
     packages = ('watchdog',)
 
     option_list = [
-        ('conf_file', 'watchdog config file', 'fast', '/etc/watchdog.conf'),
+        PluginOpt('conf_file', default='/etc/watchdog.conf',
+                  desc='watchdog config file')
     ]
 
     def get_log_dir(self, conf_file):

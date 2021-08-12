@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from socket import gethostname
 
 
@@ -20,12 +20,16 @@ class QpidDispatch(Plugin, RedHatPlugin):
     profiles = ('services',)
 
     packages = ('qdrouterd', 'qpid-dispatch-tools', 'qpid-dispatch-router')
-    option_list = [("port", "listening port to connect to", '', ""),
-                   ("ssl-certificate",
-                    "Path to file containing client SSL certificate", '', ""),
-                   ("ssl-key",
-                    "Path to file containing client SSL private key", '', ""),
-                   ("ssl-trustfile", "trusted CA database file", '', "")]
+    option_list = [
+        PluginOpt('port', default='', val_type=int,
+                  desc='listening port to connect to'),
+        PluginOpt('ssl-certificate', default='', val_type=str,
+                  desc='Path to file containing client SSL certificate'),
+        PluginOpt('ssl-key', default='', val_type=str,
+                  desc='Path to file containing client SSL private key'),
+        PluginOpt('ssl-trustfile', default='', val_type=str,
+                  desc='trusted CA database file')
+    ]
 
     def setup(self):
         """ performs data collection for qpid dispatch router """

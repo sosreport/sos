@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, UbuntuPlugin
+from sos.report.plugins import Plugin, UbuntuPlugin, PluginOpt
 
 
 class Maas(Plugin, UbuntuPlugin):
@@ -33,11 +33,12 @@ class Maas(Plugin, UbuntuPlugin):
     )
 
     option_list = [
-        ('profile-name',
-         'The name with which you will later refer to this remote', '', ''),
-        ('url', 'The URL of the remote API', '', ''),
-        ('credentials',
-         'The credentials, also known as the API key', '', '')
+        PluginOpt('profile-name', default='', val_type=str,
+                  desc='Name of the remote API'),
+        PluginOpt('url', default='', val_type=str,
+                  desc='URL of the remote API'),
+        PluginOpt('credentials', default='', val_type=str,
+                  desc='Credentials, or the API key')
     ]
 
     def _has_login_options(self):

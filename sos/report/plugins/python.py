@@ -8,7 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 from sos.policies.distros.redhat import RHELPolicy
 import os
 import json
@@ -43,8 +44,9 @@ class RedHatPython(Python, RedHatPlugin):
 
     packages = ('python', 'python36', 'python2', 'python3', 'platform-python')
     option_list = [
-        ('hashes', "gather hashes for all python files", 'slow',
-         False)]
+        PluginOpt('hashes', default=False,
+                  desc='collect hashes for all python files')
+    ]
 
     def setup(self):
         self.add_cmd_output(['python2 -V', 'python3 -V'])

@@ -8,7 +8,7 @@
 
 import re
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Process(Plugin, IndependentPlugin):
@@ -19,13 +19,14 @@ class Process(Plugin, IndependentPlugin):
     profiles = ('system',)
 
     option_list = [
-        ("lsof", "gathers information on all open files", "slow", True),
-        ("lsof-threads", "gathers threads' open file info if supported",
-         "slow", False),
-        ("smaps", "gathers all /proc/*/smaps files", "", False),
-        ("samples", "specify the number of samples that iotop will capture, "
-            "with an interval of 0.5 seconds between samples", "", "20"),
-        ("numprocs", "number of processes to collect /proc data of", '', 2048)
+        PluginOpt('lsof', default=True, desc='collect info on all open files'),
+        PluginOpt('lsof-threads', default=False,
+                  desc='collect threads\' open file info if supported'),
+        PluginOpt('smaps', default=False, desc='collect /proc/*/smaps files'),
+        PluginOpt('samples', default=20, val_type=int,
+                  desc='number of iotop samples to collect'),
+        PluginOpt('numprocs', default=2048, val_type=int,
+                  desc='number of process to collect /proc data of')
     ]
 
     def setup(self):

@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, PluginOpt
 import os
 from socket import gethostname
 
@@ -25,8 +25,10 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
     # size-limit of PCP logger and manager data collected by default (MB)
     option_list = [
-        ("pmmgrlogs", "size-limit in MB of pmmgr logs", "", 100),
-        ("pmloggerfiles", "number of newest pmlogger files to grab", "", 12),
+        PluginOpt('pmmgrlogs', default=100,
+                  desc='size limit in MB of pmmgr logs'),
+        PluginOpt('pmloggerfiles', default=12,
+                  desc='number of pmlogger files to collect')
     ]
 
     pcp_sysconf_dir = None

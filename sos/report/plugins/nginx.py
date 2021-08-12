@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Nginx(Plugin, IndependentPlugin):
@@ -17,7 +17,7 @@ class Nginx(Plugin, IndependentPlugin):
     packages = ('nginx',)
 
     option_list = [
-        ("log", "gathers all nginx logs", "slow", False)
+        PluginOpt('log', default=False, desc='collect all nginx logs')
     ]
 
     def setup(self):
