@@ -8,6 +8,7 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 from socket import gethostname
+import re
 
 
 class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -15,7 +16,8 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = 'CEPH distributed storage'
 
     plugin_name = 'ceph'
-    profiles = ('storage', 'virt')
+    profiles = ('storage', 'virt', 'container')
+    containers = ('ceph-(mon|rgw|osd)*',)
     ceph_hostname = gethostname()
 
     packages = (
@@ -35,6 +37,12 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         'ceph-mgr@%s' % ceph_hostname,
         'ceph-radosgw@*',
         'ceph-osd@*'
+    )
+
+    # This check will enable the plugin regardless of being
+    # containerized or not
+    files = (
+        '/etc/ceph/ceph.conf',
     )
 
     def setup(self):
@@ -117,9 +125,9 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "time-sync-status",
         ]
 
-        self.add_cmd_output([
-            "ceph %s" % s for s in ceph_cmds
-        ])
+        ceph_osd_cmds = [
+            "ceph-volume lvm list",
+        ]
 
         self.add_cmd_output([
             "ceph %s --format json-pretty" % s for s in ceph_cmds
@@ -137,5 +145,30 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "/var/lib/ceph/tmp/*mnt*",
             "/etc/ceph/*bindpass*"
         ])
+
+        # If containerized, run commands in containers
+        containers_list = self.get_all_containers_by_regex("ceph-*")
+        if containers_list:
+            # Avoid retrieving multiple times the same data
+            got_ceph_cmds = False
+            for container in containers_list:
+                if re.match("ceph-(mon|rgw|osd)", container[1]) and \
+                        not got_ceph_cmds:
+                    self.add_cmd_output([
+                        self.fmt_container_cmd(container[1], "ceph %s" % s)
+                        for s in ceph_cmds
+                    ])
+                    got_ceph_cmds = True
+                if re.match("ceph-osd", container[1]):
+                    self.add_cmd_output([
+                        self.fmt_container_cmd(container[1], "%s" % s)
+                        for s in ceph_osd_cmds
+                    ])
+                    break
+        # Not containerized
+        else:
+            self.add_cmd_output([
+                "ceph %s" % s for s in ceph_cmds
+            ])
 
 # vim: set et ts=4 sw=4 :
