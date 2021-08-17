@@ -41,6 +41,8 @@ class sapnw(Plugin, RedHatPlugin):
         for inst_line in inst_out['output'].splitlines():
             if "DAA" not in inst_line:
                 fields = inst_line.strip().split()
+                if len(fields) < 8:
+                    continue
                 sid = fields[3]
                 inst = fields[5]
                 vhost = fields[7]
