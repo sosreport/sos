@@ -42,6 +42,8 @@ class sapnw(Plugin, RedHatPlugin):
             if ("DAA" not in inst_line and not
                     inst_line.startswith("No instances found")):
                 fields = inst_line.strip().split()
+                if len(fields) < 8:
+                    continue
                 sid = fields[3]
                 inst = fields[5]
                 vhost = fields[7]
