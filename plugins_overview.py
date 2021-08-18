@@ -73,7 +73,7 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
 #    if plugname != 'bcache':
 #        continue
     plugs_data[plugname] = {
-            'sourcecode': 'https://github.com/sosreport/sos/blob/master/sos/report/plugins/%s.py' % plugname,
+            'sourcecode': 'https://github.com/sosreport/sos/blob/main/sos/report/plugins/%s.py' % plugname,
             'distros': [],
             'profiles': [],
             'packages': [],

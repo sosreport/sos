@@ -72,7 +72,6 @@ class SoSCollector(SoSComponent):
         'list_options': False,
         'log_size': 0,
         'map_file': '/etc/sos/cleaner/default_mapping',
-        'master': '',
         'primary': '',
         'namespaces': None,
         'nodes': [],
@@ -118,7 +117,7 @@ class SoSCollector(SoSComponent):
         os.umask(0o77)
         self.client_list = []
         self.node_list = []
-        self.master = False
+        self.primary = False
         self.retrieved = 0
         self.cluster = None
         self.cluster_type = None
@@ -350,8 +349,6 @@ class SoSCollector(SoSComponent):
                                  help='List options available for profiles')
         collect_grp.add_argument('--label',
                                  help='Assign a label to the archives')
-        collect_grp.add_argument('--master',
-                                 help='DEPRECATED: Specify a master node')
         collect_grp.add_argument('--primary', '--manager', '--controller',
                                  dest='primary', default='',
                                  help='Specify a primary node for cluster '
@@ -485,7 +482,7 @@ class SoSCollector(SoSComponent):
             'cmdlineopts': self.opts,
             'need_sudo': True if self.opts.ssh_user != 'root' else False,
             'tmpdir': self.tmpdir,
-            'hostlen': len(self.opts.master) or len(self.hostname),
+            'hostlen': len(self.opts.primary) or len(self.hostname),
             'policy': self.policy
         }
 
@@ -656,7 +653,7 @@ class SoSCollector(SoSComponent):
         on the commandline to point to one existing anywhere on the system
 
         Host groups define a list of nodes and/or regexes and optionally the
-        master and cluster-type options.
+        primary and cluster-type options.
         """
         grp = self.opts.group
         paths = [
@@ -677,7 +674,7 @@ class SoSCollector(SoSComponent):
 
         with open(fname, 'r') as hf:
             _group = json.load(hf)
-            for key in ['master', 'primary', 'cluster_type']:
+            for key in ['primary', 'cluster_type']:
                 if _group[key]:
                     self.log_debug("Setting option '%s' to '%s' per host group"
                                    % (key, _group[key]))
@@ -691,12 +688,12 @@ class SoSCollector(SoSComponent):
         Saves the results of this run of sos-collector to a host group file
         on the system so it can be used later on.
 
-        The host group will save the options master, cluster_type, and nodes
+        The host group will save the options primary, cluster_type, and nodes
         as determined by sos-collector prior to execution of sosreports.
         """
         cfg = {
             'name': self.opts.save_group,
-            'primary': self.opts.master,
+            'primary': self.opts.primary,
             'cluster_type': self.cluster.cluster_type[0],
             'nodes': [n for n in self.node_list]
         }
@@ -722,7 +719,7 @@ class SoSCollector(SoSComponent):
             self.ui_log.info(self._fmt_msg(msg))
 
         if ((self.opts.password or (self.opts.password_per_node and
-                                    self.opts.master))
+                                    self.opts.primary))
                 and not self.opts.batch):
             self.log_debug('password specified, not using SSH keys')
             msg = ('Provide the SSH password for user %s: '
@@ -769,8 +766,8 @@ class SoSCollector(SoSComponent):
 
         self.policy.pre_work()
 
-        if self.opts.master:
-            self.connect_to_master()
+        if self.opts.primary:
+            self.connect_to_primary()
             self.opts.no_local = True
         else:
             try:
@@ -797,9 +794,9 @@ class SoSCollector(SoSComponent):
                         self.ui_log.info(skip_local_msg)
                         can_run_local = False
                         self.opts.no_local = True
-                self.master = SosNode('localhost', self.commons,
-                                      local_sudo=local_sudo,
-                                      load_facts=can_run_local)
+                self.primary = SosNode('localhost', self.commons,
+                                       local_sudo=local_sudo,
+                                       load_facts=can_run_local)
             except Exception as err:
                 self.log_debug("Unable to determine local installation: %s" %
                                err)
@@ -807,11 +804,11 @@ class SoSCollector(SoSComponent):
                           '--no-local option if localhost should not be '
                           'included.\nAborting...\n', 1)
 
-        self.collect_md.add_field('primary', self.master.address)
+        self.collect_md.add_field('primary', self.primary.address)
         self.collect_md.add_section('nodes')
-        self.collect_md.nodes.add_section(self.master.address)
-        self.master.set_node_manifest(getattr(self.collect_md.nodes,
-                                              self.master.address))
+        self.collect_md.nodes.add_section(self.primary.address)
+        self.primary.set_node_manifest(getattr(self.collect_md.nodes,
+                                               self.primary.address))
 
         if self.opts.cluster_type:
             if self.opts.cluster_type == 'none':
@@ -819,7 +816,7 @@ class SoSCollector(SoSComponent):
             else:
                 self.cluster = self.clusters[self.opts.cluster_type]
                 self.cluster_type = self.opts.cluster_type
-            self.cluster.master = self.master
+            self.cluster.primary = self.primary
 
         else:
             self.determine_cluster()
@@ -835,7 +832,7 @@ class SoSCollector(SoSComponent):
             self.cluster_type = 'none'
         self.collect_md.add_field('cluster_type', self.cluster_type)
         if self.cluster:
-            self.master.cluster = self.cluster
+            self.primary.cluster = self.cluster
             self.cluster.setup()
             if self.cluster.cluster_ssh_key:
                 if not self.opts.ssh_key:
@@ -858,15 +855,15 @@ class SoSCollector(SoSComponent):
         """
         self.ui_log.info('')
 
-        if not self.node_list and not self.master.connected:
+        if not self.node_list and not self.primary.connected:
             self.exit('No nodes were detected, or nodes do not have sos '
                       'installed.\nAborting...')
 
         self.ui_log.info('The following is a list of nodes to collect from:')
-        if self.master.connected and self.master.hostname is not None:
-            if not (self.master.local and self.opts.no_local):
+        if self.primary.connected and self.primary.hostname is not None:
+            if not (self.primary.local and self.opts.no_local):
                 self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
-                                             self.master.hostname))
+                                             self.primary.hostname))
 
         for node in sorted(self.node_list):
             self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
@@ -919,17 +916,17 @@ class SoSCollector(SoSComponent):
         self.commons['sos_cmd'] = self.sos_cmd
         self.collect_md.add_field('initial_sos_cmd', self.sos_cmd)
 
-    def connect_to_master(self):
-        """If run with --master, we will run cluster checks again that
+    def connect_to_primary(self):
+        """If run with --primary, we will run cluster checks again that
         instead of the localhost.
         """
         try:
-            self.master = SosNode(self.opts.master, self.commons)
+            self.primary = SosNode(self.opts.primary, self.commons)
             self.ui_log.info('Connected to %s, determining cluster type...'
-                             % self.opts.master)
+                             % self.opts.primary)
         except Exception as e:
-            self.log_debug('Failed to connect to master: %s' % e)
-            self.exit('Could not connect to master node. Aborting...', 1)
+            self.log_debug('Failed to connect to primary node: %s' % e)
+            self.exit('Could not connect to primary node. Aborting...', 1)
 
     def determine_cluster(self):
         """This sets the cluster type and loads that cluster's cluster.
@@ -943,7 +940,7 @@ class SoSCollector(SoSComponent):
         checks = list(self.clusters.values())
         for cluster in self.clusters.values():
             checks.remove(cluster)
-            cluster.master = self.master
+            cluster.primary = self.primary
             if cluster.check_enabled():
                 cname = cluster.__class__.__name__
                 self.log_debug("Installation matches %s, checking for layered "
@@ -954,7 +951,7 @@ class SoSCollector(SoSComponent):
                         self.log_debug("Layered profile %s found. "
                                        "Checking installation"
                                        % rname)
-                        remaining.master = self.master
+                        remaining.primary = self.primary
                         if remaining.check_enabled():
                             self.log_debug("Installation matches both layered "
                                            "profile %s and base profile %s, "
@@ -978,18 +975,18 @@ class SoSCollector(SoSComponent):
         return []
 
     def reduce_node_list(self):
-        """Reduce duplicate entries of the localhost and/or master node
+        """Reduce duplicate entries of the localhost and/or primary node
         if applicable"""
         if (self.hostname in self.node_list and self.opts.no_local):
             self.node_list.remove(self.hostname)
         for i in self.ip_addrs:
             if i in self.node_list:
                 self.node_list.remove(i)
-        # remove the master node from the list, since we already have
+        # remove the primary node from the list, since we already have
         # an open session to it.
-        if self.master:
+        if self.primary:
             for n in self.node_list:
-                if n == self.master.hostname or n == self.opts.master:
+                if n == self.primary.hostname or n == self.opts.primary:
                     self.node_list.remove(n)
         self.node_list = list(set(n for n in self.node_list if n))
         self.log_debug('Node list reduced to %s' % self.node_list)
@@ -1010,9 +1007,9 @@ class SoSCollector(SoSComponent):
 
     def get_nodes(self):
         """ Sets the list of nodes to collect sosreports from """
-        if not self.master and not self.cluster:
+        if not self.primary and not self.cluster:
             msg = ('Could not determine a cluster type and no list of '
-                   'nodes or master node was provided.\nAborting...'
+                   'nodes or primary node was provided.\nAborting...'
                    )
             self.exit(msg)
 
@@ -1041,7 +1038,7 @@ class SoSCollector(SoSComponent):
                     self.log_debug("Force adding %s to node list" % node)
                     self.node_list.append(node)
 
-        if not self.master:
+        if not self.primary:
             host = self.hostname.split('.')[0]
             # trust the local hostname before the node report from cluster
             for node in self.node_list:
@@ -1052,7 +1049,7 @@ class SoSCollector(SoSComponent):
         try:
             self.commons['hostlen'] = len(max(self.node_list, key=len))
         except (TypeError, ValueError):
-            self.commons['hostlen'] = len(self.opts.master)
+            self.commons['hostlen'] = len(self.opts.primary)
 
     def _connect_to_node(self, node):
         """Try to connect to the node, and if we can add to the client list to
@@ -1099,12 +1096,6 @@ this utility or remote systems that it connects to.
         intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
         self.ui_log.info(intro_msg)
 
-        if self.opts.master:
-            self.ui_log.info(
-                "NOTE: Use of '--master' is DEPRECATED and will be removed in "
-                "a future release.\nUse '--primary', '--manager', or "
-                "'--controller' instead.")
-
         prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
         if not self.opts.batch:
             try:
@@ -1126,12 +1117,6 @@ this utility or remote systems that it connects to.
 
         self.intro()
 
-        if self.opts.primary:
-            # for now, use the new option name and simply override the existing
-            # value that the rest of the component references. Full conversion
-            # of master -> primary is a 4.3 item.
-            self.opts.master = self.opts.primary
-
         self.configure_sos_cmd()
         self.prep()
         self.display_nodes()
@@ -1147,11 +1132,11 @@ this utility or remote systems that it connects to.
     def collect(self):
         """ For each node, start a collection thread and then tar all
         collected sosreports """
-        if self.master.connected:
-            self.client_list.append(self.master)
+        if self.primary.connected:
+            self.client_list.append(self.primary)
 
         self.ui_log.info("\nConnecting to nodes...")
-        filters = [self.master.address, self.master.hostname]
+        filters = [self.primary.address, self.primary.hostname]
         nodes = [(n, None) for n in self.node_list if n not in filters]
 
         if self.opts.password_per_node:
@@ -1206,10 +1191,10 @@ this utility or remote systems that it connects to.
             os._exit(1)
 
         if hasattr(self.cluster, 'run_extra_cmd'):
-            self.ui_log.info('Collecting additional data from master node...')
+            self.ui_log.info('Collecting additional data from primary node...')
             files = self.cluster._run_extra_cmd()
             if files:
-                self.master.collect_extra_cmd(files)
+                self.primary.collect_extra_cmd(files)
         msg = '\nSuccessfully captured %s of %s sosreports'
         self.log_info(msg % (self.retrieved, self.report_num))
         self.close_all_connections()

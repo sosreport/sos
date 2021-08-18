@@ -35,6 +35,6 @@ class satellite(Cluster):
         return []
 
     def set_node_label(self, node):
-        if node.address == self.master.address:
+        if node.address == self.primary.address:
             return 'satellite'
         return 'capsule'

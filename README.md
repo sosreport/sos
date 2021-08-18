@@ -1,4 +1,4 @@
-[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=master)](https://cirrus-ci.com/github/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=master)](https://sos.readthedocs.io/en/master/?badge=master) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/sosreport/sos.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sosreport/sos/context:python)
+[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=main)](https://cirrus-ci.com/github/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=main)](https://sos.readthedocs.io/en/main/?badge=main) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/sosreport/sos.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sosreport/sos/context:python)
 
 # SoS
 
@@ -12,7 +12,7 @@ This project is hosted at:
 For the latest version, to contribute, and for more information, please visit
 the project pages or join the mailing list.
 
-To clone the current master (development) branch run:
+To clone the current main (development) branch run:
 
 ```
 git clone git://github.com/sosreport/sos.git
@@ -42,9 +42,9 @@ discussion. Patch submissions and reviews are welcome too.
 ## Patches and pull requests
 
 Patches can be submitted via the mailing list or as GitHub pull requests. If
-using GitHub please make sure your branch applies to the current master as a
+using GitHub please make sure your branch applies to the current main as a
 'fast forward' merge (i.e. without creating a merge commit). Use the `git
-rebase` command to update your branch to the current master if necessary.
+rebase` command to update your branch to the current main if necessary.
 
 Please refer to the [contributor guidelines][0] for guidance on formatting
 patches and commit messages.

@@ -58,7 +58,7 @@ class Cluster():
     cluster_name = None
 
     def __init__(self, commons):
-        self.master = None
+        self.primary = None
         self.cluster_ssh_key = None
         self.tmpdir = commons['tmpdir']
         self.opts = commons['cmdlineopts']
@@ -135,7 +135,7 @@ class Cluster():
         key rather than prompting the user for one or a password.
 
         Note this will only function if collector is being run locally on the
-        master node.
+        primary node.
         """
         self.cluster_ssh_key = key
 
@@ -149,31 +149,26 @@ class Cluster():
         """
         pass
 
-    def set_master_options(self, node):
+    def set_primary_options(self, node):
         """If there is a need to set specific options in the sos command being
-        run on the cluster's master nodes, override this method in the cluster
+        run on the cluster's primary nodes, override this method in the cluster
         profile and do that here.
 
-        :param node:       The master node
+        :param node:       The primary node
         :type node:        ``SoSNode``
         """
         pass
 
-    def check_node_is_master(self, node):
-        """In the event there are multiple masters, or if the collect command
+    def check_node_is_primary(self, node):
+        """In the event there are multiple primaries, or if the collect command
         is being run from a system that is technically capable of enumerating
-        nodes but the cluster profiles needs to specify master-specific options
-        for other nodes, override this method in the cluster profile
+        nodes but the cluster profiles needs to specify primary-specific
+        options for other nodes, override this method in the cluster profile
 
         :param node:        The node for the cluster to check
         :type node:         ``SoSNode``
         """
-        return node.address == self.master.address
-
-    def exec_master_cmd(self, cmd, need_root=False):
-        self.log_debug("Use of exec_master_cmd() is deprecated and will be "
-                       "removed. Use exec_primary_cmd() instead")
-        return self.exec_primary_cmd(cmd, need_root)
+        return node.address == self.primary.address
 
     def exec_primary_cmd(self, cmd, need_root=False):
         """Used to retrieve command output from a (primary) node in a cluster
@@ -187,7 +182,7 @@ class Cluster():
         :returns: The output and status of `cmd`
         :rtype: ``dict``
         """
-        res = self.master.run_command(cmd, get_pty=True, need_root=need_root)
+        res = self.primary.run_command(cmd, get_pty=True, need_root=need_root)
         if res['stdout']:
             res['stdout'] = res['stdout'].replace('Password:', '')
         return res
@@ -214,7 +209,7 @@ class Cluster():
         :rtype: ``bool``
         """
         for pkg in self.packages:
-            if self.master.is_installed(pkg):
+            if self.primary.is_installed(pkg):
                 return True
         return False
 
@@ -255,8 +250,8 @@ class Cluster():
     def set_node_label(self, node):
         """This may be overridden by clusters profiles subclassing this class
 
-        If there is a distinction between masters and nodes, or types of nodes,
-        then this can be used to label the sosreport archive differently.
+        If there is a distinction between primaries and nodes, or types of
+        nodes, then this can be used to label the sosreport archive differently
         """
         return ''
 

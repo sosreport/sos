@@ -53,11 +53,11 @@ class ocp(Cluster):
         if self.token:
             self._attempt_oc_login()
         _who = self.fmt_oc_cmd('whoami')
-        return self.exec_master_cmd(_who)['status'] == 0
+        return self.exec_primary_cmd(_who)['status'] == 0
 
     def _build_dict(self, nodelist):
         """From the output of get_nodes(), construct an easier-to-reference
-        dict of nodes that will be used in determining labels, master status,
+        dict of nodes that will be used in determining labels, primary status,
         etc...
 
         :param nodelist:        The split output of `oc get nodes`
@@ -90,7 +90,7 @@ class ocp(Cluster):
         if self.get_option('label'):
             labels = ','.join(self.get_option('label').split(':'))
             cmd += " -l %s" % quote(labels)
-        res = self.exec_master_cmd(self.fmt_oc_cmd(cmd))
+        res = self.exec_primary_cmd(self.fmt_oc_cmd(cmd))
         if res['status'] == 0:
             roles = [r for r in self.get_option('role').split(':')]
             self.node_dict = self._build_dict(res['stdout'].splitlines())
@@ -104,7 +104,7 @@ class ocp(Cluster):
         else:
             msg = "'oc' command failed"
             if 'Missing or incomplete' in res['stdout']:
-                msg = ("'oc' failed due to missing kubeconfig on master node."
+                msg = ("'oc' failed due to missing kubeconfig on primary node."
                        " Specify one via '-c ocp.kubeconfig=<path>'")
             raise Exception(msg)
         return nodes
@@ -117,12 +117,12 @@ class ocp(Cluster):
                 return label
         return ''
 
-    def check_node_is_master(self, sosnode):
+    def check_node_is_primary(self, sosnode):
         if sosnode.address not in self.node_dict:
             return False
         return 'master' in self.node_dict[sosnode.address]['roles']
 
-    def set_master_options(self, node):
+    def set_primary_options(self, node):
         node.enable_plugins.append('openshift')
         if self.api_collect_enabled:
             # a primary has already been enabled for API collection, disable

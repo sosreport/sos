@@ -13,7 +13,7 @@ https://github.com/sosreport/sos
 
 For the latest version, to contribute, and for more information, please visit the project pages or join the mailing list.
 
-To clone the current master (development) branch run:
+To clone the current main (development) branch run:
 
 .. code::
 
@@ -32,7 +32,7 @@ Mailing list
 Patches and pull requests
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Patches can be submitted via the mailing list or as GitHub pull requests. If using GitHub please make sure your branch applies to the current master as a 'fast forward' merge (i.e. without creating a merge commit). Use the git rebase command to update your branch to the current master if necessary.
+Patches can be submitted via the mailing list or as GitHub pull requests. If using GitHub please make sure your branch applies to the current main branch as a 'fast forward' merge (i.e. without creating a merge commit). Use the git rebase command to update your branch to the current main branch if necessary.
 
 Documentation
 =============
