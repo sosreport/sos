@@ -66,4 +66,14 @@ class Block(Plugin, IndependentPlugin):
                     dev = line.split()[0]
                     self.add_cmd_output('cryptsetup luksDump /dev/%s' % dev)
 
+        # if udisks is installed, capture configuration,
+        # status, and information about all objects
+        self.add_copy_spec([
+            "/etc/udisks2/",
+        ])
+        self.add_cmd_output([
+            "udisksctl status",
+            "udisksctl dump",
+        ])
+
 # vim: set et ts=4 sw=4 :
