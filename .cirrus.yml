@@ -31,7 +31,7 @@ env:
 # Default task timeout
 timeout_in: 30m
 
-# enable auto cancelling concurrent builds on master when multiple PRs are
+# enable auto cancelling concurrent builds on main when multiple PRs are
 # merged at once
 auto_cancellation: true
 

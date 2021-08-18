@@ -25,7 +25,7 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-nodes NODES]
     [\-\-no\-pkg\-check]
     [\-\-no\-local]
-    [\-\-master MASTER]
+    [\-\-primary PRIMARY]
     [\-\-image IMAGE]
     [\-\-force-pull-image]
     [\-\-registry-user USER]
@@ -54,7 +54,7 @@ collect is an sos subcommand to collect sosreports from multiple nodes and packa
 them in a single useful tar archive. 
 
 sos collect can be run either on a workstation that has SSH key authentication setup
-for the nodes in a given cluster, or from a "master" node in a cluster that has SSH
+for the nodes in a given cluster, or from a "primary" node in a cluster that has SSH
 keys configured for the other nodes.
 
 Some sosreport options are supported by sos-collect and are passed directly to 
@@ -99,7 +99,7 @@ Sosreport option. Specifies a case number identifier.
 \fB\-\-cluster\-type\fR CLUSTER_TYPE
 When run by itself, sos collect will attempt to identify the type of cluster at play.
 This is done by checking package or configuration information against the localhost, or
-the master node if  \fB"--master"\fR is supplied.
+the primary node if  \fB"--primary"\fR is supplied.
 
 Setting \fB--cluster-type\fR skips this step and forcibly sets a particular profile.
 
@@ -152,10 +152,10 @@ rather than key-pair encryption.
 \fB\-\-group\fR GROUP
 Specify an existing host group definition to use.
 
-Host groups are pre-defined settings for the cluster-type, master, and nodes options
+Host groups are pre-defined settings for the cluster-type, primary node, and nodes options
 saved in JSON-formatted files under /var/lib/sos collect/<GROUP>.
 
-If cluster_type and/or master are set in the group, sos collect behaves as if
+If cluster_type and/or primary are set in the group, sos collect behaves as if
 these values were specified on the command-line.
 
 If nodes is defined, sos collect \fBextends\fR the \fB\-\-nodes\fR option, if set,
@@ -171,7 +171,7 @@ to none.
 Save the results of this run of sos collect to a host group definition.
 
 sos-colllector will write a JSON-formatted file with name GROUP to /var/lib/sos collect/
-with the settings for cluster-type, master, and the node list as discovered by cluster enumeration.
+with the settings for cluster-type, primary, and the node list as discovered by cluster enumeration.
 Note that this means regexes are not directly saved to host groups, but the results of matching against
 those regexes are.
 .TP
@@ -234,20 +234,20 @@ names/addresses and regex strings may be provided at the same time.
 Do not perform package checks. Most cluster profiles check against installed packages to determine
 if the cluster profile should be applied or not.
 
-Use this with \fB\-\-cluster-type\fR if there are rpm or apt issues on the master/local node.
+Use this with \fB\-\-cluster-type\fR if there are rpm or apt issues on the primary/local node.
 .TP
 \fB\-\-no\-local\fR
 Do not collect a sosreport from the local system. 
 
-If \fB--master\fR is not supplied, it is assumed that the host running sosreport is part of
+If \fB--primary\fR is not supplied, it is assumed that the host running sosreport is part of
 the cluster that is to be collected. Use this option to skip collection of a local sosreport.
 
-This option is NOT needed if \fB--master\fR is provided.
+This option is NOT needed if \fB--primary\fR is provided.
 .TP
-\fB\-\-master\fR MASTER
-Specify a master node for the cluster.
+\fB\-\-primary\fR PRIMARY
+Specify a primary node IP address or hostname for the cluster.
 
-If provided, then sos collect will check the master node, not localhost, for determining
+If provided, then sos collect will check the primary node, not localhost, for determining
 the type of cluster in use.
 .TP
 \fB\-\-image IMAGE\fR

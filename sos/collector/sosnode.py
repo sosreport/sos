@@ -85,7 +85,7 @@ class SosNode():
             self.need_sudo = os.getuid() != 0
         # load the host policy now, even if we don't want to load further
         # host information. This is necessary if we're running locally on the
-        # cluster master but do not want a local report as we still need to do
+        # cluster primary but do not want a local report as we still need to do
         # package checks in that instance
         self.host = self.determine_host_policy()
         self.get_hostname()
@@ -314,8 +314,8 @@ class SosNode():
         if self.sos_info['version']:
             self.log_info('sos version is %s' % self.sos_info['version'])
         else:
-            if not self.address == self.opts.master:
-                # in the case where the 'master' enumerates nodes but is not
+            if not self.address == self.opts.primary:
+                # in the case where the 'primary' enumerates nodes but is not
                 # intended for collection (bastions), don't worry about sos not
                 # being present
                 self.log_error('sos is not installed on this node')
@@ -672,10 +672,10 @@ class SosNode():
                                         self.cluster.sos_plugin_options[opt])
                     self.plugopts.append(option)
 
-        # set master-only options
-        if self.cluster.check_node_is_master(self):
+        # set primary-only options
+        if self.cluster.check_node_is_primary(self):
             with self.cluster.lock:
-                self.cluster.set_master_options(self)
+                self.cluster.set_primary_options(self)
         else:
             with self.cluster.lock:
                 self.cluster.set_node_options(self)
@@ -1023,7 +1023,7 @@ class SosNode():
                 else:
                     self.log_error("Unable to retrieve file %s" % filename)
             except Exception as e:
-                msg = 'Error collecting additional data from master: %s' % e
+                msg = 'Error collecting additional data from primary: %s' % e
                 self.log_error(msg)
 
     def make_archive_readable(self, filepath):

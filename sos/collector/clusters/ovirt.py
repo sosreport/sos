@@ -32,7 +32,7 @@ class ovirt(Cluster):
 
     def _run_db_query(self, query):
         '''
-        Wrapper for running DB queries on the master. Any scrubbing of the
+        Wrapper for running DB queries on the manager. Any scrubbing of the
         query should be done _before_ passing the query to this method.
         '''
         cmd = "%s %s" % (self.db_exec, quote(query))
@@ -62,10 +62,10 @@ class ovirt(Cluster):
         This only runs if we're locally on the RHV-M, *and* if no ssh-keys are
         called out on the command line, *and* no --password option is given.
         '''
-        if self.master.local:
+        if self.primary.local:
             if not any([self.opts.ssh_key, self.opts.password,
                         self.opts.password_per_node]):
-                if self.master.file_exists(ENGINE_KEY):
+                if self.primary.file_exists(ENGINE_KEY):
                     self.add_default_ssh_key(ENGINE_KEY)
                     self.log_debug("Found engine SSH key. User command line"
                                    " does not specify a key or password, using"
@@ -144,8 +144,8 @@ class ovirt(Cluster):
         for line in db_sos['stdout'].splitlines():
             if fnmatch.fnmatch(line, '*sosreport-*tar*'):
                 _pg_dump = line.strip()
-                self.master.manifest.add_field('postgresql_dump',
-                                               _pg_dump.split('/')[-1])
+                self.primary.manifest.add_field('postgresql_dump',
+                                                _pg_dump.split('/')[-1])
                 return _pg_dump
         self.log_error('Failed to gather database dump')
         return False
@@ -158,7 +158,7 @@ class rhv(ovirt):
     sos_preset = 'rhv'
 
     def set_node_label(self, node):
-        if node.address == self.master.address:
+        if node.address == self.primary.address:
             return 'manager'
         if node.is_installed('ovirt-node-ng-nodectl'):
             return 'rhvh'
@@ -174,7 +174,7 @@ class rhhi_virt(rhv):
     sos_preset = 'rhv'
 
     def check_enabled(self):
-        return (self.master.is_installed('rhvm') and self._check_for_rhhiv())
+        return (self.primary.is_installed('rhvm') and self._check_for_rhhiv())
 
     def _check_for_rhhiv(self):
         ret = self._run_db_query('SELECT count(server_id) FROM gluster_server')
