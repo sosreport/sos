@@ -1104,11 +1104,6 @@ this utility or remote systems that it connects to.
             except KeyboardInterrupt:
                 self.exit("Exiting on user cancel", 130)
 
-        if not self.opts.case_id and not self.opts.batch:
-            msg = 'Optionally, please enter the case id you are collecting ' \
-                  'reports for: '
-            self.opts.case_id = input(msg)
-
     def execute(self):
         if self.opts.list_options:
             self.list_options()
