@@ -20,8 +20,8 @@ env:
     # These are generated images pushed to GCP from Red Hat
     FEDORA_IMAGE_NAME: "f${FEDORA_VER}-server-sos-testing"
     FEDORA_PRIOR_IMAGE_NAME: "f${FEDORA_PRIOR_VER}-server-sos-testing"
-    FOREMAN_CENTOS_IMAGE_NAME: "foreman-24-centos-8-sos-testing"
-    FOREMAN_DEBIAN_IMAGE_NAME: "foreman-24-debian-sos-testing"
+    FOREMAN_CENTOS_IMAGE_NAME: "foreman-25-centos-8-sos-testing"
+    FOREMAN_DEBIAN_IMAGE_NAME: "foreman-25-debian-10-sos-testing"
 
     # Images exist on GCP already
     CENTOS_IMAGE_NAME: "centos-stream-8-v20210609"
@@ -92,8 +92,6 @@ report_stageone_task:
         image_project: "${PROJECT}"
         image_name: "${VM_IMAGE_NAME}"
         type: e2-medium
-        # minimum disk size is 20
-        disk: 20
     matrix:
         - env:
             PROJECT: ${CENTOS_PROJECT}
@@ -118,7 +116,7 @@ report_stageone_task:
     remove_sos_script: &remove_sos |
         if [ $(command -v apt) ]; then
             apt -y purge sosreport
-            apt update
+            apt update --allow-releaseinfo-change
             apt -y install python3-pip
         fi
         if [ $(command -v dnf) ]; then
@@ -169,11 +167,11 @@ report_foreman_task:
         - env:
             PROJECT: ${SOS_PROJECT}
             VM_IMAGE_NAME: ${FOREMAN_CENTOS_IMAGE_NAME}
-            FOREMAN_VER: "2.4 - CentOS Stream 8"
+            FOREMAN_VER: "2.5 - CentOS Stream 8"
         - env:
             PROJECT: ${SOS_PROJECT}
             VM_IMAGE_NAME: ${FOREMAN_DEBIAN_IMAGE_NAME}
-            FOREMAN_VER: "2.4 - Debian 10"
+            FOREMAN_VER: "2.5 - Debian 10"
     remove_sos_script: *remove_sos
     setup_script: *setup
     main_script: PYTHONPATH=tests/ avocado run -t foreman tests/product_tests/foreman/
