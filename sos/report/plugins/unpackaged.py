@@ -26,7 +26,7 @@ class Unpackaged(Plugin, RedHatPlugin):
             return os.environ['PATH'].split(':')
 
         def all_files_system(path, exclude=None):
-            """Retrun a list of all files present on the system, excluding
+            """Return a list of all files present on the system, excluding
                 any directories listed in `exclude`.
 
             :param path: the starting path
@@ -67,12 +67,15 @@ class Unpackaged(Plugin, RedHatPlugin):
         if not self.test_predicate(cmd=True):
             return
 
+        paths = get_env_path_list()
         all_fsystem = []
-        all_frpm = set(os.path.realpath(x)
-                       for x in self.policy.mangle_package_path(
-                       self.policy.package_manager.all_files()))
+        all_frpm = set(
+            os.path.realpath(x) for x in self.policy.mangle_package_path(
+                self.policy.package_manager.all_files()
+            ) if any([x.startswith(p) for p in paths])
+        )
 
-        for d in get_env_path_list():
+        for d in paths:
             all_fsystem += all_files_system(d)
         not_packaged = [x for x in all_fsystem if x not in all_frpm]
         not_packaged_expanded = format_output(not_packaged)
