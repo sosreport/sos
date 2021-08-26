@@ -131,7 +131,13 @@ class OpenVSwitch(Plugin):
             # Capture OVS offload enabled flows
             "ovs-dpctl dump-flows --name -m type=offloaded",
             # Capture OVS slowdatapth flows
-            "ovs-dpctl dump-flows --name -m type=ovs"
+            "ovs-dpctl dump-flows --name -m type=ovs",
+            # Capture dpcls implementations
+            "ovs-appctl dpif-netdev/subtable-lookup-prio-get",
+            # Capture dpif implementations
+            "ovs-appctl dpif-netdev/dpif-impl-get",
+            # Capture miniflow extract implementations
+            "ovs-appctl dpif-netdev/miniflow-parser-get"
         ])
 
         # Gather systemd services logs
