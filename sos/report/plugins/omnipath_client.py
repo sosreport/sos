@@ -45,7 +45,12 @@ class OmnipathClient(Plugin, RedHatPlugin):
         # rather than storing it somewhere under /var/tmp and copying it via
         # add_copy_spec, add it directly to sos_commands/<plugin> dir by
         # building a path argument using self.get_cmd_output_path().
-        self.add_cmd_output("opacapture %s" % join(self.get_cmd_output_path(),
-                                                   "opacapture.tgz"))
+        # This command calls 'depmod -a', so lets make sure we
+        # specified the 'allow-system-changes' option before running it.
+        if self.get_option('allow_system_changes'):
+            self.add_cmd_output("opacapture %s" %
+                                join(self.get_cmd_output_path(),
+                                     "opacapture.tgz"),
+                                changes=True)
 
 # vim: set et ts=4 sw=4 :
