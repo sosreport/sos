@@ -10,6 +10,7 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 import os
 import stat
+from pathlib import Path
 
 
 class Unpackaged(Plugin, RedHatPlugin):
@@ -41,8 +42,8 @@ class Unpackaged(Plugin, RedHatPlugin):
                 for name in files:
                     path = os.path.join(root, name)
                     try:
-                        while stat.S_ISLNK(os.lstat(path).st_mode):
-                            path = os.path.abspath(os.readlink(path))
+                        if stat.S_ISLNK(os.lstat(path).st_mode):
+                            path = Path(path).resolve()
                     except Exception:
                         continue
                     file_list.append(os.path.realpath(path))
