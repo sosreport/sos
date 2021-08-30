@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
+import os
 
 
 class Processor(Plugin, IndependentPlugin):
@@ -34,7 +35,13 @@ class Processor(Plugin, IndependentPlugin):
         self.add_copy_spec([
             "/proc/cpuinfo",
             "/sys/class/cpuid",
-            "/sys/devices/system/cpu"
+        ])
+        # copy /sys/devices/system/cpu/cpuX with separately applied sizelimit
+        # this is required for systems with tens/hundreds of CPUs where the
+        # cumulative directory size exceeds 25MB or even 100MB.
+        cdirs = self.listdir('/sys/devices/system/cpu')
+        self.add_copy_spec([
+            os.path.join('/sys/devices/system/cpu', cdir) for cdir in cdirs
         ])
 
         self.add_cmd_output([
