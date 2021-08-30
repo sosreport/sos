@@ -925,20 +925,6 @@ class SoSReport(SoSComponent):
         self._exit(1)
 
     def setup(self):
-        # Log command line options
-        msg = "[%s:%s] executing 'sos %s'"
-        self.soslog.info(msg % (__name__, "setup", " ".join(self.cmdline)))
-
-        # Log active preset defaults
-        preset_args = self.preset.opts.to_args()
-        msg = ("[%s:%s] using '%s' preset defaults (%s)" %
-               (__name__, "setup", self.preset.name, " ".join(preset_args)))
-        self.soslog.info(msg)
-
-        # Log effective options after applying preset defaults
-        self.soslog.info("[%s:%s] effective options now: %s" %
-                         (__name__, "setup", " ".join(self.opts.to_args())))
-
         self.ui_log.info(_(" Setting up plugins ..."))
         for plugname, plug in self.loaded_plugins:
             try:
@@ -1386,11 +1372,27 @@ class SoSReport(SoSComponent):
         self.report_md.add_list('disabled_plugins', self.opts.skip_plugins)
         self.report_md.add_section('plugins')
 
+    def _merge_preset_options(self):
+        # Log command line options
+        msg = "[%s:%s] executing 'sos %s'"
+        self.soslog.info(msg % (__name__, "setup", " ".join(self.cmdline)))
+
+        # Log active preset defaults
+        preset_args = self.preset.opts.to_args()
+        msg = ("[%s:%s] using '%s' preset defaults (%s)" %
+               (__name__, "setup", self.preset.name, " ".join(preset_args)))
+        self.soslog.info(msg)
+
+        # Log effective options after applying preset defaults
+        self.soslog.info("[%s:%s] effective options now: %s" %
+                         (__name__, "setup", " ".join(self.opts.to_args())))
+
     def execute(self):
         try:
             self.policy.set_commons(self.get_commons())
             self.load_plugins()
             self._set_all_options()
+            self._merge_preset_options()
             self._set_tunables()
             self._check_for_unknown_plugins()
             self._set_plugin_options()

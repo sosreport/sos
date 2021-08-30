@@ -281,6 +281,8 @@ class SoSOptions():
             null_values = ("False", "None", "[]", '""', "''", "0")
             if not value or value in null_values:
                 return False
+            if name == 'plugopts' and value:
+                return True
             if name in self.arg_defaults:
                 if str(value) == str(self.arg_defaults[name]):
                     return False
