@@ -123,7 +123,7 @@ report_stageone_task:
             dnf -y remove sos
         fi
     setup_script: &setup 'pip3 install avocado-framework'
-    main_script: PYTHONPATH=tests/ avocado run -t stageone tests/{cleaner,collect,report,vendor}_tests
+    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
 
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
@@ -153,7 +153,7 @@ report_stagetwo_task:
             dnf -y install python3-pexpect
         fi
     setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
 
 report_foreman_task:
     skip: "!changesInclude('.cirrus.yml', '**/{__init__,apache,foreman,foreman_tests,candlepin,pulp,pulpcore}.py')"
@@ -174,4 +174,4 @@ report_foreman_task:
             FOREMAN_VER: "2.5 - Debian 10"
     remove_sos_script: *remove_sos
     setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run -t foreman tests/product_tests/foreman/
+    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t foreman tests/product_tests/foreman/
