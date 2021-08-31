@@ -685,7 +685,10 @@ class StageTwoReportTest(BaseSoSReportTest):
 
     files   -   a list containing the files to drop on the test system's real
                 filesystem. Mocked files should be placed in the same locations
-                under tests/test_data
+                under tests/test_data. If list items are tuples, then the tuple
+                elements are (source_path, dest_path), which will allow the
+                project to store multiple versions of files in the tree without
+                interfering with other tests
 
     packages -  a dict where the keys are the distribution names (e.g. 'rhel',
                 'ubuntu') and the values are the package names optionally with
@@ -807,6 +810,27 @@ class StageTwoReportTest(BaseSoSReportTest):
         for pkg in pkgs:
             self.sm.remove(pkg)
 
+    def _copy_test_file(self, src, dest=None):
+        """Helper to copy files from tests/test_data to relevant locations on
+        the test system. If ``dest`` is provided, use that as the destination
+        filename instead of using the ``src`` name
+        """
+
+        if dest is None:
+            dest = src
+        dir_added = False
+        if os.path.exists(dest):
+            os.rename(dest, dest + '.sostesting')
+        _dir = os.path.split(src)[0]
+        if not os.path.exists(_dir):
+            os.makedirs(_dir)
+            self._created_files.append(_dir)
+            dir_added = True
+        _test_file = os.path.join(SOS_TEST_DIR, 'test_data', src.lstrip('/'))
+        shutil.copy(_test_file, dest)
+        if not dir_added:
+            self._created_files.append(dest)
+
     def setup_mocked_files(self):
         """Place any requested files from under tests/test_data into "proper"
         locations on the test system's filesystem.
@@ -816,18 +840,10 @@ class StageTwoReportTest(BaseSoSReportTest):
         test(s) have run.
         """
         for mfile in self.files:
-            dir_added = False
-            if os.path.exists(mfile):
-                os.rename(mfile, mfile + '.sostesting')
-            _dir = os.path.split(mfile)[0]
-            if not os.path.exists(_dir):
-                os.makedirs(_dir)
-                self._created_files.append(_dir)
-                dir_added = True
-            _test_file = os.path.join(SOS_TEST_DIR, 'test_data', mfile.lstrip('/'))
-            shutil.copy(_test_file, mfile)
-            if not dir_added:
-                self._created_files.append(mfile)
+            if isinstance(mfile, tuple):
+                self._copy_test_file(mfile[0], mfile[1])
+            else:
+                self._copy_test_file(mfile)
         if self._created_files:
             self._write_file_to_tmpdir('mocked_files', json.dumps(self._created_files))
 
