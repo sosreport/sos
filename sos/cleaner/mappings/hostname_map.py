@@ -184,7 +184,14 @@ class SoSHostnameMap(SoSMap):
             hostname = host[0]
             domain = host[1:]
             # obfuscate the short name
-            ob_hostname = self.sanitize_short_name(hostname)
+            if len(hostname) > 2:
+                ob_hostname = self.sanitize_short_name(hostname)
+            else:
+                # by best practice it appears the host part of the fqdn was cut
+                # off due to some form of truncating, as such don't obfuscate
+                # short strings that are likely to throw off obfuscation of
+                # unrelated bits and paths
+                ob_hostname = 'unknown'
             ob_domain = self.sanitize_domain(domain)
             self.dataset[item] = ob_domain
             return '.'.join([ob_hostname, ob_domain])
