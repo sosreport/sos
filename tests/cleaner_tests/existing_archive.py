@@ -28,6 +28,13 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     def test_obfuscation_log_created(self):
         self.assertFileExists(os.path.join(self.tmpdir, '%s-obfuscation.log' % ARCHIVE))
 
+    def test_archive_type_correct(self):
+        with open(os.path.join(self.tmpdir, '%s-obfuscation.log' % ARCHIVE), 'r') as log:
+            for line in log:
+                if "Loaded %s" % ARCHIVE in line:
+                    assert 'as type sos report archive' in line, "Incorrect archive type detected: %s" % line
+                    break
+
     def test_from_cmdline_logged(self):
         with open(os.path.join(self.tmpdir, '%s-obfuscation.log' % ARCHIVE), 'r') as log:
             for line in log:

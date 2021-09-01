@@ -30,7 +30,6 @@ class SoSMacParser(SoSCleanerParser):
         '534f:53'
     )
     map_file_key = 'mac_map'
-    prep_map_file = 'sos_commands/networking/ip_-d_address'
 
     def __init__(self, config):
         self.mapping = SoSMacMap()

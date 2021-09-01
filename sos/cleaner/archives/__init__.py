@@ -40,6 +40,10 @@ class SoSObfuscationArchive():
     file_sub_list = []
     total_sub_count = 0
     removed_file_count = 0
+    type_name = 'undetermined'
+    description = 'undetermined'
+    is_nested = False
+    prep_files = {}
 
     def __init__(self, archive_path, tmpdir):
         self.archive_path = archive_path
@@ -50,7 +54,43 @@ class SoSObfuscationArchive():
         self.soslog = logging.getLogger('sos')
         self.ui_log = logging.getLogger('sos_ui')
         self.skip_list = self._load_skip_list()
-        self.log_info("Loaded %s as an archive" % self.archive_path)
+        self.is_extracted = False
+        self._load_self()
+        self.archive_root = ''
+        self.log_info(
+            "Loaded %s as type %s"
+            % (self.archive_path, self.description)
+        )
+
+    @classmethod
+    def check_is_type(cls, arc_path):
+        """Check if the archive is a well-known type we directly support"""
+        return False
+
+    def _load_self(self):
+        if self.is_tarfile:
+            self.tarobj = tarfile.open(self.archive_path)
+
+    def get_nested_archives(self):
+        """Return a list of ObfuscationArchives that represent additional
+        archives found within the target archive. For example, an archive from
+        `sos collect` will return a list of ``SoSReportArchive`` objects.
+
+        This should be overridden by individual types of ObfuscationArchive's
+        """
+        return []
+
+    def get_archive_root(self):
+        """Set the root path for the archive that should be prepended to any
+        filenames given to methods in this class.
+        """
+        if self.is_tarfile:
+            toplevel = self.tarobj.firstmember
+            if toplevel.isdir():
+                return toplevel.name
+            else:
+                return os.sep
+        return os.path.abspath(self.archive_path)
 
     def report_msg(self, msg):
         """Helper to easily format ui messages on a per-report basis"""
@@ -96,10 +136,42 @@ class SoSObfuscationArchive():
             os.remove(full_fname)
             self.removed_file_count += 1
 
-    def extract(self):
+    def format_file_name(self, fname):
+        """Based on the type of archive we're dealing with, do whatever that
+        archive requires to a provided **relative** filepath to be able to
+        access it within the archive
+        """
+        if not self.is_extracted:
+            if not self.archive_root:
+                self.archive_root = self.get_archive_root()
+            return os.path.join(self.archive_root, fname)
+        else:
+            return os.path.join(self.extracted_path, fname)
+
+    def get_file_content(self, fname):
+        """Return the content from the specified fname. Particularly useful for
+        tarball-type archives so we can retrieve prep file contents prior to
+        extracting the entire archive
+        """
+        if self.is_extracted is False and self.is_tarfile:
+            filename = self.format_file_name(fname)
+            try:
+                return self.tarobj.extractfile(filename).read().decode('utf-8')
+            except KeyError:
+                self.log_debug(
+                    "Unable to retrieve %s: no such file in archive" % fname
+                )
+                return ''
+        else:
+            with open(self.format_file_name(fname), 'r') as to_read:
+                return to_read.read()
+
+    def extract(self, quiet=False):
         if self.is_tarfile:
-            self.report_msg("Extracting...")
+            if not quiet:
+                self.report_msg("Extracting...")
             self.extracted_path = self.extract_self()
+            self.is_extracted = True
         else:
             self.extracted_path = self.archive_path
         # if we're running as non-root (e.g. collector), then we can have a
@@ -317,3 +389,5 @@ class SoSObfuscationArchive():
                 return False
             except UnicodeDecodeError:
                 return True
+
+# vim: set et ts=4 sw=4 :

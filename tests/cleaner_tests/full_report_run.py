@@ -35,6 +35,9 @@ class FullCleanTest(StageTwoReportTest):
     def test_tarball_named_obfuscated(self):
         self.assertTrue('obfuscated' in self.archive)
 
+    def test_archive_type_correct(self):
+        self.assertSosLogContains('Loaded .* as type sos report directory')
+
     def test_hostname_not_in_any_file(self):
         host = self.sysinfo['pre']['networking']['hostname']
         # much faster to just use grep here

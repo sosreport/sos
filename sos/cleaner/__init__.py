@@ -12,9 +12,7 @@ import hashlib
 import json
 import logging
 import os
-import re
 import shutil
-import tarfile
 import tempfile
 
 from concurrent.futures import ThreadPoolExecutor
@@ -27,7 +25,10 @@ from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
 from sos.cleaner.parsers.username_parser import SoSUsernameParser
-from sos.cleaner.obfuscation_archive import SoSObfuscationArchive
+from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
+                                      SoSCollectorArchive,
+                                      SoSCollectorDirectory)
+from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.utilities import get_human_readable
 from textwrap import fill
 
@@ -41,6 +42,7 @@ class SoSCleaner(SoSComponent):
     desc = "Obfuscate sensitive networking information in a report"
 
     arg_defaults = {
+        'archive_type': 'auto',
         'domains': [],
         'jobs': 4,
         'keywords': [],
@@ -70,6 +72,7 @@ class SoSCleaner(SoSComponent):
             self.from_cmdline = False
             if not hasattr(self.opts, 'jobs'):
                 self.opts.jobs = 4
+            self.opts.archive_type = 'auto'
             self.soslog = logging.getLogger('sos')
             self.ui_log = logging.getLogger('sos_ui')
             # create the tmp subdir here to avoid a potential race condition
@@ -91,6 +94,17 @@ class SoSCleaner(SoSComponent):
                              self.opts.keyword_file),
             SoSUsernameParser(self.cleaner_mapping, self.opts.usernames)
         ]
+
+        self.archive_types = [
+            SoSReportDirectory,
+            SoSReportArchive,
+            SoSCollectorDirectory,
+            SoSCollectorArchive,
+            # make sure these two are always last as they are fallbacks
+            DataDirArchive,
+            TarballArchive
+        ]
+        self.nested_archive = None
 
         self.log_info("Cleaner initialized. From cmdline: %s"
                       % self.from_cmdline)
@@ -178,6 +192,11 @@ third party.
         )
         clean_grp.add_argument('target', metavar='TARGET',
                                help='The directory or archive to obfuscate')
+        clean_grp.add_argument('--archive-type', default='auto',
+                               choices=['auto', 'report', 'collect',
+                                        'data-dir', 'tarball'],
+                               help=('Specify what kind of archive the target '
+                                     'was generated as'))
         clean_grp.add_argument('--domains', action='extend', default=[],
                                help='List of domain names to obfuscate')
         clean_grp.add_argument('-j', '--jobs', default=4, type=int,
@@ -218,59 +237,28 @@ third party.
 
         In the event the target path is not an archive, abort.
         """
-        if not tarfile.is_tarfile(self.opts.target):
-            self.ui_log.error(
-                "Invalid target: must be directory or tar archive"
-            )
-            self._exit(1)
-
-        archive = tarfile.open(self.opts.target)
-        self.arc_name = self.opts.target.split('/')[-1].split('.')[:-2][0]
-
-        try:
-            archive.getmember(os.path.join(self.arc_name, 'sos_logs'))
-        except Exception:
-            # this is not an sos archive
-            self.ui_log.error("Invalid target: not an sos archive")
-            self._exit(1)
-
-        # see if there are archives within this archive
-        nested_archives = []
-        for _file in archive.getmembers():
-            if (re.match('sosreport-.*.tar', _file.name.split('/')[-1]) and not
-                    (_file.name.endswith(('.md5', '.sha256')))):
-                nested_archives.append(_file.name.split('/')[-1])
-
-        if nested_archives:
-            self.log_info("Found nested archive(s), extracting top level")
-            nested_path = self.extract_archive(archive)
-            for arc_file in os.listdir(nested_path):
-                if re.match('sosreport.*.tar.*', arc_file):
-                    if arc_file.endswith(('.md5', '.sha256')):
-                        continue
-                    self.report_paths.append(os.path.join(nested_path,
-                                                          arc_file))
-            # add the toplevel extracted archive
-            self.report_paths.append(nested_path)
+        _arc = None
+        if self.opts.archive_type != 'auto':
+            check_type = self.opts.archive_type.replace('-', '_')
+            for archive in self.archive_types:
+                if archive.type_name == check_type:
+                    _arc = archive(self.opts.target, self.tmpdir)
         else:
-            self.report_paths.append(self.opts.target)
-
-        archive.close()
-
-    def extract_archive(self, archive):
-        """Extract an archive into our tmpdir so that we may inspect it or
-        iterate through its contents for obfuscation
-
-        Positional arguments:
-
-            :param archive:     An open TarFile object for the archive
-
-        """
-        if not isinstance(archive, tarfile.TarFile):
-            archive = tarfile.open(archive)
-        path = os.path.join(self.tmpdir, 'cleaner')
-        archive.extractall(path)
-        return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
+            for arc in self.archive_types:
+                if arc.check_is_type(self.opts.target):
+                    _arc = arc(self.opts.target, self.tmpdir)
+                    break
+        if not _arc:
+            return
+        self.report_paths.append(_arc)
+        if _arc.is_nested:
+            self.report_paths.extend(_arc.get_nested_archives())
+            # We need to preserve the top level archive until all
+            # nested archives are processed
+            self.report_paths.remove(_arc)
+            self.nested_archive = _arc
+        if self.nested_archive:
+            self.nested_archive.ui_name = self.nested_archive.description
 
     def execute(self):
         """SoSCleaner will begin by inspecting the TARGET option to determine
@@ -283,6 +271,7 @@ third party.
         be unpacked, cleaned, and repacked and the final top-level archive will
         then be repacked as well.
         """
+        self.arc_name = self.opts.target.split('/')[-1].split('.tar')[0]
         if self.from_cmdline:
             self.print_disclaimer()
         self.report_paths = []
@@ -290,23 +279,11 @@ third party.
             self.ui_log.error("Invalid target: no such file or directory %s"
                               % self.opts.target)
             self._exit(1)
-        if os.path.isdir(self.opts.target):
-            self.arc_name = self.opts.target.split('/')[-1]
-            for _file in os.listdir(self.opts.target):
-                if _file == 'sos_logs':
-                    self.report_paths.append(self.opts.target)
-                if (_file.startswith('sosreport') and
-                   (_file.endswith(".tar.gz") or _file.endswith(".tar.xz"))):
-                    self.report_paths.append(os.path.join(self.opts.target,
-                                                          _file))
-            if not self.report_paths:
-                self.ui_log.error("Invalid target: not an sos directory")
-                self._exit(1)
-        else:
-            self.inspect_target_archive()
+
+        self.inspect_target_archive()
 
         if not self.report_paths:
-            self.ui_log.error("No valid sos archives or directories found\n")
+            self.ui_log.error("No valid archives or directories found\n")
             self._exit(1)
 
         # we have at least one valid target to obfuscate
@@ -334,33 +311,7 @@ third party.
 
         final_path = None
         if len(self.completed_reports) > 1:
-            # we have an archive of archives, so repack the obfuscated tarball
-            arc_name = self.arc_name + '-obfuscated'
-            self.setup_archive(name=arc_name)
-            for arc in self.completed_reports:
-                if arc.is_tarfile:
-                    arc_dest = self.obfuscate_string(
-                        arc.final_archive_path.split('/')[-1]
-                    )
-                    self.archive.add_file(arc.final_archive_path,
-                                          dest=arc_dest)
-                    checksum = self.get_new_checksum(arc.final_archive_path)
-                    if checksum is not None:
-                        dname = self.obfuscate_string(
-                            "checksums/%s.%s" % (arc_dest, self.hash_name)
-                        )
-                        self.archive.add_string(checksum, dest=dname)
-                else:
-                    for dirname, dirs, files in os.walk(arc.archive_path):
-                        for filename in files:
-                            if filename.startswith('sosreport'):
-                                continue
-                            fname = os.path.join(dirname, filename)
-                            dnm = self.obfuscate_string(
-                                fname.split(arc.archive_name)[-1].lstrip('/')
-                            )
-                            self.archive.add_file(fname, dest=dnm)
-            arc_path = self.archive.finalize(self.opts.compression_type)
+            arc_path = self.rebuild_nested_archive()
         else:
             arc = self.completed_reports[0]
             arc_path = arc.final_archive_path
@@ -371,8 +322,7 @@ third party.
                 )
                 with open(os.path.join(self.sys_tmp, chksum_name), 'w') as cf:
                     cf.write(checksum)
-
-        self.write_cleaner_log()
+            self.write_cleaner_log()
 
         final_path = self.obfuscate_string(
             os.path.join(self.sys_tmp, arc_path.split('/')[-1])
@@ -392,6 +342,30 @@ third party.
               "representative and keep the mapping file private")
 
         self.cleanup()
+
+    def rebuild_nested_archive(self):
+        """Handles repacking the nested tarball, now containing only obfuscated
+        copies of the reports, log files, manifest, etc...
+        """
+        # we have an archive of archives, so repack the obfuscated tarball
+        arc_name = self.arc_name + '-obfuscated'
+        self.setup_archive(name=arc_name)
+        for archive in self.completed_reports:
+            arc_dest = archive.final_archive_path.split('/')[-1]
+            checksum = self.get_new_checksum(archive.final_archive_path)
+            if checksum is not None:
+                dname = "checksums/%s.%s" % (arc_dest, self.hash_name)
+                self.archive.add_string(checksum, dest=dname)
+        for dirn, dirs, files in os.walk(self.nested_archive.extracted_path):
+            for filename in files:
+                fname = os.path.join(dirn, filename)
+                dname = fname.split(self.nested_archive.extracted_path)[-1]
+                dname = dname.lstrip('/')
+                self.archive.add_file(fname, dest=dname)
+                # remove it now so we don't balloon our fs space needs
+                os.remove(fname)
+        self.write_cleaner_log(archive=True)
+        return self.archive.finalize(self.opts.compression_type)
 
     def compile_mapping_dict(self):
         """Build a dict that contains each parser's map as a key, with the
@@ -441,7 +415,7 @@ third party.
                 self.log_error("Could not update mapping config file: %s"
                                % err)
 
-    def write_cleaner_log(self):
+    def write_cleaner_log(self, archive=False):
         """When invoked via the command line, the logging from SoSCleaner will
         not be added to the archive(s) it processes, so we need to write it
         separately to disk
@@ -453,6 +427,10 @@ third party.
             self.sos_log_file.seek(0)
             for line in self.sos_log_file.readlines():
                 logfile.write(line)
+
+        if archive:
+            self.obfuscate_file(log_name)
+            self.archive.add_file(log_name, dest="sos_logs/cleaner.log")
 
     def get_new_checksum(self, archive_path):
         """Calculate a new checksum for the obfuscated archive, as the previous
@@ -481,11 +459,11 @@ third party.
         be obfuscated concurrently.
         """
         try:
-            if len(self.report_paths) > 1:
-                msg = ("Found %s total reports to obfuscate, processing up to "
-                       "%s concurrently\n"
-                       % (len(self.report_paths), self.opts.jobs))
-                self.ui_log.info(msg)
+            msg = (
+                "Found %s total reports to obfuscate, processing up to %s "
+                "concurrently\n" % (len(self.report_paths), self.opts.jobs)
+            )
+            self.ui_log.info(msg)
             if self.opts.keep_binary_files:
                 self.ui_log.warning(
                     "WARNING: binary files that potentially contain sensitive "
@@ -494,9 +472,26 @@ third party.
             pool = ThreadPoolExecutor(self.opts.jobs)
             pool.map(self.obfuscate_report, self.report_paths, chunksize=1)
             pool.shutdown(wait=True)
+            # finally, obfuscate the nested archive if one exists
+            if self.nested_archive:
+                self._replace_obfuscated_archives()
+                self.obfuscate_report(self.nested_archive)
         except KeyboardInterrupt:
             self.ui_log.info("Exiting on user cancel")
             os._exit(130)
+
+    def _replace_obfuscated_archives(self):
+        """When we have a nested archive, we need to rebuild the original
+        archive, which entails replacing the existing archives with their
+        obfuscated counterparts
+        """
+        for archive in self.completed_reports:
+            os.remove(archive.archive_path)
+            dest = self.nested_archive.extracted_path
+            tarball = archive.final_archive_path.split('/')[-1]
+            dest_name = os.path.join(dest, tarball)
+            shutil.move(archive.final_archive_path, dest)
+            archive.final_archive_path = dest_name
 
     def preload_all_archives_into_maps(self):
         """Before doing the actual obfuscation, if we have multiple archives
@@ -504,43 +499,40 @@ third party.
         to ensure that node1 is obfuscated in node2 as well as node2 being
         obfuscated in node1's archive.
         """
-        self.log_info("Pre-loading multiple archives into obfuscation maps")
+        self.log_info("Pre-loading all archives into obfuscation maps")
         for _arc in self.report_paths:
-            is_dir = os.path.isdir(_arc)
-            if is_dir:
-                _arc_name = _arc
-            else:
-                archive = tarfile.open(_arc)
-                _arc_name = _arc.split('/')[-1].split('.tar')[0]
-            # for each parser, load the map_prep_file into memory, and then
-            # send that for obfuscation. We don't actually obfuscate the file
-            # here, do that in the normal archive loop
             for _parser in self.parsers:
-                if not _parser.prep_map_file:
+                try:
+                    pfile = _arc.prep_files[_parser.name.lower().split()[0]]
+                    if not pfile:
+                        continue
+                except (IndexError, KeyError):
                     continue
-                if isinstance(_parser.prep_map_file, str):
-                    _parser.prep_map_file = [_parser.prep_map_file]
-                for parse_file in _parser.prep_map_file:
-                    _arc_path = os.path.join(_arc_name, parse_file)
+                if isinstance(pfile, str):
+                    pfile = [pfile]
+                for parse_file in pfile:
+                    self.log_debug("Attempting to load %s" % parse_file)
                     try:
-                        if is_dir:
-                            _pfile = open(_arc_path, 'r')
-                            content = _pfile.read()
-                        else:
-                            _pfile = archive.extractfile(_arc_path)
-                            content = _pfile.read().decode('utf-8')
-                        _pfile.close()
+                        content = _arc.get_file_content(parse_file)
+                        if not content:
+                            continue
                         if isinstance(_parser, SoSUsernameParser):
                             _parser.load_usernames_into_map(content)
-                        for line in content.splitlines():
-                            if isinstance(_parser, SoSHostnameParser):
-                                _parser.load_hostname_into_map(line)
-                            self.obfuscate_line(line)
+                        elif isinstance(_parser, SoSHostnameParser):
+                            _parser.load_hostname_into_map(
+                                content.splitlines()[0]
+                            )
+                        else:
+                            for line in content.splitlines():
+                                self.obfuscate_line(line)
                     except Exception as err:
-                        self.log_debug("Could not prep %s: %s"
-                                       % (_arc_path, err))
+                        self.log_info(
+                            "Could not prepare %s from %s (archive: %s): %s"
+                            % (_parser.name, parse_file, _arc.archive_name,
+                               err)
+                        )
 
-    def obfuscate_report(self, report):
+    def obfuscate_report(self, archive):
         """Individually handle each archive or directory we've discovered by
         running through each file therein.
 
@@ -549,17 +541,12 @@ third party.
             :param report str:      Filepath to the directory or archive
         """
         try:
-            if not os.access(report, os.W_OK):
-                msg = "Insufficient permissions on %s" % report
-                self.log_info(msg)
-                self.ui_log.error(msg)
-                return
-
-            archive = SoSObfuscationArchive(report, self.tmpdir)
             arc_md = self.cleaner_md.add_section(archive.archive_name)
             start_time = datetime.now()
             arc_md.add_field('start_time', start_time)
-            archive.extract()
+            # don't double extract nested archives
+            if not archive.is_extracted:
+                archive.extract()
             archive.report_msg("Beginning obfuscation...")
 
             file_list = archive.get_file_list()
@@ -586,27 +573,28 @@ third party.
                               caller=archive.archive_name)
 
             # if the archive was already a tarball, repack it
-            method = archive.get_compression()
-            if method:
-                archive.report_msg("Re-compressing...")
-                try:
-                    archive.rename_top_dir(
-                        self.obfuscate_string(archive.archive_name)
-                    )
-                    archive.compress(method)
-                except Exception as err:
-                    self.log_debug("Archive %s failed to compress: %s"
-                                   % (archive.archive_name, err))
-                    archive.report_msg("Failed to re-compress archive: %s"
-                                       % err)
-                    return
+            if not archive.is_nested:
+                method = archive.get_compression()
+                if method:
+                    archive.report_msg("Re-compressing...")
+                    try:
+                        archive.rename_top_dir(
+                            self.obfuscate_string(archive.archive_name)
+                        )
+                        archive.compress(method)
+                    except Exception as err:
+                        self.log_debug("Archive %s failed to compress: %s"
+                                       % (archive.archive_name, err))
+                        archive.report_msg("Failed to re-compress archive: %s"
+                                           % err)
+                        return
+                self.completed_reports.append(archive)
 
             end_time = datetime.now()
             arc_md.add_field('end_time', end_time)
             arc_md.add_field('run_time', end_time - start_time)
             arc_md.add_field('files_obfuscated', len(archive.file_sub_list))
             arc_md.add_field('total_substitutions', archive.total_sub_count)
-            self.completed_reports.append(archive)
             rmsg = ''
             if archive.removed_file_count:
                 rmsg = " [removed %s unprocessable files]"
@@ -615,7 +603,7 @@ third party.
 
         except Exception as err:
             self.ui_log.info("Exception while processing %s: %s"
-                             % (report, err))
+                             % (archive.archive_name, err))
 
     def obfuscate_file(self, filename, short_name=None, arc_name=None):
         """Obfuscate and individual file, line by line.
@@ -635,6 +623,8 @@ third party.
             # the requested file doesn't exist in the archive
             return
         subs = 0
+        if not short_name:
+            short_name = filename.split('/')[-1]
         if not os.path.islink(filename):
             # don't run the obfuscation on the link, but on the actual file
             # at some other point.
@@ -745,3 +735,5 @@ third party.
         for parser in self.parsers:
             _sec = parse_sec.add_section(parser.name.replace(' ', '_').lower())
             _sec.add_field('entries', len(parser.mapping.dataset.keys()))
+
+# vim: set et ts=4 sw=4 :

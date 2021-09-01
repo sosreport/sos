@@ -25,14 +25,6 @@ class SoSUsernameParser(SoSCleanerParser):
 
     name = 'Username Parser'
     map_file_key = 'username_map'
-    prep_map_file = [
-        'sos_commands/login/lastlog_-u_1000-60000',
-        'sos_commands/login/lastlog_-u_60001-65536',
-        'sos_commands/login/lastlog_-u_65537-4294967295',
-        # AD users will be reported here, but favor the lastlog files since
-        # those will include local users who have not logged in
-        'sos_commands/login/last'
-    ]
     regex_patterns = []
     skip_list = [
         'core',

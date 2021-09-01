@@ -20,7 +20,6 @@ class SoSKeywordParser(SoSCleanerParser):
 
     name = 'Keyword Parser'
     map_file_key = 'keyword_map'
-    prep_map_file = ''
 
     def __init__(self, config, keywords=None, keyword_file=None):
         self.mapping = SoSKeywordMap()
