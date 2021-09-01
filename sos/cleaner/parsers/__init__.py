@@ -37,11 +37,6 @@ class SoSCleanerParser():
     :cvar map_file_key: The key in the ``map_file`` to read when loading
                         previous obfuscation matches
     :vartype map_file_key: ``str``
-
-
-    :cvar prep_map_file: File to read from an archive to pre-seed the map with
-                         matches. E.G. ip_addr for loading IP addresses
-    :vartype prep_map_fie: ``str``
     """
 
     name = 'Undefined Parser'
@@ -49,7 +44,6 @@ class SoSCleanerParser():
     skip_line_patterns = []
     skip_files = []
     map_file_key = 'unset'
-    prep_map_file = []
 
     def __init__(self, config={}):
         if self.map_file_key in config:

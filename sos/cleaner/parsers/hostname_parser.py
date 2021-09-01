@@ -16,7 +16,6 @@ class SoSHostnameParser(SoSCleanerParser):
 
     name = 'Hostname Parser'
     map_file_key = 'hostname_map'
-    prep_map_file = 'sos_commands/host/hostname'
     regex_patterns = [
         r'(((\b|_)[a-zA-Z0-9-\.]{1,200}\.[a-zA-Z]{1,63}(\b|_)))'
     ]

@@ -31,6 +31,9 @@ class ReportWithMask(StageOneReportTest):
     def test_tarball_named_obfuscated(self):
         self.assertTrue('obfuscated' in self.archive)
 
+    def test_archive_type_correct(self):
+        self.assertSosLogContains('Loaded .* as type sos report directory')
+
     def test_localhost_was_obfuscated(self):
         self.assertFileHasContent('/etc/hostname', 'host0')
 
