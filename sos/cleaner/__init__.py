@@ -29,6 +29,7 @@ from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
                                       SoSCollectorArchive,
                                       SoSCollectorDirectory)
 from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
+from sos.cleaner.archives.insights import InsightsArchive
 from sos.utilities import get_human_readable
 from textwrap import fill
 
@@ -100,6 +101,7 @@ class SoSCleaner(SoSComponent):
             SoSReportArchive,
             SoSCollectorDirectory,
             SoSCollectorArchive,
+            InsightsArchive,
             # make sure these two are always last as they are fallbacks
             DataDirArchive,
             TarballArchive
@@ -194,7 +196,7 @@ third party.
                                help='The directory or archive to obfuscate')
         clean_grp.add_argument('--archive-type', default='auto',
                                choices=['auto', 'report', 'collect',
-                                        'data-dir', 'tarball'],
+                                        'insights', 'data-dir', 'tarball'],
                                help=('Specify what kind of archive the target '
                                      'was generated as'))
         clean_grp.add_argument('--domains', action='extend', default=[],
