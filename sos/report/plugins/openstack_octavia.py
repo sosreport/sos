@@ -61,37 +61,6 @@ class OpenStackOctavia(Plugin):
                 "/var/log/octavia/*.log",
             ])
 
-        # commands
-        self.add_cmd_output('openstack loadbalancer list',
-                            subdir='loadbalancer')
-
-        for res in self.resources:
-            # get a list for each resource type
-            self.add_cmd_output('openstack loadbalancer %s list' % res,
-                                subdir=res)
-
-            # get details from each resource
-            cmd = "openstack loadbalancer %s list -f value -c id" % res
-            ret = self.exec_cmd(cmd)
-            if ret['status'] == 0:
-                for ent in ret['output'].splitlines():
-                    ent = ent.split()[0]
-                    self.add_cmd_output(
-                        "openstack loadbalancer %s show %s" % (res, ent),
-                        subdir=res
-                    )
-
-        # get capability details from each provider
-        cmd = "openstack loadbalancer provider list -f value -c name"
-        ret = self.exec_cmd(cmd)
-        if ret['status'] == 0:
-            for p in ret['output'].splitlines():
-                p = p.split()[0]
-                self.add_cmd_output(
-                    "openstack loadbalancer provider capability list %s" % p,
-                    subdir='provider_capability'
-                )
-
     def postproc(self):
         protect_keys = [
             "ca_private_key_passphrase", "heartbeat_key", "password",
