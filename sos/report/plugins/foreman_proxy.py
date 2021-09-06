@@ -64,7 +64,7 @@ class RedHatForemanProxy(ForemanProxy, RedHatPlugin):
 
 class DebianForemanProxy(ForemanProxy, DebianPlugin, UbuntuPlugin):
 
-    apachepkg = 'apache'
+    apachepkg = 'apache2'
 
 
 # vim: set et ts=4 sw=4 :
