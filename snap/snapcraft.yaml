@@ -1,0 +1,37 @@
+name: sosreport
+summary: Sos is an extensible, portable, support data collection tool
+description: |
+  Sos is an extensible, portable, support data collection tool
+  primarily aimed at Linux distributions and other UNIX-like operating
+  systems.
+grade: stable
+base: core20
+confinement: classic
+adopt-info: sos
+
+parts:
+  sos:
+    plugin: python
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version $(git describe --tags --always)
+    build-packages:
+      - git
+      - python3
+      - snapcraft
+      - gettext
+
+apps:
+  sos:
+    environment:
+      PYTHONPATH: ${SNAP}/lib/python3.8
+    command: bin/sos
+  sosreport:
+    environment:
+      PYTHONPATH: ${SNAP}/lib/python3.8
+    command: bin/sos report
+  sos-collector:
+    environment:
+      PYTHONPATH: ${SNAP}/lib/python3.8
+    command: bin/sos collector
