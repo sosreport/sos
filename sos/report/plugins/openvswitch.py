@@ -206,6 +206,7 @@ class OpenVSwitch(Plugin):
 
         # Gather additional output for each OVS bridge on the host.
         br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
+        ofp_ver_result = self.collect_cmd_output("ovs-ofctl -t 5 --version")
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
                 self.add_cmd_output([
@@ -232,6 +233,16 @@ class OpenVSwitch(Plugin):
                     "OpenFlow15"
                 ]
 
+                # Flow protocol hex identifiers
+                ofp_versions = {
+                    0x01: "OpenFlow10",
+                    0x02: "OpenFlow11",
+                    0x03: "OpenFlow12",
+                    0x04: "OpenFlow13",
+                    0x05: "OpenFlow14",
+                    0x06: "OpenFlow15",
+                }
+
                 # List protocols currently in use, if any
                 ovs_list_bridge_cmd = "ovs-vsctl -t 5 list bridge %s" % br
                 br_info = self.collect_cmd_output(ovs_list_bridge_cmd)
@@ -241,6 +252,21 @@ class OpenVSwitch(Plugin):
                     if "protocols" in line:
                         br_protos_ln = line[line.find("[")+1:line.find("]")]
                         br_protos = br_protos_ln.replace('"', '').split(", ")
+
+                # If 'list bridge' yeilded no protocols, use the range of
+                # protocols enabled by default on this version of ovs.
+                if br_protos == [''] and ofp_ver_result['output']:
+                    ofp_version_range = ofp_ver_result['output'].splitlines()
+                    ver_range = []
+
+                    for line in ofp_version_range:
+                        if "OpenFlow versions" in line:
+                            v = line.split("OpenFlow versions ")[1].split(":")
+                            ver_range = range(int(v[0], 16), int(v[1], 16)+1)
+
+                    for protocol in ver_range:
+                        if protocol in ofp_versions:
+                            br_protos.append(ofp_versions[protocol])
 
                 # Collect flow information for relevant protocol versions only
                 for flow in flow_versions:
