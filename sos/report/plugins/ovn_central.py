@@ -138,6 +138,7 @@ class OVNCentral(Plugin):
                 os.path.join('/usr/local/etc/openvswitch', dbfile),
                 os.path.join('/etc/openvswitch', dbfile),
                 os.path.join('/var/lib/openvswitch', dbfile),
+                os.path.join('/var/lib/ovn/etc', dbfile),
             ])
             if ovs_dbdir:
                 self.add_copy_spec(os.path.join(ovs_dbdir, dbfile))

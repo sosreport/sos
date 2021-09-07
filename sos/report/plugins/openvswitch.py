@@ -75,12 +75,19 @@ class OpenVSwitch(Plugin):
             "/run/openvswitch/ovs-monitor-ipsec.pid"
         ])
 
+        self.add_copy_spec([
+            path_join('/usr/local/etc/openvswitch', 'conf.db'),
+            path_join('/etc/openvswitch', 'conf.db'),
+            path_join('/var/lib/openvswitch', 'conf.db'),
+        ])
+        ovs_dbdir = environ.get('OVS_DBDIR')
+        if ovs_dbdir:
+            self.add_copy_spec(path_join(ovs_dbdir, 'conf.db'))
+
         self.add_cmd_output([
             # The '-t 5' adds an upper bound on how long to wait to connect
             # to the Open vSwitch server, avoiding hangs when running sos.
             "ovs-vsctl -t 5 show",
-            # Gather the database.
-            "ovsdb-client -f list dump",
             # List the contents of important runtime directories
             "ls -laZ /run/openvswitch",
             "ls -laZ /dev/hugepages/",
@@ -276,6 +283,7 @@ class OpenVSwitch(Plugin):
                             "ovs-ofctl -O %s dump-groups %s" % (flow, br),
                             "ovs-ofctl -O %s dump-group-stats %s" % (flow, br),
                             "ovs-ofctl -O %s dump-flows %s" % (flow, br),
+                            "ovs-ofctl -O %s dump-tlv-map %s" % (flow, br),
                             "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
                         ])
 
