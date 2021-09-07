@@ -5,7 +5,7 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
-
+import os
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -62,35 +62,50 @@ class OpenStackOctavia(Plugin):
             ])
 
         # commands
-        self.add_cmd_output('openstack loadbalancer list',
-                            subdir='loadbalancer')
+        vars_all = [p in os.environ for p in [
+                    'OS_USERNAME', 'OS_PASSWORD']]
 
-        for res in self.resources:
-            # get a list for each resource type
-            self.add_cmd_output('openstack loadbalancer %s list' % res,
-                                subdir=res)
+        vars_any = [p in os.environ for p in [
+                        'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
 
-            # get details from each resource
-            cmd = "openstack loadbalancer %s list -f value -c id" % res
+        if not (all(vars_all) and any(vars_any)) and not \
+               (self.is_installed("python2-octaviaclient") or
+                   self.is_installed("python3-octaviaclient")):
+            self.soslog.warning("Not all environment variables set or "
+                                "octavia client package not installed."
+                                "Source the environment file for the "
+                                "user intended to connect to the "
+                                "OpenStack environment and install "
+                                "octavia client package.")
+        else:
+            self.add_cmd_output('openstack loadbalancer list',
+                                subdir='loadbalancer')
+
+            for res in self.resources:
+                # get a list for each resource type
+                self.add_cmd_output('openstack loadbalancer %s list' % res,
+                                    subdir=res)
+
+                # get details from each resource
+                cmd = "openstack loadbalancer %s list -f value -c id" % res
+                ret = self.exec_cmd(cmd)
+                if ret['status'] == 0:
+                    for ent in ret['output'].splitlines():
+                        ent = ent.split()[0]
+                        self.add_cmd_output(
+                            "openstack loadbalancer %s show %s" % (res, ent),
+                            subdir=res)
+
+            # get capability details from each provider
+            cmd = "openstack loadbalancer provider list -f value -c name"
             ret = self.exec_cmd(cmd)
             if ret['status'] == 0:
-                for ent in ret['output'].splitlines():
-                    ent = ent.split()[0]
+                for p in ret['output'].splitlines():
+                    p = p.split()[0]
                     self.add_cmd_output(
-                        "openstack loadbalancer %s show %s" % (res, ent),
-                        subdir=res
-                    )
-
-        # get capability details from each provider
-        cmd = "openstack loadbalancer provider list -f value -c name"
-        ret = self.exec_cmd(cmd)
-        if ret['status'] == 0:
-            for p in ret['output'].splitlines():
-                p = p.split()[0]
-                self.add_cmd_output(
-                    "openstack loadbalancer provider capability list %s" % p,
-                    subdir='provider_capability'
-                )
+                       "openstack loadbalancer provider capability list"
+                       " %s" % p,
+                       subdir='provider_capability')
 
     def postproc(self):
         protect_keys = [
