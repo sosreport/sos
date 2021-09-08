@@ -40,10 +40,11 @@ class firewall_tables(Plugin, IndependentPlugin):
         """ Collects nftables rulesets with 'nft' commands if the modules
         are present """
 
-        self.add_cmd_output(
-            "nft list ruleset",
-            pred=SoSPredicate(self, kmods=['nf_tables'])
-        )
+        # collect nftables ruleset
+        nft_pred = SoSPredicate(self,
+                                kmods=['nf_tables', 'nfnetlink'],
+                                required={'kmods': 'all'})
+        self.add_cmd_output("nft list ruleset", pred=nft_pred, changes=True)
 
     def setup(self):
         # collect iptables -t for any existing table, if we can't read the
