@@ -14,7 +14,7 @@ sos report \- Collect and package diagnostic and support data
           [--preset preset] [--add-preset add_preset]\fR
           [--del-preset del_preset] [--desc description]\fR
           [--batch] [--build] [--debug] [--dry-run]\fR
-          [--label label] [--case-id id]\fR
+          [--estimate-only] [--label label] [--case-id id]\fR
           [--threads threads]\fR
           [--plugin-timeout TIMEOUT]\fR
           [--cmd-timeout TIMEOUT]\fR
@@ -316,6 +316,17 @@ Execute plugins as normal, but do not collect any file content, command
 output, or string data from the system. The resulting logs may be used
 to understand the actions that sos would have taken without the dry run
 option.
+.TP
+.B \--estimate-only
+Estimate disk space requirements when running sos report. This can be valuable
+to prevent sosreport working dir to consume all free disk space. No plugin data
+is available at the end.
+
+Plugins will be collected sequentially, size of collected files and commands outputs
+will be calculated and the plugin files will be immediatelly deleted prior execution
+of the next plugin. This still can consume whole free disk space, though. Please note,
+size estimations may not be accurate for highly utilized systems due to changes between
+an estimate and a real execution.
 .TP
 .B \--upload
 If specified, attempt to upload the resulting archive to a vendor defined location.

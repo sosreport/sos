@@ -86,6 +86,7 @@ class SoSReport(SoSComponent):
         'desc': '',
         'domains': [],
         'dry_run': False,
+        'estimate_only': False,
         'experimental': False,
         'enable_plugins': [],
         'keywords': [],
@@ -137,6 +138,7 @@ class SoSReport(SoSComponent):
         self._args = args
         self.sysroot = "/"
         self.preset = None
+        self.estimated_plugsizes = {}
 
         self.print_header()
         self._set_debug()
@@ -223,6 +225,11 @@ class SoSReport(SoSComponent):
                                 help="Description for a new preset",)
         report_grp.add_argument("--dry-run", action="store_true",
                                 help="Run plugins but do not collect data")
+        report_grp.add_argument("--estimate-only", action="store_true",
+                                help="Approximate disk space requirements for "
+                                     "a real sos run; disables --clean and "
+                                     "--collect, sets --threads=1 and "
+                                     "--no-postproc")
         report_grp.add_argument("--experimental", action="store_true",
                                 dest="experimental", default=False,
                                 help="enable experimental plugins")
@@ -702,6 +709,33 @@ class SoSReport(SoSComponent):
             for opt in plugin.options:
                 self.all_options.append(plugin.options[opt])
 
+    def _set_estimate_only(self):
+        # set estimate-only mode by enforcing some options settings
+        # and return a corresponding log messages string
+        msg = "\nEstimate-only mode enabled"
+        ext_msg = []
+        if self.opts.threads > 1:
+            ext_msg += ["--threads=%s overriden to 1" % self.opts.threads, ]
+            self.opts.threads = 1
+        if not self.opts.build:
+            ext_msg += ["--build enabled", ]
+            self.opts.build = True
+        if not self.opts.no_postproc:
+            ext_msg += ["--no-postproc enabled", ]
+            self.opts.no_postproc = True
+        if self.opts.clean:
+            ext_msg += ["--clean disabled", ]
+            self.opts.clean = False
+        if self.opts.upload:
+            ext_msg += ["--upload* options disabled", ]
+            self.opts.upload = False
+        if ext_msg:
+            msg += ", which overrides some options:\n  " + "\n  ".join(ext_msg)
+        else:
+            msg += "."
+        msg += "\n\n"
+        return msg
+
     def _report_profiles_and_plugins(self):
         self.ui_log.info("")
         if len(self.loaded_plugins):
@@ -875,10 +909,12 @@ class SoSReport(SoSComponent):
         return True
 
     def batch(self):
+        msg = self.policy.get_msg()
+        if self.opts.estimate_only:
+            msg += self._set_estimate_only()
         if self.opts.batch:
-            self.ui_log.info(self.policy.get_msg())
+            self.ui_log.info(msg)
         else:
-            msg = self.policy.get_msg()
             msg += _("Press ENTER to continue, or CTRL-C to quit.\n")
             try:
                 input(msg)
@@ -1025,6 +1061,22 @@ class SoSReport(SoSComponent):
                 self.running_plugs.remove(plugin[1])
                 self.loaded_plugins[plugin[0]-1][1].set_timeout_hit()
                 pool._threads.clear()
+        if self.opts.estimate_only:
+            from pathlib import Path
+            tmpdir_path = Path(self.archive.get_tmp_dir())
+            self.estimated_plugsizes[plugin[1]] = sum(
+                    [f.stat().st_size for f in tmpdir_path.glob('**/*')
+                     if (os.path.isfile(f) and not os.path.islink(f))])
+            # remove whole tmp_dir content - including "sos_commands" and
+            # similar dirs that will be re-created on demand by next plugin
+            # if needed; it is less error-prone approach than skipping
+            # deletion of some dirs but deleting their content
+            for f in os.listdir(self.archive.get_tmp_dir()):
+                f = os.path.join(self.archive.get_tmp_dir(), f)
+                if os.path.isdir(f):
+                    rmtree(f)
+                else:
+                    os.unlink(f)
         return True
 
     def collect_plugin(self, plugin):
@@ -1343,6 +1395,24 @@ class SoSReport(SoSComponent):
         else:
             self.policy.display_results(archive, directory, checksum,
                                         map_file=map_file)
+
+        if self.opts.estimate_only:
+            from sos.utilities import get_human_readable
+            _sum = get_human_readable(sum(self.estimated_plugsizes.values()))
+            self.ui_log.info("Estimated disk space requirement for whole "
+                             "uncompressed sos report directory: %s" % _sum)
+            bigplugins = sorted(self.estimated_plugsizes.items(),
+                                key=lambda x: x[1], reverse=True)[:3]
+            bp_out = ",  ".join("%s: %s" %
+                                (p, get_human_readable(v, precision=0))
+                                for p, v in bigplugins)
+            self.ui_log.info("Three biggest plugins:  %s" % bp_out)
+            self.ui_log.info("")
+            self.ui_log.info("Please note the estimation is relevant to the "
+                             "current options.")
+            self.ui_log.info("Be aware that the real disk space requirements "
+                             "might be different.")
+            self.ui_log.info("")
 
         if self.opts.upload or self.opts.upload_url:
             if not self.opts.build:
