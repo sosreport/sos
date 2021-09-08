@@ -112,7 +112,8 @@ class Kernel(Plugin, IndependentPlugin):
             "/sys/kernel/debug/extfrag/unusable_index",
             "/sys/kernel/debug/extfrag/extfrag_index",
             clocksource_path + "available_clocksource",
-            clocksource_path + "current_clocksource"
+            clocksource_path + "current_clocksource",
+            "/proc/pressure/"
         ])
 
         if self.get_option("with-timer"):
