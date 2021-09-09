@@ -65,7 +65,8 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "subscription-manager identity",
             "subscription-manager release --show",
             "subscription-manager release --list",
-            "syspurpose show"
+            "syspurpose show",
+            "subscription-manager syspurpose --show",
         ], cmd_as_tag=True)
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
                             "--no-subscriptions --destination %s"
