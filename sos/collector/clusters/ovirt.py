@@ -98,7 +98,7 @@ class ovirt(Cluster):
             return []
         res = self._run_db_query(self.dbquery)
         if res['status'] == 0:
-            nodes = res['stdout'].splitlines()[2:-1]
+            nodes = res['output'].splitlines()[2:-1]
             return [n.split('(')[0].strip() for n in nodes]
         else:
             raise Exception('database query failed, return code: %s'
@@ -114,7 +114,7 @@ class ovirt(Cluster):
         engconf = '/etc/ovirt-engine/engine.conf.d/10-setup-database.conf'
         res = self.exec_primary_cmd('cat %s' % engconf, need_root=True)
         if res['status'] == 0:
-            config = res['stdout'].splitlines()
+            config = res['output'].splitlines()
             for line in config:
                 try:
                     k = str(line.split('=')[0])
@@ -141,7 +141,7 @@ class ovirt(Cluster):
                '--batch -o postgresql {}'
                ).format(self.conf['ENGINE_DB_PASSWORD'], sos_opt)
         db_sos = self.exec_primary_cmd(cmd, need_root=True)
-        for line in db_sos['stdout'].splitlines():
+        for line in db_sos['output'].splitlines():
             if fnmatch.fnmatch(line, '*sosreport-*tar*'):
                 _pg_dump = line.strip()
                 self.primary.manifest.add_field('postgresql_dump',
@@ -180,5 +180,7 @@ class rhhi_virt(rhv):
         ret = self._run_db_query('SELECT count(server_id) FROM gluster_server')
         if ret['status'] == 0:
             # if there are any entries in this table, RHHI-V is in use
-            return ret['stdout'].splitlines()[2].strip() != '0'
+            return ret['output'].splitlines()[2].strip() != '0'
         return False
+
+# vim: set et ts=4 sw=4 :

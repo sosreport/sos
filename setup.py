@@ -101,8 +101,8 @@ setup(
         'sos.policies.distros', 'sos.policies.runtimes',
         'sos.policies.package_managers', 'sos.policies.init_systems',
         'sos.report', 'sos.report.plugins', 'sos.collector',
-        'sos.collector.clusters', 'sos.cleaner', 'sos.cleaner.mappings',
-        'sos.cleaner.parsers', 'sos.cleaner.archives'
+        'sos.collector.clusters', 'sos.collector.transports', 'sos.cleaner',
+        'sos.cleaner.mappings', 'sos.cleaner.parsers', 'sos.cleaner.archives'
     ],
     cmdclass=cmdclass,
     command_options=command_options,

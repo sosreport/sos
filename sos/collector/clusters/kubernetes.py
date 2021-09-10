@@ -34,7 +34,7 @@ class kubernetes(Cluster):
         if res['status'] == 0:
             nodes = []
             roles = [x for x in self.get_option('role').split(',') if x]
-            for nodeln in res['stdout'].splitlines()[1:]:
+            for nodeln in res['output'].splitlines()[1:]:
                 node = nodeln.split()
                 if not roles:
                     nodes.append(node[0])
@@ -44,3 +44,5 @@ class kubernetes(Cluster):
             return nodes
         else:
             raise Exception('Node enumeration did not return usable output')
+
+# vim: set et ts=4 sw=4 :

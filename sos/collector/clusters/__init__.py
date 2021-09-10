@@ -183,8 +183,8 @@ class Cluster():
         :rtype: ``dict``
         """
         res = self.primary.run_command(cmd, get_pty=True, need_root=need_root)
-        if res['stdout']:
-            res['stdout'] = res['stdout'].replace('Password:', '')
+        if res['output']:
+            res['output'] = res['output'].replace('Password:', '')
         return res
 
     def setup(self):
