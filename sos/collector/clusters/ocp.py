@@ -93,7 +93,7 @@ class ocp(Cluster):
         res = self.exec_primary_cmd(self.fmt_oc_cmd(cmd))
         if res['status'] == 0:
             roles = [r for r in self.get_option('role').split(':')]
-            self.node_dict = self._build_dict(res['stdout'].splitlines())
+            self.node_dict = self._build_dict(res['output'].splitlines())
             for node in self.node_dict:
                 if roles:
                     for role in roles:
@@ -103,7 +103,7 @@ class ocp(Cluster):
                     nodes.append(node)
         else:
             msg = "'oc' command failed"
-            if 'Missing or incomplete' in res['stdout']:
+            if 'Missing or incomplete' in res['output']:
                 msg = ("'oc' failed due to missing kubeconfig on primary node."
                        " Specify one via '-c ocp.kubeconfig=<path>'")
             raise Exception(msg)
@@ -168,3 +168,5 @@ class ocp(Cluster):
     def set_node_options(self, node):
         # don't attempt OC API collections on non-primary nodes
         node.plugin_options.append('openshift.no-oc=on')
+
+# vim: set et ts=4 sw=4 :

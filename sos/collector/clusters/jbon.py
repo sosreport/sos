@@ -28,3 +28,5 @@ class jbon(Cluster):
         # This should never be called, but as insurance explicitly never
         # allow this to be enabled via the determine_cluster() path
         return False
+
+# vim: set et ts=4 sw=4 :

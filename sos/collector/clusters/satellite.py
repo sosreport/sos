@@ -28,7 +28,7 @@ class satellite(Cluster):
         res = self.exec_primary_cmd(cmd, need_root=True)
         if res['status'] == 0:
             nodes = [
-                n.strip() for n in res['stdout'].splitlines()
+                n.strip() for n in res['output'].splitlines()
                 if 'could not change directory' not in n
             ]
             return nodes
@@ -38,3 +38,5 @@ class satellite(Cluster):
         if node.address == self.primary.address:
             return 'satellite'
         return 'capsule'
+
+# vim: set et ts=4 sw=4 :

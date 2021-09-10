@@ -17,7 +17,6 @@ import re
 import string
 import socket
 import shutil
-import subprocess
 import sys
 
 from datetime import datetime
@@ -28,7 +27,6 @@ from pipes import quote
 from textwrap import fill
 from sos.cleaner import SoSCleaner
 from sos.collector.sosnode import SosNode
-from sos.collector.exceptions import ControlPersistUnsupportedException
 from sos.options import ClusterOption
 from sos.component import SoSComponent
 from sos import __version__
@@ -154,7 +152,6 @@ class SoSCollector(SoSComponent):
             try:
                 self.parse_node_strings()
                 self.parse_cluster_options()
-                self._check_for_control_persist()
                 self.log_debug('Executing %s' % ' '.join(s for s in sys.argv))
                 self.log_debug("Found cluster profiles: %s"
                                % self.clusters.keys())
@@ -437,33 +434,6 @@ class SoSCollector(SoSComponent):
                                  action='extend',
                                  help='List of usernames to obfuscate')
 
-    def _check_for_control_persist(self):
-        """Checks to see if the local system supported SSH ControlPersist.
-
-        ControlPersist allows OpenSSH to keep a single open connection to a
-        remote host rather than building a new session each time. This is the
-        same feature that Ansible uses in place of paramiko, which we have a
-        need to drop in sos-collector.
-
-        This check relies on feedback from the ssh binary. The command being
-        run should always generate stderr output, but depending on what that
-        output reads we can determine if ControlPersist is supported or not.
-
-        For our purposes, a host that does not support ControlPersist is not
-        able to run sos-collector.
-
-        Returns
-            True if ControlPersist is supported, else raise Exception.
-        """
-        ssh_cmd = ['ssh', '-o', 'ControlPersist']
-        cmd = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        out, err = cmd.communicate()
-        err = err.decode('utf-8')
-        if 'Bad configuration option' in err or 'Usage:' in err:
-            raise ControlPersistUnsupportedException
-        return True
-
     def exit(self, msg, error=1):
         """Used to safely terminate if sos-collector encounters an error"""
         self.log_error(msg)
@@ -482,7 +452,7 @@ class SoSCollector(SoSComponent):
             'cmdlineopts': self.opts,
             'need_sudo': True if self.opts.ssh_user != 'root' else False,
             'tmpdir': self.tmpdir,
-            'hostlen': len(self.opts.primary) or len(self.hostname),
+            'hostlen': max(len(self.opts.primary), len(self.hostname)),
             'policy': self.policy
         }
 
@@ -1047,9 +1017,10 @@ class SoSCollector(SoSComponent):
             self.node_list.append(self.hostname)
         self.reduce_node_list()
         try:
-            self.commons['hostlen'] = len(max(self.node_list, key=len))
+            _node_max = len(max(self.node_list, key=len))
+            self.commons['hostlen'] = max(_node_max, self.commons['hostlen'])
         except (TypeError, ValueError):
-            self.commons['hostlen'] = len(self.opts.primary)
+            pass
 
     def _connect_to_node(self, node):
         """Try to connect to the node, and if we can add to the client list to
@@ -1068,7 +1039,7 @@ class SoSCollector(SoSComponent):
                 client.set_node_manifest(getattr(self.collect_md.nodes,
                                                  node[0]))
             else:
-                client.close_ssh_session()
+                client.disconnect()
         except Exception:
             pass
 
@@ -1077,12 +1048,11 @@ class SoSCollector(SoSComponent):
         provided on the command line
         """
         disclaimer = ("""\
-This utility is used to collect sosreports from multiple \
-nodes simultaneously. It uses OpenSSH's ControlPersist feature \
-to connect to nodes and run commands remotely. If your system \
-installation of OpenSSH is older than 5.6, please upgrade.
+This utility is used to collect sos reports from multiple \
+nodes simultaneously. Remote connections are made and/or maintained \
+to those nodes via well-known transport protocols such as SSH.
 
-An archive of sosreport tarballs collected from the nodes will be \
+An archive of sos report tarballs collected from the nodes will be \
 generated in %s and may be provided to an appropriate support representative.
 
 The generated archive may contain data considered sensitive \
@@ -1230,10 +1200,10 @@ this utility or remote systems that it connects to.
             self.log_error("Error running sosreport: %s" % err)
 
     def close_all_connections(self):
-        """Close all ssh sessions for nodes"""
+        """Close all sessions for nodes"""
         for client in self.client_list:
-            self.log_debug('Closing SSH connection to %s' % client.address)
-            client.close_ssh_session()
+            self.log_debug('Closing connection to %s' % client.address)
+            client.disconnect()
 
     def create_cluster_archive(self):
         """Calls for creation of tar archive then cleans up the temporary

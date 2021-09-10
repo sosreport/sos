@@ -27,7 +27,7 @@ class pacemaker(Cluster):
             self.log_error('Cluster status could not be determined. Is the '
                            'cluster running on this node?')
             return []
-        if 'node names do not match' in self.res['stdout']:
+        if 'node names do not match' in self.res['output']:
             self.log_warn('Warning: node name mismatch reported. Attempts to '
                           'connect to some nodes may fail.\n')
         return self.parse_pcs_output()
@@ -41,17 +41,19 @@ class pacemaker(Cluster):
         return nodes
 
     def get_online_nodes(self):
-        for line in self.res['stdout'].splitlines():
+        for line in self.res['output'].splitlines():
             if line.startswith('Online:'):
                 nodes = line.split('[')[1].split(']')[0]
                 return [n for n in nodes.split(' ') if n]
 
     def get_offline_nodes(self):
         offline = []
-        for line in self.res['stdout'].splitlines():
+        for line in self.res['output'].splitlines():
             if line.startswith('Node') and line.endswith('(offline)'):
                 offline.append(line.split()[1].replace(':', ''))
             if line.startswith('OFFLINE:'):
                 nodes = line.split('[')[1].split(']')[0]
                 offline.extend([n for n in nodes.split(' ') if n])
         return offline
+
+# vim: set et ts=4 sw=4 :
