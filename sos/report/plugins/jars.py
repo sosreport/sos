@@ -79,7 +79,7 @@ class Jars(Plugin, RedHatPlugin):
                 results["jars"].append(record)
 
         results_str = json.dumps(results, indent=4, separators=(",", ": "))
-        self.add_string_as_file(results_str, "jars.json")
+        self.add_string_as_file(results_str, "jars.json", plug_dir=True)
 
     @staticmethod
     def is_jar(path):

@@ -74,3 +74,9 @@ class LogsSizeLimitTest(StageTwoReportTest):
         self.assertFileExists(tailed)
         journ = self.get_name_in_archive('sos_commands/logs/journalctl_--no-pager')
         assert os.path.islink(journ), "Journal in sos_commands/logs is not a symlink"
+
+    def test_string_not_in_manifest(self):
+        # we don't want truncated collections appearing in the strings section
+        # of the manifest for the plugin
+        manifest = self.get_plugin_manifest('logs')
+        self.assertFalse(manifest['strings'])

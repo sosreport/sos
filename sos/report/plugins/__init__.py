@@ -613,6 +613,7 @@ class Plugin():
         self.manifest.add_field('timeout_hit', False)
         self.manifest.add_list('commands', [])
         self.manifest.add_list('files', [])
+        self.manifest.add_field('strings', {})
 
     def timeout_from_options(self, optname, plugoptname, default_timeout):
         """Returns either the default [plugin|cmd] timeout value, the value as
@@ -1919,7 +1920,8 @@ class Plugin():
             # adds a mixed case variable name, still get that as well
             self._env_vars.update([env, env.upper(), env.lower()])
 
-    def add_string_as_file(self, content, filename, pred=None):
+    def add_string_as_file(self, content, filename, pred=None, plug_dir=False,
+                           tags=[]):
         """Add a string to the archive as a file
 
         :param content: The string to write to the archive
@@ -1931,6 +1933,14 @@ class Plugin():
         :param pred: A predicate to gate if the string should be added to the
                      archive or not
         :type pred: ``SoSPredicate``
+
+        :param plug_dir: Should the string be saved under the plugin's dir in
+                         sos_commands/? If false, save to sos_strings/
+        :type plug_dir: ``bool`
+
+        :param tags: A tag or set of tags to add to the manifest entry for this
+                     collection
+        :type tags: ``str`` or a ``list`` of strings
         """
 
         # Generate summary string for logging
@@ -1943,7 +1953,13 @@ class Plugin():
                            (summary, self.get_predicate(pred=pred)))
             return
 
-        self.copy_strings.append((content, filename))
+        sos_dir = 'sos_commands' if plug_dir else 'sos_strings'
+        filename = os.path.join(sos_dir, self.name(), filename)
+
+        if isinstance(tags, str):
+            tags = [tags]
+
+        self.copy_strings.append((content, filename, tags))
         self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
 
     def _collect_cmd_output(self, cmd, suggest_filename=None,
@@ -2622,7 +2638,7 @@ class Plugin():
             self._collect_cmd_output(**soscmd.__dict__)
 
     def _collect_strings(self):
-        for string, file_name in self.copy_strings:
+        for string, file_name, tags in self.copy_strings:
             if self._timeout_hit:
                 return
             content = ''
@@ -2633,10 +2649,12 @@ class Plugin():
             self._log_info("collecting string ...'%s' as '%s'"
                            % (content, file_name))
             try:
-                self.archive.add_string(string,
-                                        os.path.join('sos_strings',
-                                                     self.name(),
-                                                     file_name))
+                self.archive.add_string(string, file_name)
+                _name = file_name.split('/')[-1].replace('.', '_')
+                self.manifest.strings[_name] = {
+                    'path': file_name,
+                    'tags': tags
+                }
             except Exception as e:
                 self._log_debug("could not add string '%s': %s"
                                 % (file_name, e))
