@@ -1162,13 +1162,9 @@ class SoSReport(SoSComponent):
                                         cmd['file']
                                     )))
 
-            for content, f in plug.copy_strings:
+            for content, f, tags in plug.copy_strings:
                 section.add(CreatedFile(name=f,
-                                        href=os.path.join(
-                                            "..",
-                                            "sos_strings",
-                                            plugname,
-                                            f)))
+                                        href=os.path.join("..", f)))
 
             report.add(section)
 

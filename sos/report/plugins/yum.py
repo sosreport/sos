@@ -69,7 +69,8 @@ class Yum(Plugin, RedHatPlugin):
                     os.path.basename(p)[:-3] for p in plugins.split()
                 ]
                 plugnames = "%s\n" % "\n".join(plugnames)
-                self.add_string_as_file(plugnames, "plugin-names")
+                self.add_string_as_file(plugnames, "plugin-names",
+                                        plug_dir=True)
 
         self.add_copy_spec("/etc/yum/pluginconf.d")
 

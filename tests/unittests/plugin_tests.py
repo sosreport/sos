@@ -339,10 +339,9 @@ class AddCopySpecTests(unittest.TestCase):
         self.mp.sysroot = '/'
         fn = create_file(2)  # create 2MB file, consider a context manager
         self.mp.add_copy_spec(fn, 1)
-        content, fname = self.mp.copy_strings[0]
+        content, fname, _tags = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
         self.assertTrue("tmp" in fname)
-        self.assertTrue("/" not in fname)
         self.assertEquals(1024 * 1024, len(content))
         os.unlink(fn)
 
@@ -371,7 +370,7 @@ class AddCopySpecTests(unittest.TestCase):
         create_file(2, dir=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*", 1)
         self.assertEquals(len(self.mp.copy_strings), 1)
-        content, fname = self.mp.copy_strings[0]
+        content, fname, _tags = self.mp.copy_strings[0]
         self.assertTrue("tailed" in fname)
         self.assertEquals(1024 * 1024, len(content))
         shutil.rmtree(tmpdir)

@@ -95,6 +95,7 @@ class RedHatPython(Python, RedHatPlugin):
                                     filepath
                                 )
 
-            self.add_string_as_file(json.dumps(digests), 'digests.json')
+            self.add_string_as_file(json.dumps(digests), 'digests.json',
+                                    plug_dir=True)
 
 # vim: set et ts=4 sw=4 :
