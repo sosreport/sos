@@ -17,6 +17,7 @@ To clone the current main (development) branch run:
 ```
 git clone git://github.com/sosreport/sos.git
 ```
+
 ## Reporting bugs
 
 Please report bugs via the mailing list or by opening an issue in the [GitHub
@@ -27,6 +28,7 @@ Issue Tracker][5]
 The SoS project has rooms in Matrix and in Libera.Chat.
 
 Matrix Room: #sosreport:matrix.org
+
 Libera.Chat: #sos
 
 These rooms are bridged, so joining either is sufficient as messages from either will
@@ -36,18 +38,35 @@ The Freenode #sos room **is no longer used by this project**.
 
 ## Mailing list
 
-The [sos-devel][4] is the mailing list for any sos-related questions and
+The [sos-devel][4] list is the mailing list for any sos-related questions and
 discussion. Patch submissions and reviews are welcome too.
 
 ## Patches and pull requests
 
 Patches can be submitted via the mailing list or as GitHub pull requests. If
-using GitHub please make sure your branch applies to the current main as a
+using GitHub please make sure your branch applies to the current main branch as a
 'fast forward' merge (i.e. without creating a merge commit). Use the `git
 rebase` command to update your branch to the current main if necessary.
 
 Please refer to the [contributor guidelines][0] for guidance on formatting
 patches and commit messages.
+
+Before sending a [pull request][0], it is advisable to check your contribution
+against the `flake8` linter, the unit tests, and the stage one avocado test suite:
+
+```
+# from within the git checkout
+$ flake8 sos
+$ nosetests -v tests/unittests/
+
+# as root
+# PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+```
+
+Note that the avocado test suite will generate and remove several reports over its
+execution, but no changes will be made to your local system.
+
+All contributions must pass the entire test suite before being accepted.
 
 ## Documentation
 
@@ -66,11 +85,14 @@ and run
 python3 setup.py build_sphinx -a
 ```
 
-Please run `./tests/simple.sh` before sending a [pull request][0], and run the
-test suite manually using the `nosetests` command (ideally for the
-set of Python versions currently supported by `sos` upstream).
 
 ### Wiki
+
+For more in-depth information on the project's features and functionality, please
+see [the GitHub wiki][9].
+
+If you are interested in contributing an entirely new plugin, or extending sos to
+support your distribution of choice, please see these wiki pages:
 
 * [How to write a plugin][1]
 * [How to write a policy][2]
@@ -94,9 +116,9 @@ and can be used like this:
 $ sudo ./bin/sosreport 
 ```
 
-If you want to run it with all the options enabled (this can take a long time)
+To see a list of all available plugins and plugin options, run
 ```
-$ sudo ./bin/sos report -a
+$ sudo ./bin/sos report -l
 ```
 
 
@@ -111,20 +133,20 @@ To install locally (as root):
 Fedora/RHEL users install via yum:
 
 ```
-yum install sos
+# yum install sos
 ```
 
 Debian users install via apt:
 
 ```
-apt install sosreport
+# apt install sosreport
 ```
 
 
 Ubuntu (14.04 LTS and above) users install via apt:
 
 ```
-sudo apt install sosreport
+# sudo apt install sosreport
 ```
 
  [0]: https://github.com/sosreport/sos/wiki/Contribution-Guidelines
@@ -136,3 +158,4 @@ sudo apt install sosreport
  [6]: https://sos.readthedocs.org/
  [7]: https://www.sphinx-doc.org/
  [8]: https://www.readthedocs.org/
+ [9]: https://github.com/sosreport/sos/wiki
