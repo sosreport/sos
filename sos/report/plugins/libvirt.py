@@ -50,10 +50,15 @@ class Libvirt(Plugin, IndependentPlugin):
                 "/var/log/libvirt/libvirtd.log",
                 "/var/log/libvirt/qemu/*.log*",
                 "/var/log/libvirt/lxc/*.log",
-                "/var/log/libvirt/uml/*.log"
+                "/var/log/libvirt/uml/*.log",
+                "/var/log/containers/libvirt/libvirtd.log",
+                "/var/log/containers/libvirt/qemu/*.log*",
+                "/var/log/containers/libvirt/lxc/*.log",
+                "/var/log/containers/libvirt/uml/*.log",
             ])
         else:
             self.add_copy_spec("/var/log/libvirt")
+            self.add_copy_spec("/var/log/containers/libvirt")
 
         if self.path_exists(self.path_join(libvirt_keytab)):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
