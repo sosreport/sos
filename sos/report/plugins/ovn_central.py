@@ -102,7 +102,7 @@ class OVNCentral(Plugin):
             'ovn-sbctl get-connection',
         ]
 
-        schema_dir = '/usr/share/openvswitch'
+        schema_dir = '/usr/share/ovn'
 
         nb_tables = self.get_tables_from_schema(os.path.join(
             schema_dir, 'ovn-nb.ovsschema'))
