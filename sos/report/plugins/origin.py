@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
+from sos.report.plugins import Plugin, RedHatPlugin
 import os.path
 
 # This plugin collects static configuration and runtime information
@@ -39,15 +39,6 @@ class OpenShiftOrigin(Plugin):
     plugin_name = "origin"
     files = None  # file lists assigned after path setup below
     profiles = ('openshift',)
-
-    option_list = [
-        PluginOpt('diag', default=True,
-                  desc='Collect oc adm diagnostics output'),
-        PluginOpt('diag-prevent', default=True,
-                  desc='Use --prevent-modification with oc adm diagnostics'),
-        PluginOpt('all-namespaces', default=False,
-                  desc='collect dc output for all namespaces')
-    ]
 
     master_base_dir = "/etc/origin/master"
     node_base_dir = "/etc/origin/node"
@@ -111,6 +102,9 @@ class OpenShiftOrigin(Plugin):
                     "%s controllers controllers" % static_pod_logs_cmd,
                 ])
 
+            if self.is_static_etcd():
+                self.add_cmd_output("%s etcd etcd" % static_pod_logs_cmd)
+
             # TODO: some thoughts about information that might also be useful
             # to collect. However, these are maybe not needed in general
             # and/or present some challenges (scale, sensitive, ...) and need
@@ -129,9 +123,9 @@ class OpenShiftOrigin(Plugin):
             # is already collected by the Kubernetes plugin
 
             subcmds = [
-                "describe projects",
                 "adm top images",
-                "adm top imagestreams"
+                "adm top imagestreams",
+                "adm top nodes"
             ]
 
             self.add_cmd_output([
@@ -148,29 +142,23 @@ class OpenShiftOrigin(Plugin):
                 '%s get -o json %s' % (oc_cmd_admin, jcmd) for jcmd in jcmds
             ])
 
-            if self.get_option('all-namespaces'):
-                ocn = self.exec_cmd('%s get namespaces' % oc_cmd_admin)
-                ns_output = ocn['output'].splitlines()[1:]
-                nmsps = [n.split()[0] for n in ns_output if n]
-            else:
-                nmsps = [
-                    'default',
-                    'openshift-web-console',
-                    'openshift-ansible-service-broker'
-                ]
+            nmsps = [
+                'default',
+                'openshift-web-console',
+                'openshift-ansible-service-broker',
+                'openshift-sdn',
+                'openshift-console'
+            ]
 
             self.add_cmd_output([
-                '%s get -o json dc -n %s' % (oc_cmd_admin, n) for n in nmsps
+                '%s get -o json deploymentconfig,deployment,daemonsets -n %s'
+                % (oc_cmd_admin, n) for n in nmsps
             ])
 
-            if self.get_option('diag'):
-                diag_cmd = "%s adm diagnostics -l 0" % oc_cmd_admin
-                if self.get_option('diag-prevent'):
-                    diag_cmd += " --prevent-modification=true"
-                self.add_cmd_output(diag_cmd)
-            self.add_journal(units=["atomic-openshift-master",
-                                    "atomic-openshift-master-api",
-                                    "atomic-openshift-master-controllers"])
+            if not self.is_static_pod_compatible():
+                self.add_journal(units=["atomic-openshift-master",
+                                        "atomic-openshift-master-api",
+                                        "atomic-openshift-master-controllers"])
 
             # get logs from the infrastruture pods running in the default ns
             pods = self.exec_cmd("%s get pod -o name -n default"
@@ -195,9 +183,6 @@ class OpenShiftOrigin(Plugin):
             ])
 
             self.add_journal(units="atomic-openshift-node")
-
-        if self.is_static_etcd():
-            self.add_cmd_output("%s etcd etcd" % static_pod_logs_cmd)
 
     def postproc(self):
         # Clear env values from objects that can contain sensitive data
