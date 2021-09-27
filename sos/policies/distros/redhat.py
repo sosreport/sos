@@ -17,7 +17,7 @@ from sos.report.plugins import RedHatPlugin
 from sos.presets.redhat import (RHEL_PRESETS, ATOMIC_PRESETS, RHV, RHEL,
                                 CB, RHOSP, RHOCP, RH_CFME, RH_SATELLITE,
                                 ATOMIC)
-from sos.policies.distros import LinuxPolicy
+from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos import _sos as _
 
@@ -56,12 +56,6 @@ class RedHatPolicy(LinuxPolicy):
         super(RedHatPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime)
         self.usrmove = False
-        # need to set _host_sysroot before PackageManager()
-        if sysroot:
-            self._container_init()
-            self._host_sysroot = sysroot
-        else:
-            sysroot = self._container_init()
 
         self.package_manager = RpmPackageManager(chroot=sysroot,
                                                  remote_exec=remote_exec)
@@ -140,21 +134,6 @@ class RedHatPolicy(LinuxPolicy):
         else:
             return files
 
-    def _container_init(self):
-        """Check if sos is running in a container and perform container
-        specific initialisation based on ENV_HOST_SYSROOT.
-        """
-        if ENV_CONTAINER in os.environ:
-            if os.environ[ENV_CONTAINER] in ['docker', 'oci', 'podman']:
-                self._in_container = True
-        if ENV_HOST_SYSROOT in os.environ:
-            self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
-        use_sysroot = self._in_container and self._host_sysroot is not None
-        if use_sysroot:
-            host_tmp_dir = os.path.abspath(self._host_sysroot + self._tmp_dir)
-            self._tmp_dir = host_tmp_dir
-        return self._host_sysroot if use_sysroot else None
-
     def runlevel_by_service(self, name):
         from subprocess import Popen, PIPE
         ret = []
@@ -182,10 +161,6 @@ class RedHatPolicy(LinuxPolicy):
             return self._tmp_dir
         return opt_tmp_dir
 
-
-# Container environment variables on Red Hat systems.
-ENV_CONTAINER = 'container'
-ENV_HOST_SYSROOT = 'HOST'
 
 # Legal disclaimer text for Red Hat products
 disclaimer_text = """
