@@ -63,7 +63,7 @@ class Jars(Plugin, RedHatPlugin):
         for location in locations:
             for dirpath, _, filenames in os.walk(location):
                 for filename in filenames:
-                    path = os.path.join(dirpath, filename)
+                    path = self.path_join(dirpath, filename)
                     if Jars.is_jar(path):
                         jar_paths.append(path)
 

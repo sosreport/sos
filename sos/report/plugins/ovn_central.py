@@ -42,7 +42,7 @@ class OVNCentral(Plugin):
                 return
         else:
             try:
-                with open(filename, 'r') as f:
+                with open(self.path_join(filename), 'r') as f:
                     try:
                         db = json.load(f)
                     except Exception:
@@ -71,13 +71,13 @@ class OVNCentral(Plugin):
         ovs_rundir = os.environ.get('OVS_RUNDIR')
         for pidfile in ['ovnnb_db.pid', 'ovnsb_db.pid', 'ovn-northd.pid']:
             self.add_copy_spec([
-                os.path.join('/var/lib/openvswitch/ovn', pidfile),
-                os.path.join('/usr/local/var/run/openvswitch', pidfile),
-                os.path.join('/run/openvswitch/', pidfile),
+                self.path_join('/var/lib/openvswitch/ovn', pidfile),
+                self.path_join('/usr/local/var/run/openvswitch', pidfile),
+                self.path_join('/run/openvswitch/', pidfile),
             ])
 
             if ovs_rundir:
-                self.add_copy_spec(os.path.join(ovs_rundir, pidfile))
+                self.add_copy_spec(self.path_join(ovs_rundir, pidfile))
 
         if self.get_option("all_logs"):
             self.add_copy_spec("/var/log/ovn/")
@@ -104,7 +104,7 @@ class OVNCentral(Plugin):
 
         schema_dir = '/usr/share/openvswitch'
 
-        nb_tables = self.get_tables_from_schema(os.path.join(
+        nb_tables = self.get_tables_from_schema(self.path_join(
             schema_dir, 'ovn-nb.ovsschema'))
 
         self.add_database_output(nb_tables, nbctl_cmds, 'ovn-nbctl')
@@ -116,7 +116,7 @@ class OVNCentral(Plugin):
               format(self.ovn_sbdb_sock_path),
               "output": "Leader: self"}
         if self.test_predicate(self, pred=SoSPredicate(self, cmd_outputs=co)):
-            sb_tables = self.get_tables_from_schema(os.path.join(
+            sb_tables = self.get_tables_from_schema(self.path_join(
                 schema_dir, 'ovn-sb.ovsschema'), ['Logical_Flow'])
             self.add_database_output(sb_tables, sbctl_cmds, 'ovn-sbctl')
             cmds += sbctl_cmds
@@ -134,14 +134,14 @@ class OVNCentral(Plugin):
         ovs_dbdir = os.environ.get('OVS_DBDIR')
         for dbfile in ['ovnnb_db.db', 'ovnsb_db.db']:
             self.add_copy_spec([
-                os.path.join('/var/lib/openvswitch/ovn', dbfile),
-                os.path.join('/usr/local/etc/openvswitch', dbfile),
-                os.path.join('/etc/openvswitch', dbfile),
-                os.path.join('/var/lib/openvswitch', dbfile),
-                os.path.join('/var/lib/ovn/etc', dbfile),
+                self.path_join('/var/lib/openvswitch/ovn', dbfile),
+                self.path_join('/usr/local/etc/openvswitch', dbfile),
+                self.path_join('/etc/openvswitch', dbfile),
+                self.path_join('/var/lib/openvswitch', dbfile),
+                self.path_join('/var/lib/ovn/etc', dbfile)
             ])
             if ovs_dbdir:
-                self.add_copy_spec(os.path.join(ovs_dbdir, dbfile))
+                self.add_copy_spec(self.path_join(ovs_dbdir, dbfile))
 
         self.add_journal(units="ovn-northd")
 

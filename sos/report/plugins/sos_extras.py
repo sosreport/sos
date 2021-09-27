@@ -58,7 +58,7 @@ class SosExtras(Plugin, IndependentPlugin):
 
         for path, dirlist, filelist in os.walk(self.extras_dir):
             for f in filelist:
-                _file = os.path.join(path, f)
+                _file = self.path_join(path, f)
                 self._log_warn("Collecting data from extras file %s" % _file)
                 try:
                     for line in open(_file).read().splitlines():

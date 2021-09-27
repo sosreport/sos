@@ -35,9 +35,10 @@ class Gluster(Plugin, RedHatPlugin):
         ]
         for statedump_file in statedump_entries:
             statedumps_present = statedumps_present+1
+            _spath = self.path_join(name_dir, statedump_file)
             ret = -1
             while ret == -1:
-                with open(name_dir + '/' + statedump_file, 'r') as sfile:
+                with open(_spath, 'r') as sfile:
                     last_line = sfile.readlines()[-1]
                     ret = string.count(last_line, 'DUMP_END_TIME')
 

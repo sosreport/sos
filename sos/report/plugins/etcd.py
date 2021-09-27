@@ -62,7 +62,7 @@ class etcd(Plugin, RedHatPlugin):
 
     def get_etcd_url(self):
         try:
-            with open('/etc/etcd/etcd.conf', 'r') as ef:
+            with open(self.path_join('/etc/etcd/etcd.conf'), 'r') as ef:
                 for line in ef:
                     if line.startswith('ETCD_LISTEN_CLIENT_URLS'):
                         return line.split('=')[1].replace('"', '').strip()

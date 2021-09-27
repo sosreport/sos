@@ -68,9 +68,9 @@ class RedHatPython(Python, RedHatPlugin):
             ]
 
             for py_path in py_paths:
-                for root, _, files in os.walk(py_path):
+                for root, _, files in os.walk(self.path_join(py_path)):
                     for file_ in files:
-                        filepath = os.path.join(root, file_)
+                        filepath = self.path_join(root, file_)
                         if filepath.endswith('.py'):
                             try:
                                 with open(filepath, 'rb') as f:

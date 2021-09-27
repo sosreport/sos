@@ -41,7 +41,7 @@ class Postfix(Plugin):
         ]
         fp = []
         try:
-            with open('/etc/postfix/main.cf', 'r') as cffile:
+            with open(self.path_join('/etc/postfix/main.cf'), 'r') as cffile:
                 for line in cffile.readlines():
                     # ignore comments and take the first word after '='
                     if line.startswith('#'):

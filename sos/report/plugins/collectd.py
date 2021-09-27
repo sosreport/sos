@@ -33,7 +33,7 @@ class Collectd(Plugin, IndependentPlugin):
 
         p = re.compile('^LoadPlugin.*')
         try:
-            with open("/etc/collectd.conf") as f:
+            with open(self.path_join("/etc/collectd.conf"), 'r') as f:
                 for line in f:
                     if p.match(line):
                         self.add_alert("Active Plugin found: %s" %

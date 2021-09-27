@@ -47,7 +47,7 @@ class Corosync(Plugin):
         # (it isnt precise but sufficient)
         pattern = r'^\s*(logging.)?logfile:\s*(\S+)$'
         try:
-            with open("/etc/corosync/corosync.conf") as f:
+            with open(self.path_join("/etc/corosync/corosync.conf"), 'r') as f:
                 for line in f:
                     if re.match(pattern, line):
                         self.add_copy_spec(re.search(pattern, line).group(2))

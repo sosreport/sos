@@ -41,7 +41,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         total_size = 0
         for dirpath, dirnames, filenames in os.walk(path):
             for f in filenames:
-                fp = os.path.join(dirpath, f)
+                fp = self.path_join(dirpath, f)
                 total_size += os.path.getsize(fp)
         return total_size
 
@@ -86,7 +86,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # unconditionally. Obviously if someone messes up their /etc/pcp.conf
         # in a ridiculous way (i.e. setting PCP_SYSCONF_DIR to '/') this will
         # break badly.
-        var_conf_dir = os.path.join(self.pcp_var_dir, 'config')
+        var_conf_dir = self.path_join(self.pcp_var_dir, 'config')
         self.add_copy_spec([
             self.pcp_sysconf_dir,
             self.pcp_conffile,
@@ -98,10 +98,10 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # rpms. It does not make up for a lot of size but it contains many
         # files
         self.add_forbidden_path([
-            os.path.join(var_conf_dir, 'pmchart'),
-            os.path.join(var_conf_dir, 'pmlogconf'),
-            os.path.join(var_conf_dir, 'pmieconf'),
-            os.path.join(var_conf_dir, 'pmlogrewrite')
+            self.path_join(var_conf_dir, 'pmchart'),
+            self.path_join(var_conf_dir, 'pmlogconf'),
+            self.path_join(var_conf_dir, 'pmieconf'),
+            self.path_join(var_conf_dir, 'pmlogrewrite')
         ])
 
         # Take PCP_LOG_DIR/pmlogger/`hostname` + PCP_LOG_DIR/pmmgr/`hostname`
@@ -121,13 +121,13 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
         # we would collect everything
         if self.pcp_hostname != '':
             # collect pmmgr logs up to 'pmmgrlogs' size limit
-            path = os.path.join(self.pcp_log_dir, 'pmmgr',
-                                self.pcp_hostname, '*')
+            path = self.path_join(self.pcp_log_dir, 'pmmgr',
+                                  self.pcp_hostname, '*')
             self.add_copy_spec(path, sizelimit=self.sizelimit, tailit=False)
             # collect newest pmlogger logs up to 'pmloggerfiles' count
             files_collected = 0
-            path = os.path.join(self.pcp_log_dir, 'pmlogger',
-                                self.pcp_hostname, '*')
+            path = self.path_join(self.pcp_log_dir, 'pmlogger',
+                                  self.pcp_hostname, '*')
             pmlogger_ls = self.exec_cmd("ls -t1 %s" % path)
             if pmlogger_ls['status'] == 0:
                 for line in pmlogger_ls['output'].splitlines():
@@ -138,15 +138,15 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
         self.add_copy_spec([
             # Collect PCP_LOG_DIR/pmcd and PCP_LOG_DIR/NOTICES
-            os.path.join(self.pcp_log_dir, 'pmcd'),
-            os.path.join(self.pcp_log_dir, 'NOTICES*'),
+            self.path_join(self.pcp_log_dir, 'pmcd'),
+            self.path_join(self.pcp_log_dir, 'NOTICES*'),
             # Collect PCP_VAR_DIR/pmns
-            os.path.join(self.pcp_var_dir, 'pmns'),
+            self.path_join(self.pcp_var_dir, 'pmns'),
             # Also collect any other log and config files
             # (as suggested by fche)
-            os.path.join(self.pcp_log_dir, '*/*.log*'),
-            os.path.join(self.pcp_log_dir, '*/*/*.log*'),
-            os.path.join(self.pcp_log_dir, '*/*/config*')
+            self.path_join(self.pcp_log_dir, '*/*.log*'),
+            self.path_join(self.pcp_log_dir, '*/*/*.log*'),
+            self.path_join(self.pcp_log_dir, '*/*/config*')
         ])
 
         # Collect a summary for the current day

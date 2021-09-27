@@ -11,7 +11,6 @@
 from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 from glob import glob
-import os
 
 
 class Watchdog(Plugin, RedHatPlugin):
@@ -56,8 +55,8 @@ class Watchdog(Plugin, RedHatPlugin):
             Collect configuration files, custom executables for test-binary
             and repair-binary, and stdout/stderr logs.
         """
-        conf_file = self.get_option('conf_file')
-        log_dir = '/var/log/watchdog'
+        conf_file = self.path_join(self.get_option('conf_file'))
+        log_dir = self.path_join('/var/log/watchdog')
 
         # Get service configuration and sysconfig files
         self.add_copy_spec([
@@ -80,15 +79,15 @@ class Watchdog(Plugin, RedHatPlugin):
             self._log_warn("Could not read %s: %s" % (conf_file, ex))
 
         if self.get_option('all_logs'):
-            log_files = glob(os.path.join(log_dir, '*'))
+            log_files = glob(self.path_join(log_dir, '*'))
         else:
-            log_files = (glob(os.path.join(log_dir, '*.stdout')) +
-                         glob(os.path.join(log_dir, '*.stderr')))
+            log_files = (glob(self.path_join(log_dir, '*.stdout')) +
+                         glob(self.path_join(log_dir, '*.stderr')))
 
         self.add_copy_spec(log_files)
 
         # Get output of "wdctl <device>" for each /dev/watchdog*
-        for dev in glob('/dev/watchdog*'):
+        for dev in glob(self.path_join('/dev/watchdog*')):
             self.add_cmd_output("wdctl %s" % dev)
 
 # vim: set et ts=4 sw=4 :

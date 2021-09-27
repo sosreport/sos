@@ -58,7 +58,7 @@ class ManageIQ(Plugin, RedHatPlugin):
     # Log files to collect from miq_dir/log/
     miq_log_dir = os.path.join(miq_dir, "log")
 
-    miq_main_log_files = [
+    miq_main_logs = [
         'ansible_tower.log',
         'top_output.log',
         'evm.log',
@@ -81,16 +81,16 @@ class ManageIQ(Plugin, RedHatPlugin):
         self.add_copy_spec(list(self.files))
 
         self.add_copy_spec([
-            os.path.join(self.miq_conf_dir, x) for x in self.miq_conf_files
+            self.path_join(self.miq_conf_dir, x) for x in self.miq_conf_files
         ])
 
         # Collect main log files without size limit.
         self.add_copy_spec([
-            os.path.join(self.miq_log_dir, x) for x in self.miq_main_log_files
+            self.path_join(self.miq_log_dir, x) for x in self.miq_main_logs
         ], sizelimit=0)
 
         self.add_copy_spec([
-            os.path.join(self.miq_log_dir, x) for x in self.miq_log_files
+            self.path_join(self.miq_log_dir, x) for x in self.miq_log_files
         ])
 
         self.add_copy_spec([
@@ -101,8 +101,8 @@ class ManageIQ(Plugin, RedHatPlugin):
         if environ.get("APPLIANCE_PG_DATA"):
             pg_dir = environ.get("APPLIANCE_PG_DATA")
             self.add_copy_spec([
-                    os.path.join(pg_dir, 'pg_log'),
-                    os.path.join(pg_dir, 'postgresql.conf')
+                    self.path_join(pg_dir, 'pg_log'),
+                    self.path_join(pg_dir, 'postgresql.conf')
             ])
 
 # vim: set et ts=4 sw=4 :

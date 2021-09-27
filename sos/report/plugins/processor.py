@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
-import os
 
 
 class Processor(Plugin, IndependentPlugin):
@@ -41,7 +40,7 @@ class Processor(Plugin, IndependentPlugin):
         # cumulative directory size exceeds 25MB or even 100MB.
         cdirs = self.listdir('/sys/devices/system/cpu')
         self.add_copy_spec([
-            os.path.join('/sys/devices/system/cpu', cdir) for cdir in cdirs
+            self.path_join('/sys/devices/system/cpu', cdir) for cdir in cdirs
         ])
 
         self.add_cmd_output([

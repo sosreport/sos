@@ -29,6 +29,6 @@ class ContainerLog(Plugin, IndependentPlugin):
         """Collect *.log files from subdirs of passed root path
         """
         for dirName, _, _ in os.walk(root):
-            self.add_copy_spec(os.path.join(dirName, '*.log'))
+            self.add_copy_spec(self.path_join(dirName, '*.log'))
 
 # vim: set et ts=4 sw=4 :

@@ -129,7 +129,7 @@ class Pacemaker(Plugin):
 
 class DebianPacemaker(Pacemaker, DebianPlugin, UbuntuPlugin):
     def setup(self):
-        self.envfile = "/etc/default/pacemaker"
+        self.envfile = self.path_join("/etc/default/pacemaker")
         self.setup_crm_shell()
         self.setup_pcs()
         super(DebianPacemaker, self).setup()
@@ -141,7 +141,7 @@ class DebianPacemaker(Pacemaker, DebianPlugin, UbuntuPlugin):
 
 class RedHatPacemaker(Pacemaker, RedHatPlugin):
     def setup(self):
-        self.envfile = "/etc/sysconfig/pacemaker"
+        self.envfile = self.path_join("/etc/sysconfig/pacemaker")
         self.setup_pcs()
         self.add_copy_spec("/etc/sysconfig/sbd")
         super(RedHatPacemaker, self).setup()

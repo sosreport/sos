@@ -11,7 +11,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
-import os
 
 
 class DirectoryServer(Plugin, RedHatPlugin):
@@ -47,7 +46,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
         try:
             for d in self.listdir("/etc/dirsrv"):
                 if d[0:5] == 'slapd':
-                    certpath = os.path.join("/etc/dirsrv", d)
+                    certpath = self.path_join("/etc/dirsrv", d)
                     self.add_cmd_output("certutil -L -d %s" % certpath)
                     self.add_cmd_output("dsctl %s healthcheck" % d)
         except OSError:

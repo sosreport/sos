@@ -61,7 +61,7 @@ class Yum(Plugin, RedHatPlugin):
                 if not p.endswith(".py"):
                     continue
                 plugins = plugins + " " if len(plugins) else ""
-                plugins = plugins + os.path.join(YUM_PLUGIN_PATH, p)
+                plugins = plugins + self.path_join(YUM_PLUGIN_PATH, p)
             if len(plugins):
                 self.add_cmd_output("rpm -qf %s" % plugins,
                                     suggest_filename="plugin-packages")

@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
-import os.path
 
 
 class Numa(Plugin, IndependentPlugin):
@@ -42,10 +41,10 @@ class Numa(Plugin, IndependentPlugin):
         ])
 
         self.add_copy_spec([
-            os.path.join(numa_path, "node*/meminfo"),
-            os.path.join(numa_path, "node*/cpulist"),
-            os.path.join(numa_path, "node*/distance"),
-            os.path.join(numa_path, "node*/hugepages/hugepages-*/*")
+            self.path_join(numa_path, "node*/meminfo"),
+            self.path_join(numa_path, "node*/cpulist"),
+            self.path_join(numa_path, "node*/distance"),
+            self.path_join(numa_path, "node*/hugepages/hugepages-*/*")
         ])
 
 # vim: set et ts=4 sw=4 :

@@ -2897,7 +2897,7 @@ class Plugin():
         try:
             cmd_line_paths = glob.glob(cmd_line_glob)
             for path in cmd_line_paths:
-                f = open(path, 'r')
+                f = open(self.path_join(path), 'r')
                 cmd_line = f.read().strip()
                 if process in cmd_line:
                     status = True
