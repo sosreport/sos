@@ -242,6 +242,12 @@ def listdir(path, sysroot):
     return _os_wrapper(path, sysroot, 'listdir', os)
 
 
+def path_join(path, *p, sysroot=os.sep):
+    if not path.startswith(sysroot):
+        path = os.path.join(sysroot, path.lstrip(os.sep))
+    return os.path.join(path, *p)
+
+
 class AsyncReader(threading.Thread):
     """Used to limit command output to a given size without deadlocking
     sos.

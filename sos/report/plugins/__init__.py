@@ -13,7 +13,7 @@
 from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable, TIMEOUT_DEFAULT,
                            path_exists, path_isdir, path_isfile, path_islink,
-                           listdir)
+                           listdir, path_join)
 
 import os
 import glob
@@ -708,19 +708,6 @@ class Plugin():
     def _log_debug(self, msg):
         self.soslog.debug(self._format_msg(msg))
 
-    def join_sysroot(self, path):
-        """Join a given path with the configured sysroot
-
-        :param path:    The filesystem path that needs to be joined
-        :type path: ``str``
-
-        :returns: The joined filesystem path
-        :rtype: ``str``
-        """
-        if path[0] == os.sep:
-            path = path[1:]
-        return os.path.join(self.sysroot, path)
-
     def strip_sysroot(self, path):
         """Remove the configured sysroot from a filesystem path
 
@@ -1176,7 +1163,7 @@ class Plugin():
 
     def _get_dest_for_srcpath(self, srcpath):
         if self.use_sysroot():
-            srcpath = self.join_sysroot(srcpath)
+            srcpath = self.path_join(srcpath)
         for copied in self.copied_files:
             if srcpath == copied["srcpath"]:
                 return copied["dstpath"]
@@ -1284,7 +1271,7 @@ class Plugin():
             forbidden = [forbidden]
 
         if self.use_sysroot():
-            forbidden = [self.join_sysroot(f) for f in forbidden]
+            forbidden = [self.path_join(f) for f in forbidden]
 
         for forbid in forbidden:
             self._log_info("adding forbidden path '%s'" % forbid)
@@ -1438,7 +1425,7 @@ class Plugin():
             since = self.get_option('since')
 
         logarchive_pattern = re.compile(r'.*((\.(zip|gz|bz2|xz))|[-.][\d]+)$')
-        configfile_pattern = re.compile(r"^%s/*" % self.join_sysroot("etc"))
+        configfile_pattern = re.compile(r"^%s/*" % self.path_join("etc"))
 
         if not self.test_predicate(pred=pred):
             self._log_info("skipped copy spec '%s' due to predicate (%s)" %
@@ -1468,7 +1455,7 @@ class Plugin():
                 return False
 
             if self.use_sysroot():
-                copyspec = self.join_sysroot(copyspec)
+                copyspec = self.path_join(copyspec)
 
             files = self._expand_copy_spec(copyspec)
 
@@ -1683,7 +1670,7 @@ class Plugin():
                 if not _dev_ok:
                     continue
                 if prepend_path:
-                    device = os.path.join(prepend_path, device)
+                    device = self.path_join(prepend_path, device)
                 _cmd = cmd % {'dev': device}
                 self._add_cmd_output(cmd=_cmd, timeout=timeout,
                                      sizelimit=sizelimit, chroot=chroot,
@@ -2592,7 +2579,7 @@ class Plugin():
                     if self.path_isfile(path) or self.path_islink(path):
                         found_paths.append(path)
                     elif self.path_isdir(path) and self.listdir(path):
-                        found_paths.extend(__expand(os.path.join(path, '*')))
+                        found_paths.extend(__expand(self.path_join(path, '*')))
                     else:
                         found_paths.append(path)
                 except PermissionError:
@@ -2608,7 +2595,7 @@ class Plugin():
         if (os.access(copyspec, os.R_OK) and self.path_isdir(copyspec) and
                 self.listdir(copyspec)):
             # the directory exists and is non-empty, recurse through it
-            copyspec = os.path.join(copyspec, '*')
+            copyspec = self.path_join(copyspec, '*')
         expanded = glob.glob(copyspec, recursive=True)
         recursed_files = []
         for _path in expanded:
@@ -2876,6 +2863,20 @@ class Plugin():
         :rtype:             ``list``
         """
         return listdir(path, self.commons['cmdlineopts'].sysroot)
+
+    def path_join(self, path, *p):
+        """Helper to call the sos.utilities wrapper that allows the
+        corresponding `os` call to account for sysroot
+
+        :param path:    The leading path passed to os.path.join()
+        :type path:     ``str``
+
+        :param p:       Following path section(s) to be joined with ``path``,
+                        an empty parameter will result in a path that ends with
+                        a separator
+        :type p:        ``str``
+        """
+        return path_join(path, *p, sysroot=self.sysroot)
 
     def postproc(self):
         """Perform any postprocessing. To be replaced by a plugin if required.
