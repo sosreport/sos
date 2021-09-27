@@ -29,9 +29,14 @@ class InitSystem():
                       status of services
     :type query_cmd: ``str``
 
+    :param chroot:  Location to chroot to for any command execution, i.e. the
+                    sysroot if we're running in a container
+    :type chroot:   ``str`` or ``None``
+
     """
 
-    def __init__(self, init_cmd=None, list_cmd=None, query_cmd=None):
+    def __init__(self, init_cmd=None, list_cmd=None, query_cmd=None,
+                 chroot=None):
         """Initialize a new InitSystem()"""
 
         self.services = {}
@@ -39,6 +44,7 @@ class InitSystem():
         self.init_cmd = init_cmd
         self.list_cmd = "%s %s" % (self.init_cmd, list_cmd) or None
         self.query_cmd = "%s %s" % (self.init_cmd, query_cmd) or None
+        self.chroot = chroot
 
     def is_enabled(self, name):
         """Check if given service name is enabled
@@ -108,7 +114,10 @@ class InitSystem():
         """Query an individual service"""
         if self.query_cmd:
             try:
-                return sos_get_command_output("%s %s" % (self.query_cmd, name))
+                return sos_get_command_output(
+                    "%s %s" % (self.query_cmd, name),
+                    chroot=self.chroot
+                )
             except Exception:
                 return None
         return None

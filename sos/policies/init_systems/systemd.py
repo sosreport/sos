@@ -15,11 +15,12 @@ from sos.utilities import shell_out
 class SystemdInit(InitSystem):
     """InitSystem abstraction for SystemD systems"""
 
-    def __init__(self):
+    def __init__(self, chroot=None):
         super(SystemdInit, self).__init__(
             init_cmd='systemctl',
             list_cmd='list-unit-files --type=service',
-            query_cmd='status'
+            query_cmd='status',
+            chroot=chroot
         )
         self.load_all_services()
 
@@ -30,7 +31,7 @@ class SystemdInit(InitSystem):
         return 'unknown'
 
     def load_all_services(self):
-        svcs = shell_out(self.list_cmd).splitlines()[1:]
+        svcs = shell_out(self.list_cmd, chroot=self.chroot).splitlines()[1:]
         for line in svcs:
             try:
                 name = line.split('.service')[0]
