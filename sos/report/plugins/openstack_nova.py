@@ -103,7 +103,7 @@ class OpenStackNova(Plugin):
                 "nova-scheduler.log*"
             ]
             for novalog in novalogs:
-                self.add_copy_spec(os.path.join(novadir, novalog))
+                self.add_copy_spec(self.path_join(novadir, novalog))
 
         self.add_copy_spec([
             "/etc/nova/",

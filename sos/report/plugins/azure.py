@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
+import os
 
 
 class Azure(Plugin, UbuntuPlugin):
@@ -38,7 +38,7 @@ class Azure(Plugin, UbuntuPlugin):
 
         for path, subdirs, files in os.walk("/var/log/azure"):
             for name in files:
-                self.add_copy_spec(os.path.join(path, name), sizelimit=limit)
+                self.add_copy_spec(self.path_join(path, name), sizelimit=limit)
 
         self.add_cmd_output((
             'curl -s -H Metadata:true '

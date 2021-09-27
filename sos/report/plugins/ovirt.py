@@ -216,7 +216,7 @@ class Ovirt(Plugin, RedHatPlugin):
             "isouploader.conf"
         ]
         for conf_file in passwd_files:
-            conf_path = os.path.join("/etc/ovirt-engine", conf_file)
+            conf_path = self.path_join("/etc/ovirt-engine", conf_file)
             self.do_file_sub(
                 conf_path,
                 r"passwd=(.*)",

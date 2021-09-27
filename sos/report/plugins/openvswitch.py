@@ -10,7 +10,6 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
-from os.path import join as path_join
 from os import environ
 
 import re
@@ -65,7 +64,9 @@ class OpenVSwitch(Plugin):
             log_dirs.append(environ.get('OVS_LOGDIR'))
 
         if not all_logs:
-            self.add_copy_spec([path_join(ld, '*.log') for ld in log_dirs])
+            self.add_copy_spec([
+                self.path_join(ld, '*.log') for ld in log_dirs
+            ])
         else:
             self.add_copy_spec(log_dirs)
 
@@ -76,13 +77,13 @@ class OpenVSwitch(Plugin):
         ])
 
         self.add_copy_spec([
-            path_join('/usr/local/etc/openvswitch', 'conf.db'),
-            path_join('/etc/openvswitch', 'conf.db'),
-            path_join('/var/lib/openvswitch', 'conf.db'),
+            self.path_join('/usr/local/etc/openvswitch', 'conf.db'),
+            self.path_join('/etc/openvswitch', 'conf.db'),
+            self.path_join('/var/lib/openvswitch', 'conf.db'),
         ])
         ovs_dbdir = environ.get('OVS_DBDIR')
         if ovs_dbdir:
-            self.add_copy_spec(path_join(ovs_dbdir, 'conf.db'))
+            self.add_copy_spec(self.path_join(ovs_dbdir, 'conf.db'))
 
         self.add_cmd_output([
             # The '-t 5' adds an upper bound on how long to wait to connect

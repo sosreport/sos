@@ -40,7 +40,7 @@ class Unpackaged(Plugin, RedHatPlugin):
                     for e in exclude:
                         dirs[:] = [d for d in dirs if d not in e]
                 for name in files:
-                    path = os.path.join(root, name)
+                    path = self.path_join(root, name)
                     try:
                         if stat.S_ISLNK(os.lstat(path).st_mode):
                             path = Path(path).resolve()
@@ -49,7 +49,7 @@ class Unpackaged(Plugin, RedHatPlugin):
                     file_list.append(os.path.realpath(path))
                 for name in dirs:
                     file_list.append(os.path.realpath(
-                                     os.path.join(root, name)))
+                                     self.path_join(root, name)))
 
             return file_list
 

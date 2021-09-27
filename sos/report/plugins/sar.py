@@ -8,7 +8,6 @@
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-import os
 import re
 
 
@@ -27,7 +26,7 @@ class Sar(Plugin,):
     ]
 
     def setup(self):
-        self.add_copy_spec(os.path.join(self.sa_path, '*'),
+        self.add_copy_spec(self.path_join(self.sa_path, '*'),
                            sizelimit=0 if self.get_option("all_sar") else None,
                            tailit=False)
 
@@ -44,7 +43,7 @@ class Sar(Plugin,):
         # as option for sadc
         for fname in dir_list:
             if sa_regex.match(fname):
-                sa_data_path = os.path.join(self.sa_path, fname)
+                sa_data_path = self.path_join(self.sa_path, fname)
                 sar_filename = 'sar' + fname[2:]
                 if sar_filename not in dir_list:
                     sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path

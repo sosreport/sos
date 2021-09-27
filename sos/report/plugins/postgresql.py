@@ -124,7 +124,7 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
 
             # copy PG_VERSION and postmaster.opts
             for f in ["PG_VERSION", "postmaster.opts"]:
-                self.add_copy_spec(os.path.join(_dir, "data", f))
+                self.add_copy_spec(self.path_join(_dir, "data", f))
 
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):

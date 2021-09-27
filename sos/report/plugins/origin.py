@@ -69,20 +69,21 @@ class OpenShiftOrigin(Plugin):
 
     def is_static_etcd(self):
         """Determine if we are on a node running etcd"""
-        return self.path_exists(os.path.join(self.static_pod_dir, "etcd.yaml"))
+        return self.path_exists(self.path_join(self.static_pod_dir,
+                                               "etcd.yaml"))
 
     def is_static_pod_compatible(self):
         """Determine if a node is running static pods"""
         return self.path_exists(self.static_pod_dir)
 
     def setup(self):
-        bstrap_node_cfg = os.path.join(self.node_base_dir,
-                                       "bootstrap-" + self.node_cfg_file)
-        bstrap_kubeconfig = os.path.join(self.node_base_dir,
-                                         "bootstrap.kubeconfig")
-        node_certs = os.path.join(self.node_base_dir, "certs", "*")
-        node_client_ca = os.path.join(self.node_base_dir, "client-ca.crt")
-        admin_cfg = os.path.join(self.master_base_dir, "admin.kubeconfig")
+        bstrap_node_cfg = self.path_join(self.node_base_dir,
+                                         "bootstrap-" + self.node_cfg_file)
+        bstrap_kubeconfig = self.path_join(self.node_base_dir,
+                                           "bootstrap.kubeconfig")
+        node_certs = self.path_join(self.node_base_dir, "certs", "*")
+        node_client_ca = self.path_join(self.node_base_dir, "client-ca.crt")
+        admin_cfg = self.path_join(self.master_base_dir, "admin.kubeconfig")
         oc_cmd_admin = "%s --config=%s" % ("oc", admin_cfg)
         static_pod_logs_cmd = "master-logs"
 
@@ -92,11 +93,12 @@ class OpenShiftOrigin(Plugin):
             self.add_copy_spec([
                 self.master_cfg,
                 self.master_env,
-                os.path.join(self.master_base_dir, "*.crt"),
+                self.path_join(self.master_base_dir, "*.crt"),
             ])
 
             if self.is_static_pod_compatible():
-                self.add_copy_spec(os.path.join(self.static_pod_dir, "*.yaml"))
+                self.add_copy_spec(self.path_join(self.static_pod_dir,
+                                                  "*.yaml"))
                 self.add_cmd_output([
                     "%s api api" % static_pod_logs_cmd,
                     "%s controllers controllers" % static_pod_logs_cmd,
@@ -177,9 +179,9 @@ class OpenShiftOrigin(Plugin):
                 node_client_ca,
                 bstrap_node_cfg,
                 bstrap_kubeconfig,
-                os.path.join(self.node_base_dir, "*.crt"),
-                os.path.join(self.node_base_dir, "resolv.conf"),
-                os.path.join(self.node_base_dir, "node-dnsmasq.conf"),
+                self.path_join(self.node_base_dir, "*.crt"),
+                self.path_join(self.node_base_dir, "resolv.conf"),
+                self.path_join(self.node_base_dir, "node-dnsmasq.conf"),
             ])
 
             self.add_journal(units="atomic-openshift-node")

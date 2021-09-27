@@ -22,7 +22,7 @@ class PowerPC(Plugin, IndependentPlugin):
 
     def setup(self):
         try:
-            with open('/proc/cpuinfo', 'r') as fp:
+            with open(self.path_join('/proc/cpuinfo'), 'r') as fp:
                 contents = fp.read()
                 ispSeries = "pSeries" in contents
                 isPowerNV = "PowerNV" in contents

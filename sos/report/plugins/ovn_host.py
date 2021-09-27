@@ -35,7 +35,7 @@ class OVNHost(Plugin):
         else:
             self.add_copy_spec("/var/log/ovn/*.log")
 
-        self.add_copy_spec([os.path.join(pp, pidfile) for pp in pid_paths])
+        self.add_copy_spec([self.path_join(pp, pidfile) for pp in pid_paths])
 
         self.add_copy_spec('/etc/sysconfig/ovn-controller')
 
@@ -49,7 +49,7 @@ class OVNHost(Plugin):
 
     def check_enabled(self):
         return (any([self.path_isfile(
-            os.path.join(pp, pidfile)) for pp in pid_paths]) or
+            self.path_join(pp, pidfile)) for pp in pid_paths]) or
             super(OVNHost, self).check_enabled())
 
 

@@ -68,7 +68,7 @@ class OpenStackInstack(Plugin):
                 p = uc_config.get(opt)
                 if p:
                     if not os.path.isabs(p):
-                        p = os.path.join('/home/stack', p)
+                        p = self.path_join('/home/stack', p)
                     self.add_copy_spec(p)
         except Exception:
             pass

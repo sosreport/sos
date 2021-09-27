@@ -8,7 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from datetime import datetime
 
@@ -29,11 +28,11 @@ class oVirtEngineBackup(Plugin, RedHatPlugin):
 
     def setup(self):
         now = datetime.now().strftime("%Y%m%d%H%M%S")
-        backup_filename = os.path.join(
+        backup_filename = self.path_join(
             self.get_option("backupdir"),
             "engine-db-backup-%s.tar.gz" % (now)
         )
-        log_filename = os.path.join(
+        log_filename = self.path_join(
             self.get_option("backupdir"),
             "engine-db-backup-%s.log" % (now)
         )

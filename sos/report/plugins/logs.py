@@ -24,15 +24,15 @@ class Logs(Plugin, IndependentPlugin):
         since = self.get_option("since")
 
         if self.path_exists('/etc/rsyslog.conf'):
-            with open('/etc/rsyslog.conf', 'r') as conf:
+            with open(self.path_join('/etc/rsyslog.conf'), 'r') as conf:
                 for line in conf.readlines():
                     if line.startswith('$IncludeConfig'):
                         confs += glob.glob(line.split()[1])
 
         for conf in confs:
-            if not self.path_exists(conf):
+            if not self.path_exists(self.path_join(conf)):
                 continue
-            config = self.join_sysroot(conf)
+            config = self.path_join(conf)
             logs += self.do_regex_find_all(r"^\S+\s+(-?\/.*$)\s+", config)
 
         for i in logs:
@@ -60,7 +60,7 @@ class Logs(Plugin, IndependentPlugin):
         # - there is some data present, either persistent or runtime only
         # - systemd-journald service exists
         # otherwise fallback to collecting few well known logfiles directly
-        journal = any([self.path_exists(p + "/log/journal/")
+        journal = any([self.path_exists(self.path_join(p, "log/journal/"))
                       for p in ["/var", "/run"]])
         if journal and self.is_service("systemd-journald"):
             self.add_journal(since=since, tags='journal_full', priority=100)

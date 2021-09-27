@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
-import os.path
 
 
 class Ssh(Plugin, IndependentPlugin):
@@ -42,7 +41,7 @@ class Ssh(Plugin, IndependentPlugin):
         try:
             for sshcfg in sshcfgs:
                 tag = sshcfg.split('/')[-1]
-                with open(sshcfg, 'r') as cfgfile:
+                with open(self.path_join(sshcfg), 'r') as cfgfile:
                     for line in cfgfile:
                         # skip empty lines and comments
                         if len(line.split()) == 0 or line.startswith('#'):
@@ -65,7 +64,7 @@ class Ssh(Plugin, IndependentPlugin):
         if users_data['status']:
             # If getent fails, fallback to just reading /etc/passwd
             try:
-                with open('/etc/passwd') as passwd_file:
+                with open(self.path_join('/etc/passwd')) as passwd_file:
                     users_data_lines = passwd_file.readlines()
             except Exception:
                 # If we can't read /etc/passwd, then there's something wrong.
@@ -77,7 +76,7 @@ class Ssh(Plugin, IndependentPlugin):
         # Read the home paths of users in the system and check the ~/.ssh dirs
         for usr_line in users_data_lines:
             try:
-                home_dir = os.path.join(usr_line.split(':')[5], '.ssh')
+                home_dir = self.path_join(usr_line.split(':')[5], '.ssh')
                 if self.path_isdir(home_dir):
                     self.add_cmd_output('ls -laZ {}'.format(home_dir))
             except IndexError:

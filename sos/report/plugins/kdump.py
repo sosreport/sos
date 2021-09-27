@@ -40,7 +40,7 @@ class RedHatKDump(KDump, RedHatPlugin):
     packages = ('kexec-tools',)
 
     def fstab_parse_fs(self, device):
-        with open('/etc/fstab', 'r') as fp:
+        with open(self.path_join('/etc/fstab'), 'r') as fp:
             for line in fp:
                 if line.startswith((device)):
                     return line.split()[1].rstrip('/')
@@ -50,7 +50,7 @@ class RedHatKDump(KDump, RedHatPlugin):
         fs = ""
         path = "/var/crash"
 
-        with open('/etc/kdump.conf', 'r') as fp:
+        with open(self.path_join('/etc/kdump.conf'), 'r') as fp:
             for line in fp:
                 if line.startswith("path"):
                     path = line.split()[1]

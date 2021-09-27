@@ -19,8 +19,9 @@ class DockerDistribution(Plugin):
     def setup(self):
         self.add_copy_spec('/etc/docker-distribution/')
         self.add_journal('docker-distribution')
-        if self.path_exists('/etc/docker-distribution/registry/config.yml'):
-            with open('/etc/docker-distribution/registry/config.yml') as f:
+        conf = self.path_join('/etc/docker-distribution/registry/config.yml')
+        if self.path_exists(conf):
+            with open(conf) as f:
                 for line in f:
                     if 'rootdirectory' in line:
                         loc = line.split()[1]
