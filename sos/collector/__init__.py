@@ -98,6 +98,7 @@ class SoSCollector(SoSComponent):
         'ssh_port': 22,
         'ssh_user': 'root',
         'timeout': 600,
+        'transport': 'auto',
         'verify': False,
         'usernames': [],
         'upload': False,
@@ -378,6 +379,8 @@ class SoSCollector(SoSComponent):
                                  help='Specify an SSH user. Default root')
         collect_grp.add_argument('--timeout', type=int, required=False,
                                  help='Timeout for sosreport on each node.')
+        collect_grp.add_argument('--transport', default='auto', type=str,
+                                 help='Remote connection transport to use')
         collect_grp.add_argument("--upload", action="store_true",
                                  default=False,
                                  help="Upload archive to a policy-default "
@@ -803,6 +806,8 @@ class SoSCollector(SoSComponent):
         self.collect_md.add_field('cluster_type', self.cluster_type)
         if self.cluster:
             self.primary.cluster = self.cluster
+            if self.opts.transport == 'auto':
+                self.opts.transport = self.cluster.set_transport_type()
             self.cluster.setup()
             if self.cluster.cluster_ssh_key:
                 if not self.opts.ssh_key:
@@ -1041,6 +1046,7 @@ class SoSCollector(SoSComponent):
             else:
                 client.disconnect()
         except Exception:
+            # all exception logging is handled within SoSNode
             pass
 
     def intro(self):

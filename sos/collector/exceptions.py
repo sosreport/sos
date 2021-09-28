@@ -94,6 +94,16 @@ class UnsupportedHostException(Exception):
         super(UnsupportedHostException, self).__init__(message)
 
 
+class InvalidTransportException(Exception):
+    """Raised when a transport is requested but it does not exist or is
+    not supported locally"""
+
+    def __init__(self, transport=None):
+        message = ("Connection failed: unknown or unsupported transport %s"
+                   % transport if transport else '')
+        super(InvalidTransportException, self).__init__(message)
+
+
 __all__ = [
     'AuthPermissionDeniedException',
     'CommandTimeoutException',
@@ -104,5 +114,6 @@ __all__ = [
     'InvalidPasswordException',
     'PasswordRequestException',
     'TimeoutPasswordAuthException',
-    'UnsupportedHostException'
+    'UnsupportedHostException',
+    'InvalidTransportException'
 ]

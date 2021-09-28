@@ -43,6 +43,7 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-sos-cmd SOS_CMD]
     [\-t|\-\-threads THREADS]
     [\-\-timeout TIMEOUT]
+    [\-\-transport TRANSPORT]
     [\-\-tmp\-dir TMP_DIR]
     [\-v|\-\-verbose]
     [\-\-verify]
@@ -350,6 +351,20 @@ Note that sosreports are collected in parallel, so you can approximate the total
 runtime of sos collect via timeout*(number of nodes/jobs).
 
 Default is 180 seconds.
+.TP
+\fB\-\-transport\fR TRANSPORT
+Specify the type of remote transport to use to manage connections to remote nodes.
+
+\fBsos collect\fR uses locally installed binaries to connect to and interact with remote
+nodes, instead of directly establishing those connections. By default, OpenSSH's ControlPersist
+feature is preferred, however certain cluster types may have preferences of their own for how
+remote sessions should be established.
+
+The types of transports supported are currently as follows:
+
+    \fBauto\fR                  Allow the cluster type to determine the transport used
+    \fBcontrol_persist\fR       Use OpenSSH's ControlPersist feature. This is the default behavior
+
 .TP
 \fB\-\-tmp\-dir\fR TMP_DIR
 Specify a temporary directory to save sos archives to. By default one will be created in

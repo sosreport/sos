@@ -149,6 +149,16 @@ class Cluster():
         """
         pass
 
+    def set_transport_type(self):
+        """The default connection type used by sos collect is to leverage the
+        local system's SSH installation using ControlPersist, however certain
+        cluster types may want to use something else.
+
+        Override this in a specific cluster profile to set the ``transport``
+        option according to what type of transport should be used.
+        """
+        return 'control_persist'
+
     def set_primary_options(self, node):
         """If there is a need to set specific options in the sos command being
         run on the cluster's primary nodes, override this method in the cluster
