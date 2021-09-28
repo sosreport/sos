@@ -22,7 +22,13 @@ from sos.collector.transports.control_persist import SSHControlPersist
 from sos.collector.transports.local import LocalTransport
 from sos.collector.exceptions import (CommandTimeoutException,
                                       ConnectionException,
-                                      UnsupportedHostException)
+                                      UnsupportedHostException,
+                                      InvalidTransportException)
+
+TRANSPORTS = {
+    'local': LocalTransport,
+    'control_persist': SSHControlPersist,
+}
 
 
 class SosNode():
@@ -107,6 +113,14 @@ class SosNode():
         if self.address in ['localhost', '127.0.0.1']:
             self.local = True
             return LocalTransport(self.address, commons)
+        elif self.opts.transport in TRANSPORTS.keys():
+            return TRANSPORTS[self.opts.transport](self.address, commons)
+        elif self.opts.transport != 'auto':
+            self.log_error(
+                "Connection failed: unknown or unsupported transport %s"
+                % self.opts.transport
+            )
+            raise InvalidTransportException(self.opts.transport)
         return SSHControlPersist(self.address, commons)
 
     def _fmt_msg(self, msg):
