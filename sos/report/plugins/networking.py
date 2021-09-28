@@ -182,22 +182,41 @@ class Networking(Plugin):
         # per-namespace.
         self.add_cmd_output("ip netns")
         cmd_prefix = "ip netns exec "
-        for namespace in self.get_network_namespaces(
-                            self.get_option("namespace_pattern"),
-                            self.get_option("namespaces")):
+        namespaces = self.get_network_namespaces(
+                self.get_option("namespace_pattern"),
+                self.get_option("namespaces"))
+        if (namespaces):
+            # 'ip netns exec <foo> iptables-save' must be guarded by nf_tables
+            # kmod, if 'iptables -V' output contains 'nf_tables'
+            # analogously for ip6tables
+            co = {'cmd': 'iptables -V', 'output': 'nf_tables'}
+            co6 = {'cmd': 'ip6tables -V', 'output': 'nf_tables'}
+            iptables_with_nft = (SoSPredicate(self, kmods=['nf_tables'])
+                                 if self.test_predicate(self,
+                                 pred=SoSPredicate(self, cmd_outputs=co))
+                                 else None)
+            ip6tables_with_nft = (SoSPredicate(self, kmods=['nf_tables'])
+                                  if self.test_predicate(self,
+                                  pred=SoSPredicate(self, cmd_outputs=co6))
+                                  else None)
+        for namespace in namespaces:
             ns_cmd_prefix = cmd_prefix + namespace + " "
             self.add_cmd_output([
                 ns_cmd_prefix + "ip address show",
                 ns_cmd_prefix + "ip route show table all",
                 ns_cmd_prefix + "ip -s -s neigh show",
                 ns_cmd_prefix + "ip rule list",
-                ns_cmd_prefix + "iptables-save",
-                ns_cmd_prefix + "ip6tables-save",
                 ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
                 ns_cmd_prefix + "netstat -s",
                 ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
                 ns_cmd_prefix + "nstat -zas",
             ], priority=50)
+            self.add_cmd_output([ns_cmd_prefix + "iptables-save"],
+                                pred=iptables_with_nft,
+                                priority=50)
+            self.add_cmd_output([ns_cmd_prefix + "ip6tables-save"],
+                                pred=ip6tables_with_nft,
+                                priority=50)
 
             ss_cmd = ns_cmd_prefix + "ss -peaonmi"
             # --allow-system-changes is handled directly in predicate
