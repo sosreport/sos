@@ -32,6 +32,11 @@ class RedHatInsights(Plugin, RedHatPlugin):
         else:
             self.add_copy_spec("/var/log/insights-client/insights-client.log")
 
+        self.add_cmd_output(
+            "insights-client --test-connection --net-debug",
+            timeout=30
+        )
+
     def postproc(self):
         for conf in self.config:
             self.do_file_sub(
