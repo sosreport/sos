@@ -144,7 +144,8 @@ class RemoteTransport():
         raise NotImplementedError("Transport %s does not define disconnect"
                                   % self.name)
 
-    def run_command(self, cmd, timeout=180, need_root=False, env=None):
+    def run_command(self, cmd, timeout=180, need_root=False, env=None,
+                    get_pty=False):
         """Run a command on the node, returning its output and exit code.
         This should return the exit code of the command being executed, not the
         exit code of whatever mechanism the transport uses to execute that
@@ -165,10 +166,15 @@ class RemoteTransport():
         :param env:         Specify env vars to be passed to the ``cmd``
         :type env:          ``dict``
 
+        :param get_pty:     Does ``cmd`` require execution with a pty?
+        :type get_pty:      ``bool``
+
         :returns:           Output of ``cmd`` and the exit code
         :rtype:             ``dict`` with keys ``output`` and ``status``
         """
         self.log_debug('Running command %s' % cmd)
+        if get_pty:
+            cmd = "/bin/bash -c %s" % quote(cmd)
         # currently we only use/support the use of pexpect for handling the
         # execution of these commands, as opposed to directly invoking
         # subprocess.Popen() in conjunction with tools like sshpass.
@@ -212,6 +218,13 @@ class RemoteTransport():
         :type env:      ``dict``
         """
         cmd = self._format_cmd_for_exec(cmd)
+
+        # if for any reason env is empty, set it to None as otherwise
+        # pexpect interprets this to mean "run this command with no env vars of
+        # any kind"
+        if not env:
+            env = None
+
         result = pexpect.spawn(cmd, encoding='utf-8', env=env)
 
         _expects = [pexpect.EOF, pexpect.TIMEOUT]
@@ -268,6 +281,9 @@ class RemoteTransport():
         _out = self.run_command('hostname')
         if _out['status'] == 0:
             self._hostname = _out['output'].strip()
+
+        if not self._hostname:
+            self._hostname = self.address
         self.log_info("Hostname set to %s" % self._hostname)
         return self._hostname
 
@@ -302,7 +318,7 @@ class RemoteTransport():
         return self._read_file(fname)
 
     def _read_file(self, fname):
-        res = self.run_command("cat %s" % fname, timeout=5)
+        res = self.run_command("cat %s" % fname, timeout=10)
         if res['status'] == 0:
             return res['output']
         else:

@@ -12,6 +12,7 @@ import os
 
 from pipes import quote
 from sos.collector.clusters import Cluster
+from sos.utilities import is_executable
 
 
 class ocp(Cluster):
@@ -82,6 +83,19 @@ class ocp(Cluster):
                 for column in idx:
                     nodes[_node[0]][column] = _node[idx[column]]
         return nodes
+
+    def set_transport_type(self):
+        if is_executable('oc'):
+            return 'oc'
+        self.log_info("Local installation of 'oc' not found or is not "
+                      "correctly configured. Will use ControlPersist")
+        self.ui_log.warn(
+            "Preferred transport 'oc' not available, will fallback to SSH."
+        )
+        if not self.opts.batch:
+            input("Press ENTER to continue connecting with SSH, or Ctrl+C to"
+                  "abort.")
+        return 'control_persist'
 
     def get_nodes(self):
         nodes = []
