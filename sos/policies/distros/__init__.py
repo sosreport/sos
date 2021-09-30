@@ -219,11 +219,12 @@ class LinuxPolicy(Policy):
                 cmdline_opts.quiet:
             try:
                 if caseid:
-                    self.case_id = caseid
+                    self.commons['cmdlineopts'].case_id = caseid
                 else:
-                    self.case_id = input(_("Optionally, please enter the case "
-                                           "id that you are generating this "
-                                           "report for [%s]: ") % caseid)
+                    self.commons['cmdlineopts'].case_id = input(
+                        _("Optionally, please enter the case id that you are "
+                          "generating this report for [%s]: ") % caseid
+                    )
                 # Policies will need to handle the prompts for user information
                 if cmdline_opts.upload and self.get_upload_url():
                     self.prompt_for_upload_user()
