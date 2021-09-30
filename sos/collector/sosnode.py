@@ -20,6 +20,7 @@ from sos.policies import load
 from sos.policies.init_systems import InitSystem
 from sos.collector.transports.control_persist import SSHControlPersist
 from sos.collector.transports.local import LocalTransport
+from sos.collector.transports.oc import OCTransport
 from sos.collector.exceptions import (CommandTimeoutException,
                                       ConnectionException,
                                       UnsupportedHostException,
@@ -28,6 +29,7 @@ from sos.collector.exceptions import (CommandTimeoutException,
 TRANSPORTS = {
     'local': LocalTransport,
     'control_persist': SSHControlPersist,
+    'oc': OCTransport
 }
 
 
@@ -421,13 +423,11 @@ class SosNode():
         if 'atomic' in cmd:
             get_pty = True
 
-        if get_pty:
-            cmd = "/bin/bash -c %s" % quote(cmd)
-
         if env:
             _cmd_env = self.env_vars
             env = _cmd_env.update(env)
-        return self._transport.run_command(cmd, timeout, need_root, env)
+        return self._transport.run_command(cmd, timeout, need_root, env,
+                                           get_pty)
 
     def sosreport(self):
         """Run an sos report on the node, then collect it"""
