@@ -714,7 +714,7 @@ class SosNode():
                     elif line.startswith("The checksum is: "):
                         checksum = line.split()[3]
 
-                if checksum is not None:
+                if checksum:
                     self.manifest.add_field('checksum', checksum)
                     if len(checksum) == 32:
                         self.manifest.add_field('checksum_type', 'md5')
@@ -722,6 +722,8 @@ class SosNode():
                         self.manifest.add_field('checksum_type', 'sha256')
                     else:
                         self.manifest.add_field('checksum_type', 'unknown')
+                else:
+                    self.manifest.add_field('checksum_type', 'unknown')
             else:
                 err = self.determine_sos_error(res['status'], res['output'])
                 self.log_debug("Error running sos report. rc = %s msg = %s"

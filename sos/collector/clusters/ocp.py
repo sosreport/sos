@@ -183,7 +183,7 @@ class ocp(Cluster):
         if self.api_collect_enabled:
             # a primary has already been enabled for API collection, disable
             # it among others
-            node.plugin_options.append('openshift.no-oc=on')
+            node.plugopts.append('openshift.no-oc=on')
         else:
             _oc_cmd = 'oc'
             if node.host.containerized:
@@ -223,6 +223,6 @@ class ocp(Cluster):
 
     def set_node_options(self, node):
         # don't attempt OC API collections on non-primary nodes
-        node.plugin_options.append('openshift.no-oc=on')
+        node.plugopts.append('openshift.no-oc=on')
 
 # vim: set et ts=4 sw=4 :
