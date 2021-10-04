@@ -13,6 +13,7 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
 from pipes import quote
 from re import match
+from sos.utilities import is_executable
 
 
 class Foreman(Plugin):
@@ -27,8 +28,11 @@ class Foreman(Plugin):
         PluginOpt('months', default=1,
                   desc='number of months for dynflow output'),
         PluginOpt('proxyfeatures', default=False,
-                  desc='collect features of smart proxies')
+                  desc='collect features of smart proxies'),
+        PluginOpt('puma-gc', default=False,
+                  desc='collect Puma GC stats')
     ]
+    pumactl = 'pumactl %s -S /usr/share/foreman/tmp/puma.state'
 
     def setup(self):
         # for external DB, search in /etc/foreman/database.yml for:
@@ -133,6 +137,17 @@ class Foreman(Plugin):
         self.add_service_status('"system-dynflow\\x2dsidekiq.slice"',
                                 suggest_filename='dynflow_sidekiq_status')
         self.add_journal(units="dynflow-sidekiq@*")
+
+        # Puma stats & status, i.e. foreman-puma-stats, then
+        # pumactl stats -S /usr/share/foreman/tmp/puma.state
+        # and optionally also gc-stats
+        # if on RHEL with Software Collections, wrap the commands accordingly
+        if self.get_option('puma-gc'):
+            self.add_cmd_output(self.pumactl % 'gc-stats',
+                                suggest_filename='pumactl_gc-stats')
+        self.add_cmd_output(self.pumactl % 'stats',
+                            suggest_filename='pumactl_stats')
+        self.add_cmd_output('/usr/sbin/foreman-puma-status')
 
         # collect tables sizes, ordered
         _cmd = self.build_query_cmd(
@@ -297,6 +312,10 @@ class RedHatForeman(Foreman, RedHatPlugin):
         self.add_file_tags({
             '/usr/share/foreman/.ssh/ssh_config': 'ssh_foreman_config',
         })
+        # if we are on RHEL7 with scl, wrap some Puma commands by
+        # scl enable tfm 'command'
+        if self.policy.dist_version() == 7 and is_executable('scl'):
+            self.pumactl = "scl enable tfm '%s'" % self.pumactl
 
         super(RedHatForeman, self).setup()
 
