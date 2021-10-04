@@ -1693,6 +1693,8 @@ class Plugin():
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
         pred = kwargs.pop('pred') if 'pred' in kwargs else SoSPredicate(self)
+        if pred is None:
+            pred = SoSPredicate(self)
         if 'priority' not in kwargs:
             kwargs['priority'] = 10
         if 'changes' not in kwargs:
