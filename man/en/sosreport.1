@@ -32,6 +32,7 @@ sosreport \- Collect and package diagnostic and support data
           [--encrypt-pass PASS]\fR
           [--upload] [--upload-url url] [--upload-user user]\fR
           [--upload-directory dir] [--upload-pass pass]\fR
+          [--upload-protocol protocol]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -313,6 +314,19 @@ when prompted rather than using this option.
 .B \--upload-directory DIR
 Specify a directory to upload to, if one is not specified by a vendor default location
 or if your destination server does not allow writes to '/'.
+.TP
+.B \--upload-protocol PROTO
+Manually specify the protocol to use for uploading to the target \fBupload-url\fR.
+
+Normally this is determined via the upload address, assuming that the protocol is part
+of the address provided, e.g. 'https://example.com'. By using this option, sos will skip
+the protocol check and use the method defined for the specified PROTO.
+
+For RHEL systems, setting this option to \fBsftp\fR will skip the initial attempt to
+upload to the Red Hat Customer Portal, and only attempt an upload to Red Hat's SFTP server,
+which is typically used as a fallback target.
+
+Valid values for PROTO are: 'auto' (default), 'https', 'ftp', 'sftp'.
 .TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have

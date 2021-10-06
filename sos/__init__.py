@@ -58,7 +58,7 @@ _arg_names = [
     'no_postproc', 'note', 'onlyplugins', 'plugin_timeout', 'plugopts',
     'preset', 'profiles', 'quiet', 'since', 'sysroot', 'threads', 'tmp_dir',
     'upload', 'upload_url', 'upload_directory', 'upload_user', 'upload_pass',
-    'verbosity', 'verify'
+    'upload_protocol', 'verbosity', 'verify'
 ]
 
 #: Arguments with non-zero default values
@@ -69,7 +69,8 @@ _arg_defaults = {
     "preset": "auto",
     # Verbosity has an explicit zero default since the ArgumentParser
     # count action default is None.
-    "verbosity": 0
+    "verbosity": 0,
+    "upload_protocol": "auto"
 }
 
 
@@ -200,6 +201,7 @@ class SoSOptions(object):
         self.upload_directory = ""
         self.upload_user = ""
         self.upload_pass = ""
+        self.upload_protocol = _arg_defaults["upload_protocol"]
         self.verbosity = _arg_defaults["verbosity"]
         self.verify = False
         self._nondefault = set()
