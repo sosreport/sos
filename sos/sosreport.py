@@ -255,6 +255,9 @@ def _get_parser():
                         help="Username to authenticate to upload server with")
     parser.add_argument("--upload-pass", default=None,
                         help="Password to authenticate to upload server with")
+    parser.add_argument("--upload-protocol", default='auto',
+                        choices=['auto', 'https', 'ftp', 'sftp'],
+                        help="Manually specify the upload protocol")
 
     # Group to make add/del preset exclusive
     preset_grp = parser.add_mutually_exclusive_group()
