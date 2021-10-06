@@ -429,6 +429,7 @@ class RegexSubTests(unittest.TestCase):
             "never_copied", r"^(.*)$", "foobar"))
 
     def test_no_replacements(self):
+        self.mp.sysroot = '/'
         self.mp.add_copy_spec(j("tail_test.txt"))
         self.mp.collect()
         replacements = self.mp.do_file_sub(

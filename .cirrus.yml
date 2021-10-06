@@ -45,15 +45,6 @@ flake8_task:
         image: alpine/flake8:latest
     flake_script: flake8 sos
 
-# nose tests, again on the community cluster
-nosetests_task:
-    alias: nosetests
-    name: "Nosetests"
-    container:
-        image: python:slim
-    setup_script: pip install nose
-    nose_script: nosetests -v --with-cover --cover-package=sos tests/unittests
-
 # Run a check on newer upstream python versions to check for possible
 # breaks/changes in common modules. This is not meant to check any of the actual
 # collections or archive integrity.
@@ -123,10 +114,13 @@ report_stageone_task:
             dnf -y remove sos
         fi
     setup_script: &setup 'pip3 install avocado-framework'
+    # run the unittests separately as they require a different PYTHONPATH in
+    # order for the imports to work properly under avocado
+    unittest_script: PYTHONPATH=. avocado run tests/unittests/
     main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: &faillogs |
-            tar cf sos-fail-logs.tar /var/tmp/avocado*
+            ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
         log_artifacts:
             path: "sos-fail-logs.tar"
 

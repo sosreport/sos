@@ -78,9 +78,8 @@ class ExecutableTest(unittest.TestCase):
     def test_output_chdir(self):
         cmd = "/bin/bash -c 'echo $PWD'"
         result = sos_get_command_output(cmd, chdir=TEST_DIR)
-        print(result)
         self.assertEquals(result['status'], 0)
-        self.assertEquals(result['output'].strip(), TEST_DIR)
+        self.assertTrue(result['output'].strip().endswith(TEST_DIR))
 
     def test_shell_out(self):
         self.assertEquals("executed\n", shell_out('echo executed'))
