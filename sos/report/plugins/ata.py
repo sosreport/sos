@@ -23,7 +23,9 @@ class Ata(Plugin, IndependentPlugin):
         cmd_list = [
             "hdparm %(dev)s",
             "smartctl -a %(dev)s",
-            "smartctl -l scterc %(dev)s"
+            "smartctl -a %(dev)s -j",
+            "smartctl -l scterc %(dev)s",
+            "smartctl -l scterc %(dev)s -j"
         ]
         self.add_blockdev_cmd(cmd_list, whitelist=['sd.*', 'hd.*'])
 

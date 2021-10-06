@@ -26,6 +26,7 @@ class Nvme(Plugin, IndependentPlugin):
 
         cmds = [
             "smartctl --all %(dev)s",
+            "smartctl --all %(dev)s -j",
             "nvme list-ns %(dev)s",
             "nvme fw-log %(dev)s",
             "nvme list-ctrl %(dev)s",
