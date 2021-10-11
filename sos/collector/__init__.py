@@ -850,6 +850,7 @@ class SoSCollector(SoSComponent):
                       "CTRL-C to quit\n")
                 self.ui_log.info("")
             except KeyboardInterrupt:
+                self.cluster.cleanup()
                 self.exit("Exiting on user cancel", 130)
 
     def configure_sos_cmd(self):
@@ -1098,6 +1099,7 @@ this utility or remote systems that it connects to.
         self.archive.makedirs('sos_logs', 0o755)
 
         self.collect()
+        self.cluster.cleanup()
         self.cleanup()
 
     def collect(self):
@@ -1156,9 +1158,11 @@ this utility or remote systems that it connects to.
             pool.shutdown(wait=True)
         except KeyboardInterrupt:
             self.log_error('Exiting on user cancel\n')
+            self.cluster.cleanup()
             os._exit(130)
         except Exception as err:
             self.log_error('Could not connect to nodes: %s' % err)
+            self.cluster.cleanup()
             os._exit(1)
 
         if hasattr(self.cluster, 'run_extra_cmd'):
@@ -1173,6 +1177,7 @@ this utility or remote systems that it connects to.
             arc_name = self.create_cluster_archive()
         else:
             msg = 'No sosreports were collected, nothing to archive...'
+            self.cluster.cleanup()
             self.exit(msg, 1)
 
         if self.opts.upload and self.get_upload_url():
