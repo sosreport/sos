@@ -192,7 +192,8 @@ class Cluster():
         :returns: The output and status of `cmd`
         :rtype: ``dict``
         """
-        res = self.primary.run_command(cmd, get_pty=True, need_root=need_root)
+        pty = self.primary.local is False
+        res = self.primary.run_command(cmd, get_pty=pty, need_root=need_root)
         if res['output']:
             res['output'] = res['output'].replace('Password:', '')
         return res
@@ -222,6 +223,16 @@ class Cluster():
             if self.primary.is_installed(pkg):
                 return True
         return False
+
+    def cleanup(self):
+        """
+        This may be overridden by clusters
+
+        Perform any necessary cleanup steps required by the cluster profile.
+        This helps ensure that sos does make lasting changes to the environment
+        in which we are running
+        """
+        pass
 
     def get_nodes(self):
         """

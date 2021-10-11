@@ -37,7 +37,7 @@ class OCTransport(RemoteTransport):
         execution
         """
         return sos_get_command_output(
-            "oc -n sos-collect-tmp %s" % cmd,
+            "oc -n %s %s" % (self.project, cmd),
             **kwargs
         )
 
@@ -58,7 +58,7 @@ class OCTransport(RemoteTransport):
             "apiVersion": "v1",
             "metadata": {
                 "name": "%s-sos-collector" % self.address.split('.')[0],
-                "namespace": "sos-collect-tmp"
+                "namespace": self.project
             },
             "priorityClassName": "system-cluster-critical",
             "spec": {
