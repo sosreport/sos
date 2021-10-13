@@ -1380,6 +1380,14 @@ class SoSReport(SoSComponent):
 
         if self.opts.estimate_only:
             from sos.utilities import get_human_readable
+            from pathlib import Path
+            # add sos_logs, sos_reports dirs, etc., basically everything
+            # that remained in self.tmpdir after plugins' contents removal
+            # that still will be moved to the sos report final directory path
+            tmpdir_path = Path(self.tmpdir)
+            self.estimated_plugsizes['sos_logs_reports'] = sum(
+                    [f.stat().st_size for f in tmpdir_path.glob('**/*')])
+
             _sum = get_human_readable(sum(self.estimated_plugsizes.values()))
             self.ui_log.info("Estimated disk space requirement for whole "
                              "uncompressed sos report directory: %s" % _sum)
