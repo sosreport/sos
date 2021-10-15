@@ -41,6 +41,7 @@ class LogsSizeLimitTest(StageTwoReportTest):
     """
 
     sos_cmd = '-o logs'
+    sos_timeout = 500
     packages = {
         'rhel': ['python3-systemd'],
         'ubuntu': ['python3-systemd']
