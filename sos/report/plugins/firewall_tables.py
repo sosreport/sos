@@ -44,26 +44,41 @@ class firewall_tables(Plugin, IndependentPlugin):
         nft_pred = SoSPredicate(self,
                                 kmods=['nf_tables', 'nfnetlink'],
                                 required={'kmods': 'all'})
-        self.add_cmd_output("nft list ruleset", pred=nft_pred, changes=True)
+        return self.collect_cmd_output("nft list ruleset", pred=nft_pred,
+                                       changes=True)
 
     def setup(self):
+        # first, collect "nft list ruleset" as collecting commands like
+        # ip6tables -t mangle -nvL
+        # depends on its output
+        # store in nft_ip_tables lists of ip[|6] tables from nft list
+        nft_list = self.collect_nftables()
+        nft_ip_tables = {'ip': [], 'ip6': []}
+        nft_lines = nft_list['output'] if nft_list['status'] == 0 else ''
+        for line in nft_lines.splitlines():
+            words = line.split()[0:3]
+            if len(words) == 3 and words[0] == 'table' and \
+                    words[1] in nft_ip_tables.keys():
+                nft_ip_tables[words[1]].append(words[2])
         # collect iptables -t for any existing table, if we can't read the
         # tables, collect 2 default ones (mangle, filter)
+        # do collect them only when relevant nft list ruleset exists
+        default_ip_tables = "mangle\nfilter\n"
         try:
             ip_tables_names = open("/proc/net/ip_tables_names").read()
         except IOError:
-            ip_tables_names = "mangle\nfilter\n"
+            ip_tables_names = default_ip_tables
         for table in ip_tables_names.splitlines():
-            self.collect_iptable(table)
+            if nft_list['status'] == 0 and table in nft_ip_tables['ip']:
+                self.collect_iptable(table)
         # collect the same for ip6tables
         try:
             ip_tables_names = open("/proc/net/ip6_tables_names").read()
         except IOError:
-            ip_tables_names = "mangle\nfilter\n"
+            ip_tables_names = default_ip_tables
         for table in ip_tables_names.splitlines():
-            self.collect_ip6table(table)
-
-        self.collect_nftables()
+            if nft_list['status'] == 0 and table in nft_ip_tables['ip6']:
+                self.collect_ip6table(table)
 
         # When iptables is called it will load the modules
         # iptables_filter (for kernel <= 3) or
