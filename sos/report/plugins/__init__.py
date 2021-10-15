@@ -889,8 +889,7 @@ class Plugin():
             return bool(pred)
         return False
 
-    def log_skipped_cmd(self, pred, cmd, kmods=False, services=False,
-                        changes=False):
+    def log_skipped_cmd(self, cmd, pred, changes=False):
         """Log that a command was skipped due to predicate evaluation.
 
         Emit a warning message indicating that a command was skipped due
@@ -900,21 +899,17 @@ class Plugin():
         message indicating that the missing data can be collected by using
         the "--allow-system-changes" command line option will be included.
 
-        :param pred:    The predicate that caused the command to be skipped
-        :type pred:     ``SoSPredicate``
-
         :param cmd:     The command that was skipped
         :type cmd:      ``str``
 
-        :param kmods:   Did kernel modules cause the command to be skipped
-        :type kmods:    ``bool``
-
-        :param services: Did services cause the command to be skipped
-        :type services: ``bool``
+        :param pred:    The predicate that caused the command to be skipped
+        :type pred:     ``SoSPredicate``
 
         :param changes: Is the `--allow-system-changes` enabled
         :type changes:  ``bool``
         """
+        if pred is None:
+            pred = SoSPredicate(self)
         msg = "skipped command '%s': %s" % (cmd, pred.report_failure())
 
         if changes:
@@ -1693,8 +1688,6 @@ class Plugin():
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
         pred = kwargs.pop('pred') if 'pred' in kwargs else SoSPredicate(self)
-        if pred is None:
-            pred = SoSPredicate(self)
         if 'priority' not in kwargs:
             kwargs['priority'] = 10
         if 'changes' not in kwargs:
@@ -1713,9 +1706,7 @@ class Plugin():
             self.collect_cmds.append(soscmd)
             self._log_info("added cmd output '%s'" % soscmd.cmd)
         else:
-            self.log_skipped_cmd(pred, soscmd.cmd, kmods=bool(pred.kmods),
-                                 services=bool(pred.services),
-                                 changes=soscmd.changes)
+            self.log_skipped_cmd(soscmd.cmd, pred, changes=soscmd.changes)
 
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=None, stderr=True,
@@ -2125,7 +2116,7 @@ class Plugin():
                            root_symlink=False, timeout=None,
                            stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
-                           subdir=None, tags=[]):
+                           changes=False, subdir=None, tags=[]):
         """Execute a command and save the output to a file for inclusion in the
         report, then return the results for further use by the plugin
 
@@ -2176,8 +2167,7 @@ class Plugin():
         :rtype: ``dict``
         """
         if not self.test_predicate(cmd=True, pred=pred):
-            self._log_info("skipped cmd output '%s' due to predicate (%s)" %
-                           (cmd, self.get_predicate(cmd=True, pred=pred)))
+            self.log_skipped_cmd(cmd, pred, changes=changes)
             return {
                 'status': None,  # don't match on if result['status'] checks
                 'output': '',
