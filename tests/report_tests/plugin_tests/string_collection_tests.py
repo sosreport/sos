@@ -17,7 +17,7 @@ class CollectStringTest(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '-v -o unpackaged,python -k python.hashes'
+    sos_cmd = '-o unpackaged,python -k python.hashes'
     # unpackaged is only a RedHatPlugin
     redhat_only = True
 
