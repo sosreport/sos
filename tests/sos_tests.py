@@ -409,7 +409,7 @@ class BaseSoSReportTest(BaseSoSTest):
         return os.path.join(self.tmpdir, "sosreport-%s" % self.__class__.__name__)
         
     def _generate_sos_command(self):
-        return "%s %s --batch --tmp-dir %s %s" % (SOS_BIN, self.sos_component, self.tmpdir, self.sos_cmd)
+        return "%s %s -v --batch --tmp-dir %s %s" % (SOS_BIN, self.sos_component, self.tmpdir, self.sos_cmd)
 
     def _execute_sos_cmd(self):
         super(BaseSoSReportTest, self)._execute_sos_cmd()

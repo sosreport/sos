@@ -15,7 +15,7 @@ class NormalSoSReport(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '-v --label thisismylabel'
+    sos_cmd = '--label thisismylabel'
 
     def test_debug_in_logs_verbose(self):
         self.assertSosLogContains('DEBUG')
