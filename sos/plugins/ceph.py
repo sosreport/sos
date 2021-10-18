@@ -8,6 +8,8 @@
 
 from sos.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 from socket import gethostname
+from sos.utilities import (sos_get_command_output, is_executable)
+import re
 
 
 class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -15,7 +17,7 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
     """
 
     plugin_name = 'ceph'
-    profiles = ('storage', 'virt')
+    profiles = ('storage', 'virt', 'containers')
     ceph_hostname = gethostname()
 
     packages = (
@@ -36,6 +38,37 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
         'ceph-radosgw@*',
         'ceph-osd@*'
     )
+
+    # This check will enable the plugin regardless of being
+    # containerized or not
+    files = (
+        '/etc/ceph/ceph.conf',
+    )
+
+    def _find_ceph_containers(self):
+        ceph_containers_re = 'ceph-*'
+        self.ceph_containers = []
+        self.runtime = None
+        for runt in ['docker', 'podman']:
+            if is_executable(runt):
+                self.runtime = runt
+                break
+        if self.runtime is not None:
+            out = sos_get_command_output('%s ps' % self.runtime)
+            if out['status'] == 0:
+                for ent in out['output'].splitlines()[1:]:
+                    # container name is the latest item
+                    ent = ent.split()[-1]
+                    if re.match(ceph_containers_re, ent):
+                        self.ceph_containers.append(ent)
+
+    def check_enabled(self):
+        # check if a ceph container is running
+        self._find_ceph_containers()
+        if self.ceph_containers:
+            return True
+        # if not, fallback to enabledness per services/packages/files
+        return super(Ceph, self).check_enabled()
 
     def setup(self):
         all_logs = self.get_option("all_logs")
@@ -108,9 +141,9 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "pg stat",
         ]
 
-        self.add_cmd_output([
-            "ceph %s" % s for s in ceph_cmds
-        ])
+        ceph_osd_cmds = [
+            "ceph-volume lvm list",
+        ]
 
         self.add_cmd_output([
             "ceph %s --format json-pretty" % s for s in ceph_cmds
@@ -131,5 +164,30 @@ class Ceph(Plugin, RedHatPlugin, UbuntuPlugin):
             "/var/lib/ceph/tmp/*mnt*",
             "/etc/ceph/*bindpass*"
         ])
+
+        # If containerized, run commands in containers
+        if self.ceph_containers:
+            # Avoid retrieving multiple times the same data
+            got_ceph_cmds = False
+            for container in self.ceph_containers:
+                if re.match("ceph-(mon|rgw|osd)", container) and \
+                        not got_ceph_cmds:
+                    self.add_cmd_output([
+                        "%s exec -t %s ceph %s" % (self.runtime, container, s)
+                        for s in ceph_cmds
+                    ])
+                    got_ceph_cmds = True
+                if re.match("ceph-osd", container):
+                    self.add_cmd_output([
+                        "%s exec -t %s %s" % (self.runtime, container, s)
+                        for s in ceph_osd_cmds
+                    ])
+                    break
+        # Not containerized
+        else:
+            self.add_cmd_output([
+                "ceph %s" % s for s in ceph_cmds
+            ])
+
 
 # vim: set et ts=4 sw=4 :
