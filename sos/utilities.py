@@ -110,7 +110,8 @@ def is_executable(command, sysroot=None):
 
 def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
-                           binary=False, sizelimit=None, poller=None):
+                           binary=False, sizelimit=None, poller=None,
+                           to_file=False):
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -123,6 +124,12 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             os.chroot(chroot)
         if (chdir):
             os.chdir(chdir)
+
+    def _check_poller(proc):
+        if poller():
+            proc.terminate()
+            raise SoSTimeoutError
+        time.sleep(0.01)
 
     cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
@@ -154,23 +161,45 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 expanded_args.append(arg)
         else:
             expanded_args.append(arg)
+    if to_file:
+        _output = open(to_file, 'w')
+    else:
+        _output = PIPE
     try:
-        p = Popen(expanded_args, shell=False, stdout=PIPE,
+        p = Popen(expanded_args, shell=False, stdout=_output,
                   stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)
 
-        reader = AsyncReader(p.stdout, sizelimit, binary)
+        if not to_file:
+            reader = AsyncReader(p.stdout, sizelimit, binary)
+        else:
+            reader = FakeReader(p, binary)
+
         if poller:
             while reader.running:
-                if poller():
-                    p.terminate()
-                    raise SoSTimeoutError
-                time.sleep(0.01)
-        stdout = reader.get_contents()
-        truncated = reader.is_full
+                _check_poller(p)
+        else:
+            try:
+                # override timeout=0 to timeout=None, as Popen will treat the
+                # former as a literal 0-second timeout
+                p.wait(timeout if timeout else None)
+            except Exception:
+                p.terminate()
+                _output.close()
+                # until we separate timeouts from the `timeout` command
+                # handle per-cmd timeouts via Plugin status checks
+                return {'status': 124, 'output': reader.get_contents(),
+                        'truncated': reader.is_full}
+        if to_file:
+            _output.close()
+
+        # wait for Popen to set the returncode
         while p.poll() is None:
             pass
+
+        stdout = reader.get_contents()
+        truncated = reader.is_full
 
     except OSError as e:
         if e.errno == errno.ENOENT:
@@ -254,6 +283,28 @@ def path_join(path, *p, sysroot=os.sep):
     if sysroot and not path.startswith(sysroot):
         path = os.path.join(sysroot, path.lstrip(os.sep))
     return os.path.join(path, *p)
+
+
+class FakeReader():
+    """Used as a replacement AsyncReader for when we are writing directly to
+    disk, and allows us to keep more simplified flows for executing,
+    monitoring, and collecting command output.
+    """
+
+    def __init__(self, process, binary):
+        self.process = process
+        self.binary = binary
+
+    @property
+    def is_full(self):
+        return False
+
+    def get_contents(self):
+        return '' if not self.binary else b''
+
+    @property
+    def running(self):
+        return self.process.poll() is None
 
 
 class AsyncReader(threading.Thread):

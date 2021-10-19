@@ -476,7 +476,8 @@ class SoSReport(SoSComponent):
             'verbosity': self.opts.verbosity,
             'cmdlineopts': self.opts,
             'devices': self.devices,
-            'namespaces': self.namespaces
+            'namespaces': self.namespaces,
+            'tempfile_util': self.tempfile_util
         }
 
     def get_temp_file(self):
@@ -1075,7 +1076,12 @@ class SoSReport(SoSComponent):
                 _plug.manifest.add_field('end_time', end)
                 _plug.manifest.add_field('run_time', end - start)
             except TimeoutError:
-                self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])
+                msg = "Plugin %s timed out" % plugin[1]
+                # log to ui_log.error to show the user, log to soslog.info
+                # so that someone investigating the sos execution has it all
+                # in one place, but without double notifying the user.
+                self.ui_log.error("\n %s\n" % msg)
+                self.soslog.info(msg)
                 self.running_plugs.remove(plugin[1])
                 self.loaded_plugins[plugin[0]-1][1].set_timeout_hit()
                 pool.shutdown(wait=True)

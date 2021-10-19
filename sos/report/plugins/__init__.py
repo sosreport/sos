@@ -15,6 +15,7 @@ from sos.utilities import (sos_get_command_output, import_module, grep,
                            path_exists, path_isdir, path_isfile, path_islink,
                            listdir, path_join)
 
+from sos.archive import P_FILE
 import os
 import glob
 import re
@@ -1686,6 +1687,8 @@ class Plugin():
             kwargs['priority'] = 10
         if 'changes' not in kwargs:
             kwargs['changes'] = False
+        if self.get_option('all_logs') or kwargs['sizelimit'] == 0:
+            kwargs['to_file'] = True
         soscmd = SoSCommand(**kwargs)
         self._log_debug("packed command: " + soscmd.__str__())
         for _skip_cmd in self.skip_commands:
@@ -1707,7 +1710,8 @@ class Plugin():
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[],
-                       priority=10, cmd_as_tag=False, container=None):
+                       priority=10, cmd_as_tag=False, container=None,
+                       to_file=False):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -1776,6 +1780,10 @@ class Plugin():
         :param container: Run the specified `cmds` inside a container with this
                           ID or name
         :type container:  ``str``
+
+        :param to_file: Should command output be written directly to a new
+                        file rather than stored in memory?
+        :type to_file:  ``bool``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -1800,7 +1808,8 @@ class Plugin():
                                  env=env, binary=binary, sizelimit=sizelimit,
                                  pred=pred, subdir=subdir, tags=tags,
                                  changes=changes, foreground=foreground,
-                                 priority=priority, cmd_as_tag=cmd_as_tag)
+                                 priority=priority, cmd_as_tag=cmd_as_tag,
+                                 to_file=to_file)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
@@ -1966,7 +1975,7 @@ class Plugin():
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False, tags=[],
-                            priority=10, cmd_as_tag=False):
+                            priority=10, cmd_as_tag=False, to_file=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -1990,6 +1999,8 @@ class Plugin():
                                         on the system?
             :param tags:                Add tags in the archive manifest
             :param cmd_as_tag:          Format command string to tag
+            :param to_file:             Write output directly to file instead
+                                        of saving in memory
 
         :returns:       dict containing status, output, and filename in the
                         archive for the executed cmd
@@ -2019,27 +2030,46 @@ class Plugin():
         else:
             root = None
 
+        if suggest_filename:
+            outfn = self._make_command_filename(suggest_filename, subdir)
+        else:
+            outfn = self._make_command_filename(cmd, subdir)
+
+        outfn_strip = outfn[len(self.commons['cmddir'])+1:]
+
+        if to_file:
+            self._log_debug("collecting '%s' output directly to disk"
+                            % cmd)
+            self.archive.check_path(outfn, P_FILE)
+            out_file = os.path.join(self.archive.get_archive_path(), outfn)
+        else:
+            out_file = False
+
         start = time()
 
         result = sos_get_command_output(
             cmd, timeout=timeout, stderr=stderr, chroot=root,
             chdir=runat, env=env, binary=binary, sizelimit=sizelimit,
-            poller=self.check_timeout, foreground=foreground
+            poller=self.check_timeout, foreground=foreground,
+            to_file=out_file
         )
 
         end = time()
         run_time = end - start
 
         if result['status'] == 124:
-            self._log_warn(
-                "command '%s' timed out after %ds" % (cmd, timeout)
-            )
+            warn = "command '%s' timed out after %ds" % (cmd, timeout)
+            self._log_warn(warn)
+            if to_file:
+                msg = (" - output up until the timeout may be available at "
+                       "%s" % outfn)
+                self._log_debug("%s%s" % (warn, msg))
 
         manifest_cmd = {
             'command': cmd.split(' ')[0],
             'parameters': cmd.split(' ')[1:],
             'exec': cmd,
-            'filepath': None,
+            'filepath': outfn if to_file else None,
             'truncated': result['truncated'],
             'return_code': result['status'],
             'priority': priority,
@@ -2060,7 +2090,7 @@ class Plugin():
                     result = sos_get_command_output(
                         cmd, timeout=timeout, chroot=False, chdir=runat,
                         env=env, binary=binary, sizelimit=sizelimit,
-                        poller=self.check_timeout
+                        poller=self.check_timeout, to_file=out_file
                     )
                     run_time = time() - start
             self._log_debug("could not run '%s': command not found" % cmd)
@@ -2077,22 +2107,15 @@ class Plugin():
         if result['truncated']:
             self._log_info("collected output of '%s' was truncated"
                            % cmd.split()[0])
-
-        if suggest_filename:
-            outfn = self._make_command_filename(suggest_filename, subdir)
-        else:
-            outfn = self._make_command_filename(cmd, subdir)
-
-        outfn_strip = outfn[len(self.commons['cmddir'])+1:]
-
-        if result['truncated']:
             linkfn = outfn
             outfn = outfn.replace('sos_commands', 'sos_strings') + '.tailed'
 
-        if binary:
-            self.archive.add_binary(result['output'], outfn)
-        else:
-            self.archive.add_string(result['output'], outfn)
+        if not to_file:
+            if binary:
+                self.archive.add_binary(result['output'], outfn)
+            else:
+                self.archive.add_string(result['output'], outfn)
+
         if result['truncated']:
             # we need to manually build the relative path from the paths that
             # exist within the build dir to properly drop these symlinks
@@ -2543,6 +2566,9 @@ class Plugin():
         all_logs = self.get_option("all_logs")
         log_size = sizelimit or self.get_option("log_size")
         log_size = max(log_size, journal_size) if not all_logs else 0
+        if sizelimit == 0:
+            # allow for specific sizelimit overrides in plugins
+            log_size = 0
 
         if isinstance(units, str):
             units = [units]
