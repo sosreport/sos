@@ -251,7 +251,7 @@ class FileCacheArchive(Archive):
 
         return dest
 
-    def _check_path(self, src, path_type, dest=None, force=False):
+    def check_path(self, src, path_type, dest=None, force=False):
         """Check a new destination path in the archive.
 
             Since it is possible for multiple plugins to collect the same
@@ -345,7 +345,7 @@ class FileCacheArchive(Archive):
             if not dest:
                 dest = src
 
-            dest = self._check_path(dest, P_FILE)
+            dest = self.check_path(dest, P_FILE)
             if not dest:
                 return
 
@@ -384,7 +384,7 @@ class FileCacheArchive(Archive):
             # over any exixting content in the archive, since it is used by
             # the Plugin postprocessing hooks to perform regex substitution
             # on file content.
-            dest = self._check_path(dest, P_FILE, force=True)
+            dest = self.check_path(dest, P_FILE, force=True)
 
             f = codecs.open(dest, mode, encoding='utf-8')
             if isinstance(content, bytes):
@@ -397,7 +397,7 @@ class FileCacheArchive(Archive):
 
     def add_binary(self, content, dest):
         with self._path_lock:
-            dest = self._check_path(dest, P_FILE)
+            dest = self.check_path(dest, P_FILE)
             if not dest:
                 return
 
@@ -409,7 +409,7 @@ class FileCacheArchive(Archive):
     def add_link(self, source, link_name):
         self.log_debug("adding symlink at '%s' -> '%s'" % (link_name, source))
         with self._path_lock:
-            dest = self._check_path(link_name, P_LINK)
+            dest = self.check_path(link_name, P_LINK)
             if not dest:
                 return
 
@@ -484,10 +484,10 @@ class FileCacheArchive(Archive):
         """
         # Establish path structure
         with self._path_lock:
-            self._check_path(path, P_DIR)
+            self.check_path(path, P_DIR)
 
     def add_node(self, path, mode, device):
-        dest = self._check_path(path, P_NODE)
+        dest = self.check_path(path, P_NODE)
         if not dest:
             return
 
