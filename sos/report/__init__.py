@@ -1059,7 +1059,7 @@ class SoSReport(SoSComponent):
             # deletion of some dirs but deleting their content
             for f in os.listdir(self.archive.get_tmp_dir()):
                 f = os.path.join(self.archive.get_tmp_dir(), f)
-                if os.path.isdir(f):
+                if os.path.isdir(f) and not os.path.islink(f):
                     rmtree(f)
                 else:
                     os.unlink(f)
