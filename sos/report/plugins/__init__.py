@@ -2493,7 +2493,7 @@ class Plugin():
         :param services: Service name(s) to collect statuses for
         :type services: ``str`` or a ``list`` of strings
 
-        :param kwargs:   Optional arguments to pass to _add_cmd_output
+        :param kwargs:   Optional arguments to pass to add_cmd_output
                          (timeout, predicate, suggest_filename,..)
 
         """
@@ -2508,7 +2508,7 @@ class Plugin():
             return
 
         for service in services:
-            self._add_cmd_output(cmd="%s %s" % (query, service), **kwargs)
+            self.add_cmd_output("%s %s" % (query, service), **kwargs)
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
