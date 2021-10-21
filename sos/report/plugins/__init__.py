@@ -2994,24 +2994,9 @@ class SCLPlugin(RedHatPlugin):
         return [scl.strip() for scl in output.splitlines()]
 
     def convert_cmd_scl(self, scl, cmd):
-        """wrapping command in "scl enable" call and adds proper PATH
+        """wrapping command in "scl enable" call
         """
-        # load default SCL prefix to PATH
-        prefix = self.policy.get_default_scl_prefix()
-        # read prefix from /etc/scl/prefixes/${scl} and strip trailing '\n'
-        try:
-            prefix = open('/etc/scl/prefixes/%s' % scl, 'r').read()\
-                     .rstrip('\n')
-        except Exception as e:
-            self._log_error("Failed to find prefix for SCL %s using %s: %s"
-                            % (scl, prefix, e))
-
-        # expand PATH by equivalent prefixes under the SCL tree
-        path = os.environ["PATH"]
-        for p in path.split(':'):
-            path = '%s/%s%s:%s' % (prefix, scl, p, path)
-
-        scl_cmd = "scl enable %s \"PATH=%s %s\"" % (scl, path, cmd)
+        scl_cmd = "scl enable %s \"%s\"" % (scl, cmd)
         return scl_cmd
 
     def add_cmd_output_scl(self, scl, cmds, **kwargs):
