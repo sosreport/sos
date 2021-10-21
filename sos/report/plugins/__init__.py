@@ -2718,8 +2718,8 @@ class Plugin():
                                                    # SCL containers don't exist
                                                    ()):
                         type(self)._scls_matched.append(scl)
-                    if type(self)._scls_matched:
-                        return True
+                if type(self)._scls_matched:
+                    return True
 
             return self._check_plugin_triggers(self.files,
                                                self.packages,
