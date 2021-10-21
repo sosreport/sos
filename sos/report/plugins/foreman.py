@@ -9,8 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, PluginOpt)
+from sos.report.plugins import (Plugin, RedHatPlugin, SCLPlugin,
+                                DebianPlugin, UbuntuPlugin, PluginOpt)
 from pipes import quote
 from re import match
 from sos.utilities import is_executable
@@ -303,7 +303,7 @@ class Foreman(Plugin):
 # attr so we can keep all log definitions centralized in the main class
 
 
-class RedHatForeman(Foreman, RedHatPlugin):
+class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
 
     apachepkg = 'httpd'
 
@@ -318,6 +318,8 @@ class RedHatForeman(Foreman, RedHatPlugin):
             self.pumactl = "scl enable tfm '%s'" % self.pumactl
 
         super(RedHatForeman, self).setup()
+        self.add_cmd_output_scl('tfm', 'gem list',
+                                suggest_filename='scl enable tfm gem list')
 
 
 class DebianForeman(Foreman, DebianPlugin, UbuntuPlugin):
