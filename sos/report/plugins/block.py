@@ -56,7 +56,14 @@ class Block(Plugin, IndependentPlugin):
             "udevadm info %(dev)s",
             "udevadm info -a %(dev)s"
         ]
-        self.add_blockdev_cmd(cmds, blacklist='ram.*')
+        self.add_blockdev_cmd(cmds, blacklist=['ram.*', 'loop.*'])
+        loop_devices = self.exec_cmd('losetup --all --noheadings')
+        if loop_devices['status'] == 0:
+            loop_cmds = ["fdisk -l", "udevadm info", "udevadm info -a"]
+            for loop_dev in loop_devices['output'].splitlines():
+                loop_device = loop_dev.split()[0].replace(':', '')
+                self.add_cmd_output(["%s %s" % (cmd, loop_device)
+                                     for cmd in loop_cmds])
 
         lsblk = self.collect_cmd_output("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump
