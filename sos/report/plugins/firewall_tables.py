@@ -80,19 +80,21 @@ class firewall_tables(Plugin, IndependentPlugin):
             if nft_list['status'] == 0 and table in nft_ip_tables['ip6']:
                 self.collect_ip6table(table)
 
-        # When iptables is called it will load the modules
-        # iptables_filter (for kernel <= 3) or
-        # nf_tables (for kernel >= 4) if they are not loaded.
+        # When iptables is called it will load:
+        # 1) the modules iptables_filter (for kernel <= 3) or
+        #    nf_tables (for kernel >= 4) if they are not loaded.
+        # 2) nft 'ip filter' table will be created
         # The same goes for ipv6.
-        self.add_cmd_output(
-            "iptables -vnxL",
-            pred=SoSPredicate(self, kmods=['iptable_filter', 'nf_tables'])
-        )
-
-        self.add_cmd_output(
-            "ip6tables -vnxL",
-            pred=SoSPredicate(self, kmods=['ip6table_filter', 'nf_tables'])
-        )
+        if nft_list['status'] != 0 or 'filter' in nft_ip_tables['ip']:
+            self.add_cmd_output(
+                "iptables -vnxL",
+                pred=SoSPredicate(self, kmods=['iptable_filter', 'nf_tables'])
+            )
+        if nft_list['status'] != 0 or 'filter' in nft_ip_tables['ip6']:
+            self.add_cmd_output(
+                "ip6tables -vnxL",
+                pred=SoSPredicate(self, kmods=['ip6table_filter', 'nf_tables'])
+            )
 
         self.add_copy_spec([
             "/etc/nftables",
