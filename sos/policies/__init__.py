@@ -10,7 +10,8 @@ from pwd import getpwuid
 from sos.presets import (NO_PRESET, GENERIC_PRESETS, PRESETS_PATH,
                          PresetDefaults, DESC, NOTE, OPTS)
 from sos.policies.package_managers import PackageManager
-from sos.utilities import ImporterHelper, import_module, get_human_readable
+from sos.utilities import (ImporterHelper, import_module, get_human_readable,
+                           bold)
 from sos.report.plugins import IndependentPlugin, ExperimentalPlugin
 from sos.options import SoSOptions
 from sos import _sos as _
@@ -354,6 +355,49 @@ any third party.
         """Returns the string name of the hashlib-supported checksum algorithm
         to use"""
         return "sha256"
+
+    @classmethod
+    def display_help(self, section):
+        section.set_title('SoS Policies')
+        section.add_text(
+            'Policies help govern how SoS operates on across different distri'
+            'butions of Linux. They control aspects such as plugin enablement,'
+            ' $PATH determination, how/which package managers are queried, '
+            'default upload specifications, and more.'
+        )
+
+        section.add_text(
+            "When SoS intializes most functions, for example %s and %s, one "
+            "of the first operations is to determine the correct policy to "
+            "load for the local system. Policies will determine the proper "
+            "package manager to use, any applicable container runtime(s), and "
+            "init systems so that SoS and report plugins can properly function"
+            " for collections. Generally speaking a single policy will map to"
+            " a single distribution; for example there are separate policies "
+            "for Debian, Ubuntu, RHEL, and Fedora."
+            % (bold('sos report'), bold('sos collect'))
+        )
+
+        section.add_text(
+            "It is currently not possible for users to directly control which "
+            "policy is loaded."
+        )
+
+        pols = {
+            'policies.cos': 'The Google Cloud-Optimized OS distribution',
+            'policies.debian': 'The Debian distribution',
+            'policies.redhat': ('Red Hat family distributions, not necessarily'
+                                ' including forks'),
+            'policies.ubuntu': 'Ubuntu/Canonical distributions'
+        }
+
+        seealso = section.add_section('See Also')
+        seealso.add_text(
+            "For more information on distribution policies, see below\n"
+        )
+        for pol in pols:
+            seealso.add_text("{:>8}{:<20}{:<30}".format(' ', pol, pols[pol]),
+                             newline=False)
 
     def display_results(self, archive, directory, checksum, archivestat=None,
                         map_file=None):

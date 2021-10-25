@@ -19,6 +19,7 @@ from sos.presets.redhat import (RHEL_PRESETS, ATOMIC_PRESETS, RHV, RHEL,
                                 ATOMIC)
 from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
+from sos.utilities import bold
 from sos import _sos as _
 
 try:
@@ -92,6 +93,31 @@ class RedHatPolicy(LinuxPolicy):
         available one.
         """
         return False
+
+    @classmethod
+    def display_distro_help(cls, section):
+        if cls is not RedHatPolicy:
+            super(RedHatPolicy, cls).display_distro_help(section)
+            return
+        section.add_text(
+            'This policy is a building block for all other Red Hat family '
+            'distributions. You are likely looking for one of the '
+            'distributions listed below.\n'
+        )
+
+        subs = {
+            'centos': CentOsPolicy,
+            'rhel': RHELPolicy,
+            'redhatcoreos': RedHatCoreOSPolicy,
+            'fedora': FedoraPolicy
+        }
+
+        for subc in subs:
+            subln = bold("policies.%s" % subc)
+            section.add_text(
+                "{:>8}{:<35}{:<30}".format(' ', subln, subs[subc].distro),
+                newline=False
+            )
 
     def check_usrmove(self, pkgs):
         """Test whether the running system implements UsrMove.

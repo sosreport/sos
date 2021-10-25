@@ -17,7 +17,7 @@ import logging
 from datetime import datetime
 import glob
 import sos.report.plugins
-from sos.utilities import (ImporterHelper, SoSTimeoutError,
+from sos.utilities import (ImporterHelper, SoSTimeoutError, bold,
                            sos_get_command_output, TIMEOUT_DEFAULT)
 from shutil import rmtree
 import hashlib
@@ -367,6 +367,62 @@ class SoSReport(SoSComponent):
         cleaner_grp.add_argument('--usernames', dest='usernames', default=[],
                                  action='extend',
                                  help='List of usernames to obfuscate')
+
+    @classmethod
+    def display_help(cls, section):
+        section.set_title('SoS Report Detailed Help')
+        section.add_text(
+            'The report command is the most common use case for SoS, and aims '
+            'to collect relevant diagnostic and troubleshooting data to assist'
+            ' with issue analysis without actively performing that analysis on'
+            ' the system while it is in use.'
+        )
+        section.add_text(
+            'Additionally, sos report archives can be used for ongoing '
+            'inspection for pre-emptive issue monitoring, such as that done '
+            'by the Insights project.'
+        )
+
+        section.add_text(
+            'The typical result of an execution of \'sos report\' is a tarball'
+            ' that contains troubleshooting command output, copies of config '
+            'files, and copies of relevant sections of the host filesystem. '
+            'Root privileges are required for collections.'
+        )
+
+        psec = section.add_section(title='How Collections Are Determined')
+        psec.add_text(
+            'SoS report performs it\'s collections by way of \'plugins\' that '
+            'individually specify what files to copy and what commands to run.'
+            ' Plugins typically map to specific components or software '
+            'packages.'
+        )
+        psec.add_text(
+            'Plugins may specify different collections on different distribu'
+            'tions, and some plugins may only be for specific distributions. '
+            'Distributions are represented within SoS by \'policies\' and may '
+            'influence how other SoS commands or options function. For example'
+            'policies can alter where the --upload option defaults to or '
+            'functions.'
+        )
+
+        ssec = section.add_section(title='See Also')
+        ssec.add_text(
+            "For information on available options for report, see %s and %s"
+            % (bold('sos report --help'), bold('man sos-report'))
+        )
+        ssec.add_text("The following %s sections may be of interest:\n"
+                      % bold('sos help'))
+        help_lines = {
+            'report.plugins': 'Information on the plugin design of sos',
+            'report.plugins.$plugin': 'Information on a specific $plugin',
+            'policies': 'How sos operates on different distributions'
+        }
+        helpln = ''
+        for ln in help_lines:
+            ssec.add_text("\t{:<36}{}".format(ln, help_lines[ln]),
+                          newline=False)
+        ssec.add_text(helpln)
 
     def print_header(self):
         print("\n%s\n" % _("sosreport (version %s)" % (__version__,)))

@@ -59,9 +59,11 @@ class SoS():
         # if no aliases are desired, pass an empty list
         import sos.report
         import sos.cleaner
+        import sos.help
         self._components = {
             'report': (sos.report.SoSReport, ['rep']),
-            'clean': (sos.cleaner.SoSCleaner, ['cleaner', 'mask'])
+            'clean': (sos.cleaner.SoSCleaner, ['cleaner', 'mask']),
+            'help': (sos.help.SoSHelper, [])
         }
         # some distros do not want pexpect as a default dep, so try to load
         # collector here, and if it fails add an entry that implies it is at

@@ -285,6 +285,19 @@ def path_join(path, *p, sysroot=os.sep):
     return os.path.join(path, *p)
 
 
+def bold(text):
+    """Helper to make text bold in console output, without pulling in
+    dependencies to the project unneccessarily.
+
+    :param text:    The text to make bold
+    :type text:     ``str``
+
+    :returns:       The text wrapped in the ASCII codes to display as bold
+    :rtype:         ``str``
+    """
+    return '\033[1m' + text + '\033[0m'
+
+
 class FakeReader():
     """Used as a replacement AsyncReader for when we are writing directly to
     disk, and allows us to keep more simplified flows for executing,

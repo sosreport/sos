@@ -16,6 +16,7 @@ import re
 from pipes import quote
 from sos.collector.exceptions import (ConnectionException,
                                       CommandTimeoutException)
+from sos.utilities import bold
 
 
 class RemoteTransport():
@@ -87,6 +88,53 @@ class RemoteTransport():
         when loading a policy for a remote node
         """
         return None
+
+    @classmethod
+    def display_help(cls, section):
+        if cls is RemoteTransport:
+            return cls.display_self_help(section)
+        section.set_title("%s Transport Detailed Help"
+                          % cls.name.title().replace('_', ' '))
+        if cls.__doc__ and cls.__doc__ is not RemoteTransport.__doc__:
+            section.add_text(cls.__doc__)
+        else:
+            section.add_text(
+                'Detailed information not available for this transport'
+            )
+
+    @classmethod
+    def display_self_help(cls, section):
+        section.set_title('SoS Remote Transport Help')
+        section.add_text(
+            "\nTransports define how SoS connects to nodes and executes "
+            "commands on them for the purposes of an %s run. Generally, "
+            "this means transports define how commands are wrapped locally "
+            "so that they are executed on the remote node(s) instead."
+            % bold('sos collect')
+        )
+
+        section.add_text(
+            "Transports are generally selected by the cluster profile loaded "
+            "for a given execution, however users may explicitly set one "
+            "using '%s'. Note that not all transports will function for all "
+            "cluster/node types."
+            % bold('--transport=$transport_name')
+        )
+
+        section.add_text(
+            'By default, OpenSSH Control Persist is attempted. Additional '
+            'information for each supported transport is available in the '
+            'following help sections:\n'
+        )
+
+        from sos.collector.sosnode import TRANSPORTS
+        for transport in TRANSPORTS:
+            _sec = bold("collect.transports.%s" % transport)
+            _desc = "The '%s' transport" % transport.lower()
+            section.add_text(
+                "{:>8}{:<45}{:<30}".format(' ', _sec, _desc),
+                newline=False
+            )
 
     def connect(self, password):
         """Perform the connection steps in order to ensure that we are able to

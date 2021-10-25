@@ -36,9 +36,39 @@ from textwrap import fill
 
 
 class SoSCleaner(SoSComponent):
-    """Take an sos report, or collection of sos reports, and scrub them of
-    potentially sensitive data such as IP addresses, hostnames, MAC addresses,
-    etc.. that are not obfuscated by individual plugins
+    """
+    This function is designed to obfuscate potentially sensitive information
+    from an sos report archive in a consistent and reproducible manner.
+
+    It may either be invoked during the creation of a report by using the
+    --clean option in the report command, or may be used on an already existing
+    archive by way of 'sos clean'.
+
+    The target of obfuscation are items such as IP addresses, MAC addresses,
+    hostnames, usernames, and also keywords provided by users via the
+    --keywords and/or --keyword-file options.
+
+    For every collection made in a report the collection is parsed for such
+    items, and when items are found SoS will generate an obfuscated replacement
+    for it, and in all places that item is found replace the text with the
+    obfuscated replacement mapped to it. These mappings are saved locally so
+    that future iterations will maintain the same consistent obfuscation
+    pairing.
+
+    In the case of IP addresses, support is for IPv4 and efforts are made to
+    keep network topology intact so that later analysis is as accurate and
+    easily understandable as possible. If an IP address is encountered that we
+    cannot determine the netmask for, a random IP address is used instead.
+
+    For hostnames, domains are obfuscated as whole units, leaving the TLD in
+    place.
+
+    For instance, 'example.com' may be obfuscated to 'obfuscateddomain0.com'
+    and 'foo.example.com' may end up being 'obfuscateddomain1.com'.
+
+    Users will be notified of a 'mapping' file that records all items and the
+    obfuscated counterpart mapped to them for ease of reference later on. This
+    file should be kept private.
     """
 
     desc = "Obfuscate sensitive networking information in a report"
@@ -130,6 +160,11 @@ class SoSCleaner(SoSComponent):
         for line in msg.splitlines():
             _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
         return _fmt
+
+    @classmethod
+    def display_help(cls, section):
+        section.set_title("SoS Cleaner Detailed Help")
+        section.add_text(cls.__doc__)
 
     def load_map_file(self):
         """Verifies that the map file exists and has usable content.
