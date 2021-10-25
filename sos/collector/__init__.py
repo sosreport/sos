@@ -29,18 +29,41 @@ from sos.cleaner import SoSCleaner
 from sos.collector.sosnode import SosNode
 from sos.options import ClusterOption
 from sos.component import SoSComponent
+from sos.utilities import bold
 from sos import __version__
 
 COLLECTOR_CONFIG_DIR = '/etc/sos/groups.d'
 
 
 class SoSCollector(SoSComponent):
-    """Collector is the formerly standalone sos-collector project, brought into
-    sos natively in 4.0
+    """
+    sos collect, or SoS Collector, is the formerly standalone sos-collector
+    project, brought into sos natively in 4.0 and later.
 
-    It is meant to collect reports from an arbitrary number of remote nodes,
-    as well as the localhost, at the same time. These nodes may be either user
-    defined, defined by some clustering software, or both.
+    It is meant to collect sos reports from an arbitrary number of remote
+    nodes, as well as the localhost, at the same time. These nodes may be
+    either user defined, defined by some clustering software, or both.
+
+    For cluster defined lists of nodes, cluster profiles exist that not only
+    define how these node lists are generated but may also influence the
+    sos report command run on nodes depending upon their role within the
+    cluster.
+
+    Nodes are connected to via a 'transport' which defaults to the use of
+    OpenSSH's Control Persist feature. Other transport types are available, and
+    may be specifically linked to use with a certain cluster profile (or, at
+    minimum, a node within a certain cluster type even if that profile is not
+    used).
+
+    sos collect may be run from either a node within the cluster that is
+    capable of enumerating/discovering the other cluster nodes, or may be run
+    from a user's workstation and instructed to first connect to such a node
+    via the --primary option. If run in the latter manner, users will likely
+    want to use the --no-local option, as by default sos collect will also
+    collect an sos report locally.
+
+    Users should expect this command to result in a tarball containing one or
+    more sos report archives on the system that sos collect was executed on.
     """
 
     desc = 'Collect an sos report from multiple nodes simultaneously'
@@ -176,15 +199,17 @@ class SoSCollector(SoSComponent):
             supported_clusters[cluster[0]] = cluster[1](self.commons)
         return supported_clusters
 
-    def _load_modules(self, package, submod):
+    @classmethod
+    def _load_modules(cls, package, submod):
         """Helper to import cluster and host types"""
         modules = []
         for path in package.__path__:
             if os.path.isdir(path):
-                modules.extend(self._find_modules_in_path(path, submod))
+                modules.extend(cls._find_modules_in_path(path, submod))
         return modules
 
-    def _find_modules_in_path(self, path, modulename):
+    @classmethod
+    def _find_modules_in_path(cls, path, modulename):
         """Given a path and a module name, find everything that can be imported
         and then import it
 
@@ -203,9 +228,10 @@ class SoSCollector(SoSComponent):
                     continue
                 fname, ext = os.path.splitext(pyfile)
                 modname = 'sos.collector.%s.%s' % (modulename, fname)
-                modules.extend(self._import_modules(modname))
+                modules.extend(cls._import_modules(modname))
         return modules
 
+    @classmethod
     def _import_modules(self, modname):
         """Import and return all found classes in a module"""
         mod_short_name = modname.split('.')[2]
@@ -440,6 +466,26 @@ class SoSCollector(SoSComponent):
         cleaner_grp.add_argument('--usernames', dest='usernames', default=[],
                                  action='extend',
                                  help='List of usernames to obfuscate')
+
+    @classmethod
+    def display_help(cls, section):
+        section.set_title('SoS Collect Detailed Help')
+        section.add_text(cls.__doc__)
+
+        hsections = {
+            'collect.clusters': 'Information on cluster profiles',
+            'collect.clusters.$cluster': 'Specific profile information',
+            'collect.transports': 'Information on how connections are made',
+            'collect.transports.$transport': 'Specific transport information'
+        }
+        section.add_text(
+            'The following help sections may be of further interest:\n'
+        )
+        for hsec in hsections:
+            section.add_text(
+                "{:>8}{:<40}{:<30}".format(' ', bold(hsec), hsections[hsec]),
+                newline=False
+            )
 
     def exit(self, msg, error=1):
         """Used to safely terminate if sos-collector encounters an error"""

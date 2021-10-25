@@ -50,6 +50,7 @@ class SoSComponent():
     arg_defaults = {}
     configure_logging = True
     load_policy = True
+    load_probe = True
     root_required = False
 
     _arg_defaults = {
@@ -106,13 +107,7 @@ class SoSComponent():
             self._setup_logging()
 
         if self.load_policy:
-            try:
-                import sos.policies
-                self.policy = sos.policies.load(sysroot=self.opts.sysroot)
-                self.sysroot = self.policy.sysroot
-            except KeyboardInterrupt:
-                self._exit(0)
-            self._is_root = self.policy.is_root()
+            self.load_local_policy()
 
         if self.manifest is not None:
             self.manifest.add_field('version', __version__)
@@ -126,6 +121,16 @@ class SoSComponent():
             self.manifest.add_field('tmpdir_fs_type', self.tmpfstype)
             self.manifest.add_field('policy', self.policy.distro)
             self.manifest.add_section('components')
+
+    def load_local_policy(self):
+        try:
+            import sos.policies
+            self.policy = sos.policies.load(sysroot=self.opts.sysroot,
+                                            probe_runtime=self.load_probe)
+            self.sysroot = self.policy.sysroot
+        except KeyboardInterrupt:
+            self._exit(0)
+        self._is_root = self.policy.is_root()
 
     def execute(self):
         raise NotImplementedError

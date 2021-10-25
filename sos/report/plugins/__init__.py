@@ -13,7 +13,7 @@
 from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable, TIMEOUT_DEFAULT,
                            path_exists, path_isdir, path_isfile, path_islink,
-                           listdir, path_join)
+                           listdir, path_join, bold)
 
 from sos.archive import P_FILE
 import os
@@ -24,6 +24,7 @@ from time import time
 import logging
 import fnmatch
 import errno
+import textwrap
 
 from datetime import datetime
 
@@ -698,6 +699,175 @@ class Plugin():
         if cls.plugin_name:
             return cls.plugin_name
         return cls.__name__.lower()
+
+    @classmethod
+    def display_help(cls, section):
+        if cls.plugin_name is None:
+            cls.display_self_help(section)
+        else:
+            cls.display_plugin_help(section)
+
+    @classmethod
+    def display_plugin_help(cls, section):
+        from sos.help import TERMSIZE
+        section.set_title("%s Plugin Information - %s"
+                          % (cls.plugin_name.title(), cls.short_desc))
+        missing = '\nDetailed information is not available for this plugin.\n'
+
+        # Concatenate the docstrings of distro-specific plugins with their
+        # base classes, if available.
+        try:
+            _doc = ''
+            _sc = cls.__mro__[1]
+            if _sc != Plugin and _sc.__doc__:
+                _doc = _sc.__doc__
+            if cls.__doc__:
+                _doc += cls.__doc__
+        except Exception:
+            _doc = None
+
+        section.add_text('\n    %s' % _doc if _doc else missing)
+
+        if not any([cls.packages, cls.commands, cls.files, cls.kernel_mods,
+                    cls.services, cls.containers]):
+            section.add_text("This plugin is always enabled by default.")
+        else:
+            for trig in ['packages', 'commands', 'files', 'kernel_mods',
+                         'services']:
+                if getattr(cls, trig, None):
+                    section.add_text(
+                        "Enabled by %s: %s"
+                        % (trig, ', '.join(getattr(cls, trig))),
+                        newline=False
+                    )
+            if getattr(cls, 'containers'):
+                section.add_text(
+                    "Enabled by containers with names matching: %s"
+                    % ', '.join(c for c in cls.containers),
+                    newline=False
+                )
+
+        if cls.profiles:
+            section.add_text(
+                "Enabled with the following profiles: %s"
+                % ', '.join(p for p in cls.profiles),
+                newline=False
+            )
+
+        if hasattr(cls, 'verify_packages'):
+            section.add_text(
+                "\nVerfies packages (when using --verify): %s"
+                % ', '.join(pkg for pkg in cls.verify_packages),
+                newline=False,
+            )
+
+        if cls.postproc is not Plugin.postproc:
+            section.add_text(
+                'This plugin performs post-processing on potentially '
+                'sensitive collections. Disabling post-processing may'
+                ' leave sensitive data in plaintext.'
+            )
+
+        if not cls.option_list:
+            return
+
+        optsec = section.add_section('Plugin Options')
+        optsec.add_text(
+            "These options may be toggled or changed using '%s'"
+            % bold("-k %s.option_name=$value" % cls.plugin_name)
+        )
+        optsec.add_text(bold(
+            "\n{:<4}{:<20}{:<30}{:<20}\n".format(
+                ' ', "Option Name", "Default", "Description")
+            ), newline=False
+        )
+
+        opt_indent = ' ' * 54
+        for opt in cls.option_list:
+            _def = opt.default
+            # convert certain values to text meanings
+            if _def is None or _def == '':
+                _def = "None/Unset"
+            if isinstance(opt.default, bool):
+                if opt.default:
+                    _def = "True/On"
+                else:
+                    _def = "False/Off"
+            _ln = "{:<4}{:<20}{:<30}{:<20}".format(' ', opt.name, _def,
+                                                   opt.desc)
+            optsec.add_text(
+                textwrap.fill(_ln, width=TERMSIZE,
+                              subsequent_indent=opt_indent),
+                newline=False
+            )
+            if opt.long_desc:
+                _size = TERMSIZE - 10
+                space = ' ' * 8
+                optsec.add_text(
+                    textwrap.fill(opt.long_desc, width=_size,
+                                  initial_indent=space,
+                                  subsequent_indent=space),
+                    newline=False
+                )
+
+    @classmethod
+    def display_self_help(cls, section):
+        section.set_title("SoS Plugin Detailed Help")
+        section.add_text(
+            "Plugins are what define what collections occur for a given %s "
+            "execution. Plugins are generally representative of a single "
+            "system component (e.g. kernel), package (e.g. podman), or similar"
+            " construct. Plugins will typically specify multiple files or "
+            "directories to copy, as well as commands to execute and collect "
+            "the output of for further analysis."
+            % bold('sos report')
+        )
+
+        subsec = section.add_section('Plugin Enablement')
+        subsec.add_text(
+            'Plugins will be automatically enabled based on one of several '
+            'triggers - a certain package being installed, a command or file '
+            'existing, a kernel module being loaded, etc...'
+        )
+        subsec.add_text(
+            "Plugins may also be enabled or disabled by name using the %s or "
+            "%s options respectively."
+            % (bold('-e $name'), bold('-n $name'))
+        )
+
+        subsec.add_text(
+            "Certain plugins may only be available for specific distributions "
+            "or may behave differently on different distributions based on how"
+            " the component for that plugin is installed or how it operates."
+            " When using %s, help will be displayed for the version of the "
+            "plugin appropriate for your distribution."
+            % bold('sos help report.plugins.$plugin')
+        )
+
+        optsec = section.add_section('Using Plugin Options')
+        optsec.add_text(
+            "Many plugins support additional options to enable/disable or in "
+            "some other way modify the collections it makes. Plugin options "
+            "are set using the %s syntax. Options that are on/off toggles "
+            "may exclude setting a value, which will be interpreted as "
+            "enabling that option.\n\nSee specific plugin help sections "
+            "or %s for more information on these options"
+            % (bold('-k $plugin_name.$option_name=$value'),
+               bold('sos report -l'))
+        )
+
+        seealso = section.add_section('See Also')
+        _also = {
+            'report.plugins.$plugin': 'Help for a specific $plugin',
+            'policies': 'Information on distribution policies'
+        }
+        seealso.add_text(
+            "Additional relevant information may be available in these "
+            "help sections:\n\n%s" % "\n".join(
+                "{:>8}{:<30}{:<30}".format(' ', sec, desc)
+                for sec, desc in _also.items()
+            ), newline=False
+        )
 
     def _format_msg(self, msg):
         return "[plugin:%s] %s" % (self.name(), msg)

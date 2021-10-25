@@ -11,6 +11,7 @@
 import logging
 
 from sos.options import ClusterOption
+from sos.utilities import bold
 from threading import Lock
 
 
@@ -80,6 +81,107 @@ class Cluster():
         if cls.cluster_name:
             return cls.cluster_name
         return cls.__name__.lower()
+
+    @classmethod
+    def display_help(cls, section):
+        if cls is Cluster:
+            cls.display_self_help(section)
+            return
+        section.set_title("%s Cluster Profile Detailed Help"
+                          % cls.cluster_name)
+        if cls.__doc__ and cls.__doc__ is not Cluster.__doc__:
+            section.add_text(cls.__doc__)
+        # [1] here is the actual cluster profile
+        elif cls.__mro__[1].__doc__ and cls.__mro__[1] is not Cluster:
+            section.add_text(cls.__mro__[1].__doc__)
+        else:
+            section.add_text(
+                "\n\tDetailed help not available for this profile\n"
+            )
+
+        if cls.packages:
+            section.add_text(
+                "Enabled by the following packages: %s"
+                % ', '.join(p for p in cls.packages),
+                newline=False
+            )
+
+        if cls.sos_preset:
+            section.add_text(
+                "Uses the following sos preset: %s" % cls.sos_preset,
+                newline=False
+            )
+
+        if cls.sos_plugins:
+            section.add_text(
+                "Enables the following plugins: %s"
+                % ', '.join(plug for plug in cls.sos_plugins),
+                newline=False
+            )
+
+        if cls.sos_plugin_options:
+            _opts = cls.sos_plugin_options
+            opts = ', '.join("%s=%s" % (opt, _opts[opt]) for opt in _opts)
+            section.add_text(
+                "Sets the following plugin options: %s" % opts,
+                newline=False
+            )
+
+        if cls.option_list:
+            optsec = section.add_section("Available cluster options")
+            optsec.add_text(
+                "These options may be toggled or changed using '%s'"
+                % bold("-c %s.$option=$value" % cls.__name__)
+            )
+            optsec.add_text(bold(
+                "\n{:<4}{:<20}{:<30}{:<20}\n".format(
+                    ' ', "Option Name", "Default", "Description")
+                ), newline=False
+            )
+            for opt in cls.option_list:
+                val = opt[1]
+                if isinstance(val, bool):
+                    if val:
+                        val = 'True/On'
+                    else:
+                        val = 'False/Off'
+                _ln = "{:<4}{:<20}{:<30}{:<20}".format(' ', opt[0], val,
+                                                       opt[2])
+                optsec.add_text(_ln, newline=False)
+
+    @classmethod
+    def display_self_help(cls, section):
+        section.set_title('SoS Collect Cluster Profiles Detailed Help')
+        section.add_text(
+            '\nCluster profiles are used to represent different clustering '
+            'technologies or platforms. Profiles define how cluster nodes are '
+            'discovered, and optionally filtered, for default executions of '
+            'collector.'
+        )
+        section.add_text(
+            'Cluster profiles are enabled similarly to SoS report plugins; '
+            'usually by package, command, or configuration file presence. '
+            'Clusters may also define default transports for SoS collect.'
+        )
+
+        from sos.collector import SoSCollector
+        import inspect
+        clusters = SoSCollector._load_modules(inspect.getmodule(cls),
+                                              'clusters')
+
+        section.add_text(
+            'The following cluster profiles are locally available:\n'
+        )
+        section.add_text(
+            "{:>8}{:<40}{:<30}".format(' ', 'Name', 'Description'),
+            newline=False
+        )
+        for cluster in clusters:
+            _sec = bold("collect.clusters.%s" % cluster[0])
+            section.add_text(
+                "{:>8}{:<40}{:<30}".format(' ', _sec, cluster[1].cluster_name),
+                newline=False
+            )
 
     def _get_options(self):
         """Loads the options defined by a cluster and sets the default value"""

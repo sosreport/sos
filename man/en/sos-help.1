@@ -1,0 +1,41 @@
+.TH SOS HELP 1 "Fri Nov 05 2021"
+.SH NAME
+sos help - get detailed help information on sos commands and components
+.SH SYNOPSIS
+.B sos help TOPIC
+
+.SH DESCRIPTION
+\fBsos help\fR is used to retrieve more detailed information on the various SoS
+commands and components than is directly available in either other manpages or
+--help output.
+
+This information could for example be investigating a specific plugin to learn more
+about its purpose, use case, collections, available plugin options, edge cases, and
+more.
+.LP
+Most aspects of SoS' operation can be investigated this way - the top level functions
+such as \fB report, clean,\fR and \fBcollect\fR, as well as constructs that allow those
+functions to work; e.g. \fBtransports\fR within \fBsos collect\fR that define how that
+function connects to remote nodes.
+
+.SH REQUIRED ARGUMENTS
+.B TOPIC
+.TP
+The section or topic to retrieve detailed help information for. TOPIC takes the general
+form of \fBcommand.component.entity\fR, with \fBcomponent\fR and \fBentity\fR
+being optional.
+.LP
+Top-level \fBcommand\fR help sections will often direct users to \fBcomponent\fR sections
+which in turn may point to further \fBentity\fR subsections.
+
+Some of the more useful or interesting sections are listed below:
+
+    \fBTopic\fR                     \fBDescription\fR
+
+    \fBreport\fR                    The \fBsos report\fR command
+    \fBreport.plugins\fR            Information on what report plugins are
+    \fBreport.plugins.$plugin\fR    Information on a specific plugin
+    \fBclean\fR or \fBmask\fR             The \fBsos clean|mask\fR command
+    \fBcollect\fR                   The \fBsos collect\fR command
+    \fBcollect.clusters\fR          How \fBcollect\fR enumerates nodes in a cluster
+    \fBpolicies\fR                  How SoS behaves on different distributions

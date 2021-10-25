@@ -21,7 +21,7 @@ from sos.policies.runtimes.crio import CrioContainerRuntime
 from sos.policies.runtimes.podman import PodmanContainerRuntime
 from sos.policies.runtimes.docker import DockerContainerRuntime
 
-from sos.utilities import shell_out, is_executable
+from sos.utilities import shell_out, is_executable, bold
 
 
 try:
@@ -143,6 +143,73 @@ class LinuxPolicy(Policy):
 
     def sanitize_filename(self, name):
         return re.sub(r"[^-a-z,A-Z.0-9]", "", name)
+
+    @classmethod
+    def display_help(cls, section):
+        if cls == LinuxPolicy:
+            cls.display_self_help(section)
+        else:
+            section.set_title("%s Distribution Policy" % cls.distro)
+            cls.display_distro_help(section)
+
+    @classmethod
+    def display_self_help(cls, section):
+        section.set_title("SoS Distribution Policies")
+        section.add_text(
+            'Distributions supported by SoS will each have a specific policy '
+            'defined for them, to ensure proper operation of SoS on those '
+            'systems.'
+        )
+
+    @classmethod
+    def display_distro_help(cls, section):
+        if cls.__doc__ and cls.__doc__ is not LinuxPolicy.__doc__:
+            section.add_text(cls.__doc__)
+        else:
+            section.add_text(
+                '\nDetailed help information for this policy is not available'
+            )
+
+        # instantiate the requested policy so we can report more interesting
+        # information like $PATH and loaded presets
+        _pol = cls(None, None, False)
+        section.add_text(
+            "\nDefault --upload location: %s" % _pol._upload_url
+        )
+        section.add_text(
+            "Default container runtime: %s" % _pol.default_container_runtime,
+            newline=False
+        )
+        section.add_text(
+            "$PATH used when running report: %s" % _pol.PATH,
+            newline=False
+        )
+
+        refsec = section.add_section('Reference URLs')
+        for url in cls.vendor_urls:
+            refsec.add_text(
+                "{:>8}{:<30}{:<40}".format(' ', url[0], url[1]),
+                newline=False
+            )
+
+        presec = section.add_section('Presets Available With This Policy\n')
+        presec.add_text(
+            bold(
+                "{:>8}{:<20}{:<45}{:<30}".format(' ', 'Preset Name',
+                                                 'Description',
+                                                 'Enabled Options')
+            ),
+            newline=False
+        )
+        for preset in _pol.presets:
+            _preset = _pol.presets[preset]
+            _opts = ' '.join(_preset.opts.to_args())
+            presec.add_text(
+                "{:>8}{:<20}{:<45}{:<30}".format(
+                    ' ', preset, _preset.desc, _opts
+                ),
+                newline=False
+            )
 
     def _container_init(self):
         """Check if sos is running in a container and perform container
