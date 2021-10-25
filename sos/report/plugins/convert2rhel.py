@@ -21,7 +21,8 @@ class convert2rhel(Plugin, RedHatPlugin):
 
         self.add_copy_spec([
             "/var/log/convert2rhel/convert2rhel.log",
-            "/var/log/convert2rhel/rpm_va.log"
+            "/var/log/convert2rhel/archive/convert2rhel-*.log",
+            "/var/log/convert2rhel/rpm_va.log",
         ])
 
 
