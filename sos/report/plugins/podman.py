@@ -12,6 +12,16 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
 
 
 class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
+    """Podman is a daemonless container management engine, and this plugin is
+    meant to provide diagnostic information for both the engine and the
+    containers that podman is managing.
+
+    General status information will be collected from podman commands, while
+    detailed inspections of certain components will provide more insight
+    into specific container problems. This detailed inspection is provided for
+    containers, images, networks, and volumes. Per-entity inspections will be
+    recorded in subdirs within sos_commands/podman/ for each of those types.
+    """
 
     short_desc = 'Podman containers'
     plugin_name = 'podman'
@@ -20,9 +30,19 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
     option_list = [
         PluginOpt('all', default=False,
-                  desc='collect for all containers, even terminated ones'),
+                  desc='collect for all containers, even terminated ones',
+                  long_desc=(
+                    'Enable collection for all containers that exist on the '
+                    'system regardless of their running state. This may cause '
+                    'a significant increase in sos archive size, especially '
+                    'when combined with the \'logs\' option.')),
         PluginOpt('logs', default=False,
-                  desc='collect stdout/stderr logs for containers'),
+                  desc='collect stdout/stderr logs for containers',
+                  long_desc=(
+                    'Capture \'podman logs\' output for discovered containers.'
+                    ' This may be useful or not depending on how/if the '
+                    'container produces stdout/stderr output. Use cautiously '
+                    'when also using the \'all\' option.')),
         PluginOpt('size', default=False,
                   desc='collect image sizes for podman ps')
     ]

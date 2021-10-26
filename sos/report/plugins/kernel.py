@@ -11,6 +11,20 @@ import glob
 
 
 class Kernel(Plugin, IndependentPlugin):
+    """The Kernel plugin is aimed at collecting general information about
+    the locally running kernel. This information should be distribution-neutral
+    using commands and filesystem collections that are ubiquitous across
+    distributions.
+
+    Debugging information from /sys/kernel/debug is collected by default,
+    however care is taken so that these collections avoid areas like
+    /sys/kernel/debug/tracing/trace_pipe which would otherwise cause the
+    sos collection attempt to appear to 'hang'.
+
+    The 'trace' option will enable the collection of the
+    /sys/kernel/debug/tracing/trace file specfically, but will not change the
+    behavior stated above otherwise.
+    """
 
     short_desc = 'Linux kernel'
 

@@ -11,6 +11,19 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 
 class Apache(Plugin):
+    """The Apache plugin covers the upstream Apache webserver project,
+    regardless of the packaged name; apache2 for Debian and Ubuntu, or httpd
+    for Red Hat family distributions.
+
+    The aim of this plugin is for Apache-specific information, not necessarily
+    other projects that happen to place logs or similar files within the
+    standardized apache directories. For example, OpenStack components that log
+    to apache logging directories are excluded from this plugin and collected
+    via their respective OpenStack plugins.
+
+    Users can expect the collection of apachectl command output, apache server
+    logs, and apache configuration files from this plugin.
+    """
 
     short_desc = 'Apache http daemon'
     plugin_name = "apache"
@@ -49,6 +62,15 @@ class Apache(Plugin):
 
 
 class RedHatApache(Apache, RedHatPlugin):
+    """
+    On Red Hat distributions, the Apache plugin will also attempt to collect
+    JBoss Web Server logs and configuration files.
+
+    Note that for Red Hat distributions, this plugin explicitly collects for
+    'httpd' installations. If you have installed apache from source or via any
+    method that uses the name 'apache' instead of 'httpd', these collections
+    will fail.
+    """
     files = (
         '/etc/httpd/conf/httpd.conf',
         '/etc/httpd22/conf/httpd.conf',
