@@ -11,6 +11,15 @@ from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
 
 
 class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
+    """Collects general information about the local filesystem(s) and mount
+    points as well as optional information about EXT filesystems. Note that
+    information specific filesystems such as XFS or ZFS is not collected by
+    this plugin, as there are specific plugins for those filesystem types.
+
+    This plugin will collect /etc/fstab as well as mount information within
+    /proc/, and is responsible for the 'mount' and 'df' symlinks that appear
+    in an sos archive's root.
+    """
 
     short_desc = 'Local file systems'
 
