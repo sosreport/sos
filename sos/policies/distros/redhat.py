@@ -207,6 +207,32 @@ RH_SFTP_HOST = "sftp://sftp.access.redhat.com"
 
 
 class RHELPolicy(RedHatPolicy):
+    """
+    The RHEL policy is used specifically for Red Hat Enterprise Linux, of
+    any release, and not forks or derivative distributions. For example, this
+    policy will be loaded for any RHEL 8 installation, but will not be loaded
+    for CentOS Stream 8 or Red Hat CoreOS, for which there are separate
+    policies.
+
+    Plugins activated by installed packages will only be activated if those
+    packages are installed via RPM (dnf/yum inclusive). Packages installed by
+    other means are not considered by this policy.
+
+    By default, --upload will be directed to using the SFTP location provided
+    by Red Hat for technical support cases. Users who provide login credentials
+    for their Red Hat Customer Portal account will have their archives uploaded
+    to a user-specific directory.
+
+    If users provide those credentials as well as a case number, --upload will
+    instead attempt to directly upload archives to the referenced case, thus
+    streamlining the process of providing data to technical support engineers.
+
+    If either or both of the credentials or case number are omitted or are
+    incorrect, then a temporary anonymous user will be used for upload to the
+    SFTP server, and users will need to provide that information to their
+    technical support engineer. This information will be printed at the end of
+    the upload process for any sos report execution.
+    """
     distro = RHEL_RELEASE_STR
     vendor = "Red Hat"
     msg = _("""\
@@ -477,6 +503,26 @@ support representative.
 
 
 class RedHatCoreOSPolicy(RHELPolicy):
+    """
+    Red Hat CoreOS is a containerized host built upon Red Hat Enterprise Linux
+    and as such this policy is built on top of the RHEL policy. For users, this
+    should be entirely transparent as any behavior exhibited or influenced on
+    RHEL systems by that policy will be seen on RHCOS systems as well.
+
+    The one change is that this policy ensures that sos collect will deploy a
+    container on RHCOS systems in order to facilitate sos report collection,
+    as RHCOS discourages non-default package installation via rpm-ostree which
+    is used to maintain atomicity for RHCOS nodes. The default container image
+    used by this policy is the support-tools image maintained by Red Hat on
+    registry.redhat.io.
+
+    Note that this policy is only loaded when sos is directly run on an RHCOS
+    node - if sos collect uses the `oc` transport (the default transport that
+    will be attempted by the ocp cluster profile), then the policy loaded
+    inside the launched pod will be RHEL. Again, this is expected and will not
+    impact how sos report collections are performed.
+    """
+
     distro = "Red Hat CoreOS"
     msg = _("""\
 This command will collect diagnostic and configuration \
@@ -547,6 +593,18 @@ class CentOsAtomicPolicy(RedHatAtomicPolicy):
 
 
 class FedoraPolicy(RedHatPolicy):
+    """
+    The policy for Fedora based systems, regardless of spin/edition. This
+    policy is based on the parent Red Hat policy, and thus will only check for
+    RPM packages when considering packaged-based plugin enablement. Packages
+    installed by other sources are not considered.
+
+    There is no default --upload location for this policy. If users need to
+    upload an sos report archive from a Fedora system, they will need to
+    provide the location via --upload-url, and optionally login credentials
+    for that location via --upload-user and --upload-pass (or the appropriate
+    environment variables).
+    """
 
     distro = "Fedora"
     vendor = "the Fedora Project"
