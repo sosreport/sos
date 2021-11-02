@@ -2366,20 +2366,32 @@ class Plugin():
             return _runtime.volumes
         return []
 
-    def get_container_logs(self, container, **kwargs):
-        """Helper to get the ``logs`` output for a given container
+    def add_container_logs(self, containers, get_all=False, **kwargs):
+        """Helper to get the ``logs`` output for a given container or list
+        of container names and/or regexes.
 
         Supports passthru of add_cmd_output() options
 
-        :param container:   The name of the container to retrieve logs from
-        :type container: ``str``
+        :param containers:   The name of the container to retrieve logs from,
+                             may be a single name or a regex
+        :type containers:    ``str`` or ``list` of strs
+
+        :param get_all:     Should non-running containers also be queried?
+                            Default: False
+        :type get_all:      ``bool``
 
         :param kwargs:      Any kwargs supported by ``add_cmd_output()`` are
                             supported here
         """
         _runtime = self._get_container_runtime()
         if _runtime is not None:
-            self.add_cmd_output(_runtime.get_logs_command(container), **kwargs)
+            if isinstance(containers, str):
+                containers = [containers]
+            for container in containers:
+                _cons = self.get_all_containers_by_regex(container, get_all)
+                for _con in _cons:
+                    cmd = _runtime.get_logs_command(_con[1])
+                    self.add_cmd_output(cmd, **kwargs)
 
     def fmt_container_cmd(self, container, cmd, quotecmd=False):
         """Format a command to be executed by the loaded ``ContainerRuntime``

@@ -32,7 +32,7 @@ class RabbitMQ(Plugin, IndependentPlugin):
 
         if in_container:
             for container in container_names:
-                self.get_container_logs(container)
+                self.add_container_logs(container)
                 self.add_cmd_output(
                     self.fmt_container_cmd(container, 'rabbitmqctl report'),
                     foreground=True
