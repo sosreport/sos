@@ -174,7 +174,7 @@ class LinuxPolicy(Policy):
         # information like $PATH and loaded presets
         _pol = cls(None, None, False)
         section.add_text(
-            "\nDefault --upload location: %s" % _pol._upload_url
+            "Default --upload location: %s" % _pol._upload_url
         )
         section.add_text(
             "Default container runtime: %s" % _pol.default_container_runtime,
