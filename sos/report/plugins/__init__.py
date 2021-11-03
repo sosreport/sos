@@ -335,7 +335,7 @@ class SoSPredicate(object):
         ]
         return " ".join(msg).lstrip()
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Predicate evaluation hook.
         """
 
@@ -348,11 +348,6 @@ class SoSPredicate(object):
                  self._eval_packages() and self._eval_cmd_outputs() and
                  self._eval_arch())
                 and not self.dry_run)
-
-    def __bool__(self):
-        # Py3 evaluation ends in a __bool__() call where py2 ends in a call
-        # to __nonzero__(). Wrap the latter here, to support both versions
-        return self.__nonzero__()
 
     def __init__(self, owner, dry_run=False, kmods=[], services=[],
                  packages=[], cmd_outputs=[], arch=[], required={}):
