@@ -15,9 +15,10 @@ from sos.collector.transports import RemoteTransport
 
 
 class LocalTransport(RemoteTransport):
-    """A 'transport' to represent a local node. This allows us to more easily
-    extend SoSNode() without having a ton of 'if local' or similar checks in
-    more places than we actually need them
+    """
+    A 'transport' to represent a local node. No remote connection is actually
+    made, and all commands set to be run by this transport are executed locally
+    without any wrappers.
     """
 
     name = 'local_node'

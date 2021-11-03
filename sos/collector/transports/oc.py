@@ -18,15 +18,29 @@ from sos.utilities import (is_executable, sos_get_command_output,
 
 
 class OCTransport(RemoteTransport):
-    """This transport leverages the execution of commands via a locally
+    """
+    This transport leverages the execution of commands via a locally
     available and configured ``oc`` binary for OCPv4 environments.
+
+    The location of the oc binary MUST be in the $PATH used by the locally
+    loaded SoS policy. Specifically this means that the binary cannot be in the
+    running user's home directory, such as ~/.local/bin.
 
     OCPv4 clusters generally discourage the use of SSH, so this transport may
     be used to remove our use of SSH in favor of the environment provided
     method of connecting to nodes and executing commands via debug pods.
 
-    Note that this approach will generate multiple debug pods over the course
-    of our execution
+    The debug pod created will be a privileged pod that mounts the host's
+    filesystem internally so that sos report collections reflect the host, and
+    not the container in which it runs.
+
+    This transport will execute within a temporary 'sos-collect-tmp' project
+    created by the OCP cluster profile. The project will be removed at the end
+    of execution.
+
+    In the event of failures due to a misbehaving OCP API or oc binary, it is
+    recommended to fallback to the control_persist transport by manually
+    setting the --transport option.
     """
 
     name = 'oc'

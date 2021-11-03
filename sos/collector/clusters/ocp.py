@@ -16,7 +16,40 @@ from sos.utilities import is_executable
 
 
 class ocp(Cluster):
-    """OpenShift Container Platform v4"""
+    """
+    This profile is for use with OpenShift Container Platform (v4) clusters
+    instead of the kubernetes profile.
+
+    This profile will favor using the `oc` transport type, which means it will
+    leverage a locally installed `oc` binary. This is also how node enumeration
+    is done. To instead use SSH to connect to the nodes, use the
+    '--transport=control_persist' option.
+
+    Thus, a functional `oc` binary for the user executing sos collect is
+    required. Functional meaning that the user can run `oc` commands with
+    clusterAdmin privileges.
+
+    If this requires the use of a secondary configuration file, specify that
+    path with the 'kubeconfig' cluster option.
+
+    Alternatively, provide a clusterAdmin access token either via the 'token'
+    cluster option or, preferably, the SOSOCPTOKEN environment variable.
+
+    By default, this profile will enumerate only master nodes within the
+    cluster, and this may be changed by overriding the 'role' cluster option.
+    To collect from all nodes in the cluster regardless of role, use the form
+    -c ocp.role=''.
+
+    Filtering nodes by a label applied to that node is also possible via the
+    label cluster option, though be aware that this is _combined_ with the role
+    option mentioned above.
+
+    To avoid redundant collections of OCP API information (e.g. 'oc get'
+    commands), this profile will attempt to enable the openshift plugin on only
+    a single master node. If the none of the master nodes have a functional
+    'oc' binary available, *and* the --no-local option is used, that means that
+    no API data will be collected.
+    """
 
     cluster_name = 'OpenShift Container Platform v4'
     packages = ('openshift-hyperkube', 'openshift-clients')

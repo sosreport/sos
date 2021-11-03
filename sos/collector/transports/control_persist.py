@@ -26,10 +26,18 @@ from sos.utilities import sos_get_command_output
 
 
 class SSHControlPersist(RemoteTransport):
-    """A transport for collect that leverages OpenSSH's Control Persist
+    """
+    A transport for collect that leverages OpenSSH's ControlPersist
     functionality which uses control sockets to transparently keep a connection
     open to the remote host without needing to rebuild the SSH connection for
-    each and every command executed on the node
+    each and every command executed on the node.
+
+    This transport will by default assume the use of SSH keys, meaning keys
+    have already been distributed to target nodes. If this is not the case,
+    users will need to provide a password using the --password or
+    --password-per-node option, depending on if the password to connect to all
+    nodes is the same or not. Note that these options prevent the use of the
+    --batch option, as they require user input.
     """
 
     name = 'control_persist'
