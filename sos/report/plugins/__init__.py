@@ -553,14 +553,6 @@ class Plugin():
     # Default predicates
     predicate = None
     cmd_predicate = None
-    _default_plug_opts = {
-        'timeout': PluginOpt('timeout', default=-1, val_type=int,
-                             desc='Timeout in seconds for plugin to finish'),
-        'cmd-timeout': PluginOpt('cmd-timeout', default=-1, val_type=int,
-                                 desc='Timeout in seconds for cmds to finish'),
-        'postproc': PluginOpt('postproc', default=True, val_type=bool,
-                              desc='Enable post-processing of collected data')
-    }
 
     def __init__(self, commons):
 
@@ -586,7 +578,7 @@ class Plugin():
             else logging.getLogger('sos')
 
         # add the default plugin opts
-        self.options.update(self._default_plug_opts)
+        self.options.update(self.get_default_plugin_opts())
         for popt in self.options:
             self.options[popt].plugin = self.name()
         for opt in self.option_list:
@@ -595,6 +587,22 @@ class Plugin():
 
         # Initialise the default --dry-run predicate
         self.set_predicate(SoSPredicate(self))
+
+    def get_default_plugin_opts(self):
+        return {
+            'timeout': PluginOpt(
+                'timeout', default=-1, val_type=int,
+                desc='Timeout in seconds for plugin to finish all collections'
+            ),
+            'cmd-timeout': PluginOpt(
+                'cmd-timeout', default=-1, val_type=int,
+                desc='Timeout in seconds for individual commands to finish'
+            ),
+            'postproc': PluginOpt(
+                'postproc', default=True, val_type=bool,
+                desc='Enable post-processing of collected data'
+            )
+        }
 
     def set_plugin_manifest(self, manifest):
         """Pass in a manifest object to the plugin to write to
@@ -610,7 +618,9 @@ class Plugin():
         self.manifest.add_field('setup_start', '')
         self.manifest.add_field('setup_end', '')
         self.manifest.add_field('setup_time', '')
+        self.manifest.add_field('timeout', self.timeout)
         self.manifest.add_field('timeout_hit', False)
+        self.manifest.add_field('command_timeout', self.cmdtimeout)
         self.manifest.add_list('commands', [])
         self.manifest.add_list('files', [])
         self.manifest.add_field('strings', {})

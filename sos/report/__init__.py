@@ -775,7 +775,7 @@ class SoSReport(SoSComponent):
         if self.all_options:
             self.ui_log.info(_("The following options are available for ALL "
                                "plugins:"))
-            _defaults = self.loaded_plugins[0][1]._default_plug_opts
+            _defaults = self.loaded_plugins[0][1].get_default_plugin_opts()
             for _opt in _defaults:
                 opt = _defaults[_opt]
                 val = opt.default
