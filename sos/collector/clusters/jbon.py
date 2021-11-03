@@ -12,11 +12,14 @@ from sos.collector.clusters import Cluster
 
 
 class jbon(Cluster):
-    '''Just a Bunch of Nodes
+    """
+    Used when --cluster-type=none (or jbon) to avoid cluster checks, and just
+    use the provided --nodes list.
 
-    Used when --cluster-type=none (or jbon), to avoid cluster checks, and just
-    use the provided --nodes list
-    '''
+    Using this profile will skip any and all operations that a cluster profile
+    normally performs, and will not set any plugins, plugin options, or presets
+    for the sos report generated on the nodes provided by --nodes.
+    """
 
     cluster_name = 'Just a Bunch Of Nodes (no cluster)'
     packages = None

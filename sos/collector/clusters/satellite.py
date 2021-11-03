@@ -13,7 +13,14 @@ from sos.collector.clusters import Cluster
 
 
 class satellite(Cluster):
-    """Red Hat Satellite 6"""
+    """
+    This profile is specifically for Red Hat Satellite 6, and not earlier
+    releases of Satellite.
+
+    While note technically a 'cluster' in the traditional sense, Satellite
+    does provide for 'capsule' nodes which is what this profile aims to
+    enumerate beyond the 'primary' Satellite system.
+    """
 
     cluster_name = 'Red Hat Satellite 6'
     packages = ('satellite', 'satellite-installer')

@@ -17,6 +17,33 @@ ENGINE_KEY = '/etc/pki/ovirt-engine/keys/engine_id_rsa'
 
 
 class ovirt(Cluster):
+    """
+    This cluster profile is for the oVirt/RHV project which provides for a
+    virtualization cluster built ontop of KVM.
+
+    Nodes enumerated will be hypervisors within the envrionment, not virtual
+    machines running on those hypervisors. By default, ALL hypervisors within
+    the environment are returned. This may be influenced by the 'cluster' and
+    'datacenter' cluster options, which will limit enumeration to hypervisors
+    within the specific cluster and/or datacenter. The spm-only cluster option
+    may also be used to only collect from hypervisors currently holding the
+    SPM role.
+
+    Optionally, to only collect an archive from manager and the postgresql
+    database, use the no-hypervisors cluster option.
+
+    By default, a second archive from the manager will be collected that is
+    just the postgresql plugin configured in such a way that a dump of the
+    manager's database that can be explored and restored to other systems will
+    be collected.
+
+    The ovirt profile focuses on the upstream, community ovirt project.
+
+    The rhv profile is for Red Hat customers running RHV (formerly RHEV).
+
+    The rhhi_virt profile is for Red Hat customers running RHV in a
+    hyper-converged setup and enables gluster collections.
+    """
 
     cluster_name = 'Community oVirt'
     packages = ('ovirt-engine',)

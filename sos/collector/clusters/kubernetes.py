@@ -13,7 +13,12 @@ from sos.collector.clusters import Cluster
 
 
 class kubernetes(Cluster):
-
+    """
+    The kuberentes cluster profile is intended to be used on kubernetes
+    clusters built from the upstream/source kubernetes (k8s) project. It is
+    not intended for use with other projects or platforms that are built ontop
+    of kubernetes.
+    """
     cluster_name = 'Community Kubernetes'
     packages = ('kubernetes-master',)
     sos_plugins = ['kubernetes']
