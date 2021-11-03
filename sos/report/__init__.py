@@ -1046,6 +1046,7 @@ class SoSReport(SoSComponent):
                 self.ui_log.error("\n Plugin %s timed out\n" % plugin[1])
                 self.running_plugs.remove(plugin[1])
                 self.loaded_plugins[plugin[0]-1][1].set_timeout_hit()
+                pool.shutdown(wait=True)
                 pool._threads.clear()
         if self.opts.estimate_only:
             from pathlib import Path
