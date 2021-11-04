@@ -2953,21 +2953,20 @@ class Plugin():
                 )
         for ns in ns_list:
             # if ns_pattern defined, skip namespaces not matching the pattern
-            if ns_pattern:
-                if not bool(re.match(pattern, ns)):
-                    continue
+            if ns_pattern and not bool(re.match(pattern, ns)):
+                continue
+            out_ns.append(ns)
 
-            # if ns_max is defined at all, limit returned list to that number
+            # if ns_max is defined at all, break the loop when the limit is
+            # reached
             # this allows the use of both '0' and `None` to mean unlimited
-            elif ns_max:
-                out_ns.append(ns)
+            if ns_max:
                 if len(out_ns) == ns_max:
                     self._log_warn("Limiting namespace iteration "
                                    "to first %s namespaces found"
                                    % ns_max)
                     break
-            else:
-                out_ns.append(ns)
+
         return out_ns
 
 
