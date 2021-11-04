@@ -14,6 +14,7 @@ import logging
 import os
 import tempfile
 import sys
+import time
 
 from argparse import SUPPRESS
 from datetime import datetime
@@ -22,7 +23,7 @@ from pathlib import Path
 from sos import __version__
 from sos.archive import TarFileArchive
 from sos.options import SoSOptions
-from sos.utilities import TempFileUtil
+from sos.utilities import TempFileUtil, shell_out
 
 
 class SoSComponent():
@@ -121,6 +122,8 @@ class SoSComponent():
             self.manifest.add_field('end_time', '')
             self.manifest.add_field('run_time', '')
             self.manifest.add_field('compression', '')
+            self.manifest.add_field('tmpdir', self.tmpdir)
+            self.manifest.add_field('tmpdir_fs_type', self.tmpfstype)
             self.manifest.add_field('policy', self.policy.distro)
             self.manifest.add_section('components')
 
@@ -142,12 +145,26 @@ class SoSComponent():
         use a standardized env var to redirect to the host's filesystem instead
         """
         if self.opts.tmp_dir:
-            return os.path.abspath(self.opts.tmp_dir)
-
-        tmpdir = '/var/tmp'
+            tmpdir = os.path.abspath(self.opts.tmp_dir)
+        else:
+            tmpdir = os.getenv('TMPDIR', None) or '/var/tmp'
 
         if os.getenv('HOST', None) and os.getenv('container', None):
             tmpdir = os.path.join(os.getenv('HOST'), tmpdir.lstrip('/'))
+
+        # no standard library method exists for this, so call out to stat to
+        # avoid bringing in a dependency on psutil
+        self.tmpfstype = shell_out(
+            "stat --file-system --format=%s %s" % ("%T", tmpdir)
+        ).strip()
+
+        if self.tmpfstype == 'tmpfs':
+            # can't log to the ui or sos.log yet since those require a defined
+            # tmpdir to setup
+            print("WARNING: tmp-dir is set to a tmpfs filesystem. This may "
+                  "increase memory pressure and cause instability on low "
+                  "memory systems, or when using --all-logs.")
+            time.sleep(2)
 
         return tmpdir
 
