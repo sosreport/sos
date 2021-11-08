@@ -133,7 +133,10 @@ class SoSComponent():
             self._exit()
         return exit_handler
 
-    def _exit(self, error=0):
+    def _exit(self, error=0, msg=None):
+        if msg:
+            self.ui_log.error("")
+            self.ui_log.error(msg)
         raise SystemExit(error)
 
     def get_tmpdir_default(self):

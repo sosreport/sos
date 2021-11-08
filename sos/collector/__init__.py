@@ -852,6 +852,8 @@ class SoSCollector(SoSComponent):
             except KeyboardInterrupt:
                 self.cluster.cleanup()
                 self.exit("Exiting on user cancel", 130)
+            except Exception as e:
+                self.exit(repr(e), 1)
 
     def configure_sos_cmd(self):
         """Configures the sosreport command that is run on the nodes"""
@@ -1080,6 +1082,8 @@ this utility or remote systems that it connects to.
                 self.ui_log.info("")
             except KeyboardInterrupt:
                 self.exit("Exiting on user cancel", 130)
+            except Exception as e:
+                self._exit(1, e)
 
     def execute(self):
         if self.opts.list_options:
