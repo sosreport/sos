@@ -184,6 +184,8 @@ third party.
             except KeyboardInterrupt:
                 self.ui_log.info("\nExiting on user cancel")
                 self._exit(130)
+            except Exception as e:
+                self._exit(1, e)
 
     @classmethod
     def add_parser_options(cls, parser):

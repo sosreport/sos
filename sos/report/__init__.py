@@ -922,9 +922,7 @@ class SoSReport(SoSComponent):
                 self.ui_log.error("Exiting on user cancel")
                 self._exit(130)
             except Exception as e:
-                self.ui_log.info("")
-                self.ui_log.error(e)
-                self._exit(e)
+                self._exit(1, e)
 
     def _log_plugin_exception(self, plugin, method):
         trace = traceback.format_exc()
