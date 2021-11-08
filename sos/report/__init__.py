@@ -1052,8 +1052,7 @@ class SoSReport(SoSComponent):
             from pathlib import Path
             tmpdir_path = Path(self.archive.get_tmp_dir())
             self.estimated_plugsizes[plugin[1]] = sum(
-                    [f.stat().st_size for f in tmpdir_path.glob('**/*')
-                     if (os.path.isfile(f) and not os.path.islink(f))])
+                    [f.lstat().st_size for f in tmpdir_path.glob('**/*')])
             # remove whole tmp_dir content - including "sos_commands" and
             # similar dirs that will be re-created on demand by next plugin
             # if needed; it is less error-prone approach than skipping
@@ -1275,6 +1274,33 @@ class SoSReport(SoSComponent):
                 short_name='manifest.json'
             )
 
+        # print results in estimate mode (to include also just added manifest)
+        if self.opts.estimate_only:
+            from sos.utilities import get_human_readable
+            from pathlib import Path
+            # add sos_logs, sos_reports dirs, etc., basically everything
+            # that remained in self.tmpdir after plugins' contents removal
+            # that still will be moved to the sos report final directory path
+            tmpdir_path = Path(self.tmpdir)
+            self.estimated_plugsizes['sos_logs_reports'] = sum(
+                    [f.lstat().st_size for f in tmpdir_path.glob('**/*')])
+
+            _sum = get_human_readable(sum(self.estimated_plugsizes.values()))
+            self.ui_log.info("Estimated disk space requirement for whole "
+                             "uncompressed sos report directory: %s" % _sum)
+            bigplugins = sorted(self.estimated_plugsizes.items(),
+                                key=lambda x: x[1], reverse=True)[:5]
+            bp_out = ",  ".join("%s: %s" %
+                                (p, get_human_readable(v, precision=0))
+                                for p, v in bigplugins)
+            self.ui_log.info("Five biggest plugins:  %s" % bp_out)
+            self.ui_log.info("")
+            self.ui_log.info("Please note the estimation is relevant to the "
+                             "current options.")
+            self.ui_log.info("Be aware that the real disk space requirements "
+                             "might be different.")
+            self.ui_log.info("")
+
         # package up and compress the results
         if not self.opts.build:
             old_umask = os.umask(0o077)
@@ -1378,32 +1404,6 @@ class SoSReport(SoSComponent):
         else:
             self.policy.display_results(archive, directory, checksum,
                                         map_file=map_file)
-
-        if self.opts.estimate_only:
-            from sos.utilities import get_human_readable
-            from pathlib import Path
-            # add sos_logs, sos_reports dirs, etc., basically everything
-            # that remained in self.tmpdir after plugins' contents removal
-            # that still will be moved to the sos report final directory path
-            tmpdir_path = Path(self.tmpdir)
-            self.estimated_plugsizes['sos_logs_reports'] = sum(
-                    [f.stat().st_size for f in tmpdir_path.glob('**/*')])
-
-            _sum = get_human_readable(sum(self.estimated_plugsizes.values()))
-            self.ui_log.info("Estimated disk space requirement for whole "
-                             "uncompressed sos report directory: %s" % _sum)
-            bigplugins = sorted(self.estimated_plugsizes.items(),
-                                key=lambda x: x[1], reverse=True)[:3]
-            bp_out = ",  ".join("%s: %s" %
-                                (p, get_human_readable(v, precision=0))
-                                for p, v in bigplugins)
-            self.ui_log.info("Three biggest plugins:  %s" % bp_out)
-            self.ui_log.info("")
-            self.ui_log.info("Please note the estimation is relevant to the "
-                             "current options.")
-            self.ui_log.info("Be aware that the real disk space requirements "
-                             "might be different.")
-            self.ui_log.info("")
 
         if self.opts.upload or self.opts.upload_url:
             if not self.opts.build:
