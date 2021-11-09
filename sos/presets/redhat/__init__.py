@@ -29,11 +29,15 @@ RHEL_DESC = RHEL_RELEASE_STR
 
 RHOSP = "rhosp"
 RHOSP_DESC = "Red Hat OpenStack Platform"
+RHOSP_OPTS = SoSOptions(plugopts=[
+                             'process.lsof=off',
+                             'networking.ethtool_namespaces=False',
+                             'networking.namespaces=200'])
 
 RHOCP = "ocp"
 RHOCP_DESC = "OpenShift Container Platform by Red Hat"
-RHOSP_OPTS = SoSOptions(plugopts=[
-                             'process.lsof=off',
+RHOCP_OPTS = SoSOptions(all_logs=True, verify=True, plugopts=[
+                             'networking.timeout=600',
                              'networking.ethtool_namespaces=False',
                              'networking.namespaces=200'])
 
@@ -62,7 +66,7 @@ RHEL_PRESETS = {
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
     RHOSP: PresetDefaults(name=RHOSP, desc=RHOSP_DESC, opts=RHOSP_OPTS),
     RHOCP: PresetDefaults(name=RHOCP, desc=RHOCP_DESC, note=NOTE_SIZE_TIME,
-                          opts=_opts_all_logs_verify),
+                          opts=RHOCP_OPTS),
     RH_CFME: PresetDefaults(name=RH_CFME, desc=RH_CFME_DESC, note=NOTE_TIME,
                             opts=_opts_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
