@@ -59,11 +59,13 @@ class Block(Plugin, IndependentPlugin):
         self.add_blockdev_cmd(cmds, blacklist='ram.*')
 
         lsblk = self.collect_cmd_output("lsblk -f -a -l")
-        # for LUKS devices, collect cryptsetup luksDump
+        # for LUKS devices, collect cryptsetup luksDump, clevis policy(s), and /etc/crypttab file.
         if lsblk['status'] == 0:
             for line in lsblk['output'].splitlines():
                 if 'crypto_LUKS' in line:
                     dev = line.split()[0]
                     self.add_cmd_output('cryptsetup luksDump /dev/%s' % dev)
+                    self.add_cmd_output('clevis luks list -d /dev/%s' % dev)
+                    self.add_copy_spec('/etc/crypttab')
 
 # vim: set et ts=4 sw=4 :
