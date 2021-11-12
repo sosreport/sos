@@ -59,7 +59,7 @@ class Block(Plugin, IndependentPlugin):
         self.add_blockdev_cmd(cmds, blacklist='ram.*')
 
         lsblk = self.collect_cmd_output("lsblk -f -a -l")
-        # for LUKS devices, collect cryptsetup luksDump, clevis policy(s), and /etc/crypttab file.
+        # for LUKS devs, pull cryptsetup luksDump, clevis, and /etc/crypttab.
         if lsblk['status'] == 0:
             for line in lsblk['output'].splitlines():
                 if 'crypto_LUKS' in line:
