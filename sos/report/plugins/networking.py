@@ -95,6 +95,8 @@ class Networking(Plugin):
             "networkctl status -a",
             "ip route show table all",
             "ip -6 route show table all",
+            "ip -d route show cache",
+            "ip -d -6 route show cache",
             "ip -4 rule",
             "ip -6 rule",
             "ip -s -d link",
