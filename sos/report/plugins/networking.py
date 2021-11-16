@@ -181,6 +181,7 @@ class Networking(Plugin):
 
         # Capture additional data from namespaces; each command is run
         # per-namespace.
+        nf_tables_pred = SoSPredicate(self, kmods=['nf_tables'])
         self.add_cmd_output("ip netns")
         cmd_prefix = "ip netns exec "
         namespaces = self.get_network_namespaces(
@@ -192,12 +193,10 @@ class Networking(Plugin):
             # analogously for ip6tables
             co = {'cmd': 'iptables -V', 'output': 'nf_tables'}
             co6 = {'cmd': 'ip6tables -V', 'output': 'nf_tables'}
-            iptables_with_nft = (SoSPredicate(self, kmods=['nf_tables'])
-                                 if self.test_predicate(self,
+            iptables_with_nft = (nf_tables_pred if self.test_predicate(self,
                                  pred=SoSPredicate(self, cmd_outputs=co))
                                  else None)
-            ip6tables_with_nft = (SoSPredicate(self, kmods=['nf_tables'])
-                                  if self.test_predicate(self,
+            ip6tables_with_nft = (nf_tables_pred if self.test_predicate(self,
                                   pred=SoSPredicate(self, cmd_outputs=co6))
                                   else None)
         for namespace in namespaces:
@@ -219,11 +218,13 @@ class Networking(Plugin):
                                 pred=ip6tables_with_nft,
                                 priority=50)
 
+            # collect ss command per namespace only when some kmods are loaded
             ss_cmd = ns_cmd_prefix + "ss -peaonmi"
-            # --allow-system-changes is handled directly in predicate
-            # evaluation, so plugin code does not need to separately
-            # check for it
             self.add_cmd_output(ss_cmd, pred=ss_pred)
+            # collect nft list rulest per namespace only when nf_tables is
+            # loaded
+            nft_list = ns_cmd_prefix + "nft list ruleset"
+            self.add_cmd_output(nft_list, pred=nf_tables_pred)
 
         # Collect ethtool commands only when ethtool_namespaces
         # is set to true.
