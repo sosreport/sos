@@ -523,9 +523,14 @@ third party.
                         if isinstance(_parser, SoSUsernameParser):
                             _parser.load_usernames_into_map(content)
                         elif isinstance(_parser, SoSHostnameParser):
-                            _parser.load_hostname_into_map(
-                                content.splitlines()[0]
-                            )
+                            if 'hostname' in parse_file:
+                                _parser.load_hostname_into_map(
+                                    content.splitlines()[0]
+                                )
+                            elif 'etc/hosts' in parse_file:
+                                _parser.load_hostname_from_etc_hosts(
+                                    content
+                                )
                         else:
                             for line in content.splitlines():
                                 self.obfuscate_line(line)
