@@ -16,7 +16,7 @@ class firewall_tables(Plugin, IndependentPlugin):
     plugin_name = "firewall_tables"
     profiles = ('network', 'system')
 
-    def collect_iptable(self, tablename):
+    def collect_iptable(self, tablename, kmod):
         """ Collecting iptables rules for a table loads either kernel module
         of the table name (for kernel <= 3), or nf_tables (for kernel >= 4).
         If neither module is present, the rules must be empty."""
@@ -25,16 +25,16 @@ class firewall_tables(Plugin, IndependentPlugin):
         cmd = "iptables -t " + tablename + " -nvL"
         self.add_cmd_output(
             cmd,
-            pred=SoSPredicate(self, kmods=[modname, 'nf_tables']))
+            pred=SoSPredicate(self, kmods=[modname, kmod]))
 
-    def collect_ip6table(self, tablename):
+    def collect_ip6table(self, tablename, kmod):
         """ Same as function above, but for ipv6 """
 
         modname = "ip6table_" + tablename
         cmd = "ip6tables -t " + tablename + " -nvL"
         self.add_cmd_output(
             cmd,
-            pred=SoSPredicate(self, kmods=[modname, 'nf_tables']))
+            pred=SoSPredicate(self, kmods=[modname, kmod]))
 
     def collect_nftables(self):
         """ Collects nftables rulesets with 'nft' commands if the modules
@@ -60,6 +60,20 @@ class firewall_tables(Plugin, IndependentPlugin):
             if len(words) == 3 and words[0] == 'table' and \
                     words[1] in nft_ip_tables.keys():
                 nft_ip_tables[words[1]].append(words[2])
+
+        # 'iptables [-t chain] -vnL' must be guarded by nf_tables kmod,
+        # if 'iptables -V' output contains 'nf_tables', or by 'iptable_filter'
+        # otherwise;
+        # analogously for ip6tables
+        co = {'cmd': 'iptables -V', 'output': 'nf_tables'}
+        c6 = {'cmd': 'ip6tables -V', 'output': 'nf_tables'}
+        iptables_kmod = 'nf_tables' if self.test_predicate(
+            self,
+            pred=SoSPredicate(self, cmd_outputs=co)) else 'iptable_filter'
+        ip6tables_kmod = 'nf_tables' if self.test_predicate(
+            self,
+            pred=SoSPredicate(self, cmd_outputs=c6)) else 'ip6table_filter'
+
         # collect iptables -t for any existing table, if we can't read the
         # tables, collect 2 default ones (mangle, filter)
         # do collect them only when relevant nft list ruleset exists
@@ -70,7 +84,7 @@ class firewall_tables(Plugin, IndependentPlugin):
             ip_tables_names = default_ip_tables
         for table in ip_tables_names.splitlines():
             if nft_list['status'] == 0 and table in nft_ip_tables['ip']:
-                self.collect_iptable(table)
+                self.collect_iptable(table, iptables_kmod)
         # collect the same for ip6tables
         try:
             ip_tables_names = open("/proc/net/ip6_tables_names").read()
@@ -78,7 +92,7 @@ class firewall_tables(Plugin, IndependentPlugin):
             ip_tables_names = default_ip_tables
         for table in ip_tables_names.splitlines():
             if nft_list['status'] == 0 and table in nft_ip_tables['ip6']:
-                self.collect_ip6table(table)
+                self.collect_ip6table(table, ip6tables_kmod)
 
         # When iptables is called it will load:
         # 1) the modules iptables_filter (for kernel <= 3) or
@@ -88,12 +102,12 @@ class firewall_tables(Plugin, IndependentPlugin):
         if nft_list['status'] != 0 or 'filter' in nft_ip_tables['ip']:
             self.add_cmd_output(
                 "iptables -vnxL",
-                pred=SoSPredicate(self, kmods=['iptable_filter', 'nf_tables'])
+                pred=SoSPredicate(self, kmods=[iptables_kmod])
             )
         if nft_list['status'] != 0 or 'filter' in nft_ip_tables['ip6']:
             self.add_cmd_output(
                 "ip6tables -vnxL",
-                pred=SoSPredicate(self, kmods=['ip6table_filter', 'nf_tables'])
+                pred=SoSPredicate(self, kmods=[ip6tables_kmod])
             )
 
         self.add_copy_spec([
