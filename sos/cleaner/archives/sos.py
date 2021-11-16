@@ -23,7 +23,10 @@ class SoSReportArchive(SoSObfuscationArchive):
     type_name = 'report'
     description = 'sos report archive'
     prep_files = {
-        'hostname': 'sos_commands/host/hostname',
+        'hostname': [
+            'sos_commands/host/hostname',
+            'etc/hosts'
+        ],
         'ip': 'sos_commands/networking/ip_-o_addr',
         'mac': 'sos_commands/networking/ip_-d_address',
         'username': [

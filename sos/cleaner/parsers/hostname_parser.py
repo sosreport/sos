@@ -61,6 +61,25 @@ class SoSHostnameParser(SoSCleanerParser):
             self.mapping.add(high_domain)
         self.mapping.add(hostname_string)
 
+    def load_hostname_from_etc_hosts(self, content):
+        """Parse an archive's copy of /etc/hosts, which requires handling that
+        is separate from the output of the `hostname` command. Just like
+        load_hostname_into_map(), this has to be done explicitly and we
+        cannot rely upon the more generic methods to do this reliably.
+        """
+        lines = content.splitlines()
+        for line in lines:
+            if line.startswith('#') or 'localhost' in line:
+                continue
+            hostln = line.split()[1:]
+            for host in hostln:
+                if len(host.split('.')) == 1:
+                    # only generate a mapping for fqdns but still record the
+                    # short name here for later obfuscation with parse_line()
+                    self.short_names.append(host)
+                else:
+                    self.mapping.add(host)
+
     def parse_line(self, line):
         """Override the default parse_line() method to also check for the
         shortname of the host derived from the hostname.
