@@ -169,13 +169,13 @@ class SoSHostnameMap(SoSMap):
 
     def sanitize_item(self, item):
         host = item.split('.')
-        if all([h.isupper() for h in host]):
+        if len(host) > 1 and all([h.isupper() for h in host]):
             # by convention we have just a domain
             _host = [h.lower() for h in host]
             return self.sanitize_domain(_host).upper()
         if len(host) == 1:
             # we have a shortname for a host
-            return self.sanitize_short_name(host[0])
+            return self.sanitize_short_name(host[0].lower())
         if len(host) == 2:
             # we have just a domain name, e.g. example.com
             return self.sanitize_domain(host)
@@ -185,7 +185,7 @@ class SoSHostnameMap(SoSMap):
             domain = host[1:]
             # obfuscate the short name
             if len(hostname) > 2:
-                ob_hostname = self.sanitize_short_name(hostname)
+                ob_hostname = self.sanitize_short_name(hostname.lower())
             else:
                 # by best practice it appears the host part of the fqdn was cut
                 # off due to some form of truncating, as such don't obfuscate

@@ -26,6 +26,24 @@ class FullCleanTest(StageTwoReportTest):
     # replace with an empty placeholder, make sure that this test case is not
     # influenced by previous clean runs
     files = ['/etc/sos/cleaner/default_mapping']
+    packages = {
+        'rhel': ['python3-systemd'],
+        'ubuntu': ['python3-systemd']
+    }
+
+    def pre_sos_setup(self):
+        # ensure that case-insensitive matching of FQDNs and shortnames work
+        from systemd import journal
+        from socket import gethostname
+        host = gethostname()
+        short = host.split('.')[0]
+        sosfd = journal.stream('sos-testing')
+        sosfd.write(
+            "This is a test line from sos clean testing. The hostname %s "
+            "should not appear, nor should %s in an obfuscated archive. The "
+            "shortnames of %s and %s should also not appear."
+            % (host.lower(), host.upper(), short.lower(), short.upper())
+        )
 
     def test_private_map_was_generated(self):
         self.assertOutputContains('A mapping of obfuscated elements is available at')
@@ -40,8 +58,9 @@ class FullCleanTest(StageTwoReportTest):
 
     def test_hostname_not_in_any_file(self):
         host = self.sysinfo['pre']['networking']['hostname']
+        short = host.split('.')[0]
         # much faster to just use grep here
-        content = self.grep_for_content(host)
+        content = self.grep_for_content(host) + self.grep_for_content(short)
         if not content:
             assert True
         else:

@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
+
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
 
@@ -91,9 +93,9 @@ class SoSHostnameParser(SoSCleanerParser):
             """
             if search in self.mapping.skip_keys:
                 return ln, count
-            if search in ln:
-                count += ln.count(search)
-                ln = ln.replace(search, self.mapping.get(repl or search))
+            _reg = re.compile(search, re.I)
+            if _reg.search(ln):
+                return _reg.subn(self.mapping.get(repl or search), ln)
             return ln, count
 
         count = 0
