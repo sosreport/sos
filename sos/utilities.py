@@ -96,11 +96,15 @@ def grep(pattern, *files_or_paths):
     return matches
 
 
-def is_executable(command):
+def is_executable(command, sysroot=None):
     """Returns if a command matches an executable on the PATH"""
 
     paths = os.environ.get("PATH", "").split(os.path.pathsep)
     candidates = [command] + [os.path.join(p, command) for p in paths]
+    if sysroot:
+        candidates += [
+            os.path.join(sysroot, c.lstrip('/')) for c in candidates
+        ]
     return any(os.access(path, os.X_OK) for path in candidates)
 
 
@@ -216,8 +220,9 @@ def get_human_readable(size, precision=2):
 
 
 def _os_wrapper(path, sysroot, method, module=os.path):
-    if sysroot not in [None, '/']:
-        path = os.path.join(sysroot, path.lstrip('/'))
+    if sysroot and sysroot != os.sep:
+        if not path.startswith(sysroot):
+            path = os.path.join(sysroot, path.lstrip('/'))
     _meth = getattr(module, method)
     return _meth(path)
 
@@ -243,7 +248,7 @@ def listdir(path, sysroot):
 
 
 def path_join(path, *p, sysroot=os.sep):
-    if not path.startswith(sysroot):
+    if sysroot and not path.startswith(sysroot):
         path = os.path.join(sysroot, path.lstrip(os.sep))
     return os.path.join(path, *p)
 

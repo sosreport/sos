@@ -724,7 +724,7 @@ class Plugin():
         """
         if not self.use_sysroot():
             return path
-        if path.startswith(self.sysroot):
+        if self.sysroot and path.startswith(self.sysroot):
             return path[len(self.sysroot):]
         return path
 
@@ -743,8 +743,10 @@ class Plugin():
                   ``False``
         :rtype: ``bool``
         """
-        paths = [self.sysroot, self.archive.get_tmp_dir()]
-        return os.path.commonprefix(paths) == self.sysroot
+        # if sysroot is still None, that implies '/'
+        _sysroot = self.sysroot or '/'
+        paths = [_sysroot, self.archive.get_tmp_dir()]
+        return os.path.commonprefix(paths) == _sysroot
 
     def is_installed(self, package_name):
         """Is the package $package_name installed?
@@ -2621,7 +2623,7 @@ class Plugin():
         return list(set(expanded))
 
     def _collect_copy_specs(self):
-        for path in self.copy_paths:
+        for path in sorted(self.copy_paths, reverse=True):
             self._log_info("collecting path '%s'" % path)
             self._do_copy_path(path)
         self.generate_copyspec_tags()
@@ -2749,7 +2751,7 @@ class Plugin():
 
         return ((any(self.path_exists(fname) for fname in files) or
                 any(self.is_installed(pkg) for pkg in packages) or
-                any(is_executable(cmd) for cmd in commands) or
+                any(is_executable(cmd, self.sysroot) for cmd in commands) or
                 any(self.is_module_loaded(mod) for mod in self.kernel_mods) or
                 any(self.is_service(svc) for svc in services) or
                 any(self.container_exists(cntr) for cntr in containers)) and
@@ -2817,7 +2819,7 @@ class Plugin():
         :returns:           True if the path exists in sysroot, else False
         :rtype:             ``bool``
         """
-        return path_exists(path, self.commons['cmdlineopts'].sysroot)
+        return path_exists(path, self.sysroot)
 
     def path_isdir(self, path):
         """Helper to call the sos.utilities wrapper that allows the
@@ -2830,7 +2832,7 @@ class Plugin():
         :returns:           True if the path is a dir, else False
         :rtype:             ``bool``
         """
-        return path_isdir(path, self.commons['cmdlineopts'].sysroot)
+        return path_isdir(path, self.sysroot)
 
     def path_isfile(self, path):
         """Helper to call the sos.utilities wrapper that allows the
@@ -2843,7 +2845,7 @@ class Plugin():
         :returns:           True if the path is a file, else False
         :rtype:             ``bool``
         """
-        return path_isfile(path, self.commons['cmdlineopts'].sysroot)
+        return path_isfile(path, self.sysroot)
 
     def path_islink(self, path):
         """Helper to call the sos.utilities wrapper that allows the
@@ -2856,7 +2858,7 @@ class Plugin():
         :returns:           True if the path is a link, else False
         :rtype:             ``bool``
         """
-        return path_islink(path, self.commons['cmdlineopts'].sysroot)
+        return path_islink(path, self.sysroot)
 
     def listdir(self, path):
         """Helper to call the sos.utilities wrapper that allows the
@@ -2869,7 +2871,7 @@ class Plugin():
         :returns:           Contents of path, if it is a directory
         :rtype:             ``list``
         """
-        return listdir(path, self.commons['cmdlineopts'].sysroot)
+        return listdir(path, self.sysroot)
 
     def path_join(self, path, *p):
         """Helper to call the sos.utilities wrapper that allows the

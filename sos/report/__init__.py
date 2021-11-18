@@ -173,14 +173,12 @@ class SoSReport(SoSComponent):
         self._set_directories()
 
         msg = "default"
-        host_sysroot = self.policy.host_sysroot()
+        self.sysroot = self.policy.sysroot
         # set alternate system root directory
         if self.opts.sysroot:
             msg = "cmdline"
-            self.sysroot = self.opts.sysroot
-        elif self.policy.in_container() and host_sysroot != os.sep:
+        elif self.policy.in_container() and self.sysroot != os.sep:
             msg = "policy"
-            self.sysroot = host_sysroot
         self.soslog.debug("set sysroot to '%s' (%s)" % (self.sysroot, msg))
 
         if self.opts.chroot not in chroot_modes:

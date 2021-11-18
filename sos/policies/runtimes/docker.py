@@ -18,9 +18,9 @@ class DockerContainerRuntime(ContainerRuntime):
     name = 'docker'
     binary = 'docker'
 
-    def check_is_active(self):
+    def check_is_active(self, sysroot=None):
         # the daemon must be running
-        if (is_executable('docker') and
+        if (is_executable('docker', sysroot) and
                 (self.policy.init_system.is_running('docker') or
                  self.policy.init_system.is_running('snap.docker.dockerd'))):
             self.active = True

@@ -109,7 +109,7 @@ class SoSComponent():
             try:
                 import sos.policies
                 self.policy = sos.policies.load(sysroot=self.opts.sysroot)
-                self.sysroot = self.policy.host_sysroot()
+                self.sysroot = self.policy.sysroot
             except KeyboardInterrupt:
                 self._exit(0)
             self._is_root = self.policy.is_root()

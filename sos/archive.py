@@ -153,7 +153,7 @@ class FileCacheArchive(Archive):
         return (os.path.join(self._archive_root, name))
 
     def join_sysroot(self, path):
-        if path.startswith(self.sysroot):
+        if not self.sysroot or path.startswith(self.sysroot):
             return path
         if path[0] == os.sep:
             path = path[1:]
