@@ -58,10 +58,11 @@ class Unpackaged(Plugin, RedHatPlugin):
             """
             expanded = []
             for f in files:
-                if self.path_islink(f):
-                    expanded.append("{} -> {}".format(f, os.readlink(f)))
+                fp = self.path_join(f)
+                if self.path_islink(fp):
+                    expanded.append("{} -> {}".format(fp, os.readlink(fp)))
                 else:
-                    expanded.append(f)
+                    expanded.append(fp)
             return expanded
 
         # Check command predicate to avoid costly processing

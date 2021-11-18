@@ -64,7 +64,7 @@ class ContainerRuntime():
         :returns: ``True`` if the runtime is active, else ``False``
         :rtype: ``bool``
         """
-        if is_executable(self.binary):
+        if is_executable(self.binary, self.policy.sysroot):
             self.active = True
             return True
         return False
@@ -78,7 +78,7 @@ class ContainerRuntime():
         containers = []
         _cmd = "%s ps %s" % (self.binary, '-a' if get_all else '')
         if self.active:
-            out = sos_get_command_output(_cmd)
+            out = sos_get_command_output(_cmd, chroot=self.policy.sysroot)
             if out['status'] == 0:
                 for ent in out['output'].splitlines()[1:]:
                     ent = ent.split()
@@ -112,8 +112,10 @@ class ContainerRuntime():
         images = []
         fmt = '{{lower .Repository}}:{{lower .Tag}} {{lower .ID}}'
         if self.active:
-            out = sos_get_command_output("%s images --format '%s'"
-                                         % (self.binary, fmt))
+            out = sos_get_command_output(
+                "%s images --format '%s'" % (self.binary, fmt),
+                chroot=self.policy.sysroot
+            )
             if out['status'] == 0:
                 for ent in out['output'].splitlines():
                     ent = ent.split()
@@ -129,7 +131,10 @@ class ContainerRuntime():
         """
         vols = []
         if self.active:
-            out = sos_get_command_output("%s volume ls" % self.binary)
+            out = sos_get_command_output(
+                "%s volume ls" % self.binary,
+                chroot=self.policy.sysroot
+            )
             if out['status'] == 0:
                 for ent in out['output'].splitlines()[1:]:
                     ent = ent.split()

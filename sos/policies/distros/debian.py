@@ -27,7 +27,7 @@ class DebianPolicy(LinuxPolicy):
                  remote_exec=None):
         super(DebianPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime)
-        self.package_manager = DpkgPackageManager(chroot=sysroot,
+        self.package_manager = DpkgPackageManager(chroot=self.sysroot,
                                                   remote_exec=remote_exec)
         self.valid_subclasses += [DebianPlugin]
 

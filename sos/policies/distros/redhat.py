@@ -42,7 +42,6 @@ class RedHatPolicy(LinuxPolicy):
     _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _in_container = False
-    _host_sysroot = '/'
     default_scl_prefix = '/opt/rh'
     name_pattern = 'friendly'
     upload_url = None
@@ -57,7 +56,7 @@ class RedHatPolicy(LinuxPolicy):
                                            probe_runtime=probe_runtime)
         self.usrmove = False
 
-        self.package_manager = RpmPackageManager(chroot=sysroot,
+        self.package_manager = RpmPackageManager(chroot=self.sysroot,
                                                  remote_exec=remote_exec)
 
         self.valid_subclasses += [RedHatPlugin]

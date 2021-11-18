@@ -71,19 +71,18 @@ class LinuxPolicy(Policy):
     def __init__(self, sysroot=None, init=None, probe_runtime=True):
         super(LinuxPolicy, self).__init__(sysroot=sysroot,
                                           probe_runtime=probe_runtime)
-        self.init_kernel_modules()
 
-        # need to set _host_sysroot before PackageManager()
         if sysroot:
-            self._container_init()
-            self._host_sysroot = sysroot
+            self.sysroot = sysroot
         else:
-            sysroot = self._container_init()
+            self.sysroot = self._container_init()
+
+        self.init_kernel_modules()
 
         if init is not None:
             self.init_system = init
         elif os.path.isdir("/run/systemd/system/"):
-            self.init_system = SystemdInit(chroot=sysroot)
+            self.init_system = SystemdInit(chroot=self.sysroot)
         else:
             self.init_system = InitSystem()
 
@@ -149,27 +148,30 @@ class LinuxPolicy(Policy):
             if os.environ[ENV_CONTAINER] in ['docker', 'oci', 'podman']:
                 self._in_container = True
         if ENV_HOST_SYSROOT in os.environ:
-            self._host_sysroot = os.environ[ENV_HOST_SYSROOT]
-        use_sysroot = self._in_container and self._host_sysroot is not None
+            _host_sysroot = os.environ[ENV_HOST_SYSROOT]
+        use_sysroot = self._in_container and _host_sysroot is not None
         if use_sysroot:
-            host_tmp_dir = os.path.abspath(self._host_sysroot + self._tmp_dir)
+            host_tmp_dir = os.path.abspath(_host_sysroot + self._tmp_dir)
             self._tmp_dir = host_tmp_dir
-        return self._host_sysroot if use_sysroot else None
+        return _host_sysroot if use_sysroot else None
 
     def init_kernel_modules(self):
         """Obtain a list of loaded kernel modules to reference later for plugin
         enablement and SoSPredicate checks
         """
         self.kernel_mods = []
+        release = os.uname().release
 
         # first load modules from lsmod
-        lines = shell_out("lsmod", timeout=0).splitlines()
+        lines = shell_out("lsmod", timeout=0, chroot=self.sysroot).splitlines()
         self.kernel_mods.extend([
             line.split()[0].strip() for line in lines[1:]
         ])
 
         # next, include kernel builtins
-        builtins = "/usr/lib/modules/%s/modules.builtin" % os.uname().release
+        builtins = self.join_sysroot(
+            "/usr/lib/modules/%s/modules.builtin" % release
+        )
         try:
             with open(builtins, "r") as mfile:
                 for line in mfile:
@@ -186,7 +188,7 @@ class LinuxPolicy(Policy):
             'dm_mod': 'CONFIG_BLK_DEV_DM'
         }
 
-        booted_config = "/boot/config-%s" % os.uname().release
+        booted_config = self.join_sysroot("/boot/config-%s" % release)
         kconfigs = []
         try:
             with open(booted_config, "r") as kfile:
@@ -199,6 +201,11 @@ class LinuxPolicy(Policy):
         for builtin in config_strings:
             if config_strings[builtin] in kconfigs:
                 self.kernel_mods.append(builtin)
+
+    def join_sysroot(self, path):
+        if self.sysroot and self.sysroot != '/':
+            path = os.path.join(self.sysroot, path.lstrip('/'))
+        return path
 
     def pre_work(self):
         # this method will be called before the gathering begins

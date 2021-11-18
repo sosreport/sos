@@ -110,7 +110,6 @@ any third party.
     presets = {"": PresetDefaults()}
     presets_path = PRESETS_PATH
     _in_container = False
-    _host_sysroot = '/'
 
     def __init__(self, sysroot=None, probe_runtime=True):
         """Subclasses that choose to override this initializer should call
@@ -124,7 +123,7 @@ any third party.
         self.package_manager = PackageManager()
         self.valid_subclasses = [IndependentPlugin]
         self.set_exec_path()
-        self._host_sysroot = sysroot
+        self.sysroot = sysroot
         self.register_presets(GENERIC_PRESETS)
 
     def check(self, remote=''):
@@ -176,14 +175,6 @@ any third party.
         :rtype: ``bool``
         """
         return self._in_container
-
-    def host_sysroot(self):
-        """Get the host's default sysroot
-
-        :returns: Host sysroot
-        :rtype: ``str`` or ``None``
-        """
-        return self._host_sysroot
 
     def dist_version(self):
         """
