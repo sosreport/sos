@@ -269,10 +269,10 @@ support representative.
         """The RH SFTP server will only automatically connect file uploads to
         cases if the filename _starts_ with the case number
         """
+        fname = self.upload_archive_name.split('/')[-1]
         if self.case_id:
-            return "%s_%s" % (self.case_id,
-                              self.upload_archive_name.split('/')[-1])
-        return self.upload_archive_name
+            return "%s_%s" % (self.case_id, fname)
+        return fname
 
     def upload_sftp(self):
         """Override the base upload_sftp to allow for setting an on-demand
