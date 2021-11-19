@@ -175,7 +175,7 @@ organization before being passed to any third party.
 No changes will be made to system configuration.
 """
 
-RH_API_HOST = "https://access.redhat.com"
+RH_API_HOST = "https://api.access.redhat.com"
 RH_SFTP_HOST = "sftp://sftp.access.redhat.com"
 
 
@@ -287,12 +287,12 @@ support representative.
                             " for obtaining SFTP auth token.")
         _token = None
         _user = None
+        url = RH_API_HOST + '/support/v2/sftp/token'
         # we have a username and password, but we need to reset the password
         # to be the token returned from the auth endpoint
         if self.get_upload_user() and self.get_upload_password():
-            url = RH_API_HOST + '/hydra/rest/v1/sftp/token'
             auth = self.get_upload_https_auth()
-            ret = requests.get(url, auth=auth, timeout=10)
+            ret = requests.post(url, auth=auth, timeout=10)
             if ret.status_code == 200:
                 # credentials are valid
                 _user = self.get_upload_user()
@@ -302,8 +302,8 @@ support representative.
                       "credentials. Will try anonymous.")
         # we either do not have a username or password/token, or both
         if not _token:
-            aurl = RH_API_HOST + '/hydra/rest/v1/sftp/token?isAnonymous=true'
-            anon = requests.get(aurl, timeout=10)
+            adata = {"isAnonymous": True}
+            anon = requests.post(url, data=json.dumps(adata), timeout=10)
             if anon.status_code == 200:
                 resp = json.loads(anon.text)
                 _user = resp['username']
