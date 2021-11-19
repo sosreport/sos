@@ -205,7 +205,7 @@ class Networking(Plugin):
         for namespace in namespaces:
             ns_cmd_prefix = cmd_prefix + namespace + " "
             self.add_cmd_output([
-                ns_cmd_prefix + "ip address show",
+                ns_cmd_prefix + "ip -d address show",
                 ns_cmd_prefix + "ip route show table all",
                 ns_cmd_prefix + "ip -s -s neigh show",
                 ns_cmd_prefix + "ip rule list",
