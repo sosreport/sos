@@ -34,6 +34,9 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         ])
 
         self.add_cmd_output([
+            # The ceph_mon plugin will collect all the "ceph ..." commands
+            # which typically require the keyring.
+
             "ceph mon stat",
             "ceph quorum_status",
             "ceph report",
@@ -50,7 +53,12 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph osd metadata",
             "ceph osd erasure-code-profile ls",
             "ceph osd crush show-tunables",
-            "ceph osd crush dump"
+            "ceph osd crush dump",
+            "ceph mgr dump",
+            "ceph mgr metadata",
+            "ceph mgr module ls",
+            "ceph mgr services",
+            "ceph mgr versions"
         ])
 
         ceph_cmds = [

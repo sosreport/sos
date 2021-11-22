@@ -37,18 +37,26 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
         # more commands to be added later
         self.add_cmd_output([
             "ceph balancer status",
-            "ceph mgr metadata",
         ])
 
-        # more commands to be added later
         ceph_cmds = [
-            "mgr module ls",
-            "mgr dump",
+            "config diff",
+            "config show",
+            "dump_cache",
+            "dump_mempools",
+            "dump_osd_network",
+            "mds_requests",
+            "mds_sessions",
+            "objecter_requests",
+            "mds_requests",
+            "mds_sessions",
+            "perf dump",
+            "perf histogram dump",
+            "perf histogram schema",
+            "perf schema",
+            "status",
+            "version"
         ]
-
-        self.add_cmd_output([
-            "ceph %s --format json-pretty" % s for s in ceph_cmds
-        ], subdir="json_output", tags="insights_ceph_health_detail")
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
@@ -63,19 +71,30 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
             "/etc/ceph/*bindpass*",
         ])
 
+        mgr_ids = []
+        # Get the ceph user processes
+        out = self.exec_cmd('ps -u ceph -o args')
+
+        if out['status'] == 0:
+            # Extract the OSD ids from valid output lines
+            for procs in out['output'].splitlines():
+                proc = procs.split()
+                if len(proc) < 6:
+                    continue
+                if proc[4] == '--id' and "ceph-mgr" in proc[0]:
+                    mgr_ids.append("mgr.%s" % proc[5])
+
         # If containerized, run commands in containers
         containers_list = self.get_all_containers_by_regex("ceph-mgr*")
         if containers_list:
-            for container in containers_list:
-                self.add_cmd_output([
-                    self.fmt_container_cmd(container[1], "ceph %s" % s)
-                    for s in ceph_cmds
-                ])
-                break
-        # Not containerized
+            self.add_cmd_output([
+                self.fmt_container_cmd(
+                    containers_list[0][1], "ceph daemon %s %s"
+                    % (mgrid, cmd)) for mgrid in mgr_ids for cmd in ceph_cmds
+            ])
         else:
             self.add_cmd_output([
-                "ceph %s" % s for s in ceph_cmds
+                "ceph daemon %s %s" % (
+                    mgrid, cmd) for mgrid in mgr_ids for cmd in ceph_cmds
             ])
-
 # vim: set et ts=4 sw=4 :
