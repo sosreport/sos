@@ -1184,7 +1184,7 @@ this utility or remote systems that it connects to.
             self.cluster.cleanup()
             self.exit(msg, 1)
 
-        if self.opts.upload and self.get_upload_url():
+        if self.opts.upload and self.policy.get_upload_url():
             try:
                 self.policy.upload_archive(arc_name)
                 self.ui_log.info("Uploaded archive successfully")
