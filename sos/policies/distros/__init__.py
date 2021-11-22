@@ -551,7 +551,7 @@ class LinuxPolicy(Policy):
                 r = self._upload_https_put(arc, verify)
             else:
                 r = self._upload_https_post(arc, verify)
-            if r.status_code != 201:
+            if r.status_code != 200 and r.status_code != 201:
                 if r.status_code == 401:
                     raise Exception(
                         "Authentication failed: invalid user credentials"
