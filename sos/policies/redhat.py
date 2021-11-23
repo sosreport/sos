@@ -257,7 +257,7 @@ organization before being passed to any third party.
 No changes will be made to system configuration.
 """
 
-RH_API_HOST = "https://access.redhat.com"
+RH_API_HOST = "https://api.access.redhat.com"
 RH_SFTP_HOST = "sftp://sftp.access.redhat.com"
 
 
@@ -325,7 +325,7 @@ support representative.
         elif self.commons['cmdlineopts'].upload_protocol == 'sftp':
             return RH_SFTP_HOST
         else:
-            rh_case_api = "/hydra/rest/cases/%s/attachments"
+            rh_case_api = "/support/v1/cases/%s/attachments"
             return RH_API_HOST + rh_case_api % self.case_id
 
     def _get_upload_headers(self):
@@ -344,10 +344,10 @@ support representative.
         """The RH SFTP server will only automatically connect file uploads to
         cases if the filename _starts_ with the case number
         """
+        fname = self.upload_archive_name.split('/')[-1]
         if self.case_id:
-            return "%s_%s" % (self.case_id,
-                              self.upload_archive_name.split('/')[-1])
-        return self.upload_archive_name
+            return "%s_%s" % (self.case_id, fname)
+        return fname
 
     def upload_sftp(self):
         """Override the base upload_sftp to allow for setting an on-demand
@@ -362,12 +362,12 @@ support representative.
                             " for obtaining SFTP auth token.")
         _token = None
         _user = None
+        url = RH_API_HOST + '/support/v2/sftp/token'
         # we have a username and password, but we need to reset the password
         # to be the token returned from the auth endpoint
         if self.get_upload_user() and self.get_upload_password():
-            url = RH_API_HOST + '/hydra/rest/v1/sftp/token'
             auth = self.get_upload_https_auth()
-            ret = requests.get(url, auth=auth, timeout=10)
+            ret = requests.post(url, auth=auth, timeout=10)
             if ret.status_code == 200:
                 # credentials are valid
                 _user = self.get_upload_user()
@@ -377,8 +377,8 @@ support representative.
                       "credentials. Will try anonymous.")
         # we either do not have a username or password/token, or both
         if not _token:
-            aurl = RH_API_HOST + '/hydra/rest/v1/sftp/token?isAnonymous=true'
-            anon = requests.get(aurl, timeout=10)
+            adata = {"isAnonymous": True}
+            anon = requests.post(url, data=json.dumps(adata), timeout=10)
             if anon.status_code == 200:
                 resp = json.loads(anon.text)
                 _user = resp['username']
