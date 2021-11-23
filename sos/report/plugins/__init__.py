@@ -3070,6 +3070,11 @@ class SuSEPlugin(object):
     pass
 
 
+class OpenEulerPlugin(object):
+    """Tagging class for openEuler linux distributions"""
+    pass
+
+
 class CosPlugin(object):
     """Tagging class for Container-Optimized OS"""
     pass
