@@ -1178,7 +1178,8 @@ class LinuxPolicy(Policy):
         put_expects = [
             u'100%',
             pexpect.TIMEOUT,
-            pexpect.EOF
+            pexpect.EOF,
+            u'No such file or directory'
         ]
 
         put_success = ret.expect(put_expects, timeout=180)
@@ -1190,6 +1191,8 @@ class LinuxPolicy(Policy):
             raise Exception("Timeout expired while uploading")
         elif put_success == 2:
             raise Exception("Unknown error during upload: %s" % ret.before)
+        elif put_success == 3:
+            raise Exception("Unable to write archive to destination")
         else:
             raise Exception("Unexpected response from server: %s" % ret.before)
 
@@ -1252,7 +1255,7 @@ class LinuxPolicy(Policy):
                 r = self._upload_https_no_stream(arc)
             else:
                 r = self._upload_https_streaming(arc)
-            if r.status_code != 201:
+            if r.status_code != 200 and r.status_code != 201:
                 if r.status_code == 401:
                     raise Exception(
                         "Authentication failed: invalid user credentials"
