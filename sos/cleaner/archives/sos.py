@@ -35,7 +35,9 @@ class SoSReportArchive(SoSObfuscationArchive):
             'sos_commands/login/lastlog_-u_65537-4294967295',
             # AD users will be reported here, but favor the lastlog files since
             # those will include local users who have not logged in
-            'sos_commands/login/last'
+            'sos_commands/login/last',
+            'etc/cron.allow',
+            'etc/cron.deny'
         ]
     }
 
