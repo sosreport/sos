@@ -33,5 +33,5 @@ class SoSUsernameMap(SoSMap):
         ob_name = "obfuscateduser%s" % self.name_count
         self.name_count += 1
         if ob_name in self.dataset.values():
-            return self.sanitize_item(username)
+            return self.sanitize_item(username.lower())
         return ob_name

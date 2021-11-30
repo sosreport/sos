@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
 
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.username_map import SoSUsernameMap
@@ -34,6 +35,7 @@ class SoSUsernameParser(SoSCleanerParser):
         'reboot',
         'root',
         'ubuntu',
+        'username',
         'wtmp'
     ]
 
@@ -47,12 +49,12 @@ class SoSUsernameParser(SoSCleanerParser):
         this parser, we need to override the initial parser prepping here.
         """
         users = set()
-        for line in content.splitlines()[1:]:
+        for line in content.splitlines():
             try:
                 user = line.split()[0]
             except Exception:
                 continue
-            if user in self.skip_list:
+            if user.lower() in self.skip_list:
                 continue
             users.add(user)
         for each in users:
@@ -61,7 +63,9 @@ class SoSUsernameParser(SoSCleanerParser):
     def parse_line(self, line):
         count = 0
         for username in sorted(self.mapping.dataset.keys(), reverse=True):
-            if username in line:
-                count = line.count(username)
-                line = line.replace(username, self.mapping.get(username))
+            _reg = re.compile(username, re.I)
+            if _reg.search(line):
+                line, count = _reg.subn(
+                    self.mapping.get(username.lower()), line
+                )
         return line, count
