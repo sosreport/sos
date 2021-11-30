@@ -250,7 +250,7 @@ support representative.
         elif self.commons['cmdlineopts'].upload_protocol == 'sftp':
             return RH_SFTP_HOST
         else:
-            rh_case_api = "/hydra/rest/cases/%s/attachments"
+            rh_case_api = "/support/v1/cases/%s/attachments"
             return RH_API_HOST + rh_case_api % self.case_id
 
     def _get_upload_headers(self):
