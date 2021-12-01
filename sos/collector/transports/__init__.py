@@ -225,7 +225,11 @@ class RemoteTransport():
         if not env:
             env = None
 
-        result = pexpect.spawn(cmd, encoding='utf-8', env=env)
+        try:
+            result = pexpect.spawn(cmd, encoding='utf-8', env=env)
+        except pexpect.exceptions.ExceptionPexpect as err:
+            self.log_debug(err.value)
+            return {'status': 127, 'output': ''}
 
         _expects = [pexpect.EOF, pexpect.TIMEOUT]
         if need_root and self.opts.ssh_user != 'root':
