@@ -17,6 +17,7 @@ from sos import _sos as _
 from sos.policies import Policy
 from sos.policies.init_systems import InitSystem
 from sos.policies.init_systems.systemd import SystemdInit
+from sos.policies.runtimes.crio import CrioContainerRuntime
 from sos.policies.runtimes.podman import PodmanContainerRuntime
 from sos.policies.runtimes.docker import DockerContainerRuntime
 
@@ -92,7 +93,8 @@ class LinuxPolicy(Policy):
         if self.probe_runtime:
             _crun = [
                 PodmanContainerRuntime(policy=self),
-                DockerContainerRuntime(policy=self)
+                DockerContainerRuntime(policy=self),
+                CrioContainerRuntime(policy=self)
             ]
             for runtime in _crun:
                 if runtime.check_is_active():
