@@ -100,7 +100,7 @@ class ContainerRuntime():
             return None
         for c in self.containers:
             if re.match(name, c[1]):
-                return c[1]
+                return c[0]
         return None
 
     def get_images(self):
