@@ -150,13 +150,13 @@ class ocp(Cluster):
                               "role option with '-c ocp.role=role1:role2'")
             roles = [r for r in self.get_option('role').split(':')]
             self.node_dict = self._build_dict(res['output'].splitlines())
-            for node in self.node_dict:
+            for node_name, node in self.node_dict.items():
                 if roles:
                     for role in roles:
-                        if role in node:
-                            nodes.append(node)
+                        if role == node['roles']:
+                            nodes.append(node_name)
                 else:
-                    nodes.append(node)
+                    nodes.append(node_name)
         else:
             msg = "'oc' command failed"
             if 'Missing or incomplete' in res['output']:
