@@ -55,6 +55,7 @@ class SoSCollector(SoSComponent):
         'clean': False,
         'cluster_options': [],
         'cluster_type': None,
+        'container_runtime': 'auto',
         'domains': [],
         'enable_plugins': [],
         'encrypt_key': '',
@@ -268,6 +269,9 @@ class SoSCollector(SoSComponent):
         sos_grp.add_argument('--chroot', default='',
                              choices=['auto', 'always', 'never'],
                              help="chroot executed commands to SYSROOT")
+        sos_grp.add_argument("--container-runtime", default="auto",
+                             help="Default container runtime to use for "
+                                  "collections. 'auto' for policy control.")
         sos_grp.add_argument('-e', '--enable-plugins', action="extend",
                              help='Enable specific plugins for sosreport')
         sos_grp.add_argument('-k', '--plugin-option', '--plugopts',

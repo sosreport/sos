@@ -11,6 +11,7 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-chroot CHROOT]
     [\-\-case\-id CASE_ID]
     [\-\-cluster\-type CLUSTER_TYPE]
+    [\-\-container\-runtime RUNTIME]
     [\-e ENABLE_PLUGINS]
     [--encrypt-key KEY]\fR
     [--encrypt-pass PASS]\fR
@@ -112,6 +113,11 @@ for node names will be ignored.
 Example: \fBsos collect --cluster-type=kubernetes\fR will force the kubernetes profile
 to be run, and thus set sosreport options and attempt to determine a list of nodes using
 that profile. 
+.TP
+\fB\-\-container\-runtime\fR RUNTIME
+\fB sos report\fR option. Using this with \fBcollect\fR will pass this option thru
+to nodes with sos version 4.3 or later. This option controls the default container
+runtime plugins will use for collections. See \fBman sos-report\fR.
 .TP
 \fB\-e\fR ENABLE_PLUGINS, \fB\-\-enable\-plugins\fR ENABLE_PLUGINS
 Sosreport option. Use this to enable a plugin that would otherwise not be run.

@@ -82,6 +82,7 @@ class SoSReport(SoSComponent):
         'case_id': '',
         'chroot': 'auto',
         'clean': False,
+        'container_runtime': 'auto',
         'keep_binary_files': False,
         'desc': '',
         'domains': [],
@@ -187,6 +188,7 @@ class SoSReport(SoSComponent):
             self.tempfile_util.clean()
             self._exit(1)
 
+        self._check_container_runtime()
         self._get_hardware_devices()
         self._get_namespaces()
 
@@ -218,6 +220,9 @@ class SoSReport(SoSComponent):
                                 dest="chroot", default='auto',
                                 help="chroot executed commands to SYSROOT "
                                      "[auto, always, never] (default=auto)")
+        report_grp.add_argument("--container-runtime", default="auto",
+                                help="Default container runtime to use for "
+                                     "collections. 'auto' for policy control.")
         report_grp.add_argument("--desc", "--description", type=str,
                                 action="store", default="",
                                 help="Description for a new preset",)
@@ -372,6 +377,37 @@ class SoSReport(SoSComponent):
             'fibre': self.get_fibre_devs()
         }
         # TODO: enumerate network devices, preferably with devtype info
+
+    def _check_container_runtime(self):
+        """Check the loaded container runtimes, and the policy default runtime
+        (if set), against any requested --container-runtime value. This can be
+        useful for systems that have multiple runtimes, such as RHCOS, but do
+        not have a clearly defined 'default' (or one that is determined based
+        entirely on configuration).
+        """
+        if self.opts.container_runtime != 'auto':
+            crun = self.opts.container_runtime.lower()
+            if crun in ['none', 'off', 'diabled']:
+                self.policy.runtimes = {}
+                self.soslog.info(
+                    "Disabled all container runtimes per user option."
+                )
+            elif not self.policy.runtimes:
+                msg = ("WARNING: No container runtimes are active, ignoring "
+                       "option to set default runtime to '%s'\n" % crun)
+                self.soslog.warn(msg)
+            elif crun not in self.policy.runtimes.keys():
+                valid = ', '.join(p for p in self.policy.runtimes.keys()
+                                  if p != 'default')
+                raise Exception("Cannot use container runtime '%s': no such "
+                                "runtime detected. Available runtimes: %s"
+                                % (crun, valid))
+            else:
+                self.policy.runtimes['default'] = self.policy.runtimes[crun]
+                self.soslog.info(
+                    "Set default container runtime to '%s'"
+                    % self.policy.runtimes['default'].name
+                )
 
     def get_fibre_devs(self):
         """Enumerate a list of fibrechannel devices on this system so that
