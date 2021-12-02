@@ -586,6 +586,12 @@ class SosNode():
                 sos_opts.append('--cmd-timeout=%s'
                                 % quote(str(self.opts.cmd_timeout)))
 
+        if self.check_sos_version('4.3'):
+            if self.opts.container_runtime != 'auto':
+                sos_opts.append(
+                    "--container-runtime=%s" % self.opts.container_runtime
+                )
+
         self.update_cmd_from_cluster()
 
         sos_cmd = sos_cmd.replace(

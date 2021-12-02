@@ -19,6 +19,7 @@ sos report \- Collect and package diagnostic and support data
           [--plugin-timeout TIMEOUT]\fR
           [--cmd-timeout TIMEOUT]\fR
           [--namespaces NAMESPACES]\fR
+          [--container-runtime RUNTIME]\fR
           [-s|--sysroot SYSROOT]\fR
           [-c|--chroot {auto|always|never}\fR
           [--tmp-dir directory]\fR
@@ -299,6 +300,24 @@ Use '0' (default) for no limit - all namespaces will be used for collections.
 
 Note that specific plugins may provide a similar `namespaces` plugin option. If
 the plugin option is used, it will override this option.
+.TP
+.B \--container-runtime RUNTIME
+Force the use of the specified RUNTIME as the default runtime that plugins will
+use to collect data from and about containers and container images. By default,
+the setting of \fBauto\fR results in the local policy determining what runtime
+will be the default runtime (in configurations where multiple runtimes are installed
+and active).
+
+If no container runtimes are active, this option is ignored. If there are runtimes
+active, but not one with a name matching RUNTIME, sos will abort.
+
+Setting this to \fBnone\fR, \fBoff\fR, or \fBdisabled\fR will cause plugins to
+\fBNOT\fR leverage any active runtimes for collections. Note that if disabled, plugins
+specifically for runtimes (e.g. the podman or docker plugins) will still collect
+general data about the runtime, but will not inspect existing containers or images.
+
+Default: 'auto' (policy determined)
+.TP
 .B \--case-id NUMBER
 Specify a case identifier to associate with the archive.
 Identifiers may include alphanumeric characters, commas and periods ('.').
