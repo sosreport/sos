@@ -85,16 +85,14 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
                     mgr_ids.append("mgr.%s" % proc[5])
 
         # If containerized, run commands in containers
-        containers_list = self.get_all_containers_by_regex("ceph-mgr*")
-        if containers_list:
-            self.add_cmd_output([
-                self.fmt_container_cmd(
-                    containers_list[0][1], "ceph daemon %s %s"
-                    % (mgrid, cmd)) for mgrid in mgr_ids for cmd in ceph_cmds
-            ])
-        else:
-            self.add_cmd_output([
-                "ceph daemon %s %s" % (
-                    mgrid, cmd) for mgrid in mgr_ids for cmd in ceph_cmds
-            ])
+        try:
+            cname = self.get_all_containers_by_regex("ceph-mgr*")[0][1]
+        except Exception:
+            cname = None
+
+        self.add_cmd_output([
+            "ceph daemon %s %s"
+            % (mgrid, cmd) for mgrid in mgr_ids for cmd in ceph_cmds
+        ], container=cname)
+
 # vim: set et ts=4 sw=4 :

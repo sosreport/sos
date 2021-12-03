@@ -80,8 +80,7 @@ class OpenStackIronic(Plugin):
                                    'ironic_pxe_tftp', 'ironic_neutron_agent',
                                    'ironic_conductor', 'ironic_api']:
                 if self.container_exists('.*' + container_name):
-                    self.add_cmd_output(self.fmt_container_cmd(container_name,
-                                                               'rpm -qa'))
+                    self.add_cmd_output('rpm -qa', container=container_name)
 
         else:
             self.conf_list = [

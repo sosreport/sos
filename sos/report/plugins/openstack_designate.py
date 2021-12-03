@@ -20,12 +20,10 @@ class OpenStackDesignate(Plugin):
 
     def setup(self):
         # collect current pool config
-        pools_cmd = self.fmt_container_cmd(
-            self.get_container_by_name(".*designate_central"),
-            "designate-manage pool generate_file --file /dev/stdout")
 
         self.add_cmd_output(
-            pools_cmd,
+            "designate-manage pool generate_file --file /dev/stdout",
+            container=self.get_container_by_name(".*designate_central"),
             suggest_filename="openstack_designate_current_pools.yaml"
         )
 

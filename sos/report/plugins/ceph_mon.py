@@ -105,18 +105,14 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         ])
 
         # If containerized, run commands in containers
-        containers_list = self.get_all_containers_by_regex("ceph-mon*")
-        if containers_list:
-            for container in containers_list:
-                self.add_cmd_output([
-                    self.fmt_container_cmd(container[1], "ceph %s" % s)
-                    for s in ceph_cmds
-                ])
-                break
-        # Not containerized but still mon node
-        else:
-            self.add_cmd_output([
-                "ceph %s" % s for s in ceph_cmds
-            ])
+        try:
+            cname = self.get_all_containers_by_regex("ceph-mon*")[0][1]
+        except Exception:
+            cname = None
+
+        self.add_cmd_output(
+            ["ceph %s" % cmd for cmd in ceph_cmds],
+            container=cname
+        )
 
 # vim: set et ts=4 sw=4 :

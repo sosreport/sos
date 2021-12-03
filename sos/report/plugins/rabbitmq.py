@@ -34,14 +34,15 @@ class RabbitMQ(Plugin, IndependentPlugin):
             for container in container_names:
                 self.add_container_logs(container)
                 self.add_cmd_output(
-                    self.fmt_container_cmd(container, 'rabbitmqctl report'),
+                    'rabbitmqctl report',
+                    container=container,
                     foreground=True
                 )
                 self.add_cmd_output(
-                    self.fmt_container_cmd(
-                        container, "rabbitmqctl eval "
-                        "'rabbit_diagnostics:maybe_stuck().'"),
-                    foreground=True, timeout=10
+                    "rabbitmqctl eval 'rabbit_diagnostics:maybe_stuck().'",
+                    container=container,
+                    foreground=True,
+                    timeout=10
                 )
         else:
             self.add_cmd_output("rabbitmqctl report")

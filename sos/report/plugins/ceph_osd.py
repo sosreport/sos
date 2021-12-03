@@ -78,19 +78,15 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
                 if proc[4] == '--id' and proc[5].isdigit():
                     osd_ids.append("osd.%s" % proc[5])
 
-        containers_list = self.get_all_containers_by_regex("ceph-osd*")
+        try:
+            cname = self.get_all_containers_by_regex("ceph-osd*")[0][1]
+        except Exception:
+            cname = None
 
-        if containers_list:
-            self.add_cmd_output([
-                self.fmt_container_cmd(
-                    containers_list[0][1], "ceph daemon %s %s"
-                    % (osid, cmd)) for osid in osd_ids for cmd in ceph_cmds
-            ])
-        else:
-            self.add_cmd_output([
-                "ceph daemon %s %s" % (
-                    osid, cmd) for osid in osd_ids for cmd in ceph_cmds
-            ])
+        self.add_cmd_output(
+            ["ceph daemon %s %s" % (i, c) for i in osd_ids for c in ceph_cmds],
+            container=cname
+        )
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
