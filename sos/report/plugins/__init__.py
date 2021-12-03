@@ -1707,7 +1707,7 @@ class Plugin():
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[],
-                       priority=10, cmd_as_tag=False):
+                       priority=10, cmd_as_tag=False, container=None):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -1772,6 +1772,10 @@ class Plugin():
         :param cmd_as_tag: Should the command string be automatically formatted
                            to a tag?
         :type cmd_as_tag: ``bool``
+
+        :param container: Run the specified `cmds` inside a container with this
+                          ID or name
+        :type container:  ``str``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -1782,6 +1786,14 @@ class Plugin():
         if pred is None:
             pred = self.get_predicate(cmd=True)
         for cmd in cmds:
+            if container:
+                ocmd = cmd
+                cmd = self.fmt_container_cmd(container, cmd)
+                if not cmd:
+                    self._log_debug("Skipping command '%s' as the requested "
+                                    "container '%s' does not exist."
+                                    % (ocmd, container))
+                    continue
             self._add_cmd_output(cmd=cmd, suggest_filename=suggest_filename,
                                  root_symlink=root_symlink, timeout=timeout,
                                  stderr=stderr, chroot=chroot, runat=runat,
@@ -2420,7 +2432,7 @@ class Plugin():
         if self.container_exists(container):
             _runtime = self._get_container_runtime()
             return _runtime.fmt_container_cmd(container, cmd, quotecmd)
-        return cmd
+        return ''
 
     def is_module_loaded(self, module_name):
         """Determine whether specified module is loaded or not
