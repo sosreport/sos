@@ -37,36 +37,28 @@ class OpenStackDatabase(Plugin):
     ]
 
     def setup(self):
-
-        in_container = False
         # determine if we're running databases on the host or in a container
         _db_containers = [
             'galera-bundle-.*',  # overcloud
             'mysql'  # undercloud
         ]
 
+        cname = None
         for container in _db_containers:
             cname = self.get_container_by_name(container)
-            if cname is not None:
-                in_container = True
+            if cname:
                 break
 
-        if in_container:
-            fname = "clustercheck_%s" % cname
-            cmd = self.fmt_container_cmd(cname, 'clustercheck')
-            self.add_cmd_output(cmd, timeout=15, suggest_filename=fname)
-        else:
-            self.add_cmd_output('clustercheck', timeout=15)
+        fname = "clustercheck_%s" % cname if cname else None
+        self.add_cmd_output('clustercheck', container=cname, timeout=15,
+                            suggest_filename=fname)
 
         if self.get_option('dump') or self.get_option('dumpall'):
             db_dump = self.get_mysql_db_string(container=cname)
             db_cmd = "mysqldump --opt %s" % db_dump
 
-            if in_container:
-                db_cmd = self.fmt_container_cmd(cname, db_cmd)
-
             self.add_cmd_output(db_cmd, suggest_filename='mysql_dump.sql',
-                                sizelimit=0)
+                                sizelimit=0, container=cname)
 
     def get_mysql_db_string(self, container=None):
 

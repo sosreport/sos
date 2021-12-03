@@ -123,11 +123,10 @@ class OVNCentral(Plugin):
 
         # If OVN is containerized, we need to run the above commands inside
         # the container.
-        cmds = [
-            self.fmt_container_cmd(self._container_name, cmd) for cmd in cmds
-        ]
 
-        self.add_cmd_output(cmds, foreground=True)
+        self.add_cmd_output(
+            cmds, foreground=True, container=self._container_name
+        )
 
         self.add_copy_spec("/etc/sysconfig/ovn-northd")
 

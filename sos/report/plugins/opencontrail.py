@@ -25,8 +25,7 @@ class OpenContrail(Plugin, IndependentPlugin):
             cnames = self.get_containers(get_all=True)
             cnames = [c[1] for c in cnames if 'opencontrail' in c[1]]
             for cntr in cnames:
-                _cmd = self.fmt_container_cmd(cntr, 'contrail-status')
-                self.add_cmd_output(_cmd)
+                self.add_cmd_output('contrail-status', container=cntr)
         else:
             self.add_cmd_output("contrail-status")
 
