@@ -25,6 +25,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
             "/etc/NetworkManager/dispatcher.d"
         ])
 
+        self.add_journal(units="NetworkManager")
+
         # There are some incompatible changes in nmcli since
         # the release of NetworkManager >= 0.9.9. In addition,
         # NetworkManager >= 0.9.9 will use the long names of
