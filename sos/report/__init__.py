@@ -660,7 +660,7 @@ class SoSReport(SoSComponent):
     def _set_all_options(self):
         if self.opts.alloptions:
             for plugname, plug in self.loaded_plugins:
-                for opt in plug.options:
+                for opt in plug.options.values():
                     if bool in opt.val_type:
                         opt.value = True
 
