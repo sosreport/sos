@@ -63,6 +63,7 @@ class Vdsm(Plugin, RedHatPlugin):
         self.add_forbidden_path('/etc/pki/vdsm/keys')
         self.add_forbidden_path('/etc/pki/vdsm/*/*-key.*')
         self.add_forbidden_path('/etc/pki/libvirt/private')
+        self.add_forbidden_path('/var/lib/vdsm/storage/transient_disks')
 
         self.add_service_status(['vdsmd', 'supervdsmd'])
 
