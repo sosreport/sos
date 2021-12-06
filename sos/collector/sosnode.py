@@ -817,7 +817,9 @@ class SosNode():
     def remove_sos_archive(self):
         """Remove the sosreport archive from the node, since we have
         collected it and it would be wasted space otherwise"""
-        if self.sos_path is None:
+        if self.sos_path is None or self.local:
+            # local transport moves the archive rather than copies it, so there
+            # is no archive at the original location to remove
             return
         if 'sosreport' not in self.sos_path:
             self.log_debug("Node sos report path %s looks incorrect. Not "
