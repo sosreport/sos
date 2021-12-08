@@ -21,9 +21,6 @@ class Cman(Plugin, RedHatPlugin):
 
     files = ("/etc/cluster/cluster.conf",)
 
-    debugfs_path = "/sys/kernel/debug"
-    _debugfs_cleanup = False
-
     def setup(self):
 
         self.add_copy_spec([
