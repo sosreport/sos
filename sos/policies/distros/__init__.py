@@ -68,9 +68,11 @@ class LinuxPolicy(Policy):
     container_version_command = None
     container_authfile = None
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True):
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
         super(LinuxPolicy, self).__init__(sysroot=sysroot,
-                                          probe_runtime=probe_runtime)
+                                          probe_runtime=probe_runtime,
+                                          remote_exec=remote_exec)
 
         if sysroot:
             self.sysroot = sysroot

@@ -53,7 +53,8 @@ class RedHatPolicy(LinuxPolicy):
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super(RedHatPolicy, self).__init__(sysroot=sysroot, init=init,
-                                           probe_runtime=probe_runtime)
+                                           probe_runtime=probe_runtime,
+                                           remote_exec=remote_exec)
         self.usrmove = False
 
         self.package_manager = RpmPackageManager(chroot=self.sysroot,
@@ -76,7 +77,8 @@ class RedHatPolicy(LinuxPolicy):
             self.PATH = "/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
         self.PATH += os.pathsep + "/usr/local/bin"
         self.PATH += os.pathsep + "/usr/local/sbin"
-        self.set_exec_path()
+        if not self.remote_exec:
+            self.set_exec_path()
         self.load_presets()
 
     @classmethod

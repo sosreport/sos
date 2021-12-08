@@ -45,7 +45,7 @@ def load(cache={}, sysroot=None, init=None, probe_runtime=True,
     return cache['policy']
 
 
-class Policy(object):
+class Policy():
     """Policies represent distributions that sos supports, and define the way
     in which sos behaves on those distributions. A policy should define at
     minimum a way to identify the distribution, and a package manager to allow
@@ -111,7 +111,7 @@ any third party.
     presets_path = PRESETS_PATH
     _in_container = False
 
-    def __init__(self, sysroot=None, probe_runtime=True):
+    def __init__(self, sysroot=None, probe_runtime=True, remote_exec=None):
         """Subclasses that choose to override this initializer should call
         super() to ensure that they get the required platform bits attached.
         super(SubClass, self).__init__(). Policies that require runtime
@@ -122,7 +122,9 @@ any third party.
         self.probe_runtime = probe_runtime
         self.package_manager = PackageManager()
         self.valid_subclasses = [IndependentPlugin]
-        self.set_exec_path()
+        self.remote_exec = remote_exec
+        if not self.remote_exec:
+            self.set_exec_path()
         self.sysroot = sysroot
         self.register_presets(GENERIC_PRESETS)
 
