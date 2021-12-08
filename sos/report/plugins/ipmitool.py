@@ -26,12 +26,14 @@ class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
         if result['status'] == 0:
             cmd += " -I usb"
 
+        for subcmd in ['channel info', 'channel getaccess', 'lan print']:
+            for channel in [1, 3]:
+                self.add_cmd_output("%s %s %d" % (cmd, subcmd, channel))
+
         # raw 0x30 0x65: Get HDD drive Fault LED State
         # raw 0x30 0xb0: Get LED Status
 
         self.add_cmd_output([
-            "%s channel info 3" % cmd,
-            "%s channel getaccess 3" % cmd,
             "%s raw 0x30 0x65" % cmd,
             "%s raw 0x30 0xb0" % cmd,
             "%s sel info" % cmd,
@@ -40,7 +42,6 @@ class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
             "%s sensor list" % cmd,
             "%s chassis status" % cmd,
             "%s lan print" % cmd,
-            "%s lan print 3" % cmd,
             "%s fru print" % cmd,
             "%s mc info" % cmd,
             "%s sdr info" % cmd
