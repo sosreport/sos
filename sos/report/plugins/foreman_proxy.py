@@ -38,6 +38,10 @@ class ForemanProxy(Plugin):
                 self.apachepkg),
             "/var/log/{}*/katello-reverse-proxy_error_ssl.log*".format(
                 self.apachepkg),
+            "/var/log/{}*/rhsm-pulpcore-https-*_access_ssl.log*".format(
+                self.apachepkg),
+            "/var/log/{}*/rhsm-pulpcore-https-*_error_ssl.log*".format(
+                self.apachepkg),
         ])
 
         # collect http[|s]_proxy env.variables
