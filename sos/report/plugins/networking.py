@@ -203,6 +203,7 @@ class Networking(Plugin):
                                   pred=SoSPredicate(self, cmd_outputs=co6))
                                   else None)
         for namespace in namespaces:
+            _subdir = "namespaces/%s" % namespace
             ns_cmd_prefix = cmd_prefix + namespace + " "
             self.add_cmd_output([
                 ns_cmd_prefix + "ip -d address show",
@@ -213,29 +214,27 @@ class Networking(Plugin):
                 ns_cmd_prefix + "netstat -s",
                 ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
                 ns_cmd_prefix + "nstat -zas",
-            ], priority=50)
+            ], priority=50, subdir=_subdir)
             self.add_cmd_output([ns_cmd_prefix + "iptables-save"],
                                 pred=iptables_with_nft,
+                                subdir=_subdir,
                                 priority=50)
             self.add_cmd_output([ns_cmd_prefix + "ip6tables-save"],
                                 pred=ip6tables_with_nft,
+                                subdir=_subdir,
                                 priority=50)
 
             ss_cmd = ns_cmd_prefix + "ss -peaonmi"
             # --allow-system-changes is handled directly in predicate
             # evaluation, so plugin code does not need to separately
             # check for it
-            self.add_cmd_output(ss_cmd, pred=ss_pred)
+            self.add_cmd_output(ss_cmd, pred=ss_pred, subdir=_subdir)
 
-        # Collect ethtool commands only when ethtool_namespaces
-        # is set to true.
-        if self.get_option("ethtool_namespaces"):
-            # Devices that exist in a namespace use less ethtool
-            # parameters. Run this per namespace.
-            for namespace in self.get_network_namespaces(
-                                self.get_option("namespace_pattern"),
-                                self.get_option("namespaces")):
-                ns_cmd_prefix = cmd_prefix + namespace + " "
+            # Collect ethtool commands only when ethtool_namespaces
+            # is set to true.
+            if self.get_option("ethtool_namespaces"):
+                # Devices that exist in a namespace use less ethtool
+                # parameters. Run this per namespace.
                 netns_netdev_list = self.exec_cmd(
                     ns_cmd_prefix + "ls -1 /sys/class/net/"
                 )
@@ -250,9 +249,7 @@ class Networking(Plugin):
                         ns_cmd_prefix + "ethtool -i " + eth,
                         ns_cmd_prefix + "ethtool -k " + eth,
                         ns_cmd_prefix + "ethtool -S " + eth
-                    ], priority=50)
-
-        return
+                    ], priority=50, subdir=_subdir)
 
 
 class RedHatNetworking(Networking, RedHatPlugin):
