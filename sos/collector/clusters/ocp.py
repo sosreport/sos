@@ -123,7 +123,9 @@ class ocp(Cluster):
         return nodes
 
     def set_transport_type(self):
-        if is_executable('oc') or self.opts.transport == 'oc':
+        if self.opts.transport != 'auto':
+            return self.opts.transport
+        if is_executable('oc'):
             return 'oc'
         self.log_info("Local installation of 'oc' not found or is not "
                       "correctly configured. Will use ControlPersist.")
