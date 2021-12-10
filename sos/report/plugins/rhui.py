@@ -27,6 +27,7 @@ class Rhui(Plugin, RedHatPlugin):
             "/var/log/rhui-subscription-sync.log",
             "/var/cache/rhui/*",
             "/root/.rhui/*",
+            "/var/log/rhui/*",
         ])
         # skip collecting certificate keys
         self.add_forbidden_path("/etc/pki/rhui/**/*.key", recursive=True)
