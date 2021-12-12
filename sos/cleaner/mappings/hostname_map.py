@@ -129,7 +129,7 @@ class SoSHostnameMap(SoSMap):
             item = item[0:-1]
         if not self.domain_name_in_loaded_domains(item.lower()):
             return item
-        if item.endswith(('.yaml', '.yml', '.crt', '.key', '.pem')):
+        if item.endswith(('.yaml', '.yml', '.crt', '.key', '.pem', '.log')):
             ext = '.' + item.split('.')[-1]
             item = item.replace(ext, '')
             suffix += ext
@@ -148,7 +148,8 @@ class SoSHostnameMap(SoSMap):
                 if len(_test) == 1 or not _test[0]:
                     # does not match existing obfuscation
                     continue
-                elif _test[0].endswith('.') and not _host_substr:
+                elif not _host_substr and (_test[0].endswith('.') or
+                                           item.endswith(_existing)):
                     # new hostname in known domain
                     final = super(SoSHostnameMap, self).get(item)
                     break
@@ -219,8 +220,8 @@ class SoSHostnameMap(SoSMap):
             # don't obfuscate vendor domains
             if re.match(_skip, '.'.join(domain)):
                 return '.'.join(domain)
-        top_domain = domain[-1]
-        dname = '.'.join(domain[0:-1])
+        top_domain = domain[-1].lower()
+        dname = '.'.join(domain[0:-1]).lower()
         ob_domain = self._new_obfuscated_domain(dname)
         ob_domain = '.'.join([ob_domain, top_domain])
         self.dataset['.'.join(domain)] = ob_domain
