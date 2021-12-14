@@ -37,7 +37,7 @@ class Pam(Plugin):
 
 
 class RedHatPam(Pam, RedHatPlugin):
-    security_libs = "/lib*/security"
+    security_libs = "/lib64/security"
 
     def setup(self):
         super(RedHatPam, self).setup()

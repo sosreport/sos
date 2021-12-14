@@ -143,16 +143,8 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         )
 
     args = shlex.split(command)
-    # Expand arguments that are wildcard paths.
-    expanded_args = []
-    for arg in args:
-        expanded_arg = glob.glob(arg)
-        if expanded_arg:
-            expanded_args.extend(expanded_arg)
-        else:
-            expanded_args.append(arg)
     try:
-        p = Popen(expanded_args, shell=False, stdout=PIPE,
+        p = Popen(args, shell=False, stdout=PIPE,
                   stderr=STDOUT if stderr else PIPE,
                   bufsize=-1, env=cmd_env, close_fds=True,
                   preexec_fn=_child_prep_fn)
