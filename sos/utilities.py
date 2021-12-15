@@ -143,12 +143,15 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         )
 
     args = shlex.split(command)
-    # Expand arguments that are wildcard paths.
+    # Expand arguments that are wildcard root paths.
     expanded_args = []
     for arg in args:
-        expanded_arg = glob.glob(arg)
-        if expanded_arg:
-            expanded_args.extend(expanded_arg)
+        if arg.startswith("/") and "*" in arg:
+            expanded_arg = glob.glob(arg)
+            if expanded_arg:
+                expanded_args.extend(expanded_arg)
+            else:
+                expanded_args.append(arg)
         else:
             expanded_args.append(arg)
     try:
