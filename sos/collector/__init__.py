@@ -1221,8 +1221,9 @@ this utility or remote systems that it connects to.
     def close_all_connections(self):
         """Close all sessions for nodes"""
         for client in self.client_list:
-            self.log_debug('Closing connection to %s' % client.address)
-            client.disconnect()
+            if client.connected:
+                self.log_debug('Closing connection to %s' % client.address)
+                client.disconnect()
 
     def create_cluster_archive(self):
         """Calls for creation of tar archive then cleans up the temporary

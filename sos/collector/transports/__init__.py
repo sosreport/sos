@@ -303,7 +303,20 @@ class RemoteTransport():
         :returns:   True if file was successfully copied from remote, or False
         :rtype:     ``bool``
         """
-        return self._retrieve_file(fname, dest)
+        attempts = 0
+        try:
+            while attempts < 5:
+                attempts += 1
+                ret = self._retrieve_file(fname, dest)
+                if ret:
+                    return True
+                self.log_info("File retrieval attempt %s failed" % attempts)
+            self.log_info("File retrieval failed after 5 attempts")
+            return False
+        except Exception as err:
+            self.log_error("Exception encountered during retrieval attempt %s "
+                           "for %s: %s" % (attempts, fname, err))
+            raise err
 
     def _retrieve_file(self, fname, dest):
         raise NotImplementedError("Transport %s does not support file copying"

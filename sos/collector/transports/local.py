@@ -35,6 +35,7 @@ class LocalTransport(RemoteTransport):
     def _retrieve_file(self, fname, dest):
         self.log_debug("Moving %s to %s" % (fname, dest))
         shutil.copy(fname, dest)
+        return True
 
     def _format_cmd_for_exec(self, cmd):
         return cmd
