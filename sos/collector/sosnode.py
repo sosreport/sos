@@ -751,12 +751,11 @@ class SosNode():
             if self.file_exists(path):
                 self.log_info("Copying remote %s to local %s" %
                               (path, destdir))
-                self._transport.retrieve_file(path, dest)
+                return self._transport.retrieve_file(path, dest)
             else:
                 self.log_debug("Attempting to copy remote file %s, but it "
                                "does not exist on filesystem" % path)
                 return False
-            return True
         except Exception as err:
             self.log_debug("Failed to retrieve %s: %s" % (path, err))
             return False
@@ -793,16 +792,20 @@ class SosNode():
                 except Exception:
                     self.log_error('Failed to make archive readable')
                     return False
-            self.soslog.info('Retrieving sos report from %s' % self.address)
+            self.log_info('Retrieving sos report from %s' % self.address)
             self.ui_msg('Retrieving sos report...')
-            ret = self.retrieve_file(self.sos_path)
+            try:
+                ret = self.retrieve_file(self.sos_path)
+            except Exception as err:
+                self.log_error(err)
+                return False
             if ret:
                 self.ui_msg('Successfully collected sos report')
                 self.file_list.append(self.sos_path.split('/')[-1])
+                return True
             else:
-                self.log_error('Failed to retrieve sos report')
-                raise SystemExit
-            return True
+                self.ui_msg('Failed to retrieve sos report')
+                return False
         else:
             # sos sometimes fails but still returns a 0 exit code
             if self.stderr.read():

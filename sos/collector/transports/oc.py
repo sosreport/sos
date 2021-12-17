@@ -202,7 +202,8 @@ class OCTransport(RemoteTransport):
                                                     env, False)
 
     def _disconnect(self):
-        os.unlink(self.pod_tmp_conf)
+        if os.path.exists(self.pod_tmp_conf):
+            os.unlink(self.pod_tmp_conf)
         removed = self.run_oc("delete pod %s" % self.pod_name)
         if "deleted" not in removed['output']:
             self.log_debug("Calling delete on pod '%s' failed: %s"

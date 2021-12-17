@@ -92,6 +92,7 @@ class ocp(Cluster):
                                % ret['output'])
             # don't leave the config on a non-existing project
             self.exec_primary_cmd("oc project default")
+            self.project = None
         return True
 
     def _build_dict(self, nodelist):
