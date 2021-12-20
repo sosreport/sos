@@ -342,7 +342,7 @@ class SoSReport(SoSComponent):
         cleaner_grp.add_argument('--clean', '--cleaner', '--mask',
                                  dest='clean',
                                  default=False, action='store_true',
-                                 help='Obfuscate sensistive information')
+                                 help='Obfuscate sensitive information')
         cleaner_grp.add_argument('--domains', dest='domains', default=[],
                                  action='extend',
                                  help='Additional domain names to obfuscate')

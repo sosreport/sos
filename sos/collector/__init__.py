@@ -416,7 +416,7 @@ class SoSCollector(SoSComponent):
         cleaner_grp.add_argument('--clean', '--cleaner', '--mask',
                                  dest='clean',
                                  default=False, action='store_true',
-                                 help='Obfuscate sensistive information')
+                                 help='Obfuscate sensitive information')
         cleaner_grp.add_argument('--keep-binary-files', default=False,
                                  action='store_true', dest='keep_binary_files',
                                  help='Keep unprocessable binary files in the '
