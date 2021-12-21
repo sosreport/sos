@@ -200,7 +200,10 @@ class SoSOptions():
                         odict[rename_opts[key]] = odict.pop(key)
                 # set the values according to the config file
                 for key, val in odict.items():
-                    if isinstance(val, str):
+                    # most option values do not tolerate spaces, special
+                    # exception however for --keywords which we do want to
+                    # support phrases, and thus spaces, for
+                    if isinstance(val, str) and key != 'keywords':
                         val = val.replace(' ', '')
                     if key not in self.arg_defaults:
                         # read an option that is not loaded by the current
