@@ -78,6 +78,8 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
         images = self._get_crio_list(img_cmd)
         pods = self._get_crio_list(pod_cmd)
 
+        self._get_crio_goroutine_stacks()
+
         for container in containers:
             self.add_cmd_output("crictl inspect %s" % container,
                                 subdir="containers")
@@ -101,5 +103,14 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
             if ret and 'deprecated' in ret[0]:
                 ret.pop(0)
         return ret
+
+    def _get_crio_goroutine_stacks(self):
+        result = self.exec_cmd("pidof crio")
+        if result['status'] != 0:
+            return
+        pid = result['output'].strip()
+        result = self.exec_cmd("kill -USR1 " + pid)
+        if result['status'] == 0:
+            self.add_copy_spec("/tmp/crio-goroutine-stacks*.log")
 
 # vim: set et ts=4 sw=4 :
