@@ -39,6 +39,7 @@ class Systemd(Plugin, IndependentPlugin):
             # status --all mostly seems to cover the others.
             "systemctl list-units",
             "systemctl list-units --failed",
+            "systemctl list-units --all",
             "systemctl list-unit-files",
             "systemctl list-jobs",
             "systemctl list-dependencies",
