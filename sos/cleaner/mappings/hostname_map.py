@@ -106,7 +106,6 @@ class SoSHostnameMap(SoSMap):
             # don't block on host's shortname
             return host[0] in self.hosts.keys()
         else:
-            domain = host[0:-1]
             for known_domain in self._domains:
                 if known_domain in domain:
                     return True
