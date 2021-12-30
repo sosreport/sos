@@ -33,5 +33,12 @@ class System(Plugin, IndependentPlugin):
             "/proc/sys/net/ipv6/neigh/*/base_reachable_time"
         ])
 
+        # collect glibc tuning decisions
+        self.add_cmd_output([
+            "ld.so --help",
+            "ld.so --list-diagnostics",
+            "ld.so --list-tunables"
+        ])
+
 
 # vim: set et ts=4 sw=4 :
