@@ -443,6 +443,7 @@ class SoSCollector(SoSComponent):
 
     def exit(self, msg, error=1):
         """Used to safely terminate if sos-collector encounters an error"""
+        self.cluster.cleanup()
         self.log_error(msg)
         try:
             self.close_all_connections()
@@ -854,7 +855,6 @@ class SoSCollector(SoSComponent):
                       "CTRL-C to quit\n")
                 self.ui_log.info("")
             except KeyboardInterrupt:
-                self.cluster.cleanup()
                 self.exit("Exiting on user cancel", 130)
             except Exception as e:
                 self.exit(repr(e), 1)
@@ -1185,7 +1185,6 @@ this utility or remote systems that it connects to.
             arc_name = self.create_cluster_archive()
         else:
             msg = 'No sosreports were collected, nothing to archive...'
-            self.cluster.cleanup()
             self.exit(msg, 1)
 
         if self.opts.upload and self.policy.get_upload_url():
