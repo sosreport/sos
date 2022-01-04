@@ -1129,7 +1129,13 @@ class LinuxPolicy(Policy):
         # need to strip the protocol prefix here
         sftp_url = self.get_upload_url().replace('sftp://', '')
         sftp_cmd = "sftp -oStrictHostKeyChecking=no %s@%s" % (user, sftp_url)
-        ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
+
+        if int(pexpect.__version__[0]) >= 4:
+            # newer expect requires decoding from subprocess
+            ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
+        else:
+            # older pexpect does not
+            ret = pexpect.spawn(sftp_cmd)
 
         sftp_expects = [
             u'sftp>',
