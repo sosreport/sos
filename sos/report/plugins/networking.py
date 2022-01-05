@@ -134,7 +134,7 @@ class Networking(Plugin):
         ss_cmd = "ss -peaonmi"
         ss_pred = SoSPredicate(self, kmods=[
             'tcp_diag', 'udp_diag', 'inet_diag', 'unix_diag', 'netlink_diag',
-            'af_packet_diag'
+            'af_packet_diag', 'xsk_diag'
         ], required={'kmods': 'all'})
         self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
 
