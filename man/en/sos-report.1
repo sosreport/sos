@@ -343,9 +343,13 @@ is available at the end.
 
 Plugins will be collected sequentially, size of collected files and commands outputs
 will be calculated and the plugin files will be immediatelly deleted prior execution
-of the next plugin. This still can consume whole free disk space, though. Please note,
-size estimations may not be accurate for highly utilized systems due to changes between
-an estimate and a real execution.
+of the next plugin. This still can consume whole free disk space, though.
+
+Please note, size estimations may not be accurate for highly utilized systems due to
+changes between an estimate and a real execution. Also some difference between
+estimation (using `stat` command) and other commands used (i.e. `du`).
+
+A rule of thumb is to reserve at least double the estimation.
 .TP
 .B \--upload
 If specified, attempt to upload the resulting archive to a vendor defined location.

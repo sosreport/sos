@@ -1330,7 +1330,8 @@ class SoSReport(SoSComponent):
             self.ui_log.info("Please note the estimation is relevant to the "
                              "current options.")
             self.ui_log.info("Be aware that the real disk space requirements "
-                             "might be different.")
+                             "might be different. A rule of thumb is to "
+                             "reserve at least double the estimation.")
             self.ui_log.info("")
 
         # package up and compress the results
