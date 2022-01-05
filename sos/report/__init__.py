@@ -1541,13 +1541,15 @@ class SoSReport(SoSComponent):
         except (OSError):
             if self.opts.debug:
                 raise
-            self.cleanup()
+            if not os.getenv('SOS_TEST_LOGS', None) == 'keep':
+                self.cleanup()
         except (KeyboardInterrupt):
             self.ui_log.error("\nExiting on user cancel")
             self.cleanup()
             self._exit(130)
         except (SystemExit) as e:
-            self.cleanup()
+            if not os.getenv('SOS_TEST_LOGS', None) == 'keep':
+                self.cleanup()
             sys.exit(e.code)
 
         self._exit(1)

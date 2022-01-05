@@ -121,7 +121,8 @@ class BaseSoSTest(Test):
         """
         exec_cmd = self._generate_sos_command()
         try:
-            self.cmd_output = process.run(exec_cmd, timeout=self.sos_timeout)
+            self.cmd_output = process.run(exec_cmd, timeout=self.sos_timeout,
+                                          env={'SOS_TEST_LOGS': 'keep'})
         except Exception as err:
             if not hasattr(err, 'result'):
                 # can't inspect the exception raised, just bail out
