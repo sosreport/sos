@@ -3,8 +3,8 @@
 # Main environment vars to set for all tasks
 env:
 
-    FEDORA_VER: "34"
-    FEDORA_PRIOR_VER: "33"
+    FEDORA_VER: "35"
+    FEDORA_PRIOR_VER: "34"
     FEDORA_NAME: "fedora-${FEDORA_VER}"
     FEDORA_PRIOR_NAME: "fedora-${FEDORA_PRIOR_VER}"
 
@@ -112,6 +112,7 @@ report_stageone_task:
         fi
         if [ $(command -v dnf) ]; then
             dnf -y remove sos
+            dnf -y install python3-pip ethtool
         fi
     setup_script: &setup 'pip3 install avocado-framework'
     # run the unittests separately as they require a different PYTHONPATH in
