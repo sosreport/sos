@@ -43,6 +43,7 @@ class SoSObfuscationArchive():
     type_name = 'undetermined'
     description = 'undetermined'
     is_nested = False
+    skip_files = []
     prep_files = {}
 
     def __init__(self, archive_path, tmpdir):
@@ -111,6 +112,7 @@ class SoSObfuscationArchive():
         Returns: list of files and file regexes
         """
         return [
+            'proc/kallsyms',
             'sosreport-',
             'sys/firmware',
             'sys/fs',

@@ -37,7 +37,8 @@ class SoSIPParser(SoSCleanerParser):
         'sos_commands/snappy/snap_list_--all',
         'sos_commands/snappy/snap_--version',
         'sos_commands/vulkan/vulkaninfo',
-        'var/log/.*dnf.*'
+        'var/log/.*dnf.*',
+        'var/log/.*packag.*'  # get 'packages' and 'packaging' logs
     ]
 
     map_file_key = 'ip_map'
