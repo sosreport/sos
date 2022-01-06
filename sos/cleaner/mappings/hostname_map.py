@@ -50,10 +50,14 @@ class SoSHostnameMap(SoSMap):
         in this parser, we need to re-inject entries from the map_file into
         these dicts and not just the underlying 'dataset' dict
         """
-        for domain in self.dataset:
+        for domain, ob_pair in self.dataset.items():
             if len(domain.split('.')) == 1:
                 self.hosts[domain.split('.')[0]] = self.dataset[domain]
             else:
+                if ob_pair.startswith('obfuscateddomain'):
+                    # directly exact domain matches
+                    self._domains[domain] = ob_pair.split('.')[0]
+                    continue
                 # strip the host name and trailing top-level domain so that
                 # we in inject the domain properly for later string matching
 
@@ -102,9 +106,12 @@ class SoSHostnameMap(SoSMap):
         and should be obfuscated
         """
         host = domain.split('.')
+        no_tld = '.'.join(domain.split('.')[0:-1])
         if len(host) == 1:
             # don't block on host's shortname
             return host[0] in self.hosts.keys()
+        elif any([no_tld.endswith(_d) for _d in self._domains]):
+            return True
         else:
             domain = host[0:-1]
             for known_domain in self._domains:
