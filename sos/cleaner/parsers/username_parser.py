@@ -32,6 +32,7 @@ class SoSUsernameParser(SoSCleanerParser):
         'nobody',
         'nfsnobody',
         'shutdown',
+        'stack',
         'reboot',
         'root',
         'ubuntu',
