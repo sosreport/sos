@@ -12,6 +12,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import shutil
 import tempfile
 
@@ -640,10 +641,16 @@ third party.
             self.log_debug("Obfuscating %s" % short_name or filename,
                            caller=arc_name)
             tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
+            _parsers = [
+                _p for _p in self.parsers if not
+                any([
+                    re.match(p, short_name) for p in _p.skip_files
+                ])
+            ]
             with open(filename, 'r') as fname:
                 for line in fname:
                     try:
-                        line, count = self.obfuscate_line(line)
+                        line, count = self.obfuscate_line(line, _parsers)
                         subs += count
                         tfile.write(line)
                     except Exception as err:
@@ -713,7 +720,7 @@ third party.
                 pass
         return string_data
 
-    def obfuscate_line(self, line):
+    def obfuscate_line(self, line, parsers=None):
         """Run a line through each of the obfuscation parsers, keeping a
         cumulative total of substitutions done on that particular line.
 
@@ -721,6 +728,8 @@ third party.
 
             :param line str:        The raw line as read from the file being
                                     processed
+            :param parsers:         A list of parser objects to obfuscate
+                                    with. If None, use all.
 
         Returns the fully obfuscated line and the number of substitutions made
         """
@@ -729,7 +738,9 @@ third party.
         count = 0
         if not line.strip():
             return line, count
-        for parser in self.parsers:
+        if parsers is None:
+            parsers = self.parsers
+        for parser in parsers:
             try:
                 line, _count = parser.parse_line(line)
                 count += _count
