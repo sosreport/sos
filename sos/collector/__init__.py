@@ -443,7 +443,8 @@ class SoSCollector(SoSComponent):
 
     def exit(self, msg, error=1):
         """Used to safely terminate if sos-collector encounters an error"""
-        self.cluster.cleanup()
+        if self.cluster:
+            self.cluster.cleanup()
         self.log_error(msg)
         try:
             self.close_all_connections()
