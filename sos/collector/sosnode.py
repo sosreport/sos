@@ -382,7 +382,8 @@ class SosNode():
         given ver. This means that if the installed version is greater than
         ver, this will still return True
         """
-        return LooseVersion(self.sos_info['version']) >= ver
+        return self.sos_info['version'] is not None and \
+            LooseVersion(self.sos_info['version']) >= ver
 
     def is_installed(self, pkg):
         """Checks if a given package is installed on the node"""
