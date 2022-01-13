@@ -46,8 +46,18 @@ class SoSCleanerParser():
     map_file_key = 'unset'
 
     def __init__(self, config={}):
+        self.regexes = {}
         if self.map_file_key in config:
             self.mapping.conf_update(config[self.map_file_key])
+
+    def generate_item_regexes(self):
+        """Generate regexes for items the parser will be searching for
+        repeatedly without needing to generate them for every file and/or line
+        we process
+
+        Not used by all parsers.
+        """
+        pass
 
     def parse_line(self, line):
         """This will be called for every line in every file we process, so that

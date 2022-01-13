@@ -294,6 +294,7 @@ third party.
         # we have at least one valid target to obfuscate
         self.completed_reports = []
         self.preload_all_archives_into_maps()
+        self.generate_parser_item_regexes()
         self.obfuscate_report_paths()
 
         if not self.completed_reports:
@@ -497,6 +498,14 @@ third party.
             dest_name = os.path.join(dest, tarball)
             shutil.move(archive.final_archive_path, dest)
             archive.final_archive_path = dest_name
+
+    def generate_parser_item_regexes(self):
+        """For the parsers that use prebuilt lists of items, generate those
+        regexes now since all the parsers should be preloaded by the archive(s)
+        as well as being handed cmdline options and mapping file configuration.
+        """
+        for parser in self.parsers:
+            parser.generate_item_regexes()
 
     def preload_all_archives_into_maps(self):
         """Before doing the actual obfuscation, if we have multiple archives

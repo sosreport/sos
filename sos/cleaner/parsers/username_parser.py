@@ -61,12 +61,14 @@ class SoSUsernameParser(SoSCleanerParser):
         for each in users:
             self.mapping.get(each)
 
+    def generate_item_regexes(self):
+        for user in self.mapping.dataset:
+            self.regexes[user] = re.compile(user, re.I)
+
     def parse_line(self, line):
         count = 0
-        for username in sorted(self.mapping.dataset.keys(), reverse=True):
-            _reg = re.compile(username, re.I)
-            if _reg.search(line):
-                line, count = _reg.subn(
-                    self.mapping.get(username.lower()), line
-                )
+        for user, reg in sorted(self.regexes.items(), key=len, reverse=True):
+            if reg.search(line):
+                line, _count = reg.subn(self.mapping.get(user.lower()), line)
+                count += _count
         return line, count

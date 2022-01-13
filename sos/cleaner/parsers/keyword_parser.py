@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
+import re
 
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.keyword_map import SoSKeywordMap
@@ -33,16 +34,20 @@ class SoSKeywordParser(SoSCleanerParser):
                     # pre-generate an obfuscation mapping for each keyword
                     # this is necessary for cases where filenames are being
                     # obfuscated before or instead of file content
-                    self.mapping.get(keyword)
+                    self.mapping.get(keyword.lower())
                     self.user_keywords.append(keyword)
         if keyword_file and os.path.exists(keyword_file):
             with open(keyword_file, 'r') as kwf:
                 self.user_keywords.extend(kwf.read().splitlines())
 
+    def generate_item_regexes(self):
+        for kw in self.user_keywords:
+            self.regexes[kw] = re.compile(kw, re.I)
+
     def parse_line(self, line):
         count = 0
-        for keyword in sorted(self.user_keywords, reverse=True):
-            if keyword in line:
-                line = line.replace(keyword, self.mapping.get(keyword))
-                count += 1
+        for kwrd, reg in sorted(self.regexes.items(), key=len, reverse=True):
+            if reg.search(line):
+                line, _count = reg.subn(self.mapping.get(kwrd.lower()), line)
+                count += _count
         return line, count

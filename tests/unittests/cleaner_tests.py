@@ -105,6 +105,7 @@ class CleanerParserTests(unittest.TestCase):
         self.host_parser = SoSHostnameParser(config={}, opt_domains='foobar.com')
         self.kw_parser = SoSKeywordParser(config={}, keywords=['foobar'])
         self.kw_parser_none = SoSKeywordParser(config={})
+        self.kw_parser.generate_item_regexes()
 
     def test_ip_parser_valid_ipv4_line(self):
         line = 'foobar foo 10.0.0.1/24 barfoo bar'
