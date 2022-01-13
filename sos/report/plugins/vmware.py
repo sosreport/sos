@@ -37,7 +37,8 @@ class VMWare(Plugin, RedHatPlugin):
         self.add_cmd_output([
             "vmware-checkvm",
             "vmware-toolbox-cmd device list",
-            "vmware-toolbox-cmd -v"
+            "vmware-toolbox-cmd -v",
+            "vmware-toolbox-cmd timesync status"
         ])
 
         stats = self.exec_cmd("vmware-toolbox-cmd stat raw")
