@@ -1997,6 +1997,8 @@ class Plugin():
             :param subdir:              Subdir in plugin directory to save to
             :param changes:             Does this cmd potentially make a change
                                         on the system?
+            :param foreground:          Run the `cmd` in the foreground with a
+                                        TTY
             :param tags:                Add tags in the archive manifest
             :param cmd_as_tag:          Format command string to tag
             :param to_file:             Write output directly to file instead
@@ -2145,7 +2147,8 @@ class Plugin():
                            root_symlink=False, timeout=None,
                            stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
-                           changes=False, subdir=None, tags=[]):
+                           changes=False, foreground=False, subdir=None,
+                           tags=[]):
         """Execute a command and save the output to a file for inclusion in the
         report, then return the results for further use by the plugin
 
@@ -2188,6 +2191,9 @@ class Plugin():
                                     on the system?
         :type changes: ``bool``
 
+        :param foreground:          Run the `cmd` in the foreground with a TTY
+        :type foreground: ``bool``
+
         :param tags:                Add tags in the archive manifest
         :type tags: ``str`` or a ``list`` of strings
 
@@ -2206,8 +2212,8 @@ class Plugin():
         return self._collect_cmd_output(
             cmd, suggest_filename=suggest_filename, root_symlink=root_symlink,
             timeout=timeout, stderr=stderr, chroot=chroot, runat=runat,
-            env=env, binary=binary, sizelimit=sizelimit, subdir=subdir,
-            tags=tags
+            env=env, binary=binary, sizelimit=sizelimit, foreground=foreground,
+            subdir=subdir, tags=tags
         )
 
     def exec_cmd(self, cmd, timeout=None, stderr=True, chroot=True,
