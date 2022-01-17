@@ -24,7 +24,7 @@ class SoSUsernameMap(SoSMap):
 
     def load_names_from_options(self, opt_names):
         for name in opt_names:
-            if name not in self.dataset.keys():
+            if name and name not in self.dataset.keys():
                 self.add(name)
 
     def sanitize_item(self, username):

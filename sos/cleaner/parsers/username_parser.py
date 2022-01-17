@@ -55,7 +55,7 @@ class SoSUsernameParser(SoSCleanerParser):
                 user = line.split()[0]
             except Exception:
                 continue
-            if user.lower() in self.skip_list:
+            if not user or user.lower() in self.skip_list:
                 continue
             users.add(user)
         for each in users:
