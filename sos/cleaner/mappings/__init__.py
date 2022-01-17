@@ -49,6 +49,8 @@ class SoSMap():
             :param item:        The plaintext object to obfuscate
         """
         with self.lock:
+            if not item:
+                return item
             self.dataset[item] = self.sanitize_item(item)
             return self.dataset[item]
 
@@ -67,7 +69,8 @@ class SoSMap():
         """Retrieve an item's obfuscated counterpart from the map. If the item
         does not yet exist in the map, add it by generating one on the fly
         """
-        if self.ignore_item(item) or self.item_in_dataset_values(item):
+        if (not item or self.ignore_item(item) or
+                self.item_in_dataset_values(item)):
             return item
         if item not in self.dataset:
             return self.add(item)
