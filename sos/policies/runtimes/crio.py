@@ -19,6 +19,9 @@ class CrioContainerRuntime(ContainerRuntime):
     name = 'crio'
     binary = 'crictl'
 
+    def check_can_copy(self):
+        return False
+
     def get_containers(self, get_all=False):
         """Get a list of containers present on the system.
 
