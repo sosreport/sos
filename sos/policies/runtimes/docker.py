@@ -27,4 +27,7 @@ class DockerContainerRuntime(ContainerRuntime):
             return True
         return False
 
+    def check_can_copy(self):
+        return self.check_is_active(sysroot=self.policy.sysroot)
+
 # vim: set et ts=4 sw=4 :

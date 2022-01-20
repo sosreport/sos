@@ -561,6 +561,7 @@ class Plugin():
         self.commons = commons
         self.forbidden_paths = []
         self.copy_paths = set()
+        self.container_copy_paths = []
         self.copy_strings = []
         self.collect_cmds = []
         self.options = {}
@@ -621,6 +622,7 @@ class Plugin():
         self.manifest.add_list('commands', [])
         self.manifest.add_list('files', [])
         self.manifest.add_field('strings', {})
+        self.manifest.add_field('containers', {})
 
     def timeout_from_options(self, optname, plugoptname, default_timeout):
         """Returns either the default [plugin|cmd] timeout value, the value as
@@ -1558,7 +1560,7 @@ class Plugin():
                 self.manifest.files.append(manifest_data)
 
     def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
-                      tailit=True, pred=None, tags=[]):
+                      tailit=True, pred=None, tags=[], container=None):
         """Add a file, directory, or regex matching filepaths to the archive
 
         :param copyspecs: A file, directory, or regex matching filepaths
@@ -1583,9 +1585,16 @@ class Plugin():
                      for this collection
         :type tags: ``str`` or a ``list`` of strings
 
+        :param container: Container(s) from which this file should be copied
+        :type container: ``str`` or a ``list`` of strings
+
         `copyspecs` will be expanded and/or globbed as appropriate. Specifying
         a directory here will cause the plugin to attempt to collect the entire
         directory, recursively.
+
+        If `container` is specified, `copyspecs` may only be explicit paths,
+        not globs as currently container runtimes do not support glob expansion
+        as part of the copy operation.
 
         Note that `sizelimit` is applied to each `copyspec`, not each file
         individually. For example, a copyspec of
@@ -1623,28 +1632,79 @@ class Plugin():
         if isinstance(tags, str):
             tags = [tags]
 
+        def get_filename_tag(fname):
+            """Generate a tag to add for a single file copyspec
+
+            This tag will be set to the filename, minus any extensions
+            except '.conf' which will be converted to '_conf'
+            """
+            fname = fname.replace('-', '_')
+            if fname.endswith('.conf'):
+                return fname.replace('.', '_')
+            return fname.split('.')[0]
+
         for copyspec in copyspecs:
             if not (copyspec and len(copyspec)):
                 return False
 
-            if self.use_sysroot():
-                copyspec = self.path_join(copyspec)
+            if not container:
+                if self.use_sysroot():
+                    copyspec = self.path_join(copyspec)
+                files = self._expand_copy_spec(copyspec)
+                if len(files) == 0:
+                    continue
+            else:
+                files = [copyspec]
 
-            files = self._expand_copy_spec(copyspec)
+            _spec_tags = []
+            if len(files) == 1:
+                _spec_tags = [get_filename_tag(files[0].split('/')[-1])]
 
-            if len(files) == 0:
+            _spec_tags.extend(tags)
+            _spec_tags = list(set(_spec_tags))
+
+            if container:
+                if isinstance(container, str):
+                    container = [container]
+                for con in container:
+                    if not self.container_exists(con):
+                        continue
+                    _tail = False
+                    if sizelimit:
+                        # to get just the size, stat requires a literal '%s'
+                        # which conflicts with python string formatting
+                        cmd = "stat -c %s " + copyspec
+                        ret = self.exec_cmd(cmd, container=con)
+                        if ret['status'] == 0:
+                            try:
+                                consize = int(ret['output'])
+                                if consize > sizelimit:
+                                    _tail = True
+                            except ValueError:
+                                self._log_info(
+                                    "unable to determine size of '%s' in "
+                                    "container '%s'. Skipping collection."
+                                    % (copyspec, con)
+                                )
+                                continue
+                        else:
+                            self._log_debug(
+                                "stat of '%s' in container '%s' failed, "
+                                "skipping collection: %s"
+                                % (copyspec, con, ret['output'])
+                            )
+                            continue
+                    self.container_copy_paths.append(
+                        (con, copyspec, sizelimit, _tail, _spec_tags)
+                    )
+                    self._log_info(
+                        "added collection of '%s' from container '%s'"
+                        % (copyspec, con)
+                    )
+                # break out of the normal flow here as container file
+                # copies are done via command execution, not raw cp/mv
+                # operations
                 continue
-
-            def get_filename_tag(fname):
-                """Generate a tag to add for a single file copyspec
-
-                This tag will be set to the filename, minus any extensions
-                except '.conf' which will be converted to '_conf'
-                """
-                fname = fname.replace('-', '_')
-                if fname.endswith('.conf'):
-                    return fname.replace('.', '_')
-                return fname.split('.')[0]
 
             # Files hould be sorted in most-recently-modified order, so that
             # we collect the newest data first before reaching the limit.
@@ -1667,12 +1727,6 @@ class Plugin():
                    (maxage and (time()-filetime < maxage*3600))):
                     return False
                 return True
-
-            _spec_tags = []
-            if len(files) == 1:
-                _spec_tags = [get_filename_tag(files[0].split('/')[-1])]
-
-            _spec_tags.extend(tags)
 
             if since or maxage:
                 files = list(filter(lambda f: time_filter(f), files))
@@ -1742,13 +1796,14 @@ class Plugin():
                     # should collect the whole file and stop
                     limit_reached = (sizelimit and current_size == sizelimit)
 
-            _spec_tags = list(set(_spec_tags))
-            if self.manifest:
-                self.manifest.files.append({
-                    'specification': copyspec,
-                    'files_copied': _manifest_files,
-                    'tags': _spec_tags
-                })
+            if not container:
+                # container collection manifest additions are handled later
+                if self.manifest:
+                    self.manifest.files.append({
+                        'specification': copyspec,
+                        'files_copied': _manifest_files,
+                        'tags': _spec_tags
+                    })
 
     def add_blockdev_cmd(self, cmds, devices='block', timeout=None,
                          sizelimit=None, chroot=True, runat=None, env=None,
@@ -2460,6 +2515,30 @@ class Plugin():
                                       chdir=runat, binary=binary, env=env,
                                       foreground=foreground, stderr=stderr)
 
+    def _add_container_file_to_manifest(self, container, path, arcpath, tags):
+        """Adds a file collection to the manifest for a particular container
+        and file path.
+
+        :param container:   The name of the container
+        :type container:    ``str``
+
+        :param path:        The filename from the container filesystem
+        :type path:         ``str``
+
+        :param arcpath:     Where in the archive the file is written to
+        :type arcpath:      ``str``
+
+        :param tags:        Metadata tags for this collection
+        :type tags:         ``str`` or ``list`` of strings
+        """
+        if container not in self.manifest.containers:
+            self.manifest.containers[container] = {'files': [], 'commands': []}
+        self.manifest.containers[container]['files'].append({
+            'specification': path,
+            'files_copied': arcpath,
+            'tags': tags
+        })
+
     def _get_container_runtime(self, runtime=None):
         """Based on policy and request by the plugin, return a usable
         ContainerRuntime if one exists
@@ -2842,6 +2921,48 @@ class Plugin():
             self._do_copy_path(path)
         self.generate_copyspec_tags()
 
+    def _collect_container_copy_specs(self):
+        """Copy any requested files from containers here. This is done
+        separately from normal file collection as this requires the use of
+        a container runtime.
+
+        This method will iterate over self.container_copy_paths which is a set
+        of 5-tuples as (container, path, sizelimit, stdout, tags).
+        """
+        if not self.container_copy_paths:
+            return
+        rt = self._get_container_runtime()
+        if not rt:
+            self._log_info("Cannot collect container based files - no runtime "
+                           "is present/active.")
+            return
+        if not rt.check_can_copy():
+            self._log_info("Loaded runtime '%s' does not support copying "
+                           "files from containers. Skipping collections.")
+            return
+        for contup in self.container_copy_paths:
+            con, path, sizelimit, tailit, tags = contup
+            self._log_info("collecting '%s' from container '%s'" % (path, con))
+
+            arcdest = "sos_containers/%s/%s" % (con, path.lstrip('/'))
+            self.archive.check_path(arcdest, P_FILE)
+            dest = self.archive.dest_path(arcdest)
+
+            cpcmd = rt.get_copy_command(
+                con, path, dest, sizelimit=sizelimit if tailit else None
+            )
+            cpret = self.exec_cmd(cpcmd, timeout=10)
+
+            if cpret['status'] == 0:
+                if tailit:
+                    # current runtimes convert files sent to stdout to tar
+                    # archives, with no way to control that
+                    self.archive.add_string(cpret['output'], arcdest)
+                self._add_container_file_to_manifest(con, path, arcdest, tags)
+            else:
+                self._log_info("error copying '%s' from container '%s': %s"
+                               % (path, con, cpret['output']))
+
     def _collect_cmds(self):
         self.collect_cmds.sort(key=lambda x: x.priority)
         for soscmd in self.collect_cmds:
@@ -2875,6 +2996,7 @@ class Plugin():
         """Collect the data for a plugin."""
         start = time()
         self._collect_copy_specs()
+        self._collect_container_copy_specs()
         self._collect_cmds()
         self._collect_strings()
         fields = (self.name(), time() - start)

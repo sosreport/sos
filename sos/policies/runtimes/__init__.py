@@ -69,6 +69,12 @@ class ContainerRuntime():
             return True
         return False
 
+    def check_can_copy(self):
+        """Check if the runtime supports copying files out of containers and
+        onto the host filesystem
+        """
+        return True
+
     def get_containers(self, get_all=False):
         """Get a list of containers present on the system.
 
@@ -199,5 +205,31 @@ class ContainerRuntime():
         """
         return "%s logs -t %s" % (self.binary, container)
 
+    def get_copy_command(self, container, path, dest, sizelimit=None):
+        """Generate the command string used to copy a file out of a container
+        by way of the runtime.
+
+        :param container:   The name or ID of the container
+        :type container:    ``str``
+
+        :param path:        The path to copy from the container. Note that at
+                            this time, no supported runtime supports globbing
+        :type path:         ``str``
+
+        :param dest:        The destination on the *host* filesystem to write
+                            the file to
+        :type dest:         ``str``
+
+        :param sizelimit:   Limit the collection to the last X bytes of the
+                            file at PATH
+        :type sizelimit:    ``int``
+
+        :returns:   Formatted runtime command to copy a file from a container
+        :rtype:     ``str``
+        """
+        if sizelimit:
+            return "%s %s tail -c %s %s" % (self.run_cmd, container, sizelimit,
+                                            path)
+        return "%s cp %s:%s %s" % (self.binary, container, path, dest)
 
 # vim: set et ts=4 sw=4 :
