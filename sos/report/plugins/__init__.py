@@ -2019,8 +2019,10 @@ class Plugin():
         if pred is None:
             pred = self.get_predicate(cmd=True)
         for cmd in cmds:
+            container_cmd = None
             if container:
                 ocmd = cmd
+                container_cmd = (ocmd, container)
                 cmd = self.fmt_container_cmd(container, cmd)
                 if not cmd:
                     self._log_debug("Skipping command '%s' as the requested "
@@ -2034,7 +2036,7 @@ class Plugin():
                                  pred=pred, subdir=subdir, tags=tags,
                                  changes=changes, foreground=foreground,
                                  priority=priority, cmd_as_tag=cmd_as_tag,
-                                 to_file=to_file)
+                                 to_file=to_file, container_cmd=container_cmd)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
@@ -2200,7 +2202,8 @@ class Plugin():
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False, tags=[],
-                            priority=10, cmd_as_tag=False, to_file=False):
+                            priority=10, cmd_as_tag=False, to_file=False,
+                            container_cmd=False):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -2362,10 +2365,14 @@ class Plugin():
             os.path.join(self.archive.get_archive_path(), outfn) if outfn else
             ''
         )
+
         if self.manifest:
             manifest_cmd['filepath'] = outfn
             manifest_cmd['run_time'] = run_time
             self.manifest.commands.append(manifest_cmd)
+            if container_cmd:
+                self._add_container_cmd_to_manifest(manifest_cmd.copy(),
+                                                    container_cmd)
         return result
 
     def collect_cmd_output(self, cmd, suggest_filename=None,
@@ -2538,6 +2545,36 @@ class Plugin():
             'files_copied': arcpath,
             'tags': tags
         })
+
+    def _add_container_cmd_to_manifest(self, manifest, contup):
+        """Adds a command collection to the manifest for a particular container
+        and creates a symlink to that collection from the relevant
+        sos_containers/ location
+
+        :param manifest:    The manifest entry for the command
+        :type manifest:     ``dict``
+
+        :param contup:      A tuple of (original_cmd, container_name)
+        :type contup:       ``tuple``
+        """
+
+        cmd, container = contup
+        if container not in self.manifest.containers:
+            self.manifest.containers[container] = {'files': [], 'commands': []}
+        manifest['exec'] = cmd
+        manifest['command'] = cmd.split(' ')[0]
+        manifest['parameters'] = cmd.split(' ')[1:]
+
+        _cdir = "sos_containers/%s/sos_commands/%s" % (container, self.name())
+        _outloc = "../../../../%s" % manifest['filepath']
+        cmdfn = self._mangle_command(cmd)
+        conlnk = "%s/%s" % (_cdir, cmdfn)
+
+        self.archive.check_path(conlnk, P_FILE)
+        os.symlink(_outloc, self.archive.dest_path(conlnk))
+
+        manifest['filepath'] = conlnk
+        self.manifest.containers[container]['commands'].append(manifest)
 
     def _get_container_runtime(self, runtime=None):
         """Based on policy and request by the plugin, return a usable
