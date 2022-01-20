@@ -147,7 +147,7 @@ class OVNCentral(Plugin):
 
 class RedHatOVNCentral(OVNCentral, RedHatPlugin):
 
-    packages = ('openvswitch-ovn-central', 'ovn2.*-central', )
+    packages = ('openvswitch-ovn-central', 'ovn.*-central', )
     ovn_sbdb_sock_path = '/var/run/openvswitch/ovnsb_db.ctl'
 
 
