@@ -20,10 +20,10 @@ class SoSMacParser(SoSCleanerParser):
     name = 'MAC Parser'
     regex_patterns = [
         # IPv6
-        r'(([^:|-])([0-9a-fA-F]{2}(:|-)){7}[0-9a-fA-F]{2}(\s|$))',
+        r'(([^:|-])?([0-9a-fA-F]{2}(:|-)){7}[0-9a-fA-F]{2}(\s|$))',
         r'(([^:|-])([0-9a-fA-F]{4}(:|-)){3}[0-9a-fA-F]{4}(\s|$))',
         # IPv4, avoiding matching a substring within IPv6 addresses
-        r'(([^:|-])([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(.)?(\s|$|\W))'
+        r'(([^:|-])?([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(.)?(\s|$|\W))'
     ]
     obfuscated_patterns = (
         '53:4f:53',
