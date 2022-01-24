@@ -29,6 +29,9 @@ class SoSMacParser(SoSCleanerParser):
         '53:4f:53',
         '534f:53'
     )
+    skip_files = [
+        'sos_commands/kernel/modinfo.*'
+    ]
     map_file_key = 'mac_map'
 
     def __init__(self, config):
