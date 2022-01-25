@@ -13,17 +13,25 @@ from sos.cleaner.mappings.mac_map import SoSMacMap
 
 import re
 
+# aa:bb:cc:fe:ff:dd:ee:ff
+IPV6_REG_8HEX = (r'((?<!([0-9a-fA-F]:)|::)([^:|-])?([0-9a-fA-F]{2}(:|-)){7}'
+                 r'[0-9a-fA-F]{2}(\s|$))')
+# aabb:ccee:ddee:ffaa
+IPV6_REG_4HEX = (r'((?<!([0-9a-fA-F]:)|::)(([^:\-]?[0-9a-fA-F]{4}(:|-)){3}'
+                 r'[0-9a-fA-F]{4}(\s|$)))')
+# aa:bb:cc:dd:ee:ff avoiding ipv6 substring matches
+IPV4_REG = (r'((?<!([0-9a-fA-F]:)|::)(([^:\-])?([0-9a-fA-F]{2}([:-])){5}'
+            r'([0-9a-fA-F]){2}(\s|$)))')
+
 
 class SoSMacParser(SoSCleanerParser):
     """Handles parsing for MAC addresses"""
 
     name = 'MAC Parser'
     regex_patterns = [
-        # IPv6
-        r'(([^:|-])?([0-9a-fA-F]{2}(:|-)){7}[0-9a-fA-F]{2}(\s|$))',
-        r'(([^:|-])([0-9a-fA-F]{4}(:|-)){3}[0-9a-fA-F]{4}(\s|$))',
-        # IPv4, avoiding matching a substring within IPv6 addresses
-        r'(([^:|-])?([0-9a-fA-F]{2}([:-])){5}([0-9a-fA-F]){2}(.)?(\s|$|\W))'
+        IPV6_REG_8HEX,
+        IPV6_REG_4HEX,
+        IPV4_REG
     ]
     obfuscated_patterns = (
         '53:4f:53',
