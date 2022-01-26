@@ -48,7 +48,11 @@ class LibvirtClient(Plugin, IndependentPlugin):
             if k_list['status'] == 0:
                 k_lines = k_list['output'].splitlines()
                 # the 'Name' column position changes between virsh cmds
-                pos = k_lines[0].split().index('Name')
+                # catch the rare exceptions when 'Name' is not found
+                try:
+                    pos = k_lines[0].split().index('Name')
+                except Exception:
+                    continue
                 for j in filter(lambda x: x, k_lines[2:]):
                     n = j.split()[pos]
                     self.add_cmd_output('%s %s-dumpxml %s' % (cmd, k, n),
