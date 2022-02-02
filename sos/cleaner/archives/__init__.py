@@ -58,6 +58,8 @@ class SoSObfuscationArchive():
         self.is_extracted = False
         self._load_self()
         self.archive_root = ''
+        self.manifest = None
+        self.keep_binary_files = False
         self.log_info(
             "Loaded %s as type %s"
             % (self.archive_path, self.description)
@@ -71,6 +73,10 @@ class SoSObfuscationArchive():
     def _load_self(self):
         if self.is_tarfile:
             self.tarobj = tarfile.open(self.archive_path)
+
+    def close_self(self):
+        if self.is_tarfile:
+            self.tarobj.close()
 
     def get_nested_archives(self):
         """Return a list of ObfuscationArchives that represent additional

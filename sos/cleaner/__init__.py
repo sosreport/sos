@@ -16,7 +16,7 @@ import re
 import shutil
 import tempfile
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from pwd import getpwuid
 from sos import __version__
@@ -33,6 +33,272 @@ from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.cleaner.archives.insights import InsightsArchive
 from sos.utilities import get_human_readable
 from textwrap import fill
+
+
+def obfuscate_report(archive):
+    """Individually handle each archive or directory we've discovered by
+    running through each file therein.
+
+    :param archive:      The initialized archive object from SoSCleaner
+    :type archive:       ``SoSObfuscationArchive`` superclass
+    """
+    try:
+        arc_md = archive.manifest
+        aname = archive.archive_name
+        start_time = datetime.now()
+        arc_md.add_field('start_time', start_time)
+        # don't double extract nested archives
+        if not archive.is_extracted:
+            archive.extract()
+        archive.report_msg("Beginning obfuscation...")
+
+        file_list = archive.get_file_list()
+        for fname in file_list:
+            short_name = fname.split(aname + '/')[1]
+            if archive.should_skip_file(short_name):
+                continue
+            if (not archive.keep_binary_files and
+                    archive.should_remove_file(short_name)):
+                archive.remove_file(short_name)
+                continue
+            try:
+                count = METAPARSER.obfuscate_file(fname, short_name, aname)
+                if count:
+                    archive.update_sub_count(short_name, count)
+            except Exception as err:
+                METAPARSER.log_debug("Unable to parse file %s: %s"
+                                     % (short_name, err), caller=aname)
+        try:
+            METAPARSER.obfuscate_directory_names(archive)
+        except Exception as err:
+            METAPARSER.log_info("Failed to obfuscate directories: %s" % err,
+                                caller=aname)
+
+        # if the archive was already a tarball, repack it
+        if not archive.is_nested:
+            method = archive.get_compression()
+            if method:
+                archive.report_msg("Re-compressing...")
+                try:
+                    archive.rename_top_dir(
+                        METAPARSER.obfuscate_string(archive.archive_name)
+                    )
+                    archive.compress(method)
+                except Exception as err:
+                    METAPARSER.log_debug("Archive %s failed to compress: %s"
+                                         % (aname, err))
+                    archive.report_msg("Failed to re-compress archive: %s"
+                                       % err)
+                    return
+
+        end_time = datetime.now()
+        arc_md.add_field('end_time', end_time)
+        arc_md.add_field('run_time', end_time - start_time)
+        arc_md.add_field('files_obfuscated', len(archive.file_sub_list))
+        arc_md.add_field('total_substitutions', archive.total_sub_count)
+        rmsg = ''
+        if archive.removed_file_count:
+            rmsg = " [removed %s unprocessable files]"
+            rmsg = rmsg % archive.removed_file_count
+        archive.report_msg("Obfuscation completed%s" % rmsg)
+        return archive
+
+    except Exception as err:
+        METAPARSER.ui_log.info("Exception while processing %s: %s"
+                               % (aname, err))
+
+
+class _MetaParser():
+    """A 'meta' parser in the sense that all parser instances will be stored
+    in this class and then leveraged by individual obfuscation processes on
+    each archive we are obfuscating.
+
+    Not for external use in any capacity.
+    """
+
+    def __init__(self):
+        self.soslog = logging.getLogger('sos')
+        self.ui_log = logging.getLogger('sos_ui')
+        self.tmpdir = None
+
+    def _fmt_log_msg(self, msg, caller=None):
+        return "[cleaner%s] %s" % (":%s" % caller if caller else '', msg)
+
+    def log_debug(self, msg, caller=None):
+        self.soslog.debug(self._fmt_log_msg(msg, caller))
+
+    def log_info(self, msg, caller=None):
+        self.soslog.info(self._fmt_log_msg(msg, caller))
+
+    def log_error(self, msg, caller=None):
+        self.soslog.error(self._fmt_log_msg(msg, caller))
+
+    def _fmt_msg(self, msg):
+        width = 80
+        _fmt = ''
+        for line in msg.splitlines():
+            _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
+        return _fmt
+
+    def set_parsers(self, parsers):
+        """
+        :param parsers:     The fully initialized parsers from SoSCleaner
+        :type parsers:      A ``list`` of ``SoSCleanerParser`` objects
+        """
+        self.parsers = parsers
+
+    def configure_maps_for_multiprocess(self):
+        for parser in self.parsers:
+            parser.mapping.configure_map_for_multiprocess()
+
+    def set_tmpdir(self, tmpdir):
+        """Set the tmpdir for this execution. This needs to be set after
+        instantiations as this is a shared object.
+
+        :param tmpdir:      Path of our working temp directory
+        :type tmpdir:       ``str``
+        """
+        self.tmpdir = tmpdir
+
+    def obfuscate_file(self, filename, short_name=None, arc_name=None):
+        """Obfuscate and individual file, line by line.
+
+        Lines processed, even if no substitutions occur, are then written to a
+        temp file without our own tmpdir. Once the file has been completely
+        iterated through, if there have been substitutions then the temp file
+        overwrites the original file. If there are no substitutions, then the
+        original file is left in place.
+
+        :param filename:        Absolute path of the file being obfuscated
+        :type filename:         ``str``
+
+        :param short_name:      The filename relative to the archive dir
+        :type short_name:       ``str``
+
+        :param arc_name:        The name of the archive the file belongs to
+        :type arc_name:         ``str``
+        """
+
+        if not filename:
+            # the requested file doesn't exist in the archive
+            return
+        subs = 0
+        if not short_name:
+            short_name = filename.split('/')[-1]
+        if not os.path.islink(filename):
+            # don't run the obfuscation on the link, but on the actual file
+            # at some other point.
+            self.log_debug("Obfuscating %s" % short_name or filename,
+                           caller=arc_name)
+            tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
+            _parsers = [
+                _p for _p in self.parsers if not
+                any([
+                    re.match(p, short_name) for p in _p.skip_files
+                ])
+            ]
+            with open(filename, 'r') as fname:
+                for line in fname:
+                    try:
+                        line, count = self.obfuscate_line(line, _parsers)
+                        subs += count
+                        tfile.write(line)
+                    except Exception as err:
+                        self.log_debug("Unable to obfuscate %s: %s"
+                                       % (short_name, err), caller=arc_name)
+            tfile.seek(0)
+            if subs:
+                shutil.copy(tfile.name, filename)
+            tfile.close()
+
+        _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
+        _ob_filename = short_name.replace(short_name.split('/')[-1],
+                                          _ob_short_name)
+        _sym_changed = False
+        if os.path.islink(filename):
+            _link = os.readlink(filename)
+            _ob_link = self.obfuscate_string(_link)
+            if _ob_link != _link:
+                _sym_changed = True
+
+        if (_ob_filename != short_name) or _sym_changed:
+            arc_path = filename.split(short_name)[0]
+            _ob_path = os.path.join(arc_path, _ob_filename)
+            # ensure that any plugin subdirs that contain obfuscated strings
+            # get created with obfuscated counterparts
+            if not os.path.islink(filename):
+                os.rename(filename, _ob_path)
+            else:
+                # generate the obfuscated name of the link target
+                _target_ob = self.obfuscate_string(os.readlink(filename))
+                # remove the unobfuscated original symlink first, in case the
+                # symlink name hasn't changed but the target has
+                os.remove(filename)
+                # create the newly obfuscated symlink, pointing to the
+                # obfuscated target name, which may not exist just yet, but
+                # when the actual file is obfuscated, will be created
+                os.symlink(_target_ob, _ob_path)
+
+        return subs
+
+    def obfuscate_string(self, string_data):
+        for parser in self.parsers:
+            try:
+                string_data = parser.parse_string_for_keys(string_data)
+            except Exception:
+                pass
+        return string_data
+
+    def obfuscate_line(self, line, parsers=None):
+        """Run a line through each of the obfuscation parsers, keeping a
+        cumulative total of substitutions done on that particular line.
+
+        :param line:        The raw line as read from the file being processed
+        :type line:         ``str``
+
+        :param parsers:     The parsers to use for obfuscation for ``line``
+        :type parsers:      ``list`` of ``SoSCleanerParser``s or ``None``
+
+        Returns the fully obfuscated line and the number of substitutions made
+        """
+        # don't iterate over blank lines, but still write them to the tempfile
+        # to maintain the same structure when we write a scrubbed file back
+        count = 0
+        if not line.strip():
+            return line, count
+        if parsers is None:
+            parsers = self.parsers
+        for parser in parsers:
+            try:
+                line, _count = parser.parse_line(line)
+                count += _count
+            except Exception as err:
+                self.log_debug("failed to parse line: %s" % err, parser.name)
+        return line, count
+
+    def obfuscate_directory_names(self, archive):
+        """For all directories that exist within the archive, obfuscate the
+        directory name if it contains sensitive strings found during execution
+        """
+        self.log_info("Obfuscating directory names in archive %s"
+                      % archive.archive_name)
+        for dirpath in sorted(archive.get_directory_list(), reverse=True):
+            for _name in os.listdir(dirpath):
+                _dirname = os.path.join(dirpath, _name)
+                _arc_dir = _dirname.split(archive.extracted_path)[-1]
+                if os.path.isdir(_dirname):
+                    _ob_dirname = self.obfuscate_string(_name)
+                    if _ob_dirname != _name:
+                        _ob_arc_dir = _arc_dir.rstrip(_name)
+                        _ob_arc_dir = os.path.join(
+                            archive.extracted_path,
+                            _ob_arc_dir.lstrip('/'),
+                            _ob_dirname
+                        )
+                        os.rename(_dirname, _ob_arc_dir)
+
+
+METAPARSER = _MetaParser()
 
 
 class SoSCleaner(SoSComponent):
@@ -118,14 +384,16 @@ class SoSCleaner(SoSComponent):
 
         self.cleaner_md = self.manifest.components.add_section('cleaner')
 
-        self.parsers = [
+        METAPARSER.set_parsers([
             SoSHostnameParser(self.cleaner_mapping, self.opts.domains),
             SoSIPParser(self.cleaner_mapping),
             SoSMacParser(self.cleaner_mapping),
             SoSKeywordParser(self.cleaner_mapping, self.opts.keywords,
                              self.opts.keyword_file),
             SoSUsernameParser(self.cleaner_mapping, self.opts.usernames)
-        ]
+        ])
+
+        METAPARSER.set_tmpdir(self.tmpdir)
 
         self.archive_types = [
             SoSReportDirectory,
@@ -299,6 +567,13 @@ third party.
             self.nested_archive = _arc
         if self.nested_archive:
             self.nested_archive.ui_name = self.nested_archive.description
+            _md = self.cleaner_md.add_section(self.nested_archive.archive_name)
+            self.nested_archive.manifest = _md
+            self.nested_archive.keep_binary_files = self.opts.keep_binary_files
+        for archive in self.report_paths:
+            _arc_manifest = self.cleaner_md.add_section(archive.archive_name)
+            archive.manifest = _arc_manifest
+            archive.keep_binary_files = self.opts.keep_binary_files
 
     def execute(self):
         """SoSCleaner will begin by inspecting the TARGET option to determine
@@ -326,10 +601,19 @@ third party.
             self.ui_log.error("No valid archives or directories found\n")
             self._exit(1)
 
+        if len(self.report_paths) > 1:
+            METAPARSER.configure_maps_for_multiprocess()
+
         # we have at least one valid target to obfuscate
         self.completed_reports = []
         self.preload_all_archives_into_maps()
         self.generate_parser_item_regexes()
+
+        # close the open tar object as otherwise the pickling that occurs with
+        # the ProcessPoolExecutor will fail
+        for arc in self.report_paths:
+            arc.close_self()
+
         self.obfuscate_report_paths()
 
         if not self.completed_reports:
@@ -358,14 +642,14 @@ third party.
             arc_path = arc.final_archive_path
             checksum = self.get_new_checksum(arc.final_archive_path)
             if checksum is not None:
-                chksum_name = self.obfuscate_string(
+                chksum_name = METAPARSER.obfuscate_string(
                     "%s.%s" % (arc_path.split('/')[-1], self.hash_name)
                 )
                 with open(os.path.join(self.sys_tmp, chksum_name), 'w') as cf:
                     cf.write(checksum)
             self.write_cleaner_log()
 
-        final_path = self.obfuscate_string(
+        final_path = METAPARSER.obfuscate_string(
             os.path.join(self.sys_tmp, arc_path.split('/')[-1])
         )
         shutil.move(arc_path, final_path)
@@ -402,7 +686,8 @@ third party.
                 fname = os.path.join(dirn, filename)
                 dname = fname.split(self.nested_archive.extracted_path)[-1]
                 dname = dname.lstrip('/')
-                self.archive.add_file(fname, dest=dname)
+                if not filename.endswith(('.md5', '.sha256')):
+                    self.archive.add_file(fname, dest=dname)
                 # remove it now so we don't balloon our fs space needs
                 os.remove(fname)
         self.write_cleaner_log(archive=True)
@@ -415,7 +700,7 @@ third party.
         to 'decode' the obfuscation locally
         """
         _map = {}
-        for parser in self.parsers:
+        for parser in METAPARSER.parsers:
             _map[parser.map_file_key] = {}
             _map[parser.map_file_key].update(parser.mapping.dataset)
 
@@ -431,7 +716,7 @@ third party.
 
     def write_map_for_archive(self, _map):
         try:
-            map_path = self.obfuscate_string(
+            map_path = METAPARSER.obfuscate_string(
                 os.path.join(self.sys_tmp, "%s-private_map" % self.arc_name)
             )
             return self.write_map_to_file(_map, map_path)
@@ -470,7 +755,7 @@ third party.
                 logfile.write(line)
 
         if archive:
-            self.obfuscate_file(log_name)
+            METAPARSER.obfuscate_file(log_name)
             self.archive.add_file(log_name, dest="sos_logs/cleaner.log")
 
     def get_new_checksum(self, archive_path):
@@ -492,6 +777,18 @@ third party.
             self.log_debug("Could not generate new checksum: %s" % err)
         return None
 
+    def obfuscate_file(self, filename, short_name=None, arc_name=None):
+        """A redirector to the metaparser's function exposed via SoSCleaner for
+        when --clean is used with `sos report`.
+        """
+        return METAPARSER.obfuscate_file(filename, short_name, arc_name)
+
+    def obfuscate_string(self, string_data):
+        """A redirector to the metaparser's function exposed via SoSCleaner for
+        when --clean is used with `sos report`.
+        """
+        return METAPARSER.obfuscate_string(string_data)
+
     def obfuscate_report_paths(self):
         """Perform the obfuscation for each archive or sos directory discovered
         during setup.
@@ -510,13 +807,20 @@ third party.
                     "WARNING: binary files that potentially contain sensitive "
                     "information will NOT be removed from the final archive\n"
                 )
-            pool = ThreadPoolExecutor(self.opts.jobs)
-            pool.map(self.obfuscate_report, self.report_paths, chunksize=1)
-            pool.shutdown(wait=True)
+            with ProcessPoolExecutor(self.opts.jobs) as pool:
+                futs = []
+                for arc in self.report_paths:
+                    futs.append(pool.submit(obfuscate_report, arc))
+
+            for _f in futs:
+                if _f.result():
+                    self.completed_reports.append(_f.result())
+
             # finally, obfuscate the nested archive if one exists
             if self.nested_archive:
                 self._replace_obfuscated_archives()
-                self.obfuscate_report(self.nested_archive)
+                obfuscate_report(self.nested_archive)
+
         except KeyboardInterrupt:
             self.ui_log.info("Exiting on user cancel")
             os._exit(130)
@@ -528,6 +832,10 @@ third party.
         """
         for archive in self.completed_reports:
             os.remove(archive.archive_path)
+            for ext in ['.md5', '.sha256']:
+                chkp = archive.archive_path + ext
+                if os.path.exists(chkp):
+                    os.remove(chkp)
             dest = self.nested_archive.extracted_path
             tarball = archive.final_archive_path.split('/')[-1]
             dest_name = os.path.join(dest, tarball)
@@ -539,7 +847,7 @@ third party.
         regexes now since all the parsers should be preloaded by the archive(s)
         as well as being handed cmdline options and mapping file configuration.
         """
-        for parser in self.parsers:
+        for parser in METAPARSER.parsers:
             parser.generate_item_regexes()
 
     def preload_all_archives_into_maps(self):
@@ -550,7 +858,7 @@ third party.
         """
         self.log_info("Pre-loading all archives into obfuscation maps")
         for _arc in self.report_paths:
-            for _parser in self.parsers:
+            for _parser in METAPARSER.parsers:
                 try:
                     pfile = _arc.prep_files[_parser.name.lower().split()[0]]
                     if not pfile:
@@ -578,7 +886,7 @@ third party.
                                 )
                         else:
                             for line in content.splitlines():
-                                self.obfuscate_line(line)
+                                METAPARSER.obfuscate_line(line)
                     except Exception as err:
                         self.log_info(
                             "Could not prepare %s from %s (archive: %s): %s"
@@ -586,217 +894,11 @@ third party.
                                err)
                         )
 
-    def obfuscate_report(self, archive):
-        """Individually handle each archive or directory we've discovered by
-        running through each file therein.
-
-        Positional arguments:
-
-            :param report str:      Filepath to the directory or archive
-        """
-        try:
-            arc_md = self.cleaner_md.add_section(archive.archive_name)
-            start_time = datetime.now()
-            arc_md.add_field('start_time', start_time)
-            # don't double extract nested archives
-            if not archive.is_extracted:
-                archive.extract()
-            archive.report_msg("Beginning obfuscation...")
-
-            file_list = archive.get_file_list()
-            for fname in file_list:
-                short_name = fname.split(archive.archive_name + '/')[1]
-                if archive.should_skip_file(short_name):
-                    continue
-                if (not self.opts.keep_binary_files and
-                        archive.should_remove_file(short_name)):
-                    archive.remove_file(short_name)
-                    continue
-                try:
-                    count = self.obfuscate_file(fname, short_name,
-                                                archive.archive_name)
-                    if count:
-                        archive.update_sub_count(short_name, count)
-                except Exception as err:
-                    self.log_debug("Unable to parse file %s: %s"
-                                   % (short_name, err))
-            try:
-                self.obfuscate_directory_names(archive)
-            except Exception as err:
-                self.log_info("Failed to obfuscate directories: %s" % err,
-                              caller=archive.archive_name)
-
-            # if the archive was already a tarball, repack it
-            if not archive.is_nested:
-                method = archive.get_compression()
-                if method:
-                    archive.report_msg("Re-compressing...")
-                    try:
-                        archive.rename_top_dir(
-                            self.obfuscate_string(archive.archive_name)
-                        )
-                        archive.compress(method)
-                    except Exception as err:
-                        self.log_debug("Archive %s failed to compress: %s"
-                                       % (archive.archive_name, err))
-                        archive.report_msg("Failed to re-compress archive: %s"
-                                           % err)
-                        return
-                self.completed_reports.append(archive)
-
-            end_time = datetime.now()
-            arc_md.add_field('end_time', end_time)
-            arc_md.add_field('run_time', end_time - start_time)
-            arc_md.add_field('files_obfuscated', len(archive.file_sub_list))
-            arc_md.add_field('total_substitutions', archive.total_sub_count)
-            rmsg = ''
-            if archive.removed_file_count:
-                rmsg = " [removed %s unprocessable files]"
-                rmsg = rmsg % archive.removed_file_count
-            archive.report_msg("Obfuscation completed%s" % rmsg)
-
-        except Exception as err:
-            self.ui_log.info("Exception while processing %s: %s"
-                             % (archive.archive_name, err))
-
-    def obfuscate_file(self, filename, short_name=None, arc_name=None):
-        """Obfuscate and individual file, line by line.
-
-        Lines processed, even if no substitutions occur, are then written to a
-        temp file without our own tmpdir. Once the file has been completely
-        iterated through, if there have been substitutions then the temp file
-        overwrites the original file. If there are no substitutions, then the
-        original file is left in place.
-
-        Positional arguments:
-
-            :param filename str:        Filename relative to the extracted
-                                        archive root
-        """
-        if not filename:
-            # the requested file doesn't exist in the archive
-            return
-        subs = 0
-        if not short_name:
-            short_name = filename.split('/')[-1]
-        if not os.path.islink(filename):
-            # don't run the obfuscation on the link, but on the actual file
-            # at some other point.
-            self.log_debug("Obfuscating %s" % short_name or filename,
-                           caller=arc_name)
-            tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
-            _parsers = [
-                _p for _p in self.parsers if not
-                any([
-                    re.match(p, short_name) for p in _p.skip_files
-                ])
-            ]
-            with open(filename, 'r') as fname:
-                for line in fname:
-                    try:
-                        line, count = self.obfuscate_line(line, _parsers)
-                        subs += count
-                        tfile.write(line)
-                    except Exception as err:
-                        self.log_debug("Unable to obfuscate %s: %s"
-                                       % (short_name, err), caller=arc_name)
-            tfile.seek(0)
-            if subs:
-                shutil.copy(tfile.name, filename)
-            tfile.close()
-
-        _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
-        _ob_filename = short_name.replace(short_name.split('/')[-1],
-                                          _ob_short_name)
-        _sym_changed = False
-        if os.path.islink(filename):
-            _link = os.readlink(filename)
-            _ob_link = self.obfuscate_string(_link)
-            if _ob_link != _link:
-                _sym_changed = True
-
-        if (_ob_filename != short_name) or _sym_changed:
-            arc_path = filename.split(short_name)[0]
-            _ob_path = os.path.join(arc_path, _ob_filename)
-            # ensure that any plugin subdirs that contain obfuscated strings
-            # get created with obfuscated counterparts
-            if not os.path.islink(filename):
-                os.rename(filename, _ob_path)
-            else:
-                # generate the obfuscated name of the link target
-                _target_ob = self.obfuscate_string(os.readlink(filename))
-                # remove the unobfuscated original symlink first, in case the
-                # symlink name hasn't changed but the target has
-                os.remove(filename)
-                # create the newly obfuscated symlink, pointing to the
-                # obfuscated target name, which may not exist just yet, but
-                # when the actual file is obfuscated, will be created
-                os.symlink(_target_ob, _ob_path)
-
-        return subs
-
-    def obfuscate_directory_names(self, archive):
-        """For all directories that exist within the archive, obfuscate the
-        directory name if it contains sensitive strings found during execution
-        """
-        self.log_info("Obfuscating directory names in archive %s"
-                      % archive.archive_name)
-        for dirpath in sorted(archive.get_directory_list(), reverse=True):
-            for _name in os.listdir(dirpath):
-                _dirname = os.path.join(dirpath, _name)
-                _arc_dir = _dirname.split(archive.extracted_path)[-1]
-                if os.path.isdir(_dirname):
-                    _ob_dirname = self.obfuscate_string(_name)
-                    if _ob_dirname != _name:
-                        _ob_arc_dir = _arc_dir.rstrip(_name)
-                        _ob_arc_dir = os.path.join(
-                            archive.extracted_path,
-                            _ob_arc_dir.lstrip('/'),
-                            _ob_dirname
-                        )
-                        os.rename(_dirname, _ob_arc_dir)
-
-    def obfuscate_string(self, string_data):
-        for parser in self.parsers:
-            try:
-                string_data = parser.parse_string_for_keys(string_data)
-            except Exception:
-                pass
-        return string_data
-
-    def obfuscate_line(self, line, parsers=None):
-        """Run a line through each of the obfuscation parsers, keeping a
-        cumulative total of substitutions done on that particular line.
-
-        Positional arguments:
-
-            :param line str:        The raw line as read from the file being
-                                    processed
-            :param parsers:         A list of parser objects to obfuscate
-                                    with. If None, use all.
-
-        Returns the fully obfuscated line and the number of substitutions made
-        """
-        # don't iterate over blank lines, but still write them to the tempfile
-        # to maintain the same structure when we write a scrubbed file back
-        count = 0
-        if not line.strip():
-            return line, count
-        if parsers is None:
-            parsers = self.parsers
-        for parser in parsers:
-            try:
-                line, _count = parser.parse_line(line)
-                count += _count
-            except Exception as err:
-                self.log_debug("failed to parse line: %s" % err, parser.name)
-        return line, count
-
     def write_stats_to_manifest(self):
         """Write some cleaner-level, non-report-specific stats to the manifest
         """
         parse_sec = self.cleaner_md.add_section('parsers')
-        for parser in self.parsers:
+        for parser in METAPARSER.parsers:
             _sec = parse_sec.add_section(parser.name.replace(' ', '_').lower())
             _sec.add_field('entries', len(parser.mapping.dataset.keys()))
 

@@ -10,7 +10,7 @@
 
 import re
 
-from threading import Lock
+from multiprocessing import Manager
 
 
 class SoSMap():
@@ -26,8 +26,13 @@ class SoSMap():
     skip_keys = []
 
     def __init__(self):
+        self.lock = None
         self.dataset = {}
-        self.lock = Lock()
+
+    def configure_map_for_multiprocess(self):
+        self._mgr = Manager()
+        self.lock = self._mgr.Lock()
+        self.dataset = self._mgr.dict(self.dataset)
 
     def ignore_item(self, item):
         """Some items need to be completely ignored, for example link-local or
@@ -48,11 +53,12 @@ class SoSMap():
 
             :param item:        The plaintext object to obfuscate
         """
-        with self.lock:
-            if not item:
-                return item
+        if self.lock:
+            with self.lock:
+                self.dataset[item] = self.sanitize_item(item)
+        else:
             self.dataset[item] = self.sanitize_item(item)
-            return self.dataset[item]
+        return self.dataset[item]
 
     def sanitize_item(self, item):
         """Perform the obfuscation relevant to the item being added to the map.
