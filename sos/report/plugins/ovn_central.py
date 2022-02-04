@@ -84,6 +84,14 @@ class OVNCentral(Plugin):
         else:
             self.add_copy_spec("/var/log/ovn/*.log")
 
+        # ovsdb nb/sb cluster status commands
+        ovsdb_cmds = [
+            'ovs-appctl -t {} cluster/status OVN_Northbound'.format(
+                self.ovn_nbdb_sock_path),
+            'ovs-appctl -t {} cluster/status OVN_Southbound'.format(
+                self.ovn_sbdb_sock_path),
+        ]
+
         # Some user-friendly versions of DB output
         nbctl_cmds = [
             'ovn-nbctl show',
@@ -109,7 +117,8 @@ class OVNCentral(Plugin):
 
         self.add_database_output(nb_tables, nbctl_cmds, 'ovn-nbctl')
 
-        cmds = nbctl_cmds
+        cmds = ovsdb_cmds
+        cmds += nbctl_cmds
 
         # Can only run sbdb commands if we are the leader
         co = {'cmd': "ovs-appctl -t {} cluster/status OVN_Southbound".
@@ -148,10 +157,12 @@ class OVNCentral(Plugin):
 class RedHatOVNCentral(OVNCentral, RedHatPlugin):
 
     packages = ('openvswitch-ovn-central', 'ovn.*-central', )
+    ovn_nbdb_sock_path = '/var/run/openvswitch/ovnnb_db.ctl'
     ovn_sbdb_sock_path = '/var/run/openvswitch/ovnsb_db.ctl'
 
 
 class DebianOVNCentral(OVNCentral, DebianPlugin, UbuntuPlugin):
 
     packages = ('ovn-central', )
+    ovn_nbdb_sock_path = '/var/run/ovn/ovnnb_db.ctl'
     ovn_sbdb_sock_path = '/var/run/ovn/ovnsb_db.ctl'
