@@ -40,6 +40,9 @@ class SoSHostnameMap(SoSMap):
         'api'
     ]
 
+    strip_exts = ('.yaml', '.yml', '.crt', '.key', '.pem', '.log', '.repo',
+                  '.rules')
+
     host_count = 0
     domain_count = 0
     _domains = {}
@@ -105,18 +108,16 @@ class SoSHostnameMap(SoSMap):
         """Check if a potential domain is in one of the domains we've loaded
         and should be obfuscated
         """
+        if domain in self._domains:
+            return True
         host = domain.split('.')
         no_tld = '.'.join(domain.split('.')[0:-1])
         if len(host) == 1:
             # don't block on host's shortname
-            return host[0] in self.hosts.keys()
+            return host[0] in self.hosts
         elif any([no_tld.endswith(_d) for _d in self._domains]):
             return True
-        else:
-            domain = host[0:-1]
-            for known_domain in self._domains:
-                if known_domain in domain:
-                    return True
+
         return False
 
     def get(self, item):
@@ -136,7 +137,7 @@ class SoSHostnameMap(SoSMap):
             item = item[0:-1]
         if not self.domain_name_in_loaded_domains(item.lower()):
             return item
-        if item.endswith(('.yaml', '.yml', '.crt', '.key', '.pem', '.log')):
+        if item.endswith(self.strip_exts):
             ext = '.' + item.split('.')[-1]
             item = item.replace(ext, '')
             suffix += ext
