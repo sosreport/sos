@@ -82,34 +82,55 @@ class SoSHostnameParser(SoSCleanerParser):
                 else:
                     self.mapping.add(host)
 
+    def generate_item_regexes(self):
+        # instead of other classes, we need to keep two lists of regexes
+        # here:
+        # 1) self.hosts_domains will contain a tripple
+        # ( host, fqdn, re.compile(fqdn, re.I) )
+        # for each host in mapping.
+        # The list will be ordered by len of host to prevent
+        # substring-host matching.
+        #
+        # 2) self.short_names will be:
+        # - sorted
+        # - items extended to pair ( shortname, re.compile(shortname) )
+        self.hosts_domains = []
+        hosts = [h for h in self.mapping.dataset.keys() if '.' in h]
+        for host in sorted(hosts, reverse=True, key=lambda x: len(x)):
+            fqdn = host
+            for c in '.-':
+                fqdn = fqdn.replace(c, '_')
+            self.hosts_domains.append((host, fqdn, re.compile(fqdn, re.I)))
+
+        short_names = []
+        for short_name in sorted(self.short_names, reverse=True):
+            short_names.append((short_name, re.compile(short_name, re.I)))
+        self.short_names = short_names
+
     def parse_line(self, line):
         """Override the default parse_line() method to also check for the
         shortname of the host derived from the hostname.
         """
 
-        def _check_line(ln, count, search, repl=None):
+        def _check_line(ln, count, search, search_re, repl=None):
             """Perform a second manual check for substrings that may have been
             missed by regex matching
             """
             if search in self.mapping.skip_keys:
                 return ln, count
             _reg = re.compile(search, re.I)
-            if _reg.search(ln):
-                return _reg.subn(self.mapping.get(repl or search), ln)
+            if search_re.search(ln):
+                return search_re.subn(self.mapping.get(repl or search), ln)
             return ln, count
 
         count = 0
         line, count = super(SoSHostnameParser, self).parse_line(line)
         # make an additional pass checking for '_' formatted substrings that
         # the regex patterns won't catch
-        hosts = [h for h in self.mapping.dataset.keys() if '.' in h]
-        for host in sorted(hosts, reverse=True, key=lambda x: len(x)):
-            fqdn = host
-            for c in '.-':
-                fqdn = fqdn.replace(c, '_')
-            line, count = _check_line(line, count, fqdn, host)
+        for host, fqdn, re_fqdn in self.hosts_domains:
+            line, count = _check_line(line, count, fqdn, re_fqdn, host)
 
-        for short_name in sorted(self.short_names, reverse=True):
-            line, count = _check_line(line, count, short_name)
+        for shortname, shortname_re in self.short_names:
+            line, count = _check_line(line, count, shortname, shortname_re)
 
         return line, count
