@@ -63,12 +63,13 @@ class SoSUsernameParser(SoSCleanerParser):
 
     def generate_item_regexes(self):
         for user in self.mapping.dataset:
-            self.regexes[user] = re.compile(user, re.I)
+            self.regexes[user.lower()] = re.compile(user, re.I)
+        self.regexes = sorted(self.regexes.items(), key=len, reverse=True)
 
     def parse_line(self, line):
         count = 0
-        for user, reg in sorted(self.regexes.items(), key=len, reverse=True):
+        for user, reg in self.regexes:
             if reg.search(line):
-                line, _count = reg.subn(self.mapping.get(user.lower()), line)
+                line, _count = reg.subn(self.mapping.get(user), line)
                 count += _count
         return line, count

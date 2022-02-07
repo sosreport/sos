@@ -42,12 +42,13 @@ class SoSKeywordParser(SoSCleanerParser):
 
     def generate_item_regexes(self):
         for kw in self.user_keywords:
-            self.regexes[kw] = re.compile(kw, re.I)
+            self.regexes[kw.lower()] = re.compile(kw, re.I)
+        self.regexes = sorted(self.regexes.items(), key=len, reverse=True)
 
     def parse_line(self, line):
         count = 0
-        for kwrd, reg in sorted(self.regexes.items(), key=len, reverse=True):
+        for kwrd, reg in self.regexes:
             if reg.search(line):
-                line, _count = reg.subn(self.mapping.get(kwrd.lower()), line)
+                line, _count = reg.subn(self.mapping.get(kwrd), line)
                 count += _count
         return line, count
