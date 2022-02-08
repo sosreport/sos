@@ -34,7 +34,13 @@ class DellRAC(Plugin, IndependentPlugin):
             self.do_debug()
 
     def do_debug(self):
-        logpath = self.get_cmd_output_path(make=False)
+        # ensure the sos_commands/dellrac directory does exist in either case
+        # as we will need to run the command at that dir, and also ensure
+        # logpath is properly populated in either case as well
+        try:
+            logpath = self.get_cmd_output_path()
+        except FileExistsError:
+            logpath = self.get_cmd_output_path(make=False)
         subcmd = 'supportassist collect -f'
         self.add_cmd_output(
             '%s %s support.zip' % (self.racadm, subcmd),
