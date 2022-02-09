@@ -78,7 +78,7 @@ class LinuxPolicy(Policy):
         if sysroot:
             self.sysroot = sysroot
         else:
-            self.sysroot = self._container_init()
+            self.sysroot = self._container_init() or '/'
 
         self.init_kernel_modules()
 
