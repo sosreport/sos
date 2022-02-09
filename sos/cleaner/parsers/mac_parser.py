@@ -41,6 +41,7 @@ class SoSMacParser(SoSCleanerParser):
         'sos_commands/kernel/modinfo.*'
     ]
     map_file_key = 'mac_map'
+    compile_regexes = False
 
     def __init__(self, config):
         self.mapping = SoSMacMap()
@@ -57,11 +58,8 @@ class SoSMacParser(SoSCleanerParser):
         # just to be safe, call strip() to remove any padding
         return match.strip()
 
-    def parse_line(self, line):
+    def _parse_line(self, line):
         count = 0
-        for skip_pattern in self.skip_line_patterns:
-            if re.match(skip_pattern, line, re.I):
-                return line, count
         for pattern in self.regex_patterns:
             matches = [m[0] for m in re.findall(pattern, line, re.I)]
             if matches:

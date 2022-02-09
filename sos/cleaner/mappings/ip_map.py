@@ -44,6 +44,7 @@ class SoSIPMap(SoSMap):
     _networks = {}
     network_first_octet = 100
     skip_network_octets = ['127', '169', '172', '192']
+    compile_regexes = False
 
     def ip_in_dataset(self, ipaddr):
         """There are multiple ways in which an ip address could be handed to us

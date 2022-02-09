@@ -8,8 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import re
-
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.username_map import SoSUsernameMap
 
@@ -61,14 +59,5 @@ class SoSUsernameParser(SoSCleanerParser):
         for each in users:
             self.mapping.get(each)
 
-    def generate_item_regexes(self):
-        for user in self.mapping.dataset:
-            self.regexes[user] = re.compile(user, re.I)
-
-    def parse_line(self, line):
-        count = 0
-        for user, reg in sorted(self.regexes.items(), key=len, reverse=True):
-            if reg.search(line):
-                line, _count = reg.subn(self.mapping.get(user.lower()), line)
-                count += _count
-        return line, count
+    def _parse_line(self, line):
+        return line, 0
