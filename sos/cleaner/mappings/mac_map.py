@@ -48,6 +48,7 @@ class SoSMacMap(SoSMap):
     mac_template = '53:4f:53:%s:%s:%s'
     mac6_template = '53:4f:53:ff:fe:%s:%s:%s'
     mac6_quad_template = '534f:53ff:fe%s:%s%s'
+    compile_regexes = False
 
     def add(self, item):
         item = item.replace('-', ':').lower().strip('=.,').strip()

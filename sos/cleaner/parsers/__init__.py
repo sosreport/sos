@@ -44,9 +44,9 @@ class SoSCleanerParser():
     skip_line_patterns = []
     skip_files = []
     map_file_key = 'unset'
+    compile_regexes = True
 
     def __init__(self, config={}):
-        self.regexes = {}
         if self.map_file_key in config:
             self.mapping.conf_update(config[self.map_file_key])
 
@@ -57,11 +57,51 @@ class SoSCleanerParser():
 
         Not used by all parsers.
         """
-        pass
+        if not self.compile_regexes:
+            return
+        for obitem in self.mapping.dataset:
+            self.mapping.add_regex_item(obitem)
 
     def parse_line(self, line):
         """This will be called for every line in every file we process, so that
         every parser has a chance to scrub everything.
+
+        This will first try to identify needed obfuscations for items we have
+        already encountered (if the parser uses compiled regexes that is) and
+        make those substitutions early on. After which, we will then parse the
+        line again looking for new matches.
+        """
+        count = 0
+        for skip_pattern in self.skip_line_patterns:
+            if re.match(skip_pattern, line, re.I):
+                return line, count
+        if self.compile_regexes:
+            line, _rcount = self._parse_line_with_compiled_regexes(line)
+            count += _rcount
+        line, _count = self._parse_line(line)
+        count += _count
+        return line, count
+
+    def _parse_line_with_compiled_regexes(self, line):
+        """Check the provided line against known items we have encountered
+        before and have pre-generated regex Pattern() objects for.
+
+        :param line:    The line to parse for possible matches for obfuscation
+        :type line:     ``str``
+
+        :returns:   The obfuscated line and the number of changes made
+        :rtype:     ``str``, ``int``
+        """
+        count = 0
+        for item, reg in self.mapping.compiled_regexes:
+            if reg.search(line):
+                line, _count = reg.subn(self.mapping.get(item.lower()), line)
+                count += _count
+        return line, count
+
+    def _parse_line(self, line):
+        """Check the provided line against the parser regex patterns to try
+        and discover _new_ items to obfuscate
 
         :param line: The line to parse for possible matches for obfuscation
         :type line: ``str``
@@ -70,16 +110,15 @@ class SoSCleanerParser():
         :rtype: ``tuple``, ``(str, int))``
         """
         count = 0
-        for skip_pattern in self.skip_line_patterns:
-            if re.match(skip_pattern, line, re.I):
-                return line, count
         for pattern in self.regex_patterns:
             matches = [m[0] for m in re.findall(pattern, line, re.I)]
             if matches:
-                matches.sort(reverse=True, key=lambda x: len(x))
+                matches.sort(reverse=True, key=len)
                 count += len(matches)
                 for match in matches:
                     match = match.strip()
+                    if match in self.mapping.dataset.values():
+                        continue
                     new_match = self.mapping.get(match)
                     if new_match != match:
                         line = line.replace(match, new_match)
@@ -99,13 +138,17 @@ class SoSCleanerParser():
         :returns: The obfuscated line
         :rtype: ``str``
         """
-        for pair in sorted(self.mapping.dataset.items(), reverse=True,
-                           key=lambda x: len(x[0])):
-            key, val = pair
-            if key in self.mapping.skip_keys:
-                continue
-            if key in string_data:
-                string_data = string_data.replace(key, val)
+        if self.compile_regexes:
+            for item, reg in self.mapping.compiled_regexes:
+                if reg.search(string_data):
+                    string_data = reg.sub(self.mapping.get(item), string_data)
+        else:
+            for k, ob in sorted(self.mapping.dataset.items(), reverse=True,
+                                key=lambda x: len(x[0])):
+                if k in self.mapping.skip_keys:
+                    continue
+                if k in string_data:
+                    string_data = string_data.replace(k, ob)
         return string_data
 
     def get_map_contents(self):

@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-import re
 
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.keyword_map import SoSKeywordMap
@@ -40,14 +39,5 @@ class SoSKeywordParser(SoSCleanerParser):
             with open(keyword_file, 'r') as kwf:
                 self.user_keywords.extend(kwf.read().splitlines())
 
-    def generate_item_regexes(self):
-        for kw in self.user_keywords:
-            self.regexes[kw] = re.compile(kw, re.I)
-
-    def parse_line(self, line):
-        count = 0
-        for kwrd, reg in sorted(self.regexes.items(), key=len, reverse=True):
-            if reg.search(line):
-                line, _count = reg.subn(self.mapping.get(kwrd.lower()), line)
-                count += _count
-        return line, count
+    def _parse_line(self, line):
+        return line, 0

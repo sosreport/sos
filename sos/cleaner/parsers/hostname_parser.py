@@ -8,8 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import re
-
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
 
@@ -79,37 +77,6 @@ class SoSHostnameParser(SoSCleanerParser):
                     # only generate a mapping for fqdns but still record the
                     # short name here for later obfuscation with parse_line()
                     self.short_names.append(host)
+                    self.mapping.add_regex_item(host)
                 else:
                     self.mapping.add(host)
-
-    def parse_line(self, line):
-        """Override the default parse_line() method to also check for the
-        shortname of the host derived from the hostname.
-        """
-
-        def _check_line(ln, count, search, repl=None):
-            """Perform a second manual check for substrings that may have been
-            missed by regex matching
-            """
-            if search in self.mapping.skip_keys:
-                return ln, count
-            _reg = re.compile(search, re.I)
-            if _reg.search(ln):
-                return _reg.subn(self.mapping.get(repl or search), ln)
-            return ln, count
-
-        count = 0
-        line, count = super(SoSHostnameParser, self).parse_line(line)
-        # make an additional pass checking for '_' formatted substrings that
-        # the regex patterns won't catch
-        hosts = [h for h in self.mapping.dataset.keys() if '.' in h]
-        for host in sorted(hosts, reverse=True, key=lambda x: len(x)):
-            fqdn = host
-            for c in '.-':
-                fqdn = fqdn.replace(c, '_')
-            line, count = _check_line(line, count, fqdn, host)
-
-        for short_name in sorted(self.short_names, reverse=True):
-            line, count = _check_line(line, count, short_name)
-
-        return line, count

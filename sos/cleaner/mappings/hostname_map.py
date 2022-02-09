@@ -84,6 +84,15 @@ class SoSHostnameMap(SoSMap):
         for domain in domains:
             self.sanitize_domain(domain.split('.'))
 
+    def get_regex_result(self, item):
+        """Override the base get_regex_result() to provide a regex that, if
+        this is an FQDN or a straight domain, will include an underscore
+        formatted regex as well.
+        """
+        if '.' in item:
+            item = item.replace('.', '(\\.|_)')
+        return re.compile(item, re.I)
+
     def set_initial_counts(self):
         """Set the initial counter for host and domain obfuscation numbers
         based on what is already present in the mapping.
@@ -135,6 +144,8 @@ class SoSHostnameMap(SoSMap):
         while item.endswith(('.', '_')):
             suffix += item[-1]
             item = item[0:-1]
+        if item in self.dataset:
+            return self.dataset[item]
         if not self.domain_name_in_loaded_domains(item.lower()):
             return item
         if item.endswith(self.strip_exts):
@@ -211,14 +222,15 @@ class SoSHostnameMap(SoSMap):
         """Obfuscate the short name of the host with an incremented counter
         based on the total number of obfuscated host names
         """
-        if not hostname:
+        if not hostname or hostname in self.skip_keys:
             return hostname
-        if hostname not in self.hosts:
+        if hostname not in self.dataset:
             ob_host = "host%s" % self.host_count
             self.hosts[hostname] = ob_host
             self.host_count += 1
             self.dataset[hostname] = ob_host
-        return self.hosts[hostname]
+            self.add_regex_item(hostname)
+        return self.dataset[hostname]
 
     def sanitize_domain(self, domain):
         """Obfuscate the domainname, broken out into subdomains. Top-level
