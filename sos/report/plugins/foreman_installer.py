@@ -25,6 +25,8 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
             "/etc/foreman-installer/*",
             "/var/log/foreman-installer/*",
             "/var/log/foreman-maintain/*",
+            "/var/lib/foreman-maintain/data.yml",
+            "/etc/foreman-maintain/foreman_maintain.yml",
             # specifically collect .applied files
             # that would be skipped otherwise as hidden files
             "/etc/foreman-installer/scenarios.d/*/.applied",
