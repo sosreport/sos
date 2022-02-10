@@ -10,7 +10,8 @@
 from avocado.core.exceptions import TestSkipError
 from avocado.core.output import LOG_UI
 from avocado import Test
-from avocado.utils import archive, process, distro, software_manager
+from avocado.utils import archive, process, distro
+from avocado.utils.software_manager import distro_packages, manager
 from fnmatch import fnmatch
 
 import glob
@@ -734,8 +735,7 @@ class StageTwoReportTest(BaseSoSReportTest):
         self.end_of_test_case = False
         # seems awkward, but check_installed() and remove() are not exposed
         # together with install_distro_packages()
-        self.installer = software_manager
-        self.sm = self.installer.SoftwareManager()
+        self.sm = manager.SoftwareManager()
 
         for dist in self.packages:
             if isinstance(self.packages[dist], str):
@@ -805,7 +805,7 @@ class StageTwoReportTest(BaseSoSReportTest):
             self._strip_installed_packages()
             if not self.packages[self.local_distro]:
                 return
-            installed = self.installer.install_distro_packages(self.packages)
+            installed = distro_packages.install_distro_packages(self.packages)
             if not installed:
                 raise("Unable to install requested packages %s"
                       % ', '.join(pkg for pkg in self.packages[self.local_distro]))

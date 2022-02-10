@@ -120,7 +120,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
     # closure are caught in the parent (chroot and chdir are bound from
     # the enclosing scope).
     def _child_prep_fn():
-        if (chroot):
+        if chroot and chroot != '/':
             os.chroot(chroot)
         if (chdir):
             os.chdir(chdir)

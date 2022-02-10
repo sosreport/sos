@@ -118,7 +118,7 @@ report_stageone_task:
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
     unittest_script: PYTHONPATH=. avocado run tests/unittests/
-    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+    main_script: PYTHONPATH=tests/ avocado run --nrunner-max-parallel-tasks 1 -t stageone tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: &faillogs |
             ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
@@ -153,7 +153,7 @@ report_stagetwo_task:
             dnf -y install python3-pexpect
         fi
     setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    main_script: PYTHONPATH=tests/ avocado run --nrunner-max-parallel-tasks 1 -t stagetwo tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: *faillogs
         log_artifacts:
@@ -178,7 +178,7 @@ report_foreman_task:
             FOREMAN_VER: "2.5 - Debian 10"
     remove_sos_script: *remove_sos
     setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t foreman tests/product_tests/foreman/
+    main_script: PYTHONPATH=tests/ avocado run --nrunner-max-parallel-tasks 1 -t foreman tests/product_tests/foreman/
     on_failure:
         fail_script: *faillogs
         log_artifacts:
