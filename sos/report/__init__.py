@@ -532,8 +532,7 @@ class SoSReport(SoSComponent):
             'verbosity': self.opts.verbosity,
             'cmdlineopts': self.opts,
             'devices': self.devices,
-            'namespaces': self.namespaces,
-            'tempfile_util': self.tempfile_util
+            'namespaces': self.namespaces
         }
 
     def get_temp_file(self):
