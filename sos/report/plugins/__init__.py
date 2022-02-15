@@ -2593,7 +2593,7 @@ class Plugin():
         """If a container runtime is present, check to see if a container with
         a given name is currently running
 
-        :param name:    The name of the container to check presence of
+        :param name:    The name or ID of the container to check presence of
         :type name: ``str``
 
         :returns: ``True`` if `name` exists, else ``False``
@@ -2601,8 +2601,8 @@ class Plugin():
         """
         _runtime = self._get_container_runtime()
         if _runtime is not None:
-            con = _runtime.get_container_by_name(name)
-            return con is not None
+            return (_runtime.container_exists(name) or
+                    _runtime.get_container_by_name(name) is not None)
         return False
 
     def get_all_containers_by_regex(self, regex, get_all=False):

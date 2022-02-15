@@ -147,6 +147,23 @@ class ContainerRuntime():
                     vols.append(ent[-1])
         return vols
 
+    def container_exists(self, container):
+        """Check if a given container ID or name exists on the system from the
+        perspective of the container runtime.
+
+        Note that this will only check _running_ containers
+
+        :param container:       The name or ID of the container
+        :type container:        ``str``
+
+        :returns:               True if the container exists, else False
+        :rtype:                 ``bool``
+        """
+        for _contup in self.containers:
+            if container in _contup:
+                return True
+        return False
+
     def fmt_container_cmd(self, container, cmd, quotecmd):
         """Format a command to run inside a container using the runtime
 
