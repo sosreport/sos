@@ -20,7 +20,7 @@ class Host(Plugin, IndependentPlugin):
 
     def setup(self):
 
-        self.add_forbidden_path('/etc/sos/cleaner/default_mapping')
+        self.add_forbidden_path('/etc/sos/cleaner')
 
         self.add_cmd_output('hostname', root_symlink='hostname')
         self.add_cmd_output('uptime', root_symlink='uptime')
