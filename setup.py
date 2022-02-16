@@ -90,7 +90,7 @@ setup(
         ('share/man/man1', ['man/en/sosreport.1', 'man/en/sos-report.1',
                             'man/en/sos.1', 'man/en/sos-collect.1',
                             'man/en/sos-collector.1', 'man/en/sos-clean.1',
-                            'man/en/sos-mask.1']),
+                            'man/en/sos-mask.1', 'man/en/sos-help.1']),
         ('share/man/man5', ['man/en/sos.conf.5']),
         ('share/licenses/sos', ['LICENSE']),
         ('share/doc/sos', ['AUTHORS', 'README.md']),
@@ -102,7 +102,8 @@ setup(
         'sos.policies.package_managers', 'sos.policies.init_systems',
         'sos.report', 'sos.report.plugins', 'sos.collector',
         'sos.collector.clusters', 'sos.collector.transports', 'sos.cleaner',
-        'sos.cleaner.mappings', 'sos.cleaner.parsers', 'sos.cleaner.archives'
+        'sos.cleaner.mappings', 'sos.cleaner.parsers', 'sos.cleaner.archives',
+        'sos.help'
     ],
     cmdclass=cmdclass,
     command_options=command_options,
