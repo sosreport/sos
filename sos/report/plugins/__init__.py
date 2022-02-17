@@ -636,7 +636,10 @@ class Plugin():
             if opt_timeout is None:
                 _timeout = own_timeout
             elif opt_timeout is not None and own_timeout == -1:
-                _timeout = int(opt_timeout)
+                if opt_timeout == TIMEOUT_DEFAULT:
+                    _timeout = default_timeout
+                else:
+                    _timeout = int(opt_timeout)
             elif opt_timeout is not None and own_timeout > -1:
                 _timeout = own_timeout
             else:
