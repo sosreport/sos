@@ -13,6 +13,7 @@ class TimeoutTest(Plugin, IndependentPlugin):
 
     plugin_name = 'timeout_test'
     short_desc = 'Tests timeout functionality in test suite'
+    plugin_timeout = 100
 
 
     def setup(self):
