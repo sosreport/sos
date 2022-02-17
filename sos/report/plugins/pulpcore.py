@@ -91,9 +91,6 @@ class PulpCore(Plugin, IndependentPlugin):
         # skip collecting certificate keys
         self.add_forbidden_path("/etc/pki/pulp/**/*.key", recursive=True)
 
-        self.add_cmd_output("rq info -u redis://localhost:6379/8",
-                            env={"LC_ALL": "en_US.UTF-8"},
-                            suggest_filename="rq_info")
         self.add_cmd_output("curl -ks https://localhost/pulp/api/v3/status/",
                             suggest_filename="pulp_status")
         dynaconf_env = {"LC_ALL": "en_US.UTF-8",
@@ -105,8 +102,6 @@ class PulpCore(Plugin, IndependentPlugin):
 
         task_days = self.get_option('task-days')
         for table in ['core_task', 'core_taskgroup',
-                      'core_reservedresourcerecord',
-                      'core_taskreservedresourcerecord',
                       'core_groupprogressreport', 'core_progressreport']:
             _query = "select * from %s where pulp_last_updated > NOW() - " \
                      "interval '%s days' order by pulp_last_updated" % \
