@@ -275,21 +275,34 @@ class SosNode():
     def _load_sos_info(self):
         """Queries the node for information about the installed version of sos
         """
+        ver = None
+        rel = None
         if self.host.container_version_command is None:
             pkg = self.host.package_manager.pkg_version(self.host.sos_pkg_name)
             if pkg is not None:
                 ver = '.'.join(pkg['version'])
-                self.sos_info['version'] = ver
+                if pkg['release']:
+                    rel = pkg['release']
+
         else:
             # use the containerized policy's command
             pkgs = self.run_command(self.host.container_version_command,
                                     use_container=True, need_root=True)
             if pkgs['status'] == 0:
-                ver = pkgs['output'].strip().split('-')[1]
-                if ver:
-                    self.sos_info['version'] = ver
-            else:
-                self.sos_info['version'] = None
+                _, ver, rel = pkgs['output'].strip().split('-')
+
+        if ver:
+            if len(ver.split('.')) == 2:
+                # safeguard against maintenance releases throwing off the
+                # comparison by LooseVersion
+                ver += '.0'
+            try:
+                ver += '-%s' % rel.split('.')[0]
+            except Exception as err:
+                self.log_debug("Unable to fully parse sos release: %s" % err)
+
+        self.sos_info['version'] = ver
+
         if self.sos_info['version']:
             self.log_info('sos version is %s' % self.sos_info['version'])
         else:
@@ -381,9 +394,37 @@ class SosNode():
         """Checks to see if the sos installation on the node is AT LEAST the
         given ver. This means that if the installed version is greater than
         ver, this will still return True
+
+        :param ver: Version number we are trying to verify is installed
+        :type ver:  ``str``
+
+        :returns:   True if installed version is at least ``ver``, else False
+        :rtype:     ``bool``
         """
-        return self.sos_info['version'] is not None and \
-            LooseVersion(self.sos_info['version']) >= ver
+        def _format_version(ver):
+            # format the version we're checking to a standard form of X.Y.Z-R
+            try:
+                _fver = ver.split('-')[0]
+                _rel = ''
+                if '-' in ver:
+                    _rel = '-' + ver.split('-')[-1].split('.')[0]
+                if len(_fver.split('.')) == 2:
+                    _fver += '.0'
+
+                return _fver + _rel
+            except Exception as err:
+                self.log_debug("Unable to format '%s': %s" % (ver, err))
+                return ver
+
+        _ver = _format_version(ver)
+
+        try:
+            _node_ver = LooseVersion(self.sos_info['version'])
+            _test_ver = LooseVersion(_ver)
+            return _node_ver >= _test_ver
+        except Exception as err:
+            self.log_error("Error checking sos version: %s" % err)
+            return False
 
     def is_installed(self, pkg):
         """Checks if a given package is installed on the node"""
@@ -587,7 +628,8 @@ class SosNode():
                 sos_opts.append('--cmd-timeout=%s'
                                 % quote(str(self.opts.cmd_timeout)))
 
-        if self.check_sos_version('4.3'):
+        # handle downstream versions that backported this option
+        if self.check_sos_version('4.3') or self.check_sos_version('4.2-13'):
             if self.opts.container_runtime != 'auto':
                 sos_opts.append(
                     "--container-runtime=%s" % self.opts.container_runtime
