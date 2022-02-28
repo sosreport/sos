@@ -102,4 +102,17 @@ class RedHatOpenStackAodh(OpenStackAodh, RedHatPlugin):
 
     packages = ('openstack-selinux',)
 
+    def setup(self):
+        super(RedHatOpenStackAodh, self).setup()
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/containers/httpd/aodh-api/*",
+                "/var/log/containers/aodh/*"
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/containers/httpd/aodh-api/*.log",
+                "/var/log/containers/aodh/*.log"
+            ])
+
 # vim: set et ts=4 sw=4 :

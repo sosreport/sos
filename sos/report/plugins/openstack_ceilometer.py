@@ -86,11 +86,11 @@ class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
         super(RedHatCeilometer, self).setup()
         if self.get_option("all_logs"):
             self.add_copy_spec([
-                "/var/log/httpd/ceilometer*",
+                "/var/log/containers/ceilometer/*",
             ])
         else:
             self.add_copy_spec([
-                "/var/log/httpd/ceilometer*.log",
+                "/var/log/containers/ceilometer/*.log",
             ])
 
 # vim: set et ts=4 sw=4 :
