@@ -28,7 +28,9 @@ class Smartcard(Plugin, RedHatPlugin):
             "/etc/reader.conf",
             "/etc/reader.conf.d/",
             "/etc/pam_pkcs11/",
-            "/etc/opensc-*.conf"
+            "/etc/opensc-*.conf",
+            "/etc/pkcs11/modules/*.module",
+            "/usr/share/p11-kit/modules/*.module"
         ])
         self.add_cmd_output([
             "pklogin_finder debug",
