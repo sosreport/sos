@@ -19,7 +19,9 @@ class Smartcard(Plugin, RedHatPlugin):
     profiles = ('security', 'identity', 'hardware')
 
     files = ('/etc/pam_pkcs11/pam_pkcs11.conf',)
-    packages = ('pam_pkcs11', 'pcsc-tools', 'opensc')
+    # The pam_pkcs11 is available only in RHEL7
+    packages = ('pam_pkcs11', 'pcsc-tools', 'opensc', 'pcsc-lite',
+                'pcsc-lite-ccid')
 
     def setup(self):
         self.add_copy_spec([
