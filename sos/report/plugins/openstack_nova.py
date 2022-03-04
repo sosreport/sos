@@ -15,6 +15,7 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+import re
 
 
 class OpenStackNova(Plugin):
@@ -98,6 +99,7 @@ class OpenStackNova(Plugin):
                 "nova-api.log*",
                 "nova-compute.log*",
                 "nova-conductor.log*",
+                "nova-metadata-api.log*",
                 "nova-manage.log*",
                 "nova-placement-api.log*",
                 "nova-scheduler.log*"
@@ -105,42 +107,36 @@ class OpenStackNova(Plugin):
             for novalog in novalogs:
                 self.add_copy_spec(self.path_join(novadir, novalog))
 
-        self.add_copy_spec([
+        pp = ['', '_libvirt', '_metadata', '_placement']
+        sp = [
+            '/etc/nova/',
+            '/etc/my.cnf.d/tripleo.cnf',
+            '/etc/httpd/conf/',
+            '/etc/httpd/conf.d/',
+            '/etc/httpd/conf.modules.d/*.conf'
+        ]
+        # excludes httpd'ish specs in the libvirt path
+        specs = [
             "/etc/nova/",
-            self.var_puppet_gen + "/etc/nova/",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "/var/spool/cron/nova",
-            self.var_puppet_gen + "/etc/httpd/conf/",
-            self.var_puppet_gen + "/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "_placement/etc/nova/",
-            self.var_puppet_gen + "_placement/etc/httpd/conf/",
-            self.var_puppet_gen + "_placement/etc/httpd/conf.d/",
-            self.var_puppet_gen + "_placement/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "_placement/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "/../memcached/etc/sysconfig/memcached",
-            self.var_puppet_gen + "_libvirt/etc/libvirt/",
-            self.var_puppet_gen + "_libvirt/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "_libvirt/etc/nova/",
-            self.var_puppet_gen + "_libvirt/etc/nova/migration/"
             "authorized_keys",
-            self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config",
-        ])
+            self.var_puppet_gen + "/../memcached/etc/sysconfig/memcached",
+            self.var_puppet_gen + "/var/spool/cron/nova",
+            self.var_puppet_gen + "_libvirt/etc/libvirt/",
+            self.var_puppet_gen + "_libvirt/etc/nova/migration/",
+            self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config"
+        ] + list(
+            filter(re.compile('^((?!libvirt.+httpd).)*$').match,
+                   ['%s%s%s' % (
+                       self.var_puppet_gen, p, s) for p in pp for s in sp
+                    ]))
+        self.add_copy_spec(specs)
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/nova/*",
-            regexp, subst
-        )
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "_placement/etc/nova/*",
-            regexp, subst
-        )
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "_libvirt/etc/nova/*",
-            regexp, subst
-        )
+        for p in ['', '_libvirt', '_metadata', '_placement']:
+            self.do_path_regex_sub(
+                "%s%s/etc/nova/*" % (self.var_puppet_gen, p),
+                regexp, subst)
 
     def postproc(self):
         protect_keys = [
@@ -216,12 +212,12 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
         ])
         if self.get_option("all_logs"):
             self.add_copy_spec([
-                "/var/log/httpd/nova_api*",
+                "/var/log/httpd/nova*",
                 "/var/log/httpd/placement*",
             ])
         else:
             self.add_copy_spec([
-                "/var/log/httpd/nova_api*.log",
+                "/var/log/httpd/nova*.log",
                 "/var/log/httpd/placement*.log",
             ])
 
