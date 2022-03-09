@@ -131,6 +131,30 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.mac_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
 
+    def test_mac_parser_with_quotes(self):
+        line = "foobar foo '12:34:56:78:90:AA' bar barfoo"
+        _test = self.mac_parser.parse_line(line)[0]
+        self.assertNotEqual(line, _test)
+        dline = 'foobar foo "aa:12:bb:34:cc:56" bar barfoo'
+        _dtest = self.mac_parser.parse_line(dline)[0]
+        self.assertNotEqual(dline, _dtest)
+
+    def test_mac_parser_with_quotes_ipv6(self):
+        line = "foobar foo 'FF:EE:DD:FF:FE:CC:BB:AA' bar barfoo"
+        _test = self.mac_parser.parse_line(line)[0]
+        self.assertNotEqual(line, _test)
+        dline = 'foobar foo "DD:EE:FF:FF:FE:BB:CC:AA" bar barfoo'
+        _dtest = self.mac_parser.parse_line(dline)[0]
+        self.assertNotEqual(dline, _dtest)
+
+    def test_mac_parser_with_quotes_ipv6_quad(self):
+        line = "foobar foo 'AABB:CCDD:EEFF:FFAA' bar barfoo"
+        _test = self.mac_parser.parse_line(line)[0]
+        self.assertNotEqual(line, _test)
+        dline = 'foobar foo "AAFF:FFEE:DDCC:BBAA" bar barfoo'
+        _dtest = self.mac_parser.parse_line(dline)[0]
+        self.assertNotEqual(dline, _dtest)
+
     def test_hostname_load_hostname_string(self):
         fqdn = 'myhost.subnet.example.com'
         self.host_parser.load_hostname_into_map(fqdn)

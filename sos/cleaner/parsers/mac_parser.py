@@ -14,14 +14,20 @@ from sos.cleaner.mappings.mac_map import SoSMacMap
 import re
 
 # aa:bb:cc:fe:ff:dd:ee:ff
-IPV6_REG_8HEX = (r'((?<!([0-9a-fA-F]:)|::)([^:|-])?([0-9a-fA-F]{2}(:|-)){7}'
-                 r'[0-9a-fA-F]{2}(\s|$))')
+IPV6_REG_8HEX = (
+    r'((?<!([0-9a-fA-F\'\"]:)|::)([^:|-])?([0-9a-fA-F]{2}(:|-)){7}'
+    r'[0-9a-fA-F]{2}(\'|\")?(\s|$))'
+)
 # aabb:ccee:ddee:ffaa
-IPV6_REG_4HEX = (r'((?<!([0-9a-fA-F]:)|::)(([^:\-]?[0-9a-fA-F]{4}(:|-)){3}'
-                 r'[0-9a-fA-F]{4}(\s|$)))')
+IPV6_REG_4HEX = (
+    r'((?<!([0-9a-fA-F\'\"]:)|::)(([^:\-]?[0-9a-fA-F]{4}(:|-)){3}'
+    r'[0-9a-fA-F]{4}(\'|\")?(\s|$)))'
+)
 # aa:bb:cc:dd:ee:ff avoiding ipv6 substring matches
-IPV4_REG = (r'((?<!([0-9a-fA-F]:)|::)(([^:\-])?([0-9a-fA-F]{2}([:-])){5}'
-            r'([0-9a-fA-F]){2}(\s|$)))')
+IPV4_REG = (
+    r'((?<!([0-9a-fA-F\'\"]:)|::)(([^:\-])?([0-9a-fA-F]{2}([:-])){5}'
+    r'([0-9a-fA-F]){2}(\'|\")?(\s|$)))'
+)
 
 
 class SoSMacParser(SoSCleanerParser):
@@ -65,10 +71,10 @@ class SoSMacParser(SoSCleanerParser):
             if matches:
                 count += len(matches)
                 for match in matches:
-                    if match.startswith(self.obfuscated_patterns):
+                    stripped_match = self.reduce_mac_match(match)
+                    if stripped_match.startswith(self.obfuscated_patterns):
                         # avoid double scrubbing
                         continue
-                    stripped_match = self.reduce_mac_match(match)
                     new_match = self.mapping.get(stripped_match)
                     line = line.replace(stripped_match, new_match)
         return line, count
