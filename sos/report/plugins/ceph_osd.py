@@ -73,10 +73,13 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
             # Extract the OSD ids from valid output lines
             for procs in out['output'].splitlines():
                 proc = procs.split()
-                if len(proc) < 6:
-                    continue
-                if proc[4] == '--id' and proc[5].isdigit():
-                    osd_ids.append("osd.%s" % proc[5])
+                # Locate the '--id' value
+                if proc and proc[0].endswith("ceph-osd"):
+                    try:
+                        id_index = proc.index("--id")
+                        osd_ids.append("osd.%s" % proc[id_index+1])
+                    except (IndexError, ValueError):
+                        self.log_warn("could not find ceph-osd id: %s", procs)
 
         try:
             cname = self.get_all_containers_by_regex("ceph-osd*")[0][1]
