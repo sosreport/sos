@@ -79,10 +79,13 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
             # Extract the OSD ids from valid output lines
             for procs in out['output'].splitlines():
                 proc = procs.split()
-                if len(proc) < 6:
-                    continue
-                if proc[4] == '--id' and "ceph-mgr" in proc[0]:
-                    mgr_ids.append("mgr.%s" % proc[5])
+                # Locate the '--id' value
+                if proc and proc[0].endswith("ceph-mgr"):
+                    try:
+                        id_index = proc.index("--id")
+                        mgr_ids.append("mgr.%s" % proc[id_index+1])
+                    except (IndexError, ValueError):
+                        self.log_warn("could not find ceph-mgr id: %s", procs)
 
         # If containerized, run commands in containers
         try:

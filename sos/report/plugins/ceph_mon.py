@@ -49,7 +49,6 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph config log",
             "ceph config generate-minimal-conf",
             "ceph config-key dump",
-            "ceph mon_status",
             "ceph osd metadata",
             "ceph osd erasure-code-profile ls",
             "ceph osd crush show-tunables",
@@ -88,6 +87,26 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_cmd_output([
             "ceph %s --format json-pretty" % s for s in ceph_cmds
+        ], subdir="json_output", tags="insights_ceph_health_detail")
+
+        mon_ids = []
+        # Get the ceph user processes
+        out = self.exec_cmd('ps -u ceph -o args')
+
+        if out['status'] == 0:
+            # Extract the mon ids
+            for procs in out['output'].splitlines():
+                proc = procs.split()
+                # Locate the '--id' value of ceph-mon
+                if proc and proc[0].endswith("ceph-mon"):
+                    try:
+                        id_index = proc.index("--id")
+                        mon_ids.append(proc[id_index+1])
+                    except (IndexError, ValueError):
+                        self.log_warn("could not find ceph-mon id: %s", procs)
+
+        self.add_cmd_output([
+            "ceph tell mon.%s mon_status" % mon_id for mon_id in mon_ids
         ], subdir="json_output", tags="insights_ceph_health_detail")
 
         # these can be cleaned up too but leaving them for safety for now
