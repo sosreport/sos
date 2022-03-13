@@ -377,7 +377,7 @@ support representative.
         from RHCP failures to the public RH dropbox
         """
         try:
-            if self.upload_url.startswith(RH_API_HOST) and \
+            if self.upload_url and self.upload_url.startswith(RH_API_HOST) and\
               (not self.get_upload_user() or not self.get_upload_password()):
                 self.upload_url = RH_SFTP_HOST
             uploaded = super(RHELPolicy, self).upload_archive(archive)
