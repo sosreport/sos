@@ -577,7 +577,10 @@ class LinuxPolicy(Policy):
         :returns:       Filename as it will exist on the SFTP server
         :rtype:         ``str``
         """
-        return self.upload_archive_name.split('/')[-1]
+        fname = self.upload_archive_name.split('/')[-1]
+        if self.upload_directory:
+            fname = os.path.join(self.upload_directory, fname)
+        return fname
 
     def _upload_https_put(self, archive, verify=True):
         """If upload_https() needs to use requests.put(), use this method.
