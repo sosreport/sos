@@ -324,7 +324,9 @@ support representative.
         """
         fname = self.upload_archive_name.split('/')[-1]
         if self.case_id:
-            return "%s_%s" % (self.case_id, fname)
+            fname = "%s_%s" % (self.case_id, fname)
+        if self.upload_directory:
+            fname = os.path.join(self.upload_directory, fname)
         return fname
 
     def upload_sftp(self):
