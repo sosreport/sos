@@ -134,4 +134,17 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             container=cname
         )
 
+    def postproc(self):
+        keys = [
+            'API_PASSWORD',
+            'API_USER.*',
+            'API_.*_KEY',
+            'key',
+            '_secret',
+            'rbd/mirror/peer/.*'
+        ]
+
+        creg = r"((\".*(%s)\":) \")(.*)(\".*)" % "|".join(keys)
+        self.do_cmd_output_sub('ceph config-key dump', creg, r'\1*******\5')
+
 # vim: set et ts=4 sw=4 :
