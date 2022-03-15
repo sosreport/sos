@@ -18,8 +18,13 @@ class Md(Plugin, IndependentPlugin):
 
     def setup(self):
         self.add_cmd_output("mdadm -D /dev/md*")
-        self.add_blockdev_cmd("mdadm -E %(dev)s",
-                              blacklist=['ram.*', 'zram.*'])
+        mdadm_members = self.exec_cmd("lsblk -o NAME,FSTYPE -r")
+        if mdadm_members['status'] == 0:
+            for line in mdadm_members['output'].splitlines():
+                if 'linux_raid_member' in line:
+                    dev = line.split()[0]
+                    self.add_cmd_output('mdadm -E /dev/%s' % dev)
+
         self.add_copy_spec([
             "/etc/mdadm.conf",
             "/dev/md/md-device-map",
