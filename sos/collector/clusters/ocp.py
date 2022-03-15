@@ -123,6 +123,11 @@ class ocp(Cluster):
             if not ret['status'] == 0:
                 self.log_error("Error deleting temporary project: %s"
                                % ret['output'])
+            ret = self.exec_primary_cmd("oc wait namespace/%s --for=delete "
+                                        "--timeout=30s" % self.project)
+            if not ret['status'] == 0:
+                self.log_error("Error waiting for temporary project to be "
+                               "deleted: %s" % ret['output'])
             # don't leave the config on a non-existing project
             self.exec_primary_cmd("oc project default")
             self.project = None
