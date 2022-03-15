@@ -231,5 +231,9 @@ class OCTransport(RemoteTransport):
                 % (self.project, self.pod_name))
 
     def _retrieve_file(self, fname, dest):
-        cmd = self.run_oc("cp %s:%s %s" % (self.pod_name, fname, dest))
+        # check if --retries flag is available for given version of oc
+        result = self.run_oc("cp --retries", stderr=True)
+        flags = '' if "unknown flag" in result["output"] else '--retries=5'
+        cmd = self.run_oc("cp %s %s:%s %s"
+                          % (flags, self.pod_name, fname, dest))
         return cmd['status'] == 0
