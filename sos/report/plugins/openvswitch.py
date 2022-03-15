@@ -124,6 +124,8 @@ class OpenVSwitch(Plugin):
             "ovs-vsctl -t 5 list interface",
             # Capture OVS detailed information from all the bridges
             "ovs-vsctl -t 5 list bridge",
+            # Capture OVS datapath list
+            "ovs-vsctl -t 5 list datapath",
             # Capture DPDK queue to pmd mapping
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
@@ -229,6 +231,7 @@ class OpenVSwitch(Plugin):
                     "ovs-ofctl queue-get-config %s" % br,
                     "ovs-ofctl queue-stats %s" % br,
                     "ovs-ofctl show %s" % br,
+                    "ovs-ofctl dump-groups %s" % br,
                 ])
 
                 # Flow protocols currently supported

@@ -35,6 +35,10 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
             'cluster/status OVN_Southbound'],
             container='ovnkube-master')
         self.add_cmd_output([
+            'ovs-appctl -t /var/run/ovn/ovn-controller.*.ctl ' +
+            'ct-zone-list'],
+            container='ovnkube-node')
+        self.add_cmd_output([
             'ovs-appctl -t ovs-monitor-ipsec tunnels/show',
             'ipsec status',
             'certutil -L -d sql:/etc/ipsec.d'],
