@@ -431,8 +431,9 @@ third party.
 
     def write_map_for_archive(self, _map):
         try:
-            map_path = self.obfuscate_string(
-                os.path.join(self.sys_tmp, "%s-private_map" % self.arc_name)
+            map_path = os.path.join(
+                self.sys_tmp,
+                self.obfuscate_string("%s-private_map" % self.arc_name)
             )
             return self.write_map_to_file(_map, map_path)
         except Exception as err:
