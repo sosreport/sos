@@ -135,6 +135,9 @@ class FileCacheArchive(Archive):
     def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
                  manifest=None):
         self._name = name
+        # truncate the name just relative to the tmpdir in case of full path
+        if os.path.commonprefix([self._name, tmpdir]) == tmpdir:
+            self._name = os.path.relpath(name, tmpdir)
         self._tmp_dir = tmpdir
         self._policy = policy
         self._threads = threads
@@ -652,7 +655,7 @@ class TarFileArchive(FileCacheArchive):
     # this can be used to set permissions if using the
     # tarfile.add() interface to add directory trees.
     def copy_permissions_filter(self, tarinfo):
-        orig_path = tarinfo.name[len(os.path.split(self._name)[-1]):]
+        orig_path = tarinfo.name[len(os.path.split(self._archive_root)[-1]):]
         if not orig_path:
             orig_path = self._archive_root
         try:
@@ -674,7 +677,7 @@ class TarFileArchive(FileCacheArchive):
             return None
 
     def name(self):
-        return "%s.%s" % (self._name, self._suffix)
+        return "%s.%s" % (self._archive_root, self._suffix)
 
     def name_max(self):
         # GNU Tar format supports unlimited file name length. Just return
@@ -696,7 +699,7 @@ class TarFileArchive(FileCacheArchive):
                            **kwargs)
         # we need to pass the absolute path to the archive root but we
         # want the names used in the archive to be relative.
-        tar.add(self._archive_root, arcname=os.path.split(self._name)[1],
+        tar.add(self._archive_root, arcname=self._name,
                 filter=self.copy_permissions_filter)
         tar.close()
         self._suffix += ".%s" % _comp_mode
