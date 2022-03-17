@@ -53,12 +53,19 @@ class Openshift(Plugin, RedHatPlugin):
     profiles = ('openshift',)
     packages = ('openshift-hyperkube',)
 
+    master_localhost_kubeconfig = (
+        '/etc/kubernetes/static-pod-resources/'
+        'kube-apiserver-certs/secrets/node-kubeconfigs/localhost.kubeconfig'
+        )
+
     option_list = [
         PluginOpt('token', default=None, val_type=str,
                   desc='admin token to allow API queries'),
+        PluginOpt('kubeconfig', default=None, val_type=str,
+                  desc='Path to a locally available kubeconfig file'),
         PluginOpt('host', default='https://localhost:6443',
                   desc='host address to use for oc login, including port'),
-        PluginOpt('no-oc', default=False, desc='do not collect `oc` output'),
+        PluginOpt('no-oc', default=True, desc='do not collect `oc` output'),
         PluginOpt('podlogs', default=True, desc='collect logs from each pod'),
         PluginOpt('podlogs-filter', default='', val_type=str,
                   desc='only collect logs from pods matching this pattern'),
@@ -73,6 +80,10 @@ class Openshift(Plugin, RedHatPlugin):
         """Check to see if we can run `oc` commands"""
         return self.exec_cmd('oc whoami')['status'] == 0
 
+    def _check_localhost_kubeconfig(self):
+        """Check if the localhost.kubeconfig exists with system:admin user"""
+        return self.path_exists(self.get_option('kubeconfig'))
+
     def _check_oc_logged_in(self):
         """See if we're logged in to the API service, and if not attempt to do
         so using provided plugin options
@@ -80,8 +91,38 @@ class Openshift(Plugin, RedHatPlugin):
         if self._check_oc_function():
             return True
 
-        # Not logged in currently, attempt to do so
+        if self.get_option('kubeconfig') is None:
+            # If admin doesn't add the kubeconfig
+            # use default localhost.kubeconfig
+            self.set_option(
+                'kubeconfig',
+                self.master_localhost_kubeconfig
+            )
+
+        # Check first if we can use the localhost.kubeconfig before
+        # using token. We don't want to use 'host' option due we use
+        # cluster url from kubeconfig. Default is localhost.
+        if self._check_localhost_kubeconfig():
+            self.set_default_cmd_environment({
+                'KUBECONFIG': self.get_option('kubeconfig')
+            })
+
+            oc_res = self.exec_cmd(
+                "oc login -u system:admin "
+                "--insecure-skip-tls-verify=True"
+            )
+            if oc_res['status'] == 0 and self._check_oc_function():
+                return True
+
+            self._log_warn(
+                "The login command failed with status: %s and error: %s"
+                % (oc_res['status'], oc_res['output'])
+            )
+            return False
+
+        # If kubeconfig is not defined, check if token is provided.
         token = self.get_option('token') or os.getenv('SOSOCPTOKEN', None)
+
         if token:
             oc_res = self.exec_cmd("oc login %s --token=%s "
                                    "--insecure-skip-tls-verify=True"
