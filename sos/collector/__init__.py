@@ -1073,7 +1073,8 @@ class SoSCollector(SoSComponent):
             for node in self.node_list:
                 if host == node.split('.')[0]:
                     self.node_list.remove(node)
-            self.node_list.append(self.hostname)
+            if not self.cluster.strict_node_list:
+                self.node_list.append(self.hostname)
         self.reduce_node_list()
         try:
             _node_max = len(max(self.node_list, key=len))
