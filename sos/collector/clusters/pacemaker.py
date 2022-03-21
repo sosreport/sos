@@ -20,6 +20,7 @@ class pacemaker(Cluster):
     cluster_name = 'Pacemaker High Availability Cluster Manager'
     sos_plugins = ['pacemaker']
     packages = ('pacemaker',)
+    strict_node_list = True
     option_list = [
         ('online', True, 'Collect nodes listed as online'),
         ('offline', True, 'Collect nodes listed as offline'),

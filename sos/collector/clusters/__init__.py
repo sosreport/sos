@@ -57,6 +57,10 @@ class Cluster():
     sos_plugin_options = {}
     sos_preset = ''
     cluster_name = None
+    # set this to True if the local host running collect should *not* be
+    # forcibly added to the node list. This can be helpful in situations where
+    # the host's fqdn and the name the cluster uses are different
+    strict_node_list = False
 
     def __init__(self, commons):
         self.primary = None
