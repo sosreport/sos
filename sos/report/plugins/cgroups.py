@@ -30,6 +30,9 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         ])
 
         self.add_cmd_output("systemd-cgls")
+        self.add_forbidden_path(
+            "/sys/fs/cgroup/memory/**/memory.kmem.slabinfo",
+            recursive=True)
 
         return
 
