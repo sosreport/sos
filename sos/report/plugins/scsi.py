@@ -11,6 +11,17 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Scsi(Plugin, IndependentPlugin):
+    """
+    Collects various information about the SCSI devices install on the host
+    system.
+
+    This plugin will capture a large amount of data from the /sys filesystem,
+    as well as several different invocations of the `lsscsi` command.
+
+    Additionally, several `sg_persist` commands will be collected for each
+    SCSI device identified by sos. Note that in most cases these commands are
+    provided by the `sg3_utils` package which may not be present by default.
+    """
 
     short_desc = 'SCSI devices'
 
@@ -45,5 +56,12 @@ class Scsi(Plugin, IndependentPlugin):
         scsi_hosts = glob("/sys/class/scsi_host/*")
         self.add_blockdev_cmd("udevadm info -a %(dev)s", devices=scsi_hosts,
                               prepend_path='/sys/class/scsi_host')
+
+        self.add_blockdev_cmd([
+            "sg_persist --in -k -d %(dev)s",
+            "sg_persist --in -r -d %(dev)s",
+            "sg_persist --in -s -d %(dev)s",
+            "sg_inq %(dev)s"
+        ], whitelist=['sd.*'])
 
 # vim: set et ts=4 sw=4 :
