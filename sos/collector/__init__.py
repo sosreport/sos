@@ -140,7 +140,7 @@ class SoSCollector(SoSComponent):
         os.umask(0o77)
         self.client_list = []
         self.node_list = []
-        self.primary = False
+        self.primary = None
         self.retrieved = 0
         self.cluster = None
         self.cluster_type = None
@@ -1013,7 +1013,7 @@ class SoSCollector(SoSComponent):
                 self.node_list.remove(i)
         # remove the primary node from the list, since we already have
         # an open session to it.
-        if self.primary:
+        if self.primary is not None:
             for n in self.node_list:
                 if n == self.primary.hostname or n == self.opts.primary:
                     self.node_list.remove(n)
