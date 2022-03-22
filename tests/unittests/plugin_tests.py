@@ -305,6 +305,21 @@ class PluginTests(unittest.TestCase):
         p.postproc()
         self.assertTrue(p.did_postproc)
 
+    def test_set_default_cmd_env(self):
+        p = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions(),
+            'devices': {}
+        })
+        e = {'TORVALDS': 'Linus'}
+        p.set_default_cmd_environment(e)
+        self.assertEquals(p.default_environment, e)
+        add_e = {'GREATESTSPORT': 'hockey'}
+        p.add_default_cmd_environment(add_e)
+        self.assertEquals(p.default_environment['GREATESTSPORT'], 'hockey')
+        self.assertEquals(p.default_environment['TORVALDS'], 'Linus')
+
 
 class AddCopySpecTests(unittest.TestCase):
 

@@ -571,6 +571,7 @@ class Plugin():
         self.manifest = None
         self.skip_files = commons['cmdlineopts'].skip_files
         self.skip_commands = commons['cmdlineopts'].skip_commands
+        self.default_environment = {}
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -623,6 +624,52 @@ class Plugin():
         self.manifest.add_list('files', [])
         self.manifest.add_field('strings', {})
         self.manifest.add_field('containers', {})
+
+    def set_default_cmd_environment(self, env_vars):
+        """
+        Specify a collection of environment variables that should always be
+        passed to commands being executed by this plugin.
+
+        :param env_vars:    The environment variables and their values to set
+        :type env_vars:     ``dict{ENV_VAR_NAME: ENV_VAR_VALUE}``
+        """
+        if not isinstance(env_vars, dict):
+            raise TypeError(
+                "Environment variables for Plugin must be specified by dict"
+            )
+        self.default_environment = env_vars
+        self._log_debug("Default environment for all commands now set to %s"
+                        % self.default_environment)
+
+    def add_default_cmd_environment(self, env_vars):
+        """
+        Add or modify a specific environment variable in the set of default
+        environment variables used by this Plugin.
+
+        :param env_vars:    The environment variables to add to the current
+                            set of env vars in use
+        :type env_vars:     ``dict``
+        """
+        if not isinstance(env_vars, dict):
+            raise TypeError("Environment variables must be added via dict")
+        self._log_debug("Adding %s to default environment" % env_vars)
+        self.default_environment.update(env_vars)
+
+    def _get_cmd_environment(self, env=None):
+        """
+        Get the merged set of environment variables for a command about to be
+        executed by this plugin.
+
+        :returns: The set of env vars to use for a command
+        :rtype: ``dict``
+        """
+        if env is None:
+            return self.default_environment
+        if not isinstance(env, dict):
+            raise TypeError("Command env vars must be passed as dict")
+        _env = self.default_environment.copy()
+        _env.update(env)
+        return _env
 
     def timeout_from_options(self, optname, plugoptname, default_timeout):
         """Returns either the default [plugin|cmd] timeout value, the value as
@@ -2258,6 +2305,8 @@ class Plugin():
 
         _tags = list(set(_tags))
 
+        _env = self._get_cmd_environment(env)
+
         if chroot or self.commons['cmdlineopts'].chroot == 'always':
             root = self.sysroot
         else:
@@ -2282,7 +2331,7 @@ class Plugin():
 
         result = sos_get_command_output(
             cmd, timeout=timeout, stderr=stderr, chroot=root,
-            chdir=runat, env=env, binary=binary, sizelimit=sizelimit,
+            chdir=runat, env=_env, binary=binary, sizelimit=sizelimit,
             poller=self.check_timeout, foreground=foreground,
             to_file=out_file
         )
@@ -2510,6 +2559,8 @@ class Plugin():
         else:
             root = None
 
+        _env = self._get_cmd_environment(env)
+
         if container:
             if self._get_container_runtime() is None:
                 self._log_info("Cannot run cmd '%s' in container %s: no "
@@ -2522,7 +2573,7 @@ class Plugin():
                                "container is running." % (cmd, container))
 
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
-                                      chdir=runat, binary=binary, env=env,
+                                      chdir=runat, binary=binary, env=_env,
                                       foreground=foreground, stderr=stderr)
 
     def _add_container_file_to_manifest(self, container, path, arcpath, tags):
