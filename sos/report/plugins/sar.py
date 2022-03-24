@@ -9,9 +9,34 @@
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
 import re
+import os
+from datetime import datetime as dt
 
 
-class Sar(Plugin,):
+class Sar(Plugin):
+    """
+    The sar plugin is designed to collect system performance data as recorded
+    by sysstat.
+
+    The raw binary data, i.e. the 'saX' files, will be collected and for files
+    a week old or younger, this plugin will capture human-readable conversions
+    of those files provided by the 'sar' command locally available, if the
+    local sysstat installation has not already created a converted copy (e.g.
+    for the current day-of data being collected at the time of report
+    generation).
+
+    Using the 'all_sar' plugin option will not only cause the plugin to capture
+    _all_ 'saX' files present on the host, but further perform the 'sar'
+    conversion on all files, not just those produced within the last week.
+
+    Converted 'sar' files will be written to the sos_commands/sar/, and not
+    to the /var/log/ path that sysstat writes to.
+
+    Note that this conversion is done because it is unlikely that the same
+    version of sysstat that produces the 'saX' files will be the same version
+    available on a given analyst's workstation, and this conversion is version
+    sensitive.
+    """
 
     short_desc = 'System Activity Reporter'
 
@@ -46,7 +71,21 @@ class Sar(Plugin,):
                 sa_data_path = self.path_join(self.sa_path, fname)
                 sar_filename = 'sar' + fname[2:]
                 if sar_filename not in dir_list:
-                    sar_cmd = 'sh -c "sar -A -f %s"' % sa_data_path
+                    # only collect sar output for the last 7 days by default
+                    if not self.get_option('all_sar'):
+                        try:
+                            _ftime = os.stat(sa_data_path).st_mtime
+                            _age = dt.today() - dt.fromtimestamp(_ftime)
+                            if _age.days > 7:
+                                continue
+                        except Exception as err:
+                            self._log_warn(
+                                "Could not determine age of '%s' - skipping "
+                                "converting to sar format: %s"
+                                % (sa_data_path, err)
+                            )
+                            continue
+                    sar_cmd = "sar -A -f %s" % sa_data_path
                     self.add_cmd_output(sar_cmd, sar_filename)
                 sadf_cmd = "sadf -x -- -A %s" % sa_data_path
                 self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
