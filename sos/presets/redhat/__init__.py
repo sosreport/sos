@@ -36,10 +36,15 @@ RHOSP_OPTS = SoSOptions(plugopts=[
 
 RHOCP = "ocp"
 RHOCP_DESC = "OpenShift Container Platform by Red Hat"
-RHOCP_OPTS = SoSOptions(all_logs=True, verify=True, plugopts=[
-                             'networking.timeout=600',
-                             'networking.ethtool_namespaces=False',
-                             'networking.namespaces=200'])
+RHOCP_OPTS = SoSOptions(
+    verify=True, skip_plugins=['cgroups'], container_runtime='crio',
+    no_report=True, log_size=100,
+    plugopts=[
+        'crio.timeout=600',
+        'networking.timeout=600',
+        'networking.ethtool_namespaces=False',
+        'networking.namespaces=200'
+    ])
 
 RH_CFME = "cfme"
 RH_CFME_DESC = "Red Hat CloudForms"
