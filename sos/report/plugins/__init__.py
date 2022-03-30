@@ -13,7 +13,7 @@
 from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable, TIMEOUT_DEFAULT,
                            path_exists, path_isdir, path_isfile, path_islink,
-                           listdir, path_join, bold)
+                           listdir, path_join, bold, file_is_binary)
 
 from sos.archive import P_FILE
 import os
@@ -64,16 +64,6 @@ def _node_type(st):
     for t in _types:
         if t[0](st.st_mode):
             return t[1]
-
-
-def _file_is_compressed(path):
-    """Check if a file appears to be compressed
-
-    Return True if the file specified by path appears to be compressed,
-    or False otherwise by testing the file name extension against a
-    list of known file compression extentions.
-    """
-    return path.endswith(('.gz', '.xz', '.bz', '.bz2'))
 
 
 _certmatch = re.compile("-*BEGIN.*?-*END", re.DOTALL)
@@ -1820,7 +1810,7 @@ class Plugin():
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
 
-                    if tailit and not _file_is_compressed(_file):
+                    if tailit and not file_is_binary(_file):
                         self._log_info("collecting tail of '%s' due to size "
                                        "limit" % _file)
                         file_name = _file
