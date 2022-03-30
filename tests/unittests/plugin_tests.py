@@ -9,6 +9,7 @@ import unittest
 import os
 import tempfile
 import shutil
+import random
 
 from io import StringIO
 
@@ -16,6 +17,7 @@ from sos.report.plugins import Plugin, regex_findall, _mangle_command, PluginOpt
 from sos.archive import TarFileArchive
 from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
+from string import ascii_lowercase
 
 PATH = os.path.dirname(__file__)
 
@@ -25,8 +27,10 @@ def j(filename):
 
 
 def create_file(size, dir=None):
-    f = tempfile.NamedTemporaryFile(delete=False, dir=dir)
-    f.write(b"*" * size * 1024 * 1024)
+    f = tempfile.NamedTemporaryFile(delete=False, dir=dir, mode='w')
+    fsize = size * 1024 * 1024
+    content = ''.join(random.choice(ascii_lowercase) for x in range(fsize))
+    f.write(content)
     f.flush()
     f.close()
     return f.name
