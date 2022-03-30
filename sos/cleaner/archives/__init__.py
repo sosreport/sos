@@ -16,6 +16,7 @@ import tarfile
 import re
 
 from concurrent.futures import ProcessPoolExecutor
+from sos.utilities import file_is_binary
 
 
 # python older than 3.8 will hit a pickling error when we go to spawn a new
@@ -351,14 +352,14 @@ class SoSObfuscationArchive():
         :rtype:     ``bool``
         """
         obvious_removes = [
-            r'.*\.gz',  # TODO: support flat gz/xz extraction
-            r'.*\.xz',
-            r'.*\.bzip2',
+            r'.*\.gz$',  # TODO: support flat gz/xz extraction
+            r'.*\.xz$',
+            r'.*\.bzip2$',
             r'.*\.tar\..*',  # TODO: support archive unpacking
             r'.*\.txz$',
             r'.*\.tgz$',
-            r'.*\.bin',
-            r'.*\.journal',
+            r'.*\.bin$',
+            r'.*\.journal$',
             r'.*\~$'
         ]
 
@@ -368,28 +369,10 @@ class SoSObfuscationArchive():
             if re.match(_arc_reg, fname):
                 return True
 
-        if os.path.isfile(self.get_file_path(fname)):
-            return self.file_is_binary(fname)
+        _full_path = self.get_file_path(fname)
+        if os.path.isfile(_full_path):
+            return file_is_binary(_full_path)
         # don't fail on dir-level symlinks
         return False
-
-    def file_is_binary(self, fname):
-        """Determine if the file is a binary file or not.
-
-
-        :param fname:          Filename relative to the extracted archive root
-        :type fname:           ``str``
-
-        :returns:   ``True`` if file is binary, else ``False``
-        :rtype:     ``bool``
-        """
-        with open(self.get_file_path(fname), 'tr') as tfile:
-            try:
-                # when opened as above (tr), reading binary content will raise
-                # an exception
-                tfile.read(1)
-                return False
-            except UnicodeDecodeError:
-                return True
 
 # vim: set et ts=4 sw=4 :

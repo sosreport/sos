@@ -16,6 +16,7 @@ Requires: python3-rpm
 Requires: tar
 Requires: xz
 Requires: python3-pexpect
+Requires: python3-magic
 Obsoletes: sos-collector <= 1.9
 
 %description

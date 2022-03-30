@@ -107,7 +107,7 @@ setup(
     ],
     cmdclass=cmdclass,
     command_options=command_options,
-    requires=['pexpect']
+    requires=['pexpect', 'python_magic']
     )
 
 

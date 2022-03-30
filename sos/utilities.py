@@ -19,6 +19,7 @@ import tempfile
 import threading
 import time
 import io
+import magic
 
 from contextlib import closing
 from collections import deque
@@ -60,6 +61,31 @@ def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
         return '%.1fK' % (fn / K)
     else:
         return '%d' % bytes_
+
+
+def file_is_binary(fname):
+    """Helper to determine if a given file contains binary content or not.
+
+    This is especially helpful for `sos clean`, which cannot obfuscate binary
+    data and instead, by default, will remove binary files.
+
+    :param fname:   The full path of the file to check binaryness of
+    :type fname:    ``str``
+
+    :returns:   True if binary, else False
+    :rtype:     ``bool``
+    """
+    try:
+        _ftup = magic.detect_from_filename(fname)
+        _mimes = ['text/', 'inode/']
+        return (
+            _ftup.encoding == 'binary' and not
+            any(_ftup.mime_type.startswith(_mt) for _mt in _mimes)
+        )
+    except Exception:
+        # if for some reason this check fails, don't blindly remove all files
+        # but instead rely on other checks done by the component
+        return False
 
 
 def find(file_pattern, top_dir, max_depth=None, path_pattern=None):

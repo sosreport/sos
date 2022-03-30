@@ -60,7 +60,8 @@ py_break_task:
             PY_VERSION: "latest"
         - env:
             PY_VERSION: "3.9"
-    setup_script: pip install -r requirements.txt
+    # This image has 2 py environments. Install to the one sos uses.
+    setup_script: pip3 install -t /usr/lib/python3/dist-packages -r requirements.txt
     main_script: ./bin/sos report --batch
 
 # Make sure a user can manually build an rpm from the checkout
@@ -120,7 +121,7 @@ report_stageone_task:
             dnf -y remove sos
             dnf -y install python3-pip ethtool
         fi
-    setup_script: &setup 'pip3 install avocado-framework==94.0'
+    setup_script: &setup 'pip3 install avocado-framework==94.0 python-magic'
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
     unittest_script: PYTHONPATH=. avocado run tests/unittests/
