@@ -40,7 +40,6 @@ class RedHatPolicy(LinuxPolicy):
         ('Distribution Website', 'https://www.redhat.com/'),
         ('Commercial Support', 'https://www.access.redhat.com/')
     ]
-    _redhat_release = '/etc/redhat-release'
     _tmp_dir = "/var/tmp"
     _in_container = False
     default_scl_prefix = '/opt/rh'
@@ -471,7 +470,7 @@ support representative.
         atomic = False
         if ENV_HOST_SYSROOT not in os.environ:
             return atomic
-        host_release = os.environ[ENV_HOST_SYSROOT] + cls._redhat_release
+        host_release = os.environ[ENV_HOST_SYSROOT] + OS_RELEASE
         if not os.path.exists(host_release):
             return False
         try:
@@ -558,7 +557,7 @@ support representative.
         coreos = False
         if ENV_HOST_SYSROOT not in os.environ:
             return coreos
-        host_release = os.environ[ENV_HOST_SYSROOT] + cls._redhat_release
+        host_release = os.environ[ENV_HOST_SYSROOT] + OS_RELEASE
         try:
             for line in open(host_release, 'r').read().splitlines():
                 coreos |= 'Red Hat Enterprise Linux CoreOS' in line
