@@ -244,15 +244,23 @@ class Foreman(Plugin):
             self.add_cmd_output(_cmd, suggest_filename=table, timeout=600,
                                 sizelimit=100, env=self.env)
 
+        # dynflow* tables on dynflow >=1.6.3 are encoded and hence in that
+        # case, psql-msgpack-decode wrapper tool from dynflow-utils (any
+        # version) must be used instead of plain psql command
+        dynutils = self.is_installed('dynflow-utils')
         for dyn in foremancsv:
-            _cmd = self.build_query_cmd(foremancsv[dyn], csv=True)
+            binary = "psql"
+            if dyn != 'foreman_tasks_tasks' and dynutils:
+                binary = "/usr/libexec/psql-msgpack-decode"
+            _cmd = self.build_query_cmd(foremancsv[dyn], csv=True,
+                                        binary=binary)
             self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
                                 sizelimit=100, env=self.env)
 
         # collect http[|s]_proxy env.variables
         self.add_env_var(["http_proxy", "https_proxy"])
 
-    def build_query_cmd(self, query, csv=False):
+    def build_query_cmd(self, query, csv=False, binary="psql"):
         """
         Builds the command needed to invoke the pgsql query as the postgres
         user.
@@ -260,10 +268,11 @@ class Foreman(Plugin):
         shell and postgres parsing requirements. Note that this will generate
         a large amount of quoting in sos logs referencing the command being run
         """
-        csvformat = "-A -F , -X" if csv else ""
-        _dbcmd = "psql --no-password -h %s -p 5432 -U foreman -d foreman %s \
-                  -c %s"
-        return _dbcmd % (self.dbhost, csvformat, quote(query))
+        if csv:
+            query = "COPY (%s) TO STDOUT " \
+                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
+        _dbcmd = "%s --no-password -h %s -p 5432 -U foreman -d foreman -c %s"
+        return _dbcmd % (binary, self.dbhost, quote(query))
 
     def postproc(self):
         satreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
