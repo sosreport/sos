@@ -99,6 +99,13 @@ class Candlepin(Plugin, RedHatPlugin):
         self.add_cmd_output(_cmd, suggest_filename='candlepin_db_tables_sizes',
                             env=self.env)
 
+        _cmd = self.build_query_cmd("\
+            SELECT displayname, content_access_mode \
+            FROM cp_owner;")
+        self.add_cmd_output(_cmd,
+                            suggest_filename='simple_content_access',
+                            env=self.env)
+
     def build_query_cmd(self, query, csv=False):
         """
         Builds the command needed to invoke the pgsql query as the postgres
