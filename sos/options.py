@@ -18,6 +18,16 @@ def _is_seq(val):
     return val_type is list or val_type is tuple
 
 
+def str_to_bool(val):
+    _val = val.lower()
+    if _val in ['true', 'on', 'yes']:
+        return True
+    elif _val in ['false', 'off', 'no']:
+        return False
+    else:
+        return None
+
+
 class SoSOptions():
 
     def _merge_opt(self, opt, src, is_default):
@@ -153,15 +163,13 @@ class SoSOptions():
         if isinstance(self.arg_defaults[key], list):
             return [v for v in val.split(',')]
         if isinstance(self.arg_defaults[key], bool):
-            _val = val.lower()
-            if _val in ['true', 'on', 'yes']:
-                return True
-            elif _val in ['false', 'off', 'no']:
-                return False
-            else:
+            val = str_to_bool(val)
+            if val is None:
                 raise Exception(
                     "Value of '%s' in %s must be True or False or analagous"
                     % (key, conf))
+            else:
+                return val
         if isinstance(self.arg_defaults[key], int):
             try:
                 return int(val)

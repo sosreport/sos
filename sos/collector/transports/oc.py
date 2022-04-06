@@ -147,6 +147,8 @@ class OCTransport(RemoteTransport):
                         "tty": True
                     }
                 ],
+                "imagePullPolicy":
+                    "Always" if self.opts.force_pull_image else "IfNotPresent",
                 "restartPolicy": "Never",
                 "nodeName": self.address,
                 "hostNetwork": True,
