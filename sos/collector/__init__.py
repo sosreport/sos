@@ -27,7 +27,7 @@ from pipes import quote
 from textwrap import fill
 from sos.cleaner import SoSCleaner
 from sos.collector.sosnode import SosNode
-from sos.options import ClusterOption
+from sos.options import ClusterOption, str_to_bool
 from sos.component import SoSComponent
 from sos.utilities import bold
 from sos import __version__
@@ -85,7 +85,7 @@ class SoSCollector(SoSComponent):
         'encrypt_pass': '',
         'group': None,
         'image': '',
-        'force_pull_image': False,
+        'force_pull_image': True,
         'jobs': 4,
         'keywords': [],
         'keyword_file': None,
@@ -357,8 +357,9 @@ class SoSCollector(SoSComponent):
         collect_grp.add_argument('--image',
                                  help=('Specify the container image to use for'
                                        ' containerized hosts.'))
-        collect_grp.add_argument('--force-pull-image', '--pull', default=False,
-                                 action='store_true',
+        collect_grp.add_argument('--force-pull-image', '--pull',
+                                 default=True, choices=(True, False),
+                                 type=str_to_bool,
                                  help='Force pull the container image even if '
                                       'it already exists on the host')
         collect_grp.add_argument('--registry-user', default=None,

@@ -28,7 +28,7 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-no\-local]
     [\-\-primary PRIMARY]
     [\-\-image IMAGE]
-    [\-\-force-pull-image]
+    [\-\-force-pull-image TOGGLE, --pull TOGGLE]
     [\-\-registry-user USER]
     [\-\-registry-password PASSWORD]
     [\-\-registry-authfile FILE]
@@ -262,10 +262,16 @@ Specify an image to use for the temporary container created for collections on
 containerized host, if you do not want to use the default image specifed by the
 host's policy. Note that this should include the registry.
 .TP
-\fB\-\-force-pull-image\fR
-Use this option to force the container runtime to pull the specified image (even
-if it is the policy default image) even if the image already exists on the host.
-This may be useful to update an older container image on containerized hosts.
+\fB\-\-force-pull-image TOGGLE, \-\-pull TOGGLE\fR
+When collecting an sos report from a containerized host, force the host to always
+pull the specified image, even if that image already exists on the host.
+This is useful to ensure that the latest version of that image is always in use.
+Disabling this option will use whatever version of the image is present on the node,
+and only attempt a pull if there is no copy of the image present at all.
+
+Enable with true/on/yes or disable with false/off/no
+
+Default: true
 .TP
 \fB\-\-registry-user USER\fR
 Specify the username to authenticate to the registry with in order to pull the container
