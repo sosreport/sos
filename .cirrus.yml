@@ -11,7 +11,8 @@ env:
     UBUNTU_NAME: "ubuntu-20.04"
     UBUNTU_PRIOR_NAME: "ubuntu-18.04"
 
-    CENTOS_NAME: "centos-stream-8"
+    CENTOS_9_NAME: "centos-stream-9"
+    CENTOS_8_NAME: "centos-stream-8"
 
     CENTOS_PROJECT: "centos-cloud"
     SOS_PROJECT: "sos-devel-jobs"
@@ -24,7 +25,8 @@ env:
     FOREMAN_DEBIAN_IMAGE_NAME: "foreman-25-debian-10-sos-testing"
 
     # Images exist on GCP already
-    CENTOS_IMAGE_NAME: "centos-stream-8-v20210609"
+    CENTOS_9_IMAGE_NAME: "centos-stream-9-v20220317"
+    CENTOS_8_IMAGE_NAME: "centos-stream-8-v20220317"
     UBUNTU_IMAGE_NAME: "ubuntu-2004-focal-v20201111"
     UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-1804-bionic-v20201111"
 
@@ -86,8 +88,12 @@ report_stageone_task:
     matrix:
         - env:
             PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_NAME}
-            VM_IMAGE_NAME: ${CENTOS_IMAGE_NAME}
+            BUILD_NAME: ${CENTOS_9_NAME}
+            VM_IMAGE_NAME: ${CENTOS_9_IMAGE_NAME}
+        - env:
+            PROJECT: ${CENTOS_PROJECT}
+            BUILD_NAME: ${CENTOS_8_NAME}
+            VM_IMAGE_NAME: ${CENTOS_8_IMAGE_NAME}
         - env:
             PROJECT: ${SOS_PROJECT}
             BUILD_NAME: ${FEDORA_NAME}
@@ -134,8 +140,12 @@ report_stagetwo_task:
     matrix:
         - env:
             PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_NAME}
-            VM_IMAGE_NAME: ${CENTOS_IMAGE_NAME}
+            BUILD_NAME: ${CENTOS_9_NAME}
+            VM_IMAGE_NAME: ${CENTOS_9_IMAGE_NAME}
+        - env:
+            PROJECT: ${CENTOS_PROJECT}
+            BUILD_NAME: ${CENTOS_8_NAME}
+            VM_IMAGE_NAME: ${CENTOS_8_IMAGE_NAME}
         - env:
             PROJECT: ${SOS_PROJECT}
             BUILD_NAME: ${FEDORA_NAME}
