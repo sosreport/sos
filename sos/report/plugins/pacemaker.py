@@ -70,15 +70,16 @@ class Pacemaker(Plugin):
     def setup(self):
         self.add_copy_spec([
             # Pacemaker 2.x default log locations
-            "/var/log/pacemaker/pacemaker.log",
+            "/var/log/pacemaker/pacemaker.log*",
             "/var/log/pacemaker/bundles/*/",
+            "/var/log/pacemaker/pengine*",
 
             # Pacemaker 1.x default log locations
             "/var/log/pacemaker.log",
             "/var/log/pacemaker/bundles/*/",
 
             # Common user-specified locations
-            "/var/log/cluster/pacemaker.log",
+            "/var/log/cluster/pacemaker.log*",
             "/var/log/cluster/bundles/*/",
         ])
 
