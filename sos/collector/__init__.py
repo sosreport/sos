@@ -80,6 +80,7 @@ class SoSCollector(SoSComponent):
         'cluster_type': None,
         'container_runtime': 'auto',
         'domains': [],
+        'disable_parsers': [],
         'enable_plugins': [],
         'encrypt_key': '',
         'encrypt_pass': '',
@@ -451,6 +452,10 @@ class SoSCollector(SoSComponent):
         cleaner_grp.add_argument('--domains', dest='domains', default=[],
                                  action='extend',
                                  help='Additional domain names to obfuscate')
+        cleaner_grp.add_argument('--disable-parsers', action='extend',
+                                 default=[], dest='disable_parsers',
+                                 help=('Disable specific parsers, so that '
+                                       'those elements are not obfuscated'))
         cleaner_grp.add_argument('--keywords', action='extend', default=[],
                                  dest='keywords',
                                  help='List of keywords to obfuscate')

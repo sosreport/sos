@@ -86,6 +86,7 @@ class SoSReport(SoSComponent):
         'keep_binary_files': False,
         'desc': '',
         'domains': [],
+        'disable_parsers': [],
         'dry_run': False,
         'estimate_only': False,
         'experimental': False,
@@ -346,6 +347,10 @@ class SoSReport(SoSComponent):
         cleaner_grp.add_argument('--domains', dest='domains', default=[],
                                  action='extend',
                                  help='Additional domain names to obfuscate')
+        cleaner_grp.add_argument('--disable-parsers', action='extend',
+                                 default=[], dest='disable_parsers',
+                                 help=('Disable specific parsers, so that '
+                                       'those elements are not obfuscated'))
         cleaner_grp.add_argument('--keywords', action='extend', default=[],
                                  dest='keywords',
                                  help='List of keywords to obfuscate')

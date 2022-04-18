@@ -4,6 +4,7 @@ sos clean - Obfuscate sensitive data from one or more sosreports
 .SH SYNOPSIS
 .B sos clean TARGET [options]
     [\-\-domains]
+    [\-\-disable-parsers]
     [\-\-keywords]
     [\-\-keyword-file]
     [\-\-map-file]
@@ -50,6 +51,17 @@ match a domain given via this option will also be obfuscated.
 
 For example, if \fB\-\-domains redhat.com\fR is specified, then 'redhat.com' will
 be obfuscated, as will 'www.redhat.com' and subdomains such as 'foo.redhat.com'.
+.TP
+.B \-\-disable-parsers PARSERS
+Provide a comma-delimited list of parsers to disable when cleaning an archive. By
+default all parsers are enabled.
+
+Note that using this option is very likely to leave sensitive information in place in
+the target archive, so only use this option when absolutely necessary or you have complete
+trust in the party/parties that may handle the generated report.
+
+Valid values for this option are currently: \fBhostname\fR, \fBip\fR, \fBmac\fR, \fBkeyword\fR,
+and \fBusername\fR.
 .TP
 .B \-\-keywords KEYWORDS
 Provide a comma-delimited list of keywords to scrub in addition to the default parsers.
