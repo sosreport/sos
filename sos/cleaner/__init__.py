@@ -76,6 +76,7 @@ class SoSCleaner(SoSComponent):
     arg_defaults = {
         'archive_type': 'auto',
         'domains': [],
+        'disable_parsers': [],
         'jobs': 4,
         'keywords': [],
         'keyword_file': None,
@@ -126,6 +127,18 @@ class SoSCleaner(SoSComponent):
                              self.opts.keyword_file),
             SoSUsernameParser(self.cleaner_mapping, self.opts.usernames)
         ]
+
+        for _parser in self.opts.disable_parsers:
+            for _loaded in self.parsers:
+                _loaded_name = _loaded.name.lower().split('parser')[0].strip()
+                if _parser.lower().strip() == _loaded_name:
+                    self.log_info("Disabling parser: %s" % _loaded_name)
+                    self.ui_log.warn(
+                        "Disabling the '%s' parser. Be aware that this may "
+                        "leave sensitive plain-text data in the archive."
+                        % _parser
+                    )
+                    self.parsers.remove(_loaded)
 
         self.archive_types = [
             SoSReportDirectory,
@@ -239,6 +252,10 @@ third party.
                                      'was generated as'))
         clean_grp.add_argument('--domains', action='extend', default=[],
                                help='List of domain names to obfuscate')
+        clean_grp.add_argument('--disable-parsers', action='extend',
+                               default=[], dest='disable_parsers',
+                               help=('Disable specific parsers, so that those '
+                                     'elements are not obfuscated'))
         clean_grp.add_argument('-j', '--jobs', default=4, type=int,
                                help='Number of concurrent archives to clean')
         clean_grp.add_argument('--keywords', action='extend', default=[],
