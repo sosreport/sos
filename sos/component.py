@@ -18,6 +18,7 @@ import time
 
 from argparse import SUPPRESS
 from datetime import datetime
+from getpass import getpass
 from shutil import rmtree
 from pathlib import Path
 from sos import __version__
@@ -58,6 +59,7 @@ class SoSComponent():
         "compression_type": 'auto',
         "config_file": '/etc/sos/sos.conf',
         "debug": False,
+        "encrypt": False,
         "encrypt_key": None,
         "encrypt_pass": None,
         "quiet": False,
@@ -266,7 +268,45 @@ class SoSComponent():
             print("Failed to finish cleanup: %s\nContents may remain in %s"
                   % (err, self.tmpdir))
 
+    def _set_encrypt_from_env_vars(self):
+        msg = ('No encryption environment variables set, archive will not be '
+               'encrypted')
+        if os.environ.get('SOSENCRYPTKEY'):
+            self.opts.encrypt_key = os.environ.get('SOSENCRYPTKEY')
+            msg = 'Encryption key set via environment variable'
+        elif os.environ.get('SOSENCRYPTPASS'):
+            self.opts.encrypt_pass = os.environ.get('SOSENCRYPTPASS')
+            msg = 'Encryption passphrase set via environment variable'
+        self.soslog.info(msg)
+        self.ui_log.info(msg)
+
+    def _get_encryption_method(self):
+        if not self.opts.batch:
+            _enc = None
+            while _enc not in ('P', 'K', 'E', 'N'):
+                _enc = input((
+                    'Specify encryption method [P]assphrase, [K]ey, [E]nv '
+                    'vars, [N]o encryption: '
+                )).upper()
+            if _enc == 'P':
+                self.opts.encrypt_pass = getpass('Specify encryption '
+                                                 'passphrase: ')
+            elif _enc == 'K':
+                self.opts.encrypt_key = input('Specify encryption key: ')
+            elif _enc == 'E':
+                self._set_encrypt_from_env_vars()
+            else:
+                self.opts.encrypt_key = None
+                self.opts.encrypt_pass = None
+                self.soslog.info("User specified --encrypt, but chose no "
+                                 "encryption when prompted.")
+                self.ui_log.warn("Archive will not be encrypted")
+        else:
+            self._set_encrypt_from_env_vars()
+
     def setup_archive(self, name=''):
+        if self.opts.encrypt:
+            self._get_encryption_method()
         enc_opts = {
             'encrypt': True if (self.opts.encrypt_pass or
                                 self.opts.encrypt_key) else False,

@@ -33,6 +33,7 @@ sos report \- Collect and package diagnostic and support data
           [--skip-files files]\fR
           [--allow-system-changes]\fR
           [-z|--compression-type method]\fR
+          [--encrypt]\fR
           [--encrypt-key KEY]\fR
           [--encrypt-pass PASS]\fR
           [--upload] [--upload-url url] [--upload-user user]\fR
@@ -221,6 +222,26 @@ Run commands even if they can change the system (e.g. load kernel modules).
 .TP
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.
+.TP
+.B \-\-encrypt
+Encrypt the resulting archive, and determine the method by which that encryption
+is done by either a user prompt or environment variables.
+
+When run with \fB--batch\fR, using this option will cause sos to look for either the
+\fBSOSENCRYPTKEY\fR or \fBSOSENCRYPTPASS\fR environment variables. If set, this will
+implicitly enable the \fB--encrypt-key\fR or \fB--encrypt-pass\fR options, respectively,
+to the values set by the environment variable. This enables the use of these options
+without directly setting those options in a config file or command line string. Note that
+use of an encryption key has precedence over a passphrase.
+
+Otherwise, using this option will cause sos to prompt the user to choose the method
+of encryption to use. Choices will be [P]assphrase, [K]ey, [E]nv vars, or [N]o encryption.
+If passphrase or key the user will then be prompted for the respective value, env vars will
+cause sos to source the information in the manner stated above, and choosing no encryption
+will disable encryption.
+
+See the sections on \fB--encrypt-key\fR and \fB--encrypt-pass\fR below for more
+information.
 .TP
 .B \--encrypt-key KEY
 Encrypts the resulting archive that sosreport produces using GPG. KEY must be

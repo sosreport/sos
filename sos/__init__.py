@@ -159,6 +159,11 @@ class SoS():
 
         # Group to make tarball encryption (via GPG/password) exclusive
         encrypt_grp = global_grp.add_mutually_exclusive_group()
+        encrypt_grp.add_argument("--encrypt", default=False,
+                                 action="store_true",
+                                 help=("Encrypt the archive, either prompting "
+                                       "for a password/key or referencing "
+                                       "an environment variable"))
         encrypt_grp.add_argument("--encrypt-key",
                                  help="Encrypt the archive using a GPG "
                                       "key-pair")
