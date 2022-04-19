@@ -39,6 +39,14 @@ class Scsi(Plugin, IndependentPlugin):
             "/sys/class/scsi_generic"
         ])
 
+        scsi_types = ["enclosu"]
+        result = self.collect_cmd_output('lsscsi -g')
+        if result['status'] == 0:
+            for line in result['output'].splitlines():
+                if (line.split()[1] in scsi_types):
+                    devsg = line.split()[-1]
+                    self.add_cmd_output("sg_ses -p2 -b1 %s" % devsg)
+
         self.add_cmd_output("lsscsi -i", suggest_filename="lsscsi")
 
         self.add_cmd_output([
@@ -47,7 +55,6 @@ class Scsi(Plugin, IndependentPlugin):
             "lsmap -all",
             "lsnports",
             "lsscsi -H",
-            "lsscsi -g",
             "lsscsi -d",
             "lsscsi -s",
             "lsscsi -L"
