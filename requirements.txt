@@ -3,3 +3,4 @@ coverage>=4.0.3
 Sphinx>=1.3.5
 pexpect>=4.0.0
 python_magic>=0.4.20
+pyyaml

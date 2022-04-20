@@ -121,7 +121,7 @@ report_stageone_task:
             dnf -y remove sos
             dnf -y install python3-pip ethtool
         fi
-    setup_script: &setup 'pip3 install avocado-framework==94.0 python-magic'
+    setup_script: &setup 'pip3 install avocado-framework==94.0 python-magic pyyaml'
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
     unittest_script: PYTHONPATH=. avocado run tests/unittests/
