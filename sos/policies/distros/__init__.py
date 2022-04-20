@@ -218,13 +218,15 @@ class LinuxPolicy(Policy):
         if ENV_CONTAINER in os.environ:
             if os.environ[ENV_CONTAINER] in ['docker', 'oci', 'podman']:
                 self._in_container = True
-        if ENV_HOST_SYSROOT in os.environ:
-            _host_sysroot = os.environ[ENV_HOST_SYSROOT]
-        use_sysroot = self._in_container and _host_sysroot is not None
-        if use_sysroot:
-            host_tmp_dir = os.path.abspath(_host_sysroot + self._tmp_dir)
-            self._tmp_dir = host_tmp_dir
-        return _host_sysroot if use_sysroot else None
+                if ENV_HOST_SYSROOT in os.environ:
+                    if not os.environ[ENV_HOST_SYSROOT]:
+                        # guard against blank/improperly unset values
+                        return None
+                    self._tmp_dir = os.path.abspath(
+                        os.environ[ENV_HOST_SYSROOT] + self._tmp_dir
+                    )
+                    return os.environ[ENV_HOST_SYSROOT]
+        return None
 
     def init_kernel_modules(self):
         """Obtain a list of loaded kernel modules to reference later for plugin
