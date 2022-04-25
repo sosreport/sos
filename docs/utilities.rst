@@ -2,7 +2,6 @@
 ========================================
 
 .. automodule:: sos.utilities
-    :noindex:
     :members:
     :undoc-members:
     :show-inheritance:
