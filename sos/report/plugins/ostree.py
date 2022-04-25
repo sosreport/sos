@@ -27,4 +27,11 @@ class OSTree(Plugin, IndependentPlugin):
         if self.get_option("verify"):
             self.add_cmd_output("ostree fsck")
 
+        units = [
+            'ostree-finalize-staged',
+            'ostree-boot-complete',
+        ]
+        for unit in units:
+            self.add_journal(unit)
+
 # vim: set et ts=4 sw=4 :
