@@ -2,7 +2,6 @@
 ================================================
 
 .. automodule:: sos.report.reporting
-    :noindex:
     :members:
     :undoc-members:
     :show-inheritance:
