@@ -270,9 +270,9 @@ any third party.
         :param plugin_classes: The classes that the Plugin subclasses
         :type plugin_classes: ``list``
 
-        :returns: The first subclass that matches one of the Policy's
+        :returns: The first tagging class that matches one of the Policy's
                   `valid_subclasses`
-        :rtype: A tagging class for Plugins
+        :rtype: ``PluginDistroTag``
         """
         if len(plugin_classes) > 1:
             for p in plugin_classes:
@@ -288,7 +288,7 @@ any third party.
         Verifies that the plugin_class should execute under this policy
 
         :param plugin_class: The tagging class being checked
-        :type plugin_class: A Plugin() tagging class
+        :type plugin_class: ``PluginDistroTag``
 
         :returns: ``True`` if the `plugin_class` is allowed by the policy
         :rtype: ``bool``

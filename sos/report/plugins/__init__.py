@@ -662,9 +662,27 @@ class Plugin():
         return _env
 
     def timeout_from_options(self, optname, plugoptname, default_timeout):
-        """Returns either the default [plugin|cmd] timeout value, the value as
-        provided on the commandline via -k plugin.[|cmd-]timeout=value, or the
-        value of the global --[plugin|cmd]-timeout option.
+        """
+        Get the timeout value for either the plugin or a command, as
+        determined by either the value provided via the
+        plugin.timeout or plugin.cmd-timeout option, the global timeout or
+        cmd-timeout options, or the default value set by the plugin or the
+        collection, in that order of precendence.
+
+        :param optname: The name of the cmdline option being checked, either
+                        'plugin_timeout' or 'timeout'
+        :type optname:  ``str``
+
+        :param plugoptname: The name of the plugin option name being checked,
+                            either 'timeout' or 'cmd-timeout'
+        :type plugoptname: ``str``
+
+        :param default_timeout: The timeout to default to if determination is
+                                inconclusive or hits an error
+        :type default_timeout:  ``int``
+
+        :returns: The timeout value in seconds
+        :rtype:   ``int``
         """
         _timeout = None
         try:
@@ -2211,7 +2229,7 @@ class Plugin():
 
         :param plug_dir: Should the string be saved under the plugin's dir in
                          sos_commands/? If false, save to sos_strings/
-        :type plug_dir: ``bool`
+        :type plug_dir: ``bool``
 
         :param tags: A tag or set of tags to add to the manifest entry for this
                      collection
@@ -2752,7 +2770,7 @@ class Plugin():
 
         :param containers:   The name of the container to retrieve logs from,
                              may be a single name or a regex
-        :type containers:    ``str`` or ``list` of strs
+        :type containers:    ``str`` or ``list`` of strs
 
         :param get_all:     Should non-running containers also be queried?
                             Default: False
@@ -3389,8 +3407,52 @@ class Plugin():
         return out_ns
 
 
-class RedHatPlugin(object):
+class PluginDistroTag():
+    """The base tagging class for distro-specific classes used to signify that
+    a Plugin is written for that distro.
+
+    Use IndependentPlugin for plugins that are distribution agnostic
+    """
+    pass
+
+
+class RedHatPlugin(PluginDistroTag):
     """Tagging class for Red Hat's Linux distributions"""
+    pass
+
+
+class UbuntuPlugin(PluginDistroTag):
+    """Tagging class for Ubuntu Linux"""
+    pass
+
+
+class DebianPlugin(PluginDistroTag):
+    """Tagging class for Debian Linux"""
+    pass
+
+
+class SuSEPlugin(PluginDistroTag):
+    """Tagging class for SuSE Linux distributions"""
+    pass
+
+
+class OpenEulerPlugin(PluginDistroTag):
+    """Tagging class for openEuler linux distributions"""
+    pass
+
+
+class CosPlugin(PluginDistroTag):
+    """Tagging class for Container-Optimized OS"""
+    pass
+
+
+class IndependentPlugin(PluginDistroTag):
+    """Tagging class for plugins that can run on any platform"""
+    pass
+
+
+class ExperimentalPlugin(PluginDistroTag):
+    """Tagging class that indicates that this plugin is experimental"""
     pass
 
 
@@ -3472,41 +3534,6 @@ class SCLPlugin(RedHatPlugin):
         for copyspec in copyspecs:
             scl_copyspecs.append(self.convert_copyspec_scl(scl, copyspec))
         self.add_copy_spec(scl_copyspecs)
-
-
-class UbuntuPlugin(object):
-    """Tagging class for Ubuntu Linux"""
-    pass
-
-
-class DebianPlugin(object):
-    """Tagging class for Debian Linux"""
-    pass
-
-
-class SuSEPlugin(object):
-    """Tagging class for SuSE Linux distributions"""
-    pass
-
-
-class OpenEulerPlugin(object):
-    """Tagging class for openEuler linux distributions"""
-    pass
-
-
-class CosPlugin(object):
-    """Tagging class for Container-Optimized OS"""
-    pass
-
-
-class IndependentPlugin(object):
-    """Tagging class for plugins that can run on any platform"""
-    pass
-
-
-class ExperimentalPlugin(object):
-    """Tagging class that indicates that this plugin is experimental"""
-    pass
 
 
 def import_plugin(name, superclasses=None):
