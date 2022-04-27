@@ -868,24 +868,32 @@ class SoSReport(SoSComponent):
             _defaults = self.loaded_plugins[0][1].get_default_plugin_opts()
             for _opt in _defaults:
                 opt = _defaults[_opt]
-                val = opt.default
-                if opt.default == -1:
-                    val = TIMEOUT_DEFAULT
+                val = opt.value
+                if opt.value == -1:
+                    if _opt == 'timeout':
+                        val = self.opts.plugin_timeout or TIMEOUT_DEFAULT
+                    elif _opt == 'cmd-timeout':
+                        val = self.opts.cmd_timeout or TIMEOUT_DEFAULT
+                    else:
+                        val = TIMEOUT_DEFAULT
+                if opt.name == 'postproc':
+                    val = not self.opts.no_postproc
                 self.ui_log.info(" %-25s %-15s %s" % (opt.name, val, opt.desc))
             self.ui_log.info("")
 
             self.ui_log.info(_("The following plugin options are available:"))
             for opt in self.all_options:
                 if opt.name in ('timeout', 'postproc', 'cmd-timeout'):
-                    continue
+                    if opt.value == opt.default:
+                        continue
                 # format option value based on its type (int or bool)
-                if isinstance(opt.default, bool):
-                    if opt.default is True:
+                if isinstance(opt.value, bool):
+                    if opt.value is True:
                         tmpopt = "on"
                     else:
                         tmpopt = "off"
                 else:
-                    tmpopt = opt.default
+                    tmpopt = opt.value
 
                 if tmpopt is None:
                     tmpopt = 0
