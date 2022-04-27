@@ -26,9 +26,9 @@ class Skydive(Plugin, RedHatPlugin):
     password_warn_text = " (password visible in process listings)"
 
     option_list = [
-        PluginOpt('username', default='', val_type=str,
+        PluginOpt('username', default='', val_type=[int, str],
                   desc='skydive username'),
-        PluginOpt('password', default='', val_type=str,
+        PluginOpt('password', default='', val_type=[int, str],
                   desc='skydive password' + password_warn_text),
         PluginOpt('analyzer', default='', val_type=str,
                   desc='skydive analyzer address')
