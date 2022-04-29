@@ -24,7 +24,8 @@ class Fibrechannel(Plugin, RedHatPlugin):
 
     # vendor specific debug paths
     debug_paths = [
-        '/sys/kernel/debug/qla2*/'
+        '/sys/kernel/debug/qla2*/',
+        '/sys/kernel/debug/fnic/',
     ]
 
     def setup(self):
