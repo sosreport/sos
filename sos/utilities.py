@@ -212,7 +212,8 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 p.wait(timeout if timeout else None)
             except Exception:
                 p.terminate()
-                _output.close()
+                if to_file:
+                    _output.close()
                 # until we separate timeouts from the `timeout` command
                 # handle per-cmd timeouts via Plugin status checks
                 return {'status': 124, 'output': reader.get_contents(),
