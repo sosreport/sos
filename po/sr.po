@@ -35,7 +35,7 @@ msgstr "додатак %s се није оверио, прескачем"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "додатак %s се није инсталирао, прескачем"
 
 #: ../sos/sosreport.py:985

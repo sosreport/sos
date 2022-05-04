@@ -35,7 +35,7 @@ msgstr "udvidelsesmodulet %s validerer ikke, springer over"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "udvidelsesmodulet %s installerer ikke, springer over"
 
 #: ../sos/sosreport.py:985

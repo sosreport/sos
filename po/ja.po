@@ -37,7 +37,7 @@ msgstr "プラグイン %s は認証できません、スキップします"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "プラグイン %s は インストールできません。スキップします"
 
 #: ../sos/sosreport.py:985

@@ -37,7 +37,7 @@ msgstr "ಪ್ಲಗ್‌ಇನ್ %s ಮಾನ್ಯಗೊಂಡಿಲ್ಲ, 
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "ಪ್ಲಗ್‌ಇನ್ %s ಅನುಸ್ಥಾಪನೆಗೊಂಡಿಲ್ಲ, ಉಪೇಕ್ಷಿಸಲಾಗುತ್ತಿದೆ"
 
 #: ../sos/sosreport.py:985

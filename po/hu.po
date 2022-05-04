@@ -33,7 +33,7 @@ msgstr "%s dugasz érvénytelen, kihagyás"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "%s dugasz nem települ, kihagyás"
 
 #: ../sos/sosreport.py:985

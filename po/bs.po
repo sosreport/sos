@@ -33,7 +33,7 @@ msgstr "plugin %s se nije mogao potvrditi, preskace se"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "plugin %s se nije instalirao, preskace se "
 
 #: ../sos/sosreport.py:985

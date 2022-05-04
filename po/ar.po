@@ -32,7 +32,7 @@ msgstr "الملحق %s غير سليم، تم تعطيله"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "لا يمكن تثبيت الملحق %s، تم تعطيله."
 
 #: ../sos/sosreport.py:985

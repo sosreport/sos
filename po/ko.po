@@ -36,7 +36,7 @@ msgstr "%s 플러그인이 유효하지 않아 생략합니다."
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "%s 플러그인이 설치되지 않아 생략합니다."
 
 #: ../sos/sosreport.py:985
