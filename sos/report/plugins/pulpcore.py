@@ -106,9 +106,41 @@ class PulpCore(Plugin, IndependentPlugin):
             _query = "select * from %s where pulp_last_updated > NOW() - " \
                      "interval '%s days' order by pulp_last_updated" % \
                      (table, task_days)
-            _cmd = "psql -h %s -p %s -U pulp -d %s -c %s" % \
-                   (self.dbhost, self.dbport, self.dbname, quote(_query))
+            _cmd = self.build_query_cmd(_query)
             self.add_cmd_output(_cmd, env=self.env, suggest_filename=table)
+
+        # collect tables sizes, ordered
+        _cmd = self.build_query_cmd(
+            "SELECT table_name, pg_size_pretty(total_bytes) AS total, "
+            "pg_size_pretty(index_bytes) AS INDEX , "
+            "pg_size_pretty(toast_bytes) AS toast, pg_size_pretty(table_bytes)"
+            " AS TABLE FROM ( SELECT *, "
+            "total_bytes-index_bytes-COALESCE(toast_bytes,0) AS table_bytes "
+            "FROM (SELECT c.oid,nspname AS table_schema, relname AS "
+            "TABLE_NAME, c.reltuples AS row_estimate, "
+            "pg_total_relation_size(c.oid) AS total_bytes, "
+            "pg_indexes_size(c.oid) AS index_bytes, "
+            "pg_total_relation_size(reltoastrelid) AS toast_bytes "
+            "FROM pg_class c LEFT JOIN pg_namespace n ON "
+            "n.oid = c.relnamespace WHERE relkind = 'r') a) a order by "
+            "total_bytes DESC"
+        )
+        self.add_cmd_output(_cmd, suggest_filename='pulpcore_db_tables_sizes',
+                            env=self.env)
+
+    def build_query_cmd(self, query, csv=False):
+        """
+        Builds the command needed to invoke the pgsql query as the postgres
+        user.
+        The query requires significant quoting work to satisfy both the
+        shell and postgres parsing requirements. Note that this will generate
+        a large amount of quoting in sos logs referencing the command being run
+        """
+        if csv:
+            query = "COPY (%s) TO STDOUT " \
+                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
+        _dbcmd = "psql --no-password -h %s -p %s -U pulp -d %s -c %s"
+        return _dbcmd % (self.dbhost, self.dbport, self.dbname, quote(query))
 
     def postproc(self):
         # TODO obfuscate from /etc/pulp/settings.py :
