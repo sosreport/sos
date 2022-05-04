@@ -5,6 +5,7 @@ import json
 import tempfile
 import random
 import string
+import sys
 
 from pwd import getpwuid
 from sos.presets import (NO_PRESET, GENERIC_PRESETS, PRESETS_PATH,
@@ -40,8 +41,11 @@ def load(cache={}, sysroot=None, init=None, probe_runtime=True,
                                          probe_runtime=probe_runtime,
                                          remote_exec=remote_exec)
 
+    if sys.platform != 'linux':
+        raise Exception("SoS is not supported on this platform")
+
     if 'policy' not in cache:
-        cache['policy'] = GenericPolicy()
+        cache['policy'] = sos.policies.distros.GenericLinuxPolicy()
 
     return cache['policy']
 
@@ -598,14 +602,6 @@ any third party.
 
         preset.delete(self.presets_path)
         self.presets.pop(name)
-
-
-class GenericPolicy(Policy):
-    """This Policy will be returned if no other policy can be loaded. This
-    should allow for IndependentPlugins to be executed on any system"""
-
-    def get_msg(self):
-        return self.msg % {'distro': self.system}
 
 
 # vim: set et ts=4 sw=4 :

@@ -791,3 +791,19 @@ class LinuxPolicy(Policy):
                                       cmd)
         else:
             return cmd
+
+
+class GenericLinuxPolicy(LinuxPolicy):
+    """This Policy will be returned if no other policy can be loaded. This
+    should allow for IndependentPlugins to be executed on any system"""
+
+    vendor_urls = [('Upstream Project', 'https://github.com/sosreport/sos')]
+    vendor = 'SoS'
+    vendor_text = ('SoS was unable to determine that the distribution of this '
+                   'system is supported, and has loaded a generic '
+                   'configuration. This may not provide desired behavior, and '
+                   'users are encouraged to request a new distribution-specifc'
+                   ' policy at the GitHub project above.\n')
+
+
+# vim: set et ts=4 sw=4 :
