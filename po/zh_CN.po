@@ -37,7 +37,7 @@ msgstr "插件 %s 无效，跳过"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "未安装插件 %s，跳过"
 
 #: ../sos/sosreport.py:985

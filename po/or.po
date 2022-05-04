@@ -37,7 +37,7 @@ msgstr "ପ୍ଲଗଇନ %s କୁ ବୈଧିକୃତ କରେ ନାହ�
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "ପ୍ଲଗଇନ %s ସ୍ଥାପନ କରେନାହିଁ, ଏଡ଼ାଇ ଦେଉଛି"
 
 #: ../sos/sosreport.py:985

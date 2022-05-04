@@ -37,7 +37,7 @@ msgstr "no se puede validar"
 
 #: ../sos/sosreport.py:983
 #, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "el complemento %s necesita privilegios administrativos para ejecutarse; se ha omitido"
 
 #: ../sos/sosreport.py:985

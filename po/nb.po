@@ -34,7 +34,7 @@ msgstr ""
 
 #: ../sos/sosreport.py:983
 #, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr ""
 
 #: ../sos/sosreport.py:985

@@ -37,7 +37,7 @@ msgstr "%s ප්ලගීනය සත්‍යාපනය වන්නේ න
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "%s ප්ලගීනය ස්ථාපනය වන්නේ නැත, මගහරි"
 
 #: ../sos/sosreport.py:985

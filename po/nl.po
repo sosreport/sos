@@ -35,7 +35,7 @@ msgstr "plug-in %s valideerde niet, wordt overgeslagen"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "plug-in %s laat zich niet installeren, wordt overgeslagen"
 
 #: ../sos/sosreport.py:985

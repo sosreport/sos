@@ -46,7 +46,7 @@ msgstr "el connector %s no es valida, ometent"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "el connector %s no s'instal·la, ometent"
 
 #: ../sos/sosreport.py:985

@@ -34,7 +34,7 @@ msgstr "plugin %s does not validate, skipping"
 
 #: ../sos/sosreport.py:625
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "plugin %s does not install, skipping"
 
 #: ../sos/sosreport.py:627

@@ -34,7 +34,7 @@ msgstr "το πρόσθετο %s δεν είναι έγκυρο,η διαδικ�
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "το πρόσθετο %s δεν μπορεί να εγκατασταθεί,η διαδικασία προσπερνάται"
 
 #: ../sos/sosreport.py:985

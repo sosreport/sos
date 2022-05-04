@@ -35,7 +35,7 @@ msgstr "ส่วนขยาย %s ไม่ถูกต้อง จะข้�
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "ส่วนขยาย %s ติดตั้งไม่ได้ จะข้ามไป"
 
 #: ../sos/sosreport.py:985

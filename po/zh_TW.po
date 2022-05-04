@@ -35,7 +35,7 @@ msgstr "外掛程式 %s 無法驗證，因此跳過"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "未安裝外掛程式 %s，故而跳過"
 
 #: ../sos/sosreport.py:985

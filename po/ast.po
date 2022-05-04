@@ -37,7 +37,7 @@ msgstr "nun se validó'l plugin %s, inorándolu"
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "nun s'instaló'l plugin %s, inorándolu"
 
 #: ../sos/sosreport.py:985

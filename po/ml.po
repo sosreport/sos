@@ -36,7 +36,7 @@ msgstr "%s എന്നത് ശരിയായ പ്ളഗ്ഗിന്‍ 
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "%s എന്ന പ്ളഗ്ഗിന്‍ ഇന്‍സ്റ്റോള്‍ ചെയ്യുവാന്‍ സാധ്യമല്ല, ഉപേക്ഷിക്കുന്നു"
 
 #: ../sos/sosreport.py:985

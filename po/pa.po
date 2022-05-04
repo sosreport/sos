@@ -37,7 +37,7 @@ msgstr "ਪਲੱਗਇਨ %s ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਹੈ, ਛ�
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "ਪਲੱਗਇਨ %s ਇੰਸਟਾਲ ਨਹੀਂ ਹੋਇਆ, ਛੱਡ ਰਿਹਾ ਹੈ"
 
 #: ../sos/sosreport.py:985

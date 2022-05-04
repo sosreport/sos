@@ -37,7 +37,7 @@ msgstr "கூடுதல் இணைப்பு %s தவறாக உள்
 
 #: ../sos/sosreport.py:983
 #, fuzzy, python-format
-msgid "plugin %s requires root permissionsto execute, skipping"
+msgid "plugin %s requires root permissions to execute, skipping"
 msgstr "கூடுதல் இணைப்பு %s நிறுவப்படவில்லை, தவிர்க்கப்படுகிறது"
 
 #: ../sos/sosreport.py:985
