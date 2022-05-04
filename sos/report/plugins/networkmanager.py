@@ -111,6 +111,10 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
             for net_conf in files:
                 self.do_file_sub(
                     "/etc/NetworkManager/system-connections/"+net_conf,
-                    r"(psk|password)=(.*)", r"\1=***")
+                    r"(password|psk|mka-cak|password-raw|pin|preshared-key"
+                    r"|private-key|secrets|wep-key[0-9])=(.*)",
+                    r"\1=***",
+                )
+
 
 # vim: set et ts=4 sw=4 :
