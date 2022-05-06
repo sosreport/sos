@@ -62,6 +62,7 @@ class ocp(Cluster):
     token = None
     project = 'sos-collect-tmp'
     oc_cluster_admin = None
+    _oc_cmd = ''
 
     option_list = [
         ('label', '', 'Colon delimited list of labels to select nodes with'),
@@ -71,20 +72,45 @@ class ocp(Cluster):
         ('with-api', False, 'Collect OCP API data from a master node')
     ]
 
+    @property
+    def oc_cmd(self):
+        if not self._oc_cmd:
+            self._oc_cmd = 'oc'
+            if self.primary.host.in_container():
+                _oc_path = self.primary.run_command(
+                    'which oc', chroot=self.primary.host.sysroot
+                )
+                if _oc_path['status'] == 0:
+                    self._oc_cmd = os.path.join(
+                        self.primary.host.sysroot,
+                        _oc_path['output'].strip().lstrip('/')
+                    )
+                else:
+                    self.log_warn(
+                        "Unable to to determine PATH for 'oc' command, "
+                        "node enumeration may fail."
+                    )
+                    self.log_debug("Locating 'oc' failed: %s"
+                                   % _oc_path['output'])
+            if self.get_option('kubeconfig'):
+                self._oc_cmd += " --config %s" % self.get_option('kubeconfig')
+            self.log_debug("oc base command set to %s" % self._oc_cmd)
+        return self._oc_cmd
+
     def fmt_oc_cmd(self, cmd):
         """Format the oc command to optionall include the kubeconfig file if
         one is specified
         """
-        if self.get_option('kubeconfig'):
-            return "oc --config %s %s" % (self.get_option('kubeconfig'), cmd)
-        return "oc %s" % cmd
+        return "%s %s" % (self.oc_cmd, cmd)
 
     def _attempt_oc_login(self):
         """Attempt to login to the API using the oc command using a provided
         token
         """
-        _res = self.exec_primary_cmd("oc login --insecure-skip-tls-verify=True"
-                                     " --token=%s" % self.token)
+        _res = self.exec_primary_cmd(
+            self.fmt_oc_cmd("login --insecure-skip-tls-verify=True --token=%s"
+                            % self.token)
+        )
         return _res['status'] == 0
 
     def check_enabled(self):
@@ -112,7 +138,9 @@ class ocp(Cluster):
                             "collection project.\nAborting...")
 
         self.log_info("Creating new temporary project '%s'" % self.project)
-        ret = self.exec_primary_cmd("oc new-project %s" % self.project)
+        ret = self.exec_primary_cmd(
+            self.fmt_oc_cmd("new-project %s" % self.project)
+        )
         if ret['status'] == 0:
             return True
 
@@ -124,17 +152,21 @@ class ocp(Cluster):
         """Remove the project we created to execute within
         """
         if self.project:
-            ret = self.exec_primary_cmd("oc delete project %s" % self.project)
+            ret = self.exec_primary_cmd(
+                self.fmt_oc_cmd("delete project %s" % self.project)
+            )
             if not ret['status'] == 0:
                 self.log_error("Error deleting temporary project: %s"
                                % ret['output'])
-            ret = self.exec_primary_cmd("oc wait namespace/%s --for=delete "
-                                        "--timeout=30s" % self.project)
+            ret = self.exec_primary_cmd(
+                self.fmt_oc_cmd("wait namespace/%s --for=delete --timeout=30s"
+                                % self.project)
+            )
             if not ret['status'] == 0:
                 self.log_error("Error waiting for temporary project to be "
                                "deleted: %s" % ret['output'])
             # don't leave the config on a non-existing project
-            self.exec_primary_cmd("oc project default")
+            self.exec_primary_cmd(self.fmt_oc_cmd("project default"))
             self.project = None
         return True
 
@@ -169,7 +201,7 @@ class ocp(Cluster):
     def set_transport_type(self):
         if self.opts.transport != 'auto':
             return self.opts.transport
-        if is_executable('oc'):
+        if is_executable('oc', sysroot=self.primary.host.sysroot):
             return 'oc'
         self.log_info("Local installation of 'oc' not found or is not "
                       "correctly configured. Will use ControlPersist.")
