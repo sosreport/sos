@@ -452,6 +452,10 @@ class PluginOpt():
         return self.__str__()
 
     def set_value(self, val):
+        # 'str' type accepts any value, incl. numbers
+        if type('') in self.val_type:
+            self.value = str(val)
+            return
         if not any([type(val) == _t for _t in self.val_type]):
             valid = []
             for t in self.val_type:
