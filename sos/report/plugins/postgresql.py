@@ -41,7 +41,7 @@ class PostgreSQL(Plugin):
                   desc='database name to dump with pg_dump'),
         PluginOpt('dbhost', default='', val_type=str,
                   desc='database hostname/IP address (no unix sockets)'),
-        PluginOpt('dbport', default=5432, val_type=[int, str],
+        PluginOpt('dbport', default=5432, val_type=int,
                   desc='database server listening port')
     ]
 
