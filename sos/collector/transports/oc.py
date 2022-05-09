@@ -109,7 +109,8 @@ class OCTransport(RemoteTransport):
                 "containers": [
                     {
                         "name": "sos-collector-tmp",
-                        "image": "registry.redhat.io/rhel8/support-tools",
+                        "image": "registry.redhat.io/rhel8/support-tools"
+                                if not self.opts.image else self.opts.image,
                         "command": [
                             "/bin/bash"
                         ],
