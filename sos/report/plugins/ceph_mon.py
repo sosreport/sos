@@ -28,9 +28,9 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         })
 
         self.add_copy_spec([
-            "/var/log/ceph/ceph-mon*.log",
-            "/var/lib/ceph/mon/",
-            "/run/ceph/ceph-mon*"
+            "/run/ceph/ceph-mon*",
+            "/var/lib/ceph/mon/*/kv_backend",
+            "/var/log/ceph/ceph-mon*.log"
         ])
 
         self.add_cmd_output([
@@ -110,14 +110,11 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph tell mon.%s mon_status" % mon_id for mon_id in mon_ids
         ], subdir="json_output", tags="insights_ceph_health_detail")
 
-        # these can be cleaned up too but leaving them for safety for now
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
             "/var/lib/ceph/*keyring*",
             "/var/lib/ceph/*/*keyring*",
             "/var/lib/ceph/*/*/*keyring*",
-            "/var/lib/ceph/osd",
-            "/var/lib/ceph/mon",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
             "/var/lib/ceph/tmp/*mnt*",
