@@ -28,13 +28,10 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
 
         # Only collect OSD specific files
         self.add_copy_spec([
+            "/run/ceph/ceph-osd*",
+            "/var/lib/ceph/osd/*/kv_backend",
             "/var/log/ceph/ceph-osd*.log",
             "/var/log/ceph/ceph-volume*.log",
-
-            "/var/lib/ceph/osd/",
-            "/var/lib/ceph/bootstrap-osd/",
-
-            "/run/ceph/ceph-osd*"
         ])
 
         self.add_cmd_output([
@@ -96,8 +93,6 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
             "/var/lib/ceph/*keyring*",
             "/var/lib/ceph/*/*keyring*",
             "/var/lib/ceph/*/*/*keyring*",
-            "/var/lib/ceph/osd",
-            "/var/lib/ceph/mon",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
             "/var/lib/ceph/tmp/*mnt*",
