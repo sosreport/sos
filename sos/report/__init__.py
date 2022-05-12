@@ -1453,9 +1453,14 @@ class SoSReport(SoSComponent):
             if not archive:
                 print("Creating archive tarball failed.")
             else:
-                # compute and store the archive checksum
-                hash_name = self.policy.get_preferred_hash_name()
-                checksum = self._create_checksum(archive, hash_name)
+                try:
+                    # compute and store the archive checksum
+                    hash_name = self.policy.get_preferred_hash_name()
+                    checksum = self._create_checksum(archive, hash_name)
+                except Exception:
+                    print(_("Error generating archive checksum after "
+                            "archive creation.\n"))
+                    return False
                 try:
                     self._write_checksum(archive, hash_name, checksum)
                 except (OSError, IOError):
