@@ -89,7 +89,7 @@ class PulpCore(Plugin, IndependentPlugin):
             "/etc/pki/pulp/*"
         ])
         # skip collecting certificate keys
-        self.add_forbidden_path("/etc/pki/pulp/**/*.key", recursive=True)
+        self.add_forbidden_path("/etc/pki/pulp/**/*.key")
 
         self.add_cmd_output("curl -ks https://localhost/pulp/api/v3/status/",
                             suggest_filename="pulp_status")

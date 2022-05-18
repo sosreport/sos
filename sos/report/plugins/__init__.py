@@ -46,11 +46,6 @@ def _mangle_command(command, name_max):
     return mangledname
 
 
-def _path_in_path_list(path, path_list):
-    return any((p == path or path.startswith(os.path.abspath(p)+os.sep)
-                for p in path_list))
-
-
 def _node_type(st):
     """ return a string indicating the type of special node represented by
     the stat buffer st (block, character, fifo, socket).
@@ -1407,7 +1402,9 @@ class Plugin():
         return None
 
     def _is_forbidden_path(self, path):
-        return _path_in_path_list(path, self.forbidden_paths)
+        return any(
+            re.match(forbid, path) for forbid in self.forbidden_paths
+        )
 
     def _is_policy_forbidden_path(self, path):
         return any([
@@ -1495,14 +1492,12 @@ class Plugin():
             'symlink': "no"
         })
 
-    def add_forbidden_path(self, forbidden, recursive=False):
+    def add_forbidden_path(self, forbidden):
         """Specify a path, or list of paths, to not copy, even if it's part of
         an ``add_copy_spec()`` call
 
         :param forbidden: A filepath to forbid collection from
         :type forbidden: ``str`` or a ``list`` of strings
-
-        :param recursive: Should forbidden glob be applied recursively
         """
         if isinstance(forbidden, str):
             forbidden = [forbidden]
@@ -1512,8 +1507,11 @@ class Plugin():
 
         for forbid in forbidden:
             self._log_info("adding forbidden path '%s'" % forbid)
-            for path in glob.glob(forbid, recursive=recursive):
-                self.forbidden_paths.append(path)
+            if "*" in forbid:
+                # calling translate() here on a dir-level path will break the
+                # re.match() call during path comparison
+                forbid = fnmatch.translate(forbid)
+            self.forbidden_paths.append(forbid)
 
     def set_option(self, optionname, value):
         """Set the named option to value. Ensure the original type of the

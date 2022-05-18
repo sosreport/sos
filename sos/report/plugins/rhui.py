@@ -30,7 +30,7 @@ class Rhui(Plugin, RedHatPlugin):
             "/var/log/rhui/*",
         ])
         # skip collecting certificate keys
-        self.add_forbidden_path("/etc/pki/rhui/**/*.key", recursive=True)
+        self.add_forbidden_path("/etc/pki/rhui/**/*.key")
 
         # call rhui-manager commands with 1m timeout and
         # with an env. variable ensuring that "RHUI Username:"
