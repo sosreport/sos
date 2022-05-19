@@ -23,6 +23,9 @@ class arcconf(Plugin, IndependentPlugin):
     def setup(self):
 
         # get list of adapters
-        self.add_cmd_output("arcconf getconfig 1")
-
+        self.add_cmd_output([
+            "arcconf getconfig 1",
+            "arcconf list",
+            "arcconf GETLOGS 1 UART"
+        ])
 # vim: et ts=4 sw=4
