@@ -50,7 +50,7 @@ class SHMcli(Plugin, IndependentPlugin):
         if result['status'] == 0:
             for line in result['output'].splitlines():
                 words = line.split()
-                if (len(words) > 2 and words[2] == 'DELL'):
+                if (len(words) > 2 and words[2].upper() == 'DELL'):
                     models.append(line.split()[3])
         models = list(set(models))
 
