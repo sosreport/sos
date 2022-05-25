@@ -1,0 +1,7 @@
+# Run on localhost by default
+provision:
+    how: local
+
+# Use the internal executor
+execute:
+    how: tmt

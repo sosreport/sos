@@ -1,0 +1,9 @@
+summary: All upstreamed shell tests plan
+description:
+    Execute BeakerLib tests from a different repository
+discover:
+    how: fmf
+    url: https://github.com/sosreport/sos-tests.git
+    filter: "tier: 0, 1, 2"
+execute:
+    how: tmt
