@@ -241,19 +241,22 @@ class Ovirt(Plugin, RedHatPlugin):
                 r'{key}=********'.format(key=key)
             )
 
-        # Answer files contain passwords
-        for key in (
-            'OVESETUP_CONFIG/adminPassword',
-            'OVESETUP_CONFIG/remoteEngineHostRootPassword',
-            'OVESETUP_DWH_DB/password',
-            'OVESETUP_DB/password',
-            'OVESETUP_REPORTS_CONFIG/adminPassword',
-            'OVESETUP_REPORTS_DB/password',
+        # Answer files contain passwords.
+        # Replace all keys that have 'password' in them, instead of hard-coding
+        # here the list of keys, which changes between versions.
+        # Sadly, the engine admin password prompt name does not contain
+        # 'password'... so neither does the env key.
+        for item in (
+            'password',
+            'OVESETUP_CONFIG_ADMIN_SETUP',
         ):
             self.do_path_regex_sub(
                 r'/var/lib/ovirt-engine/setup/answers/.*',
-                r'{key}=(.*)'.format(key=key),
-                r'{key}=********'.format(key=key)
+                re.compile(
+                    r'(?P<key>[^=]*{item}[^=]*)=.*'.format(item=item),
+                    flags=re.IGNORECASE
+                ),
+                r'\g<key>=********'
             )
 
         # aaa profiles contain passwords
