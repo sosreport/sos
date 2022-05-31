@@ -351,14 +351,13 @@ class SoSComponent():
         if not self.opts.quiet:
             console = logging.StreamHandler(sys.stdout)
             console.setFormatter(logging.Formatter('%(message)s'))
-            if self.opts.verbosity and self.opts.verbosity > 1:
-                console.setLevel(logging.DEBUG)
+            if self.opts.verbosity:
                 if flog:
                     flog.setLevel(logging.DEBUG)
-            elif self.opts.verbosity and self.opts.verbosity > 0:
-                console.setLevel(logging.WARNING)
-                if flog:
-                    flog.setLevel(logging.DEBUG)
+                if self.opts.verbosity > 1:
+                    console.setLevel(logging.DEBUG)
+                else:
+                    console.setLevel(logging.WARNING)
             else:
                 console.setLevel(logging.WARNING)
             self.soslog.addHandler(console)
