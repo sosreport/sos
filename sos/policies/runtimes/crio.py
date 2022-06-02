@@ -7,6 +7,7 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
+import json
 
 from sos.policies.runtimes import ContainerRuntime
 from sos.utilities import sos_get_command_output
@@ -29,14 +30,15 @@ class CrioContainerRuntime(ContainerRuntime):
         :type get_all: ``bool``
         """
         containers = []
-        _cmd = "%s ps %s" % (self.binary, '-a' if get_all else '')
+        _cmd = "%s ps %s -o json" % (self.binary, '-a' if get_all else '')
         if self.active:
             out = sos_get_command_output(_cmd, chroot=self.policy.sysroot)
-            if out['status'] == 0:
-                for ent in out['output'].splitlines()[1:]:
-                    ent = ent.split()
+            if out["status"] == 0:
+                out_json = json.loads(out["output"])
+                for container in out_json["containers"]:
                     # takes the form (container_id, container_name)
-                    containers.append((ent[0], ent[-3]))
+                    containers.append(
+                        (container["id"], container["metadata"]["name"]))
         return containers
 
     def get_images(self):
@@ -47,13 +49,21 @@ class CrioContainerRuntime(ContainerRuntime):
         """
         images = []
         if self.active:
-            out = sos_get_command_output("%s images" % self.binary,
+            out = sos_get_command_output("%s images -o json" % self.binary,
                                          chroot=self.policy.sysroot)
             if out['status'] == 0:
-                for ent in out['output'].splitlines():
-                    ent = ent.split()
-                    # takes the form (image_name, image_id)
-                    images.append((ent[0] + ':' + ent[1], ent[2]))
+                out_json = json.loads(out["output"])
+                for image in out_json["images"]:
+                    # takes the form (repository:tag, image_id)
+                    if len(image["repoTags"]) > 0:
+                        for repo_tag in image["repoTags"]:
+                            images.append((repo_tag, image["id"]))
+                    else:
+                        if len(image["repoDigests"]) == 0:
+                            image_name = "<none>"
+                        else:
+                            image_name = image["repoDigests"][0].split("@")[0]
+                        images.append((image_name + ":<none>", image["id"]))
         return images
 
     def fmt_container_cmd(self, container, cmd, quotecmd):
