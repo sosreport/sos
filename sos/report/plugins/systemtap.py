@@ -18,7 +18,7 @@ class SystemTap(Plugin, IndependentPlugin):
     plugin_name = 'systemtap'
     profiles = ('debug', 'performance')
 
-    files = ('stap',)
+    commands = ('stap',)
     packages = ('systemtap', 'systemtap-runtime')
 
     def setup(self):
