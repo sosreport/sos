@@ -51,9 +51,11 @@ class Libvirt(Plugin, IndependentPlugin):
                 "/var/log/libvirt/qemu/*.log*",
                 "/var/log/libvirt/lxc/*.log",
                 "/var/log/libvirt/uml/*.log",
+                "/var/log/swtpm/libvirt/qemu/*.log",
                 "/var/log/containers/libvirt/libvirtd.log",
                 "/var/log/containers/libvirt/qemu/*.log*",
                 "/var/log/containers/libvirt/lxc/*.log",
+                "/var/log/containers/libvirt/swtpm/libvirt/qemu/*.log",
                 "/var/log/containers/libvirt/uml/*.log",
             ])
         else:
