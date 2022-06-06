@@ -29,7 +29,8 @@ import re
 # use_lvmetad is set to 0 in order not to show cached, old lvm metadata.
 # use_lvmetad=0
 #
-# preferred_names and filter config values are set to capture Vdsm devices.
+# preferred_names, use_devicesfile and filter config values are set to
+# capture Vdsm devices.
 # preferred_names=[ '^/dev/mapper/' ]
 # filter=[ 'a|^/dev/mapper/.*|', 'r|.*|' ]
 LVM_CONFIG = """
@@ -43,6 +44,7 @@ devices {
     ignore_suspended_devices=1
     write_cache_state=0
     disable_after_error_count=3
+    use_devicesfile=0
     filter=["a|^/dev/disk/by-id/dm-uuid-mpath-|", "r|.+|"]
 }
 """
