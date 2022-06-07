@@ -634,6 +634,10 @@ class SosNode():
                 sos_opts.append(
                     "--container-runtime=%s" % self.opts.container_runtime
                 )
+            if self.opts.namespaces:
+                sos_opts.append(
+                    "--namespaces=%s" % self.opts.namespaces
+                )
 
         self.update_cmd_from_cluster()
 
