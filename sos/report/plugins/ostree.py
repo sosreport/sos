@@ -16,6 +16,7 @@ class OSTree(Plugin, IndependentPlugin):
     plugin_name = 'ostree'
     profiles = ('system', 'sysmgmt', 'packagemanager')
     files = ('/ostree',)
+    services = ('ostree-finalize-staged', 'ostree-boot-complete')
 
     def setup(self):
         self.add_copy_spec("/ostree/repo/config")
