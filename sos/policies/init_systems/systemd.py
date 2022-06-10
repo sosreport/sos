@@ -43,8 +43,11 @@ class SystemdInit(InitSystem):
             except IndexError:
                 pass
 
-    def is_running(self, name):
-        svc = self.get_service_status(name)
-        return svc['status'] == 'active'
+    def is_running(self, name, default=False):
+        try:
+            svc = self.get_service_status(name)
+            return svc['status'] == 'active'
+        except Exception:
+            return default
 
 # vim: set et ts=4 sw=4 :

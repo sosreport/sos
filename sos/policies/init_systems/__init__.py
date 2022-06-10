@@ -83,7 +83,7 @@ class InitSystem():
         """
         return name in self.services
 
-    def is_running(self, name):
+    def is_running(self, name, default=True):
         """Checks if the given service name is in a running state.
 
         This should be overridden by initsystems that subclass InitSystem
@@ -91,14 +91,17 @@ class InitSystem():
         :param name: The name of the service
         :type name: ``str``
 
-        :returns: ``True`` if the service is running, else ``False``
+        :param default: The default response in case the check fails
+        :type default:  ``bool`
+
+        :returns: ``True`` if the service is running, else ``default``
         :rtype: ``bool``
         """
         # This is going to be primarily used in gating if service related
         # commands are going to be run or not. Default to always returning
         # True when an actual init system is not specified by policy so that
         # we don't inadvertantly restrict sosreports on those systems
-        return True
+        return default
 
     def load_all_services(self):
         """This loads all services known to the init system into a dict.
