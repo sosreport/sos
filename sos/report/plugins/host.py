@@ -12,6 +12,14 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Host(Plugin, IndependentPlugin):
+    """This plugin primarily collects hostname related information, as well
+    as a few collections that do not fit well in other plugins. For example,
+    uptime information and SoS configuration data from /etc/sos.
+
+    This plugin is not intended to be a catch-all "general" plugin however for
+    these types of collections that do not have a specific component/package
+    or pre-existing plugin.
+    """
 
     short_desc = 'Host information'
 
@@ -24,6 +32,9 @@ class Host(Plugin, IndependentPlugin):
 
         self.add_cmd_output('hostname', root_symlink='hostname')
         self.add_cmd_output('uptime', root_symlink='uptime')
+
+        self.add_cmd_output('find / -maxdepth 2 -type l -ls',
+                            root_symlink='root-symlinks')
 
         self.add_cmd_output([
             'hostname -f',
