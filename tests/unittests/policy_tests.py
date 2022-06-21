@@ -84,7 +84,7 @@ class PackageManagerTests(unittest.TestCase):
         self.pm = PackageManager()
 
     def test_default_all_pkgs(self):
-        self.assertEquals(self.pm.all_pkgs(), {})
+        self.assertEquals(self.pm.packages, {})
 
     def test_default_all_pkgs_by_name(self):
         self.assertEquals(self.pm.all_pkgs_by_name('doesntmatter'), [])

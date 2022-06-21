@@ -22,7 +22,7 @@ class PackageManager():
 
         package name|package.version
 
-    You may also subclass this class and provide a get_pkg_list method to
+    You may also subclass this class and provide a _generate_pkg_list method to
     build the list of packages and versions.
 
     :cvar query_command: The command to use for querying packages
@@ -56,7 +56,7 @@ class PackageManager():
     def __init__(self, chroot=None, query_command=None,
                  verify_command=None, verify_filter=None,
                  files_command=None, remote_exec=None):
-        self.packages = {}
+        self._packages = {}
         self.files = []
 
         self.query_command = query_command or self.query_command
@@ -75,6 +75,12 @@ class PackageManager():
         if chroot:
             self.chroot = chroot
 
+    @property
+    def packages(self):
+        if not self._packages:
+            self._generate_pkg_list()
+        return self._packages
+
     def all_pkgs_by_name(self, name):
         """
         Get a list of packages that match name.
@@ -85,7 +91,7 @@ class PackageManager():
         :returns: List of all packages matching `name`
         :rtype: ``list``
         """
-        return fnmatch.filter(self.all_pkgs().keys(), name)
+        return fnmatch.filter(self.packages.keys(), name)
 
     def all_pkgs_by_name_regex(self, regex_name, flags=0):
         """
@@ -100,7 +106,7 @@ class PackageManager():
         :rtype: ``list``
         """
         reg = re.compile(regex_name, flags)
-        return [pkg for pkg in self.all_pkgs().keys() if reg.match(pkg)]
+        return [pkg for pkg in self.packages.keys() if reg.match(pkg)]
 
     def pkg_by_name(self, name):
         """
@@ -112,15 +118,14 @@ class PackageManager():
         :returns: The first package that matches `name`
         :rtype: ``str``
         """
-        pkgmatches = self.all_pkgs_by_name(name)
-        if (len(pkgmatches) != 0):
-            return self.all_pkgs_by_name(name)[-1]
-        else:
+        try:
+            return self.packages[name]
+        except Exception:
             return None
 
-    def get_pkg_list(self):
-        """Returns a dictionary of packages in the following
-        format::
+    def _generate_pkg_list(self):
+        """Generates a dictionary of packages for internal use by the package
+        manager in the format::
 
             {'package_name': {'name': 'package_name',
                               'version': 'major.minor.version'}}
@@ -140,14 +145,12 @@ class PackageManager():
                     release = None
                 elif pkg.count("|") == 2:
                     name, version, release = pkg.split("|")
-                self.packages[name] = {
+                self._packages[name] = {
                     'name': name,
                     'version': version.split(".")
                 }
                 release = release if release else None
-                self.packages[name]['release'] = release
-
-        return self.packages
+                self._packages[name]['release'] = release
 
     def pkg_version(self, pkg):
         """Returns the entry in self.packages for pkg if it exists
@@ -158,21 +161,9 @@ class PackageManager():
         :returns: Package name and version, if package exists
         :rtype: ``dict`` if found, else ``None``
         """
-        pkgs = self.all_pkgs()
-        if pkg in pkgs:
-            return pkgs[pkg]
+        if pkg in self.packages:
+            return self.packages[pkg]
         return None
-
-    def all_pkgs(self):
-        """
-        Get a list of all packages.
-
-        :returns: All packages, with name and version, installed on the system
-        :rtype: ``dict``
-        """
-        if not self.packages:
-            self.packages = self.get_pkg_list()
-        return self.packages
 
     def pkg_nvra(self, pkg):
         """Get the name, version, release, and architecture for a package

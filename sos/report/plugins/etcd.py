@@ -71,7 +71,7 @@ class etcd(Plugin, RedHatPlugin):
             # assume v3 is the default
             url = 'http://localhost:2379'
             try:
-                ver = self.policy.package_manager.get_pkg_list()['etcd']
+                ver = self.policy.package_manager.packages['etcd']
                 ver = ver['version'][0]
                 if ver == '2':
                     url = 'http://localhost:4001'

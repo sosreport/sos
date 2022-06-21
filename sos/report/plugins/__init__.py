@@ -987,7 +987,9 @@ class Plugin():
         :returns: ``True`` id the package is installed, else ``False``
         :rtype: ``bool``
         """
-        return self.policy.pkg_by_name(package_name) is not None
+        return (
+            len(self.policy.package_manager.all_pkgs_by_name(package_name)) > 0
+        )
 
     def is_service(self, name):
         """Does the service $name exist on the system?

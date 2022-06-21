@@ -261,7 +261,7 @@ class RedHatNetworking(Networking, RedHatPlugin):
     def setup(self):
         # Handle change from -T to -W in Red Hat netstat 2.0 and greater.
         try:
-            netstat_pkg = self.policy.package_manager.all_pkgs()['net-tools']
+            netstat_pkg = self.policy.package_manager.packages['net-tools']
             # major version
             if int(netstat_pkg['version'][0]) < 2:
                 self.ns_wide = "-T"

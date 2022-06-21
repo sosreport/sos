@@ -62,7 +62,7 @@ class RedHatPolicy(LinuxPolicy):
 
         self.valid_subclasses += [RedHatPlugin]
 
-        self.pkgs = self.package_manager.all_pkgs()
+        self.pkgs = self.package_manager.packages
 
         # If rpm query failed, exit
         if not self.pkgs:
