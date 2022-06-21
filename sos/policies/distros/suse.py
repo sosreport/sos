@@ -32,10 +32,8 @@ class SuSEPolicy(LinuxPolicy):
         self.usrmove = False
         self.package_manager = RpmPackageManager()
 
-        pkgs = self.package_manager.all_pkgs()
-
         # If rpm query timed out after timeout duration exit
-        if not pkgs:
+        if not self.package_manager.packages:
             print("Could not obtain installed package list", file=sys.stderr)
             sys.exit(1)
 
