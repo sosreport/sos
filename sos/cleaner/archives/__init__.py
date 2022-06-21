@@ -288,18 +288,31 @@ class SoSObfuscationArchive():
             path = _path_future.result()
             return path
 
-    def get_file_list(self):
-        """Return a list of all files within the archive"""
-        self.file_list = []
+    def get_symlinks(self):
+        """Iterator for a list of symlinks in the archive"""
         for dirname, dirs, files in os.walk(self.extracted_path):
             for _dir in dirs:
                 _dirpath = os.path.join(dirname, _dir)
-                # catch dir-level symlinks
-                if os.path.islink(_dirpath) and os.path.isdir(_dirpath):
-                    self.file_list.append(_dirpath)
+                if os.path.islink(_dirpath):
+                    yield _dirpath
             for filename in files:
-                self.file_list.append(os.path.join(dirname, filename))
-        return self.file_list
+                _fname = os.path.join(dirname, filename)
+                if os.path.islink(_fname):
+                    yield _fname
+
+    def get_file_list(self):
+        """Iterator for a list of files in the archive, to allow clean to
+        iterate over.
+
+        Will not include symlinks, as those are handled separately
+        """
+        for dirname, dirs, files in os.walk(self.extracted_path):
+            for filename in files:
+                _fname = os.path.join(dirname, filename.lstrip('/'))
+                if os.path.islink(_fname):
+                    continue
+                else:
+                    yield _fname
 
     def get_directory_list(self):
         """Return a list of all directories within the archive"""

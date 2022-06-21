@@ -621,8 +621,7 @@ third party.
                 archive.extract()
             archive.report_msg("Beginning obfuscation...")
 
-            file_list = archive.get_file_list()
-            for fname in file_list:
+            for fname in archive.get_file_list():
                 short_name = fname.split(archive.archive_name + '/')[1]
                 if archive.should_skip_file(short_name):
                     continue
@@ -638,10 +637,17 @@ third party.
                 except Exception as err:
                     self.log_debug("Unable to parse file %s: %s"
                                    % (short_name, err))
+
             try:
                 self.obfuscate_directory_names(archive)
             except Exception as err:
                 self.log_info("Failed to obfuscate directories: %s" % err,
+                              caller=archive.archive_name)
+
+            try:
+                self.obfuscate_symlinks(archive)
+            except Exception as err:
+                self.log_info("Failed to obfuscate symlinks: %s" % err,
                               caller=archive.archive_name)
 
             # if the archive was already a tarball, repack it
@@ -726,14 +732,8 @@ third party.
         _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
         _ob_filename = short_name.replace(short_name.split('/')[-1],
                                           _ob_short_name)
-        _sym_changed = False
-        if os.path.islink(filename):
-            _link = os.readlink(filename)
-            _ob_link = self.obfuscate_string(_link)
-            if _ob_link != _link:
-                _sym_changed = True
 
-        if (_ob_filename != short_name) or _sym_changed:
+        if _ob_filename != short_name:
             arc_path = filename.split(short_name)[0]
             _ob_path = os.path.join(arc_path, _ob_filename)
             # ensure that any plugin subdirs that contain obfuscated strings
@@ -752,6 +752,41 @@ third party.
                 os.symlink(_target_ob, _ob_path)
 
         return subs
+
+    def obfuscate_symlinks(self, archive):
+        """Iterate over symlinks in the archive and obfuscate their names.
+        The content of the link target will have already been cleaned, and this
+        second pass over just the names of the links is to ensure we avoid a
+        possible race condition dependent on the order in which the link or the
+        target get obfuscated.
+
+        :param archive:     The archive being obfuscated
+        :type archive:      ``SoSObfuscationArchive``
+        """
+        self.log_info("Obfuscating symlink names", caller=archive.archive_name)
+        for symlink in archive.get_symlinks():
+            try:
+                # relative name of the symlink in the archive
+                _sym = symlink.split(archive.extracted_path)[1].lstrip('/')
+                self.log_debug("Obfuscating symlink %s" % _sym,
+                               caller=archive.archive_name)
+                # current target of symlink, again relative to the archive
+                _target = os.readlink(symlink)
+                # get the potentially renamed symlink name, this time the full
+                # path as it exists on disk
+                _ob_sym_name = os.path.join(archive.extracted_path,
+                                            self.obfuscate_string(_sym))
+                # get the potentially renamed relative target filename
+                _ob_target = self.obfuscate_string(_target)
+
+                # if either the symlink name or the target name has changed,
+                # recreate the symlink
+                if (_ob_sym_name != symlink) or (_ob_target != _target):
+                    os.remove(symlink)
+                    os.symlink(_ob_target, _ob_sym_name)
+            except Exception as err:
+                self.log_info("Error obfuscating symlink '%s': %s"
+                              % (symlink, err))
 
     def obfuscate_directory_names(self, archive):
         """For all directories that exist within the archive, obfuscate the
@@ -778,8 +813,8 @@ third party.
         for parser in self.parsers:
             try:
                 string_data = parser.parse_string_for_keys(string_data)
-            except Exception:
-                pass
+            except Exception as err:
+                self.log_info("Error obfuscating string data: %s" % err)
         return string_data
 
     def obfuscate_line(self, line, parsers=None):
