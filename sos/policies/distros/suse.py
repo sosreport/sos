@@ -51,28 +51,6 @@ class SuSEPolicy(LinuxPolicy):
         OpenSuSE, SLES or other Suse distribution and False otherwise."""
         return False
 
-    def runlevel_by_service(self, name):
-        from subprocess import Popen, PIPE
-        ret = []
-        p = Popen("LC_ALL=C /sbin/chkconfig --list %s" % name,
-                  shell=True,
-                  stdout=PIPE,
-                  stderr=PIPE,
-                  bufsize=-1,
-                  close_fds=True)
-        out, err = p.communicate()
-        if err:
-            return ret
-        for tabs in out.split()[1:]:
-            try:
-                (runlevel, onoff) = tabs.split(":", 1)
-            except IndexError:
-                pass
-            else:
-                if onoff == "on":
-                    ret.append(int(runlevel))
-        return ret
-
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
             return self._tmp_dir

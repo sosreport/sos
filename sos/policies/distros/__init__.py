@@ -116,15 +116,6 @@ class LinuxPolicy(Policy):
             '/etc/shadow'
         ]
 
-    def default_runlevel(self):
-        try:
-            with open("/etc/inittab") as fp:
-                pattern = r"id:(\d{1}):initdefault:"
-                text = fp.read()
-                return int(re.findall(pattern, text)[0])
-        except (IndexError, IOError):
-            return 3
-
     def kernel_version(self):
         return self.release
 
