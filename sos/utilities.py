@@ -159,7 +159,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
 
     cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
-    cmd_env['LC_ALL'] = 'C'
+    cmd_env['LC_ALL'] = 'C.UTF-8'
     # optionally add an environment change for the command
     if env:
         for key, value in env.items():
