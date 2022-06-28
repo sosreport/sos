@@ -65,7 +65,7 @@ class BaseSoSTest(Test):
     _tmpdir = None
     _exception_expected = False
     sos_cmd = ''
-    sos_timeout = 300
+    sos_timeout = 600
     redhat_only = False
     ubuntu_only = False
     end_of_test_case = False
