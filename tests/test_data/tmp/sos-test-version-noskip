@@ -1,0 +1,6 @@
+This is a test file for skipping version files with the IP parser.
+
+All dotted-quad strings SHOULD be changed in this file.
+
+10.11.12.13
+6.0.0.1
