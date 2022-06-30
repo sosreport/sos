@@ -18,7 +18,7 @@ class Nvme(Plugin, IndependentPlugin):
     packages = ('nvme-cli',)
 
     def setup(self):
-        self.add_copy_spec("/etc/nvme/discovery.conf")
+        self.add_copy_spec("/etc/nvme/*")
         self.add_cmd_output([
             "nvme list",
             "nvme list-subsys",
