@@ -24,7 +24,7 @@ class LogsPluginTest(StageOneReportTest):
 
     def test_journalctl_collections(self):
         self.assertFileCollected('sos_commands/logs/journalctl_--disk-usage')
-        self.assertFileCollected('sos_commands/logs/journalctl_--no-pager_--catalog_--boot')
+        self.assertFileCollected('sos_commands/logs/journalctl_--no-pager_--boot')
 
     def test_journal_runtime_collected(self):
         self.assertFileGlobInArchive('/var/log/journal/*')
