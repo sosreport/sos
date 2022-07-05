@@ -64,9 +64,9 @@ class Logs(Plugin, IndependentPlugin):
                       for p in ["/var", "/run"]])
         if journal and self.is_service("systemd-journald"):
             self.add_journal(since=since, tags='journal_full', priority=100)
-            self.add_journal(boot="this", catalog=True, since=since,
+            self.add_journal(boot="this", since=since,
                              tags='journal_since_boot')
-            self.add_journal(boot="last", catalog=True, since=since,
+            self.add_journal(boot="last", since=since,
                              tags='journal_last_boot')
             if self.get_option("all_logs"):
                 self.add_copy_spec([
