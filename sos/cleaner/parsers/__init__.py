@@ -49,6 +49,16 @@ class SoSCleanerParser():
     def __init__(self, config={}):
         if self.map_file_key in config:
             self.mapping.conf_update(config[self.map_file_key])
+        self._generate_skip_regexes()
+
+    def _generate_skip_regexes(self):
+        """Generate the regexes for the parser's configured `skip_files`,
+        so that we don't regenerate them on every file being examined for if
+        the parser should skip a given file.
+        """
+        self.skip_patterns = []
+        for p in self.skip_files:
+            self.skip_patterns.append(re.compile(p))
 
     def generate_item_regexes(self):
         """Generate regexes for items the parser will be searching for

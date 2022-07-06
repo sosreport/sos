@@ -12,7 +12,6 @@ import hashlib
 import json
 import logging
 import os
-import re
 import shutil
 import tempfile
 
@@ -711,9 +710,9 @@ third party.
             tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
             _parsers = [
                 _p for _p in self.parsers if not
-                any([
-                    re.match(p, short_name) for p in _p.skip_files
-                ])
+                any(
+                    _skip.match(short_name) for _skip in _p.skip_patterns
+                )
             ]
             with open(filename, 'r') as fname:
                 for line in fname:
