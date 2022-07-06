@@ -170,6 +170,7 @@ any third party.
         override subclass-specific paths
         """
         return [
+            '*.egg',
             '*.pyc',
             '*.pyo',
             '*.swp'
