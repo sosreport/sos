@@ -10,8 +10,18 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class RedHatInsights(Plugin, RedHatPlugin):
+    """Plugin to capture configuration and logging for the Red Hat Insights
+    client. Insights is used to provide ongoing analysis of systems for
+    proactive problem mitigation, with the client being one of the primary
+    sources of data for the service.
 
-    short_desc = 'Collect config and logs for Red Hat Insights'
+    This plugin will capture configuration information under
+    /etc/insighits-client, as well as logs from /var/log/insights-client. A
+    single connection test via the `insights-client` command is performed and
+    recorded as well for troubleshooting purposes.
+    """
+
+    short_desc = 'Red Hat Insights configuration and client'
     plugin_name = 'insights'
     packages = ('redhat-access-insights', 'insights-client')
     profiles = ('system', 'sysmgmt')
@@ -23,6 +33,7 @@ class RedHatInsights(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec(self.config)
+        self.add_copy_spec('/var/lib/insights')
 
         # Legacy log file location
         self.add_copy_spec("/var/log/redhat-access-insights/*.log")
