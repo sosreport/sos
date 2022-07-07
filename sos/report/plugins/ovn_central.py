@@ -85,12 +85,16 @@ class OVNCentral(Plugin):
             self.add_copy_spec("/var/log/ovn/*.log")
 
         # ovsdb nb/sb cluster status commands
-        ovsdb_cmds = [
-            'ovs-appctl -t {} cluster/status OVN_Northbound'.format(
-                self.ovn_nbdb_sock_path),
-            'ovs-appctl -t {} cluster/status OVN_Southbound'.format(
-                self.ovn_sbdb_sock_path),
-        ]
+        self.add_cmd_output(
+            [
+                'ovs-appctl -t {} cluster/status OVN_Northbound'.format(
+                    self.ovn_nbdb_sock_path),
+                'ovs-appctl -t {} cluster/status OVN_Southbound'.format(
+                    self.ovn_sbdb_sock_path),
+                'ovn-appctl -t ovn-northd status'
+            ],
+            foreground=True, container=self._container_name, timeout=30
+        )
 
         # Some user-friendly versions of DB output
         nbctl_cmds = [
@@ -116,8 +120,7 @@ class OVNCentral(Plugin):
                 path, 'ovn-nb.ovsschema'))
             self.add_database_output(nb_tables, nbctl_cmds, 'ovn-nbctl')
 
-        cmds = ovsdb_cmds
-        cmds += nbctl_cmds
+        cmds = nbctl_cmds
 
         # Can only run sbdb commands if we are the leader
         co = {'cmd': "ovs-appctl -t {} cluster/status OVN_Southbound".
