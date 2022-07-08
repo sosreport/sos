@@ -499,7 +499,19 @@ class SoSReport(SoSComponent):
         These devices are used by add_blockdev_cmd() in the Plugin class.
         """
         try:
-            return os.listdir('/sys/block/')
+            device_list = os.listdir('/sys/block')
+            loop_devices = sos_get_command_output('losetup --all --noheadings')
+            real_loop_devices = []
+            if loop_devices['status'] == 0:
+                for loop_dev in loop_devices['output'].splitlines():
+                    loop_device = loop_dev.split()[0].replace(':', '')
+                    loop_device = loop_device.replace('/dev/', '')
+                    real_loop_devices.append(loop_device)
+            ghost_loop_devs = [dev for dev in device_list
+                               if dev.startswith("loop")
+                               if dev not in real_loop_devices]
+            dev_list = list(set(device_list) - set(ghost_loop_devs))
+            return dev_list
         except Exception as err:
             self.soslog.error("Could not get block device list: %s" % err)
             return []
