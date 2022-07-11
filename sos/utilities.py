@@ -325,6 +325,60 @@ def bold(text):
     return '\033[1m' + text + '\033[0m'
 
 
+def recursive_dict_values_by_key(dobj, keys=[]):
+    """Recursively compile all elements of a potentially nested dict by a set
+    of keys. If a given key is a dict within ``dobj``, then _all_ elements
+    within that dict, regardless of child keys, will be returned.
+
+    For example, if a Plugin searches the devices dict for the 'storage' key,
+    then all storage devices under the that dict (e.g. block, fibre, etc...)
+    will be returned. However, if the Plugin specifies 'block' via ``keys``,
+    then only the block devices within the devices['storage'] dict will be
+    returned.
+
+    Any elements passed here that are _not_ keys within the dict or any nested
+    dicts will also be returned.
+
+    :param dobj:    The 'top-level' dict to intially search by
+    :type dobj:     ``dict``
+
+    :param keys:    Which keys to compile elements from within ``dobj``. If no
+                    keys are given, all nested elements are returned
+    :param keys:    ``list`` of ``str``
+
+    :returns:       All elements within the dict and any nested dicts
+    :rtype:         ``list``
+    """
+    _items = []
+    _filt = []
+    _items.extend(keys)
+    if isinstance(dobj, dict):
+        for k, v in dobj.items():
+            _filt.append(k)
+            # get everything below this key, including nested dicts
+            if not keys or k in keys:
+                _items.extend(recursive_dict_values_by_key(v))
+            # recurse into this dict only for dict keys that match what
+            # we're looking for
+            elif isinstance(v, dict):
+                try:
+                    # this will return a nested list, extract it
+                    _items.extend(
+                        recursive_dict_values_by_key(
+                            v[key] for key in keys if key in v
+                        )[0]
+                    )
+                except IndexError:
+                    # none of the keys given exist in the nested dict
+                    pass
+                _filt.extend(v.keys())
+
+    else:
+        _items.extend(dobj)
+
+    return [d for d in _items if d not in _filt]
+
+
 class FakeReader():
     """Used as a replacement AsyncReader for when we are writing directly to
     disk, and allows us to keep more simplified flows for executing,

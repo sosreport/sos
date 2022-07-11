@@ -13,7 +13,8 @@
 from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable, TIMEOUT_DEFAULT,
                            path_exists, path_isdir, path_isfile, path_islink,
-                           listdir, path_join, bold, file_is_binary)
+                           listdir, path_join, bold, file_is_binary,
+                           recursive_dict_values_by_key)
 
 from sos.archive import P_FILE
 import os
@@ -1867,23 +1868,24 @@ class Plugin():
                         'tags': _spec_tags
                     })
 
-    def add_blockdev_cmd(self, cmds, devices='block', timeout=None,
-                         sizelimit=None, chroot=True, runat=None, env=None,
-                         binary=False, prepend_path=None, whitelist=[],
-                         blacklist=[], tags=[], priority=10):
-        """Run a command or list of commands against storage-related devices.
+    def add_device_cmd(self, cmds, devices, timeout=None, sizelimit=None,
+                       chroot=True, runat=None, env=None, binary=False,
+                       prepend_path=None, whitelist=[], blacklist=[], tags=[],
+                       priority=10):
+        """Run a command or list of commands against devices discovered during
+        sos initialization.
 
         Any commands specified by cmd will be iterated over the list of the
         specified devices. Commands passed to this should include a '%(dev)s'
         variable for substitution.
 
-        :param cmds: The command(s) to run against the list of devices
-        :type cmds: ``str`` or a ``list`` of strings
+        :param cmds:    The command(s) to run against the list of devices
+        :type cmds:     ``str`` or a ``list`` of strings
 
-        :param devices: The device paths to run `cmd` against. If set to
-                        `block` or `fibre`, the commands will be run against
-                        the matching list of discovered devices
-        :type devices: ``str`` or a ``list`` of device paths
+        :param devices: The device paths to run `cmd` against. This should be
+                        either a list of devices/device paths or a key in the
+                        devices dict discovered by sos during initialization.
+        :type devices:  ``str`` or a ``list`` of devices or device paths.
 
         :param timeout: Timeout in seconds to allow each `cmd` to run
         :type timeout: ``int``
@@ -1914,51 +1916,49 @@ class Plugin():
                           item(s)
         :type blacklist: ``list`` of ``str``
         """
+
         _dev_tags = []
         if isinstance(tags, str):
             tags = [tags]
-        if devices == 'block':
-            prepend_path = prepend_path or '/dev/'
-            devices = self.devices['block']
-            _dev_tags.append('block')
-        if devices == 'fibre':
-            devices = self.devices['fibre']
-            _dev_tags.append('fibre')
+        if isinstance(devices, str):
+            devices = [devices]
+
+        _devs = recursive_dict_values_by_key(self.devices, devices)
+
+        if whitelist:
+            if isinstance(whitelist, str):
+                whitelist = [whitelist]
+
+            _devs = [d for d in _devs if
+                     any(re.match("(.*)?%s" % wl, d) for wl in whitelist)]
+
+        if blacklist:
+            if isinstance(blacklist, str):
+                blacklist = [blacklist]
+
+            _devs = [d for d in _devs if not
+                     any(re.match("(.*)?%s" % bl, d) for bl in blacklist)]
+
         _dev_tags.extend(tags)
-        self._add_device_cmd(cmds, devices, timeout=timeout,
+        self._add_device_cmd(cmds, _devs, timeout=timeout,
                              sizelimit=sizelimit, chroot=chroot, runat=runat,
                              env=env, binary=binary, prepend_path=prepend_path,
-                             whitelist=whitelist, blacklist=blacklist,
                              tags=_dev_tags, priority=priority)
 
     def _add_device_cmd(self, cmds, devices, timeout=None, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
-                        prepend_path=None, whitelist=[], blacklist=[],
-                        tags=[], priority=10):
+                        prepend_path=None, tags=[], priority=10):
         """Run a command against all specified devices on the system.
         """
         if isinstance(cmds, str):
             cmds = [cmds]
         if isinstance(devices, str):
             devices = [devices]
-        if isinstance(whitelist, str):
-            whitelist = [whitelist]
-        if isinstance(blacklist, str):
-            blacklist = [blacklist]
         sizelimit = sizelimit or self.get_option('log_size')
         for cmd in cmds:
             for device in devices:
-                _dev_ok = True
                 _dev_tags = [device]
                 _dev_tags.extend(tags)
-                if whitelist:
-                    if not any(re.match(wl, device) for wl in whitelist):
-                        _dev_ok = False
-                if blacklist:
-                    if any(re.match(blist, device) for blist in blacklist):
-                        _dev_ok = False
-                if not _dev_ok:
-                    continue
                 if prepend_path:
                     device = self.path_join(prepend_path, device)
                 _cmd = cmd % {'dev': device}

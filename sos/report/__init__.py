@@ -434,8 +434,10 @@ class SoSReport(SoSComponent):
 
     def _get_hardware_devices(self):
         self.devices = {
-            'block': self.get_block_devs(),
-            'fibre': self.get_fibre_devs()
+            'storage': {
+                'block': self.get_block_devs(),
+                'fibre': self.get_fibre_devs()
+            }
         }
         # TODO: enumerate network devices, preferably with devtype info
 
@@ -474,7 +476,7 @@ class SoSReport(SoSComponent):
         """Enumerate a list of fibrechannel devices on this system so that
         plugins can iterate over them
 
-        These devices are used by add_fibredev_cmd() in the Plugin class.
+        These devices are used by add_device_cmd() in the Plugin class.
         """
         try:
             devs = []
@@ -496,16 +498,15 @@ class SoSReport(SoSComponent):
         """Enumerate a list of block devices on this system so that plugins
         can iterate over them
 
-        These devices are used by add_blockdev_cmd() in the Plugin class.
+        These devices are used by add_device_cmd() in the Plugin class.
         """
         try:
-            device_list = os.listdir('/sys/block')
+            device_list = ["/dev/%s" % d for d in os.listdir('/sys/block')]
             loop_devices = sos_get_command_output('losetup --all --noheadings')
             real_loop_devices = []
             if loop_devices['status'] == 0:
                 for loop_dev in loop_devices['output'].splitlines():
                     loop_device = loop_dev.split()[0].replace(':', '')
-                    loop_device = loop_device.replace('/dev/', '')
                     real_loop_devices.append(loop_device)
             ghost_loop_devs = [dev for dev in device_list
                                if dev.startswith("loop")
@@ -1566,7 +1567,7 @@ class SoSReport(SoSComponent):
         self.report_md.add_list('profiles', self.opts.profiles)
         self.report_md.add_section('devices')
         for key, value in self.devices.items():
-            self.report_md.devices.add_list(key, value)
+            self.report_md.devices.add_field(key, value)
         self.report_md.add_list('enabled_plugins', self.opts.enable_plugins)
         self.report_md.add_list('disabled_plugins', self.opts.skip_plugins)
         self.report_md.add_section('plugins')

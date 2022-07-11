@@ -27,7 +27,8 @@ class Ata(Plugin, IndependentPlugin):
             "smartctl -l scterc %(dev)s",
             "smartctl -l scterc %(dev)s -j"
         ]
-        self.add_blockdev_cmd(cmd_list, whitelist=['sd.*', 'hd.*'])
+        self.add_device_cmd(cmd_list, devices='block',
+                            whitelist=['sd.*', 'hd.*'])
 
 
 # vim: set et ts=4 sw=4 :
