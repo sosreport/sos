@@ -36,6 +36,6 @@ class Nvme(Plugin, IndependentPlugin):
             "nvme error-log %(dev)s",
             "nvme show-regs %(dev)s"
         ]
-        self.add_blockdev_cmd(cmds, whitelist='nvme.*')
+        self.add_device_cmd(cmds, devices='block', whitelist='nvme.*')
 
 # vim: set et ts=4 sw=4 :

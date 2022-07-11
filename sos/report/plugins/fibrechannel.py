@@ -29,7 +29,7 @@ class Fibrechannel(Plugin, RedHatPlugin):
     ]
 
     def setup(self):
-        self.add_blockdev_cmd("udevadm info -a %(dev)s", devices='fibre')
+        self.add_device_cmd("udevadm info -a %(dev)s", devices='fibre')
         if self.get_option('debug'):
             self.add_copy_spec(self.debug_paths)
 

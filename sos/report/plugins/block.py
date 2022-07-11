@@ -56,7 +56,7 @@ class Block(Plugin, IndependentPlugin):
             "udevadm info %(dev)s",
             "udevadm info -a %(dev)s"
         ]
-        self.add_blockdev_cmd(cmds, blacklist='ram.*')
+        self.add_device_cmd(cmds, devices='block', blacklist='ram.*')
 
         lsblk = self.collect_cmd_output("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump
