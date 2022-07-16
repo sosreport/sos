@@ -1,0 +1,148 @@
+# Georgian translations for PACKAGE package.
+# Copyright (C) 2007 ORGANIZATION
+# Automatically generated, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sos\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-23 19:17+0100\n"
+"PO-Revision-Date: 2022-07-16 18:22+0200\n"
+"Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
+"Language-Team: Georgian <(nothing)>\n"
+"Language: ka\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 3.1.1\n"
+
+#: ../sos/sosreport.py:745
+#, python-format
+msgid "sosreport (version %s)"
+msgstr "sosreport (ვერსია %s)"
+
+#: ../sos/sosreport.py:977
+#, python-format
+msgid "plugin %s does not validate, skipping"
+msgstr "დამატება %s არასწორი და გამოტოვებულია"
+
+#: ../sos/sosreport.py:979
+msgid "does not validate"
+msgstr "არასწორია"
+
+#: ../sos/sosreport.py:983
+#, python-format
+msgid "plugin %s requires root permissions to execute, skipping"
+msgstr "დამატებას %s გასაშვებად root-ის წვდომები ესაჭიროება. გამოტოვებულია"
+
+#: ../sos/sosreport.py:985
+msgid "requires root"
+msgstr "საჭიროებს root მომხმარებელს"
+
+#: ../sos/sosreport.py:993
+msgid "excluded"
+msgstr "გამორიცხულია"
+
+#: ../sos/sosreport.py:997
+msgid "skipped"
+msgstr "გამოტოვებული"
+
+#: ../sos/sosreport.py:1001
+msgid "inactive"
+msgstr "არააქტიური"
+
+#: ../sos/sosreport.py:1005
+msgid "optional"
+msgstr "არასავალდებულო"
+
+#: ../sos/sosreport.py:1015
+msgid "not specified"
+msgstr "მითითებული არაა"
+
+#: ../sos/sosreport.py:1023
+#, python-format
+msgid "plugin %s does not install, skipping: %s"
+msgstr "დამატება %s დაყენებული არაა და გამოტოვებულია: %s"
+
+#: ../sos/sosreport.py:1027
+#, python-format
+msgid "Unknown or inactive profile(s) provided: %s"
+msgstr "მითითებულია უცნობი ან არააქტიური პროფილი: %s"
+
+#: ../sos/sosreport.py:1120
+msgid "no valid plugins found"
+msgstr "არცერთი დამატება სწორი არაა"
+
+#: ../sos/sosreport.py:1124
+msgid "The following plugins are currently enabled:"
+msgstr "ჩართული დამატებები:"
+
+#: ../sos/sosreport.py:1130
+msgid "No plugin enabled."
+msgstr "ჩართული დამატებების გარეშე."
+
+#: ../sos/sosreport.py:1134
+msgid "The following plugins are currently disabled:"
+msgstr "ამჟამად გამორთული დამატებები:"
+
+#: ../sos/sosreport.py:1145
+msgid "The following plugin options are available:"
+msgstr "დამატებების ხელმისაწვდომი პარამეტრები:"
+
+#: ../sos/sosreport.py:1160
+msgid "No plugin options available."
+msgstr "დამატებების პარამეტრების გარეშე."
+
+#: ../sos/sosreport.py:1172
+msgid "no valid profiles found"
+msgstr "სწორი პროფილები ნაპოვნი არაა"
+
+#: ../sos/sosreport.py:1174
+msgid "The following profiles are available:"
+msgstr "ხელმისაწვდომია პროფილები:"
+
+#: ../sos/sosreport.py:1197
+msgid "Press ENTER to continue, or CTRL-C to quit.\n"
+msgstr "ENTER გასაგრძელებლად, CTRL-C შესაწყვეტად.\n"
+
+#: ../sos/sosreport.py:1216
+msgid " Setting up archive ..."
+msgstr " არქივის მორგება ..."
+
+#: ../sos/sosreport.py:1250
+msgid " Setting up plugins ..."
+msgstr " დამატებების მორგება ..."
+
+#: ../sos/sosreport.py:1282
+msgid " Running plugins. Please wait ..."
+msgstr " მიმდინარეობს დამატებების გაშვება. მოითმინეთ ..."
+
+#: ../sos/sosreport.py:1490
+msgid "Creating compressed archive..."
+msgstr "შეკუმშული არქივის შექმნა ..."
+
+#: ../sos/sosreport.py:1498
+#, python-format
+msgid " %s while finalizing archive"
+msgstr " %s არქივის დასრულებისას"
+
+#: ../sos/sosreport.py:1517
+#, python-format
+msgid "Error moving directory: %s"
+msgstr "საქაღალდის გადატანის შეცდომა: %s"
+
+#: ../sos/sosreport.py:1540
+#, python-format
+msgid "Error moving archive file: %s"
+msgstr "არქივის ფაილის გადატანის შეცდომა: %s"
+
+#: ../sos/sosreport.py:1558
+#, python-format
+msgid "Error moving checksum file: %s"
+msgstr "საკონტროლო ჯამის ფაილის გადატანის შეცდომა: %s"
+
+#: ../sos/sosreport.py:1574
+msgid "no valid plugins were enabled"
+msgstr "სწორი ჩართული დამატებების გარეშე"
