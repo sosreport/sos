@@ -365,7 +365,7 @@ class OpenVSwitch(Plugin):
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
-    packages = ('openvswitch', 'openvswitch2.*',
+    packages = ('openvswitch', 'openvswitch[2-9].*',
                 'openvswitch-dpdk', 'nuage-openvswitch'
                 '6windgate-fp')
 
