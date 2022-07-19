@@ -930,7 +930,10 @@ class Plugin():
         )
 
     def _format_msg(self, msg):
-        return "[plugin:%s] %s" % (self.name(), msg)
+        return "[plugin:%s] %s" % (self.name(),
+                                   # safeguard against non-UTF logging, see
+                                   # #2790 for reference
+                                   msg.encode('utf-8', 'replace').decode())
 
     def _log_error(self, msg):
         self.soslog.error(self._format_msg(msg))

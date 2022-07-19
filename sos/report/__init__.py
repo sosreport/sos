@@ -1297,6 +1297,8 @@ class SoSReport(SoSComponent):
             try:
                 fd = self.get_temp_file()
                 output = class_(report).unicode()
+                # safeguard against non-UTF characters
+                output = output.encode('utf-8', 'replace').decode()
                 fd.write(output)
                 fd.flush()
                 self.archive.add_file(fd, dest=os.path.join('sos_reports',
