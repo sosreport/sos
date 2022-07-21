@@ -18,30 +18,18 @@ class Teamd(Plugin, IndependentPlugin):
 
     packages = ('teamd',)
 
-    def _get_team_interfaces(self):
-        teams = []
-        ip_result = self.exec_cmd("ip -o link")
-        if ip_result['status'] != 0:
-            return teams
-        for line in ip_result['output'].splitlines():
-            fields = line.split()
-            if fields[1][0:4] == 'team':
-                teams.append(fields[1][:-1])
-        return teams
-
     def setup(self):
         self.add_copy_spec([
             "/etc/dbus-1/system.d/teamd.conf",
             "/usr/lib/systemd/system/teamd@.service"
         ])
-        teams = self._get_team_interfaces()
-        for team in teams:
-            self.add_cmd_output([
-                "teamdctl %s state" % team,
-                "teamdctl %s state dump" % team,
-                "teamdctl %s config dump" % team,
-                "teamnl %s option" % team,
-                "teamnl %s ports" % team
-            ])
+
+        self.add_device_cmd([
+            "teamdctl %(dev)s state",
+            "teamdctl %(dev)s state dump",
+            "teamdctl %(dev)s config dump",
+            "teamnl %(dev)s option",
+            "teamnl %(dev)s ports"
+        ], devices='team')
 
 # vim: set et ts=4 sw=4 :
