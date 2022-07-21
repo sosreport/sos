@@ -94,16 +94,10 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     self.add_cmd_output('%s "%s"' %
                                         (nmcli_con_details_cmd, con))
 
-            nmcli_dev_status_result = self.exec_cmd(
-                "nmcli --terse --fields DEVICE dev"
+            self.add_device_cmd(
+                nmcli_dev_details_cmd + ' "%(dev)s"',
+                devices='ethernet'
             )
-            if nmcli_dev_status_result['status'] == 0:
-                for dev in nmcli_dev_status_result['output'].splitlines():
-                    if dev[0:7] == 'Warning':
-                        continue
-                    # See above comment describing quoting conventions.
-                    self.add_cmd_output('%s "%s"' %
-                                        (nmcli_dev_details_cmd, dev))
 
     def postproc(self):
         for root, dirs, files in os.walk(
