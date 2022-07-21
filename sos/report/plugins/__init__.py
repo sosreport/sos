@@ -1874,7 +1874,7 @@ class Plugin():
     def add_device_cmd(self, cmds, devices, timeout=None, sizelimit=None,
                        chroot=True, runat=None, env=None, binary=False,
                        prepend_path=None, whitelist=[], blacklist=[], tags=[],
-                       priority=10):
+                       priority=10, subdir=None):
         """Run a command or list of commands against devices discovered during
         sos initialization.
 
@@ -1918,6 +1918,10 @@ class Plugin():
         :param blacklist: Do not run `cmds` against devices matching these
                           item(s)
         :type blacklist: ``list`` of ``str``
+
+        :param subdir:  Write the command output to this subdir within the
+                        Plugin directory
+        :type subdir:   ``str``
         """
 
         _dev_tags = []
@@ -1946,11 +1950,11 @@ class Plugin():
         self._add_device_cmd(cmds, _devs, timeout=timeout,
                              sizelimit=sizelimit, chroot=chroot, runat=runat,
                              env=env, binary=binary, prepend_path=prepend_path,
-                             tags=_dev_tags, priority=priority)
+                             tags=_dev_tags, priority=priority, subdir=subdir)
 
     def _add_device_cmd(self, cmds, devices, timeout=None, sizelimit=None,
                         chroot=True, runat=None, env=None, binary=False,
-                        prepend_path=None, tags=[], priority=10):
+                        prepend_path=None, tags=[], priority=10, subdir=None):
         """Run a command against all specified devices on the system.
         """
         if isinstance(cmds, str):
@@ -1968,7 +1972,8 @@ class Plugin():
                 self._add_cmd_output(cmd=_cmd, timeout=timeout,
                                      sizelimit=sizelimit, chroot=chroot,
                                      runat=runat, env=env, binary=binary,
-                                     tags=_dev_tags, priority=priority)
+                                     tags=_dev_tags, priority=priority,
+                                     subdir=subdir)
 
     def _add_cmd_output(self, **kwargs):
         """Internal helper to add a single command to the collection list."""
