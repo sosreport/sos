@@ -141,33 +141,28 @@ class Networking(Plugin):
 
         # Get ethtool output for every device that does not exist in a
         # namespace.
-        for eth in self.listdir("/sys/class/net/"):
-            # skip 'bonding_masters' file created when loading the bonding
-            # module but the file does not correspond to a device
-            if eth == "bonding_masters":
-                continue
-            self.add_cmd_output([
-                "ethtool -%s %s" % (opt, eth) for opt in self.ethtool_shortopts
-            ])
+        _ecmds = ["ethtool -%s" % opt for opt in self.ethtool_shortopts]
+        self.add_device_cmd([
+            _cmd + " %(dev)s" for _cmd in _ecmds
+        ], devices='ethernet')
 
-            self.add_cmd_output([
-                "ethtool " + eth,
-                "ethtool --phy-statistics " + eth,
-                "ethtool --show-priv-flags " + eth,
-                "ethtool --show-eee " + eth,
-                "tc -s filter show dev " + eth,
-                "tc -s filter show dev " + eth + " ingress",
-            ], tags=eth)
+        self.add_device_cmd([
+            "ethtool %(dev)s",
+            "ethtool --phy-statistics %(dev)s",
+            "ethtool --show-priv-flags %(dev)s",
+            "ethtool --show-eee %(dev)s",
+            "tc -s filter show dev %(dev)s",
+            "tc -s filter show dev %(dev)s ingress",
+        ], devices="ethernet")
 
-            # skip EEPROM collection by default, as it might hang or
-            # negatively impact the system on some device types
-            if self.get_option("eepromdump"):
-                cmd = "ethtool -e %s" % eth
-                self._log_warn("WARNING (about to collect '%s'): collecting "
-                               "an eeprom dump is known to cause certain NIC "
-                               "drivers (e.g. bnx2x/tg3) to interrupt device "
-                               "operation" % cmd)
-                self.add_cmd_output(cmd)
+        # skip EEPROM collection by default, as it might hang or
+        # negatively impact the system on some device types
+        if self.get_option("eepromdump"):
+            cmd = "ethtool -e %(dev)s"
+            self._log_warn("WARNING: collecting an eeprom dump is known to "
+                           "cause certain NIC drivers (e.g. bnx2x/tg3) to "
+                           "interrupt device operation")
+            self.add_device_cmd(cmd, devices="ethernet")
 
         # Collect information about bridges (some data already collected via
         # "ip .." commands)
@@ -204,6 +199,7 @@ class Networking(Plugin):
                                   pred=SoSPredicate(self, cmd_outputs=co6))
                                   else None)
         for namespace in namespaces:
+            _devs = self.devices['namespaced_network'][namespace]
             _subdir = "namespaces/%s" % namespace
             ns_cmd_prefix = cmd_prefix + namespace + " "
             self.add_cmd_output([
@@ -238,21 +234,12 @@ class Networking(Plugin):
             if self.get_option("ethtool_namespaces"):
                 # Devices that exist in a namespace use less ethtool
                 # parameters. Run this per namespace.
-                netns_netdev_list = self.exec_cmd(
-                    ns_cmd_prefix + "ls -1 /sys/class/net/"
-                )
-                for eth in netns_netdev_list['output'].splitlines():
-                    # skip 'bonding_masters' file created when loading the
-                    # bonding module but the file does not correspond to
-                    # a device
-                    if eth == "bonding_masters":
-                        continue
-                    self.add_cmd_output([
-                        ns_cmd_prefix + "ethtool " + eth,
-                        ns_cmd_prefix + "ethtool -i " + eth,
-                        ns_cmd_prefix + "ethtool -k " + eth,
-                        ns_cmd_prefix + "ethtool -S " + eth
-                    ], priority=50, subdir=_subdir)
+                self.add_device_cmd([
+                    ns_cmd_prefix + "ethtool %(dev)s",
+                    ns_cmd_prefix + "ethtool -i %(dev)s",
+                    ns_cmd_prefix + "ethtool -k %(dev)s",
+                    ns_cmd_prefix + "ethtool -S %(dev)s"
+                ], devices=_devs['ethernet'], priority=50, subdir=_subdir)
 
 
 class RedHatNetworking(Networking, RedHatPlugin):
