@@ -18,7 +18,8 @@ from datetime import datetime
 import glob
 import sos.report.plugins
 from sos.utilities import (ImporterHelper, SoSTimeoutError, bold,
-                           sos_get_command_output, TIMEOUT_DEFAULT)
+                           sos_get_command_output, TIMEOUT_DEFAULT, listdir,
+                           is_executable)
 from shutil import rmtree
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
@@ -190,8 +191,8 @@ class SoSReport(SoSComponent):
             self._exit(1)
 
         self._check_container_runtime()
-        self._get_hardware_devices()
         self._get_namespaces()
+        self._get_hardware_devices()
 
     @classmethod
     def add_parser_options(cls, parser):
@@ -435,11 +436,12 @@ class SoSReport(SoSComponent):
     def _get_hardware_devices(self):
         self.devices = {
             'storage': {
-                'block': self.get_block_devs(),
-                'fibre': self.get_fibre_devs()
-            }
+                'block': self._get_block_devs(),
+                'fibre': self._get_fibre_devs()
+            },
+            'network': self._get_network_devs(),
+            'namespaced_network': self._get_network_namespace_devices()
         }
-        # TODO: enumerate network devices, preferably with devtype info
 
     def _check_container_runtime(self):
         """Check the loaded container runtimes, and the policy default runtime
@@ -472,7 +474,7 @@ class SoSReport(SoSComponent):
                     % self.policy.runtimes['default'].name
                 )
 
-    def get_fibre_devs(self):
+    def _get_fibre_devs(self):
         """Enumerate a list of fibrechannel devices on this system so that
         plugins can iterate over them
 
@@ -494,7 +496,7 @@ class SoSReport(SoSComponent):
             self.soslog.error("Could not get fibre device list: %s" % err)
             return []
 
-    def get_block_devs(self):
+    def _get_block_devs(self):
         """Enumerate a list of block devices on this system so that plugins
         can iterate over them
 
@@ -521,6 +523,133 @@ class SoSReport(SoSComponent):
         self.namespaces = {
             'network': self._get_network_namespaces()
         }
+
+    def _get_network_devs(self):
+        """Helper to encapsulate network devices probed by sos. Rather than
+        probing lists of distinct device types like we do for storage, we can
+        do some introspection of device enumeration where a single interface
+        may have multiple device types. E.G an 'ethernet' device could also be
+        a bond, and that is pertinent information for device iteration.
+
+        :returns:   A collection of enumerated devices sorted by device type
+        :rtype:     ``dict`` with keys being device types
+        """
+        _devs = {
+            'ethernet': [],
+            'bridge': [],
+            'team': [],
+            'bond': []
+        }
+        try:
+            if is_executable('nmcli', sysroot=self.opts.sysroot):
+                _devs.update(self._get_nmcli_devs())
+            # if nmcli failed for some reason, fallback
+            if not _devs['ethernet']:
+                self.soslog.debug(
+                    'Network devices not enumerated by nmcli. Will attempt to '
+                    'manually compile list of devices.'
+                )
+                _devs.update(self._get_eth_devs())
+                _devs['bridge'] = self._get_bridge_devs()
+        except Exception as err:
+            self.soslog.warn("Could not enumerate network devices: %s" % err)
+        return _devs
+
+    def _get_network_namespace_devices(self):
+        """Enumerate the network devices that exist within each network
+        namespace that exists on the system
+        """
+        _nmdevs = {}
+        for nmsp in self.namespaces['network']:
+            _nmdevs[nmsp] = {
+                'ethernet': self._get_eth_devs(nmsp)
+            }
+        return _nmdevs
+
+    def _get_nmcli_devs(self):
+        """Use nmcli, if available, to enumerate network devices. From this
+        output, manually grok together lists of devices.
+        """
+        _devs = {}
+        try:
+            _ndevs = sos_get_command_output('nmcli --fields DEVICE,TYPE dev')
+            if _ndevs['status'] == 0:
+                for dev in _ndevs['output'].splitlines()[1:]:
+                    dname, dtype = dev.split()
+                    if dtype not in _devs:
+                        _devs[dtype] = [dname]
+                    else:
+                        _devs[dtype].append(dname)
+                    _devs['ethernet'].append(dname)
+            _devs['ethernet'] = list(set(_devs['ethernet']))
+        except Exception as err:
+            self.soslog.debug("Could not parse nmcli devices: %s" % err)
+        return _devs
+
+    def _get_eth_devs(self, namespace=None):
+        """Enumerate a list of ethernet network devices so that plugins can
+        reliably iterate over the same set of devices without doing piecemeal
+        discovery.
+
+        These devices are used by `add_device_cmd()` when `devices` includes
+        "ethernet" or "network".
+
+        :param namespace:   Inspect this existing network namespace, if
+                            provided
+        :type namespace:    ``str``
+
+        :returns:   All valid ethernet devices found, potentially within a
+                    given namespace
+        :rtype:     ``list``
+        """
+        filt_devs = ['bonding_masters']
+        _eth_devs = []
+        if not namespace:
+            _eth_devs = [
+                dev for dev in listdir('/sys/class/net', self.opts.sysroot)
+                if dev not in filt_devs
+            ]
+        else:
+            try:
+                _nscmd = "ip netns exec %s ls /sys/class/net" % namespace
+                _nsout = sos_get_command_output(_nscmd)
+                if _nsout['status'] == 0:
+                    for _nseth in _nsout['output'].split():
+                        if _nseth not in filt_devs:
+                            _eth_devs.append(_nseth)
+            except Exception as err:
+                self.soslog.warn(
+                    "Could not determine network namespace '%s' devices: %s"
+                    % (namespace, err)
+                )
+        return {
+            'ethernet': _eth_devs,
+            'bond': [bd for bd in _eth_devs if bd.startswith('bond')],
+            'tun': [td for td in _eth_devs if td.startswith('tun')]
+        }
+
+    def _get_bridge_devs(self):
+        """Enumerate a list of bridge devices so that plugins can reliably
+        iterate over the same set of bridges.
+
+        These devices are used by `add_device_cmd()` when `devices` includes
+        "bridge" or "network".
+        """
+        _bridges = []
+        try:
+            _bout = sos_get_command_output('brctl show', timeout=15)
+        except Exception as err:
+            self.soslog.warn("Unable to enumerate bridge devices: %s" % err)
+        if _bout['status'] == 0:
+            for _bline in _bout['output'].splitlines()[1:]:
+                try:
+                    _bridges.append(_bline.split()[0])
+                except Exception as err:
+                    self.soslog.info(
+                        "Could not parse device from line '%s': %s"
+                        % (_bline, err)
+                    )
+        return _bridges
 
     def _get_network_namespaces(self):
         """Enumerate a list of network namespaces on this system so that
