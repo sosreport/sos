@@ -61,29 +61,32 @@ class OpenStackAodh(Plugin):
                 "aodh alarm list"
             ])
 
+    def apply_regex_sub(self, regexp, subst):
+        self.do_path_regex_sub(
+            "/etc/aodh/aodh.conf",
+            regexp, subst
+        )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/aodh/aodh.conf",
+            regexp, subst
+        )
+
     def postproc(self):
-        self.do_file_sub(
-            "/etc/aodh/aodh.conf",
-            r"(password[\t\ ]*=[\t\ ]*)(.+)",
-            r"\1********"
-        )
+        protect_keys = [
+            "admin_password", "connection_password", "host_password",
+            "os_password", "password", "qpid_password", "rabbit_password",
+            "memcache_secret_key"
+        ]
+        connection_keys = ["connection", "backend_url", "transport_url"]
 
-        self.do_file_sub(
-            "/etc/aodh/aodh.conf",
-            r"(rabbit_password[\t\ ]*=[\t\ ]*)(.+)",
-            r"\1********",
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1*********"
         )
-
-        self.do_file_sub(
-            self.var_puppet_gen + "/etc/aodh/aodh.conf",
-            r"(password[\t\ ]*=[\t\ ]*)(.+)",
-            r"\1********"
-        )
-
-        self.do_file_sub(
-            self.var_puppet_gen + "/etc/aodh/aodh.conf",
-            r"(rabbit_password[\t\ ]*=[\t\ ]*)(.+)",
-            r"\1********",
+        self.apply_regex_sub(
+            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            "|".join(connection_keys),
+            r"\1*********\6"
         )
 
 
