@@ -46,7 +46,7 @@ class OpenStackTrove(Plugin):
         protect_keys = [
             "default_password_length", "notifier_queue_password",
             "rabbit_password", "replication_password", "admin_password",
-            "dns_passkey", "transport_url"
+            "dns_passkey", "transport_url", "memcache_secret_key"
         ]
         connection_keys = ["connection"]
 

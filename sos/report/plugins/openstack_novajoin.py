@@ -28,6 +28,9 @@ class OpenStackNovajoin(Plugin):
         regexp = (r"(?i)password=(.*)")
         self.do_file_sub("/etc/novajoin/join.conf", regexp,
                          r"password=*********")
+        regexp = (r"(?i)memcache_secret_key=(.*)")
+        self.do_file_sub("/etc/novajoin/join.conf", regexp,
+                         r"password=*********")
 
 
 class RedHatNovajoin(OpenStackNovajoin, RedHatPlugin):
