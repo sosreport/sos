@@ -110,7 +110,8 @@ class OpenStackOctavia(Plugin):
     def postproc(self):
         protect_keys = [
             "ca_private_key_passphrase", "heartbeat_key", "password",
-            "connection", "transport_url", "server_certs_key_passphrase"
+            "connection", "transport_url", "server_certs_key_passphrase",
+            "memcache_secret_key"
         ]
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 

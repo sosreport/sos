@@ -69,7 +69,7 @@ class OpenStackPlacement(Plugin):
         )
 
     def postproc(self):
-        protect_keys = ["password"]
+        protect_keys = ["password", "memcache_secret_key"]
         connection_keys = ["database_connection", "slave_connection"]
 
         self.apply_regex_sub(

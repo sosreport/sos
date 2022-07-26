@@ -37,9 +37,12 @@ class OpenStackBarbican(Plugin, DebianPlugin, UbuntuPlugin):
         self.add_forbidden_path("/etc/barbican/alias/*")
 
     def postproc(self):
+        protect_keys = [
+            "password", "rabbit_password", "memcache_secret_key"
+        ]
         self.do_file_sub(
             "/etc/barbican/barbican.conf",
-            r"(password|rabbit_password[\t\ ]*=[\t\ ]*)(.+)",
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
             r"\1********"
         )
 

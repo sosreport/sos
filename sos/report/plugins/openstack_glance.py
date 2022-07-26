@@ -83,7 +83,8 @@ class OpenStackGlance(Plugin):
         protect_keys = [
             "admin_password", "password", "qpid_password", "rabbit_password",
             "s3_store_secret_key", "ssl_key_password",
-            "vmware_server_password", "transport_url"
+            "vmware_server_password", "transport_url",
+            "memcache_secret_key"
         ]
         connection_keys = ["connection"]
 

@@ -67,6 +67,11 @@ class Gnocchi(Plugin):
             r"password\s?=(.*)",
             r"password=*****",
         )
+        self.do_file_sub(
+            "/etc/gnocchi/gnocchi.conf",
+            r"memcache_secret_key\s?=(.*)",
+            r"memcache_secret_key=*****",
+        )
 
 
 class RedHatGnocchi(Gnocchi, RedHatPlugin):
