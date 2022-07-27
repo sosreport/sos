@@ -375,16 +375,10 @@ support representative.
         try:
             rr = self.package_manager.all_pkgs_by_name_regex("redhat-release*")
             pkgname = self.pkgs[rr[0]]["version"]
-            if pkgname[0] == "4":
-                return 4
-            elif pkgname[0] in ["5Server", "5Client"]:
-                return 5
-            elif pkgname[0] == "6":
-                return 6
-            elif pkgname[0] == "7":
-                return 7
-            elif pkgname[0] == "8":
-                return 8
+            # this should always map to the major version number. This will not
+            # be so on RHEL 5, but RHEL 5 does not support python3 and thus
+            # should never run a version of sos with this check
+            return pkgname[0]
         except Exception:
             pass
         return False
