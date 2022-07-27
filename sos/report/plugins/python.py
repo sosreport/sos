@@ -16,14 +16,17 @@ import json
 import hashlib
 
 
-class Python(Plugin, DebianPlugin, UbuntuPlugin):
+class Python(Plugin):
+    """Captures information on the installed python runtime(s), as well as
+    python modules installed via pip.
+    """
 
     short_desc = 'Python runtime'
 
     plugin_name = 'python'
     profiles = ('system',)
 
-    packages = ('python', 'python3')
+    packages = ('python',)
 
     python_version = "python -V"
 
@@ -40,7 +43,18 @@ class Python(Plugin, DebianPlugin, UbuntuPlugin):
                 self.add_cmd_output("%s list installed" % pip)
 
 
+class UbuntuPython(Python, DebianPlugin, UbuntuPlugin):
+
+    python_version = "python3 -V"
+    packages = ('python3',)
+
+
 class RedHatPython(Python, RedHatPlugin):
+    """In addition to the base information, on Red Hat family distributions the
+    python plugin also supports the 'hashes' option. If enabled, this plugin
+    will generate a json-formatted listing of all pyfiles within the
+    distribution-standard python package installation locations.
+    """
 
     packages = ('python', 'python36', 'python2', 'python3', 'platform-python')
     option_list = [
@@ -51,7 +65,7 @@ class RedHatPython(Python, RedHatPlugin):
     def setup(self):
         self.add_cmd_output(['python2 -V', 'python3 -V'])
         if isinstance(self.policy, RHELPolicy) and \
-                self.policy.dist_version() > 7:
+                self.policy.dist_version() == 8:
             self.python_version = "/usr/libexec/platform-python -V"
         super(RedHatPython, self).setup()
 
