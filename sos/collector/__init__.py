@@ -493,17 +493,35 @@ class SoSCollector(SoSComponent):
                 newline=False
             )
 
-    def exit(self, msg, error=1):
-        """Used to safely terminate if sos-collector encounters an error"""
+    def exit(self, msg=None, error=0, force=False):
+        """Used to terminate and ensure all cleanup is done, setting the exit
+        code as specified if required.
+
+        :param msg:     Log the provided message as an error
+        :type msg:      ``str``
+
+        :param error:   The exit code to use when terminating
+        :type error:    ``int``
+
+        :param force:   Use os.exit() to break out of nested threads if needed
+        :type force:    ``bool``
+        """
         if self.cluster:
             self.cluster.cleanup()
-        self.log_error(msg)
+        if msg:
+            self.log_error(msg)
         try:
             self.close_all_connections()
         except Exception:
             pass
-        self.cleanup()
-        sys.exit(error)
+        if error != 130:
+            # keep the tempdir around when a user issues a keyboard interrupt
+            # like we do for report
+            self.cleanup()
+        if not force:
+            sys.exit(error)
+        else:
+            os._exit(error)
 
     def _parse_options(self):
         """From commandline options, defaults, etc... build a set of commons
@@ -551,7 +569,7 @@ class SoSCollector(SoSComponent):
                             break
             if not match:
                 self.exit('Unknown cluster option provided: %s.%s'
-                          % (opt.cluster, opt.name))
+                          % (opt.cluster, opt.name), 1)
 
     def _validate_option(self, default, cli):
         """Checks to make sure that the option given on the CLI is valid.
@@ -564,14 +582,14 @@ class SoSCollector(SoSComponent):
         if not default.opt_type == bool:
             if not default.opt_type == cli.opt_type:
                 msg = "Invalid option type for %s. Expected %s got %s"
-                self.exit(msg % (cli.name, default.opt_type, cli.opt_type))
+                self.exit(msg % (cli.name, default.opt_type, cli.opt_type), 1)
             return cli.value
         else:
             val = cli.value.lower()
             if val not in ['true', 'on', 'yes', 'false', 'off', 'no']:
                 msg = ("Invalid value for %s. Accepted values are: 'true', "
                        "'false', 'on', 'off', 'yes', 'no'.")
-                self.exit(msg % cli.name)
+                self.exit(msg % cli.name, 1)
             else:
                 if val in ['true', 'on', 'yes']:
                     return True
@@ -749,26 +767,29 @@ class SoSCollector(SoSComponent):
                    'nodes unless the --password option is provided.\n')
             self.ui_log.info(self._fmt_msg(msg))
 
-        if ((self.opts.password or (self.opts.password_per_node and
-                                    self.opts.primary))
-                and not self.opts.batch):
-            self.log_debug('password specified, not using SSH keys')
-            msg = ('Provide the SSH password for user %s: '
-                   % self.opts.ssh_user)
-            self.opts.password = getpass(prompt=msg)
-
-        if ((self.commons['need_sudo'] and not self.opts.nopasswd_sudo)
-                and not self.opts.batch):
-            if not self.opts.password and not self.opts.password_per_node:
-                self.log_debug('non-root user specified, will request '
-                               'sudo password')
-                msg = ('A non-root user has been provided. Provide sudo '
-                       'password for %s on remote nodes: '
+        try:
+            if ((self.opts.password or (self.opts.password_per_node and
+                                        self.opts.primary))
+                    and not self.opts.batch):
+                self.log_debug('password specified, not using SSH keys')
+                msg = ('Provide the SSH password for user %s: '
                        % self.opts.ssh_user)
-                self.opts.sudo_pw = getpass(prompt=msg)
-            else:
-                if not self.opts.nopasswd_sudo:
-                    self.opts.sudo_pw = self.opts.password
+                self.opts.password = getpass(prompt=msg)
+
+            if ((self.commons['need_sudo'] and not self.opts.nopasswd_sudo)
+                    and not self.opts.batch):
+                if not self.opts.password and not self.opts.password_per_node:
+                    self.log_debug('non-root user specified, will request '
+                                   'sudo password')
+                    msg = ('A non-root user has been provided. Provide sudo '
+                           'password for %s on remote nodes: '
+                           % self.opts.ssh_user)
+                    self.opts.sudo_pw = getpass(prompt=msg)
+                else:
+                    if not self.opts.nopasswd_sudo:
+                        self.opts.sudo_pw = self.opts.password
+        except KeyboardInterrupt:
+            self.exit("\nExiting on user cancel\n", 130)
 
         if self.opts.become_root:
             if not self.opts.ssh_user == 'root':
@@ -791,11 +812,14 @@ class SoSCollector(SoSComponent):
             try:
                 self._load_group_config()
             except Exception as err:
-                self.log_error("Could not load specified group %s: %s"
-                               % (self.opts.group, err))
-                self._exit(1)
+                msg = ("Could not load specified group %s: %s"
+                       % (self.opts.group, err))
+                self.exit(msg, 1)
 
-        self.policy.pre_work()
+        try:
+            self.policy.pre_work()
+        except KeyboardInterrupt:
+            self.exit("Exiting on user cancel\n", 130)
 
         if self.opts.primary:
             self.connect_to_primary()
@@ -890,7 +914,7 @@ class SoSCollector(SoSComponent):
 
         if not self.node_list and not self.primary.connected:
             self.exit('No nodes were detected, or nodes do not have sos '
-                      'installed.\nAborting...')
+                      'installed.\nAborting...', 1)
 
         self.ui_log.info('The following is a list of nodes to collect from:')
         if self.primary.connected and self.primary.hostname is not None:
@@ -1046,7 +1070,7 @@ class SoSCollector(SoSComponent):
             msg = ('Could not determine a cluster type and no list of '
                    'nodes or primary node was provided.\nAborting...'
                    )
-            self.exit(msg)
+            self.exit(msg, 1)
 
         try:
             nodes = self.get_nodes_from_cluster()
@@ -1141,13 +1165,12 @@ this utility or remote systems that it connects to.
             except KeyboardInterrupt:
                 self.exit("Exiting on user cancel", 130)
             except Exception as e:
-                self._exit(1, e)
+                self.exit(e, 1)
 
     def execute(self):
         if self.opts.list_options:
             self.list_options()
-            self.cleanup()
-            raise SystemExit
+            self.exit()
 
         self.intro()
 
@@ -1161,8 +1184,7 @@ this utility or remote systems that it connects to.
         self.archive.makedirs('sos_logs', 0o755)
 
         self.collect()
-        self.cluster.cleanup()
-        self.cleanup()
+        self.exit()
 
     def collect(self):
         """ For each node, start a collection thread and then tar all
@@ -1195,7 +1217,7 @@ this utility or remote systems that it connects to.
             self.report_num = len(self.client_list)
 
             if self.report_num == 0:
-                self.exit("No nodes connected. Aborting...")
+                self.exit("No nodes connected. Aborting...", 1)
             elif self.report_num == 1:
                 if self.client_list[0].address == 'localhost':
                     self.exit(
@@ -1203,7 +1225,7 @@ this utility or remote systems that it connects to.
                         "failure to either enumerate or connect to cluster "
                         "nodes. Assuming single collection from localhost is "
                         "not desired.\n"
-                        "Aborting..."
+                        "Aborting...", 1
                     )
 
             self.ui_log.info("\nBeginning collection of sosreports from %s "
@@ -1219,13 +1241,10 @@ this utility or remote systems that it connects to.
             pool.map(self._collect, self.client_list, chunksize=1)
             pool.shutdown(wait=True)
         except KeyboardInterrupt:
-            self.log_error('Exiting on user cancel\n')
-            self.cluster.cleanup()
-            os._exit(130)
+            self.exit("Exiting on user cancel\n", 130, force=True)
         except Exception as err:
-            self.log_error('Could not connect to nodes: %s' % err)
-            self.cluster.cleanup()
-            os._exit(1)
+            msg = 'Could not connect to nodes: %s' % err
+            self.exit(msg, 1, force=True)
 
         if hasattr(self.cluster, 'run_extra_cmd'):
             self.ui_log.info('Collecting additional data from primary node...')
