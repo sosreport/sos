@@ -33,9 +33,23 @@ class Auditd(Plugin, IndependentPlugin):
             "auditctl -l"
         ])
 
+        config_file = "/etc/audit/auditd.conf"
+        log_file = "/var/log/audit/audit.log"
+        try:
+            with open(config_file, 'r') as cf:
+                for line in cf.read().splitlines():
+                    if not line:
+                        continue
+                    words = line.split('=')
+                    if words[0].strip() == 'log_file':
+                        log_file = words[1].strip()
+        except IOError as error:
+            self._log_error('Could not open conf file %s: %s' %
+                            (config_file, error))
+
         if not self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/audit/audit.log")
+            self.add_copy_spec(log_file)
         else:
-            self.add_copy_spec("/var/log/audit")
+            self.add_copy_spec(log_file+'*')
 
 # vim: set et ts=4 sw=4 :
