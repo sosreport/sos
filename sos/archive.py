@@ -664,7 +664,7 @@ class TarFileArchive(FileCacheArchive):
             return tarinfo
         if self._with_selinux_context:
             context = self.get_selinux_context(orig_path)
-            if(context):
+            if context:
                 tarinfo.pax_headers['RHT.security.selinux'] = context
         self.set_tarinfo_from_stat(tarinfo, fstat)
         return tarinfo
