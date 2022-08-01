@@ -2248,14 +2248,9 @@ class Plugin():
         :type tags: ``str`` or a ``list`` of strings
         """
 
-        # Generate summary string for logging
-        summary = content.splitlines()[0] if content else ''
-        if not isinstance(summary, str):
-            summary = content.decode('utf8', 'ignore')
-
         if not self.test_predicate(cmd=False, pred=pred):
-            self._log_info("skipped string ...'%s' due to predicate (%s)" %
-                           (summary, self.get_predicate(pred=pred)))
+            self._log_info("skipped string due to predicate (%s)" %
+                           (self.get_predicate(pred=pred)))
             return
 
         sos_dir = 'sos_commands' if plug_dir else 'sos_strings'
@@ -2265,7 +2260,7 @@ class Plugin():
             tags = [tags]
 
         self.copy_strings.append((content, filename, tags))
-        self._log_debug("added string ...'%s' as '%s'" % (summary, filename))
+        self._log_debug("added string as '%s'" % filename)
 
     def _collect_cmd_output(self, cmd, suggest_filename=None,
                             root_symlink=False, timeout=None,
@@ -3085,13 +3080,7 @@ class Plugin():
         for string, file_name, tags in self.copy_strings:
             if self._timeout_hit:
                 return
-            content = ''
-            if string:
-                content = string.splitlines()[0]
-                if not isinstance(content, str):
-                    content = content.decode('utf8', 'ignore')
-            self._log_info("collecting string ...'%s' as '%s'"
-                           % (content, file_name))
+            self._log_info("collecting string as '%s'" % file_name)
             try:
                 self.archive.add_string(string, file_name)
                 _name = file_name.split('/')[-1].replace('.', '_')
