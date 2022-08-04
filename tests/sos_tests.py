@@ -269,10 +269,17 @@ class BaseSoSTest(Test):
         for each `test_*` method defined within it.
         """
         if self.end_of_test_case:
+            self.post_test_tear_down()
             # remove the extracted directory only if we have the tarball
             if self.archive and os.path.exists(self.archive):
                 if os.path.exists(self.archive_path):
                     shutil.rmtree(self.archive_path)
+
+    def post_test_tear_down(self):
+        """Called at the end of a test run to ensure that any needed per-test
+        cleanup can be done.
+        """
+        pass
 
     def setup_mocking(self):
         """Since we need to use setUp() in our overrides of avocado.Test,
@@ -807,8 +814,10 @@ class StageTwoReportTest(BaseSoSReportTest):
                 return
             installed = self.installer.install_distro_packages(self.packages)
             if not installed:
-                raise("Unable to install requested packages %s"
-                      % ', '.join(pkg for pkg in self.packages[self.local_distro]))
+                raise Exception(
+                    "Unable to install requested packages %s"
+                    % ', '.join(self.packages[self.local_distro])
+                )
             # save installed package list to our tmpdir to be removed later
             self._write_file_to_tmpdir('mocked_packages', json.dumps(self.packages[self.local_distro]))
 
@@ -817,9 +826,10 @@ class StageTwoReportTest(BaseSoSReportTest):
         already exist on the test system, remove them from the list of packages
         to be installed.
         """
-        for pkg in self.packages[self.local_distro]:
-            if self.sm.check_installed(pkg):
-                self.packages[self.local_distro].remove(pkg)
+        self.packages[self.local_distro] = [
+            p for p in self.packages[self.local_distro] if not
+            self.sm.check_installed(p)
+        ]
 
     def teardown_mocked_packages(self):
         """Uninstall any packages that we installed for this test
