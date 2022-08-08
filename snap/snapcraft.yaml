@@ -25,13 +25,13 @@ parts:
 apps:
   sos:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/dist-packages
     command: bin/sos
   sosreport:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/dist-packages
     command: bin/sos report
   sos-collector:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/dist-packages
     command: bin/sos collector
