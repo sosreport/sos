@@ -55,9 +55,9 @@ class UbuntuPolicy(DebianPolicy):
                 lines = fp.readlines()
                 for line in lines:
                     if "DISTRIB_RELEASE" in line:
-                        return line.split("=")[1].strip()
+                        return int(line.split("=")[1].strip())
             return False
-        except IOError:
+        except (IOError, ValueError):
             return False
 
     def get_upload_https_auth(self):

@@ -378,7 +378,7 @@ support representative.
             # this should always map to the major version number. This will not
             # be so on RHEL 5, but RHEL 5 does not support python3 and thus
             # should never run a version of sos with this check
-            return pkgname[0]
+            return int(pkgname[0])
         except Exception:
             pass
         return False
