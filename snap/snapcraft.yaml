@@ -21,17 +21,19 @@ parts:
       - python3
       - snapcraft
       - gettext
+    stage-packages:
+      - python3-magic
 
 apps:
   sos:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/dist-packages
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos
   sosreport:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/dist-packages
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos report
   sos-collector:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/dist-packages
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos collector
