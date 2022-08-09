@@ -37,6 +37,13 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
         # more commands to be added later
         self.add_cmd_output([
             "ceph balancer status",
+            "ceph orch host ls",
+            "ceph orch device ls",
+            "ceph orch ls --export",
+            "ceph orch ps",
+            "ceph orch status --detail",
+            "ceph orch upgrade status",
+            "ceph log last cephadm"
         ])
 
         ceph_cmds = [
