@@ -22,12 +22,14 @@ class Stratis(Plugin, RedHatPlugin):
     def setup(self):
         subcmds = [
             'pool list',
+            'pool list --stopped',
             'filesystem list',
             'blockdev list',
             'key list',
-            'daemon redundancy',
             'daemon version',
             'report engine_state_report',
+            'report managed_objects_report',
+            'report stopped_pools',
             '--version',
         ]
 
