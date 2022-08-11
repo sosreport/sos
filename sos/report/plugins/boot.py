@@ -34,9 +34,12 @@ class Boot(Plugin, IndependentPlugin):
         ])
 
         self.add_cmd_output("ls -lanR /boot", tags="insights_ls_boot")
+        self.add_cmd_output("ls -l /initrd.img /boot/initrd.img")
 
         self.add_cmd_output([
             "lsinitrd",
+            "lsinitramfs -l /initrd.img",
+            "lsinitramfs -l /boot/initrd.img",
             "ls -lanR /sys/firmware",
         ])
 
@@ -46,10 +49,11 @@ class Boot(Plugin, IndependentPlugin):
         ])
 
         if self.get_option("all-images"):
-            for image in glob('/boot/initr*.img'):
+            for image in glob('/boot/initr*.img*'):
                 if image[-9:] == "kdump.img":
                     continue
                 self.add_cmd_output("lsinitrd %s" % image, priority=100)
+                self.add_cmd_output("lsinitramfs -l %s" % image, priority=100)
 
 
 # vim: set et ts=4 sw=4 :
