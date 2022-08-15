@@ -56,6 +56,7 @@ class Elastic(Plugin, IndependentPlugin):
                 "curl -X GET '%s/_cluster/health?pretty'" % endpoint,
                 "curl -X GET '%s/_cluster/stats?pretty'" % endpoint,
                 "curl -X GET '%s/_cat/nodes?v'" % endpoint,
-            ])
+                "curl -X GET '%s/_cat/indices'" % endpoint,
+        ])
 
 # vim: set et ts=4 sw=4 :
