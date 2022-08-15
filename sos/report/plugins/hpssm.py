@@ -34,10 +34,12 @@ class Hpssm(Plugin, IndependentPlugin):
             'ctrl all show status'
         ]
         slot_subcmds = [
+            'array all show detail',
             'ld all show',
             'ld all show detail',
             'pd all show',
-            'pd all show detail'
+            'pd all show detail',
+            'show detail'
         ]
         self.add_cmd_output(
             ["%s %s" % (cmd, subcmd) for subcmd in subcmds]
