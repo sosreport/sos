@@ -81,6 +81,25 @@ rpm_build_task:
         rpmbuild -bs sos.spec
         rpmbuild -bb sos.spec
 
+# Make sure a user can manually build a snap from the checkout
+snap_build_task:
+    alias: "snap_build"
+    name: "snap Build From Checkout"
+    gce_instance:
+        image_project: "${UBUNTU_PROJECT}"
+        image_name: "${UBUNTU_PRIOR_IMAGE_NAME}"
+        type: e2-medium
+    setup_script: |
+        apt update
+        apt -y install snapd
+        systemctl start snapd
+        sed -i 's/adopt-info.*/version: test/g' snap/snapcraft.yaml
+        snap install snapcraft --classic
+    main_script: |
+        snapcraft --destructive-mode
+    snap_artifacts:
+        path: "*.snap"
+
 # Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
     alias: "stageone_report"
