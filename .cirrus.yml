@@ -33,6 +33,13 @@ env:
     UBUNTU_IMAGE_NAME: "ubuntu-2204-jammy-v20220622"
     UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2004-focal-v20220701"
 
+    # Curl-command prefix for downloading task artifacts, simply add the
+    # the url-encoded task name, artifact name, and path as a suffix.
+    # This approach originally seen in the podman project.
+    ARTCURL: >-
+        curl --fail --location -O
+        --url https://api.cirrus-ci.com/v1/artifact/build/${CIRRUS_BUILD_ID}
+
 # Default task timeout
 timeout_in: 30m
 
@@ -70,16 +77,43 @@ py_break_task:
 # Make sure a user can manually build an rpm from the checkout
 rpm_build_task:
     alias: "rpm_build"
-    name: "RPM Build From Checkout"
-    container:
-        image: "fedora"
-    setup_script: dnf -y install rpm-build rpmdevtools gettext python3-devel
+    name: "rpm Build From Checkout - ${BUILD_NAME}"
+    gce_instance: &standardvm
+        image_project: "${PROJECT}"
+        image_name: "${VM_IMAGE_NAME}"
+        type: e2-medium
+    matrix:
+        - env: &centos9
+            PROJECT: ${CENTOS_PROJECT}
+            BUILD_NAME: ${CENTOS_9_NAME}
+            VM_IMAGE_NAME: ${CENTOS_9_IMAGE_NAME}
+        - env: &centos8
+            PROJECT: ${CENTOS_PROJECT}
+            BUILD_NAME: ${CENTOS_8_NAME}
+            VM_IMAGE_NAME: ${CENTOS_8_IMAGE_NAME}
+        - env: &fedora
+            PROJECT: ${FEDORA_PROJECT}
+            BUILD_NAME: ${FEDORA_NAME}
+            VM_IMAGE_NAME: ${FEDORA_IMAGE_NAME}
+        - env: &fedoraprior
+            PROJECT: ${SOS_PROJECT}
+            BUILD_NAME: ${FEDORA_PRIOR_NAME}
+            VM_IMAGE_NAME: ${FEDORA_PRIOR_IMAGE_NAME}
+    setup_script: |
+        dnf clean all
+        dnf -y install rpm-build rpmdevtools gettext python3-devel
     main_script: |
-        rpmdev-setuptree
+        mkdir -p /rpmbuild/{BUILD,BUILDROOT,RPMS,SRPMS,SOURCES}
         python3 setup.py sdist
-        cp dist/sos*.tar.gz ~/rpmbuild/SOURCES
+        cp dist/sos*.tar.gz /rpmbuild/SOURCES/
         rpmbuild -bs sos.spec
         rpmbuild -bb sos.spec
+    # Retrieving the built rpm in later tasks requires knowing the exact name
+    # of the file. To avoid having to juggle version numbers here, rename it
+    prep_artifacts_script: mv /rpmbuild/RPMS/noarch/sos-*.rpm ./sos_${BUILD_NAME}.rpm
+    packages_artifacts:
+        path: ./sos_${BUILD_NAME}.rpm
+        type: application/octet-stream
 
 # Make sure a user can manually build a snap from the checkout
 snap_build_task:
@@ -97,61 +131,56 @@ snap_build_task:
         snap install snapcraft --classic
     main_script: |
         snapcraft --destructive-mode
-    snap_artifacts:
+    packages_artifacts:
         path: "*.snap"
 
 # Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
     alias: "stageone_report"
     name: "Report Stage One - $BUILD_NAME"
-    gce_instance: &standardvm
-        image_project: "${PROJECT}"
-        image_name: "${VM_IMAGE_NAME}"
-        type: e2-medium
+    depends_on:
+        - rpm_build
+        - snap_build
+    gce_instance: *standardvm
     matrix:
-        - env:
-            PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_9_NAME}
-            VM_IMAGE_NAME: ${CENTOS_9_IMAGE_NAME}
-        - env:
-            PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_8_NAME}
-            VM_IMAGE_NAME: ${CENTOS_8_IMAGE_NAME}
-        - env:
-            PROJECT: ${FEDORA_PROJECT}
-            BUILD_NAME: ${FEDORA_NAME}
-            VM_IMAGE_NAME: ${FEDORA_IMAGE_NAME}
-        - env:
-            PROJECT: ${SOS_PROJECT}
-            BUILD_NAME: ${FEDORA_PRIOR_NAME}
-            VM_IMAGE_NAME: ${FEDORA_PRIOR_IMAGE_NAME}
-        - env:
+        - env: *centos9
+        - env: *centos8
+        - env: *fedora
+        - env: *fedoraprior
+        - env: &ubuntu
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_NAME}
             VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
-        - env:
+        - env: &ubuntuprior
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_PRIOR_NAME}
             VM_IMAGE_NAME: ${UBUNTU_PRIOR_IMAGE_NAME}
-    remove_sos_script: &remove_sos |
+    setup_script: &setup |
         if [ $(command -v apt) ]; then
+            echo "$ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap"
+            $ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap
             apt -y purge sosreport
             apt update --allow-releaseinfo-change
-            apt -y install python3-pip
+            apt -y install python3-pip snapd python3-magic
+            systemctl start snapd
+            snap install ./sosreport_test_amd64.snap --classic --dangerous
         fi
         if [ $(command -v dnf) ]; then
+            echo "$ARTCURL/rpm%20Build%20From%20Checkout%20-%20${BUILD_NAME}/packages/sos_${BUILD_NAME}.rpm"
+            $ARTCURL/rpm%20Build%20From%20Checkout%20-%20${BUILD_NAME}/packages/sos_${BUILD_NAME}.rpm
             dnf -y remove sos
             dnf -y install python3-pip ethtool
+            dnf -y install ./sos_${BUILD_NAME}.rpm
         fi
-    setup_script: &setup 'pip3 install avocado-framework==94.0 python-magic pyyaml'
+        pip3 install avocado-framework==94.0
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
     unittest_script: PYTHONPATH=. avocado run tests/unittests/
-    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: &faillogs |
             ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
-        log_artifacts:
+        log_artifacts: &logs
             path: "sos-fail-logs.tar"
 
 # IFF the stage one tests all pass, then run stage two for latest distros
@@ -161,23 +190,11 @@ report_stagetwo_task:
     depends_on: stageone_report
     gce_instance: *standardvm
     matrix:
-        - env:
-            PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_9_NAME}
-            VM_IMAGE_NAME: ${CENTOS_9_IMAGE_NAME}
-        - env:
-            PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_8_NAME}
-            VM_IMAGE_NAME: ${CENTOS_8_IMAGE_NAME}
-        - env:
-            PROJECT: ${FEDORA_PROJECT}
-            BUILD_NAME: ${FEDORA_NAME}
-            VM_IMAGE_NAME: ${FEDORA_IMAGE_NAME}
-        - env:
-            PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: ${UBUNTU_NAME}
-            VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
-    remove_sos_script: *remove_sos
+        - env: *centos9
+        - env: *centos8
+        - env: *fedora
+        - env: *ubuntu
+    setup_script: *setup
     install_pexpect_script: |
         if [ $(command -v apt) ]; then
             apt -y install python3-pexpect
@@ -185,12 +202,10 @@ report_stagetwo_task:
         if [ $(command -v dnf) ]; then
             dnf -y install python3-pexpect
         fi
-    setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: *faillogs
-        log_artifacts:
-            path: "sos-fail-logs.tar"
+        log_artifacts: *logs
 
 report_foreman_task:
     skip: "!changesInclude('.cirrus.yml', '**/{__init__,apache,foreman,foreman_tests,candlepin,pulp,pulpcore}.py')"
@@ -204,15 +219,15 @@ report_foreman_task:
         - env:
             PROJECT: ${SOS_PROJECT}
             VM_IMAGE_NAME: ${FOREMAN_CENTOS_IMAGE_NAME}
+            # Use the CentOS 8 sos rpm for this task
+            BUILD_NAME: ${CENTOS_8_NAME}
             FOREMAN_VER: "2.5 - CentOS Stream 8"
         - env:
             PROJECT: ${SOS_PROJECT}
             VM_IMAGE_NAME: ${FOREMAN_DEBIAN_IMAGE_NAME}
             FOREMAN_VER: "2.5 - Debian 10"
-    remove_sos_script: *remove_sos
     setup_script: *setup
-    main_script: PYTHONPATH=tests/ avocado run --test-runner=runner -t foreman tests/product_tests/foreman/
+    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t foreman tests/product_tests/foreman/
     on_failure:
         fail_script: *faillogs
-        log_artifacts:
-            path: "sos-fail-logs.tar"
+        log_artifacts: *logs
