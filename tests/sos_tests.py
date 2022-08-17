@@ -25,7 +25,7 @@ SOS_TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 SOS_REPO_ROOT = os.path.realpath(os.path.join(SOS_TEST_DIR, '../'))
 SOS_PLUGIN_DIR = os.path.realpath(os.path.join(SOS_REPO_ROOT, 'sos/report/plugins'))
 SOS_TEST_DATA_DIR = os.path.realpath(os.path.join(SOS_TEST_DIR, 'test_data'))
-SOS_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
+SOS_TEST_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 
 RH_DIST = ['rhel', 'centos', 'fedora']
 UBUNTU_DIST = ['Ubuntu', 'debian']
@@ -64,6 +64,7 @@ class BaseSoSTest(Test):
     _klass_name = None
     _tmpdir = None
     _exception_expected = False
+    _local_sos_bin = shutil.which('sos') or SOS_TEST_BIN
     sos_cmd = ''
     sos_timeout = 600
     redhat_only = False
@@ -81,6 +82,10 @@ class BaseSoSTest(Test):
         if not self._tmpdir:
             self._tmpdir = os.getenv('AVOCADO_TESTS_COMMON_TMPDIR') + self.klass_name
         return self._tmpdir
+
+    @property
+    def sos_bin(self):
+        return self._local_sos_bin if self.params.get('TESTLOCAL') == 'true' else SOS_TEST_BIN
 
     def generate_sysinfo(self):
         """Collects some basic information about the system for later reference
@@ -417,7 +422,7 @@ class BaseSoSReportTest(BaseSoSTest):
         return os.path.join(self.tmpdir, "sosreport-%s" % self.__class__.__name__)
         
     def _generate_sos_command(self):
-        return "%s %s -v --batch --tmp-dir %s %s" % (SOS_BIN, self.sos_component, self.tmpdir, self.sos_cmd)
+        return "%s %s -v --batch --tmp-dir %s %s" % (self.sos_bin, self.sos_component, self.tmpdir, self.sos_cmd)
 
     def _execute_sos_cmd(self):
         super(BaseSoSReportTest, self)._execute_sos_cmd()
@@ -949,7 +954,7 @@ class StageOneOutputTest(BaseSoSTest):
     sos_cmd = ''
 
     def _generate_sos_command(self):
-        return "%s %s" % (SOS_BIN, self.sos_cmd)
+        return "%s %s" % (self.sos_bin, self.sos_cmd)
 
     @skipIf(lambda x: x._exception_expected, "Non-zero exit code expected")
     def test_help_output_successful(self):

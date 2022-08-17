@@ -10,7 +10,7 @@ import re
 
 
 from avocado.utils import process
-from sos_tests import StageOneReportTest, SOS_BIN, redhat_only, ubuntu_only
+from sos_tests import StageOneReportTest, redhat_only, ubuntu_only
 
 
 # These are the header strings in --list-plugins output
@@ -27,7 +27,7 @@ class AllPluginSmokeTest(StageOneReportTest):
     """
 
     def pre_sos_setup(self):
-        _cmd = '%s report --list-plugins' % SOS_BIN
+        _cmd = '%s report --list-plugins' % self.sos_bin
         out = process.run(_cmd, timeout=300).stdout.decode()
         reg = DISABLED + '(.*?)' + OPTIONS
         self.plugs = []
