@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 import glob
 
 
@@ -16,6 +16,15 @@ class Libvirt(Plugin, IndependentPlugin):
 
     plugin_name = 'libvirt'
     profiles = ('system', 'virt')
+
+    option_list = [
+        PluginOpt('all_logs', default=False,
+                  desc='collect all available libvirt log files',
+                  long_desc=(
+                    'Enable collection of libvirt log files such as '
+                    '/var/log/libvirt/qemu/*.log* and '
+                    '/var/log/libvirt/libvirtd.log')),
+    ]
 
     def setup(self):
         libvirt_keytab = "/etc/libvirt/krb5.tab"
