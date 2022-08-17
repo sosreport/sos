@@ -231,7 +231,7 @@ class ocp(Cluster):
             for node_name, node in self.node_dict.items():
                 if roles:
                     for role in roles:
-                        if role == node['roles']:
+                        if role in node['roles'].split(","):
                             nodes.append(node_name)
                 else:
                     nodes.append(node_name)
