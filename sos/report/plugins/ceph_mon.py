@@ -58,7 +58,9 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph mgr metadata",
             "ceph mgr module ls",
             "ceph mgr services",
-            "ceph mgr versions"
+            "ceph mgr versions",
+            "ceph log last 10000 debug cluster",
+            "ceph log last 10000 debug audit"
         ])
 
         ceph_cmds = [
