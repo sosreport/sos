@@ -34,10 +34,7 @@ class Mysql(Plugin):
 
         self.add_copy_spec([
             self.mysql_cnf,
-            # Required for MariaDB under pacemaker (MariaDB-Galera)
-            "/var/log/mysqld.log",
-            "/var/log/mysql/mysqld.log",
-            "/var/log/mariadb/mariadb.log",
+            "/etc/mysqlrouter/",
             "/var/lib/mysql/grastate.dat",
             "/var/lib/mysql/gvwstate.dat"
         ])
@@ -45,7 +42,16 @@ class Mysql(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/mysql*",
-                "/var/log/mariadb*"
+                "/var/log/mariadb*",
+                "/var/log/mysqlrouter/*"
+            ])
+        else:
+            self.add_copy_spec([
+                # Required for MariaDB under pacemaker (MariaDB-Galera)
+                "/var/log/mysqld.log",
+                "/var/log/mysql/mysqld.log",
+                "/var/log/mysqlrouter/mysqlrouter.log",
+                "/var/log/mariadb/mariadb.log"
             ])
 
         if self.get_option("dbdump"):
