@@ -16,6 +16,7 @@ class DpkgPackageManager(PackageManager):
     """
 
     query_command = "dpkg-query -W -f='${Package}|${Version}\\n'"
+    query_path_command = "dpkg -S"
     verify_command = "dpkg --verify"
     verify_filter = ""
 
