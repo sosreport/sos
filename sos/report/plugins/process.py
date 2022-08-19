@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 import re
 
 from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
@@ -88,4 +89,28 @@ class Process(Plugin, IndependentPlugin):
             "pidstat -p ALL -rudvwsRU --human -h",
             "pidstat -tl"
         ])
+
+    def collect(self):
+        with self.collection_file('pids_to_packages.json') as pfile:
+            if not self.policy.package_manager.query_path_command:
+                pfile.write('Package manager not configured for path queries')
+                return
+            _ps = self.exec_cmd('ps --no-headers aex')
+            pidpkg = {}
+            paths = {}
+            if not _ps['status'] == 0:
+                pfile.write(f"Unable to get process list: {_ps['output']}")
+                return
+            for proc in _ps['output'].splitlines():
+                proc = proc.strip().split()
+                pid = proc[0]
+                path = proc[4]
+                if not self.path_exists(path):
+                    continue
+                if path not in paths:
+                    paths[path] = self.policy.package_manager.pkg_by_path(path)
+                pidpkg[pid] = {'path': path, 'package': paths[path]}
+
+            pfile.write(json.dumps(pidpkg, indent=4))
+
 # vim: set et ts=4 sw=4 :

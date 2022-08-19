@@ -50,12 +50,13 @@ class PackageManager():
     verify_command = None
     verify_filter = None
     files_command = None
+    query_path_command = None
     chroot = None
     files = None
 
-    def __init__(self, chroot=None, query_command=None,
-                 verify_command=None, verify_filter=None,
-                 files_command=None, remote_exec=None):
+    def __init__(self, chroot=None, query_command=None, verify_command=None,
+                 verify_filter=None, files_command=None,
+                 query_path_command=None, remote_exec=None):
         self._packages = {}
         self.files = []
 
@@ -63,6 +64,7 @@ class PackageManager():
         self.verify_command = verify_command or self.verify_command
         self.verify_filter = verify_filter or self.verify_filter
         self.files_command = files_command or self.files_command
+        self.query_path_command = query_path_command or self.query_path_command
 
         # if needed, append the remote command to these so that this returns
         # the remote package details, not local
@@ -191,6 +193,24 @@ class PackageManager():
             files = shell_out(cmd, timeout=0, chroot=self.chroot)
             self.files = files.splitlines()
         return self.files
+
+    def pkg_by_path(self, path):
+        """Given a path, return the package that owns that path.
+
+        :param path:    The filepath to check for package ownership
+        :type path:     ``str``
+
+        :returns:       The package name or 'unknown'
+        :rtype:         ``str``
+        """
+        if not self.query_path_command:
+            return 'unknown'
+        try:
+            cmd = f"{self.query_path_command} {path}"
+            pkg = shell_out(cmd, timeout=5, chroot=self.chroot)
+            return pkg.splitlines() or 'unknown'
+        except Exception:
+            return 'unknown'
 
     def build_verify_command(self, packages):
         """build_verify_command(self, packages) -> str

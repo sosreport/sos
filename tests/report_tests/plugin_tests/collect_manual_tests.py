@@ -34,4 +34,4 @@ class CollectManualTest(StageOneReportTest):
         pkgman = self.get_plugin_manifest('unpackaged')
         self.assertTrue(pkgman['collections']['unpackaged'])
         pyman = self.get_plugin_manifest('python')
-        self.assertTrue(pyman['collections']['digests'])
+        self.assertTrue(pyman['collections']['digests.json'])

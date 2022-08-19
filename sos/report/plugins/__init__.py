@@ -3164,7 +3164,7 @@ class Plugin():
             self._log_info(f"manual collection '{fname}' finished in {run}")
             if isinstance(tags, str):
                 tags = [tags]
-            self.manifest.collections[fname.split('.')[0]] = {
+            self.manifest.collections[fname] = {
                 'filepath': _pfname,
                 'tags': tags
             }

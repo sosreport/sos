@@ -16,6 +16,7 @@ class RpmPackageManager(PackageManager):
     """
 
     query_command = 'rpm -qa --queryformat "%{NAME}|%{VERSION}|%{RELEASE}\\n"'
+    query_path_command = 'rpm -qf'
     files_command = 'rpm -qal'
     verify_command = 'rpm -V'
     verify_filter = ["debuginfo", "-devel"]
