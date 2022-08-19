@@ -9,6 +9,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
+import tempfile
+import json
 
 from pipes import quote
 from sos.collector.clusters import Cluster
@@ -122,6 +124,41 @@ class ocp(Cluster):
         _who = self.fmt_oc_cmd('whoami')
         return self.exec_primary_cmd(_who)['status'] == 0
 
+    def create_clusterrolebinding(self, namespace):
+        self.rbac_name = "sos-collector-rolebinding"
+        rolebinding = {
+            "kind": "ClusterRoleBinding",
+            "apiVersion": "rbac.authorization.k8s.io/v1",
+            "metadata": {
+                "name": self.rbac_name
+            },
+            "roleRef": {
+                "kind": "ClusterRole",
+                "name": "cluster-admin",
+                "apiGroup": "rbac.authorization.k8s.io"
+            },
+            "subjects": [{
+                "kind": "ServiceAccount",
+                "name": "default",
+                "namespace": namespace
+            }]
+        }
+        fd, self.rbac_tmp = tempfile.mkstemp(dir=self.tmpdir)
+        with open(fd, 'w') as cfile:
+            json.dump(rolebinding, cfile)
+        self.log_debug("Creating %s cluster role binding" % self.rbac_name)
+        # this specifically does not need to run with a project definition
+        out = self.exec_primary_cmd(
+            self.fmt_oc_cmd("create -f %s" % self.rbac_tmp)
+        )
+        if (out['status'] != 0 or "%s created" % self.rbac_name not in
+                out['output']):
+            self.log_error("Unable to create cluster role binding for "
+                           "namespace %s" % namespace)
+            self.log_debug("Cluster role binding creation failed: %s"
+                           % out['output'])
+            return False
+
     def setup(self):
         """Create the project that we will be executing in for any nodes'
         collection via a container image
@@ -142,8 +179,7 @@ class ocp(Cluster):
             self.fmt_oc_cmd("new-project %s" % self.project)
         )
         if ret['status'] == 0:
-            return True
-
+            return self.create_clusterrolebinding(self.project)
         self.log_debug("Failed to create project: %s" % ret['output'])
         raise Exception("Failed to create temporary project for collection. "
                         "\nAborting...")
@@ -152,6 +188,16 @@ class ocp(Cluster):
         """Remove the project we created to execute within
         """
         if self.project:
+            # cleanup cluster role binding
+            if os.path.exists(self.rbac_tmp):
+                os.unlink(self.rbac_tmp)
+            ret = self.exec_primary_cmd(
+                self.fmt_oc_cmd("delete clusterrolebinding %s"
+                                % self.rbac_name))
+            if ret['status'] != 0 or "deleted" not in ret['output']:
+                self.log_debug("Calling delete on clusterrolebinding '%s' "
+                               "failed: %s" % (self.rbac_name, ret['output']))
+                return False
             ret = self.exec_primary_cmd(
                 self.fmt_oc_cmd("delete project %s" % self.project)
             )
