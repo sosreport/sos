@@ -69,47 +69,44 @@ class RedHatPython(Python, RedHatPlugin):
             self.python_version = "/usr/libexec/platform-python -V"
         super(RedHatPython, self).setup()
 
+    def collect(self):
         if self.get_option('hashes'):
-            digests = {
-                'digests': []
-            }
+            with self.collection_file('digests.json') as hfile:
+                hfile.write(json.dumps(self.get_hashes(), indent=4))
 
-            py_paths = [
-                '/usr/lib',
-                '/usr/lib64',
-                '/usr/local/lib',
-                '/usr/local/lib64'
-            ]
+    def get_hashes(self):
+        digests = {
+            'digests': []
+        }
+        py_paths = [
+            '/usr/lib',
+            '/usr/lib64',
+            '/usr/local/lib',
+            '/usr/local/lib64'
+        ]
 
-            for py_path in py_paths:
-                for root, _, files in os.walk(self.path_join(py_path)):
-                    for file_ in files:
-                        filepath = self.path_join(root, file_)
-                        if filepath.endswith('.py'):
-                            try:
-                                with open(filepath, 'rb') as f:
-                                    digest = hashlib.sha256()
-                                    chunk = 1024
-                                    while True:
-                                        data = f.read(chunk)
-                                        if data:
-                                            digest.update(data)
-                                        else:
-                                            break
+        for py_path in py_paths:
+            for root, _, files in os.walk(self.path_join(py_path)):
+                for _file in files:
+                    if not _file.endswith('.py'):
+                        continue
+                    filepath = self.path_join(root, _file)
+                    try:
+                        with open(filepath, 'rb') as f:
+                            digest = hashlib.sha256()
+                            data = f.read(1024)
+                            while data:
+                                digest.update(data)
+                                data = f.read(1024)
 
-                                    digest = digest.hexdigest()
-
-                                    digests['digests'].append({
-                                        'filepath': filepath,
-                                        'sha256': digest
-                                    })
-                            except IOError:
-                                self._log_error(
-                                    "Unable to read python file at %s" %
-                                    filepath
-                                )
-
-            self.add_string_as_file(json.dumps(digests), 'digests.json',
-                                    plug_dir=True)
+                            digest = digest.hexdigest()
+                            digests['digests'].append({
+                                'filepath': filepath,
+                                'sha256': digest
+                            })
+                    except IOError:
+                        self._log_error("Unable to read python file at %s"
+                                        % filepath)
+        return digests
 
 # vim: set et ts=4 sw=4 :
