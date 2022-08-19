@@ -562,6 +562,7 @@ class Plugin():
         self.skip_files = commons['cmdlineopts'].skip_files
         self.skip_commands = commons['cmdlineopts'].skip_commands
         self.default_environment = {}
+        self._tail_files_list = []
 
         self.soslog = self.commons['soslog'] if 'soslog' in self.commons \
             else logging.getLogger('sos')
@@ -1836,24 +1837,21 @@ class Plugin():
                 if sizelimit and current_size > sizelimit:
                     limit_reached = True
 
-                    if tailit and not file_is_binary(_file):
-                        self._log_info("collecting tail of '%s' due to size "
-                                       "limit" % _file)
-                        file_name = _file
-                        if file_name[0] == os.sep:
-                            file_name = file_name.lstrip(os.sep)
-                        strfile = (
-                            file_name.replace(os.path.sep, ".") + ".tailed"
+                    if tailit:
+                        if file_is_binary(_file):
+                            self._log_info(
+                                "File '%s' is over size limit and is binary. "
+                                "Skipping collection." % _file
+                            )
+                            continue
+
+                        self._log_info(
+                            "File '%s' is over size limit, will instead tail "
+                            "the file during collection phase." % _file
                         )
                         add_size = sizelimit + file_size - current_size
-                        self.add_string_as_file(tail(_file, add_size), strfile)
-                        rel_path = os.path.relpath('/', os.path.dirname(_file))
-                        link_path = os.path.join(rel_path, 'sos_strings',
-                                                 self.name(), strfile)
-                        self.archive.add_link(link_path, _file)
+                        self._tail_files_list.append((_file, add_size))
                         _manifest_files.append(_file.lstrip('/'))
-                    else:
-                        self._log_info("skipping '%s' over size limit" % _file)
                 else:
                     # size limit not exceeded, copy the file
                     _manifest_files.append(_file.lstrip('/'))
@@ -3076,6 +3074,21 @@ class Plugin():
             self._log_info("collecting output of '%s'" % soscmd.cmd)
             self._collect_cmd_output(**soscmd.__dict__)
 
+    def _collect_tailed_files(self):
+        for _file, _size in self._tail_files_list:
+            self._log_info("collecting tail of '%s' due to size limit" % _file)
+            file_name = _file
+            if file_name[0] == os.sep:
+                file_name = file_name.lstrip(os.sep)
+            strfile = (
+                file_name.replace(os.path.sep, ".") + ".tailed"
+            )
+            self.add_string_as_file(tail(_file, _size), strfile)
+            rel_path = os.path.relpath('/', os.path.dirname(_file))
+            link_path = os.path.join(rel_path, 'sos_strings',
+                                     self.name(), strfile)
+            self.archive.add_link(link_path, _file)
+
     def _collect_strings(self):
         for string, file_name, tags in self.copy_strings:
             if self._timeout_hit:
@@ -3097,6 +3110,7 @@ class Plugin():
         start = time()
         self._collect_copy_specs()
         self._collect_container_copy_specs()
+        self._collect_tailed_files()
         self._collect_cmds()
         self._collect_strings()
         fields = (self.name(), time() - start)
