@@ -1328,7 +1328,7 @@ class SoSReport(SoSComponent):
         )
         self.ui_progress(status_line)
         try:
-            plug.collect()
+            plug.collect_plugin()
             # certain exceptions can cause either of these lists to no
             # longer contain the plugin, which will result in sos hanging
             # so we can't blindly call remove() on these two.
