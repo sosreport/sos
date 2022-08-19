@@ -59,19 +59,18 @@ class GCP(Plugin, IndependentPlugin):
         # Capture gcloud auth list
         self.add_cmd_output("gcloud auth list", tags=['gcp'])
 
-        # Get and store Metadata
-        try:
-            self.metadata = self.get_metadata()
-            self.scrub_metadata()
-            self.add_string_as_file(json.dumps(self.metadata, indent=4),
-                                    "metadata.json", plug_dir=True,
-                                    tags=['gcp'])
-        except RuntimeError as err:
-            self.add_string_as_file(str(err), 'metadata.json',
-                                    plug_dir=True, tags=['gcp'])
-
         # Add journal entries
         self.add_journal(units="google*", tags=['gcp'])
+
+    def collect(self):
+        # Get and store Metadata
+        with self.collection_file('metadata.json', tags=['gcp']) as mfile:
+            try:
+                self.metadata = self.get_metadata()
+                self.scrub_metadata()
+                mfile.write(json.dumps(self.metadata, indent=4))
+            except RuntimeError as err:
+                mfile.write(str(err))
 
     def get_metadata(self) -> dict:
         """
