@@ -19,7 +19,7 @@ class Unpackaged(Plugin, RedHatPlugin):
                   'package manager')
     plugin_name = 'unpackaged'
 
-    def setup(self):
+    def collect(self):
 
         def get_env_path_list():
             """Return a list of directories in $PATH.
@@ -69,19 +69,20 @@ class Unpackaged(Plugin, RedHatPlugin):
         if not self.test_predicate(cmd=True):
             return
 
-        paths = get_env_path_list()
-        all_fsystem = []
-        all_frpm = set(
-            os.path.realpath(x) for x in self.policy.mangle_package_path(
-                self.policy.package_manager.all_files()
-            ) if any([x.startswith(p) for p in paths])
-        )
+        with self.collection_file('unpackaged') as ufile:
+            paths = get_env_path_list()
+            all_fsystem = []
+            all_frpm = set(
+                os.path.realpath(x) for x in self.policy.mangle_package_path(
+                    self.policy.package_manager.all_files()
+                ) if any([x.startswith(p) for p in paths])
+            )
 
-        for d in paths:
-            all_fsystem += all_files_system(d)
-        not_packaged = [x for x in all_fsystem if x not in all_frpm]
-        not_packaged_expanded = format_output(not_packaged)
-        self.add_string_as_file('\n'.join(not_packaged_expanded), 'unpackaged',
-                                plug_dir=True)
+            for d in paths:
+                all_fsystem += all_files_system(d)
+            not_packaged = [x for x in all_fsystem if x not in all_frpm]
+            not_packaged_expanded = format_output(not_packaged)
+
+            ufile.write('\n'.join(not_packaged_expanded))
 
 # vim: set et ts=4 sw=4 :
