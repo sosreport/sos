@@ -296,7 +296,7 @@ class PluginTests(unittest.TestCase):
         })
         p.archive = MockArchive()
         p.setup()
-        p.collect()
+        p.collect_plugin()
         self.assertEquals(p.archive.m, {})
 
     def test_postproc_default_on(self):
@@ -358,10 +358,10 @@ class AddCopySpecTests(unittest.TestCase):
         self.mp.sysroot = '/'
         fn = create_file(2)  # create 2MB file, consider a context manager
         self.mp.add_copy_spec(fn, 1)
-        content, fname, _tags = self.mp.copy_strings[0]
-        self.assertTrue("tailed" in fname)
+        fname, _size = self.mp._tail_files_list[0]
+        self.assertTrue(fname == fn)
         self.assertTrue("tmp" in fname)
-        self.assertEquals(1024 * 1024, len(content))
+        self.assertEquals(1024 * 1024, _size)
         os.unlink(fn)
 
     def test_bad_filename(self):
@@ -388,10 +388,9 @@ class AddCopySpecTests(unittest.TestCase):
         create_file(2, dir=tmpdir)
         create_file(2, dir=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*", 1)
-        self.assertEquals(len(self.mp.copy_strings), 1)
-        content, fname, _tags = self.mp.copy_strings[0]
-        self.assertTrue("tailed" in fname)
-        self.assertEquals(1024 * 1024, len(content))
+        self.assertEquals(len(self.mp._tail_files_list), 1)
+        fname, _size = self.mp._tail_files_list[0]
+        self.assertEquals(1024 * 1024, _size)
         shutil.rmtree(tmpdir)
 
     def test_multiple_files_no_limit(self):
@@ -450,7 +449,7 @@ class RegexSubTests(unittest.TestCase):
     def test_no_replacements(self):
         self.mp.sysroot = '/'
         self.mp.add_copy_spec(j("tail_test.txt"))
-        self.mp.collect()
+        self.mp.collect_plugin()
         replacements = self.mp.do_file_sub(
             j("tail_test.txt"), r"wont_match", "foobar")
         self.assertEquals(0, replacements)
@@ -459,7 +458,7 @@ class RegexSubTests(unittest.TestCase):
         # test uses absolute paths
         self.mp.sysroot = '/'
         self.mp.add_copy_spec(j("tail_test.txt"))
-        self.mp.collect()
+        self.mp.collect_plugin()
         replacements = self.mp.do_file_sub(
             j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEquals(1, replacements)

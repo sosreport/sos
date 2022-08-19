@@ -17,6 +17,7 @@ from sos.utilities import (sos_get_command_output, import_module, grep,
                            recursive_dict_values_by_key)
 
 from sos.archive import P_FILE
+import contextlib
 import os
 import glob
 import re
@@ -615,6 +616,7 @@ class Plugin():
         self.manifest.add_list('files', [])
         self.manifest.add_field('strings', {})
         self.manifest.add_field('containers', {})
+        self.manifest.add_field('collections', {})
 
     def set_default_cmd_environment(self, env_vars):
         """
@@ -3076,7 +3078,7 @@ class Plugin():
 
     def _collect_tailed_files(self):
         for _file, _size in self._tail_files_list:
-            self._log_info("collecting tail of '%s' due to size limit" % _file)
+            self._log_info(f"collecting tail of '{_file}' due to size limit")
             file_name = _file
             if file_name[0] == os.sep:
                 file_name = file_name.lstrip(os.sep)
@@ -3105,7 +3107,71 @@ class Plugin():
                 self._log_debug("could not add string '%s': %s"
                                 % (file_name, e))
 
+    def _collect_manual(self):
+        """Kick off manual collections performed by the plugin. These manual
+        collections are anything the plugin collects outside of existing
+        files and/or command output. Anything the plugin manually compiles or
+        constructs for data that is included in the final archive.
+
+        Plugins will need to define these collections by overriding the
+        ``collect()`` method, similar to how plugins define their own
+        ``setup()`` methods.
+        """
+        try:
+            self.collect()
+        except Exception as err:
+            self._log_error(f"Error during plugin collections: {err}")
+
     def collect(self):
+        """If a plugin needs to manually compile some data for a collection,
+        that should be specified here by overriding this method.
+
+        These collections are run last during a plugin's execution, and as such
+        are more likely to be interrupted by timeouts than file or command
+        output collections.
+        """
+        pass
+
+    @contextlib.contextmanager
+    def collection_file(self, fname, subdir=None, tags=[]):
+        """Handles creating and managing files within a plugin's subdirectory
+        within the archive, and is intended to be used to save manually
+        compiled data generated during a plugin's ``_collect_manual()`` step
+        of the collection phase.
+
+        Plugins should call this method using a ``with`` context manager.
+
+        :param fname:       The name of the file within the plugin directory
+        :type fname:        ``str``
+
+        :param subdir:      If needed, specify a subdir to write the file to
+        :type subdir:       ``str``
+
+        :param tags:        Tags to be added to this file in the manifest
+        :type tags:         ``str`` or ``list`` of ``str``s
+        """
+        try:
+            start = time()
+            _pfname = self._make_command_filename(fname, subdir=subdir)
+            self.archive.check_path(_pfname, P_FILE)
+            _name = self.archive.dest_path(_pfname)
+            _file = open(_name, 'w')
+            self._log_debug(f"manual collection file opened: {_name}")
+            yield _file
+            _file.close()
+            end = time()
+            run = end - start
+            self._log_info(f"manual collection '{fname}' finished in {run}")
+            if isinstance(tags, str):
+                tags = [tags]
+            self.manifest.collections[fname.split('.')[0]] = {
+                'filepath': _pfname,
+                'tags': tags
+            }
+        except Exception as err:
+            self._log_info(f"Error with collection file '{fname}': {err}")
+
+    def collect_plugin(self):
         """Collect the data for a plugin."""
         start = time()
         self._collect_copy_specs()
@@ -3113,6 +3179,7 @@ class Plugin():
         self._collect_tailed_files()
         self._collect_cmds()
         self._collect_strings()
+        self._collect_manual()
         fields = (self.name(), time() - start)
         self._log_debug("collected plugin '%s' in %s" % fields)
 

@@ -10,8 +10,8 @@
 from sos_tests import StageOneReportTest
 
 
-class CollectStringTest(StageOneReportTest):
-    """Test to ensure that add_string_as_file() is working for plugins that
+class CollectManualTest(StageOneReportTest):
+    """Test to ensure that collect() is working for plugins that
     directly call it as part of their collections
 
     :avocado: tags=stageone
@@ -30,8 +30,8 @@ class CollectStringTest(StageOneReportTest):
     def test_no_strings_dir(self):
         self.assertFileNotCollected('sos_strings/')
 
-    def test_manifest_strings_correct(self):
+    def test_manifest_collections_correct(self):
         pkgman = self.get_plugin_manifest('unpackaged')
-        self.assertTrue(pkgman['strings']['unpackaged'])
+        self.assertTrue(pkgman['collections']['unpackaged'])
         pyman = self.get_plugin_manifest('python')
-        self.assertTrue(pyman['strings']['digests_json'])
+        self.assertTrue(pyman['collections']['digests'])
