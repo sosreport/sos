@@ -33,7 +33,7 @@ class ReportDisabledParsersTest(StageOneReportTest):
 
     # make sure that the other parsers remain functional
     def test_localhost_was_obfuscated(self):
-        self.assertFileHasContent('/etc/hostname', 'host0')
+        self.assertFileHasContent('hostname', 'host0')
 
     def test_mac_addrs_were_obfuscated(self):
         content = self.get_file_content('sos_commands/networking/ip_maddr_show')
@@ -54,7 +54,7 @@ class NativeCleanDisabledParsersTest(StageTwoReportTest):
     sos_component = 'clean'
 
     def test_localhost_not_obfuscated(self):
-        self.assertFileNotHasContent('/etc/hostname', self.sysinfo['pre']['networking']['hostname'])
+        self.assertFileNotHasContent('hostname', self.sysinfo['pre']['networking']['hostname'])
         self.assertFileNotHasContent('uname', self.sysinfo['pre']['networking']['hostname'])
 
     def test_local_ip_was_obfuscated(self):
