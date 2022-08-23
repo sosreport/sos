@@ -35,7 +35,7 @@ class ReportWithMask(StageOneReportTest):
         self.assertSosLogContains('Loaded .* as type sos report directory')
 
     def test_localhost_was_obfuscated(self):
-        self.assertFileHasContent('/etc/hostname', 'host0')
+        self.assertFileHasContent('hostname', 'host0')
 
     def test_ip_address_was_obfuscated(self):
         # Note: do not test for starting with the 100.* block here, as test
