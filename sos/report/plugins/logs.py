@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import glob
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, PluginOpt, IndependentPlugin, CosPlugin
 
 
 class Logs(Plugin, IndependentPlugin):
@@ -61,7 +61,7 @@ class Logs(Plugin, IndependentPlugin):
         # - systemd-journald service exists
         # otherwise fallback to collecting few well known logfiles directly
         journal = any([self.path_exists(self.path_join(p, "log/journal/"))
-                      for p in ["/var", "/run"]])
+                       for p in ["/var", "/run"]])
         if journal and self.is_service("systemd-journald"):
             self.add_journal(since=since, tags='journal_full', priority=100)
             self.add_journal(boot="this", since=since,
@@ -104,5 +104,20 @@ class Logs(Plugin, IndependentPlugin):
             r"pwd=.*",
             r"pwd=[******]"
         )
+
+
+class CosLogs(Logs, CosPlugin):
+    option_list = [
+        PluginOpt(name="log_days", default=3,
+                  desc="the number of days logs to collect")
+    ]
+
+    def setup(self):
+        super(CosLogs, self).setup()
+        if self.get_option("all_logs"):
+            self.add_cmd_output("journalctl -o export")
+        else:
+            days = self.get_option("log_days", 3)
+            self.add_journal(since="-%ddays" % days)
 
 # vim: set et ts=4 sw=4 :

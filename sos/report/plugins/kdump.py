@@ -7,7 +7,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 import platform
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, PluginOpt, RedHatPlugin, DebianPlugin, \
+    UbuntuPlugin, CosPlugin
 
 
 class KDump(Plugin):
@@ -101,5 +102,19 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/default/kdump-tools"
         ])
+
+
+class CosKDump(KDump, CosPlugin):
+
+    option_list = [
+        PluginOpt(name="collect-kdumps", default=False,
+                  desc="Collect existing kdump files"),
+    ]
+
+    def setup(self):
+        super(CosKDump, self).setup()
+        self.add_cmd_output('ls -alRh /var/kdump*')
+        if self.get_option("collect-kdumps"):
+            self.add_copy_spec(["/var/kdump-*"])
 
 # vim: set et ts=4 sw=4 :
