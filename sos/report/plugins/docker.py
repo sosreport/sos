@@ -135,7 +135,6 @@ class UbuntuDocker(Docker, UbuntuPlugin):
     def setup(self):
         super(UbuntuDocker, self).setup()
         self.add_copy_spec([
-            "/etc/containerd/",
             "/etc/default/docker",
             "/run/docker/libcontainerd/containerd/events.log"
         ])
