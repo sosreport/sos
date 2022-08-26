@@ -9,10 +9,10 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
-                                SoSPredicate, PluginOpt)
+                                SoSPredicate, PluginOpt, CosPlugin)
 
 
-class CRIO(Plugin, RedHatPlugin, UbuntuPlugin):
+class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
 
     short_desc = 'CRI-O containers'
     plugin_name = 'crio'
