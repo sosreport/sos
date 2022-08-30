@@ -36,6 +36,13 @@ class CosPolicy(LinuxPolicy):
     valid_subclasses = [CosPlugin, IndependentPlugin]
     PATH = "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
 
+    def __init__(self, sysroot=None, init=None, probe_runtime=True,
+                 remote_exec=None):
+        super(CosPolicy, self).__init__(sysroot=sysroot, init=init,
+                                        probe_runtime=probe_runtime,
+                                        remote_exec=remote_exec)
+        self.valid_subclasses += [CosPolicy]
+
     @classmethod
     def check(cls, remote=''):
         if remote:
