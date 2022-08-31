@@ -111,6 +111,8 @@ class SoSCleaner(SoSComponent):
             # when obfuscating a SoSCollector run during archive extraction
             os.makedirs(os.path.join(self.tmpdir, 'cleaner'), exist_ok=True)
 
+        self.validate_parser_values()
+
         self.cleaner_mapping = self.load_map_file()
         os.umask(0o77)
         self.in_place = in_place
@@ -315,6 +317,18 @@ third party.
             self.nested_archive = _arc
         if self.nested_archive:
             self.nested_archive.ui_name = self.nested_archive.description
+
+    def validate_parser_values(self):
+        """Check any values passed to the parsers via the commandline, e.g.
+        the --domains option, to ensure that they are valid for the parser in
+        question.
+        """
+        for _dom in self.opts.domains:
+            if len(_dom.split('.')) < 2:
+                raise Exception(
+                    f"Invalid value '{_dom}' given: --domains values must be "
+                    "actual domains"
+                )
 
     def execute(self):
         """SoSCleaner will begin by inspecting the TARGET option to determine
