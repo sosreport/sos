@@ -147,7 +147,9 @@ class SoSHostnameMap(SoSMap):
         if item in self.dataset:
             return self.dataset[item]
         if not self.domain_name_in_loaded_domains(item.lower()):
-            return item
+            # no match => return the original string with optional
+            # leading/trailing '.' or '_' characters
+            return ''.join([prefix, item, suffix])
         if item.endswith(self.strip_exts):
             ext = '.' + item.split('.')[-1]
             item = item.replace(ext, '')
