@@ -5,7 +5,7 @@ description: |
   primarily aimed at Linux distributions and other UNIX-like operating
   systems.
 grade: stable
-base: core20
+base: core22
 confinement: classic
 adopt-info: sos
 
@@ -14,8 +14,8 @@ parts:
     plugin: python
     source: .
     override-pull: |
-      snapcraftctl pull
-      snapcraftctl set-version $(git describe --tags --always)
+      craftctl default
+      craftctl set version="$(git describe --tags --always)"
     build-packages:
       - git
       - python3
