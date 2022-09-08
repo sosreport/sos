@@ -117,13 +117,13 @@ snap_build_task:
     name: "snap Build From Checkout"
     gce_instance:
         image_project: "${UBUNTU_PROJECT}"
-        image_name: "${UBUNTU_PRIOR_IMAGE_NAME}"
+        image_name: "${UBUNTU_IMAGE_NAME}"
         type: e2-medium
     setup_script: |
         apt update
         apt -y install snapd
         systemctl start snapd
-        sed -i 's/adopt-info.*/version: test/g' snap/snapcraft.yaml
+        sed -i -e 's/adopt-info.*/version: test/g' -e '/set version/d' snap/snapcraft.yaml
         snap install snapcraft --classic
     main_script: |
         snapcraft --destructive-mode
