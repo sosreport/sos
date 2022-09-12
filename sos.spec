@@ -16,7 +16,7 @@ Requires: python3-rpm
 Requires: tar
 Requires: xz
 Requires: python3-pexpect
-Requires: python3-magic
+Recommends: python3-magic
 Recommends: python3-pyyaml
 Obsoletes: sos-collector <= 1.9
 
