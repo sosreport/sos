@@ -19,10 +19,25 @@ import tempfile
 import threading
 import time
 import io
-import magic
-
 from contextlib import closing
 from collections import deque
+
+# try loading magic>=0.4.20 which implements detect_from_filename method
+magic_mod = False
+try:
+    import magic
+    magic.detect_from_filename(__file__)
+    magic_mod = True
+except (ImportError, AttributeError):
+    log = logging.getLogger('sos')
+    from textwrap import fill
+    msg = ("""\
+WARNING: Failed to load 'magic' module version >= 0.4.20 which sos aims to \
+use for detecting binary files. A less effective method will be used. It is \
+recommended to install proper python3-magic package with the module.
+""")
+    log.warn('\n' + fill(msg, 72, replace_whitespace=False) + '\n')
+
 
 TIMEOUT_DEFAULT = 300
 
@@ -75,17 +90,26 @@ def file_is_binary(fname):
     :returns:   True if binary, else False
     :rtype:     ``bool``
     """
-    try:
-        _ftup = magic.detect_from_filename(fname)
-        _mimes = ['text/', 'inode/']
-        return (
-            _ftup.encoding == 'binary' and not
-            any(_ftup.mime_type.startswith(_mt) for _mt in _mimes)
-        )
-    except Exception:
-        # if for some reason this check fails, don't blindly remove all files
-        # but instead rely on other checks done by the component
-        return False
+    if magic_mod:
+        try:
+            _ftup = magic.detect_from_filename(fname)
+            _mimes = ['text/', 'inode/']
+            return (
+                _ftup.encoding == 'binary' and not
+                any(_ftup.mime_type.startswith(_mt) for _mt in _mimes)
+            )
+        except Exception:
+            pass
+    # if for some reason the above check fails or magic>=0.4.20 is not present,
+    # fail over to checking the very first byte of the file content
+    with open(fname, 'tr') as tfile:
+        try:
+            # when opened as above (tr), reading binary content will raise
+            # an exception
+            tfile.read(1)
+            return False
+        except UnicodeDecodeError:
+            return True
 
 
 def find(file_pattern, top_dir, max_depth=None, path_pattern=None):
