@@ -728,7 +728,7 @@ third party.
                     _skip.match(short_name) for _skip in _p.skip_patterns
                 )
             ]
-            with open(filename, 'r') as fname:
+            with open(filename, 'r', errors='replace') as fname:
                 for line in fname:
                     try:
                         line, count = self.obfuscate_line(line, _parsers)

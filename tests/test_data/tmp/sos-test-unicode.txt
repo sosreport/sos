@@ -1,0 +1,5 @@
+This is a line with no unicode in it.
+This line has some in it æßøĄ.
+If opened normally, the last line may cause errors.
+So this file is used to test opening with errors='replace'.
+This line has the address 192.168.1.1 in it to ensure our cleaner tests are actually processing this file.
