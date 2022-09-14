@@ -102,7 +102,8 @@ class CleanerParserTests(unittest.TestCase):
     def setUp(self):
         self.ip_parser = SoSIPParser(config={})
         self.mac_parser = SoSMacParser(config={})
-        self.host_parser = SoSHostnameParser(config={}, opt_domains='foobar.com')
+        self.host_parser = SoSHostnameParser(config={},
+                                             opt_domains=['foobar.com'])
         self.kw_parser = SoSKeywordParser(config={}, keywords=['foobar'])
         self.kw_parser_none = SoSKeywordParser(config={})
         self.kw_parser.generate_item_regexes()
@@ -170,6 +171,11 @@ class CleanerParserTests(unittest.TestCase):
         line = 'testing just myhost in a line'
         _test = self.host_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
+
+    def test_hostname_no_obfuscate_underscore(self):
+        line = 'pam_env.so _why.not_'
+        _test = self.host_parser.parse_line(line)[0]
+        self.assertEqual(line, _test)
 
     def test_keyword_parser_valid_line(self):
         line = 'this is my foobar test line'
