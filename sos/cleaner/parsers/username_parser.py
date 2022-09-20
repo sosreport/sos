@@ -55,9 +55,11 @@ class SoSUsernameParser(SoSCleanerParser):
                 continue
             if not user or user.lower() in self.skip_list:
                 continue
-            users.add(user)
-        for each in users:
+            users.add(user.lower())
+        for each in sorted(users, key=len, reverse=True):
             self.mapping.get(each)
+            if '\\' in each:
+                self.mapping.get(each.split('\\')[-1])
 
     def _parse_line(self, line):
         return line, 0
