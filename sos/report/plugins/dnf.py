@@ -125,8 +125,9 @@ class DNFPlugin(Plugin, RedHatPlugin):
         self.get_modules_info(modules['output'])
 
     def postproc(self):
-        regexp = r"(proxy_password(\s)*=(\s)*)(\S+)\n"
+        regexp = r"(password(\s)*=(\s)*)(\S+)\n"
         repl = r"\1********\n"
-        self.do_path_regex_sub("/etc/yum.repos.d/*", regexp, repl)
+        for f in ["/etc/yum.repos.d/*", "/etc/dnf/vars/*"]:
+            self.do_path_regex_sub(f, regexp, repl)
 
 # vim: set et ts=4 sw=4 :
