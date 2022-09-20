@@ -55,7 +55,12 @@ class DNFPlugin(Plugin, RedHatPlugin):
             '/etc/dnf/modules.d/.*.module': 'dnf_modules'
         })
 
-        self.add_copy_spec("/etc/dnf/")
+        self.add_copy_spec([
+            "/etc/dnf/",
+            "/etc/yum.conf",
+            "/etc/yum/pluginconf.d/",
+            "/etc/yum/vars/",
+        ])
         self.add_copy_spec("/etc/yum.repos.d/",
                            tags=['yum_repos_d', 'dnf_repos_d', 'dnf_repo'])
 
