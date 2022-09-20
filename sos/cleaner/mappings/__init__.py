@@ -94,7 +94,7 @@ class SoSMap():
         :returns:       A compiled regex pattern for the item
         :rtype:         ``re.Pattern``
         """
-        return re.compile(item, re.I)
+        return re.compile(re.escape(item), re.I)
 
     def sanitize_item(self, item):
         """Perform the obfuscation relevant to the item being added to the map.
