@@ -21,7 +21,8 @@ class Grub2(Plugin, IndependentPlugin):
 
         self.add_file_tags({
             '/boot/grub2/grub.cfg': 'grub2_cfg',
-            '/boot/efi/.*/grub.cfg': 'grub2_efi_cfg'
+            '/boot/efi/.*/grub.cfg': 'grub2_efi_cfg',
+            '/boot/grub2/grubenv': 'insights_grubenv'
         })
 
         self.add_copy_spec([

@@ -65,6 +65,9 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 "/etc/dirsrv/admin-serv",
                 "/var/log/dirsrv/*"
             ])
+            self.add_file_tags({
+                "/var/log/dirsrv/*/access": "insights_dirsrv_access"
+            })
         elif "ds7" in self.check_version():
             self.add_copy_spec([
                 "/opt/redhat-ds/slapd-*/config",

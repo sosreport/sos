@@ -88,9 +88,9 @@ class RedHatForemanInstaller(ForemanInstaller, RedHatPlugin):
     def setup(self):
 
         self.add_file_tags({
-            '/var/log/foreman-installer/satellite.log.*':
-                ['insights_satellite_log' 'satellite_installer_log'],
-            '/var/log/foreman-installer/capsule.log.*':
+            '/var/log/foreman-installer/satellite.log':
+                ['insights_foreman_satellite_log' 'satellite_installer_log'],
+            '/var/log/foreman-installer/capsule.log':
                 ['insights_capsule_log' 'capsule_installer_log'],
         })
 

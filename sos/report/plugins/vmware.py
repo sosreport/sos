@@ -34,6 +34,10 @@ class VMWare(Plugin, RedHatPlugin):
             "/var/log/vmware-vmusr-root.log"
         ])
 
+        self.add_file_tags({
+            "/etc/vmware-tools/tools.conf": "insights_vmware_tools_conf"
+        })
+
         self.add_cmd_output([
             "vmware-checkvm",
             "vmware-toolbox-cmd device list",

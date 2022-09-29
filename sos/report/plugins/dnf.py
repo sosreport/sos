@@ -86,7 +86,9 @@ class DNFPlugin(Plugin, RedHatPlugin):
                             tags=["yum_list_installed", "dnf_list_installed"])
 
         self.add_cmd_output('dnf -C repolist',
-                            tags=['yum_repolist', 'dnf_repolist'])
+                            tags=['yum_repolist',
+                                  'dnf_repolist',
+                                  'insights_yum_repolist'])
 
         self.add_cmd_output('dnf -C repolist --verbose')
 

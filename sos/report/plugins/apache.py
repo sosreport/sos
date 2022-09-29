@@ -38,10 +38,11 @@ class Apache(Plugin):
     def setup(self):
         # collect list of installed modules and verify config syntax.
         self.add_cmd_output([
-            "apachectl -M",
             "apachectl -S",
             "apachectl -t"
         ], cmd_as_tag=True)
+        self.add_cmd_output("apachectl -M", cmd_as_tag=True,
+                            tags="insights_httpd_M")
 
         # Other plugins collect these files;
         # do not collect them here to avoid collisions in the archive paths.
@@ -127,6 +128,12 @@ class RedHatApache(Apache, RedHatPlugin):
                     self.add_copy_spec("%s/%s" % (ldir, log))
 
         self.add_service_status('httpd', tags='systemctl_httpd')
+
+        self.add_file_tags({
+            "/var/log/httpd/access_log": "insights_httpd_access_log",
+            "/var/log/httpd/ssl_access_log": "insights_httpd_ssl_access_log",
+            "/var/log/httpd/ssl_error_log": "insights_httpd_ssl_error_log"
+        })
 
 
 class DebianApache(Apache, DebianPlugin, UbuntuPlugin):

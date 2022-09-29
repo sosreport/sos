@@ -31,12 +31,13 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
         self.add_copy_spec([
             "/etc/containers",
             "/etc/crictl.yaml",
-            "/etc/crio/crio.conf",
             "/etc/crio/seccomp.json",
             "/etc/crio/crio.conf.d/",
             "/etc/systemd/system/cri-o.service",
             "/etc/sysconfig/crio-*"
         ])
+        self.add_copy_spec("/etc/crio/crio.conf",
+                           tags="insights_crio_conf")
 
         self.add_env_var([
             'HTTP_PROXY',
@@ -85,7 +86,8 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
                                 subdir="containers")
             if self.get_option('logs'):
                 self.add_cmd_output("crictl logs -t %s" % container,
-                                    subdir="containers/logs", priority=100)
+                                    subdir="containers/logs", priority=100,
+                                    tags="insights_crictl_logs")
 
         for image in images:
             self.add_cmd_output("crictl inspecti %s" % image, subdir="images")

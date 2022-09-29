@@ -43,15 +43,18 @@ class Kernel(Plugin, IndependentPlugin):
 
     def setup(self):
         # compat
-        self.add_cmd_output("uname -a", root_symlink="uname")
-        self.add_cmd_output("lsmod", root_symlink="lsmod")
+        self.add_cmd_output("uname -a", root_symlink="uname",
+                            tags="insights_uname")
+        self.add_cmd_output("lsmod", root_symlink="lsmod",
+                            tags="insights_lsmod")
         self.add_cmd_output("ls -lt /sys/kernel/slab")
 
         try:
             modules = self.listdir(self.sys_module)
             self.add_cmd_output("modinfo " + " ".join(modules),
                                 suggest_filename="modinfo_ALL_MODULES",
-                                tags='modinfo_all')
+                                tags=['modinfo_all',
+                                      'insights_modinfo_all'])
         except OSError:
             self._log_warn("could not list %s" % self.sys_module)
 
@@ -68,11 +71,11 @@ class Kernel(Plugin, IndependentPlugin):
         if extra_mod_paths:
             self.add_cmd_output("find %s -ls" % " ".join(extra_mod_paths))
 
-        self.add_cmd_output([
-            "dmesg",
-            "sysctl -a",
-            "dkms status"
-        ], cmd_as_tag=True)
+        self.add_cmd_output("dkms status", cmd_as_tag=True)
+        self.add_cmd_output("dmesg", cmd_as_tag=True,
+                            tags="insights_dmesg")
+        self.add_cmd_output("sysctl -a", cmd_as_tag=True,
+                            tags="insights_sysctl")
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
 

@@ -165,6 +165,15 @@ class Ovirt(Plugin, RedHatPlugin):
             "/var/lib/ovirt-engine-reports/jboss_runtime/config"
         ])
 
+        self.add_file_tags({
+            "/etc/ovirt-engine/engine.conf.d/.*":
+                "insights_ovirt_engine_confd",
+            "/var/log/ovirt-engine/boot.log":
+                "insights_ovirt_engine_boot_log",
+            "/var/log/ovirt-engine/console.log":
+                "insights_ovirt_engine_console_log"
+        })
+
         # Copying host certs; extra copy the hidden .truststore file
         self.add_forbidden_path([
             "/etc/pki/ovirt-engine/keys",

@@ -21,7 +21,9 @@ class Alternatives(Plugin, RedHatPlugin):
     def setup(self):
 
         self.add_cmd_tags({
-            "alternatives --display java.*": 'insights_display_java'
+            "alternatives --display java.*": 'insights_display_java',
+            "alternatives --display python.*":
+                'insights_alternatives_display_python'
         })
 
         self.add_cmd_output('alternatives --version')

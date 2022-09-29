@@ -25,10 +25,9 @@ class Ntp(Plugin):
             "/etc/ntp/step-tickers",
             "/etc/ntp/ntpservers"
         ])
-        self.add_cmd_output([
-            "ntptime",
-            "ntpq -pn"
-        ], cmd_as_tag=True)
+        self.add_cmd_output("ntpq -pn", cmd_as_tag=True)
+        self.add_cmd_output("ntptime", cmd_as_tag=True,
+                            tags="insights_ntptime")
 
         ids = self.collect_cmd_output('ntpq -c as')
         if ids['status'] == 0:

@@ -162,10 +162,17 @@ class Ipa(Plugin, RedHatPlugin):
         getcert_pred = SoSPredicate(self,
                                     services=['certmonger'])
 
-        self.add_cmd_output("getcert list", pred=getcert_pred)
+        self.add_cmd_output("getcert list", pred=getcert_pred,
+                            tags="insights_getcert_list")
 
         for certdb_directory in glob("/etc/dirsrv/slapd-*/"):
             self.add_cmd_output("certutil -L -d %s" % certdb_directory)
+
+        self.add_file_tags({
+            "/var/log/ipa/healthcheck/healthcheck.log":
+                "insights_freeipa_healthcheck_log"
+        })
+
         return
 
     def postproc(self):

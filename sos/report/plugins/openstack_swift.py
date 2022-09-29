@@ -40,6 +40,11 @@ class OpenStackSwift(Plugin):
             self.var_puppet_gen + "/memcached/etc/sysconfig/memcached"
         ])
 
+        self.add_file_tags({
+            "/etc/swift/swift.conf": "insights_swift_conf",
+            "/var/log/swift/swift.log": "insights_swift_log"
+        })
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub(r"/etc/swift/.*\.conf.*", regexp, subst)
         self.do_path_regex_sub(

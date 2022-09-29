@@ -53,6 +53,10 @@ class OpenStackInstack(Plugin):
                 "/var/log/zaqar/*.log",
             ])
 
+        self.add_file_tags({
+            "/var/log/mistral/executor.log": "insights_mistral_executor_log"
+        })
+
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
 

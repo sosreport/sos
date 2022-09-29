@@ -33,4 +33,8 @@ class CloudInit(Plugin, IndependentPlugin):
             '/var/log/cloud-init*'
         ])
 
+        self.add_file_tags({
+            "/etc/cloud/cloud.cfg": "insights_cloud_cfg_filtered"
+        })
+
 # vim: set et ts=4 sw=4 :

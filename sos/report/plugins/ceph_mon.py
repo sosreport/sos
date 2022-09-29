@@ -33,13 +33,13 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "/var/log/ceph/ceph-mon*.log"
         ])
 
+        self.add_cmd_output("ceph report", tags="insights_ceph_report")
         self.add_cmd_output([
             # The ceph_mon plugin will collect all the "ceph ..." commands
             # which typically require the keyring.
 
             "ceph mon stat",
             "ceph quorum_status",
-            "ceph report",
             "ceph-disk list",
             "ceph versions",
             "ceph features",
@@ -66,7 +66,6 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         ceph_cmds = [
             "mon dump",
             "status",
-            "health detail",
             "device ls",
             "df",
             "df detail",
@@ -75,7 +74,6 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "pg dump",
             "pg stat",
             "time-sync-status",
-            "osd tree",
             "osd stat",
             "osd df tree",
             "osd dump",
@@ -88,9 +86,15 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "osd numa-status"
         ]
 
+        self.add_cmd_output("ceph health detail --format json-pretty",
+                            subdir="json_output",
+                            tags="insights_ceph_health_detail")
+        self.add_cmd_output("ceph osd tree --format json-pretty",
+                            subdir="json_output",
+                            tags="insights_ceph_osd_tree")
         self.add_cmd_output([
             "ceph %s --format json-pretty" % s for s in ceph_cmds
-        ], subdir="json_output", tags="insights_ceph_health_detail")
+        ], subdir="json_output")
 
         mon_ids = []
         # Get the ceph user processes

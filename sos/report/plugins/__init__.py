@@ -2976,6 +2976,10 @@ class Plugin():
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
                              sizelimit=log_size, pred=pred, tags=tags,
                              priority=priority)
+        self.add_cmd_tags({
+            "journalctl --no-pager": "insights_journal_all",
+            "journalctl --no-pager --boot": "insights_journal_since_boot"
+        })
 
     def _expand_copy_spec(self, copyspec):
         def __expand(paths):

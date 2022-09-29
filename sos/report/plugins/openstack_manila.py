@@ -46,6 +46,10 @@ class OpenStackManila(Plugin):
                 "/var/log/manila/*.log",
             ])
 
+        self.add_file_tags({
+            ".*/etc/manila/manila.conf": "insights_manila_conf"
+        })
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/manila/*", regexp, subst)
         self.do_path_regex_sub(

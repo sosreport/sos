@@ -49,10 +49,7 @@ class Docker(Plugin, CosPlugin):
 
         subcmds = [
             'events --since 24h --until 1s',
-            'info',
-            'images',
             'ps',
-            'ps -a',
             'stats --no-stream',
             'version',
             'volume ls'
@@ -60,6 +57,13 @@ class Docker(Plugin, CosPlugin):
 
         for subcmd in subcmds:
             self.add_cmd_output("docker %s" % subcmd)
+
+        self.add_cmd_output("docker info",
+                            tags="insights_docker_info")
+        self.add_cmd_output("docker images",
+                            tags="insights_docker_images")
+        self.add_cmd_output("docker ps -a",
+                            tags="insights_docker_list_containers")
 
         # separately grab these separately as they can take a *very* long time
         if self.get_option('size'):
@@ -90,7 +94,8 @@ class Docker(Plugin, CosPlugin):
         for img in images:
             name, img_id = img
             insp = name if 'none' not in name else img_id
-            self.add_cmd_output("docker inspect %s" % insp, subdir='images')
+            self.add_cmd_output("docker inspect %s" % insp, subdir='images',
+                                tags="insights_docker_image_inspect")
 
         for vol in volumes:
             self.add_cmd_output("docker volume inspect %s" % vol,

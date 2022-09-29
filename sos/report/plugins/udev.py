@@ -23,4 +23,9 @@ class Udev(Plugin, IndependentPlugin):
             "/etc/udev/rules.d/*"
         ])
 
+        self.add_file_tags({
+            "/etc/udev/rules.d/70-persistent-net.rules":
+                "insights_udev_persistent_net_rules"
+        })
+
 # vim: set et ts=4 sw=4 :

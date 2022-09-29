@@ -75,6 +75,13 @@ class OpenStackKeystone(Plugin):
             self.add_cmd_output("openstack endpoint list")
             self.add_cmd_output("openstack catalog list")
 
+        self.add_file_tags({
+            "/etc/keystone/keystone.conf": "insights_keystone_conf",
+            self.var_puppet_gen + "/etc/keystone/keystone.conf":
+                "insights_keystone_conf",
+            "/var/log/keystone/keystone.log": "insights_keystone_log"
+        })
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/keystone/*", regexp, subst)
         self.do_path_regex_sub(

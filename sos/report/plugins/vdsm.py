@@ -85,6 +85,12 @@ class Vdsm(Plugin, RedHatPlugin):
             '/var/lib/vdsm',
         ])
 
+        self.add_file_tags({
+            "/etc/vdsm/vdsm.conf": "insights_vdsm_conf",
+            "/etc/vdsm/vdsm.id": "insights_vdsm_id",
+            "/var/log/vdsm/import/import-*.log": "insights_vdsm_import_log"
+        })
+
         qemu_pids = self.get_process_pids('qemu-kvm')
         if qemu_pids:
             files = ["cmdline", "status", "mountstats"]

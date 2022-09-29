@@ -22,8 +22,14 @@ class ForemanProxy(Plugin):
 
     def setup(self):
         self.add_file_tags({
-            '/var/log/foreman-proxy/proxy.log.*': 'foreman_proxy_log',
-            '/etc/foreman-proxy/settings.yml': 'foreman_proxy_conf'
+            '/var/log/foreman-proxy/proxy.log': [
+                'foreman_proxy_log',
+                'insights_foreman_proxy_log'
+            ],
+            '/etc/foreman-proxy/settings.yml': [
+                'foreman_proxy_conf',
+                'insights_foreman_proxy_conf'
+            ]
         })
 
         self.add_forbidden_path([

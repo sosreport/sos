@@ -44,14 +44,16 @@ class Pacemaker(Plugin):
     def setup_pcs(self):
         self.add_copy_spec("/var/log/pcsd/pcsd.log")
         self.add_cmd_output([
-            "pcs config",
-            "pcs status --full",
             "pcs stonith sbd status --full",
             "pcs stonith sbd watchdog list",
             "pcs stonith history show",
-            "pcs quorum status",
             "pcs property list --all"
         ])
+        self.add_cmd_output("pcs config", tags="insights_pcs_config")
+        self.add_cmd_output("pcs quorum status",
+                            tags="insights_pcs_quorum_status")
+        self.add_cmd_output("pcs status --full",
+                            tags="insights_pcs_status")
 
     def postproc_crm_shell(self):
         self.do_cmd_output_sub(

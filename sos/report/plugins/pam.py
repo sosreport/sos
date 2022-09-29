@@ -21,6 +21,7 @@ class Pam(Plugin):
     def setup(self):
 
         self.add_file_tags({
+            '/etc/pam.conf': 'insights_pam_conf',
             '/etc/pam.d/password-auth': 'password_auth',
             '/etc/security/limits.*.conf': 'limits_conf'
         })

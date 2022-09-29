@@ -88,6 +88,9 @@ class CertificateSystem(Plugin, RedHatPlugin):
                 "/var/log/dirsrv/slapd-*/access",
                 "/var/log/dirsrv/slapd-*/errors"
             ])
+            self.add_file_tags({
+                "/var/log/dirsrv/*/access": "insights_dirsrv_access"
+            })
         if csversion == 8:
             self.add_copy_spec([
                 "/etc/pki-*/CS.cfg",

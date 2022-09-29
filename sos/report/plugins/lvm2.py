@@ -63,7 +63,7 @@ class Lvm2(Plugin, IndependentPlugin):
 
         self.add_cmd_output(
             "vgdisplay -vv %s" % lvm_opts_foreign,
-            root_symlink="vgdisplay"
+            root_symlink="vgdisplay", tags="insights_vgdisplay"
         )
 
         pvs_cols = 'pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count'
@@ -72,12 +72,16 @@ class Lvm2(Plugin, IndependentPlugin):
         vgs_cols = vgs_cols + ',' + 'vg_tags,systemid'
         lvs_cols = ('lv_tags,devices,lv_kernel_read_ahead,lv_read_ahead,'
                     'stripes,stripesize')
-        self.add_cmd_output([
-            "vgscan -vvv %s" % lvm_opts,
-            "pvscan -v %s" % lvm_opts,
+        self.add_cmd_output("lvs -a -o +%s %s" % (lvs_cols, lvm_opts_foreign),
+                            tags="insights_lvs")
+        self.add_cmd_output(
             "pvs -a -v -o +%s %s" % (pvs_cols, lvm_opts_foreign),
-            "vgs -v -o +%s %s" % (vgs_cols, lvm_opts_foreign),
-            "lvs -a -o +%s %s" % (lvs_cols, lvm_opts_foreign)
+            tags="insights_pvs")
+        self.add_cmd_output("vgs -v -o +%s %s" % (vgs_cols, lvm_opts_foreign),
+                            tags="insights_vgs")
+        self.add_cmd_output([
+            "pvscan -v %s" % lvm_opts,
+            "vgscan -vvv %s" % lvm_opts
         ])
 
         self.add_copy_spec("/etc/lvm")

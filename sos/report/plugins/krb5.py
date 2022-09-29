@@ -27,9 +27,10 @@ class Krb5(Plugin):
             "/etc/krb5.conf.d/*",
             "%s/kadm5.acl" % self.kdcdir,
             "%s/kdc.conf" % self.kdcdir,
-            "/var/log/krb5kdc.log",
             "/var/log/kadmind.log"
         ])
+        self.add_copy_spec("/var/log/krb5kdc.log",
+                           tags="insights_kerberos_kdc_log")
         self.add_cmd_output("klist -ket %s/.k5*" % self.kdcdir)
         self.add_cmd_output("klist -ket /etc/krb5.keytab")
 

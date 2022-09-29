@@ -43,6 +43,7 @@ class Autofs(Plugin):
 
     def setup(self):
         self.add_copy_spec("/etc/auto*")
+        self.add_file_tags({"/etc/autofs.conf": "insights_autofs_conf"})
         self.add_service_status("autofs")
         self.add_cmd_output("automount -m")
         if self.checkdebug():

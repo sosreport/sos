@@ -85,10 +85,14 @@ class OpenVSwitch(Plugin):
         if ovs_dbdir:
             self.add_copy_spec(self.path_join(ovs_dbdir, 'conf.db'))
 
+        self.add_file_tags({
+            "/var/log/openvswitch/ovs-vswitchd.log":
+                "insights_openvswitch_daemon_log",
+            "/var/log/openvswitch/ovsdb-server.log":
+                "insights_openvswitch_server_log"
+        })
+
         self.add_cmd_output([
-            # The '-t 5' adds an upper bound on how long to wait to connect
-            # to the Open vSwitch server, avoiding hangs when running sos.
-            "ovs-vsctl -t 5 show",
             # List the contents of important runtime directories
             "ls -laZ /run/openvswitch",
             "ls -laZ /dev/hugepages/",
@@ -116,8 +120,6 @@ class OpenVSwitch(Plugin):
             "ovs-appctl tnl/ports/show -v",
             # Capture upcall information
             "ovs-appctl upcall/show",
-            # Capture DPDK and other parameters
-            "ovs-vsctl -t 5 get Open_vSwitch . other_config",
             # Capture OVS list
             "ovs-vsctl -t 5 list Open_vSwitch",
             # Capture OVS interface list
@@ -149,6 +151,13 @@ class OpenVSwitch(Plugin):
             # Capture miniflow extract implementations
             "ovs-appctl dpif-netdev/miniflow-parser-get"
         ])
+        # Capture DPDK and other parameters
+        self.add_cmd_output("ovs-vsctl -t 5 get Open_vSwitch . other_config",
+                            tags="insights_openvswitch_other_config")
+        # The '-t 5' adds an upper bound on how long to wait to connect
+        # to the Open vSwitch server, avoiding hangs when running sos.
+        self.add_cmd_output("ovs-vsctl -t 5 show",
+                            tags="insights_ovs_vsctl_show")
 
         # Gather systemd services logs
         self.add_journal(units="openvswitch")

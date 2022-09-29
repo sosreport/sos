@@ -66,15 +66,14 @@ class Process(Plugin, IndependentPlugin):
         self.add_cmd_output("pstree -lp", root_symlink="pstree")
         if self.get_option("lsof"):
             self.add_cmd_output("lsof +M -n -l -c ''", root_symlink="lsof",
-                                timeout=15, priority=50)
+                                timeout=15, priority=50, tags="insights_lsof")
 
         if self.get_option("lsof-threads"):
             self.add_cmd_output("lsof +M -n -l", timeout=15, priority=50)
 
-        self.add_cmd_output([
-            "ps alxwww",
-            "ps -elfL"
-        ], cmd_as_tag=True)
+        self.add_cmd_output("ps alxwww", cmd_as_tag=True,
+                            tags="insights_ps_alxwww")
+        self.add_cmd_output("ps -elfL", cmd_as_tag=True)
 
         self.add_cmd_output([
             "%s %s" % (ps_axo, ps_group_opts),

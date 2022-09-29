@@ -40,7 +40,9 @@ class RedHatServices(Services, RedHatPlugin):
 
     def setup(self):
         super(RedHatServices, self).setup()
-        self.add_cmd_output("/sbin/chkconfig --list", root_symlink="chkconfig")
+        self.add_cmd_output("chkconfig --list",
+                            root_symlink="chkconfig",
+                            tags="insights_chkconfig")
 
 
 class DebianServices(Services, DebianPlugin, UbuntuPlugin):

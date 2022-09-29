@@ -31,4 +31,9 @@ class DeviceMapper(Plugin, IndependentPlugin):
             "dmstats print --allregions"
         ], pred=SoSPredicate(self, kmods=['dm_mod']))
 
+        self.add_cmd_tags({
+            "dmsetup info -c": "insights_dmsetup_info",
+            "dmsetup status": "insights_dmsetup_status"
+        })
+
 # vim: set et ts=4 sw=4 :

@@ -55,25 +55,23 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             'ALL_PROXY'
         ])
 
-        self.add_cmd_tags({
-            'podman images': 'podman_list_images',
-            'podman ps.*': 'podman_list_containers'
-        })
-
         subcmds = [
             'info',
-            'images',
             'images --digests',
             'pod ps',
             'port --all',
-            'ps',
             'ps -a',
             'stats --no-stream --all',
             'version',
             'volume ls'
         ]
-
         self.add_cmd_output(["podman %s" % s for s in subcmds])
+        self.add_cmd_output("podman images",
+                            tags=["insights_podman_list_images",
+                                  "podman_list_images"])
+        self.add_cmd_output("podman ps",
+                            tags=["insights_podman_list_containers",
+                                  "podman_list_containers"])
 
         # separately grab ps -s as this can take a *very* long time
         if self.get_option('size'):
@@ -108,7 +106,8 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             name, img_id = img
             insp = name if 'none' not in name else img_id
             self.add_cmd_output("podman inspect %s" % insp, subdir='images',
-                                tags='podman_image_inspect')
+                                tags=['podman_image_inspect',
+                                      'insights_podman_image_inspect'])
 
         for vol in volumes:
             self.add_cmd_output("podman volume inspect %s" % vol,

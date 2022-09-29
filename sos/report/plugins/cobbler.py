@@ -26,6 +26,10 @@ class RedHatCobbler(Cobbler, RedHatPlugin):
             "/var/lib/rhn/kickstarts",
             "/var/lib/cobbler"
         ])
+        self.add_file_tags({
+            "/etc/clobber/modules.conf": "insights_cobbler_modules_conf",
+            "/etc/cobbler/settings": "insights_cobbler_settings"
+        })
 
 
 class DebianCobbler(Cobbler, DebianPlugin, UbuntuPlugin):

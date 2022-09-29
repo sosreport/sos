@@ -20,10 +20,10 @@ class Date(Plugin, IndependentPlugin):
     def setup(self):
 
         self.add_cmd_output([
-            'date',
             'date --utc',
             'hwclock'
         ])
+        self.add_cmd_output("date", tags="insights_date")
 
         self.add_copy_spec([
             '/etc/localtime',

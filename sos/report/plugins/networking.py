@@ -82,7 +82,8 @@ class Networking(Plugin):
 
         self.add_cmd_output("ip -o addr", root_symlink="ip_addr",
                             tags='ip_addr')
-        self.add_cmd_output("route -n", root_symlink="route", tags='route')
+        self.add_cmd_output("route -n", root_symlink="route",
+                            tags=['route', 'insights_route'])
         self.add_cmd_output("plotnetcfg")
 
         self.add_cmd_output("netstat %s -neopa" % self.ns_wide,
@@ -240,6 +241,24 @@ class Networking(Plugin):
                     ns_cmd_prefix + "ethtool -k %(dev)s",
                     ns_cmd_prefix + "ethtool -S %(dev)s"
                 ], devices=_devs['ethernet'], priority=50, subdir=_subdir)
+
+        self.add_cmd_tags({
+            "ethtool [^-].*": "insights_ethtool",
+            "ethtool -S.*": "insights_ethtool_S",
+            "ethtool -T.*": "insights_ethtool_T",
+            "ethtool -a.*": "insights_ethtool_a",
+            "ethtool -c.*": "insights_ethtool_c",
+            "ethtool -g.*": "insights_ethtool_g",
+            "ethtool -i.*": "insights_ethtool_i",
+            "ethtool -k.*": "insights_ethtool_k",
+            "ip -d address": "insights_ip_addr",
+            "ip -s -s neigh show": "insights_ip_neigh_show",
+            "ip route show table all": "insights_iproute_show_table_all",
+            "ip -s -d link": "insights_ip_s_link",
+            "netstat.*-neopa": "insights_netstat",
+            "netstat.*-agn": "insights_netstat_agn",
+            "netstat -s": "insights_netstat_s"
+        })
 
 
 class RedHatNetworking(Networking, RedHatPlugin):

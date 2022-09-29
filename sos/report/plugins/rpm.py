@@ -47,7 +47,9 @@ class Rpm(Plugin, RedHatPlugin):
             )
 
             self.add_cmd_output(rpmq % extpd, suggest_filename='package-data',
-                                tags=['installed_rpms', 'package_data'])
+                                tags=['installed_rpms',
+                                      'package_data',
+                                      'insights_installed_rpms'])
 
         if self.get_option("rpmva"):
             self.plugin_timeout = 1000

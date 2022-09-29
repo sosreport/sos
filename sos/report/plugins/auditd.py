@@ -19,19 +19,21 @@ class Auditd(Plugin, IndependentPlugin):
     packages = ('audit',)
 
     def setup(self):
+        self.add_copy_spec("/etc/audit/auditd.conf",
+                           tags="insights_auditd_conf")
         self.add_copy_spec([
-            "/etc/audit/auditd.conf",
             "/etc/audit/audit.rules",
             "/etc/audit/audit-stop.rules",
             "/etc/audit/rules.d/",
             "/etc/audit/plugins.d/",
             "/etc/audisp/",
         ])
-        self.add_cmd_output([
-            "ausearch --input-logs -m avc,user_avc,fanotify -ts today",
-            "auditctl -s",
-            "auditctl -l"
-        ])
+
+        self.add_cmd_output(
+            "ausearch --input-logs -m avc,user_avc,fanotify -ts today"
+        )
+        self.add_cmd_output("auditctl -l", tags="insights_auditctl_rules")
+        self.add_cmd_output("auditctl -s", tags="insights_auditctl_status")
 
         config_file = "/etc/audit/auditd.conf"
         log_file = "/var/log/audit/audit.log"

@@ -24,23 +24,19 @@ class Systemd(Plugin, IndependentPlugin):
     def setup(self):
 
         self.add_file_tags({
-            '/etc/systemd/journald.conf.*': 'insights_etc_journald_conf',
-            '/usr/lib/systemd/journald.conf.*': 'insights_usr_journald_conf_d',
+            '/etc/systemd/journald.conf': 'insights_etc_journald_conf',
+            '/usr/lib/systemd/journald.conf': 'insights_usr_journald_conf_d',
             '/etc/systemd/system.conf': 'insights_systemd_system_conf',
             '/etc/systemd/logind.conf': 'insights_systemd_logind_conf'
         })
 
         self.add_cmd_output([
-            "systemctl status --all",
             "systemctl show --all",
-            "systemctl show *service --all",
             # It is possible to do systemctl show with target, slice,
             # device, socket, scope, and mount too but service and
             # status --all mostly seems to cover the others.
-            "systemctl list-units",
             "systemctl list-units --failed",
             "systemctl list-units --all",
-            "systemctl list-unit-files",
             "systemctl list-jobs",
             "systemctl list-dependencies",
             "systemctl list-timers --all",
@@ -48,13 +44,22 @@ class Systemd(Plugin, IndependentPlugin):
             "systemctl show-environment",
             "systemd-delta",
             "systemd-analyze",
-            "systemd-analyze blame",
             "systemd-analyze dump",
             "systemd-inhibit --list",
             "journalctl --list-boots",
             "ls -lR /lib/systemd"
         ])
 
+        self.add_cmd_output("systemctl list-units",
+                            tags="insights_systemctl_list_units")
+        self.add_cmd_output("systemctl list-unit-files",
+                            tags="insights_systemctl_list_unit_files")
+        self.add_cmd_output("systemctl show service --all",
+                            tags="insights_systemctl_show_all_services")
+        self.add_cmd_output("systemctl status --all",
+                            tags="insights_systemctl_status_all")
+        self.add_cmd_output("systemd-analyze blame",
+                            tags="insights_systemd_analyze_blame")
         self.add_cmd_output('timedatectl', root_symlink='date')
 
         # resolvectl command starts systemd-resolved service if that

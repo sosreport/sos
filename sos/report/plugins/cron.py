@@ -31,6 +31,7 @@ class Cron(Plugin, IndependentPlugin):
 
         self.add_cmd_output("crontab -l -u root",
                             suggest_filename="root_crontab",
-                            tags="root_crontab")
+                            tags=["root_crontab",
+                                  "insights_root_crontab"])
 
 # vim: set et ts=4 sw=4 :

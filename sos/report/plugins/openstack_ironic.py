@@ -82,6 +82,11 @@ class OpenStackIronic(Plugin):
                 if self.container_exists('.*' + container_name):
                     self.add_cmd_output('rpm -qa', container=container_name)
 
+            self.add_file_tags({
+                self.var_puppet_gen + "/etc/ironic/ironic.conf":
+                    "insights_ironic_conf"
+            })
+
         else:
             self.conf_list = [
                 "/etc/ironic/*",
@@ -109,6 +114,10 @@ class OpenStackIronic(Plugin):
 
             for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
                 self.add_cmd_output('ls -laRt %s' % path)
+
+            self.add_file_tags({
+                "/etc/ironic/ironic.conf": "insights_ironic_conf"
+            })
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
