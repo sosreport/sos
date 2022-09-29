@@ -29,7 +29,6 @@ class LibvirtClient(Plugin, IndependentPlugin):
 
         # get host information
         subcmds = [
-            'list --all',
             'domcapabilities',
             'capabilities',
             'nodeinfo',
@@ -45,6 +44,9 @@ class LibvirtClient(Plugin, IndependentPlugin):
 
         for subcmd in subcmds:
             self.add_cmd_output('%s %s' % (cmd, subcmd), foreground=True)
+
+        self.add_cmd_output("%s list --all" % cmd,
+                            tags="virsh_list_all", foreground=True)
 
         # get network, pool and nwfilter elements
         for k in ['net', 'nwfilter', 'pool']:

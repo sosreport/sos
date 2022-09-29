@@ -24,10 +24,13 @@ class Teamd(Plugin, IndependentPlugin):
             "/usr/lib/systemd/system/teamd@.service"
         ])
 
+        self.add_device_cmd("teamdctl %(dev)s config dump", devices="team",
+                            tags="teamdctl_config_dump")
+        self.add_device_cmd("teamdctl %(dev)s state dump", devices="team",
+                            tags="teamdctl_state_dump")
+
         self.add_device_cmd([
             "teamdctl %(dev)s state",
-            "teamdctl %(dev)s state dump",
-            "teamdctl %(dev)s config dump",
             "teamnl %(dev)s option",
             "teamnl %(dev)s ports"
         ], devices='team')

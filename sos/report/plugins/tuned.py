@@ -19,18 +19,19 @@ class Tuned(Plugin, RedHatPlugin):
     plugin_name = 'tuned'
 
     def setup(self):
+        self.add_cmd_output("tuned-adm list",
+                            tags="tuned_adm")
         self.add_cmd_output([
-            "tuned-adm list",
             "tuned-adm active",
             "tuned-adm recommend",
             "tuned-adm verify"
         ])
-        self.add_copy_spec([
-            "/etc/tuned.conf",
-            "/etc/tune-profiles"
-        ])
+
+        self.add_copy_spec("/etc/tuned.conf",
+                           tags="tuned_conf")
         self.add_copy_spec([
             "/etc/tuned",
+            "/etc/tune-profiles",
             "/usr/lib/tuned",
             "/var/log/tuned/tuned.log"
         ])

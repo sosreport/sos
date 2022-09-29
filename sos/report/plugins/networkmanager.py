@@ -99,6 +99,11 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 devices='ethernet'
             )
 
+        self.add_cmd_tags({
+            "nmcli dev show": "nmcli_dev_show",
+            "nmcli dev show .*": "nmcli_dev_show_sos"
+        })
+
     def postproc(self):
         for root, dirs, files in os.walk(
                 "/etc/NetworkManager/system-connections"):

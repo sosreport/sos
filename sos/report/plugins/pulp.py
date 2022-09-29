@@ -131,10 +131,13 @@ class Pulp(Plugin, RedHatPlugin):
         self.add_cmd_output(prun, suggest_filename="pulp-running_tasks")
         self.add_cmd_output(csizes, suggest_filename="mongo-collection_sizes")
         self.add_cmd_output(dbstats, suggest_filename="mongo-db_stats")
-        self.add_cmd_output([
-            "qpid-stat -%s --ssl-certificate=%s -b amqps://localhost:5671" %
-            (opt, self.messaging_cert_file) for opt in "quc"
-        ])
+
+        for opt in "quc":
+            self.add_cmd_output(
+                f"qpid-stat -{opt} --ssl-certificate="
+                f"{self.messaging_cert_file} -b amqps://localhost:5671",
+                tags=f"qpid_stat_{opt}")
+
         self.add_cmd_output(
             "sudo -u pulp PULP_SETTINGS='/etc/pulp/settings.py' "
             "DJANGO_SETTINGS_MODULE='pulpcore.app.settings' dynaconf list",

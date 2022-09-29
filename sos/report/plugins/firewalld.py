@@ -38,16 +38,16 @@ class FirewallD(Plugin, RedHatPlugin):
         # use a 10s timeout to workaround dbus problems in
         # docker containers.
         self.add_cmd_output([
-            "firewall-cmd --list-all-zones",
             "firewall-cmd --direct --get-all-chains",
             "firewall-cmd --direct --get-all-rules",
             "firewall-cmd --direct --get-all-passthroughs",
+            "firewall-cmd --get-log-denied",
+            "firewall-cmd --list-all-zones",
             "firewall-cmd --permanent --list-all-zones",
             "firewall-cmd --permanent --direct --get-all-chains",
             "firewall-cmd --permanent --direct --get-all-rules",
             "firewall-cmd --permanent --direct --get-all-passthroughs",
-            "firewall-cmd --state",
-            "firewall-cmd --get-log-denied"
+            "firewall-cmd --state"
         ], timeout=10, cmd_as_tag=True)
 
 # vim: set et ts=4 sw=4 :

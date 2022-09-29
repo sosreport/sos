@@ -110,6 +110,10 @@ class OpenStackIronic(Plugin):
             for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
                 self.add_cmd_output('ls -laRt %s' % path)
 
+        self.add_file_tags({
+            ".*/etc/ironic/ironic.conf": "ironic_conf"
+        })
+
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
 

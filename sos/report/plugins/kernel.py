@@ -43,8 +43,8 @@ class Kernel(Plugin, IndependentPlugin):
 
     def setup(self):
         # compat
-        self.add_cmd_output("uname -a", root_symlink="uname")
-        self.add_cmd_output("lsmod", root_symlink="lsmod")
+        self.add_cmd_output("uname -a", root_symlink="uname", tags="uname")
+        self.add_cmd_output("lsmod", root_symlink="lsmod", tags="lsmod")
         self.add_cmd_output("ls -lt /sys/kernel/slab")
 
         try:
@@ -70,9 +70,9 @@ class Kernel(Plugin, IndependentPlugin):
 
         self.add_cmd_output([
             "dmesg",
-            "sysctl -a",
             "dkms status"
         ], cmd_as_tag=True)
+        self.add_cmd_output("sysctl -a", tags="sysctl")
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
 

@@ -27,11 +27,12 @@ class Auditd(Plugin, IndependentPlugin):
             "/etc/audit/plugins.d/",
             "/etc/audisp/",
         ])
-        self.add_cmd_output([
-            "ausearch --input-logs -m avc,user_avc,fanotify -ts today",
-            "auditctl -s",
-            "auditctl -l"
-        ])
+
+        self.add_cmd_output(
+            "ausearch --input-logs -m avc,user_avc,fanotify -ts today"
+        )
+        self.add_cmd_output("auditctl -l", tags="auditctl_rules")
+        self.add_cmd_output("auditctl -s", tags="auditctl_status")
 
         config_file = "/etc/audit/auditd.conf"
         log_file = "/var/log/audit/audit.log"

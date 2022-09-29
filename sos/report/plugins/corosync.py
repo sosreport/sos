@@ -31,9 +31,10 @@ class Corosync(Plugin):
             "corosync-cfgtool -s",
             "corosync-blackbox",
             "corosync-objctl -a",
-            "corosync-cmapctl",
             "corosync-cmapctl -m stats"
         ])
+        self.add_cmd_output("corosync-cmapctl",
+                            tags="corosync_cmapctl")
         self.exec_cmd("killall -USR2 corosync")
 
         corosync_conf = "/etc/corosync/corosync.conf"

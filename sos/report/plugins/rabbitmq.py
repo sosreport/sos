@@ -36,7 +36,8 @@ class RabbitMQ(Plugin, IndependentPlugin):
                 self.add_cmd_output(
                     'rabbitmqctl report',
                     container=container,
-                    foreground=True
+                    foreground=True,
+                    tags="rabbitmq_report"
                 )
                 self.add_cmd_output(
                     "rabbitmqctl eval 'rabbit_diagnostics:maybe_stuck().'",
@@ -59,6 +60,11 @@ class RabbitMQ(Plugin, IndependentPlugin):
         self.add_copy_spec([
             "/var/log/rabbitmq/*",
         ])
+
+        self.add_file_tags({
+            "/var/log/rabbitmq/rabbit@.*[^-sasl].log": "rabbitmq_logs",
+            "/var/log/rabbitmq/startup_err": "rabbitmq_startup_err"
+        })
 
         # Crash dump can be large in some situation but it is useful to
         # investigate why rabbitmq crashes. So capture the file without

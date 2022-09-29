@@ -37,6 +37,11 @@ class OpenStackCeilometer(Plugin):
             self.var_puppet_gen + "/etc/ceilometer/*"
         ])
 
+        self.add_file_tags({
+            "/var/log/ceilometer/central.log":
+                "ceilometer_central_log"
+        })
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/ceilometer/*", regexp, subst)
         self.do_path_regex_sub(

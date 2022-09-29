@@ -31,6 +31,10 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             '/etc/subgid',
         ])
 
+        self.add_file_tags({
+            "/etc/containers/policy.json": "containers_policy"
+        })
+
         users_opt = self.get_option('rootlessusers')
         users_list = []
         if users_opt:
