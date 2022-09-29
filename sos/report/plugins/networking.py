@@ -242,6 +242,24 @@ class Networking(Plugin):
                         ns_cmd_prefix + "ethtool -S %(dev)s"
                     ], devices=_devs['ethernet'], priority=50, subdir=_subdir)
 
+        self.add_cmd_tags({
+            "ethtool [^-].*": "ethtool",
+            "ethtool -S.*": "ethtool_S",
+            "ethtool -T.*": "ethtool_T",
+            "ethtool -a.*": "ethtool_a",
+            "ethtool -c.*": "ethtool_c",
+            "ethtool -g.*": "ethtool_g",
+            "ethtool -i.*": "ethtool_i",
+            "ethtool -k.*": "ethtool_k",
+            "ip -d address": "ip_addr",
+            "ip -s -s neigh show": "ip_neigh_show",
+            "ip route show table all": "iproute_show_table_all",
+            "ip -s -d link": "ip_s_link",
+            "netstat.*-neopa": "netstat",
+            "netstat.*-agn": "netstat_agn",
+            "netstat -s": "netstat_s"
+        })
+
 
 class RedHatNetworking(Networking, RedHatPlugin):
     trace_host = "rhn.redhat.com"

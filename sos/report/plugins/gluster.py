@@ -61,11 +61,10 @@ class Gluster(Plugin, RedHatPlugin):
             "/var/lib/glusterd/glusterfind/glusterfind_*_secret.pem"
         )
 
-        self.add_cmd_output([
-            "gluster peer status",
-            "gluster pool list",
-            "gluster volume status"
-        ])
+        self.add_cmd_output("gluster peer status", tags="gluster_peer_status")
+        self.add_cmd_output("gluster pool list")
+        self.add_cmd_output("gluster volume status",
+                            tags="gluster_v_status")
 
         self.add_copy_spec([
             "/etc/redhat-storage-release",
@@ -111,7 +110,8 @@ class Gluster(Plugin, RedHatPlugin):
                 state_file = state['output'].split()[-1]
                 self.add_copy_spec(state_file)
 
-        volume_cmd = self.collect_cmd_output("gluster volume info")
+        volume_cmd = self.collect_cmd_output("gluster volume info",
+                                             tags="gluster_v_info")
         if volume_cmd['status'] == 0:
             for line in volume_cmd['output'].splitlines():
                 if not line.startswith("Volume Name:"):

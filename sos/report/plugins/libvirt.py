@@ -73,6 +73,11 @@ class Libvirt(Plugin, IndependentPlugin):
             for pf in ["environ", "cgroup", "maps", "numa_maps", "limits"]:
                 self.add_copy_spec("/proc/%s/%s" % (pid, pf))
 
+        self.add_file_tags({
+            "/run/libvirt/qemu/*.xml": "var_qemu_xml",
+            "/var/log/libvirt/qemu/*.log": "libvirtd_qemu_log"
+        })
+
     def postproc(self):
         match_exp = r"(\s*passwd=\s*')([^']*)('.*)"
         libvirt_path_exps = [

@@ -72,6 +72,13 @@ class OpenStackGlance(Plugin):
             else:
                 self.add_cmd_output("openstack image list --long")
 
+        self.add_file_tags({
+            "/etc/glance/glance-api.conf": "glance_api_conf",
+            "/etc/glance/glance-cache.conf": "glance_cache_conf",
+            "/etc/glance/glance-registry.conf": "glance_registry_conf",
+            "/var/log/glance/api.log": "glance_api_log"
+        })
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)
         self.do_path_regex_sub(

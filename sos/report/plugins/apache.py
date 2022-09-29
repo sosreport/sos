@@ -38,10 +38,10 @@ class Apache(Plugin):
     def setup(self):
         # collect list of installed modules and verify config syntax.
         self.add_cmd_output([
-            "apachectl -M",
             "apachectl -S",
             "apachectl -t"
         ], cmd_as_tag=True)
+        self.add_cmd_output("apachectl -M", tags="httpd_M")
 
         # Other plugins collect these files;
         # do not collect them here to avoid collisions in the archive paths.
@@ -81,10 +81,10 @@ class RedHatApache(Apache, RedHatPlugin):
     def setup(self):
 
         self.add_file_tags({
-            ".*/access_log": 'httpd_access_log',
-            ".*/error_log": 'httpd_error_log',
-            ".*/ssl_access_log": 'httpd_ssl_access_log',
-            ".*/ssl_error_log": 'httpd_ssl_error_log'
+            "/var/log/httpd/access_log": 'httpd_access_log',
+            "/var/log/httpd/error_log": 'httpd_error_log',
+            "/var/log/httpd/ssl_access_log": 'httpd_ssl_access_log',
+            "/var/log/httpd/ssl_error_log": 'httpd_ssl_error_log'
         })
 
         super(RedHatApache, self).setup()

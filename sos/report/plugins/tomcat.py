@@ -38,6 +38,12 @@ class Tomcat(Plugin, RedHatPlugin):
         else:
             self.add_copy_spec("/var/log/tomcat*/*")
 
+        self.add_file_tags({
+            "/etc/tomcat.*/web.xml": "tomcat_web_xml",
+            "/var/log/tomcat.*/catalina.out": "catalina_out",
+            "/var/log/tomcat.*/catalina.*.log": "catalina_server_log"
+        })
+
     def postproc(self):
         serverXmlPasswordAttributes = ['keyPass', 'keystorePass',
                                        'truststorePass', 'SSLPassword']

@@ -79,6 +79,10 @@ class OpenStackHeat(Plugin):
             self.var_puppet_gen + "_api_cfn/var/spool/cron/heat",
         ])
 
+        self.add_file_tags({
+            "/var/log/heat/heat-engine.log": "heat_engine_log"
+        })
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub(
             "/etc/heat/*",

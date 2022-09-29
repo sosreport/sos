@@ -30,7 +30,8 @@ class Hardware(Plugin, IndependentPlugin):
             "/sys/class/drm/*/edid"
         ])
 
-        self.add_cmd_output("dmidecode", root_symlink="dmidecode")
+        self.add_cmd_output("dmidecode", root_symlink="dmidecode",
+                            tags="dmidecode")
         self.add_cmd_output("lshw")
 
 

@@ -22,12 +22,12 @@ class Chrony(Plugin):
         self.add_cmd_output([
             "chronyc activity",
             "chronyc tracking",
-            "chronyc -n sources",
             "chronyc sourcestats",
             "chronyc serverstats",
             "chronyc ntpdata",
             "chronyc -n clients"
         ])
+        self.add_cmd_output("chronyc -n sources", tags="chronyc_sources")
 
 
 class RedHatChrony(Chrony, RedHatPlugin):

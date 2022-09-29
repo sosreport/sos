@@ -21,6 +21,6 @@ class I18n(Plugin, IndependentPlugin):
             "/etc/X11/xinit/xinput.d/*",
             "/etc/locale.conf"
         ])
-        self.add_cmd_output("locale", env={'LC_ALL': None})
+        self.add_cmd_output("locale", env={'LC_ALL': None}, tags="locale")
 
 # vim: set et ts=4 sw=4 :

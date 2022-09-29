@@ -24,36 +24,36 @@ class Systemd(Plugin, IndependentPlugin):
     def setup(self):
 
         self.add_file_tags({
-            '/etc/systemd/journald.conf.*': 'insights_etc_journald_conf',
-            '/usr/lib/systemd/journald.conf.*': 'insights_usr_journald_conf_d',
-            '/etc/systemd/system.conf': 'insights_systemd_system_conf',
-            '/etc/systemd/logind.conf': 'insights_systemd_logind_conf'
+            '/etc/systemd/journald.conf': 'etc_journald_conf',
+            '/usr/lib/systemd/journald.conf': 'usr_journald_conf_d',
+            '/etc/systemd/system.conf': 'systemd_system_conf',
+            '/etc/systemd/logind.conf': 'systemd_logind_conf'
         })
 
         self.add_cmd_output([
-            "systemctl status --all",
-            "systemctl show --all",
-            "systemctl show *service --all",
+            "journalctl --list-boots",
+            "ls -lR /lib/systemd",
+            "systemctl list-dependencies",
+            "systemctl list-jobs",
+            "systemctl list-machines",
+            "systemctl list-unit-files",
+            "systemctl list-units",
+            "systemctl list-units --all",
+            "systemctl list-units --failed",
+            "systemctl list-timers --all",
             # It is possible to do systemctl show with target, slice,
             # device, socket, scope, and mount too but service and
             # status --all mostly seems to cover the others.
-            "systemctl list-units",
-            "systemctl list-units --failed",
-            "systemctl list-units --all",
-            "systemctl list-unit-files",
-            "systemctl list-jobs",
-            "systemctl list-dependencies",
-            "systemctl list-timers --all",
-            "systemctl list-machines",
+            "systemctl show --all",
+            "systemctl show *service --all",
             "systemctl show-environment",
+            "systemctl status --all",
             "systemd-delta",
             "systemd-analyze",
             "systemd-analyze blame",
             "systemd-analyze dump",
-            "systemd-inhibit --list",
-            "journalctl --list-boots",
-            "ls -lR /lib/systemd"
-        ])
+            "systemd-inhibit --list"
+        ], cmd_as_tag=True)
 
         self.add_cmd_output('timedatectl', root_symlink='date')
 

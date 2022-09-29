@@ -19,7 +19,7 @@ class Multipath(Plugin, IndependentPlugin):
     def setup(self):
 
         self.add_cmd_tags({
-            'multipath -v4 -ll': 'insights_multipath__v4__ll'
+            'multipath -v4 -ll': 'multipath__v4__ll'
         })
 
         self.add_copy_spec("/etc/multipath.conf", tags='multipath_conf')

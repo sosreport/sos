@@ -60,13 +60,13 @@ class Process(Plugin, IndependentPlugin):
 
         self.add_cmd_output("ps auxwwwm", root_symlink="ps",
                             tags=['ps_aux', 'ps_auxww', 'ps_auxwww',
-                                  'ps_auxwwwm', 'insights_ps_auxcww'],
+                                  'ps_auxwwwm', 'ps_auxcww'],
                             priority=1)
 
         self.add_cmd_output("pstree -lp", root_symlink="pstree")
         if self.get_option("lsof"):
             self.add_cmd_output("lsof +M -n -l -c ''", root_symlink="lsof",
-                                timeout=15, priority=50)
+                                timeout=15, priority=50, tags="lsof")
 
         if self.get_option("lsof-threads"):
             self.add_cmd_output("lsof +M -n -l", timeout=15, priority=50)

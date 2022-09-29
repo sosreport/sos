@@ -46,6 +46,10 @@ class OpenStackOctavia(Plugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
         ])
 
+        self.add_file_tags({
+            ".*/etc/octavia/octavia.conf": "octavia_conf"
+        })
+
         # don't collect certificates
         self.add_forbidden_path("/etc/octavia/certs")
         self.add_forbidden_path(self.var_config_data + "/etc/octavia/certs")

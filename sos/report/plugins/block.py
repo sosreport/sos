@@ -25,15 +25,15 @@ class Block(Plugin, IndependentPlugin):
             '/sys/block/.*/queue/scheduler': 'scheduler'
         })
 
+        self.add_cmd_output("blkid -c /dev/null", tags="blkid")
+        self.add_cmd_output("ls -lanR /dev", tags="ls_dev")
+        self.add_cmd_output("lsblk", tags="lsblk")
+        self.add_cmd_output("lsblk -O -P", tags="lsblk_pairs")
         self.add_cmd_output([
-            "lsblk",
             "lsblk -t",
             "lsblk -D",
-            "blkid -c /dev/null",
             "blockdev --report",
-            "ls -lanR /dev",
             "ls -lanR /sys/block",
-            "lsblk -O -P",
             "losetup -a",
         ])
 
@@ -52,11 +52,12 @@ class Block(Plugin, IndependentPlugin):
 
         cmds = [
             "parted -s %(dev)s unit s print",
-            "fdisk -l %(dev)s",
             "udevadm info %(dev)s",
             "udevadm info -a %(dev)s"
         ]
         self.add_device_cmd(cmds, devices='block', blacklist='ram.*')
+        self.add_device_cmd("fdisk -l %(dev)s", blacklist="ram.*",
+                            devices="block", tags="fdisk_l_sos")
 
         lsblk = self.collect_cmd_output("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump

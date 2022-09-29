@@ -63,6 +63,11 @@ class OpenStackNeutron(Plugin):
             self.add_cmd_output("openstack floating ip list")
             self.add_cmd_output("openstack security group list")
 
+        self.add_file_tags({
+            ".*/etc/neutron/plugins/ml2/ml2_conf.ini": "neutronml2_conf",
+            "/var/log/neutron/server.log": "neutron_server_log"
+        })
+
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/neutron/*", regexp, subst)
         self.do_path_regex_sub(

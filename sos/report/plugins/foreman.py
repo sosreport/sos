@@ -72,7 +72,9 @@ class Foreman(Plugin):
         self.add_file_tags({
             '/var/log/foreman/production.log.*': 'foreman_production_log',
             '/etc/sysconfig/foreman-tasks': 'foreman_tasks_config',
-            '/etc/sysconfig/dynflowd': 'foreman_tasks_config'
+            '/etc/sysconfig/dynflowd': 'foreman_tasks_config',
+            '/var/log/httpd/foreman-ssl_access_ssl.log':
+                'foreman_ssl_access_ssl_log'
         })
 
         self.add_forbidden_path([
@@ -118,7 +120,6 @@ class Foreman(Plugin):
         ])
 
         self.add_cmd_output([
-            'hammer ping',
             'foreman-selinux-relabel -nv',
             'passenger-status --show pool',
             'passenger-status --show requests',
@@ -130,6 +131,7 @@ class Foreman(Plugin):
             'ping -c1 -W1 %s' % _host_f,
             'ping -c1 -W1 localhost'
         ])
+        self.add_cmd_output("hammer ping", tags="hammer_ping")
 
         # Dynflow Sidekiq
         self.add_cmd_output('systemctl list-units dynflow*',

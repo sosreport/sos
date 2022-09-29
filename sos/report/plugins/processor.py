@@ -28,7 +28,9 @@ class Processor(Plugin, IndependentPlugin):
             "%s/vulnerabilities/.*" % cpupath: 'cpu_vulns',
             "%s/vulnerabilities/spectre_v2" % cpupath: 'cpu_vulns_spectre_v2',
             "%s/vulnerabilities/meltdown" % cpupath: 'cpu_vulns_meltdown',
-            "%s/cpu.*/online" % cpupath: 'cpu_cores'
+            "%s/cpu.*/online" % cpupath: 'cpu_cores',
+            "%s/cpu/cpu0/cpufreq/cpuinfo_max_freq" % cpupath:
+                'cpuinfo_max_freq'
         })
 
         self.add_copy_spec([
@@ -46,9 +48,9 @@ class Processor(Plugin, IndependentPlugin):
         self.add_cmd_output([
             "lscpu",
             "lscpu -ae",
+            "cpupower frequency-info",
             "cpupower info",
             "cpupower idle-info",
-            "cpupower frequency-info",
             "cpufreq-info",
             "cpuid",
             "cpuid -r",

@@ -23,7 +23,7 @@ class Date(Plugin, IndependentPlugin):
             'date',
             'date --utc',
             'hwclock'
-        ])
+        ], cmd_as_tag=True)
 
         self.add_copy_spec([
             '/etc/localtime',

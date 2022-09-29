@@ -57,7 +57,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_cmd_tags({
             'podman images': 'podman_list_images',
-            'podman ps.*': 'podman_list_containers'
+            'podman ps': 'podman_list_containers'
         })
 
         subcmds = [

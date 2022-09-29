@@ -30,9 +30,11 @@ class KDump(Plugin):
             "/sys/kernel/fadump_registered",
             "/sys/kernel/fadump/registered",
             "/sys/kernel/fadump/mem_reserved",
-            "/sys/kernel/kexec_crash_loaded",
             "/sys/kernel/kexec_crash_size"
         ])
+
+        self.add_copy_spec("/sys/kernel/kexec_crash_loaded",
+                           tags="kexec_crash_loaded")
 
 
 class RedHatKDump(KDump, RedHatPlugin):
@@ -71,10 +73,11 @@ class RedHatKDump(KDump, RedHatPlugin):
         self.add_copy_spec([
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules",
-            "/var/crash/*/vmcore-dmesg.txt",
             "/var/crash/*/kexec-dmesg.log",
             "/var/log/kdump.log"
         ])
+        self.add_copy_spec("/var/crash/*/vmcore-dmesg.txt",
+                           tags="vmcore_dmesg")
         try:
             path = self.read_kdump_conffile()
         except Exception:

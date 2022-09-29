@@ -30,14 +30,14 @@ class Host(Plugin, IndependentPlugin):
 
         self.add_forbidden_path('/etc/sos/cleaner')
 
-        self.add_cmd_output('hostname', root_symlink='hostname')
-        self.add_cmd_output('uptime', root_symlink='uptime')
-
+        self.add_cmd_output('hostname', root_symlink='hostname',
+                            tags=['hostname_default', 'hostname_short'])
+        self.add_cmd_output('hostname -f', tags='hostname')
+        self.add_cmd_output('uptime', root_symlink='uptime', tags="uptime")
         self.add_cmd_output('find / -maxdepth 2 -type l -ls',
                             root_symlink='root-symlinks')
 
         self.add_cmd_output([
-            'hostname -f',
             'hostid',
             'hostnamectl status'
         ])
