@@ -3304,6 +3304,8 @@ class Plugin():
             if self.is_service(service):
                 self.add_service_status(service)
                 self.add_journal(service)
+        for kmod in self.kernel_mods:
+            self.add_cmd_output(f"modinfo {kmod}")
 
     def setup(self):
         """Collect the list of files declared by the plugin. This method
