@@ -32,6 +32,8 @@ class Composer(Plugin, IndependentPlugin):
 
     def setup(self):
         self.add_copy_spec([
+            "/etc/osbuild-composer/osbuild-composer.toml",
+            "/etc/osbuild-worker/osbuild-worker.toml",
             "/etc/lorax/composer.conf",
             "/var/log/lorax-composer/composer.log",
             "/var/log/lorax-composer/dnf.log",
