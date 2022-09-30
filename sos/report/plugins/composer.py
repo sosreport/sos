@@ -55,4 +55,9 @@ class Composer(Plugin, IndependentPlugin):
                 "composer-cli compose log %s" % compose.split(" ")[0]
             )
 
+        self.add_journal(units=[
+            "osbuild-composer.service",
+            "osbuild-worker@*.service",
+        ])
+
 # vim: set et ts=4 sw=4 :
