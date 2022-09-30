@@ -48,4 +48,11 @@ class Composer(Plugin, IndependentPlugin):
         for src in sources:
             self.add_cmd_output("composer-cli sources info %s" % src)
 
+        composes = self._get_entries("composer-cli compose list")
+        for compose in composes:
+            # the first column contains the compose id
+            self.add_cmd_output(
+                "composer-cli compose log %s" % compose.split(" ")[0]
+            )
+
 # vim: set et ts=4 sw=4 :
