@@ -15,7 +15,12 @@ class Composer(Plugin, IndependentPlugin):
     plugin_name = 'composer'
     profiles = ('sysmgmt', 'virt', )
 
-    packages = ('composer-cli',)
+    packages = (
+        'composer-cli',
+        'weldr-client',
+        'cockpit-composer',
+        'osbuild-composer',
+    )
 
     def _get_entries(self, cmd):
         entries = []
