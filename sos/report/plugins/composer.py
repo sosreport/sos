@@ -10,7 +10,7 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 class Composer(Plugin, IndependentPlugin):
 
-    short_desc = 'Lorax Composer'
+    short_desc = 'OSBuild Composer'
 
     plugin_name = 'composer'
     profiles = ('sysmgmt', 'virt', )
