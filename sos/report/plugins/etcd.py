@@ -13,71 +13,58 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class etcd(Plugin, RedHatPlugin):
+    """The etcd plugin collects information from the etcd key-value store. It
+    is primarily used by Kubernetes/OpenShift clusters and is often run inside
+    a container within the cluster.
+
+    Collections will default to executing within an `etcdctl` container, if one
+    is present, and only execute on the host if such a container is not
+    currently running. The `etcdctl` name preference is adopted from OpenShift
+    Container Platform deployments.
+
+    This plugin is written for etcd v3 and later.
+    """
 
     short_desc = 'etcd plugin'
 
     plugin_name = 'etcd'
     packages = ('etcd',)
     profiles = ('container', 'system', 'services', 'cluster')
-    files = ('/etc/origin/node/pods/etcd.yaml',)
+    files = ('/etc/etcd/etcd.conf',)
+    containers = ('etcdctl', 'etcd')
     services = ('etcd',)
 
     def setup(self):
-        if self.path_exists('/etc/origin/node/pods/etcd.yaml'):
-            etcd_cmd = 'master-exec etcd etcd etcdctl'
-        else:
-            etcd_cmd = 'etcdctl'
+
+        etcd_con = None
+        for con in self.containers:
+            if self.get_container_by_name(con):
+                etcd_con = con
+                break
 
         self.add_file_tags({
             '/etc/etcd/etcd.conf': 'etcd_conf'
         })
 
-        etcd_url = self.get_etcd_url()
-
         self.add_forbidden_path([
             '/etc/etcd/ca',
             '/etc/etcd/*.key'
         ])
-        self.add_copy_spec('/etc/etcd')
+
+        self.add_cmd_output('ls -lR /var/lib/etcd/', container=etcd_con)
+        self.add_copy_spec('/etc/etcd', container=etcd_con)
 
         subcmds = [
-           '--version',
+           'version',
            'member list',
-           'cluster-health',
-           'ls --recursive',
+           'alarm list',
+           'endpoint status',
+           'endpoint health'
         ]
 
-        self.add_cmd_output(['%s %s' % (etcd_cmd, sub) for sub in subcmds])
-
-        urls = [
-            '/v2/stats/leader',
-            '/v2/stats/self',
-            '/v2/stats/store',
-        ]
-
-        if etcd_url:
-            self.add_cmd_output(['curl -s %s%s' % (etcd_url, u) for u in urls])
-
-        self.add_cmd_output("ls -lR /var/lib/etcd/")
-
-    def get_etcd_url(self):
-        try:
-            with open(self.path_join('/etc/etcd/etcd.conf'), 'r') as ef:
-                for line in ef:
-                    if line.startswith('ETCD_LISTEN_CLIENT_URLS'):
-                        return line.split('=')[1].replace('"', '').strip()
-        # If we can't read etcd.conf, assume defaults by etcd version
-        except IOError:
-            # assume v3 is the default
-            url = 'http://localhost:2379'
-            try:
-                ver = self.policy.package_manager.packages['etcd']
-                ver = ver['version'][0]
-                if ver == '2':
-                    url = 'http://localhost:4001'
-            except Exception:
-                # fallback when etcd is not installed
-                pass
-            return url
+        self.add_cmd_output(
+            [f"etcdctl {sub}" for sub in subcmds],
+            container=etcd_con
+        )
 
 # vim: et ts=5 sw=4
