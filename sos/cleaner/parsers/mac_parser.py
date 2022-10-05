@@ -44,7 +44,7 @@ class SoSMacParser(SoSCleanerParser):
         '534f:53'
     )
     skip_files = [
-        'sos_commands/kernel/modinfo.*'
+        'sos_commands/.*/modinfo.*'
     ]
     map_file_key = 'mac_map'
     compile_regexes = False
