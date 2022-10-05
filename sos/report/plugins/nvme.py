@@ -10,12 +10,20 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Nvme(Plugin, IndependentPlugin):
+    """Collects nvme device configuration information for each nvme device that
+    is installed on the system.
 
-    short_desc = 'Collect config and system information about NVMe devices'
+    Basic information is collected via the `smartctl` utility, however detailed
+    information will be collected via the `nvme` CLI if the `nvme-cli` package
+    is installed.
+    """
+
+    short_desc = 'NVMe device information'
 
     plugin_name = "nvme"
     profiles = ('storage',)
     packages = ('nvme-cli',)
+    kernel_mods = ('nvme', 'nvme_core')
 
     def setup(self):
         self.add_copy_spec("/etc/nvme/*")
