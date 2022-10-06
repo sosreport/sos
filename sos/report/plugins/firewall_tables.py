@@ -10,11 +10,23 @@ from sos.report.plugins import (Plugin, IndependentPlugin, SoSPredicate)
 
 
 class firewall_tables(Plugin, IndependentPlugin):
+    """Collects information about local firewall tables, such as iptables,
+    and nf_tables (via nft). Note that this plugin does _not_ collect firewalld
+    information, which is handled by a separate plugin.
+
+    Collections from this plugin are largely gated byt the presence of relevant
+    kernel modules - for example,  the plugin will not collect the nf_tables
+    ruleset if both the `nf_tables` and `nfnetlink` kernel modules are not
+    currently loaded (unless using the --allow-system-changes option).
+    """
 
     short_desc = 'firewall tables'
 
     plugin_name = "firewall_tables"
     profiles = ('network', 'system')
+    files = ('/etc/nftables',)
+    kernel_mods = ('ip_tables', 'ip6_tables', 'nf_tables', 'nfnetlink',
+                   'ebtables')
 
     def collect_iptable(self, tablename):
         """ Collecting iptables rules for a table loads either kernel module
