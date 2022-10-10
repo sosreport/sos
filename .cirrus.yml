@@ -191,6 +191,7 @@ report_stagetwo_task:
     alias: "stagetwo_report"
     name: "Report Stage Two - $BUILD_NAME"
     depends_on: stageone_report
+    timeout_in: 45m
     gce_instance: *standardvm
     matrix:
         - env: *centos9
