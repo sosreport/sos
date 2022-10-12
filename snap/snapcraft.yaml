@@ -23,17 +23,18 @@ parts:
       - gettext
     stage-packages:
       - python3-magic
+      - python3-venv
 
 apps:
   sos:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/site-packages:${SNAP}/usr/lib/python3/dist-packages
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos
   sosreport:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/site-packages:${SNAP}/usr/lib/python3/dist-packages
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos report
   sos-collector:
     environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.8/site-packages:${SNAP}/usr/lib/python3/dist-packages
+      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos collector
