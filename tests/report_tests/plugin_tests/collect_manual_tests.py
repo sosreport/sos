@@ -32,6 +32,6 @@ class CollectManualTest(StageOneReportTest):
 
     def test_manifest_collections_correct(self):
         pkgman = self.get_plugin_manifest('unpackaged')
-        self.assertTrue(pkgman['collections']['unpackaged'])
+        self.assertTrue(any(c['name'] == 'unpackaged' for c in pkgman['collections']))
         pyman = self.get_plugin_manifest('python')
-        self.assertTrue(pyman['collections']['digests.json'])
+        self.assertTrue(any(c['name'] == 'digests.json' for c in pyman['collections']))

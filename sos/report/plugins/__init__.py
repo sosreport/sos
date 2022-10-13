@@ -616,7 +616,7 @@ class Plugin():
         self.manifest.add_list('files', [])
         self.manifest.add_field('strings', {})
         self.manifest.add_field('containers', {})
-        self.manifest.add_field('collections', {})
+        self.manifest.add_list('collections', [])
 
     def set_default_cmd_environment(self, env_vars):
         """
@@ -1605,10 +1605,11 @@ class Plugin():
         :returns:   The tag(s) associated with `fname`
         :rtype: ``list`` of strings
         """
+        tags = []
         for key, val in self.filetags.items():
             if re.match(key, fname):
-                return val
-        return []
+                tags.extend(val)
+        return tags
 
     def generate_copyspec_tags(self):
         """After file collections have completed, retroactively generate
@@ -1623,7 +1624,7 @@ class Plugin():
             matched_files = []
             for cfile in self.copied_files:
                 if re.match(file_regex, cfile['srcpath']):
-                    matched_files.append(cfile['dstpath'])
+                    matched_files.append(cfile['dstpath'].lstrip('/'))
             if matched_files:
                 manifest_data['files_copied'] = matched_files
                 self.manifest.files.append(manifest_data)
@@ -1705,12 +1706,15 @@ class Plugin():
             """Generate a tag to add for a single file copyspec
 
             This tag will be set to the filename, minus any extensions
-            except '.conf' which will be converted to '_conf'
+            except for special extensions like .conf or .log, which will be
+            mangled to _conf or similar.
             """
-            fname = fname.replace('-', '_')
-            if fname.endswith('.conf'):
-                return fname.replace('.', '_')
-            return fname.split('.')[0]
+            if fname.startswith(('/proc', '/sys')):
+                return
+            _fname = fname.split('/')[-1]
+            _fname = _fname.replace('-', '_')
+            if _fname.endswith(('.conf', '.log', '.txt')):
+                return _fname.replace('.', '_')
 
         for copyspec in copyspecs:
             if not (copyspec and len(copyspec)):
@@ -1727,7 +1731,10 @@ class Plugin():
 
             _spec_tags = []
             if len(files) == 1:
-                _spec_tags = [get_filename_tag(files[0].split('/')[-1])]
+                _spec = get_filename_tag(files[0])
+                if _spec:
+                    _spec_tags.append(_spec)
+                _spec_tags.extend(self.get_tags_for_file(files[0]))
 
             _spec_tags.extend(tags)
             _spec_tags = list(set(_spec_tags))
@@ -2312,7 +2319,6 @@ class Plugin():
             tags = [tags]
 
         _tags.extend(tags)
-        _tags.append(cmd.split(' ')[0])
         _tags.extend(self.get_tags_for_cmd(cmd))
 
         if cmd_as_tag:
@@ -3164,10 +3170,11 @@ class Plugin():
             self._log_info(f"manual collection '{fname}' finished in {run}")
             if isinstance(tags, str):
                 tags = [tags]
-            self.manifest.collections[fname] = {
+            self.manifest.collections.append({
+                'name': fname,
                 'filepath': _pfname,
                 'tags': tags
-            }
+            })
         except Exception as err:
             self._log_info(f"Error with collection file '{fname}': {err}")
 

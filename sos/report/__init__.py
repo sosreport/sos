@@ -1489,6 +1489,8 @@ class SoSReport(SoSComponent):
         directory = None  # report directory path (--build)
         map_file = None  # path of the map file generated for the report
 
+        self.generate_manifest_tag_summary()
+
         # use this instead of self.opts.clean beyond the initial check if
         # cleaning was requested in case SoSCleaner fails for some reason
         do_clean = False
@@ -1702,6 +1704,38 @@ class SoSReport(SoSComponent):
         self.report_md.add_list('enabled_plugins', self.opts.enable_plugins)
         self.report_md.add_list('disabled_plugins', self.opts.skip_plugins)
         self.report_md.add_section('plugins')
+
+    def generate_manifest_tag_summary(self):
+        """Add a section to the manifest that contains a dict summarizing the
+        tags that were created and assigned during this report's creation.
+
+        This summary dict can be used for easier inspection of tagged items by
+        inspection/analyzer projects such as Red Hat Insights. The format of
+        this dict is `{tag_name: [file_list]}`.
+        """
+        def compile_tags(ent, key='filepath'):
+            for tag in ent['tags']:
+                if not ent[key] or not tag:
+                    continue
+                try:
+                    path = tag_summary[tag]
+                except KeyError:
+                    path = []
+                path.extend(
+                    ent[key] if isinstance(ent[key], list) else [ent[key]]
+                )
+                tag_summary[tag] = sorted(list(set(path)))
+
+        tag_summary = {}
+        for plug in self.report_md.plugins:
+            for cmd in plug.commands:
+                compile_tags(cmd)
+            for _file in plug.files:
+                compile_tags(_file, 'files_copied')
+            for collection in plug.collections:
+                compile_tags(collection)
+        self.report_md.add_field('tag_summary',
+                                 dict(sorted(tag_summary.items())))
 
     def _merge_preset_options(self):
         # Log command line options
