@@ -399,16 +399,32 @@ class SoSMetadata():
     metadata
     """
 
+    def __init__(self):
+        self._values = {}
+
+    def __iter__(self):
+        for item in self._values.items():
+            yield item[1]
+
+    def __getitem__(self, item):
+        return self._values[item]
+
+    def __getattr__(self, attr):
+        try:
+            return self._values[attr]
+        except Exception:
+            raise AttributeError(attr)
+
     def add_field(self, field_name, content):
         """Add a key, value entry to the current metadata instance
         """
-        setattr(self, field_name, content)
+        self._values[field_name] = content
 
     def add_section(self, section_name):
         """Adds a new instance of SoSMetadata to the current instance
         """
-        setattr(self, section_name, SoSMetadata())
-        return getattr(self, section_name)
+        self._values[section_name] = SoSMetadata()
+        return self._values[section_name]
 
     def add_list(self, list_name, content=[]):
         """Add a named list element to the current instance. If content is not
@@ -416,7 +432,7 @@ class SoSMetadata():
         """
         if not isinstance(content, list):
             raise TypeError('content added must be list')
-        setattr(self, list_name, content)
+        self._values[list_name] = content
 
     def get_json(self, indent=None):
         """Convert contents of this SoSMetdata instance, and all other nested
@@ -424,8 +440,7 @@ class SoSMetadata():
 
         Used to write manifest.json to the final archives.
         """
-        return json.dumps(self,
-                          default=lambda o: getattr(o, '__dict__', str(o)),
+        return json.dumps(self, default=lambda o: getattr(o, '_values', str(o)),
                           indent=indent)
 
 # vim: set et ts=4 sw=4 :
