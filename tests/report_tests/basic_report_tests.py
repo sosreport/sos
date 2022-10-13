@@ -33,6 +33,15 @@ class NormalSoSReport(StageOneReportTest):
     def test_free_symlink_created(self):
         self.assertFileCollected('free')
 
+    def test_tag_summary_created(self):
+        self.assertTrue(
+            'tag_summary' in self.manifest['components']['report'],
+            "No tag summary generated in report"
+        )
+        self.assertTrue(
+            isinstance(self.manifest['components']['report']['tag_summary'], dict),
+            "Tag summary malformed"
+        )
 
 class LogLevelTest(StageOneReportTest):
     """

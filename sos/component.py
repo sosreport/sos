@@ -440,7 +440,8 @@ class SoSMetadata():
 
         Used to write manifest.json to the final archives.
         """
-        return json.dumps(self, default=lambda o: getattr(o, '_values', str(o)),
+        return json.dumps(self,
+                          default=lambda o: getattr(o, '_values', str(o)),
                           indent=indent)
 
 # vim: set et ts=4 sw=4 :
