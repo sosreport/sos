@@ -21,8 +21,8 @@ class Ssh(Plugin, IndependentPlugin):
     def setup(self):
 
         self.add_file_tags({
-            '/etc/ssh/sshd_config': 'sshd_config',
-            '/etc/ssh/ssh_config': 'ssh_config'
+            '/etc/ssh/sshd_config$': 'sshd_config',
+            '/etc/ssh/ssh_config$': 'ssh_config'
         })
 
         sshcfgs = [
