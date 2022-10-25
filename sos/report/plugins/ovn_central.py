@@ -24,7 +24,7 @@ class OVNCentral(Plugin):
     short_desc = 'OVN Northd'
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
-    containers = ('ovn-dbs-bundle.*',)
+    containers = ('ovn-dbs-bundle.*', 'ovn_cluster_north_db_server')
 
     def get_tables_from_schema(self, filename, skip=[]):
         if self._container_name:
@@ -66,7 +66,13 @@ class OVNCentral(Plugin):
             cmds.append('%s list %s' % (ovn_cmd, table))
 
     def setup(self):
-        self._container_name = self.get_container_by_name(self.containers[0])
+        # check if env is a clustered or non-clustered one
+        if self.container_exists(self.containers[1]):
+            self._container_name = self.get_container_by_name(
+                self.containers[1])
+        else:
+            self._container_name = self.get_container_by_name(
+                self.containers[0])
 
         ovs_rundir = os.environ.get('OVS_RUNDIR')
         for pidfile in ['ovnnb_db.pid', 'ovnsb_db.pid', 'ovn-northd.pid']:
