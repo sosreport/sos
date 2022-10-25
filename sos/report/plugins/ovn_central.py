@@ -13,7 +13,6 @@ from sos.report.plugins import (
     RedHatPlugin,
     DebianPlugin,
     UbuntuPlugin,
-    SoSPredicate,
 )
 import json
 import os
@@ -98,41 +97,37 @@ class OVNCentral(Plugin):
 
         # Some user-friendly versions of DB output
         nbctl_cmds = [
-            'ovn-nbctl show',
-            'ovn-nbctl get-ssl',
-            'ovn-nbctl get-connection',
-            'ovn-nbctl list loadbalancer',
-            'ovn-nbctl list Load_Balancer',
-            'ovn-nbctl list ACL',
-            'ovn-nbctl list Logical_Switch_Port',
+            'ovn-nbctl --no-leader-only show',
+            'ovn-nbctl --no-leader-only get-ssl',
+            'ovn-nbctl --no-leader-only get-connection',
+            'ovn-nbctl --no-leader-only list loadbalancer',
+            'ovn-nbctl --no-leader-only list Load_Balancer',
+            'ovn-nbctl --no-leader-only list ACL',
+            'ovn-nbctl --no-leader-only list Logical_Switch_Port',
         ]
 
         sbctl_cmds = [
-            'ovn-sbctl show',
-            'ovn-sbctl lflow-list',
-            'ovn-sbctl get-ssl',
-            'ovn-sbctl get-connection',
+            'ovn-sbctl --no-leader-only show',
+            'ovn-sbctl --no-leader-only lflow-list',
+            'ovn-sbctl --no-leader-only get-ssl',
+            'ovn-sbctl --no-leader-only get-connection',
         ]
 
         # backward compatibility
         for path in ['/usr/share/openvswitch', '/usr/share/ovn']:
             nb_tables = self.get_tables_from_schema(self.path_join(
                 path, 'ovn-nb.ovsschema'))
-            self.add_database_output(nb_tables, nbctl_cmds, 'ovn-nbctl')
+            self.add_database_output(nb_tables, nbctl_cmds,
+                                     'ovn-nbctl --no-leader-only')
 
         cmds = nbctl_cmds
 
-        # Can only run sbdb commands if we are the leader
-        co = {'cmd': "ovs-appctl -t {} cluster/status OVN_Southbound".
-              format(self.ovn_sbdb_sock_path),
-              "output": "Leader: self"}
-        if self.test_predicate(self, pred=SoSPredicate(self, cmd_outputs=co)):
-            # backward compatibility
-            for path in ['/usr/share/openvswitch', '/usr/share/ovn']:
-                sb_tables = self.get_tables_from_schema(self.path_join(
-                    path, 'ovn-sb.ovsschema'), ['Logical_Flow'])
-                self.add_database_output(sb_tables, sbctl_cmds, 'ovn-sbctl')
-            cmds += sbctl_cmds
+        for path in ['/usr/share/openvswitch', '/usr/share/ovn']:
+            sb_tables = self.get_tables_from_schema(self.path_join(
+                path, 'ovn-sb.ovsschema'), ['Logical_Flow'])
+            self.add_database_output(sb_tables, sbctl_cmds,
+                                     'ovn-sbctl --no-leader-only')
+        cmds += sbctl_cmds
 
         # If OVN is containerized, we need to run the above commands inside
         # the container.
