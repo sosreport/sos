@@ -8,6 +8,8 @@ grade: stable
 base: core22
 confinement: classic
 adopt-info: sos
+environment:
+  PYTHONPATH: ${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
 
 parts:
   sos:
@@ -22,19 +24,17 @@ parts:
       - snapcraft
       - gettext
     stage-packages:
-      - python3-magic
       - python3-venv
+    python-packages:
+      - pip
+      - setuptools
+      - wheel
+      - python_magic
 
 apps:
   sos:
-    environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos
   sosreport:
-    environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos report
   sos-collector:
-    environment:
-      PYTHONPATH: ${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages
     command: bin/sos collector
