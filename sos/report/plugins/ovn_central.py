@@ -16,6 +16,7 @@ from sos.report.plugins import (
 )
 import json
 import os
+import re
 
 
 class OVNCentral(Plugin):
@@ -24,6 +25,26 @@ class OVNCentral(Plugin):
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
     containers = ('ovn-dbs-bundle.*', 'ovn_cluster_north_db_server')
+
+    def _find_ovn_controller_sock(self):
+        _sfile = os.path.join(self.ovn_controller_sock_path,
+                              self.ovn_controller_sock_regex)
+        if self._container_name:
+            res = self.exec_cmd("ls %s" % self.ovn_controller_sock_path,
+                                container=self._container_name)
+            if res['status'] != 0 or '\n' not in res['output']:
+                self._log_error(
+                    "Could not retrieve ovn_controller socket path "
+                    "from container %s" % self._container_name
+                )
+            else:
+                pattern = re.compile(self.ovn_controller_sock_regex)
+                for filename in res['output'].split('\n'):
+                    if pattern.match(filename):
+                        return os.path.join(self.ovn_controller_sock_path,
+                                            filename)
+        # File not found, return the regex full path
+        return _sfile
 
     def get_tables_from_schema(self, filename, skip=[]):
         if self._container_name:
@@ -89,6 +110,8 @@ class OVNCentral(Plugin):
         else:
             self.add_copy_spec("/var/log/ovn/*.log")
 
+        ovn_controller_sock_path = self._find_ovn_controller_sock()
+
         # ovsdb nb/sb cluster status commands
         self.add_cmd_output(
             [
@@ -96,7 +119,9 @@ class OVNCentral(Plugin):
                     self.ovn_nbdb_sock_path),
                 'ovs-appctl -t {} cluster/status OVN_Southbound'.format(
                     self.ovn_sbdb_sock_path),
-                'ovn-appctl -t ovn-northd status'
+                'ovn-appctl -t ovn-northd status',
+                'ovn-appctl -t {} connection-status'.format(
+                    ovn_controller_sock_path),
             ],
             foreground=True, container=self._container_name, timeout=30
         )
@@ -165,6 +190,8 @@ class RedHatOVNCentral(OVNCentral, RedHatPlugin):
     packages = ('openvswitch-ovn-central', 'ovn.*-central', )
     ovn_nbdb_sock_path = '/var/run/openvswitch/ovnnb_db.ctl'
     ovn_sbdb_sock_path = '/var/run/openvswitch/ovnsb_db.ctl'
+    ovn_controller_sock_path = '/var/run/openvswitch'
+    ovn_controller_sock_regex = 'ovn-controller.*.ctl'
 
 
 class DebianOVNCentral(OVNCentral, DebianPlugin, UbuntuPlugin):
@@ -172,3 +199,5 @@ class DebianOVNCentral(OVNCentral, DebianPlugin, UbuntuPlugin):
     packages = ('ovn-central', )
     ovn_nbdb_sock_path = '/var/run/ovn/ovnnb_db.ctl'
     ovn_sbdb_sock_path = '/var/run/ovn/ovnsb_db.ctl'
+    ovn_controller_sock_path = '/var/run/ovn'
+    ovn_controller_sock_regex = 'ovn-controller.*.ctl'
