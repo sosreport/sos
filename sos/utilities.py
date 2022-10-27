@@ -176,7 +176,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             os.chdir(chdir)
 
     def _check_poller(proc):
-        if poller():
+        if poller() or proc.poll() == 124:
             proc.terminate()
             raise SoSTimeoutError
         time.sleep(0.01)
@@ -240,6 +240,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                     _output.close()
                 # until we separate timeouts from the `timeout` command
                 # handle per-cmd timeouts via Plugin status checks
+                reader.running = False
                 return {'status': 124, 'output': reader.get_contents(),
                         'truncated': reader.is_full}
         if to_file:
