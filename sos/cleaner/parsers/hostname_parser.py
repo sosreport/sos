@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
 
@@ -28,6 +29,24 @@ class SoSHostnameParser(SoSCleanerParser):
         self.short_names = []
         self.load_short_names_from_mapping()
         self.mapping.set_initial_counts()
+
+    def parse_line(self, line):
+        """This will be called for every line in every file we process, so that
+        every parser has a chance to scrub everything.
+
+        We are overriding parent method since we need to swap ordering of
+        _parse_line_with_compiled_regexes and _parse_line calls.
+        """
+        count = 0
+        for skip_pattern in self.skip_line_patterns:
+            if re.match(skip_pattern, line, re.I):
+                return line, count
+        line, _count = self._parse_line(line)
+        count += _count
+        if self.compile_regexes:
+            line, _rcount = self._parse_line_with_compiled_regexes(line)
+            count += _rcount
+        return line, count
 
     def load_short_names_from_mapping(self):
         """When we load the mapping file into the hostname map, we have to do
