@@ -172,6 +172,13 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.host_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
 
+    def test_obfuscate_whole_fqdn_for_given_domainname(self):
+        self.host_parser.load_hostname_into_map('sostestdomain.domain')
+        line = 'let obfuscate soshost.sostestdomain.domain'
+        _test = self.host_parser.parse_line(line)[0]
+        self.assertFalse('soshost' in _test)
+        self.assertFalse('sostestdomain' in _test)
+
     def test_hostname_no_obfuscate_underscore(self):
         line = 'pam_env.so _why.not_'
         _test = self.host_parser.parse_line(line)[0]
