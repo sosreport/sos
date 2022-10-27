@@ -20,5 +20,6 @@ except KeyboardInterrupt:
 if __name__ == '__main__':
     sos = SoS(sys.argv[1:])
     sos.execute()
+    os._exit(0)
 
 # vim:ts=4 et sw=4
