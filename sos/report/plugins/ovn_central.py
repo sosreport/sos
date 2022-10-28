@@ -170,15 +170,20 @@ class OVNCentral(Plugin):
         self.add_copy_spec("/etc/sysconfig/ovn-northd")
 
         ovs_dbdir = os.environ.get('OVS_DBDIR')
-        for dbfile in ['ovnnb_db.db', 'ovnsb_db.db']:
-            self.add_copy_spec([
-                self.path_join('/var/lib/openvswitch/ovn', dbfile),
-                self.path_join('/usr/local/etc/openvswitch', dbfile),
-                self.path_join('/etc/openvswitch', dbfile),
-                self.path_join('/var/lib/openvswitch', dbfile),
-                self.path_join('/var/lib/ovn/etc', dbfile),
-                self.path_join('/var/lib/ovn', dbfile)
-            ])
+        for dbfile in ["ovnnb_db.db", "ovnsb_db.db"]:
+            for path in [
+                "/var/lib/openvswitch/ovn",
+                "/usr/local/etc/openvswitch",
+                "/etc/openvswitch",
+                "/var/lib/openvswitch",
+                "/var/lib/ovn/etc",
+                "/var/lib/ovn",
+            ]:
+                dbfilepath = self.path_join(path, dbfile)
+                if os.path.exists(dbfilepath):
+                    self.add_copy_spec(dbfilepath)
+                    self.add_cmd_output(
+                        "ls -lan %s" % dbfilepath, foreground=True)
             if ovs_dbdir:
                 self.add_copy_spec(self.path_join(ovs_dbdir, dbfile))
 
