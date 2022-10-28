@@ -8,13 +8,6 @@ jobs:
     - fedora-development-ppc64le
     - fedora-development-s390x
   trigger: pull_request
-- job: tests
-  trigger: pull_request
-  metadata:
-    targets:
-    - fedora-all
-    - epel-8
-    - epel-9
 specfile_path: sos.spec
 synced_files:
 - sos.spec
