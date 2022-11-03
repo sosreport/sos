@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - uses: snapcore/action-build@v1
       id: build-snap
     # Make sure the snap is installable
@@ -23,4 +25,4 @@ jobs:
         SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
       with:
         snap: ${{ steps.build-snap.outputs.snap }}
-        snapcraft-channel: "latest/edge"
+        release: "latest/edge"
