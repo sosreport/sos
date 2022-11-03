@@ -13,10 +13,12 @@ from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
+from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.mappings.ip_map import SoSIPMap
 from sos.cleaner.mappings.mac_map import SoSMacMap
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
 from sos.cleaner.mappings.keyword_map import SoSKeywordMap
+from sos.cleaner.mappings.ipv6_map import SoSIPv6Map
 
 
 class CleanerMapTests(unittest.TestCase):
@@ -27,6 +29,7 @@ class CleanerMapTests(unittest.TestCase):
         self.host_map = SoSHostnameMap()
         self.host_map.load_domains_from_options(['redhat.com'])
         self.kw_map = SoSKeywordMap()
+        self.ipv6_map = SoSIPv6Map()
 
     def test_mac_map_obfuscate_valid_v4(self):
         _test = self.mac_map.get('12:34:56:78:90:ab')
@@ -96,11 +99,57 @@ class CleanerMapTests(unittest.TestCase):
         _test = self.kw_map.get('foobar')
         self.assertEqual(_test, 'obfuscatedword0')
 
+    def test_ipv6_obfuscate_global(self):
+        _net = '2022:1104:abcd::'
+        _ob_net = self.ipv6_map.get(_net)
+        self.assertNotEqual(_net, _ob_net, 'Address was unchanged')
+        self.assertTrue(_ob_net.startswith('534f'), 'Global address does not start with identifier')
+        _host = '2022:1104:abcd::1234'
+        _ob_host = self.ipv6_map.get(_host)
+        self.assertNotEqual(_host, _ob_host, 'Host address was unchanged')
+        self.assertTrue(_host.startswith(_net), 'Host address not in network')
+
+    def test_ipv6_link_local(self):
+        _test = 'fe80::1234'
+        _ob_test = self.ipv6_map.get(_test)
+        self.assertTrue(_ob_test.startswith('fe80'), 'Link-local identifier not maintained')
+        self.assertNotEqual(_test, _ob_test, 'Device address was unchanged')
+
+    def test_ipv6_private(self):
+        _net = 'fd00:abcd::'
+        _host = 'fd00:abcd::1234'
+        _ob_net = self.ipv6_map.get(_net).split('/')[0]
+        _ob_host = self.ipv6_map.get(_host)
+        self.assertTrue(_ob_net.startswith('fd53'), 'Private network does not start with identifier')
+        self.assertTrue(_ob_host.startswith(_ob_net), 'Private address not in same network')
+        self.assertNotEqual(_net, _ob_net, 'Private network was unchanged')
+
+    def test_ipv6_short_network(self):
+        _net = 'ff02::'
+        _ob_net = self.ipv6_map.get(_net)
+        self.assertTrue(_ob_net.startswith(('53', '54')), f'Short network does not start with identifier: {_ob_net}')
+
+    def test_ipv6_consistent_obfuscation(self):
+        _test = '2022:1104:abcd::ef09'
+        _new = self.ipv6_map.get(_test)
+        _second = self.ipv6_map.get(_test)
+        self.assertEqual(_new, _second, "Same address produced two different results")
+
+    def test_ipv6_global_no_collision(self):
+        """Tests that generating more than 256 global network obfuscations does
+        not produce any repeats"""
+        _nets = []
+        for i in range(1, 300):
+            _nets.append(self.ipv6_map.get(f"f{i:03}::abcd").split('::')[0])
+        # if there are any duplicates, then the length of the set will not match
+        self.assertTrue(len(set(_nets)) == len(_nets), "Duplicate global network obfuscations produced")
+        self.assertTrue(_nets[-1].startswith('54'), "First hextet of global network obfuscation over 256 not expected '54'")
 
 class CleanerParserTests(unittest.TestCase):
 
     def setUp(self):
         self.ip_parser = SoSIPParser(config={})
+        self.ipv6_parser = SoSIPv6Parser(config={})
         self.mac_parser = SoSMacParser(config={})
         self.host_parser = SoSHostnameParser(config={},
                                              opt_domains=['foobar.com'])
@@ -193,3 +242,27 @@ class CleanerParserTests(unittest.TestCase):
         line = 'this is my foobar test line'
         _test = self.kw_parser_none.parse_line(line)[0]
         self.assertEqual(line, _test)
+
+    def test_ipv6_parser_strings(self):
+        t1 = 'testing abcd:ef01::1234 as a compressed address'
+        t2 = 'testing abcd:ef01::5678:1234 as a separate address'
+        t3 = 'testing 2607:c540:8c00:3318::34/64 as another address'
+        t4 = 'testing 2007:1234:5678:90ab:0987:6543:21fe:dcba as a full address'
+        t1_test = self.ipv6_parser.parse_line(t1)[0]
+        t2_test = self.ipv6_parser.parse_line(t2)[0]
+        t3_test = self.ipv6_parser.parse_line(t3)[0]
+        t4_test = self.ipv6_parser.parse_line(t4)[0]
+        self.assertNotEqual(t1, t1_test, f"Parser did not match and obfuscate '{t1}'")
+        self.assertNotEqual(t2, t2_test, f"Parser did not match and obfuscate '{t2}'")
+        self.assertNotEqual(t3, t3_test, f"Parser did not match and obfuscate '{t3}'")
+        self.assertNotEqual(t4, t4_test, f"Parser did not match and obfuscate '{t4}'")
+
+    def test_ipv6_no_match_signature(self):
+        modstr = '2D:4F:6E:55:4F:E8:5E:D2:D2:A3:73:62:AB:FD:F9:C5:A5:53:31:93'
+        mod_test = self.ipv6_parser.parse_line(modstr)[0]
+        self.assertEqual(modstr, mod_test, "Parser matched module signature, and should not")
+
+    def test_ipv6_no_match_log_false_positive(self):
+        logln = 'Automatically imported trusted_ca::ca from trusted_ca/ca into production'
+        log_test = self.ipv6_parser.parse_line(logln)[0]
+        self.assertEqual(logln, log_test, "IPv6 parser incorrectly matched a log line of 'trusted_ca::ca'")

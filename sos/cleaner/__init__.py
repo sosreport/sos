@@ -25,6 +25,7 @@ from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
 from sos.cleaner.parsers.username_parser import SoSUsernameParser
+from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
                                       SoSCollectorArchive,
                                       SoSCollectorDirectory)
@@ -54,10 +55,13 @@ class SoSCleaner(SoSComponent):
     that future iterations will maintain the same consistent obfuscation
     pairing.
 
-    In the case of IP addresses, support is for IPv4 and efforts are made to
-    keep network topology intact so that later analysis is as accurate and
+    In the case of IP addresses, support is for IPv4 and IPv6 - effort is made
+    to keep network topology intact so that later analysis is as accurate and
     easily understandable as possible. If an IP address is encountered that we
     cannot determine the netmask for, a random IP address is used instead.
+
+    For IPv6, note that IPv4-mapped addresses, e.g. ::ffff:10.11.12.13, are
+    NOT supported currently, and will remain unobfuscated.
 
     For hostnames, domains are obfuscated as whole units, leaving the TLD in
     place.
@@ -123,6 +127,7 @@ class SoSCleaner(SoSComponent):
         self.parsers = [
             SoSHostnameParser(self.cleaner_mapping, self.opts.domains),
             SoSIPParser(self.cleaner_mapping),
+            SoSIPv6Parser(self.cleaner_mapping),
             SoSMacParser(self.cleaner_mapping),
             SoSKeywordParser(self.cleaner_mapping, self.opts.keywords,
                              self.opts.keyword_file),
@@ -447,7 +452,7 @@ third party.
         _map = {}
         for parser in self.parsers:
             _map[parser.map_file_key] = {}
-            _map[parser.map_file_key].update(parser.mapping.dataset)
+            _map[parser.map_file_key].update(parser.get_map_contents())
 
         return _map
 

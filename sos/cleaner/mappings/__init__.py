@@ -39,7 +39,7 @@ class SoSMap():
         if not item or item in self.skip_keys or item in self.dataset.values():
             return True
         for skip in self.ignore_matches:
-            if re.match(skip, item):
+            if re.match(skip, item, re.I):
                 return True
 
     def add(self, item):
