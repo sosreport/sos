@@ -146,14 +146,16 @@ class PulpCore(Plugin, IndependentPlugin):
         # TODO obfuscate from /etc/pulp/settings.py :
         # SECRET_KEY = "eKfeDkTnvss7p5WFqYdGPWxXfHnsbDBx"
         # 'PASSWORD': 'tGrag2DmtLqKLTWTQ6U68f6MAhbqZVQj',
+        # the PASSWORD can be also in an one-liner list, so detect its value
+        # in non-greedy manner till first ',' or '}'
         self.do_path_regex_sub(
             "/etc/pulp/settings.py",
             r"(SECRET_KEY\s*=\s*)(.*)",
             r"\1********")
         self.do_path_regex_sub(
             "/etc/pulp/settings.py",
-            r"(PASSWORD\S*\s*:\s*)(.*)",
-            r"\1********")
+            r"(PASSWORD\S*\s*:\s*)(.*?)(,|\})",
+            r"\1********\3")
         # apply the same for "dynaconf list" output that prints settings.py
         # in a pythonic format
         self.do_cmd_output_sub(
