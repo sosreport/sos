@@ -3,11 +3,13 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    concurrency:
+      group: snap-build
+      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v3
       with:
@@ -16,6 +18,7 @@ jobs:
       id: build-snap
     # Make sure the snap is installable
     - run: |
+        sudo apt -y remove sosreport
         sudo snap install --classic --dangerous ${{ steps.build-snap.outputs.snap }}
     # Do some testing with the snap
     - run: |
