@@ -20,9 +20,10 @@ jobs:
     - run: |
         sudo apt -y remove sosreport
         sudo snap install --classic --dangerous ${{ steps.build-snap.outputs.snap }}
+        sudo snap alias sosreport.sos sos
     # Do some testing with the snap
     - run: |
-        /snap/bin/sos help
+        sudo sos help
     - uses: snapcore/action-publish@v1
       env:
         SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
