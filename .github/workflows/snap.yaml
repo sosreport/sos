@@ -22,7 +22,7 @@ jobs:
         sudo snap install --classic --dangerous ${{ steps.build-snap.outputs.snap }}
     # Do some testing with the snap
     - run: |
-        sos help
+        /snap/bin/sos help
     - uses: snapcore/action-publish@v1
       env:
         SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
