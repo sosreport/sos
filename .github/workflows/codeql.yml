@@ -1,4 +1,6 @@
 name: "CodeQL"
+paths:
+  - sos
 
 on:
   push:
