@@ -1619,12 +1619,12 @@ class SoSReport(SoSComponent):
 
                 # output filename is in the private tmpdir - move it to the
                 # containing directory.
-                final_name = os.path.join(self.sys_tmp,
-                                          os.path.basename(archive))
+                base_archive = os.path.basename(archive)
                 if do_clean:
-                    final_name = cleaner.obfuscate_string(
-                        final_name.replace('.tar', '-obfuscated.tar')
+                    base_archive = cleaner.obfuscate_string(
+                            base_archive.replace('.tar', '-obfuscated.tar')
                     )
+                final_name = os.path.join(self.sys_tmp, base_archive)
                 # Get stat on the archive
                 archivestat = os.stat(archive)
 
