@@ -253,6 +253,8 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         truncated = reader.is_full
 
     except OSError as e:
+        if to_file:
+            _output.close()
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
         else:
