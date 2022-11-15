@@ -81,16 +81,17 @@ class OpenStackInstack(Plugin):
             # capture all the possible stack uuids
             get_stacks = "openstack stack list"
             stacks = self.collect_cmd_output(get_stacks)['output']
-            stack_ids = re.findall(r'(\s(\w+-\w+)+\s)', stacks)
+            stack_ids = re.findall(r'(\|\s(((\w+-){4})\w+)\s\|)', stacks)
             # get status of overcloud stack and resources
-            for sid in stack_ids:
+            for _sid in stack_ids:
+                sid = _sid[1]
                 self.add_cmd_output([
-                    "openstack stack show %s" % sid[0],
-                    "openstack stack resource list -n 10 %s" % sid[0]
+                    "openstack stack show %s" % sid,
+                    "openstack stack resource list -n 10 %s" % sid
                 ])
 
                 # get details on failed deployments
-                cmd = "openstack stack resource list -f value -n 5 %s" % sid[0]
+                cmd = "openstack stack resource list -f value -n 5 %s" % sid
                 deployments = self.exec_cmd(cmd)
                 for deployment in deployments['output'].splitlines():
                     if 'FAILED' in deployment:
