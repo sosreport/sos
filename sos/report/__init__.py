@@ -1586,10 +1586,10 @@ class SoSReport(SoSComponent):
             # move the archive root out of the private tmp directory.
             directory = self.archive.get_archive_path()
             dir_name = os.path.basename(directory)
+            if do_clean:
+                dir_name = cleaner.obfuscate_string(dir_name)
             try:
                 final_dir = os.path.join(self.sys_tmp, dir_name)
-                if do_clean:
-                    final_dir = cleaner.obfuscate_string(final_dir)
                 os.rename(directory, final_dir)
                 directory = final_dir
             except (OSError, IOError):
