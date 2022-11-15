@@ -755,7 +755,7 @@ class SoSCollector(SoSComponent):
         fname = os.path.join(group_path, cfg['name'])
         with open(fname, 'w') as hf:
             json.dump(cfg, hf)
-        os.chmod(fname, 0o644)
+        os.chmod(fname, 0o600)
         return fname
 
     def prep(self):
