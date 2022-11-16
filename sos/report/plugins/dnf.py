@@ -125,9 +125,28 @@ class DNFPlugin(Plugin, RedHatPlugin):
         self.get_modules_info(modules['output'])
 
     def postproc(self):
+        # Scrub passwords in repositories and yum/dnf variables
+        # Example of scrubbing:
+        #
+        #   password=hackme
+        # To:
+        #   password=********
+        #
+        # Whitespace around '=' is allowed.
         regexp = r"(password(\s)*=(\s)*)(\S+)\n"
         repl = r"\1********\n"
         for f in ["/etc/yum.repos.d/*", "/etc/dnf/vars/*"]:
             self.do_path_regex_sub(f, regexp, repl)
+
+        # Scrub password and proxy_password from /etc/dnf/dnf.conf.
+        # This uses the same regex patterns as above.
+        #
+        # Example of scrubbing:
+        #
+        #   proxy_password = hackme
+        # To:
+        #   proxy_password = ********
+        #
+        self.do_file_sub("/etc/dnf/dnf.conf", regexp, repl)
 
 # vim: set et ts=4 sw=4 :
