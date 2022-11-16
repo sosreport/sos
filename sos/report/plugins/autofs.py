@@ -54,6 +54,25 @@ class Autofs(Plugin):
             r"(password=)[^,\s]*",
             r"\1********"
         )
+        # Hide secrets in the LDAP authentication config
+        #
+        # Example of scrubbing of the secret:
+        #
+        #     secret="abc"
+        #   or
+        #     encoded_secret = 'abc'
+        #
+        # to:
+        #
+        #     secret="********"
+        #   or
+        #     encoded_secret = '********'
+        #
+        self.do_file_sub(
+            "/etc/autofs_ldap_auth.conf",
+            r"(secret[\s]*[=]+[\s]*)(\'|\").*(\'|\")",
+            r"\1\2********\3"
+        )
         self.do_cmd_output_sub(
             "automount -m",
             r"(password=)[^,\s]*",
