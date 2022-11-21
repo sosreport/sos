@@ -44,12 +44,10 @@ class OpenStackInstack(Plugin):
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
-                "/var/log/mistral/",
                 "/var/log/zaqar/",
             ])
         else:
             self.add_copy_spec([
-                "/var/log/mistral/*.log",
                 "/var/log/zaqar/*.log",
             ])
 
