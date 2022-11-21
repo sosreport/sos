@@ -392,13 +392,14 @@ class Cluster():
         """
         try:
             nodes = self.get_nodes()
-        except Exception as e:
-            self.log_error('Cluster failed to enumerate nodes: %s' % e)
-            raise
+        except Exception as err:
+            raise Exception(f"Cluster failed to enumerate nodes: {err}")
         if isinstance(nodes, list):
             node_list = [n.strip() for n in nodes if n]
         elif isinstance(nodes, str):
             node_list = [n.split(',').strip() for n in nodes]
+        else:
+            raise Exception(f"Cluster returned unexpected node list: {nodes}")
         node_list = list(set(node_list))
         for node in node_list:
             if node.startswith(('-', '_', '(', ')', '[', ']', '/', '\\')):
