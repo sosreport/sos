@@ -1656,9 +1656,8 @@ class SoSReport(SoSComponent):
                 except (OSError, IOError):
                     print(_("Error moving checksum file: %s" % archive_hash))
 
-        if not self.opts.build:
-            self.policy.display_results(archive, directory, checksum,
-                                        archivestat, map_file=map_file)
+                self.policy.display_results(archive, directory, checksum,
+                                            archivestat, map_file=map_file)
         else:
             self.policy.display_results(archive, directory, checksum,
                                         map_file=map_file)
