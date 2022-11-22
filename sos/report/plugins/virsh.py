@@ -33,9 +33,13 @@ class LibvirtClient(Plugin, IndependentPlugin):
             'domcapabilities',
             'capabilities',
             'nodeinfo',
-            'freecell',
+            'freecell --all',
             'node-memory-tune',
-            'version'
+            'version',
+            'pool-capabilities',
+            'nodecpumap',
+            'maxvcpus kvm',
+            'sysinfo',
         ]
 
         for subcmd in subcmds:
