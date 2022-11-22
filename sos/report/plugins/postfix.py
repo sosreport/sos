@@ -8,6 +8,8 @@
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
+import re
+
 
 class Postfix(Plugin):
 
@@ -52,6 +54,42 @@ class Postfix(Plugin):
         finally:
             return fp
 
+    def forbidden_password_files(self):
+        forbid_attributes = (
+            "lmtp_sasl_password_maps",
+            "smtp_sasl_password_maps",
+            "postscreen_dnsbl_reply_map",
+            "smtp_sasl_auth_cache_name",
+        )
+        fp = []
+        prefix = 'hash:'
+        option_format = re.compile(r"^(.*)=(.*)")
+        try:
+            with open(self.path_join('/etc/postfix/main.cf'), 'r') as cffile:
+                for line in cffile.readlines():
+                    # ignore comment and check option format
+                    line = re.sub('#.*', '', line)
+                    option = option_format.match(line)
+                    if option is None:
+                        continue
+
+                    # sieving
+                    attribute = option.group(1).strip()
+                    if attribute in forbid_attributes:
+                        filepath = option.group(2).strip()
+                        # ignore no filepath
+                        if len(filepath) == 0:
+                            continue
+                        # remove prefix
+                        if filepath.startswith(prefix):
+                            filepath = filepath[len(prefix):]
+                        fp.append(filepath)
+        except Exception as e:
+            # error log
+            msg = f"Error parsing main.cf: {e.args[0]}"
+            self._log_error(msg)
+        return fp
+
     def setup(self):
         self.add_copy_spec([
             "/etc/postfix/",
@@ -67,6 +105,7 @@ class Postfix(Plugin):
             "/etc/postfix/ssl/",
         ])
         self.add_forbidden_path(self.forbidden_ssl_keys_files())
+        self.add_forbidden_path(self.forbidden_password_files())
 
 
 class RedHatPostfix(Postfix, RedHatPlugin):
