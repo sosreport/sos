@@ -40,6 +40,7 @@ class LibvirtClient(Plugin, IndependentPlugin):
             'nodecpumap',
             'maxvcpus kvm',
             'sysinfo',
+            'nodedev-list --tree',
         ]
 
         for subcmd in subcmds:
@@ -73,4 +74,10 @@ class LibvirtClient(Plugin, IndependentPlugin):
                     self.add_cmd_output('%s %s %s' % (cmd, x, d),
                                         foreground=True)
 
+        nodedev_output = self.exec_cmd(
+            '{0} nodedev-list'.format(cmd), foreground=True)
+        if nodedev_output['status'] == 0:
+            for n in nodedev_output['output'].splitlines():
+                self.add_cmd_output(
+                    '{0} nodedev-dumpxml {1}'.format(cmd, n), foreground=True)
 # vim: et ts=4 sw=4
