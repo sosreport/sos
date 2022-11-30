@@ -41,7 +41,6 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
     [\-\-skip-files FILES]
     [\-s|\-\-sysroot SYSROOT]
     [\-\-ssh\-user SSH_USER]
-    [\-\-sos-cmd SOS_CMD]
     [\-t|\-\-threads THREADS]
     [\-\-timeout TIMEOUT]
     [\-\-transport TRANSPORT]
@@ -338,15 +337,6 @@ sos collect will prompt for a sudo password for non-root users.
 .TP
 \fB\-s\fR SYSROOT, \fB\-\-sysroot\fR SYSROOT
 Sosreport option. Specify an alternate root file system path.
-.TP
-\fB\-\-sos-cmd\fR SOS_CMD
-Define all options that sosreport should be run with on the nodes. This will
-override any other commandline options as well as any options specified by a 
-cluster profile.
-
-The sosreport command will execute as 'sosreport --batch SOS_CMD'. The BATCH 
-option cannot be removed from the sosreport command as it is required to run 
-sosreport non-interactively for sos collect to function.
 .TP
 \fB\-t\fR THREADS \fB\-\-threads\fR THREADS
 Report option. Specify the number of collection threads to run.

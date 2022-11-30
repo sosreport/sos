@@ -584,9 +584,6 @@ class SosNode():
         if label:
             sos_cmd = '%s %s ' % (sos_cmd, quote(label))
 
-        if self.opts.sos_opt_line:
-            return '%s %s' % (sos_cmd, self.opts.sos_opt_line)
-
         sos_opts = []
 
         # sos-3.6 added --threads
