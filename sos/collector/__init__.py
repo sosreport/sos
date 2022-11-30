@@ -118,7 +118,6 @@ class SoSCollector(SoSComponent):
         'skip_commands': [],
         'skip_files': [],
         'skip_plugins': [],
-        'sos_opt_line': '',
         'ssh_key': '',
         'ssh_port': 22,
         'ssh_user': 'root',
@@ -404,9 +403,6 @@ class SoSCollector(SoSComponent):
                                  help='Prompt for password for each node')
         collect_grp.add_argument('--preset', default='', required=False,
                                  help='Specify a sos preset to use')
-        collect_grp.add_argument('--sos-cmd', dest='sos_opt_line',
-                                 help=('Manually specify the commandline '
-                                       'for sos report on nodes'))
         collect_grp.add_argument('--ssh-user',
                                  help='Specify an SSH user. Default root')
         collect_grp.add_argument('--timeout', type=int, required=False,
@@ -939,18 +935,6 @@ class SoSCollector(SoSComponent):
     def configure_sos_cmd(self):
         """Configures the sosreport command that is run on the nodes"""
         self.sos_cmd = 'sosreport --batch '
-        if self.opts.sos_opt_line:
-            filt = ['&', '|', '>', '<', ';']
-            if any(f in self.opts.sos_opt_line for f in filt):
-                self.log_warn('Possible shell script found in provided sos '
-                              'command. Ignoring --sos-opt-line entirely.')
-                self.opts.sos_opt_line = None
-            else:
-                self.sos_cmd = '%s %s' % (
-                    self.sos_cmd, quote(self.opts.sos_opt_line))
-                self.log_debug("User specified manual sosreport command. "
-                               "Command set to %s" % self.sos_cmd)
-                return True
 
         sos_opts = []
 
