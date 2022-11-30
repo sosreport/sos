@@ -8,10 +8,10 @@
 
 import random
 import os
+import sys
 
 
 from sos_tests import StageOneReportTest, StageTwoReportTest
-from string import ascii_uppercase, digits
 from time import sleep
 
 class LogsPluginTest(StageOneReportTest):
@@ -48,20 +48,32 @@ class LogsSizeLimitTest(StageTwoReportTest):
     }
 
     def pre_sos_setup(self):
-        # write 20MB at a time to side-step rate/size limiting on some distros
-        # write over 100MB to ensure we will actually size limit inside sos,
-        # allowing for any compression or de-dupe systemd does
+        # write enough random data to the journal so that the on disk size is
+        # over 100MB, thus triggering our size limiting for this test
         from systemd import journal
+        j = journal.Reader()
         sosfd = journal.stream('sos-testing')
-        rsize = 10 * 1048576
-        for i in range(6):
-            # generate 10MB, write it, then write it in reverse.
-            # Spend less time generating new strings
-            rand = ''.join(random.choice(ascii_uppercase + digits) for _ in range(rsize))
-            sosfd.write(rand + '\n')
-            # sleep to avoid burst rate-limiting
-            sleep(10)
-            sosfd.write(rand[::-1] + '\n')
+        # journald default threshold size is 64k
+        rsize = 65535
+        to_write = ((101 * 1048576) - (j.get_usage()))
+        if to_write / 1048576 < 1:
+            return
+        try:
+            # this is unavailable on python < 3.11, but required on 3.11+
+            try:
+                orig_limit = sys.get_int_max_str_digits()
+                sys.set_int_max_str_digits(rsize)
+            except Exception:
+                # on older runtime, changes not needed
+                orig_limit = None
+            for i in range(int(to_write / rsize) + 1):
+                rand = f"{random.getrandbits(rsize * 4):x}"
+                sosfd.write(rand)
+        except Exception:
+            raise
+        finally:
+            if orig_limit:
+                sys.set_int_max_str_digits(orig_limit)
 
     def test_journal_size_limit(self):
         journ = 'sos_commands/logs/journalctl_--no-pager'

@@ -694,7 +694,7 @@ class TarFileArchive(FileCacheArchive):
         if method == 'gzip':
             kwargs = {'compresslevel': 6}
         else:
-            kwargs = {'preset': 3}
+            kwargs = {'preset': 6}
         tar = tarfile.open(self._archive_name, mode="w:%s" % _comp_mode,
                            **kwargs)
         # we need to pass the absolute path to the archive root but we
