@@ -29,12 +29,14 @@ class Nfs(Plugin, IndependentPlugin):
             "/var/lib/nfs/etab",
             "/var/lib/nfs/xtab",
             "/var/lib/nfs/rmtab",
+            "/proc/fs/nfsd",
         ])
 
         self.add_cmd_output([
             "rpcinfo -p localhost",
             "nfsstat -o all",
             "exportfs -v",
+            "nfsdclnts",
         ])
 
 
