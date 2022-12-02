@@ -18,7 +18,10 @@ class SkipVersionIPParser(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    files = [DO_SKIP, NO_SKIP]
+    files = [
+        ('sos-test-version.txt', DO_SKIP),
+        ('sos-test-version-noskip', NO_SKIP)
+    ]
     install_plugins = ['skip_versions']
     sos_cmd = '--clean -o skip_versions'
 

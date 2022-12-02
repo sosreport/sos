@@ -16,7 +16,7 @@ class OptionsFromConfigTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    files = [('/etc/sos/options_tests_sos.conf', '/etc/sos/sos.conf')]
+    files = [('options_tests_sos.conf', '/etc/sos/sos.conf')]
     sos_cmd = '-v '
 
     def test_case_id_from_config(self):

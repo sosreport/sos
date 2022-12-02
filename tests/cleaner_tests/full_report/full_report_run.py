@@ -25,7 +25,7 @@ class FullCleanTest(StageTwoReportTest):
     sos_timeout = 600
     # replace with an empty placeholder, make sure that this test case is not
     # influenced by previous clean runs
-    files = ['/etc/sos/cleaner/default_mapping']
+    files = [('default_mapping', '/etc/sos/cleaner/default_mapping')]
     packages = {
         'rhel': ['python3-systemd'],
         'ubuntu': ['python3-systemd']
