@@ -14,6 +14,7 @@ from avocado.utils import archive, process, distro, software_manager
 from fnmatch import fnmatch
 
 import glob
+import inspect
 import json
 import os
 import pickle
@@ -791,7 +792,7 @@ class StageTwoReportTest(BaseSoSReportTest):
         for plug in self.install_plugins:
             if not plug.endswith('.py'):
                 plug += '.py'
-            fake_plug = os.path.join(SOS_TEST_DATA_DIR, 'fake_plugins', plug)
+            fake_plug = os.path.join(os.path.dirname(inspect.getfile(self.__class__)), plug)
             if os.path.exists(fake_plug):
                 shutil.copy(fake_plug, SOS_PLUGIN_DIR)
                 _installed.append(os.path.realpath(os.path.join(SOS_PLUGIN_DIR, plug)))
@@ -846,23 +847,21 @@ class StageTwoReportTest(BaseSoSReportTest):
         for pkg in pkgs:
             self.sm.remove(pkg)
 
-    def _copy_test_file(self, src, dest=None):
+    def _copy_test_file(self, filetup):
         """Helper to copy files from tests/test_data to relevant locations on
         the test system. If ``dest`` is provided, use that as the destination
         filename instead of using the ``src`` name
         """
-
-        if dest is None:
-            dest = src
+        src, dest = filetup
         dir_added = False
         if os.path.exists(dest):
             os.rename(dest, dest + '.sostesting')
-        _dir = os.path.split(src)[0]
+        _dir = os.path.dirname(dest)
         if not os.path.exists(_dir):
             os.makedirs(_dir)
             self._created_files.append(_dir)
             dir_added = True
-        _test_file = os.path.join(SOS_TEST_DIR, 'test_data', src.lstrip('/'))
+        _test_file = os.path.join(os.path.dirname(inspect.getfile(self.__class__)), src.lstrip('/'))
         shutil.copy(_test_file, dest)
         if not dir_added:
             self._created_files.append(dest)
@@ -876,10 +875,9 @@ class StageTwoReportTest(BaseSoSReportTest):
         test(s) have run.
         """
         for mfile in self.files:
-            if isinstance(mfile, tuple):
-                self._copy_test_file(mfile[0], mfile[1])
-            else:
-                self._copy_test_file(mfile)
+            if not isinstance(mfile, tuple):
+                raise Exception(f"Mocked files must be provided via tuples, not {mfile.__class__}")
+            self._copy_test_file(mfile)
         if self._created_files:
             self._write_file_to_tmpdir('mocked_files', json.dumps(self._created_files))
 

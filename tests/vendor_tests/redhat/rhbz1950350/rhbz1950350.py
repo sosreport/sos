@@ -17,8 +17,11 @@ class rhbz1950350(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    files = ['/etc/sos/sos.conf', '/etc/sos/extras.d/sos_clean_config.conf',
-             '/var/log/clean_config_test.txt']
+    files = [
+        ('sos.conf', '/etc/sos/sos.conf'),
+        ('sos_clean_config.conf', '/etc/sos/extras.d/sos_clean_config.conf'),
+        ('clean_config_test.txt', '/var/log/clean_config_test.txt')
+    ]
 
     sos_cmd = '-v -o sos_extras --clean'
 

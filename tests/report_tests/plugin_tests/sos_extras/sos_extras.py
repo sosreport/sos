@@ -16,7 +16,7 @@ class SosExtrasPluginTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    files = ['/etc/sos/extras.d/sos_testing.conf']
+    files = [('sos_testing.conf', '/etc/sos/extras.d/sos_testing.conf')]
     # rather than only enabling this plugin, make sure the enablement trigger
     # is working
     sos_cmd = '-n logs,networking,devicemapper,filesys,systemd'

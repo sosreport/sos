@@ -29,7 +29,7 @@ class SudoLdapScrubbedTest(StageTwoReportTest):
     """
 
     sos_cmd = '-o sudo'
-    files = ['/etc/sudo-ldap.conf']
+    files = [('sudo-ldap.conf', '/etc/sudo-ldap.conf')]
 
     def test_bindpw_scrubbed(self):
         self.assertFileNotHasContent('/etc/sudo-ldap.conf', 'sostestpassword')

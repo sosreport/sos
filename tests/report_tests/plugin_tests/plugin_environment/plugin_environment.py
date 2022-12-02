@@ -16,7 +16,7 @@ class PluginDefaultEnvironmentTest(StageTwoReportTest):
     Ensure that being able to set a default set of environment variables is
     working correctly and does not leave a lingering env var on the system
 
-    :avocado: tags=stageone
+    :avocado: tags=stagetwo
     """
 
     install_plugins = ['default_env_test']

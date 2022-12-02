@@ -78,7 +78,7 @@ class DefaultRemoveBinaryFilesTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    files = ['/var/log/binary_test.tar.xz']
+    files = [('binary_test.tar.xz', '/var/log/binary_test.tar.xz')]
     install_plugins = ['binary_test']
     sos_cmd = '--clean -o binary_test,kernel,host'
 
@@ -95,7 +95,7 @@ class KeepBinaryFilesTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    files = ['/var/log/binary_test.tar.xz']
+    files = [('binary_test.tar.xz', '/var/log/binary_test.tar.xz')]
     install_plugins = ['binary_test']
     sos_cmd = '--clean --keep-binary-files -o binary_test,kernel,host'
 

@@ -18,7 +18,7 @@ class UnicodeOpenTest(StageTwoReportTest):
     """
 
     sos_cmd = '--clean -o unicode_test,networking,host'
-    files = ['/tmp/sos-test-unicode.txt']
+    files = [('sos-test-unicode.txt', '/tmp/sos-test-unicode.txt')]
     install_plugins = ['unicode_test']
 
     def test_file_was_collected(self):
