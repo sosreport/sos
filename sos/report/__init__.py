@@ -1297,16 +1297,21 @@ class SoSReport(SoSComponent):
                 pool.shutdown(wait=True)
                 pool._threads.clear()
         if self.opts.estimate_only:
-            from pathlib import Path
-            tmpdir_path = Path(self.archive.get_tmp_dir())
-            self.estimated_plugsizes[plugin[1]] = sum(
-                    [f.lstat().st_size for f in tmpdir_path.glob('**/*')])
+            # call "du -s -B1" for the tmp dir to get the disk usage of the
+            # data collected by the plugin - if the command fails, count with 0
+            tmpdir = self.archive.get_tmp_dir()
+            try:
+                du = sos_get_command_output('du -sB1 %s' % tmpdir)
+                self.estimated_plugsizes[plugin[1]] = \
+                    int(du['output'].split()[0])
+            except Exception:
+                self.estimated_plugsizes[plugin[1]] = 0
             # remove whole tmp_dir content - including "sos_commands" and
             # similar dirs that will be re-created on demand by next plugin
             # if needed; it is less error-prone approach than skipping
             # deletion of some dirs but deleting their content
-            for f in os.listdir(self.archive.get_tmp_dir()):
-                f = os.path.join(self.archive.get_tmp_dir(), f)
+            for f in os.listdir(tmpdir):
+                f = os.path.join(tmpdir, f)
                 if os.path.isdir(f) and not os.path.islink(f):
                     rmtree(f)
                 else:
