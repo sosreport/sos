@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
-import glob
 
 
 class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -16,10 +15,8 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'ceph_mon'
     profiles = ('storage', 'virt', 'container')
-    containers = ('ceph-mon.*',)
-
-    def check_enabled(self):
-        return True if glob.glob('/var/lib/ceph/mon/*/*') else False
+    containers = ('ceph-(.*)?mon.*',)
+    files = ('/var/lib/ceph/mon/',)
 
     def setup(self):
         self.add_file_tags({

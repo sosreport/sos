@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
-import glob
 
 
 class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -16,10 +15,8 @@ class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'ceph_rgw'
     profiles = ('storage', 'virt', 'container', 'webserver')
-    containers = ('ceph-rgw.*',)
-
-    def check_enabled(self):
-        return True if glob.glob('/var/lib/ceph/radosgw/*/*') else False
+    containers = ('ceph-(.*)?rgw.*',)
+    files = ('/var/lib/ceph/radosgw',)
 
     def setup(self):
         self.add_copy_spec('/var/log/ceph/ceph-client.rgw*.log',

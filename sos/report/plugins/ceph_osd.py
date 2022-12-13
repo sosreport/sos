@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
-import glob
 
 
 class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -16,10 +15,8 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'ceph_osd'
     profiles = ('storage', 'virt', 'container')
-    containers = ('ceph-osd.*',)
-
-    def check_enabled(self):
-        return True if glob.glob('/var/lib/ceph/osd/*/*') else False
+    containers = ('ceph-(.*)?osd.*',)
+    files = ('/var/lib/ceph/osd/',)
 
     def setup(self):
         self.add_file_tags({
