@@ -1,18 +1,25 @@
-downstream_package_name: sos
-jobs:
-- job: copr_build
-  metadata:
-    targets:
-    - fedora-development-x86_64
-    - fedora-development-aarch64
-    - fedora-development-ppc64le
-    - fedora-development-s390x
-  trigger: pull_request
+upstream_project_url: https://github.com/sosreport/sos
 specfile_path: sos.spec
-synced_files:
-- sos.spec
-- .packit.yaml
+downstream_package_name: sos
 upstream_package_name: sos
+
+files_to_sync:
+  - sos.spec
+  - .packit.yaml
+
+srpm_build_deps:
+  - python3-devel
+  - gettext
+
+jobs:
+  - job: copr_build
+    trigger: pull_request
+    targets:
+      - fedora-development-x86_64
+      - fedora-development-aarch64
+      - fedora-development-ppc64le
+      - fedora-development-s390x
+
 notifications:
   pull_request:
     successful_build: true
