@@ -934,30 +934,34 @@ class SoSCollector(SoSComponent):
 
     def configure_sos_cmd(self):
         """Configures the sosreport command that is run on the nodes"""
-        self.sos_cmd = 'sosreport --batch '
+        sos_cmd = 'sosreport --batch '
 
-        sos_opts = []
+        sos_options = {}
 
         if self.opts.case_id:
-            sos_opts.append('--case-id=%s' % (quote(self.opts.case_id)))
+            sos_options['case-id'] = quote(self.opts.case_id)
         if self.opts.alloptions:
-            sos_opts.append('--alloptions')
+            sos_options['alloptions'] = ''
         if self.opts.all_logs:
-            sos_opts.append('--all-logs')
+            sos_options['all-logs'] = ''
         if self.opts.verify:
-            sos_opts.append('--verify')
+            sos_options['verify'] = ''
         if self.opts.log_size:
-            sos_opts.append(('--log-size=%s' % quote(str(self.opts.log_size))))
+            sos_options['log-size'] = quote(str(self.opts.log_size))
         if self.opts.sysroot:
-            sos_opts.append('-s %s' % quote(self.opts.sysroot))
+            sos_options['sysroot'] = quote(self.opts.sysroot)
         if self.opts.chroot:
-            sos_opts.append('-c %s' % quote(self.opts.chroot))
+            sos_options['chroot'] = quote(self.opts.chroot)
         if self.opts.compression_type != 'auto':
-            sos_opts.append('-z %s' % (quote(self.opts.compression_type)))
-        self.sos_cmd = self.sos_cmd + ' '.join(sos_opts)
-        self.log_debug("Initial sos cmd set to %s" % self.sos_cmd)
-        self.commons['sos_cmd'] = self.sos_cmd
-        self.collect_md.add_field('initial_sos_cmd', self.sos_cmd)
+            sos_options['compression-type'] = quote(self.opts.compression_type)
+
+        for k, v in sos_options.items():
+            sos_cmd += f"--{k} {v} "
+        sos_cmd = sos_cmd.rstrip()
+        self.log_debug(f"Initial sos cmd set to {sos_cmd}")
+        self.commons['sos_cmd'] = 'sosreport --batch '
+        self.commons['sos_options'] = sos_options
+        self.collect_md.add_field('initial_sos_cmd', sos_cmd)
 
     def connect_to_primary(self):
         """If run with --primary, we will run cluster checks again that

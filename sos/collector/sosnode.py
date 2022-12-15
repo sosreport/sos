@@ -44,6 +44,7 @@ class SosNode():
         self.tmpdir = commons['tmpdir']
         self.hostlen = commons['hostlen']
         self.need_sudo = commons['need_sudo']
+        self.sos_options = commons['sos_options']
         self.local = False
         self.host = None
         self.cluster = None
@@ -550,6 +551,12 @@ class SosNode():
                 if plug not in self.enable_plugins:
                     self.enable_plugins.append(plug)
 
+        if self.cluster.sos_options:
+            for opt in self.cluster.sos_options:
+                # take the user specification over any cluster defaults
+                if opt not in self.sos_options:
+                    self.sos_options[opt] = self.cluster.sos_options[opt]
+
         if self.cluster.sos_plugin_options:
             for opt in self.cluster.sos_plugin_options:
                 if not any(opt in o for o in self.plugopts):
@@ -642,6 +649,10 @@ class SosNode():
             'sosreport',
             os.path.join(self.host.sos_bin_path, self.sos_bin)
         )
+
+        for opt in self.sos_options:
+            _val = self.sos_options[opt]
+            sos_opts.append(f"--{opt} {_val if _val else ''}")
 
         if self.plugopts:
             opts = [o for o in self.plugopts

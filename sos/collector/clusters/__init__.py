@@ -41,6 +41,9 @@ class Cluster():
     :cvar sos_plugins: Which plugins to forcibly enable for node reports
     :vartype sos_plugins: ``list``
 
+    :cvar sos_options: Options to pass to report on every node
+    :vartype sos_options: ``dict``
+
     :cvar sos_plugin_options: Plugin options to forcibly set for nodes
     :vartype sos_plugin_options: ``dict``
 
@@ -54,6 +57,7 @@ class Cluster():
     option_list = []
     packages = ('',)
     sos_plugins = []
+    sos_options = {}
     sos_plugin_options = {}
     sos_preset = ''
     cluster_name = None
@@ -115,6 +119,10 @@ class Cluster():
                 "Uses the following sos preset: %s" % cls.sos_preset,
                 newline=False
             )
+
+        if cls.sos_options:
+            _opts = ', '.join(f'--{k} {v}' for k, v in cls.sos_options.items())
+            section.add_text(f"Sets the following sos options: {_opts}")
 
         if cls.sos_plugins:
             section.add_text(
