@@ -6,28 +6,72 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
+
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
+    """
+    This plugin serves to collect information on monitor nodes within a Ceph
+    cluster. It is designed to collect from several versions of Ceph, including
+    those versions that serve as the basis for RHCS 4 and RHCS 5.
+
+    Older versions of Ceph will have collections from locations such as
+    /var/log/ceph, whereas newer versions (as of this plugin's latest update)
+    will have collections from /var/log/ceph/<fsid>/. This plugin attempts to
+    account for this where possible across the host's filesystem.
+
+    Users may expect to see several collections twice - once in standard output
+    from the `ceph` command, and again in JSON format. The latter of which will
+    be placed in the `json_output/` subdirectory within this plugin's directory
+    in the report archive. These JSON formatted collections are intended to
+    aid in automated analysis.
+    """
 
     short_desc = 'CEPH mon'
 
     plugin_name = 'ceph_mon'
     profiles = ('storage', 'virt', 'container')
-    containers = ('ceph-(.*)?mon.*',)
-    files = ('/var/lib/ceph/mon/',)
+    # note: for RHCS 5 / Ceph v16 the containers serve as an enablement trigger
+    # but by default they are not capable of running various ceph commands in
+    # this plugin - the `ceph` binary is functional directly on the host
+    containers = ('ceph-(.*-)?mon.*',)
+    files = ('/var/lib/ceph/mon/', '/var/lib/ceph/*/mon*')
+    ceph_version = 0
 
     def setup(self):
+
+        self.ceph_version = self.get_ceph_version()
+
+        logdir = '/var/log/ceph'
+        libdir = '/var/lib/ceph'
+        rundir = '/run/ceph'
+
+        if self.ceph_version >= 16:
+            logdir += '/*'
+            libdir += '/*'
+            rundir += '/*'
+
         self.add_file_tags({
             '.*/ceph.conf': 'ceph_conf',
-            '/var/log/ceph/ceph-mon.*.log': 'ceph_mon_log'
+            f"{logdir}/ceph-.*mon.*.log": 'ceph_mon_log'
         })
 
+        self.add_forbidden_path([
+            "/etc/ceph/*keyring*",
+            f"{libdir}/*keyring*",
+            f"{libdir}/**/*keyring*",
+            # Excludes temporary ceph-osd mount location like
+            # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
+            f"{libdir}/tmp/*mnt*",
+            "/etc/ceph/*bindpass*"
+        ])
+
         self.add_copy_spec([
-            "/run/ceph/ceph-mon*",
-            "/var/lib/ceph/mon/*/kv_backend",
-            "/var/log/ceph/ceph-mon*.log"
+            f"{rundir}/ceph-mon*",
+            f"{libdir}/**/kv_backend",
+            f"{logdir}/*ceph-mon*.log"
         ])
 
         self.add_cmd_output([
@@ -42,7 +86,6 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph features",
             "ceph insights",
             "ceph crash stat",
-            "ceph crash ls",
             "ceph config log",
             "ceph config generate-minimal-conf",
             "ceph config-key dump",
@@ -59,6 +102,13 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph log last 10000 debug cluster",
             "ceph log last 10000 debug audit"
         ])
+
+        crashes = self.collect_cmd_output('ceph crash ls')
+        if crashes['status'] == 0:
+            for crashln in crashes['output'].splitlines():
+                if crashln.endswith('*'):
+                    cid = crashln.split()[0]
+                    self.add_cmd_output(f"ceph crash info {cid}")
 
         ceph_cmds = [
             "mon dump",
@@ -85,63 +135,96 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "osd numa-status"
         ]
 
-        self.add_cmd_output([
-            "ceph %s --format json-pretty" % s for s in ceph_cmds
-        ], subdir="json_output", tags="insights_ceph_health_detail")
-
-        mon_ids = []
-        # Get the ceph user processes
-        out = self.exec_cmd('ps -u ceph -o args')
-
-        if out['status'] == 0:
-            # Extract the mon ids
-            for procs in out['output'].splitlines():
-                proc = procs.split()
-                # Locate the '--id' value of ceph-mon
-                if proc and proc[0].endswith("ceph-mon"):
-                    try:
-                        id_index = proc.index("--id")
-                        mon_ids.append(proc[id_index+1])
-                    except (IndexError, ValueError):
-                        self.log_warn("could not find ceph-mon id: %s", procs)
-
-        self.add_cmd_output([
-            "ceph tell mon.%s mon_status" % mon_id for mon_id in mon_ids
-        ], subdir="json_output", tags="insights_ceph_health_detail")
-
-        self.add_forbidden_path([
-            "/etc/ceph/*keyring*",
-            "/var/lib/ceph/*keyring*",
-            "/var/lib/ceph/*/*keyring*",
-            "/var/lib/ceph/*/*/*keyring*",
-            # Excludes temporary ceph-osd mount location like
-            # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            "/var/lib/ceph/tmp/*mnt*",
-            "/etc/ceph/*bindpass*"
-        ])
-
-        # If containerized, run commands in containers
-        try:
-            cname = self.get_all_containers_by_regex("ceph-mon*")[0][1]
-        except Exception:
-            cname = None
-
         self.add_cmd_output(
-            ["ceph %s" % cmd for cmd in ceph_cmds],
-            container=cname
+            [f"ceph tell mon.{mid} mon_status" for mid in self.get_ceph_ids()],
+            subdir="json_output", tags="insights_ceph_health_detail"
         )
 
-    def postproc(self):
-        keys = [
-            'API_PASSWORD',
-            'API_USER.*',
-            'API_.*_KEY',
-            'key',
-            '_secret',
-            'rbd/mirror/peer/.*'
-        ]
+        self.add_cmd_output([f"ceph {cmd}" for cmd in ceph_cmds])
 
-        creg = r"((\".*(%s)\":) \")(.*)(\".*)" % "|".join(keys)
-        self.do_cmd_output_sub('ceph config-key dump', creg, r'\1*******\5')
+        # get ceph_cmds again as json for easier automation parsing
+        self.add_cmd_output(
+            [f"ceph {cmd} --format json-pretty" for cmd in ceph_cmds],
+            subdir="json_output", tags="insights_ceph_health_detail"
+        )
+
+    def get_ceph_version(self):
+        ver = self.exec_cmd('ceph --version')
+        if ver['status'] == 0:
+            try:
+                _ver = ver['output'].split()[2]
+                return int(_ver.split('.')[0])
+            except Exception as err:
+                self._log_debug(f"Could not determine ceph version: {err}")
+        self._log_error(
+            'Failed to find ceph version, command collection will be limited'
+        )
+        return 0
+
+    def get_ceph_ids(self):
+        ceph_ids = []
+        # ceph version 14 correlates to RHCS 4
+        if self.ceph_version == 14:
+            # Get the ceph user processes
+            out = self.exec_cmd('ps -u ceph -o args')
+
+            if out['status'] == 0:
+                # Extract the mon ids
+                for procs in out['output'].splitlines():
+                    proc = procs.split()
+                    # Locate the '--id' value of the process
+                    if proc and proc[0].endswith("ceph-mon"):
+                        try:
+                            id_index = proc.index("--id")
+                            ceph_ids.append(proc[id_index + 1])
+                        except (IndexError, ValueError):
+                            self._log_warn('Unable to find ceph IDs')
+
+        # ceph version 16 is RHCS 5
+        elif self.ceph_version >= 16:
+            stats = self.exec_cmd('ceph status')
+            if stats['status'] == 0:
+                try:
+                    ret = re.search(r'(\s*mon: .* quorum) (.*) (\(.*\))',
+                                    stats['output'])
+                    ceph_ids.extend(ret.groups()[1].split(','))
+                except Exception as err:
+                    self._log_debug(f"id determination failed: {err}")
+        return ceph_ids
+
+    def postproc(self):
+
+        if self.ceph_version >= 16:
+            keys = [
+                'key',
+                'username',
+                'password',
+                '_secret',
+                'rbd/mirror/peer/.*'
+            ]
+            # we need to do this iteratively, as config-key dump here contains
+            # nested json data written as strings, which may have multiple hits
+            # within the same line
+            for key in keys:
+                creg = fr'(((.*)({key}\\\": ))((\\\"(.*?)\\\")(.*)))'
+                self.do_cmd_output_sub(
+                        'ceph config-key dump', creg, r'\2\"******\"\8'
+                )
+        else:
+            keys = [
+                'API_PASSWORD',
+                'API_USER.*',
+                'API_.*_KEY',
+                'key',
+                '_secret',
+                'rbd/mirror/peer/.*'
+            ]
+
+            creg = fr"((\".*({'|'.join(keys)})\":) \")(.*)(\".*)"
+            self.do_cmd_output_sub(
+                    'ceph config-key dump', creg, r'\1*******\5'
+            )
+
+        self.do_cmd_private_sub('ceph config-key dump')
 
 # vim: set et ts=4 sw=4 :
