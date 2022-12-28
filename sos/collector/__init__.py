@@ -914,7 +914,8 @@ class SoSCollector(SoSComponent):
 
         self.ui_log.info('The following is a list of nodes to collect from:')
         if self.primary.connected and self.primary.hostname is not None:
-            if not (self.primary.local and self.opts.no_local):
+            if not ((self.primary.local and self.opts.no_local)
+                    or self.cluster.strict_node_list):
                 self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
                                              self.primary.hostname))
 
@@ -1026,12 +1027,13 @@ class SoSCollector(SoSComponent):
         if applicable"""
         if (self.hostname in self.node_list and self.opts.no_local):
             self.node_list.remove(self.hostname)
-        for i in self.ip_addrs:
-            if i in self.node_list:
-                self.node_list.remove(i)
+        if not self.cluster.strict_node_list:
+            for i in self.ip_addrs:
+                if i in self.node_list:
+                    self.node_list.remove(i)
         # remove the primary node from the list, since we already have
         # an open session to it.
-        if self.primary is not None:
+        if self.primary is not None and not self.cluster.strict_node_list:
             for n in self.node_list:
                 if n == self.primary.hostname or n == self.opts.primary:
                     self.node_list.remove(n)
@@ -1177,7 +1179,7 @@ this utility or remote systems that it connects to.
     def collect(self):
         """ For each node, start a collection thread and then tar all
         collected sosreports """
-        if self.primary.connected:
+        if self.primary.connected and not self.cluster.strict_node_list:
             self.client_list.append(self.primary)
 
         self.ui_log.info("\nConnecting to nodes...")
