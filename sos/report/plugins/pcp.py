@@ -93,7 +93,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             var_conf_dir
         ])
 
-        # We explicitely avoid /var/lib/pcp/config/{pmchart,pmlogconf,pmieconf,
+        # We explicitly avoid /var/lib/pcp/config/{pmchart,pmlogconf,pmieconf,
         # pmlogrewrite} as in 99% of the cases they are just copies from the
         # rpms. It does not make up for a lot of size but it contains many
         # files
