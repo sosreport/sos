@@ -35,38 +35,26 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
 
     def setup(self):
 
-        self.ceph_version = self.get_ceph_version()
-
-        logdir = '/var/log/ceph'
-        libdir = '/var/lib/ceph'
-        rundir = '/run/ceph'
-
-        if self.ceph_version >= 16:
-            logdir += '/*'
-            libdir += '/*'
-            rundir += '/*'
-
         self.add_file_tags({
-            f'{logdir}/ceph-mgr.*.log': 'ceph_mgr_log',
+            '/var/log/ceph/(.*/)?ceph-mgr.*.log': 'ceph_mgr_log',
         })
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
-            f"{libdir}/*keyring*",
-            f"{libdir}/**/*keyring*",
-            f"{libdir}/osd*",
-            f"{libdir}/mon*",
+            "/var/lib/ceph/**/*keyring*",
+            "/var/lib/ceph/**/osd*",
+            "/var/lib/ceph/**/mon*",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            f"{libdir}/tmp/*mnt*",
+            "/var/lib/ceph/**/tmp/*mnt*",
             "/etc/ceph/*bindpass*",
         ])
 
         self.add_copy_spec([
-            f"{logdir}/ceph-mgr*.log",
-            f"{libdir}/mgr*",
-            f"{libdir}/bootstrap-mgr/",
-            f"{rundir}/ceph-mgr*",
+            "/var/log/ceph/**/ceph-mgr*.log",
+            "/var/lib/ceph/**/mgr*",
+            "/var/lib/ceph/**/bootstrap-mgr/",
+            "/run/ceph/**/ceph-mgr*",
         ])
 
         # more commands to be added later
@@ -103,19 +91,6 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_cmd_output([
             f"ceph daemon {m} {cmd}" for m in self.get_socks() for cmd in cmds]
         )
-
-    def get_ceph_version(self):
-        ver = self.exec_cmd('ceph --version')
-        if ver['status'] == 0:
-            try:
-                _ver = ver['output'].split()[2]
-                return int(_ver.split('.')[0])
-            except Exception as err:
-                self._log_debug(f"Could not determine ceph version: {err}")
-        self._log_error(
-            'Failed to find ceph version, command collection will be limited'
-        )
-        return 0
 
     def get_socks(self):
         """

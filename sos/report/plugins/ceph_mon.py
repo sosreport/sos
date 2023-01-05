@@ -44,34 +44,24 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.ceph_version = self.get_ceph_version()
 
-        logdir = '/var/log/ceph'
-        libdir = '/var/lib/ceph'
-        rundir = '/run/ceph'
-
-        if self.ceph_version >= 16:
-            logdir += '/*'
-            libdir += '/*'
-            rundir += '/*'
-
         self.add_file_tags({
             '.*/ceph.conf': 'ceph_conf',
-            f"{logdir}/ceph-.*mon.*.log": 'ceph_mon_log'
+            "/var/log/ceph/(.*/)?ceph-.*mon.*.log": 'ceph_mon_log'
         })
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
-            f"{libdir}/*keyring*",
-            f"{libdir}/**/*keyring*",
+            "/var/lib/ceph/**/*keyring*",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            f"{libdir}/tmp/*mnt*",
+            "/var/lib/ceph/**/tmp/*mnt*",
             "/etc/ceph/*bindpass*"
         ])
 
         self.add_copy_spec([
-            f"{rundir}/ceph-mon*",
-            f"{libdir}/**/kv_backend",
-            f"{logdir}/*ceph-mon*.log"
+            "/run/ceph/**/ceph-mon*",
+            "/var/lib/ceph/**/kv_backend",
+            "/var/log/ceph/**/*ceph-mon*.log"
         ])
 
         self.add_cmd_output([
