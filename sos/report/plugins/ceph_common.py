@@ -57,7 +57,7 @@ class Ceph_Common(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_copy_spec("/var/log/calamari",)
 
         self.add_copy_spec([
-            "/var/log/ceph/ceph.log",
+            "/var/log/ceph/ceph.log",  # TODO
             "/var/log/ceph/ceph.audit.log*",
             "/var/log/calamari/*.log",
             "/etc/ceph/",

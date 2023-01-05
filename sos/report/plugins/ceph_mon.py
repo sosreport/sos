@@ -44,14 +44,9 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.ceph_version = self.get_ceph_version()
 
-        logdir = '/var/log/ceph'
-        libdir = '/var/lib/ceph'
-        rundir = '/run/ceph'
-
-        if self.ceph_version >= 16:
-            logdir += '/*'
-            libdir += '/*'
-            rundir += '/*'
+        logdir = '/var/log/ceph/**'
+        libdir = '/var/lib/ceph/**'
+        rundir = '/run/ceph/**'
 
         self.add_file_tags({
             '.*/ceph.conf': 'ceph_conf',
@@ -61,7 +56,6 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
             f"{libdir}/*keyring*",
-            f"{libdir}/**/*keyring*",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
             f"{libdir}/tmp/*mnt*",
@@ -70,7 +64,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_copy_spec([
             f"{rundir}/ceph-mon*",
-            f"{libdir}/**/kv_backend",
+            f"{libdir}/kv_backend",
             f"{logdir}/*ceph-mon*.log"
         ])
 
@@ -161,7 +155,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         )
         return 0
 
-    def get_ceph_ids(self):
+    def get_ceph_ids(self):  # To check
         ceph_ids = []
         # ceph version 14 correlates to RHCS 4
         if self.ceph_version == 14 or self.ceph_version == 15:

@@ -19,7 +19,7 @@ class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
     files = ('/var/lib/ceph/radosgw',)
 
     def setup(self):
-        self.add_copy_spec('/var/log/ceph/ceph-client.rgw*.log',
+        self.add_copy_spec('/var/log/ceph/ceph-client.rgw*.log',  # TODO
                            tags='ceph_rgw_log')
 
         self.add_forbidden_path([

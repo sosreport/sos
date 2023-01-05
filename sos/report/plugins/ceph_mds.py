@@ -22,7 +22,7 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
         })
 
         self.add_copy_spec([
-            "/var/log/ceph/ceph-mds*.log",
+            "/var/log/ceph/ceph-mds*.log",  # TODO
             "/var/lib/ceph/bootstrap-mds/",
             "/var/lib/ceph/mds/",
             "/run/ceph/ceph-mds*",
