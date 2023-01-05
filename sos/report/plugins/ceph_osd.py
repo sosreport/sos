@@ -35,37 +35,25 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
 
     def setup(self):
 
-        self.ceph_version = self.get_ceph_version()
-
-        logdir = '/var/log/ceph'
-        libdir = '/var/lib/ceph'
-        rundir = '/run/ceph'
-
-        if self.ceph_version >= 16:
-            logdir += '/*'
-            libdir += '/*'
-            rundir += '/*'
-
         self.add_file_tags({
-            f"{logdir}/ceph-(.*-)?osd.*.log": 'ceph_osd_log',
+            "/var/log/ceph/(.*/)?ceph-(.*-)?osd.*.log": 'ceph_osd_log',
         })
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
-            f"{libdir}/*keyring*",
-            f"{libdir}/**/*keyring*",
+            "/var/lib/ceph/**/*keyring*",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            f"{libdir}/tmp/*mnt*",
+            "/var/lib/ceph/**/tmp/*mnt*",
             "/etc/ceph/*bindpass*"
         ])
 
         # Only collect OSD specific files
         self.add_copy_spec([
-            f"{rundir}/ceph-osd*",
-            f"{libdir}/**/kv_backend",
-            f"{logdir}/ceph-osd*.log",
-            f"{logdir}/ceph-volume*.log",
+            "/run/ceph/**/ceph-osd*",
+            "/var/lib/ceph/**/kv_backend",
+            "/var/log/ceph/**/ceph-osd*.log",
+            "/var/log/ceph/**/ceph-volume*.log",
         ])
 
         self.add_cmd_output([
@@ -111,18 +99,5 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
                 if file.endswith('.asok'):
                     ceph_sockets.append(self.path_join(rdir, file))
         return ceph_sockets
-
-    def get_ceph_version(self):
-        ver = self.exec_cmd('ceph --version')
-        if ver['status'] == 0:
-            try:
-                _ver = ver['output'].split()[2]
-                return int(_ver.split('.')[0])
-            except Exception as err:
-                self._log_debug(f"Could not determine ceph version: {err}")
-        self._log_error(
-            'Failed to find ceph version, command collection will be limited'
-        )
-        return 0
 
 # vim: set et ts=4 sw=4 :
