@@ -1631,9 +1631,9 @@ class Plugin():
 
     def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
                       tailit=True, pred=None, tags=[], container=None):
-        """Add a file, directory, or regex matching filepaths to the archive
+        """Add a file, directory, or globs matching filepaths to the archive
 
-        :param copyspecs: A file, directory, or regex matching filepaths
+        :param copyspecs: Files, directories, or globs matching filepaths
         :type copyspecs: ``str`` or a ``list`` of strings
 
         :param sizelimit: Limit the total size of collections from `copyspecs`
