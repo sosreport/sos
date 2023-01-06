@@ -11,8 +11,7 @@
 import re
 import fnmatch
 
-from sos.utilities import shell_out
-from pipes import quote
+from sos.utilities import sos_get_command_output
 
 
 class PackageManager():
@@ -42,8 +41,8 @@ class PackageManager():
     :vartype chroot: ``bool``
 
     :cvar remote_exec: If package manager is on a remote system (e.g. for
-                       sos collect), prepend this SSH command to run remotely
-    :vartype remote_exec: ``str`` or ``None``
+                       sos collect), use this to execute commands
+    :vartype remote_exec: ``SoSTransport.run_command()``
     """
 
     query_command = None
@@ -59,20 +58,13 @@ class PackageManager():
                  query_path_command=None, remote_exec=None):
         self._packages = {}
         self.files = []
+        self.remote_exec = remote_exec
 
         self.query_command = query_command or self.query_command
         self.verify_command = verify_command or self.verify_command
         self.verify_filter = verify_filter or self.verify_filter
         self.files_command = files_command or self.files_command
         self.query_path_command = query_path_command or self.query_path_command
-
-        # if needed, append the remote command to these so that this returns
-        # the remote package details, not local
-        if remote_exec:
-            for cmd in ['query_command', 'verify_command', 'files_command']:
-                if getattr(self, cmd) is not None:
-                    _cmd = getattr(self, cmd)
-                    setattr(self, cmd, "%s %s" % (remote_exec, quote(_cmd)))
 
         if chroot:
             self.chroot = chroot
@@ -82,6 +74,47 @@ class PackageManager():
         if not self._packages:
             self._generate_pkg_list()
         return self._packages
+
+    def exec_cmd(self, command, timeout=30, need_root=False, env=None,
+                 get_pty=False, chroot=None):
+        """
+        Runs a package manager command, either via sos_get_command_output() if
+        local, or via a SoSTransport's run_command() if this needs to be run
+        remotely, as in the case of remote nodes for use during `sos collect`.
+
+        :param command:     The command to execute
+        :type command:      ``str``
+
+        :param timeout:     Timeout for command to run, in seconds
+        :type timeout:      ``int``
+
+        :param need_root:   Does the command require root privileges?
+        :type need_root:    ``bool``
+
+        :param env:         Environment variables to set
+        :type env:          ``dict`` with keys being env vars to define
+
+        :param get_pty:     If running remotely, does the command require
+                            obtaining a pty?
+        :type get_pty:      ``bool``
+
+        :param chroot:      If necessary, chroot command execution to here
+        :type chroot:       ``None`` or ``str``
+
+        :returns:   The output of the command
+        :rtype:     ``str``
+        """
+        if self.remote_exec:
+            ret = self.remote_exec(command, timeout, need_root, env, get_pty)
+        else:
+            ret = sos_get_command_output(command, timeout, chroot=chroot,
+                                         env=env)
+        if ret['status'] == 0:
+            return ret['output']
+        # In the case of package managers, we don't want to potentially iterate
+        # over stderr, so prevent the package methods from doing anything at
+        # all by returning nothing.
+        return ''
 
     def all_pkgs_by_name(self, name):
         """
@@ -135,11 +168,9 @@ class PackageManager():
         """
         if self.query_command:
             cmd = self.query_command
-            pkg_list = shell_out(
-                cmd, timeout=0, chroot=self.chroot
-            ).splitlines()
+            pkg_list = self.exec_cmd(cmd, timeout=30, chroot=self.chroot)
 
-            for pkg in pkg_list:
+            for pkg in pkg_list.splitlines():
                 if '|' not in pkg:
                     continue
                 elif pkg.count("|") == 1:
@@ -190,7 +221,7 @@ class PackageManager():
         """
         if self.files_command and not self.files:
             cmd = self.files_command
-            files = shell_out(cmd, timeout=0, chroot=self.chroot)
+            files = self.exec_cmd(cmd, timeout=180, chroot=self.chroot)
             self.files = files.splitlines()
         return self.files
 
@@ -207,7 +238,7 @@ class PackageManager():
             return 'unknown'
         try:
             cmd = f"{self.query_path_command} {path}"
-            pkg = shell_out(cmd, timeout=5, chroot=self.chroot)
+            pkg = self.exec_cmd(cmd, timeout=5, chroot=self.chroot)
             return pkg.splitlines() or 'unknown'
         except Exception:
             return 'unknown'
