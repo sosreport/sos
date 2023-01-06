@@ -68,6 +68,11 @@ class Policy():
     :param probe_runtime: Should the Policy try to load a ContainerRuntime
     :type probe_runtime: ``bool``
 
+    :param remote_exec:     If this policy is loaded for a remote node, use
+                            this to facilitate executing commands via the
+                            SoSTransport in use
+    :type remote_exec:      ``SoSTranport.run_command()``
+
     :cvar distro: The name of the distribution the Policy represents
     :vartype distro: ``str``
 
