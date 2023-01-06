@@ -37,29 +37,25 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.ceph_version = self.get_ceph_version()
 
-        logdir = '/var/log/ceph/**'
-        libdir = '/var/lib/ceph/**'
-        rundir = '/run/ceph/**'
-
         self.add_file_tags({
-            f"{logdir}/ceph-(.*-)?osd.*.log": 'ceph_osd_log',
+            "/var/log/ceph/(.*/)?ceph-(.*-)?osd.*.log": 'ceph_osd_log',
         })
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
-            f"{libdir}/*keyring*",
+            "/var/lib/ceph/**/*keyring*",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            f"{libdir}/tmp/*mnt*",
+            "/var/lib/ceph/**/tmp/*mnt*",
             "/etc/ceph/*bindpass*"
         ])
 
         # Only collect OSD specific files
         self.add_copy_spec([
-            f"{rundir}/ceph-osd*",
-            f"{libdir}/kv_backend",
-            f"{logdir}/ceph-osd*.log",
-            f"{logdir}/ceph-volume*.log",
+            "/run/ceph/**/ceph-osd*",
+            "/var/lib/ceph/**/kv_backend",
+            "/var/log/ceph/**/ceph-osd*.log",
+            "/var/log/ceph/**/ceph-volume*.log",
         ])
 
         self.add_cmd_output([
@@ -94,7 +90,7 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
             [f"ceph daemon {i} {c}" for i in self.get_socks() for c in cmds]
         )
 
-    def get_socks(self):  # To check
+    def get_socks(self):
         """
         Find any available admin sockets under /var/run/ceph (or subdirs for
         later versions of Ceph) which can be used for ceph daemon commands

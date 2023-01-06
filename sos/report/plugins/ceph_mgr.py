@@ -35,30 +35,26 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
 
     def setup(self):
 
-        logdir = '/var/log/ceph/**'
-        libdir = '/var/lib/ceph/**'
-        rundir = '/run/ceph/**'
-
         self.add_file_tags({
-            f'{logdir}/ceph-mgr.*.log': 'ceph_mgr_log',
+            '/var/log/ceph/(.*/)?ceph-mgr.*.log': 'ceph_mgr_log',
         })
 
         self.add_forbidden_path([
             "/etc/ceph/*keyring*",
-            f"{libdir}/*keyring*",
-            f"{libdir}/osd*",
-            f"{libdir}/mon*",
+            "/var/lib/ceph/**/*keyring*",
+            "/var/lib/ceph/**/osd*",
+            "/var/lib/ceph/**/mon*",
             # Excludes temporary ceph-osd mount location like
             # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            f"{libdir}/tmp/*mnt*",
+            "/var/lib/ceph/**/tmp/*mnt*",
             "/etc/ceph/*bindpass*",
         ])
 
         self.add_copy_spec([
-            f"{logdir}/ceph-mgr*.log",
-            f"{libdir}/mgr*",
-            f"{libdir}/bootstrap-mgr/",
-            f"{rundir}/ceph-mgr*",
+            "/var/log/ceph/**/ceph-mgr*.log",
+            "/var/lib/ceph/**/mgr*",
+            "/var/lib/ceph/**/bootstrap-mgr/",
+            "/run/ceph/**/ceph-mgr*",
         ])
 
         # more commands to be added later
