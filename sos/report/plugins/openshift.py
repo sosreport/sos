@@ -32,7 +32,8 @@ class Openshift(Plugin, RedHatPlugin):
     `only-namespaces` options.
 
     It is expected to need to perform an `oc login` command in order for this
-    plugin to be able to correctly capture information, as system root is not
+    plugin to be able to correctly capture information (Microshift users see
+    note in `sos help report.plugins.microshift`), as system root is not
     considered cluster root on the cluster nodes in order to access the API.
 
     Users will need to either:
@@ -96,9 +97,6 @@ class Openshift(Plugin, RedHatPlugin):
         """See if we're logged in to the API service, and if not attempt to do
         so using provided plugin options
         """
-        if self._check_oc_function():
-            return True
-
         if self.get_option('kubeconfig') is None:
             # If admin doesn't add the kubeconfig
             # use default localhost.kubeconfig
@@ -106,15 +104,18 @@ class Openshift(Plugin, RedHatPlugin):
                 'kubeconfig',
                 self.master_localhost_kubeconfig
             )
+            if self._check_localhost_kubeconfig():
+                self.set_default_cmd_environment({
+                    'KUBECONFIG': self.get_option('kubeconfig')
+                })
+
+        if self._check_oc_function():
+            return True
 
         # Check first if we can use the localhost.kubeconfig before
         # using token. We don't want to use 'host' option due we use
         # cluster url from kubeconfig. Default is localhost.
         if self._check_localhost_kubeconfig():
-            self.set_default_cmd_environment({
-                'KUBECONFIG': self.get_option('kubeconfig')
-            })
-
             oc_res = self.exec_cmd(
                 "oc login -u system:admin "
                 "--insecure-skip-tls-verify=True"
@@ -139,12 +140,16 @@ class Openshift(Plugin, RedHatPlugin):
                 if self._check_oc_function():
                     return True
 
-            self._log_warn("Attempt to login to OCP API failed, will not run "
-                           "or collect `oc` commands")
+            self._log_warn(
+                f"Attempt to login to {self.__name__} API failed, will not run"
+                f" or collect `oc` commands"
+            )
             return False
 
-        self._log_warn("Not logged in to OCP API, and no login token provided."
-                       " Will not collect `oc` commands")
+        self._log_warn(
+                f"Not logged in to {self.__name__} API, and no login token "
+                f"provided. Will not collect `oc` commands"
+        )
         return False
 
     def _setup_namespace_regexes(self):
@@ -199,8 +204,8 @@ class Openshift(Plugin, RedHatPlugin):
 
         Cluster-wide information, that is information that is not tied to a
         specific namespace, will be saved in the top-level plugin directory.
-        Each namespace will have it's own subdir within the `namespaces` subdir
-        to aide in organization. From there, each namespace subdir will have a
+        Each namespace will have its own subdir within the `namespaces` subdir
+        to aid in organization. From there, each namespace subdir will have a
         subsequent subdir for each type of API resource the plugin collects.
 
         In contrast with the `kubernetes` plugin, this plugin will collect
@@ -230,9 +235,9 @@ class Openshift(Plugin, RedHatPlugin):
             # to take over 5 minutes. Print a notification message so that
             # users don't prematurely think sos has hung during setup
             self._log_warn(
-                'Note that the Openshift Container Platform plugin can be '
-                'expected in most configurations to take 5+ minutes in both '
-                'the setup and collection phases'
+                f'Note: the {self.__name__} plugin can be expected in many '
+                f'configurations to take 5+ minutes in both the setup and '
+                f'collection phases'
             )
 
             self.oc_cmd = "oc get "
@@ -262,10 +267,8 @@ class Openshift(Plugin, RedHatPlugin):
             for namespace in oc_nsps:
                 self.collect_from_namespace(namespace)
 
-    def collect_cluster_resources(self):
-        """Collect cluster-level (non-namespaced) resources from the API
-        """
-        global_resources = [
+    def get_global_resource_list(self):
+        return [
             'clusternetworks',
             'clusteroperators',
             'clusterversions',
@@ -285,7 +288,11 @@ class Openshift(Plugin, RedHatPlugin):
             'storageclasses'
         ]
 
-        for resource in global_resources:
+    def collect_cluster_resources(self):
+        """Collect cluster-level (non-namespaced) resources from the API
+        """
+
+        for resource in self.get_global_resource_list():
             _subdir = "cluster_resources/%s" % resource
             _tag = ["ocp_%s" % resource]
             _res = self.collect_cmd_output("%s %s" % (self.oc_cmd, resource),
@@ -297,16 +304,11 @@ class Openshift(Plugin, RedHatPlugin):
                         subdir=_subdir
                     )
 
-    def collect_from_namespace(self, namespace):
-        """Run through the collection routines for an individual namespace.
-        This collection should include all requested resources that exist
-        within that namesapce
-
-            :param namespace str:           The name of the namespace
+    def get_namespaced_resource_list(self):
         """
-
-        # define the list of resources to collect
-        resources = [
+        Define the resources we will walk and collect from for this cluster.
+        """
+        return [
             'buildconfigs',
             'builds',
             'catalogsourceconfigs',
@@ -337,8 +339,15 @@ class Openshift(Plugin, RedHatPlugin):
             'services',
             'statefulsets',
             'subscriptions'
-
         ]
+
+    def collect_from_namespace(self, namespace):
+        """Run through the collection routines for an individual namespace.
+        This collection should include all requested resources that exist
+        within that namesapce
+
+            :param namespace str:           The name of the namespace
+        """
 
         # save to namespace-specific subdirs to keep the plugin dir organized
         subdir = "namespaces/%s" % namespace
@@ -347,7 +356,7 @@ class Openshift(Plugin, RedHatPlugin):
         self.add_cmd_output("oc describe namespace %s" % namespace,
                             subdir=subdir)
 
-        for res in resources:
+        for res in self.get_namespaced_resource_list():
             _subdir = "%s/%s" % (subdir, res)
             _tags = [
                 "ocp_%s" % res,
