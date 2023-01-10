@@ -139,7 +139,7 @@ class SoSCleaner(SoSComponent):
                 _loaded_name = _loaded.name.lower().split('parser')[0].strip()
                 if _parser.lower().strip() == _loaded_name:
                     self.log_info("Disabling parser: %s" % _loaded_name)
-                    self.ui_log.warn(
+                    self.ui_log.warning(
                         "Disabling the '%s' parser. Be aware that this may "
                         "leave sensitive plain-text data in the archive."
                         % _parser
@@ -406,16 +406,20 @@ third party.
         shutil.move(arc_path, final_path)
         arcstat = os.stat(final_path)
 
-        # logging will have been shutdown at this point
-        print("A mapping of obfuscated elements is available at\n\t%s"
-              % map_path)
+        # while these messages won't be included in the log file in the archive
+        # some facilities, such as our avocado test suite, will sometimes not
+        # capture print() output, so leverage the ui_log to print to console
+        self.ui_log.info(
+            f"A mapping of obfuscated elements is available at\n\t{map_path}"
+        )
+        self.ui_log.info(
+            f"\nThe obfuscated archive is available at\n\t{final_path}\n"
+        )
 
-        print("\nThe obfuscated archive is available at\n\t%s\n" % final_path)
-        print("\tSize\t%s" % get_human_readable(arcstat.st_size))
-        print("\tOwner\t%s\n" % getpwuid(arcstat.st_uid).pw_name)
-
-        print("Please send the obfuscated archive to your support "
-              "representative and keep the mapping file private")
+        self.ui_log.info(f"\tSize\t{get_human_readable(arcstat.st_size)}")
+        self.ui_log.info(f"\tOwner\t{getpwuid(arcstat.st_uid).pw_name}\n")
+        self.ui_log.info("Please send the obfuscated archive to your support "
+                         "representative and keep the mapping file private")
 
         self.cleanup()
 
