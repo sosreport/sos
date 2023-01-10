@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
 class Fwupd(Plugin, IndependentPlugin):
@@ -27,7 +27,7 @@ class Fwupd(Plugin, IndependentPlugin):
             # collect json format using fwupdagent
             "/usr/libexec/fwupd/fwupdagent get-devices",
             "/usr/libexec/fwupd/fwupdagent get-updates",
-        ])
+        ], pred=SoSPredicate(self, services=["fwupd"]))
 
         self.add_copy_spec("/etc/fwupd")
 
