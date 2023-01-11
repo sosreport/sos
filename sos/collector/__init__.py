@@ -598,7 +598,7 @@ class SoSCollector(SoSComponent):
 
     def log_warn(self, msg):
         """Log warn messages to both console and log file"""
-        self.soslog.warn(msg)
+        self.soslog.warning(msg)
 
     def log_error(self, msg):
         """Log error messages to both console and log file"""

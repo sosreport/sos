@@ -460,7 +460,7 @@ class SoSReport(SoSComponent):
             elif not self.policy.runtimes:
                 msg = ("WARNING: No container runtimes are active, ignoring "
                        "option to set default runtime to '%s'\n" % crun)
-                self.soslog.warn(msg)
+                self.soslog.warning(msg)
             elif crun not in self.policy.runtimes.keys():
                 valid = ', '.join(p for p in self.policy.runtimes.keys()
                                   if p != 'default')
@@ -552,7 +552,7 @@ class SoSReport(SoSComponent):
                 _devs.update(self._get_eth_devs())
                 _devs['bridge'] = self._get_bridge_devs()
         except Exception as err:
-            self.soslog.warn("Could not enumerate network devices: %s" % err)
+            self.soslog.warning(f"Could not enumerate network devices: {err}")
         return _devs
 
     def _get_network_namespace_devices(self):
@@ -618,7 +618,7 @@ class SoSReport(SoSComponent):
                         if _nseth not in filt_devs:
                             _eth_devs.append(_nseth)
             except Exception as err:
-                self.soslog.warn(
+                self.soslog.warning(
                     "Could not determine network namespace '%s' devices: %s"
                     % (namespace, err)
                 )
@@ -639,7 +639,7 @@ class SoSReport(SoSComponent):
         try:
             _bout = sos_get_command_output('brctl show', timeout=15)
         except Exception as err:
-            self.soslog.warn("Unable to enumerate bridge devices: %s" % err)
+            self.soslog.warning("Unable to enumerate bridge devices: %s" % err)
         if _bout['status'] == 0:
             for _bline in _bout['output'].splitlines()[1:]:
                 try:
@@ -1586,8 +1586,9 @@ class SoSReport(SoSComponent):
                 os.umask(old_umask)
         else:
             if self.opts.encrypt_pass or self.opts.encrypt_key:
-                self.ui_log.warn("\nUnable to encrypt when using --build. "
-                                 "Encryption is only available for archives.")
+                self.ui_log.warning("\nUnable to encrypt when using --build. "
+                                    "Encryption is only available for "
+                                    "archives.")
             # move the archive root out of the private tmp directory.
             directory = self.archive.get_archive_path()
             dir_name = os.path.basename(directory)

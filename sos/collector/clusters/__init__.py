@@ -220,7 +220,7 @@ class Cluster():
 
     def log_warn(self, msg):
         """Used to print warning messages"""
-        self.soslog.warn(self._fmt_msg(msg))
+        self.soslog.warning(self._fmt_msg(msg))
 
     def get_option(self, option):
         """

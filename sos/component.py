@@ -300,7 +300,7 @@ class SoSComponent():
                 self.opts.encrypt_pass = None
                 self.soslog.info("User specified --encrypt, but chose no "
                                  "encryption when prompted.")
-                self.ui_log.warn("Archive will not be encrypted")
+                self.ui_log.warning("Archive will not be encrypted")
         else:
             self._set_encrypt_from_env_vars()
 

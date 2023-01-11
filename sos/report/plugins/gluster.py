@@ -104,8 +104,8 @@ class Gluster(Plugin, RedHatPlugin):
                     self.soslog.info("could not send SIGUSR1 to glusterfs/"
                                      "glusterd processes")
             else:
-                self.soslog.warn("Unable to generate statedumps, no such "
-                                 "directory: %s" % self.statedump_dir)
+                self.soslog.warning("Unable to generate statedumps, no such "
+                                    "directory: %s" % self.statedump_dir)
             state = self.exec_cmd("gluster get-state")
             if state['status'] == 0:
                 state_file = state['output'].split()[-1]
