@@ -36,7 +36,7 @@ WARNING: Failed to load 'magic' module version >= 0.4.20 which sos aims to \
 use for detecting binary files. A less effective method will be used. It is \
 recommended to install proper python3-magic package with the module.
 """)
-    log.warn('\n' + fill(msg, 72, replace_whitespace=False) + '\n')
+    log.warning('\n' + fill(msg, 72, replace_whitespace=False) + '\n')
 
 
 TIMEOUT_DEFAULT = 300

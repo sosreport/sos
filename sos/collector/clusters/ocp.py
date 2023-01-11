@@ -86,7 +86,7 @@ class ocp(Cluster):
                         _oc_path['output'].strip().lstrip('/')
                     )
                 else:
-                    self.log_warn(
+                    self.log_warning(
                         "Unable to to determine PATH for 'oc' command, "
                         "node enumeration may fail."
                     )

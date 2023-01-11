@@ -349,7 +349,7 @@ class BaseSoSReportTest(BaseSoSTest):
                 self._manifest = json.loads(content)
             except Exception:
                 self._manifest = ''
-                self.warn('Could not load manifest for test')
+                self.warning('Could not load manifest for test')
         return self._manifest
 
     @property
