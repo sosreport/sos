@@ -164,7 +164,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
     def get_ceph_ids(self):
         ceph_ids = []
         # ceph version 14 correlates to RHCS 4
-        if self.ceph_version == 14:
+        if self.ceph_version == 14 or self.ceph_version == 15:
             # Get the ceph user processes
             out = self.exec_cmd('ps -u ceph -o args')
 
