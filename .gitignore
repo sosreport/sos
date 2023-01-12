@@ -16,6 +16,7 @@ venv
 MANIFEST
 build/
 dist/
+*sos.egg*
 docs/_build
 
 # Pycharm

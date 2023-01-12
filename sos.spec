@@ -1,5 +1,3 @@
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
-
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 4.4
@@ -11,6 +9,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: https://github.com/sosreport/sos/
 BuildRequires: python3-devel
+BuildRequires: python3-setuptools
 BuildRequires: gettext
 Requires: python3-rpm
 Requires: tar
@@ -46,7 +45,9 @@ rm -rf ${RPM_BUILD_ROOT}/usr/config/
 
 %find_lang %{name} || echo 0
 
-%files -f %{name}.lang
+# internationalization is currently broken. Uncomment this line once fixed.
+# %%files -f %%{name}.lang
+%files
 %{_sbindir}/sos
 %{_sbindir}/sosreport
 %{_sbindir}/sos-collector
