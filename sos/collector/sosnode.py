@@ -14,7 +14,7 @@ import logging
 import os
 import re
 
-from distutils.version import LooseVersion
+from pkg_resources import parse_version
 from pipes import quote
 from sos.policies import load
 from sos.policies.init_systems import InitSystem
@@ -295,7 +295,7 @@ class SosNode():
         if ver:
             if len(ver.split('.')) == 2:
                 # safeguard against maintenance releases throwing off the
-                # comparison by LooseVersion
+                # comparison by parse_version
                 ver += '.0'
             try:
                 ver += '-%s' % rel.split('.')[0]
@@ -420,8 +420,8 @@ class SosNode():
         _ver = _format_version(ver)
 
         try:
-            _node_ver = LooseVersion(self.sos_info['version'])
-            _test_ver = LooseVersion(_ver)
+            _node_ver = parse_version(self.sos_info['version'])
+            _test_ver = parse_version(_ver)
             return _node_ver >= _test_ver
         except Exception as err:
             self.log_error("Error checking sos version: %s" % err)
