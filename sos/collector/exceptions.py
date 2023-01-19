@@ -104,6 +104,14 @@ class InvalidTransportException(Exception):
         super(InvalidTransportException, self).__init__(message)
 
 
+class SaltStackMasterUnsupportedException(Exception):
+    """Raised when SaltStack Master is unsupported locally"""
+
+    def __init__(self):
+        message = 'Master unsupported by local SaltStack installation'
+        super(SaltStackMasterUnsupportedException, self).__init__(message)
+
+
 __all__ = [
     'AuthPermissionDeniedException',
     'CommandTimeoutException',
@@ -113,6 +121,7 @@ __all__ = [
     'ControlSocketMissingException',
     'InvalidPasswordException',
     'PasswordRequestException',
+    'SaltStackMasterUnsupportedException',
     'TimeoutPasswordAuthException',
     'UnsupportedHostException',
     'InvalidTransportException'
