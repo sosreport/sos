@@ -34,7 +34,7 @@ class SuSEPolicy(LinuxPolicy):
 
         # If rpm query timed out after timeout duration exit
         if not self.package_manager.packages:
-            print("Could not obtain installed package list", file=sys.stderr)
+            self.ui_log.error("Could not obtain installed package list.")
             sys.exit(1)
 
         self.PATH = "/usr/sbin:/usr/bin:/root/bin:/sbin"

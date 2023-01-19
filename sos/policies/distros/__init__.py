@@ -300,9 +300,8 @@ class LinuxPolicy(Policy):
                 if cmdline_opts.upload and self.get_upload_url():
                     self.prompt_for_upload_user()
                     self.prompt_for_upload_password()
-                self._print()
+                self.ui_log.info('')
             except KeyboardInterrupt:
-                self._print()
                 raise
 
         if cmdline_opts.case_id:
@@ -379,7 +378,9 @@ class LinuxPolicy(Policy):
             raise Exception("No upload destination provided by policy or by "
                             "--upload-url")
         upload_func = self._determine_upload_type()
-        print(_("Attempting upload to %s" % self.get_upload_url_string()))
+        self.ui_log.info(
+            _(f"Attempting upload to {self.get_upload_url_string()}")
+        )
         return upload_func()
 
     def _determine_upload_type(self):

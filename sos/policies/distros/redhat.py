@@ -330,8 +330,10 @@ support representative.
                 _user = self.get_upload_user()
                 _token = json.loads(ret.text)['token']
             else:
-                print("Unable to retrieve Red Hat auth token using provided "
-                      "credentials. Will try anonymous.")
+                self.ui_log.error(
+                    "Unable to retrieve Red Hat auth token using provided "
+                    "credentials. Will try anonymous."
+                )
         # we either do not have a username or password/token, or both
         if not _token:
             adata = {"isAnonymous": True}
@@ -340,11 +342,9 @@ support representative.
                 resp = json.loads(anon.text)
                 _user = resp['username']
                 _token = resp['token']
-                print(
-                    "User '%s'"  # lgtm [py/clear-text-logging-sensitive-data]
-                    "used for anonymous upload. Please inform your support "
-                    "engineer so they may retrieve the data."
-                    % _user
+                self.ui_log.info(
+                    _(f"User {_user} used for anonymous upload. Please inform "
+                      f"your support engineer so they may retrieve the data.")
                 )
         if _user and _token:
             return super(RHELPolicy, self).upload_sftp(user=_user,
@@ -365,8 +365,10 @@ support representative.
             if not self.upload_url.startswith(RH_API_HOST):
                 raise
             else:
-                print("Upload to Red Hat Customer Portal failed. Trying %s"
-                      % RH_SFTP_HOST)
+                self.ui_log.error(
+                    _(f"Upload to Red Hat Customer Portal failed. Trying "
+                      f"{RH_SFTP_HOST}")
+                )
                 self.upload_url = RH_SFTP_HOST
                 uploaded = super(RHELPolicy, self).upload_archive(archive)
         return uploaded
