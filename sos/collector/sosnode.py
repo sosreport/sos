@@ -21,6 +21,7 @@ from sos.policies.init_systems import InitSystem
 from sos.collector.transports.control_persist import SSHControlPersist
 from sos.collector.transports.local import LocalTransport
 from sos.collector.transports.oc import OCTransport
+from sos.collector.transports.saltstack import SaltStackMaster
 from sos.collector.exceptions import (CommandTimeoutException,
                                       ConnectionException,
                                       UnsupportedHostException,
@@ -29,7 +30,8 @@ from sos.collector.exceptions import (CommandTimeoutException,
 TRANSPORTS = {
     'local': LocalTransport,
     'control_persist': SSHControlPersist,
-    'oc': OCTransport
+    'oc': OCTransport,
+    'saltstack': SaltStackMaster
 }
 
 
