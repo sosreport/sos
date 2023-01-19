@@ -286,6 +286,7 @@ class LinuxPolicy(Policy):
         self.upload_password = cmdline_opts.upload_pass
         self.upload_archive_name = ''
 
+        # set or query for case id
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
             try:
@@ -296,6 +297,16 @@ class LinuxPolicy(Policy):
                         _("Optionally, please enter the case id that you are "
                           "generating this report for [%s]: ") % caseid
                     )
+            except KeyboardInterrupt:
+                raise
+        if cmdline_opts.case_id:
+            self.case_id = cmdline_opts.case_id
+
+        # set or query for upload credentials; this needs to be done after
+        # setting case id, as below methods might rely on detection of it
+        if not cmdline_opts.batch and not \
+                cmdline_opts.quiet:
+            try:
                 # Policies will need to handle the prompts for user information
                 if cmdline_opts.upload and self.get_upload_url():
                     self.prompt_for_upload_user()
@@ -303,9 +314,6 @@ class LinuxPolicy(Policy):
                 self.ui_log.info('')
             except KeyboardInterrupt:
                 raise
-
-        if cmdline_opts.case_id:
-            self.case_id = cmdline_opts.case_id
 
         return
 
