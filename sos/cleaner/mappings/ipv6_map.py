@@ -263,12 +263,9 @@ class ObfuscatedIPv6Network():
             ])
 
         if addr.compressed not in self.hosts:
-            try:
-                _, _host = addr.compressed.split(self.network_addr.rstrip(':'))
-            except ValueError:
-                # network addr is simply '::'
-                _n, _host = addr.compressed.split(self.network_addr)
-            _host = _host.lstrip(':')
+            # separate host from the address by removing its network prefix
+            _n = self.network_addr.rstrip(':')
+            _host = addr.compressed[len(_n):].lstrip(':')
             _ob_host = _generate_address()
             while _ob_host in self.hosts.values():
                 _ob_host = _generate_address()
