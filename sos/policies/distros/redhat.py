@@ -266,11 +266,19 @@ support representative.
         if self.commons['cmdlineopts'].upload_url:
             super(RHELPolicy, self).prompt_for_upload_user()
             return
-        if self.case_id and not self.get_upload_user():
-            self.upload_user = input(_(
-                "Enter your Red Hat Customer Portal username for uploading ["
-                "empty for anonymous SFTP]: ")
-            )
+        if not self.get_upload_user():
+            if self.case_id:
+                self.upload_user = input(_(
+                    "Enter your Red Hat Customer Portal username for "
+                    "uploading [empty for anonymous SFTP]: ")
+                )
+            else:   # no case id provided => failover to SFTP
+                self.upload_url = RH_SFTP_HOST
+                self.ui_log.info("No case id provided, uploading to SFTP")
+                self.upload_user = input(_(
+                    "Enter your Red Hat Customer Portal username for "
+                    "uploading to SFTP [empty for anonymous]: ")
+                )
 
     def get_upload_url(self):
         if self.upload_url:
