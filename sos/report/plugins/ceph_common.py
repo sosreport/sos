@@ -48,7 +48,7 @@ class Ceph_Common(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_file_tags({
             '.*/ceph.conf': 'ceph_conf',
-            '/var/log/ceph/ceph.log.*': 'ceph_log',
+            '/var/log/ceph(.*)?/ceph.log.*': 'ceph_log',
         })
 
         if not all_logs:
@@ -57,8 +57,8 @@ class Ceph_Common(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_copy_spec("/var/log/calamari",)
 
         self.add_copy_spec([
-            "/var/log/ceph/ceph.log",
-            "/var/log/ceph/ceph.audit.log*",
+            "/var/log/ceph/**/ceph.log",
+            "/var/log/ceph/**/ceph.audit.log*",
             "/var/log/calamari/*.log",
             "/etc/ceph/",
             "/etc/calamari/",
