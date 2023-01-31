@@ -41,9 +41,9 @@ class Azure(Plugin, UbuntuPlugin):
                 self.add_copy_spec(self.path_join(path, name), sizelimit=limit)
 
         self.add_cmd_output((
-            'curl -s -H Metadata:true '
+            'curl -s -H Metadata:true --noproxy "*" '
             '"http://169.254.169.254/metadata/instance/compute?'
-            'api-version=2019-11-01"'
+            'api-version=2021-01-01&format=json"'
         ), suggest_filename='instance_metadata.json')
 
 
