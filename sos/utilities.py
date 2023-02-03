@@ -22,6 +22,11 @@ import io
 from contextlib import closing
 from collections import deque
 
+try:
+    from pkg_resources import parse_version as version_parse
+except SyntaxError:
+    from packaging.version import parse as version_parse
+
 # try loading magic>=0.4.20 which implements detect_from_filename method
 magic_mod = False
 try:
@@ -404,6 +409,12 @@ def recursive_dict_values_by_key(dobj, keys=[]):
         _items.extend(dobj)
 
     return [d for d in _items if d not in _filt]
+
+
+def parse_version(version):
+    """Parse the version string
+    """
+    return version_parse(version)
 
 
 class FakeReader():
