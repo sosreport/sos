@@ -167,6 +167,7 @@ report_stageone_task:
             apt -y install python3-pip snapd
             systemctl start snapd
             snap install ./sosreport_test_amd64.snap --classic --dangerous
+            snap alias sosreport.sos sos
         fi
         if [ $(command -v dnf) ]; then
             echo "$ARTCURL/rpm%20Build%20From%20Checkout%20-%20${BUILD_NAME}/packages/sos_${BUILD_NAME}.rpm"
