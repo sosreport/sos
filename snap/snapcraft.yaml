@@ -30,6 +30,7 @@ parts:
       - setuptools
       - wheel
       - python_magic
+      - packaging
 
 apps:
   sos:

@@ -14,7 +14,6 @@ import logging
 import os
 import re
 
-from pkg_resources import parse_version
 from pipes import quote
 from sos.policies import load
 from sos.policies.init_systems import InitSystem
@@ -26,6 +25,7 @@ from sos.collector.exceptions import (CommandTimeoutException,
                                       ConnectionException,
                                       UnsupportedHostException,
                                       InvalidTransportException)
+from sos.utilities import parse_version
 
 TRANSPORTS = {
     'local': LocalTransport,
