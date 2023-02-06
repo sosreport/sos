@@ -131,10 +131,6 @@ class OVNCentral(Plugin):
             'ovn-nbctl --no-leader-only show',
             'ovn-nbctl --no-leader-only get-ssl',
             'ovn-nbctl --no-leader-only get-connection',
-            'ovn-nbctl --no-leader-only list loadbalancer',
-            'ovn-nbctl --no-leader-only list Load_Balancer',
-            'ovn-nbctl --no-leader-only list ACL',
-            'ovn-nbctl --no-leader-only list Logical_Switch_Port',
         ]
 
         sbctl_cmds = [
@@ -161,8 +157,9 @@ class OVNCentral(Plugin):
         cmds += sbctl_cmds
 
         # If OVN is containerized, we need to run the above commands inside
-        # the container.
-
+        # the container. Removing duplicates (in case there are) to avoid
+        # failing on collecting output to file on container running commands
+        cmds = list(set(cmds))
         self.add_cmd_output(
             cmds, foreground=True, container=self._container_name
         )
