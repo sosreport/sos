@@ -648,6 +648,8 @@ class SosNode():
         if self.check_sos_version('4.5.2'):
             if self.opts.journal_size:
                 sos_opts.append(f"--journal-size={self.opts.journal_size}")
+            if self.opts.low_priority:
+                sos_opts.append('--low-priority')
 
         self.update_cmd_from_cluster()
 
