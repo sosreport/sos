@@ -101,6 +101,7 @@ class SoSReport(SoSComponent):
         'list_presets': False,
         'list_profiles': False,
         'log_size': 25,
+        'low_priority': False,
         'map_file': '/etc/sos/cleaner/default_mapping',
         'skip_commands': [],
         'skip_files': [],
@@ -268,6 +269,10 @@ class SoSReport(SoSComponent):
                                 type=int, default=25,
                                 help="limit the size of collected logs "
                                      "(not journals) in MiB")
+        report_grp.add_argument("--low-priority", action="store_true",
+                                default=False,
+                                help="generate report with low system priority"
+                                )
         report_grp.add_argument("--namespaces", default=None,
                                 help="limit number of namespaces to collect "
                                      "output for - 0 means unlimited")
@@ -1714,6 +1719,16 @@ class SoSReport(SoSComponent):
         self.report_md.add_field('preset', self.preset.name if self.preset else
                                  'unset')
         self.report_md.add_list('profiles', self.opts.profiles)
+
+        _io_class = 'unknown'
+        if is_executable('ionice'):
+            _io = sos_get_command_output(f"ionice -p {os.getpid()}")
+            if _io['status'] == 0:
+                _io_class = _io['output'].split()[0].strip(':')
+        self.report_md.add_section('priority')
+        self.report_md.priority.add_field('io_class', _io_class)
+        self.report_md.priority.add_field('niceness', os.nice(0))
+
         self.report_md.add_section('devices')
         for key, value in self.devices.items():
             self.report_md.devices.add_field(key, value)
@@ -1795,9 +1810,9 @@ class SoSReport(SoSComponent):
             if not self.verify_plugins():
                 return False
 
-            self.add_manifest_data()
             self.batch()
             self.prework()
+            self.add_manifest_data()
             self.setup()
             self.collect()
             if not self.opts.no_env_vars:

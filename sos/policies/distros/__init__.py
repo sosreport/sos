@@ -21,7 +21,8 @@ from sos.policies.runtimes.crio import CrioContainerRuntime
 from sos.policies.runtimes.podman import PodmanContainerRuntime
 from sos.policies.runtimes.docker import DockerContainerRuntime
 
-from sos.utilities import shell_out, is_executable, bold
+from sos.utilities import (shell_out, is_executable, bold,
+                           sos_get_command_output)
 
 
 try:
@@ -277,6 +278,9 @@ class LinuxPolicy(Policy):
         cmdline_opts = self.commons['cmdlineopts']
         caseid = cmdline_opts.case_id if cmdline_opts.case_id else ""
 
+        if cmdline_opts.low_priority:
+            self._configure_low_priority()
+
         # Set the cmdline settings to the class attrs that are referenced later
         # The policy default '_' prefixed versions of these are untouched to
         # allow fallback
@@ -316,6 +320,37 @@ class LinuxPolicy(Policy):
                 raise
 
         return
+
+    def _configure_low_priority(self):
+        """Used to constrain sos to a 'low priority' execution, potentially
+        letting individual policies set their own definition of what that is.
+
+        By default, this will attempt to assign sos to an idle io class via
+        ionice if available. We will also renice our own pid to 19 in order to
+        not cause competition with other host processes for CPU time.
+        """
+        _pid = os.getpid()
+        if is_executable('ionice'):
+            ret = sos_get_command_output(
+                f"ionice -c3 -p {_pid}", timeout=5
+            )
+            if ret['status'] == 0:
+                self.soslog.info('Set IO class to idle')
+            else:
+                msg = (f"Error setting IO class to idle: {ret['output']} "
+                       f"(exit code {ret['status']})")
+                self.soslog.error(msg)
+        else:
+            self.ui_log.warning(
+                "Warning: unable to constrain report to idle IO class: "
+                "ionice is not available."
+            )
+
+        try:
+            os.nice(20)
+            self.soslog.info('Set niceness of report to 19')
+        except Exception as err:
+            self.soslog.error(f"Error setting report niceness to 19: {err}")
 
     def prompt_for_upload_user(self):
         """Should be overridden by policies to determine if a user needs to

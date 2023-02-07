@@ -95,6 +95,7 @@ class SoSCollector(SoSComponent):
         'label': '',
         'list_options': False,
         'log_size': 0,
+        'low_priority': False,
         'map_file': '/etc/sos/cleaner/default_mapping',
         'primary': '',
         'namespaces': None,
@@ -309,6 +310,8 @@ class SoSCollector(SoSComponent):
         sos_grp.add_argument('--log-size', default=0, type=int,
                              help='Limit the size of individual logs '
                                   '(not journals) in MiB')
+        sos_grp.add_argument('--low-priority', action='store_true',
+                             default=False, help='Run reports as low priority')
         sos_grp.add_argument('-n', '--skip-plugins', action="extend",
                              help='Skip these plugins')
         sos_grp.add_argument('-o', '--only-plugins', action="extend",

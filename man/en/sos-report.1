@@ -33,6 +33,7 @@ sos report \- Collect and package diagnostic and support data
           [--skip-commands commands]\fR
           [--skip-files files]\fR
           [--allow-system-changes]\fR
+          [--low-priority]\fR
           [-z|--compression-type method]\fR
           [--encrypt]\fR
           [--encrypt-key KEY]\fR
@@ -230,6 +231,11 @@ for example \fB/etc/sos/*\fR.
 .B \--allow-system-changes
 Run commands even if they can change the system (e.g. load kernel modules).
 .TP
+.B \--low-priority
+Set sos to execute as a low priority process so that is does not interfere with
+other processes running on the system. Specific distributions may set their own
+constraints, but by default this involves setting process niceness to 19 and, if
+available, setting an idle IO class via ionice.
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.
 .TP
