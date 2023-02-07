@@ -16,7 +16,7 @@ from sos.utilities import (sos_get_command_output, import_module, grep,
                            listdir, path_join, bold, file_is_binary,
                            recursive_dict_values_by_key)
 
-from sos.archive import P_FILE
+from sos.archive import P_FILE, P_LINK
 import contextlib
 import os
 import glob
@@ -2645,8 +2645,11 @@ class Plugin():
         cmdfn = self._mangle_command(cmd)
         conlnk = "%s/%s" % (_cdir, cmdfn)
 
-        self.archive.check_path(conlnk, P_FILE)
-        os.symlink(_outloc, self.archive.dest_path(conlnk))
+        # If check_path return None, it means that the sym link already exits,
+        # so to avoid Error 17, trying to recreate, we will skip creation and
+        # trust on the existing sym link (e.g. duplicate command)
+        if self.archive.check_path(conlnk, P_LINK):
+            os.symlink(_outloc, self.archive.dest_path(conlnk))
 
         manifest['filepath'] = conlnk
         self.manifest.containers[container]['commands'].append(manifest)
