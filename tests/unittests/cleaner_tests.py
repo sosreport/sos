@@ -14,6 +14,7 @@ from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
 from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
+from sos.cleaner.parsers.username_parser import SoSUsernameParser
 from sos.cleaner.mappings.ip_map import SoSIPMap
 from sos.cleaner.mappings.mac_map import SoSMacMap
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
@@ -156,6 +157,8 @@ class CleanerParserTests(unittest.TestCase):
         self.kw_parser = SoSKeywordParser(config={}, keywords=['foobar'])
         self.kw_parser_none = SoSKeywordParser(config={})
         self.kw_parser.generate_item_regexes()
+        self.uname_parser = SoSUsernameParser(config={},
+                                              opt_names=['DOMAIN\myusername'])
 
     def test_ip_parser_valid_ipv4_line(self):
         line = 'foobar foo 10.0.0.1/24 barfoo bar'
@@ -266,3 +269,8 @@ class CleanerParserTests(unittest.TestCase):
         logln = 'Automatically imported trusted_ca::ca from trusted_ca/ca into production'
         log_test = self.ipv6_parser.parse_line(logln)[0]
         self.assertEqual(logln, log_test, "IPv6 parser incorrectly matched a log line of 'trusted_ca::ca'")
+
+    def test_ad_username(self):
+        line = "DOMAIN\myusername"
+        _test = self.uname_parser.parse_line(line)[0]
+        self.assertNotEqual(line, _test)
