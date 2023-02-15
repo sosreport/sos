@@ -60,7 +60,14 @@ class ReportWithCleanedKeywords(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '--clean -o filesys,kernel --keywords=fstab,Linux'
+    sos_cmd = '--clean -o filesys,kernel --keywords=fstab,Linux,tmp'
+
+    # Will the 'tmp' be properly treated in path to working dir without raising an error?
+    # To make this test effective, we assume the test runs on a system / with Policy
+    # returning '/var/tmp' as temp.dir
+    def test_keyword_in_tempdir_path(self):
+        self.assertOutputContains('Your sosreport has been generated and saved in:')
+        self.assertTrue('tmp/' in self.archive)
 
     # Ok, sort of cheesy here but this does actually test filename changes on
     # a file common to all distros
