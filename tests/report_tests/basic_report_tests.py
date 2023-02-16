@@ -6,8 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-
-from sos_tests import StageOneReportTest
+from avocado.core.exceptions import TestSkipError
+from avocado.utils import process
+from sos_tests import StageOneReportTest, redhat_only
 
 
 class NormalSoSReport(StageOneReportTest):
@@ -42,6 +43,15 @@ class NormalSoSReport(StageOneReportTest):
             isinstance(self.manifest['components']['report']['tag_summary'], dict),
             "Tag summary malformed"
         )
+
+    @redhat_only
+    def test_version_matches_package(self):
+        if not self.params.get('TESTLOCAL') == 'true':
+            raise TestSkipError("Not testing local package installation")
+        _pkg_ver = process.run('rpm -q sos').stdout.decode().split('-')[1]
+        self.assertSosUILogContains(f"(version {_pkg_ver})")
+        self.assertEqual(self.manifest['version'], _pkg_ver)
+
 
 class LogLevelTest(StageOneReportTest):
     """
