@@ -45,7 +45,7 @@ class Rhui(Plugin, RedHatPlugin):
         # hide rhui_manager_password value in (also rotated) answers file
         self.do_path_regex_sub(
                 r"/root/\.rhui/answers.yaml.*",
-                r"(\s*rhui_manager_password\s*:)\s*(\S+)",
+                r"(\s*(rhui_manager|registry)_password\s*:)\s*(\S+)",
                 r"\1********")
         # hide registry_password value in rhui-tools.conf
         self.do_path_regex_sub("/etc/rhui/rhui-tools.conf",
