@@ -331,6 +331,12 @@ class SoSComponent():
 
         self.archive.set_debug(self.opts.verbosity > 2)
 
+    def add_ui_log_to_stdout(self):
+        ui_console = logging.StreamHandler(sys.stdout)
+        ui_console.setFormatter(logging.Formatter('%(message)s'))
+        ui_console.setLevel(logging.INFO)
+        self.ui_log.addHandler(ui_console)
+
     def _setup_logging(self):
         """Creates the log handler that shall be used by all components and any
         and all related bits to those components that need to log either to the
@@ -381,10 +387,7 @@ class SoSComponent():
             self.ui_log.addHandler(ui_fhandler)
 
         if not self.opts.quiet:
-            ui_console = logging.StreamHandler(sys.stdout)
-            ui_console.setFormatter(logging.Formatter('%(message)s'))
-            ui_console.setLevel(logging.INFO)
-            self.ui_log.addHandler(ui_console)
+            self.add_ui_log_to_stdout()
 
     def get_temp_file(self):
         return self.tempfile_util.new()

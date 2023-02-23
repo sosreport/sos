@@ -1531,6 +1531,12 @@ class SoSReport(SoSComponent):
                 short_name='manifest.json'
             )
 
+        # Now, just (optionally) pack the report and print work outcome; let
+        # print ui_log to stdout also in quiet mode. For non-quiet mode we
+        # already added the handler
+        if self.opts.quiet:
+            self.add_ui_log_to_stdout()
+
         # print results in estimate mode (to include also just added manifest)
         if self.opts.estimate_only:
             from sos.utilities import get_human_readable
