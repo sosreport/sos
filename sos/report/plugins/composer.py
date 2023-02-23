@@ -35,10 +35,11 @@ class Composer(Plugin, IndependentPlugin):
             "/etc/osbuild-composer/osbuild-composer.toml",
             "/etc/osbuild-worker/osbuild-worker.toml",
             "/etc/lorax/composer.conf",
+            "/etc/osbuild-composer",
             "/var/log/lorax-composer/composer.log",
             "/var/log/lorax-composer/dnf.log",
             "/var/log/lorax-composer/program.log",
-            "/var/log/lorax-composer/server.log",
+            "/var/log/lorax-composer/server.log"
         ])
         blueprints = self._get_entries("composer-cli blueprints list")
         for blueprint in blueprints:
