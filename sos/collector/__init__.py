@@ -121,6 +121,7 @@ class SoSCollector(SoSComponent):
         'ssh_key': '',
         'ssh_port': 22,
         'ssh_user': 'root',
+        'ssh_control_path_dir': '',
         'timeout': 600,
         'transport': 'auto',
         'verify': False,
@@ -405,6 +406,9 @@ class SoSCollector(SoSComponent):
                                  help='Specify a sos preset to use')
         collect_grp.add_argument('--ssh-user',
                                  help='Specify an SSH user. Default root')
+        collect_grp.add_argument('--ssh-control-path-dir',
+                                 help='Override the SSH ControlPath directory.'
+                                      ' Default is under tmp-dir')
         collect_grp.add_argument('--timeout', type=int, required=False,
                                  help='Timeout for sosreport on each node.')
         collect_grp.add_argument('--transport', default='auto', type=str,
