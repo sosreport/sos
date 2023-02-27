@@ -92,6 +92,7 @@ class SoSReport(SoSComponent):
         'estimate_only': False,
         'experimental': False,
         'enable_plugins': [],
+        'journal_size': 100,
         'keywords': [],
         'keyword_file': None,
         'plugopts': [],
@@ -241,6 +242,10 @@ class SoSReport(SoSComponent):
         report_grp.add_argument("-e", "--enable-plugins", action="extend",
                                 dest="enable_plugins", type=str,
                                 help="enable these plugins", default=[])
+        report_grp.add_argument("--journal-size", type=int, default=100,
+                                dest="journal_size",
+                                help="limit the size of collected journals "
+                                     "in MiB")
         report_grp.add_argument("-k", "--plugin-option", "--plugopts",
                                 action="extend",
                                 dest="plugopts", type=str,
@@ -262,7 +267,7 @@ class SoSReport(SoSComponent):
         report_grp.add_argument("--log-size", action="store", dest="log_size",
                                 type=int, default=25,
                                 help="limit the size of collected logs "
-                                     "(in MiB)")
+                                     "(not journals) in MiB")
         report_grp.add_argument("--namespaces", default=None,
                                 help="limit number of namespaces to collect "
                                      "output for - 0 means unlimited")

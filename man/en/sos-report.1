@@ -27,6 +27,7 @@ sos report \- Collect and package diagnostic and support data
           [--list-profiles]\fR
           [--verify]\fR
           [--log-size]\fR
+          [--journal-size]\fR
           [--all-logs]\fR
           [--since YYYYMMDD[HHMMSS]]\fR
           [--skip-commands commands]\fR
@@ -185,13 +186,22 @@ Places a limit on the size of collected logs and output in MiB. Note that this
 causes sos to capture the last X amount of the file or command output collected.
 
 By default, this is set to 25 MiB and applies to all files and command output collected
-with the exception of journal collections, which are limited to 100 MiB.
+with the exception of journal collections, which are limited by the \fB--journal-size\fR
+option instead.
 
 Setting this value to 0 removes all size limitations, and any files or commands
 collected will be collected in their entirety, which may drastically increase the
 size of the final sos report tarball and the memory usage of sos during collection
-of commands, such as very large journals that may be several GiB in size.
+of commands.
 
+.TP
+.B \--journal-size
+Places a limit on the size of journals collected in MiB. Note that this causes sos
+to capture the last X amount of the journal.
+
+By default, this is set to 100 MiB. Setting this value to 0 removes all size limitations,
+as does the use of the \fB--all-logs\fR option. This may drastically increase the size
+of the final sos report tarball.
 .TP
 .B \--all-logs
 Tell plugins to collect all possible log data ignoring any size limits

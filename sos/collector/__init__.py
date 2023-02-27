@@ -88,6 +88,7 @@ class SoSCollector(SoSComponent):
         'image': '',
         'force_pull_image': True,
         'jobs': 4,
+        'journal_size': 0,
         'keywords': [],
         'keyword_file': None,
         'keep_binary_files': False,
@@ -300,11 +301,14 @@ class SoSCollector(SoSComponent):
                                   "collections. 'auto' for policy control.")
         sos_grp.add_argument('-e', '--enable-plugins', action="extend",
                              help='Enable specific plugins for sosreport')
+        sos_grp.add_argument('--journal-size', type=int, default=0,
+                             help='Limit the size of journals in MiB')
         sos_grp.add_argument('-k', '--plugin-option', '--plugopts',
                              action="extend", dest='plugopts',
                              help='Plugin option as plugname.option=value')
         sos_grp.add_argument('--log-size', default=0, type=int,
-                             help='Limit the size of individual logs (in MiB)')
+                             help='Limit the size of individual logs '
+                                  '(not journals) in MiB')
         sos_grp.add_argument('-n', '--skip-plugins', action="extend",
                              help='Skip these plugins')
         sos_grp.add_argument('-o', '--only-plugins', action="extend",

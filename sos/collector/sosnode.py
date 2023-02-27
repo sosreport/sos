@@ -645,6 +645,10 @@ class SosNode():
                     "--namespaces=%s" % self.opts.namespaces
                 )
 
+        if self.check_sos_version('4.5.2'):
+            if self.opts.journal_size:
+                sos_opts.append(f"--journal-size={self.opts.journal_size}")
+
         self.update_cmd_from_cluster()
 
         sos_cmd = sos_cmd.replace(
