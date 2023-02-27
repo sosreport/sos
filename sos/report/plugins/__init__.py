@@ -1561,8 +1561,8 @@ class Plugin():
         """
 
         global_options = (
-            'all_logs', 'allow_system_changes', 'cmd_timeout', 'log_size',
-            'plugin_timeout', 'since', 'verify'
+            'all_logs', 'allow_system_changes', 'cmd_timeout', 'journal_size',
+            'log_size', 'plugin_timeout', 'since', 'verify'
         )
 
         if optionname in global_options:
@@ -2932,13 +2932,11 @@ class Plugin():
         identifier_opt = " --identifier %s"
         catalog_opt = " --catalog"
 
-        journal_size = 100
-        all_logs = self.get_option("all_logs")
-        log_size = sizelimit or self.get_option("log_size")
-        log_size = max(log_size, journal_size) if not all_logs else 0
-        if sizelimit == 0:
+        if sizelimit == 0 or self.get_option("all_logs"):
             # allow for specific sizelimit overrides in plugins
             log_size = 0
+        else:
+            log_size = sizelimit or self.get_option('journal_size')
 
         if isinstance(units, str):
             units = [units]
