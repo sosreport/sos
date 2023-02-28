@@ -85,6 +85,7 @@ class Lvm2(Plugin, IndependentPlugin):
         ])
 
         self.add_copy_spec("/etc/lvm")
+        self.add_copy_spec("/run/lvm")
 
         if self.get_option('lvmdump'):
             self.do_lvmdump()
