@@ -132,6 +132,11 @@ snap_build_task:
         snapcraft --destructive-mode
     packages_artifacts:
         path: "*.snap"
+    on_failure:
+        fail_script: |
+            ls -d /root/.cache/snapcraft/log 2> /dev/null | xargs tar cf snap-build-fail-logs.tar
+        log_artifacts:
+            path: "snap-build-fail-logs.tar"
 
 # Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
