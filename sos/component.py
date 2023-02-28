@@ -331,32 +331,54 @@ class SoSComponent():
 
         self.archive.set_debug(self.opts.verbosity > 2)
 
-    def add_ui_log_to_stdout(self):
-        ui_console = logging.StreamHandler(sys.stdout)
+    def add_ui_log_to_stdout(self, update=False):
+        if update:
+            for handler in self.ui_log.handlers:
+                if handler.name == 'ui_console':
+                    ui_console = handler
+        else:
+            ui_console = logging.StreamHandler(sys.stdout)
         ui_console.setFormatter(logging.Formatter('%(message)s'))
         ui_console.setLevel(logging.INFO)
-        self.ui_log.addHandler(ui_console)
+        ui_console.name = 'ui_console'
+        if not update:
+            self.ui_log.addHandler(ui_console)
 
-    def _setup_logging(self):
+    def _setup_logging(self, update=False):
         """Creates the log handler that shall be used by all components and any
         and all related bits to those components that need to log either to the
         console or to the log file for that run of sos.
         """
         # main soslog
-        self.soslog = logging.getLogger('sos')
+        if not update:
+            self.soslog = logging.getLogger('sos')
         self.soslog.setLevel(logging.DEBUG)
         flog = None
         if not self.check_listing_options():
             self.sos_log_file = self.get_temp_file()
-            flog = logging.StreamHandler(self.sos_log_file)
+            if update:
+                for handler in self.soslog.handlers:
+                    if handler.name == 'flog':
+                        flog = handler
+            else:
+                flog = logging.StreamHandler(self.sos_log_file)
+
             flog.setFormatter(logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s'))
             flog.setLevel(logging.INFO)
-            self.soslog.addHandler(flog)
+            flog.name = 'flog'
+            if not update:
+                self.soslog.addHandler(flog)
 
         if not self.opts.quiet:
-            console = logging.StreamHandler(sys.stdout)
+            if update:
+                for handler in self.soslog.handlers:
+                    if handler.name == 'console':
+                        console = handler
+            else:
+                console = logging.StreamHandler(sys.stdout)
             console.setFormatter(logging.Formatter('%(message)s'))
+            console.name = 'console'
             if self.opts.verbosity:
                 if flog:
                     flog.setLevel(logging.DEBUG)
@@ -366,28 +388,44 @@ class SoSComponent():
                     console.setLevel(logging.WARNING)
             else:
                 console.setLevel(logging.WARNING)
-            self.soslog.addHandler(console)
+            if not update:
+                self.soslog.addHandler(console)
         # still log ERROR level message to console, but only setup this handler
         # when --quiet is used, as otherwise we'll double log
         else:
-            console_err = logging.StreamHandler(sys.stderr)
+            if update:
+                for handler in self.soslog.handlers:
+                    if handler.name == 'console_err':
+                        console_err = handler
+            else:
+                console_err = logging.StreamHandler(sys.stderr)
             console_err.setFormatter(logging.Formatter('%(message)s'))
             console_err.setLevel(logging.ERROR)
-            self.soslog.addHandler(console_err)
+            console_err.name = 'console_err'
+            if not update:
+                self.soslog.addHandler(console_err)
 
         # ui log
-        self.ui_log = logging.getLogger('sos_ui')
+        if not update:
+            self.ui_log = logging.getLogger('sos_ui')
         self.ui_log.setLevel(logging.INFO)
         if not self.check_listing_options():
             self.sos_ui_log_file = self.get_temp_file()
-            ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
+            if update:
+                for handler in self.ui_log.handlers:
+                    if handler.name == 'ui_fhandler':
+                        ui_fhandler = handler
+            else:
+                ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
             ui_fhandler.setFormatter(logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s'))
+            ui_fhandler.name = 'ui_fhandler'
 
-            self.ui_log.addHandler(ui_fhandler)
+            if not update:
+                self.ui_log.addHandler(ui_fhandler)
 
         if not self.opts.quiet:
-            self.add_ui_log_to_stdout()
+            self.add_ui_log_to_stdout(update=update)
 
     def get_temp_file(self):
         return self.tempfile_util.new()

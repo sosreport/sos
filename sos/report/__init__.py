@@ -171,7 +171,8 @@ class SoSReport(SoSComponent):
             print('\nWARNING: It is not recommended to set verbosity via the '
                   'preset as it might have\nunforseen consequences for your '
                   'report logs.\n')
-            self._setup_logging()
+            if hasattr(self, 'soslog')
+            self._setup_logging(update=True)
 
         self._set_directories()
 
