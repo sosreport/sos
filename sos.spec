@@ -1,6 +1,6 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 4.5.0
+Version: 4.5.1
 Release: 1%{?dist}
 Group: Applications/System
 Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
@@ -63,6 +63,9 @@ rm -rf ${RPM_BUILD_ROOT}/usr/config/
 %config(noreplace) %{_sysconfdir}/sos/sos.conf
 
 %changelog
+* Wed Mar 01 2023 Jake Hunsaker <jhunsake@redhat.com> = 4.5.1
+- New upstream release
+
 * Wed Feb 01 2023 Jake Hunsaker <jhunsake@redhat.com> = 4.5.0
 - New upstream release
 
