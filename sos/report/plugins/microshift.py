@@ -86,9 +86,10 @@ class Microshift(Plugin, RedHatPlugin):
 
     def _get_namespaces(self):
         res = self.exec_cmd(
-            'microshift get namespaces'
+            'oc get namespaces'
             ' -o custom-columns=NAME:.metadata.name'
-            ' --no-headers')
+            ' --no-headers'
+            ' --kubeconfig=%s' % self.get_option('kubeconfig'))
         if res['status'] == 0:
             return self._reduce_namespace_list(res['output'].split('\n'))
         return []
@@ -146,6 +147,10 @@ class Microshift(Plugin, RedHatPlugin):
         which is used to retrieve all API resources from the cluster.
         """
         self.add_forbidden_path('/var/lib/microshift')
+        self.add_cmd_output([
+            'microshift version',
+            'microshift show-config -m effective'
+        ])
 
         _cluster_resources_to_collect = ",".join(
             self._get_cluster_resources())
