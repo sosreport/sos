@@ -51,16 +51,12 @@ class RedHatLdap(Ldap, RedHatPlugin):
 
     def postproc(self):
         super(RedHatLdap, self).postproc()
-        self.do_file_sub(
-            "/etc/nslcd.conf",
-            r"(\s*bindpw\s*)\S+",
-            r"\1********"
-        )
-        self.do_file_sub(
-            "/etc/pam_ldap.conf",
-            r"(\s*bindpw\s*)\S+",
-            r"\1********"
-        )
+        for f in ["/etc/nslcd.conf", "/etc/pam_ldap.conf"]:
+            self.do_file_sub(
+                f,
+                r"(\s*bindpw\s*)\S+",
+                r"\1********"
+            )
 
 
 class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):

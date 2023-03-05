@@ -188,16 +188,13 @@ class Ovirt(Plugin, RedHatPlugin):
         """
         Obfuscate sensitive keys.
         """
-        self.do_file_sub(
-            "/etc/ovirt-engine/engine-config/engine-config.properties",
-            r"Password.type=(.*)",
-            r"Password.type=********"
-        )
-        self.do_file_sub(
-            "/etc/rhevm/rhevm-config/rhevm-config.properties",
-            r"Password.type=(.*)",
-            r"Password.type=********"
-        )
+        for f in ["/etc/ovirt-engine/engine-config/engine-config.properties",
+                  "/etc/rhevm/rhevm-config/rhevm-config.properties"]:
+            self.do_file_sub(
+                f,
+                r"(Password.type)=(.*)",
+                r"\1=********"
+            )
 
         engine_files = (
             'ovirt-engine.xml',
@@ -209,14 +206,14 @@ class Ovirt(Plugin, RedHatPlugin):
         for filename in engine_files:
             self.do_file_sub(
                 "/var/tmp/ovirt-engine/config/%s" % filename,
-                r"<password>(.*)</password>",
-                r"<password>********</password>"
+                r"(<password>)(.*)(</password>)",
+                r"\1********\3"
             )
 
         self.do_file_sub(
             "/etc/ovirt-engine/redhatsupportplugin.conf",
-            r"proxyPassword=(.*)",
-            r"proxyPassword=********"
+            r"(proxyPassword)=(.*)",
+            r"\1=********"
         )
 
         passwd_files = [
@@ -228,13 +225,8 @@ class Ovirt(Plugin, RedHatPlugin):
             conf_path = self.path_join("/etc/ovirt-engine", conf_file)
             self.do_file_sub(
                 conf_path,
-                r"passwd=(.*)",
-                r"passwd=********"
-            )
-            self.do_file_sub(
-                conf_path,
-                r"pg-pass=(.*)",
-                r"pg-pass=********"
+                r"(passwd|pg-pass)=(.*)",
+                r"\1=********"
             )
 
         sensitive_keys = self.DEFAULT_SENSITIVE_KEYS
@@ -243,12 +235,11 @@ class Ovirt(Plugin, RedHatPlugin):
         if keys_opt and keys_opt is not True:
             sensitive_keys = keys_opt
         key_list = [x for x in sensitive_keys.split(':') if x]
-        for key in key_list:
-            self.do_path_regex_sub(
-                self.DB_PASS_FILES,
-                r'{key}=(.*)'.format(key=key),
-                r'{key}=********'.format(key=key)
-            )
+        self.do_path_regex_sub(
+            self.DB_PASS_FILES,
+            r'(%s)=(.*)' % "|".join(key_list),
+            r'\1=********'
+        )
 
         # Answer files contain passwords.
         # Replace all keys that have 'password' in them, instead of hard-coding
@@ -261,10 +252,7 @@ class Ovirt(Plugin, RedHatPlugin):
         ):
             self.do_path_regex_sub(
                 r'/var/lib/ovirt-engine/setup/answers/.*',
-                re.compile(
-                    r'(?P<key>[^=]*{item}[^=]*)=.*'.format(item=item),
-                    flags=re.IGNORECASE
-                ),
+                r'(?P<key>[^=]*{item}[^=]*)=.*'.format(item=item),
                 r'\g<key>=********'
             )
 

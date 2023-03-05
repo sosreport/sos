@@ -47,16 +47,15 @@ class Tomcat(Plugin, RedHatPlugin):
     def postproc(self):
         serverXmlPasswordAttributes = ['keyPass', 'keystorePass',
                                        'truststorePass', 'SSLPassword']
-        for attr in serverXmlPasswordAttributes:
-            self.do_path_regex_sub(
-                r"\/etc\/tomcat.*\/server.xml",
-                r"%s=(\S*)" % attr,
-                r'%s="********"' % attr
-            )
+        self.do_path_regex_sub(
+            r"\/etc\/tomcat.*\/server.xml",
+            r"(%s)=(\S*)" % "|".join(serverXmlPasswordAttributes),
+            r'\1="********"'
+        )
         self.do_path_regex_sub(
             r"\/etc\/tomcat.*\/tomcat-users.xml",
-            r"password=(\S*)",
-            r'password="********"'
+            r"(password)=(\S*)",
+            r'\1="********"'
         )
 
 # vim: set et ts=4 sw=4 :

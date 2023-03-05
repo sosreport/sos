@@ -30,7 +30,7 @@ class SaltMaster(Plugin, IndependentPlugin):
 
     def postproc(self):
         regexp = r'((?m)^\s+.*(pass|secret|(?<![A-z])key(?![A-z])).*:\ ).+$'
-        subst = r'$1******'
+        subst = r'\1******'
         self.do_path_regex_sub("/etc/salt/*", regexp, subst)
 
 # vim: set et ts=4 sw=4 :

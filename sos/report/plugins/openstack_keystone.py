@@ -106,8 +106,11 @@ class OpenStackKeystone(Plugin):
         )
 
         # obfuscate LDAP plaintext passwords in domain config dir
-        self.do_path_regex_sub(self.domain_config_dir,
-                               r"((?m)^\s*(%s)\s*=\s*)(.*)", r"\1********")
+        self.do_path_regex_sub(
+            self.domain_config_dir,
+            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"\1********"
+        )
 
 
 class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):

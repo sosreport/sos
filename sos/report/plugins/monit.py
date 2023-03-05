@@ -43,29 +43,13 @@ class Monit(Plugin, RedHatPlugin):
         for file in self.monit_conf:
             # Remove username:password from files
             self.do_file_sub(file,
-                             r"allow (.*):(.*)",
-                             r"allow ********:********"
-                             )
-            self.do_file_sub(file,
-                             r"ALLOW (.*):(.*)",
-                             r"ALLOW ********:********"
+                             r"(allow) (.*):(.*)",
+                             r"\1 ********:********"
                              )
             # Remove MAILSERVER username/password
             self.do_file_sub(file,
-                             r"username (\w)+",
-                             r"username ********"
-                             )
-            self.do_file_sub(file,
-                             r"password (\w)+",
-                             r"password ********"
-                             )
-            self.do_file_sub(file,
-                             r"USERNAME (\w)+",
-                             r"USERNAME ********"
-                             )
-            self.do_file_sub(file,
-                             r"PASSWORD (\w)+",
-                             r"PASSWORD ********"
+                             r"(username|password) (\w)+",
+                             r"\1 ********"
                              )
 
 # vim: et ts=4 sw=4

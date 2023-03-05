@@ -34,14 +34,14 @@ class Fwupd(Plugin, IndependentPlugin):
     def postproc(self):
         self.do_path_regex_sub(
             "/etc/fwupd/remotes.d/*",
-            r"Password=(.*)",
-            r"Password=********"
+            r"(Password)=(.*)",
+            r"\1=********"
         )
 
         self.do_file_sub(
             "/etc/fwupd/redfish.conf",
-            r"Password=(.*)",
-            r"Password=********"
+            r"(Password)=(.*)",
+            r"\1=********"
         )
 
 
