@@ -97,13 +97,8 @@ class Logs(Plugin, IndependentPlugin):
     def postproc(self):
         self.do_path_regex_sub(
             r"/etc/rsyslog*",
-            r"ActionLibdbiPassword (.*)",
-            r"ActionLibdbiPassword [********]"
-        )
-        self.do_path_regex_sub(
-            r"/etc/rsyslog*",
-            r"pwd=.*",
-            r"pwd=[******]"
+            r"(ActionLibdbiPassword |pwd=)(.*)",
+            r"\1[********]"
         )
 
 

@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, IndependentPlugin
-import re
 
 
 class OpenStackTripleO(Plugin, IndependentPlugin):
@@ -36,11 +35,9 @@ class OpenStackTripleO(Plugin, IndependentPlugin):
         # Ensures we do not leak passwords from the tripleo-config and
         # hieradata locations.
         # Other locations don't have sensitive data.
-        secrets = r'(".*(key|password|pass|secret|database_connection))' \
-                  r'([":\s]+)(.*[^"])([",]+)'
-        rgxp = re.compile(secrets, re.IGNORECASE)
-
+        regexp = r'(".*(key|password|pass|secret|database_connection))' \
+                 r'([":\s]+)(.*[^"])([",]+)'
         for path in self.tripleo_log_paths:
-            self.do_path_regex_sub(path, rgxp, r'\1\3*********\5')
+            self.do_path_regex_sub(path, regexp, r'\1\3*********\5')
 
 # vim: set et ts=4 sw=4 :

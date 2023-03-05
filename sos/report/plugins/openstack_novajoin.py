@@ -25,12 +25,9 @@ class OpenStackNovajoin(Plugin):
             self.add_copy_spec("/var/log/novajoin/*.log")
 
     def postproc(self):
-        regexp = (r"(?i)password=(.*)")
+        regexp = (r"(password|memcache_secret_key)=(.*)")
         self.do_file_sub("/etc/novajoin/join.conf", regexp,
-                         r"password=*********")
-        regexp = (r"(?i)memcache_secret_key=(.*)")
-        self.do_file_sub("/etc/novajoin/join.conf", regexp,
-                         r"password=*********")
+                         r"\1=*********")
 
 
 class RedHatNovajoin(OpenStackNovajoin, RedHatPlugin):

@@ -59,13 +59,8 @@ class Redis(Plugin, SCLPlugin):
                      "/etc/opt/rh/rh-redis5/"]:
             self.do_file_sub(
                 path + "redis.conf",
-                r"(masterauth\s).*",
-                r"\1********"
-            )
-            self.do_file_sub(
-                path + "redis.conf",
-                r"(requirepass\s).*",
-                r"requirepass = ********"
+                r"(masterauth|requirepass)\s.*",
+                r"\1 ********"
             )
 
 # vim: set et ts=4 sw=4 :

@@ -201,14 +201,11 @@ class OpenShiftOrigin(Plugin):
                      r'|PASS|PWD|KEY|TOKEN|CRED|SECRET)[^,]*,' \
                      r'\s*"value":)[^}]*'
         self.do_cmd_output_sub('oc*json', env_regexp, r'\g<var> "********"')
-        # LDAP identity provider
+        # LDAP identity provider (bindPassword)
+        # and github/google/OpenID identity providers (clientSecret)
         self.do_file_sub(self.master_cfg,
-                         r"(bindPassword:\s*)(.*)",
-                         r'\1"********"')
-        # github/google/OpenID identity providers
-        self.do_file_sub(self.master_cfg,
-                         r"(clientSecret:\s*)(.*)",
-                         r'\1"********"')
+                         r"(bindPassword|clientSecret):\s*(.*)",
+                         r'\1:"********"')
 
 
 class AtomicOpenShift(OpenShiftOrigin, RedHatPlugin):

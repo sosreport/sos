@@ -24,7 +24,7 @@ class OpenHPI(Plugin, RedHatPlugin):
 
     def postproc(self):
         self.do_file_sub("/etc/openhpi/openhpi.conf",
-                         r'(\s*[Pp]ass.*\s*=\s*).*', r'\1********')
+                         r'(\s*pass.*\s*=\s*).*', r'\1********')
 
 
 # vim: set et ts=4 sw=4 :

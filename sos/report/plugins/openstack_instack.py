@@ -113,27 +113,25 @@ class OpenStackInstack(Plugin):
                                 "tripleo-ui-logs tripleo-ui.logs --file -")
 
     def postproc(self):
+        # do_file_sub is case insensitive, so protected_keys can be lowercase
+        # only
         protected_keys = [
-            "UNDERCLOUD_TUSKAR_PASSWORD", "UNDERCLOUD_ADMIN_PASSWORD",
-            "UNDERCLOUD_CEILOMETER_METERING_SECRET",
-            "UNDERCLOUD_CEILOMETER_PASSWORD",
-            "UNDERCLOUD_CEILOMETER_SNMPD_PASSWORD",
-            "UNDERCLOUD_DB_PASSWORD", "UNDERCLOUD_GLANCE_PASSWORD",
-            "UNDERCLOUD_HEAT_PASSWORD",
-            "UNDERCLOUD_HEAT_STACK_DOMAIN_ADMIN_PASSWORD",
-            "UNDERCLOUD_HORIZON_SECRET_KEY", "UNDERCLOUD_IRONIC_PASSWORD",
-            "UNDERCLOUD_NEUTRON_PASSWORD", "UNDERCLOUD_NOVA_PASSWORD",
-            "UNDERCLOUD_RABBIT_PASSWORD", "UNDERCLOUD_SWIFT_PASSWORD",
-            "UNDERCLOUD_TUSKAR_PASSWORD", "OS_PASSWORD",
-            "undercloud_db_password", "undercloud_admin_password",
-            "undercloud_glance_password", "undercloud_heat_password",
-            "undercloud_neutron_password", "undercloud_nova_password",
-            "undercloud_ironic_password", "undercloud_tuskar_password",
-            "undercloud_ceilometer_password",
+            "os_password",
+            "undercloud_admin_password",
             "undercloud_ceilometer_metering_secret",
+            "undercloud_ceilometer_password",
             "undercloud_ceilometer_snmpd_password",
-            "undercloud_swift_password", "undercloud_rabbit_password",
-            "undercloud_heat_stack_domain_admin_password"
+            "undercloud_db_password",
+            "undercloud_glance_password",
+            "undercloud_heat_password",
+            "undercloud_heat_stack_domain_admin_password",
+            "undercloud_horizon_secret_key",
+            "undercloud_ironic_password",
+            "undercloud_neutron_password",
+            "undercloud_nova_password",
+            "undercloud_rabbit_password",
+            "undercloud_swift_password",
+            "undercloud_tuskar_password",
         ]
         regexp = r"((?m)(%s)=)(.*)" % "|".join(protected_keys)
         self.do_file_sub("/home/stack/.instack/install-undercloud.log",

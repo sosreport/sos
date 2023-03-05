@@ -59,18 +59,8 @@ class Gnocchi(Plugin):
     def postproc(self):
         self.do_file_sub(
             "/etc/gnocchi/gnocchi.conf",
-            r"ceph_secret\s?=(.*)",
-            r"ceph_secret=*****",
-        )
-        self.do_file_sub(
-            "/etc/gnocchi/gnocchi.conf",
-            r"password\s?=(.*)",
-            r"password=*****",
-        )
-        self.do_file_sub(
-            "/etc/gnocchi/gnocchi.conf",
-            r"memcache_secret_key\s?=(.*)",
-            r"memcache_secret_key=*****",
+            r"(ceph_secret|password|memcache_secret_key)\s?=(.*)",
+            r"\1=*****",
         )
 
 
@@ -100,8 +90,8 @@ class RedHatGnocchi(Gnocchi, RedHatPlugin):
         self.do_file_sub(
             self.var_puppet_gen + "/etc/gnocchi/"
             "gnocchi.conf",
-            r"password=(.*)",
-            r"password=*****",
+            r"(ceph_secret|password|memcache_secret_key)\s?=(.*)",
+            r"\1=*****",
         )
 
 

@@ -45,55 +45,17 @@ class Landscape(Plugin, UbuntuPlugin):
             r"registration_password(.*)",
             r"registration_password[********]"
         )
-        self.do_file_sub(
-            "/etc/landscape/service.conf",
-            r"password = (.*)",
-            r"password = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf",
-            r"store_password = (.*)",
-            r"store_password = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf",
-            r"secret-token = (.*)",
-            r"secret-token = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf",
-            r"oidc-client-secret = (.*)",
-            r"oidc-client-secret = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf",
-            r"oidc-client-id = (.*)",
-            r"oidc-client-id = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf.old",
-            r"password = (.*)",
-            r"password = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf.old",
-            r"store_password = (.*)",
-            r"store_password = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf.old",
-            r"secret-token = (.*)",
-            r"secret-token = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf.old",
-            r"oidc-client-secret = (.*)",
-            r"oidc-client-secret = [********]"
-        )
-        self.do_file_sub(
-            "/etc/landscape/service.conf.old",
-            r"oidc-client-id = (.*)",
-            r"oidc-client-id = [********]"
+        keys = [
+            "password",
+            "store_password",
+            "secret-token",
+            "oidc-client-secret",
+            "oidc-client-id",
+        ]
+        self.do_path_regex_sub(
+            "/etc/landscape/service.conf*",
+            r"(%s) = (.*)" % "|".join(keys),
+            r"\1 = [********]"
         )
 
 # vim: set et ts=4 sw=4 :

@@ -39,8 +39,8 @@ class Rear(Plugin, RedHatPlugin):
     def postproc(self):
         self.do_path_regex_sub(
             '/etc/rear/*',
-            r'SSH_ROOT_PASSWORD=(.*)',
-            r'SSH_ROOT_PASSWORD=********'
+            r'(SSH_ROOT_PASSWORD)=(.*)',
+            r'\1=********'
         )
 
 # vim: set et ts=4 sw=4 :

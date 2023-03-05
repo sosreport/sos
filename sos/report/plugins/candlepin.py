@@ -128,7 +128,7 @@ class Candlepin(Plugin, RedHatPlugin):
         self.do_file_sub("/var/log/candlepin/cpdb.log", cpdbreg, repl)
         for key in ["trustStorePassword", "keyStorePassword"]:
             self.do_file_sub("/etc/candlepin/broker.xml",
-                             r"%s=(\w*)([;<])" % key,
-                             r"%s=********\2" % key)
+                             r"(%s)=(\w*)([;<])" % key,
+                             r"\1=********\3")
 
 # vim: set et ts=4 sw=4 :

@@ -29,8 +29,8 @@ class Ssmtp(Plugin, RedHatPlugin):
     def postproc(self):
         self.do_file_sub(
             '/etc/ssmtp/ssmtp.conf',
-            r'AuthPass=(\S*)',
-            r'AuthPass=********'
+            r'(AuthPass)=(\S*)',
+            r'\1=********'
         )
 
 # vim: set et ts=4 sw=4 :

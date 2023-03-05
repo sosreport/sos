@@ -51,22 +51,11 @@ class OpenStackHorizon(Plugin):
         ]
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub(
-            r"/etc/openstack-dashboard/.*\.json",
-            regexp, r"\1*********"
-        )
-        self.do_path_regex_sub(
-            var_puppet_gen + r"/etc/openstack-dashboard/.*\.json",
-            regexp, r"\1*********"
-        )
-        self.do_path_regex_sub(
-            "/etc/openstack-dashboard/local_settings$",
-            regexp, r"\1*********"
-        )
-        self.do_path_regex_sub(
-            var_puppet_gen + "/etc/openstack-dashboard/local_settings$",
-            regexp, r"\1*********"
-        )
+        for regpath in [r"/etc/openstack-dashboard/.*\.json",
+                        "/etc/openstack-dashboard/local_settings$"]:
+            self.do_path_regex_sub(regpath, regexp, r"\1*********")
+            self.do_path_regex_sub(var_puppet_gen + regpath,
+                                   regexp, r"\1*********")
 
 
 class DebianHorizon(OpenStackHorizon, DebianPlugin):

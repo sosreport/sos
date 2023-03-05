@@ -1284,7 +1284,8 @@ class Plugin():
             content = readable.read()
             if not isinstance(content, str):
                 content = content.decode('utf8', 'ignore')
-            result, replacements = re.subn(regexp, subst, content)
+            result, replacements = re.subn(regexp, subst, content,
+                                           flags=re.IGNORECASE)
             if replacements:
                 self.archive.add_string(result, srcpath)
             else:
