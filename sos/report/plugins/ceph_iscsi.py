@@ -25,6 +25,7 @@ class CephISCSI(Plugin, RedHatPlugin, UbuntuPlugin):
             "/var/log/**/ceph-client.*.log",
             "/var/log/**/rbd-target-api.log",
             "/var/log/**/rbd-target-gw.log",
+            "/var/log/**/tcmu-runner.log",
             "/var/log/tcmu-runner.log"
         ])
 
