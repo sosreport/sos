@@ -46,10 +46,12 @@ class Unpackaged(Plugin, RedHatPlugin):
                             path = Path(path).resolve()
                     except Exception:
                         continue
-                    file_list.append(os.path.realpath(path))
+                    file_list.append(
+                        [self.path_join(root, name), os.path.realpath(path)]
+                    )
                 for name in dirs:
-                    file_list.append(os.path.realpath(
-                                     self.path_join(root, name)))
+                    name = self.path_join(root, name)
+                    file_list.append([name, os.path.realpath(name)])
 
             return file_list
 
@@ -59,10 +61,17 @@ class Unpackaged(Plugin, RedHatPlugin):
             expanded = []
             for f in files:
                 fp = self.path_join(f)
-                if self.path_islink(fp):
-                    expanded.append("{} -> {}".format(fp, os.readlink(fp)))
-                else:
-                    expanded.append(fp)
+                out = f"{fp}"
+                links = 0
+                # expand links like
+                # /usr/bin/jfr -> /etc/alternatives/jfr ->
+                # /usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.el9.x86_64/bin/jfr
+                # but stop at level 10 to prevent potential recursive links
+                while self.path_islink(fp) and links < 10:
+                    fp = os.readlink(fp)
+                    out += f" -> {fp}"
+                    links += 1
+                expanded.append(out + '\n')
             return expanded
 
         # Check command predicate to avoid costly processing
@@ -80,9 +89,9 @@ class Unpackaged(Plugin, RedHatPlugin):
 
             for d in paths:
                 all_fsystem += all_files_system(d)
-            not_packaged = [x for x in all_fsystem if x not in all_frpm]
+            not_packaged = [x for [x, rp] in all_fsystem if rp not in all_frpm]
             not_packaged_expanded = format_output(not_packaged)
 
-            ufile.write('\n'.join(not_packaged_expanded))
+            ufile.write(''.join(not_packaged_expanded))
 
 # vim: set et ts=4 sw=4 :
