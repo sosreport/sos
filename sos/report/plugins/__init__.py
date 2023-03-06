@@ -1782,7 +1782,7 @@ class Plugin():
                 # operations
                 continue
 
-            # Files hould be sorted in most-recently-modified order, so that
+            # Files should be sorted in most-recently-modified order, so that
             # we collect the newest data first before reaching the limit.
             def getmtime(path):
                 try:
