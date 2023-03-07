@@ -89,3 +89,22 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
         """Ensure that the 'testuser1' user created at install is obfuscated
         """
         self.assertFileNotHasContent('var/log/anaconda/journal.log', 'testuser1')
+
+class ExistingArchiveCleanTmpTest(StageTwoReportTest):
+    """Continuation of above tests which requires cleaning var / tmp keywords
+
+    Note that this copies heavily from the full_report_run test.
+
+    :avocado: tags=stagetwo
+    """
+
+    sos_cmd = '-v --keywords var,tmp,avocado --disable-parsers ip,ipv6,mac,username \
+        --no-update tests/test_data/%s.tar.xz' % ARCHIVE
+    sos_component = 'clean'
+
+    def test_sys_tmp_not_obfuscated(self):
+        """ Ensure that keywords var, tmp and avocado remains in the final archive
+        path despite they are parts of the --tmp-dir
+        """
+        self.assertTrue(self.archive.startswith(os.getenv('AVOCADO_TESTS_COMMON_TMPDIR')))
+
