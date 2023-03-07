@@ -9,7 +9,7 @@
 # This plugin enables collection of logs for Power systems
 
 import re
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
 class IprConfig(Plugin, IndependentPlugin):
@@ -21,6 +21,13 @@ class IprConfig(Plugin, IndependentPlugin):
     architectures = ('ppc64.*',)
 
     def setup(self):
+
+        show_ioas = self.collect_cmd_output(
+                "iprconfig -c show-ioas",
+                pred=SoSPredicate(self, kmods=['sg'])
+        )
+        if not show_ioas['status'] == 0:
+            return
 
         self.add_cmd_output([
             "iprconfig -c show-config",
@@ -34,10 +41,6 @@ class IprConfig(Plugin, IndependentPlugin):
             "iprconfig -c show-slots",
             "iprconfig -c dump"
         ])
-
-        show_ioas = self.collect_cmd_output("iprconfig -c show-ioas")
-        if not show_ioas['status'] == 0:
-            return
 
         devices = []
         if show_ioas['output']:
