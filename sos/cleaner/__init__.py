@@ -400,8 +400,9 @@ third party.
                     cf.write(checksum)
             self.write_cleaner_log()
 
-        final_path = self.obfuscate_string(
-            os.path.join(self.sys_tmp, arc_path.split('/')[-1])
+        final_path = os.path.join(
+            self.sys_tmp,
+            self.obfuscate_string(arc_path.split('/')[-1])
         )
         shutil.move(arc_path, final_path)
         arcstat = os.stat(final_path)
