@@ -76,6 +76,9 @@ class PowerPC(Plugin, IndependentPlugin):
                 "serv_config -l",
                 "bootlist -m both -r",
                 "lparstat -i",
+                "lparnumascore",
+                "lparnumascore -c cpu -d 4",
+                "lparnumascore -c mem -d 3",
                 "ctsnap -xrunrpttr -d %s" % (ctsnap_path),
                 "lsdevinfo"
             ])
