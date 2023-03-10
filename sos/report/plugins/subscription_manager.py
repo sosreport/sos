@@ -105,5 +105,16 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         passwdreg = r"(proxy_password(\s)*=(\s)*)(\S+)\n"
         repl = r"\1********\n"
         self.do_path_regex_sub("/etc/rhsm/rhsm.conf", passwdreg, repl)
+        # Scrub passwords in repositories
+        # Example of scrubbing:
+        #
+        #   password=hackme
+        # To:
+        #   password=********
+        #
+        # Whitespace around '=' is allowed.
+        regexp = r"(password(\s)*=(\s)*)(\S+)\n"
+        repl = r"\1********\n"
+        self.do_path_regex_sub("/var/lib/rhsm/repo_server_val/*", regexp, repl)
 
 # vim: et ts=4 sw=4
