@@ -60,7 +60,7 @@ class ReportWithCleanedKeywords(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '--clean -o filesys,kernel --keywords=fstab,Linux,tmp'
+    sos_cmd = '--clean -o filesys,kernel --keywords=fstab,Linux,tmp --no-update'
 
     # Will the 'tmp' be properly treated in path to working dir without raising an error?
     # To make this test effective, we assume the test runs on a system / with Policy
