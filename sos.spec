@@ -4,7 +4,7 @@ Version: 4.5.1
 Release: 1%{?dist}
 Group: Applications/System
 Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
-License: GPLv2+
+License: GPL-2.0-or-later
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Url: https://github.com/sosreport/sos/
