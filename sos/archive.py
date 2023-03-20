@@ -16,6 +16,7 @@ import logging
 import codecs
 import errno
 import stat
+import re
 from datetime import datetime
 from threading import Lock
 
@@ -658,6 +659,9 @@ class TarFileArchive(FileCacheArchive):
         orig_path = tarinfo.name[len(os.path.split(self._archive_root)[-1]):]
         if not orig_path:
             orig_path = self._archive_root
+        skips = ['/version.txt$', '/sos_logs(/.*)?', '/sos_reports(/.*)?']
+        if any(re.match(skip, orig_path) for skip in skips):
+            return None
         try:
             fstat = os.stat(orig_path)
         except OSError:
@@ -697,6 +701,15 @@ class TarFileArchive(FileCacheArchive):
             kwargs = {'preset': 3}
         tar = tarfile.open(self._archive_name, mode="w:%s" % _comp_mode,
                            **kwargs)
+        # add commonly reviewed files first, so that they can be more easily
+        # read from memory without needing to extract the whole archive
+        for _content in ['version.txt', 'sos_reports', 'sos_logs']:
+            if not os.path.exists(os.path.join(self._archive_root, _content)):
+                continue
+            tar.add(
+                os.path.join(self._archive_root, _content),
+                arcname=f"{self._name}/{_content}"
+            )
         # we need to pass the absolute path to the archive root but we
         # want the names used in the archive to be relative.
         tar.add(self._archive_root, arcname=self._name,
