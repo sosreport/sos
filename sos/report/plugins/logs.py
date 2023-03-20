@@ -10,7 +10,7 @@ import glob
 from sos.report.plugins import Plugin, PluginOpt, IndependentPlugin, CosPlugin
 
 
-class Logs(Plugin, IndependentPlugin):
+class LogsBase(Plugin):
 
     short_desc = 'System logs'
 
@@ -102,7 +102,23 @@ class Logs(Plugin, IndependentPlugin):
         )
 
 
-class CosLogs(Logs, CosPlugin):
+class IndependentLogs(LogsBase, IndependentPlugin):
+    """
+    This plugin will collect logs traditionally considered to be "system" logs,
+    meaning those such as /var/log/messages, rsyslog, and journals that are
+    not limited to unit-specific entries.
+
+    Note that the --since option will apply to journal collections by this
+    plugin as well as the typical application to log files. Most users can
+    expect typical journal collections to include the "full" journal, as well
+    as journals limited to this boot and the previous boot.
+    """
+
+    plugin_name = "logs"
+    profiles = ('system', 'hardware', 'storage')
+
+
+class CosLogs(LogsBase, CosPlugin):
     option_list = [
         PluginOpt(name="log_days", default=3,
                   desc="the number of days logs to collect")
