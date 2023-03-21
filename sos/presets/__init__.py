@@ -106,10 +106,24 @@ NO_PRESET = 'none'
 NO_PRESET_DESC = 'Do not load a preset'
 NO_PRESET_NOTE = 'Use to disable automatically loaded presets'
 
-GENERIC_PRESETS = {
-    NO_PRESET: PresetDefaults(name=NO_PRESET, desc=NO_PRESET_DESC,
-                              note=NO_PRESET_NOTE, opts=SoSOptions())
-}
+SMALL_PRESET = 'minimal'
+SMALL_PRESET_DESC = ('Small and quick report that reduces sos report resource '
+                     'consumption')
+SMALL_PRESET_NOTE = ('May be useful for low-resource systems, but may not '
+                     'provide sufficient data for analysis')
 
+SMALL_PRESET_OPTS = SoSOptions(log_size=10, journal_size=10, plugin_timeout=30,
+                               command_timeout=30, low_priority=True)
+
+GENERIC_PRESETS = {
+    NO_PRESET: PresetDefaults(
+        name=NO_PRESET, desc=NO_PRESET_DESC, note=NO_PRESET_NOTE,
+        opts=SoSOptions()
+    ),
+    SMALL_PRESET: PresetDefaults(
+        name=SMALL_PRESET, desc=SMALL_PRESET_DESC, note=SMALL_PRESET_NOTE,
+        opts=SMALL_PRESET_OPTS
+    )
+}
 
 # vim: set et ts=4 sw=4 :
