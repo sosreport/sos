@@ -337,6 +337,17 @@ class SoSComponent():
         ui_console.setLevel(logging.INFO)
         self.ui_log.addHandler(ui_console)
 
+    def set_loggers_verbosity(self, verbosity):
+        if verbosity:
+            if self.flog:
+                self.flog.setLevel(logging.DEBUG)
+            if self.opts.verbosity > 1:
+                self.console.setLevel(logging.DEBUG)
+            else:
+                self.console.setLevel(logging.WARNING)
+        else:
+            self.console.setLevel(logging.WARNING)
+
     def _setup_logging(self):
         """Creates the log handler that shall be used by all components and any
         and all related bits to those components that need to log either to the
@@ -345,28 +356,20 @@ class SoSComponent():
         # main soslog
         self.soslog = logging.getLogger('sos')
         self.soslog.setLevel(logging.DEBUG)
-        flog = None
+        self.flog = None
         if not self.check_listing_options():
             self.sos_log_file = self.get_temp_file()
-            flog = logging.StreamHandler(self.sos_log_file)
-            flog.setFormatter(logging.Formatter(
+            self.flog = logging.StreamHandler(self.sos_log_file)
+            self.flog.setFormatter(logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s'))
-            flog.setLevel(logging.INFO)
-            self.soslog.addHandler(flog)
+            self.flog.setLevel(logging.INFO)
+            self.soslog.addHandler(self.flog)
 
         if not self.opts.quiet:
-            console = logging.StreamHandler(sys.stdout)
-            console.setFormatter(logging.Formatter('%(message)s'))
-            if self.opts.verbosity:
-                if flog:
-                    flog.setLevel(logging.DEBUG)
-                if self.opts.verbosity > 1:
-                    console.setLevel(logging.DEBUG)
-                else:
-                    console.setLevel(logging.WARNING)
-            else:
-                console.setLevel(logging.WARNING)
-            self.soslog.addHandler(console)
+            self.console = logging.StreamHandler(sys.stdout)
+            self.console.setFormatter(logging.Formatter('%(message)s'))
+            self.set_loggers_verbosity(self.opts.verbosity)
+            self.soslog.addHandler(self.console)
         # still log ERROR level message to console, but only setup this handler
         # when --quiet is used, as otherwise we'll double log
         else:
