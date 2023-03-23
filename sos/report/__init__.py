@@ -170,10 +170,7 @@ class SoSReport(SoSComponent):
         self.opts = self.apply_options_from_cmdline(self.opts)
         if hasattr(self.preset.opts, 'verbosity') and \
                 self.preset.opts.verbosity > 0:
-            print('\nWARNING: It is not recommended to set verbosity via the '
-                  'preset as it might have\nunforseen consequences for your '
-                  'report logs.\n')
-            self._setup_logging()
+            self.set_loggers_verbosity(self.preset.opts.verbosity)
 
         self._set_directories()
 
