@@ -33,6 +33,9 @@ class NetworkingPluginTest(StageOneReportTest):
 
     def test_netdevs_properly_iterated(self):
         for dev in os.listdir('/sys/class/net'):
-            self.assertFileGlobInArchive(
-                "sos_commands/networking/ethtool_*_%s" % dev
-            )
+            # some file(s) in the dir might not be real netdevs, see e.g.
+            # https://lwn.net/Articles/142330/
+            if not dev.startswith('bonding_'):
+                self.assertFileGlobInArchive(
+                    "sos_commands/networking/ethtool_*_%s" % dev
+                )
