@@ -24,6 +24,12 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
     often not configured to successfully run the `ceph` commands collected by
     this plugin. These commands are majorily `ceph daemon` commands that will
     reference discovered admin sockets under /var/run/ceph.
+
+    Users may expect to see several collections twice - once in standard output
+    from the `ceph` command, and again in JSON format. The latter of which will
+    be placed in the `json_output/` subdirectory within this plugin's directory
+    in the report archive. These JSON formatted collections are intended to
+    aid in automated analysis.
     """
 
     short_desc = 'CEPH mgr'
@@ -58,16 +64,25 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
         ])
 
         # more commands to be added later
-        self.add_cmd_output([
-            "ceph balancer status",
-            "ceph orch host ls",
-            "ceph orch device ls",
-            "ceph orch ls --export",
-            "ceph orch ps",
-            "ceph orch status --detail",
-            "ceph orch upgrade status",
-            "ceph log last cephadm"
+        ceph_mgr_cmds = ([
+            "balancer status",
+            "orch host ls",
+            "orch device ls",
+            "orch ls",
+            "orch ls --export",
+            "orch ps",
+            "orch status --detail",
+            "orch upgrade status",
+            "log last cephadm"
         ])
+
+        self.add_cmd_output(
+            [f"ceph {cmd}" for cmd in ceph_mgr_cmds])
+        # get ceph_cmds again as json for easier automation parsing
+        self.add_cmd_output(
+            [f"ceph {cmd} --format json-pretty" for cmd in ceph_mgr_cmds],
+            subdir="json_output",
+        )
 
         cmds = [
             "config diff",
