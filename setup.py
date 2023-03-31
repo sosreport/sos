@@ -26,7 +26,7 @@ setup(
         ('share/man/man5', ['man/en/sos.conf.5']),
         ('share/licenses/sos', ['LICENSE']),
         ('share/doc/sos', ['AUTHORS', 'README.md']),
-        ('config', ['sos.conf'])
+        ('config', ['sos.conf', 'tmpfiles/tmpfilesd-sos-rh.conf'])
     ],
     packages=find_packages(include=['sos', 'sos.*'])
 )

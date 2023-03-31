@@ -37,7 +37,9 @@ install -d -m 700 ${RPM_BUILD_ROOT}/etc/sos/cleaner
 install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/presets.d
 install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/groups.d
 install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/extras.d
+install -d -m 755 ${RPM_BUILD_ROOT}/etc/tmpfiles.d/
 install -m 644 %{name}.conf ${RPM_BUILD_ROOT}/etc/sos/%{name}.conf
+install -m 644 tmpfiles/tmpfilesd-sos-rh.conf ${RPM_BUILD_ROOT}/etc/tmpfiles.d/%{name}.conf
 
 rm -rf ${RPM_BUILD_ROOT}/usr/config/
 
@@ -53,6 +55,7 @@ rm -rf ${RPM_BUILD_ROOT}/usr/config/
 %dir /etc/sos/presets.d
 %dir /etc/sos/extras.d
 %dir /etc/sos/groups.d
+/etc/tmpfiles.d/%{name}.conf
 %{python3_sitelib}/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
