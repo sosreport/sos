@@ -112,6 +112,17 @@ class SaltStackMasterUnsupportedException(Exception):
         super(SaltStackMasterUnsupportedException, self).__init__(message)
 
 
+class JujuNotInstalledException(Exception):
+    """Raised when juju is not installed locally"""
+
+    def __init__(self):
+        message = (
+            'Juju is not installed, '
+            'please ensure you have installed juju.'
+        )
+        super(JujuNotInstalledException, self).__init__(message)
+
+
 __all__ = [
     'AuthPermissionDeniedException',
     'CommandTimeoutException',
@@ -124,5 +135,6 @@ __all__ = [
     'SaltStackMasterUnsupportedException',
     'TimeoutPasswordAuthException',
     'UnsupportedHostException',
-    'InvalidTransportException'
+    'InvalidTransportException',
+    'JujuNotInstalledException'
 ]
