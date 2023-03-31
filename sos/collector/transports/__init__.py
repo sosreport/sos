@@ -29,6 +29,7 @@ class RemoteTransport():
     """
 
     name = 'undefined'
+    default_user = None
 
     def __init__(self, address, commons):
         self.address = address

@@ -17,6 +17,7 @@ import re
 from pipes import quote
 from sos.policies import load
 from sos.policies.init_systems import InitSystem
+from sos.collector.transports.juju import JujuSSH
 from sos.collector.transports.control_persist import SSHControlPersist
 from sos.collector.transports.local import LocalTransport
 from sos.collector.transports.oc import OCTransport
@@ -31,7 +32,8 @@ TRANSPORTS = {
     'local': LocalTransport,
     'control_persist': SSHControlPersist,
     'oc': OCTransport,
-    'saltstack': SaltStackMaster
+    'saltstack': SaltStackMaster,
+    'juju': JujuSSH,
 }
 
 
@@ -75,6 +77,10 @@ class SosNode():
         self.soslog = logging.getLogger('sos')
         self.ui_log = logging.getLogger('sos_ui')
         self._transport = self._load_remote_transport(commons)
+        # Overwrite need_sudo if transports default_user
+        # is set and is not root.
+        if self._transport.default_user:
+            self.need_sudo = self._transport.default_user != 'root'
         try:
             self._transport.connect(self._password)
         except Exception as err:
