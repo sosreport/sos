@@ -82,4 +82,20 @@ class LibvirtClient(Plugin, IndependentPlugin):
             for n in nodedev_output['output'].splitlines():
                 self.add_cmd_output(
                     '{0} nodedev-dumpxml {1}'.format(cmd, n), foreground=True)
+
+    def postproc(self):
+        match_exp = r"(\s*passwd\s*=\s*\")([^\"]*)(\".*)"
+        virsh_path_exps = [
+            r"/root/\.cache/virt-manager/.*\.log",
+            r"/root/\.virt-manager/.*\.log"
+        ]
+        for path_exp in virsh_path_exps:
+            # Scrub passwords in virt-manager logs
+            # Example of scrubbing:
+            #
+            #   passwd="hackme"
+            # To:
+            #   passwd="******"
+            #
+            self.do_path_regex_sub(path_exp, match_exp, r"\1******\3")
 # vim: et ts=4 sw=4
