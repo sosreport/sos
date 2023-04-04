@@ -176,7 +176,7 @@ to none.
 \fB\-\-save\-group\fR GROUP
 Save the results of this run of sos collect to a host group definition.
 
-sos-colllector will write a JSON-formatted file with name GROUP to /var/lib/sos collect/
+sos-collector will write a JSON-formatted file with name GROUP to /var/lib/sos collect/
 with the settings for cluster-type, primary, and the node list as discovered by cluster enumeration.
 Note that this means regexes are not directly saved to host groups, but the results of matching against
 those regexes are.
@@ -258,7 +258,7 @@ the type of cluster in use.
 .TP
 \fB\-\-image IMAGE\fR
 Specify an image to use for the temporary container created for collections on
-containerized host, if you do not want to use the default image specifed by the
+containerized host, if you do not want to use the default image specified by the
 host's policy. Note that this should include the registry.
 .TP
 \fB\-\-force-pull-image TOGGLE, \-\-pull TOGGLE\fR
@@ -378,7 +378,7 @@ This is NOT the same as specifying a temporary directory for sosreport on the re
 \fB\-v\fR \fB\-\-verbose\fR
 Print debug information to screen.
 .TP
-\fB\-\-verfiy\fR
+\fB\-\-verify\fR
 Sosreport option. Passes the "--verify" option to sosreport on the nodes which 
 causes sosreport to validate plugin-specific data during collection.
 
