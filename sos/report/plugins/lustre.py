@@ -42,8 +42,8 @@ class Lustre(Plugin, RedHatPlugin):
 
         # Client Specific
         self.add_cmd_output([
-                "lfs df",
-                "lfs df -i"
+            "lfs df",
+            "lfs df -i"
         ])
 
         # Server Specific
@@ -51,6 +51,11 @@ class Lustre(Plugin, RedHatPlugin):
                                 "kbytes*,blocksize,brw_stats}"])
         self.get_params("quota", ["osd-*.*.quota_slave." +
                                   "{info,limit_*,acct_*}"])
+
+        self.add_copy_spec([
+            "/sys/fs/ldiskfs",
+            "/proc/fs/ldiskfs",
+        ])
 
         # Grab emergency ring buffer dumps
         if self.get_option("all_logs"):
