@@ -78,6 +78,6 @@ class UbuntuPolicy(DebianPolicy):
                 return self._upload_url
             fname = os.path.basename(self.upload_archive_name)
             return self._upload_url + fname
-        super(UbuntuPolicy, self).get_upload_url()
+        return super(UbuntuPolicy, self).get_upload_url()
 
 # vim: set et ts=4 sw=4 :
