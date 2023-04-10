@@ -31,6 +31,9 @@ class FirewallD(Plugin, RedHatPlugin):
             "/etc/firewalld/icmptypes/*.xml",
             "/etc/firewalld/services/*.xml",
             "/etc/firewalld/zones/*.xml",
+            "/etc/firewalld/ipsets/*.xml",
+            "/etc/firewalld/policies/*.xml",
+            "/etc/firewalld/helpers/*.xml",
             "/etc/sysconfig/firewalld",
             "/var/log/firewalld",
         ])
