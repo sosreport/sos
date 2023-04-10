@@ -38,7 +38,7 @@ class RedHatPolicy(LinuxPolicy):
     vendor = "Red Hat"
     vendor_urls = [
         ('Distribution Website', 'https://www.redhat.com/'),
-        ('Commercial Support', 'https://www.access.redhat.com/')
+        ('Commercial Support', 'https://access.redhat.com/')
     ]
     _tmp_dir = "/var/tmp"
     _in_container = False
