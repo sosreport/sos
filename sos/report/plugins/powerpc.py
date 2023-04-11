@@ -115,6 +115,9 @@ class PowerPC(Plugin, IndependentPlugin):
                 "/var/log/opal-prd",
                 "/var/log/opal-prd.log*"
             ])
+            self.add_cmd_output([
+                "opal-prd --expert-mode run nvdimm_info"
+            ])
             if self.path_isdir("/var/log/dump"):
                 self.add_cmd_output("ls -l /var/log/dump")
 
