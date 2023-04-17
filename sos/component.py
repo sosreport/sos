@@ -218,9 +218,21 @@ class SoSComponent():
         # set all values back to their normal default
         codict = cmdopts.dict(preset_filter=False)
         for opt, val in codict.items():
-            if opt not in cmdopts.arg_defaults.keys():
+            if opt not in cmdopts.arg_defaults.keys() or val in [None, [], '']:
                 continue
-            if val not in [None, [], ''] and val != opts.arg_defaults[opt]:
+            # A plugin that is [enabled|disabled|only] in cmdopts must
+            # overwrite these three options of itself in opts - reset it first
+            if opt in ["enable_plugins", "skip_plugins", "only_plugins"]:
+                for oopt in ["enable_plugins", "skip_plugins", "only_plugins"]:
+                    common = set(val) & set(getattr(opts, oopt))
+                    # common has all plugins that are in this combination of
+                    # "[-e|-o|-n] plug" of cmdopts & "[-e|-o|-n] plug" of opts
+                    # so remove those plugins from this [-e|-o|-n] opts
+                    if common:
+                        setattr(opts, oopt, [x for x in getattr(opts, oopt)
+                                if x not in common])
+
+            if val != opts.arg_defaults[opt]:
                 setattr(opts, opt, val)
 
         return opts
