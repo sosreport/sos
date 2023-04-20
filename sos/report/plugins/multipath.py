@@ -29,7 +29,8 @@ class Multipath(Plugin, IndependentPlugin):
             "multipath -ll",
             "multipath -v4 -ll",
             "multipath -t",
-            "multipathd show config"
+            "multipathd show config",
+            "multipathd show paths format '%m %i %N %n %R %r %a %M %P'"
         ])
 
 
