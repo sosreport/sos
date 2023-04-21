@@ -26,6 +26,7 @@ class Nvme(Plugin, IndependentPlugin):
     kernel_mods = ('nvme', 'nvme_core')
 
     def setup(self):
+        _subdir = "smart_ns_ctrl_fw_error_regs"
         self.add_copy_spec("/etc/nvme/*")
         self.add_cmd_output([
             "nvme list",
@@ -44,6 +45,6 @@ class Nvme(Plugin, IndependentPlugin):
             "nvme error-log %(dev)s",
             "nvme show-regs %(dev)s"
         ]
-        self.add_device_cmd(cmds, devices='block', whitelist='nvme.*')
+        self.add_device_cmd(cmds, devices='block', whitelist='nvme.*', subdir=_subdir)
 
 # vim: set et ts=4 sw=4 :

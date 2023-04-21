@@ -29,6 +29,8 @@ class Scsi(Plugin, IndependentPlugin):
     profiles = ('storage', 'hardware')
 
     def setup(self):
+        _subdir1 = "udevadm_scsi"
+        _subdir2 = "sg_persists_inq"
         self.add_copy_spec([
             "/proc/scsi",
             "/etc/stinit.def",
@@ -62,13 +64,13 @@ class Scsi(Plugin, IndependentPlugin):
         ])
 
         scsi_hosts = glob("/sys/class/scsi_host/*")
-        self.add_device_cmd("udevadm info -a %(dev)s", devices=scsi_hosts)
+        self.add_device_cmd("udevadm info -a %(dev)s", devices=scsi_hosts, subdir=_subdir1)
 
         self.add_device_cmd([
             "sg_persist --in -k -d %(dev)s",
             "sg_persist --in -r -d %(dev)s",
             "sg_persist --in -s -d %(dev)s",
             "sg_inq %(dev)s"
-        ], devices='block', whitelist=['sd.*'])
+        ], devices='block', whitelist=['sd.*'], subdir=_subdir2)
 
 # vim: set et ts=4 sw=4 :
