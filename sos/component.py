@@ -85,7 +85,7 @@ class SoSComponent():
         except Exception:
             pass
 
-        # update args from component's arg_defaults defintion
+        # update args from component's arg_defaults definition
         self._arg_defaults.update(self.arg_defaults)
         self.opts = self.load_options()  # lgtm [py/init-calls-subclass]
 

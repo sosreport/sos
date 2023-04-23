@@ -162,7 +162,7 @@ class OpenShiftOrigin(Plugin):
                                         "atomic-openshift-master-api",
                                         "atomic-openshift-master-controllers"])
 
-            # get logs from the infrastruture pods running in the default ns
+            # get logs from the infrastructure pods running in the default ns
             pods = self.exec_cmd("%s get pod -o name -n default"
                                  % oc_cmd_admin)
             for pod in pods['output'].splitlines():
