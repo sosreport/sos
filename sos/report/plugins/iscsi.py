@@ -41,11 +41,18 @@ class Iscsi(Plugin):
         # to
         #
         # node.session.auth.password = ********
-        nodesessionpwd = r"(node\.session\.auth\.password\s+=\s+)(\S+)"
-        discoverypwd = r"(discovery\.sendtargets\.auth\.password\s+=\s+)(\S+)"
+        nodesessionpwd = r"(node\.session\.auth\.password(_in)?\s+=\s+)(\S+)"
+        discoverypwd = (
+                r"(discovery\.sendtargets\.auth\.password(_in)?"
+                r"\s+=\s+)(\S+)"
+                        )
         repl = r"\1********\n"
         self.do_path_regex_sub('/etc/iscsi/iscsid.conf', nodesessionpwd, repl)
         self.do_path_regex_sub('/etc/iscsi/iscsid.conf', discoverypwd, repl)
+        self.do_path_regex_sub(
+                '/var/lib/iscsi/nodes/*/*/*', nodesessionpwd, repl)
+        self.do_path_regex_sub(
+                '/var/lib/iscsi/nodes/*/*/*', discoverypwd, repl)
 
 
 class RedHatIscsi(Iscsi, RedHatPlugin):
