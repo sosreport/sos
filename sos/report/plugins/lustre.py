@@ -39,6 +39,8 @@ class Lustre(Plugin, RedHatPlugin):
         self.get_params("lnet", ["peers", "routes", "routers", "nis"])
         self.get_params("ldlm-states", ["*.*.state"])
         self.get_params("jobid", ["jobid_name", "jobid_var"])
+        self.get_params("job-stats", ["*.*.job_stats"])
+        self.get_params("exports", ["*.*.exports.*.*"])
 
         # Client Specific
         self.add_cmd_output([
