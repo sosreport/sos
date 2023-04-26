@@ -76,6 +76,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph features",
             "ceph insights",
             "ceph crash stat",
+            "ceph config dump",
             "ceph config log",
             "ceph config generate-minimal-conf",
             "ceph config-key dump",
