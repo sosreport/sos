@@ -52,7 +52,10 @@ class PowerPC(Plugin, IndependentPlugin):
                 "diag_encl -v",
                 "lsvpd -D",
                 "lsmcode -A",
-                "lscfg -v"
+                "lscfg -v",
+                "opal-elog-parse -s",
+                "opal-elog-parse -a",
+                "opal-elog-parse -l"
             ])
 
         if ispSeries:
@@ -80,7 +83,9 @@ class PowerPC(Plugin, IndependentPlugin):
                 "lparnumascore -c cpu -d 4",
                 "lparnumascore -c mem -d 3",
                 "ctsnap -xrunrpttr -d %s" % (ctsnap_path),
-                "lsdevinfo"
+                "lsdevinfo",
+                "lsslot",
+                "amsstat"
             ])
             self.add_service_status("hcn-init")
 
