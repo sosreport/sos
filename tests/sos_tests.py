@@ -11,6 +11,7 @@ from avocado.core.exceptions import TestSkipError
 from avocado.core.output import LOG_UI
 from avocado import Test
 from avocado.utils import archive, process, distro, software_manager
+from avocado.utils.cpu import get_arch
 from fnmatch import fnmatch
 
 import glob
@@ -71,6 +72,7 @@ class BaseSoSTest(Test):
     redhat_only = False
     ubuntu_only = False
     end_of_test_case = False
+    arch = []
 
     @property
     def klass_name(self):
@@ -227,6 +229,22 @@ class BaseSoSTest(Test):
             if self.local_distro not in UBUNTU_DIST:
                 raise TestSkipError("Not running on a Ubuntu or Debian distro")
 
+    def check_arch_for_enablement(self):
+        """
+        Check if the test case is meant only for a specific architecture, and
+        if it is, that we're also currently running on (one of) those arches.
+
+        This relies on the `arch` class attr, which should be a list. If the
+        list is empty, assume all arches are acceptable. Otherwise, raise a
+        TestSkipError.
+        """
+        sys_arch = get_arch()
+        if not self.arch or sys_arch in self.arch:
+            return True
+        raise TestSkipError(f"Unsupported architecture {sys_arch} for test "
+                            f"(supports: {self.arch})")
+
+
     def setUp(self):
         """Setup the tmpdir and any needed mocking for the test, then execute
         the defined sos command. Ensure that we only run the sos command once
@@ -234,6 +252,7 @@ class BaseSoSTest(Test):
         """
         self.local_distro = distro.detect().name
         self.check_distro_for_enablement()
+        self.check_arch_for_enablement()
         # check to prevent multiple setUp() runs
         if not os.path.isdir(self.tmpdir):
             # setup our class-shared tmpdir
