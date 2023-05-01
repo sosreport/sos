@@ -26,6 +26,7 @@ class ForemanBasicTest(StageOneReportTest):
     """
 
     sos_cmd = '-v'
+    arch = ['x86_64']
 
     def test_tfm_plugins_ran(self):
         self.assertPluginIncluded([
@@ -102,6 +103,7 @@ class ForemanWithOptionsTest(StageOneReportTest):
     """
 
     sos_cmd = '-v -k foreman.proxyfeatures=on'
+    arch = ['x86_64']
 
     @redhat_only
     def test_proxyfeatures_collected(self):
@@ -115,6 +117,7 @@ class ForemanInstallerTest(StageOneReportTest):
     """
 
     sos_cmd = '-v -o foreman_installer'
+    arch = ['x86_64']
 
     def test_foreman_installer_etc_collected(self):
         self.assertFileCollected("/etc/foreman-installer/scenarios.d")
@@ -127,6 +130,7 @@ class ForemanProxyTest(StageOneReportTest):
     """
 
     sos_cmd = '-v -o foreman_proxy'
+    arch = ['x86_64']
 
     def test_foreman_proxy_settings_collected(self):
         self.assertFileCollected("/etc/foreman-proxy/settings.yml")
