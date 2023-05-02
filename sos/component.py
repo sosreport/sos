@@ -346,7 +346,9 @@ class SoSComponent():
     def add_ui_log_to_stdout(self):
         ui_console = logging.StreamHandler(sys.stdout)
         ui_console.setFormatter(logging.Formatter('%(message)s'))
-        ui_console.setLevel(logging.INFO)
+        ui_console.setLevel(
+            logging.DEBUG if self.opts.verbosity > 1 else logging.INFO
+        )
         self.ui_log.addHandler(ui_console)
 
     def set_loggers_verbosity(self, verbosity):
@@ -392,7 +394,9 @@ class SoSComponent():
 
         # ui log
         self.ui_log = logging.getLogger('sos_ui')
-        self.ui_log.setLevel(logging.INFO)
+        self.ui_log.setLevel(
+            logging.DEBUG if self.opts.verbosity > 1 else logging.INFO
+        )
         if not self.check_listing_options():
             self.sos_ui_log_file = self.get_temp_file()
             ui_fhandler = logging.StreamHandler(self.sos_ui_log_file)
