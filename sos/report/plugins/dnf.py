@@ -46,7 +46,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
             if "[i]" in line:
                 module = line.split()[0]
                 if module != "Hint:":
-                    self.add_cmd_output("dnf --assumeno module info " + module,
+                    self.add_cmd_output("dnf module info " + module,
                                         tags='dnf_module_info')
 
     def setup(self):
@@ -71,13 +71,12 @@ class DNFPlugin(Plugin, RedHatPlugin):
             self.add_copy_spec("/var/log/dnf.librepo.log*")
             self.add_copy_spec("/var/log/dnf.rpm.log*")
 
-        self.add_cmd_output("dnf --assumeno module list",
+        self.add_cmd_output("dnf module list",
                             tags='dnf_module_list')
 
         self.add_cmd_output([
             "dnf --version",
-            "dnf --assumeno list installed *dnf*",
-            "dnf --assumeno list extras",
+            "dnf list extras",
             "package-cleanup --dupes",
             "package-cleanup --problems"
         ])
@@ -120,7 +119,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
                                     tags='dnf_history_info')
 
         # Get list of dnf installed modules and their details.
-        module_cmd = "dnf --assumeno module list --installed"
+        module_cmd = "dnf module list --installed"
         modules = self.collect_cmd_output(module_cmd)
         self.get_modules_info(modules['output'])
 
