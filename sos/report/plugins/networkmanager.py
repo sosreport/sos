@@ -53,6 +53,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_cmd_output([
                 "nmcli general status",
                 "nmcli con",
+                "nmcli -f all con",
                 "nmcli con show --active",
                 "nmcli dev"])
             nmcli_con_details_cmd = nmcli_con_details_template % "show"
