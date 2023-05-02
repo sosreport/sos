@@ -338,6 +338,10 @@ support representative.
                 _user = self.get_upload_user()
                 _token = json.loads(ret.text)['token']
             else:
+                self.ui_log.debug(
+                    f"DEBUG: auth attempt failed (status: {ret.status_code}): "
+                    f"{ret.json()}"
+                )
                 self.ui_log.error(
                     "Unable to retrieve Red Hat auth token using provided "
                     "credentials. Will try anonymous."
@@ -354,6 +358,12 @@ support representative.
                     _(f"User {_user} used for anonymous upload. Please inform "
                       f"your support engineer so they may retrieve the data.")
                 )
+            else:
+                self.ui_log.debug(
+                    f"DEBUG: anonymous request failed (status: "
+                    f"{anon.status_code}): {anon.json()}"
+                )
+
         if _user and _token:
             return super(RHELPolicy, self).upload_sftp(user=_user,
                                                        password=_token)
