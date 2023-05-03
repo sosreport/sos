@@ -53,18 +53,10 @@ class PackageManager():
     chroot = None
     files = None
 
-    def __init__(self, chroot=None, query_command=None, verify_command=None,
-                 verify_filter=None, files_command=None,
-                 query_path_command=None, remote_exec=None):
+    def __init__(self, chroot=None, remote_exec=None):
         self._packages = {}
         self.files = []
         self.remote_exec = remote_exec
-
-        self.query_command = query_command or self.query_command
-        self.verify_command = verify_command or self.verify_command
-        self.verify_filter = verify_filter or self.verify_filter
-        self.files_command = files_command or self.files_command
-        self.query_path_command = query_path_command or self.query_path_command
 
         if chroot:
             self.chroot = chroot
@@ -74,6 +66,10 @@ class PackageManager():
         if not self._packages:
             self._generate_pkg_list()
         return self._packages
+
+    @property
+    def manager_name(self):
+        return self.__class__.__name__.lower().split('package')[0]
 
     def exec_cmd(self, command, timeout=30, need_root=False, env=None,
                  get_pty=False, chroot=None):
@@ -163,7 +159,8 @@ class PackageManager():
         manager in the format::
 
             {'package_name': {'name': 'package_name',
-                              'version': 'major.minor.version'}}
+                              'version': 'major.minor.version',
+                              'pkg_manager': 'package manager name'}}
 
         """
         if self.query_command:
@@ -180,7 +177,8 @@ class PackageManager():
                     name, version, release = pkg.split("|")
                 self._packages[name] = {
                     'name': name,
-                    'version': version.split(".")
+                    'version': version.split("."),
+                    'pkg_manager': self.manager_name
                 }
                 release = release if release else None
                 self._packages[name]['release'] = release
@@ -284,5 +282,109 @@ class PackageManager():
                 verify_packages += package
         return self.verify_command + " " + verify_packages
 
+
+class MultiPackageManager(PackageManager):
+    """
+    This class is used to leverage multiple individual package managers as a
+    single entity on systems that support multiple concurrent package managers.
+
+    Policies that use this approach will need to specify a primary package
+    manager, and at least one fallback manager. When queries are sent to this
+    manager, the primary child manager is checked first. If there is a valid,
+    not None, response (e.g. a given package is installed) then that response
+    is used. However, if the response is empty or None, the fallback managers
+    are then queried in the order they were passed to MultiPackageManager
+    during initialization.
+
+    :param primary: The primary package manager to rely on
+    :type primary:  A subclass of `PackageManager`
+
+    :param fallbacks: A list of package managers to use if the primary does not
+                      provide a response
+    :type fallbacks: ``list`` of `PackageManager` subclasses
+    """
+
+    def __init__(self, primary, fallbacks, chroot=None, remote_exec=None):
+        super(MultiPackageManager, self).__init__(chroot=chroot,
+                                                  remote_exec=remote_exec)
+
+        if not issubclass(primary, PackageManager):
+            raise Exception(
+                f"Primary package manager must be PackageManager subclass, not"
+                f" {primary.__class__}"
+            )
+
+        if not isinstance(fallbacks, list):
+            raise Exception('Fallbacks must be specified in a list')
+
+        for pm in fallbacks:
+            if not issubclass(pm, PackageManager):
+                raise Exception(
+                    f"Fallback package managers must be PackageManager "
+                    f"subclass, not {pm.__class__}"
+                )
+
+        self.primary = primary(chroot=chroot, remote_exec=remote_exec)
+        self.fallbacks = [
+            pm(chroot=chroot, remote_exec=remote_exec) for pm in fallbacks
+        ]
+
+        if not self.fallbacks:
+            raise Exception(
+                'Must define at least one fallback package manager'
+            )
+
+        self._managers = [self.primary]
+        self._managers.extend(self.fallbacks)
+
+    def all_files(self):
+        if not self.files:
+            for pm in self._managers:
+                self.files.extend(pm.all_files())
+        return self.files
+
+    def _generate_pkg_list(self):
+        self._packages.update(self.primary.packages)
+        for pm in self.fallbacks:
+            _pkgs = pm.packages
+            for pkg in _pkgs.keys():
+                if pkg not in self._packages:
+                    self._packages[pkg] = _pkgs[pkg]
+
+    def _pm_wrapper(self, method):
+        """
+        This wrapper method is used to provide implicit iteration through the
+        primary and any defined fallback managers that are set for a given
+        instance of MultiPackageManager.
+
+        Important note: we pass the _name_ of the method to run here as a
+        string, and not any actual method as we rely on iteratively looking up
+        the actual method in each package manager.
+
+        :param method: The name of the method we're wrapping for the purpose of
+                       iterating through defined package managers
+        :type method:  ``str``
+        """
+        def pkg_func(*args, **kwargs):
+            ret = None
+            for pm in self._managers:
+                if not ret or ret == 'unknown':
+                    _wrapped_func = getattr(pm, method)
+                    ret = _wrapped_func(*args, **kwargs)
+            return ret
+        return pkg_func
+
+    def __getattribute__(self, item):
+        # if the attr is callable, then we need to iterate over our child
+        # managers until we get a response, unless it is _generate_pkg_list in
+        # which case we only want to use the one actually defined here, or
+        # _pm_wrapper, which we need to avoid this override for to not hit
+        # recursion hell.
+        if item in ['_generate_pkg_list', '_pm_wrapper', 'all_files']:
+            return super().__getattribute__(item)
+        attr = super().__getattribute__(item)
+        if hasattr(attr, '__call__'):
+            return self._pm_wrapper(item)
+        return attr
 
 # vim: set et ts=4 sw=4 :
