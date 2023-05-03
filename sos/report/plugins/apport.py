@@ -26,6 +26,7 @@ class Apport(Plugin, DebianPlugin, UbuntuPlugin):
             ])
         else:
             self.add_copy_spec("/var/log/apport*")
+            self.add_copy_spec("/var/crash/**")
         self.add_copy_spec("/etc/apport/*")
         self.add_copy_spec("/var/lib/whoopsie/whoopsie-id")
         self.add_cmd_output(
