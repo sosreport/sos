@@ -7,11 +7,12 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
+import json
 import pathlib
 import unittest
 from unittest.mock import call, patch
 
-from sos.collector.clusters.juju import _parse_option_string, juju
+from sos.collector.clusters.juju import _parse_option_string, juju, _get_index
 from sos.options import ClusterOption
 
 
@@ -289,6 +290,35 @@ class JujuTest(unittest.TestCase):
         mock_exec_primary_cmd.assert_called_once_with(
             "juju status  --format json"
         )
+
+
+class IndexTest(unittest.TestCase):
+
+    def test_subordinate_parent_miss_units(self):
+        """Fix if subordinate's parent is missing units."""
+        model = "sos"
+        index = _get_index(model_name=model)
+
+        juju_status = json.loads(get_juju_output(model=model))
+        juju_status["applications"]["ubuntu"].pop("units")
+
+        # Ensure these commands won't fall even when
+        # subordinate's parent's units is missing.
+        index.add_principals(juju_status)
+        index.add_subordinates(juju_status)
+
+    def test_subordinate_miss_parent(self):
+        """Fix if subordinate is missing parent."""
+        model = "sos"
+        index = _get_index(model_name=model)
+
+        juju_status = json.loads(get_juju_output(model=model))
+        index.add_principals(juju_status)
+
+        index.apps.pop("ubuntu")
+        # Ensure command won't fall even when
+        # subordinate's parent is missing
+        index.add_subordinates(juju_status)
 
 
 # vim: set et ts=4 sw=4 :
