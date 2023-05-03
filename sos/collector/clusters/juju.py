@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import logging
 import json
 import re
 
@@ -45,6 +46,7 @@ def _get_index(model_name):
             self.apps = {}
             self.units = {}
             self.machines = {}
+            self.ui_log = logging.getLogger("sos")
 
         def add_principals(self, juju_status):
             """Adds principal units to index."""
@@ -69,7 +71,21 @@ def _get_index(model_name):
             for app, app_info in juju_status["applications"].items():
                 subordinate_to = app_info.get("subordinate-to", [])
                 for parent in subordinate_to:
+                    # If parent is missing
+                    if not self.apps.get(parent):
+                        self.ui_log.warning(
+                            f"Principal charm {parent} is missing"
+                        )
+                        continue
                     self.apps[app].extend(self.apps[parent])
+
+                    # If parent's units is missing
+                    if "units" not in juju_status["applications"][parent]:
+                        self.ui_log.warning(
+                            f"Principal charm {parent} is missing units"
+                        )
+                        continue
+
                     units = juju_status["applications"][parent]["units"]
                     for unit, unit_info in units.items():
                         node = f"{self.model_name}:{unit_info['machine']}"
