@@ -7,9 +7,13 @@
 # See the LICENSE file in the source distribution for further information.
 import unittest
 
+from avocado.utils import distro
+
 from sos.policies import Policy, import_policy
 from sos.policies.distros import LinuxPolicy
-from sos.policies.package_managers import PackageManager
+from sos.policies.package_managers import PackageManager, MultiPackageManager
+from sos.policies.package_managers.rpm import RpmPackageManager
+from sos.policies.package_managers.dpkg import DpkgPackageManager
 from sos.report.plugins import (Plugin, IndependentPlugin,
                                 RedHatPlugin, DebianPlugin)
 
@@ -95,6 +99,60 @@ class PackageManagerTests(unittest.TestCase):
 
     def test_default_pkg_by_name(self):
         self.assertEquals(self.pm.pkg_by_name('foo'), None)
+
+
+class RpmPackageManagerTests(unittest.TestCase):
+
+    def setUp(self):
+        if distro.detect().name not in ['fedora', 'centos', 'rhel']:
+            self.skipTest('Not running on an RPM distribution')
+        self.pm = RpmPackageManager()
+
+    def test_load_all_packages(self):
+        self.assertNotEquals(self.pm.packages, {})
+
+    def test_pkg_is_formatted(self):
+        kpkg = self.pm.pkg_by_name('coreutils')
+        self.assertIsInstance(kpkg, dict)
+        self.assertIsInstance(kpkg['version'], list)
+        self.assertEquals(kpkg['pkg_manager'], 'rpm')
+
+
+class DpkgPackageManagerTests(unittest.TestCase):
+
+    def setUp(self):
+        if distro.detect().name not in ['Ubuntu', 'debian']:
+            self.skipTest('Not running on a dpkg distribution')
+        self.pm = DpkgPackageManager()
+
+    def test_load_all_packages(self):
+        self.assertNotEquals(self.pm.packages, {})
+
+    def test_pkg_is_formatted(self):
+        kpkg = self.pm.pkg_by_name('coreutils')
+        self.assertIsInstance(kpkg, dict)
+        self.assertIsInstance(kpkg['version'], list)
+        self.assertEquals(kpkg['pkg_manager'], 'dpkg')
+
+
+class MultiPackageManagerTests(unittest.TestCase):
+
+    def setUp(self):
+        self.pm = MultiPackageManager(primary=RpmPackageManager,
+                                      fallbacks=[DpkgPackageManager])
+
+    def test_load_all_packages(self):
+        self.assertNotEquals(self.pm.packages, {})
+
+    def test_pkg_is_formatted(self):
+        kpkg = self.pm.pkg_by_name('coreutils')
+        self.assertIsInstance(kpkg, dict)
+        self.assertIsInstance(kpkg['version'], list)
+        _local = distro.detect().name
+        if _local in ['Ubuntu', 'debian']:
+            self.assertEquals(kpkg['pkg_manager'], 'dpkg')
+        else:
+            self.assertEquals(kpkg['pkg_manager'], 'rpm')
 
 
 if __name__ == "__main__":
