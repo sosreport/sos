@@ -92,6 +92,14 @@ class PowerPC(Plugin, IndependentPlugin):
                 "lsslot",
                 "amsstat"
             ])
+
+            # Due to the lack of options in invscout for generating log files
+            # in locations other than /var/adm/invscout/, it is necessary to
+            # run invscout commands prior to collecting the log files.
+            self.collect_cmd_output("invscout")
+            self.collect_cmd_output("invscout -v")
+            self.add_copy_spec(["/var/adm/invscout/*"])
+
             self.add_service_status([
                 "hcn-init",
                 "ctrmc"
