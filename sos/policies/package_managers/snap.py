@@ -25,10 +25,7 @@ class SnapPackageManager(PackageManager):
         super(SnapPackageManager, self).__init__(chroot=chroot,
                                                  remote_exec=remote_exec)
 
-    def _generate_pkg_list(self):
-        cmd = self.query_command
-        pkg_list = self.exec_cmd(cmd, timeout=30, chroot=self.chroot)
-
+    def _parse_pkg_list(self, pkg_list):
         for line in pkg_list.splitlines():
             if line == "":
                 continue
@@ -36,10 +33,6 @@ class SnapPackageManager(PackageManager):
             if pkg[0] == "Name" or pkg[0] == "Connection":
                 continue
             name, version = pkg[0], pkg[1]
-            self._packages[name] = {
-                'name': name,
-                'version': version.split("."),
-                'release': None
-            }
+            yield (name, version, None)
 
 # vim: set et ts=4 sw=4 :

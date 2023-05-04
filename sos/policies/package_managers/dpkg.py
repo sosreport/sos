@@ -20,5 +20,11 @@ class DpkgPackageManager(PackageManager):
     verify_command = "dpkg --verify"
     verify_filter = ""
 
+    def _parse_pkg_list(self, pkg_list):
+        for pkg in pkg_list.splitlines():
+            if '|' not in pkg:
+                continue
+            name, version = pkg.split('|')
+            yield (name, version, None)
 
 # vim: set et ts=4 sw=4 :
