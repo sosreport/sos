@@ -154,12 +154,30 @@ class PackageManager():
         except Exception:
             return None
 
+    def _parse_pkg_list(self, pkg_list):
+        """
+        Using the output of `query_command`, build the _packages dict.
+
+        This should be overridden by distinct package managers and be a
+        generator for _generate_pkg_list which will insert the packages into
+        the _packages dict.
+
+        This method should yield a tuple of name, version, release for each
+        package parsed. If the package manager or distribution does not use a
+        release field, set it to None.
+
+        :param pkg_list: The output of the result of `query_command`
+        :type pkg_list:  ``str``
+        """
+        raise NotImplementedError
+
     def _generate_pkg_list(self):
         """Generates a dictionary of packages for internal use by the package
         manager in the format::
 
             {'package_name': {'name': 'package_name',
                               'version': 'major.minor.version',
+                              'release': 'package release' or None,
                               'pkg_manager': 'package manager name'}}
 
         """
@@ -167,21 +185,13 @@ class PackageManager():
             cmd = self.query_command
             pkg_list = self.exec_cmd(cmd, timeout=30, chroot=self.chroot)
 
-            for pkg in pkg_list.splitlines():
-                if '|' not in pkg:
-                    continue
-                elif pkg.count("|") == 1:
-                    name, version = pkg.split("|")
-                    release = None
-                elif pkg.count("|") == 2:
-                    name, version, release = pkg.split("|")
-                self._packages[name] = {
-                    'name': name,
-                    'version': version.split("."),
+            for pkg in self._parse_pkg_list(pkg_list):
+                self._packages[pkg[0]] = {
+                    'name': pkg[0],
+                    'version': pkg[1].split('.'),
+                    'release': pkg[2],
                     'pkg_manager': self.manager_name
                 }
-                release = release if release else None
-                self._packages[name]['release'] = release
 
     def pkg_version(self, pkg):
         """Returns the entry in self.packages for pkg if it exists
