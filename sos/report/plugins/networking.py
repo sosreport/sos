@@ -82,7 +82,8 @@ class Networking(Plugin):
 
         self.add_cmd_output("ip -o addr", root_symlink="ip_addr",
                             tags='ip_addr')
-        self.add_cmd_output("route -n", root_symlink="route", tags='route')
+        self.add_cmd_output("ip route show table all", root_symlink="ip_route",
+                            tags=['ip_route', 'iproute_show_table_all'])
         self.add_cmd_output("plotnetcfg")
 
         self.add_cmd_output("netstat %s -neopa" % self.ns_wide,
@@ -93,7 +94,6 @@ class Networking(Plugin):
             "netstat -s",
             "netstat %s -agn" % self.ns_wide,
             "networkctl status -a",
-            "ip route show table all",
             "ip -6 route show table all",
             "ip -d route show cache",
             "ip -d -6 route show cache",
@@ -253,7 +253,6 @@ class Networking(Plugin):
             "ethtool -k.*": "ethtool_k",
             "ip -d address": "ip_addr",
             "ip -s -s neigh show": "ip_neigh_show",
-            "ip route show table all": "iproute_show_table_all",
             "ip -s -d link": "ip_s_link",
             "netstat.*-neopa": "netstat",
             "netstat.*-agn": "netstat_agn",
