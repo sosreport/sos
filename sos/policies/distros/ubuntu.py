@@ -9,6 +9,10 @@
 from sos.report.plugins import UbuntuPlugin
 from sos.policies.distros.debian import DebianPolicy
 
+from sos.policies.package_managers.snap import SnapPackageManager
+from sos.policies.package_managers.dpkg import DpkgPackageManager
+from sos.policies.package_managers import MultiPackageManager
+
 import os
 
 
@@ -31,6 +35,17 @@ class UbuntuPolicy(DebianPolicy):
         super(UbuntuPolicy, self).__init__(sysroot=sysroot, init=init,
                                            probe_runtime=probe_runtime,
                                            remote_exec=remote_exec)
+
+        self.package_manager = MultiPackageManager(
+            primary=DpkgPackageManager,
+            fallbacks=[SnapPackageManager],
+            chroot=self.sysroot,
+            remote_exec=remote_exec)
+
+        if self.package_manager.pkg_by_name(
+                'sosreport')['pkg_manager'] == 'snap':
+            self.sos_bin_path = '/snap/bin'
+
         self.valid_subclasses += [UbuntuPlugin]
 
     @classmethod
