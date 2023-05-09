@@ -47,7 +47,7 @@ class Elastic(Plugin, IndependentPlugin):
         if self.get_option("all_logs"):
             self.add_copy_spec("/var/log/elasticsearch/*")
         else:
-            self.add_copy_spec("/var/log/elasticsearch/elasticsearch.log")
+            self.add_copy_spec("/var/log/elasticsearch/*.log")
 
         host, port = self.get_hostname_port(els_config_file)
         endpoint = host + ":" + port
@@ -57,6 +57,8 @@ class Elastic(Plugin, IndependentPlugin):
                 "curl -X GET '%s/_cluster/stats?pretty'" % endpoint,
                 "curl -X GET '%s/_cat/nodes?v'" % endpoint,
                 "curl -X GET '%s/_cat/indices'" % endpoint,
+                "curl -X GET '%s/_cat/shards'" % endpoint,
+                "curl -X GET '%s/_cat/aliases'" % endpoint,
         ])
 
 # vim: set et ts=4 sw=4 :
