@@ -63,12 +63,12 @@ class OpenStackCinder(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/cinder/",
-                "/var/log/httpd/cinder*",
+                "/var/log/{}*/cinder*".format(self.apachepkg),
             ])
         else:
             self.add_copy_spec([
                 "/var/log/cinder/*.log",
-                "/var/log/httpd/cinder*.log",
+                "/var/log/{}*/cinder*.log".format(self.apachepkg),
             ])
 
     def apply_regex_sub(self, regexp, subst):
@@ -107,6 +107,7 @@ class OpenStackCinder(Plugin):
 class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
 
     cinder = False
+    apachepkg = 'apache2'
     packages = (
         'cinder-api',
         'cinder-backup',
@@ -114,24 +115,14 @@ class DebianCinder(OpenStackCinder, DebianPlugin, UbuntuPlugin):
         'cinder-scheduler',
         'cinder-volume',
         'python-cinder',
-        'python-cinderclient'
+        'python3-cinder',
     )
-
-    def setup(self):
-        super(DebianCinder, self).setup()
-        if self.get_option("all_logs"):
-            self.add_copy_spec([
-                "/var/log/apache/cinder*",
-            ])
-        else:
-            self.add_copy_spec([
-                "/var/log/apache/cinder*.log",
-            ])
 
 
 class RedHatCinder(OpenStackCinder, RedHatPlugin):
 
     cinder = False
+    apachepkg = 'httpd'
     packages = ('openstack-selinux',)
 
     def setup(self):

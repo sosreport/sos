@@ -82,8 +82,20 @@ class DebianManila(OpenStackManila, DebianPlugin, UbuntuPlugin):
         'manila-common',
         'manila-api',
         'manila-share',
-        'manila-scheduler'
+        'manila-scheduler',
+        'python3-manila',
     )
+
+    def setup(self):
+        super(DebianManila, self).setup()
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/apache2/manila*",
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/apache2/manila*.log",
+            ])
 
 
 class RedHatManila(OpenStackManila, RedHatPlugin):
@@ -94,6 +106,15 @@ class RedHatManila(OpenStackManila, RedHatPlugin):
     def setup(self):
         super(RedHatManila, self).setup()
         self.add_copy_spec("/etc/sudoers.d/manila")
+
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/containers/manila/*"
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/containers/manila/*.log"
+            ])
 
 
 # vim: et ts=4 sw=4

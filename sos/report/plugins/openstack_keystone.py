@@ -44,10 +44,12 @@ class OpenStackKeystone(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/keystone/",
+                "/var/log/{}*/keystone*".format(self.apachepkg),
             ])
         else:
             self.add_copy_spec([
                 "/var/log/keystone/*.log",
+                "/var/log/{}*/keystone*.log".format(self.apachepkg),
             ])
 
         # collect domain config directory, if specified
@@ -115,23 +117,18 @@ class OpenStackKeystone(Plugin):
 
 class DebianKeystone(OpenStackKeystone, DebianPlugin, UbuntuPlugin):
 
+    apachepkg = 'apache2'
     packages = (
         'keystone',
         'python-keystone',
-        'python-keystoneclient'
+        'python3-keystone',
     )
 
 
 class RedHatKeystone(OpenStackKeystone, RedHatPlugin):
 
+    apachepkg = 'httpd'
     packages = ('openstack-selinux',)
-
-    def setup(self):
-        super(RedHatKeystone, self).setup()
-        if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/httpd/keystone*")
-        else:
-            self.add_copy_spec("/var/log/httpd/keystone*.log")
 
 
 # vim: set et ts=4 sw=4 :

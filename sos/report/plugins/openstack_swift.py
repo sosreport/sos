@@ -82,7 +82,8 @@ class DebianSwift(OpenStackSwift, DebianPlugin, UbuntuPlugin):
         'swift-proxy',
         'swauth',
         'python-swift',
-        'python-swauth'
+        'python-swauth',
+        'python3-swift',
     )
 
 

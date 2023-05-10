@@ -34,12 +34,12 @@ class OpenStackAodh(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/aodh/*",
-                "/var/log/httpd/aodh*",
+                "/var/log/{}*/aodh*".format(self.apachepkg),
             ])
         else:
             self.add_copy_spec([
                 "/var/log/aodh/*.log",
-                "/var/log/httpd/aodh*.log",
+                "/var/log/{}*/aodh*.log".format(self.apachepkg),
             ])
 
         vars_all = [p in os.environ for p in [
@@ -92,17 +92,21 @@ class OpenStackAodh(Plugin):
 
 class DebianOpenStackAodh(OpenStackAodh, DebianPlugin, UbuntuPlugin):
 
+    apachepkg = "apache2"
     packages = (
         'aodh-api',
+        'aodh-common',
         'aodh-evaluator',
         'aodh-notifier',
         'aodh-listener',
-        'python-aodhclient'
+        'python-aodh',
+        'python3-aodh',
     )
 
 
 class RedHatOpenStackAodh(OpenStackAodh, RedHatPlugin):
 
+    apachepkg = "httpd"
     packages = ('openstack-selinux',)
 
     def setup(self):

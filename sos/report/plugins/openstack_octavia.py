@@ -128,7 +128,11 @@ class OpenStackOctavia(Plugin):
 
 class DebianOctavia(OpenStackOctavia, DebianPlugin, UbuntuPlugin):
 
-    packages = ('octavia-common', 'octavia-api', )
+    packages = (
+        'octavia-common',
+        'octavia-api',
+        'python3-octavia',
+    )
 
     def setup(self):
         super(DebianOctavia, self).setup()

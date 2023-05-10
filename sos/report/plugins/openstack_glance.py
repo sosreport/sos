@@ -114,7 +114,8 @@ class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
         'glance-client',
         'glance-common',
         'glance-registry',
-        'python-glance'
+        'python-glance',
+        'python3-glance',
     )
     service_name = 'glance-api.service'
 

@@ -16,7 +16,7 @@ from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 class Gnocchi(Plugin):
 
     short_desc = 'Gnocchi - Metric as a service'
-    plugin_name = "gnocchi"
+    plugin_name = "openstack_gnocchi"
 
     profiles = ('openstack', 'openstack_controller')
 
@@ -97,11 +97,15 @@ class RedHatGnocchi(Gnocchi, RedHatPlugin):
 
 class DebianGnocchi(Gnocchi, DebianPlugin, UbuntuPlugin):
 
-    apachepkg = 'apache'
+    apachepkg = 'apache2'
 
     packages = (
-        'gnocchi-api', 'gnocchi-metricd', 'gnocchi-common'
-        'gnocchi-statsd', 'python3-gnocchiclient'
+        'gnocchi-api',
+        'gnocchi-metricd',
+        'gnocchi-common',
+        'gnocchi-statsd',
+        'python-gnocchi',
+        'python3-gnocchi',
     )
 
 # vim: set et ts=4 sw=4 :

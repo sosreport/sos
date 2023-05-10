@@ -111,7 +111,7 @@ class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
         'neutron-plugin-ryu-agent',
         'neutron-server',
         'python-neutron',
-        'python-neutronclient'
+        'python3-neutron',
     )
 
     def check_enabled(self):

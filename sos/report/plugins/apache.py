@@ -50,9 +50,12 @@ class Apache(Plugin):
             'ceilometer',
             'cinder',
             'foreman',
+            'gnocchi',
             'horizon',
             'keystone',
+            'manila',
             'nova',
+            'octavia',
             'placement',
             'pulp'
         ]
@@ -131,7 +134,7 @@ class RedHatApache(Apache, RedHatPlugin):
 
 class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
     files = ('/etc/apache2/apache2.conf',)
-    apachepkg = 'apache'
+    apachepkg = 'apache2'
 
     def setup(self):
         super(DebianApache, self).setup()
@@ -144,10 +147,15 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
 
         # collect only the current log set by default
         self.add_copy_spec([
-            "/var/log/apache2/access_log",
-            "/var/log/apache2/error_log",
+            "/var/log/apache2/access.log",
+            "/var/log/apache2/error.log",
+            "/var/log/apache2/ssl_access.log",
+            "/var/log/apache2/ssl_error.log",
+            "/var/log/apache2/other_vhosts_access.log",
         ])
         if self.get_option("log") or self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/apache2/*")
+            self.add_copy_spec([
+                "/var/log/apache2",
+            ])
 
 # vim: set et ts=4 sw=4 :
