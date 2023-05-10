@@ -70,7 +70,7 @@ class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
         'sahara-common',
         'sahara-engine',
         'python-sahara',
-        'python-saharaclient',
+        'python3-sahara',
     )
 
     def setup(self):

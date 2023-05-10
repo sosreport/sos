@@ -76,10 +76,11 @@ class DebianCeilometer(OpenStackCeilometer, DebianPlugin,
         'ceilometer-api',
         'ceilometer-agent-central',
         'ceilometer-agent-compute',
+        'ceilometer-agent-notification',
         'ceilometer-collector',
         'ceilometer-common',
         'python-ceilometer',
-        'python-ceilometerclient'
+        'python3-ceilometer',
     )
 
 

@@ -128,7 +128,7 @@ class DebianHeat(OpenStackHeat, DebianPlugin, UbuntuPlugin):
         'heat-common',
         'heat-engine',
         'python-heat',
-        'python-heatclient'
+        'python3-heat',
     )
     service_name = 'heat-api.service'
 

@@ -67,7 +67,8 @@ class DebianTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
         'python-trove',
         'trove-common',
         'trove-api',
-        'trove-taskmanager'
+        'trove-taskmanager',
+        'python3-trove',
     )
 
     def setup(self):

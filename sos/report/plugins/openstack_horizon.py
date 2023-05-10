@@ -75,8 +75,9 @@ class UbuntuHorizon(OpenStackHorizon, UbuntuPlugin):
 
     packages = (
         'python-django-horizon',
+        'python3-django-horizon',
         'openstack-dashboard',
-        'openstack-dashboard-ubuntu-theme'
+        'openstack-dashboard-ubuntu-theme',
     )
 
     def setup(self):
