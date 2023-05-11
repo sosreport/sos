@@ -26,15 +26,22 @@ class Ubuntu(Plugin, UbuntuPlugin):
         if self.is_installed('ubuntu-advantage-tools'):
             if is_executable('ua'):
                 ua_tools_status = 'ua status'
+            elif is_executable('pro'):
+                ua_tools_status = 'pro status'
             else:
                 ua_tools_status = 'ubuntu-advantage status'
             self.add_cmd_output(ua_tools_status)
+            self.add_cmd_output("%s --format json" % ua_tools_status)
 
             if not self.get_option("all_logs"):
                 self.add_copy_spec([
                     "/var/log/ubuntu-advantage.log",
                     "/var/log/ubuntu-advantage.log.1",
                     "/var/log/ubuntu-advantage.log.2*",
+                    "/var/log/ubuntu-advantage-timer.log",
+                    "/var/log/ubuntu-advantage-timer.log.1",
+                    "/var/log/ubuntu-advantage-timer.log.2*",
                 ])
             else:
                 self.add_copy_spec("/var/log/ubuntu-advantage.log*")
+                self.add_copy_spec("/var/log/ubuntu-advantage-timer.log*")
