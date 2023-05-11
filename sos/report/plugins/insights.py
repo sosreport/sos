@@ -28,6 +28,8 @@ class RedHatInsights(Plugin, RedHatPlugin):
     config = (
         '/etc/insights-client/insights-client.conf',
         '/etc/insights-client/.registered',
+        '/etc/insights-client/tags.yaml',
+        '/etc/insights-client/malware-detection-config.yml',
         '/etc/redhat-access-insights/redhat-access-insights.conf'
     )
 
