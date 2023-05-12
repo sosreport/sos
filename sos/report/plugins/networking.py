@@ -210,6 +210,7 @@ class Networking(Plugin):
                     ns_cmd_prefix + "ip -4 rule list",
                     ns_cmd_prefix + "ip -6 rule list",
                     ns_cmd_prefix + "ip vrf show",
+                    ns_cmd_prefix + "sysctl -a",
                     ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
                     ns_cmd_prefix + "netstat -s",
                     ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
