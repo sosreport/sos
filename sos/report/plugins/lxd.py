@@ -44,6 +44,23 @@ class LXD(Plugin, UbuntuPlugin):
         snap_list = self.exec_cmd('snap list lxd')
         if snap_list["status"] == 0:
             self.add_cmd_output("lxd.buginfo", pred=lxd_pred)
+
+            self.add_copy_spec([
+                '/var/snap/lxd/common/config',
+                '/var/snap/lxd/common/global-conf',
+                '/var/snap/lxd/common/lxc/local.conf',
+                '/var/snap/lxd/common/lxd/logs/*/*.conf',
+            ])
+
+            if not self.get_option("all_logs"):
+                self.add_copy_spec([
+                    '/var/snap/lxd/common/lxd/logs/*.log',
+                    '/var/snap/lxd/common/lxd/logs/*/*.log',
+                ])
+            else:
+                self.add_copy_spec([
+                    '/var/snap/lxd/common/lxd/logs/**',
+                ])
         else:
             self.add_copy_spec([
                 "/etc/default/lxd-bridge",
