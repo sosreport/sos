@@ -45,4 +45,18 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             suggest_filename="apt-cache_policy_details"
         )
 
+    def postproc(self):
+        super(Apt, self).postproc()
+        self.do_file_sub(
+            "/etc/apt/sources.list",
+            r"(deb\shttp(s)?://)\S+:\S+(@.*)",
+            r"\1******:******\3"
+        )
+        self.do_path_regex_sub(
+            "/etc/apt/sources.list.d/",
+            r"(deb\shttp(s)?://)\S+:\S+(@.*)",
+            r"\1******:******\3"
+        )
+
+
 # vim: set et ts=4 sw=4 :
