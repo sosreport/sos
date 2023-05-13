@@ -20,11 +20,6 @@ class SnapPackageManager(PackageManager):
     verify_command = ""
     verify_filter = ""
 
-    def __init__(self, chroot=None, remote_exec=None):
-
-        super(SnapPackageManager, self).__init__(chroot=chroot,
-                                                 remote_exec=remote_exec)
-
     def _parse_pkg_list(self, pkg_list):
         for line in pkg_list.splitlines():
             if line == "":
