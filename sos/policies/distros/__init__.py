@@ -20,6 +20,7 @@ from sos.policies.init_systems.systemd import SystemdInit
 from sos.policies.runtimes.crio import CrioContainerRuntime
 from sos.policies.runtimes.podman import PodmanContainerRuntime
 from sos.policies.runtimes.docker import DockerContainerRuntime
+from sos.policies.runtimes.lxd import LxdContainerRuntime
 
 from sos.utilities import (shell_out, is_executable, bold,
                            sos_get_command_output)
@@ -95,7 +96,8 @@ class LinuxPolicy(Policy):
             _crun = [
                 PodmanContainerRuntime(policy=self),
                 DockerContainerRuntime(policy=self),
-                CrioContainerRuntime(policy=self)
+                CrioContainerRuntime(policy=self),
+                LxdContainerRuntime(policy=self),
             ]
             for runtime in _crun:
                 if runtime.check_is_active():
