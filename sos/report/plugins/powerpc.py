@@ -39,7 +39,8 @@ class PowerPC(Plugin, IndependentPlugin):
                 "/proc/swaps",
                 "/proc/version",
                 "/dev/nvram",
-                "/var/lib/lsvpd/"
+                "/var/lib/lsvpd/",
+                "/etc/ct_node_id"
             ])
             self.add_cmd_output([
                 "ppc64_cpu --info",
@@ -55,7 +56,11 @@ class PowerPC(Plugin, IndependentPlugin):
                 "lscfg -v",
                 "opal-elog-parse -s",
                 "opal-elog-parse -a",
-                "opal-elog-parse -l"
+                "opal-elog-parse -l",
+                "lssrc -a",
+                "lsrsrc IBM.MCP",
+                "rmcdomainstatus -s ctrmc",
+                "rmcdomainstatus -s ctrmc -a ip"
             ])
 
         if ispSeries:
@@ -87,7 +92,10 @@ class PowerPC(Plugin, IndependentPlugin):
                 "lsslot",
                 "amsstat"
             ])
-            self.add_service_status("hcn-init")
+            self.add_service_status([
+                "hcn-init",
+                "ctrmc"
+            ])
 
         if isPowerNV:
             self.add_copy_spec([
