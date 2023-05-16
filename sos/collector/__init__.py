@@ -1186,11 +1186,18 @@ this utility or remote systems that it connects to.
     def collect(self):
         """ For each node, start a collection thread and then tar all
         collected sosreports """
-        if self.primary.connected and not self.cluster.strict_node_list:
+        filters = set([self.primary.address, self.primary.hostname])
+        # add primary if:
+        # - we are connected to it and
+        #   - its hostname is in node_list, or
+        #   - we dont forcibly remove local host from collection
+        #     (i.e. strict_node_list=False)
+        if self.primary.connected and \
+                (filters.intersection(set(self.node_list)) or
+                 not self.cluster.strict_node_list):
             self.client_list.append(self.primary)
 
         self.ui_log.info("\nConnecting to nodes...")
-        filters = [self.primary.address, self.primary.hostname]
         nodes = [(n, None) for n in self.node_list if n not in filters]
 
         if self.opts.password_per_node:
