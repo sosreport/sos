@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
+from sos.report.plugins import Plugin, IndependentPlugin
 from sos.utilities import is_executable
 
 
@@ -17,9 +17,6 @@ class ZVM(Plugin, IndependentPlugin):
     commands = ('vmcp', 'hcp')
 
     def setup(self):
-
-        zvm_pred = SoSPredicate(self, kmods=['vmcp', 'cpint'])
-        self.set_cmd_predicate(zvm_pred)
 
         self.vm_cmd = None
         for cmd in self.commands:
