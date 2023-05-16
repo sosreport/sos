@@ -13,6 +13,7 @@ BuildRequires: python3-setuptools
 BuildRequires: gettext
 Requires: python3-rpm
 Requires: python3-pexpect
+Requires: python3-setuptools
 Recommends: python3-magic
 Recommends: python3-pyyaml
 Obsoletes: sos-collector <= 1.9
