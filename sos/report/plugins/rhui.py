@@ -51,7 +51,7 @@ class Rhui(Plugin, RedHatPlugin):
         self.do_path_regex_sub("/etc/rhui/rhui-tools.conf",
                                r"(registry_password:)\s*(.+)",
                                r"\1 ********")
-        # obfuscate twoo cookies for login session
+        # obfuscate two cookies for login session
         for cookie in ["csrftoken", "sessionid"]:
             self.do_path_regex_sub(
                 r"/root/\.rhui/.*/cookies.txt",
