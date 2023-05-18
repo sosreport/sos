@@ -125,6 +125,7 @@ class Kernel(Plugin, IndependentPlugin):
             "/proc/misc",
             "/var/log/dmesg",
             "/sys/fs/pstore",
+            "/var/lib/systemd/pstore",
             "/sys/kernel/debug/dynamic_debug/control",
             "/sys/kernel/debug/extfrag/unusable_index",
             "/sys/kernel/debug/extfrag/extfrag_index",
