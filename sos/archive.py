@@ -73,7 +73,7 @@ class Archive(object):
     # this is our contract to clients of the Archive class hierarchy.
     # All sub-classes need to implement these methods (or inherit concrete
     # implementations from a parent class.
-    def add_file(self, src, dest=None):
+    def add_file(self, src, dest=None, force=False):
         raise NotImplementedError
 
     def add_string(self, content, dest, mode='w'):
@@ -344,12 +344,12 @@ class FileCacheArchive(Archive):
             self.log_debug("caught '%s' setting attributes of '%s'"
                            % (e, dest))
 
-    def add_file(self, src, dest=None):
+    def add_file(self, src, dest=None, force=False):
         with self._path_lock:
             if not dest:
                 dest = src
 
-            dest = self.check_path(dest, P_FILE)
+            dest = self.check_path(dest, P_FILE, force=force)
             if not dest:
                 return
 

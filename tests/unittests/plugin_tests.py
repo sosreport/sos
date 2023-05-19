@@ -45,7 +45,7 @@ class MockArchive(TarFileArchive):
     def name(self):
         return "mock.archive"
 
-    def add_file(self, src, dest=None):
+    def add_file(self, src, dest=None, force=False):
         if not dest:
             dest = src
         self.m[src] = dest

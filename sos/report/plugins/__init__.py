@@ -1287,7 +1287,7 @@ class Plugin():
             result, replacements = re.subn(regexp, subst, content,
                                            flags=re.IGNORECASE)
             if replacements:
-                self.archive.add_string(result, srcpath)
+                self.archive.add_string(result, self.strip_sysroot(srcpath))
             else:
                 replacements = 0
         except (OSError, IOError) as e:
@@ -1380,7 +1380,11 @@ class Plugin():
 
         # skip recursive copying of symlink pointing to itself.
         if (absdest != srcpath):
-            self._do_copy_path(absdest)
+            # this allows for ensuring we collect the host's file when copying
+            # a symlink from within a container that is within the set sysroot
+            force = (absdest.startswith(self.sysroot) and
+                     self.policy._in_container)
+            self._do_copy_path(absdest, force=force)
         else:
             self._log_debug("link '%s' points to itself, skipping target..."
                             % linkdest)
@@ -1442,7 +1446,7 @@ class Plugin():
         self.archive.add_node(path, mode, os.makedev(dev_maj, dev_min))
 
     # Methods for copying files and shelling out
-    def _do_copy_path(self, srcpath, dest=None):
+    def _do_copy_path(self, srcpath, dest=None, force=False):
         """Copy file or directory to the destination tree. If a directory, then
         everything below it is recursively copied. A list of copied files are
         saved for use later in preparing a report.
@@ -1494,13 +1498,15 @@ class Plugin():
             # FIXME: reflect permissions in archive
             self.archive.add_string("", dest)
         else:
-            self.archive.add_file(srcpath, dest)
+            self.archive.add_file(srcpath, dest, force=force)
 
         self.copied_files.append({
             'srcpath': srcpath,
             'dstpath': dest,
             'symlink': "no"
         })
+
+        return
 
     def add_forbidden_path(self, forbidden):
         """Specify a path, or list of paths, to not copy, even if it's part of
