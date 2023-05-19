@@ -44,7 +44,8 @@ class Juju(Plugin, UbuntuPlugin):
             # want all logs you want this too.
             self.add_copy_spec([
                 "/var/log/juju",
-                "/var/lib/juju"
+                "/var/lib/juju",
+                "/var/lib/juju/**/.*",
             ])
             self.add_forbidden_path("/var/lib/juju/kvm")
         else:
