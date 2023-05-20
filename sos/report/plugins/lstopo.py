@@ -16,7 +16,11 @@ class Lstopo(Plugin, IndependentPlugin):
 
     plugin_name = "lstopo"
     profiles = ("system", "hardware")
-    packages = ("hwloc-libs", "libhwloc5")
+    packages = (
+        "hwloc-libs",
+        "libhwloc5",
+        "hwloc",
+    )
 
     def setup(self):
         # binary depends on particular package, both require hwloc-libs one
