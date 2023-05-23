@@ -29,9 +29,15 @@ class Landscape(Plugin, UbuntuPlugin):
         ])
 
         if not self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/landscape/*.log")
+            self.add_copy_spec([
+                "/var/log/landscape/*.log",
+                "/var/log/landscape-server/*.log",
+            ])
         else:
-            self.add_copy_spec("/var/log/landscape")
+            self.add_copy_spec([
+                "/var/log/landscape",
+                "/var/log/landscape-server"
+            ])
 
         self.add_cmd_output([
             "gpg --verify /etc/landscape/license.txt",
