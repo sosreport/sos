@@ -12,9 +12,9 @@ from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
 import os
 
 
-class MarinerPolicy(RedHatPolicy):
+class AzurePolicy(RedHatPolicy):
 
-    distro = "CBL-Mariner"
+    distro = "Azure Linux"
     vendor = "Microsoft"
     vendor_urls = [
         ('Distribution Website', 'https://github.com/microsoft/CBL-Mariner')
@@ -22,9 +22,9 @@ class MarinerPolicy(RedHatPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(MarinerPolicy, self).__init__(sysroot=sysroot, init=init,
-                                            probe_runtime=probe_runtime,
-                                            remote_exec=remote_exec)
+        super(AzurePolicy, self).__init__(sysroot=sysroot, init=init,
+                                          probe_runtime=probe_runtime,
+                                          remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote=''):
