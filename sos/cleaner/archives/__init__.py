@@ -69,6 +69,14 @@ class SoSObfuscationArchive():
         """Check if the archive is a well-known type we directly support"""
         return False
 
+    @property
+    def is_sos(self):
+        return 'sos' in self.__class__.__name__.lower()
+
+    @property
+    def is_insights(self):
+        return 'insights' in self.type_name
+
     def _load_self(self):
         if self.is_tarfile:
             self.tarobj = tarfile.open(self.archive_path)
