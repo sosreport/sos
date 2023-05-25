@@ -131,6 +131,13 @@ class Foreman(Plugin):
             'ping -c1 -W1 %s' % _host_f,
             'ping -c1 -W1 localhost'
         ])
+        self.add_cmd_output(
+            'qpid-stat -b amqps://localhost:5671 -q \
+                    --ssl-certificate=/etc/pki/katello/qpid_router_client.crt \
+                    --ssl-key=/etc/pki/katello/qpid_router_client.key \
+                    --sasl-mechanism=ANONYMOUS',
+            suggest_filename='qpid-stat_-q'
+        )
         self.add_cmd_output("hammer ping", tags="hammer_ping")
 
         # Dynflow Sidekiq
