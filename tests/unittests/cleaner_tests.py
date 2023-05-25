@@ -20,6 +20,10 @@ from sos.cleaner.mappings.mac_map import SoSMacMap
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
 from sos.cleaner.mappings.keyword_map import SoSKeywordMap
 from sos.cleaner.mappings.ipv6_map import SoSIPv6Map
+from sos.cleaner.preppers import SoSPrepper
+from sos.cleaner.preppers.hostname import HostnamePrepper
+from sos.cleaner.preppers.ip import IPPrepper
+from sos.cleaner.archives.sos import SoSReportArchive
 
 
 class CleanerMapTests(unittest.TestCase):
@@ -28,7 +32,7 @@ class CleanerMapTests(unittest.TestCase):
         self.mac_map = SoSMacMap()
         self.ip_map = SoSIPMap()
         self.host_map = SoSHostnameMap()
-        self.host_map.load_domains_from_options(['redhat.com'])
+        self.host_map.sanitize_item('redhat.com')
         self.kw_map = SoSKeywordMap()
         self.ipv6_map = SoSIPv6Map()
 
@@ -152,13 +156,14 @@ class CleanerParserTests(unittest.TestCase):
         self.ip_parser = SoSIPParser(config={})
         self.ipv6_parser = SoSIPv6Parser(config={})
         self.mac_parser = SoSMacParser(config={})
-        self.host_parser = SoSHostnameParser(config={},
-                                             opt_domains=['foobar.com'])
-        self.kw_parser = SoSKeywordParser(config={}, keywords=['foobar'])
+        self.host_parser = SoSHostnameParser(config={})
+        self.host_parser.mapping.add('foobar.com')
+        self.kw_parser = SoSKeywordParser(config={})
+        self.kw_parser.mapping.add('foobar')
         self.kw_parser_none = SoSKeywordParser(config={})
         self.kw_parser.generate_item_regexes()
-        self.uname_parser = SoSUsernameParser(config={},
-                                              opt_names=['DOMAIN\myusername'])
+        self.uname_parser = SoSUsernameParser(config={})
+        self.uname_parser.mapping.add('DOMAIN\myusername')
 
     def test_ip_parser_valid_ipv4_line(self):
         line = 'foobar foo 10.0.0.1/24 barfoo bar'
@@ -210,22 +215,22 @@ class CleanerParserTests(unittest.TestCase):
 
     def test_hostname_load_hostname_string(self):
         fqdn = 'myhost.subnet.example.com'
-        self.host_parser.load_hostname_into_map(fqdn)
+        self.host_parser.mapping.add(fqdn)
 
     def test_hostname_valid_domain_line(self):
-        self.host_parser.load_hostname_into_map('myhost.subnet.example.com')
+        self.host_parser.mapping.add('myhost.subnet.example.com')
         line = 'testing myhost.subnet.example.com in a string'
         _test = self.host_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
 
     def test_hostname_short_name_in_line(self):
-        self.host_parser.load_hostname_into_map('myhost.subnet.example.com')
+        self.host_parser.mapping.add('myhost.subnet.example.com')
         line = 'testing just myhost in a line'
         _test = self.host_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
 
     def test_obfuscate_whole_fqdn_for_given_domainname(self):
-        self.host_parser.load_hostname_into_map('sostestdomain.domain')
+        self.host_parser.mapping.add('sostestdomain.domain')
         line = 'let obfuscate soshost.sostestdomain.domain'
         _test = self.host_parser.parse_line(line)[0]
         self.assertFalse('soshost' in _test)
@@ -274,3 +279,35 @@ class CleanerParserTests(unittest.TestCase):
         line = "DOMAIN\myusername"
         _test = self.uname_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
+
+
+class PrepperTests(unittest.TestCase):
+    """
+    Ensure that the translations for different parser/mapping methods are
+    working
+    """
+
+    def setUp(self):
+        self.prepper = SoSPrepper()
+        self.archive = SoSReportArchive(
+            archive_path='tests/test_data/sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
+            tmpdir='/tmp'
+        )
+        self.host_prepper = HostnamePrepper()
+        self.ipv4_prepper = IPPrepper()
+
+    def test_parser_method_translation(self):
+        self.assertEqual([], self.prepper.get_parser_file_list('hostname', None))
+
+    def test_mapping_method_translation(self):
+        self.assertEqual([], self.prepper.get_items_for_map('foobar', None))
+
+    def test_hostname_prepper_map_items(self):
+        self.assertEqual(['cleanertest'], self.host_prepper.get_items_for_map('hostname', self.archive))
+
+    def test_ipv4_prepper_parser_files(self):
+        self.assertEqual(['sos_commands/networking/ip_-o_addr'], self.ipv4_prepper.get_parser_file_list('ip', self.archive))
+
+    def test_ipv4_prepper_invalid_parser_files(self):
+        self.assertEqual([], self.ipv4_prepper.get_parser_file_list('foobar', self.archive))
+
