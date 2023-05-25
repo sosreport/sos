@@ -24,7 +24,6 @@ class InsightsArchive(SoSObfuscationArchive):
 
     prep_files = {
         'hostname': 'data/insights_commands/hostname_-f',
-        'ip': 'data/insights_commands/ip_addr',
         'mac': 'data/insights_commands/ip_addr'
     }
 

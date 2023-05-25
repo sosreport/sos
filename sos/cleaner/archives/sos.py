@@ -27,7 +27,6 @@ class SoSReportArchive(SoSObfuscationArchive):
             'sos_commands/host/hostname',
             'etc/hosts'
         ],
-        'ip': 'sos_commands/networking/ip_-o_addr',
         'mac': 'sos_commands/networking/ip_-d_address',
         'username': [
             'sos_commands/login/lastlog_-u_1000-60000',
