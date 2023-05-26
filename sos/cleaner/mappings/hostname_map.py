@@ -41,7 +41,7 @@ class SoSHostnameMap(SoSMap):
     ]
 
     strip_exts = ('.yaml', '.yml', '.crt', '.key', '.pem', '.log', '.repo',
-                  '.rules')
+                  '.rules', '.conf', '.cfg')
 
     host_count = 0
     domain_count = 0
@@ -79,10 +79,6 @@ class SoSHostnameMap(SoSMap):
                         )
                         self._domains[_domain_to_inject] = _ob_domain
         self.set_initial_counts()
-
-    def load_domains_from_options(self, domains):
-        for domain in domains:
-            self.sanitize_domain(domain.split('.'))
 
     def get_regex_result(self, item):
         """Override the base get_regex_result() to provide a regex that, if
