@@ -47,7 +47,7 @@ class SoSPrepper():
     name = 'Undefined'
     priority = 100
 
-    def __init__(self):
+    def __init__(self, options):
         self.regex_items = {
             'hostname': set(),
             'ip': set(),
@@ -56,6 +56,7 @@ class SoSPrepper():
             'mac': set(),
             'username': set()
         }
+        self.opts = options
         self.soslog = logging.getLogger('sos')
         self.ui_log = logging.getLogger('sos_ui')
 

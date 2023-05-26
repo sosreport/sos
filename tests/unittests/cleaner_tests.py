@@ -24,7 +24,7 @@ from sos.cleaner.preppers import SoSPrepper
 from sos.cleaner.preppers.hostname import HostnamePrepper
 from sos.cleaner.preppers.ip import IPPrepper
 from sos.cleaner.archives.sos import SoSReportArchive
-
+from sos.options import SoSOptions
 
 class CleanerMapTests(unittest.TestCase):
 
@@ -288,13 +288,13 @@ class PrepperTests(unittest.TestCase):
     """
 
     def setUp(self):
-        self.prepper = SoSPrepper()
+        self.prepper = SoSPrepper(SoSOptions())
         self.archive = SoSReportArchive(
             archive_path='tests/test_data/sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
             tmpdir='/tmp'
         )
-        self.host_prepper = HostnamePrepper()
-        self.ipv4_prepper = IPPrepper()
+        self.host_prepper = HostnamePrepper(SoSOptions(domains=[]))
+        self.ipv4_prepper = IPPrepper(SoSOptions())
 
     def test_parser_method_translation(self):
         self.assertEqual([], self.prepper.get_parser_file_list('hostname', None))

@@ -23,7 +23,6 @@ class InsightsArchive(SoSObfuscationArchive):
     description = 'insights-client archive'
 
     prep_files = {
-        'hostname': 'data/insights_commands/hostname_-f',
         'mac': 'data/insights_commands/ip_addr'
     }
 

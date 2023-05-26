@@ -126,7 +126,7 @@ class SoSCleaner(SoSComponent):
         self.cleaner_md = self.manifest.components.add_section('cleaner')
 
         self.parsers = [
-            SoSHostnameParser(self.cleaner_mapping, self.opts.domains),
+            SoSHostnameParser(self.cleaner_mapping),
             SoSIPParser(self.cleaner_mapping),
             SoSIPv6Parser(self.cleaner_mapping),
             SoSMacParser(self.cleaner_mapping),
@@ -364,6 +364,11 @@ third party.
 
         # we have at least one valid target to obfuscate
         self.completed_reports = []
+        # TODO: as we separate mappings and parsers further, do this in a less
+        # janky manner
+        for parser in self.parsers:
+            if parser.name == 'Hostname Parser':
+                parser.mapping.set_initial_counts()
         self.preload_all_archives_into_maps()
         self.generate_parser_item_regexes()
         self.obfuscate_report_paths()
@@ -639,7 +644,7 @@ third party.
         for _prep in helper.get_modules():
             preps.extend(import_module(f"sos.cleaner.preppers.{_prep}"))
         for prepper in sorted(preps, key=lambda x: x.priority):
-            yield prepper()
+            yield prepper(options=self.opts)
 
     def preload_all_archives_into_maps(self):
         """Before doing the actual obfuscation, if we have multiple archives
