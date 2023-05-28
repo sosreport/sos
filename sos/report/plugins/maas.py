@@ -57,14 +57,10 @@ class Maas(Plugin, UbuntuPlugin):
         return ret['status'] == 0
 
     def _is_snap_installed(self):
-        return self.exec_cmd('snap list maas')["status"] == 0
-
-    def check_enabled(self):
-        if super().check_enabled():
-            # deb-based MAAS and existing triggers
-            return True
-        # Do we have the snap installed?
-        return self._is_snap_installed()
+        maas_pkg = self.policy.package_manager.pkg_by_name('maas')
+        if maas_pkg:
+            return maas_pkg['pkg_manager'] == 'snap'
+        return False
 
     def setup(self):
         self._is_snap = self._is_snap_installed()

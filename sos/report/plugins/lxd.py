@@ -17,7 +17,7 @@ class LXD(Plugin, UbuntuPlugin):
     plugin_name = 'lxd'
     profiles = ('container',)
     packages = ('lxd',)
-    commands = ('lxd',)
+    commands = ('lxc', 'lxd',)
 
     def setup(self):
 
@@ -41,8 +41,8 @@ class LXD(Plugin, UbuntuPlugin):
         lxd_pred = SoSPredicate(self, kmods=lxd_kmods,
                                 required={'kmods': 'all'})
 
-        snap_list = self.exec_cmd('snap list lxd')
-        if snap_list["status"] == 0:
+        lxd_pkg = self.policy.package_manager.pkg_by_name('lxd')
+        if lxd_pkg and lxd_pkg['pkg_manager'] == 'snap':
             self.add_cmd_output("lxd.buginfo", pred=lxd_pred)
 
             self.add_copy_spec([
