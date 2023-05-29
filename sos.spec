@@ -28,11 +28,25 @@ support technicians and developers.
 %prep
 %setup -qn %{name}-%{version}
 
+%if 0%{?fedora} >= 39
+%generate_buildrequires
+%pyproject_buildrequires
+%endif
+
 %build
+%if 0%{?fedora} >= 39
+%pyproject_wheel
+%else
 %py3_build
+%endif
 
 %install
+%if 0%{?fedora} >= 39
+%pyproject_install
+%pyproject_save_files sos
+%else
 %py3_install '--install-scripts=%{_sbindir}'
+%endif
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}
 install -d -m 700 %{buildroot}%{_sysconfdir}/%{name}/cleaner
@@ -50,9 +64,15 @@ rm -rf %{buildroot}/usr/config/
 # internationalization is currently broken. Uncomment this line once fixed.
 # %%files -f %%{name}.lang
 %files
+%if 0%{?fedora} >= 39
+%{_bindir}/sos
+%{_bindir}/sosreport
+%{_bindir}/sos-collector
+%else
 %{_sbindir}/sos
 %{_sbindir}/sosreport
 %{_sbindir}/sos-collector
+%endif
 %dir /etc/sos/cleaner
 %dir /etc/sos/presets.d
 %dir /etc/sos/extras.d
