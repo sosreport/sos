@@ -2,21 +2,22 @@ Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 4.5.4
 Release: 1%{?dist}
-Group: Applications/System
 Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
 License: GPL-2.0-or-later
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
-Url: https://github.com/sosreport/sos/
+Url: https://github.com/sosreport/sos
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
-BuildRequires: gettext
 Requires: python3-rpm
 Requires: python3-pexpect
 Requires: python3-setuptools
 Recommends: python3-magic
+# Mandatory just for uploading to a SFTP server:
+Recommends: python3-requests
 Recommends: python3-pyyaml
 Obsoletes: sos-collector <= 1.9
+# For the _tmpfilesdir macro.
+BuildRequires: systemd
 
 %description
 Sos is a set of tools that gathers information about system
@@ -33,16 +34,16 @@ support technicians and developers.
 %install
 %py3_install '--install-scripts=%{_sbindir}'
 
-install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos
-install -d -m 700 ${RPM_BUILD_ROOT}/etc/sos/cleaner
-install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/presets.d
-install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/groups.d
-install -d -m 755 ${RPM_BUILD_ROOT}/etc/sos/extras.d
-install -d -m 755 ${RPM_BUILD_ROOT}/etc/tmpfiles.d/
-install -m 644 %{name}.conf ${RPM_BUILD_ROOT}/etc/sos/%{name}.conf
-install -m 644 tmpfiles/tmpfilesd-sos-rh.conf ${RPM_BUILD_ROOT}/etc/tmpfiles.d/%{name}.conf
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}
+install -d -m 700 %{buildroot}%{_sysconfdir}/%{name}/cleaner
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}/presets.d
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}/groups.d
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}/extras.d
+install -d -m 755 %{buildroot}%{_tmpfilesdir}
+install -m 644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+install -m 644 tmpfiles/tmpfilesd-sos-rh.conf %{buildroot}%{_tmpfilesdir}/%{name}.conf
 
-rm -rf ${RPM_BUILD_ROOT}/usr/config/
+rm -rf %{buildroot}/usr/config/
 
 %find_lang %{name} || echo 0
 
@@ -56,7 +57,7 @@ rm -rf ${RPM_BUILD_ROOT}/usr/config/
 %dir /etc/sos/presets.d
 %dir /etc/sos/extras.d
 %dir /etc/sos/groups.d
-/etc/tmpfiles.d/%{name}.conf
+%{_tmpfilesdir}/%{name}.conf
 %{python3_sitelib}/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
