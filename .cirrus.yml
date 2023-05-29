@@ -106,6 +106,7 @@ rpm_build_task:
         python3 setup.py sdist
         cp dist/sos*.tar.gz /rpmbuild/SOURCES/
         rpmbuild -bs sos.spec
+        dnf -y builddep /rpmbuild/SRPMS/sos*src.rpm
         rpmbuild -bb sos.spec
     # Retrieving the built rpm in later tasks requires knowing the exact name
     # of the file. To avoid having to juggle version numbers here, rename it
