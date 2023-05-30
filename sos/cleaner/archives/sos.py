@@ -22,18 +22,6 @@ class SoSReportArchive(SoSObfuscationArchive):
 
     type_name = 'report'
     description = 'sos report archive'
-    prep_files = {
-        'username': [
-            'sos_commands/login/lastlog_-u_1000-60000',
-            'sos_commands/login/lastlog_-u_60001-65536',
-            'sos_commands/login/lastlog_-u_65537-4294967295',
-            # AD users will be reported here, but favor the lastlog files since
-            # those will include local users who have not logged in
-            'sos_commands/login/last',
-            'etc/cron.allow',
-            'etc/cron.deny'
-        ]
-    }
 
     @classmethod
     def check_is_type(cls, arc_path):
