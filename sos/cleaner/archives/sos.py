@@ -23,7 +23,6 @@ class SoSReportArchive(SoSObfuscationArchive):
     type_name = 'report'
     description = 'sos report archive'
     prep_files = {
-        'mac': 'sos_commands/networking/ip_-d_address',
         'username': [
             'sos_commands/login/lastlog_-u_1000-60000',
             'sos_commands/login/lastlog_-u_60001-65536',

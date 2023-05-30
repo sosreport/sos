@@ -22,10 +22,6 @@ class InsightsArchive(SoSObfuscationArchive):
     type_name = 'insights'
     description = 'insights-client archive'
 
-    prep_files = {
-        'mac': 'data/insights_commands/ip_addr'
-    }
-
     @classmethod
     def check_is_type(cls, arc_path):
         try:
