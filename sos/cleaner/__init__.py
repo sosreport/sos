@@ -132,7 +132,7 @@ class SoSCleaner(SoSComponent):
             SoSMacParser(self.cleaner_mapping),
             SoSKeywordParser(self.cleaner_mapping, self.opts.keywords,
                              self.opts.keyword_file),
-            SoSUsernameParser(self.cleaner_mapping, self.opts.usernames)
+            SoSUsernameParser(self.cleaner_mapping)
         ]
 
         for _parser in self.opts.disable_parsers:
