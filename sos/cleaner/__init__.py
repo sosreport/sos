@@ -130,8 +130,7 @@ class SoSCleaner(SoSComponent):
             SoSIPParser(self.cleaner_mapping),
             SoSIPv6Parser(self.cleaner_mapping),
             SoSMacParser(self.cleaner_mapping),
-            SoSKeywordParser(self.cleaner_mapping, self.opts.keywords,
-                             self.opts.keyword_file),
+            SoSKeywordParser(self.cleaner_mapping),
             SoSUsernameParser(self.cleaner_mapping)
         ]
 
