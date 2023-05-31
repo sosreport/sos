@@ -90,7 +90,6 @@ class Maas(Plugin, UbuntuPlugin):
                 "/var/lib/maas/http/*.conf",
                 "/var/lib/maas/*.conf",
                 "/var/lib/maas/rsyslog",
-                "/var/log/apache2*",
                 "/var/log/maas*",
                 "/var/log/upstart/maas-*",
             ])
