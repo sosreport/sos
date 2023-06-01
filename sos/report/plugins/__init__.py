@@ -1274,7 +1274,12 @@ class Plugin():
         """
         try:
             path = self._get_dest_for_srcpath(srcpath)
-            pattern = regexp.pattern if hasattr(regexp, "pattern") else regexp
+            if hasattr(regexp, "pattern"):
+                pattern = regexp.pattern
+                flags = regexp.flags | re.IGNORECASE
+            else:
+                pattern = regexp
+                flags = re.IGNORECASE
             self._log_debug("substituting scrpath '%s'" % srcpath)
             self._log_debug("substituting '%s' for '%s' in '%s'"
                             % (subst, pattern, path))
@@ -1284,8 +1289,8 @@ class Plugin():
             content = readable.read()
             if not isinstance(content, str):
                 content = content.decode('utf8', 'ignore')
-            result, replacements = re.subn(regexp, subst, content,
-                                           flags=re.IGNORECASE)
+            result, replacements = re.subn(pattern, subst, content,
+                                           flags=flags)
             if replacements:
                 self.archive.add_string(result, self.strip_sysroot(srcpath))
             else:
