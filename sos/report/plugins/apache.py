@@ -99,7 +99,7 @@ class RedHatApache(Apache, RedHatPlugin):
         # relevant config files within each
         etcdirs = ["/etc/httpd%s" % ver for ver in vers]
         confs = [
-            "conf/httpd.conf",
+            "conf/*.conf",
             "conf.d/*.conf",
             "conf.modules.d/*.conf"
         ]
