@@ -294,7 +294,7 @@ class Cluster():
         """
         return node.address == self.primary.address
 
-    def exec_primary_cmd(self, cmd, need_root=False):
+    def exec_primary_cmd(self, cmd, need_root=False, timeout=180):
         """Used to retrieve command output from a (primary) node in a cluster
 
         :param cmd: The command to run
@@ -303,11 +303,15 @@ class Cluster():
         :param need_root: Does the command require root privileges
         :type need_root: ``bool``
 
+        :param timeout:  Amount of time to allow cmd to run in seconds
+        :type timeout: ``int``
+
         :returns: The output and status of `cmd`
         :rtype: ``dict``
         """
         pty = self.primary.local is False
-        res = self.primary.run_command(cmd, get_pty=pty, need_root=need_root)
+        res = self.primary.run_command(cmd, get_pty=pty, need_root=need_root,
+                                       timeout=timeout)
         if res['output']:
             res['output'] = res['output'].replace('Password:', '')
         return res
