@@ -86,7 +86,7 @@ class ocp(Cluster):
                         _oc_path['output'].strip().lstrip('/')
                     )
                 else:
-                    self.log_warning(
+                    self.log_warn(
                         "Unable to to determine PATH for 'oc' command, "
                         "node enumeration may fail."
                     )
@@ -172,19 +172,32 @@ class ocp(Cluster):
         """Remove the project we created to execute within
         """
         if self.project:
-            ret = self.exec_primary_cmd(
-                self.fmt_oc_cmd("delete project %s" % self.project)
-            )
-            if not ret['status'] == 0:
-                self.log_error("Error deleting temporary project: %s"
-                               % ret['output'])
-            ret = self.exec_primary_cmd(
-                self.fmt_oc_cmd("wait namespace/%s --for=delete --timeout=30s"
-                                % self.project)
-            )
-            if not ret['status'] == 0:
-                self.log_error("Error waiting for temporary project to be "
-                               "deleted: %s" % ret['output'])
+            try:
+                ret = self.exec_primary_cmd(
+                    self.fmt_oc_cmd(f"delete project {self.project}"),
+                    timeout=30
+                )
+                if not ret['status'] == 0:
+                    self.log_error(
+                        f"Error deleting temporary project: {ret['output']}"
+                    )
+                ret = self.exec_primary_cmd(
+                    self.fmt_oc_cmd(
+                        f"wait namespace/{self.project} --for=delete "
+                        f"--timeout=30s"
+                    )
+                )
+                if not ret['status'] == 0:
+                    self.log_error(
+                        f"Error waiting for temporary project to be deleted: "
+                        f"{ret['output']}"
+                    )
+            except Exception as err:
+                self.log_error(
+                    f"Failed attempting to remove temporary project "
+                    f"'sos-collect-tmp': {err}\n"
+                    f"Please manually remove the temporary project."
+                )
             # don't leave the config on a non-existing project
             self.exec_primary_cmd(self.fmt_oc_cmd("project default"))
             self.project = None
