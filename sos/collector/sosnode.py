@@ -808,8 +808,9 @@ class SosNode():
         except CommandTimeoutException:
             self.log_error('Timeout exceeded')
             raise
-        except Exception as e:
-            self.log_error('Error running sos report: %s' % e)
+        except Exception as err:
+            self.log_info(f"Exception during sos report execution: {err}")
+            self.ui_msg(f"Error running sos report: {err}")
             raise
 
     def retrieve_file(self, path):
