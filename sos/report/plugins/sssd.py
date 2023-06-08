@@ -54,10 +54,10 @@ class Sssd(Plugin):
                 self.add_cmd_output("sssctl domain-status -o " + domain_name)
 
     def postproc(self):
-        regexp = r"(\s*ldap_default_authtok\s*=\s*)\S+"
+        regexp = r"((\s*ldap_default_authtok\s*=)(.*))"
 
-        self.do_file_sub("/etc/sssd/sssd.conf", regexp, r"\1********")
-        self.do_path_regex_sub("/etc/sssd/conf.d/*", regexp, r"\1********")
+        self.do_file_sub("/etc/sssd/sssd.conf", regexp, r"\2 ********")
+        self.do_path_regex_sub("/etc/sssd/conf.d/*", regexp, r"\2 ********")
 
 
 class RedHatSssd(Sssd, RedHatPlugin):
