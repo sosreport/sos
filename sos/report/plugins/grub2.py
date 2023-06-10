@@ -31,6 +31,8 @@ class Grub2(Plugin, IndependentPlugin):
             "/boot/grub2/grubenv",
             "/boot/grub/grub.cfg",
             "/boot/loader/entries",
+            "/boot/grub2/custom.cfg",
+            "/boot/grub2/user.cfg",
             "/etc/default/grub",
             "/etc/grub2.cfg",
             "/etc/grub.d"
