@@ -121,7 +121,8 @@ class Ipa(Plugin, RedHatPlugin):
             "/var/lib/ipa/certs/httpd.crt",
             "/var/kerberos/krb5kdc/kdc.crt",
             "/var/lib/ipa/sysrestore/sysrestore.state",
-            "/var/log/ipa/healthcheck/healthcheck.log*"
+            "/var/log/ipa/healthcheck/healthcheck.log*",
+            "/var/log/ipaepn.log*"
         ])
 
         #  Make sure to use the right PKI config and NSS DB folders
