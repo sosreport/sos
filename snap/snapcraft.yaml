@@ -19,13 +19,17 @@ parts:
     override-pull: |
       craftctl default
       craftctl set version="$(git describe --tags --always)"
+    build-attributes:
+      - enable-patchelf
     build-packages:
       - git
       - python3
       - snapcraft
       - gettext
     stage-packages:
-      - python3-venv
+      - python3.10-minimal
+      - libpython3.10-minimal
+      - libpython3.10-stdlib
     python-packages:
       - pip
       - setuptools
