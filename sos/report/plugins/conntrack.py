@@ -7,7 +7,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
+from sos.report.plugins import (Plugin, IndependentPlugin, SoSPredicate,
+                                PluginOpt)
 
 
 class Conntrack(Plugin, IndependentPlugin):
@@ -37,11 +38,18 @@ class Conntrack(Plugin, IndependentPlugin):
             "conntrackd -s expect",
         ])
 
-        # Collect info from conntrack
+        # Collect info from conntrack, only when all required kmods are loaded
+        ct_pred = SoSPredicate(self,
+                               kmods=['nf_conntrack',
+                                      'nf_conntrack_netlink',
+                                      'nf_defrag_ipv4',
+                                      'nf_defrag_ipv6',
+                                      'nfnetlink'],
+                               required={'kmods': 'all'})
         self.add_cmd_output([
             "conntrack -L -o extended",
             "conntrack -S",
-        ])
+        ], pred=ct_pred)
 
         # Capture additional data from namespaces; each command is run
         # per-namespace
