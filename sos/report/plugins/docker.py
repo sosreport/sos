@@ -9,7 +9,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
-                                SoSPredicate, CosPlugin, PluginOpt)
+                                SoSPredicate, CosPlugin, PluginOpt,
+                                DebianPlugin)
 
 
 class Docker(Plugin, CosPlugin):
@@ -133,7 +134,7 @@ class RedHatDocker(Docker, RedHatPlugin):
         ])
 
 
-class UbuntuDocker(Docker, UbuntuPlugin):
+class UbuntuDocker(Docker, UbuntuPlugin, DebianPlugin):
 
     packages = ('docker.io', 'docker-engine', 'docker-ce', 'docker-ee')
 
