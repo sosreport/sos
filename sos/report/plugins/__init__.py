@@ -2176,7 +2176,7 @@ class Plugin():
         if name:
             cmd_output_path = os.path.join(cmd_output_path, name)
         if make:
-            os.makedirs(cmd_output_path)
+            os.makedirs(cmd_output_path, exist_ok=True)
 
         return cmd_output_path
 
