@@ -18,7 +18,7 @@ class ReportDisabledParsersTest(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '--clean -o host,kernel,networking --disable-parsers=ip'
+    sos_cmd = '--clean -o host,kernel,networking --disable-parsers=ip --no-update'
 
     def test_local_ip_not_obfuscated(self):
         self.assertFileHasContent('ip_addr', self.sysinfo['pre']['networking']['ip_addr'])

@@ -45,6 +45,14 @@ class FullCleanTest(StageTwoReportTest):
             % (host.lower(), host.upper(), short.lower(), short.upper())
         )
 
+    def test_default_mapping(self):
+        self.assertFileExists('/etc/sos/cleaner/default_mapping')
+        self.assertOutputContains('Wrote mapping to')
+        with open('/etc/sos/cleaner/default_mapping') as ref:
+            ref_data = ref.read()
+        map_count = ref_data.count("map")
+        self.assertNotEqual(ref_data.count("_map"), 0)
+
     def test_private_map_was_generated(self):
         self.assertOutputContains('A mapping of obfuscated elements is available at')
         map_file = re.findall('/.*sosreport-.*-private_map', self.cmd_output.stdout)[-1]

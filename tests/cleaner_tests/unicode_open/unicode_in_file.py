@@ -17,7 +17,7 @@ class UnicodeOpenTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = '--clean -o unicode_test,networking,host'
+    sos_cmd = '--clean -o unicode_test,networking,host --no-update'
     files = [('sos-test-unicode.txt', '/tmp/sos-test-unicode.txt')]
     install_plugins = ['unicode_test']
 

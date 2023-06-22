@@ -87,7 +87,7 @@ class DefaultRemoveBinaryFilesTest(StageTwoReportTest):
 
     files = [('binary_test.tar.xz', '/var/log/binary_test.tar.xz')]
     install_plugins = ['binary_test']
-    sos_cmd = '--clean -o binary_test,kernel,host'
+    sos_cmd = '--clean -o binary_test,kernel,host --no-update'
 
     def test_binary_removed(self):
         self.assertFileNotCollected('var/log/binary_test.tar.xz')
@@ -104,7 +104,7 @@ class KeepBinaryFilesTest(StageTwoReportTest):
 
     files = [('binary_test.tar.xz', '/var/log/binary_test.tar.xz')]
     install_plugins = ['binary_test']
-    sos_cmd = '--clean --keep-binary-files -o binary_test,kernel,host'
+    sos_cmd = '--clean --keep-binary-files -o binary_test,kernel,host --no-update'
 
     def test_warning_message_shown(self):
         self.assertOutputContains(
