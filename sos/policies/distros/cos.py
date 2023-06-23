@@ -41,7 +41,7 @@ class CosPolicy(LinuxPolicy):
         super(CosPolicy, self).__init__(sysroot=sysroot, init=init,
                                         probe_runtime=probe_runtime,
                                         remote_exec=remote_exec)
-        self.valid_subclasses += [CosPolicy]
+        self.valid_subclasses += [CosPlugin]
 
     @classmethod
     def check(cls, remote=''):

@@ -118,7 +118,7 @@ class IndependentLogs(LogsBase, IndependentPlugin):
     profiles = ('system', 'hardware', 'storage')
 
 
-class CosLogs(LogsBase, CosPlugin):
+class CosLogs(IndependentLogs, CosPlugin):
     option_list = [
         PluginOpt(name="log_days", default=3,
                   desc="the number of days logs to collect")
