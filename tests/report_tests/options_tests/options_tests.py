@@ -22,8 +22,8 @@ class OptionsFromConfigTest(StageTwoReportTest):
     def test_case_id_from_config(self):
         self.assertTrue('8675309' in self.archive)
 
-    def test_plugins_skipped_from_config(self):
-        self.assertPluginNotIncluded(['networking', 'logs'])
+    def test_plugins_only_from_config(self):
+        self.assertOnlyPluginsIncluded(['host', 'kernel'])
 
     def test_plugopts_logged_from_config(self):
         self.assertSosLogContains(
@@ -41,5 +41,5 @@ class OptionsFromConfigTest(StageTwoReportTest):
 
     def test_effective_options_logged_correctly(self):
         self.assertSosLogContains(
-            "effective options now: --batch --case-id 8675309 --plugopts kernel.with-timer=on,kernel.trace=yes --skip-plugins networking,logs"
+            "effective options now: --batch --case-id 8675309 --only-plugins host,kernel --plugopts kernel.with-timer=on,kernel.trace=yes"
         )
