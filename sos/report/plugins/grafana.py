@@ -19,29 +19,53 @@ class Grafana(Plugin, IndependentPlugin):
 
     packages = ('grafana',)
 
-    def setup(self):
-        if self.get_option("all_logs"):
-            self.add_copy_spec("/var/log/grafana/*.log*")
-        else:
-            self.add_copy_spec("/var/log/grafana/*.log")
+    def _is_snap_installed(self):
+        grafana_pkg = self.policy.package_manager.pkg_by_name('grafana')
+        if grafana_pkg:
+            return grafana_pkg['pkg_manager'] == 'snap'
+        return False
 
-        self.add_cmd_output([
-            "grafana-cli plugins ls",
-            "grafana-cli plugins list-remote",
-            "grafana-cli -v",
-            "grafana-server -v",
-        ])
+    def setup(self):
+        self._is_snap = self._is_snap_installed()
+        if self._is_snap:
+            grafana_cli = "grafana.grafana-cli"
+            log_path = "/var/snap/grafana/common/data/log/"
+            config_path = "/var/snap/grafana/current/conf/grafana.ini"
+
+        else:
+            grafana_cli = "grafana-cli"
+            log_path = "/var/log/grafana/"
+            config_path = "/etc/grafana/"
+
+        add_cmds = [
+            f'{grafana_cli} plugins ls',
+            f'{grafana_cli} plugins list-remote',
+            'snap info grafana' if self._is_snap else None,
+            f'{grafana_cli} -v' if not self._is_snap else None,
+            'grafana-server -v' if not self._is_snap else None
+        ]
+        self.add_cmd_output(list(filter(None, add_cmds)))
+
+        log_file_pattern = "*.log*" if self.get_option("all_logs") else "*.log"
 
         self.add_copy_spec([
-            "/etc/grafana/",
-            "/etc/sysconfig/grafana-server",
+            log_path + log_file_pattern,
+            config_path,
+            "/etc/sysconfig/grafana-server" if not self._is_snap else None
         ])
 
     def postproc(self):
         protect_keys = [
-            "admin_password", "secret_key"
+            "admin_password",
+            "secret_key",
+            "password",
+            "client_secret"
         ]
+        inifile = (
+            "/var/snap/grafana/current/conf/grafana.ini"
+            if self._is_snap
+            else "/etc/grafana/grafana.ini"
+        )
 
         regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
-        self.do_path_regex_sub("/etc/grafana/grafana.ini",
-                               regexp, r"\1*********")
+        self.do_path_regex_sub(inifile, regexp, r"\1*********")
