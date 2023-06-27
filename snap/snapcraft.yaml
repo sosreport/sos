@@ -26,6 +26,7 @@ parts:
       - python3
       - snapcraft
       - gettext
+      - python3-venv
     stage-packages:
       - python3.10-minimal
       - libpython3.10-minimal
