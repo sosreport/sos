@@ -778,7 +778,7 @@ third party.
                                        % (short_name, err), caller=arc_name)
             tfile.seek(0)
             if subs:
-                shutil.copy(tfile.name, filename)
+                shutil.copyfile(tfile.name, filename)
             tfile.close()
 
         _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
