@@ -14,8 +14,8 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
     """
     This plugin serves to collect information on monitor nodes within a Ceph
-    cluster. It is designed to collect from several versions of Ceph, including
-    those versions that serve as the basis for RHCS 4 and RHCS 5.
+    or microceph cluster. It is designed to collect from several versions of
+    Ceph, including versions that serve as the basis for RHCS 4 and RHCS 5.
 
     Older versions of Ceph will have collections from locations such as
     /var/log/ceph, whereas newer versions (as of this plugin's latest update)
@@ -37,32 +37,49 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
     # but by default they are not capable of running various ceph commands in
     # this plugin - the `ceph` binary is functional directly on the host
     containers = ('ceph-(.*-)?mon.*',)
-    files = ('/var/lib/ceph/mon/', '/var/lib/ceph/*/mon*')
+    files = ('/var/lib/ceph/mon/', '/var/lib/ceph/*/mon*',
+             '/var/snap/microceph/common/data/mon/*')
     ceph_version = 0
 
     def setup(self):
 
         self.ceph_version = self.get_ceph_version()
 
-        self.add_file_tags({
-            '.*/ceph.conf': 'ceph_conf',
-            "/var/log/ceph/(.*/)?ceph-.*mon.*.log": 'ceph_mon_log'
-        })
+        microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
+        if not microceph_pkg:
+            self.add_file_tags({
+                '.*/ceph.conf': 'ceph_conf',
+                "/var/log/ceph/(.*/)?ceph-.*mon.*.log": 'ceph_mon_log'
+            })
 
-        self.add_forbidden_path([
-            "/etc/ceph/*keyring*",
-            "/var/lib/ceph/**/*keyring*",
-            # Excludes temporary ceph-osd mount location like
-            # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            "/var/lib/ceph/**/tmp/*mnt*",
-            "/etc/ceph/*bindpass*"
-        ])
+            self.add_forbidden_path([
+                "/etc/ceph/*keyring*",
+                "/var/lib/ceph/**/*keyring*",
+                # Excludes temporary ceph-osd mount location like
+                # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
+                "/var/lib/ceph/**/tmp/*mnt*",
+                "/etc/ceph/*bindpass*"
+            ])
 
-        self.add_copy_spec([
-            "/run/ceph/**/ceph-mon*",
-            "/var/lib/ceph/**/kv_backend",
-            "/var/log/ceph/**/*ceph-mon*.log"
-        ])
+            self.add_copy_spec([
+                "/run/ceph/**/ceph-mon*",
+                "/var/lib/ceph/**/kv_backend",
+                "/var/log/ceph/**/*ceph-mon*.log"
+            ])
+
+        else:
+            self.add_forbidden_path([
+                "/var/snap/microceph/common/**/*keyring*",
+                "/var/snap/microceph/current/**/*keyring*",
+                "/var/snap/microceph/common/data/mon/*/store.db",
+                "/var/snap/microceph/common/state/*",
+            ])
+
+            self.add_copy_spec([
+                "/var/snap/microceph/common/data/mon/*",
+                "/var/snap/microceph/common/logs/*ceph-mon*.log",
+                "/var/snap/microceph/current/conf/*",
+            ])
 
         self.add_cmd_output("ceph report", tags="ceph_report")
         self.add_cmd_output([

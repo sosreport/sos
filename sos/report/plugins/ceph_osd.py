@@ -31,62 +31,77 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'ceph_osd'
     profiles = ('storage', 'virt', 'container')
     containers = ('ceph-(.*-)?osd.*',)
-    files = ('/var/lib/ceph/osd/', '/var/lib/ceph/*/osd*')
+    files = ('/var/lib/ceph/osd/', '/var/lib/ceph/*/osd*',
+             '/var/snap/microceph/common/data/osd/*')
 
     def setup(self):
+        microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
+        if not microceph_pkg:
+            self.add_file_tags({
+                "/var/log/ceph/(.*/)?ceph-(.*-)?osd.*.log": 'ceph_osd_log',
+            })
 
-        self.add_file_tags({
-            "/var/log/ceph/(.*/)?ceph-(.*-)?osd.*.log": 'ceph_osd_log',
-        })
+            self.add_forbidden_path([
+                "/etc/ceph/*keyring*",
+                "/var/lib/ceph/**/*keyring*",
+                # Excludes temporary ceph-osd mount location like
+                # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
+                "/var/lib/ceph/**/tmp/*mnt*",
+                "/etc/ceph/*bindpass*"
+            ])
 
-        self.add_forbidden_path([
-            "/etc/ceph/*keyring*",
-            "/var/lib/ceph/**/*keyring*",
-            # Excludes temporary ceph-osd mount location like
-            # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            "/var/lib/ceph/**/tmp/*mnt*",
-            "/etc/ceph/*bindpass*"
-        ])
+            # Only collect OSD specific files
+            self.add_copy_spec([
+                "/run/ceph/**/ceph-osd*",
+                "/var/lib/ceph/**/kv_backend",
+                "/var/log/ceph/**/ceph-osd*.log",
+                "/var/log/ceph/**/ceph-volume*.log",
+            ])
 
-        # Only collect OSD specific files
-        self.add_copy_spec([
-            "/run/ceph/**/ceph-osd*",
-            "/var/lib/ceph/**/kv_backend",
-            "/var/log/ceph/**/ceph-osd*.log",
-            "/var/log/ceph/**/ceph-volume*.log",
-        ])
+            self.add_cmd_output([
+                "ceph-disk list",
+                "ceph-volume lvm list"
+            ])
 
-        self.add_cmd_output([
-            "ceph-disk list",
-            "ceph-volume lvm list"
-        ])
+            cmds = [
+               "bluestore bluefs available",
+               "config diff",
+               "config show",
+               "dump_blacklist",
+               "dump_blocked_ops",
+               "dump_historic_ops_by_duration",
+               "dump_historic_slow_ops",
+               "dump_mempools",
+               "dump_ops_in_flight",
+               "dump_op_pq_state",
+               "dump_osd_network",
+               "dump_reservations",
+               "dump_watchers",
+               "log dump",
+               "perf dump",
+               "perf histogram dump",
+               "objecter_requests",
+               "ops",
+               "status",
+               "version",
+            ]
 
-        cmds = [
-           "bluestore bluefs available",
-           "config diff",
-           "config show",
-           "dump_blacklist",
-           "dump_blocked_ops",
-           "dump_historic_ops_by_duration",
-           "dump_historic_slow_ops",
-           "dump_mempools",
-           "dump_ops_in_flight",
-           "dump_op_pq_state",
-           "dump_osd_network",
-           "dump_reservations",
-           "dump_watchers",
-           "log dump",
-           "perf dump",
-           "perf histogram dump",
-           "objecter_requests",
-           "ops",
-           "status",
-           "version",
-        ]
+            self.add_cmd_output(
+              [f"ceph daemon {i} {c}" for i in self.get_socks() for c in cmds]
+            )
 
-        self.add_cmd_output(
-            [f"ceph daemon {i} {c}" for i in self.get_socks() for c in cmds]
-        )
+        else:
+            # Only collect microceph files, don't run any commands
+            self.add_forbidden_path([
+                "/var/snap/microceph/common/**/*keyring*",
+                "/var/snap/microceph/current/**/*keyring*",
+                "/var/snap/microceph/common/state/*",
+            ])
+
+            self.add_copy_spec([
+                "/var/snap/microceph/common/data/osd/*",
+                "/var/snap/microceph/common/logs/*ceph-osd*.log",
+            ])
 
     def get_socks(self):
         """
