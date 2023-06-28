@@ -41,45 +41,53 @@ class Ceph_Common(Plugin, RedHatPlugin, UbuntuPlugin):
 
     # This check will enable the plugin regardless of being
     # containerized or not
-    files = ('/etc/ceph/ceph.conf',)
+    files = ('/etc/ceph/ceph.conf',
+             '/var/snap/microceph/*',)
 
     def setup(self):
         all_logs = self.get_option("all_logs")
 
-        self.add_file_tags({
-            '.*/ceph.conf': 'ceph_conf',
-            '/var/log/ceph(.*)?/ceph.log.*': 'ceph_log',
-        })
+        microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
+        if not microceph_pkg:
+            self.add_file_tags({
+                '.*/ceph.conf': 'ceph_conf',
+                '/var/log/ceph(.*)?/ceph.log.*': 'ceph_log',
+            })
 
-        if not all_logs:
-            self.add_copy_spec("/var/log/calamari/*.log",)
+            if not all_logs:
+                self.add_copy_spec("/var/log/calamari/*.log",)
+            else:
+                self.add_copy_spec("/var/log/calamari",)
+
+            self.add_copy_spec([
+                "/var/log/ceph/**/ceph.log",
+                "/var/log/ceph/**/ceph.audit.log*",
+                "/var/log/calamari/*.log",
+                "/etc/ceph/",
+                "/etc/calamari/",
+                "/var/lib/ceph/tmp/",
+            ])
+
+            self.add_forbidden_path([
+                "/etc/ceph/*keyring*",
+                "/var/lib/ceph/*keyring*",
+                "/var/lib/ceph/*/*keyring*",
+                "/var/lib/ceph/*/*/*keyring*",
+                "/var/lib/ceph/osd",
+                "/var/lib/ceph/mon",
+                # Excludes temporary ceph-osd mount location like
+                # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
+                "/var/lib/ceph/tmp/*mnt*",
+                "/etc/ceph/*bindpass*"
+            ])
         else:
-            self.add_copy_spec("/var/log/calamari",)
-
-        self.add_copy_spec([
-            "/var/log/ceph/**/ceph.log",
-            "/var/log/ceph/**/ceph.audit.log*",
-            "/var/log/calamari/*.log",
-            "/etc/ceph/",
-            "/etc/calamari/",
-            "/var/lib/ceph/tmp/",
-        ])
+            self.add_copy_spec([
+                "/var/snap/microceph/common/logs/ceph.log",
+                "/var/snap/microceph/common/logs/ceph.audit.log",
+            ])
 
         self.add_cmd_output([
             "ceph -v",
-        ])
-
-        self.add_forbidden_path([
-            "/etc/ceph/*keyring*",
-            "/var/lib/ceph/*keyring*",
-            "/var/lib/ceph/*/*keyring*",
-            "/var/lib/ceph/*/*/*keyring*",
-            "/var/lib/ceph/osd",
-            "/var/lib/ceph/mon",
-            # Excludes temporary ceph-osd mount location like
-            # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            "/var/lib/ceph/tmp/*mnt*",
-            "/etc/ceph/*bindpass*"
         ])
 
 # vim: set et ts=4 sw=4 :
