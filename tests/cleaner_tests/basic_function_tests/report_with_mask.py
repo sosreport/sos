@@ -9,6 +9,7 @@
 from sos_tests import StageOneReportTest, StageTwoReportTest
 
 import re
+from os import stat
 
 
 class ReportWithMask(StageOneReportTest):
@@ -18,6 +19,17 @@ class ReportWithMask(StageOneReportTest):
     """
 
     sos_cmd = '--mask -o host,networking'
+    hosts_obfuscated = None
+
+    def pre_sos_setup(self):
+        # obfuscate a random word from /etc/hosts and ensure the updated
+        # sanitised file has same permissions (a+r)
+        try:
+            self.hosts_obfuscated = open('/etc/hosts').read().strip('#\n').split()[-1]
+        except (FileNotFoundError, IndexError) as e:
+            self.warning(f"Unable to process /etc/hosts: {e}")
+        if self.hosts_obfuscated:
+            self.sos_cmd += f' --keywords={self.hosts_obfuscated}'
 
     def test_mask_was_run(self):
         self.assertOutputContains('Beginning obfuscation')
@@ -52,6 +64,12 @@ class ReportWithMask(StageOneReportTest):
             if line.strip().startswith('link'):
                 mac = line.strip().split()[1]
                 assert mac.startswith('53:4f:53'), "Found unobfuscated mac addr %s" % mac
+
+    def test_perms_unchanged_on_modified_file(self):
+        if self.hosts_obfuscated:
+            imode_orig = stat('/etc/hosts').st_mode
+            imode_obfuscated = stat(self.get_name_in_archive('etc/hosts')).st_mode
+            self.assertEqual(imode_orig, imode_obfuscated)
 
 
 class ReportWithCleanedKeywords(StageOneReportTest):
