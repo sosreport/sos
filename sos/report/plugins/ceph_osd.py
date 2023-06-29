@@ -29,7 +29,7 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = 'CEPH osd'
 
     plugin_name = 'ceph_osd'
-    profiles = ('storage', 'virt', 'container')
+    profiles = ('storage', 'virt', 'container', 'ceph')
     containers = ('ceph-(.*-)?osd.*',)
     files = ('/var/lib/ceph/osd/', '/var/lib/ceph/*/osd*')
 

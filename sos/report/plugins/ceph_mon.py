@@ -32,7 +32,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = 'CEPH mon'
 
     plugin_name = 'ceph_mon'
-    profiles = ('storage', 'virt', 'container')
+    profiles = ('storage', 'virt', 'container', 'ceph')
     # note: for RHCS 5 / Ceph v16 the containers serve as an enablement trigger
     # but by default they are not capable of running various ceph commands in
     # this plugin - the `ceph` binary is functional directly on the host
