@@ -12,7 +12,7 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = 'CEPH mds'
     plugin_name = 'ceph_mds'
-    profiles = ('storage', 'virt', 'container')
+    profiles = ('storage', 'virt', 'container', 'ceph')
     containers = ('ceph-(.*-)?fs.*',)
     files = ('/var/lib/ceph/mds/',)
 

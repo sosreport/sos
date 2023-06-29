@@ -14,7 +14,7 @@ class CephISCSI(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = "CEPH iSCSI"
 
     plugin_name = "ceph_iscsi"
-    profiles = ("storage", "virt", "container")
+    profiles = ("storage", "virt", "container", "ceph")
     packages = ("ceph-iscsi",)
     services = ("rbd-target-api", "rbd-target-gw")
     containers = ("rbd-target-api.*", "rbd-target-gw.*")

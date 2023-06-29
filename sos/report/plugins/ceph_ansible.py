@@ -14,7 +14,7 @@ class CephAnsible(Plugin, RedHatPlugin, DebianPlugin):
     short_desc = 'CEPH distributed storage - Ansible installer'
 
     plugin_name = 'ceph_ansible'
-    profiles = ('storage',)
+    profiles = ('storage', 'ceph')
 
     packages = ('ceph-ansible',)
 
