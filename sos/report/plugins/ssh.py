@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Ssh(Plugin, IndependentPlugin):
@@ -17,6 +17,12 @@ class Ssh(Plugin, IndependentPlugin):
 
     plugin_name = 'ssh'
     profiles = ('services', 'security', 'system', 'identity')
+
+    option_list = [
+        PluginOpt('userconfs', default=True, val_type=str,
+                  desc=('Changes whether module will '
+                        'collect user .ssh configs'))
+    ]
 
     def setup(self):
 
@@ -34,7 +40,10 @@ class Ssh(Plugin, IndependentPlugin):
         self.add_copy_spec(sshcfgs)
 
         self.included_configs(sshcfgs)
-        self.user_ssh_files_permissions()
+
+        # If userconfs option is set to False, skips this
+        if self.get_option('userconfs'):
+            self.user_ssh_files_permissions()
 
     def included_configs(self, sshcfgs):
         # Read configs for any includes and copy those
