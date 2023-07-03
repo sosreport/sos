@@ -752,6 +752,7 @@ third party.
         if not filename:
             # the requested file doesn't exist in the archive
             return
+        self.length_check(filename)
         subs = 0
         if not short_name:
             short_name = filename.split('/')[-1]
@@ -817,6 +818,7 @@ third party.
         """
         self.log_info("Obfuscating symlink names", caller=archive.archive_name)
         for symlink in archive.get_symlinks():
+            self.length_check(symlink)
             try:
                 # relative name of the symlink in the archive
                 _sym = symlink.split(archive.extracted_path)[1].lstrip('/')
@@ -849,6 +851,7 @@ third party.
         for dirpath in sorted(archive.get_directory_list(), reverse=True):
             for _name in os.listdir(dirpath):
                 _dirname = os.path.join(dirpath, _name)
+                self.length_check(_dirname)
                 _arc_dir = _dirname.split(archive.extracted_path)[-1]
                 if os.path.isdir(_dirname):
                     _ob_dirname = self.obfuscate_string(_name)
@@ -904,5 +907,9 @@ third party.
         for parser in self.parsers:
             _sec = parse_sec.add_section(parser.name.replace(' ', '_').lower())
             _sec.add_field('entries', len(parser.mapping.dataset.keys()))
+
+    def length_check(self, fname):
+        if len(fname) > 64:
+            self.log_error("Failed to obfuscate, filename too long", fname)
 
 # vim: set et ts=4 sw=4 :
