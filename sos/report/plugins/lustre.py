@@ -35,17 +35,31 @@ class Lustre(Plugin, RedHatPlugin):
             "lnetctl net show -v"
         ])
 
-        self.get_params("basic", ["version", "health_check", "debug"])
+        self.get_params(
+            "basic",
+            ["version", "health_check", "debug", "timeout"]
+        )
         self.get_params("lnet", ["peers", "routes", "routers", "nis"])
+        self.get_params(
+            "ldlm-lru",
+            ["ldlm.namespaces.*.lru_max_age", "ldlm.namespaces.*.lru_size"]
+        )
         self.get_params("ldlm-states", ["*.*.state"])
         self.get_params("jobid", ["jobid_name", "jobid_var"])
         self.get_params("job-stats", ["*.*.job_stats"])
-        self.get_params("exports", ["*.*.exports.*.*"])
+        self.get_params("server_uuids", ["*.*.*server_uuid"])
+        self.get_params("mgc_irstate", ["mgc.*.ir_state"])
 
         # Client Specific
         self.add_cmd_output([
             "lfs df",
             "lfs df -i"
+        ])
+        self.get_params("osc_client", [
+            "osc.*.max_dirty_mb",
+            "osc.*.max_pages_per_rpc",
+            "osc.*.checksums",
+            "osc.*.max_rpcs_in_flight"
         ])
 
         # Server Specific
@@ -53,7 +67,12 @@ class Lustre(Plugin, RedHatPlugin):
                                 "kbytes*,blocksize,brw_stats}"])
         self.get_params("quota", ["osd-*.*.quota_slave." +
                                   "{info,limit_*,acct_*}"])
+        self.get_params("mgs", ["mgs.MGS.ir_timeout", "mgs.MGS.live.*"])
+        self.get_params("exports", ["*.*.exports.*.*"])
+        self.get_params("mntdev", ["osd*.*.mntdev"])
 
+        # mb_groups can be VERY large, and provide minimal debug usefulness
+        self.add_forbidden_path("*/mb_groups")
         self.add_copy_spec([
             "/sys/fs/ldiskfs",
             "/proc/fs/ldiskfs",
