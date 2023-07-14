@@ -1274,12 +1274,13 @@ class Plugin():
         """
         try:
             path = self._get_dest_for_srcpath(srcpath)
+            common_flags = re.IGNORECASE | re.MULTILINE
             if hasattr(regexp, "pattern"):
                 pattern = regexp.pattern
-                flags = regexp.flags | re.IGNORECASE
+                flags = regexp.flags | common_flags
             else:
                 pattern = regexp
-                flags = re.IGNORECASE
+                flags = common_flags
             self._log_debug("substituting scrpath '%s'" % srcpath)
             self._log_debug("substituting '%s' for '%s' in '%s'"
                             % (subst, pattern, path))

@@ -109,6 +109,7 @@ class OpenStackNova(Plugin):
                 self.add_copy_spec(self.path_join(novadir, novalog))
             self.add_copy_spec([
                 "/var/log/{}*/nova*.log".format(self.apachepkg),
+                "/var/log/{}*/placement*.log".format(self.apachepkg),
             ])
 
         pp = ['', '_libvirt', '_metadata', '_placement']
@@ -154,11 +155,11 @@ class OpenStackNova(Plugin):
         connection_keys = ["connection", "sql_connection"]
 
         self.apply_regex_sub(
-            r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"((?m)^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
+            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
             "|".join(connection_keys),
             r"\1*********\6"
         )

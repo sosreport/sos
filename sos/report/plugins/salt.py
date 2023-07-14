@@ -30,7 +30,7 @@ class Salt(Plugin, IndependentPlugin):
         self.add_forbidden_path("/etc/salt/pki/*/*.pem")
 
     def postproc(self):
-        regexp = r'((?m)^\s+.*(pass|secret|(?<![A-z])key(?![A-z])).*:\ ).+$'
+        regexp = r'(^\s+.*(pass|secret|(?<![A-z])key(?![A-z])).*:\ ).+$'
         subst = r'\1******'
         self.do_path_regex_sub("/etc/salt/*", regexp, subst)
 

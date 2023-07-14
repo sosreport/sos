@@ -133,13 +133,13 @@ class OpenStackInstack(Plugin):
             "undercloud_swift_password",
             "undercloud_tuskar_password",
         ]
-        regexp = r"((?m)(%s)=)(.*)" % "|".join(protected_keys)
+        regexp = r"((%s)=)(.*)" % "|".join(protected_keys)
         self.do_file_sub("/home/stack/.instack/install-undercloud.log",
                          regexp, r"\1*********")
         self.do_file_sub(UNDERCLOUD_CONF_PATH, regexp, r"\1*********")
 
         protected_json_keys = ["pm_password", "ssh-key", "password"]
-        json_regexp = r'((?m)"(%s)": )(".*?")' % "|".join(protected_json_keys)
+        json_regexp = r'("(%s)": )(".*?")' % "|".join(protected_json_keys)
         self.do_file_sub("/home/stack/instackenv.json", json_regexp,
                          r"\1*********")
         self.do_file_sub('/home/stack/.tripleo/history',

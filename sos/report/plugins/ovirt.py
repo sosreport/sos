@@ -263,7 +263,7 @@ class Ovirt(Plugin, RedHatPlugin):
             "pool.default.ssl.truststore.password",
             "config.datasource.dbpassword"
         ]
-        regexp = r"((?m)^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = r"(^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
         self.do_path_regex_sub(r"/etc/ovirt-engine/aaa/.*\.properties", regexp,
                                r"\1*********")

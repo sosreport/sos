@@ -51,7 +51,7 @@ class Collectd(Plugin, IndependentPlugin):
             "Password", "User",
             "[<]*URL", "Address"
         ]
-        regexp = r"((?m)^[#]*\s*(%s)\s* \s*)(.*)" % "|".join(protect_keys)
+        regexp = r"(^[#]*\s*(%s)\s* \s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub(
             "/etc/collectd.d/*.conf",
             regexp, r'\1"*********"'
