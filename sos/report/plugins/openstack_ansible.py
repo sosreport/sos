@@ -34,7 +34,7 @@ class OpenStackAnsible(Plugin, IndependentPlugin):
             "/etc/openstack_deploy/user_secrets.yml",
             "/etc/rpc_deploy/user_secrets.yml"
         ]
-        regexp = r"(?m)^\s*#*([\w_]*:\s*).*"
+        regexp = r"^\s*#*([\w_]*:\s*).*"
         for secrets_file in secrets_files:
             self.do_path_regex_sub(
                 secrets_file,

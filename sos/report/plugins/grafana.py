@@ -42,6 +42,6 @@ class Grafana(Plugin, IndependentPlugin):
             "admin_password", "secret_key"
         ]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         self.do_path_regex_sub("/etc/grafana/grafana.ini",
                                regexp, r"\1*********")

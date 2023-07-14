@@ -50,7 +50,7 @@ class OpenStackHorizon(Plugin):
             "SECRET_KEY", "EMAIL_HOST_PASSWORD"
         ]
 
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
         for regpath in [r"/etc/openstack-dashboard/.*\.json",
                         "/etc/openstack-dashboard/local_settings$"]:
             self.do_path_regex_sub(regpath, regexp, r"\1*********")
