@@ -226,7 +226,7 @@ class SoSOptions():
         try:
             try:
                 with open(config_file) as f:
-                    config.readfp(f)
+                    config.read_file(f, config_file)
             except DuplicateOptionError as err:
                 raise exit("Duplicate option '%s' in section '%s' in file %s"
                            % (err.option, err.section, config_file))
