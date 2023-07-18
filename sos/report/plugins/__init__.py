@@ -3735,6 +3735,10 @@ class CosPlugin(PluginDistroTag):
     """Tagging class for Container-Optimized OS"""
 
 
+class ArchPlugin(PluginDistroTag):
+    """Tagging class for Arch Linux"""
+
+
 class IndependentPlugin(PluginDistroTag):
     """Tagging class for plugins that can run on any platform"""
 
