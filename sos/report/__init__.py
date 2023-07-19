@@ -612,10 +612,18 @@ class SoSReport(SoSComponent):
         filt_devs = ['bonding_masters']
         _eth_devs = []
         if not namespace:
-            _eth_devs = [
-                dev for dev in listdir('/sys/class/net', self.opts.sysroot)
-                if dev not in filt_devs
-            ]
+            try:
+                # Override checking sysroot here, as network devices will not
+                # be under the sysroot in live environments or in containers
+                # that are correctly setup to collect from the host
+                _eth_devs = [
+                    dev for dev in listdir('/sys/class/net', None)
+                    if dev not in filt_devs
+                ]
+            except Exception as err:
+                self.soslog.warning(
+                    f'Failed to manually determine network devices: {err}'
+                )
         else:
             try:
                 _nscmd = "ip netns exec %s ls /sys/class/net" % namespace
