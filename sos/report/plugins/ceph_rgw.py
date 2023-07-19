@@ -16,7 +16,7 @@ class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'ceph_rgw'
     profiles = ('storage', 'virt', 'container', 'webserver', 'ceph')
     containers = ('ceph-(.*)?rgw.*',)
-    files = ('/var/lib/ceph/radosgw',)
+    files = ('/var/lib/ceph/radosgw/*',)
 
     def setup(self):
         self.add_copy_spec('/var/log/ceph/ceph-client.rgw*.log',

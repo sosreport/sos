@@ -14,7 +14,7 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'ceph_mds'
     profiles = ('storage', 'virt', 'container', 'ceph')
     containers = ('ceph-(.*-)?fs.*',)
-    files = ('/var/lib/ceph/mds/',)
+    files = ('/var/lib/ceph/mds/*',)
 
     def setup(self):
         self.add_file_tags({
