@@ -319,6 +319,8 @@ def _os_wrapper(path, sysroot, method, module=os.path):
 
 
 def path_exists(path, sysroot):
+    if '*' in path:
+        return _os_wrapper(path, sysroot, 'glob', module=glob)
     return _os_wrapper(path, sysroot, 'exists')
 
 

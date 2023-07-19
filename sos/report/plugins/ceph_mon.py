@@ -37,7 +37,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
     # but by default they are not capable of running various ceph commands in
     # this plugin - the `ceph` binary is functional directly on the host
     containers = ('ceph-(.*-)?mon.*',)
-    files = ('/var/lib/ceph/mon/', '/var/lib/ceph/*/mon*',
+    files = ('/var/lib/ceph/mon/*', '/var/lib/ceph/*/mon*',
              '/var/snap/microceph/common/data/mon/*')
     ceph_version = 0
 
