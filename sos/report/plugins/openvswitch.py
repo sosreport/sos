@@ -129,6 +129,8 @@ class OpenVSwitch(Plugin):
             # Capture OVS datapath list
             "ovs-vsctl -t 5 list datapath",
             # Capture DPDK queue to pmd mapping
+            "ovs-appctl dpif-netdev/pmd-rxq-show -secs 5",
+            "ovs-appctl dpif-netdev/pmd-rxq-show -secs 30",
             "ovs-appctl dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
             "ovs-appctl dpif-netdev/pmd-stats-show",
