@@ -27,7 +27,6 @@ class Ceph_Common(Plugin, RedHatPlugin, UbuntuPlugin):
         'libcephfs1',
         'ceph-fs-common',
         'calamari-server',
-        'librados2'
     )
 
     services = (
