@@ -390,11 +390,16 @@ class BaseSoSReportTest(BaseSoSTest):
             raise
         return _archive
 
-    def grep_for_content(self, search):
+    def grep_for_content(self, search, regexp=False):
         """Call out to grep for finding a specific string 'search' in any place
         in the archive
+
+        :param search: string to search
+        :param regexp: use regular expression search (default False
+                       means "grep -F")
         """
-        cmd = "grep -ril '%s' %s" % (search, self.archive_path)
+        fixed_opt = "" if regexp else "F"
+        cmd = "grep -ril%s '%s' %s" % (fixed_opt, search, self.archive_path)
         try:
             out = process.run(cmd)
             rc = out.exit_status
