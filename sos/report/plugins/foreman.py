@@ -188,7 +188,7 @@ class Foreman(Plugin):
         )
 
         authcmd = (
-            'select type,name,host,port,account,base_dn,attr_login,'
+            'select id,type,name,host,port,account,base_dn,attr_login,'
             'onthefly_register,tls from auth_sources'
         )
 
