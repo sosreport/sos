@@ -16,12 +16,15 @@ class Discovery(Plugin, RedHatPlugin):
     short_desc = 'Discovery inspection and reporting tool'
     plugin_name = 'discovery'
     packages = ('discovery', 'discovery-tools',)
+    containers = ('dsc-db', 'discovery',)
 
     def setup(self):
         self.add_copy_spec([
             "/root/discovery/db/volume/data/userdata/pg_log/",
             "/root/discovery/server/volumes/log/app.log",
-            "/root/discovery/server/volumes/log/discovery-server.log"
+            "/root/discovery/server/volumes/log/discovery-server.log",
+            "/var/lib/containers/storage/volumes/dsc-data/_data/userdata/log/",
+            "/var/discovery/server/volumes/log/",
         ])
 
         self.add_container_logs([
