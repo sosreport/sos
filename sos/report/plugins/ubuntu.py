@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, UbuntuPlugin
+from sos.report.plugins import Plugin, UbuntuPlugin, SoSPredicate
 from sos.utilities import is_executable
 
 
@@ -30,8 +30,11 @@ class Ubuntu(Plugin, UbuntuPlugin):
                 ua_tools_status = 'pro status'
             else:
                 ua_tools_status = 'ubuntu-advantage status'
-            self.add_cmd_output(ua_tools_status)
-            self.add_cmd_output("%s --format json" % ua_tools_status)
+            ua_pred = SoSPredicate(self, kmods=['tls'])
+            self.add_cmd_output(ua_tools_status,
+                                pred=ua_pred, changes=True)
+            self.add_cmd_output("%s --format json" % ua_tools_status,
+                                pred=ua_pred, changes=True)
 
             if not self.get_option("all_logs"):
                 self.add_copy_spec([
