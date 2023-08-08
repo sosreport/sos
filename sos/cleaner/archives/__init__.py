@@ -25,6 +25,12 @@ from sos.utilities import file_is_binary
 def extract_archive(archive_path, tmpdir):
     archive = tarfile.open(archive_path)
     path = os.path.join(tmpdir, 'cleaner')
+    # set extract filter since python 3.12 (see PEP-706 for more)
+    # Because python 3.10 and 3.11 raises false alarms as exceptions
+    # (see #3330 for examples), we can't use data filter but must
+    # fully trust the archive (legacy behaviour)
+    archive.extraction_filter = getattr(tarfile, 'fully_trusted_filter',
+                                        (lambda member, path: member))
     archive.extractall(path)
     archive.close()
     return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
