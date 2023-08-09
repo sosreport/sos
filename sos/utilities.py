@@ -233,7 +233,15 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
 
         if poller:
             while reader.running:
-                _check_poller(p)
+                try:
+                    _check_poller(p)
+                except SoSTimeoutError:
+                    p.terminate()
+                    if to_file:
+                        _output.close()
+                    reader.running = False
+                    return {'status': 124, 'output': reader.get_contents(),
+                            'truncated': reader.is_full}
         else:
             try:
                 # override timeout=0 to timeout=None, as Popen will treat the
