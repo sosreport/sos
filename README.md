@@ -1,4 +1,5 @@
-[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=main)](https://cirrus-ci.com/github/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=main)](https://sos.readthedocs.io/en/main/?badge=main)
+[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=main)](https://cirrus-ci.com/github/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=main)](https://sos.readthedocs.io/en/main/?badge=main) [![sosreport](https://snapcraft.io/sosreport/badge.svg)](https://snapcraft.io/sosreport)
+
 
 # SoS
 
@@ -147,6 +148,12 @@ Ubuntu (14.04 LTS and above) users install via apt:
 
 ```
 # sudo apt install sosreport
+```
+
+### Snap Installation
+
+```
+# snap install sosreport --classic
 ```
 
  [0]: https://github.com/sosreport/sos/wiki/Contribution-Guidelines
