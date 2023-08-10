@@ -22,15 +22,15 @@ env:
     UBUNTU_PROJECT: "ubuntu-os-cloud"
 
     # Images exist on GCP already
-    CENTOS_9_IMAGE_NAME: "centos-stream-9-v20221102"
-    CENTOS_8_IMAGE_NAME: "centos-stream-8-v20230306"
-    DEBIAN_IMAGE_NAME: "debian-11-bullseye-v20230306"
+    CENTOS_9_IMAGE_NAME: "centos-stream-9-v20230809"
+    CENTOS_8_IMAGE_NAME: "centos-stream-8-v20230809"
+    DEBIAN_IMAGE_NAME: "debian-11-bullseye-v20230809"
     FEDORA_IMAGE_NAME: "fedora-cloud-base-gcp-38-1-6-x86-64"
     FEDORA_PRIOR_IMAGE_NAME: "fedora-cloud-base-gcp-37-1-7-x86-64"
-    UBUNTU_IMAGE_NAME: "ubuntu-2204-jammy-v20230302"
-    UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2004-focal-v20230302"
-    UBUNTU_PRIOR2_IMAGE_NAME: "ubuntu-1804-bionic-v20230324"
-    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2204-jammy-v20230302"
+    UBUNTU_IMAGE_NAME: "ubuntu-2204-jammy-v20230727"
+    UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2004-focal-v20230724"
+    UBUNTU_PRIOR2_IMAGE_NAME: "ubuntu-1804-bionic-v20230605"
+    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2204-jammy-v20230727"
 
     # Curl-command prefix for downloading task artifacts, simply add the
     # the url-encoded task name, artifact name, and path as a suffix.
