@@ -30,7 +30,8 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
         # Collect ovn interconnect specific files if exists.
         self.add_copy_spec([
             "/var/lib/ovn-ic/etc/ovnnb_db.db",
-            "/var/lib/ovn-ic/etc/ovnsb_db.db"
+            "/var/lib/ovn-ic/etc/ovnsb_db.db",
+            "/var/lib/ovn-ic/etc/libovsdb*log*"
         ])
 
         # The ovn cluster/status is not valid anymore for interconnect setup.
