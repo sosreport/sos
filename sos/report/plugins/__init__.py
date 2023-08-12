@@ -453,7 +453,7 @@ class PluginOpt():
         if type('') in self.val_type:
             self.value = str(val)
             return
-        if not any([type(val) == _t for _t in self.val_type]):
+        if not any([type(val) is _t for _t in self.val_type]):
             valid = []
             for t in self.val_type:
                 if t is None:
