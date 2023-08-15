@@ -20,19 +20,28 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
     profiles = ('openshift',)
 
     def setup(self):
+        all_logs = self.get_option("all_logs")
+
         self.add_copy_spec([
             "/var/lib/ovn/etc/ovnnb_db.db",
             "/var/lib/ovn/etc/ovnsb_db.db",
-            "/var/lib/openvswitch/etc/keys",
-            "/var/log/openvswitch/libreswan.log",
-            "/var/log/openvswitch/ovs-monitor-ipsec.log"
-        ])
-        # Collect ovn interconnect specific files if exists.
+            "/var/lib/openvswitch/etc/keys"
+        ], sizelimit=300)
+
+        # Collect ovn interconnect specific db files if exists.
         self.add_copy_spec([
             "/var/lib/ovn-ic/etc/ovnnb_db.db",
-            "/var/lib/ovn-ic/etc/ovnsb_db.db",
-            "/var/lib/ovn-ic/etc/libovsdb*log*"
-        ])
+            "/var/lib/ovn-ic/etc/ovnsb_db.db"
+        ], sizelimit=300)
+
+        # Collect libovsdb logs in case of ovn interconnect setup.
+        if not all_logs:
+            self.add_copy_spec([
+                "/var/lib/ovn-ic/etc/libovsdb.log",
+                "/var/lib/ovn-ic/etc/libovsdb*log.gz"
+            ], sizelimit=100)
+        else:
+            self.add_copy_spec("/var/lib/ovn-ic/etc/libovsdb*log*")
 
         # The ovn cluster/status is not valid anymore for interconnect setup.
         self.add_cmd_output([
