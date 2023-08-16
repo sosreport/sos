@@ -75,7 +75,7 @@ class firewall_tables(Plugin, IndependentPlugin):
         # collect iptables -t for any existing table, if we can't read the
         # tables, collect 2 default ones (mangle, filter)
         # do collect them only when relevant nft list ruleset exists
-        default_ip_tables = "mangle\nfilter\n"
+        default_ip_tables = "mangle\nfilter\nnat\n"
         try:
             ip_tables_names = open("/proc/net/ip_tables_names").read()
         except IOError:
