@@ -27,7 +27,13 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
             "/var/log/openvswitch/libreswan.log",
             "/var/log/openvswitch/ovs-monitor-ipsec.log"
         ])
+        # Collect ovn interconnect specific files if exists.
+        self.add_copy_spec([
+            "/var/lib/ovn-ic/etc/ovnnb_db.db",
+            "/var/lib/ovn-ic/etc/ovnsb_db.db"
+        ])
 
+        # The ovn cluster/status is not valid anymore for interconnect setup.
         self.add_cmd_output([
             'ovn-appctl -t /var/run/ovn/ovnnb_db.ctl ' +
             'cluster/status OVN_Northbound',
@@ -38,6 +44,10 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
             'ovs-appctl -t /var/run/ovn/ovn-controller.*.ctl ' +
             'ct-zone-list'],
             container='ovnkube-node')
+        # Collect ovs ct-zone-list directly on host for interconnect setup.
+        self.add_cmd_output([
+            'ovs-appctl -t /var/run/ovn-ic/ovn-controller.*.ctl ' +
+            'ct-zone-list'])
         self.add_cmd_output([
             'ovs-appctl -t ovs-monitor-ipsec tunnels/show',
             'ipsec status',

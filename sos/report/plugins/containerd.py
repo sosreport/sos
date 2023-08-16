@@ -14,7 +14,7 @@ class Containerd(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
     short_desc = 'Containerd containers'
     plugin_name = 'containerd'
     profiles = ('container',)
-    packages = ('containerd',)
+    packages = ('containerd', 'containerd.io',)
 
     def setup(self):
         self.add_copy_spec([

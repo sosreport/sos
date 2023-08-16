@@ -81,7 +81,7 @@ class OpenStackDesignate(Plugin):
             "ssl_key_password", "ssl_client_key_password",
             "memcache_secret_key"
         ]
-        regexp = r"((?m)^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
 
         self.do_path_regex_sub("/etc/designate/*", regexp, r"\1*********")
         self.do_path_regex_sub(

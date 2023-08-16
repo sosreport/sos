@@ -35,7 +35,8 @@ class Grub2(Plugin, IndependentPlugin):
             "/boot/grub2/user.cfg",
             "/etc/default/grub",
             "/etc/grub2.cfg",
-            "/etc/grub.d"
+            "/etc/grub.d",
+            "/etc/grub2-efi.cfg"
         ])
 
         self.add_cmd_output("ls -lanR /boot", tags="ls_boot")

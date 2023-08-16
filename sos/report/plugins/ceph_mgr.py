@@ -35,8 +35,8 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
     short_desc = 'CEPH mgr'
 
     plugin_name = 'ceph_mgr'
-    profiles = ('storage', 'virt', 'container')
-    files = ('/var/lib/ceph/mgr/', '/var/lib/ceph/*/mgr*')
+    profiles = ('storage', 'virt', 'container', 'ceph')
+    files = ('/var/lib/ceph/mgr/*', '/var/lib/ceph/*/mgr*')
     containers = ('ceph-(.*-)?mgr.*',)
 
     def setup(self):

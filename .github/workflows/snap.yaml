@@ -3,10 +3,13 @@ on:
   push:
     branches:
       - main
+  release:
+    types:
+      - published
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     concurrency:
       group: snap-build
       cancel-in-progress: true
@@ -25,8 +28,16 @@ jobs:
     - run: |
         sudo sos help
     - uses: snapcore/action-publish@v1
+      if: ${{ github.event_name == 'push' }}
       env:
         SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
       with:
         snap: ${{ steps.build-snap.outputs.snap }}
         release: "latest/edge"
+    - uses: snapcore/action-publish@v1
+      if: ${{ github.event_name == 'release' }}
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+      with:
+        snap: ${{ steps.build-snap.outputs.snap }}
+        release: "latest/candidate"
