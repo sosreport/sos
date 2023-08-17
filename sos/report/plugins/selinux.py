@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
 
 
-class SELinux(Plugin, RedHatPlugin):
+class SELinux(Plugin, RedHatPlugin, UbuntuPlugin):
 
     short_desc = 'SELinux access control'
 
@@ -20,7 +20,7 @@ class SELinux(Plugin, RedHatPlugin):
         PluginOpt('fixfiles', default=False,
                   desc='collect incorrect file context labels')
     ]
-    packages = ('libselinux',)
+    packages = ('libselinux', 'selinux-utils')
 
     def setup(self):
         self.add_copy_spec([
