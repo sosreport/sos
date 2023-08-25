@@ -45,7 +45,7 @@ class Hpssm(Plugin, IndependentPlugin):
             ["%s %s" % (cmd, subcmd) for subcmd in subcmds]
         )
 
-        pattern = re.compile("^HP.*Smart Array (.*) in Slot ([0123456789])")
+        pattern = re.compile("^HP[E] (.*) in Slot ([0123456789]+)")
         config_detail_cmd = cmd + ' ctrl all show config detail'
         config_detail = self.collect_cmd_output(config_detail_cmd)
         ctrl_slots = []
