@@ -17,6 +17,12 @@ class LogsBase(Plugin):
     plugin_name = "logs"
     profiles = ('system', 'hardware', 'storage')
 
+    # The default journal output is syslog-compatible, but it's much
+    # more useful to have the systemd unit.  Related prior art:
+    # https://github.com/openshift/installer/pull/7371/commits/948df48aada21e47e9bb0d0a53366871aa21b40a
+    # https://github.com/coreos/coreos-assembler/commit/c931fe0e9aa6b7c20c8279fdce3b6ef448eac8b8
+    default_format = "with-unit"
+
     def setup(self):
         confs = ['/etc/syslog.conf', '/etc/rsyslog.conf']
         logs = []
@@ -64,11 +70,13 @@ class LogsBase(Plugin):
                        for p in ["/var", "/run"]])
         if journal and self.is_service("systemd-journald"):
             self.add_journal(since=since, tags=['journal_full', 'journal_all'],
-                             priority=100)
+                             priority=100, output=self.default_format)
             self.add_journal(boot="this", since=since,
-                             tags='journal_since_boot')
+                             tags='journal_since_boot',
+                             output=self.default_format)
             self.add_journal(boot="last", since=since,
-                             tags='journal_last_boot')
+                             tags='journal_last_boot',
+                             output=self.default_format)
             if self.get_option("all_logs"):
                 self.add_copy_spec([
                     "/var/log/journal/*",
