@@ -16,7 +16,8 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
     """
     short_desc = 'Openshift OVN'
     plugin_name = "openshift_ovn"
-    containers = ('ovnkube-master', 'ovnkube-node', 'ovn-ipsec')
+    containers = ('ovnkube-master', 'ovnkube-node', 'ovn-ipsec',
+                  'ovnkube-controller')
     profiles = ('openshift',)
 
     def setup(self):
@@ -54,6 +55,10 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
             'ovs-appctl -t /var/run/ovn/ovn-controller.*.ctl ' +
             'ct-zone-list'],
             container='ovnkube-node')
+        self.add_cmd_output([
+            'ovs-appctl -t /var/run/ovn/ovn-controller.*.ctl ' +
+            'ct-zone-list'],
+            container='ovnkube-controller')
         # Collect ovs ct-zone-list directly on host for interconnect setup.
         self.add_cmd_output([
             'ovs-appctl -t /var/run/ovn-ic/ovn-controller.*.ctl ' +
