@@ -22,7 +22,7 @@ class Rpmostree(Plugin, RedHatPlugin):
         self.add_copy_spec('/etc/ostree/remotes.d/')
 
         subcmds = [
-            'status -v',
+            'status --json',
             'kargs',
             'db list',
             'db diff',
