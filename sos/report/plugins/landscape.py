@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, UbuntuPlugin
+import os
 
 
 class Landscape(Plugin, UbuntuPlugin):
@@ -19,6 +20,33 @@ class Landscape(Plugin, UbuntuPlugin):
     packages = ('landscape-client', 'landscape-server')
 
     def setup(self):
+
+        vars_all = [p in os.environ for p in [
+                        'LANDSCAPE_API_KEY',
+                        'LANDSCAPE_API_SECRET',
+                        'LANDSCAPE_API_URI',
+                    ]]
+
+        if not (all(vars_all)):
+            self.soslog.warning("Not all environment variables set. "
+                                "Source the environment file for the user "
+                                "intended to connect to the Landscape "
+                                "environment so that the landscape-api "
+                                "commands can be used.")
+        else:
+            self.add_cmd_output([
+                "landscape-api get-distributions",
+                "landscape-api get-apt-sources",
+                "landscape-api get-repository-profiles",
+                "landscape-api get activites --limit 100",
+            ])
+            self.add_cmd_output([
+                "landscape-api --json get-distributions",
+                "landscape-api --json get-apt-sources",
+                "landscape-api --json get-repository-profiles",
+                "landscape-api --json get activites --limit 100",
+            ])
+
         self.add_copy_spec([
             "/etc/default/landscape-client",
             "/etc/default/landscape-server",
