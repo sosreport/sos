@@ -16,7 +16,10 @@ class OpenContrail(Plugin, IndependentPlugin):
     plugin_name = 'opencontrail'
     profiles = ("network",)
     packages = ('opencontrail',)
-    containers = ('opencontrail.*',)
+    containers = (
+        'opencontrail.*',
+        'vrouter.*',
+    )
 
     def setup(self):
         # assuming the container names will start with "opencontrail"
