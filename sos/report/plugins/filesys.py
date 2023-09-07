@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, CosPlugin, PluginOpt)
+from sos.policies.distros.redhat import RedHatPolicy
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
-class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
+class Filesys(Plugin, IndependentPlugin):
     """Collects general information about the local filesystem(s) and mount
     points as well as optional information about EXT filesystems. Note that
     information specific filesystems such as XFS or ZFS is not collected by
@@ -57,6 +57,9 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "lslocks"
         ])
 
+        if isinstance(self.policy, RedHatPolicy):
+            self.add_cmd_output('ls -ldZ /tmp')
+
         self.add_forbidden_path([
             # cifs plugin
             '/proc/fs/cifs',
@@ -102,12 +105,5 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
                  "Output information may be incomplete.)\n")
 
         self.do_cmd_output_sub("lsof", regex, '')
-
-
-class RedHatFilesys(Filesys, RedHatPlugin):
-
-    def setup(self):
-        super().setup()
-        self.add_cmd_output('ls -ldZ /tmp')
 
 # vim: set et ts=4 sw=4 :
