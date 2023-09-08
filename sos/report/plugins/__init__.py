@@ -3570,20 +3570,6 @@ class SCLPlugin(RedHatPlugin):
     to match these against all found SCLs on the system. SCLs that do match
     class.files or class.packages are then accessible via self.scls_matched
     when the plugin is invoked.
-
-    Additionally, this plugin class provides "add_cmd_output_scl" (run
-    a command in context of given SCL), and "add_copy_spec_scl" and
-    "add_copy_spec_limit_scl" (copy package from file system of given SCL).
-
-    For example, you can implement a plugin that will list all global npm
-    packages in every SCL that contains "npm" package:
-
-    class SCLNpmPlugin(Plugin, SCLPlugin):
-        packages = ("%(scl_name)s-npm",)
-
-        def setup(self):
-            for scl in self.scls_matched:
-                self.add_cmd_output_scl(scl, "npm ls -g --json")
     """
 
     @property
@@ -3601,19 +3587,6 @@ class SCLPlugin(RedHatPlugin):
         """
         scl_cmd = "scl enable %s \"%s\"" % (scl, cmd)
         return scl_cmd
-
-    def add_cmd_output_scl(self, scl, cmds, **kwargs):
-        """Same as add_cmd_output, except that it wraps command in
-        "scl enable" call and sets proper PATH.
-        """
-        if scl not in self.scls_matched:
-            return
-        if isinstance(cmds, str):
-            cmds = [cmds]
-        scl_cmds = []
-        for cmd in cmds:
-            scl_cmds.append(self.convert_cmd_scl(scl, cmd))
-        self.add_cmd_output(scl_cmds, **kwargs)
 
     # config files for Software Collections are under /etc/${prefix}/${scl} and
     # var files are under /var/${prefix}/${scl} where the ${prefix} is distro

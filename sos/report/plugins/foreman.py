@@ -335,8 +335,7 @@ class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
             self.pumactl = "scl enable tfm '%s'" % self.pumactl
 
         super(RedHatForeman, self).setup()
-        self.add_cmd_output_scl('tfm', 'gem list',
-                                suggest_filename='scl enable tfm gem list')
+        self.add_cmd_output('gem list')
 
 
 class DebianForeman(Foreman, DebianPlugin, UbuntuPlugin):
