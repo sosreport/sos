@@ -28,7 +28,7 @@ class Microshift(Plugin, RedHatPlugin):
     plugin_timeout = 900
     packages = ('microshift', 'microshift-selinux', 'microshift-networking',
                 'microshift-greenboot')
-    services = (plugin_name, 'greenboot-healthcheck',
+    services = (plugin_name, 'microshift-etcd.scope', 'greenboot-healthcheck',
                 'greenboot-task-runner', 'redboot-task-runner')
     profiles = (plugin_name,)
     localhost_kubeconfig = '/var/lib/microshift/resources/kubeadmin/kubeconfig'
