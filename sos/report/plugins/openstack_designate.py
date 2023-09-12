@@ -17,6 +17,7 @@ class OpenStackDesignate(Plugin):
     profiles = ('openstack', 'openstack_controller')
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/designate"
+    var_ansible_gen = "/var/lib/config-data/ansible-generated"
 
     def setup(self):
         # collect current pool config
@@ -32,6 +33,9 @@ class OpenStackDesignate(Plugin):
             "/etc/designate/*",
             self.var_puppet_gen + "/etc/designate/designate.conf",
             self.var_puppet_gen + "/etc/designate/pools.yaml",
+            self.var_ansible_gen + "/designate/etc/designate/named.conf",
+            self.var_ansible_gen + "/designate/etc/designate/named/*",
+            self.var_ansible_gen + "/unbound/*"
         ])
 
         # logs
@@ -39,11 +43,15 @@ class OpenStackDesignate(Plugin):
             self.add_copy_spec([
                 "/var/log/designate/*",
                 "/var/log/containers/designate/*",
+                "/var/log/containers/designate-bind/*",
+                "/var/log/containers/unbound/*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/designate/*.log",
-                "/var/log/containers/designate/*.log"
+                "/var/log/containers/designate/*.log",
+                "/var/log/containers/designate-bind/*.log",
+                "/var/log/containers/unbound/*.log"
             ])
 
         subcmds = [
