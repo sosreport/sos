@@ -152,6 +152,7 @@ class Microshift(Plugin, RedHatPlugin):
         if self.path_exists('/var/lib/microshift-backups'):
             self.add_copy_spec(['/var/lib/microshift-backups/*/version',
                                 '/var/lib/microshift-backups/*.json'])
+        self.add_copy_spec(['/var/log/kube-apiserver/*.log'])
 
         self.add_cmd_output([
             'microshift version',
