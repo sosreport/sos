@@ -146,6 +146,9 @@ class Microshift(Plugin, RedHatPlugin):
         Output format for this function is based on `oc adm inspect` command,
         which is used to retrieve all API resources from the cluster.
         """
+
+        self.add_copy_spec('/etc/microshift')
+
         if self.path_exists('/var/lib/microshift-backups'):
             self.add_copy_spec(['/var/lib/microshift-backups/*/version',
                                 '/var/lib/microshift-backups/*.json'])
