@@ -390,14 +390,14 @@ class FileCacheArchive(Archive):
             # on file content.
             dest = self.check_path(dest, P_FILE, force=True)
 
-            f = codecs.open(dest, mode, encoding='utf-8')
-            if isinstance(content, bytes):
-                content = content.decode('utf8', 'ignore')
-            f.write(content)
-            if os.path.exists(src):
-                self._copy_attributes(src, dest)
-            self.log_debug("added string at '%s' to FileCacheArchive '%s'"
-                           % (src, self._archive_root))
+            with codecs.open(dest, mode, encoding='utf-8') as f:
+                if isinstance(content, bytes):
+                    content = content.decode('utf8', 'ignore')
+                f.write(content)
+                if os.path.exists(src):
+                    self._copy_attributes(src, dest)
+                self.log_debug("added string at '%s' to FileCacheArchive '%s'"
+                               % (src, self._archive_root))
 
     def add_binary(self, content, dest):
         with self._path_lock:
@@ -405,8 +405,8 @@ class FileCacheArchive(Archive):
             if not dest:
                 return
 
-            f = codecs.open(dest, 'wb', encoding=None)
-            f.write(content)
+            with codecs.open(dest, 'wb', encoding=None) as f:
+                f.write(content)
             self.log_debug("added binary content at '%s' to archive '%s'"
                            % (dest, self._archive_root))
 

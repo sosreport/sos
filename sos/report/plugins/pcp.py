@@ -47,9 +47,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
     def pcp_parse_conffile(self):
         try:
-            pcpconf = open(self.pcp_conffile, "r")
-            lines = pcpconf.readlines()
-            pcpconf.close()
+            with open(self.pcp_conffile, "r") as pcpconf:
+                lines = pcpconf.readlines()
         except IOError:
             return False
         env_vars = {}

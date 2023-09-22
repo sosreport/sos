@@ -466,8 +466,9 @@ support representative.
         if not os.path.exists(host_release):
             return False
         try:
-            for line in open(host_release, "r").read().splitlines():
-                atomic |= ATOMIC_RELEASE_STR in line
+            with open(host_release, 'r') as afile:
+                for line in afile.read().splitlines():
+                    atomic |= ATOMIC_RELEASE_STR in line
         except IOError:
             pass
         return atomic
@@ -551,8 +552,9 @@ support representative.
             return coreos
         host_release = os.environ[ENV_HOST_SYSROOT] + OS_RELEASE
         try:
-            for line in open(host_release, 'r').read().splitlines():
-                coreos |= 'Red Hat Enterprise Linux CoreOS' in line
+            with open(host_release, 'r') as hfile:
+                for line in hfile.read().splitlines():
+                    coreos |= 'Red Hat Enterprise Linux CoreOS' in line
         except IOError:
             pass
         return coreos

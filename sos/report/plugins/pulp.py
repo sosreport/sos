@@ -45,7 +45,9 @@ class Pulp(Plugin, RedHatPlugin):
         self.messaging_cert_file = ""
         in_messaging_section = False
         try:
-            for line in open("/etc/pulp/server.conf").read().splitlines():
+            with open("/etc/pulp/server.conf", 'r') as pfile:
+                pulp_lines = pfile.read().splitlines()
+            for line in pulp_lines:
                 if match(r"^\s*seeds:\s+\S+:\S+", line):
                     uri = line.split()[1].split(',')[0].split(':')
                     self.dbhost = uri[0]

@@ -61,28 +61,29 @@ class SosExtras(Plugin, IndependentPlugin):
                 _file = self.path_join(path, f)
                 self._log_warn("Collecting data from extras file %s" % _file)
                 try:
-                    for line in open(_file).read().splitlines():
-                        # ignore empty lines or comments
-                        if len(line.split()) == 0 or line.startswith('#'):
-                            continue
-                        # lines starting by ':' specify file pattern to collect
-                        # optionally followed by sizelimit
-                        if line.startswith(':'):
-                            words = line.split()
-                            limit = None
-                            if len(words) > 1:
-                                try:
-                                    limit = int(words[1])
-                                except ValueError:
-                                    self._log_warn("Can't decode integer"
-                                                   " sizelimit on line '%s'"
-                                                   " in file %s, using"
-                                                   " default."
-                                                   % (line, _file))
-                            self.add_copy_spec(words[0][1:], sizelimit=limit)
-                        else:
-                            # command to execute
-                            self.add_cmd_output(line, subdir=f)
+                    with open(_file, 'r') as sfile:
+                        for line in sfile.read().splitlines():
+                            # ignore empty lines or comments
+                            if len(line.split()) == 0 or line.startswith('#'):
+                                continue
+                            # lines starting by ':' specify file pattern to
+                            # collect optionally followed by sizelimit
+                            if line.startswith(':'):
+                                words = line.split()
+                                limit = None
+                                if len(words) > 1:
+                                    try:
+                                        limit = int(words[1])
+                                    except ValueError:
+                                        self._log_warn(
+                                            f"Can't decode size limit on line"
+                                            f"{line} in {_file}, using default"
+                                        )
+                                self.add_copy_spec(words[0][1:],
+                                                   sizelimit=limit)
+                            else:
+                                # command to execute
+                                self.add_cmd_output(line, subdir=f)
 
                 except IOError:
                     self._log_warn("unable to read extras file %s" % _file)
