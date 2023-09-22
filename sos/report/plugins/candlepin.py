@@ -30,7 +30,9 @@ class Candlepin(Plugin, RedHatPlugin):
         self.dbpasswd = ""
         cfg_file = "/etc/candlepin/candlepin.conf"
         try:
-            for line in open(cfg_file).read().splitlines():
+            with open(cfg_file, 'r') as cfile:
+                candle_lines = cfile.read().splitlines()
+            for line in candle_lines:
                 # skip empty lines and lines with comments
                 if not line or line[0] == '#':
                     continue

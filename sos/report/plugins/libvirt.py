@@ -69,9 +69,10 @@ class Libvirt(Plugin, IndependentPlugin):
 
         # get details of processes of KVM hosts
         for pidfile in glob.glob("/run/libvirt/*/*.pid"):
-            pid = open(pidfile).read().splitlines()[0]
-            for pf in ["environ", "cgroup", "maps", "numa_maps", "limits"]:
-                self.add_copy_spec("/proc/%s/%s" % (pid, pf))
+            with open(pidfile, 'r') as pfile:
+                pid = pfile.read().splitlines()[0]
+                for pf in ["environ", "cgroup", "maps", "numa_maps", "limits"]:
+                    self.add_copy_spec("/proc/%s/%s" % (pid, pf))
 
         self.add_file_tags({
             "/run/libvirt/qemu/*.xml": "var_qemu_xml",
