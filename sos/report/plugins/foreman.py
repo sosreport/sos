@@ -232,6 +232,7 @@ class Foreman(Plugin):
 
         foremandb = {
             'foreman_settings_table': scmd,
+            'foreman_schema_migrations': 'select * from schema_migrations',
             'foreman_auth_table': authcmd,
             'dynflow_schema_info': 'select * from dynflow_schema_info',
             'audits_table_count': 'select count(*) from audits',
