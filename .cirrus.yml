@@ -230,18 +230,18 @@ report_foreman_task:
     matrix:
         - env:
             <<: *centos8
-            FOREMAN_VER: "2.5"
+            FOREMAN_VER: "3.3"
         - env:
             <<: *centos8
-            FOREMAN_VER: "3.1"
+            FOREMAN_VER: "3.5"
         - env:
             <<: *centos8
-            FOREMAN_VER: "3.4"
+            FOREMAN_VER: "3.7"
         - env:
             PROJECT: ${DEBIAN_PROJECT}
             VM_IMAGE_NAME: ${DEBIAN_IMAGE_NAME}
             BUILD_NAME: ${DEBIAN_NAME}
-            FOREMAN_VER: "3.4"
+            FOREMAN_VER: "3.7"
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
     main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t foreman tests/product_tests/foreman/
