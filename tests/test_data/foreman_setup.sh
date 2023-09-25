@@ -10,7 +10,7 @@ if grep -iq centos /etc/os-release; then
     else
         dnf -y install https://yum.puppet.com/puppet6-release-el-8.noarch.rpm
         dnf -y install https://yum.theforeman.org/releases/$FOREMAN_VER/el8/x86_64/foreman-release.rpm
-        dnf -y module enable ruby:2.7
+        dnf -y module enable ruby:2.7 postgresql:12 foreman:el8
     fi
     dnf -y install foreman-installer && SUCCESS=1
 elif grep -iq debian /etc/os-release; then
