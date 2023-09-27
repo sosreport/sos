@@ -299,5 +299,13 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host,
                                 priority=100)
 
+    def postproc(self):
+
+        self.do_path_regex_sub(
+            "/etc/netplan",
+            r"(\s+password:).*",
+            r"\1 ******"
+        )
+
 
 # vim: set et ts=4 sw=4 :
