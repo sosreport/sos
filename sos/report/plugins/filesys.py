@@ -56,7 +56,21 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "lslocks"
         ])
 
-        self.add_forbidden_path('/proc/fs/panfs')
+        self.add_forbidden_path([
+            # cifs plugin
+            '/proc/fs/cifs',
+            # lustre plugin
+            '/proc/fs/ldiskfs',
+            '/proc/fs/lustre',
+            # nfs plugin
+            '/proc/fs/nfsd',
+            '/proc/fs/nfsfs',
+            # panfs (from Panasas company) provides statistics which can be
+            # very large (100s of GB)
+            '/proc/fs/panfs',
+            # xfs plugin
+            '/proc/fs/xfs'
+        ])
 
         if self.get_option('lsof'):
             self.add_cmd_output("lsof -b +M -n -l -P", root_symlink="lsof",
