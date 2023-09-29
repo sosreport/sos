@@ -598,6 +598,7 @@ class SoSCollector(SoSComponent):
                     return True
                 else:
                     return False
+        self.exit(f"Unknown option type: {cli.opt_type}")
 
     def log_info(self, msg):
         """Log info messages to both console and log file"""

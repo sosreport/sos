@@ -41,6 +41,7 @@ class SoSMap():
         for skip in self.ignore_matches:
             if re.match(skip, item, re.I):
                 return True
+        return False
 
     def add(self, item):
         """Add a particular item to the map, generating an obfuscated pair

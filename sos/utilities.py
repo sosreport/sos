@@ -533,8 +533,7 @@ class ImporterHelper(object):
             pnames = self._get_plugins_from_list(py_files)
             if pnames:
                 return pnames
-            else:
-                return []
+        return []
 
     def get_modules(self):
         """Returns the list of importable modules in the configured python

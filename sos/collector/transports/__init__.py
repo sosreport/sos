@@ -102,6 +102,7 @@ class RemoteTransport():
             section.add_text(
                 'Detailed information not available for this transport'
             )
+        return None
 
     @classmethod
     def display_self_help(cls, section):
@@ -299,6 +300,11 @@ class RemoteTransport():
             return {'status': result.exitstatus, 'output': out}
         elif index == 1:
             raise CommandTimeoutException(cmd)
+        # if we somehow manage to flow to this point, use this bogus exit code
+        # as a signal to debugging efforts that whatever went sideways did so
+        # as part of the above block
+        self.log_debug(f"Unexpected index {index} from pexpect: {result}")
+        return {'status': 999, 'output': ''}
 
     def _send_pexpect_password(self, index, result):
         """Handle password prompts for sudo and su usage for non-root SSH users

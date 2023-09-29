@@ -61,6 +61,7 @@ def _node_type(st):
     for t in _types:
         if t[0](st.st_mode):
             return t[1]
+    return ''
 
 
 _certmatch = re.compile("-*BEGIN.*?-*END", re.DOTALL)
@@ -187,6 +188,10 @@ class SoSPredicate(object):
             return all(items)
         elif required == 'none':
             return not any(items)
+        raise ValueError(
+            f"predicate requires must be 'any', 'all', or 'none' "
+            f"not {required}"
+        )
 
     def _failed_or_forbidden(self, test, item):
         """Helper to direct failed predicates to provide the proper messaging
@@ -1458,11 +1463,11 @@ class Plugin():
         saved for use later in preparing a report.
         """
         if self._timeout_hit:
-            return
+            return None
 
         if self._is_forbidden_path(srcpath):
             self._log_debug("skipping forbidden path '%s'" % srcpath)
-            return ''
+            return None
 
         if not dest:
             dest = srcpath
@@ -1474,19 +1479,19 @@ class Plugin():
             st = os.lstat(srcpath)
         except (OSError, IOError):
             self._log_info("failed to stat '%s'" % srcpath)
-            return
+            return None
 
         if stat.S_ISLNK(st.st_mode):
             self._copy_symlink(srcpath)
-            return
+            return None
         else:
             if stat.S_ISDIR(st.st_mode) and os.access(srcpath, os.R_OK):
                 # copy empty directory
                 if not self.listdir(srcpath):
                     self.archive.add_dir(dest)
-                    return
+                    return None
                 self._copy_dir(srcpath)
-                return
+                return None
 
         # handle special nodes (block, char, fifo, socket)
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
@@ -1494,7 +1499,7 @@ class Plugin():
             self._log_debug("creating %s node at archive:'%s'"
                             % (ntype, dest))
             self._copy_node(dest, st)
-            return
+            return None
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
         self._log_debug("copying path '%s' to archive:'%s'" % (srcpath, dest))
@@ -1512,7 +1517,7 @@ class Plugin():
             'symlink': "no"
         })
 
-        return
+        return None
 
     def add_forbidden_path(self, forbidden):
         """Specify a path, or list of paths, to not copy, even if it's part of
@@ -1695,7 +1700,7 @@ class Plugin():
         if not self.test_predicate(pred=pred):
             self._log_info("skipped copy spec '%s' due to predicate (%s)" %
                            (copyspecs, self.get_predicate(pred=pred)))
-            return
+            return None
 
         if sizelimit is None:
             sizelimit = self.get_option("log_size")
@@ -1723,11 +1728,12 @@ class Plugin():
             mangled to _conf or similar.
             """
             if fname.startswith(('/proc', '/sys')):
-                return
+                return None
             _fname = fname.split('/')[-1]
             _fname = _fname.replace('-', '_')
             if _fname.endswith(('.conf', '.log', '.txt')):
                 return _fname.replace('.', '_')
+            return None
 
         for copyspec in copyspecs:
             if not (copyspec and len(copyspec)):
@@ -1890,6 +1896,7 @@ class Plugin():
                         'files_copied': _manifest_files,
                         'tags': _spec_tags
                     })
+        return None
 
     def add_device_cmd(self, cmds, devices, timeout=None, sizelimit=None,
                        chroot=True, runat=None, env=None, binary=False,
@@ -2322,7 +2329,7 @@ class Plugin():
 
         """
         if self._timeout_hit:
-            return
+            return None
 
         if timeout is None:
             timeout = self.cmdtimeout

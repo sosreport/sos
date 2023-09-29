@@ -37,14 +37,17 @@ class Ipa(Plugin, RedHatPlugin):
 
     def ca_installed(self):
         # Follow the same checks as IPA CA installer code
-        if self.path_exists("%s/conf/ca/CS.cfg" % self.pki_tomcat_dir_v4) \
-                or self.path_exists("%s/conf/CS.cfg" % self.pki_tomcat_dir_v3):
-            return True
+        return any(
+            self.path_exists(path) for path in [
+                f"{self.pki_tomcat_dir_v4}/conf/ca/CS.cfg",
+                f"{self.pki_tomcat_dir_v3}/conf/CS.cfg"
+            ]
+        )
 
     def ipa_server_installed(self):
-        if self.is_installed("ipa-server") \
-                or self.is_installed("freeipa-server"):
-            return True
+        return any(
+            self.is_installed(pkg) for pkg in ['ipa-server', 'freeipa-server']
+        )
 
     def retrieve_pki_logs(self, ipa_version):
         if ipa_version == "v4":

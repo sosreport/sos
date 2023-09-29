@@ -428,6 +428,7 @@ third party.
                          "representative and keep the mapping file private")
 
         self.cleanup()
+        return None
 
     def rebuild_nested_archive(self):
         """Handles repacking the nested tarball, now containing only obfuscated
@@ -750,7 +751,7 @@ third party.
         """
         if not filename:
             # the requested file doesn't exist in the archive
-            return
+            return None
         subs = 0
         if not short_name:
             short_name = filename.split('/')[-1]
