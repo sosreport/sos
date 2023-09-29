@@ -1385,6 +1385,7 @@ class SoSReport(SoSComponent):
             self.handle_exception(plugname, "collect")
         except Exception:
             self.handle_exception(plugname, "collect")
+        return None
 
     def ui_progress(self, status_line):
         if self.opts.verbosity == 0 and not self.opts.batch:

@@ -40,6 +40,7 @@ class Autofs(Plugin):
                                   *self.files)
         for i in debugout:
             return i[1]
+        return None
 
     def setup(self):
         self.add_copy_spec("/etc/auto*")

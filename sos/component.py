@@ -182,6 +182,7 @@ class SoSComponent():
         opts = [o for o in self.opts.dict().keys() if o.startswith('list')]
         if opts:
             return any([getattr(self.opts, opt) for opt in opts])
+        return False
 
     @classmethod
     def add_parser_options(cls, parser):

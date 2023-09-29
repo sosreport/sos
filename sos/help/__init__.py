@@ -126,6 +126,7 @@ class SoSHelper(SoSComponent):
         _transport = self.opts.topic.split('.')[-1]
         if _transport in TRANSPORTS:
             return TRANSPORTS[_transport]
+        return None
 
     def _get_collect_cluster(self):
         from sos.collector import SoSCollector
@@ -135,6 +136,7 @@ class SoSHelper(SoSComponent):
         for cluster in clusters:
             if cluster[0] == self.opts.topic.split('.')[-1]:
                 return cluster[1]
+        return None
 
     def _get_plugin_variant(self):
         mod = importlib.import_module('sos.' + self.opts.topic)
@@ -145,6 +147,7 @@ class SoSHelper(SoSComponent):
             if plugin.__subclasses__():
                 cls = self.policy.match_plugin(plugin.__subclasses__())
                 return cls
+        return None
 
     def _get_policy_by_name(self):
         _topic = self.opts.topic.split('.')[-1]
@@ -157,6 +160,7 @@ class SoSHelper(SoSComponent):
                 _p = policy.__name__.lower().replace('policy', '')
                 if _p == _topic:
                     return policy
+        return None
 
     def display_self_help(self):
         """Displays the help information for this component directly, that is

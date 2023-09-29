@@ -51,12 +51,12 @@ class OVNCentral(Plugin):
             if res['status'] != 0:
                 self._log_error("Could not retrieve DB schema file from "
                                 "container %s" % self._container_name)
-                return
+                return None
             try:
                 db = json.loads(res['output'])
             except Exception:
                 self._log_error("Cannot parse JSON file %s" % filename)
-                return
+                return None
         else:
             try:
                 with open(self.path_join(filename), 'r') as f:
@@ -65,16 +65,17 @@ class OVNCentral(Plugin):
                     except Exception:
                         self._log_error(
                             "Cannot parse JSON file %s" % filename)
-                        return
+                        return None
             except IOError as ex:
                 self._log_error(
                     "Could not open DB schema file %s: %s" % (filename, ex))
-                return
+                return None
         try:
             return [table for table in dict.keys(
                 db['tables']) if table not in skip]
         except AttributeError:
             self._log_error("DB schema %s has no 'tables' key" % filename)
+        return None
 
     def add_database_output(self, tables, cmds, ovn_cmd):
         if not tables:

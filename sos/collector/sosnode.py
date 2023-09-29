@@ -213,6 +213,7 @@ class SosNode():
                 self.log_error("Could not create container on host: %s"
                                % res['output'])
                 raise Exception
+        return False
 
     def get_container_auth(self):
         """Determine what the auth string should be to pull the image used to
@@ -331,6 +332,7 @@ class SosNode():
             self._load_sos_plugins(sosinfo['output'])
         if self.check_sos_version('3.6'):
             self._load_sos_presets()
+        return None
 
     def _load_sos_presets(self):
         cmd = '%s --list-presets' % self.sos_bin

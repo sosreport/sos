@@ -467,6 +467,7 @@ any third party.
             self.ui_log.info(
                 _("\nPlease send this file to your support representative.\n")
             )
+        return None
 
     def get_msg(self):
         """This method is used to prepare the preamble text to display to

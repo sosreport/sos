@@ -176,6 +176,7 @@ class SSHControlPersist(RemoteTransport):
                 return False
         self.log_debug("Control socket not present when attempting to "
                        "terminate session")
+        return False
 
     @property
     def connected(self):

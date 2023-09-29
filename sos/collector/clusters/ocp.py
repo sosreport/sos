@@ -127,7 +127,7 @@ class ocp(Cluster):
         collection via a container image
         """
         if not self.set_transport_type() == 'oc':
-            return
+            return None
 
         out = self.exec_primary_cmd(self.fmt_oc_cmd("auth can-i '*' '*'"))
         self.oc_cluster_admin = out['status'] == 0

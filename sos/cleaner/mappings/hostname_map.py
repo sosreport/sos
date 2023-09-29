@@ -215,6 +215,7 @@ class SoSHostnameMap(SoSMap):
             if all([h.isupper() for h in host]):
                 _fqdn = _fqdn.upper()
             return _fqdn
+        return None
 
     def sanitize_short_name(self, hostname):
         """Obfuscate the short name of the host with an incremented counter

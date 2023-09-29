@@ -77,3 +77,4 @@ class SoSMacMap(SoSMap):
         # match 48-bit IPv4 MAC addresses
         if re.match('([0-9a-fA-F][:_]?){12}', item):
             return self.mac_template % hextets
+        return None
