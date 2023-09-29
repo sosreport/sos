@@ -3,6 +3,7 @@
 *swp*
 *.pyc
 *.sw*
+*.DS_Store
 tags
 buildjar/
 gpgkeys/rhsupport.*
