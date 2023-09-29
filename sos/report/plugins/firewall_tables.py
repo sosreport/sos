@@ -56,7 +56,7 @@ class firewall_tables(Plugin, IndependentPlugin):
         nft_pred = SoSPredicate(self,
                                 kmods=['nf_tables', 'nfnetlink'],
                                 required={'kmods': 'all'})
-        return self.collect_cmd_output("nft list ruleset", pred=nft_pred,
+        return self.collect_cmd_output("nft -a list ruleset", pred=nft_pred,
                                        changes=True)
 
     def setup(self):
