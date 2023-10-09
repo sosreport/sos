@@ -375,7 +375,7 @@ class LinuxPolicy(Policy):
         Entry point for sos attempts to upload the generated archive to a
         policy or user specified location.
 
-        Curerntly there is support for HTTPS, SFTP, and FTP. HTTPS uploads are
+        Currently there is support for HTTPS, SFTP, and FTP. HTTPS uploads are
         preferred for policy-defined defaults.
 
         Policies that need to override uploading methods should override the
@@ -456,7 +456,7 @@ class LinuxPolicy(Policy):
         :param password: Password for `user` to use for upload
         :type password: ``str``
 
-        :returns: The user/password auth suitable for use in reqests calls
+        :returns: The user/password auth suitable for use in requests calls
         :rtype: ``requests.auth.HTTPBasicAuth()``
         """
         if not user:
