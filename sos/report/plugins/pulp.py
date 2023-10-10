@@ -170,10 +170,13 @@ class Pulp(Plugin, RedHatPlugin):
         repl = r"\1********"
         self.do_path_regex_sub("/etc/pulp(.*)(.json$)", jreg, repl)
 
-        # obfuscate SECRET_KEY = .. and 'PASSWORD': .. in dynaconf list output
-        # and also in settings.py
+        # obfuscate SECRET_KEY = .., 'PASSWORD': ..,
+        # and AUTH_LDAP_BIND_PASSWORD = ..
+        # in dynaconf list output and also in settings.py
         # count with option that PASSWORD is with(out) quotes or in capitals
-        key_pass_re = r"(SECRET_KEY\s*=|(password|PASSWORD)(\"|'|:)+)\s*(\S*)"
+        key_pass_re = r"((?:SECRET_KEY|AUTH_LDAP_BIND_PASSWORD)" \
+                      r"(?:\<.+\>)?(\s*=)?|(password|PASSWORD)" \
+                      r"(\"|'|:)+)\s*(\S*)"
         repl = r"\1 ********"
         self.do_path_regex_sub("/etc/pulp/settings.py", key_pass_re, repl)
         self.do_cmd_output_sub("dynaconf list", key_pass_re, repl)
