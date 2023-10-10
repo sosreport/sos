@@ -1,3 +1,5 @@
+# Copyright (C) 2023 Canonical Ltd., Nikhil Kshirsagar <nkshirsagar@ubuntu.com>
+#
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
 # This copyrighted material is made available to anyone wishing to use,
@@ -35,6 +37,7 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
              '/var/snap/microceph/common/data/osd/*')
 
     def setup(self):
+        directory = ''
         microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
         cmds = [
             # will work pre quincy
@@ -70,6 +73,7 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
         ]
 
         if not microceph_pkg:
+            directory = '/var/run/ceph'
             self.add_file_tags({
                 "/var/log/ceph/(.*/)?ceph-(.*-)?osd.*.log": 'ceph_osd_log',
             })
@@ -96,12 +100,8 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
                 "ceph-volume lvm list"
             ])
 
-            self.add_cmd_output(
-              [f"ceph daemon {i} {c}" for i in self.get_socks(
-                   'var/run/ceph') for c in cmds]
-            )
-
         else:
+            directory = '/var/snap/microceph'
             # Only collect microceph files, don't run any commands
             self.add_forbidden_path([
                 "/var/snap/microceph/common/**/*keyring*",
@@ -114,18 +114,19 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/var/snap/microceph/common/logs/*ceph-osd*.log",
             ])
 
-            self.add_cmd_output(
-              [f"ceph daemon {i} {c}" for i in self.get_socks(
-                   '/var/snap/microceph/') for c in cmds]
-            )
+        # common add_cmd_output for ceph and microceph
+        self.add_cmd_output([
+            f"ceph daemon {i} {c}" for i in
+            self.get_socks(directory) for c in cmds]
+        )
 
-    def get_socks(self, folderpath):
+    def get_socks(self, directory):
         """
         Find any available admin sockets under /var/run/ceph (or subdirs for
         later versions of Ceph) which can be used for ceph daemon commands
         """
         ceph_sockets = []
-        for rdir, dirs, files in os.walk(folderpath):
+        for rdir, dirs, files in os.walk(directory):
             for file in files:
                 if file.endswith('.asok') and 'osd' in file:
                     ceph_sockets.append(self.path_join(rdir, file))
