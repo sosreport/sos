@@ -1,3 +1,5 @@
+# Copyright (C) 2023 Canonical Ltd., Nikhil Kshirsagar <nkshirsagar@ubuntu.com>
+
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
 # This copyrighted material is made available to anyone wishing to use,
@@ -36,53 +38,35 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
 
     plugin_name = 'ceph_mgr'
     profiles = ('storage', 'virt', 'container', 'ceph')
-    files = ('/var/lib/ceph/mgr/*', '/var/lib/ceph/*/mgr*')
+    files = ('/var/lib/ceph/mgr/*', '/var/lib/ceph/*/mgr*',
+             '/var/snap/microceph/common/data/mgr/*')
     containers = ('ceph-(.*-)?mgr.*',)
 
     def setup(self):
+        microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
 
-        self.add_file_tags({
-            '/var/log/ceph/(.*/)?ceph-mgr.*.log': 'ceph_mgr_log',
-        })
-
-        self.add_forbidden_path([
-            "/etc/ceph/*keyring*",
-            "/var/lib/ceph/**/*keyring*",
-            "/var/lib/ceph/**/osd*",
-            "/var/lib/ceph/**/mon*",
-            # Excludes temporary ceph-osd mount location like
-            # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
-            "/var/lib/ceph/**/tmp/*mnt*",
-            "/etc/ceph/*bindpass*",
-        ])
-
-        self.add_copy_spec([
-            "/var/log/ceph/**/ceph-mgr*.log",
-            "/var/lib/ceph/**/mgr*",
-            "/var/lib/ceph/**/bootstrap-mgr/",
-            "/run/ceph/**/ceph-mgr*",
-        ])
-
-        # more commands to be added later
         ceph_mgr_cmds = ([
             "balancer status",
-            "orch host ls",
-            "orch device ls",
-            "orch ls",
-            "orch ls --export",
-            "orch ps",
-            "orch status --detail",
-            "orch upgrade status",
-            "log last cephadm"
+            "log last cephadm",
+            "mgr dump",
+            "mgr metadata",
+            "mgr module ls",
+            "mgr stat",
+            "mgr versions"
         ])
 
-        self.add_cmd_output(
-            [f"ceph {cmd}" for cmd in ceph_mgr_cmds])
-        # get ceph_cmds again as json for easier automation parsing
-        self.add_cmd_output(
-            [f"ceph {cmd} --format json-pretty" for cmd in ceph_mgr_cmds],
-            subdir="json_output",
-        )
+        # if orchestrator is configured
+        orch_configured = self.exec_cmd('ceph orch status')
+        if orch_configured['status'] == 0:
+            ceph_mgr_cmds += ([
+                "orch host ls",
+                "orch device ls",
+                "orch ls",
+                "orch ls --export",
+                "orch ps",
+                "orch status --detail",
+                "orch upgrade status"
+            ])
 
         cmds = [
             "config diff",
@@ -93,8 +77,6 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
             "mds_requests",
             "mds_sessions",
             "objecter_requests",
-            "mds_requests",
-            "mds_sessions",
             "perf dump",
             "perf histogram dump",
             "perf histogram schema",
@@ -103,17 +85,67 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
             "version"
         ]
 
-        self.add_cmd_output([
-            f"ceph daemon {m} {cmd}" for m in self.get_socks() for cmd in cmds]
+        directory = ''
+        if not microceph_pkg:
+            directory = '/var/run/ceph'
+            self.add_file_tags({
+                '/var/log/ceph/(.*/)?ceph-mgr.*.log': 'ceph_mgr_log',
+            })
+
+            self.add_forbidden_path([
+                "/etc/ceph/*keyring*",
+                "/var/lib/ceph/**/*keyring*",
+                "/var/lib/ceph/**/osd*",
+                "/var/lib/ceph/**/mon*",
+                # Excludes temporary ceph-osd mount location like
+                # /var/lib/ceph/tmp/mnt.XXXX from sos collection.
+                "/var/lib/ceph/**/tmp/*mnt*",
+                "/etc/ceph/*bindpass*",
+            ])
+
+            self.add_copy_spec([
+                "/var/log/ceph/**/ceph-mgr*.log",
+                "/var/lib/ceph/**/mgr*",
+                "/var/lib/ceph/**/bootstrap-mgr/",
+                "/run/ceph/**/ceph-mgr*",
+            ])
+
+        else:
+            directory = '/var/snap/microceph'
+            self.add_file_tags({
+                '/var/snap/microceph/common/logs/ceph-mgr.*.log':
+                'ceph_mgr_log',
+            })
+
+            self.add_forbidden_path([
+                "/var/snap/microceph/common/**/*keyring*",
+            ])
+
+            self.add_copy_spec([
+                "/var/snap/microceph/common/logs/ceph-mgr*.log",
+            ])
+
+        self.add_cmd_output(
+            [f"ceph {cmd}" for cmd in ceph_mgr_cmds])
+
+        # get ceph_cmds again as json for easier automation parsing
+        self.add_cmd_output(
+            [f"ceph {cmd} --format json-pretty" for cmd in ceph_mgr_cmds],
+            subdir="json_output",
         )
 
-    def get_socks(self):
+        self.add_cmd_output([
+            f"ceph daemon {m} {cmd}" for m in self.get_socks(directory)
+            for cmd in cmds]
+        )
+
+    def get_socks(self, directory):
         """
         Find any available admin sockets under /var/run/ceph (or subdirs for
         later versions of Ceph) which can be used for ceph daemon commands
         """
         ceph_sockets = []
-        for rdir, dirs, files in os.walk('/var/run/ceph/'):
+        for rdir, dirs, files in os.walk(directory):
             for file in files:
                 if file.startswith('ceph-mgr') and file.endswith('.asok'):
                     ceph_sockets.append(self.path_join(rdir, file))
