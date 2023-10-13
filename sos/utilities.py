@@ -23,9 +23,9 @@ from contextlib import closing
 from collections import deque
 
 try:
-    from pkg_resources import parse_version as version_parse
+    from pkg_resources import parse_version
 except ImportError:
-    from packaging.version import parse as version_parse
+    from packaging.version import parse as parse_version
 
 # try loading magic>=0.4.20 which implements detect_from_filename method
 magic_mod = False
@@ -45,6 +45,32 @@ recommended to install proper python3-magic package with the module.
 
 
 TIMEOUT_DEFAULT = 300
+
+__all__ = [
+    'TIMEOUT_DEFAULT',
+    'ImporterHelper',
+    'SoSTimeoutError',
+    'TempFileUtil',
+    'bold',
+    'file_is_binary',
+    'fileobj',
+    'find',
+    'get_human_readable',
+    'grep',
+    'import_module',
+    'is_executable',
+    'listdir',
+    'parse_version',
+    'path_exists',
+    'path_isdir',
+    'path_isfile',
+    'path_islink',
+    'path_join',
+    'recursive_dict_values_by_key',
+    'shell_out',
+    'sos_get_command_output',
+    'tail',
+]
 
 
 def tail(filename, number_of_bytes):
@@ -411,12 +437,6 @@ def recursive_dict_values_by_key(dobj, keys=[]):
         _items.extend(dobj)
 
     return [d for d in _items if d not in _filt]
-
-
-def parse_version(version):
-    """Parse the version string
-    """
-    return version_parse(version)
 
 
 class FakeReader():
