@@ -19,6 +19,8 @@ from sos.presets.redhat import (RHEL_PRESETS, ATOMIC_PRESETS, RHV, RHEL,
                                 ATOMIC)
 from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
+from sos.policies.package_managers.flatpak import FlatpakPackageManager
+from sos.policies.package_managers import MultiPackageManager
 from sos.utilities import bold
 from sos import _sos as _
 
@@ -57,8 +59,11 @@ class RedHatPolicy(LinuxPolicy):
                                            remote_exec=remote_exec)
         self.usrmove = False
 
-        self.package_manager = RpmPackageManager(chroot=self.sysroot,
-                                                 remote_exec=remote_exec)
+        self.package_manager = MultiPackageManager(
+                primary=RpmPackageManager,
+                fallbacks=[FlatpakPackageManager],
+                chroot=self.sysroot,
+                remote_exec=remote_exec)
 
         self.valid_subclasses += [RedHatPlugin]
 
