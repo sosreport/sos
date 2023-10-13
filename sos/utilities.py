@@ -23,9 +23,9 @@ from contextlib import closing
 from collections import deque
 
 try:
-    from pkg_resources import parse_version
-except ImportError:
     from packaging.version import parse as parse_version
+except ImportError:
+    from pkg_resources import parse_version
 
 # try loading magic>=0.4.20 which implements detect_from_filename method
 magic_mod = False
