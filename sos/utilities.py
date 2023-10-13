@@ -24,7 +24,7 @@ from collections import deque
 
 try:
     from pkg_resources import parse_version as version_parse
-except SyntaxError:
+except ImportError:
     from packaging.version import parse as version_parse
 
 # try loading magic>=0.4.20 which implements detect_from_filename method
