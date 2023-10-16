@@ -19,6 +19,9 @@ class Block(Plugin, IndependentPlugin):
     files = ('/sys/block',)
 
     def setup(self):
+        _subdir1 = "udevadm_block"
+        _subdir2 = "fdisk_parted"
+
         self.add_forbidden_path("/sys/block/*/queue/iosched")
 
         self.add_file_tags({
@@ -50,14 +53,24 @@ class Block(Plugin, IndependentPlugin):
             "/sys/block/loop*/loop/",
         ])
 
-        cmds = [
-            "parted -s %(dev)s unit s print",
+        udevadm_cmds = [
             "udevadm info %(dev)s",
             "udevadm info -a %(dev)s"
         ]
-        self.add_device_cmd(cmds, devices='block', blacklist='ram.*')
+
+        parted_cmds = [
+            "parted -s %(dev)s unit s print"
+        ]
+
+        self.add_device_cmd(udevadm_cmds, devices='block', blacklist='ram.*',
+                            subdir=_subdir1)
+
+        self.add_device_cmd(parted_cmds, devices='block', blacklist='ram.*',
+                            subdir=_subdir2)
+
         self.add_device_cmd("fdisk -l %(dev)s", blacklist="ram.*",
-                            devices="block", tags="fdisk_l_sos")
+                            devices="block", tags="fdisk_l_sos",
+                                    subdir=_subdir2)
 
         lsblk = self.collect_cmd_output("lsblk -f -a -l")
         # for LUKS devices, collect cryptsetup luksDump

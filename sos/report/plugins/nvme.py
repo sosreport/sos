@@ -26,24 +26,50 @@ class Nvme(Plugin, IndependentPlugin):
     kernel_mods = ('nvme', 'nvme_core')
 
     def setup(self):
+        _subdir1 = "nvme_smartctl"
+        _subdir2 = "nvme_fw_smart_error_logs"
+
         self.add_copy_spec("/etc/nvme/*")
         self.add_cmd_output([
             "nvme list",
             "nvme list-subsys",
         ])
 
-        cmds = [
+        smartctl_cmds = [
             "smartctl --all %(dev)s",
-            "smartctl --all %(dev)s -j",
-            "nvme list-ns %(dev)s",
+            "smartctl --all %(dev)s -j"
+        ]
+
+        nvme_logs_cmds = [
             "nvme fw-log %(dev)s",
+            "nvme smart-log %(dev)s",
+            "nvme error-log %(dev)s"
+        ]
+
+        nvme_commands = [
+            "nvme list-ns %(dev)s",
             "nvme list-ctrl %(dev)s",
             "nvme id-ctrl -H %(dev)s",
             "nvme id-ns -H %(dev)s",
-            "nvme smart-log %(dev)s",
-            "nvme error-log %(dev)s",
             "nvme show-regs %(dev)s"
         ]
-        self.add_device_cmd(cmds, devices='block', whitelist='nvme.*')
+
+        subdirs = [
+            "nvme_list-ns",
+            "nvme_list-ctrl",
+            "nvme_id-ctrl_-H",
+            "nvme_id-ns_-H",
+            "nvme_show-regs"
+        ]
+
+        self.add_device_cmd(smartctl_cmds, devices='block', whitelist='nvme.*',
+                            subdir=_subdir1)
+
+        self.add_device_cmd(nvme_logs_cmds, devices='block',
+                            whitelist='nvme.*', subdir=_subdir2)
+
+        for cmd, dir in zip(nvme_commands, subdirs):
+            self.add_device_cmd(cmd, whitelist='nvme.*',
+                                devices='block', subdir=dir)
 
 # vim: set et ts=4 sw=4 :
