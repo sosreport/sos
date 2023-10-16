@@ -27,7 +27,7 @@ class Microshift(Plugin, RedHatPlugin):
     plugin_name = 'microshift'
     plugin_timeout = 900
     packages = ('microshift', 'microshift-selinux', 'microshift-networking',)
-    services = (plugin_name, 'microshift-etcd.scope',)
+    services = (plugin_name,)
     profiles = (plugin_name,)
     localhost_kubeconfig = '/var/lib/microshift/resources/kubeadmin/kubeconfig'
 
@@ -146,6 +146,7 @@ class Microshift(Plugin, RedHatPlugin):
         Output format for this function is based on `oc adm inspect` command,
         which is used to retrieve all API resources from the cluster.
         """
+        self.add_journal('microshift-etcd.scope')
 
         self.add_copy_spec('/etc/microshift')
 
