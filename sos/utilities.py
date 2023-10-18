@@ -308,7 +308,12 @@ def import_module(module_fqname, superclasses=None):
     be subclasses of the specified superclass or superclasses. If superclasses
     is plural it must be a tuple of classes."""
     module_name = module_fqname.rpartition(".")[-1]
-    module = __import__(module_fqname, globals(), locals(), [module_name])
+    try:
+        module = __import__(module_fqname, globals(), locals(), [module_name])
+    except ImportError as e:
+        print(f'Error while trying to load module {module_fqname}: '
+              f' {e.__class__.__name__}')
+        raise e
     modules = [class_ for cname, class_ in
                inspect.getmembers(module, inspect.isclass)
                if class_.__module__ == module_fqname]
