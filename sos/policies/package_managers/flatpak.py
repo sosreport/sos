@@ -15,7 +15,7 @@ class FlatpakPackageManager(PackageManager):
     """Package Manager for Flatpak distributions
     """
 
-    query_command = 'flatpak list --columns=name,version'
+    query_command = 'flatpak list --columns=name,version,branch'
     query_path_command = ''
     files_command = ''
     verify_command = ''
@@ -23,8 +23,7 @@ class FlatpakPackageManager(PackageManager):
 
     def _parse_pkg_list(self, pkg_list):
         for line in pkg_list.splitlines():
-            pkg = line.split()
-            name, version = pkg[0], pkg[1]
-            yield (name, version, None)
+            pkg = line.split("\t")
+            yield (pkg[0], pkg[1], pkg[2])
 
 # vim: set et ts=4 sw=4 :
