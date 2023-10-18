@@ -237,7 +237,12 @@ class SoSCollector(SoSComponent):
     def _import_modules(self, modname):
         """Import and return all found classes in a module"""
         mod_short_name = modname.split('.')[2]
-        module = __import__(modname, globals(), locals(), [mod_short_name])
+        try:
+            module = __import__(modname, globals(), locals(), [mod_short_name])
+        except ImportError as e:
+            print(f'Error while trying to load module {modname}: '
+                  f' {e.__class__.__name__}')
+            raise e
         modules = inspect.getmembers(module, inspect.isclass)
         for mod in modules:
             if mod[0] in ('SosHost', 'Cluster'):
