@@ -144,29 +144,18 @@ class PulpCore(Plugin, IndependentPlugin):
         return _dbcmd % (self.dbhost, self.dbport, self.dbname, quote(query))
 
     def postproc(self):
-        # TODO obfuscate from /etc/pulp/settings.py :
+        # obfuscate from /etc/pulp/settings.py and "dynaconf list":
         # SECRET_KEY = "eKfeDkTnvss7p5WFqYdGPWxXfHnsbDBx"
         # 'PASSWORD': 'tGrag2DmtLqKLTWTQ6U68f6MAhbqZVQj',
+        # AUTH_LDAP_BIND_PASSWORD = 'ouch-a-secret'
         # the PASSWORD can be also in an one-liner list, so detect its value
         # in non-greedy manner till first ',' or '}'
-        self.do_path_regex_sub(
-            "/etc/pulp/settings.py",
-            r"(SECRET_KEY\s*=\s*)(.*)",
-            r"\1********")
-        self.do_path_regex_sub(
-            "/etc/pulp/settings.py",
-            r"(PASSWORD\S*\s*:\s*)(.*?)(,|\})",
-            r"\1********\3")
-        # apply the same for "dynaconf list" output that prints settings.py
-        # in a pythonic format
-        self.do_cmd_output_sub(
-            "dynaconf list",
-            r"(SECRET_KEY<str>\s*)'(.*)'",
-            r"\1********")
-        self.do_cmd_output_sub(
-            "dynaconf list",
-            r"(PASSWORD\S*\s*:\s*)(.*)",
-            r"\1********")
+        key_pass_re = r"((?:SECRET_KEY|AUTH_LDAP_BIND_PASSWORD)" \
+                      r"(?:\<.+\>)?(\s*=)?|(password|PASSWORD)" \
+                      r"(\"|'|:)+)\s*(\S*)"
+        repl = r"\1 ********"
+        self.do_path_regex_sub("/etc/pulp/settings.py", key_pass_re, repl)
+        self.do_cmd_output_sub("dynaconf list", key_pass_re, repl)
 
 
 # vim: set et ts=4 sw=4 :
