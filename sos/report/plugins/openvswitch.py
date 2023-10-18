@@ -102,7 +102,9 @@ class OpenVSwitch(Plugin):
             "dpdk_nic_bind --status",
             "dpdk-devbind.py --status",
             "driverctl list-devices",
+            "driverctl -v list-devices",
             "driverctl list-overrides",
+            "driverctl -v list-overrides",
             # Capture a list of all bond devices
             "ovs-appctl bond/list",
             # Capture more details from bond devices
