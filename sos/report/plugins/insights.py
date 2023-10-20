@@ -50,6 +50,9 @@ class RedHatInsights(Plugin, RedHatPlugin):
             timeout=30
         )
 
+        for _dir in ["/etc/rhsm", "/sys/kernel", "/var/lib/sss"]:
+            self.add_cmd_output(f"/bin/ls -lanR {_dir}", cmd_as_tag=True)
+
     def postproc(self):
         for conf in self.config:
             self.do_file_sub(
