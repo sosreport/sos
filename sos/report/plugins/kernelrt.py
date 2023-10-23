@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, SoSPredicate
 
 
 class KernelRT(Plugin, RedHatPlugin):
@@ -36,6 +36,12 @@ class KernelRT(Plugin, RedHatPlugin):
         # note: rhbz#1059685 'tuna - NameError: global name 'cgroups' is not
         # defined this command throws an exception on versions prior to
         # 0.10.4-5.
-        self.add_cmd_output('tuna -CP')
+        co = {'cmd': 'tuna --help', 'output': '-P'}
+        option_present = self.test_predicate(
+            self, pred=SoSPredicate(self, cmd_outputs=co)
+        )
+        self.add_cmd_output(
+            f"tuna {'-CP' if option_present else 'show_threads -C'}"
+        )
 
 # vim: set et ts=4 sw=4 :
