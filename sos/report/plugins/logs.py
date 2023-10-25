@@ -51,6 +51,7 @@ class LogsBase(Plugin):
             "/var/log/secure*",
             "/var/log/udev",
             "/var/log/dist-upgrade",
+            "/var/log/auth.log",
         ])
 
         self.add_cmd_output("journalctl --disk-usage")
