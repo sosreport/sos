@@ -33,7 +33,6 @@ class Nfs(Plugin, IndependentPlugin):
         ])
 
         self.add_cmd_output([
-            "rpcinfo -p localhost",
             "nfsstat -o all",
             "exportfs -v",
             "nfsdclnts",
