@@ -53,6 +53,7 @@ class Opensvc(Plugin, IndependentPlugin):
             "om net status --verbose --color=no",
             "om mon --color=no",
             "om daemon dns dump --color=no",
+            "om daemon relay status --color=no",
             "om daemon status --format flat_json --color=no"
         ])
         self.get_status('vol')
