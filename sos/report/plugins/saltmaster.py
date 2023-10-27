@@ -5,6 +5,8 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
+import glob
+import yaml
 
 from sos.report.plugins import Plugin, IndependentPlugin
 
@@ -26,7 +28,35 @@ class SaltMaster(Plugin, IndependentPlugin):
 
         self.add_copy_spec("/etc/salt")
         self.add_forbidden_path("/etc/salt/pki/*/*.pem")
-        self.add_cmd_output("salt-key --list all")
+
+        self.add_pillar_roots()
+        self.add_cmd_output([
+            "salt-master --version",
+            "systemctl --full status salt-master",
+            "systemctl --full status salt-api",
+            "salt-key --list all",
+            "salt-run jobs.list_jobs --out=yaml",
+            "salt-run manage.list_state --out=yaml",
+            "salt-run manage.list_not_state --out=yaml",
+            "salt-run manage.joined --out=yaml",
+        ], timeout=30)
+
+    def add_pillar_roots(self):
+        cfgs = glob.glob("/etc/salt/master.d/*conf")
+        main_cfg = "/etc/salt/master"
+
+        if self.path_exists(main_cfg):
+            cfgs.append(main_cfg)
+
+        all_pillar_roots = []
+        for cfg in cfgs:
+            with open(cfg, "r") as f:
+                cfg_pillar_roots = (
+                    yaml.safe_load(f).get("pillar_roots", {}).get("base", [])
+                )
+                all_pillar_roots.extend(cfg_pillar_roots)
+
+        self.add_copy_spec(all_pillar_roots)
 
     def postproc(self):
         regexp = r'(^\s+.*(pass|secret|(?<![A-z])key(?![A-z])).*:\ ).+$'
