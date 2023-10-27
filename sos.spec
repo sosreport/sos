@@ -10,7 +10,11 @@ BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 Requires: python3-rpm
 Requires: python3-pexpect
+%if 0%{?rhel} && 0%{?rhel} < 10
 Requires: python3-setuptools
+%else
+Requires: python3-packaging
+%endif
 Recommends: python3-magic
 # Mandatory just for uploading to a SFTP server:
 Recommends: python3-requests

@@ -7,7 +7,9 @@ from sos import __version__ as VERSION
 setup(
     name='sos',
     version=VERSION,
-    install_requires=['pexpect', 'pyyaml'],
+    # to avoid a packaging dependency on older RHELs
+    # we only declare it on recent Python versions
+    install_requires=['pexpect', 'pyyaml', 'packaging;python_version>="3.11"'],
     description=(
         'A set of tools to gather troubleshooting information from a system'
     ),
