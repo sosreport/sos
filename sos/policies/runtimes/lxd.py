@@ -70,9 +70,10 @@ class LxdContainerRuntime(ContainerRuntime):
                 out_json = json.loads(out["output"])
                 for ent in out_json:
                     # takes the form (image_name, image_id)
-                    images.append((
-                        ent['update_source']['alias'],
-                        ent['fingerprint']))
+                    if 'update_source' in ent:
+                        images.append((
+                            ent['update_source']['alias'],
+                            ent['fingerprint']))
         return images
 
     def get_volumes(self):
