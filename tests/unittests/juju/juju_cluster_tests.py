@@ -40,6 +40,10 @@ def get_juju_status(cmd):
     }
 
 
+def get_juju_version():
+    return "2.9.45"
+
+
 def test_parse_option_string():
     result = _parse_option_string("    a,b,c")
     assert result == ["a", "b", "c"]
@@ -68,10 +72,16 @@ class JujuTest(unittest.TestCase):
         assert nodes == []
 
     @patch(
+        "sos.collector.clusters.juju.juju._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
-    def test_get_nodes_app_filter(self, mock_exec_primary_cmd):
+    def test_get_nodes_app_filter(
+        self, mock_exec_primary_cmd, mock_get_juju_version
+    ):
         """Application filter."""
         mock_opts = MockOptions()
         mock_opts.cluster_options.append(
@@ -96,10 +106,16 @@ class JujuTest(unittest.TestCase):
         )
 
     @patch(
+        "sos.collector.clusters.juju.juju._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
-    def test_get_nodes_app_regex_filter(self, mock_exec_primary_cmd):
+    def test_get_nodes_app_regex_filter(
+        self, mock_exec_primary_cmd, mock_get_juju_version
+    ):
         """Application filter."""
         mock_opts = MockOptions()
         mock_opts.cluster_options.append(
@@ -124,11 +140,15 @@ class JujuTest(unittest.TestCase):
         )
 
     @patch(
+        "sos.collector.clusters.juju.juju._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
     def test_get_nodes_model_filter_multiple_models(
-        self, mock_exec_primary_cmd
+        self, mock_exec_primary_cmd, mock_get_juju_version
     ):
         """Multiple model filter."""
         mock_opts = MockOptions()
@@ -171,10 +191,16 @@ class JujuTest(unittest.TestCase):
         )
 
     @patch(
+        "sos.collector.clusters.juju.juju._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
-    def test_get_nodes_model_filter(self, mock_exec_primary_cmd):
+    def test_get_nodes_model_filter(
+        self, mock_exec_primary_cmd, mock_get_juju_version
+    ):
         """Model filter."""
         mock_opts = MockOptions()
         mock_opts.cluster_options.append(
@@ -213,10 +239,16 @@ class JujuTest(unittest.TestCase):
         )
 
     @patch(
+        "sos.collector.clusters.juju.juju._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
-    def test_get_nodes_unit_filter(self, mock_exec_primary_cmd):
+    def test_get_nodes_unit_filter(
+        self, mock_exec_primary_cmd, mock_get_juju_version
+    ):
         """Node filter."""
         mock_opts = MockOptions()
         mock_opts.cluster_options.append(
@@ -238,10 +270,16 @@ class JujuTest(unittest.TestCase):
         assert nodes == [":0", ":2"]
 
     @patch(
+        "sos.collector.clusters.juju.juju._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
-    def test_get_nodes_machine_filter(self, mock_exec_primary_cmd):
+    def test_get_nodes_machine_filter(
+        self, mock_exec_primary_cmd, mock_get_juju_version
+    ):
         """Machine filter."""
         mock_opts = MockOptions()
         mock_opts.cluster_options.append(
@@ -264,10 +302,14 @@ class JujuTest(unittest.TestCase):
         assert nodes == [":0", ":2"]
 
     @patch(
+        "sos.collector.clusters.juju.juju._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
-    def test_subordinates(self, mock_exec_primary_cmd):
+    def test_subordinates(self, mock_exec_primary_cmd, mock_get_juju_version):
         """Subordinate filter."""
         mock_opts = MockOptions()
         mock_opts.cluster_options.append(

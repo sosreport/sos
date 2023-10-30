@@ -13,6 +13,8 @@ import json
 import re
 
 from sos.collector.clusters import Cluster
+from sos.utilities import parse_version
+from sos.utilities import sos_get_command_output
 
 
 def _parse_option_string(strings=None):
@@ -156,9 +158,16 @@ class juju(Cluster):
 
         return index
 
+    def _get_juju_version(self):
+        """Grab the version of juju"""
+        res = sos_get_command_output("juju version")
+        return res['output'].split("-")[0]
+
     def _execute_juju_status(self, model_name):
         model_option = f"-m {model_name}" if model_name else ""
         format_option = "--format json"
+        if parse_version(self._get_juju_version()) > parse_version("3"):
+            format_option += " --no-color"
         status_cmd = f"{self.cmd} status {model_option} {format_option}"
         res = self.exec_primary_cmd(status_cmd)
         if not res["status"] == 0:
