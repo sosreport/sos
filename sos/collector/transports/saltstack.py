@@ -33,14 +33,14 @@ class SaltStackMaster(RemoteTransport):
     def _convert_output_json(self, json_output):
         return list(json.loads(json_output).values())[0]
 
-    def run_command(
-            self, cmd, timeout=180, need_root=False, env=None, get_pty=False):
+    def run_command(self, cmd, timeout=180, need_root=False, env=None,
+                    use_shell=False):
         """
         Run a command on the remote host using SaltStack Master.
         If the output is json, convert it to a string.
         """
         ret = super(SaltStackMaster, self).run_command(
-            cmd, timeout, need_root, env, get_pty)
+            cmd, timeout, need_root, env, use_shell)
         with contextlib.suppress(Exception):
             ret['output'] = self._convert_output_json(ret['output'])
         return ret

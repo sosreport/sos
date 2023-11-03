@@ -72,7 +72,7 @@ class PackageManager():
         return self.__class__.__name__.lower().split('package')[0]
 
     def exec_cmd(self, command, timeout=30, need_root=False, env=None,
-                 get_pty=False, chroot=None):
+                 use_shell=False, chroot=None):
         """
         Runs a package manager command, either via sos_get_command_output() if
         local, or via a SoSTransport's run_command() if this needs to be run
@@ -90,9 +90,9 @@ class PackageManager():
         :param env:         Environment variables to set
         :type env:          ``dict`` with keys being env vars to define
 
-        :param get_pty:     If running remotely, does the command require
-                            obtaining a pty?
-        :type get_pty:      ``bool``
+        :param use_shell:   If running remotely, does the command require
+                            obtaining a shell?
+        :type use_shell:      ``bool``
 
         :param chroot:      If necessary, chroot command execution to here
         :type chroot:       ``None`` or ``str``
@@ -101,7 +101,7 @@ class PackageManager():
         :rtype:     ``str``
         """
         if self.remote_exec:
-            ret = self.remote_exec(command, timeout, need_root, env, get_pty)
+            ret = self.remote_exec(command, timeout, need_root, env, use_shell)
         else:
             ret = sos_get_command_output(command, timeout, chroot=chroot,
                                          env=env)

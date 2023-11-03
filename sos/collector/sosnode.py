@@ -443,20 +443,25 @@ class SosNode():
             return False
         return self.host.package_manager.pkg_by_name(pkg) is not None
 
-    def run_command(self, cmd, timeout=180, get_pty=False, need_root=False,
+    def run_command(self, cmd, timeout=180, use_shell='auto', need_root=False,
                     use_container=False, env=None):
         """Runs a given cmd, either via the SSH session or locally
 
-        Arguments:
-            cmd - the full command to be run
-            timeout - time in seconds to wait for the command to complete
-            get_pty - If a shell is absolutely needed to run a command, set
-                      this to True
-            need_root - if a command requires root privileges, setting this to
-                        True tells sos-collector to format the command with
-                        sudo or su - as appropriate and to input the password
-            use_container - Run this command in a container *IF* the host is
-                            containerized
+        :param cmd:     The full command to be run
+        :type cmd:      ``str``
+
+        :param timeout: Time in seconds to wait for `cmd` to complete
+        :type timeout:  ``int``
+
+        :param use_shell: If a shell is needed to run `cmd`, set to True
+        :type use_shell:  ``bool`` or ``auto`` for transport-determined
+
+        :param use_container: Run this command in a container *IF* the host
+                              is a containerized host
+        :type use_container: ``bool``
+
+        :param env: Pass environment variables to set for this `cmd`
+        :type env:  ``dict``
         """
         if not self.connected and not self.local:
             self.log_debug('Node is disconnected, attempting to reconnect')
@@ -472,15 +477,11 @@ class SosNode():
             cmd = self.host.format_container_command(cmd)
         if need_root:
             cmd = self._format_cmd(cmd)
-
-        if 'atomic' in cmd:
-            get_pty = True
-
         if env:
             _cmd_env = self.env_vars
             env = _cmd_env.update(env)
         return self._transport.run_command(cmd, timeout, need_root, env,
-                                           get_pty)
+                                           use_shell)
 
     def sosreport(self):
         """Run an sos report on the node, then collect it"""
@@ -779,7 +780,8 @@ class SosNode():
             checksum = False
             res = self.run_command(self.sos_cmd,
                                    timeout=self.opts.timeout,
-                                   get_pty=True, need_root=True,
+                                   use_shell=True,
+                                   need_root=True,
                                    use_container=True,
                                    env=self.sos_env_vars)
             if res['status'] == 0:
