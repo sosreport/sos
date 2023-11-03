@@ -194,8 +194,16 @@ class RemoteTransport():
         raise NotImplementedError("Transport %s does not define disconnect"
                                   % self.name)
 
+    @property
+    def _need_shell(self):
+        """
+        Transports may override this to control when/if commands executed over
+        the transport needs to utilize a shell on the remote host.
+        """
+        return False
+
     def run_command(self, cmd, timeout=180, need_root=False, env=None,
-                    get_pty=False):
+                    use_shell='auto'):
         """Run a command on the node, returning its output and exit code.
         This should return the exit code of the command being executed, not the
         exit code of whatever mechanism the transport uses to execute that
@@ -205,26 +213,25 @@ class RemoteTransport():
         :type cmd:          ``str``
 
         :param timeout:     The maximum time in seconds to allow the cmd to run
-        :type timeout:      ``int``
-
-        :param get_pty:     Does ``cmd`` require a pty?
-        :type get_pty:      ``bool``
+        :type timeout:      ``int```
 
         :param need_root:   Does ``cmd`` require root privileges?
-        :type neeed_root:   ``bool``
+        :type need_root:   ``bool``
 
         :param env:         Specify env vars to be passed to the ``cmd``
         :type env:          ``dict``
 
-        :param get_pty:     Does ``cmd`` require execution with a pty?
-        :type get_pty:      ``bool``
+        :param use_shell:     Does ``cmd`` require execution within a shell?
+        :type use_shell:      ``bool`` or ``auto`` for transport-determined
 
         :returns:           Output of ``cmd`` and the exit code
         :rtype:             ``dict`` with keys ``output`` and ``status``
         """
         self.log_debug('Running command %s' % cmd)
-        if get_pty:
+        if (use_shell is True or
+                (self._need_shell if use_shell == 'auto' else False)):
             cmd = "/bin/bash -c %s" % quote(cmd)
+            self.log_debug(f"Shell requested, command is now {cmd}")
         # currently we only use/support the use of pexpect for handling the
         # execution of these commands, as opposed to directly invoking
         # subprocess.Popen() in conjunction with tools like sshpass.

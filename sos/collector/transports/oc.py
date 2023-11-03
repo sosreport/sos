@@ -208,15 +208,15 @@ class OCTransport(RemoteTransport):
         return super(OCTransport, self)._format_cmd_for_exec(cmd)
 
     def run_command(self, cmd, timeout=180, need_root=False, env=None,
-                    get_pty=False):
+                    use_shell=False):
         # debug pod setup is slow, extend all timeouts to account for this
         if timeout:
             timeout += 10
 
-        # since we always execute within a bash shell, force disable get_pty
+        # since we always execute within a bash shell, force disable use_shell
         # to avoid double-quoting
         return super(OCTransport, self).run_command(cmd, timeout, need_root,
-                                                    env, False)
+                                                    env, use_shell=False)
 
     def _disconnect(self):
         if os.path.exists(self.pod_tmp_conf):
