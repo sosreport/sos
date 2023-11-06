@@ -206,20 +206,6 @@ class PackageManager():
             return self.packages[pkg]
         return None
 
-    def pkg_nvra(self, pkg):
-        """Get the name, version, release, and architecture for a package
-
-        :param pkg: The name of the package
-        :type pkg: ``str``
-
-        :returns: name, version, release, and arch of the package
-        :rtype: ``tuple``
-        """
-        fields = pkg.split("-")
-        version, release, arch = fields[-3:]
-        name = "-".join(fields[:-3])
-        return (name, version, release, arch)
-
     def all_files(self):
         """
         Get a list of files known by the package manager
