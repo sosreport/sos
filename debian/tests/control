@@ -1,0 +1,3 @@
+Tests: simple.sh
+Depends: sosreport
+Restrictions: needs-root, allow-stderr, isolation-machine

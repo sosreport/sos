@@ -8,6 +8,7 @@ env:
 
     DEBIAN_NAME: "debian-11"
 
+    UBUNTU_LATEST_NAME: "ubuntu-23.10"
     UBUNTU_NAME: "ubuntu-22.04"
     UBUNTU_PRIOR_NAME: "ubuntu-20.04"
     UBUNTU_PRIOR2_NAME: "ubuntu-18.04"
@@ -27,10 +28,11 @@ env:
     DEBIAN_IMAGE_NAME: "debian-11-bullseye-v20230809"
     FEDORA_IMAGE_NAME: "fedora-cloud-base-gcp-38-1-6-x86-64"
     FEDORA_PRIOR_IMAGE_NAME: "fedora-cloud-base-gcp-37-1-7-x86-64"
-    UBUNTU_IMAGE_NAME: "ubuntu-2204-jammy-v20230727"
-    UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2004-focal-v20230724"
+    UBUNTU_LATEST_IMAGE_NAME: "ubuntu-2310-mantic-amd64-v20231031"
+    UBUNTU_IMAGE_NAME: "ubuntu-2204-jammy-v20231030"
+    UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2004-focal-v20231101"
     UBUNTU_PRIOR2_IMAGE_NAME: "ubuntu-1804-bionic-v20230605"
-    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2204-jammy-v20230727"
+    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2204-jammy-v20231030"
 
     # Curl-command prefix for downloading task artifacts, simply add the
     # the url-encoded task name, artifact name, and path as a suffix.
@@ -115,6 +117,27 @@ rpm_build_task:
         path: ./sos_${BUILD_NAME}.rpm
         type: application/octet-stream
 
+# Make sure a user can manually build a deb from the checkout
+deb_build_task:
+    alias: "deb_build"
+    name: "deb Build From Checkout"
+    gce_instance:
+        image_project: "${UBUNTU_PROJECT}"
+        image_name: "${UBUNTU_LATEST_IMAGE_NAME}"
+        type: e2-medium
+    setup_script: |
+        apt update --allow-releaseinfo-change
+        apt -y install devscripts equivs python3-pip
+        mk-build-deps
+        apt -y install ./sosreport-build-deps*.deb
+        pip3 install avocado-framework==94.0 --break-system-packages
+    main_script: |
+        dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
+    prep_artifacts_script: mv ../*.deb ./sos_cirrus.deb
+    packages_artifacts:
+        path: ./sos_cirrus.deb
+        type: application/octet-stream
+
 # Make sure a user can manually build a snap from the checkout
 snap_build_task:
     alias: "snap_build"
@@ -146,6 +169,7 @@ report_stageone_task:
     depends_on:
         - rpm_build
         - snap_build
+        - deb_build
     gce_instance: *standardvm
     matrix:
         - env: *centos9
@@ -156,24 +180,38 @@ report_stageone_task:
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_NAME}
             VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
+            PKG: "snap"
         - env: &ubuntuprior
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_PRIOR_NAME}
             VM_IMAGE_NAME: ${UBUNTU_PRIOR_IMAGE_NAME}
+            PKG: "snap"
         - env: &ubuntuprior2
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_PRIOR2_NAME}
             VM_IMAGE_NAME: ${UBUNTU_PRIOR2_IMAGE_NAME}
+            PKG: "snap"
+        - env: &ubuntu-latest
+            PROJECT: ${UBUNTU_PROJECT}
+            BUILD_NAME: ${UBUNTU_LATEST_NAME}
+            VM_IMAGE_NAME: ${UBUNTU_LATEST_IMAGE_NAME}
+            PKG: "deb"
     setup_script: &setup |
         if [ $(command -v apt) ]; then
-            echo "$ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap"
-            $ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap
             apt -y purge sosreport
             apt update --allow-releaseinfo-change
             apt -y install python3-pip snapd
-            systemctl start snapd
-            snap install ./sosreport_test_amd64.snap --classic --dangerous
-            snap alias sosreport.sos sos
+            if [ ${PKG} == "snap" ] ; then
+                echo "$ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap"
+                $ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap
+                systemctl start snapd
+                snap install ./sosreport_test_amd64.snap --classic --dangerous
+                snap alias sosreport.sos sos
+            elif [ ${PKG} == "deb" ]; then
+                echo "$ARTCURL/deb%20Build%20From%20Checkout/packages/sos_cirrus.deb"
+                $ARTCURL/deb%20Build%20From%20Checkout/packages/sos_cirrus.deb
+                apt -y install ./sos_cirrus.deb
+            fi
         fi
         if [ $(command -v dnf) ]; then
             echo "$ARTCURL/rpm%20Build%20From%20Checkout%20-%20${BUILD_NAME}/packages/sos_${BUILD_NAME}.rpm"
@@ -182,7 +220,9 @@ report_stageone_task:
             dnf -y install python3-pip ethtool
             dnf -y install ./sos_${BUILD_NAME}.rpm
         fi
-        pip3 install avocado-framework==94.0
+        PIP_EXTRA=""
+        [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
+        pip3 install avocado-framework==94.0 ${PIP_EXTRA}
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
     unittest_script: PYTHONPATH=. avocado run tests/unittests/
@@ -205,6 +245,7 @@ report_stagetwo_task:
         - env: *centos8
         - env: *fedora
         - env: *ubuntu
+        - env: *ubuntu-latest
     setup_script: *setup
     install_pexpect_script: |
         if [ $(command -v apt) ]; then
