@@ -1,0 +1,5 @@
+/etc/sos
+/etc/sos/cleaner
+/etc/sos/extras.d
+/etc/sos/groups.d
+/etc/sos/presets.d

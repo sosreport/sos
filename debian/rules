@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=sosreport
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_install:
+	# Move config file to the right location.
+	mv debian/sosreport/usr/config/sos.conf debian/sosreport/etc/sos/sos.conf
+	# Remove unnecessary unused dir.
+	rm -rf debian/sosreport/usr/config
+
+override_dh_auto_test:
+	nosetests3 -v --with-cover --cover-package=sos tests/unittests

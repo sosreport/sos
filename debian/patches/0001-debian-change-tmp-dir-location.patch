@@ -1,0 +1,11 @@
+Description: Change default location to /tmp
+--- a/sos.conf
++++ b/sos.conf
+@@ -7,6 +7,7 @@
+ #verify = yes
+ #batch = yes
+ #log-size = 15
++tmp-dir = /tmp
+ 
+ [report]
+ # Options that will apply to any `sos report` run should be listed here.
