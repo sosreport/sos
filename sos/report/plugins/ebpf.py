@@ -15,6 +15,7 @@ class Ebpf(Plugin, IndependentPlugin):
     short_desc = 'eBPF tool'
     plugin_name = 'ebpf'
     profiles = ('system', 'kernel', 'network')
+    commands = ('bpftool',)
 
     option_list = [
         PluginOpt("namespaces", default=None, val_type=int,
