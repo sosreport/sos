@@ -22,7 +22,11 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/NetworkManager/NetworkManager.conf",
             "/etc/NetworkManager/system-connections",
-            "/etc/NetworkManager/dispatcher.d"
+            "/etc/NetworkManager/dispatcher.d",
+            "/etc/NetworkManager/conf.d",
+            "/usr/lib/NetworkManager/conf.d",
+            "/run/NetworkManager/conf.d",
+            "/var/lib/NetworkManager/NetworkManager-intern.conf"
         ])
 
         self.add_journal(units="NetworkManager")
