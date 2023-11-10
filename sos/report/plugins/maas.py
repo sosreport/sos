@@ -85,7 +85,10 @@ class Maas(Plugin, UbuntuPlugin):
                 self.add_journal(units="snap.maas.pebble", since=since)
 
             # Don't send secrets
-            self.add_forbidden_path("/var/snap/maas/current/bind/session.key")
+            self.add_forbidden_path([
+                "/var/snap/maas/current/bind/session.key",
+                "/var/snap/maas/current/http/certs/regiond-proxy-key.pem",
+            ])
             self.add_copy_spec([
                 "/var/snap/maas/common/log",
                 "/var/snap/maas/common/snap_mode",
