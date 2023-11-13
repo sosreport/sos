@@ -29,7 +29,11 @@ class Frr(Plugin, RedHatPlugin):
     containers = ('frr',)
 
     def setup(self):
-        self.add_copy_spec("/etc/frr/")
+        var_ansible_gen = "/var/lib/config-data/ansible-generated/frr"
+        self.add_copy_spec([
+            "/etc/frr/",
+            var_ansible_gen + "/etc/frr/",
+        ])
 
         if self.container_exists('frr'):
             subcmds = [

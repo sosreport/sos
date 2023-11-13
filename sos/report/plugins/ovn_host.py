@@ -24,7 +24,7 @@ class OVNHost(Plugin):
 
     short_desc = 'OVN Controller'
     plugin_name = "ovn_host"
-    profiles = ('network', 'virt')
+    profiles = ('network', 'virt', 'openstack_edpm')
 
     def setup(self):
         if os.environ.get('OVS_RUNDIR'):
@@ -56,6 +56,22 @@ class OVNHost(Plugin):
 class RedHatOVNHost(OVNHost, RedHatPlugin):
 
     packages = ('openvswitch-ovn-host', 'ovn.*-host', )
+    var_ansible_gen = "/var/lib/config-data/ansible-generated/ovn-bgp-agent"
+
+    def setup(self):
+        super(RedHatOVNHost, self).setup()
+        self.add_copy_spec([
+            self.var_ansible_gen,
+        ])
+
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/containers/ovn-bgp-agent/",
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/containers/ovn-bgp-agent/*.log",
+            ])
 
 
 class DebianOVNHost(OVNHost, DebianPlugin, UbuntuPlugin):
