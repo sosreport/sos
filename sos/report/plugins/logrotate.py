@@ -17,6 +17,7 @@ class LogRotate(Plugin, IndependentPlugin):
     profiles = ('system',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/crond"
+    var_ansible_gen = "/var/lib/config-data/ansible-generated/crond"
 
     def setup(self):
         self.add_cmd_output("logrotate --debug /etc/logrotate.conf",
@@ -26,7 +27,9 @@ class LogRotate(Plugin, IndependentPlugin):
             "/var/lib/logrotate.status",
             "/var/lib/logrotate/logrotate.status",
             self.var_puppet_gen + "/etc/logrotate-crond.conf",
-            self.var_puppet_gen + "/var/spool/cron/root"
+            self.var_puppet_gen + "/var/spool/cron/root",
+            self.var_ansible_gen + "/etc/logrotate-crond.conf",
+            self.var_ansible_gen + "/var/spool/cron/root"
         ])
 
 # vim: set et ts=4 sw=4 :

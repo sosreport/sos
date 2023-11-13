@@ -22,7 +22,8 @@ class OpenStackNova(Plugin):
 
     short_desc = 'OpenStack Nova'
     plugin_name = "openstack_nova"
-    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
+    profiles = ('openstack', 'openstack_controller',
+                'openstack_compute', 'openstack_edpm')
     containers = ('.*nova_api',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/nova"
@@ -150,7 +151,8 @@ class OpenStackNova(Plugin):
             "xenapi_connection_password", "password", "host_password",
             "vnc_password", "admin_password", "connection_password",
             "memcache_secret_key", "s3_secret_key",
-            "metadata_proxy_shared_secret", "fixed_key", "transport_url"
+            "metadata_proxy_shared_secret", "fixed_key", "transport_url",
+            "rbd_secret_uuid"
         ]
         connection_keys = ["connection", "sql_connection"]
 
@@ -215,15 +217,24 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
             "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",
             "/etc/sudoers.d/nova",
             "/etc/security/limits.d/91-nova.conf",
-            "/etc/sysconfig/openstack-nova-novncproxy"
+            "/etc/sysconfig/openstack-nova-novncproxy",
+            "/var/lib/openstack/config/nova",
+            "/var/lib/openstack/containers/nova*.json"
         ])
+
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/httpd/placement*",
+                "/var/log/containers/nova/*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/httpd/placement*.log",
+                "/var/log/containers/nova/*.log"
             ])
+
+        self.add_forbidden_path([
+            "/var/lib/openstack/config/nova/ssh-privatekey"
+        ])
 
 # vim: set et ts=4 sw=4 :

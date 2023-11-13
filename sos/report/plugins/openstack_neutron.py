@@ -17,7 +17,8 @@ class OpenStackNeutron(Plugin):
 
     short_desc = 'OpenStack Networking'
     plugin_name = "openstack_neutron"
-    profiles = ('openstack', 'openstack_controller', 'openstack_compute')
+    profiles = ('openstack', 'openstack_controller',
+                'openstack_compute', 'openstack_edpm')
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/neutron"
 
@@ -125,9 +126,15 @@ class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
 class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
 
     packages = ('openstack-selinux',)
+    var_ansible_gen = "/var/lib/config-data/ansible-generated/"
 
     def setup(self):
         super(RedHatNeutron, self).setup()
-        self.add_copy_spec("/etc/sudoers.d/neutron-rootwrap")
+        self.add_copy_spec([
+            "/etc/sudoers.d/neutron-rootwrap",
+            self.var_ansible_gen + "/neutron-dhcp-agent/",
+            self.var_ansible_gen + "/neutron-dhcp-ovn/",
+            self.var_ansible_gen + "/neutron-sriov-agent/"
+        ])
 
 # vim: set et ts=4 sw=4 :

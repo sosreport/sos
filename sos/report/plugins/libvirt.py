@@ -15,7 +15,7 @@ class Libvirt(Plugin, IndependentPlugin):
     short_desc = 'libvirt virtualization API'
 
     plugin_name = 'libvirt'
-    profiles = ('system', 'virt')
+    profiles = ('system', 'virt', 'openstack_edpm')
 
     def setup(self):
         libvirt_keytab = "/etc/libvirt/krb5.tab"
@@ -44,6 +44,8 @@ class Libvirt(Plugin, IndependentPlugin):
             "/etc/libvirt/virtlockd.conf",
             "/var/lib/libvirt/dnsmasq/*",
             "/var/lib/libvirt/qemu/snapshot/*/*.xml",
+            "/var/lib/openstack/config/libvirt",
+            "/var/lib/openstack/containers/libvirt*.json",
         ])
 
         if not self.get_option("all_logs"):
@@ -58,10 +60,15 @@ class Libvirt(Plugin, IndependentPlugin):
                 "/var/log/containers/libvirt/lxc/*.log",
                 "/var/log/containers/libvirt/swtpm/libvirt/qemu/*.log",
                 "/var/log/containers/libvirt/uml/*.log",
+                "/var/log/containers/qemu/*.log",
+                "/var/log/containers/libvirt/*.log",
             ])
         else:
-            self.add_copy_spec("/var/log/libvirt")
-            self.add_copy_spec("/var/log/containers/libvirt")
+            self.add_copy_spec([
+                "/var/log/libvirt",
+                "/var/log/containers/qemu/",
+                "/var/log/containers/libvirt/",
+            ])
 
         if self.path_exists(self.path_join(libvirt_keytab)):
             self.add_cmd_output("klist -ket %s" % libvirt_keytab)
