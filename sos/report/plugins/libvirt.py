@@ -43,6 +43,7 @@ class Libvirt(Plugin, IndependentPlugin):
             "/etc/libvirt/qemu-lockd.conf",
             "/etc/libvirt/virtlockd.conf",
             "/var/lib/libvirt/dnsmasq/*",
+            "/var/lib/libvirt/qemu/snapshot/*/*.xml",
         ])
 
         if not self.get_option("all_logs"):
