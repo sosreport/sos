@@ -10,10 +10,12 @@ Build-Depends:
  python3-all,
  python3-coverage,
  python3-nose,
+ python3-setuptools,
  python3-sphinx,
  python3-magic,
  python3-pexpect,
  python3-packaging,
+ python3-yaml,
 Homepage: https://github.com/sosreport/sos
 Vcs-Browser: https://salsa.debian.org/sosreport-team/sosreport
 Vcs-Git: https://salsa.debian.org/sosreport-team/sosreport.git

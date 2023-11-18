@@ -94,7 +94,8 @@ class LxdContainerRuntime(ContainerRuntime):
             if out['status'] == 0:
                 out_json = json.loads(out['output'])
                 for profile in out_json:
-                    if profile['name'] == 'default':
+                    if (profile['name'] == 'default' and
+                            'root' in profile['devices']):
                         stg_pool = profile['devices']['root']['pool']
                         break
 

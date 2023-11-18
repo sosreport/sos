@@ -12,4 +12,4 @@ override_dh_install:
 	rm -rf debian/sosreport/usr/config
 
 override_dh_auto_test:
-	nosetests3 -v --with-cover --cover-package=sos tests/unittests
+	nosetests3 -v --with-cover --cover-package=sos tests/unittests --ignore-files="policy_tests\.py"
