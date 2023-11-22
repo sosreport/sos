@@ -225,7 +225,7 @@ any third party.
 
             * name  - the short hostname of the system
             * label - the label given by --label
-            * case  - the case id given by --case-id or --ticker-number
+            * case  - the case id given by --case-id
             * rand  - a random string of 7 alpha characters
 
         Note that if a datestamp is needed, the substring should be set
