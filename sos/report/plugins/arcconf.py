@@ -10,6 +10,8 @@
 # This sosreport plugin is meant for sas adapters.
 # This plugin logs inforamtion on each adapter it finds.
 
+import re
+
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -21,11 +23,34 @@ class arcconf(Plugin, IndependentPlugin):
     commands = ("arcconf",)
 
     def setup(self):
+        # Get the list of available adapters
+        listarcconf = self.collect_cmd_output("arcconf list")
 
-        # get list of adapters
-        self.add_cmd_output([
-            "arcconf getconfig 1",
-            "arcconf list",
-            "arcconf GETLOGS 1 UART"
-        ])
+        # Parse the 'arcconf list' output and extract controller IDs.
+        # For each Controller ID found in 'arcconf list', add commands
+        # for getconfig and GETLOGS
+        #
+        # Sample 'arcconf list' output:
+        #
+        # Controller information
+        # -------------------------------------------------------------
+        #    Controller ID   : Status, Slot, Mode, Name, SerialNumber, WWN
+        # -------------------------------------------------------------
+        #    Controller 1:   : Optimal, Slot XXXX, XXXX, XXXX, XXXX, XXXX
+        # -------------------------------------------------------------
+        #    Controller 2:   : Optimal, Slot XXXX, XXXX, XXXX, XXXX, XXXX
+
+        if listarcconf['status'] == 0:
+            for line in listarcconf['output'].splitlines():
+                try:
+                    match = re.match(r"^[\s]*Controller (\d)+", line).group(0)
+                    controller_id = match.split()[1]
+                    if controller_id:
+                        # Add new commands with Controller ID
+                        self.add_cmd_output([
+                            f"arcconf getconfig {controller_id}",
+                            f"arcconf GETLOGS {controller_id} UART",
+                        ])
+                except AttributeError:
+                    continue
 # vim: et ts=4 sw=4
