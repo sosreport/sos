@@ -33,6 +33,14 @@ class JujuSSHTest(unittest.TestCase):
             address="model_abc:unit_abc",
         )
 
+    # pylint: disable=no-method-argument
+    def get_juju_version():
+        return "2.9.45"
+
+    # pylint: disable=no-method-argument
+    def get_juju_version_3():
+        return "3.1.0"
+
     @patch("sos.collector.transports.juju.subprocess.check_output")
     def test_check_juju_installed_err(self, mock_subprocess_check_output):
         """Raise error if juju is not installed."""
@@ -73,15 +81,61 @@ class JujuSSHTest(unittest.TestCase):
         )
 
     @patch(
+        "sos.collector.transports.juju.JujuSSH._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.transports.juju.sos_get_command_output",
         return_value={"status": 0},
     )
     @patch("sos.collector.transports.juju.JujuSSH._chmod", return_value=True)
     # pylint: disable=unused-argument
-    def test_retrieve_file(self, mock_chmod, mock_sos_get_cmd_output):
+    def test_retrieve_file(
+        self,
+        mock_chmod,
+        mock_sos_get_cmd_output,
+        mock_get_juju_version
+    ):
         self.juju_ssh._retrieve_file(fname="file_abc", dest="/tmp/sos-juju/")
         mock_sos_get_cmd_output.assert_called_with(
             "juju scp -m model_abc -- -r unit_abc:file_abc /tmp/sos-juju/"
+        )
+
+    @patch("sos.collector.transports.juju.shutil.move")
+    @patch("sos.collector.transports.juju.os.makedirs")
+    @patch(
+        "sos.collector.transports.juju.os.path.expanduser",
+        return_value="/home/user_abc",
+    )
+    @patch(
+        "sos.collector.transports.juju.JujuSSH._get_juju_version",
+        side_effect=get_juju_version_3,
+    )
+    @patch(
+        "sos.collector.transports.juju.sos_get_command_output",
+        return_value={"status": 0},
+    )
+    @patch("sos.collector.transports.juju.JujuSSH._chmod", return_value=True)
+    # pylint: disable=unused-argument
+    def test_retrieve_file_juju_3(
+        self,
+        mock_chmod,
+        mock_sos_get_cmd_output,
+        mock_get_juju_version,
+        mock_expanduser,
+        mock_makedirs,
+        mock_move,
+    ):
+        """For juju 3+ the file is staged under $HOME (confinement-safe) and
+        then moved to the destination, without sudo or private-tmp hacks."""
+        staging_dir = "/home/user_abc/.cache/sos-collect-juju"
+        self.juju_ssh._retrieve_file(fname="file_abc", dest="/tmp/sos-juju/")
+        mock_makedirs.assert_called_with(staging_dir, exist_ok=True)
+        mock_sos_get_cmd_output.assert_called_with(
+            f"juju scp -m model_abc -- -r unit_abc:file_abc {staging_dir}"
+        )
+        mock_move.assert_called_with(
+            f"{staging_dir}/file_abc", "/tmp/sos-juju/"
         )
 
 
