@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
+import re
 
 
 class Lustre(Plugin, RedHatPlugin):
@@ -35,20 +36,18 @@ class Lustre(Plugin, RedHatPlugin):
             "lnetctl net show -v"
         ])
 
+        # Grab almost everything
+        output = self.exec_cmd("lctl list_param -R *")['output']
+        exclude = (".*@.*|.*dump_page_cache|peers|.*quota.*|osd-.*|.*osc.*|"
+                   "mgs.*|.*mgc_irstate|ldlm.*state|.*job_stats|.*exports.*")
+        params = [item for item in output.splitlines()
+                  if not re.match(exclude, item)]
+        self.get_params("all", params)
+
         self.get_params(
             "basic",
-            ["version", "health_check", "debug", "timeout"]
+            ["version", "health_check", "debug"]
         )
-        self.get_params("lnet", ["peers", "routes", "routers", "nis"])
-        self.get_params(
-            "ldlm-lru",
-            ["ldlm.namespaces.*.lru_max_age", "ldlm.namespaces.*.lru_size"]
-        )
-        self.get_params("ldlm-states", ["*.*.state"])
-        self.get_params("jobid", ["jobid_name", "jobid_var"])
-        self.get_params("job-stats", ["*.*.job_stats"])
-        self.get_params("server_uuids", ["*.*.*server_uuid"])
-        self.get_params("mgc_irstate", ["mgc.*.ir_state"])
 
         # Client Specific
         self.add_cmd_output([
@@ -63,13 +62,12 @@ class Lustre(Plugin, RedHatPlugin):
         ])
 
         # Server Specific
-        self.get_params("osd", ["osd-*.*.{mntdev,files*," +
-                                "kbytes*,blocksize,brw_stats}"])
-        self.get_params("quota", ["osd-*.*.quota_slave." +
-                                  "{info,limit_*,acct_*}"])
+        self.get_params(
+            "osd",
+            ["osd-*.*.{mntdev,files*,kbytes*,blocksize,brw_stats}"]
+        )
+        self.get_params("quota", ["osd-*.*.quota_slave.{info,limit_*,acct_*}"])
         self.get_params("mgs", ["mgs.MGS.ir_timeout", "mgs.MGS.live.*"])
-        self.get_params("exports", ["*.*.exports.*.*"])
-        self.get_params("mntdev", ["osd*.*.mntdev"])
 
         # mb_groups can be VERY large, and provide minimal debug usefulness
         self.add_forbidden_path("*/mb_groups")
@@ -78,8 +76,10 @@ class Lustre(Plugin, RedHatPlugin):
             "/proc/fs/ldiskfs",
         ])
 
-        # Grab emergency ring buffer dumps
+        # Grab emergency ring buffer dumps and other largish info
         if self.get_option("all_logs"):
             self.add_copy_spec("/tmp/lustre-log.*")
+            self.get_params("job-stats", ["*.*.job_stats"])
+            self.get_params("peers", ["peers"])
 
 # vim: set et ts=4 sw=4 :
