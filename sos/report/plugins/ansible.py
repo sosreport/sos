@@ -29,7 +29,11 @@ class Ansible(Plugin, RedHatPlugin, UbuntuPlugin):
             "ansible --version"
         ])
 
-        # let rhui plugin collects the RHUI specific files
-        self.add_forbidden_path("/etc/ansible/facts.d/rhui_*.fact")
+        # don't generic & collect potentially sensitive files and dirs
+        self.add_forbidden_path([
+            "/etc/ansible/facts.d/",
+            "/etc/ansible/roles/",
+            "/etc/ansible/hosts",
+        ])
 
 # vim: set et ts=4 sw=4 :
