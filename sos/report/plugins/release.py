@@ -39,6 +39,7 @@ class RedHatRelease(Release, RedHatPlugin):
 
     def setup(self):
         self.add_file_tags({'/etc/redhat-release': 'redhat_release'})
+        self.add_file_tags({'/etc/machine-id': 'machine_id'})
         super(RedHatRelease, self).setup()
 
 # vim: set et ts=4 sw=4 :
