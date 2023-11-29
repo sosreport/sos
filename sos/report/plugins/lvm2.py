@@ -21,7 +21,9 @@ class Lvm2(Plugin, IndependentPlugin):
         PluginOpt('lvmdump', default=False, desc='collect an lvmdump tarball'),
         PluginOpt('lvmdump-am', default=False,
                   desc=('attempt to collect lvmdump with advanced options and '
-                        'raw metadata'))
+                        'raw metadata')),
+        PluginOpt('metadata', default=False,
+                  desc=('attempt to collect headers and metadata via pvck'))
     ]
 
     def do_lvmdump(self, metadata=False):
@@ -38,6 +40,24 @@ class Lvm2(Plugin, IndependentPlugin):
         cmd = lvmdump_cmd % (lvmdump_opts, lvmdump_path)
 
         self.add_cmd_output(cmd, chroot=self.tmp_in_sysroot())
+
+    def get_pvck_output(self):
+        """ Collects the output of the command pvck for each block device
+            present in the system.
+        """
+
+        block_list = self.exec_cmd(
+            'pvs -o pv_name --no-headings'
+        )
+        if block_list['status'] == 0:
+            for line in block_list['output'].splitlines():
+                cmds = [
+                    f"pvck --dump headers {line}",
+                    f"pvck --dump metadata {line}",
+                    f"pvck --dump metadata_all {line} -v",
+                    f"pvck --dump metadata_search {line} -v"
+                ]
+                self.add_cmd_output(cmds, subdir="metadata")
 
     def setup(self):
         # When running LVM2 comamnds:
@@ -91,5 +111,8 @@ class Lvm2(Plugin, IndependentPlugin):
             self.do_lvmdump()
         elif self.get_option('lvmdump-am'):
             self.do_lvmdump(metadata=True)
+
+        if self.get_option('metadata'):
+            self.get_pvck_output()
 
 # vim: set et ts=4 sw=4 :
