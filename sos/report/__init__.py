@@ -1809,12 +1809,14 @@ class SoSReport(SoSComponent):
                 self.list_presets()
                 raise SystemExit
             if self.opts.add_preset:
-                return self.add_preset(self.opts.add_preset)
+                self.add_preset(self.opts.add_preset)
+                raise SystemExit
             if self.opts.del_preset:
-                return self.del_preset(self.opts.del_preset)
+                self.del_preset(self.opts.del_preset)
+                raise SystemExit
             # verify that at least one plug-in is enabled
             if not self.verify_plugins():
-                return False
+                raise SystemExit
 
             self.batch()
             self.prework()
