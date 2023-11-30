@@ -142,7 +142,6 @@ class SoSReport(SoSComponent):
         self.archive = None
         self._args = args
         self.sysroot = "/"
-        self.preset = None
         self.estimated_plugsizes = {}
 
         self.print_header()
@@ -152,25 +151,6 @@ class SoSReport(SoSComponent):
 
         # add a manifest section for report
         self.report_md = self.manifest.components.add_section('report')
-
-        # user specified command line preset
-        if self.opts.preset != self.arg_defaults["preset"]:
-            self.preset = self.policy.find_preset(self.opts.preset)
-            if not self.preset:
-                sys.stderr.write("Unknown preset: '%s'\n" % self.opts.preset)
-                self.preset = self.policy.probe_preset()
-                self.opts.list_presets = True
-
-        # --preset=auto
-        if not self.preset:
-            self.preset = self.policy.probe_preset()
-        # now merge preset options to self.opts
-        self.opts.merge(self.preset.opts)
-        # re-apply any cmdline overrides to the preset
-        self.opts = self.apply_options_from_cmdline(self.opts)
-        if hasattr(self.preset.opts, 'verbosity') and \
-                self.preset.opts.verbosity > 0:
-            self.set_loggers_verbosity(self.preset.opts.verbosity)
 
         self._set_directories()
 

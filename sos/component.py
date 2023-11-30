@@ -85,6 +85,10 @@ class SoSComponent():
         except Exception:
             pass
 
+        self.opts = SoSOptions(arg_defaults=self._arg_defaults)
+        if self.load_policy:
+            self.load_local_policy()
+
         # update args from component's arg_defaults definition
         self._arg_defaults.update(self.arg_defaults)
         self.opts = self.load_options()  # lgtm [py/init-calls-subclass]
@@ -107,9 +111,6 @@ class SoSComponent():
             self.tmpdir = tempfile.mkdtemp(prefix="sos.", dir=self.sys_tmp)
             self.tempfile_util = TempFileUtil(self.tmpdir)
             self._setup_logging()
-
-        if self.load_policy:
-            self.load_local_policy()
 
         if self.manifest is not None:
             self.manifest.add_field('version', __version__)
@@ -264,6 +265,28 @@ class SoSComponent():
                 opts.update_from_conf(userconf, self.args.component)
 
         opts = self.apply_options_from_cmdline(opts)
+
+        # user specified command line preset
+        self.preset = None
+        if hasattr(opts, 'preset'):
+            if opts.preset != self._arg_defaults["preset"]:
+                self.preset = self.policy.find_preset(opts.preset)
+                if not self.preset:
+                    sys.stderr.write("Unknown preset: '%s'\n" % opts.preset)
+                    self.preset = self.policy.probe_preset()
+                    opts.list_presets = True
+
+            # --preset=auto
+            if not self.preset:
+                self.preset = self.policy.probe_preset()
+            # now merge preset options to opts
+            opts.merge(self.preset.opts)
+            # re-apply any cmdline overrides to the preset
+            opts = self.apply_options_from_cmdline(opts)
+
+            if hasattr(self.preset.opts, 'verbosity') and \
+                    self.preset.opts.verbosity > 0:
+                self.set_loggers_verbosity(self.preset.opts.verbosity)
 
         return opts
 
