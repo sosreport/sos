@@ -3175,7 +3175,7 @@ class Plugin():
         :type subdir:       ``str``
 
         :param tags:        Tags to be added to this file in the manifest
-        :type tags:         ``str`` or ``list`` of ``str``s
+        :type tags:         ``str`` or ``list`` of ``str``
         """
         try:
             start = time()
