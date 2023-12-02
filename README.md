@@ -83,7 +83,7 @@ pip install -r requirements.txt
 and run
 
 ```
-python3 setup.py build_sphinx -a
+sphinx-build -b html docs <destination dir> 
 ```
 
 
