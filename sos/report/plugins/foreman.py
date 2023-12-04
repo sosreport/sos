@@ -25,8 +25,8 @@ class Foreman(Plugin):
     profiles = ('sysmgmt',)
     packages = ('foreman',)
     option_list = [
-        PluginOpt('months', default=1,
-                  desc='number of months for dynflow output'),
+        PluginOpt('days', default=14,
+                  desc='number of days for dynflow output'),
         PluginOpt('proxyfeatures', default=False,
                   desc='collect features of smart proxies'),
         PluginOpt('puma-gc', default=False,
@@ -179,9 +179,9 @@ class Foreman(Plugin):
         self.add_cmd_output(_cmd, suggest_filename='foreman_db_tables_sizes',
                             env=self.env)
 
-        months = '%s months' % self.get_option('months')
+        days = '%s days' % self.get_option('days')
 
-        # Construct the DB queries, using the months option to limit the range
+        # Construct the DB queries, using the days option to limit the range
         # of entries returned
 
         scmd = (
@@ -198,7 +198,7 @@ class Foreman(Plugin):
             'select dynflow_execution_plans.* from foreman_tasks_tasks join '
             'dynflow_execution_plans on (foreman_tasks_tasks.external_id = '
             'dynflow_execution_plans.uuid::varchar) where foreman_tasks_tasks.'
-            'started_at > NOW() - interval %s' % quote(months)
+            'started_at > NOW() - interval %s' % quote(days)
         )
 
         dactioncmd = (
@@ -206,7 +206,7 @@ class Foreman(Plugin):
              'dynflow_actions on (foreman_tasks_tasks.external_id = '
              'dynflow_actions.execution_plan_uuid::varchar) where '
              'foreman_tasks_tasks.started_at > NOW() - interval %s'
-             % quote(months)
+             % quote(days)
         )
 
         dstepscmd = (
@@ -214,7 +214,7 @@ class Foreman(Plugin):
             'dynflow_steps on (foreman_tasks_tasks.external_id = '
             'dynflow_steps.execution_plan_uuid::varchar) where '
             'foreman_tasks_tasks.started_at > NOW() - interval %s'
-            % quote(months)
+            % quote(days)
         )
 
         # counts of fact_names prefixes/types: much of one type suggests
