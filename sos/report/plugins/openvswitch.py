@@ -105,6 +105,7 @@ class OpenVSwitch(Plugin):
             "driverctl -v list-devices",
             "driverctl list-overrides",
             "driverctl -v list-overrides",
+            "driverctl list-persisted",
             # Capture a list of all bond devices
             "ovs-appctl bond/list",
             # Capture more details from bond devices
@@ -159,7 +160,9 @@ class OpenVSwitch(Plugin):
             # Capture additional DPDK info
             "ovs-appctl dpdk/lcore-list",
             "ovs-appctl dpdk/log-list",
-            "ovs-appctl dpdk/get-malloc-stats"
+            "ovs-appctl dpdk/get-malloc-stats",
+            # Capture dpdk mempool info
+            "ovs-appctl netdev-dpdk/get-mempool-info"
         ])
         # Capture DPDK and other parameters
         self.add_cmd_output("ovs-vsctl -t 5 get Open_vSwitch . other_config",
