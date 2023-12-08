@@ -41,6 +41,7 @@ class RedHatPam(Pam, RedHatPlugin):
 
     def setup(self):
         super(RedHatPam, self).setup()
+        self.add_copy_spec(["authselect current"])
 
 
 class DebianPam(Pam, DebianPlugin, UbuntuPlugin):
