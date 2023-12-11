@@ -23,9 +23,13 @@ class TargetCli(Plugin, IndependentPlugin):
             "targetcli ls",
             "targetcli status",
         ])
+        sys_conf_dir = '/sys/kernel/config/target'
+        self.add_forbidden_path([
+            self.path_join(sys_conf_dir, '**/password*'),
+        ])
         self.add_service_status("target")
         self.add_journal(units="targetcli")
-        self.add_copy_spec("/sys/kernel/config/target")
+        self.add_copy_spec(sys_conf_dir)
         self.add_copy_spec("/etc/target")
 
 # vim: set et ts=4 sw=4 :
