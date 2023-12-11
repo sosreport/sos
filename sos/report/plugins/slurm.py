@@ -38,7 +38,10 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
         """ Slurm Workload Manager
         """
 
-        self.add_copy_spec('/etc/slurm/*.conf')
+        self.add_copy_spec([
+            '/etc/slurm/*.conf',
+            '/var/run/slurm/conf/*.conf',
+        ])
 
         if is_executable('sinfo'):
             self.add_cmd_output([
@@ -78,6 +81,9 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
 
         config_file = '/etc/slurm/slurm.conf'
 
+        if not self.path_exists(config_file):
+            config_file = '/var/run/slurm/conf/slurm.conf'
+
         slurmd_log_file = '/var/log/slurmd.log'
         slurmctld_log_file = '/var/log/slurmctld.log'
 
@@ -107,7 +113,10 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
             ])
 
     def postproc(self):
-        conf_paths = "/etc/slurm"
+        conf_paths = [
+            "/etc/slurm",
+            "/var/run/slurm/conf",
+        ]
 
         slurm_keys = [
             'AccountingStoragePass',
@@ -118,11 +127,12 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
 
         sub = r'\1********'
 
-        self.do_file_sub(
-            f"{conf_paths}/slurm.conf",
-            slurm_keys_regex, sub
-        )
-        self.do_file_sub(
-            f"{conf_paths}/slurmdbd.conf",
-            slurmdbd_key_regex, sub
-        )
+        for conf_path in conf_paths:
+            self.do_file_sub(
+                f'{conf_path}/slurm.conf',
+                slurm_keys_regex, sub
+            )
+            self.do_file_sub(
+                f'{conf_path}/slurmdbd.conf',
+                slurmdbd_key_regex, sub
+            )
