@@ -16,7 +16,7 @@ class Discovery(Plugin, RedHatPlugin):
     short_desc = 'Discovery inspection and reporting tool'
     plugin_name = 'discovery'
     packages = ('discovery', 'discovery-tools',)
-    containers = ('dsc-db', 'discovery',)
+    containers = ('dsc-db', 'discovery', 'discovery-toolbox')
 
     def setup(self):
         self.add_copy_spec([
@@ -27,8 +27,5 @@ class Discovery(Plugin, RedHatPlugin):
             "/var/discovery/server/volumes/log/",
         ])
 
-        self.add_container_logs([
-            'discovery',
-            'dsc-db'
-        ])
+        self.add_container_logs(list(self.containers))
 # vim: set et ts=4 sw=4 :
