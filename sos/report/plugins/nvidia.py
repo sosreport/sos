@@ -30,6 +30,7 @@ class Nvidia(Plugin, IndependentPlugin):
             'nvlink -e'
         ]
 
+        self.add_service_status("nvidia-persistenced")
         self.add_cmd_output(["nvidia-smi %s" % cmd for cmd in subcmds])
 
         query = ('gpu_name,gpu_bus_id,vbios_version,temperature.gpu,'
