@@ -98,7 +98,7 @@ class Maas(Plugin, UbuntuPlugin):
                 "/var/snap/maas/current/supervisord",
                 "/var/snap/maas/current/preseeds",
                 "/var/snap/maas/current/proxy",
-                "/var/snap/maas/current/rsyslog",
+                "/var/snap/maas/current/syslog",
             ])
         else:
             self.add_copy_spec([
