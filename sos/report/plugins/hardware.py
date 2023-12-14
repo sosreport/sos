@@ -21,6 +21,8 @@ class Hardware(Plugin, IndependentPlugin):
         self.add_copy_spec("/proc/interrupts", tags='interrupts')
 
         self.add_copy_spec([
+            "/proc/device-tree/compatible",
+            "/proc/device-tree/model",
             "/proc/irq",
             "/proc/dma",
             "/proc/devices",
