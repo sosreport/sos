@@ -447,7 +447,7 @@ support representative.
 
     containerzed = True
     container_runtime = 'docker'
-    container_image = 'registry.access.redhat.com/rhel7/support-tools'
+    container_image = 'registry.access.redhat.com/rhel9/support-tools'
     sos_path_strip = '/host'
     container_version_command = 'rpm -q sos'
 
@@ -535,7 +535,7 @@ support representative.
 
     containerized = True
     container_runtime = 'podman'
-    container_image = 'registry.redhat.io/rhel8/support-tools'
+    container_image = 'registry.redhat.io/rhel9/support-tools'
     sos_path_strip = '/host'
     container_version_command = 'rpm -q sos'
     container_authfile = '/var/lib/kubelet/config.json'
