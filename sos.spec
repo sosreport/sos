@@ -22,6 +22,8 @@ Recommends: python3-pyyaml
 Obsoletes: sos-collector <= 1.9
 # For the _tmpfilesdir macro.
 BuildRequires: systemd
+# Mandatory just for uploading to an S3 bucket:
+Recommends: python3-boto3
 
 %description
 Sos is a set of tools that gathers information about system

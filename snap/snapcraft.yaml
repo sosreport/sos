@@ -37,6 +37,7 @@ parts:
       - wheel
       - python_magic
       - packaging
+      - boto3==1.26.155
 
 apps:
   sos:

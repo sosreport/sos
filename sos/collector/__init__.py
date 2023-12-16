@@ -134,7 +134,13 @@ class SoSCollector(SoSComponent):
         'upload_pass': None,
         'upload_method': 'auto',
         'upload_no_ssl_verify': False,
-        'upload_protocol': 'auto'
+        'upload_protocol': 'auto',
+        'upload_s3_endpoint': None,
+        'upload_s3_region': None,
+        'upload_s3_bucket': None,
+        'upload_s3_access_key': None,
+        'upload_s3_secret_key': None,
+        'upload_s3_object_prefix': None
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
@@ -440,8 +446,21 @@ class SoSCollector(SoSComponent):
                                  action='store_true',
                                  help="Disable SSL verification for upload url"
                                  )
+        collect_grp.add_argument("--upload-s3-endpoint", default=None,
+                                 help="Endpoint to upload to for S3 bucket")
+        collect_grp.add_argument("--upload-s3-region", default=None,
+                                 help="Region for the S3 bucket")
+        collect_grp.add_argument("--upload-s3-bucket", default=None,
+                                 help="Name of the S3 bucket to upload to")
+        collect_grp.add_argument("--upload-s3-access-key", default=None,
+                                 help="Access key for the S3 bucket")
+        collect_grp.add_argument("--upload-s3-secret-key", default=None,
+                                 help="Secret key for the S3 bucket")
+        collect_grp.add_argument("--upload-s3-object-prefix", default=None,
+                                 help="Prefix for the S3 object/key")
         collect_grp.add_argument("--upload-protocol", default='auto',
-                                 choices=['auto', 'https', 'ftp', 'sftp'],
+                                 choices=['auto', 'https', 'ftp', 'sftp',
+                                          's3'],
                                  help="Manually specify the upload protocol")
 
         # Group the cleaner options together
@@ -1270,7 +1289,8 @@ this utility or remote systems that it connects to.
             msg = 'No sosreports were collected, nothing to archive...'
             self.exit(msg, 1)
 
-        if self.opts.upload or self.opts.upload_url:
+        if (self.opts.upload and self.policy.get_upload_url()) or \
+                self.opts.upload_s3_endpoint:
             try:
                 self.policy.upload_archive(arc_name)
                 self.ui_log.info("Uploaded archive successfully")
