@@ -14,11 +14,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 from os.path import join
 
 
-class OmnipathClient(Plugin, RedHatPlugin):
+class OmnipathClient(Plugin, RedHatPlugin, UbuntuPlugin):
 
     short_desc = 'OmniPath Tools and Fast Fabric Client'
 
