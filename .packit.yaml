@@ -15,10 +15,10 @@ jobs:
   - job: copr_build
     trigger: pull_request
     targets:
-      - fedora-development-x86_64
-      - fedora-development-aarch64
-      - fedora-development-ppc64le
-      - fedora-development-s390x
+      - fedora-all-x86_64
+      - fedora-all-aarch64
+      - fedora-all-ppc64le
+      - fedora-all-s390x
 
 notifications:
   pull_request:
