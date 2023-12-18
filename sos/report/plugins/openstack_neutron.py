@@ -55,14 +55,26 @@ class OpenStackNeutron(Plugin):
                                 "the environment file for the user intended "
                                 "to connect to the OpenStack environment.")
         else:
-            self.add_cmd_output("openstack subnet list")
-            self.add_cmd_output("openstack port list")
-            self.add_cmd_output("openstack router list")
-            self.add_cmd_output("openstack network agent list")
-            self.add_cmd_output("openstack network list")
-            self.add_cmd_output("openstack extension list")
-            self.add_cmd_output("openstack floating ip list")
-            self.add_cmd_output("openstack security group list")
+            cmds = [
+                "subnet",
+                "port",
+                "router",
+                "network agent",
+                "network",
+                "extension",
+                "floating ip",
+                "security group",
+            ]
+
+            for cmd in cmds:
+                res = self.collect_cmd_output(f"openstack {cmd} list")
+
+                if res['status'] == 0:
+                    neutron_items = res['output']
+                    for item in neutron_items.splitlines()[3:-1]:
+                        item = item.split()[1]
+                        show_cmd = f"openstack {cmd} show {item}"
+                        self.add_cmd_output(show_cmd)
 
         self.add_file_tags({
             ".*/etc/neutron/plugins/ml2/ml2_conf.ini": "neutronml2_conf",
