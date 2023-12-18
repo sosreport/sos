@@ -80,14 +80,4 @@ RHEL_PRESETS = {
 }
 
 
-ATOMIC = "atomic"
-ATOMIC_RELEASE_STR = "Atomic"
-ATOMIC_DESC = "Red Hat Enterprise Linux Atomic Host"
-
-ATOMIC_PRESETS = {
-    ATOMIC: PresetDefaults(name=ATOMIC, desc=ATOMIC_DESC, note=NOTE_TIME,
-                           opts=_opts_verify)
-}
-
-
 # vim: set et ts=4 sw=4 :
