@@ -14,9 +14,8 @@ import sys
 import re
 
 from sos.report.plugins import RedHatPlugin
-from sos.presets.redhat import (RHEL_PRESETS, ATOMIC_PRESETS, RHV, RHEL,
-                                CB, RHOSP, RHOCP, RH_CFME, RH_SATELLITE,
-                                ATOMIC)
+from sos.presets.redhat import (RHEL_PRESETS, RHV, RHEL, CB, RHOSP,
+                                RHOCP, RH_CFME, RH_SATELLITE)
 from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.flatpak import FlatpakPackageManager
@@ -32,7 +31,6 @@ except ImportError:
 
 OS_RELEASE = "/etc/os-release"
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
-ATOMIC_RELEASE_STR = "Atomic"
 
 
 class RedHatPolicy(LinuxPolicy):
@@ -434,74 +432,6 @@ class CentOsPolicy(RHELPolicy):
     vendor_urls = [('Community Website', 'https://www.centos.org/')]
 
 
-class RedHatAtomicPolicy(RHELPolicy):
-    distro = "Red Hat Atomic Host"
-    msg = _("""\
-This command will collect diagnostic and configuration \
-information from this %(distro)s system.
-
-An archive containing the collected information will be \
-generated in %(tmpdir)s and may be provided to a %(vendor)s \
-support representative.
-""" + disclaimer_text + "%(vendor_text)s\n")
-
-    containerzed = True
-    container_runtime = 'docker'
-    container_image = 'registry.access.redhat.com/rhel7/support-tools'
-    sos_path_strip = '/host'
-    container_version_command = 'rpm -q sos'
-
-    def __init__(self, sysroot=None, init=None, probe_runtime=True,
-                 remote_exec=None):
-        super(RedHatAtomicPolicy, self).__init__(sysroot=sysroot, init=init,
-                                                 probe_runtime=probe_runtime,
-                                                 remote_exec=remote_exec)
-        self.register_presets(ATOMIC_PRESETS)
-
-    @classmethod
-    def check(cls, remote=''):
-
-        if remote:
-            return cls.distro in remote
-
-        atomic = False
-        if ENV_HOST_SYSROOT not in os.environ:
-            return atomic
-        host_release = os.environ[ENV_HOST_SYSROOT] + OS_RELEASE
-        if not os.path.exists(host_release):
-            return False
-        try:
-            with open(host_release, 'r') as afile:
-                for line in afile.read().splitlines():
-                    atomic |= ATOMIC_RELEASE_STR in line
-        except IOError:
-            pass
-        return atomic
-
-    def probe_preset(self):
-        if self.pkg_by_name('atomic-openshift'):
-            return self.find_preset(RHOCP)
-
-        return self.find_preset(ATOMIC)
-
-    def create_sos_container(self, image=None, auth=None, force_pull=False):
-        _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
-                " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
-                "IMAGE={image} {pull} -v /run:/run -v /var/log:/var/log -v "
-                "/etc/machine-id:/etc/machine-id -v "
-                "/etc/localtime:/etc/localtime -v /:/host {auth} {image}")
-        _image = image or self.container_image
-        _pull = '--pull=always' if force_pull else ''
-        return _cmd.format(runtime=self.container_runtime,
-                           name=self.sos_container_name,
-                           image=_image,
-                           pull=_pull,
-                           auth=auth or '')
-
-    def set_cleanup_cmd(self):
-        return 'docker rm --force sos-collector-tmp'
-
-
 class RedHatCoreOSPolicy(RHELPolicy):
     """
     Red Hat CoreOS is a containerized host built upon Red Hat Enterprise Linux
@@ -585,12 +515,6 @@ support representative.
 
     def set_cleanup_cmd(self):
         return 'podman rm --force %s' % self.sos_container_name
-
-
-class CentOsAtomicPolicy(RedHatAtomicPolicy):
-    distro = "CentOS Atomic Host"
-    vendor = "CentOS"
-    vendor_urls = [('Community Website', 'https://www.centos.org/')]
 
 
 class FedoraPolicy(RedHatPolicy):
