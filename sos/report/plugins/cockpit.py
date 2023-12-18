@@ -16,15 +16,17 @@ class Cockpit(Plugin, IndependentPlugin):
     short_desc = 'Cockpit Web Service'
 
     plugin_name = 'cockpit'
-    packages = ('cockpit-ws', 'cockpit-system')
+    packages = ('cockpit-ws', 'cockpit-system',
+                'cockpit-bridge')
     services = ('cockpit',)
 
     def setup(self):
+        self.add_forbidden_path('/etc/cockpit/ws-certs.d/')
         self.add_copy_spec([
-            '/etc/cockpit/cockpit.conf',
+            '/etc/cockpit/',
             '/etc/pam.d/cockpit'
         ])
 
-        self.add_cmd_output('remotectl certificate')
+        self.add_cmd_output('cockpit-bridge --packages')
 
 # vim: set et ts=4 sw=4 :
