@@ -13,6 +13,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import os
 
 
 class OpenStackCinder(Plugin):
@@ -48,6 +49,66 @@ class OpenStackCinder(Plugin):
                 "cinder-manage " + cinder_config + " db version",
                 suggest_filename="cinder_db_version"
             )
+            self.add_cmd_output(
+                f"cinder-manage {cinder_config} backup list"
+            )
+            self.add_cmd_output(
+                f"cinder-manage {cinder_config} config list"
+            )
+            self.add_cmd_output(
+                f"cinder-manage {cinder_config} host list"
+            )
+            self.add_cmd_output(
+                f"cinder-status {cinder_config} upgrade check"
+            )
+
+            vars_all = [p in os.environ for p in [
+                        'OS_USERNAME', 'OS_PASSWORD']]
+
+            vars_any = [p in os.environ for p in [
+                        'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+
+            if not (all(vars_all) and any(vars_any)):
+                self.soslog.warning("Not all environment variables set. "
+                                    "Source the environment file for the user "
+                                    "intended to connect to the OpenStack "
+                                    "environment.")
+            else:
+                list_cmds = [
+                    "backend pool",
+                    "group type",
+                    "message",
+                    "qos",
+                    "service",
+                    "type",
+                ]
+
+                for cmd in list_cmds:
+                    self.add_cmd_output(f"openstack volume {cmd} list")
+
+                list_cmds_projects = [
+                    "backup",
+                    "group",
+                    "group snapshot",
+                    "snapshot",
+                    "transfer request",
+                    "",
+                ]
+
+                for cmd in list_cmds_projects:
+                    self.add_cmd_output(
+                        f"openstack volume {cmd} list --all-projects"
+                    )
+
+                # get details for each volume
+                cmd = "openstack volume list -f value --all-projects"
+                res = self.exec_cmd(cmd)
+                if res['status'] == 0:
+                    cinder_volumes = res['output']
+                    for volume in cinder_volumes.splitlines():
+                        volume = volume.split()[0]
+                        cmd = f"openstack volume show {volume}"
+                        self.add_cmd_output(cmd)
 
         self.add_forbidden_path('/etc/cinder/volumes')
         self.add_copy_spec([

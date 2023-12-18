@@ -52,7 +52,21 @@ class OpenStackHeat(Plugin):
                                     "intended to connect to the OpenStack "
                                     "environment.")
             else:
-                self.add_cmd_output("openstack stack list")
+                self.add_cmd_output("openstack stack list --all-projects "
+                                    "--nested")
+
+                res = self.collect_cmd_output(
+                    "openstack stack list --all-projects"
+                )
+
+                if res['status'] == 0:
+                    heat_stacks = res['output']
+                    for stack in heat_stacks.splitlines()[3:-1]:
+                        stack = stack.split()[1]
+                        cmd = f"openstack stack show {stack}"
+                        self.add_cmd_output(cmd)
+                        cmd = f"openstack stack resource list {stack} -n 10"
+                        self.add_cmd_output(cmd)
 
         if self.get_option("all_logs"):
             self.add_copy_spec([

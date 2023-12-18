@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import os
 
 
 class OpenStackPlacement(Plugin):
@@ -38,6 +39,37 @@ class OpenStackPlacement(Plugin):
                 "placement-manage " + placement_config + " db version",
                 suggest_filename="placement-manage_db_version"
             )
+
+            vars_all = [p in os.environ for p in [
+                        'OS_USERNAME', 'OS_PASSWORD']]
+
+            vars_any = [p in os.environ for p in [
+                        'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
+
+            if not (all(vars_all) and any(vars_any)):
+                self.soslog.warning("Not all environment variables set. "
+                                    "Source the environment file for the user "
+                                    "intended to connect to the OpenStack "
+                                    "environment.")
+            else:
+                res = self.collect_cmd_output(
+                    "openstack resource provider list"
+                )
+
+                if res['status'] == 0:
+                    resource_provider_list = res['output']
+                    for provider in resource_provider_list.splitlines()[3:-1]:
+                        res_provider = provider.split()[1]
+                        sub_cmds = [
+                            "inventory",
+                            "trait",
+                            "aggregate",
+                        ]
+                        self.add_cmd_output([
+                            f"openstack resource provider {sub_cmd} list "
+                            f"{res_provider}"
+                            for sub_cmd in sub_cmds
+                        ])
 
         if self.get_option("all_logs"):
             self.add_copy_spec([

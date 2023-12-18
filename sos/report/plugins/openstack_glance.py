@@ -70,7 +70,16 @@ class OpenStackGlance(Plugin):
                                     "intended to connect to the OpenStack "
                                     "environment.")
             else:
-                self.add_cmd_output("openstack image list --long")
+                res = self.collect_cmd_output(
+                    "openstack image list --long"
+                )
+
+                if res['status'] == 0:
+                    glance_images = res['output']
+                    for image in glance_images.splitlines()[3:-1]:
+                        image = image.split()[1]
+                        cmd = f"openstack image show {image}"
+                        self.add_cmd_output(cmd)
 
         self.add_file_tags({
             "/etc/glance/glance-api.conf": "glance_api_conf",
@@ -117,7 +126,7 @@ class DebianGlance(OpenStackGlance, DebianPlugin, UbuntuPlugin):
         'python-glance',
         'python3-glance',
     )
-    service_name = 'glance-api.service'
+    service_name = 'apache2.service'
 
 
 class RedHatGlance(OpenStackGlance, RedHatPlugin):

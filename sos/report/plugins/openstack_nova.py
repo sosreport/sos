@@ -71,24 +71,25 @@ class OpenStackNova(Plugin):
                                     "intended to connect to the OpenStack "
                                     "environment.")
             else:
-                self.add_cmd_output("nova service-list")
+                self.add_cmd_output("openstack compute service list")
                 self.add_cmd_output("openstack flavor list --long")
-                self.add_cmd_output("nova network-list")
-                self.add_cmd_output("nova list --all-tenants")
-                self.add_cmd_output("nova agent-list")
+                self.add_cmd_output("openstack compute agent list")
                 self.add_cmd_output("nova version-list")
-                self.add_cmd_output("nova hypervisor-list")
+                self.add_cmd_output("openstack hypervisor list")
                 self.add_cmd_output("openstack quota show")
                 self.add_cmd_output("openstack hypervisor stats show")
+
+                res = self.collect_cmd_output(
+                    "openstack server list --all-projects"
+                )
+
                 # get details for each nova instance
-                cmd = "openstack server list -f value"
-                nova_instances = self.exec_cmd(cmd)['output']
-                for instance in nova_instances.splitlines():
-                    instance = instance.split()[0]
-                    cmd = "openstack server show %s" % (instance)
-                    self.add_cmd_output(
-                        cmd,
-                        suggest_filename="instance-" + instance + ".log")
+                if res['status'] == 0:
+                    nova_instances = res['output']
+                    for instance in nova_instances.splitlines()[3:-1]:
+                        instance = instance.split()[1]
+                        cmd = f"openstack server show {instance}"
+                        self.add_cmd_output(cmd)
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
