@@ -106,6 +106,8 @@ class SaltStackMaster(RemoteTransport):
         self.log_info("Transport is locally supported and service running. ")
         cmd = "echo Connected"
         result = self.run_command(cmd, timeout=180)
+        if result['status'] == 1:
+            raise ConnectionException(self.address)
         return result['status'] == 0
 
     def _disconnect(self):
