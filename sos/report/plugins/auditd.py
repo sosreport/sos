@@ -29,7 +29,7 @@ class Auditd(Plugin, IndependentPlugin):
         ])
 
         self.add_cmd_output(
-            "ausearch --input-logs -m avc,user_avc,fanotify -ts today"
+            "ausearch -i --input-logs -m avc,user_avc,fanotify -ts today"
         )
         self.add_cmd_output("auditctl -l", tags="auditctl_rules")
         self.add_cmd_output("auditctl -s", tags="auditctl_status")
